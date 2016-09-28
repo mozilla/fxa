@@ -109,9 +109,9 @@ two-week cycle, with meeting times pinned to Mozilla Standard Time (aka Pacific 
 
 ### Mondays at 08:30
 
-This is a 60 minute meeting slot followed by a bug triage session.  It's in a
-timeslot that's convenient for Europe and US-East. The first 30 minutes are
-dedicated to UX/PM discussion, the second 30 for Ops/dev general discussion.
+This is a 60 minute meeting slot that's convenient for Europe and US-East.
+The first 30 minutes are dedicated to UX/PM discussion, the second 30 for
+Ops/dev general discussion.
 
 ##### First week: Outbound Train Review
 
