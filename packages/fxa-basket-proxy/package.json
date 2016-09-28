@@ -55,7 +55,7 @@
   },
   "config": {
     "travis-cov": {
-      "threshold": 95
+      "threshold": 90
     }
   },
   "readmeFilename": "README.md"

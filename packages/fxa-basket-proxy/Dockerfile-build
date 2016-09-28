@@ -1,0 +1,19 @@
+FROM node:4.5.0
+
+RUN groupadd --gid 10001 app && \
+    useradd --uid 10001 --gid 10001 --home /app --create-home app
+
+USER app
+
+WORKDIR /app
+
+COPY package.json package.json
+
+RUN npm install && \
+    npm cache clear && \
+    rm -rf ~app/.node-gyp ~app/.npm
+
+COPY . /app
+
+ENTRYPOINT ["/app/scripts/docker-exec.sh"]
+CMD ["test"]
