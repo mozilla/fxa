@@ -1416,14 +1416,6 @@ define([
     };
   }
 
-  function verifyUser(user, index, client, accountData) {
-    return getEmailHeaders(user, index)
-      .then(function (headers) {
-        var code = headers['x-verify-code'];
-        return client.verifyCode(accountData.uid, code);
-      });
-  }
-
   return {
     clearBrowserNotifications: clearBrowserNotifications,
     clearBrowserState: clearBrowserState,
@@ -1491,7 +1483,6 @@ define([
     testUrlPathnameEquals: testUrlPathnameEquals,
     thenify: thenify,
     type: type,
-    verifyUser: verifyUser,
     visibleByQSA: visibleByQSA
   };
 });

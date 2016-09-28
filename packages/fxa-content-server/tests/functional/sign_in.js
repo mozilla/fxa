@@ -5,50 +5,41 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
-  'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var PAGE_URL = config.fxaContentRoot + 'signin';
   var AVATAR_URL = config.fxaContentRoot + 'settings/avatar/change';
   var PASSWORD = 'password';
   var email;
-  var accountData;
-  var client;
 
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var openSignInInNewTab = thenify(FunctionalHelpers.openSignInInNewTab);
+  var openSignUpInNewTab = thenify(FunctionalHelpers.openSignUpInNewTab);
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
-
-  function verifyUser(user, index) {
-    return FunctionalHelpers.verifyUser(user,  index, client, accountData);
-  }
-
-  function fillOutSignIn(context, email, password) {
-    return FunctionalHelpers.fillOutSignIn(context, email, password);
-  }
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var type = FunctionalHelpers.type;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'sign_in',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
-      return FunctionalHelpers.clearBrowserState(this)
-        .then(function () {
-          return client.signUp(email, PASSWORD);
-        })
-        .then(function (result) {
-          accountData = result;
-        });
+      return this.remote
+        .then(clearBrowserState(this));
     },
 
     afterEach: function () {
@@ -56,241 +47,139 @@ define([
     },
 
     'with an invalid email': function () {
-      return FunctionalHelpers.openPage(this, PAGE_URL + '?email=invalid', '#fxa-400-header')
+      return this.remote
+        .then(openPage(this, PAGE_URL + '?email=invalid', '#fxa-400-header'))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
     'sign in unverified': function () {
-      var self = this;
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signin-header')
-        .then(function () {
-          return fillOutSignIn(self, email, PASSWORD);
-        })
-        .findByCssSelector('.verification-email-message')
-          .getVisibleText()
-          .then(function (resultText) {
-            // check the email address was written
-            assert.ok(resultText.indexOf(email) > -1);
-          })
-        .end();
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: false }))
+        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(testElementTextInclude('.verification-email-message', email));
     },
 
     'redirect to requested page after sign in verified with correct password': function () {
-      var self = this;
-      return verifyUser(email, 0)
-        .then(function () {
-          return FunctionalHelpers.openPage(self, AVATAR_URL, '#fxa-signin-header');
-        })
-        .then(function () {
-          return fillOutSignIn(self, email, PASSWORD)
-            .findById('avatar-change')
-            .end();
-        });
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(this, AVATAR_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(testElementExists('#avatar-change'));
     },
 
     'sign in verified with correct password': function () {
-      var self = this;
-      return verifyUser(email, 0)
-        .then(function () {
-          return fillOutSignIn(self, email, PASSWORD)
-            // success is seeing the sign-in-complete screen.
-            .findById('fxa-settings-header')
-            .end();
-        });
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'sign in verified with incorrect password, click `forgot password?`': function () {
-      var self = this;
-      return verifyUser(email, 0)
-        .then(function () {
-          return fillOutSignIn(self, email, 'incorrect password')
-            // success is seeing the error message.
-            .then(FunctionalHelpers.visibleByQSA('.error'))
-
-            // If user clicks on "forgot your password?",
-            // begin the reset password flow.
-            .findByCssSelector('a[href="/reset_password"]')
-              .click()
-            .end()
-
-            .findById('fxa-reset-password-header')
-            .end();
-        });
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(fillOutSignIn(this, email, 'incorrect password'))
+        // success is seeing the error message.
+        .then(visibleByQSA('.error'))
+        // If user clicks on "forgot your password?",
+        // begin the reset password flow.
+        .then(click('a[href="/reset_password"]'))
+        .then(testElementExists('#fxa-reset-password-header'));
     },
 
     'sign in with an unknown account allows the user to sign up': function () {
-      var email = TestHelpers.createEmail();
-      return fillOutSignIn(this, email, PASSWORD)
+      return this.remote
+        .then(fillOutSignIn(this, email, PASSWORD))
         // The error area shows a link to /signup
-        .then(FunctionalHelpers.visibleByQSA('.error'))
-        .findByCssSelector('.error a[href="/signup"]')
-          .click()
-        .end()
-
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
-          })
-        .end()
-
-        .findByCssSelector('input[type=password]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the password carried over.
-            assert.equal(resultText, PASSWORD);
-          })
-        .end();
+        .then(visibleByQSA('.error'))
+        .then(click('.error a[href="/signup"]'))
+        // email, password are prefilled from the signin page.
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementValueEquals('input[type=password]', PASSWORD));
     },
 
     'sign in with email with leading space strips space': function () {
-      var self = this;
-      return verifyUser(email, 0)
-        .then(function () {
-          return fillOutSignIn(self, '   ' + email, PASSWORD)
-            // success is seeing the sign-in-complete screen.
-            .findById('fxa-settings-header')
-            .end();
-        });
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(fillOutSignIn(this, '   ' + email, PASSWORD))
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'sign in with email with trailing space strips space': function () {
-      var self = this;
-
-      return verifyUser(email, 0)
-        .then(function () {
-          return fillOutSignIn(self, email + '   ', PASSWORD)
-            // success is seeing the sign-in-complete screen.
-            .findById('fxa-settings-header')
-            .end();
-        });
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(fillOutSignIn(this, email + '   ', PASSWORD))
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'sign in verified with password that incorrectly has leading whitespace': function () {
-      var self = this;
-      return verifyUser(email, 0)
-        .then(function () {
-          return fillOutSignIn(self, email, '  ' + PASSWORD)
-
-            // success is seeing the error message.
-            .then(FunctionalHelpers.visibleByQSA('.error'))
-            .end()
-
-            .findByCssSelector('.error')
-            .getVisibleText()
-            .then(function (text) {
-              assert.isTrue(/password/i.test(text));
-            })
-            .end();
-        });
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(fillOutSignIn(this, email, '  ' + PASSWORD))
+        // success is seeing the error message.
+        .then(visibleByQSA('.error'))
+        .then(testElementTextInclude('.error', 'password'));
     },
 
     'visiting the pp links saves information for return': function () {
-      return testRepopulateFields.call(this, '/legal/terms', 'fxa-tos-header');
+      return testRepopulateFields.call(this, '/legal/terms', '#fxa-tos-header');
     },
 
     'visiting the tos links saves information for return': function () {
-      return testRepopulateFields.call(this, '/legal/privacy', 'fxa-pp-header');
+      return testRepopulateFields.call(this, '/legal/privacy', '#fxa-pp-header');
     },
 
     'form prefill information is cleared after sign in->sign out': function () {
-      var self = this;
-      return verifyUser(email, 0)
-        .then(function () {
-          return fillOutSignIn(self, email, PASSWORD)
-            // success is seeing the sign-in-complete screen.
-            .findById('fxa-settings-header')
-            .end()
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(fillOutSignIn(this, email, PASSWORD))
 
-            .findByCssSelector('#signout')
-              .click()
-            .end()
+        // success is seeing the sign-in-complete screen.
+        .then(testElementExists('#fxa-settings-header'))
+        .then(click('#signout'))
 
-            .findByCssSelector('#fxa-signin-header')
-            .end()
+        .then(testElementExists('#fxa-signin-header'))
 
-            .findByCssSelector('input[type=email]')
-              .getProperty('value')
-              .then(function (resultText) {
-                // check the email address was cleared
-                assert.equal(resultText, '');
-              })
-            .end()
-
-            .findByCssSelector('input[type=password]')
-              .getProperty('value')
-              .then(function (resultText) {
-                // check the password address was cleared
-                assert.equal(resultText, '');
-              })
-            .end();
-        });
+        // check the email and password were cleared
+        .then(testElementValueEquals('input[type=email]', ''))
+        .then(testElementValueEquals('input[type=password]', ''));
     },
 
     'sign in with a second sign-in tab open': function () {
       var windowName = 'sign-in inter-tab functional test';
-      var self = this;
-      return verifyUser(email, 0)
-        .then(function () {
-          return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header');
-        })
-        .then(function () {
-          return FunctionalHelpers.openSignInInNewTab(self, windowName);
-        })
-        .then(function () {
-          return self.remote
-            .switchToWindow(windowName)
-            .findById('fxa-signin-header')
-            .end();
-        })
-        .then(function () {
-          return fillOutSignIn(self, email, PASSWORD);
-        })
-        .then(function () {
-          return self.remote
-            .findById('fxa-settings-header')
-            .end()
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openSignInInNewTab(this, windowName))
+        .switchToWindow(windowName)
 
-            .then(closeCurrentWindow())
+        .then(testElementExists('#fxa-signin-header'))
+        .then(fillOutSignIn(this, email, PASSWORD))
 
-            .findById('fxa-settings-header')
-            .end();
-        });
+        .then(testElementExists('#fxa-settings-header'))
+        .then(closeCurrentWindow())
+
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'sign in with a second sign-up tab open': function () {
       var windowName = 'sign-in inter-tab functional test';
-      var self = this;
-      return verifyUser(email, 0)
-        .then(function () {
-          return FunctionalHelpers.openSignUpInNewTab(self, windowName);
-        })
-        .then(function () {
-          return self.remote
-            .switchToWindow(windowName)
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openSignUpInNewTab(this, windowName))
+        .switchToWindow(windowName)
 
-            .findById('fxa-signup-header')
-            .end()
+        .then(testElementExists('#fxa-signup-header'))
+        .switchToWindow('')
 
-            .switchToWindow('');
-        })
-        .then(function () {
-          return fillOutSignIn(self, email, PASSWORD);
-        })
-        .then(function () {
-          return self.remote
-            .switchToWindow(windowName)
+        .then(fillOutSignIn(this, email, PASSWORD))
+        .switchToWindow(windowName)
 
-            .findById('fxa-settings-header')
-            .end()
+        .then(testElementExists('#fxa-settings-header'))
+        .then(closeCurrentWindow())
 
-            .then(closeCurrentWindow())
-
-            .findById('fxa-settings-header')
-            .end();
-        });
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'data-flow-begin attribute is set': function () {
@@ -300,51 +189,20 @@ define([
   });
 
   function testRepopulateFields(dest, header) {
-    var self = this;
     var email = TestHelpers.createEmail();
     var password = '12345678';
 
-    return self.remote
-      .get(require.toUrl(PAGE_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+    return this.remote
+      .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+      .then(type('input[type=email]', email))
+      .then(type('input[type=password]', password))
 
-      .findByCssSelector('input[type=email]')
-        .clearValue()
-        .click()
-        .type(email)
-      .end()
+      .then(click('a[href="' + dest + '"]'))
 
-      .findByCssSelector('input[type=password]')
-        .clearValue()
-        .click()
-        .type(password)
-      .end()
+      .then(testElementExists(header))
+      .then(click('.back'))
 
-      .findByCssSelector('a[href="' + dest + '"]')
-        .click()
-      .end()
-
-      .findById(header)
-      .end()
-
-      .findByCssSelector('.back')
-        .click()
-      .end()
-
-      .findByCssSelector('input[type=email]')
-        .getProperty('value')
-        .then(function (resultText) {
-          // check the email address was re-populated
-          assert.equal(resultText, email);
-        })
-      .end()
-
-      .findByCssSelector('input[type=password]')
-        .getProperty('value')
-        .then(function (resultText) {
-          // check the password was re-populated
-          assert.equal(resultText, password);
-        })
-      .end();
+      .then(testElementValueEquals('input[type=email]', email))
+      .then(testElementValueEquals('input[type=password]', password));
   }
 });

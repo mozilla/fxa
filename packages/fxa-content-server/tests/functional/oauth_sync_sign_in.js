@@ -5,36 +5,33 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
-  'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-        FxaClient, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
+             FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
-  var client;
   var email;
   var email2;
   var PASSWORD = '12345678';
-  var accountData;
 
+  var thenify = FunctionalHelpers.thenify;
+
+  var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
-
-  function verifyUser(user, index) {
-    return FunctionalHelpers.getEmailHeaders(user, index)
-      .then(function (headers) {
-        var code = headers['x-verify-code'];
-        return client.verifyCode(accountData.uid, code);
-      });
-  }
+  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
+  var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'Sign in with OAuth after Sync',
@@ -43,23 +40,11 @@ define([
       email = TestHelpers.createEmail();
       email2 = TestHelpers.createEmail();
 
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      // clear localStorage to avoid pollution from other tests.
+      return FunctionalHelpers.clearBrowserState(this, {
+        '123done': true,
+        contentServer: true
       });
-
-      var self = this;
-      return client.signUp(email, PASSWORD)
-        .then(function (result) {
-          accountData = result;
-          return result;
-        })
-        .then(function () {
-          // clear localStorage to avoid pollution from other tests.
-          return FunctionalHelpers.clearBrowserState(self, {
-            '123done': true,
-            contentServer: true
-          });
-        });
     },
 
     afterEach: function () {
@@ -70,106 +55,52 @@ define([
     },
 
     'sign in to OAuth with Sync creds': function () {
-      var self = this;
-      return verifyUser(email, 0)
-        .then(function () {
-          return self.remote
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .execute(listenForFxaCommands)
 
-            // Sign in to Sync with existing account
-            .get(require.toUrl(PAGE_URL))
-            .setFindTimeout(intern.config.pageLoadTimeout)
-            .execute(listenForFxaCommands)
+        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(testIsBrowserNotifiedOfLogin(this, email))
 
-            .findByCssSelector('#fxa-signin-header')
-            .end()
+        // Sync sign ins must be verified.
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
-            .then(function () {
-              return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-            })
+        .switchToWindow('newwindow')
+        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(closeCurrentWindow())
 
-            .then(function () {
-              return testIsBrowserNotifiedOfLogin(self, email);
-            })
+        // Sign up for a new account via OAuth
+        .then(openFxaFromRp(this, 'signup'))
+        .then(fillOutSignUp(this, email2, PASSWORD))
 
-            // Sign up for a new account via OAuth
-            .then(function () {
-              return FunctionalHelpers.openFxaFromRp(self, 'signup');
-            })
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openVerificationLinkInNewTab(this, email2, 0))
+        .switchToWindow('newwindow')
 
-            .then(function () {
-              return FunctionalHelpers.fillOutSignUp(self, email2, PASSWORD);
-            })
+        // wait for the verified window in the new tab
+        .then(testElementExists('#fxa-sign-up-complete-header'))
 
-            .findByCssSelector('#fxa-confirm-header')
-            .end()
+        // switch to the original window
+        .then(closeCurrentWindow())
 
-            .then(function () {
-              return FunctionalHelpers.openVerificationLinkInNewTab(
-                          self, email2, 0);
-            })
+        // RP is logged in, logout then back in again.
+        .then(testElementExists('#loggedin'))
+        .then(click('#logout'))
 
-            .switchToWindow('newwindow')
-            // wait for the verified window in the new tab
-            .findById('fxa-sign-up-complete-header')
-            .end()
+        .then(visibleByQSA('.ready #splash .signin'))
+        .then(click('.ready #splash .signin'))
 
-            // switch to the original window
-            .then(closeCurrentWindow())
+        .then(testElementExists('#fxa-signin-header'))
 
-            .findByCssSelector('#loggedin')
-            .end()
+        // By default, we should see the email we signed up for Sync with
+        .then(testElementTextEquals('.prefillEmail', email))
 
-            // Log out of RP
-            .findByCssSelector('#logout')
-              .click()
-            .end()
+        // no need to enter the password!
+        .then(click('button[type="submit"]'))
 
-            .then(FunctionalHelpers.visibleByQSA('.ready #splash .signin'))
-            .end()
-
-            .findByCssSelector('.ready #splash .signin')
-              .click()
-            .end()
-
-            .findByCssSelector('#fxa-signin-header')
-            .end()
-
-            // clear the prefillEmail state
-            .findByCssSelector('form input.email')
-              .clearValue()
-            .end()
-            .findById('fxa-pp')
-              .click()
-            .end()
-            .findById('fxa-pp-header')
-            .end()
-
-            // Sign in to RP with cached credentials from Sync account
-            .then(function () {
-              return FunctionalHelpers.openFxaFromRp(self, 'signin');
-            })
-
-            .findByCssSelector('.prefillEmail')
-              .getVisibleText()
-              .then(function (text) {
-                // We should see the email we signed up for Sync with
-                assert.equal(text, email);
-              })
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end()
-
-            .findByCssSelector('#loggedin')
-              .getVisibleText()
-              .then(function (text) {
-                // We should see the email we signed up for Sync with
-                assert.equal(text, email);
-              })
-            .end();
-        });
+        // We should see the email we signed up for Sync with
+        .then(testElementTextEquals('#loggedin', email));
     }
-
   });
 });
