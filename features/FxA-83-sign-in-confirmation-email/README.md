@@ -267,12 +267,40 @@ sign-in confirmation.
 <img src="sign-in-success-time.png" height="300">
 
 This chart shows that most users complete sign-in
-confirmation within an hour. Unfortunately, this
-chart alone can not explain the difference between the other
-metrics.
+confirmation within an hour. This is important because if
+user's were taking greater than a day to confirm sign-in,
+it could skew metrics.
 
 The another thing that could account for the difference
 in these metrics is that one method might not be emitting
 or emitting twice, for different scenarios. The true
 sign-in confirmation success rate could possibly be a
 mix of these metrics.
+
+Something to note was that sign-in confirmation was enabled
+for 100% of users because of a security incident. Once the
+feature was fully enabled, the security incident stopped.
+Unfortunately, all of the metrics were not fully in
+place before the feature went to 100%, which makes it
+difficult to get a clear idea of what a baseline sign-in success
+rate looks like.
+
+The chart below shows that roughly,  less than 0.5% of our
+users click change password button from the sign-in confirmation
+email. Sign-in confirmation helps to provide these users
+with some protection on their accounts.
+
+<img src="sign-in-change-password.png" height="300">
+
+Overall, the sign-in confirmation feature has provided
+FxA users with an extra layer of security. However, this feature
+has introduced some friction in the overall sign-in
+process that can't fully be explain with our
+current metrics. That being said, we now have a reasonable
+baseline for sign-in success and new features that
+follow a similar type of pattern (sign-in unblock).
+
+Moving forward, next step for this feature is to increase
+the sign-in success rate. Introducing some additional
+logic into the sign-in process (geolocation) can help
+reduce the need to perform a confirmation.
