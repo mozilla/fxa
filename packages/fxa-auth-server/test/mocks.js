@@ -11,6 +11,8 @@ var extend = require('util')._extend
 var P = require('../lib/promise')
 var crypto = require('crypto')
 
+var CUSTOMS_METHOD_NAMES = ['check', 'checkAuthenticated', 'flag', 'reset']
+
 var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFetchToken',
                        'createPasswordForgotToken', 'createSessionToken', 'deleteAccount',
                        'deleteDevice', 'deleteKeyFetchToken', 'deletePasswordChangeToken',
@@ -33,6 +35,7 @@ var PUSH_METHOD_NAMES = ['notifyDeviceConnected', 'notifyDeviceDisconnected', 'n
                          'notifyPasswordReset']
 
 module.exports = {
+  mockCustoms: mockObject(CUSTOMS_METHOD_NAMES),
   mockDB: mockDB,
   mockDevices: mockDevices,
   mockLog: mockLog,

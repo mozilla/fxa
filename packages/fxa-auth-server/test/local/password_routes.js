@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var sinon = require('sinon')
-
 var test = require('../ptaptest')
 var mocks = require('../mocks')
 var getRoute = require('../routes_helpers').getRoute
@@ -46,11 +44,7 @@ var makeRoutes = function (options) {
 test(
   '/password/forgot/send_code',
   function (t) {
-    var mockCustoms = {
-      check: function () {
-        return P.resolve()
-      }
-    }
+    var mockCustoms = mocks.mockCustoms()
     var uid = uuid.v4('binary')
     var mockDB = mocks.mockDB({
       email: TEST_EMAIL,
@@ -88,11 +82,7 @@ test(
 test(
   '/password/forgot/verify_code',
   function (t) {
-    var mockCustoms = {
-      check: sinon.spy(function () {
-        return P.resolve()
-      })
-    }
+    var mockCustoms = mocks.mockCustoms()
     var uid = uuid.v4('binary')
     var accountResetToken = {
       data: crypto.randomBytes(16)

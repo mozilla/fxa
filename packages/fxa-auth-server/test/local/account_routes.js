@@ -238,11 +238,7 @@ test('/account/reset', function (t) {
     email: TEST_EMAIL,
     wrapWrapKb: crypto.randomBytes(32)
   })
-  var mockCustoms = {
-    reset: sinon.spy(function () {
-      return P.resolve()
-    })
-  }
+  var mockCustoms = mocks.mockCustoms()
   var mockLog = mocks.spyLog()
   var mockPush = mocks.mockPush()
   var accountRoutes = makeRoutes({
@@ -410,11 +406,7 @@ test('/account/devices/notify', function (t) {
     }
   }
   var sandbox = sinon.sandbox.create()
-  var mockCustoms = {
-    checkAuthenticated: sandbox.spy(function () {
-      return P.resolve()
-    })
-  }
+  var mockCustoms = mocks.mockCustoms()
   var accountRoutes = makeRoutes({
     config: config,
     customs: mockCustoms,
@@ -506,11 +498,11 @@ test('/account/devices/notify', function (t) {
   t.test('throws error if customs blocked the request', function (t) {
     config.deviceNotificationsEnabled = true
 
-    mockCustoms = {
+    mockCustoms = mocks.mockCustoms({
       checkAuthenticated: sandbox.spy(function () {
         throw error.tooManyRequests(1)
       })
-    }
+    })
     route = getRoute(makeRoutes({customs: mockCustoms}), '/account/devices/notify')
 
     return runTest(route, mockRequest, function (response) {
@@ -1451,11 +1443,7 @@ test('/recovery_email/verify_code', function (t) {
   var mockLog = mocks.spyLog()
   var mockMailer = mocks.mockMailer()
   const mockPush = mocks.mockPush()
-  var mockCustoms = {
-    check: sinon.spy(function () {
-      return P.resolve()
-    })
-  }
+  var mockCustoms = mocks.mockCustoms()
   var accountRoutes = makeRoutes({
     checkPassword: function () {
       return P.resolve(true)
