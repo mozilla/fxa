@@ -1,8 +1,8 @@
 {{t "Is this you signing in?"}}
 
 {{ device }}
-{{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
 {{#if location}}{{ location }}{{/if}}
+{{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
 {{#if timestamp}}{{ timestamp }}{{/if}}
 
 {{t "If yes, here is the authorization code you need:"}} {{ unblockCode }}
