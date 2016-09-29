@@ -225,44 +225,78 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isVerified', function () {
-      it('isVerified returns false if account is unverified', function () {
-        account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-          return p({ verified: false });
-        });
-
-        return account.isVerified()
-          .then(function (isVerified) {
-            assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
-            assert.isFalse(isVerified);
-          });
-      });
-
-      it('isVerified fails if an error occurs', function () {
-        account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
-        });
-
-        return account.isVerified()
-          .then(assert.fail,
-            function (err) {
-              assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
-              assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+    describe('waitForSessionVerification', () => {
+      describe('with a valid `sessionToken`', () => {
+        beforeEach(() => {
+          sinon.stub(account, 'sessionStatus', () => {
+            return p({
+              verified: account.sessionStatus.callCount === 3
             });
+          });
+
+          return account.waitForSessionVerification(2);
+        });
+
+        it('polls until /recovery_email/status returns `verified: true`', () => {
+          assert.equal(account.sessionStatus.callCount, 3);
+          assert.isTrue(account.get('verified'));
+        });
       });
 
-      it('isVerified returns true', function () {
-        account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-          return p({ verified: true });
+      describe('with an invalid `sessionToken`', () => {
+        beforeEach(() => {
+          sinon.stub(account, 'sessionStatus',
+                     () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
         });
-        return account.isVerified()
-          .then(function (isVerified) {
-            assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
-            assert.isTrue(isVerified);
+
+        describe('model does not have a `uid`', () => {
+          let err;
+
+          beforeEach(() => {
+            account.unset('uid');
+
+            return account.waitForSessionVerification(0)
+              .then(assert.fail, _err => err = _err);
           });
+
+          it('resolves with `INVALID_TOKEN` error', () => {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+        });
+
+        describe('`uid` exists', () => {
+          let err;
+
+          beforeEach(() => {
+            account.set('uid', 'uid');
+
+            sinon.stub(account, 'checkUidExists', () => p(true));
+
+            return account.waitForSessionVerification(0)
+              .then(assert.fail, _err => err = _err);
+          });
+
+          it('resolves with `INVALID_TOKEN` error', () => {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+        });
+
+        describe('`uid` does not exist', () => {
+          let err;
+
+          beforeEach(() => {
+            account.set('uid', 'uid');
+
+            sinon.stub(account, 'checkUidExists', () => p(false));
+
+            return account.waitForSessionVerification(0)
+              .then(assert.fail, _err => err = _err);
+          });
+
+          it('resolves with `SIGNUP_EMAIL_BOUNCE` error', () => {
+            assert.isTrue(AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE'));
+          });
+        });
       });
     });
 
@@ -1890,6 +1924,18 @@ define(function (require, exports, module) {
       it('delegates to the fxaClient', function () {
         assert.isTrue(
             fxaClient.checkAccountExistsByEmail.calledWith(EMAIL));
+      });
+    });
+
+    describe('isPasswordResetComplete', () => {
+      beforeEach(() => {
+        sinon.stub(fxaClient, 'isPasswordResetComplete', () => p());
+
+        return account.isPasswordResetComplete('token');
+      });
+
+      it('delegates to the fxaClient', () => {
+        assert.isTrue(fxaClient.isPasswordResetComplete.calledWith('token'));
       });
     });
   });

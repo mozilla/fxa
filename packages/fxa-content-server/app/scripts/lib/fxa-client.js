@@ -510,7 +510,6 @@ define(function (require, exports, module) {
      * it must be verified and by which method.
      *
      * @param {string} sessionToken
-     * @param {string} [uid]
      * @returns {promise} resolves with the account's current session
      * information if session is valid. Rejects with an INVALID_TOKEN error
      * if session is invalid.
@@ -522,8 +521,7 @@ define(function (require, exports, module) {
      *   verificationReason: <see lib/verification-reasons.js>
      * }
      */
-    recoveryEmailStatus: withClient(function (client, sessionToken, uid) {
-      var self = this;
+    recoveryEmailStatus: withClient(function (client, sessionToken) {
       return client.recoveryEmailStatus(sessionToken)
         .then(function (response) {
           if (! response.verified) {
@@ -546,23 +544,6 @@ define(function (require, exports, module) {
           // /recovery_email/status returns `emailVerified` and
           // `sessionVerified`, we don't want those.
           return _.pick(response, 'email', 'verified');
-        })
-        .fail(function (err) {
-          // The user's email may have bounced because it's invalid. Check
-          // if the account still exists, if it doesn't, it means the email
-          // bounced. Show a message allowing the user to sign up again.
-          if (uid && AuthErrors.is(err, 'INVALID_TOKEN')) {
-            return self.checkAccountExists(uid)
-              .then(function (accountExists) {
-                if (! accountExists) {
-                  throw AuthErrors.toError('SIGNUP_EMAIL_BOUNCE');
-                }
-
-                throw err;
-              });
-          }
-
-          throw err;
         });
     }),
 

@@ -32,27 +32,31 @@ define(function (require, exports, module) {
       this._verificationInfo = new VerificationInfo(searchParams);
     },
 
+    getAccount () {
+      const email = this._verificationInfo.get('email');
+
+      return this.user.initAccount({ email });
+    },
+
     // beforeRender is asynchronous and returns a promise. Only render
     // after beforeRender has finished its business.
-    beforeRender: function () {
-      var self = this;
-
+    beforeRender () {
       var verificationInfo = this._verificationInfo;
       if (! verificationInfo.isValid()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
-        self.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
-        return true;
+        this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+        return;
       }
 
-      var token = verificationInfo.get('token');
-      return this.fxaClient.isPasswordResetComplete(token)
-        .then(function (isComplete) {
+      const account = this.getAccount();
+      const token = verificationInfo.get('token');
+      return account.isPasswordResetComplete(token)
+        .then((isComplete) => {
           if (isComplete) {
             verificationInfo.markExpired();
-            self.logError(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
+            this.logError(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
           }
-          return true;
         });
     },
 
@@ -93,7 +97,6 @@ define(function (require, exports, module) {
     submit: function () {
       var self = this;
       var verificationInfo = this._verificationInfo;
-      var email = verificationInfo.get('email');
       var password = self._getPassword();
       var token = verificationInfo.get('token');
       var code = verificationInfo.get('code');
@@ -105,9 +108,7 @@ define(function (require, exports, module) {
       // will store the sessionToken in localStorage, when the
       // reset password complete poll completes in the original tab,
       // it will fetch the sessionToken from localStorage and go to town.
-      var account = self.user.initAccount({
-        email: email
-      });
+      var account = this.getAccount();
 
       return self.user.completeAccountPasswordReset(
           account,

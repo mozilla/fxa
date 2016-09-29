@@ -108,7 +108,7 @@ define(function (require, exports, module) {
         .then(() => this._startPolling());
     },
 
-    _startPolling: function () {
+    _startPolling () {
       var self = this;
 
       return self._waitForConfirmation()
@@ -158,27 +158,11 @@ define(function (require, exports, module) {
         });
     },
 
-    _waitForConfirmation: function () {
-      var self = this;
-      var account = self.getAccount();
-      return self.fxaClient.recoveryEmailStatus(
-          account.get('sessionToken'), account.get('uid'))
-        .then(function (result) {
-          if (result.verified) {
-            account.set('verified', true);
-            self.user.setAccount(account);
-            return true;
-          }
-
-          var deferred = p.defer();
-
-          // _waitForConfirmation will return a promise and the
-          // promise chain remains unbroken.
-          self.setTimeout(function () {
-            deferred.resolve(self._waitForConfirmation());
-          }, self.VERIFICATION_POLL_IN_MS);
-
-          return deferred.promise;
+    _waitForConfirmation () {
+      const account = this.getAccount();
+      return account.waitForSessionVerification(self.VERIFICATION_POLL_IN_MS)
+        .then(() => {
+          this.user.setAccount(account);
         });
     },
 

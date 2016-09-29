@@ -50,7 +50,6 @@ define(function (require, exports, module) {
     function initView() {
       view = new View({
         broker: broker,
-        fxaClient: fxaClient,
         metrics: metrics,
         notifier: notifier,
         relier: relier,
@@ -404,13 +403,13 @@ define(function (require, exports, module) {
         view.$('[type=password]').val('password');
         view.enableForm();
 
-        sinon.stub(view.fxaClient, 'completePasswordReset', function () {
+        sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
         // isPasswordResetComplete needs to be overridden as well for when
         // render is re-loaded the token needs to be expired.
-        view.fxaClient.isPasswordResetComplete = function () {
+        fxaClient.isPasswordResetComplete = function () {
           return p(true);
         };
 
@@ -424,7 +423,7 @@ define(function (require, exports, module) {
         view.$('[type=password]').val('password');
         view.enableForm();
 
-        sinon.stub(view.fxaClient, 'completePasswordReset', function () {
+        sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p.reject(new Error('uh oh'));
         });
 

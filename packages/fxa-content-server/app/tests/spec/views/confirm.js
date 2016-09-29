@@ -247,7 +247,7 @@ define(function (require, exports, module) {
         });
 
         var count = 0;
-        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
           // force at least one cycle through the poll
           count++;
           return p({ verified: count === 2 });
@@ -270,7 +270,7 @@ define(function (require, exports, module) {
       }
 
       it('displays an error message allowing the user to re-signup if their email bounces', function () {
-        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
           return p.reject(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
         });
 
@@ -278,20 +278,20 @@ define(function (require, exports, module) {
         return view.afterVisible()
           .then(function () {
             assert.isTrue(view.navigate.calledWith('signup', { bouncedEmail: 'a@a.com' }));
-            assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
+            assert.isTrue(fxaClient.recoveryEmailStatus.called);
           });
       });
 
       it('displays an error when an unknown error occurs', function () {
         var unknownError = 'Something failed';
-        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
           return p.reject(new Error(unknownError));
         });
 
         sinon.spy(view, 'navigate');
         return view.afterVisible()
           .then(function () {
-            assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
+            assert.isTrue(fxaClient.recoveryEmailStatus.called);
             assert.equal(view.$('.error').text(), unknownError);
           });
       });
@@ -301,8 +301,8 @@ define(function (require, exports, module) {
 
         beforeEach(function () {
           sandbox = sinon.sandbox.create();
-          sandbox.stub(view.fxaClient, 'recoveryEmailStatus', function () {
-            var callCount = view.fxaClient.recoveryEmailStatus.callCount;
+          sandbox.stub(fxaClient, 'recoveryEmailStatus', function () {
+            var callCount = fxaClient.recoveryEmailStatus.callCount;
             if (callCount < 2) {
               return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             } else {
@@ -326,7 +326,7 @@ define(function (require, exports, module) {
         });
 
         it('polls the auth server', function () {
-          assert.equal(view.fxaClient.recoveryEmailStatus.callCount, 2);
+          assert.equal(fxaClient.recoveryEmailStatus.callCount, 2);
         });
 
         it('captures the exception to Sentry', function () {
@@ -403,7 +403,7 @@ define(function (require, exports, module) {
 
     describe('complete', function () {
       beforeEach(function () {
-        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
           return p({
             verified: true
           });

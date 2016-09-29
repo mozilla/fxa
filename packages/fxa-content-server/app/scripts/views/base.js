@@ -123,7 +123,6 @@ define(function (require, exports, module) {
       this.broker = options.broker;
       this.currentPage = options.currentPage;
       this.model = options.model || new Backbone.Model();
-      this.fxaClient = options.fxaClient;
       this.metrics = options.metrics || nullMetrics;
       this.relier = options.relier;
       this.sentryMetrics = options.sentryMetrics || Raven;

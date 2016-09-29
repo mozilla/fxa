@@ -201,13 +201,16 @@ define(function (require, exports, module) {
     },
 
     _isWaitingForServerConfirmation: false,
-    _waitForServerConfirmation: function () {
-      var self = this;
+    _waitForServerConfirmation () {
       // only check if still waiting.
       this._isWaitingForServerConfirmation = true;
-      return self.fxaClient.isPasswordResetComplete(self.model.get('passwordForgotToken'))
-        .then(function (isComplete) {
-          if (! self._isWaitingForServerConfirmation) {
+
+      const email = this.model.get('email');
+      const account = this.user.initAccount({ email });
+      const token = this.model.get('passwordForgotToken');
+      return account.isPasswordResetComplete(token)
+        .then((isComplete) => {
+          if (! this._isWaitingForServerConfirmation) {
             // we no longer care about the response, the other tab has opened.
             // drop the response on the ground and never resolve.
             return p.defer().promise;
@@ -216,11 +219,11 @@ define(function (require, exports, module) {
           }
 
           var deferred = p.defer();
-          self._waitForServerConfirmationTimeout = self.setTimeout(function () {
-            if (self._isWaitingForServerConfirmation) {
-              deferred.resolve(self._waitForServerConfirmation());
+          this._waitForServerConfirmationTimeout = this.setTimeout(() => {
+            if (this._isWaitingForServerConfirmation) {
+              deferred.resolve(this._waitForServerConfirmation());
             }
-          }, self._verificationPollMS);
+          }, this._verificationPollMS);
 
           return deferred.promise;
         });

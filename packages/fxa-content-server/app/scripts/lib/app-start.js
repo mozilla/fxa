@@ -477,7 +477,6 @@ define(function (require, exports, module) {
         broker: self._authenticationBroker,
         createView: self.createView.bind(self),
         formPrefill: self._formPrefill,
-        fxaClient: self._fxaClient,
         interTabChannel: self._interTabChannel,
         language: self._config.language,
         metrics: self._metrics,

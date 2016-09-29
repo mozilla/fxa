@@ -104,27 +104,20 @@ define(function (require, exports, module) {
 
     // Hydrate the account
     fetch: function () {
-      var self = this;
-      var promise = p();
-
-      if (! self.get('sessionToken')) {
-        return promise;
+      if (! this.get('sessionToken') || this.get('verified')) {
+        return p();
       }
 
       // upgrade the credentials with verified state
-      if (! self.get('verified')) {
-        promise = self.isVerified()
-          .then(function (verified) {
-            self.set('verified', verified);
-          }, function (err) {
-            if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-              self._invalidateSession();
-            }
-            // Ignore other errors; we'll just fetch again when needed
-          });
-      }
-
-      return promise;
+      return this.sessionStatus()
+        .then((sessionStatus) => {
+          this.set('verified', sessionStatus.verified);
+        }, (err) => {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            this._invalidateSession();
+          }
+          // Ignore other errors; we'll just fetch again when needed
+        });
     },
 
     _invalidateSession: function () {
@@ -249,10 +242,44 @@ define(function (require, exports, module) {
       return this._fxaClient.recoveryEmailStatus(sessionToken);
     },
 
-    isVerified: function () {
-      return this._fxaClient.recoveryEmailStatus(this.get('sessionToken'))
-        .then(function (results) {
-          return results.verified;
+    /**
+     * Wait for the session to become verified.
+     *
+     * @param {Number} pollIntervalInMs
+     * @returns {Promise}
+     */
+    waitForSessionVerification (pollIntervalInMs) {
+      return this.sessionStatus()
+        .then((result) => {
+          if (result.verified) {
+            this.set('verified', true);
+            return;
+          }
+
+          return p()
+            .delay(pollIntervalInMs)
+            .then(() => this.waitForSessionVerification(pollIntervalInMs));
+        })
+        .fail((err) => {
+          // The user's email may have bounced because it's invalid. Check
+          // if the account still exists, if it doesn't, it means the email
+          // bounced. Show a message allowing the user to sign up again.
+          //
+          // This makes the huge assumption that a confirmation email
+          // was sent.
+          if (AuthErrors.is(err, 'INVALID_TOKEN') && this.has('uid')) {
+            return this.checkUidExists()
+              .then((accountExists) => {
+                if (! accountExists) {
+                  throw AuthErrors.toError('SIGNUP_EMAIL_BOUNCE');
+                }
+
+                // account exists, but sessionToken has been invalidated.
+                throw err;
+              });
+          }
+
+          throw err;
         });
     },
 
@@ -851,6 +878,17 @@ define(function (require, exports, module) {
 
           return relier.deriveRelierKeys(accountKeys, self.get('uid'));
         });
+    },
+
+    /**
+     * Check whether password reset is complete for the given token
+     *
+     * @param {String} token
+     * @returns {Promise} resolves to a boolean, true if password reset has
+     * been completed for the given token, false otw.
+     */
+    isPasswordResetComplete (token) {
+      return this._fxaClient.isPasswordResetComplete(token);
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,

@@ -57,6 +57,7 @@ define(function (require, exports, module) {
       });
 
       user = new User({
+        fxaClient: fxaClient,
         storage: Storage.factory('localStorage')
       });
 
