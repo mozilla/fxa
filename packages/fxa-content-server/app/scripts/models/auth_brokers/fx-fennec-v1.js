@@ -19,7 +19,6 @@ define(function (require, exports, module) {
 
   var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
-      afterForceAuth: new NavigateBehavior('force_auth_complete'),
       afterSignIn: new NavigateBehavior('signin_complete'),
       afterSignUpConfirmationPoll: new NavigateBehavior('signup_complete')
     }),

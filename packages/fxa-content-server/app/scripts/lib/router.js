@@ -69,7 +69,6 @@ define(function (require, exports, module) {
       'confirm_signin(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_IN }),
       'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
       'force_auth(/)': createViewHandler(ForceAuthView),
-      'force_auth_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.FORCE_AUTH }),
       'legal(/)': createViewHandler(LegalView),
       'legal/privacy(/)': createViewHandler(PpView),
       'legal/terms(/)': createViewHandler(TosView),

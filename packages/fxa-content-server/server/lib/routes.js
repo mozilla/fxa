@@ -118,7 +118,6 @@ module.exports = function (config, i18n) {
       '/confirm_signin',
       '/cookies_disabled',
       '/force_auth',
-      '/force_auth_complete',
       '/legal',
       '/oauth',
       '/oauth/force_auth',

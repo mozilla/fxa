@@ -77,11 +77,10 @@ define(function (require, exports, module) {
     });
 
     describe('afterForceAuth', function () {
-      it('notifies the channel of `login`, redirects to `/force_auth_complete`', function () {
+      it('notifies the channel of `login`', function () {
         return broker.afterForceAuth(account)
           .then(function (behavior) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-            assert.equal(behavior.endpoint, 'force_auth_complete');
           });
       });
     });

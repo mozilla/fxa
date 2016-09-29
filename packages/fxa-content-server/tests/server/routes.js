@@ -43,7 +43,6 @@ define([
     '/confirm_signin': { statusCode: 200 },
     '/cookies_disabled': { statusCode: 200 },
     '/force_auth': { statusCode: 200 },
-    '/force_auth_complete': { statusCode: 200 },
     '/legal': { statusCode: 200 },
     '/legal/privacy': { statusCode: 200 },
     '/legal/terms': { statusCode: 200 },
