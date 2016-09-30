@@ -154,8 +154,12 @@ module.exports = function (log) {
     var location = message.location
     // construct the location string from the location object
     if (location) {
-      if (location.city) {
+      if (location.city && location.stateCode) {
+        return translator.format(translator.gettext('%(city)s, %(stateCode)s, %(country)s (estimated)'), location)
+      } else if (location.city) {
         return translator.format(translator.gettext('%(city)s, %(country)s (estimated)'), location)
+      } else if (location.stateCode) {
+        return translator.format(translator.gettext('%(stateCode)s, %(country)s (estimated)'), location)
       } else {
         return translator.format(translator.gettext('%(country)s (estimated)'), location)
       }

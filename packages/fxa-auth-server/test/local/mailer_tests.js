@@ -80,6 +80,16 @@ function includes(haystack, needle) {
   return (haystack.indexOf(needle) > -1)
 }
 
+function getLocationMessage (location) {
+  return {
+    device: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:48.0) Gecko/20100101 Firefox/48.0',
+    email: 'a@b.com',
+    ip: '219.129.234.194',
+    location: location,
+    timeZone: 'America/Los_Angeles'
+  }
+}
+
 P.all(
   [
     require('../../translator')(['en'], 'en'),
@@ -246,33 +256,94 @@ P.all(
         }
 
         if (includes(typesContainLocationData, type)) {
-          var location = {
-            city: 'Mountain View',
-            country: 'USA'
-          }
 
-          message = {
-            device: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:48.0) Gecko/20100101 Firefox/48.0',
-            email: 'a@b.com',
-            ip: '219.129.234.194',
-            location: location,
-            timeZone: 'America/Los_Angeles'
+          var defaultLocation = {
+            city: 'Mountain View',
+            country: 'USA',
+            stateCode: 'CA'
           }
 
           test(
-            'Location and ip data is present in email template output for ' + type,
+            'ip data is in template for ' + type,
             function (t) {
+              var message = getLocationMessage(defaultLocation)
+
               mailer.mailer.sendMail = function (emailConfig) {
-                t.ok(includes(emailConfig.html, location.city + ', ' + location.country))
                 t.ok(includes(emailConfig.html, message.ip))
 
-                t.ok(includes(emailConfig.text, location.city + ', ' + location.country))
                 t.ok(includes(emailConfig.text, message.ip))
                 t.end()
               }
               mailer[type](message)
             }
           )
+
+          test(
+            'location is correct with city, country, stateCode for ' + type,
+            function (t) {
+              var location = defaultLocation
+              var message = getLocationMessage(defaultLocation)
+
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, location.city + ', ' + location.stateCode + ', ' + location.country))
+                t.ok(includes(emailConfig.text, location.city + ', ' + location.stateCode + ', ' + location.country))
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+
+          test(
+            'location is correct with city, country for ' + type,
+            function (t) {
+              var location = extend({}, defaultLocation)
+              delete location.stateCode
+              var message = getLocationMessage(location)
+
+
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, location.city + ', ' + location.country))
+                t.ok(includes(emailConfig.text, location.city + ', ' + location.country))
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+
+          test(
+            'location is correct with stateCode, country for ' + type,
+            function (t) {
+              var location = extend({}, defaultLocation)
+              delete location.city
+              var message = getLocationMessage(location)
+
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, location.stateCode + ', ' + location.country))
+                t.ok(includes(emailConfig.text, location.stateCode + ', ' + location.country))
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+
+          test(
+            'location is correct with country for ' + type,
+            function (t) {
+              var location = extend({}, defaultLocation)
+              delete location.city
+              delete location.stateCode
+              var message = getLocationMessage(location)
+
+
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, location.country))
+                t.ok(includes(emailConfig.text, location.country))
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+
         }
 
         if (type === 'verifyLoginEmail') {
