@@ -1390,6 +1390,19 @@ define(function (require, exports, module) {
           });
       });
     });
+
+    describe('onHaveAccountClick', function () {
+      it('logs the have-account flow event', function () {
+        return view.render()
+          .then(function () {
+            view.afterVisible();
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.have-account'));
+            view.$('#have-account').click();
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.have-account'));
+          });
+      });
+    });
+
   });
 });
 

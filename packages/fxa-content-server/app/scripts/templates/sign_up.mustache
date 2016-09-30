@@ -23,7 +23,7 @@
     {{#showSyncSuggestion}}
       <div class="info nudge pad" id="suggest-sync">{{#t}}Looking for Firefox Sync? <a href="https://mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started">Get started here</a>{{/t}}</div>
     {{/showSyncSuggestion}}
-    
+
     {{#isSyncMigration}}
       <div class="info nudge" id="sync-migration">{{#t}}Migrate your sync data by creating a new Firefox&nbsp;Account.{{/t}}</div>
     {{/isSyncMigration}}
@@ -83,7 +83,7 @@
 
     <div class="links">
       {{#isSignInEnabled}}
-        <a href="/signin" class="sign-in">{{#t}}Have an account? Sign in{{/t}}</a>
+        <a href="/signin" id="have-account" class="sign-in">{{#t}}Have an account? Sign in{{/t}}</a>
       {{/isSignInEnabled}}
     </div>
 
