@@ -40,24 +40,9 @@ module.exports = function (grunt) {
             '*.{ico,png,txt}',
             '.htaccess',
             'images/{,*/}*.{webp,gif,svg,jpg,jpeg,png}',
-            'styles/fonts/{,*/}*.*',
             'fonts/**/*.{woff,woff2,eot,ttf,svg,ofl}',
             'i18n/{,*/}{,*/}*.*'
           ]
-        },
-        {
-          cwd: '<%= yeoman.app %>/bower_components/jquery-ui',
-          dest: '<%= yeoman.dist %>/bower_components/jquery-ui',
-          // jquery ui
-          expand: true,
-          src: ['**/*.js']
-        },
-        {
-          cwd: '<%= yeoman.app %>/bower_components/fxa-checkbox/',
-          dest: '<%= yeoman.dist %>/bower_components/fxa-checkbox/',
-          // fxa-checkbox
-          expand: true,
-          src: ['*.js']
         },
         {
           cwd: '<%= yeoman.tmp %>/concat/scripts',

@@ -4,17 +4,34 @@
 
 module.exports = function (grunt) {
   grunt.config('rev', {
-    dist: {
+    // These files contain no references to other files and are
+    // revved first.
+    no_children: { //eslint-disable-line camelcase
       files: {
         src: [
           '<%= yeoman.dist %>/bower_components/**/*.js',
-          '!<%= yeoman.dist %>/bower_components/jquery-ui/**/*.js',
-          '<%= yeoman.dist %>/scripts/**/*.js',
-          '<%= yeoman.dist %>/styles/{,*/}*.css',
+          '<%= yeoman.dist %>/scripts/vendor/**/*.js',
           '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
           '!<%= yeoman.dist %>/images/apple_app_store_button/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
           '!<%= yeoman.dist %>/images/google_play_store_button/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
           '<%= yeoman.dist %>/fonts/{,*/}*.{woff,woff2,svg,ofl,eot,ttf}'
+        ]
+      }
+    },
+    // These files contain references to other files and must be
+    // revved after internal URLs have been updated or else
+    // different revs of the file with different contents
+    // can have the same name because the rev was created before
+    // internal URLs were updated.
+    with_children: { //eslint-disable-line camelcase
+      files: {
+        src: [
+          // JS bundle has references to vendor and bower_components
+          // for requireOnDemand
+          '<%= yeoman.dist %>/scripts/**/*.js',
+          '!<%= yeoman.dist %>/scripts/vendor/**/*.js',
+          // CSS has references to images and fonts
+          '<%= yeoman.dist %>/styles/**/*.css'
         ]
       }
     }

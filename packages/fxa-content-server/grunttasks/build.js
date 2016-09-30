@@ -55,23 +55,38 @@ module.exports = function (grunt) {
 
     'uglify',
 
-    // static file asset revisioning through content hashing
-    'rev',
+    // rev leaf nodes in the dependency tree. Leaf nodes are revved first
+    // so the URLs to leaf nodes in internal nodes can be updated. Internal
+    // nodes are revved after the URLs have been updated.
+    'rev:no_children',
 
-    // replaces the blocks by the file they reference,
-    // and replaces all references to assets by their revisioned version if it is found on the disk
-    'usemin',
+    // Update child requireOnDemand URLs in the main JS bundle.
+    'replace:require_on_demand',
+
+    // Add subresource integrity values of dependent resources
+    // to the main JS bundle.
+    'sriify:js',
+
+    // Update leaf node font and image URLs in the CSS bundle.
+    'usemin:css',
+
+    // URLs inside the resources with children have been updated
+    // and SRI hashes added to the main JS bundle. These files
+    // are in their final state and can now be revved.
+    'rev:with_children',
+
+    // replaces blocks in the HTML by the final rev of the inodes.
+    'usemin:html',
+
+    // update the HTML with the SRI value of the final JS bundle.
+    'sriify:html',
+
     // copy the non-minified main.js script file for sourcemap purposes
     'copy:build',
     // copy the non-minified head.js script file for sourcemap purposes
     'copy:head',
     // update the sourcemap path to match the hosted files
     'sourcemap-source',
-
-    'replace:require_on_demand',
-
-    // Add subresource integrity attributes to static resources.
-    'sriify',
 
     // Add FQDN to static resources referenced in the HTML so resources
     // can be deployed to a CDN.
