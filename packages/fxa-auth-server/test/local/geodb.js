@@ -29,6 +29,8 @@ test(
       t.equal(geoData.location.city, 'Mountain View')
       t.equal(geoData.location.country, 'United States')
       t.equal(geoData.timeZone, 'America/Los_Angeles')
+      t.equal(geoData.location.state, 'California')
+      t.equal(geoData.location.stateCode, 'CA')
       t.end()
     })
   }
