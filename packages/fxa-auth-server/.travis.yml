@@ -44,6 +44,6 @@ install:
 script:
   - grunt templates
   - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
-  - npm test
+  - COVERALLS_REPO_TOKEN=uGetG7nOCCJ8bhZSvlXeloKqpUQDEvYDF npm test
   - npm outdated --depth 0
   - grunt l10n-extract

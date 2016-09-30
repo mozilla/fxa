@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=dev node bin/server.js",
-    "test": "grunt lint && tap test/local",
+    "test": "grunt lint && ./scripts/tap-coverage.js test/local",
     "prepush": "grunt templates && git status -s | (! grep 'M templates/')",
     "shrinkwrap": "/bin/rm -rf ./node_modules ./npm-shrinkwrap.json && npm install && npm prune && npm shrinkwrap --dev"
   },
