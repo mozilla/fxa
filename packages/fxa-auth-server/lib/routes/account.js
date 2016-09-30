@@ -1419,9 +1419,10 @@ module.exports = function (
                       uid: uidHex,
                       code: request.payload.code
                     })
-                    return log.activityEvent('account.confirmed', fakeRequestObject, {
+                    log.activityEvent('account.confirmed', fakeRequestObject, {
                       uid: uidHex
                     })
+                    push.notifyUpdate(uid, 'accountConfirm')
                   }
                 })
                 .catch(function (err) {

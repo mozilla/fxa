@@ -1483,6 +1483,7 @@ test('/recovery_email/verify_code', function (t) {
   var mockDB = mocks.mockDB(dbData, dbErrors)
   var mockLog = mocks.spyLog()
   var mockMailer = mocks.mockMailer()
+  const mockPush = mocks.mockPush()
   var accountRoutes = makeRoutes({
     checkPassword: function () {
       return P.resolve(true)
@@ -1495,7 +1496,8 @@ test('/recovery_email/verify_code', function (t) {
     },
     db: mockDB,
     log: mockLog,
-    mailer: mockMailer
+    mailer: mockMailer,
+    push: mockPush
   })
   var route = getRoute(accountRoutes, '/recovery_email/verify_code')
   t.test('verifyTokens rejects with INVALID_VERIFICATION_CODE', function (t) {
@@ -1524,9 +1526,13 @@ test('/recovery_email/verify_code', function (t) {
           payload: mockRequest.payload,
           query: mockRequest.query
         }, 'second argument was synthesized request object')
-        t.deepEqual(args[2], {
-          uid: uid.toString('hex')
-        }, 'third argument contained uid')
+        t.deepEqual(args[2], { uid: uid }, 'third argument contained uid')
+
+        t.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')
+        args = mockPush.notifyUpdate.args[0]
+        t.equal(args.length, 2, 'mockPush.notifyUpdate should have been passed two arguments')
+        t.equal(args[0].toString('hex'), uid, 'first argument should have been uid')
+        t.equal(args[1], 'accountVerify', 'second argument should have been reason')
 
         t.equal(JSON.stringify(response), '{}')
       })
@@ -1536,6 +1542,7 @@ test('/recovery_email/verify_code', function (t) {
         mockLog.activityEvent.reset()
         mockLog.notifyAttachedServices.reset()
         mockMailer.sendPostVerifyEmail.reset()
+        mockPush.notifyUpdate.reset()
       })
     })
 
@@ -1545,8 +1552,6 @@ test('/recovery_email/verify_code', function (t) {
       return runTest(route, mockRequest, function (response) {
         t.equal(mockLog.activityEvent.callCount, 2, 'activityEvent was called twice')
         t.equal(mockLog.activityEvent.args[0][0], 'account.verified', 'first call was account.verified')
-        t.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
-
         var args = mockLog.activityEvent.args[1]
         t.equal(args.length, 3, 'activityEvent was passed three arguments second time')
         t.equal(args[0], 'account.reminder', 'first argument was event name')
@@ -1554,6 +1559,9 @@ test('/recovery_email/verify_code', function (t) {
         t.deepEqual(args[2], {
           uid: uid.toString('hex')
         }, 'third argument contained uid')
+
+        t.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
+        t.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')
 
         t.equal(JSON.stringify(response), '{}')
       })
@@ -1563,6 +1571,7 @@ test('/recovery_email/verify_code', function (t) {
         mockLog.activityEvent.reset()
         mockLog.notifyAttachedServices.reset()
         mockMailer.sendPostVerifyEmail.reset()
+        mockPush.notifyUpdate.reset()
       })
     })
   })
@@ -1579,6 +1588,7 @@ test('/recovery_email/verify_code', function (t) {
         t.equal(mockDB.verifyEmail.callCount, 0, 'does not call db.verifyEmail')
         t.equal(mockLog.notifyAttachedServices.callCount, 0, 'does not call log.notifyAttachedServices')
         t.equal(mockLog.activityEvent.callCount, 0, 'log.activityEvent was not called')
+        t.equal(mockPush.notifyUpdate.callCount, 0, 'mockPush.notifyUpdate should not have been called')
       })
       .then(function () {
         mockDB.verifyTokens.reset()
@@ -1608,13 +1618,18 @@ test('/recovery_email/verify_code', function (t) {
           payload: mockRequest.payload,
           query: mockRequest.query
         }, 'second argument was synthesized request object')
-        t.deepEqual(args[2], {
-          uid: uid.toString('hex')
-        }, 'third argument contained uid')
+        t.deepEqual(args[2], { uid: uid }, 'third argument contained uid')
+
+        t.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')
+        args = mockPush.notifyUpdate.args[0]
+        t.equal(args.length, 2, 'mockPush.notifyUpdate should have been passed two arguments')
+        t.equal(args[0].toString('hex'), uid, 'first argument should have been uid')
+        t.equal(args[1], 'accountConfirm', 'second argument should have been reason')
       })
       .then(function () {
         mockDB.verifyTokens.reset()
         mockLog.activityEvent.reset()
+        mockPush.notifyUpdate.reset()
       })
     })
   })
