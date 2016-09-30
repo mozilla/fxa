@@ -13,7 +13,6 @@ var sentryConfig = config.get('sentry');
 var API_KEY = sentryConfig.api_key;
 var API_SECRET = sentryConfig.api_secret;
 var STACK_TRACE_LENGTH = 20;
-var CONTENT_SERVER_VERSION = require('../../../package.json').version;
 
 /**
  * Attaches extra tags to sentry data
@@ -30,8 +29,6 @@ function setExtraSentryData(data) {
   }
 
   if (sentryData) {
-    sentryData.release = CONTENT_SERVER_VERSION;
-
     if (sentryData.stacktrace && sentryData.stacktrace.frames) {
       // the limit for the sentryRequest is controlled by nginx,
       // by default the request url should not be greater than ~8000 characters.

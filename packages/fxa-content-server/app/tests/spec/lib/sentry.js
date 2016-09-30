@@ -208,8 +208,8 @@ define(function (require, exports, module) {
         // do not call the real captureException,
         // no need to make network requests.
         sandbox.stub(Raven, 'captureException', function () {});
-
-        var sentry = new SentryMetrics(host);
+        var release = '0.1.0';
+        var sentry = new SentryMetrics(host, release);
 
         var err = new Error('uh oh');
         err.code = 400;
@@ -222,12 +222,31 @@ define(function (require, exports, module) {
         sentry.captureException(err);
 
         assert.isTrue(Raven.captureException.calledWith(err, {
+          release: release,
           tags: {
             code: 400,
             context: '/signup',
             errno: 998,
             namespace: 'config',
             status: 401
+          }
+        }));
+
+        sandbox.restore();
+      });
+
+      it('reports the error even if release version is not set', function () {
+        var sandbox = sinon.sandbox.create();
+        sandbox.stub(Raven, 'captureException', function () {});
+        var sentry = new SentryMetrics(host);
+
+        var err = new Error('uh oh');
+        err.code = 400;
+
+        sentry.captureException(err);
+        assert.isTrue(Raven.captureException.calledWith(err, {
+          tags: {
+            code: 400
           }
         }));
 

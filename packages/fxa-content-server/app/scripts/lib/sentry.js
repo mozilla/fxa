@@ -130,10 +130,12 @@ define(function (require, exports, module) {
    * Read more at https://github.com/getsentry/raven-js
    *
    * @param {String} host
+   * @param {String} [release] - content server release version
    * @constructor
    */
-  function SentryMetrics (host) {
+  function SentryMetrics (host, release) {
     this._logger = new Logger();
+    this._release = release;
 
     if (host) {
       // use __API_KEY__ instead of the real API key because raven.js requires it
@@ -201,6 +203,11 @@ define(function (require, exports, module) {
       var extraContext = {
         tags: tags
       };
+
+      if (this._release) {
+        // add release version if available
+        extraContext.release = this._release;
+      }
 
       Raven.captureException(err, extraContext);
     },

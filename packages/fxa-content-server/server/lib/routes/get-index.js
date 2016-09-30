@@ -15,6 +15,8 @@ module.exports = function (config) {
   var OAUTH_SERVER_URL = config.get('oauth_url');
   var PROFILE_SERVER_URL = config.get('profile_url');
   var STATIC_RESOURCE_URL = config.get('static_resource_url');
+  // add version from package.json to config
+  var RELEASE = require('../../../package.json').version;
 
   var serializedConfig = encodeURIComponent(JSON.stringify({
     allowedParentOrigins: ALLOWED_PARENT_ORIGINS,
@@ -24,7 +26,8 @@ module.exports = function (config) {
     marketingEmailServerUrl: MARKETING_EMAIL_API_URL,
     oAuthClientId: CLIENT_ID,
     oAuthUrl: OAUTH_SERVER_URL,
-    profileUrl: PROFILE_SERVER_URL
+    profileUrl: PROFILE_SERVER_URL,
+    release: RELEASE
   }));
 
   var route = {};

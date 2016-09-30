@@ -172,7 +172,11 @@ define(function (require, exports, module) {
     },
 
     enableSentryMetrics () {
-      this._sentryMetrics = new SentryMetrics(this._window.location.host);
+      let release;
+      if (this._config && this._config.release) {
+        release = this._config.release;
+      }
+      this._sentryMetrics = new SentryMetrics(this._window.location.host, release);
     },
 
     initializeL10n () {
