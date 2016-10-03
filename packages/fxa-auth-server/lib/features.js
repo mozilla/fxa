@@ -21,7 +21,7 @@ module.exports = config => {
     isLastAccessTimeEnabledForUser (uid, email) {
       return lastAccessTimeUpdates.enabled && (
         isSampledUser(lastAccessTimeUpdates.sampleRate, uid, 'lastAccessTimeUpdates') ||
-        new RegExp(lastAccessTimeUpdates.enabledEmailAddresses).test(email)
+        lastAccessTimeUpdates.enabledEmailAddresses.test(email)
       )
     },
 
@@ -43,8 +43,8 @@ module.exports = config => {
         return true
       }
 
-      // Or if the email address matches one of these regexes.
-      if (signinConfirmation.forceEmailRegex.some(regex => new RegExp(regex).test(email))) {
+      // Or if the email address matches the regex.
+      if (signinConfirmation.enabledEmailAddresses.test(email)) {
         return true
       }
 

@@ -13,7 +13,7 @@ var P = require('../../lib/promise')
 var TestServer = require('../test_server')
 const lastAccessTimeUpdates = {
   enabled: true,
-  enabledEmailAddresses: '.*',
+  enabledEmailAddresses: /.*/,
   sampleRate: 1
 }
 const Token = require('../../lib/tokens')(log, {

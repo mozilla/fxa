@@ -459,12 +459,10 @@ var conf = convict({
       ],
       env: 'SIGNIN_CONFIRMATION_SUPPORTED_CLIENTS'
     },
-    forceEmailRegex: {
+    enabledEmailAddresses: {
       doc: 'If feature enabled, force sign-in confirmation for email addresses matching this regex.',
-      format: Array,
-      default: [
-        '.+@mozilla\\.com$'
-      ],
+      format: RegExp,
+      default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX'
     }
   },
@@ -490,7 +488,8 @@ var conf = convict({
     },
     enabledEmailAddresses: {
       doc: 'regex matching enabled email addresses for updates to the lastAccessTime session token property',
-      default: '.+@mozilla\\.com$',
+      format: RegExp,
+      default: /.+@mozilla\.com$/,
       env: 'LASTACCESSTIME_UPDATES_EMAIL_ADDRESSES'
     }
   }

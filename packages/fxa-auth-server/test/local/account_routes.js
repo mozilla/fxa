@@ -917,10 +917,10 @@ test('/account/login', function (t) {
   })
 
   t.test('sign-in confirmation enabled', function (t) {
-    t.plan(10)
+    t.plan(9)
     config.signinConfirmation.enabled = true
     config.signinConfirmation.supportedClients = [ 'fx_desktop_v3' ]
-    config.signinConfirmation.forceEmailRegex = [ '.+@mozilla\\.com$', 'fennec@fire.fox' ]
+    config.signinConfirmation.enabledEmailAddresses = /.+@mozilla\.com$/
     mockDB.emailRecord = function () {
       return P.resolve({
         authSalt: crypto.randomBytes(32),
@@ -1033,39 +1033,6 @@ test('/account/login', function (t) {
         t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
         t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
       }).then(function () {
-        mockDB.createSessionToken.reset()
-      })
-    })
-
-    t.test('on for specific email', function (t) {
-      mockRequest.payload.email = 'fennec@fire.fox'
-      mockDB.emailRecord = function () {
-        return P.resolve({
-          authSalt: crypto.randomBytes(32),
-          data: crypto.randomBytes(32),
-          email: 'fennec@fire.fox',
-          emailVerified: true,
-          kA: crypto.randomBytes(32),
-          lastAuthAt: function () {
-            return Date.now()
-          },
-          uid: uid,
-          wrapWrapKb: crypto.randomBytes(32)
-        })
-      }
-
-      return runTest(route, mockRequest, function (response) {
-        t.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
-        var tokenData = mockDB.createSessionToken.getCall(0).args[0]
-        t.ok(tokenData.mustVerify, 'sessionToken must be verified before use')
-        t.ok(tokenData.tokenVerificationId, 'sessionToken was created unverified')
-        t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-        t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
-        t.notOk(response.verified, 'response indicates account is not verified')
-        t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
-        t.equal(response.verificationReason, 'login', 'verificationReason is login')
-      }).then(function () {
-        mockMailer.sendVerifyLoginEmail.reset()
         mockDB.createSessionToken.reset()
       })
     })
