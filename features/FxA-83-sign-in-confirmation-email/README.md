@@ -292,6 +292,8 @@ with some protection on their accounts.
 
 <img src="sign-in-change-password.png" height="300">
 
+## Conclusion and Next Steps
+
 Overall, the sign-in confirmation feature has provided
 FxA users with an extra layer of security. However, this feature
 has introduced some friction in the overall sign-in
