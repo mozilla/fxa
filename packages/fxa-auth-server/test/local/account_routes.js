@@ -677,7 +677,7 @@ test('/account/create', function (t) {
     t.equal(args.length, 3, 'metricsContext.stash was passed three arguments first time')
     t.deepEqual(args[0].tokenId, sessionTokenId, 'first argument was session token')
     t.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
-    t.deepEqual(args[1], [ 'device.created', 'account.signed' ], 'second argument was event array')
+    t.equal(args[1], 'account.signed', 'second argument was event name')
     t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
 
     args = mockMetricsContext.stash.args[1]
@@ -832,7 +832,7 @@ test('/account/login', function (t) {
         t.equal(args.length, 3, 'metricsContext.stash was passed three arguments first time')
         t.deepEqual(args[0].tokenId, sessionTokenId, 'first argument was session token')
         t.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
-        t.deepEqual(args[1], ['device.created', 'account.signed'], 'second argument was event array')
+        t.equal(args[1], 'account.signed', 'second argument was event name')
         t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
 
         args = mockMetricsContext.stash.args[1]
@@ -951,7 +951,7 @@ test('/account/login', function (t) {
         t.equal(response.verificationReason, 'login', 'verificationReason is login')
 
         t.equal(mockMetricsContext.stash.callCount, 3, 'metricsContext.stash was called three times')
-        t.deepEqual(mockMetricsContext.stash.args[0][1], [ 'device.created', 'account.signed' ], 'first call was for device.created and account.signed')
+        t.equal(mockMetricsContext.stash.args[0][1], 'account.signed', 'first call was for account.signed')
         var args = mockMetricsContext.stash.args[1]
         t.equal(args.length, 3, 'metricsContext.stash was passed three arguments second time')
         t.ok(/^[0-9a-f]{32}$/.test(args[0].id), 'first argument was synthesized token')

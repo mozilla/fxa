@@ -539,7 +539,7 @@ test(
 test(
   'log.flowEvent with optional flow event and missing flowId',
   t => {
-    return log.flowEvent('device.created', {
+    return log.flowEvent('account.keyfetch', {
       headers: {
         'user-agent': 'foo'
       },

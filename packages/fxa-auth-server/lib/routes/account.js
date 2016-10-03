@@ -234,10 +234,7 @@ module.exports = function (
             .then(
               function (result) {
                 sessionToken = result
-                return metricsContext.stash(sessionToken, [
-                  'device.created',
-                  'account.signed'
-                ], form.metricsContext)
+                return metricsContext.stash(sessionToken, 'account.signed', form.metricsContext)
               }
             )
             .then(
@@ -568,10 +565,7 @@ module.exports = function (
             .then(
               function (result) {
                 sessionToken = result
-                return metricsContext.stash(sessionToken, [
-                  'device.created',
-                  'account.signed'
-                ], form.metricsContext)
+                return metricsContext.stash(sessionToken, 'account.signed', form.metricsContext)
               }
             )
             .then(
