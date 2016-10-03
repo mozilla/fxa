@@ -97,9 +97,9 @@ define(function (require, exports, module) {
      * This includes listeners internal to the app, other FxA tabs, as
      * well as the browser.
      *
-     * @param {string} command
-     * @param {object} data
-     * @param {context} context
+     * @param {String} command
+     * @param {Object} data
+     * @param {Context} context
      */
     triggerAll: function (command, data, context) {
       this.triggerRemote(command, data);
@@ -110,8 +110,8 @@ define(function (require, exports, module) {
      * Send a notification to all interested remote parties,
      * including other FxA tabs.
      *
-     * @param {string} command
-     * @param {object} data
+     * @param {String} command
+     * @param {Object} data
      */
     triggerRemote: function (command, data) {
       // Validation distinguishes between undefined values and values that are

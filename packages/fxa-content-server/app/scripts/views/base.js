@@ -227,7 +227,7 @@ define(function (require, exports, module) {
      * If user is not authorized they will be sent to another screen
      * to sign in or confirm their account.
      *
-     * @returns {promise} resolves to true or false.
+     * @returns {Promise} resolves to true or false.
      */
     checkAuthorization: function () {
       var self = this;
@@ -337,8 +337,8 @@ define(function (require, exports, module) {
     /**
      * Translate a string
      *
-     * @param {string} text - string to translate
-     * @returns {string}
+     * @param {String} text - string to translate
+     * @returns {String}
      */
     translate: function (text) {
       return this.translator.get(text, this.getContext());
@@ -351,8 +351,8 @@ define(function (require, exports, module) {
      * this.getContext(). This function avoids
      * infinite recursion.
      *
-     * @param {string} [text] - string to translate
-     * @returns {function}
+     * @param {String} [text] - string to translate
+     * @returns {Function}
      */
     translateInTemplate: function (text) {
       if (text) {
@@ -502,9 +502,9 @@ define(function (require, exports, module) {
     /**
      * Display an error message.
      * @method translateError
-     * @param {string} err - an error object
+     * @param {String} err - an error object
      *
-     * @return {string} translated error text (if available), untranslated
+     * @return {String} translated error text (if available), untranslated
      *   error text otw.
      */
     translateError: function (err) {
@@ -527,10 +527,10 @@ define(function (require, exports, module) {
     /**
      * Display an error message.
      * @method displayError
-     * @param {string} err - If err is not given, the contents of the
+     * @param {String} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
      *
-     * @return {string} translated error text (if available), untranslated
+     * @return {String} translated error text (if available), untranslated
      *   error text otw.
      */
     displayError: _.partial(displayError, 'text'),
@@ -541,10 +541,10 @@ define(function (require, exports, module) {
      * with unsanitized user generated content.
      *
      * @method displayErrorUnsafe
-     * @param {string} err - If err is not given, the contents of the
+     * @param {String} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
      *
-     * @return {string} translated error text (if available), untranslated
+     * @return {String} translated error text (if available), untranslated
      *   error text otw.
      */
     displayErrorUnsafe: _.partial(displayError, 'html'),
@@ -576,7 +576,7 @@ define(function (require, exports, module) {
      * to the appropriate error page.
      *
      * @param {Error} err
-     * @returns {promise}
+     * @returns {Promise}
      */
     fatalError: function (err) {
       return ErrorUtils.fatalError(
@@ -659,9 +659,9 @@ define(function (require, exports, module) {
     /**
      * navigate to another screen
      *
-     * @param {string} url - url of screen
-     * @param {object} [nextViewData] - data to pass to the next view
-     * @param {routerOptions} [routerOptions] - options to pass to the router
+     * @param {String} url - url of screen
+     * @param {Object} [nextViewData] - data to pass to the next view
+     * @param {RouterOptions} [routerOptions] - options to pass to the router
      */
     navigate: function (url, nextViewData, routerOptions) {
       nextViewData = nextViewData || {};
@@ -739,9 +739,9 @@ define(function (require, exports, module) {
     /**
      * Place the cursor at the given position within the input element
      *
-     * @param {selector | element} which
-     * @param {number} selectionStart - defaults to after the last character.
-     * @param {number} selectionEnd - defaults to selectionStart.
+     * @param {String | Element} which - Strings are assumed to be selectors
+     * @param {Number} selectionStart - defaults to after the last character.
+     * @param {Number} selectionEnd - defaults to selectionStart.
      */
     placeCursorAt (which, selectionStart = $(which).val().length, selectionEnd = selectionStart) {
       const el = $(which).get(0);
@@ -761,7 +761,7 @@ define(function (require, exports, module) {
      * the handler on `this`.
      *
      * @method invokeHandler
-     * @param {string|Function} handler
+     * @param {String|Function} handler
      * @returns {undefined}
      */
     invokeHandler: function (handler/*, args...*/) {
@@ -838,7 +838,7 @@ define(function (require, exports, module) {
      *
      * @method invokeBehavior
      * @param {Function} behavior
-     * @returns {variant} behavior's return value if behavior is a function,
+     * @returns {Variant} behavior's return value if behavior is a function,
      *         otherwise return the behavior.
      */
     invokeBehavior: function (behavior) {

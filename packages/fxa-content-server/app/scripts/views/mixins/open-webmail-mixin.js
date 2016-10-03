@@ -98,8 +98,8 @@ define(function (require, exports, module) {
     /**
      * Check if the `Open Webmail` button should be visible
      *
-     * @param {string} email
-     * @returns {boolean}
+     * @param {String} email
+     * @returns {Boolean}
      */
     isOpenWebmailButtonVisible: function (email) {
       // The "Open webmail" button is only visible in certain contexts

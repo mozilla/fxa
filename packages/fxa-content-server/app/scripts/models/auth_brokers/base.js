@@ -63,8 +63,8 @@ define(function (require, exports, module) {
     /**
      * Set a behavior
      *
-     * @param {string} behaviorName
-     * @param {object} value
+     * @param {String} behaviorName
+     * @param {Object} value
      */
     setBehavior: function (behaviorName, value) {
       this._behaviors.set(behaviorName, value);
@@ -73,8 +73,8 @@ define(function (require, exports, module) {
     /**
      * Get a behavior
      *
-     * @param {string} behaviorName
-     * @return {object}
+     * @param {String} behaviorName
+     * @return {Object}
      */
     getBehavior: function (behaviorName) {
       if (! this._behaviors.has(behaviorName)) {
@@ -199,8 +199,8 @@ define(function (require, exports, module) {
     /**
      * Clear persisted verification data for the account
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     unpersistVerificationData: function (account) {
       return p().then(function () {
@@ -212,8 +212,8 @@ define(function (require, exports, module) {
      * Called after the user has signed up but before the screen has
      * transitioned to the "confirm your email" view.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     afterSignUp: function (/* account */) {
       return p(this.getBehavior('afterSignUp'));
@@ -224,8 +224,8 @@ define(function (require, exports, module) {
      * to notify the RP that the user has successfully signed up but
      * has not yet completed verification.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     beforeSignUpConfirmationPoll: function (/* account */) {
       return p(this.getBehavior('beforeSignUpConfirmationPoll'));
@@ -236,8 +236,8 @@ define(function (require, exports, module) {
      * to notify the RP that the user has successfully signed up and
      * completed verification.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     afterSignUpConfirmationPoll: function (/* account */) {
       return p(this.getBehavior('afterSignUpConfirmationPoll'));
@@ -246,8 +246,8 @@ define(function (require, exports, module) {
     /**
      * Called after signup email verification, in the verification tab.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     afterCompleteSignUp: function (account) {
       var self = this;
@@ -262,8 +262,8 @@ define(function (require, exports, module) {
      * Can be used to notify the RP that the user has sucessfully reset their
      * password.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     afterResetPasswordConfirmationPoll: function (/* account */) {
       return p(this.getBehavior('afterResetPasswordConfirmationPoll'));
@@ -272,8 +272,8 @@ define(function (require, exports, module) {
     /**
      * Called after password reset email verification, in the verification tab.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     afterCompleteResetPassword: function (account) {
       var self = this;
@@ -286,8 +286,8 @@ define(function (require, exports, module) {
     /**
      * Called after a user has changed their password.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     afterChangePassword: function (/* account */) {
       return p(this.getBehavior('afterChangePassword'));
@@ -296,8 +296,8 @@ define(function (require, exports, module) {
     /**
      * Called after a user has deleted their account.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
     afterDeleteAccount: function (/* account */) {
       return p(this.getBehavior('afterDeleteAccount'));
@@ -381,8 +381,8 @@ define(function (require, exports, module) {
      * Check if a capability is supported. A capability is not supported
      * if it's value is not a member of or falsy in `this.defaultCapabilities`.
      *
-     * @param {string} capabilityName
-     * @return {boolean}
+     * @param {String} capabilityName
+     * @return {Boolean}
      */
     hasCapability: function (capabilityName) {
       return this._capabilities.has(capabilityName) &&
@@ -390,10 +390,10 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Set whether a capability is supported
+     * Set a capability value.
      *
-     * @param {string} capabilityName
-     * @param {variant} capabilityValue
+     * @param {String} capabilityName
+     * @param {Variant} capabilityValue
      */
     setCapability: function (capabilityName, capabilityValue) {
       this._capabilities.set(capabilityName, capabilityValue);
@@ -402,7 +402,7 @@ define(function (require, exports, module) {
     /**
      * Remove support for a capability
      *
-     * @param {string} capabilityName
+     * @param {String} capabilityName
      */
     unsetCapability: function (capabilityName) {
       this._capabilities.unset(capabilityName);
@@ -411,8 +411,8 @@ define(function (require, exports, module) {
     /**
      * Get the capability value
      *
-     * @param {string} capabilityName
-     * @return {variant}
+     * @param {String} capabilityName
+     * @return {Variant}
      */
     getCapability: function (capabilityName) {
       return this._capabilities.get(capabilityName);

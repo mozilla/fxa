@@ -201,7 +201,7 @@ define(function (require, exports, module) {
      * Remove the account from storage. If account is the "signed in account",
      * the signed in account field will be cleared.
      *
-     * @param {object} accountData - Account model or object representing
+     * @param {Object} accountData - Account model or object representing
      *   account data.
      */
     removeAccount: function (accountData) {
@@ -221,9 +221,9 @@ define(function (require, exports, module) {
      * Delete the account from the server, notify all interested parties,
      * delete the account from storage.
      *
-     * @param {object} accountData
-     * @param {string} password - the user's password
-     * @return {promise} - resolves when complete
+     * @param {Object} accountData
+     * @param {String} password - the user's password
+     * @return {Promise} - resolves when complete
      */
     deleteAccount: function (accountData, password) {
       var self = this;
@@ -348,11 +348,11 @@ define(function (require, exports, module) {
     /**
      * Sign in an account. Notifies other tabs of signin on success.
      *
-     * @param {object} account - account to sign in
-     * @param {string} password - the user's password
-     * @param {object} relier - relier being signed in to
-     * @param {object} [options] - options
-     * @returns {promise} - resolves when complete
+     * @param {Object} account - account to sign in
+     * @param {String} password - the user's password
+     * @param {Object} relier - relier being signed in to
+     * @param {Object} [options] - options
+     * @returns {Promise} - resolves when complete
      */
     signInAccount: function (account, password, relier, options) {
       var self = this;
@@ -391,11 +391,11 @@ define(function (require, exports, module) {
     /**
      * Sign up a new account
      *
-     * @param {object} account - account to sign up
-     * @param {string} password - the user's password
-     * @param {object} relier - relier being signed in to
-     * @param {object} [options] - options
-     * @returns {promise} - resolves when complete
+     * @param {Object} account - account to sign up
+     * @param {String} password - the user's password
+     * @param {Object} relier - relier being signed in to
+     * @param {Object} [options] - options
+     * @returns {Promise} - resolves when complete
      */
     signUpAccount: function (account, password, relier, options) {
       var self = this;
@@ -423,11 +423,11 @@ define(function (require, exports, module) {
      * if the account has a sessionToken and verification successfully
      * completes.
      *
-     * @param {object} account - account to verify
-     * @param {string} code - verification code
-     * @param {object} [options]
-     * @param {object} [options.service] - the service issuing signup request
-     * @returns {promise} - resolves with the account when complete
+     * @param {Object} account - account to verify
+     * @param {String} code - verification code
+     * @param {Object} [options]
+     * @param {Object} [options.service] - the service issuing signup request
+     * @returns {Promise} - resolves with the account when complete
      */
     completeAccountSignUp: function (account, code, options) {
       var self = this;
@@ -462,11 +462,11 @@ define(function (require, exports, module) {
     /**
      * Change the account password
      *
-     * @param {object} account - account to change the password for.
-     * @param {string} oldPassword - the old password
-     * @param {string} newPassword - the new password
-     * @param {object} relier - the relier used to open settings
-     * @return {object} promise - resolves with the updated account
+     * @param {Object} account - account to change the password for.
+     * @param {String} oldPassword - the old password
+     * @param {String} newPassword - the new password
+     * @param {Object} relier - the relier used to open settings
+     * @return {Object} promise - resolves with the updated account
      * when complete.
      */
     changeAccountPassword: function (account, oldPassword, newPassword, relier) {
@@ -496,7 +496,7 @@ define(function (require, exports, module) {
      * Notify other tabs of account sign in
      *
      * @private
-     * @param {object} account
+     * @param {Object} account
      */
     _notifyOfAccountSignIn: function (account) {
       // Other tabs only need to know the account `uid` to load any
@@ -509,12 +509,12 @@ define(function (require, exports, module) {
      * Complete a password reset for the account. Notifies other tabs
      * of signin on success.
      *
-     * @param {object} account - account to sign up
-     * @param {string} password - the user's new password
-     * @param {string} token - email verification token
-     * @param {string} code - email verification code
-     * @param {object} relier - relier being signed in to
-     * @returns {promise} - resolves when complete
+     * @param {Object} account - account to sign up
+     * @param {String} password - the user's new password
+     * @param {String} token - email verification token
+     * @param {String} code - email verification code
+     * @param {Object} relier - relier being signed in to
+     * @returns {Promise} - resolves when complete
      */
     completeAccountPasswordReset: function (account, password, token, code, relier) {
       var self = this;
@@ -543,9 +543,9 @@ define(function (require, exports, module) {
      * Fetch the devices for the given account, populated the passed in
      * Devices collection.
      *
-     * @param {object} account - account for which device list is requested
-     * @param {object} devices - Devices collection used to store list.
-     * @returns {promise} resolves when the action completes
+     * @param {Object} account - account for which device list is requested
+     * @param {Object} devices - Devices collection used to store list.
+     * @returns {Promise} resolves when the action completes
      */
     fetchAccountDevices: function (account, devices) {
       return account.fetchDevices(devices);
@@ -555,9 +555,9 @@ define(function (require, exports, module) {
      * Fetch the OAuthApps for the given account, populated into the passed
      * collection.
      *
-     * @param {object} account - account for which device list is requested
-     * @param {object} oAuthApps - oAuthApps collection used to store list.
-     * @returns {promise} resolves when the action completes
+     * @param {Object} account - account for which device list is requested
+     * @param {Object} oAuthApps - oAuthApps collection used to store list.
+     * @returns {Promise} resolves when the action completes
      */
     fetchAccountOAuthApps: function (account, oAuthApps) {
       return account.fetchOAuthApps(oAuthApps);
@@ -596,8 +596,8 @@ define(function (require, exports, module) {
      * Check whether an Account's `uid` is registered. Removes the account
      * from storage if account no longer exists on the server.
      *
-     * @param {object} account - account to check
-     * @returns {promise} resolves to `true` if an account exists, `false` otw.
+     * @param {Object} account - account to check
+     * @returns {Promise} resolves to `true` if an account exists, `false` otw.
      */
     checkAccountUidExists: function (account) {
       var self = this;
@@ -614,8 +614,8 @@ define(function (require, exports, module) {
      * Check whether an Account's `email` is registered. Removes the account
      * from storage if account no longer exists on the server.
      *
-     * @param {object} account - account to check
-     * @returns {promise} resolves to `true` if an account exists, `false` otw.
+     * @param {Object} account - account to check
+     * @returns {Promise} resolves to `true` if an account exists, `false` otw.
      */
     checkAccountEmailExists: function (account) {
       var self = this;

@@ -227,7 +227,7 @@ define(function (require, exports, module) {
     /**
      * Return `true` if the relier sets `prompt=consent`
      *
-     * @returns {boolean} `true` if relier asks for consent, false otw.
+     * @returns {Boolean} `true` if relier asks for consent, false otw.
      */
     wantsConsent: function () {
       return this.get('prompt') === Constants.OAUTH_PROMPT_CONSENT;
@@ -237,8 +237,8 @@ define(function (require, exports, module) {
      * Check whether additional permissions are requested from
      * the given account
      *
-     * @param {object} account
-     * @returns {boolean} `true` if additional permissions
+     * @param {Object} account
+     * @returns {Boolean} `true` if additional permissions
      *   are needed, false otw.
      */
     accountNeedsPermissions: function (account) {

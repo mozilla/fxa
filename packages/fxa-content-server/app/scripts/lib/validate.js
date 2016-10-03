@@ -259,7 +259,7 @@ define(function (require, exports, module) {
      * Checks if value is composed of only hex characters.
      *
      * @param {String} value
-     * @returns {boolean}
+     * @returns {Boolean}
      */
     isHexValid: function isHexValid(value) {
       return HEX_STRING.test(value);
@@ -269,7 +269,7 @@ define(function (require, exports, module) {
      * Check if the verification redirect value is valid.
      *
      * @param {String} value
-     * @returns {boolean}
+     * @returns {Boolean}
      */
     isVerificationRedirectValid: function isVerificationRedirectValid(value) {
       var valid = [

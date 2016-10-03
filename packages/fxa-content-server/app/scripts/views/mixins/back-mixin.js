@@ -49,7 +49,7 @@ define(function (require, exports, module) {
      * Go back to the last page.
      *
      * @method back
-     * @param {object} [nextViewData] - data to send to the next(last) view.
+     * @param {Object} [nextViewData] - data to send to the next(last) view.
      */
     back: function (nextViewData) {
       this.logViewEvent('back');

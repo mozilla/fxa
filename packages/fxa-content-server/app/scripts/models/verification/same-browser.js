@@ -43,7 +43,7 @@ define(function (require, exports, module) {
      * Get the user's storage ID. `uid` is used for signup,
      * `email` for password reset.
      *
-     * @returns {string}
+     * @returns {String}
      * @private
      */
     _getUsersStorageId: function () {

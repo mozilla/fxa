@@ -48,9 +48,9 @@ define(function (require, exports, module) {
     /**
      * Retry a password reset
      *
-     * @param {string} email
-     * @param {string} passwordForgotToken
-     * @return {promise} - resolves with auth server response if successful.
+     * @param {String} email
+     * @param {String} passwordForgotToken
+     * @return {Promise} - resolves with auth server response if successful.
      */
     retryResetPassword: function (email, passwordForgotToken) {
       var self = this;

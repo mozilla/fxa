@@ -128,7 +128,7 @@ define(function (require, exports, module) {
      * The button links to the redirect_uri of the relier with no extra
      * OAuth information.
      *
-     * @returns {boolean}
+     * @returns {Boolean}
      * @private
      */
     _shouldShowProceedButton: function () {
@@ -144,7 +144,7 @@ define(function (require, exports, module) {
     /**
      * Determine whether the `Sync Preferences` button should be shown.
      *
-     * @returns {boolean}
+     * @returns {Boolean}
      * @private
      */
     _shouldShowSyncPreferencesButton: function () {

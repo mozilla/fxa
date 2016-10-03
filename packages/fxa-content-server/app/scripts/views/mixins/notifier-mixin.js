@@ -78,8 +78,8 @@ define(function (require, exports, module) {
      * Send a local message over the notifications channel. Message
      * is only sent to consumers of this tab.
      *
-     * @param {string} eventName
-     * @param {object} [data]
+     * @param {String} eventName
+     * @param {Object} [data]
      */
     trigger: function (eventName, data) {
       this._notifier.trigger(eventName, data, this._consumer);
@@ -89,8 +89,8 @@ define(function (require, exports, module) {
      * Send a message to all tabs & webChannels over the
      * notifications channel.
      *
-     * @param {string} eventName
-     * @param {object} [data]
+     * @param {String} eventName
+     * @param {Object} [data]
      */
     triggerAll: function (eventName, data) {
       this._notifier.triggerAll(eventName, data, this._consumer);
@@ -99,8 +99,8 @@ define(function (require, exports, module) {
     /**
      * Send a message to all remote tabs & webChannels.
      *
-     * @param {string} eventName
-     * @param {object} [data]
+     * @param {String} eventName
+     * @param {Object} [data]
      */
     triggerRemote: function (eventName, data) {
       this._notifier.triggerRemote(eventName, data);
@@ -109,8 +109,8 @@ define(function (require, exports, module) {
     /**
      * Register a listener
      *
-     * @param {string} eventName
-     * @param {function} callback
+     * @param {String} eventName
+     * @param {Function} callback
      */
     on: function (eventName, callback) {
       this._notifier.on(eventName, callback);
@@ -125,8 +125,8 @@ define(function (require, exports, module) {
      * Unregister a listener. If `eventName` and `callback` are not given,
      * unregister all callbacks for the consumer.
      *
-     * @param {string} [eventName]
-     * @param {function} [callback]
+     * @param {String} [eventName]
+     * @param {Function} [callback]
      */
     off: function (eventName, callback) {
       if (! eventName) {

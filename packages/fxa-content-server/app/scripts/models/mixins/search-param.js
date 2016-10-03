@@ -26,7 +26,7 @@ define(function (require, exports, module) {
     /**
      * Get values from the URL search parameters.
      *
-     * @param {strings[]} paramNames - name of the search parameters
+     * @param {String[]} paramNames - name of the search parameters
      * to get
      * @returns {Object}
      */

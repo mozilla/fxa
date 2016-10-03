@@ -172,7 +172,7 @@ define(function (require, exports, module) {
      * displayError will display the error to the user.
      *
      * @method validateAndSubmit
-     * @return {promise}
+     * @return {Promise}
      */
     validateAndSubmit: allowOnlyOneSubmit(function validateAndSubmit (event) {
       var self = this;

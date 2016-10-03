@@ -59,7 +59,7 @@ define(function (require, exports, module) {
   /**
    * Test whether storage can be written to and removed from.
    *
-   * @param {string} type - (localStorage|sessionStorage)
+   * @param {String} type - (localStorage|sessionStorage)
    * @param {Object} [win] - window object
    * @throws browser generated errors, `disabled for tests` if disabled for
    *   tests.
@@ -100,7 +100,7 @@ define(function (require, exports, module) {
   /**
    * Check if there are any problems accessing sessionStorage
    *
-   * @param {object} win - window object
+   * @param {Object} win - window object
    * @throws browser generated errors, `disabled for tests` if disabled for
    *   tests.
    */
@@ -120,8 +120,8 @@ define(function (require, exports, module) {
   /**
    * Check if localStorage is enabled
    *
-   * @param {object} [win]
-   * @returns {boolean}
+   * @param {Object} [win]
+   * @returns {Boolean}
    */
   Storage.isLocalStorageEnabled = function (win) {
     return Storage._isStorageEnabled('localStorage', win);
@@ -130,8 +130,8 @@ define(function (require, exports, module) {
   /**
    * Check if sessionStorage is enabled
    *
-   * @param {object} [win]
-   * @returns {boolean}
+   * @param {Object} [win]
+   * @returns {Boolean}
    */
   Storage.isSessionStorageEnabled = function (win) {
     return Storage._isStorageEnabled('sessionStorage', win);

@@ -29,11 +29,11 @@ define(function (require, exports, module) {
      * Adds a profile image for the account to the view, or a default image
      * if none is available.
      *
-     * @param {object} account - The account whose profile image will be shown.
-     * @param {object} [options]
-     *   @param {string} [options.wrapperClass] - The class for the element into
+     * @param {Object} account - The account whose profile image will be shown.
+     * @param {Object} [options]
+     *   @param {String} [options.wrapperClass] - The class for the element into
      *                 which the profile image will be inserted.
-     *   @param {boolean} [options.spinner] - When true, show a spinner while
+     *   @param {Boolean} [options.spinner] - When true, show a spinner while
      *                    the profile image is loading.
      * @returns {Promise}
      */

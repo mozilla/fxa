@@ -222,7 +222,7 @@ define(function (require, exports, module) {
      * includes whether the session is verified, and if not, the reason
      * it must be verified and by which method.
      *
-     * @returns {promise} resolves with the account's current session
+     * @returns {Promise} resolves with the account's current session
      * information if session is valid. Rejects with an INVALID_TOKEN error
      * if session is invalid.
      *
@@ -370,14 +370,14 @@ define(function (require, exports, module) {
     /**
      * Sign in an existing user.
      *
-     * @param {string} password - The user's password
-     * @param {object} relier - Relier being signed in to
-     * @param {object} [options]
+     * @param {String} password - The user's password
+     * @param {Object} relier - Relier being signed in to
+     * @param {Object} [options]
      * @param {String} [options.reason] - Reason for the sign in. See definitons
      * in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
-     * @param {string} [options.resume] - Resume token to send in verification
+     * @param {String} [options.resume] - Resume token to send in verification
      * email if user is unverified.
-     * @returns {promise} - resolves when complete
+     * @returns {Promise} - resolves when complete
      */
     signIn: function (password, relier, options) {
       var self = this;
@@ -410,12 +410,12 @@ define(function (require, exports, module) {
     /**
      * Sign up a new user.
      *
-     * @param {string} password - The user's password
-     * @param {object} relier - Relier being signed in to
-     * @param {object} [options]
-     * @param {string} [options.resume] - Resume token to send in verification
+     * @param {String} password - The user's password
+     * @param {Object} relier - Relier being signed in to
+     * @param {Object} [options]
+     * @param {String} [options.resume] - Resume token to send in verification
      * email if user is unverified.
-     * @returns {promise} - resolves when complete
+     * @returns {Promise} - resolves when complete
      */
     signUp: function (password, relier, options) {
       var self = this;
@@ -438,10 +438,10 @@ define(function (require, exports, module) {
     /**
      * Retry a sign up
      *
-     * @param {object} relier
-     * @param {object} [options]
-     * @param {string} [options.resume] resume token
-     * @returns {promise} - resolves when complete
+     * @param {Object} relier
+     * @param {Object} [options]
+     * @param {String} [options.resume] resume token
+     * @returns {Promise} - resolves when complete
      */
     retrySignUp: function (relier, options) {
       options = options || {};
@@ -458,10 +458,10 @@ define(function (require, exports, module) {
     /**
      * Verify the account using the verification code
      *
-     * @param {string} code - the verification code
-     * @param {object} [options]
-     * @param {object} [options.service] - the service issuing signup request
-     * @returns {promise} - resolves when complete
+     * @param {String} code - the verification code
+     * @param {Object} [options]
+     * @param {Object} [options.service] - the service issuing signup request
+     * @returns {Promise} - resolves when complete
      */
     verifySignUp: function (code, options) {
       var self = this;
@@ -484,7 +484,7 @@ define(function (require, exports, module) {
     /**
      * Check whether the account's email is registered.
      *
-     * @returns {promise} resolves to `true` if email is registered,
+     * @returns {Promise} resolves to `true` if email is registered,
      * `false` otw.
      */
     checkEmailExists: function () {
@@ -494,7 +494,7 @@ define(function (require, exports, module) {
     /**
      * Check whether the account's UID is registered.
      *
-     * @returns {promise} resolves to `true` if the uid is registered,
+     * @returns {Promise} resolves to `true` if the uid is registered,
      * `false` otw.
      */
     checkUidExists: function () {
@@ -504,7 +504,7 @@ define(function (require, exports, module) {
     /**
      * Sign out the user
      *
-     * @returns {promise} - resolves when complete
+     * @returns {Promise} - resolves when complete
      */
     signOut: function () {
       return this._fxaClient.signOut(this.get('sessionToken'));
@@ -513,8 +513,8 @@ define(function (require, exports, module) {
     /**
      * Destroy the account, remove it from the server
      *
-     * @param {string} password - The user's password
-     * @returns {promise} - resolves when complete
+     * @param {String} password - The user's password
+     * @returns {Promise} - resolves when complete
      */
     destroy: function (password) {
       var self = this;
@@ -564,8 +564,8 @@ define(function (require, exports, module) {
      *   'profile:email': true
      * }
      *
-     * @param {string} clientId
-     * @returns {object}
+     * @param {String} clientId
+     * @returns {Object}
      */
     getClientPermissions: function (clientId) {
       var permissions = this.get('permissions') || {};
@@ -575,9 +575,9 @@ define(function (require, exports, module) {
     /**
      * Get the value of a single permission
      *
-     * @param {string} clientId
-     * @param {string} permissionName
-     * @returns {boolean}
+     * @param {String} clientId
+     * @param {String} permissionName
+     * @returns {Boolean}
      */
     getClientPermission: function (clientId, permissionName) {
       var clientPermissions = this.getClientPermissions(clientId);
@@ -592,8 +592,8 @@ define(function (require, exports, module) {
      *   'profile:email': true
      * }
      *
-     * @param {string} clientId
-     * @param {object} clientPermissions
+     * @param {String} clientId
+     * @param {Object} clientPermissions
      */
     setClientPermissions: function (clientId, clientPermissions) {
       var allPermissions = this.get('permissions') || {};
@@ -605,9 +605,9 @@ define(function (require, exports, module) {
      * Check whether all the passed in permissions have been
      * seen previously.
      *
-     * @param {string} clientId
-     * @param {strings[]} permissions
-     * @returns {boolean} `true` if client has seen all the permissions,
+     * @param {String} clientId
+     * @param {String[]} permissions
+     * @returns {Boolean} `true` if client has seen all the permissions,
      *  `false` otw.
      */
     hasSeenPermissions: function (clientId, permissions) {
@@ -623,8 +623,8 @@ define(function (require, exports, module) {
      * Return a list of permissions that have
      * corresponding account values.
      *
-     * @param {strings[]} permissionNames
-     * @returns {strings[]}
+     * @param {String[]} permissionNames
+     * @returns {String[]}
      */
     getPermissionsWithValues: function (permissionNames) {
       var self = this;
@@ -661,10 +661,10 @@ define(function (require, exports, module) {
     /**
      * Change the user's password
      *
-     * @param {string} oldPassword
-     * @param {string} newPassword
-     * @param {object} relier
-     * @returns {promise}
+     * @param {String} oldPassword
+     * @param {String} newPassword
+     * @param {Object} relier
+     * @returns {Promise}
      */
     changePassword: function (oldPassword, newPassword, relier) {
       // Try to sign the user in before checking whether the
@@ -721,11 +721,11 @@ define(function (require, exports, module) {
     /**
      * Complete a password reset
      *
-     * @param {string} password - the user's new password
-     * @param {string} token - email verification token
-     * @param {string} code - email verification code
-     * @param {object} relier - relier being signed in to.
-     * @returns {promise} - resolves when complete
+     * @param {String} password - the user's new password
+     * @param {String} token - email verification token
+     * @param {String} code - email verification code
+     * @param {Object} relier - relier being signed in to.
+     * @returns {Promise} - resolves when complete
      */
     completePasswordReset: function (password, token, code, relier) {
       return this._fxaClient.completePasswordReset(
@@ -773,8 +773,8 @@ define(function (require, exports, module) {
     /**
      * Delete the device from the account
      *
-     * @param {object} device - Device model to remove
-     * @returns {promise} - resolves when complete
+     * @param {Object} device - Device model to remove
+     * @returns {Promise} - resolves when complete
      */
     destroyDevice: function (device) {
       var deviceId = device.get('id');
@@ -790,8 +790,8 @@ define(function (require, exports, module) {
     /**
      * Delete the device from the account
      *
-     * @param {object} oAuthApp - OAuthApp model to remove
-     * @returns {promise} - resolves when complete
+     * @param {Object} oAuthApp - OAuthApp model to remove
+     * @returns {Promise} - resolves when complete
      */
     destroyOAuthApp: function (oAuthApp) {
       var oAuthAppId = oAuthApp.get('id');
@@ -806,10 +806,10 @@ define(function (require, exports, module) {
     /**
      * Initiate a password reset
      *
-     * @param {object} relier
-     * @param {object} [options]
-     * @param {string} [options.resume] resume token
-     * @returns {promise}
+     * @param {Object} relier
+     * @param {Object} [options]
+     * @param {String} [options.resume] resume token
+     * @returns {Promise}
      */
     resetPassword: function (relier, options) {
       options = options || {};
@@ -826,11 +826,11 @@ define(function (require, exports, module) {
     /**
      * Retry a password reset
      *
-     * @param {string} passwordForgotToken
-     * @param {object} relier
-     * @param {object} [options]
-     * @param {string} [options.resume] resume token
-     * @returns {promise}
+     * @param {String} passwordForgotToken
+     * @param {Object} relier
+     * @param {Object} [options]
+     * @param {String} [options.resume] resume token
+     * @returns {Promise}
      */
     retryResetPassword: function (passwordForgotToken, relier, options) {
       options = options || {};
@@ -849,7 +849,7 @@ define(function (require, exports, module) {
      * Fetch keys for the account. Requires account to have
      * `keyFetchToken` and `unwrapBKey`
      *
-     * @returns {promise} that resolves with the account keys, if they
+     * @returns {Promise} that resolves with the account keys, if they
      *   can be generated, resolves with null otherwise.
      */
     accountKeys: function () {
@@ -864,8 +864,8 @@ define(function (require, exports, module) {
     /**
      * Fetch keys that can be used by a relier.
      *
-     * @param {object} relier
-     * @returns {promise} that resolves with the relier keys, if they
+     * @param {Object} relier
+     * @returns {Promise} that resolves with the relier keys, if they
      *   can be generated, resolves with null otherwise.
      */
     relierKeys: function (relier) {

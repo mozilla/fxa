@@ -49,7 +49,7 @@ define(function (require, exports, module) {
     /**
      * Send the account reset email
      *
-     * @returns {promise} - resolves when complete
+     * @returns {Promise} - resolves when complete
      */
     sendAccountResetEmail: function () {
       var self = this;

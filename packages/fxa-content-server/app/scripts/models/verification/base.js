@@ -44,7 +44,7 @@ define(function (require, exports, module) {
      * Check if the model is valid.
      *
      * @method isValid
-     * @returns {boolean} `false` if a `validationError` is set, or if
+     * @returns {Boolean} `false` if a `validationError` is set, or if
      *   `validate` either throws or returns false. `true` otherwise.
      */
     isValid: function () {
@@ -93,7 +93,7 @@ define(function (require, exports, module) {
      * Check if the verification info is expired
      *
      * @method isExpired
-     * @returns {boolean} `true` if expired, `false` otw.
+     * @returns {Boolean} `true` if expired, `false` otw.
      */
     isExpired: function () {
       return !! this._isExpired;
@@ -111,7 +111,7 @@ define(function (require, exports, module) {
      * Check if the verification info is used
      *
      * @method isUsed
-     * @returns {boolean} `true` if used, `false` otherwise.
+     * @returns {Boolean} `true` if used, `false` otherwise.
      */
     isUsed: function () {
       return !! this._isUsed;
@@ -130,7 +130,7 @@ define(function (require, exports, module) {
      * Check if the verification info is damaged
      *
      * @method isDamaged
-     * @returns {boolean} `true` if damaged, `false` otw.
+     * @returns {Boolean} `true` if damaged, `false` otw.
      */
     isDamaged: function () {
       return !! this._isDamaged;

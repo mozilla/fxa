@@ -25,10 +25,10 @@ define(function (require, exports, module) {
     /**
      * Transform and validate `data` using `schema`.
      *
-     * @param {object} data - data to validate
-     * @param {object} schema - schema that can be passed to the validator
-     * @param {object} Errors - Errors module used to create errors
-     * @returns {object} validation/transformation results
+     * @param {Object} data - data to validate
+     * @param {Object} schema - schema that can be passed to the validator
+     * @param {Object} Errors - Errors module used to create errors
+     * @returns {Object} validation/transformation results
      */
     transformUsingSchema: function (data, schema, Errors) {
       var result = Vat.validate(data, schema);

@@ -71,7 +71,7 @@ define(function (require, exports, module) {
      * @param {Object} sentryMetrics
      * @param {Object} metrics
      * @param {Object} win
-     * @returns {promise};
+     * @returns {Promise};
      */
     captureAndFlushError: function (error, sentryMetrics, metrics, win) {
       this.captureError(error, sentryMetrics, metrics, win);
@@ -109,7 +109,7 @@ define(function (require, exports, module) {
      * @param {Object} metrics
      * @param {Object} win
      * @param {Object} translator
-     * @returns {promise}
+     * @returns {Promise}
      */
     fatalError: function (error, sentryMetrics, metrics, win, translator) {
       return p.all([
@@ -122,9 +122,9 @@ define(function (require, exports, module) {
      * Get the error message, performing any interpolation. If a translator
      * is passed, return value will be translated to the user's locale.
      *
-     * @param {string} error - an error object
+     * @param {String} error - an error object
      * @param {Object} [translator] - translator to translate error
-     * @return {string} interpolated error text.
+     * @return {String} interpolated error text.
      */
     getErrorMessage: function (error, translator) {
       if (error && error.errorModule) {

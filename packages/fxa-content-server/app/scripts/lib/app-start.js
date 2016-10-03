@@ -547,7 +547,7 @@ define(function (require, exports, module) {
      * to the appropriate error page.
      *
      * @param {Error} error
-     * @returns {promise}
+     * @returns {Promise}
      */
     fatalError (error) {
       const self = this;
@@ -562,8 +562,8 @@ define(function (require, exports, module) {
     /**
      * Report an error to metrics. Send metrics report.
      *
-     * @param {object} error
-     * @return {promise} resolves when complete
+     * @param {Object} error
+     * @return {Promise} resolves when complete
      */
     captureError (error) {
       const self = this;

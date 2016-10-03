@@ -88,7 +88,7 @@ define(function (require, exports, module) {
      * if any invalid permissions found. Does not throw.
      *
      * @private
-     * @param {string} requestedPermissionNames
+     * @param {String} requestedPermissionNames
      */
     _validatePermissions: function (requestedPermissionNames) {
       requestedPermissionNames.forEach(function (permissionName) {
@@ -106,8 +106,8 @@ define(function (require, exports, module) {
      * Get configuration for a permission
      *
      * @private
-     * @param {string} permissionName
-     * @returns {object} permission, if found.
+     * @param {String} permissionName
+     * @returns {Object} permission, if found.
      * @throws if permission is invalid
      */
     _getPermissionConfig: function (permissionName) {
@@ -125,9 +125,9 @@ define(function (require, exports, module) {
      * if both requested and the account has a corresponding value
      *
      * @private
-     * @param {object} account
-     * @param {strings[]} requestedPermissionNames
-     * @returns {Array.<Object>} applicable permissions
+     * @param {Object} account
+     * @param {String[]} requestedPermissionNames
+     * @returns {Object[]} applicable permissions
      */
     _getApplicablePermissions: function (account, requestedPermissionNames) {
       var self = this;
@@ -154,8 +154,8 @@ define(function (require, exports, module) {
      * Get the index of a permission
      *
      * @private
-     * @param {string} permissionName
-     * @returns {number} permission index if found, -1 otw.
+     * @param {String} permissionName
+     * @returns {Number} permission index if found, -1 otw.
      */
     _getPermissionIndex: function (permissionName) {
       return _.findIndex(PERMISSIONS, function (permission) {
@@ -167,8 +167,8 @@ define(function (require, exports, module) {
      * Sort permissions to match the sort order in the PERMISSIONS array
      *
      * @private
-     * @param {strings[]} permissionNames
-     * @returns {strings[]} sorted permissionNames
+     * @param {String[]} permissionNames
+     * @returns {String[]} sorted permissionNames
      */
     _sortPermissions: function (permissionNames) {
       var self = this;
@@ -184,8 +184,8 @@ define(function (require, exports, module) {
      *
      * @private
      * @param {Account} account
-     * @param {strings[]} permissionNames
-     * @returns {string} HTML
+     * @param {String[]} permissionNames
+     * @returns {String} HTML
      */
     _getPermissionsHTML: function (account, permissionNames) {
       var self = this;
@@ -233,7 +233,7 @@ define(function (require, exports, module) {
      * }
      *
      * @private
-     * @returns {object}
+     * @returns {Object}
      */
     _getFormPermissions: function () {
       var $permissionEls = this.$('.permission');

@@ -25,9 +25,9 @@ define(function (require, exports, module) {
     /**
      * Sign up a user
      *
-     * @param {object} account
-     * @param {string} password
-     * @return {object} promise
+     * @param {Object} account
+     * @param {String} password
+     * @return {Object} promise
      */
     signUp: function (account, password) {
       var self = this;

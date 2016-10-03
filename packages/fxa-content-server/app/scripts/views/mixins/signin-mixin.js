@@ -26,9 +26,9 @@ define(function (require, exports, module) {
      * @param {Account} account
      *     @param {String} account.sessionToken
      *     Session token from the account
-     * @param {string} [password] - the user's password. Can be null if
+     * @param {String} [password] - the user's password. Can be null if
      *  user is signing in with a sessionToken.
-     * @return {object} promise
+     * @return {Object} promise
      */
     signIn: function (account, password) {
       var self = this;

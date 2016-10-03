@@ -71,8 +71,8 @@ define(function (require, exports, module) {
      * Set the password visibility for an element. Ensure the "show" button's
      * state is synchronized.
      *
-     * @param {selector | element} which
-     * @param {boolean} isVisible
+     * @param {String | Element} which - If a string, assumed to be a selector
+     * @param {Boolean} isVisible
      */
     setPasswordVisibility (which, isVisible) {
       const $passwordEl = $(which);

@@ -34,8 +34,8 @@ define(function (require, exports, module) {
     /**
      * Send a message to the remote listener, expect no response
      *
-     * @param {string} message
-     * @param {object} [data]
+     * @param {String} message
+     * @param {Object} [data]
      * @returns {Promise}
      *        The promise will resolve if the value was successfully sent.
      */
@@ -49,8 +49,8 @@ define(function (require, exports, module) {
     /**
      * Request information from the remote listener
      *
-     * @param {string} message
-     * @param {object} [data]
+     * @param {String} message
+     * @param {Object} [data]
      * @returns {Promise}
      *        The promise will resolve with the value returned by the remote
      *        listener, or reject if there was an error.

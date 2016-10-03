@@ -54,9 +54,9 @@ define(function (require, exports, module) {
     /**
      * stringify a message, exposed for testing
      *
-     * @param {string} name
-     * @param {object} [data]
-     * @returns {string}
+     * @param {String} name
+     * @param {Object} [data]
+     * @returns {String}
      */
     stringify: function (name, data) {
       return JSON.stringify({
@@ -166,8 +166,8 @@ define(function (require, exports, module) {
      * Send a message
      *
      * @method send
-     * @param {string} name
-     * @param {object} [data]
+     * @param {String} name
+     * @param {Object} [data]
      * @returns {undefined}
      */
     send: function (name, data) {
@@ -178,10 +178,10 @@ define(function (require, exports, module) {
      * Register a listener
      *
      * @method on
-     * @param {string} name
-     * @param {function} callback
+     * @param {String} name
+     * @param {Function} callback
      *
-     * @return {string} key - key used to unregister a listener
+     * @return {String} key - key used to unregister a listener
      */
     on: function (name, callback) {
       return this._adapter.on(name, callback);
@@ -191,8 +191,8 @@ define(function (require, exports, module) {
      * Unregister a listener
      *
      * @method off
-     * @param {string} name
-     * @param {function} callback
+     * @param {String} name
+     * @param {Function} callback
      * @returns {undefined}
      */
     off: function (name, callback) {

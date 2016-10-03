@@ -29,7 +29,7 @@ define(function (require, exports, module) {
      * Force the display of the floating placeholder field
      * for an element
      *
-     * @param {object} inputEl - input element whose placeholder
+     * @param {Object} inputEl - input element whose placeholder
      *        should be shown.
      * @param {String} [text] - optional custom text for the floating label.
      */
@@ -51,7 +51,7 @@ define(function (require, exports, module) {
     /**
      * Hide the floating placeholder for an element
      *
-     * @param {object} inputEl - input element whose placeholder
+     * @param {Object} inputEl - input element whose placeholder
      *        should be hidden.
      */
     hideFloatingPlaceholder (inputEl) {

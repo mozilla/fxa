@@ -93,9 +93,9 @@ define(function (require, exports, module) {
      * Return a helper function to be used by the template engine
      * to translate a string
      *
-     * @param {string} [forceText] - text to translate
-     * @param {object} [context] - context to pass to translator
-     * @returns {function}
+     * @param {String} [forceText] - text to translate
+     * @param {Object} [context] - context to pass to translator
+     * @returns {Function}
      */
     translateInTemplate: function (forceText, context) {
       var self = this;

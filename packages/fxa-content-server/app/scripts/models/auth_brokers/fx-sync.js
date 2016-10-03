@@ -180,7 +180,7 @@ define(function (require, exports, module) {
      * the cached channel will be returned. Used by the ChannelMixin.
      *
      * @method getChannel
-     * @returns {object} channel
+     * @returns {Object} channel
      */
     getChannel: function () {
       if (! this._channel) {
@@ -253,8 +253,8 @@ define(function (require, exports, module) {
      * Notify the browser that it should open sync preferences
      *
      * @method openSyncPreferences
-     * @param {string} entryPoint - where Sync Preferences is opened from
-     * @returns {promise} resolves when notification is sent.
+     * @param {String} entryPoint - where Sync Preferences is opened from
+     * @returns {Promise} resolves when notification is sent.
      */
     openSyncPreferences: function (entryPoint) {
       if (this.hasCapability('syncPreferencesNotification')) {

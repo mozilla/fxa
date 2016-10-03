@@ -42,7 +42,7 @@ define(function (require, exports, module) {
      * Low level ajax functionality, does not set a default data type.
      *
      * @param {Object} options
-     * @return {promise}
+     * @return {Promise}
      */
     ajax (options) {
       if (options.dataType === 'json') {
@@ -76,7 +76,7 @@ define(function (require, exports, module) {
      *   access resource.
      *   @param {Object} [options.headers] - headers to send.
      *   @param {Object} [options.data] - data to send
-     * @return {promise}
+     * @return {Promise}
      */
     oauthAjax (options) {
       var request = {
@@ -115,7 +115,7 @@ define(function (require, exports, module) {
      * @param {Object} data
      * @param {Function} success
      * @param {String} dataType
-     * @return {promise}
+     * @return {Promise}
      */
     get (url, data, success, dataType) {
       if (! dataType) {
@@ -139,7 +139,7 @@ define(function (require, exports, module) {
      * @param {Object} data
      * @param {Function} success
      * @param {String} dataType
-     * @return {promise}
+     * @return {Promise}
      */
     post (url, data, success, dataType) {
       if (! dataType) {
@@ -160,7 +160,7 @@ define(function (require, exports, module) {
      * @param {String} url
      * @param {Object} data
      * @param {Function} success
-     * @return {promise}
+     * @return {Promise}
      */
     getJSON (url, data, success) {
       return convertJQueryPromise($.getJSON(url, data, success));

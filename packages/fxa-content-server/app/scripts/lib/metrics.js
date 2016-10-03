@@ -362,7 +362,7 @@ define(function (require, exports, module) {
     /**
      * Log a view
      *
-     * @param {string} viewName
+     * @param {String} viewName
      */
     logView: function (viewName) {
       this.logEvent(this.viewToId(viewName));
@@ -371,8 +371,8 @@ define(function (require, exports, module) {
     /**
      * Log an event with the view name as a prefix
      *
-     * @param {string} viewName
-     * @param {string} eventName
+     * @param {String} viewName
+     * @param {String} eventName
      */
     logViewEvent: function (viewName, eventName) {
       var event = Strings.interpolate('%(viewName)s.%(eventName)s', {
@@ -386,8 +386,8 @@ define(function (require, exports, module) {
     /**
      * Convert a viewName to an identifier used in metrics.
      *
-     * @param {string} viewName
-     * @return {string} identifier
+     * @param {String} viewName
+     * @return {String} identifier
      */
     viewToId: function (viewName) {
       // `screen.` is a legacy artifact from when each View was a screen.

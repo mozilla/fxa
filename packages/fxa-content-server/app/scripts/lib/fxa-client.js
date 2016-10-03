@@ -39,8 +39,8 @@ define(function (require, exports, module) {
 
   /**
    * Check if keys should be requested
-   * @param {object} relier - relier being signed in to.
-   * @param {string} sessionTokenContext - context of the current session
+   * @param {Object} relier - relier being signed in to.
+   * @param {String} sessionTokenContext - context of the current session
    * token.
    * @returns {Boolean}
    */
@@ -509,8 +509,8 @@ define(function (require, exports, module) {
      * includes whether the session is verified, and if not, the reason
      * it must be verified and by which method.
      *
-     * @param {string} sessionToken
-     * @returns {promise} resolves with the account's current session
+     * @param {String} sessionToken
+     * @returns {Promise} resolves with the account's current session
      * information if session is valid. Rejects with an INVALID_TOKEN error
      * if session is invalid.
      *

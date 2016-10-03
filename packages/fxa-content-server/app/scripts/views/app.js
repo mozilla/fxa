@@ -63,8 +63,8 @@ define(function (require, exports, module) {
      * re-rendered. If the view is not displayed, the current view is
      * replaced.
      *
-     * @param {function} View - the View's constructor
-     * @param {object} options - options to pass to the constructor
+     * @param {Function} View - the View's constructor
+     * @param {Object} options - options to pass to the constructor
      *
      * @returns {Promise}
      */
@@ -131,9 +131,9 @@ define(function (require, exports, module) {
     /**
      * Show a ChildView
      *
-     * @param {function} ChildView - constructor of childView to show.
-     * @param {function} ParentView - constructor of the childView's parent.
-     * @param {object} options used to create the ParentView as well as
+     * @param {Function} ChildView - constructor of childView to show.
+     * @param {Function} ParentView - constructor of the childView's parent.
+     * @param {Object} options used to create the ParentView as well as
      *        display the child view.
      *
      * @returns {Promise}
@@ -170,7 +170,7 @@ define(function (require, exports, module) {
     /**
      * Set the window's title
      *
-     * @param {string} title
+     * @param {String} title
      */
     setTitle: function (title) {
       this.window.document.title = title;

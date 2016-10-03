@@ -205,8 +205,8 @@ define(function (require, exports, module) {
     /**
      * Get the options to pass to a View constructor.
      *
-     * @param {object} options - additional options
-     * @returns {object}
+     * @param {Object} options - additional options
+     * @returns {Object}
      */
     getViewOptions: function (options) {
       // passed in options block can override
@@ -264,8 +264,8 @@ define(function (require, exports, module) {
     /**
      * Notify the system a new View should be shown.
      *
-     * @param {function} View - view constructor
-     * @param {object} [options]
+     * @param {Function} View - view constructor
+     * @param {Object} [options]
      */
     showView: function (View, options) {
       this.notifier.trigger(
@@ -275,10 +275,10 @@ define(function (require, exports, module) {
     /**
      * Notify the system a new ChildView should be shown.
      *
-     * @param {function} ChildView - view constructor
-     * @param {function} ParentView - view constructor,
+     * @param {Function} ChildView - view constructor
+     * @param {Function} ParentView - view constructor,
      *     the parent of the ChildView
-     * @param {object} [options]
+     * @param {Object} [options]
      */
     showChildView: function (ChildView, ParentView, options) {
       this.notifier.trigger(
@@ -288,9 +288,9 @@ define(function (require, exports, module) {
     /**
      * Create a route handler that is used to display a View
      *
-     * @param {function} View - constructor of view to show
-     * @param {object} [options] - options to pass to View constructor
-     * @returns {function} - a function that can be given to the router.
+     * @param {Function} View - constructor of view to show
+     * @param {Object} [options] - options to pass to View constructor
+     * @returns {Function} - a function that can be given to the router.
      */
     createViewHandler: createViewHandler,
 
@@ -298,11 +298,11 @@ define(function (require, exports, module) {
      * Create a route handler that is used to display a ChildView inside of
      * a ParentView. Views will be created as needed.
      *
-     * @param {function} ChildView - constructor of ChildView to show
-     * @param {function} ParentView - constructor of ParentView to show
-     * @param {object} [options] - options to pass to ChildView &
+     * @param {Function} ChildView - constructor of ChildView to show
+     * @param {Function} ParentView - constructor of ParentView to show
+     * @param {Object} [options] - options to pass to ChildView &
      *     ParentView constructors
-     * @returns {function} - a function that can be given to the router.
+     * @returns {Function} - a function that can be given to the router.
      */
     createChildViewHandler: createChildViewHandler
   });

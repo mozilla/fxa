@@ -14,7 +14,7 @@ define(function (require, exports, module) {
    * Returns true if given "uri" has HTTP or HTTPS scheme
    *
    * @param {String} src
-   * @returns {boolean}
+   * @returns {Boolean}
    */
   function load (src) {
     var defer = p.defer();

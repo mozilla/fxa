@@ -46,7 +46,7 @@ define(function (require, exports, module) {
      * Log a `<view_name>.refresh` event if `viewName` matches the
      * previous view's name. Works across page reloads.
      *
-     * @param {string} viewName
+     * @param {String} viewName
      */
     logIfRefresh: function (viewName) {
       var refreshMetrics = this._storage.get('last_page_loaded');

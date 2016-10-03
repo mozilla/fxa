@@ -93,7 +93,7 @@
 
     /**
      * Detects if environment is about:accounts
-     * @returns {boolean}
+     * @returns {Boolean}
      */
     isAboutAccounts: function () {
       var win = this.window;
