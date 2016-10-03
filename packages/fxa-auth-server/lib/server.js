@@ -103,6 +103,11 @@ function create(log, error, config, routes, db) {
 
   var server = new Hapi.Server(serverOptions)
 
+  // register 'inert' to support service static files
+  server.register(require('inert'), function () {
+    // callback required
+  })
+
   server.connection(connectionOptions)
 
   server.register(require('hapi-auth-hawk'), function (err) {
@@ -191,12 +196,6 @@ function create(log, error, config, routes, db) {
       server.route(routes)
     })
   })
-
-  // register 'inert' to support service static files
-  server.register(require('inert'), function () {
-    // callback required
-  })
-
 
   server.ext(
     'onRequest',
