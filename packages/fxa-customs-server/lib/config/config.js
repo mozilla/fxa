@@ -167,6 +167,32 @@ module.exports = function (fs, path, url, convict) {
         'restmail.net',
         'mockmyid.com'
       ]
+    },
+    ipBlocklist: {
+      enable: {
+        doc: 'Flag to enable ip blocklist',
+        format: Boolean,
+        default: false,
+        env: 'IP_BLOCKLIST_ENABLE'
+      },
+      logOnly: {
+        doc: 'Flag to only log hits',
+        format: Boolean,
+        default: true,
+        env: 'IP_BLOCKLIST_LOGONLY'
+      },
+      lists: {
+        doc: 'A array of ip blocklist file paths',
+        format: Array,
+        default: [],
+        env: 'IP_BLOCKLIST_FILES'
+      },
+      updatePollInterval: {
+        doc: 'Poll interval for checking for updated lists (seconds)',
+        default: 300,
+        format: 'nat',
+        env: 'IP_BLOCKLIST_POLL_INTERVAL_SECONDS'
+      }
     }
   })
 

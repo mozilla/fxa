@@ -20,11 +20,16 @@ if (process.env.ASS_CODE_COVERAGE) {
   process.on('SIGINT', shutdown)
 }
 
-var api = server(config, log)
-api.listen(
-  config.listen.port,
-  config.listen.host,
-  function () {
-    log.info({ op: 'listening', host: config.listen.host, port: config.listen.port })
-  }
-)
+server(config, log)
+  .then(function (api) {
+    return api.listen(
+      config.listen.port,
+      config.listen.host,
+      function () {
+        log.info({op: 'listening', host: config.listen.host, port: config.listen.port})
+      }
+    )
+  })
+  .catch(function (err) {
+    log.error({op: 'customs.bin.error', err: err})
+  })

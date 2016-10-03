@@ -10,11 +10,20 @@ var packageJson = require('../package.json')
 var P = require('bluebird')
 P.promisifyAll(Memcached.prototype)
 
-
 // Create and return a restify server instance
 // from the given config.
 
 module.exports = function createServer(config, log) {
+
+  var startupDefers = []
+
+  // Setup blocklist manager
+  if (config.ipBlocklist.enable) {
+    var IPBlocklistManager = require('./ip_blocklist_manager')(log, config)
+    var blockListManager = new IPBlocklistManager()
+    startupDefers.push(blockListManager.load(config.ipBlocklist.lists))
+    blockListManager.pollForUpdates()
+  }
 
   var mc = new Memcached(
     config.memcache.address,
@@ -136,12 +145,30 @@ module.exports = function createServer(config, log) {
 
             var retryAfter = [blockEmail, blockIpEmail, blockIp].reduce(max)
 
+            var allowedIP = ip in allowedIPs.ips
+            var allowedEmailDomain = allowedEmailDomains.isAllowed(email)
+
             if (retryAfter > 0) {
-              if (ip in allowedIPs.ips) {
+              if (allowedIP) {
                 retryAfter = 0
               }
-              if (allowedEmailDomains.isAllowed(email)) {
+              if (allowedEmailDomain) {
                 retryAfter = 0
+              }
+            }
+
+            // IP's that are in blocklist should be blocked
+            // and not return a retryAfter because it is not known
+            // when they would be removed from blocklist
+            if (config.ipBlocklist.enable && blockListManager.contains(ip) && !allowedIP && !allowedEmailDomain) {
+              if (!config.ipBlocklist.logOnly) {
+
+                // When blocklist is enabled, explicitly skip setting records.
+                // Requests issued while on blocklist will not count towards
+                // the rate limit.
+                return {
+                  block: true
+                }
               }
             }
 
@@ -388,5 +415,8 @@ module.exports = function createServer(config, log) {
     }
   )
 
-  return api
+  return P.all(startupDefers)
+    .then(function () {
+      return api
+    })
 }
