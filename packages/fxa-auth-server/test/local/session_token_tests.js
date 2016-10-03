@@ -160,7 +160,7 @@ test(
   t => {
     config.lastAccessTimeUpdates.enabled = true
     config.lastAccessTimeUpdates.sampleRate = 1
-    config.lastAccessTimeUpdates.enabledEmailAddresses = '.+'
+    config.lastAccessTimeUpdates.enabledEmailAddresses = /.+/
     return SessionToken.create({
       uaBrowser: 'foo',
       uaBrowserVersion: 'bar',

@@ -162,10 +162,10 @@ test(
 
     config.lastAccessTimeUpdates.enabled = true
     config.lastAccessTimeUpdates.sampleRate = 0
-    config.lastAccessTimeUpdates.enabledEmailAddresses = '.+@mozilla\\.com$'
+    config.lastAccessTimeUpdates.enabledEmailAddresses = /.+@mozilla\.com$/
     t.equal(features.isLastAccessTimeEnabledForUser(uid, email), true, 'should return true when email address matches')
 
-    config.lastAccessTimeUpdates.enabledEmailAddresses = '.+@mozilla\\.org$'
+    config.lastAccessTimeUpdates.enabledEmailAddresses = /.+@mozilla\.org$/
     t.equal(features.isLastAccessTimeEnabledForUser(uid, email), false, 'should return false when email address does not match')
 
     config.lastAccessTimeUpdates.sampleRate = 0.03
@@ -176,7 +176,7 @@ test(
 
     config.lastAccessTimeUpdates.enabled = false
     config.lastAccessTimeUpdates.sampleRate = 0.03
-    config.lastAccessTimeUpdates.enabledEmailAddresses = '.+@mozilla\\.com$'
+    config.lastAccessTimeUpdates.enabledEmailAddresses = /.+@mozilla\.com$/
     t.equal(features.isLastAccessTimeEnabledForUser(uid, email), false, 'should return false when feature is disabled')
 
     t.end()
@@ -203,7 +203,7 @@ test(
 
     config.signinConfirmation.enabled = true
     config.signinConfirmation.sample_rate = 0.03
-    config.signinConfirmation.forceEmailRegex = [ 'wibble', '.+@mozilla\\.com$' ]
+    config.signinConfirmation.enabledEmailAddresses = /.+@mozilla\.com$/
     config.signinConfirmation.supportedClients = [ 'wibble', 'iframe' ]
     t.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), true, 'should return true when request is suspicious')
 
@@ -211,7 +211,7 @@ test(
     request.app.isSuspiciousRequest = false
     t.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), true, 'should return true when email address matches')
 
-    config.signinConfirmation.forceEmailRegex[1] = '.+@mozilla\\.org$'
+    config.signinConfirmation.enabledEmailAddresses = /.+@mozilla\.org$/
     request.payload.metricsContext.context = 'iframe'
     t.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), false, 'should return false when email address and sample rate do not match')
 
@@ -222,7 +222,7 @@ test(
     t.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), false, 'should return false when context does not match')
 
     config.signinConfirmation.enabled = false
-    config.signinConfirmation.forceEmailRegex[1] = '.+@mozilla\\.com$'
+    config.signinConfirmation.forceEmailRegex = /.+@mozilla\.com$/
     request.payload.metricsContext.context = 'iframe'
     t.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), false, 'should return false when feature is disabled')
 
