@@ -432,8 +432,8 @@ define([
     },
 
     'data-flow-begin attribute is set': function () {
-      this.remote
-        .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{13,}$/));
+      return openPage(this, PAGE_URL, '#fxa-signup-header')
+        .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/));
     }
   });
 
