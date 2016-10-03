@@ -1056,6 +1056,39 @@ module.exports = function(cfg, server) {
   )
 
   test(
+    'unblock codes',
+    function (t) {
+      t.plan(8)
+      var user = fake.newUserDataHex()
+      var uid = user.accountId
+      var unblockCode = crypto.randomBytes(4).toString('hex')
+      return client.putThen('/account/' + uid + '/unblock/' + unblockCode)
+        .then(
+          function (r) {
+            respOkEmpty(t, r)
+            return client.delThen('/account/' + uid + '/unblock/' + unblockCode)
+          }
+        )
+        .then(
+          function (r) {
+            respOk(t, r)
+            t.ok(r.obj.createdAt <= Date.now(), 'returns { createdAt: Number }')
+            return client.delThen('/account/' + uid + '/unblock/' + unblockCode)
+          }
+        )
+        .then(
+          function (r) {
+            t.fail('This request should have failed (instead it suceeded)')
+          },
+          function (err) {
+            testNotFound(t, err)
+          }
+        )
+
+    }
+  )
+
+  test(
     'GET an unknown path',
     function (t) {
       t.plan(3)

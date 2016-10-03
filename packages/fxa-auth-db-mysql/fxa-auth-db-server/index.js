@@ -48,7 +48,8 @@ function createServer(db) {
     'uaBrowserVersion',
     'uaOS',
     'uaOSVersion',
-    'uaDeviceType'
+    'uaDeviceType',
+    'unblockCode'
   ]))
 
   api.get('/account/:id', withIdAndBody(db.account))
@@ -100,38 +101,49 @@ function createServer(db) {
 
   api.get('/__heartbeat__', withIdAndBody(db.ping))
 
-  api.put(
-    '/account/:uid/device/:deviceId',
-    function (req, res, next) {
-      db.createDevice(req.params.uid, req.params.deviceId, req.body)
+  function op(fn) {
+    return function (req, res, next) {
+      fn.call(null, req)
         .then(
           handleSuccess.bind(null, req, res),
           handleError.bind(null, req, res)
         )
         .done(next, next)
     }
+  }
+
+  api.put(
+    '/account/:uid/device/:deviceId',
+    op(function (req) {
+      return db.createDevice(req.params.uid, req.params.deviceId, req.body)
+    })
   )
   api.post(
     '/account/:uid/device/:deviceId/update',
-    function (req, res, next) {
-      db.updateDevice(req.params.uid, req.params.deviceId, req.body)
-        .then(
-          handleSuccess.bind(null, req, res),
-          handleError.bind(null, req, res)
-        )
-        .done(next, next)
-    }
+    op(function (req) {
+      return db.updateDevice(req.params.uid, req.params.deviceId, req.body)
+    })
   )
   api.del(
     '/account/:uid/device/:deviceId',
-    function (req, res, next) {
-      db.deleteDevice(req.params.uid, req.params.deviceId)
-        .then(
-          handleSuccess.bind(null, req, res),
-          handleError.bind(null, req, res)
-        )
-        .done(next, next)
-    }
+    op(function (req) {
+      return db.deleteDevice(req.params.uid, req.params.deviceId)
+    })
+  )
+
+
+  api.put(
+    '/account/:uid/unblock/:code',
+    op(function (req) {
+      return db.createUnblockCode(req.params.uid, req.params.code)
+    })
+  )
+
+  api.del(
+    '/account/:uid/unblock/:code',
+    op(function (req) {
+      return db.consumeUnblockCode(req.params.uid, req.params.code)
+    })
   )
 
   api.get(

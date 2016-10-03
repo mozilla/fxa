@@ -14,6 +14,10 @@ function newUuid() {
   return crypto.randomBytes(16)
 }
 
+function unblockCode() {
+  return crypto.randomBytes(4).toString('hex')
+}
+
 function createAccount() {
   var account = {
     uid: newUuid(),
@@ -1770,6 +1774,55 @@ module.exports = function(config, DB) {
                 function (result) {
                   t.equal(result.length, 0, 'no more first reminders')
                   t.end()
+                }
+              )
+          }
+        )
+
+        test(
+          'unblockCodes',
+          function (t) {
+            t.plan(5)
+            var uid1 = newUuid()
+            var code1 = unblockCode()
+
+            db.consumeUnblockCode(uid1, code1)
+              .then(
+                function () {
+                  t.fail('consuming unknown code should error')
+                },
+                function (err) {
+                  t.pass('consuming unknown code errors')
+                  return db.createUnblockCode(uid1, code1)
+                }
+              )
+              .then(
+                function () {
+                  t.pass('creates an unblock code')
+                  return db.consumeUnblockCode(uid1, code1)
+                }
+              )
+              .then(
+                function (code) {
+                  t.pass('consumes the unblock code')
+                  t.ok(code.createdAt <= Date.now(), 'returns unblock code timestamp')
+                  return db.consumeUnblockCode(uid1, code1)
+                }
+              )
+              .then(
+                function () {
+                  t.fail('consumed unblock code should not be able to consume again')
+                },
+                function (err) {
+                  t.pass('consume a consumed code errors')
+                }
+              )
+              .done(
+                function () {
+                  t.end()
+                },
+                function (err) {
+                  t.fail(err)
                 }
               )
           }

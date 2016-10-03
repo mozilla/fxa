@@ -494,7 +494,7 @@ module.exports = function (log, error) {
   // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens,
   //          passwordForgotTokens, accounts, devices, unverifiedTokens
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_9(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_10(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])
@@ -700,6 +700,39 @@ module.exports = function (log, error) {
   MySql.prototype.updateLocale = function (uid, data) {
     return this.write(UPDATE_LOCALE, [data.locale, uid])
   }
+
+  var CREATE_UNBLOCK_CODE = 'CALL createUnblockCode_1(?, ?, ?)'
+
+  MySql.prototype.createUnblockCode = function (uid, code) {
+    // hash the code since it's like a password
+    code = crypto.createHash('sha256').update(uid).update(code).digest()
+    return this.write(
+      CREATE_UNBLOCK_CODE,
+      [ uid, code, Date.now() ],
+      function (result) {
+        return {}
+      }
+    )
+  }
+
+  var CONSUME_UNBLOCK_CODE = 'CALL consumeUnblockCode_1(?, ?)'
+
+  MySql.prototype.consumeUnblockCode = function (uid, code) {
+    // hash the code since it's like a password
+    code = crypto.createHash('sha256').update(uid).update(code).digest()
+    return this.write(
+      CONSUME_UNBLOCK_CODE,
+      [ uid, code ],
+      function (result) {
+        if (result.length === 0 || result[0].length === 0 || !result[0][0].createdAt) {
+          log.error('MySql.consumeUnblockCode', { err: result })
+          throw error.notFound()
+        }
+        return result[0][0]
+      }
+    )
+  }
+
 
   // Internal
 
