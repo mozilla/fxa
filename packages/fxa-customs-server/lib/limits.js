@@ -27,9 +27,10 @@ module.exports = function (config, mc, log) {
     this.ipRateLimitBanDurationMs = settings.ipRateLimitBanDurationSeconds * 1000
     this.maxAccountStatusCheck = settings.maxAccountStatusCheck
     this.badLoginErrnoWeights = settings.badLoginErrnoWeights || {}
-    this.maxChecksPerUid = settings.uidRateLimit.maxChecks
-    this.uidRateLimitBanDurationMs = settings.uidRateLimit.banDurationSeconds * 1000
-    this.uidRateLimitIntervalMs = settings.uidRateLimit.limitIntervalSeconds * 1000
+    this.uidRateLimit = settings.uidRateLimit || {}
+    this.maxChecksPerUid = this.uidRateLimit.maxChecks
+    this.uidRateLimitBanDurationMs = this.uidRateLimit.banDurationSeconds * 1000
+    this.uidRateLimitIntervalMs = this.uidRateLimit.limitIntervalSeconds * 1000
     return this
   }
 

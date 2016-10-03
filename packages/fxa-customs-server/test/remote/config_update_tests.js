@@ -56,10 +56,11 @@ test(
       })
       .then(function (bis) {
         x = bis
-        return mcHelper.setLimits({ blockIntervalSeconds: bis + 1, uidRateLimit:{} })
+        return mcHelper.setLimits({ blockIntervalSeconds: bis + 1 })
       })
       .then(function (settings) {
         t.equal(x + 1, settings.blockIntervalSeconds, 'helper sees the change')
+        // Wait for background polling to detect the new value in memcache
         return Promise.delay(1010)
       })
       .then(function() {
@@ -67,6 +68,38 @@ test(
       })
       .spread(function (req, res, obj) {
         t.equal(x + 1, obj.blockIntervalSeconds, 'server sees the change')
+        t.end()
+      })
+      .catch(function (err) {
+        t.fail(err)
+        t.end()
+      })
+  }
+)
+
+test(
+  'change nested limits',
+  function (t) {
+    var x = null
+    return client.getAsync('/limits')
+      .spread(function (req, res, obj) {
+        // This is derived from uidRateLimit.maxChecks
+        return obj.maxChecksPerUid
+      })
+      .then(function (mcpuid) {
+        x = mcpuid
+        return mcHelper.setLimits({ uidRateLimit: { maxChecks: mcpuid + 1 } })
+      })
+      .then(function (settings) {
+        t.equal(x + 1, settings.maxChecksPerUid, 'helper sees the change')
+        // Wait for background polling to detect the new value in memcache
+        return Promise.delay(1010)
+      })
+      .then(function() {
+        return client.getAsync('/limits')
+      })
+      .spread(function (req, res, obj) {
+        t.equal(x + 1, obj.maxChecksPerUid, 'server sees the change')
         t.end()
       })
       .catch(function (err) {
@@ -88,6 +121,7 @@ test(
       })
       .then(function (ips) {
         t.deepEqual(x, ips, 'helper sees the change')
+        // Wait for background polling to detect the new value in memcache
         return Promise.delay(1010)
       })
       .then(function() {
@@ -116,6 +150,7 @@ test(
       })
       .then(function (ips) {
         t.deepEqual(x, ips, 'helper sees the change')
+        // Wait for background polling to detect the new value in memcache
         return Promise.delay(1010)
       })
       .then(function() {
