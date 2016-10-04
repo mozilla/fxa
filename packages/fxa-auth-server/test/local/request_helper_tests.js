@@ -11,9 +11,8 @@ test(
   'interface is correct',
   t => {
     t.equal(typeof requestHelper, 'object', 'object type should be exported')
-    t.equal(Object.keys(requestHelper).length, 2, 'object should have two properties')
+    t.equal(Object.keys(requestHelper).length, 1, 'object should have one properties')
     t.equal(typeof requestHelper.wantsKeys, 'function', 'wantsKeys should be function')
-    t.equal(typeof requestHelper.shouldSendVerifyAccountEmail, 'function', 'shouldSendVerifyAccountEmail should be function')
 
     t.end()
   }
@@ -30,76 +29,3 @@ test(
     t.end()
   }
 )
-
-test(
-  'shouldSendVerifyAccountEmail',
-  t => {
-    t.equal(requestHelper.shouldSendVerifyAccountEmail({
-      emailVerified: false,
-    }, {
-      query: {
-        sendEmailIfUnverified: 'true'
-      }
-    }), true, 'should return true when request has no payload and account is not verified')
-
-    t.equal(requestHelper.shouldSendVerifyAccountEmail({
-      emailVerified: true,
-    }, {
-      query: {
-        sendEmailIfUnverified: 'true'
-      }
-    }), false, 'should return false when request has no payload and account is verified')
-
-    t.equal(requestHelper.shouldSendVerifyAccountEmail({
-      emailVerified: false,
-    }, {
-      payload: {},
-      query: {
-        sendEmailIfUnverified: 'true'
-      }
-    }), true, 'should return true when payload has no metrics context and account is not verified')
-
-    t.equal(requestHelper.shouldSendVerifyAccountEmail({
-      emailVerified: true,
-    }, {
-      payload: {},
-      query: {
-        sendEmailIfUnverified: 'true'
-      }
-    }), false, 'should return false when payload has no metrics context and account is verified')
-
-    t.equal(requestHelper.shouldSendVerifyAccountEmail({
-      emailVerified: false,
-    }, {
-      payload: {
-        metricsContext: {}
-      },
-      query: {
-        sendEmailIfUnverified: 'true'
-      }
-    }), true, 'should return true when payload has metrics context and sendEmailIfUnverified is set and account is not verified')
-
-    t.equal(requestHelper.shouldSendVerifyAccountEmail({
-      emailVerified: true,
-    }, {
-      payload: {
-        metricsContext: {}
-      },
-      query: {
-        sendEmailIfUnverified: 'true'
-      }
-    }), false, 'should return false when payload has metrics context and sendEmailIfUnverified is set and account is verified')
-
-    t.equal(requestHelper.shouldSendVerifyAccountEmail({
-      emailVerified: false,
-    }, {
-      payload: {
-        metricsContext: {}
-      },
-      query: {}
-    }), false, 'should return false when payload has metrics context and sendEmailIfUnverified is not set and account is not verified')
-
-    t.end()
-  }
-)
-
