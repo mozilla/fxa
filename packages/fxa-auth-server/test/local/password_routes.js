@@ -44,11 +44,7 @@ var makeRoutes = function (options) {
 test(
   '/password/forgot/send_code',
   function (t) {
-    var mockCustoms = {
-      check: function () {
-        return P.resolve()
-      }
-    }
+    var mockCustoms = mocks.mockCustoms()
     var uid = uuid.v4('binary')
     var mockDB = mocks.mockDB({
       email: TEST_EMAIL,
@@ -79,6 +75,58 @@ test(
       t.equal(args.length, 1, 'db.createPasswordForgotToken was passed one argument')
       t.deepEqual(args[0].uid, uid, 'db.createPasswordForgotToken was passed the correct uid')
       t.equal(args[0].createdAt, undefined, 'db.createPasswordForgotToken was not passed a createdAt timestamp')
+    })
+  }
+)
+
+test(
+  '/password/forgot/verify_code',
+  function (t) {
+    var mockCustoms = mocks.mockCustoms()
+    var uid = uuid.v4('binary')
+    var accountResetToken = {
+      data: crypto.randomBytes(16)
+    }
+    var mockDB = mocks.mockDB({
+      accountResetToken: accountResetToken,
+      email: TEST_EMAIL,
+      passCode: 'abcdef',
+      passwordForgotTokenId: crypto.randomBytes(16),
+      uid: uid
+    })
+    var mockMailer = mocks.mockMailer()
+    var passwordRoutes = makeRoutes({
+      customs: mockCustoms,
+      db: mockDB,
+      mailer: mockMailer
+    })
+
+    var mockRequest = mocks.mockRequest({
+      credentials: {
+        email: TEST_EMAIL,
+        passCode: Buffer('abcdef', 'hex'),
+        ttl: function () { return 17 },
+        uid: uid
+      },
+      payload: {
+        code: 'abcdef'
+      },
+      query: {}
+    })
+    return new P(function(resolve) {
+      getRoute(passwordRoutes, '/password/forgot/verify_code')
+        .handler(mockRequest, resolve)
+    })
+    .then(function(response) {
+      t.deepEqual(Object.keys(response), ['accountResetToken'], 'an accountResetToken was returned')
+      t.equal(response.accountResetToken, accountResetToken.data.toString('hex'), 'correct accountResetToken was returned')
+
+      t.equal(mockCustoms.check.callCount, 1, 'customs.check was called once')
+
+      t.equal(mockDB.forgotPasswordVerified.callCount, 1, 'db.passwordForgotVerified was called once')
+      var args = mockDB.forgotPasswordVerified.args[0]
+      t.equal(args.length, 1, 'db.passwordForgotVerified was passed one argument')
+      t.deepEqual(args[0].uid, uid, 'db.forgotPasswordVerified was passed the correct token')
     })
   }
 )

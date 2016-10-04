@@ -11,20 +11,22 @@ var extend = require('util')._extend
 var P = require('../lib/promise')
 var crypto = require('crypto')
 
+var CUSTOMS_METHOD_NAMES = ['check', 'checkAuthenticated', 'flag', 'reset']
+
 var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFetchToken',
                        'createPasswordForgotToken', 'createSessionToken', 'deleteAccount',
                        'deleteDevice', 'deleteKeyFetchToken', 'deletePasswordChangeToken',
-                       'deleteVerificationReminder', 'devices', 'emailRecord', 'resetAccount',
-                       'securityEvent', 'securityEvents', 'sessions',
+                       'deleteVerificationReminder', 'devices', 'emailRecord', 'forgotPasswordVerified',
+                       'resetAccount', 'securityEvent', 'securityEvents', 'sessions',
                        'sessionTokenWithVerificationStatus', 'updateDevice', 'updateLocale',
-                       'updateSessionToken', 'verifyEmail', 'verifyTokens']
+                       'updateSessionToken', 'verifyEmail', 'verifyTokens',]
 
 var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn', 'timing',
                         'activityEvent', 'flowEvent', 'notifyAttachedServices']
 
 var MAILER_METHOD_NAMES = ['sendVerifyCode', 'sendVerifyLoginEmail',
                            'sendNewDeviceLoginNotification', 'sendPasswordChangedNotification',
-                           'sendPostVerifyEmail']
+                           'sendPasswordResetNotification', 'sendPostVerifyEmail']
 
 var METRICS_CONTEXT_METHOD_NAMES = ['stash', 'gather', 'validate']
 
@@ -33,6 +35,7 @@ var PUSH_METHOD_NAMES = ['notifyDeviceConnected', 'notifyDeviceDisconnected', 'n
                          'notifyPasswordReset']
 
 module.exports = {
+  mockCustoms: mockObject(CUSTOMS_METHOD_NAMES),
   mockDB: mockDB,
   mockDevices: mockDevices,
   mockLog: mockLog,
@@ -125,6 +128,9 @@ function mockDB (data, errors) {
         uid: data.uid,
         wrapWrapKb: crypto.randomBytes(32)
       })
+    }),
+    forgotPasswordVerified: sinon.spy(function () {
+      return P.resolve(data.accountResetToken)
     }),
     securityEvents: sinon.spy(function () {
       return P.resolve([])

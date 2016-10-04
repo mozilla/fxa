@@ -1391,6 +1391,18 @@ module.exports = function (
         db.account(uid)
           .then(
             function (account) {
+              // This endpoint is not authenticated, so we need to look up
+              // the target email address before we can check it with customs.
+              return customs.check(request, account.email, 'recoveryEmailVerifyCode')
+                .then(
+                  function () {
+                    return account
+                  }
+                )
+            }
+          )
+          .then(
+            function (account) {
               var isAccountVerification = butil.buffersAreEqual(code, account.emailCode)
 
               /**

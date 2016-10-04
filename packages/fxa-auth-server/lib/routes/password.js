@@ -447,49 +447,57 @@ module.exports = function (
         log.begin('Password.forgotVerify', request)
         var passwordForgotToken = request.auth.credentials
         var code = Buffer(request.payload.code, 'hex')
-        if (butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
-            passwordForgotToken.ttl() > 0) {
-          db.forgotPasswordVerified(passwordForgotToken)
-            .then(
-              function (accountResetToken) {
-                return mailer.sendPasswordResetNotification(
-                  passwordForgotToken.email,
-                  {
-                    acceptLanguage: request.app.acceptLanguage
-                  }
-                )
-                .then(
-                  function () {
-                    return accountResetToken
-                  }
-                )
+        customs.check(
+          request,
+          passwordForgotToken.email,
+          'passwordForgotVerifyCode')
+          .then(
+            function () {
+              if (butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
+                  passwordForgotToken.ttl() > 0) {
+                db.forgotPasswordVerified(passwordForgotToken)
+                  .then(
+                    function (accountResetToken) {
+                      return mailer.sendPasswordResetNotification(
+                        passwordForgotToken.email,
+                        {
+                          acceptLanguage: request.app.acceptLanguage
+                        }
+                      )
+                      .then(
+                        function () {
+                          return accountResetToken
+                        }
+                      )
+                    }
+                  )
+                  .done(
+                    function (accountResetToken) {
+                      reply(
+                        {
+                          accountResetToken: accountResetToken.data.toString('hex')
+                        }
+                      )
+                    },
+                    reply
+                  )
               }
-            )
-            .done(
-              function (accountResetToken) {
-                reply(
-                  {
-                    accountResetToken: accountResetToken.data.toString('hex')
-                  }
-                )
-              },
-              reply
-            )
-        }
-        else {
-          failVerifyAttempt(passwordForgotToken)
-            .done(
-              function () {
-                reply(
-                  error.invalidVerificationCode({
-                    tries: passwordForgotToken.tries,
-                    ttl: passwordForgotToken.ttl()
-                  })
-                )
-              },
-              reply
-            )
-        }
+              else {
+                failVerifyAttempt(passwordForgotToken)
+                  .done(
+                    function () {
+                      reply(
+                        error.invalidVerificationCode({
+                          tries: passwordForgotToken.tries,
+                          ttl: passwordForgotToken.ttl()
+                        })
+                      )
+                    },
+                    reply
+                  )
+              }
+            }
+          )
       }
     },
     {
