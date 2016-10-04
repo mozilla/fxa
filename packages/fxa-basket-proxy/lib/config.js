@@ -10,7 +10,7 @@ var path = require('path');
 var conf = module.exports = convict({
   env: {
     doc: 'What environment are we running in?  Note: all hosted environments are \'production\'.',
-    format: ['production', 'development'],
+    format: ['production', 'development', 'test'],
     default: 'production',
     env: 'NODE_ENV'
   },
