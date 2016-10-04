@@ -13,6 +13,7 @@ module.exports = function (limits, now) {
 
   function IpRecord() {
     this.lf = []
+    this.vc = []
     this.as = []
   }
 
@@ -20,8 +21,9 @@ module.exports = function (limits, now) {
     var rec = new IpRecord()
     object = object || {}
     rec.bk = object.bk // timestamp when the account was blocked
-    rec.lf = object.lf || []  // timestamps and errnos when failed login attempts occurred
-    rec.as = object.as || []  // timestamps when account status check occurred
+    rec.lf = object.lf || []  // timestamp+email+errno when failed login attempts occurred
+    rec.vc = object.vc || []  // timestamp+email when code verifications occurred
+    rec.as = object.as || []  // timestamp+email when account status checks occurred
     rec.rl = object.rl  // timestamp when the account was rate-limited
     return rec
   }
@@ -63,6 +65,32 @@ module.exports = function (limits, now) {
 
   IpRecord.prototype.trimBadLogins = function (now) {
     this.lf = this._trim(now, this.lf, limits.maxBadLoginsPerIp)
+  }
+
+  IpRecord.prototype.isOverVerifyCodes = function () {
+    this.trimVerifyCodes(now())
+    // Limit based on number of unique emails accessed by this IP.
+    var count = 0
+    var seen = {}
+    this.vc.forEach(function(info) {
+      if (!(info.u in seen)) {
+        count += 1
+        seen[info.u] = true
+      }
+    })
+    return count > limits.maxVerifyCodes
+  }
+
+  IpRecord.prototype.addVerifyCode = function (info) {
+    info = info || {}
+    var t = now()
+    var email = info.email || ''
+    this.trimVerifyCodes(t)
+    this.vc.push({ t: t, u: email })
+  }
+
+  IpRecord.prototype.trimVerifyCodes = function (now) {
+    this.vc = this._trim(now, this.vc, limits.maxVerifyCodes)
   }
 
   IpRecord.prototype.isOverAccountStatusCheck = function () {
@@ -149,6 +177,15 @@ module.exports = function (limits, now) {
     if (actions.isAccountStatusAction(action)) {
       this.addAccountStatusCheck({ email: email })
       if (this.isOverAccountStatusCheck()){
+        // If you do more checks while rate-limited, this can extend the ban.
+        this.rateLimit()
+      }
+    }
+
+    // Increment verify-code-check count and throttle if needed
+    if (actions.isCodeVerifyingAction(action)) {
+      this.addVerifyCode({ email: email })
+      if (this.isOverVerifyCodes()){
         // If you do more checks while rate-limited, this can extend the ban.
         this.rateLimit()
       }

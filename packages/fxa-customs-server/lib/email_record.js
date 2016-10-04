@@ -10,6 +10,7 @@ module.exports = function (limits, now) {
   now = now || Date.now
 
   function EmailRecord() {
+    this.vc = []
     this.xs = []
   }
 
@@ -18,6 +19,7 @@ module.exports = function (limits, now) {
     object = object || {}
     rec.bk = object.bk       // timestamp when the account was banned
     rec.rl = object.rl       // timestamp when the account was rate-limited
+    rec.vc = object.vc || [] // timestamps when code verifications happened
     rec.xs = object.xs || [] // timestamps when emails were sent
     rec.pr = object.pr       // timestamp of the last password reset
     return rec
@@ -52,6 +54,30 @@ module.exports = function (limits, now) {
 
   EmailRecord.prototype.addHit = function () {
     this.xs.push(now())
+  }
+
+  EmailRecord.prototype.isOverVerifyCodes = function () {
+    this.trimVerifyCodes(now())
+    return this.vc.length > limits.maxVerifyCodes
+  }
+
+  EmailRecord.prototype.trimVerifyCodes = function (now) {
+    if (this.vc.length === 0) { return }
+    // vc is naturally ordered from oldest to newest
+    // and we only need to keep up to limits.maxVerifyCodes + 1
+
+    var i = this.vc.length - 1
+    var n = 0
+    var hit = this.vc[i]
+    while (hit > (now - limits.rateLimitIntervalMs) && n <= limits.maxVerifyCodes) {
+      hit = this.vc[--i]
+      n++
+    }
+    this.vc = this.vc.slice(i + 1)
+  }
+
+  EmailRecord.prototype.addVerifyCode = function () {
+    this.vc.push(now())
   }
 
   EmailRecord.prototype.shouldBlock = function () {
@@ -89,6 +115,21 @@ module.exports = function (limits, now) {
     // Reject immediately if they've been explicitly blocked.
     if (this.isBlocked()) {
       return this.retryAfter()
+    }
+
+    // For code-checking actions, we may need to rate-limit.
+    if (actions.isCodeVerifyingAction(action)) {
+      // If they're already being blocked then don't count any more hits,
+      // and tell them to retry.
+      if (this.shouldBlock()) {
+        return this.retryAfter()
+      }
+      this.addVerifyCode()
+      if (this.isOverVerifyCodes()) {
+        // They're now over the limit, rate-limit and tell them to retry.
+        this.rateLimit()
+        return this.retryAfter()
+      }
     }
 
     // For email-sending actions, we may need to rate-limit.

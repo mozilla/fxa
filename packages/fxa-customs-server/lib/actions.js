@@ -7,7 +7,16 @@
 var PASSWORD_CHECKING_ACTION = {
   accountLogin: true,
   accountDestroy: true,
-  passwordChange: true,
+  passwordChange: true
+}
+
+// Actions that, if allowed, would allow an attacker
+// to try a guess at a randomly-generated security code.
+// Code are higher entropy so we can allow more of these,
+// but if you're doing it a lot, you're probably a baddie.
+var CODE_VERIFYING_ACTION = {
+  recoveryEmailVerifyCode: true,
+  passwordForgotVerifyCode: true
 }
 
 // Actions that, if allowed, would allow an attacker
@@ -36,6 +45,10 @@ module.exports = {
 
   isPasswordCheckingAction: function isPasswordCheckingAction(action) {
     return PASSWORD_CHECKING_ACTION[action]
+  },
+
+  isCodeVerifyingAction: function isCodeVerifyingAction(action) {
+    return CODE_VERIFYING_ACTION[action]
   },
 
   isAccountStatusAction: function isAccountStatusAction(action) {

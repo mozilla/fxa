@@ -73,6 +73,12 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'MAX_BAD_LOGINS_PER_IP'
       },
+      maxVerifyCodes: {
+        doc: 'Number code verifictions within rateLimitIntervalSeconds before throttling',
+        default: 10,
+        format: 'nat',
+        env: 'MAX_VERIFY_CODES'
+      },
       badLoginErrnoWeights: {
         doc: 'Maps bad-login errnos to a weight multipler, because some bad logins are badder than others',
         format: Object,
