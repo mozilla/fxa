@@ -248,6 +248,14 @@ define(function (require, exports, module) {
       it('converts an XHR request with `responseJSON` to an error`', function () {
         assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError({ responseJSON: { errno: 201 }, status: 200 }), 'SERVER_BUSY'));
       });
+
+      it('converts an XHR request with missing `responseJSON` and `status=503` to a `SERVICE_UNAVAILABLE` error', function () {
+        assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError({ status: 503 }), 'SERVICE_UNAVAILABLE'));
+      });
+
+      it('converts an XHR request with missing `responseJSON` and `status=429` to a `THROTTLED` error', function () {
+        assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError({ status: 429 }), 'THROTTLED'));
+      });
     });
   });
 });
