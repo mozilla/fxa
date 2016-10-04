@@ -9,3 +9,9 @@
 ## Publishing new version
 
 Install the [np](https://github.com/sindresorhus/np) tool, run `np [new_version_here]`.
+
+## Used by:
+
+* https://github.com/mozilla/fxa-content-server
+* https://github.com/mozilla/fxa-auth-server
+* https://github.com/mozilla/fxa-oauth-server
