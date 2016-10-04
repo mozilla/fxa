@@ -6,13 +6,13 @@ var _ = require('lodash');
 var os = require('os');
 var Promise = require('bluebird');
 
-var DNT_ALLOWED_QUERY_PARAMS = [
+var DNT_ALLOWED_DATA = [
   'context',
   'entrypoint',
   'migration',
   'service',
 ];
-var NO_DNT_ALLOWED_QUERY_PARAMS = DNT_ALLOWED_QUERY_PARAMS.concat([
+var NO_DNT_ALLOWED_DATA = DNT_ALLOWED_DATA.concat([
   'utm_campaign',
   'utm_content',
   'utm_medium',
@@ -20,24 +20,25 @@ var NO_DNT_ALLOWED_QUERY_PARAMS = DNT_ALLOWED_QUERY_PARAMS.concat([
   'utm_term'
 ]);
 var HOSTNAME = os.hostname();
-var MAX_PARAM_LENGTH = 100;
+var MAX_DATA_LENGTH = 100;
 var VERSION = 1;
 
 module.exports = function (event, data, request) {
-  var queryParams = _.pick(request.query, isDNT(request) ?
-    DNT_ALLOWED_QUERY_PARAMS : NO_DNT_ALLOWED_QUERY_PARAMS);
-
+  var pickedData = _.pick(data, isDNT(request) ? DNT_ALLOWED_DATA : NO_DNT_ALLOWED_DATA);
   var eventData = _.assign({
-    event: event,
+    event: event.type,
+    flow_id: limitLength(data.flowId), //eslint-disable-line camelcase
+    flow_time: event.flowTime, //eslint-disable-line camelcase
     hostname: HOSTNAME,
     op: 'flowEvent',
     pid: process.pid,
+    time: event.time,
     userAgent: request.headers['user-agent'],
     v: VERSION
-  }, data, _.mapValues(queryParams, limitLength));
+  }, _.mapValues(pickedData, sanitiseData));
 
-  optionallySetFallbackData(eventData, 'service', request.query.client_id);
-  optionallySetFallbackData(eventData, 'entrypoint', request.query.entryPoint);
+  optionallySetFallbackData(eventData, 'service', data.client_id);
+  optionallySetFallbackData(eventData, 'entrypoint', data.entryPoint);
 
   if (typeof eventData.time === 'number') {
     eventData.time = new Date(eventData.time).toISOString();
@@ -56,12 +57,20 @@ function isDNT (request) {
   return request.headers.dnt === '1';
 }
 
-function limitLength (param) {
-  if (param && param.length > MAX_PARAM_LENGTH) {
-    return param.substr(0, MAX_PARAM_LENGTH);
+function limitLength (data) {
+  if (data && data.length > MAX_DATA_LENGTH) {
+    return data.substr(0, MAX_DATA_LENGTH);
   }
 
-  return param;
+  return data;
+}
+
+function sanitiseData (data) {
+  if (data === 'none') {
+    return undefined;
+  }
+
+  return limitLength(data);
 }
 
 function optionallySetFallbackData (eventData, key, fallback) {

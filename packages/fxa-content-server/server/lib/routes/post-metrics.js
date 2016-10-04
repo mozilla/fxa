@@ -68,12 +68,12 @@ function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
     return event.type.indexOf('flow.') === 0;
   });
 
-  flowEvents.forEach(function (event) {
-    if (event.type === 'flow.begin') {
-      if (! metrics.flowBeginTime) {
-        // This will only kick in if something clobbered the data-flow-begin
-        // attribute in the DOM, i.e. hopefully never.
-        metrics.flowBeginTime = estimateFlowBeginTime({
+  if (! metrics.flowBeginTime) {
+    // This will only kick in if something clobbered the data-flow-begin
+    // attribute in the DOM, i.e. hopefully never.
+    flowEvents.some(function (event) {
+      if (event.type === 'flow.begin') {
+        metrics.flowBeginTime = estimateTime({
           /*eslint-disable sorting/sort-object-props*/
           start: metrics.startTime,
           offset: event.offset,
@@ -81,18 +81,33 @@ function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
           received: requestReceivedTime
           /*eslint-enable sorting/sort-object-props*/
         });
+
+        return true;
       }
+    });
+  }
+
+  flowEvents.forEach(function (event) {
+    if (event.type === 'flow.begin') {
+      event.time = metrics.flowBeginTime;
+      event.flowTime = 0;
+    } else {
+      event.time = estimateTime({
+        /*eslint-disable sorting/sort-object-props*/
+        start: metrics.startTime,
+        offset: event.offset,
+        sent: metrics.flushTime,
+        received: requestReceivedTime
+        /*eslint-enable sorting/sort-object-props*/
+      });
+      event.flowTime = event.time - metrics.flowBeginTime;
     }
 
-    flowEvent(event.type, {
-      flow_id: metrics.flowId, //eslint-disable-line camelcase
-      flow_time: 0, //eslint-disable-line camelcase
-      time: metrics.flowBeginTime
-    }, req);
+    flowEvent(event, metrics, req);
   });
 }
 
-function estimateFlowBeginTime (times) {
+function estimateTime (times) {
   var skew = times.received - times.sent;
   return times.start + times.offset + skew;
 }

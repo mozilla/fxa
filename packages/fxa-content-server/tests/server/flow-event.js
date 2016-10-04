@@ -23,23 +23,26 @@ define([
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return flowEvent('mock event', { a: 'b', c: 'd', time: 'wibble' }, {
-          headers: { 'user-agent': 'foo' },
-          originalUrl: 'bar',
-          query: {
-            context: 'mock context',
-            entrypoint: 'mock entrypoint',
-            migration: 'mock migration',
-            service: 'mock service',
-            /*eslint-disable camelcase*/
-            utm_campaign: 'mock utm_campaign',
-            utm_content: 'mock utm_content',
-            utm_medium: 'mock utm_medium',
-            utm_source: 'mock utm_source',
-            utm_term: 'mock utm_term',
-            /*eslint-enable camelcase*/
-            zignore: 'ignore me'
-          }
+        return flowEvent({
+          flowTime: 'mock flow time',
+          time: 'mock time',
+          type: 'mock event'
+        }, {
+          context: 'mock context',
+          entrypoint: 'mock entrypoint',
+          flowId: 'mock flow id',
+          migration: 'mock migration',
+          service: 'mock service',
+          /*eslint-disable camelcase*/
+          utm_campaign: 'mock utm_campaign',
+          utm_content: 'mock utm_content',
+          utm_medium: 'mock utm_medium',
+          utm_source: 'mock utm_source',
+          utm_term: 'mock utm_term',
+          /*eslint-enable camelcase*/
+          zignore: 'ignore me'
+        }, {
+          headers: { 'user-agent': 'foo' }
         });
       },
 
@@ -63,9 +66,9 @@ define([
         assert.equal(eventData.v, 1);
         assert.equal(eventData.event, 'mock event');
         assert.equal(eventData.userAgent, 'foo');
-        assert.equal(eventData.a, 'b');
-        assert.equal(eventData.c, 'd');
-        assert.equal(eventData.time, 'wibble');
+        assert.equal(eventData.time, 'mock time');
+        assert.equal(eventData.flow_id, 'mock flow id');
+        assert.equal(eventData.flow_time, 'mock flow time');
         assert.equal(eventData.context, 'mock context');
         assert.equal(eventData.entrypoint, 'mock entrypoint');
         assert.equal(eventData.migration, 'mock migration');
@@ -84,13 +87,15 @@ define([
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return flowEvent('wibble', {}, {
-          headers: { 'user-agent': 'blee' },
-          originalUrl: '/',
-          query: {
-            client_id: 'mock client id', //eslint-disable-line camelcase
-            ignore: 'ignore me'
-          }
+        return flowEvent({
+          flowTime: 'foo',
+          time: 'bar',
+          type: 'wibble'
+        }, {
+          client_id: 'mock client id', //eslint-disable-line camelcase
+          ignore: 'ignore me'
+        }, {
+          headers: { 'user-agent': 'blee' }
         });
       },
 
@@ -102,13 +107,15 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
 
         var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(eventData), 7);
+        assert.lengthOf(Object.keys(eventData), 9);
         assert.equal(eventData.op, 'flowEvent');
         assert.equal(eventData.hostname, os.hostname());
         assert.equal(eventData.pid, process.pid);
         assert.equal(eventData.v, 1);
         assert.equal(eventData.event, 'wibble');
         assert.equal(eventData.userAgent, 'blee');
+        assert.equal(eventData.time, 'bar');
+        assert.equal(eventData.flow_time, 'foo');
         assert.equal(eventData.service, 'mock client id');
       }
     },
@@ -117,14 +124,16 @@ define([
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return flowEvent('wibble', {}, {
-          headers: { 'user-agent': 'blee' },
-          originalUrl: '/',
-          query: {
-            client_id: 'mock client id', //eslint-disable-line camelcase
-            service: 'mock service',
-            zignore: 'ignore me'
-          }
+        return flowEvent({
+          flowTime: 'foo',
+          time: 'bar',
+          type: 'wibble'
+        }, {
+          client_id: 'mock client id', //eslint-disable-line camelcase
+          service: 'mock service',
+          zignore: 'ignore me'
+        }, {
+          headers: { 'user-agent': 'blee' }
         });
       },
 
@@ -136,7 +145,7 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
 
         var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(eventData), 7);
+        assert.lengthOf(Object.keys(eventData), 9);
         assert.equal(eventData.service, 'mock service');
       }
     },
@@ -145,13 +154,15 @@ define([
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return flowEvent('wibble', {}, {
-          headers: { 'user-agent': 'blee' },
-          originalUrl: '/',
-          query: {
-            entryPoint: 'mock entryPoint', //eslint-disable-line camelcase
-            ignore: 'ignore me'
-          }
+        return flowEvent({
+          flowTime: 'foo',
+          time: 'bar',
+          type: 'wibble'
+        }, {
+          entryPoint: 'mock entryPoint', //eslint-disable-line camelcase
+          ignore: 'ignore me'
+        }, {
+          headers: { 'user-agent': 'blee' }
         });
       },
 
@@ -163,7 +174,7 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
 
         var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(eventData), 7);
+        assert.lengthOf(Object.keys(eventData), 9);
         assert.equal(eventData.entrypoint, 'mock entryPoint');
       }
     },
@@ -172,14 +183,16 @@ define([
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return flowEvent('wibble', {}, {
-          headers: { 'user-agent': 'blee' },
-          originalUrl: '/',
-          query: {
-            entryPoint: 'mock entryPoint', //eslint-disable-line camelcase
-            entrypoint: 'mock entrypoint',
-            zignore: 'ignore me'
-          }
+        return flowEvent({
+          flowTime: 'foo',
+          time: 'bar',
+          type: 'wibble'
+        }, {
+          entryPoint: 'mock entryPoint',
+          entrypoint: 'mock entrypoint',
+          ignore: 'ignore me'
+        }, {
+          headers: { 'user-agent': 'blee' }
         });
       },
 
@@ -191,21 +204,23 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
 
         var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(eventData), 7);
+        assert.lengthOf(Object.keys(eventData), 9);
         assert.equal(eventData.entrypoint, 'mock entrypoint');
       }
     },
 
-    'call flowEvent with 101-character query parameter': {
+    'call flowEvent with 101-character data': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return flowEvent('wibble', {}, {
-          headers: { 'user-agent': 'blee' },
-          originalUrl: '/',
-          query: {
-            context: (new Array(102)).join('0')
-          }
+        return flowEvent({
+          flowTime: 'foo',
+          time: 'bar',
+          type: 'wibble'
+        }, {
+          context: (new Array(102)).join('0')
+        }, {
+          headers: { 'user-agent': 'blee' }
         });
       },
 
@@ -221,16 +236,18 @@ define([
       }
     },
 
-    'call flowEvent with 100-character query parameter': {
+    'call flowEvent with 100-character data': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return flowEvent('wibble', {}, {
-          headers: { 'user-agent': 'blee' },
-          originalUrl: '/',
-          query: {
-            entrypoint: (new Array(101)).join('x')
-          }
+        return flowEvent({
+          flowTime: 'foo',
+          time: 'bar',
+          type: 'wibble'
+        }, {
+          entrypoint: (new Array(101)).join('x')
+        }, {
+          headers: { 'user-agent': 'blee' }
         });
       },
 
@@ -246,16 +263,45 @@ define([
       }
     },
 
+    'call flowEvent with "none" data': {
+      setup: function () {
+        write = process.stderr.write;
+        process.stderr.write = sinon.spy();
+        return flowEvent({
+          flowTime: 'foo',
+          time: 'bar',
+          type: 'wibble'
+        }, {
+          migration: 'none'
+        }, {
+          headers: { 'user-agent': 'blee' }
+        });
+      },
+
+      teardown: function () {
+        process.stderr.write = write;
+      },
+
+      'process.stderr.write was called correctly': function () {
+        assert.equal(process.stderr.write.callCount, 1);
+
+        var eventData = JSON.parse(process.stderr.write.args[0][0]);
+        assert.equal(Object.keys(eventData).indexOf('migration'), -1);
+      }
+    },
+
     'call flowEvent with 101-character client_id': {
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return flowEvent('wibble', {}, {
-          headers: { 'user-agent': 'blee' },
-          originalUrl: '/',
-          query: {
-            client_id: (new Array(102)).join(' ') //eslint-disable-line camelcase
-          }
+        return flowEvent({
+          flowTime: 'foo',
+          time: 'bar',
+          type: 'wibble'
+        }, {
+          client_id: (new Array(102)).join(' ') //eslint-disable-line camelcase
+        }, {
+          headers: { 'user-agent': 'blee' }
         });
       },
 
@@ -275,12 +321,14 @@ define([
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return flowEvent('wibble', {}, {
-          headers: { 'user-agent': 'blee' },
-          originalUrl: '/',
-          query: {
-            entryPoint: (new Array(102)).join(' ') //eslint-disable-line camelcase
-          }
+        return flowEvent({
+          flowTime: 'foo',
+          time: 'bar',
+          type: 'wibble'
+        }, {
+          entryPoint: (new Array(102)).join(' ') //eslint-disable-line camelcase
+        }, {
+          headers: { 'user-agent': 'blee' }
         });
       },
 
@@ -300,25 +348,27 @@ define([
       setup: function () {
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return flowEvent('mock event', {}, {
-          headers: { 'dnt': '1', 'user-agent': 'foo' },
-          originalUrl: 'bar',
-          query: {
-            client_id: 'mock client_id', //eslint-disable-line camelcase
-            context: 'mock context',
-            entryPoint: 'mock entryPoint',
-            entrypoint: 'mock entrypoint',
-            migration: 'mock migration',
-            service: 'mock service',
-            /*eslint-disable camelcase*/
-            utm_campaign: 'mock utm_campaign',
-            utm_content: 'mock utm_content',
-            utm_medium: 'mock utm_medium',
-            utm_source: 'mock utm_source',
-            utm_term: 'mock utm_term',
-            /*eslint-enable camelcase*/
-            zignore: 'ignore me'
-          }
+        return flowEvent({
+          flowTime: 'mock flow time',
+          time: 'mock time',
+          type: 'mock event'
+        }, {
+          client_id: 'mock client_id', //eslint-disable-line camelcase
+          context: 'mock context',
+          entryPoint: 'mock entryPoint',
+          entrypoint: 'mock entrypoint',
+          migration: 'mock migration',
+          service: 'mock service',
+          /*eslint-disable camelcase*/
+          utm_campaign: 'mock utm_campaign',
+          utm_content: 'mock utm_content',
+          utm_medium: 'mock utm_medium',
+          utm_source: 'mock utm_source',
+          utm_term: 'mock utm_term',
+          /*eslint-enable camelcase*/
+          zignore: 'ignore me'
+        }, {
+          headers: { 'dnt': '1', 'user-agent': 'foo' }
         });
       },
 
@@ -330,10 +380,15 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
 
         var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(eventData), 10);
+        assert.lengthOf(Object.keys(eventData), 12);
         assert.equal(eventData.op, 'flowEvent');
+        assert.equal(eventData.hostname, os.hostname());
+        assert.equal(eventData.pid, process.pid);
+        assert.equal(eventData.v, 1);
         assert.equal(eventData.event, 'mock event');
         assert.equal(eventData.userAgent, 'foo');
+        assert.equal(eventData.time, 'mock time');
+        assert.equal(eventData.flow_time, 'mock flow time');
         assert.equal(eventData.context, 'mock context');
         assert.equal(eventData.entrypoint, 'mock entrypoint');
         assert.equal(eventData.migration, 'mock migration');
@@ -346,10 +401,12 @@ define([
         time = Date.now();
         write = process.stderr.write;
         process.stderr.write = sinon.spy();
-        return flowEvent('wibble', { time: time }, {
-          headers: { 'user-agent': 'blee' },
-          originalUrl: '/',
-          query: {}
+        return flowEvent({
+          flowTime: 'foo',
+          time: time,
+          type: 'wibble'
+        }, {}, {
+          headers: { 'user-agent': 'blee' }
         });
       },
 
@@ -361,7 +418,6 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
 
         var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(eventData), 7);
         assert.equal(eventData.time, new Date(time).toISOString());
       }
     },
