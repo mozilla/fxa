@@ -30,6 +30,7 @@ define(function (require, exports, module) {
         flowBeginMixin.logError = sinon.spy();
         $('body').data('flowId', FLOW_ID);
         $('body').data('flowBegin', 42);
+        flowBeginMixin.viewName = 'wibble';
         flowBeginMixin.afterRender();
       });
 
@@ -51,9 +52,10 @@ define(function (require, exports, module) {
       it('called metrics.logFlowBegin correctly', function () {
         assert.strictEqual(flowBeginMixin.metrics.logFlowBegin.callCount, 1);
         var args = flowBeginMixin.metrics.logFlowBegin.args[0];
-        assert.lengthOf(args, 2);
+        assert.lengthOf(args, 3);
         assert.strictEqual(args[0], FLOW_ID);
         assert.strictEqual(args[1], 42);
+        assert.strictEqual(args[2], 'wibble');
       });
 
       it('did not call view.logError', function () {

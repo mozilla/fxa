@@ -176,7 +176,7 @@ define(function (require, exports, module) {
       describe('log events', function () {
         beforeEach(function () {
           metrics.logEvent('foo');
-          metrics.logFlowBegin('bar', 'baz');
+          metrics.logFlowBegin('bar', 'baz', 'wibble');
           metrics.logEvent('qux');
         });
 
@@ -217,7 +217,7 @@ define(function (require, exports, module) {
               assert.isArray(data.events);
               assert.lengthOf(data.events, 3);
               assert.equal(data.events[0].type, 'foo');
-              assert.equal(data.events[1].type, 'flow.begin');
+              assert.equal(data.events[1].type, 'flow.wibble.begin');
               assert.equal(data.events[2].type, 'qux');
               assert.equal(data.flowId, 'bar');
               assert.equal(data.flowBeginTime, 'baz');
@@ -251,7 +251,7 @@ define(function (require, exports, module) {
 
             describe('log a second flow.begin event with same flowId', function () {
               beforeEach(function () {
-                metrics.logFlowBegin('bar', 'blee');
+                metrics.logFlowBegin('bar', 'blee', 'hong');
                 metrics.logEvent('wibble');
                 return metrics.flush();
               });
@@ -336,7 +336,7 @@ define(function (require, exports, module) {
               assert.isArray(data.events);
               assert.lengthOf(data.events, 4);
               assert.equal(data.events[0].type, 'foo');
-              assert.equal(data.events[1].type, 'flow.begin');
+              assert.equal(data.events[1].type, 'flow.wibble.begin');
               assert.equal(data.events[2].type, 'qux');
               assert.equal(data.events[3].type, 'baz');
             });
@@ -408,7 +408,7 @@ define(function (require, exports, module) {
             assert.lengthOf(Object.keys(data), 25);
             assert.lengthOf(data.events, 4);
             assert.equal(data.events[0].type, 'foo');
-            assert.equal(data.events[1].type, 'flow.begin');
+            assert.equal(data.events[1].type, 'flow.wibble.begin');
             assert.equal(data.events[2].type, 'qux');
             assert.equal(data.events[3].type, 'wibble');
           });
@@ -432,7 +432,7 @@ define(function (require, exports, module) {
             assert.lengthOf(Object.keys(data), 25);
             assert.lengthOf(data.events, 4);
             assert.equal(data.events[0].type, 'foo');
-            assert.equal(data.events[1].type, 'flow.begin');
+            assert.equal(data.events[1].type, 'flow.wibble.begin');
             assert.equal(data.events[2].type, 'qux');
             assert.equal(data.events[3].type, 'blee');
           });

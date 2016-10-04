@@ -7,25 +7,23 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Flow = require('models/flow');
+  const Flow = require('models/flow');
 
   module.exports = {
-    afterRender: function () {
-      var self = this;
-
-      self.flow = new Flow({
-        sentryMetrics: self.sentryMetrics,
-        window: self.window
+    afterRender () {
+      this.flow = new Flow({
+        sentryMetrics: this.sentryMetrics,
+        window: this.window
       });
 
-      var flowId = self.flow.get('flowId');
-      var flowBegin = self.flow.get('flowBegin');
+      const flowId = this.flow.get('flowId');
+      const flowBegin = this.flow.get('flowBegin');
 
-      self.metrics.setFlowEventMetadata({
+      this.metrics.setFlowEventMetadata({
         flowBeginTime: flowBegin,
         flowId: flowId
       });
-      self.metrics.logFlowBegin(flowId, flowBegin);
+      this.metrics.logFlowBegin(flowId, flowBegin, this.viewName);
     }
   };
 });
