@@ -296,7 +296,7 @@ module.exports = function (log) {
         'X-Unblock-Code': message.unblockCode,
         'X-Report-SignIn-Link': links.reportSignInLink
       },
-      subject: gettext('Firefox Account Authorization Code'),
+      subject: gettext('Firefox Account authorization code'),
       template: templateName,
       templateValues: {
         device: this._formatUserAgentInfo(message),
@@ -501,7 +501,7 @@ module.exports = function (log) {
       headers: {
         'X-Link': links.link
       },
-      subject: gettext('Firefox Account Verified'),
+      subject: gettext('Firefox Account verified'),
       template: templateName,
       templateValues: {
         alternativeLink: links.alternativeLink,
