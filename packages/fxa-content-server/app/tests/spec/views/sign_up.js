@@ -1389,15 +1389,15 @@ define(function (require, exports, module) {
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
           });
       });
-    });
 
-    describe('onHaveAccountClick', function () {
-      it('logs the have-account flow event', function () {
+      it('logs the have-account flow event instead of engage', function () {
         return view.render()
           .then(function () {
             view.afterVisible();
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
             assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.have-account'));
             view.$('#have-account').click();
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.have-account'));
           });
       });

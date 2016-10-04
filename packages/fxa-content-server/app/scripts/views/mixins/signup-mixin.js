@@ -11,7 +11,6 @@ define(function (require, exports, module) {
 
     /*anchor tag present in both signin and signup views*/
     events: {
-      'click #have-account': 'onHaveAccountClick',
       'click #suggest-sync a': 'onSuggestSyncClick'
     },
 
@@ -103,14 +102,6 @@ define(function (require, exports, module) {
         .then(function () {
           self.window.location = event.target.href;
         });
-    },
-
-    /**
-     * interceptor function.
-     * @param {Event} event - click event
-     */
-    onHaveAccountClick: function (event) {
-      this.logEvent('flow.have-account');
     }
   };
 });

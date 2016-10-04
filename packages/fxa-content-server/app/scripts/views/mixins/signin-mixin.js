@@ -109,7 +109,18 @@ define(function (require, exports, module) {
         .then(this.navigate.bind(this, this.model.get('redirectTo') || 'settings', {}, navigateData));
     },
 
-    _engageSignInForm () {
+    _engageSignInForm (event) {
+      if (event && event.target) {
+        var target = this.$el.find(event.target).attr('id');
+
+        if (target === 'have-account') {
+          // if the user clicks on 'have-account' we count that as flow event instead of the 'engage' event.
+          // Details: https://github.com/mozilla/fxa-content-server/pull/4221
+          this.logEvent('flow.have-account');
+          return;
+        }
+      }
+
       // user has engaged with the sign in, sign up or force auth form
       // the flow event will be different depending on the view name
       this.logEventOnce(`flow.${this.viewName}.engage`);
