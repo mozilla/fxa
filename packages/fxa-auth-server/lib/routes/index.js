@@ -56,7 +56,8 @@ module.exports = function (
     config.verifierVersion,
     customs,
     checkPassword,
-    push
+    push,
+    metricsContext
   )
   var session = require('./session')(log, isA, error, db)
   var sign = require('./sign')(log, P, isA, error, signer, db, config.domain, devices)
