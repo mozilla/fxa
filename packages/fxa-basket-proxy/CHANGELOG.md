@@ -1,3 +1,22 @@
+<a name="0.71.0"></a>
+# [0.71.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.64.0...v0.71.0) (2016-10-05)
+
+
+### Bug Fixes
+
+* **test:** Allow NODE_ENV=test when running the tests. ([2ee82c7](https://github.com/mozilla/fxa-basket-proxy/commit/2ee82c7))
+
+### chore
+
+* **deps:** Downgrade some deps for node 0.10 compatibility ([5f0878a](https://github.com/mozilla/fxa-basket-proxy/commit/5f0878a))
+* **deps:** Update dependencies to latest versions. ([5f1f293](https://github.com/mozilla/fxa-basket-proxy/commit/5f1f293))
+
+### Features
+
+* **docker:** Add CloudOps Dockerfile & CircleCI build instructions ([726494b](https://github.com/mozilla/fxa-basket-proxy/commit/726494b))
+
+
+
 <a name="0.64.0"></a>
 # [0.64.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.63.0...v0.64.0) (2016-06-22)
 
