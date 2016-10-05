@@ -95,7 +95,7 @@ define([
             events: [
               { type: 'foo', offset: 0 },
               { type: 'bar', offset: 1 },
-              { type: 'flow.begin', offset: 2 },
+              { type: 'flow.signup.begin', offset: 2 },
               { type: 'baz', offset: 3 },
               { type: 'flow.signup.engage', offset: 4 }
             ],
@@ -154,7 +154,7 @@ define([
             assert.equal(args[0].events[1].offset, 1);
             assert.isObject(args[0].events[2]);
             assert.lengthOf(Object.keys(args[0].events[2]), 4);
-            assert.equal(args[0].events[2].type, 'flow.begin');
+            assert.equal(args[0].events[2].type, 'flow.signup.begin');
             assert.equal(args[0].events[2].offset, 2);
             assert.equal(args[0].events[2].time, 42);
             assert.equal(args[0].events[2].flowTime, 0);
@@ -194,7 +194,7 @@ define([
             var args = mocks.flowEvent.args[0];
             assert.lengthOf(args, 3);
             assert.isObject(args[0]);
-            assert.equal(args[0].type, 'flow.begin');
+            assert.equal(args[0].type, 'flow.signup.begin');
             assert.strictEqual(args[0].flowTime, 0);
             assert.equal(args[0].time, 42);
             assert.isObject(args[1]);
@@ -280,7 +280,7 @@ define([
               /*eslint-disable sorting/sort-object-props*/
               { type: 'foo', offset: 0 },
               { type: 'bar', offset: 1 },
-              { type: 'flow.begin', offset: 2 },
+              { type: 'flow.signin.begin', offset: 2 },
               { type: 'baz', offset: 3 }
               /*eslint-enable sorting/sort-object-props*/
             ],
@@ -334,7 +334,7 @@ define([
             },
             events: [
               /*eslint-disable sorting/sort-object-props*/
-              { type: 'flow.begin', offset: 2 },
+              { type: 'flow.force_auth.begin', offset: 2 },
               { type: 'foo', offset: 3 }
               /*eslint-enable sorting/sort-object-props*/
             ],
@@ -395,7 +395,7 @@ define([
             var args = mocks.flowEvent.args[3];
             assert.lengthOf(args, 3);
             assert.isObject(args[0]);
-            assert.equal(args[0].type, 'flow.begin');
+            assert.equal(args[0].type, 'flow.force_auth.begin');
             assert.strictEqual(args[0].flowTime, 0);
             assert.equal(args[0].time, 77);
             assert.isObject(args[1]);
@@ -417,7 +417,7 @@ define([
             },
             events: [
               /*eslint-disable sorting/sort-object-props*/
-              { type: 'flow.begin', offset: 2 },
+              { type: 'flow.wibble.begin', offset: 2 },
               { type: 'foo', offset: 3 }
               /*eslint-enable sorting/sort-object-props*/
             ],
@@ -479,7 +479,7 @@ define([
             events: [
               { type: 'foo', offset: 10 },
               { type: 'bar', offset: 20 },
-              { type: 'flow.begin', offset: 30 },
+              { type: 'flow.wibble.begin', offset: 30 },
               { type: 'baz', offset: 40 },
               { type: 'flow.wibble', offset: 50 }
             ],
@@ -525,7 +525,7 @@ define([
             assert.strictEqual(mocks.flowEvent.callCount, 6);
             var args = mocks.flowEvent.args[4];
             assert.lengthOf(args, 3);
-            assert.equal(args[0].type, 'flow.begin');
+            assert.equal(args[0].type, 'flow.wibble.begin');
             assert.equal(args[0].time, 2029);
             assert.equal(args[0].flowTime, 0);
             assert.equal(args[1].flowId, 'qux');

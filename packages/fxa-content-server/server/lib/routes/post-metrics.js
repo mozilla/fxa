@@ -13,6 +13,8 @@ var logger = require('mozlog')('server.post-metrics');
 
 var DISABLE_CLIENT_METRICS_STDERR = config.get('client_metrics').stderr_collector_disabled;
 
+var FLOW_BEGIN_EVENT_TYPES = /^flow\.[a-z_-]+\.begin$/;
+
 module.exports = function () {
   var metricsCollector = new MetricsCollector();
   var statsd = new StatsDCollector();
@@ -72,7 +74,7 @@ function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
     // This will only kick in if something clobbered the data-flow-begin
     // attribute in the DOM, i.e. hopefully never.
     flowEvents.some(function (event) {
-      if (event.type === 'flow.begin') {
+      if (FLOW_BEGIN_EVENT_TYPES.test(event.type)) {
         metrics.flowBeginTime = estimateTime({
           /*eslint-disable sorting/sort-object-props*/
           start: metrics.startTime,
@@ -88,7 +90,7 @@ function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
   }
 
   flowEvents.forEach(function (event) {
-    if (event.type === 'flow.begin') {
+    if (FLOW_BEGIN_EVENT_TYPES.test(event.type)) {
       event.time = metrics.flowBeginTime;
       event.flowTime = 0;
     } else {
