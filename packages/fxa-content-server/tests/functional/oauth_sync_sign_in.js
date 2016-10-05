@@ -37,7 +37,7 @@ define([
     name: 'Sign in with OAuth after Sync',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
       email2 = TestHelpers.createEmail();
 
       // clear localStorage to avoid pollution from other tests.
