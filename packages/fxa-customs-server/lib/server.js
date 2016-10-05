@@ -169,7 +169,8 @@ module.exports = function createServer(config, log) {
                 // Requests issued while on blocklist will not count towards
                 // the rate limit.
                 return {
-                  block: true
+                  block: true,
+                  unblock: canUnblock
                 }
               }
             }
@@ -197,7 +198,8 @@ module.exports = function createServer(config, log) {
             // Default is to block request on any server based error
             res.send({
               block: true,
-              retryAfter: limits.rateLimitIntervalSeconds
+              retryAfter: limits.rateLimitIntervalSeconds,
+              unblock: false
             })
           }
         )
