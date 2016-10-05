@@ -1,3 +1,21 @@
+<a name="0.71.0"></a>
+# [0.71.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.70.0...v0.71.0) (2016-10-05)
+
+
+### Bug Fixes
+
+* **travis:** drop node 0.10 test config ([c1b1841](https://github.com/mozilla/fxa-auth-db-mysql/commit/c1b1841))
+
+### chore
+
+* **travis:** add node 6 explicitly to travis (#175) r=vladikoff ([c1556ab](https://github.com/mozilla/fxa-auth-db-mysql/commit/c1556ab))
+
+### Features
+
+* **unblock:** add unblockCode support ([12fb9df](https://github.com/mozilla/fxa-auth-db-mysql/commit/12fb9df))
+
+
+
 <a name="0.70.0"></a>
 # [0.70.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.69.0...v0.70.0) (2016-09-24)
 
