@@ -20,6 +20,7 @@ module.exports = function (config, mc, log) {
     this.maxEmails = settings.maxEmails
     this.maxBadLogins = settings.maxBadLogins
     this.maxBadLoginsPerIp = settings.maxBadLoginsPerIp
+    this.maxUnblockAttempts = settings.maxUnblockAttempts
     this.maxVerifyCodes = settings.maxVerifyCodes
     this.ipRateLimitIntervalSeconds = settings.ipRateLimitIntervalSeconds
     this.ipRateLimitIntervalMs = settings.ipRateLimitIntervalSeconds * 1000

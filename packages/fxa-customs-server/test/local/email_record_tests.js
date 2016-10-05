@@ -13,7 +13,8 @@ function simpleEmailRecord() {
   var limits = {
     rateLimitIntervalMs: 500,
     blockIntervalMs: 800,
-    maxEmails: 2
+    maxEmails: 2,
+    maxUnblockAttempts: 2
   }
   return new (emailRecord(limits, now))()
 }
@@ -164,6 +165,20 @@ test(
 )
 
 test(
+  'unblock',
+  function (t) {
+    var er = simpleEmailRecord()
+    er.addUnblock()
+    t.ok(er.canUnblock(), 'unblock limit is not reached')
+    er.addUnblock()
+    t.ok(er.canUnblock(), 'unblock limit is still not reached')
+    er.addUnblock()
+    t.equal(er.canUnblock(), false, 'maxUnblockAttempts exceeded')
+    t.end()
+  }
+)
+
+test(
   'parse works',
   function (t) {
     var er = simpleEmailRecord()
@@ -204,6 +219,10 @@ test(
     t.equal(er.update('accountCreate'), 0, 'email action above the email limit')
     t.equal(er.shouldBlock(), true, 'account is now blocked')
     t.equal(er.update('accountCreate'), 0, 'email action in a blocked account')
+
+    t.equal(er.ub.length, 0, 'no unblock attempts')
+    er.update('bogus', true)
+    t.equal(er.ub.length, 1, '1 unblock attempt')
 
     er.rl = 2000
     t.equal(er.shouldBlock(), true, 'account is blocked due to rate limiting')

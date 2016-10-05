@@ -89,13 +89,19 @@ module.exports.blockedIpCheck = blockedIpCheck
 function badLoginCheck() {
   return P.all([
     mc.getAsync(TEST_IP + TEST_EMAIL),
-    mc.getAsync(TEST_IP)
+    mc.getAsync(TEST_IP),
+    mc.getAsync(TEST_EMAIL)
   ])
-  .spread(function (d1, d2) {
+  .spread(function (d1, d2, d3) {
     var ipEmailRecord = IpEmailRecord.parse(d1)
     var ipRecord = IpRecord.parse(d2)
+    var emailRecord = EmailRecord.parse(d3)
     mc.end()
-    return {ipEmailRecord: ipEmailRecord, ipRecord: ipRecord}
+    return {
+      ipEmailRecord: ipEmailRecord,
+      ipRecord: ipRecord,
+      emailRecord: emailRecord
+    }
   })
 }
 

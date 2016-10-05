@@ -29,7 +29,8 @@ var ACCOUNT_STATUS_ACTION = {
   accountDestroy: true,
   passwordChange: true,
   passwordForgotSendCode: true,
-  accountStatusCheck: true
+  accountStatusCheck: true,
+  sendUnblockCode: true
 }
 
 // Actions that send an email, and hence might make
@@ -38,7 +39,8 @@ var EMAIL_SENDING_ACTION = {
   accountCreate: true,
   recoveryEmailResendCode: true,
   passwordForgotSendCode: true,
-  passwordForgotResendCode: true
+  passwordForgotResendCode: true,
+  sendUnblockCode: true
 }
 
 module.exports = {

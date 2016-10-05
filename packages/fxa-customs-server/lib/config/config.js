@@ -73,6 +73,12 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'MAX_BAD_LOGINS_PER_IP'
       },
+      maxUnblockAttempts: {
+        doc: 'Number of login attempts that can be unblocked',
+        default: 5,
+        env: 'MAX_UNBLOCK_ATTEMPTS',
+        format: 'nat'
+      },
       maxVerifyCodes: {
         doc: 'Number code verifictions within rateLimitIntervalSeconds before throttling',
         default: 10,
@@ -85,7 +91,8 @@ module.exports = function (fs, path, url, convict) {
         env: 'BAD_LOGIN_ERRNO_WEIGHTS',
         default: {
           '102': 2,
-          '125': 4
+          '125': 4,
+          '126': 2
         }
       },
       ipRateLimitIntervalSeconds: {

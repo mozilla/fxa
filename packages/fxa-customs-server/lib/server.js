@@ -127,7 +127,7 @@ module.exports = function createServer(config, log) {
             if (ipRecord.isBlocked()) {
               // a blocked ip should just be ignored completely
               // it's malicious, it shouldn't penalize emails or allow
-              // any escape hatches. just abort!
+              // (most) escape hatches. just abort!
               return {
                 block: true,
                 retryAfter: ipRecord.retryAfter()
@@ -135,7 +135,8 @@ module.exports = function createServer(config, log) {
             }
 
 
-            var blockEmail = emailRecord.update(action)
+            var wantsUnblock = req.body.payload && req.body.payload.unblockCode
+            var blockEmail = emailRecord.update(action, !!wantsUnblock)
             var blockIpEmail = ipEmailRecord.update(action)
             var blockIp = ipRecord.update(action, email)
 
@@ -156,6 +157,7 @@ module.exports = function createServer(config, log) {
                 retryAfter = 0
               }
             }
+            var canUnblock = emailRecord.canUnblock()
 
             // IP's that are in blocklist should be blocked
             // and not return a retryAfter because it is not known
@@ -177,6 +179,7 @@ module.exports = function createServer(config, log) {
                 function () {
                   return {
                     block: retryAfter > 0,
+                    unblock: canUnblock,
                     retryAfter: retryAfter
                   }
                 }

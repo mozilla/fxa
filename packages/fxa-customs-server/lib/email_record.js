@@ -12,6 +12,7 @@ module.exports = function (limits, now) {
   function EmailRecord() {
     this.vc = []
     this.xs = []
+    this.ub = []
   }
 
   EmailRecord.parse = function (object) {
@@ -19,9 +20,10 @@ module.exports = function (limits, now) {
     object = object || {}
     rec.bk = object.bk       // timestamp when the account was banned
     rec.rl = object.rl       // timestamp when the account was rate-limited
-    rec.vc = object.vc || [] // timestamps when code verifications happened
-    rec.xs = object.xs || [] // timestamps when emails were sent
+    rec.vc = object.vc || rec.vc // timestamps when code verifications happened
+    rec.xs = object.xs || rec.xs // timestamps when emails were sent
     rec.pr = object.pr       // timestamp of the last password reset
+    rec.ub = object.ub || rec.ub
     return rec
   }
 
@@ -80,6 +82,31 @@ module.exports = function (limits, now) {
     this.vc.push(now())
   }
 
+  EmailRecord.prototype.addUnblock = function () {
+    this.ub.push(now())
+  }
+
+  EmailRecord.prototype.canUnblock = function () {
+    this.trimUnblocks(now())
+
+    return this.ub.length <= limits.maxUnblockAttempts
+  }
+
+  EmailRecord.prototype.trimUnblocks = function (now) {
+    if (this.ub.length === 0) { return }
+    // ub is naturally ordered from oldest to newest
+    // and we only need to keep up to limits.maxUnblockAttempts + 1
+
+    var i = this.ub.length - 1
+    var n = 0
+    var ub = this.ub[i]
+    while (ub > (now - limits.rateLimitIntervalMs) && n <= limits.maxUnblockAttempts) {
+      ub = this.ub[--i]
+      n++
+    }
+    this.ub = this.ub.slice(i + 1)
+  }
+
   EmailRecord.prototype.shouldBlock = function () {
     return this.isRateLimited() || this.isBlocked()
   }
@@ -111,10 +138,14 @@ module.exports = function (limits, now) {
     return Math.max(0, rateLimitAfter, banAfter)
   }
 
-  EmailRecord.prototype.update = function (action) {
+  EmailRecord.prototype.update = function (action, unblock) {
     // Reject immediately if they've been explicitly blocked.
     if (this.isBlocked()) {
       return this.retryAfter()
+    }
+
+    if (unblock) {
+      this.addUnblock()
     }
 
     // For code-checking actions, we may need to rate-limit.
