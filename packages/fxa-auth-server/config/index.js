@@ -414,7 +414,7 @@ var conf = convict({
     flow_id_expiry: {
       doc: 'Time after which flowIds are considered stale.',
       format: 'duration',
-      default: '30 minutes',
+      default: '2 hours',
       env: 'FLOW_ID_EXPIRY'
     }
   },
