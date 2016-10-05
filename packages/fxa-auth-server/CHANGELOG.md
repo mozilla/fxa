@@ -1,3 +1,13 @@
+<a name="1.70.1"></a>
+## [1.70.1](https://github.com/mozilla/fxa-auth-server/compare/v1.70.0...v1.70.1) (2016-10-03)
+
+
+### Bug Fixes
+
+* **deps:** downgrade to hapi 14 ([7c6d5f7](https://github.com/mozilla/fxa-auth-server/commit/7c6d5f7))
+
+
+
 <a name="1.70.0"></a>
 # [1.70.0](https://github.com/mozilla/fxa-auth-server/compare/v1.69.0...v1.70.0) (2016-09-24)
 
