@@ -1,3 +1,25 @@
+<a name="1.71.0"></a>
+# [1.71.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.69.0...v1.71.0) (2016-10-05)
+
+
+### Bug Fixes
+
+* **coverage:** Add script to enabled code coverage for local tests (#218) ([d14d06b](https://github.com/mozilla/fxa-auth-mailer/commit/d14d06b))
+* **mailer:** Fix the title size in the password reset related templates. ([54a0bd0](https://github.com/mozilla/fxa-auth-mailer/commit/54a0bd0)), closes [#217](https://github.com/mozilla/fxa-auth-mailer/issues/217)
+* **mailer:** Swap the order of IP and Location. ([2b1dfdf](https://github.com/mozilla/fxa-auth-mailer/commit/2b1dfdf)), closes [#216](https://github.com/mozilla/fxa-auth-mailer/issues/216)
+
+### chore
+
+* **deps:** update shrinkwrap ([4b8b6b3](https://github.com/mozilla/fxa-auth-mailer/commit/4b8b6b3))
+
+### Features
+
+* **geo:** add state info into emails (#215) r=vbudhram ([5bb87c6](https://github.com/mozilla/fxa-auth-mailer/commit/5bb87c6))
+* **headers:** Add email template name to headers sent (#213) r=vladikoff ([17ca63a](https://github.com/mozilla/fxa-auth-mailer/commit/17ca63a))
+* **shared:** add new locales, pick up latest l10n ([bc5f104](https://github.com/mozilla/fxa-auth-mailer/commit/bc5f104))
+
+
+
 <a name="1.70.0"></a>
 # [1.70.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.69.0...v1.70.0) (2016-09-24)
 
