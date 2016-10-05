@@ -1,6 +1,6 @@
 {
   "name": "fxa-customs-server",
-  "version": "0.69.0",
+  "version": "0.71.0",
   "dependencies": {
     "aws-sdk": {
       "version": "2.3.3",

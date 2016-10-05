@@ -1,4 +1,12 @@
 
+v0.71.0
+
+  * feat(unblock): add unblock rate limits (#131)
+  * fix(dependencies): update restify to 4.1.1 (#135)
+  * feat(verify-code): Add rate-limiting of code verification attempts. (#132)
+  * fix(settings): Fix reloading of nested settings from mecmached (#133)
+  * feat(blocklist): Add IP blocklist module (#117)
+
 v0.68.0
   * feature(newrelic): add optional newrelic integration
 
