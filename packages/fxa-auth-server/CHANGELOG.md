@@ -1,3 +1,13 @@
+<a name"0.71.0"></a>
+## 0.71.0 (2016-10-05)
+
+
+#### Features
+
+* **docker:** Add CloudOps Dockerfile & CircleCI build instructions ([a80b4b47](https://github.com/mozilla/fxa-oauth-server/commit/a80b4b47))
+* **shared:** add new locales ([d6e88df0](https://github.com/mozilla/fxa-oauth-server/commit/d6e88df0))
+
+
 <a name"0.70.0"></a>
 ## 0.70.0 (2016-09-21)
 
