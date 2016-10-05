@@ -160,7 +160,7 @@ define(function (require, exports, module) {
 
     _waitForConfirmation () {
       const account = this.getAccount();
-      return account.waitForSessionVerification(self.VERIFICATION_POLL_IN_MS)
+      return account.waitForSessionVerification(this.VERIFICATION_POLL_IN_MS)
         .then(() => {
           this.user.setAccount(account);
         });
