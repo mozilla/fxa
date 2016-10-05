@@ -1,3 +1,13 @@
+<a name="1.71.1"></a>
+## [1.71.1](https://github.com/mozilla/fxa-auth-server/compare/v1.71.0...v1.71.1) (2016-10-05)
+
+
+### Bug Fixes
+
+* **tests:** es-ES is now 100% supported (#1493) ([23234c6](https://github.com/mozilla/fxa-auth-server/commit/23234c6))
+
+
+
 <a name="1.71.0"></a>
 # [1.71.0](https://github.com/mozilla/fxa-auth-server/compare/v1.70.1...v1.71.0) (2016-10-05)
 
