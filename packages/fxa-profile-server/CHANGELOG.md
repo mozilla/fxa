@@ -1,3 +1,16 @@
+<a name="0.71.0"></a>
+# [0.71.0](https://github.com/mozilla/fxa-profile-server/compare/v0.70.0...v0.71.0) (2016-10-05)
+
+
+### Bug Fixes
+
+* **config:** Add env key to required config variables ([232480f](https://github.com/mozilla/fxa-profile-server/commit/232480f))
+* **config:** Add env key to required config variables (#211) r=vladikoff ([3ad6ae6](https://github.com/mozilla/fxa-profile-server/commit/3ad6ae6))
+* **deps:** downgrade to hapi 14 (#213) r=vladikoff ([2df72b6](https://github.com/mozilla/fxa-profile-server/commit/2df72b6))
+* **deps:** update to latest hapi, joi and boom. requires node 4+ ([d975d21](https://github.com/mozilla/fxa-profile-server/commit/d975d21))
+
+
+
 <a name="0.70.0"></a>
 # [0.70.0](https://github.com/mozilla/fxa-profile-server/compare/v0.69.0...v0.70.0) (2016-09-21)
 
