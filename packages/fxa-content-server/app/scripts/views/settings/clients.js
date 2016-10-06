@@ -82,9 +82,11 @@ define(function (require, exports, module) {
     },
 
     _isPanelEnabled: function () {
+      const account = this.user.getSignedInAccount();
+
       return this._able.choose('deviceListVisible', {
         forceDeviceList: Url.searchParam(FORCE_DEVICE_LIST_VIEW, this.window.location.search),
-        isMetricsEnabledValue: this.metrics.isCollectionEnabled()
+        uid: account.get('uid')
       });
     },
 

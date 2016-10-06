@@ -1,3 +1,51 @@
+<a name="0.71.0"></a>
+# 0.71.0 (2016-10-06)
+
+
+### Bug Fixes
+
+* **build:** backslash-escape "/" in character class to satisfy minimizers (#4206) r=vladikof ([c3a65ce](https://github.com/mozilla/fxa-content-server/commit/c3a65ce))
+* **build:** Ensure revs/filenames are correctly created. (#4210) r=vladikoff,jbuck ([6338a82](https://github.com/mozilla/fxa-content-server/commit/6338a82))
+* **build:** switch to grunt-file-rev from grunt-rev (#4199) r=jbuck ([e4f750d](https://github.com/mozilla/fxa-content-server/commit/e4f750d))
+* **client:** Add 'rel=noopener noreferrer' to all external links ([c19c7ed](https://github.com/mozilla/fxa-content-server/commit/c19c7ed)), closes [#4091](https://github.com/mozilla/fxa-content-server/issues/4091)
+* **client:** Fix signup confirmation poll. ([307bb67](https://github.com/mozilla/fxa-content-server/commit/307bb67)), closes [#4237](https://github.com/mozilla/fxa-content-server/issues/4237)
+* **client:** normalizeXHRError handling 503 and 429 error ([2a7009c](https://github.com/mozilla/fxa-content-server/commit/2a7009c))
+* **devices:** use uid for devices panel ([9213f29](https://github.com/mozilla/fxa-content-server/commit/9213f29))
+* **docs:** Standardize jsdoc param/returns to use {Capital} for types. (#4226) ([b58f427](https://github.com/mozilla/fxa-content-server/commit/b58f427))
+* **logging:** ensure flow begin events get correct flow_time (#4236) ([bed3feb](https://github.com/mozilla/fxa-content-server/commit/bed3feb))
+* **logging:** identify the view in flow.begin event (#4224) r=vladikoff ([b8952f0](https://github.com/mozilla/fxa-content-server/commit/b8952f0))
+* **password:** remove need inspiration link from password prompts (#4172) ([c392f96](https://github.com/mozilla/fxa-content-server/commit/c392f96))
+* **server:** Only one bodyParser.json is needed. (#4200) r=vladikoff ([ee82c3c](https://github.com/mozilla/fxa-content-server/commit/ee82c3c))
+* **signin:** displaying new message for already verified sign-in tokens (#4176), r=@vbudhram ([7eb856e](https://github.com/mozilla/fxa-content-server/commit/7eb856e))
+* **test:** Fix the `sign in to OAuth with Sync creds` on latest. (#4245) r=vladikoff ([dc60cea](https://github.com/mozilla/fxa-content-server/commit/dc60cea)), closes [(#4245](https://github.com/(/issues/4245)
+* **tests:** add oauth app functional tests (#4209) r=shane-tomlinson ([9af4895](https://github.com/mozilla/fxa-content-server/commit/9af4895)), closes [#4109](https://github.com/mozilla/fxa-content-server/issues/4109)
+* **tests:** Ensure the complete_sign_in functional tests pass. (#4183) ([60c8159](https://github.com/mozilla/fxa-content-server/commit/60c8159))
+* **tests:** fix broken data-flow-begin functional tests (#4223) ([bdf72a6](https://github.com/mozilla/fxa-content-server/commit/bdf72a6)), closes [(#4223](https://github.com/(/issues/4223)
+
+### chore
+
+* **circle:** add circle.yml with testing config (#4197) ([2df2b48](https://github.com/mozilla/fxa-content-server/commit/2df2b48))
+* **client:** Rename `webmailLink` to `unsafeWebmailLink` (#4174) r=vladikoff ([3511ccd](https://github.com/mozilla/fxa-content-server/commit/3511ccd))
+
+### Features
+
+* **client:** /config now returns a 410 HTTP status. (#4153) r=vladikoff ([e6ff90e](https://github.com/mozilla/fxa-content-server/commit/e6ff90e))
+* **metrics:** add flow event for have-account ([bcc0974](https://github.com/mozilla/fxa-content-server/commit/bcc0974)), closes [#4216](https://github.com/mozilla/fxa-content-server/issues/4216)
+* **metrics:** adjust tests and logic for the event ([4272d51](https://github.com/mozilla/fxa-content-server/commit/4272d51))
+* **sentry:** move sentry release version to front-end (#4220) r=vbudhram ([18ddbf6](https://github.com/mozilla/fxa-content-server/commit/18ddbf6)), closes [#3474](https://github.com/mozilla/fxa-content-server/issues/3474)
+* **shared:** add new locales ([9a24702](https://github.com/mozilla/fxa-content-server/commit/9a24702))
+
+### Refactor
+
+* **client:** Add the external-links-mixin to the BaseView (#4184) ([9900587](https://github.com/mozilla/fxa-content-server/commit/9900587))
+* **client:** Remove all direct fxaClient calls from the views. (#4194) ([64081c6](https://github.com/mozilla/fxa-content-server/commit/64081c6))
+* **fennec:** force_auth_complete removed (#4211) r=vladikoff ([729720c](https://github.com/mozilla/fxa-content-server/commit/729720c))
+* **jsdocs:** displaying new message for already verified sign-in tokens (#4178) r=vladikoff ([3824ab8](https://github.com/mozilla/fxa-content-server/commit/3824ab8))
+* **settings:** ellipses added (#4202) r=vladikoff ([eb5418e](https://github.com/mozilla/fxa-content-server/commit/eb5418e))
+* **tests:** convert 2 sign-in functional test suites to use helpers. (#4207) r=vladikoff ([d1a3247](https://github.com/mozilla/fxa-content-server/commit/d1a3247))
+
+
+
 <a name="0.70.0"></a>
 # 0.70.0 (2016-09-20)
 

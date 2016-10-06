@@ -16,14 +16,18 @@ define(function (require, exports, module) {
   var sinon = require('sinon');
   var User = require('models/user');
   var View = require('views/settings/clients');
+  var TestHelpers = require('../../../lib/helpers');
 
   describe('views/settings/clients', function () {
+    var UID = '123';
     var attachedClients;
     var notifier;
     var parentView;
     var user;
     var view;
     var able;
+    var account;
+    var email;
 
     function initView () {
       view = new View({
@@ -60,6 +64,18 @@ define(function (require, exports, module) {
       notifier = new Notifier();
       parentView = new BaseView();
       user = new User();
+      email = TestHelpers.createEmail();
+
+      account = user.initAccount({
+        email: email,
+        sessionToken: 'abc123',
+        uid: UID,
+        verified: true
+      });
+
+      sinon.stub(account, 'isSignedIn', function () {
+        return p(true);
+      });
 
       attachedClients = new AttachedClients([
         {
@@ -251,6 +267,20 @@ define(function (require, exports, module) {
         assert.isTrue(view._fetchAttachedClients.called);
       });
 
+    });
+
+    describe('_isPanelEnabled', function () {
+      it('calls able with a uid', function () {
+        return initView()
+          .then(() => {
+            view._able.choose.reset();
+            view._isPanelEnabled();
+            assert.isTrue(view._able.choose.calledWith('deviceListVisible', {
+              forceDeviceList: undefined,
+              uid: view.uid
+            }));
+          });
+      });
     });
 
     describe('_fetchAttachedClients', function () {
