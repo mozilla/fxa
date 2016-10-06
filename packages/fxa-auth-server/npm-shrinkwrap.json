@@ -8431,9 +8431,9 @@
       }
     },
     "scrypt-hash": {
-      "version": "1.1.13",
-      "from": "scrypt-hash@1.1.13",
-      "resolved": "https://registry.npmjs.org/scrypt-hash/-/scrypt-hash-1.1.13.tgz",
+      "version": "1.1.14",
+      "from": "scrypt-hash@1.1.14",
+      "resolved": "https://registry.npmjs.org/scrypt-hash/-/scrypt-hash-1.1.14.tgz",
       "dependencies": {
         "bindings": {
           "version": "1.2.1",
@@ -8441,9 +8441,9 @@
           "resolved": "https://registry.npmjs.org/bindings/-/bindings-1.2.1.tgz"
         },
         "nan": {
-          "version": "2.0.9",
-          "from": "nan@2.0.9",
-          "resolved": "https://registry.npmjs.org/nan/-/nan-2.0.9.tgz"
+          "version": "2.4.0",
+          "from": "nan@2.4.0",
+          "resolved": "https://registry.npmjs.org/nan/-/nan-2.4.0.tgz"
         }
       }
     },

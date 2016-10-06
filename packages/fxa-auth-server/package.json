@@ -57,7 +57,7 @@
     "node-uap": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
     "poolee": "1.0.1",
     "request": "2.74.0",
-    "scrypt-hash": "1.1.13",
+    "scrypt-hash": "1.1.14",
     "through": "2.3.8",
     "uuid": "1.4.1",
     "web-push": "2.1.1"
