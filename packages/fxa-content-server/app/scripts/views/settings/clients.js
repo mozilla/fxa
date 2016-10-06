@@ -51,7 +51,7 @@ define(function (require, exports, module) {
       return _.map(items, function (item) {
         if (item.lastAccessTimeFormatted) {
           item.lastAccessTimeFormatted = Strings.interpolate(
-            t('Last active: %(translatedTimeAgo)s'), { translatedTimeAgo: item.lastAccessTimeFormatted });
+            t('Last active %(translatedTimeAgo)s'), { translatedTimeAgo: item.lastAccessTimeFormatted });
         } else {
           // unknown lastAccessTimeFormatted or not possible to format.
           item.lastAccessTimeFormatted = '';

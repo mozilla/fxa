@@ -167,7 +167,7 @@ define(function (require, exports, module) {
         assert.lengthOf(view.$('li.client'), 3);
         assert.include(view.$('#device-3 .client-name').text().trim(), 'delta');
         assert.include(view.$('#device-3 .client-name').attr('title'), 'delta', 'the title attr is correct');
-        assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('Last active:') === 0, 'formats last active string');
+        assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('Last active') === 0, 'formats last active string');
         assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('a few seconds ago') >= 0, 'formats connected date');
         assert.ok(view.$('#device-3').hasClass('desktop'));
       });
