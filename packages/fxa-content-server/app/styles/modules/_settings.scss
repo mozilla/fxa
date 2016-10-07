@@ -444,6 +444,12 @@ body.settings #main-content.card {
   display: none;
 }
 
+.blocker {
+  // Firefox 49 has an issue with z-index stacking
+  // Update z-index of the jquery modal, see issue #4257
+  z-index: 6;
+}
+
 .modal {
   border-radius: $big-border-radius;
   box-shadow: 0 1px 5px $modal-border-color;
