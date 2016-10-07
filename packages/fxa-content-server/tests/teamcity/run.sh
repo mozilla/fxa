@@ -18,7 +18,6 @@ function check_version {
   fi
 }
 
-ORIG_DIR=`pwd`
 BASENAME=$(basename $0)
 DIRNAME=$(dirname $0)
 
@@ -77,14 +76,14 @@ export npm_config_tmp=~/fxatemp
 
 set -o xtrace # echo the following commands
 
-node $ORIG_DIR/install-npm-deps.js  \
-  bower                              \
-  convict                            \
-  firefox-profile                    \
-  fxa-shared                         \
-  intern                             \
-  request                            \
-  sync-exec                          \
+node $DIRNAME/install-npm-deps.js \
+  bower                           \
+  convict                         \
+  firefox-profile                 \
+  fxa-shared                      \
+  intern                          \
+  request                         \
+  sync-exec                       \
   xmlhttprequest
 
 node_modules/.bin/bower install --config.interactive=false

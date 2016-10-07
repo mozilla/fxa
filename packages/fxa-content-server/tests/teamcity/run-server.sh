@@ -18,7 +18,6 @@ function check_version {
   fi
 }
 
-ORIG_DIR=`pwd`
 BASENAME=$(basename $0)
 DIRNAME=$(dirname $0)
 
@@ -74,25 +73,25 @@ export npm_config_tmp=~/fxatemp
 
 set -o xtrace # echo the following commands
 
-node $ORIG_DIR/install-npm-deps.js  \
-  bluebird                           \
-  bower                              \
-  convict                            \
-  extend                             \
-  firefox-profile                    \
-  fxa-shared                         \
-  helmet                             \
-  htmlparser2                        \
-  intern                             \
-  lodash                             \
-  mozlog                             \
-  node-statsd                        \
-  proxyquire                         \
-  request                            \
-  node-uap                           \
-  sinon                              \
-  sync-exec                          \
-  universal-analytics                \
+node $DIRNAME/install-npm-deps.js \
+  bluebird                        \
+  bower                           \
+  convict                         \
+  extend                          \
+  firefox-profile                 \
+  fxa-shared                      \
+  helmet                          \
+  htmlparser2                     \
+  intern                          \
+  lodash                          \
+  mozlog                          \
+  node-statsd                     \
+  proxyquire                      \
+  request                         \
+  node-uap                        \
+  sinon                           \
+  sync-exec                       \
+  universal-analytics             \
   xmlhttprequest
 
 ./node_modules/.bin/intern-client \
