@@ -1,8 +1,8 @@
 language: node_js
 
 node_js:
- - "0.10"
  - "4"
+ - "6"
 
 dist: trusty
 sudo: required
@@ -25,21 +25,15 @@ notifications:
     skip_join: false
 
 before_install:
-  - if [ "$TRAVIS_NODE_VERSION" == "0.10" ]; then npm install -g npm@2; fi
   - npm config set spin false
 
 env:
   global:
     - NODE_ENV=test
+    - CXX=g++-4.8
   matrix:
     - DB=memory
     - DB=mysql
-
-install:
-  # if node 0.120 then update npm
-  - if [ "$TRAVIS_NODE_VERSION" == "0.10" ]; then npm install -g npm@2; fi
-  # use c++-11 with node4, default compiler on downlevel versions
-  - if [ $TRAVIS_NODE_VERSION == "4" ]; then CXX=g++-4.8 npm install; else npm install; fi
 
 script:
   - grunt templates
