@@ -1,8 +1,8 @@
 language: node_js
 
 node_js:
-  - '0.10'
   - '4'
+  - '6'
 
 dist: trusty
 sudo: true
@@ -28,16 +28,11 @@ notifications:
     skip_join: false
 
 env:
-  - NODE_ENV=test DB=memory
-  - NODE_ENV=test DB=mysql
+  - CXX=g++-4.8 NODE_ENV=test DB=memory
+  - CXX=g++-4.8 NODE_ENV=test DB=mysql
 
 before_install:
-  - npm install -g npm@2
   - npm config set spin false
-
-install:
-  # use c++-11 with node4, default compiler on downlevel versions
-  - if [ $TRAVIS_NODE_VERSION == "4" ]; then CXX=g++-4.8 npm install; else npm install; fi
 
 before_script:
   - "mysql -u root -NBe 'select version()'"
