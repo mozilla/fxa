@@ -74,17 +74,17 @@ export npm_config_tmp=~/fxatemp
 set -o xtrace # echo the following commands
 
 npm install                  \
-  bluebird@3.3.5             \
+  bluebird@3.4.1             \
   bower@1.7.9                \
-  convict@1.3.0              \
+  convict@1.4.0              \
   extend@3.0.0               \
   firefox-profile@0.3.12     \
-  fxa-shared@1.0.1           \
-  helmet@2.1.1               \
+  fxa-shared@1.0.3           \
+  helmet@2.1.2               \
   htmlparser2@3.9.0          \
   intern@3.1.1               \
-  lodash@4.11.1              \
-  mozlog@2.0.4               \
+  lodash@4.14.2              \
+  mozlog@2.0.6               \
   node-statsd@0.1.1          \
   proxyquire@1.7.4           \
   request@2.74.0             \

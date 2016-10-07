@@ -78,9 +78,9 @@ set -o xtrace # echo the following commands
 
 npm install              \
   bower@1.7.9            \
-  convict@1.3.0          \
+  convict@1.4.0          \
   firefox-profile@0.3.12 \
-  fxa-shared@1.0.1       \
+  fxa-shared@1.0.3       \
   intern@3.1.1           \
   request@2.74.0         \
   sync-exec@0.6.2        \
