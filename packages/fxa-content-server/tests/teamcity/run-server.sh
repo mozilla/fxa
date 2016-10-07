@@ -73,7 +73,7 @@ export npm_config_tmp=~/fxatemp
 
 set -o xtrace # echo the following commands
 
-node $DIRNAME/install-npm-deps.js \
+node ./tests/teamcity/install-npm-deps.js \
   bluebird                        \
   bower                           \
   convict                         \
