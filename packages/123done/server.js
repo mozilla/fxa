@@ -12,9 +12,10 @@ var express       = require('express'),
 // create a connection to the redis datastore
 var db = redis.createClient();
 
-db.on('error', function (err) {
+db.on('error', function (err) { // eslint-disable-line handle-callback-err
   db = null;
-  console.log('redis error!  the server won\'t actually store anything!  this is just fine for local dev'); //eslint-disable-line no-console
+  console.log('redis error!  the server won\'t actually store anything! ' + //eslint-disable-line no-console
+              ' this is just fine for local dev');
 });
 
 var app = express();
