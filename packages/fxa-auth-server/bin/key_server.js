@@ -24,13 +24,16 @@ function main() {
       log.info({ op: 'geodb.check', result: result })
     })
 
-  process.stdout.write(JSON.stringify({
-    event: 'config',
-    data: config
-  }) + '\n')
+  // RegExp instances serialise to empty objects, display regex strings instead.
+  const stringifiedConfig =
+    JSON.stringify(config, (k, v) =>
+      v && v.constructor === RegExp ? v.toString() : v
+    )
+
+  process.stdout.write('{"event":"config","data":' + stringifiedConfig + '}\n')
 
   if (config.env !== 'prod') {
-    log.info(config, 'starting config')
+    log.info(stringifiedConfig, 'starting config')
   }
 
   var error = require('../lib/error')
