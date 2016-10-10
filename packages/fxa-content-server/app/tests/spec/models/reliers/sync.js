@@ -5,24 +5,22 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Relier = require('models/reliers/sync');
-  var TestHelpers = require('../../../lib/helpers');
-  var Translator = require('lib/translator');
-  var WindowMock = require('../../../mocks/window');
+  const { assert } = require('chai');
+  const AuthErrors = require('lib/auth-errors');
+  const Relier = require('models/reliers/sync');
+  const TestHelpers = require('../../../lib/helpers');
+  const Translator = require('lib/translator');
+  const WindowMock = require('../../../mocks/window');
 
-  var assert = chai.assert;
+  const CONTEXT = 'fx_desktop_v1';
+  const SYNC_MIGRATION = 'sync11';
+  const SYNC_SERVICE = 'sync';
 
   describe('models/reliers/sync', function () {
-    var err;
-    var relier;
-    var translator;
-    var windowMock;
-
-    var CONTEXT = 'fx_desktop_v1';
-    var SYNC_MIGRATION = 'sync11';
-    var SYNC_SERVICE = 'sync';
+    let err;
+    let relier;
+    let translator;
+    let windowMock;
 
     function fetchExpectError () {
       return relier.fetch()
@@ -36,6 +34,8 @@ define(function (require, exports, module) {
       windowMock = new WindowMock();
 
       relier = new Relier({
+        context: CONTEXT
+      }, {
         translator: translator,
         window: windowMock
       });
@@ -67,9 +67,8 @@ define(function (require, exports, module) {
             return relier.fetch();
           });
 
-          it('succeeds', function () {
-            // it's OK
-            assert.isFalse(relier.has('context'));
+          it('falls back to passed in `context', function () {
+            assert.equal(relier.get('context'), CONTEXT);
           });
         });
 

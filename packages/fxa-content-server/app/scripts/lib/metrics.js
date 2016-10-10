@@ -17,23 +17,24 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var FlowEventMetadata = require('models/flow-event-metadata');
-  var Backbone = require('backbone');
-  var Duration = require('duration');
-  var Environment = require('lib/environment');
-  var p = require('lib/promise');
-  var speedTrap = require('speedTrap');
-  var Strings = require('lib/strings');
-  var xhr = require('lib/xhr');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const Constants = require('lib/constants');
+  const FlowEventMetadata = require('models/flow-event-metadata');
+  const Backbone = require('backbone');
+  const Duration = require('duration');
+  const Environment = require('lib/environment');
+  const p = require('lib/promise');
+  const speedTrap = require('speedTrap');
+  const Strings = require('lib/strings');
+  const xhr = require('lib/xhr');
 
   // Speed trap is a singleton, convert it
   // to an instantiable function.
-  var SpeedTrap = function () {};
+  const SpeedTrap = function () {};
   SpeedTrap.prototype = speedTrap;
 
-  var ALLOWED_FIELDS = [
+  const ALLOWED_FIELDS = [
     'broker',
     'context',
     'duration',
@@ -74,9 +75,7 @@ define(function (require, exports, module) {
     }, []);
   }
 
-  function Metrics (options) {
-    options = options || {};
-
+  function Metrics (options = {}) {
     // by default, send the metrics to the content server.
     this._collector = options.collector || '';
 
@@ -92,7 +91,7 @@ define(function (require, exports, module) {
     this._window = options.window || window;
 
     this._lang = options.lang || 'unknown';
-    this._context = options.context || 'web';
+    this._context = options.context || Constants.CONTENT_SERVER_CONTEXT;
     this._entrypoint = options.entrypoint || NOT_REPORTED_VALUE;
     this._migration = options.migration || NOT_REPORTED_VALUE;
     this._service = options.service || NOT_REPORTED_VALUE;

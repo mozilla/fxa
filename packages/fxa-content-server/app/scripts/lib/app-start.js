@@ -262,18 +262,19 @@ define(function (require, exports, module) {
     initializeRelier () {
       if (! this._relier) {
         let relier;
+        const context = this._getContext();
 
         if (this._isServiceSync()) {
           // Use the SyncRelier for sync verification so that
           // the service name is translated correctly.
-          relier = new SyncRelier({
+          relier = new SyncRelier({ context }, {
             isVerification: this._isVerification(),
             sentryMetrics: this._sentryMetrics,
             translator: this._translator,
             window: this._window
           });
         } else if (this._isOAuth()) {
-          relier = new OAuthRelier({
+          relier = new OAuthRelier({ context }, {
             isVerification: this._isVerification(),
             oAuthClient: this._oAuthClient,
             sentryMetrics: this._sentryMetrics,
@@ -281,7 +282,7 @@ define(function (require, exports, module) {
             window: this._window
           });
         } else {
-          relier = new Relier({
+          relier = new Relier({ context }, {
             isVerification: this._isVerification(),
             sentryMetrics: this._sentryMetrics,
             window: this._window
@@ -661,12 +662,10 @@ define(function (require, exports, module) {
 
     _getContext () {
       if (this._isVerification()) {
-        this._context = this._getVerificationContext();
-      } else {
-        this._context = this._searchParam('context') || Constants.DIRECT_CONTEXT;
+        return this._getVerificationContext();
       }
 
-      return this._context;
+      return this._searchParam('context');
     },
 
     _getVerificationContext () {
@@ -675,7 +674,7 @@ define(function (require, exports, module) {
       // the same capabilities as the signup tab.
       // If verifying in a separate browser, fall back to the default context.
       const verificationInfo = this._getSameBrowserVerificationModel('context');
-      return verificationInfo.get('context') || Constants.DIRECT_CONTEXT;
+      return verificationInfo.get('context');
     },
 
     _getSameBrowserVerificationModel (namespace) {

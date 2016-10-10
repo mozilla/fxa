@@ -14,7 +14,9 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
 
   var Relier = Backbone.Model.extend({
-    defaults: {},
+    defaults: {
+      context: null,
+    },
 
     fetch: function () {
       return p(true);

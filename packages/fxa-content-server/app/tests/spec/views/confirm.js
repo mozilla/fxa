@@ -46,7 +46,7 @@ define(function (require, exports, module) {
       user = new User();
       windowMock = new WindowMock();
 
-      relier = new Relier({
+      relier = new Relier({}, {
         window: windowMock
       });
 

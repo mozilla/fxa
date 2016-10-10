@@ -65,7 +65,7 @@ define(function (require, exports, module) {
 
       user = new User();
 
-      relier = new OAuthRelier({
+      relier = new OAuthRelier({}, {
         oAuthClient: oAuthClient,
         session: Session,
         window: windowMock
@@ -88,6 +88,9 @@ define(function (require, exports, module) {
 
         return relier.fetch()
           .then(function () {
+            // context is not imported from query params
+            assert.equal(relier.get('context'), Constants.OAUTH_CONTEXT);
+
             assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
             assert.equal(relier.get('prompt'), PROMPT);
             assert.equal(relier.get('service'), SERVICE);

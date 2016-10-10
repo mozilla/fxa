@@ -68,6 +68,10 @@ define(function (require, exports, module) {
   var Relier = BaseRelier.extend({
     defaults: {
       allowCachedCredentials: true,
+      // This ensures for non-oauth reliers, SOME context is sent to the auth
+      // server to let the auth server know requests come from the content
+      // server and not some other service.
+      context: Constants.CONTENT_SERVER_CONTEXT,
       email: null,
       entrypoint: null,
       migration: null,
@@ -83,9 +87,7 @@ define(function (require, exports, module) {
       utmTerm: null
     },
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (attributes, options = {}) {
       this._queryParameterSchema = options.isVerification ?
         VERIFICATION_QUERY_PARAMETER_SCHEMA : QUERY_PARAMETER_SCHEMA;
 

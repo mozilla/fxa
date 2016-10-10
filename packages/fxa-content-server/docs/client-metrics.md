@@ -3,7 +3,16 @@
 ## Top level
 
 ### context
-The context will be `fx_desktop_v1` if the user is signing up for sync, `iframe` if the user is signing up in an iframe, `web` otherwise.
+The context will be one of:
+
+* `fx_desktop_v1` Fx Desktop Sync v1 (Uses CustomEvents to communicate)
+* `fx_desktop_v2` Fx Desktop Sync v2 (Uses WebChannels to communicate)
+* `fx_desktop_v3` Fx Desktop Sync v3 (Enables CWTS on the web)
+* `fx_fennec_v1` Fx Fennec v1
+* `fx_firstrun_v2` Fx Desktop firstrun v2
+* `iframe` Fx Desktop firstrun v1
+* `oauth` OAuth relier
+* `web` Interact w/ content server w/o signing into a relier.
 
 ### broker
 The broker used to coordinate behavior between FxA and the relier.

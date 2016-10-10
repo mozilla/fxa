@@ -27,7 +27,8 @@ define(function (require, exports, module) {
     // set of users to disconnect from Sync.
     SESSION_TOKEN_USED_FOR_SYNC: 'fx_desktop_v1',
 
-    DIRECT_CONTEXT: 'direct',
+    // Users that sign in to the content server directly
+    CONTENT_SERVER_CONTEXT: 'web',
     FX_DESKTOP_V1_CONTEXT: 'fx_desktop_v1',
     FX_DESKTOP_V2_CONTEXT: 'fx_desktop_v2',
     FX_DESKTOP_V3_CONTEXT: 'fx_desktop_v3',
@@ -37,6 +38,7 @@ define(function (require, exports, module) {
     FX_FIRSTRUN_V2_CONTEXT: 'fx_firstrun_v2',
     FX_IOS_V1_CONTEXT: 'fx_ios_v1',
     IFRAME_CONTEXT: 'iframe',
+    OAUTH_CONTEXT: 'oauth',
 
     CONTENT_SERVER_SERVICE: 'content-server',
     SYNC_SERVICE: 'sync',

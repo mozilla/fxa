@@ -822,8 +822,8 @@ define(function (require, exports, module) {
             });
           });
 
-          it('returns the `direct` context', function () {
-            assert.equal(appStart._getContext(), Constants.DIRECT_CONTEXT);
+          it('returns `undefined`', function () {
+            assert.isUndefined(appStart._getContext());
           });
         });
       });
@@ -873,9 +873,8 @@ define(function (require, exports, module) {
           });
         });
 
-        it('returns the `direct` context', function () {
-          assert.equal(appStart._getVerificationContext(),
-              Constants.DIRECT_CONTEXT);
+        it('returns `undefined`', function () {
+          assert.isUndefined(appStart._getVerificationContext());
         });
       });
     });

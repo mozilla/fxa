@@ -61,6 +61,7 @@ define(function (require, exports, module) {
     defaults: _.extend({}, Relier.prototype.defaults, {
       accessType: null,
       clientId: null,
+      context: Constants.OAUTH_CONTEXT,
       // whether to fetch and derive relier-specific keys
       keys: false,
       // permissions are individual scopes
@@ -86,10 +87,8 @@ define(function (require, exports, module) {
       Relier.prototype.resumeTokenFields
     ),
 
-    initialize: function (options) {
-      options = options || {};
-
-      Relier.prototype.initialize.call(this, options);
+    initialize: function (attributes, options = {}) {
+      Relier.prototype.initialize.call(this, attributes, options);
 
       this._session = options.session;
       this._oAuthClient = options.oAuthClient;

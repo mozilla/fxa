@@ -29,16 +29,13 @@ define(function (require, exports, module) {
 
   var SyncRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
-      context: null,
       customizeSync: false
     }),
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (attributes, options = {}) {
       this._translator = options.translator;
 
-      Relier.prototype.initialize.call(this, options);
+      Relier.prototype.initialize.call(this, attributes, options);
     },
 
     fetch: function () {
