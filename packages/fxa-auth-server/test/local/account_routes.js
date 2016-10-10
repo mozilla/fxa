@@ -1039,11 +1039,10 @@ test('/account/login', function (t) {
         t.ok(response.verified, 'response indicates account is verified')
         t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
         t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
+      }).then(function () {
+        mockMailer.sendNewDeviceLoginNotification.reset()
+        mockDB.createSessionToken.reset()
       })
-        .then(function () {
-          mockMailer.sendNewDeviceLoginNotification.reset()
-          mockDB.createSessionToken.reset()
-        })
     })
 
     t.test('off for unsupported client', function (t) {
@@ -1129,9 +1128,9 @@ test('/account/login', function (t) {
         t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
         t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
       }).then(function () {
-          mockMailer.sendVerifyCode.reset()
-          mockDB.createSessionToken.reset()
-        })
+        mockMailer.sendVerifyCode.reset()
+        mockDB.createSessionToken.reset()
+      })
     })
 
     t.test('sign-in with unverified account', function (t) {
@@ -1190,7 +1189,7 @@ test('/account/login', function (t) {
     mockRequest.app.clientAddress = '63.245.221.32'
     return runTest(route, mockRequest, function () {
       t.equal(mockLog.error.callCount, 0, 'log.error was not called')
-    }).then(function() {
+    }).then(function () {
       mockDB.sessions = function () {
         return P.resolve(new Array(201))
       }
@@ -1209,7 +1208,7 @@ test('/account/login', function (t) {
   t.test('checks security history', function (t) {
     t.plan(3)
     var record
-    mockLog.info = sinon.spy(function(arg) {
+    mockLog.info = sinon.spy(function (arg) {
       if (arg.op.indexOf('Account.history') === 0) {
         record = arg
       }
