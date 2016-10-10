@@ -36,6 +36,14 @@ var reasonToEvents = {
     noCallback: 'push.account_verify.no_push_callback',
     noKeys: 'push.account_verify.data_but_no_keys'
   },
+  accountConfirm: {
+    send: 'push.account_confirm.send',
+    success: 'push.account_confirm.success',
+    resetSettings: 'push.account_confirm.reset_settings',
+    failed: 'push.account_confirm.failed',
+    noCallback: 'push.account_confirm.no_push_callback',
+    noKeys: 'push.account_confirm.data_but_no_keys'
+  },
   passwordReset: {
     send: 'push.password_reset.send',
     success: 'push.password_reset.success',
@@ -303,6 +311,9 @@ module.exports = function (log, db, config) {
     sendPush: function sendPush(uid, devices, reason, options) {
       options = options || {}
       var events = reasonToEvents[reason]
+      if (! events) {
+        return P.reject('Unknown push reason: ' + reason)
+      }
       // There's no spec-compliant way to error out as a result of having
       // too many devices to notify.  For now, just log metrics about it.
       if (devices.length > MAX_ACTIVE_DEVICES) {

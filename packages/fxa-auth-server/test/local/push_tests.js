@@ -81,7 +81,7 @@ test(
 
     try {
       var push = require('../../lib/push')(thisMockLog, mockDbEmpty, mockConfig)
-      push.pushToAllDevices(mockUid).catch(function (err) {
+      push.pushToAllDevices(mockUid, 'accountVerify').catch(function (err) {
         t.fail('must not throw')
         throw err
       })
@@ -660,5 +660,32 @@ test(
 
     var push = proxyquire('../../lib/push', mocks)(thisMockLog, mockDbResult, mockConfig)
     push.sendPush(mockUid, mockDevices, 'accountVerify')
+  }
+)
+
+test(
+  'sendPush errors out cleanly if given an unknown reason argument',
+  function (t) {
+    var thisMockLog = mockLog()
+    var mockConfig = {}
+    var mocks = {
+      'web-push': {
+        sendNotification: function (sub, payload, options) {
+          t.fail('should not have called sendNotification')
+          return P.reject('Should not have called sendNotification')
+        }
+      }
+    }
+
+    var push = proxyquire('../../lib/push', mocks)(thisMockLog, mockDbResult, mockConfig)
+    push.sendPush(mockUid, mockDevices, 'anUnknownReasonString').then(
+      function () {
+        t.fail('calling sendPush should have failed')
+      },
+      function (err) {
+        t.equal(err, 'Unknown push reason: anUnknownReasonString')
+        t.end()
+      }
+    )
   }
 )
