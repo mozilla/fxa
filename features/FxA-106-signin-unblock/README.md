@@ -2,17 +2,18 @@
 
 ## Problem Summary
 
-When our fraud-and-abuse system generates a false positive and blocks a legitimate user request, it currently results in a dead-end error message and a bad user experience.  This makes us hesitant to increase the sensitivity of our security rules.
+When our fraud-and-abuse system generates a false positive and blocks a legitimate user request, it currently results in a dead-end error message and a bad user experience. This makes us hesitant to increase the sensitivity of our security rules.
 
-When our fraud-and-abuse system generates a false negative and allows a malicious login attempt with a guessed or breached password, we have to rely on the sign-in confirmation feature as additional security for the user's sync data.  The attacker still learns whether their login attempt succeeded, meaning they still learn whether they have the correct account password and can still access other FxA relying services.
+When our fraud-and-abuse system generates a false negative and allows a malicious login attempt with a guessed or breached password, we have to rely on the sign-in confirmation feature as additional security for the user's sync data. The attacker still learns whether their login attempt succeeded, meaning they still learn whether they have the correct account password and can still access other FxA relying services.
 
-With this feature, we aim to lower the impact of false positives when blocking login attempts, by providing clearer messaging to the user about what's happening and why, and by allowing legitimate users to unblock their requests by proving ownership of the account.  These measures will give us more confidence to tighten the security rules and thus reduce the rate of false negatives, improving overall security of the system.
+With this feature, we aim to lower the impact of false positives when blocking login attempts, by providing clearer messaging to the user about what's happening and why, and by allowing legitimate users to unblock their requests by proving ownership of the account. These measures will give us more confidence to tighten the security rules and thus reduce the rate of false negatives, improving overall security of the system.
 
 ## Outcomes
 
-Users whose login attempts are blocked by our fraud-and-abuse system will be able to unblock themselves by doing an email verification loop to prove ownership of the account.   As a result we will be able to:
-Implement stricter rules to detect fraudulent access, and simultaneously
-Decrease the number of legitimate login flows abandoned due to security measures.
+Users whose login attempts are blocked by our fraud-and-abuse system will be able to unblock themselves by doing an email verification loop to prove ownership of the account. As a result we will be able to:
+
+* Implement stricter rules to detect fraudulent access, and simultaneously
+* Decrease the number of legitimate login flows abandoned due to security measures.
 
 ## Hypothesis
 
@@ -26,16 +27,16 @@ As a high-level success metric, we want to know the following:
 
 > Of all login attempts that were blocked a security measure, what percentage are subsequently completed successfully?
 
-We expect the starting value of this metric to be close to zero, since it is not obvious to users whether and how they can complete the flow after being blocked by a security measure.  They currently can, in some cases, by waiting for a rate-limiting ban to expire, but this is not explained in the UI and users are unlikely to do so in practice.
+We expect the starting value of this metric to be close to zero, since it is not obvious to users whether and how they can complete the flow after being blocked by a security measure. They currently can, in some cases, by waiting for a rate-limiting ban to expire, but this is not explained in the UI and users are unlikely to do so in practice.
 
 TODO: mock graph here
 
-As a detailed metric of the effectiveness of the technical details of this feature, we want to know the following:
+As a detailed metric of the effectiveness of the technical details of this feature, we want to know how many users...:
 
-* How many users...
 * Had login requests blocked for security reasons?
 * Chose to verify their account to unblock themselves?
 * Successfully logged in after verifying ownership of the account?
+* Chose to report the login?
 
 Taken together, these metrics form a success funnel for the email authorization feature.
 
@@ -68,7 +69,7 @@ When a login attempt is prevented due to a “blocked for security reasons (errn
 
 ![unblock signin screen](unblock-signin.png)
 
-For legacy devices that provide their own UI rather than relying on our web content, we cannot display the explanatory messaging. Instead, their device will show a generic error message, but they'll receive an email that they can click through and then try the login again.  It's not ideal, but it's about the best we can do for them.
+For legacy devices that provide their own UI rather than relying on our web content, we cannot display the explanatory messaging. Instead, their device will show a generic error message, but they'll receive an email that they can click through and then try the login again. It's not ideal, but it's about the best we can do for them.
 
 
 They will receive an email asking them to authorize the sign-in attempt:
@@ -100,9 +101,9 @@ The extra step is intended to minimize false reports by users that accidentally 
 
 ### High Level Implementation Plan
 
-The auth-server will have to grow some new APIs in order to support this feature, and the content-server some new UI.  Here's a sketch of one way it could be put together.
+The auth-server will have to grow some new APIs in order to support this feature, and the content-server some new UI. Here's a sketch of one way it could be put together.
 
-First, the auth-server grows a new "login_authorizations" table whose rows contain the userid, ip address, user-agent string, a timestamp, an authorization code.  This table records pending login authorizations. Upon first use of them, they are purged from the table.
+First, the auth-server grows a new "login_authorizations" table whose rows contain the userid, ip address, user-agent string, a timestamp, an authorization code. This table records pending login authorizations. Upon first use of them, they are purged from the table.
 
 When an incoming login attempt is received, it is processed as follows:
 
@@ -135,7 +136,7 @@ We can also have an additional endpoint for reporting invalid logins:
 The content-server uses these new endpoints to construct the UX described in the previous section, including:
 
 * New error message in response to errno=125 "blocked for security reasons"
-* A screen that polls to check whether the authorization has been granted, and redirects back to the sign-in page once it has.  This page would also have "resend" and "back" links as normal.
+* A screen that polls to check whether the authorization has been granted, and redirects back to the sign-in page once it has. This page would also have "resend" and "back" links as normal.
 * A landing screen for the "authorize now" link, that submits the authorization code and shows appropriate success messaging.
 
 ### Auth-server HTTP API
@@ -214,7 +215,7 @@ Invalidates an authorization code, deletes the corresponding row in the login_au
 https://api-accounts.dev.lcip.org/v1/account/login/reject_unblock_code \
 -d '{
   "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "unblockCode": "e3c5b0e3f5391e134596c27519979b93"
+  "unblockCode": "e3c5b0e3"
 }'
 
 
@@ -247,6 +248,12 @@ Formula: Successful logins of blocked users / blocked users
 ### Block Rate of Logins
 
 Formula: Blocked users that try to login / All users that try to login
+
+[add chart here]
+
+### Report Login Rate
+
+Formula: # of submits on the `/report_signin` screen / # of unblock emails sent.
 
 [add chart here]
 
