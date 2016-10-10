@@ -26,14 +26,13 @@ define(function (require, exports, module) {
     },
 
     openPanel: function (event) {
-      var self = this;
-      $(self.el).modal({
+      $(this.el).modal({
         opacity: 0.75,
         showClose: false,
         zIndex: 999
       });
-      $(self.el).on($.modal.CLOSE, function () {
-        self._closePanelReturnToSettings();
+      $(this.el).on($.modal.CLOSE, () => {
+        this._closePanelReturnToSettings();
       });
     },
 
@@ -56,8 +55,7 @@ define(function (require, exports, module) {
     },
 
     displaySuccess: function (msg) {
-      var self = this;
-      self.parentView.displaySuccess(msg);
+      this.parentView.displaySuccess(msg);
     }
   };
 });

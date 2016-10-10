@@ -39,12 +39,11 @@ define(function (require, exports, module) {
     },
 
     fetch: function () {
-      var self = this;
-      return Relier.prototype.fetch.call(self)
-        .then(function () {
-          self.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
+      return Relier.prototype.fetch.call(this)
+        .then(() => {
+          this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
 
-          self._setupServiceName();
+          this._setupServiceName();
         });
     },
 

@@ -76,30 +76,27 @@ define(function (require, exports, module) {
   var Account = Backbone.Model.extend({
     defaults: DEFAULTS,
 
-    initialize: function (accountData, options) {
-      options = options || {};
-      var self = this;
-
-      self._oAuthClientId = options.oAuthClientId;
-      self._oAuthClient = options.oAuthClient;
-      self._assertion = options.assertion;
-      self._profileClient = options.profileClient;
-      self._fxaClient = options.fxaClient;
-      self._marketingEmailClient = options.marketingEmailClient;
-      self._metrics = options.metrics;
+    initialize: function (accountData, options = {}) {
+      this._oAuthClientId = options.oAuthClientId;
+      this._oAuthClient = options.oAuthClient;
+      this._assertion = options.assertion;
+      this._profileClient = options.profileClient;
+      this._fxaClient = options.fxaClient;
+      this._marketingEmailClient = options.marketingEmailClient;
+      this._metrics = options.metrics;
 
       /**
        * Keeps track of outstanding assertion generation requests, keyed
        * by sessionToken. Used to prevent multiple concurrent assertion
        * requests for the same sessionToken.
        */
-      self._assertionPromises = {};
+      this._assertionPromises = {};
 
       // upgrade old `grantedPermissions` to the new `permissions`.
-      self._upgradeGrantedPermissions();
+      this._upgradeGrantedPermissions();
 
-      self._boundOnChange = self.onChange.bind(self);
-      self.on('change', self._boundOnChange);
+      this._boundOnChange = this.onChange.bind(this);
+      this.on('change', this._boundOnChange);
     },
 
     // Hydrate the account
@@ -136,27 +133,22 @@ define(function (require, exports, module) {
     },
 
     _fetchProfileOAuthToken: function () {
-      var self = this;
-      return self.createOAuthToken(CONTENT_SERVER_OAUTH_SCOPE)
-        .then(function (accessToken) {
-          self.set('accessToken', accessToken.get('token'));
+      return this.createOAuthToken(CONTENT_SERVER_OAUTH_SCOPE)
+        .then((accessToken) => {
+          this.set('accessToken', accessToken.get('token'));
         });
     },
 
     profileClient: function () {
-      var self = this;
-      return self.fetch()
-        .then(function () {
-          // If the account is not verified fail before attempting to fetch a token
-          if (! self.get('verified')) {
-            throw AuthErrors.toError('UNVERIFIED_ACCOUNT');
-          } else if (self._needsAccessToken()) {
-            return self._fetchProfileOAuthToken();
-          }
-        })
-        .then(function () {
-          return self._profileClient;
-        });
+      return this.fetch().then(() => {
+        // If the account is not verified fail before attempting to fetch a token
+        if (! this.get('verified')) {
+          throw AuthErrors.toError('UNVERIFIED_ACCOUNT');
+        } else if (this._needsAccessToken()) {
+          return this._fetchProfileOAuthToken();
+        }
+      })
+      .then(() => this._profileClient);
     },
 
     isFromSync: function () {
@@ -165,9 +157,8 @@ define(function (require, exports, module) {
 
     // returns true if all attributes within ALLOWED_KEYS are defaults
     isDefault: function () {
-      var self = this;
-      return ! _.find(ALLOWED_KEYS, function (key) {
-        return self.get(key) !== DEFAULTS[key];
+      return ! _.find(ALLOWED_KEYS, (key) => {
+        return this.get(key) !== DEFAULTS[key];
       });
     },
 
@@ -178,40 +169,36 @@ define(function (require, exports, module) {
     },
 
     _generateAssertion: function () {
-      var self = this;
-
-      var sessionToken = self.get('sessionToken');
+      var sessionToken = this.get('sessionToken');
 
       // assertions live for 25 years, they can be cached and reused while
       // this browser tab is open.
-      var existingAssertionPromise = self._assertionPromises[sessionToken];
+      var existingAssertionPromise = this._assertionPromises[sessionToken];
 
       if (existingAssertionPromise) {
         return existingAssertionPromise;
       }
 
-      var assertionPromise = self._assertion.generate(sessionToken);
+      var assertionPromise = this._assertion.generate(sessionToken);
 
-      self._assertionPromises[sessionToken] = assertionPromise;
+      this._assertionPromises[sessionToken] = assertionPromise;
 
       return assertionPromise;
     },
 
     createOAuthToken: function (scope) {
-      var self = this;
-
-      return self._generateAssertion()
-        .then(function (assertion) {
+      return this._generateAssertion()
+        .then((assertion) => {
           var params = {
             assertion: assertion,
-            client_id: self._oAuthClientId, //eslint-disable-line camelcase
+            client_id: this._oAuthClientId, //eslint-disable-line camelcase
             scope: scope
           };
-          return self._oAuthClient.getToken(params);
+          return this._oAuthClient.getToken(params);
         })
-        .then(function (result) {
+        .then((result) => {
           return new OAuthToken({
-            oAuthClient: self._oAuthClient,
+            oAuthClient: this._oAuthClient,
             token: result.access_token
           });
         });
@@ -325,46 +312,41 @@ define(function (require, exports, module) {
 
     _profileFetchPromise: null,
     fetchProfile: function () {
-      var self = this;
-
       // Avoid multiple views making profile requests by caching
       // the profile fetch request. Only allow one for a given account,
       // and then re-use the data after that. See #3053
-      if (self._profileFetchPromise) {
-        return self._profileFetchPromise;
+      if (this._profileFetchPromise) {
+        return this._profileFetchPromise;
       }
 
       // ignore change events while populating known good data.
       // Unbinding the change event here ignores the `set` from
       // the call to _fetchProfileOAuthToken made in `getProfile`.
-      self.off('change', self._boundOnChange);
+      this.off('change', this._boundOnChange);
 
-      self._profileFetchPromise = self.getProfile()
-        .then(function (result) {
+      this._profileFetchPromise = this.getProfile()
+        .then((result) => {
           var profileImage = new ProfileImage({ url: result.avatar });
 
-          self.setProfileImage(profileImage);
-          self.set('displayName', result.displayName);
+          this.setProfileImage(profileImage);
+          this.set('displayName', result.displayName);
 
-          self.on('change', self._boundOnChange);
+          this.on('change', this._boundOnChange);
         });
 
-      return self._profileFetchPromise;
+      return this._profileFetchPromise;
     },
 
     fetchCurrentProfileImage: function () {
-      var self = this;
       var profileImage = new ProfileImage();
 
-      return self.getAvatar()
-        .then(function (result) {
+      return this.getAvatar()
+        .then((result) => {
           profileImage = new ProfileImage({ id: result.id, url: result.avatar });
-          self.setProfileImage(profileImage);
+          this.setProfileImage(profileImage);
           return profileImage.fetch();
         })
-        .then(function () {
-          return profileImage;
-        });
+        .then(() => profileImage);
     },
 
     /**
@@ -379,30 +361,27 @@ define(function (require, exports, module) {
      * email if user is unverified.
      * @returns {Promise} - resolves when complete
      */
-    signIn: function (password, relier, options) {
-      var self = this;
-      options = options || {};
-
-      return p().then(function () {
-        var email = self.get('email');
-        var sessionToken = self.get('sessionToken');
+    signIn: function (password, relier, options = {}) {
+      return p().then(() => {
+        var email = this.get('email');
+        var sessionToken = this.get('sessionToken');
 
         if (password) {
-          return self._fxaClient.signIn(email, password, relier, {
-            metricsContext: self._metrics.getFlowEventMetadata(),
+          return this._fxaClient.signIn(email, password, relier, {
+            metricsContext: this._metrics.getFlowEventMetadata(),
             reason: options.reason || SignInReasons.SIGN_IN,
             resume: options.resume
           });
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
           // The result includes the latest verified state
-          return self._fxaClient.recoveryEmailStatus(sessionToken);
+          return this._fxaClient.recoveryEmailStatus(sessionToken);
         } else {
           throw AuthErrors.toError('UNEXPECTED_ERROR');
         }
       })
-      .then(function (updatedSessionData) {
-        self.set(updatedSessionData);
+      .then((updatedSessionData) => {
+        this.set(updatedSessionData);
         return updatedSessionData;
       });
     },
@@ -417,21 +396,18 @@ define(function (require, exports, module) {
      * email if user is unverified.
      * @returns {Promise} - resolves when complete
      */
-    signUp: function (password, relier, options) {
-      var self = this;
-      options = options || {};
-
-      return self._fxaClient.signUp(
-        self.get('email'),
+    signUp: function (password, relier, options = {}) {
+      return this._fxaClient.signUp(
+        this.get('email'),
         password,
         relier,
         {
-          customizeSync: self.get('customizeSync'),
-          metricsContext: self._metrics.getFlowEventMetadata(),
+          customizeSync: this.get('customizeSync'),
+          metricsContext: this._metrics.getFlowEventMetadata(),
           resume: options.resume
         })
-        .then(function (updatedSessionData) {
-          self.set(updatedSessionData);
+        .then((updatedSessionData) => {
+          this.set(updatedSessionData);
         });
     },
 
@@ -443,9 +419,7 @@ define(function (require, exports, module) {
      * @param {String} [options.resume] resume token
      * @returns {Promise} - resolves when complete
      */
-    retrySignUp: function (relier, options) {
-      options = options || {};
-
+    retrySignUp: function (relier, options = {}) {
       return this._fxaClient.signUpResend(
         relier,
         this.get('sessionToken'),
@@ -463,19 +437,18 @@ define(function (require, exports, module) {
      * @param {Object} [options.service] - the service issuing signup request
      * @returns {Promise} - resolves when complete
      */
-    verifySignUp: function (code, options) {
-      var self = this;
-      return self._fxaClient.verifyCode(
-        self.get('uid'),
+    verifySignUp: function (code, options = {}) {
+      return this._fxaClient.verifyCode(
+        this.get('uid'),
         code,
         options
       )
-      .then(function () {
-        self.set('verified', true);
+      .then(() => {
+        this.set('verified', true);
 
-        if (self.get('needsOptedInToMarketingEmail')) {
-          self.unset('needsOptedInToMarketingEmail');
-          var emailPrefs = self.getMarketingEmailPrefs();
+        if (this.get('needsOptedInToMarketingEmail')) {
+          this.unset('needsOptedInToMarketingEmail');
+          var emailPrefs = this.getMarketingEmailPrefs();
           return emailPrefs.optIn(NEWSLETTER_ID);
         }
       });
@@ -517,13 +490,12 @@ define(function (require, exports, module) {
      * @returns {Promise} - resolves when complete
      */
     destroy: function (password) {
-      var self = this;
-      return self._fxaClient.deleteAccount(
-        self.get('email'),
+      return this._fxaClient.deleteAccount(
+        this.get('email'),
         password
       )
-      .then(function () {
-        self.trigger('destroy', self);
+      .then(() => {
+        this.trigger('destroy', this);
       });
     },
 
@@ -627,8 +599,7 @@ define(function (require, exports, module) {
      * @returns {String[]}
      */
     getPermissionsWithValues: function (permissionNames) {
-      var self = this;
-      return permissionNames.map(function (permissionName) {
+      return permissionNames.map((permissionName) => {
         var accountKey = PERMISSIONS_TO_KEYS[permissionName];
 
         // filter out permissions we do not know about
@@ -637,22 +608,18 @@ define(function (require, exports, module) {
         }
 
         // filter out permissions for which the account does not have a value
-        if (! self.has(accountKey)) {
+        if (! this.has(accountKey)) {
           return null;
         }
 
         return permissionName;
-      }).filter(function (permissionName) {
-        return permissionName !== null;
-      });
+      }).filter((permissionName) => permissionName !== null);
     },
 
     getMarketingEmailPrefs: function () {
-      var self = this;
-
       var emailPrefs = new MarketingEmailPrefs({
-        account: self,
-        marketingEmailClient: self._marketingEmailClient
+        account: this,
+        marketingEmailClient: this._marketingEmailClient
       });
 
       return emailPrefs;
@@ -670,13 +637,11 @@ define(function (require, exports, module) {
       // Try to sign the user in before checking whether the
       // passwords are the same. If the user typed the incorrect old
       // password, they should know that first.
-      var self = this;
-
-      var fxaClient = self._fxaClient;
-      var email = self.get('email');
+      var fxaClient = this._fxaClient;
+      var email = this.get('email');
 
       return fxaClient.checkPassword(email, oldPassword)
-        .then(function () {
+        .then(() => {
           if (oldPassword === newPassword) {
             throw AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');
           }
@@ -685,12 +650,12 @@ define(function (require, exports, module) {
             email,
             oldPassword,
             newPassword,
-            self.get('sessionToken'),
-            self.get('sessionTokenContext'),
+            this.get('sessionToken'),
+            this.get('sessionTokenContext'),
             relier
           );
         })
-        .then(self.set.bind(self));
+        .then(this.set.bind(this));
     },
 
     /**
@@ -811,9 +776,7 @@ define(function (require, exports, module) {
      * @param {String} [options.resume] resume token
      * @returns {Promise}
      */
-    resetPassword: function (relier, options) {
-      options = options || {};
-
+    resetPassword: function (relier, options = {}) {
       return this._fxaClient.passwordReset(
         this.get('email'),
         relier,
@@ -832,9 +795,7 @@ define(function (require, exports, module) {
      * @param {String} [options.resume] resume token
      * @returns {Promise}
      */
-    retryResetPassword: function (passwordForgotToken, relier, options) {
-      options = options || {};
-
+    retryResetPassword: function (passwordForgotToken, relier, options = {}) {
       return this._fxaClient.passwordResetResend(
         this.get('email'),
         passwordForgotToken,
@@ -869,14 +830,13 @@ define(function (require, exports, module) {
      *   can be generated, resolves with null otherwise.
      */
     relierKeys: function (relier) {
-      var self = this;
       return this.accountKeys()
-        .then(function (accountKeys) {
+        .then((accountKeys) => {
           if (! accountKeys) {
             return null;
           }
 
-          return relier.deriveRelierKeys(accountKeys, self.get('uid'));
+          return relier.deriveRelierKeys(accountKeys, this.get('uid'));
         });
     },
 
@@ -905,30 +865,28 @@ define(function (require, exports, module) {
     'postDisplayName'
   ]
     .forEach(function (method) {
-      Account.prototype[method] = function () {
-        var self = this;
-        var profileClient;
-        var args = Array.prototype.slice.call(arguments, 0);
-        return self.profileClient()
-          .then(function (client) {
+      Account.prototype[method] = function (...args) {
+        let profileClient;
+        return this.profileClient()
+          .then((client) => {
             profileClient = client;
-            var accessToken = self.get('accessToken');
-            return profileClient[method].apply(profileClient, [accessToken].concat(args));
+            const accessToken = this.get('accessToken');
+            return profileClient[method].call(profileClient, accessToken, ...args);
           })
-          .fail(function (err) {
+          .fail((err) => {
             if (ProfileErrors.is(err, 'INVALID_TOKEN')) {
-              self._invalidateSession();
+              this._invalidateSession();
             } else if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
               // If no oauth token existed, or it has gone stale,
               // get a new one and retry.
-              return self._fetchProfileOAuthToken()
-                .then(function () {
-                  var accessToken = self.get('accessToken');
-                  return profileClient[method].apply(profileClient, [accessToken].concat(args));
+              return this._fetchProfileOAuthToken()
+                .then(() => {
+                  const accessToken = this.get('accessToken');
+                  return profileClient[method].call(profileClient, accessToken, ...args);
                 })
-                .fail(function (err) {
+                .fail((err) => {
                   if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
-                    self.unset('accessToken');
+                    this.unset('accessToken');
                   }
                   throw err;
                 });

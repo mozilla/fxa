@@ -31,8 +31,7 @@ define(function (require, exports, module) {
      * @return {Object} promise
      */
     signIn: function (account, password) {
-      var self = this;
-      self.logEvent(`flow.${this.signInSubmitContext}.submit`);
+      this.logEvent(`flow.${this.signInSubmitContext}.submit`);
 
       if (! account ||
             account.isDefault() ||
@@ -40,30 +39,30 @@ define(function (require, exports, module) {
         return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
-      return self.invokeBrokerMethod('beforeSignIn', account)
-        .then(function () {
-          return self.user.signInAccount(account, password, self.relier, {
+      return this.invokeBrokerMethod('beforeSignIn', account)
+        .then(() => {
+          return this.user.signInAccount(account, password, this.relier, {
             // a resume token is passed in to allow
             // unverified account or session users to complete
             // email verification.
-            resume: self.getStringifiedResumeToken()
+            resume: this.getStringifiedResumeToken()
           });
         })
-        .then(function (account) {
-          if (self._formPrefill) {
-            self._formPrefill.clear();
+        .then((account) => {
+          if (this._formPrefill) {
+            this._formPrefill.clear();
           }
 
-          if (self.relier.accountNeedsPermissions(account)) {
-            return self.navigate('signin_permissions', {
+          if (this.relier.accountNeedsPermissions(account)) {
+            return this.navigate('signin_permissions', {
               account: account,
               // the permissions screen will call onSubmitComplete
               // with an updated account
-              onSubmitComplete: self.onSignInSuccess.bind(self)
+              onSubmitComplete: this.onSignInSuccess.bind(this)
             });
           }
 
-          return self.onSignInSuccess(account);
+          return this.onSignInSuccess(account);
         });
     },
 

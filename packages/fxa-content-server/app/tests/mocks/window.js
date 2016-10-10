@@ -25,7 +25,7 @@ define(function (require, exports, module) {
   }
 
   function WindowMock() {
-    var self = this;
+    var win = this;
 
     this.translator = window.translator;
     this.location = {
@@ -48,7 +48,7 @@ define(function (require, exports, module) {
 
     this.history = {
       back: function () {
-        self.history.back.called = true;
+        win.history.back.called = true;
       },
       replaceState: function () {}
     };
@@ -74,7 +74,7 @@ define(function (require, exports, module) {
               deferred.resolve(stream);
             }
             setTimeout(function () {
-              self.trigger('stream');
+              win.trigger('stream');
             }, 0);
           }, 0);
 

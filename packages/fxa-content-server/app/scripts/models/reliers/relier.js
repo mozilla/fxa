@@ -113,28 +113,26 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     fetch: function () {
-      var self = this;
-      return p()
-        .then(function () {
-          // parse the resume token before importing any other data.
-          // query parameters and server provided data override
-          // resume provided data.
-          self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
-          // TODO - validate data coming from the resume token
+      return p().then(() => {
+        // parse the resume token before importing any other data.
+        // query parameters and server provided data override
+        // resume provided data.
+        this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
+        // TODO - validate data coming from the resume token
 
-          self.importSearchParamsUsingSchema(self._queryParameterSchema, AuthErrors);
+        this.importSearchParamsUsingSchema(this._queryParameterSchema, AuthErrors);
 
-          // FxDesktop declares both `entryPoint` (capital P) and
-          // `entrypoint` (lowcase p). Normalize to `entrypoint`.
-          if (self.has('entryPoint') && ! self.has('entrypoint')) {
-            self.set('entrypoint', self.get('entryPoint'));
-          }
+        // FxDesktop declares both `entryPoint` (capital P) and
+        // `entrypoint` (lowcase p). Normalize to `entrypoint`.
+        if (this.has('entryPoint') && ! this.has('entrypoint')) {
+          this.set('entrypoint', this.get('entryPoint'));
+        }
 
-          if (self.get('email') === Constants.DISALLOW_CACHED_CREDENTIALS) {
-            self.unset('email');
-            self.set('allowCachedCredentials', false);
-          }
-        });
+        if (this.get('email') === Constants.DISALLOW_CACHED_CREDENTIALS) {
+          this.unset('email');
+          this.set('allowCachedCredentials', false);
+        }
+      });
     },
 
     /**

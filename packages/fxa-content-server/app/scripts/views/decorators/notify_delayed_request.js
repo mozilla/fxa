@@ -15,31 +15,27 @@ define(function (require, exports, module) {
 
   function notifyDelayedRequest(handler) {
     return function () {
-      var self = this;
       var args = arguments;
       var workingText;
 
-      self.clearTimeout(self._workingTimeout);
+      this.clearTimeout(this._workingTimeout);
 
-      self._workingTimeout = self.setTimeout(function () {
+      this._workingTimeout = this.setTimeout(() => {
         var err = AuthErrors.toError('WORKING');
-        workingText = self.displayError(err);
-      }, self.LONGER_THAN_EXPECTED);
+        workingText = this.displayError(err);
+      }, this.LONGER_THAN_EXPECTED);
 
-      return p()
-          .then(function () {
-            return self.invokeHandler(handler, args);
-          })
-          .then(function (value) {
-            self.clearTimeout(self._workingTimeout);
-            if (workingText === self.$('.error').text()) {
-              self.hideError();
-            }
-            return value;
-          }, function (err) {
-            self.clearTimeout(self._workingTimeout);
-            throw err;
-          });
+      return p().then(() => this.invokeHandler(handler, args))
+        .then((value) => {
+          this.clearTimeout(this._workingTimeout);
+          if (workingText === this.$('.error').text()) {
+            this.hideError();
+          }
+          return value;
+        }, (err) => {
+          this.clearTimeout(this._workingTimeout);
+          throw err;
+        });
     };
   }
 

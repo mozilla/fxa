@@ -19,38 +19,36 @@ define(function (require, exports, module) {
 
     _isPasswordStrengthCheckEnabledValue: undefined,
     isPasswordStrengthCheckEnabled: function () {
-      var self = this;
-      if (_.isUndefined(self._isPasswordStrengthCheckEnabledValue)) {
+      if (_.isUndefined(this._isPasswordStrengthCheckEnabledValue)) {
         var abData = {
           // the window parameter will override any ab testing features
-          forcePasswordStrengthCheck: Url.searchParam('passwordStrengthCheck', self.window.location.search),
-          isMetricsEnabledValue: self.metrics.isCollectionEnabled(),
-          uniqueUserId: self.user.get('uniqueUserId')
+          forcePasswordStrengthCheck: Url.searchParam('passwordStrengthCheck', this.window.location.search),
+          isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
+          uniqueUserId: this.user.get('uniqueUserId')
         };
 
-        self._isPasswordStrengthCheckEnabledValue =
-              self._able.choose('passwordStrengthCheckEnabled', abData);
+        this._isPasswordStrengthCheckEnabledValue =
+              this._able.choose('passwordStrengthCheckEnabled', abData);
 
-        if (self._isPasswordStrengthCheckEnabledValue) {
-          self._logStrengthExperimentEvent('enabled');
+        if (this._isPasswordStrengthCheckEnabledValue) {
+          this._logStrengthExperimentEvent('enabled');
         }
       }
-      return self._isPasswordStrengthCheckEnabledValue;
+      return this._isPasswordStrengthCheckEnabledValue;
     },
 
     _passwordStrengthCheckerPromise: undefined,
     getPasswordStrengthChecker: function () {
       // returns a promise that resolves once the library is loaded.
-      var self = this;
-      if (! self._passwordStrengthCheckerPromise) {
-        self._passwordStrengthCheckerPromise = requireOnDemand('passwordcheck')
+      if (! this._passwordStrengthCheckerPromise) {
+        this._passwordStrengthCheckerPromise = requireOnDemand('passwordcheck')
           // Log any failures loading the script
-          .fail(self.logError.bind(self))
-          .then(function (PasswordCheck) {
+          .fail(this.logError.bind(this))
+          .then((PasswordCheck) => {
             return new PasswordCheck();
           });
       }
-      return self._passwordStrengthCheckerPromise;
+      return this._passwordStrengthCheckerPromise;
     },
 
     /**
@@ -71,28 +69,27 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     checkPasswordStrength: function (password) {
-      var self = this;
-      if (! self.isPasswordStrengthCheckEnabled()) {
+      if (! this.isPasswordStrengthCheckEnabled()) {
         return p('DISABLED');
       }
 
-      return self.getPasswordStrengthChecker()
-        .then(function (passwordStrengthChecker) {
+      return this.getPasswordStrengthChecker()
+        .then((passwordStrengthChecker) => {
           var deferred = p.defer();
-          passwordStrengthChecker(password, function (passwordCheckStatus) {
+          passwordStrengthChecker(password, (passwordCheckStatus) => {
             passwordCheckStatus = passwordCheckStatus || 'UNKNOWN';
 
             if (passwordCheckStatus === 'BLOOMFILTER_HIT' ||
                 passwordCheckStatus === 'BLOOMFILTER_MISS') {
-              self._logStrengthExperimentEvent('bloomfilter_used');
+              this._logStrengthExperimentEvent('bloomfilter_used');
             }
             if (passwordCheckStatus === 'BLOOMFILTER_HIT' ||
                 passwordCheckStatus === 'ALL_LETTERS_OR_NUMBERS') {
               // display the warning prompt only if the password is ALL_LETTERS_OR_NUMBERS
               // or password is found in list of common passwords
-              self.displayPasswordWarningPrompt();
+              this.displayPasswordWarningPrompt();
             }
-            self._logStrengthExperimentEvent(passwordCheckStatus);
+            this._logStrengthExperimentEvent(passwordCheckStatus);
 
             deferred.resolve(passwordCheckStatus);
           });

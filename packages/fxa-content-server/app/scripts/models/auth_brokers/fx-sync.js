@@ -64,47 +64,40 @@ define(function (require, exports, module) {
      *        Channel used to send commands to remote listeners.
      * @returns {undefined}
      */
-    initialize: function (options) {
-      options = options || {};
-      var self = this;
-
-      self._logger = new Logger();
+    initialize: function (options = {}) {
+      this._logger = new Logger();
 
       // channel can be passed in for testing.
-      self._channel = options.channel;
+      this._channel = options.channel;
 
       if (options.commands) {
         this.commands = options.commands;
       }
 
-      return proto.initialize.call(self, options);
+      return proto.initialize.call(this, options);
     },
 
     afterLoaded: function () {
-      var self = this;
-      return self.send(self.getCommand('LOADED'))
-        .then(function () {
-          return proto.afterLoaded.call(self);
-        });
+      return this.send(this.getCommand('LOADED'))
+        .then(() => proto.afterLoaded.call(this));
     },
 
     beforeSignIn: function (account) {
-      var self = this;
       var email = account.get('email');
       // This will send a message over the channel to determine whether
       // we should cancel the login to sync or not based on Desktop
       // specific checks and dialogs. It throws an error with
       // message='USER_CANCELED_LOGIN' and errno=1001 if that's the case.
-      return self.request(self.getCommand('CAN_LINK_ACCOUNT'), { email: email })
-        .then(function (response) {
+      return this.request(this.getCommand('CAN_LINK_ACCOUNT'), { email: email })
+        .then((response) => {
           if (response && ! response.ok) {
             throw AuthErrors.toError('USER_CANCELED_LOGIN');
           }
 
-          self._verifiedCanLinkAccount = true;
-          return proto.beforeSignIn.call(self, account);
-        }, function (err) {
-          self._logger.error('beforeSignIn failed with', err);
+          this._verifiedCanLinkAccount = true;
+          return proto.beforeSignIn.call(this, account);
+        }, (err) => {
+          this._logger.error('beforeSignIn failed with', err);
           // If the browser doesn't implement this command, then it will
           // handle prompting the relink warning after sign in completes.
           // This can likely be changed to 'reject' after Fx31 hits nightly,
@@ -113,19 +106,13 @@ define(function (require, exports, module) {
     },
 
     afterSignIn: function (account) {
-      var self = this;
-      return self._notifyRelierOfLogin(account)
-        .then(function () {
-          return proto.afterSignIn.call(self, account);
-        });
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterSignIn.call(this, account));
     },
 
     afterForceAuth: function (account) {
-      var self = this;
-      return self._notifyRelierOfLogin(account)
-        .then(function () {
-          return proto.afterForceAuth.apply(self, account);
-        });
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterForceAuth.apply(this, account));
     },
 
     beforeSignUpConfirmationPoll: function (account) {
@@ -133,19 +120,13 @@ define(function (require, exports, module) {
       // before the user has verified her email. This allows the user
       // to close the original tab or open the verification link in
       // the about:accounts tab and have Sync still successfully start.
-      var self = this;
       return this._notifyRelierOfLogin(account)
-        .then(function () {
-          return proto.beforeSignUpConfirmationPoll.call(self, account);
-        });
+        .then(() => proto.beforeSignUpConfirmationPoll.call(this, account));
     },
 
     afterResetPasswordConfirmationPoll: function (account) {
-      var self = this;
-      return self._notifyRelierOfLogin(account)
-        .then(function () {
-          return proto.afterResetPasswordConfirmationPoll.call(self, account);
-        });
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterResetPasswordConfirmationPoll.call(this, account));
     },
 
     afterChangePassword: function (account) {
@@ -165,14 +146,11 @@ define(function (require, exports, module) {
     },
 
     afterDeleteAccount: function (account) {
-      var self = this;
-      return self.send(self.getCommand('DELETE_ACCOUNT'), {
+      return this.send(this.getCommand('DELETE_ACCOUNT'), {
         email: account.get('email'),
         uid: account.get('uid')
       })
-      .then(function () {
-        return proto.afterDeleteAccount.call(self, account);
-      });
+      .then(() => proto.afterDeleteAccount.call(this, account));
     },
 
     /**

@@ -24,22 +24,18 @@ define(function (require, exports, module) {
     },
 
     render: function () {
-      var self = this;
-      return p().then(function () {
+      return p().then(() => {
         var foxLogo = $('#fox-logo');
-        foxLogo.after(self.template());
-        self.$el = $('#close');
-        self.delegateEvents();
+        foxLogo.after(this.template());
+        this.$el = $('#close');
+        this.delegateEvents();
       });
     },
 
     close: function () {
-      var self = this;
-      self.logError(OAuthErrors.toError('USER_CANCELED_OAUTH_LOGIN'));
-      return self.broker.cancel()
-        .then(null, function (err) {
-          self.displayError(err);
-        });
+      this.logError(OAuthErrors.toError('USER_CANCELED_OAUTH_LOGIN'));
+      return this.broker.cancel()
+        .fail((err) => this.displayError(err));
     }
   });
 

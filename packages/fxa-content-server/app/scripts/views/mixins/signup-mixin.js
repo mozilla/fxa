@@ -30,31 +30,30 @@ define(function (require, exports, module) {
      * @return {Object} promise
      */
     signUp: function (account, password) {
-      var self = this;
-      self.logEvent('flow.signup.submit');
+      this.logEvent('flow.signup.submit');
 
-      return self.invokeBrokerMethod('beforeSignIn', account)
-        .then(function () {
-          return self.user.signUpAccount(account, password, self.relier, {
-            resume: self.getStringifiedResumeToken()
+      return this.invokeBrokerMethod('beforeSignIn', account)
+        .then(() => {
+          return this.user.signUpAccount(account, password, this.relier, {
+            resume: this.getStringifiedResumeToken()
           });
         })
-        .then(function (account) {
-          if (self._formPrefill) {
-            self._formPrefill.clear();
+        .then((account) => {
+          if (this._formPrefill) {
+            this._formPrefill.clear();
           }
 
-          var onSubmitComplete = self.onSignUpSuccess.bind(self);
+          var onSubmitComplete = this.onSignUpSuccess.bind(this);
 
-          if (self.relier.accountNeedsPermissions(account)) {
-            return self.navigate('signup_permissions', {
+          if (this.relier.accountNeedsPermissions(account)) {
+            return this.navigate('signup_permissions', {
               account: account,
               // the permissions screen will call onSubmitComplete
               // with an updated account
               onSubmitComplete: onSubmitComplete
             });
-          } else if (self.broker.hasCapability('chooseWhatToSyncWebV1')) {
-            return self.navigate('choose_what_to_sync', {
+          } else if (this.broker.hasCapability('chooseWhatToSyncWebV1')) {
+            return this.navigate('choose_what_to_sync', {
               account: account,
               // choose_what_to_sync screen will call onSubmitComplete
               // with an updated account
@@ -62,7 +61,7 @@ define(function (require, exports, module) {
             });
           }
 
-          return self.onSignUpSuccess(account);
+          return this.onSignUpSuccess(account);
         });
     },
 
@@ -93,14 +92,13 @@ define(function (require, exports, module) {
      * @param {Event} event - click event
      */
     onSuggestSyncClick: function (event) {
-      var self = this;
       event.preventDefault();
 
       this.logViewEvent('sync-suggest.clicked');
 
       this.metrics.flush()
-        .then(function () {
-          self.window.location = event.target.href;
+        .then(() => {
+          this.window.location = event.target.href;
         });
     }
   };

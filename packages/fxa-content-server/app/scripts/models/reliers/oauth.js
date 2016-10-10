@@ -95,26 +95,25 @@ define(function (require, exports, module) {
     },
 
     fetch: function () {
-      var self = this;
       return Relier.prototype.fetch.call(this)
-        .then(function () {
-          if (self._isVerificationFlow()) {
-            self._setupVerificationFlow();
+        .then(() => {
+          if (this._isVerificationFlow()) {
+            this._setupVerificationFlow();
           } else {
-            self._setupSignInSignUpFlow();
+            this._setupSignInSignUpFlow();
           }
 
-          if (! self.has('service')) {
-            self.set('service', self.get('clientId'));
+          if (! this.has('service')) {
+            this.set('service', this.get('clientId'));
           }
 
-          return self._setupOAuthRPInfo();
+          return this._setupOAuthRPInfo();
         })
-        .then(function () {
-          if (self.has('scope')) {
+        .then(() => {
+          if (this.has('scope')) {
             // normalization depends on `trusted` field set in
             // setupOAuthRPInfo.
-            self._normalizeScopesAndPermissions();
+            this._normalizeScopesAndPermissions();
           }
         });
     },
@@ -168,24 +167,22 @@ define(function (require, exports, module) {
     },
 
     _setupVerificationFlow: function () {
-      var self = this;
-
-      var resumeObj = self._session.oauth;
+      var resumeObj = this._session.oauth;
       if (! resumeObj) {
         // The user is verifying in a second browser. `service` is
         // available in the link. Use it to populate the `service`
         // and `clientId` fields which will allow the user to
         // redirect back to the RP but not sign in.
         resumeObj = {
-          client_id: self.getSearchParam('service'), //eslint-disable-line camelcase
-          service: self.getSearchParam('service')
+          client_id: this.getSearchParam('service'), //eslint-disable-line camelcase
+          service: this.getSearchParam('service')
         };
       }
 
       var result = Transform.transformUsingSchema(
         resumeObj, VERIFICATION_INFO_SCHEMA, OAuthErrors);
 
-      self.set(result);
+      this.set(result);
     },
 
     _setupSignInSignUpFlow: function () {
@@ -196,14 +193,13 @@ define(function (require, exports, module) {
     },
 
     _setupOAuthRPInfo: function () {
-      var self = this;
-      var clientId = self.get('clientId');
+      var clientId = this.get('clientId');
 
-      return self._oAuthClient.getClientInfo(clientId)
-        .then(function (serviceInfo) {
+      return this._oAuthClient.getClientInfo(clientId)
+        .then((serviceInfo) => {
           var result = Transform.transformUsingSchema(
             serviceInfo, CLIENT_INFO_SCHEMA, OAuthErrors);
-          self.set(result);
+          this.set(result);
         }, function (err) {
           // the server returns an invalid request parameter for an
           // invalid/unknown client_id

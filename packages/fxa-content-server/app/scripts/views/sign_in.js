@@ -38,17 +38,16 @@ define(function (require, exports, module) {
     },
 
     beforeRender: function () {
-      var self = this;
-      self._account = self._suggestedAccount();
+      this._account = this._suggestedAccount();
 
-      self._account.on('change:accessToken', function () {
+      this._account.on('change:accessToken', () => {
         // if no access token and password is not visible we need to show the password field.
-        if (! self._account.has('accessToken') && self.$('.password').is(':hidden')) {
+        if (! this._account.has('accessToken') && this.$('.password').is(':hidden')) {
           // accessToken could be changed async by an external request after render
           // If the ProfileClient fails to get an OAuth token with the current token then reset the view
-          self.chooserAskForPassword = true;
-          return self.render().then(function () {
-            self.setDefaultPlaceholderAvatar();
+          this.chooserAskForPassword = true;
+          return this.render().then(function () {
+            this.setDefaultPlaceholderAvatar();
           });
         }
       });
@@ -135,16 +134,14 @@ define(function (require, exports, module) {
     },
 
     onSignInError: function (account, password, err) {
-      var self = this;
-
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-        return self._suggestSignUp(err);
+        return this._suggestSignUp(err);
       } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-        self.logViewEvent('canceled');
+        this.logViewEvent('canceled');
         // if user canceled login, just stop
         return;
       } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
-        return self.notifyOfResetAccount(account);
+        return this.notifyOfResetAccount(account);
       }
       // re-throw error, it will be handled at a lower level.
       throw err;
@@ -160,19 +157,16 @@ define(function (require, exports, module) {
      * which is present when there is already a logged in user in the session
      */
     useLoggedInAccount: allowOnlyOneSubmit(showProgressIndicator(function () {
-      var self = this;
       var account = this.getAccount();
 
       return this._signIn(account, null)
-        .fail(
-          function () {
-            self.chooserAskForPassword = true;
-            return self.render()
-              .then(function () {
-                self.user.removeAccount(account);
-                return self.displayError(AuthErrors.toError('SESSION_EXPIRED'));
-              });
+        .fail(() => {
+          this.chooserAskForPassword = true;
+          return this.render().then(() => {
+            this.user.removeAccount(account);
+            return this.displayError(AuthErrors.toError('SESSION_EXPIRED'));
           });
+        });
     })),
 
     /**

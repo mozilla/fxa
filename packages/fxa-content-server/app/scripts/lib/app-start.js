@@ -372,15 +372,14 @@ define(function (require, exports, module) {
     },
 
     initializeHeightObserver () {
-      const self = this;
-      if (self._isInAnIframe()) {
+      if (this._isInAnIframe()) {
         const heightObserver = new HeightObserver({
-          target: self._window.document.body,
-          window: self._window
+          target: this._window.document.body,
+          window: this._window
         });
 
         heightObserver.on('change', (height) => {
-          self._iframeChannel.send('resize', { height: height });
+          this._iframeChannel.send('resize', { height: height });
         });
 
         heightObserver.start();
@@ -476,22 +475,21 @@ define(function (require, exports, module) {
     },
 
     createView (Constructor, options = {}) {
-      const self = this;
       const viewOptions = _.extend({
-        able: self._able,
-        broker: self._authenticationBroker,
-        createView: self.createView.bind(self),
-        formPrefill: self._formPrefill,
-        interTabChannel: self._interTabChannel,
-        language: self._config.language,
-        metrics: self._metrics,
-        notifier: self._notifier,
-        relier: self._relier,
-        sentryMetrics: self._sentryMetrics,
+        able: this._able,
+        broker: this._authenticationBroker,
+        createView: this.createView.bind(this),
+        formPrefill: this._formPrefill,
+        interTabChannel: this._interTabChannel,
+        language: this._config.language,
+        metrics: this._metrics,
+        notifier: this._notifier,
+        relier: this._relier,
+        sentryMetrics: this._sentryMetrics,
         session: Session,
-        user: self._user,
-        window: self._window
-      }, self._router.getViewOptions(options));
+        user: this._user,
+        window: this._window
+      }, this._router.getViewOptions(options));
 
       return new Constructor(viewOptions);
     },
@@ -533,14 +531,13 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     testLocalStorage () {
-      const self = this;
       return p().then(() => {
         // only test localStorage if the user is not already at
         // the cookies_disabled screen.
-        if (! self._isAtCookiesDisabled()) {
-          self._storage.testLocalStorage(self._window);
+        if (! this._isAtCookiesDisabled()) {
+          this._storage.testLocalStorage(this._window);
         }
-      }).fail(self.captureError.bind(self));
+      }).fail(this.captureError.bind(this));
     },
 
     /**
@@ -551,13 +548,12 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     fatalError (error) {
-      const self = this;
-      if (! self._sentryMetrics) {
-        self.enableSentryMetrics();
+      if (! this._sentryMetrics) {
+        this.enableSentryMetrics();
       }
 
       return ErrorUtils.fatalError(error,
-        self._sentryMetrics, self._metrics, self._window, self._translator);
+        this._sentryMetrics, this._metrics, this._window, this._translator);
     },
 
     /**
@@ -567,14 +563,12 @@ define(function (require, exports, module) {
      * @return {Promise} resolves when complete
      */
     captureError (error) {
-      const self = this;
-
-      if (! self._sentryMetrics) {
-        self.enableSentryMetrics();
+      if (! this._sentryMetrics) {
+        this.enableSentryMetrics();
       }
 
       return ErrorUtils.captureAndFlushError(
-        error, self._sentryMetrics, self._metrics, self._window);
+        error, this._sentryMetrics, this._metrics, this._window);
     },
 
     allResourcesReady () {

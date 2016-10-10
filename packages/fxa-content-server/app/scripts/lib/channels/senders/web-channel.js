@@ -25,14 +25,13 @@ define(function (require, exports, module) {
     },
 
     send: function (command, data, messageId) {
-      var self = this;
-      return p().then(function () {
+      return p().then(() => {
         // save command name for testing purposes
-        self._saveEventName(command);
+        this._saveEventName(command);
 
         var event = createEvent(
-          self._window, self._webChannelId, command, data, messageId);
-        self._window.dispatchEvent(event);
+          this._window, this._webChannelId, command, data, messageId);
+        this._window.dispatchEvent(event);
       });
     },
 

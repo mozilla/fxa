@@ -41,49 +41,48 @@ define(function (require, exports, module) {
       options = options || {};
 
       var avatarWrapperEl = this.$(options.wrapperClass || '.avatar-wrapper');
-      var self = this;
       var spinnerEl;
 
       // We'll optimize the UI for the case that the account
       // doesn't have a profile image if it's not cached
-      if (self._shouldShowDefaultProfileImage(account)) {
-        self.setDefaultPlaceholderAvatar(avatarWrapperEl);
+      if (this._shouldShowDefaultProfileImage(account)) {
+        this.setDefaultPlaceholderAvatar(avatarWrapperEl);
       } else if (options.spinner) {
-        spinnerEl = self._addLoadingSpinner(avatarWrapperEl);
+        spinnerEl = this._addLoadingSpinner(avatarWrapperEl);
       }
 
       return account.fetchCurrentProfileImage()
-        .then(function (profileImage) {
+        .then((profileImage) => {
           // Cache the result to make sure we don't flash the default
           // image while fetching the latest profile image
-          self._updateCachedProfileImage(profileImage, account);
+          this._updateCachedProfileImage(profileImage, account);
           return profileImage;
-        }, function (err) {
+        }, (err) => {
           if (! ProfileErrors.is(err, 'UNAUTHORIZED') &&
               ! AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-            self.logError(err);
+            this.logError(err);
           }
           // Ignore errors; the image will be rendered as a
           // default image if displayed
           return new ProfileImage();
         })
-        .fin(function () {
-          return self._completeLoadingSpinner(spinnerEl);
+        .fin(() => {
+          return this._completeLoadingSpinner(spinnerEl);
         })
-        .then(function (profileImage) {
-          self._displayedProfileImage = profileImage;
+        .then((profileImage) => {
+          this._displayedProfileImage = profileImage;
           avatarWrapperEl.find(':not(.avatar-spinner)').remove();
 
           if (profileImage.isDefault()) {
             avatarWrapperEl
               .addClass('with-default')
               .append('<span></span>');
-            self.logViewEvent('profile_image_not_shown');
+            this.logViewEvent('profile_image_not_shown');
           } else {
             avatarWrapperEl
               .removeClass('with-default')
               .append($(profileImage.get('img')).addClass('profile-image'));
-            self.logViewEvent('profile_image_shown');
+            this.logViewEvent('profile_image_shown');
           }
         });
     },
@@ -158,27 +157,24 @@ define(function (require, exports, module) {
     },
 
     updateProfileImage: function (profileImage, account) {
-      var self = this;
       account.setProfileImage(profileImage);
-      return self.user.setAccount(account)
-        .then(_.bind(self._notifyProfileUpdate, self, account.get('uid')));
+      return this.user.setAccount(account)
+        .then(_.bind(this._notifyProfileUpdate, this, account.get('uid')));
     },
 
     deleteDisplayedAccountProfileImage: function (account) {
-      var self = this;
-      return account.deleteAvatar(self._displayedProfileImage.get('id'))
-        .then(function () {
+      return account.deleteAvatar(this._displayedProfileImage.get('id'))
+        .then(() => {
           // A blank image will clear the cache
-          self.updateProfileImage(new ProfileImage(), account);
+          this.updateProfileImage(new ProfileImage(), account);
         });
     },
 
     updateDisplayName: function (displayName) {
-      var self = this;
-      var account = self.getSignedInAccount();
+      var account = this.getSignedInAccount();
       account.set('displayName', displayName);
-      return self.user.setAccount(account)
-        .then(_.bind(self._notifyProfileUpdate, self, account.get('uid')));
+      return this.user.setAccount(account)
+        .then(_.bind(this._notifyProfileUpdate, this, account.get('uid')));
     },
 
     _notifyProfileUpdate: function (uid) {

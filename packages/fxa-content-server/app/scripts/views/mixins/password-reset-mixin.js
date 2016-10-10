@@ -24,17 +24,15 @@ define(function (require, exports, module) {
      * @return {Promise} - resolves with auth server response if successful.
      */
     resetPassword: function (email) {
-      var self = this;
-
       var account = this.user.initAccount({ email: email });
       return account.resetPassword(
-        self.relier,
+        this.relier,
         {
-          resume: self.getStringifiedResumeToken()
+          resume: this.getStringifiedResumeToken()
         }
       )
-      .then(function (result) {
-        self.navigate('confirm_reset_password', {
+      .then((result) => {
+        this.navigate('confirm_reset_password', {
           email: email,
           passwordForgotToken: result.passwordForgotToken
         }, {
@@ -53,14 +51,12 @@ define(function (require, exports, module) {
      * @return {Promise} - resolves with auth server response if successful.
      */
     retryResetPassword: function (email, passwordForgotToken) {
-      var self = this;
-
       var account = this.user.initAccount({ email: email });
       return account.retryResetPassword(
         passwordForgotToken,
-        self.relier,
+        this.relier,
         {
-          resume: self.getStringifiedResumeToken()
+          resume: this.getStringifiedResumeToken()
         }
       );
     }

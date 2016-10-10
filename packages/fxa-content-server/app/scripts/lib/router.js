@@ -160,45 +160,43 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     redirectToBestOAuthChoice: function () {
-      var self = this;
-
       // Attempt to get email address from relier
-      var email = self.broker.relier.get('email');
+      var email = this.broker.relier.get('email');
 
-      return p().then(function () {
+      return p().then(() => {
         if (email) {
           // Attempt to get account status of email and navigate
           // to correct signin/signup page if exists.
-          var account = self.user.initAccount({ email: email });
-          return self.user.checkAccountEmailExists(account)
+          var account = this.user.initAccount({ email: email });
+          return this.user.checkAccountEmailExists(account)
             .then(function (exists) {
               if (exists) {
                 return '/oauth/signin';
               } else {
                 return '/oauth/signup';
               }
-            }, function (err) {
+            }, (err) => {
               // The error here is a throttling error or server error (500).
               // In either case, we don't want to stop the user from
               // navigating to a signup/signin page. Instead, we fallback
               // to choosing navigation page based on whether account is
               // a default account. Swallow and log error.
-              self.metrics.logError(err);
+              this.metrics.logError(err);
             });
         }
         // If no email in relier, choose navigation page based on
         // whether account is a default account.
       })
-      .then(function (route) {
+      .then((route) => {
         if (! route) {
-          if (self.user.getChooserAccount().isDefault()) {
+          if (this.user.getChooserAccount().isDefault()) {
             route = '/oauth/signup';
           } else {
             route = '/oauth/signin';
           }
         }
 
-        return self.navigate(route, { replace: true, trigger: true });
+        return this.navigate(route, { replace: true, trigger: true });
       });
     },
 

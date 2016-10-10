@@ -92,12 +92,11 @@ define(function (require, exports, module) {
     },
 
     displaySuccess: function (msg) {
-      var self = this;
-      if (! self.parentView) {
+      if (! this.parentView) {
         return;
       }
-      self.parentView.displaySuccess(msg);
-      self.closePanel();
+      this.parentView.displaySuccess(msg);
+      this.closePanel();
     }
   };
 });

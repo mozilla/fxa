@@ -41,7 +41,7 @@ define(function (require, exports, module) {
   // A Base64 encoded JWT
   var BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/;
 
-  var self = {
+  var Validate = {
     /**
      * Check if an email address is valid
      * @param {String} email
@@ -228,7 +228,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      */
     isUriValid: function isUriValid(uri) {
-      return self.isUrlValid(uri) || self.isUrnValid(uri);
+      return Validate.isUrlValid(uri) || Validate.isUrnValid(uri);
     },
 
     /**
@@ -291,5 +291,5 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = self;
+  module.exports = Validate;
 });

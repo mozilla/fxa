@@ -53,9 +53,8 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var self = this;
-      var account = self.getAccount();
-      var declinedEngines = self._getDeclinedEngines();
+      var account = this.getAccount();
+      var declinedEngines = this._getDeclinedEngines();
 
       this._trackUncheckedEngines(declinedEngines);
 
@@ -64,8 +63,8 @@ define(function (require, exports, module) {
         declinedSyncEngines: declinedEngines
       });
 
-      return self.user.setAccount(account)
-        .then(self.onSubmitComplete);
+      return this.user.setAccount(account)
+        .then(this.onSubmitComplete);
     },
 
     /**
@@ -104,11 +103,9 @@ define(function (require, exports, module) {
      * @private
      */
     _trackUncheckedEngines: function (declinedEngines) {
-      var self = this;
-
       if (_.isArray(declinedEngines)) {
-        declinedEngines.forEach(function (engine) {
-          self.logViewEvent('engine-unchecked.' + engine);
+        declinedEngines.forEach((engine) => {
+          this.logViewEvent('engine-unchecked.' + engine);
         });
       }
     }

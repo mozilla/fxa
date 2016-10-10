@@ -29,20 +29,19 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
-      var password = self.getElementValue('.password');
+      var account = this.getSignedInAccount();
+      var password = this.getElementValue('.password');
 
-      return self.user.deleteAccount(account, password)
-        .then(function () {
+      return this.user.deleteAccount(account, password)
+        .then(() => {
           Session.clear();
-          return self.invokeBrokerMethod('afterDeleteAccount', account);
+          return this.invokeBrokerMethod('afterDeleteAccount', account);
         })
-        .then(function () {
+        .then(() => {
           // user deleted an account
-          self.logViewEvent('deleted');
+          this.logViewEvent('deleted');
 
-          self.navigate('signup', {
+          this.navigate('signup', {
             success: t('Account deleted successfully')
           }, {
             clearQueryParams: true,

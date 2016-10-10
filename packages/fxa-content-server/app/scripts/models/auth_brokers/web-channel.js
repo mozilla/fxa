@@ -41,13 +41,12 @@ define(function (require, exports, module) {
     },
 
     fetch: function () {
-      var self = this;
       return proto.fetch.call(this)
-        .then(function () {
-          if (self._isVerificationFlow()) {
-            self._setupVerificationFlow();
+        .then(() => {
+          if (this._isVerificationFlow()) {
+            this._setupVerificationFlow();
           } else {
-            self._setupSigninSignupFlow();
+            this._setupSigninSignupFlow();
           }
         });
     },
@@ -75,15 +74,14 @@ define(function (require, exports, module) {
      */
 
     getOAuthResult: function (account) {
-      var self = this;
       return proto.getOAuthResult.call(this, account)
-        .then(function (result) {
-          if (! self.relier.wantsKeys()) {
+        .then((result) => {
+          if (! this.relier.wantsKeys()) {
             return result;
           }
 
-          return account.relierKeys(self.relier)
-            .then(function (relierKeys) {
+          return account.relierKeys(this.relier)
+            .then((relierKeys) => {
               result.keys = relierKeys;
               return result;
             });
@@ -158,18 +156,17 @@ define(function (require, exports, module) {
       //
       // The slight delay here is to allow the functional tests time to
       // bind event handlers before the flow completes.
-      var self = this;
-      return proto.afterCompleteSignUp.call(self, account)
+      return proto.afterCompleteSignUp.call(this, account)
         .delay(100)
-        .then(function (behavior) {
-          if (self.hasPendingOAuthFlow()) {
+        .then((behavior) => {
+          if (this.hasPendingOAuthFlow()) {
             // This tab won't have access to key-fetching material, so
             // retreive it from the session if necessary.
-            if (self.relier.wantsKeys()) {
-              account.set('keyFetchToken', self.session.oauth.keyFetchToken);
-              account.set('unwrapBKey', self.session.oauth.unwrapBKey);
+            if (this.relier.wantsKeys()) {
+              account.set('keyFetchToken', this.session.oauth.keyFetchToken);
+              account.set('unwrapBKey', this.session.oauth.unwrapBKey);
             }
-            return self.finishOAuthSignUpFlow(account);
+            return this.finishOAuthSignUpFlow(account);
           }
 
           return behavior;
@@ -189,12 +186,11 @@ define(function (require, exports, module) {
       //
       // The slight delay here is to allow the functional tests time to
       // bind event handlers before the flow completes.
-      var self = this;
-      return proto.afterCompleteResetPassword.call(self, account)
+      return proto.afterCompleteResetPassword.call(this, account)
         .delay(100)
-        .then(function (behavior) {
-          if (self.hasPendingOAuthFlow()) {
-            return self.finishOAuthSignInFlow(account);
+        .then((behavior) => {
+          if (this.hasPendingOAuthFlow()) {
+            return this.finishOAuthSignInFlow(account);
           }
 
           return behavior;

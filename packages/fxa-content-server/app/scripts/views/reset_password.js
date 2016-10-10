@@ -36,13 +36,10 @@ define(function (require, exports, module) {
       var email = this.relier.get('email');
       var canSkip = this.relier.get('resetPasswordConfirm') === false;
       if (canSkip && email) {
-        var self = this;
         return this._resetPassword(email)
-          .then(function () {
-            return false;
-          })
-          .fail(function (err) {
-            self.model.set('error', err);
+          .then(() => false)
+          .fail((err) => {
+            this.model.set('error', err);
           });
       }
 
@@ -66,16 +63,15 @@ define(function (require, exports, module) {
     },
 
     _resetPassword: function (email) {
-      var self = this;
-      return self.resetPassword(email)
-        .fail(function (err) {
+      return this.resetPassword(email)
+        .fail((err) => {
           // clear oauth session
           Session.clear('oauth');
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
             err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
-            return self.displayErrorUnsafe(err);
+            return this.displayErrorUnsafe(err);
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-            self.logEvent('login.canceled');
+            this.logEvent('login.canceled');
             // if user canceled login, just stop
             return;
           }

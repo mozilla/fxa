@@ -175,37 +175,33 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     render: function () {
-      var self = this;
-
       if (this.layoutClassName) {
         $('body').addClass(this.layoutClassName);
       }
 
       return p()
-        .then(function () {
-          return self.checkAuthorization();
+        .then(() => this.checkAuthorization())
+        .then((isUserAuthorized) => {
+          return isUserAuthorized && this.beforeRender();
         })
-        .then(function (isUserAuthorized) {
-          return isUserAuthorized && self.beforeRender();
-        })
-        .then(function (shouldRender) {
+        .then((shouldRender) => {
           // rendering is opt out.
           if (shouldRender === false) {
             return false;
           }
 
-          return p().then(function () {
-            self.destroyChildViews();
+          return p().then(() => {
+            this.destroyChildViews();
 
             // force a re-load of the context every time the
             // view is rendered or else stale data may
             // be returned.
-            self._context = null;
-            self.$el.html(self.template(self.getContext()));
+            this._context = null;
+            this.$el.html(this.template(this.getContext()));
           })
-          .then(_.bind(self.afterRender, self))
-          .then(function () {
-            self.trigger('rendered');
+          .then(_.bind(this.afterRender, this))
+          .then(() => {
+            this.trigger('rendered');
 
             return true;
           });
@@ -230,13 +226,11 @@ define(function (require, exports, module) {
      * @returns {Promise} resolves to true or false.
      */
     checkAuthorization: function () {
-      var self = this;
-
-      if (self.mustAuth || self.mustVerify) {
-        var account = self.getSignedInAccount();
+      if (this.mustAuth || this.mustVerify) {
+        var account = this.getSignedInAccount();
         return account.sessionStatus()
-          .then(function (resp) {
-            if (self.mustVerify && ! resp.verified) {
+          .then((resp) => {
+            if (this.mustVerify && ! resp.verified) {
               var targetScreen;
 
               if (resp.verificationReason === VerificationReasons.SIGN_UP) {
@@ -245,7 +239,7 @@ define(function (require, exports, module) {
                 targetScreen = 'confirm_signin';
               }
 
-              self.navigate(targetScreen, {
+              this.navigate(targetScreen, {
                 account: account
               });
 
@@ -253,11 +247,11 @@ define(function (require, exports, module) {
             }
 
             return true;
-          }, function (err) {
+          }, (err) => {
             if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-              self.logError(AuthErrors.toError('SESSION_EXPIRED'));
-              self.navigate(self._reAuthPage(), {
-                redirectTo: self.currentPage
+              this.logError(AuthErrors.toError('SESSION_EXPIRED'));
+              this.navigate(this._reAuthPage(), {
+                redirectTo: this.currentPage
               });
               return false;
             }
@@ -273,8 +267,7 @@ define(function (require, exports, module) {
     // is not currently cached, we ask them to sign in again. If the relier
     // specifies an email address, we force the user to use that account.
     _reAuthPage: function () {
-      var self = this;
-      if (self.relier && self.relier.get('email')) {
+      if (this.relier && this.relier.get('email')) {
         return 'force_auth';
       }
       return 'signin';
@@ -826,11 +819,10 @@ define(function (require, exports, module) {
     invokeBrokerMethod: function (methodName/*, ...*/) {
       var args = [].slice.call(arguments, 1);
 
-      var self = this;
-      var broker = self.broker;
+      var broker = this.broker;
 
       return p(broker[methodName].apply(broker, args))
-        .then(self.invokeBehavior.bind(self));
+        .then(this.invokeBehavior.bind(this));
     },
 
     /**

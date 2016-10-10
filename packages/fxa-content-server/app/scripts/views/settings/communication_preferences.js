@@ -30,13 +30,12 @@ define(function (require, exports, module) {
     },
 
     getMarketingEmailPrefs: function () {
-      var self = this;
-      if (! self._marketingEmailPrefs) {
-        self._marketingEmailPrefs =
-            self.getSignedInAccount().getMarketingEmailPrefs();
+      if (! this._marketingEmailPrefs) {
+        this._marketingEmailPrefs =
+            this.getSignedInAccount().getMarketingEmailPrefs();
       }
 
-      return self._marketingEmailPrefs;
+      return this._marketingEmailPrefs;
     },
 
     // The view is rendered twice to avoid delaying the settings page load.
@@ -48,48 +47,46 @@ define(function (require, exports, module) {
     _isBasketReady: false,
 
     afterVisible: function () {
-      var self = this;
-      var emailPrefs = self.getMarketingEmailPrefs();
+      var emailPrefs = this.getMarketingEmailPrefs();
 
       // the email prefs fetch is done in afterVisible instead of a render
       // function so that the settings page render is not blocked while waiting
       // for Basket to respond.  See #3061
       return emailPrefs.fetch()
-        .fail(function (err) {
+        .fail((err) => {
           if (MarketingEmailErrors.is(err, 'UNKNOWN_EMAIL')) {
             // user has not yet opted in to Basket yet. Ignore
             return;
           }
           if (MarketingEmailErrors.is(err, 'UNKNOWN_ERROR')) {
-            self._error = self.translateError(MarketingEmailErrors.toError('SERVICE_UNAVAILABLE'));
+            this._error = this.translateError(MarketingEmailErrors.toError('SERVICE_UNAVAILABLE'));
           } else {
-            self._error = self.translateError(err);
+            this._error = this.translateError(err);
           }
-          err = self._normalizeError(err);
+          err = this._normalizeError(err);
           var errorString = Metrics.prototype.errorToId(err);
           err.code = err.code || 'unknown';
           // Add status code to metrics data, to differentiate between
           // 400 and 500
           errorString = errorString + '.' + err.code;
-          self.logEvent(errorString);
+          this.logEvent(errorString);
         })
-        .then(function () {
-          self._isBasketReady = true;
-          return self.render();
+        .then(() => {
+          this._isBasketReady = true;
+          return this.render();
         });
     },
 
     context: function () {
-      var self = this;
       var emailPrefs = this.getMarketingEmailPrefs();
       var isOptedIn = emailPrefs.isOptedIn(NEWSLETTER_ID);
-      self.logViewEvent('newsletter.optin.' + String(isOptedIn));
+      this.logViewEvent('newsletter.optin.' + String(isOptedIn));
 
       return {
-        error: self._error,
-        isBasketReady: !! self._isBasketReady,
+        error: this._error,
+        isBasketReady: !! this._isBasketReady,
         isOptedIn: isOptedIn,
-        isPanelOpen: self.isPanelOpen(),
+        isPanelOpen: this.isPanelOpen(),
         // preferencesURL is only available if the user is already
         // registered with basket.
         preferencesUrl: Xss.href(emailPrefs.get('preferencesUrl'))
@@ -97,31 +94,26 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var self = this;
-      var emailPrefs = self.getMarketingEmailPrefs();
-      return self.setOptInStatus(NEWSLETTER_ID, ! emailPrefs.isOptedIn(NEWSLETTER_ID));
+      var emailPrefs = this.getMarketingEmailPrefs();
+      return this.setOptInStatus(NEWSLETTER_ID, ! emailPrefs.isOptedIn(NEWSLETTER_ID));
     },
 
     setOptInStatus: function (newsletterId, isOptedIn) {
-      var self = this;
-
       var method = isOptedIn ? 'optIn' : 'optOut';
-      self.logViewEvent(method);
+      this.logViewEvent(method);
 
-      return self.getMarketingEmailPrefs()[method](newsletterId)
-        .then(function () {
-          self.logViewEvent(method + '.success');
+      return this.getMarketingEmailPrefs()[method](newsletterId)
+        .then(() => {
+          this.logViewEvent(method + '.success');
 
           var successMessage = isOptedIn ?
                                   t('Subscribed successfully') :
                                   t('Unsubscribed successfully');
 
-          self.displaySuccess(successMessage);
-          self.navigate('settings');
-          return self.render();
-        }, function (err) {
-          self.displayError(err);
-        });
+          this.displaySuccess(successMessage);
+          this.navigate('settings');
+          return this.render();
+        }, (err) => this.displayError(err));
     }
   });
 

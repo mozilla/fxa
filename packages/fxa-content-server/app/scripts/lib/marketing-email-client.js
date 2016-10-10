@@ -16,11 +16,10 @@ define(function (require, exports, module) {
   function MarketingEmailClient(options) {
     options = options || {};
 
-    var self = this;
-    self._xhrTimeout = options.timeout || Constants.DEFAULT_XHR_TIMEOUT_MS;
-    self._xhr = options.xhr || xhr;
-    self._baseUrl = options.baseUrl;
-    self._preferencesUrl = options.preferencesUrl;
+    this._xhrTimeout = options.timeout || Constants.DEFAULT_XHR_TIMEOUT_MS;
+    this._xhr = options.xhr || xhr;
+    this._baseUrl = options.baseUrl;
+    this._preferencesUrl = options.preferencesUrl;
   }
 
   MarketingEmailClient.prototype = {
@@ -39,15 +38,14 @@ define(function (require, exports, module) {
     },
 
     fetch: function (accessToken) {
-      var self = this;
       return this._request('get', '/lookup-user', accessToken)
-        .then(function (response) {
+        .then((response) => {
           // TODO
           // I would prefer to place this into the MarketingEmailPrefs model
           // but doing so required passing around the preferencesUrl to lots of
           // irrelevant classes.
           if (response.token) {
-            response.preferencesUrl = self._preferencesUrl + response.token;
+            response.preferencesUrl = this._preferencesUrl + response.token;
           }
 
           return response;

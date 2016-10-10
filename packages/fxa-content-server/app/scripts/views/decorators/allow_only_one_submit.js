@@ -15,29 +15,24 @@ define(function (require, exports, module) {
 
   function allowOnlyOneSubmit(handler) {
     return function () {
-      var self = this;
       var args = arguments;
 
-      if (self._isSubmitting) {
-        return p()
-          .then(function () {
-            // already submitting, get outta here.
-            throw new Error('submit already in progress');
-          });
+      if (this._isSubmitting) {
+        return p().then(function () {
+          // already submitting, get outta here.
+          throw new Error('submit already in progress');
+        });
       }
 
-      self._isSubmitting = true;
-      return p()
-          .then(function () {
-            return self.invokeHandler(handler, args);
-          })
-          .then(function (value) {
-            self._isSubmitting = false;
-            return value;
-          }, function (err) {
-            self._isSubmitting = false;
-            throw err;
-          });
+      this._isSubmitting = true;
+      return p().then(() => this.invokeHandler(handler, args))
+        .then((value) => {
+          this._isSubmitting = false;
+          return value;
+        }, (err) => {
+          this._isSubmitting = false;
+          throw err;
+        });
     };
   }
 

@@ -124,11 +124,10 @@ define(function (require, exports, module) {
 
     _onItemRemoved: function (item) {
       var id = item.get('id');
-      var self = this;
-      $('#' + id).slideUp(DEVICE_REMOVED_ANIMATION_MS, function () {
+      $('#' + id).slideUp(DEVICE_REMOVED_ANIMATION_MS, () => {
         // re-render in case the last device is removed and the
         // "no registered devices" message needs to be shown.
-        self.render();
+        this.render();
       });
     },
 

@@ -70,63 +70,62 @@ define(function (require, exports, module) {
     },
 
     beforeRender: function () {
-      var self = this;
-      var verificationInfo = self._verificationInfo;
+      var verificationInfo = this._verificationInfo;
       if (! verificationInfo.isValid()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
-        self.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+        this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         return true;
       }
 
       var code = verificationInfo.get('code');
       var options = {
-        reminder: self._verificationInfo.get('reminder'),
-        service: self.relier.get('service')
+        reminder: this._verificationInfo.get('reminder'),
+        service: this.relier.get('service')
       };
-      return self.user.completeAccountSignUp(self.getAccount(), code, options)
-          .fail(function (err) {
+      return this.user.completeAccountSignUp(this.getAccount(), code, options)
+          .fail((err) => {
             if (MarketingEmailErrors.created(err)) {
               // A basket error should not prevent the
               // sign up verification from completing, nor
               // should an error be displayed to the user.
               // Log the error and nothing else.
-              self.logError(err);
+              this.logError(err);
             } else {
               throw err;
             }
           })
-          .then(function () {
-            self.logViewEvent('verification.success');
-            self.notifier.trigger('verification.success');
+          .then(() => {
+            this.logViewEvent('verification.success');
+            this.notifier.trigger('verification.success');
 
             // Update the stored account data in case it was
             // updated by verifySignUp.
-            var account = self.getAccount();
-            self.user.setAccount(account);
-            return self.invokeBrokerMethod('afterCompleteSignUp', account);
+            var account = this.getAccount();
+            this.user.setAccount(account);
+            return this.invokeBrokerMethod('afterCompleteSignUp', account);
           })
-          .then(function () {
-            var account = self.getAccount();
+          .then(() => {
+            var account = this.getAccount();
 
-            if (! self.relier.isDirectAccess()) {
-              self._navigateToCompleteScreen();
+            if (! this.relier.isDirectAccess()) {
+              this._navigateToCompleteScreen();
               return false;
             }
 
             return account.isSignedIn()
-              .then(function (isSignedIn) {
+              .then((isSignedIn) => {
                 if (isSignedIn) {
-                  self.navigate('settings', {
+                  this.navigate('settings', {
                     success: t('Account verified successfully')
                   });
                 } else {
-                  self._navigateToCompleteScreen();
+                  this._navigateToCompleteScreen();
                 }
                 return false;
               });
           })
-          .fail(function (err) {
+          .fail((err) => {
             if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
               verificationInfo.markExpired();
               err = AuthErrors.toError('UNKNOWN_ACCOUNT_VERIFICATION');
@@ -137,7 +136,7 @@ define(function (require, exports, module) {
               // When coming from sign-in confirmation verification, show a
               // verification link expired error instead of damaged verification link.
               // This error is generated because the link has already been used.
-              if (self.isSignIn()) {
+              if (this.isSignIn()) {
                 // Disable resending verification, can only be triggered from new sign-in
                 verificationInfo.markUsed();
                 err = AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE');
@@ -149,10 +148,10 @@ define(function (require, exports, module) {
               }
             } else {
               // all other errors show the standard error box.
-              self.model.set('error', err);
+              this.model.set('error', err);
             }
 
-            self.logError(err);
+            this.logError(err);
             return true;
           });
     },

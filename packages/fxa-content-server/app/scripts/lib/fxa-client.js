@@ -281,7 +281,6 @@ define(function (require, exports, module) {
      */
     signUp: withClient(function (client, originalEmail, password, relier, options = {}) {
       var email = trim(originalEmail);
-      var self = this;
 
       var signUpOptions = {
         keys: wantsKeys(relier)
@@ -310,9 +309,9 @@ define(function (require, exports, module) {
       setMetricsContext(signUpOptions, options);
 
       return client.signUp(email, password, signUpOptions)
-        .then(function (accountData) {
+        .then((accountData) => {
           return getUpdatedSessionData(email, relier, accountData, options);
-        }, function (err) {
+        }, (err) => {
           if (relier.has('preVerifyToken') &&
               AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
             // The token was invalid and the auth server could
@@ -320,7 +319,7 @@ define(function (require, exports, module) {
             // user and force them to verify their email.
             relier.unset('preVerifyToken');
 
-            return self.signUp(email, password, relier, options);
+            return this.signUp(email, password, relier, options);
           }
 
           throw err;

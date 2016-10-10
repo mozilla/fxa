@@ -74,13 +74,12 @@ define(function (require, exports, module) {
     },
 
     removeAvatar: function () {
-      var self = this;
-      var account = self.getAccount();
-      return self.deleteDisplayedAccountProfileImage(account)
-        .then(function () {
-          self.navigate('settings');
-        }, function (err) {
-          self.displayError(err);
+      var account = this.getAccount();
+      return this.deleteDisplayedAccountProfileImage(account)
+        .then(() => {
+          this.navigate('settings');
+        }, (err) => {
+          this.displayError(err);
           throw err;
         });
     },
@@ -90,35 +89,34 @@ define(function (require, exports, module) {
     },
 
     fileSet: function (e) {
-      var self = this;
       var defer = p.defer();
       var file = e.target.files[0];
-      var account = self.getAccount();
-      self.logAccountImageChange(account);
+      var account = this.getAccount();
+      this.logAccountImageChange(account);
 
-      var imgOnError = function (e) {
+      var imgOnError = (e) => {
         var error = e && e.errno ? e : 'UNUSABLE_IMAGE';
         var msg = AuthErrors.toMessage(error);
-        self.displayError(msg);
+        this.displayError(msg);
         defer.reject(msg);
       };
 
       if (file.type.match('image.*')) {
-        var reader = new self.FileReader();
+        var reader = new this.FileReader();
 
-        reader.onload = function (event) {
+        reader.onload = (event) => {
           var src = event.target.result;
 
           ImageLoader.load(src)
-            .then(function (img) {
+            .then((img) => {
               var cropImg = new CropperImage({
                 height: img.height,
                 src: src,
                 type: file.type,
                 width: img.width
               });
-              require(['draggable', 'touch-punch'], function () {
-                self.navigate('settings/avatar/crop', {
+              require(['draggable', 'touch-punch'], () => {
+                this.navigate('settings/avatar/crop', {
                   cropImg: cropImg
                 });
               });

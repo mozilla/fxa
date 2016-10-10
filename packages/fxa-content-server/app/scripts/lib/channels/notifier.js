@@ -143,9 +143,8 @@ define(function (require, exports, module) {
 
     // Listen for notifications from other fxa tabs or frames
     _listen: function (tabChannel) {
-      var self = this;
-      _.each(COMMAND_NAMES, function (name) {
-        tabChannel.on(name, self.trigger.bind(self, name));
+      _.each(COMMAND_NAMES, (name) => {
+        tabChannel.on(name, this.trigger.bind(this, name));
       });
     },
 

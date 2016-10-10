@@ -26,21 +26,19 @@ define(function (require, exports, module) {
 
     // Fetches our JSON translation file
     fetch: function () {
-      var self = this;
-
       return xhr.getJSON('/i18n/client.json')
-          .then(function (data) {
+          .then((data) => {
             // Only update the translations if some came back
             // from the server. If the server sent no translations,
             // english strings will be served.
             if (data) {
-              self.translations = data;
+              this.translations = data;
             }
-          }, function () {
+          }, () => {
             // allow for 404's. `.get` will use the key for the translation
             // if a value is not found in the translations table. This means
             // English will be the fallback.
-            self.translations = {};
+            this.translations = {};
           });
     },
 
@@ -98,9 +96,8 @@ define(function (require, exports, module) {
      * @returns {Function}
      */
     translateInTemplate: function (forceText, context) {
-      var self = this;
-      return function (templateText) {
-        return self.get(forceText || templateText, context);
+      return (templateText) => {
+        return this.get(forceText || templateText, context);
       };
     }
 

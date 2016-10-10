@@ -130,14 +130,12 @@ define(function (require, exports, module) {
      * @returns {Object[]} applicable permissions
      */
     _getApplicablePermissions: function (account, requestedPermissionNames) {
-      var self = this;
-
       // only show permissions that have corresponding values.
       var permissionsWithValues =
         account.getPermissionsWithValues(requestedPermissionNames);
 
-      return permissionsWithValues.map(function (permissionName) {
-        var permission = self._getPermissionConfig(permissionName);
+      return permissionsWithValues.map((permissionName) => {
+        var permission = this._getPermissionConfig(permissionName);
 
         // filter out permissions we do not know about
         if (! permission) {
@@ -171,10 +169,9 @@ define(function (require, exports, module) {
      * @returns {String[]} sorted permissionNames
      */
     _sortPermissions: function (permissionNames) {
-      var self = this;
-      return [].concat(permissionNames).sort(function (a, b) {
-        var aIndex = self._getPermissionIndex(a);
-        var bIndex = self._getPermissionIndex(b);
+      return [].concat(permissionNames).sort((a, b) => {
+        var aIndex = this._getPermissionIndex(a);
+        var bIndex = this._getPermissionIndex(b);
         return aIndex - bIndex;
       });
     },
@@ -188,13 +185,11 @@ define(function (require, exports, module) {
      * @returns {String} HTML
      */
     _getPermissionsHTML: function (account, permissionNames) {
-      var self = this;
-
-      var sortedPermissionNames = self._sortPermissions(permissionNames);
+      var sortedPermissionNames = this._sortPermissions(permissionNames);
 
       // convert the permission names to HTML
-      return sortedPermissionNames.map(function (permissionName) {
-        var permission = self._getPermissionConfig(permissionName);
+      return sortedPermissionNames.map((permissionName) => {
+        var permission = this._getPermissionConfig(permissionName);
         if (permission.required !== true) {
           permission.required = false;
         }
@@ -260,16 +255,15 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var self = this;
-      var account = self.getAccount();
+      var account = this.getAccount();
 
-      self.logViewEvent('accept');
+      this.logViewEvent('accept');
 
       account.setClientPermissions(
-          self.relier.get('clientId'), self._getFormPermissions());
+          this.relier.get('clientId'), this._getFormPermissions());
 
-      return self.user.setAccount(account)
-        .then(self.onSubmitComplete);
+      return this.user.setAccount(account)
+        .then(this.onSubmitComplete);
     },
 
     _previousView: function () {

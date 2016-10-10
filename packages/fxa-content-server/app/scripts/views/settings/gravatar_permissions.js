@@ -39,16 +39,15 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
-      self.logViewEvent('accept');
+      var account = this.getSignedInAccount();
+      this.logViewEvent('accept');
 
-      return p().then(function () {
+      return p().then(() => {
         var permissions = {};
         permissions[GRAVATAR_PERMISSION] = true;
         account.setClientPermissions(GRAVATAR_MOCK_CLIENT_ID, permissions);
-        self.user.setAccount(account);
-        self.navigate('settings/avatar/gravatar');
+        this.user.setAccount(account);
+        this.navigate('settings/avatar/gravatar');
       });
     }
   }, {

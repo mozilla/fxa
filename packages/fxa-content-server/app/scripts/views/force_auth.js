@@ -51,7 +51,6 @@ define(function (require, exports, module) {
     },
 
     beforeRender: function () {
-      var self = this;
       var accountData;
 
       try {
@@ -78,7 +77,7 @@ define(function (require, exports, module) {
         return p.all([
           this.user.checkAccountEmailExists(account),
           this.user.checkAccountUidExists(account)
-        ]).spread(function (emailExists, uidExists) {
+        ]).spread((emailExists, uidExists) => {
           /*
            * uidExists: false, emailExists: false
            *   Let user sign up w/ email.
@@ -91,9 +90,9 @@ define(function (require, exports, module) {
            *   Assume for the same account, try to sign in
            */
           if (! emailExists) {
-            return self._signUpIfUidChangeSupported(account);
+            return this._signUpIfUidChangeSupported(account);
           } if (! uidExists) {
-            return self._signInIfUidChangeSupported(account);
+            return this._signInIfUidChangeSupported(account);
           }
 
           // email and uid are both registered, continue as normal
@@ -102,9 +101,9 @@ define(function (require, exports, module) {
         // relier did not specify a uid, there's a bit more flexibility.
         // If the email no longer exists, sign up the user.
         return this.user.checkAccountEmailExists(account)
-          .then(function (emailExists) {
+          .then((emailExists) => {
             if (! emailExists) {
-              return self._navigateToForceSignUp(account);
+              return this._navigateToForceSignUp(account);
             }
           });
       }

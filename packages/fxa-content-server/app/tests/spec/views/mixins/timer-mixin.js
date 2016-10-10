@@ -39,11 +39,8 @@ define(function (require, exports, module) {
 
       it('calls a function in the context of the view', function (done) {
         view.setTimeout(function () {
-          // capture `this` here because wrapAssertion will call
-          // the test function in the global context.
-          var self = this;
-          TestHelpers.wrapAssertion(function () {
-            assert.equal(self, view);
+          TestHelpers.wrapAssertion(() => {
+            assert.strictEqual(this, view);
           }, done);
         }, 1);
       });

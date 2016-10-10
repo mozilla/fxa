@@ -46,12 +46,11 @@ define(function (require, exports, module) {
       // If unavailable there, fetch from localStorage.
       // If not in localStorage either, create a new uniqueUserId.
 
-      var self = this;
-      var storage = Storage.factory('localStorage', self.window);
+      var storage = Storage.factory('localStorage', this.window);
 
-      self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
+      this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
 
-      var uniqueUserId = self.get('uniqueUserId');
+      var uniqueUserId = this.get('uniqueUserId');
       if (! uniqueUserId) {
         if (storage.get('uuid')) {
           // stomlinson on 2015-07-08:
@@ -67,7 +66,7 @@ define(function (require, exports, module) {
         }
       }
 
-      self.set('uniqueUserId', uniqueUserId);
+      this.set('uniqueUserId', uniqueUserId);
       storage.set('uniqueUserId', uniqueUserId);
     },
 

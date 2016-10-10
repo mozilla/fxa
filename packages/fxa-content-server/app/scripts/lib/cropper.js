@@ -63,8 +63,6 @@ define(function (require, exports, module) {
   }
 
   Cropper.prototype._setupElements = function (container) {
-    var self = this;
-
     this.container = container;
     this.img = container.find('img');
     this.wrapper = container.find('.wrapper');
@@ -72,44 +70,45 @@ define(function (require, exports, module) {
 
     this.draggable = container.find('.drag-overlay');
     this.draggable.draggable({
-      drag: function (e, ui) {
-        var pos = self.getBoundedPosition(self.top + ui.position.top, self.left + ui.position.left);
-        self.img.css(pos);
+      drag: (e, ui) => {
+        var pos = this.getBoundedPosition(this.top + ui.position.top, this.left + ui.position.left);
+        this.img.css(pos);
       },
-      stop: function (e, ui) {
-        var pos = self.img.position();
-        self.updatePosition(pos);
+      stop: (e, ui) => {
+        var pos = this.img.position();
+        this.updatePosition(pos);
         ui.helper.css({ left: 0, top: 0 });
-        self.onTranslate();
+        this.onTranslate();
       }
     });
 
-    this.slider = container.find('[type=range]');
-    this.slider.on('input', function () {
-      self.zoom(parseInt(this.value, 10));
+    const $sliderEl = this.slider = container.find('[type=range]');
+
+    $sliderEl.on('input', () => {
+      this.zoom(parseInt($sliderEl.val(), 10));
     });
-    this.slider.on('change', function () {
-      self.onZoomRangeChange();
+    $sliderEl.on('change', () => {
+      this.onZoomRangeChange();
     });
-    this.scale = parseInt(this.slider.val() || 0, 10);
+    this.scale = parseInt($sliderEl.val() || 0, 10);
 
     this.rotator = container.find('.rotate');
-    this.rotator.on('click', function () {
-      var data = self.rotate(90);
-      self.setImageSrc(data, self._originalHeight, self._originalWidth);
-      self.onRotate();
+    this.rotator.on('click', () => {
+      var data = this.rotate(90);
+      this.setImageSrc(data, this._originalHeight, this._originalWidth);
+      this.onRotate();
     });
 
-    container.find('.zoom-out').on('click', function () {
-      self.zoom(self.scale - 10);
-      self.slider.val(self.scale);
-      self.onZoomOut();
+    container.find('.zoom-out').on('click', () => {
+      this.zoom(this.scale - 10);
+      $sliderEl.val(this.scale);
+      this.onZoomOut();
     });
 
-    container.find('.zoom-in').on('click', function () {
-      self.zoom(self.scale + 10);
-      self.slider.val(self.scale);
-      self.onZoomIn();
+    container.find('.zoom-in').on('click', () => {
+      this.zoom(this.scale + 10);
+      $sliderEl.val(this.scale);
+      this.onZoomIn();
     });
 
     // Cache some invariants

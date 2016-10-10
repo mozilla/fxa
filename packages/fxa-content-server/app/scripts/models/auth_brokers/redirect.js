@@ -61,21 +61,19 @@ define(function (require, exports, module) {
     persistVerificationData: function (account) {
       // If the user replaces the current tab with the verification url,
       // finish the OAuth flow.
-      var self = this;
-      return p().then(function () {
-        self.setOriginalTabMarker();
-        return proto.persistVerificationData.call(self, account);
+      return p().then(() => {
+        this.setOriginalTabMarker();
+        return proto.persistVerificationData.call(this, account);
       });
     },
 
     finishOAuthFlow: function (account, additionalResultData) {
-      var self = this;
-      return p().then(function () {
+      return p().then(() => {
         // There are no ill side effects if the Original Tab Marker is
         // cleared in the a tab other than the original. Always clear it just
         // to make sure the bases are covered.
-        self.clearOriginalTabMarker();
-        return proto.finishOAuthFlow.call(self, account, additionalResultData);
+        this.clearOriginalTabMarker();
+        return proto.finishOAuthFlow.call(this, account, additionalResultData);
       });
     },
 
@@ -85,14 +83,12 @@ define(function (require, exports, module) {
       //
       // The slight delay is to allow the functional tests time to bind
       // event handlers before the flow completes.
-      var self = this;
-
-      return proto.afterCompleteSignUp.call(self, account)
+      return proto.afterCompleteSignUp.call(this, account)
         .delay(100)
-        .then(function (behavior) {
-          if (self.isOriginalTab() || self.canVerificationRedirect()) {
-            return self.finishOAuthSignUpFlow(account)
-              .then(function () {
+        .then((behavior) => {
+          if (this.isOriginalTab() || this.canVerificationRedirect()) {
+            return this.finishOAuthSignUpFlow(account)
+              .then(() => {
                 return new HaltBehavior();
               });
           }
@@ -111,12 +107,11 @@ define(function (require, exports, module) {
     afterCompleteResetPassword: function (account) {
       // The user may have replaced the original tab with the verification
       // tab. If this is the case, send the OAuth result to the RP.
-      var self = this;
-      return proto.afterCompleteResetPassword.call(self, account)
-        .then(function (behavior) {
-          if (self.isOriginalTab()) {
-            return self.finishOAuthSignInFlow(account)
-              .then(function () {
+      return proto.afterCompleteResetPassword.call(this, account)
+        .then((behavior) => {
+          if (this.isOriginalTab()) {
+            return this.finishOAuthSignInFlow(account)
+              .then(() => {
                 return new HaltBehavior();
               });
           }

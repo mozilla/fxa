@@ -24,11 +24,9 @@ define(function (require, exports, module) {
       }
 
       var win = this.window || window;
-      var self = this;
-
-      var timeout = win.setTimeout(function () {
-        self.clearTimeout(timeout);
-        callback.call(self);
+      var timeout = win.setTimeout(() => {
+        this.clearTimeout(timeout);
+        callback.call(this);
       }, timeoutMS);
 
       this._timeouts.push(timeout);

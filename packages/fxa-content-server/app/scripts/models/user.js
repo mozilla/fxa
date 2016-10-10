@@ -25,8 +25,7 @@ define(function (require, exports, module) {
   const VerificationReasons = require('lib/verification-reasons');
 
   var User = Backbone.Model.extend({
-    initialize: function (options) {
-      options = options || {};
+    initialize: function (options = {}) {
       this._oAuthClientId = options.oAuthClientId;
       this._oAuthClient = options.oAuthClient;
       this._profileClient = options.profileClient;
@@ -65,12 +64,9 @@ define(function (require, exports, module) {
 
     // Hydrate the model. Returns a promise.
     fetch: function () {
-      var self = this;
-
-      return p()
-        .then(function () {
-          self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
-        });
+      return p().then(() => {
+        this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
+      });
     },
 
     _accounts: function () {
@@ -174,13 +170,11 @@ define(function (require, exports, module) {
     // Defaults to the last logged in account unless a desktop session
     // has been stored.
     getChooserAccount: function () {
-      var self = this;
+      var account = _.find(this._accounts(), (account) => {
+        return this.isSyncAccount(account);
+      }) || this.getSignedInAccount();
 
-      var account = _.find(self._accounts(), function (account) {
-        return self.isSyncAccount(account);
-      }) || self.getSignedInAccount();
-
-      return self.initAccount(account);
+      return this.initAccount(account);
     },
 
     // Used to clear the current account, but keeps the account details
@@ -226,13 +220,12 @@ define(function (require, exports, module) {
      * @return {Promise} - resolves when complete
      */
     deleteAccount: function (accountData, password) {
-      var self = this;
-      var account = self.initAccount(accountData);
+      var account = this.initAccount(accountData);
 
       return account.destroy(password)
-        .then(function () {
-          self.removeAccount(account);
-          self._notifier.triggerAll(self._notifier.COMMANDS.DELETE, {
+        .then(() => {
+          this.removeAccount(account);
+          this._notifier.triggerAll(this._notifier.COMMANDS.DELETE, {
             uid: account.get('uid')
           });
         });
@@ -240,26 +233,23 @@ define(function (require, exports, module) {
 
     // Stores a new account and sets it as the current account.
     setSignedInAccount: function (accountData) {
-      var self = this;
-
-      var account = self.initAccount(accountData);
+      var account = this.initAccount(accountData);
       account.set('lastLogin', Date.now());
 
-      return self.setAccount(account)
-        .then(function (account) {
-          self._cachedSignedInAccount = account;
-          self._setSignedInAccountUid(account.get('uid'));
+      return this.setAccount(account)
+        .then((account) => {
+          this._cachedSignedInAccount = account;
+          this._setSignedInAccountUid(account.get('uid'));
           return account;
         });
     },
 
     // Hydrate the account then persist it
     setAccount: function (accountData) {
-      var self = this;
-      var account = self.initAccount(accountData);
+      var account = this.initAccount(accountData);
       return account.fetch()
-        .then(function () {
-          self._persistAccount(account);
+        .then(() => {
+          this._persistAccount(account);
           return account;
         });
     },
@@ -268,51 +258,48 @@ define(function (require, exports, module) {
     // user logged in to FxA with, and the account they logged in to
     // Sync with. If they are different accounts, we'll save both accounts.
     upgradeFromSession: function (Session, fxaClient) {
-      var self = this;
+      return p().then(() => {
+        if (! this.getSignedInAccount().isDefault()) {
+          // We've already upgraded the session
+          return;
+        }
 
-      return p()
-        .then(function () {
-          if (! self.getSignedInAccount().isDefault()) {
-            // We've already upgraded the session
-            return;
-          }
+        var promise = p();
 
-          var promise = p();
+        // add cached Sync account credentials if available
+        if (Session.cachedCredentials) {
+          promise = this.setSignedInAccount({
+            email: Session.cachedCredentials.email,
+            sessionToken: Session.cachedCredentials.sessionToken,
+            sessionTokenContext: Session.cachedCredentials.sessionTokenContext,
+            uid: Session.cachedCredentials.uid
+          });
+          Session.clear('cachedCredentials');
+        }
 
-          // add cached Sync account credentials if available
-          if (Session.cachedCredentials) {
-            promise = self.setSignedInAccount({
-              email: Session.cachedCredentials.email,
-              sessionToken: Session.cachedCredentials.sessionToken,
-              sessionTokenContext: Session.cachedCredentials.sessionTokenContext,
-              uid: Session.cachedCredentials.uid
-            });
-            Session.clear('cachedCredentials');
-          }
+        if (this._shouldAddOldSessionAccount(Session)) {
+          promise = promise
+            // The uid was not persisted in localStorage so get it from the auth server
+            .then(_.bind(fxaClient.sessionStatus, fxaClient, Session.sessionToken))
+            .then((result) => {
+              return this.setSignedInAccount({
+                email: Session.email,
+                sessionToken: Session.sessionToken,
+                sessionTokenContext: Session.sessionTokenContext,
+                uid: result.uid
+              })
+              .then(() => {
+                Session.clear('email');
+                Session.clear('sessionToken');
+                Session.clear('sessionTokenContext');
+              });
+            }, function () {
+              // if there's an error, just ignore the account
+            }); /* HACK: See eslint/eslint#1801 */ // eslint-disable-line indent
+        }
 
-          if (self._shouldAddOldSessionAccount(Session)) {
-            promise = promise
-              // The uid was not persisted in localStorage so get it from the auth server
-              .then(_.bind(fxaClient.sessionStatus, fxaClient, Session.sessionToken))
-              .then(function (result) {
-                return self.setSignedInAccount({
-                  email: Session.email,
-                  sessionToken: Session.sessionToken,
-                  sessionTokenContext: Session.sessionTokenContext,
-                  uid: result.uid
-                })
-                .then(function () {
-                  Session.clear('email');
-                  Session.clear('sessionToken');
-                  Session.clear('sessionTokenContext');
-                });
-              }, function () {
-                // if there's an error, just ignore the account
-              }); /* HACK: See eslint/eslint#1801 */ // eslint-disable-line indent
-          }
-
-          return promise;
-        });
+        return promise;
+      });
     },
 
     // Before a13f05f2 (18 Dec 2014), all kinds of extra
@@ -322,15 +309,14 @@ define(function (require, exports, module) {
     // set on an account, unexpected fields cause an error.
     // Update any accounts with unexpected data.
     upgradeFromUnfilteredAccountData: function () {
-      var self = this;
-      return p().then(function () {
-        var accountData = self._accounts();
+      return p().then(() => {
+        var accountData = this._accounts();
         for (var userid in accountData) {
           var unfiltered = accountData[userid];
           var filtered = _.pick(unfiltered, Account.ALLOWED_KEYS);
 
           if (! _.isEqual(unfiltered, filtered)) {
-            self._persistAccount(filtered);
+            this._persistAccount(filtered);
           }
         }
       });
@@ -355,9 +341,8 @@ define(function (require, exports, module) {
      * @returns {Promise} - resolves when complete
      */
     signInAccount: function (account, password, relier, options) {
-      var self = this;
       return account.signIn(password, relier, options)
-        .then(function () {
+        .then(() => {
           const isSignUp =
             account.get('verificationReason') === VerificationReasons.SIGN_UP;
           const emailSent = !! account.get('emailSent');
@@ -370,11 +355,11 @@ define(function (require, exports, module) {
             return account.retrySignUp(relier, options);
           }
         })
-        .then(function () {
+        .then(() => {
           // If there's an account with the same uid in localStorage we merge
           // its attributes with the new account instance to retain state
           // used across sign-ins, such as granted permissions.
-          var oldAccount = self.getAccountByUid(account.get('uid'));
+          var oldAccount = this.getAccountByUid(account.get('uid'));
           if (! oldAccount.isDefault()) {
             // allow new account attributes to override old ones
             oldAccount.set(_.omit(account.attributes, function (val) {
@@ -383,8 +368,8 @@ define(function (require, exports, module) {
             account = oldAccount;
           }
 
-          self._notifyOfAccountSignIn(account);
-          return self.setSignedInAccount(account);
+          this._notifyOfAccountSignIn(account);
+          return this.setSignedInAccount(account);
         });
     },
 
@@ -398,22 +383,17 @@ define(function (require, exports, module) {
      * @returns {Promise} - resolves when complete
      */
     signUpAccount: function (account, password, relier, options) {
-      var self = this;
       return account.signUp(password, relier, options)
-        .then(function () {
-          return self.setSignedInAccount(account);
-        });
+        .then(() => this.setSignedInAccount(account));
     },
 
     signOutAccount: function (account) {
-      var self = this;
-
       return account.signOut()
-        .fin(function () {
+        .fin(() => {
           // Clear the session, even on failure. Everything is A-OK.
           // See issue #616
-          if (self.isSignedInAccount(account)) {
-            self.clearSignedInAccount();
+          if (this.isSignedInAccount(account)) {
+            this.clearSignedInAccount();
           }
         });
     },
@@ -430,16 +410,14 @@ define(function (require, exports, module) {
      * @returns {Promise} - resolves with the account when complete
      */
     completeAccountSignUp: function (account, code, options) {
-      var self = this;
-
       // The original tab may no longer be open to notify other
       // windows the user is signed in. If the account has a `sessionToken`,
       // the user verified in the same browser. Notify any tabs that care.
-      function notifyIfSignedIn(account) {
+      const notifyIfSignedIn = (account) => {
         if (account.has('sessionToken')) {
-          self._notifyOfAccountSignIn(account);
+          this._notifyOfAccountSignIn(account);
         }
-      }
+      };
 
       return account.verifySignUp(code, options)
         .fail(function (err) {
@@ -517,11 +495,10 @@ define(function (require, exports, module) {
      * @returns {Promise} - resolves when complete
      */
     completeAccountPasswordReset: function (account, password, token, code, relier) {
-      var self = this;
       return account.completePasswordReset(password, token, code, relier)
-        .then(function () {
-          self._notifyOfAccountSignIn(account);
-          return self.setSignedInAccount(account);
+        .then(() => {
+          this._notifyOfAccountSignIn(account);
+          return this.setSignedInAccount(account);
         });
     },
 
@@ -572,11 +549,10 @@ define(function (require, exports, module) {
      * @returns {Promise} resolves when the action completes
      */
     destroyAccountDevice: function (account, device) {
-      var self = this;
       return account.destroyDevice(device)
-        .then(function () {
-          if (self.isSignedInAccount(account) && device.get('isCurrentDevice')) {
-            self.clearSignedInAccount();
+        .then(() => {
+          if (this.isSignedInAccount(account) && device.get('isCurrentDevice')) {
+            this.clearSignedInAccount();
           }
         });
     },
@@ -600,11 +576,10 @@ define(function (require, exports, module) {
      * @returns {Promise} resolves to `true` if an account exists, `false` otw.
      */
     checkAccountUidExists: function (account) {
-      var self = this;
       return account.checkUidExists()
-        .then(function (exists) {
+        .then((exists) => {
           if (! exists) {
-            self.removeAccount(account);
+            this.removeAccount(account);
           }
           return exists;
         });
@@ -618,11 +593,10 @@ define(function (require, exports, module) {
      * @returns {Promise} resolves to `true` if an account exists, `false` otw.
      */
     checkAccountEmailExists: function (account) {
-      var self = this;
       return account.checkEmailExists()
-        .then(function (exists) {
+        .then((exists) => {
           if (! exists) {
-            self.removeAccount(account);
+            this.removeAccount(account);
           }
           return exists;
         });

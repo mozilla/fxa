@@ -42,31 +42,27 @@ define(function (require, exports, module) {
     },
 
     initialize: function (options) {
-      var self = this;
-
-      self.exportLength = options.exportLength || EXPORT_LENGTH;
-      self.displayLength = options.displayLength || DISPLAY_LENGTH;
-      self.streaming = false;
+      this.exportLength = options.exportLength || EXPORT_LENGTH;
+      this.displayLength = options.displayLength || DISPLAY_LENGTH;
+      this.streaming = false;
 
 
-      if (self.broker.isAutomatedBrowser()) {
+      if (this.broker.isAutomatedBrowser()) {
         var ARTIFICIAL_DELAY = new Duration('3s').milliseconds();
         // mock some things out for automated browser testing
-        self.streaming = true;
-        self.startStream = function () {
-          self.enableSubmitIfValid();
+        this.streaming = true;
+        this.startStream = function () {
+          this.enableSubmitIfValid();
         };
-        self.stream = {
+        this.stream = {
           stop: function () {}
         };
 
-        self.window.setTimeout(_.bind(self.onLoadedMetaData, self), ARTIFICIAL_DELAY);
+        this.window.setTimeout(_.bind(this.onLoadedMetaData, this), ARTIFICIAL_DELAY);
       }
     },
 
     startStream: function () {
-      var self = this;
-
       var constraints = {
         audio: false,
         video: true
@@ -74,14 +70,14 @@ define(function (require, exports, module) {
 
       // navigator.mediaDevices is polyfilled by WebRTC for older browsers.
       return this.window.navigator.mediaDevices.getUserMedia(constraints)
-        .then(function (stream) {
-          self.stream = stream;
-          WebRTC.attachMediaStream(self.video, stream);
-          self.video.play();
+        .then((stream) => {
+          this.stream = stream;
+          WebRTC.attachMediaStream(this.video, stream);
+          this.video.play();
         },
-        function () {
-          self._avatarProgressIndicator.done();
-          self.displayError(AuthErrors.toError('NO_CAMERA'));
+        () => {
+          this._avatarProgressIndicator.done();
+          this.displayError(AuthErrors.toError('NO_CAMERA'));
         }
       );
     },
@@ -177,19 +173,18 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
-      self.logAccountImageChange(account);
+      var account = this.getSignedInAccount();
+      this.logAccountImageChange(account);
 
-      return self.takePicture()
-        .then(function (data) {
+      return this.takePicture()
+        .then((data) => {
           return account.uploadAvatar(data);
         })
-        .then(function (result) {
-          self.stopAndDestroyStream();
+        .then((result) => {
+          this.stopAndDestroyStream();
 
-          self.updateProfileImage(new ProfileImage(result), account);
-          self.navigate('settings');
+          this.updateProfileImage(new ProfileImage(result), account);
+          this.navigate('settings');
           return result;
         });
     },

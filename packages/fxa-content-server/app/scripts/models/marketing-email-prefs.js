@@ -27,33 +27,28 @@ define(function (require, exports, module) {
     initialize: function (options) {
       options = options || {};
 
-      var self = this;
-      self._marketingEmailClient = options.marketingEmailClient;
-      self._account = options.account;
+      this._marketingEmailClient = options.marketingEmailClient;
+      this._account = options.account;
     },
 
     _withMarketingEmailClient: function (method) {
-      var self = this;
-      var client = self._marketingEmailClient;
+      var client = this._marketingEmailClient;
       var args = [].slice.call(arguments, 1);
-      return p()
-        .then(function () {
-          return self._account.createOAuthToken(SCOPES);
-        })
-        .then(function (accessToken) {
-          self._accessToken = accessToken;
+      return p().then(() => this._account.createOAuthToken(SCOPES))
+        .then((accessToken) => {
+          this._accessToken = accessToken;
           args.unshift(accessToken.get('token'));
           return client[method].apply(client, args);
         })
-        .fin(function () {
+        .fin(() => {
           // immediately destroy the access token when complete
           // so they are not left in the DB. If the user needs
           // to interact with the basket server again, a new
           // access token will be created.
-          if (self._accessToken) {
-            self._accessToken.destroy();
+          if (this._accessToken) {
+            this._accessToken.destroy();
           }
-          self._accessToken = null;
+          this._accessToken = null;
         });
     },
 
@@ -64,13 +59,12 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     fetch: function () {
-      var self = this;
-      return self._withMarketingEmailClient('fetch')
-        .then(function (response) {
+      return this._withMarketingEmailClient('fetch')
+        .then((response) => {
           if (response) {
             response.newsletters = response.newsletters || [];
             for (var key in response) {
-              self.set(key, response[key]);
+              this.set(key, response[key]);
             }
           }
         });
@@ -84,16 +78,15 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     optIn: function (newsletterId) {
-      var self = this;
-      if (self.isOptedIn(newsletterId)) {
+      if (this.isOptedIn(newsletterId)) {
         return p();
       }
 
-      return self._withMarketingEmailClient('optIn', newsletterId)
-        .then(function () {
-          var newsletters = self.get('newsletters');
+      return this._withMarketingEmailClient('optIn', newsletterId)
+        .then(() => {
+          var newsletters = this.get('newsletters');
           newsletters.push(newsletterId);
-          self.set('newsletters', newsletters);
+          this.set('newsletters', newsletters);
         });
     },
 
@@ -105,15 +98,14 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     optOut: function (newsletterId) {
-      var self = this;
-      if (! self.isOptedIn(newsletterId)) {
+      if (! this.isOptedIn(newsletterId)) {
         return p();
       }
 
-      return self._withMarketingEmailClient('optOut', newsletterId)
-        .then(function () {
-          var newsletters = _.without(self.get('newsletters'), newsletterId);
-          self.set('newsletters', newsletters);
+      return this._withMarketingEmailClient('optOut', newsletterId)
+        .then(() => {
+          var newsletters = _.without(this.get('newsletters'), newsletterId);
+          this.set('newsletters', newsletters);
         });
     },
 

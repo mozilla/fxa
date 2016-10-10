@@ -23,9 +23,8 @@ define(function (require, exports, module) {
     },
 
     send: function (command, data, messageId) {
-      var self = this;
-      return p().then(function () {
-        return self.dispatchCommand(command, data, messageId);
+      return p().then(() => {
+        return this.dispatchCommand(command, data, messageId);
       });
     },
 

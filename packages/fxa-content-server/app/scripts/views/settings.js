@@ -147,13 +147,10 @@ define(function (require, exports, module) {
     },
 
     beforeRender: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
+      var account = this.getSignedInAccount();
 
       return account.fetchProfile()
-        .then(function () {
-          self.user.setAccount(account);
-        });
+        .then(() => this.user.setAccount(account));
     },
 
     afterRender () {
@@ -199,12 +196,9 @@ define(function (require, exports, module) {
     },
 
     _showAvatar: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
-      return self.displayAccountProfileImage(account)
-        .then(function () {
-          self._setupAvatarChangeLinks();
-        });
+      var account = this.getSignedInAccount();
+      return this.displayAccountProfileImage(account)
+        .then(() => this._setupAvatarChangeLinks());
     },
 
     _areCommunicationPrefsVisible: function () {
@@ -214,38 +208,35 @@ define(function (require, exports, module) {
     },
 
     signOut: allowOnlyOneSubmit(function () {
-      var self = this;
-      var accountToSignOut = self.getSignedInAccount();
+      var accountToSignOut = this.getSignedInAccount();
 
-      self.logViewEvent('signout.submit');
-      return self.user.signOutAccount(accountToSignOut)
-        .fail(function () {
+      this.logViewEvent('signout.submit');
+      return this.user.signOutAccount(accountToSignOut)
+        .fail(() => {
           // log and ignore the error.
-          self.logViewEvent('signout.error');
+          this.logViewEvent('signout.error');
         })
-        .fin(function () {
-          self.logViewEvent('signout.success');
-          self.clearSessionAndNavigateToSignIn();
+        .fin(() => {
+          this.logViewEvent('signout.success');
+          this.clearSessionAndNavigateToSignIn();
         });
     }),
 
     SUCCESS_MESSAGE_DELAY_MS: new Duration('5s').milliseconds(),
 
     displaySuccess: function () {
-      var self = this;
-      self.clearTimeout(self._successTimeout);
-      self._successTimeout = self.setTimeout(function () {
-        self.hideSuccess();
-      }, self.SUCCESS_MESSAGE_DELAY_MS);
+      this.clearTimeout(this._successTimeout);
+      this._successTimeout = this.setTimeout(() => {
+        this.hideSuccess();
+      }, this.SUCCESS_MESSAGE_DELAY_MS);
       return BaseView.prototype.displaySuccess.apply(this, arguments);
     },
 
     displaySuccessUnsafe: function () {
-      var self = this;
-      self.clearTimeout(self._successTimeout);
-      self._successTimeout = self.setTimeout(function () {
-        self.hideSuccess();
-      }, self.SUCCESS_MESSAGE_DELAY_MS);
+      this.clearTimeout(this._successTimeout);
+      this._successTimeout = this.setTimeout(() => {
+        this.hideSuccess();
+      }, this.SUCCESS_MESSAGE_DELAY_MS);
       return BaseView.prototype.displaySuccessUnsafe.apply(this, arguments);
     }
   });

@@ -32,28 +32,27 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
-      var oldPassword = self.$('#old_password').val();
-      var newPassword = self.$('#new_password').val();
+      var account = this.getSignedInAccount();
+      var oldPassword = this.$('#old_password').val();
+      var newPassword = this.$('#new_password').val();
 
-      self.hideError();
+      this.hideError();
 
-      return self.user.changeAccountPassword(
+      return this.user.changeAccountPassword(
           account,
           oldPassword,
           newPassword,
-          self.relier
+          this.relier
         )
-        .then(function () {
-          self.logViewEvent('success');
-          return self.invokeBrokerMethod('afterChangePassword', account);
+        .then(() => {
+          this.logViewEvent('success');
+          return this.invokeBrokerMethod('afterChangePassword', account);
         })
-        .then(function () {
-          self.displaySuccess(t('Password changed successfully'));
-          self.navigate('settings');
+        .then(() => {
+          this.displaySuccess(t('Password changed successfully'));
+          this.navigate('settings');
 
-          return self.render();
+          return this.render();
         });
     }
 

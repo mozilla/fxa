@@ -164,7 +164,6 @@ define(function (require, exports, module) {
       // just sitting there open with no activity.
       this._clearInactivityFlushTimeout();
 
-      var self = this;
       var filteredData = this.getFilteredData();
 
       if (! this._isFlushRequired(filteredData)) {
@@ -172,10 +171,10 @@ define(function (require, exports, module) {
       }
 
       return this._send(filteredData, isPageUnloading)
-        .then(function (sent) {
+        .then((sent) => {
           if (sent) {
-            self._speedTrap.events.clear();
-            self._speedTrap.timers.clear();
+            this._speedTrap.events.clear();
+            this._speedTrap.timers.clear();
           }
 
           return sent;
@@ -194,11 +193,10 @@ define(function (require, exports, module) {
     _resetInactivityFlushTimeout: function () {
       this._clearInactivityFlushTimeout();
 
-      var self = this;
       this._inactivityFlushTimeout =
-          setTimeout(function () {
-            self.logEvent('inactivity.flush');
-            self.flush();
+          setTimeout(() => {
+            this.logEvent('inactivity.flush');
+            this.flush();
           }, this._inactivityFlushMs);
     },
 
@@ -261,7 +259,6 @@ define(function (require, exports, module) {
     },
 
     _send: function (data, isPageUnloading) {
-      var self = this;
       var url = this._collector + '/metrics';
       var payload = JSON.stringify(data);
 
@@ -270,8 +267,8 @@ define(function (require, exports, module) {
         //   1. it works asynchronously, even on unload.
         //   2. user agents SHOULD make "multiple attempts to transmit the
         //      data in presence of transient network or server errors".
-        return p().then(function () {
-          return self._window.navigator.sendBeacon(url, payload);
+        return p().then(() => {
+          return this._window.navigator.sendBeacon(url, payload);
         });
       }
 

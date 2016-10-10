@@ -43,28 +43,26 @@ define(function (require, exports, module) {
      * @param {String} progressEl
      */
     start: function (progressEl) {
-      var self = this;
-
-      self._count++;
-      if (self._count > 1) {
+      this._count++;
+      if (this._count > 1) {
         // Already visible or waiting to become visible. Get outta here.
         return;
       }
 
       // If we are waiting to remove the indicator, clear the timeout.
-      if (self._removeIndicatorTimeout) {
-        self.clearTimeout(self._removeIndicatorTimeout);
-        self._removeIndicatorTimeout = null;
+      if (this._removeIndicatorTimeout) {
+        this.clearTimeout(this._removeIndicatorTimeout);
+        this._removeIndicatorTimeout = null;
 
         // Indicator was waiting to be removed, making it already visible. No
         // need to create another.
         return;
       }
 
-      self._showIndicatorTimeout = setTimeout(function () {
-        self._showIndicatorTimeout = null;
+      this._showIndicatorTimeout = setTimeout(() => {
+        this._showIndicatorTimeout = null;
 
-        self.showIndicator(progressEl);
+        this.showIndicator(progressEl);
       }, SHOW_DELAY_MS);
     },
 
@@ -82,37 +80,35 @@ define(function (require, exports, module) {
      * @method done
      */
     done: function () {
-      var self = this;
-
-      if (! self._count) {
+      if (! this._count) {
         // Either already hidden or waiting to be hidden.
         // No need to hide the indicator again.
         return;
       }
 
-      self._count--;
+      this._count--;
 
-      if (self._count) {
+      if (this._count) {
         // More calls to `start` than calls to `done`. Get outta here.
         return;
       }
 
       // Indicator is waiting to be shown, no need to show it anymore.
       // Remove the timeout and ensure the indicator is nowhere to be found.
-      if (self._showIndicatorTimeout) {
-        self.clearTimeout(self._showIndicatorTimeout);
-        self._showIndicatorTimeout = null;
+      if (this._showIndicatorTimeout) {
+        this.clearTimeout(this._showIndicatorTimeout);
+        this._showIndicatorTimeout = null;
 
         // the spinner is not yet displayed, but #stage may not yet
         // be shown either. Ensure #stage is shown.
-        self.removeIndicator();
+        this.removeIndicator();
         return;
       }
 
-      self._removeIndicatorTimeout = self.setTimeout(function () {
-        self._removeIndicatorTimeout = null;
+      this._removeIndicatorTimeout = this.setTimeout(() => {
+        this._removeIndicatorTimeout = null;
 
-        self.removeIndicator();
+        this.removeIndicator();
       }, HIDE_DELAY_MS);
     },
 

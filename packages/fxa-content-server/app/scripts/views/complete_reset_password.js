@@ -95,9 +95,8 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var self = this;
       var verificationInfo = this._verificationInfo;
-      var password = self._getPassword();
+      var password = this._getPassword();
       var token = verificationInfo.get('token');
       var code = verificationInfo.get('code');
 
@@ -110,38 +109,38 @@ define(function (require, exports, module) {
       // it will fetch the sessionToken from localStorage and go to town.
       var account = this.getAccount();
 
-      return self.user.completeAccountPasswordReset(
+      return this.user.completeAccountPasswordReset(
           account,
           password,
           token,
           code,
-          self.relier
+          this.relier
         )
-        .then(function (updatedAccount) {
+        .then((updatedAccount) => {
           // The password was reset, future attempts should ask confirmation.
-          self.relier.set('resetPasswordConfirm', true);
+          this.relier.set('resetPasswordConfirm', true);
           // See the above note about notifying the original tab.
-          self.logViewEvent('verification.success');
-          return self.invokeBrokerMethod(
+          this.logViewEvent('verification.success');
+          return this.invokeBrokerMethod(
                     'afterCompleteResetPassword', updatedAccount);
         })
-        .then(function () {
+        .then(() => {
           // the user is definitively signed in here, otherwise this
           // path would not be taken.
-          if (self.relier.isDirectAccess()) {
-            self.navigate('settings', {
+          if (this.relier.isDirectAccess()) {
+            this.navigate('settings', {
               success: t('Account verified successfully')
             });
           } else {
-            self.navigate('reset_password_complete');
+            this.navigate('reset_password_complete');
           }
         })
-        .then(null, function (err) {
+        .fail((err) => {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-            self.logError(err);
+            this.logError(err);
             // The token has expired since the first check, re-render to
             // show a view that allows the user to receive a new link.
-            return self.render();
+            return this.render();
           }
 
           // all other errors are unexpected, bail.

@@ -59,30 +59,25 @@ define(function (require, exports, module) {
     },
 
     afterCompleteResetPassword: function (account) {
-      var self = this;
       // See the note in afterResetPasswordConfirmationPoll
-      return self._notifyRelierOfLogin(account)
-        .then(function () {
-          return proto.afterCompleteResetPassword.call(self, account);
-        });
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterCompleteResetPassword.call(this, account));
     },
 
     fetch: function () {
-      var self = this;
-      return proto.fetch.call(self)
-        .then(function () {
-          if (! self.environment.isAboutAccounts()) {
-            // The default behavior of FxDesktop brokers is to halt before
-            // the signup confirmation poll because about:accounts takes care
-            // of polling and updating the UI. However if we are not in about:accounts
-            // we do not want the halting behavior.
-            self._behaviors.keys().forEach(function (behaviorName) {
-              if (self.getBehavior(behaviorName).type === 'halt') {
-                self.setBehavior(behaviorName, new NullBehavior());
-              }
-            });
-          }
-        });
+      return proto.fetch.call(this).then(() => {
+        if (! this.environment.isAboutAccounts()) {
+          // The default behavior of FxDesktop brokers is to halt before
+          // the signup confirmation poll because about:accounts takes care
+          // of polling and updating the UI. However if we are not in about:accounts
+          // we do not want the halting behavior.
+          this._behaviors.keys().forEach((behaviorName) => {
+            if (this.getBehavior(behaviorName).type === 'halt') {
+              this.setBehavior(behaviorName, new NullBehavior());
+            }
+          });
+        }
+      });
     }
   });
 

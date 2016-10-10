@@ -106,11 +106,9 @@ define(function (require, exports, module) {
      *        Promise will resolve whenever message is sent.
      */
     send: function (command, data) {
-      var self = this;
-      return p()
-        .then(function () {
-          return self._sender.send(command, data, null);
-        });
+      return p().then(() => {
+        return this._sender.send(command, data, null);
+      });
     },
 
     /**
@@ -122,8 +120,6 @@ define(function (require, exports, module) {
      *        Promise will resolve when the response is received.
      */
     request: function (command, data) {
-      var self = this;
-
       var messageId = this.createMessageId(command, data);
       var outstanding = {
         command: command,
@@ -133,21 +129,18 @@ define(function (require, exports, module) {
       };
 
       // save the data beforehand in case the response is synchronous.
-      self._outstandingRequests.add(messageId, outstanding);
+      this._outstandingRequests.add(messageId, outstanding);
 
-      return p()
-        .then(function () {
-          return self._sender.send(command, data, messageId);
-        })
-        .then(function () {
-          return outstanding.deferred.promise;
-        })
-        .fail(function (err) {
-          // The request is no longer considered outstanding if
-          // there was a problem sending.
-          self._outstandingRequests.remove(messageId);
-          throw err;
-        });
+      return p().then(() => {
+        return this._sender.send(command, data, messageId);
+      })
+      .then(() => outstanding.deferred.promise)
+      .fail((err) => {
+        // The request is no longer considered outstanding if
+        // there was a problem sending.
+        this._outstandingRequests.remove(messageId);
+        throw err;
+      });
     },
 
     /**
@@ -165,23 +158,22 @@ define(function (require, exports, module) {
     },
 
     onMessageReceived: function (message) {
-      var self = this;
-      var parsedMessage = self.parseMessage(message);
+      var parsedMessage = this.parseMessage(message);
       var data = parsedMessage.data;
       var messageId = parsedMessage.messageId;
 
       // A message is not necessarily in response to a sent request.
       // If the message is in response to a request, then it should
       // have a messageId.
-      var outstanding = self._outstandingRequests.get(messageId);
+      var outstanding = this._outstandingRequests.get(messageId);
       if (outstanding) {
-        self._outstandingRequests.remove(messageId);
+        this._outstandingRequests.remove(messageId);
         outstanding.deferred.resolve(data);
       }
 
       // Even if the message is not in response to a request, trigger an
       // event for any listeners that are waiting for it.
-      self.trigger(parsedMessage.command, data);
+      this.trigger(parsedMessage.command, data);
     },
 
     /**

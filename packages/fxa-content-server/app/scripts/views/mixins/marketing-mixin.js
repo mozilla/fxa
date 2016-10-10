@@ -18,8 +18,7 @@ define(function (require, exports, module) {
     },
 
     afterRender: function () {
-      var self = this;
-      self.$('.marketing-link').each(function (index, element) {
+      this.$('.marketing-link').each((index, element) => {
         element = $(element);
 
         // all links must open in a new tab or else their clicks
@@ -31,7 +30,7 @@ define(function (require, exports, module) {
         var id = element.attr('data-marketing-id');
         var url = element.attr('href');
 
-        self.metrics.logMarketingImpression(id, url);
+        this.metrics.logMarketingImpression(id, url);
       });
     },
 

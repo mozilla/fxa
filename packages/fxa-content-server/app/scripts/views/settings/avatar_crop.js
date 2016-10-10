@@ -99,18 +99,17 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
+      var account = this.getSignedInAccount();
 
-      self.logAccountImageChange(account);
+      this.logAccountImageChange(account);
 
-      return self.toBlob()
-        .then(function (data) {
+      return this.toBlob()
+        .then((data) => {
           return account.uploadAvatar(data);
         })
-        .then(function (result) {
-          self.updateProfileImage(new ProfileImage(result), account);
-          self.navigate('settings');
+        .then((result) => {
+          this.updateProfileImage(new ProfileImage(result), account);
+          this.navigate('settings');
           return result;
         });
     },

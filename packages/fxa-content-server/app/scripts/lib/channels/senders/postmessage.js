@@ -38,10 +38,9 @@ define(function (require, exports, module) {
     },
 
     send: function (command, data, messageId) {
-      var self = this;
-      return p().then(function () {
+      return p().then(() => {
         var event = stringify(command, data, messageId);
-        self._window.postMessage(event, self._origin);
+        this._window.postMessage(event, this._origin);
       });
     },
 

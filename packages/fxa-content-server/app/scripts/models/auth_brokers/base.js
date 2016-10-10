@@ -89,12 +89,10 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     fetch: function () {
-      var self = this;
-      return p()
-        .then(function () {
-          self._isForceAuth = self._isForceAuthUrl();
-          self.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
-        });
+      return p().then(() => {
+        this._isForceAuth = this._isForceAuthUrl();
+        this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
+      });
     },
 
     /*
@@ -178,9 +176,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     persistVerificationData: function (account) {
-      var self = this;
-
-      return p().then(function () {
+      return p().then(() => {
         // verification info is persisted to localStorage so that
         // the same `context` is used if the user verifies in the same browser.
         // If the user verifies in a different browser, the
@@ -189,7 +185,7 @@ define(function (require, exports, module) {
               createSameBrowserVerificationModel(account, 'context');
 
         verificationInfo.set({
-          context: self.relier.get('context')
+          context: this.relier.get('context')
         });
 
         return verificationInfo.persist();
@@ -250,11 +246,8 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     afterCompleteSignUp: function (account) {
-      var self = this;
-      return self.unpersistVerificationData(account)
-        .then(function () {
-          return self.getBehavior('afterCompleteSignUp');
-        });
+      return this.unpersistVerificationData(account)
+        .then(() => this.getBehavior('afterCompleteSignUp'));
     },
 
     /**
@@ -276,11 +269,8 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     afterCompleteResetPassword: function (account) {
-      var self = this;
-      return self.unpersistVerificationData(account)
-        .then(function () {
-          return self.getBehavior('afterCompleteResetPassword');
-        });
+      return this.unpersistVerificationData(account)
+        .then(() => this.getBehavior('afterCompleteResetPassword'));
     },
 
     /**

@@ -20,17 +20,14 @@ define(function (require, exports, module) {
     },
 
     fetch: function () {
-      var self = this;
-      if (! self.has('url')) {
+      if (! this.has('url')) {
         return p();
       }
-      return ImageLoader.load(self.get('url'))
-        .then(function (img) {
-          self.set('img', img);
-        }, function () {
+      return ImageLoader.load(this.get('url'))
+        .then((img) => this.set('img', img), () => {
           var err = ProfileErrors.toError('IMAGE_LOAD_ERROR');
           // Set the context to the image's URL. This will be logged.
-          err.context = self.get('url');
+          err.context = this.get('url');
           return p.reject(err);
         });
     },

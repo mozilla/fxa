@@ -175,7 +175,6 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     validateAndSubmit: allowOnlyOneSubmit(function validateAndSubmit (event) {
-      var self = this;
       if (event) {
         event.stopImmediatePropagation();
       }
@@ -183,46 +182,45 @@ define(function (require, exports, module) {
       this.trigger('submitStart');
 
       return p()
-        .then(function () {
-          if (self.isHalted()) {
+        .then(() => {
+          if (this.isHalted()) {
             return;
           }
 
-          if (! self.isValid()) {
+          if (! this.isValid()) {
             // Validation error is surfaced for testing.
-            throw self.showValidationErrors();
+            throw this.showValidationErrors();
           }
 
           // the form enabled check is done after the validation check
           // so that the form's `submit` handler is triggered and validation
           // error tooltips are displayed, even if the form is disabled.
-          if (! self.isFormEnabled()) {
+          if (! this.isFormEnabled()) {
             // form is disabled, get outta here.
             return;
           }
 
           // all good, do the beforeSubmit, submit, and afterSubmit chain.
-          self.logViewEvent('submit');
-          return self._submitForm();
+          this.logViewEvent('submit');
+          return this._submitForm();
         });
     }),
 
     _submitForm: notifyDelayedRequest(showButtonProgressIndicator(function () {
-      var self = this;
       return p()
-          .then(_.bind(self.beforeSubmit, self))
-          .then(function (shouldSubmit) {
-            // submission is opt out, not opt in.
-            if (shouldSubmit !== false) {
-              return self.submit();
-            }
-          })
-          .then(null, function (err) {
-            // display error and surface for testing.
-            self.displayError(err);
-            throw err;
-          })
-          .then(_.bind(self.afterSubmit, self));
+        .then(_.bind(this.beforeSubmit, this))
+        .then((shouldSubmit) => {
+          // submission is opt out, not opt in.
+          if (shouldSubmit !== false) {
+            return this.submit();
+          }
+        })
+        .fail((err) => {
+          // display error and surface for testing.
+          this.displayError(err);
+          throw err;
+        })
+        .then(_.bind(this.afterSubmit, this));
     })),
 
     /**
@@ -361,11 +359,10 @@ define(function (require, exports, module) {
         message: message
       });
 
-      var self = this;
-      tooltip.on('destroyed', function () {
+      tooltip.on('destroyed', () => {
         invalidEl.removeClass('invalid');
-        self.trigger('validation_error_removed', el);
-      }).render().then(function () {
+        this.trigger('validation_error_removed', el);
+      }).render().then(() => {
         try {
           invalidEl.addClass('invalid').get(0).focus();
         } catch (e) {
@@ -373,7 +370,7 @@ define(function (require, exports, module) {
         }
 
         // used for testing
-        self.trigger('validation_error', el, message);
+        this.trigger('validation_error', el, message);
       });
 
       this.trackChildView(tooltip);
@@ -416,8 +413,7 @@ define(function (require, exports, module) {
      *   an asynchronous operation.
      */
     afterSubmit: function (result) {
-      var self = this;
-      return p().then(function () {
+      return p().then(() => {
         // the flow may be halted by an authentication broker after form
         // submission. Views may display an error without throwing an exception.
         // Ensure the flow is not halted and and no errors are visible before
@@ -425,9 +421,9 @@ define(function (require, exports, module) {
         // be re-enabled.
 
         if (result && result.halt) {
-          self.halt();
-        } else if (! self.isErrorVisible()) {
-          self.enableForm();
+          this.halt();
+        } else if (! this.isErrorVisible()) {
+          this.enableForm();
         }
 
         return result;

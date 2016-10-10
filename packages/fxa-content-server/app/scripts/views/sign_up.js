@@ -65,43 +65,39 @@ define(function (require, exports, module) {
     },
 
     _createCoppaView: function () {
-      var self = this;
-
-      if (self._coppa) {
+      if (this._coppa) {
         return p();
       }
 
       var autofocusEl = this._selectAutoFocusEl();
       var coppaOptions = {
-        el: self.$('#coppa'),
-        formPrefill: self._formPrefill,
-        metrics: self.metrics,
+        el: this.$('#coppa'),
+        formPrefill: this._formPrefill,
+        metrics: this.metrics,
         shouldFocus: autofocusEl === null,
-        viewName: self.getViewName()
+        viewName: this.getViewName()
       };
 
       var coppaView = new CoppaAgeInput(coppaOptions);
 
       return coppaView.render()
-        .then(function () {
-          self.trackChildView(coppaView);
-          coppaView.on('submit', self.validateAndSubmit.bind(self));
+        .then(() => {
+          this.trackChildView(coppaView);
+          coppaView.on('submit', this.validateAndSubmit.bind(this));
 
-          self._coppa = coppaView;
+          this._coppa = coppaView;
         });
     },
 
     afterRender: function () {
-      var self = this;
+      this.logViewEvent('email-optin.visible.' +
+          String(this._isEmailOptInEnabled()));
 
-      self.logViewEvent('email-optin.visible.' +
-          String(self._isEmailOptInEnabled()));
+      return this._createCoppaView()
+        .then(() => {
+          this.transformLinks();
 
-      return self._createCoppaView()
-        .then(function () {
-          self.transformLinks();
-
-          return FormView.prototype.afterRender.call(self);
+          return FormView.prototype.afterRender.call(this);
         });
     },
 
@@ -211,7 +207,6 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var self = this;
       this.notifier.trigger('signup.submit');
       /**
        * The semi-convoluted flow:
@@ -229,32 +224,31 @@ define(function (require, exports, module) {
        *       1b3a. If not filled in, tell user to fill in age.
        *       1b3b. If too young, go to the too young screen.
        */
-      return p()
-        .then(function () {
-          var account = self._initAccount();
-          var password = self.getElementValue('.password');
+      return p().then(() => {
+        var account = this._initAccount();
+        var password = this.getElementValue('.password');
 
-          if (self._isUserOldEnough()) {
-            // User filled out COPPA, attempt a signup.
-            // If user already exists, they will be signed in.
-            return self._signUp(account, password);
-          }
+        if (this._isUserOldEnough()) {
+          // User filled out COPPA, attempt a signup.
+          // If user already exists, they will be signed in.
+          return this._signUp(account, password);
+        }
 
-          // COPPA is not valid, but maybe this is an existing user
-          // that wants to sign in. Let them try to sign in then, if
-          // that fails, show a COPPA error.
-          // https://github.com/mozilla/fxa-content-server/issues/2778
-          return self._signIn(account, password);
-        })
-        .fail(function (err) {
-          if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-            self.logEvent('login.canceled');
-            // if user canceled login, just stop
-            return;
-          }
+        // COPPA is not valid, but maybe this is an existing user
+        // that wants to sign in. Let them try to sign in then, if
+        // that fails, show a COPPA error.
+        // https://github.com/mozilla/fxa-content-server/issues/2778
+        return this._signIn(account, password);
+      })
+      .fail((err) => {
+        if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+          this.logEvent('login.canceled');
+          // if user canceled login, just stop
+          return;
+        }
 
-          throw err;
-        });
+        throw err;
+      });
     },
 
     _signUp: function (account, password) {
@@ -348,21 +342,19 @@ define(function (require, exports, module) {
     },
 
     _initAccount: function () {
-      var self = this;
-
-      var account = self.user.initAccount({
-        customizeSync: self.$('.customize-sync').is(':checked'),
-        email: self.getElementValue('.email'),
-        needsOptedInToMarketingEmail: self.$('.marketing-email-optin').is(':checked')
+      var account = this.user.initAccount({
+        customizeSync: this.$('.customize-sync').is(':checked'),
+        email: this.getElementValue('.email'),
+        needsOptedInToMarketingEmail: this.$('.marketing-email-optin').is(':checked')
       });
 
-      if (self.relier.has('preVerifyToken')) {
-        self.logViewEvent('preverified');
+      if (this.relier.has('preVerifyToken')) {
+        this.logViewEvent('preverified');
       }
 
-      if (self.relier.isSync()) {
+      if (this.relier.isSync()) {
         var customizeSync = account.get('customizeSync');
-        self.logViewEvent('customizeSync.' + String(customizeSync));
+        this.logViewEvent('customizeSync.' + String(customizeSync));
       }
 
       return account;

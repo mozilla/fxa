@@ -28,20 +28,18 @@ define(function (require, exports, module) {
     _delayMS: 50,
 
     start: function () {
-      var self = this;
-
-      if (self._observer) {
+      if (this._observer) {
         throw new Error('Already started');
       }
 
       // For more info, see
       // https://developer.mozilla.org/docs/Web/API/MutationObserver
-      var MutationObserver = self._window.MutationObserver;
+      var MutationObserver = this._window.MutationObserver;
       if (MutationObserver) {
-        var onMutation = _.debounce(self._onMutation.bind(self), self._delayMS);
-        self._observer = new MutationObserver(onMutation);
+        var onMutation = _.debounce(this._onMutation.bind(this), this._delayMS);
+        this._observer = new MutationObserver(onMutation);
 
-        self._observer.observe(self._targetEl, {
+        this._observer.observe(this._targetEl, {
           attributeFilter: ['class', 'style'],
           attributes: true,
           characterData: true,
@@ -50,21 +48,20 @@ define(function (require, exports, module) {
         });
 
         // trigger the initial notification
-        self._onMutation();
+        this._onMutation();
       }
     },
 
     _lastHeight: -Infinity,
     _onMutation: function () {
-      var self = this;
-      var currentHeight = self._targetEl.clientHeight;
+      var currentHeight = this._targetEl.clientHeight;
       // An element's clientHeight can be misreported on some versions of
       // Fennec - see https://bugzilla.mozilla.org/show_bug.cgi?id=1071620
       // don't make any update unless the clientHeight is actually a number.
       if (typeof currentHeight === 'number' &&
-          currentHeight !== self._lastHeight) {
-        self.trigger('change', currentHeight);
-        self._lastHeight = currentHeight;
+          currentHeight !== this._lastHeight) {
+        this.trigger('change', currentHeight);
+        this._lastHeight = currentHeight;
       }
     },
 

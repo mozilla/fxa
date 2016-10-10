@@ -52,13 +52,10 @@ define(function (require, exports, module) {
      * @returns {Promise} - resolves when complete
      */
     sendAccountResetEmail: function () {
-      var self = this;
-      var account = self._resetAccount;
-
-      return self.resetPassword(account.get('email'))
-        .fail(function (err) {
-          self._session.clear('oauth');
-          self.displayError(err);
+      return this.resetPassword(this._resetAccount.get('email'))
+        .fail((err) => {
+          this._session.clear('oauth');
+          this.displayError(err);
         });
     }
   };

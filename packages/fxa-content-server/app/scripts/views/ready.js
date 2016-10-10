@@ -101,9 +101,8 @@ define(function (require, exports, module) {
     },
 
     _submitForProceed: function () {
-      var self = this;
-      return this.metrics.flush().then(function () {
-        self.window.location.href = self.relier.get('redirectUri');
+      return this.metrics.flush().then(() => {
+        this.window.location.href = this.relier.get('redirectUri');
       });
     },
 
@@ -116,10 +115,9 @@ define(function (require, exports, module) {
     },
 
     _submitForSyncPreferences: function () {
-      var self = this;
-      return this.metrics.flush().then(function () {
-        var entryPoint = 'fxa:' + self.getViewName();
-        return self.broker.openSyncPreferences(entryPoint);
+      return this.metrics.flush().then(() => {
+        var entryPoint = 'fxa:' + this.getViewName();
+        return this.broker.openSyncPreferences(entryPoint);
       });
     },
 

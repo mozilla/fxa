@@ -27,21 +27,20 @@ define(function (require, exports, module) {
     },
 
     showChildView: function (ChildView, options) {
-      var self = this;
-      if (self._panelViews.indexOf(ChildView) === -1) {
-        self._logger.warn('Tried to show a view that is not a subpanel');
+      if (this._panelViews.indexOf(ChildView) === -1) {
+        this._logger.warn('Tried to show a view that is not a subpanel');
         return p(null);
       }
 
       // Destroy any previous modal view
-      if (self._currentChildView && self._currentChildView.isModal) {
-        self._currentChildView.closePanel();
+      if (this._currentChildView && this._currentChildView.isModal) {
+        this._currentChildView.closePanel();
       }
 
-      return self._createChildViewIfNeeded(ChildView, options)
-        .then(function (childView) {
+      return this._createChildViewIfNeeded(ChildView, options)
+        .then((childView) => {
           if (childView) {
-            self._currentChildView = childView;
+            this._currentChildView = childView;
             childView.openPanel();
 
             return childView;
@@ -69,16 +68,15 @@ define(function (require, exports, module) {
     _createChildViewIfNeeded: function (ChildView, options) {
       options = options || {};
 
-      var self = this;
-      var childView = self._childViewInstanceFromClass(ChildView);
+      var childView = this._childViewInstanceFromClass(ChildView);
       if (childView) {
         return p(childView);
       }
 
-      var className = self._childViewClassName(ChildView);
+      var className = this._childViewClassName(ChildView);
       var selector = '.' + className;
 
-      self.$('.child-views').append('<div class="settings-child-view ' + className + '"></div>');
+      this.$('.child-views').append('<div class="settings-child-view ' + className + '"></div>');
 
       // Each child view receives its own model on creation. The
       // child view's model will be updated with the appropriate data
@@ -94,15 +92,15 @@ define(function (require, exports, module) {
         childModel.set(options.model.toJSON());
       }
 
-      var view = self._createView(ChildView, {
-        el: self.$(selector),
+      var view = this._createView(ChildView, {
+        el: this.$(selector),
         model: childModel,
-        parentView: self._parent
+        parentView: this._parent
       });
 
-      self.trackChildView(view);
+      this.trackChildView(view);
 
-      return self.renderChildView(view);
+      return this.renderChildView(view);
     },
 
     renderChildView: function (viewToShow) {

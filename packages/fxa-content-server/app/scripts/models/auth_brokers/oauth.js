@@ -78,14 +78,13 @@ define(function (require, exports, module) {
     },
 
     getOAuthResult: function (account) {
-      var self = this;
       if (! account || ! account.get('sessionToken')) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
-      return self._assertionLibrary.generate(account.get('sessionToken'))
-        .then(function (assertion) {
-          var relier = self.relier;
+      return this._assertionLibrary.generate(account.get('sessionToken'))
+        .then((assertion) => {
+          var relier = this.relier;
           var oauthParams = {
             assertion: assertion,
             client_id: relier.get('clientId'), //eslint-disable-line camelcase
@@ -95,7 +94,7 @@ define(function (require, exports, module) {
           if (relier.get('accessType') === Constants.ACCESS_TYPE_OFFLINE) {
             oauthParams.access_type = Constants.ACCESS_TYPE_OFFLINE; //eslint-disable-line camelcase
           }
-          return self._oAuthClient.getCode(oauthParams);
+          return this._oAuthClient.getCode(oauthParams);
         })
         .then(_formatOAuthResult);
     },
@@ -128,56 +127,46 @@ define(function (require, exports, module) {
     },
 
     finishOAuthFlow: function (account, additionalResultData) {
-      var self = this;
-      self.session.clear('oauth');
-      return self.getOAuthResult(account)
-        .then(function (result) {
+      this.session.clear('oauth');
+      return this.getOAuthResult(account)
+        .then((result) => {
           if (additionalResultData) {
             result = _.extend(result, additionalResultData);
           }
-          return self.sendOAuthResultToRelier(result);
+          return this.sendOAuthResultToRelier(result);
         });
     },
 
     persistVerificationData: function (account) {
-      var self = this;
-      return p().then(function () {
-        var relier = self.relier;
-        self.session.set('oauth', {
+      return p().then(() => {
+        var relier = this.relier;
+        this.session.set('oauth', {
           access_type: relier.get('access_type'), //eslint-disable-line camelcase
           action: relier.get('action'),
           client_id: relier.get('clientId'), //eslint-disable-line camelcase
           keys: relier.get('keys'),
           scope: relier.get('scope'),
           state: relier.get('state'),
-          webChannelId: self.get('webChannelId')
+          webChannelId: this.get('webChannelId')
         });
 
-        return proto.persistVerificationData.call(self, account);
+        return proto.persistVerificationData.call(this, account);
       });
     },
 
     afterForceAuth: function (account, additionalResultData) {
-      var self = this;
-      return self.finishOAuthSignInFlow(account, additionalResultData)
-        .then(function () {
-          return proto.afterForceAuth.call(self, account);
-        });
+      return this.finishOAuthSignInFlow(account, additionalResultData)
+        .then(() => proto.afterForceAuth.call(this, account));
     },
 
     afterSignIn: function (account, additionalResultData) {
-      var self = this;
-      return self.finishOAuthSignInFlow(account, additionalResultData)
-        .then(function () {
-          return proto.afterSignIn.call(self, account);
-        });
+      return this.finishOAuthSignInFlow(account, additionalResultData)
+        .then(() => proto.afterSignIn.call(this, account));
     },
 
     afterSignInConfirmationPoll (account, additionalResultData) {
       return this.finishOAuthSignInFlow(account, additionalResultData)
-        .then(() => {
-          return proto.afterSignInConfirmationPoll.call(this, account);
-        });
+        .then(() => proto.afterSignInConfirmationPoll.call(this, account));
     },
 
     afterSignUpConfirmationPoll: function (account) {

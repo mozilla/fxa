@@ -50,46 +50,43 @@ define(function (require, exports, module) {
     },
 
     afterVisible: function () {
-      var self = this;
-
       var account = this.user.initAccount({ email: this.model.get('email') });
-      return self.broker.persistVerificationData(account)
-        .then(function () {
-          return self._waitForConfirmation()
-            .then(function (sessionInfo) {
-              self.logViewEvent('verification.success');
+      return this.broker.persistVerificationData(account)
+        .then(() => {
+          return this._waitForConfirmation()
+            .then((sessionInfo) => {
+              this.logViewEvent('verification.success');
               // The password was reset, future attempts should ask confirmation.
-              self.relier.set('resetPasswordConfirm', true);
+              this.relier.set('resetPasswordConfirm', true);
               // The original window should finish the flow if the user
               // completes verification in the same browser and has sessionInfo
               // passed over from tab 2.
               if (sessionInfo) {
-                return self._finishPasswordResetSameBrowser(sessionInfo);
+                return this._finishPasswordResetSameBrowser(sessionInfo);
               }
 
-              return self._finishPasswordResetDifferentBrowser();
+              return this._finishPasswordResetDifferentBrowser();
             })
-            .fail(self.displayError.bind(self));
+            .fail(this.displayError.bind(this));
         });
     },
 
     _waitForConfirmation: function () {
-      var self = this;
-      var confirmationDeferred = self._confirmationDeferred = p.defer();
-      var confirmationPromise = self._confirmationPromise = confirmationDeferred.promise;
+      var confirmationDeferred = this._confirmationDeferred = p.defer();
+      var confirmationPromise = this._confirmationPromise = confirmationDeferred.promise;
 
       // If either the `login` message comes through or the `login` message
       // timeout elapses after the server confirms the user is verified,
       // stop waiting all together and move to the next view.
-      function onComplete(response) {
-        self._stopWaiting();
-        self._confirmationDeferred.resolve(response);
-      }
+      const onComplete = (response) => {
+        this._stopWaiting();
+        this._confirmationDeferred.resolve(response);
+      };
 
-      function onError(err) {
-        self._stopWaiting();
-        self._confirmationDeferred.reject(err);
-      }
+      const onError = (err) => {
+        this._stopWaiting();
+        this._confirmationDeferred.reject(err);
+      };
 
       /**
        * A short message on password reset verification:
@@ -130,23 +127,22 @@ define(function (require, exports, module) {
        *
        * Once the `login` message has arrived, notify the browser. BOOM.
        */
-      this.notifier.on(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN, function () {
-        if (! self._isWaitingForLoginMessage) {
-          self._waitForLoginMessage().then(onComplete, onError);
-          self._stopWaitingForServerConfirmation();
+      this.notifier.on(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN, () => {
+        if (! this._isWaitingForLoginMessage) {
+          this._waitForLoginMessage().then(onComplete, onError);
+          this._stopWaitingForServerConfirmation();
         }
       });
 
-      self._waitForServerConfirmation().then(onComplete, onError);
+      this._waitForServerConfirmation().then(onComplete, onError);
 
       return confirmationPromise;
     },
 
     _finishPasswordResetSameBrowser: function (sessionInfo) {
-      var self = this;
       // Only the account UID, unwrapBKey and keyFetchToken are passed
       // from the verification tab. Load other from localStorage
-      var account = self.user.getAccountByUid(sessionInfo.uid);
+      var account = this.user.getAccountByUid(sessionInfo.uid);
 
       // keyFetchToken and unwrapBKey are sent from the verification tab,
       // this tab has no idea what they are. The keyFetchToken and
@@ -165,22 +161,22 @@ define(function (require, exports, module) {
       }
 
       // The OAuth flow needs the sessionToken to finish the flow.
-      return self.user.setSignedInAccount(account)
-        .then(function () {
-          self.displaySuccess(t('Password reset'));
+      return this.user.setSignedInAccount(account)
+        .then(() => {
+          this.displaySuccess(t('Password reset'));
 
-          return self.invokeBrokerMethod(
+          return this.invokeBrokerMethod(
                   'afterResetPasswordConfirmationPoll', account);
         })
-        .then(function () {
-          if (self.relier.isDirectAccess()) {
+        .then(() => {
+          if (this.relier.isDirectAccess()) {
             // user is most definitely signed in since sessionInfo
             // was passed in. Just ship direct access users to /settings
-            self.navigate('settings', {
+            this.navigate('settings', {
               success: t('Account verified successfully')
             });
           } else {
-            self.navigate('reset_password_complete');
+            this.navigate('reset_password_complete');
           }
         });
     },
@@ -190,12 +186,11 @@ define(function (require, exports, module) {
     },
 
     _finishPasswordResetDifferentBrowser: function () {
-      var self = this;
       // user verified in a different browser, make them sign in. OAuth
       // users will be redirected back to the RP, Sync users will be
       // taken to the Sync controlled completion page.
       Session.clear();
-      self.navigate(self._getSignInRoute(), {
+      this.navigate(this._getSignInRoute(), {
         success: t('Password reset successfully. Sign in to continue.')
       });
     },

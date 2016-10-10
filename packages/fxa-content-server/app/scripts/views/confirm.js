@@ -109,51 +109,49 @@ define(function (require, exports, module) {
     },
 
     _startPolling () {
-      var self = this;
-
-      return self._waitForConfirmation()
-        .then(function () {
-          self.logViewEvent('verification.success');
-          self.notifier.trigger('verification.success');
+      return this._waitForConfirmation()
+        .then(() => {
+          this.logViewEvent('verification.success');
+          this.notifier.trigger('verification.success');
 
           var brokerMethod =
-            self.isSignUp() ?
+            this.isSignUp() ?
             'afterSignUpConfirmationPoll' :
             'afterSignInConfirmationPoll';
 
-          return self.invokeBrokerMethod(brokerMethod, self.getAccount());
+          return this.invokeBrokerMethod(brokerMethod, this.getAccount());
         })
-        .then(function () {
+        .then(() => {
           // the user is definitely authenticated here.
-          if (self.relier.isDirectAccess()) {
-            self.navigate('settings', {
+          if (this.relier.isDirectAccess()) {
+            this.navigate('settings', {
               success: t('Account verified successfully')
             });
           } else {
-            return self._navigateToCompleteScreen();
+            return this._navigateToCompleteScreen();
           }
         })
-        .fail(function (err) {
+        .fail((err) => {
           // The user's email may have bounced because it was invalid.
           // Redirect them to the sign up page with an error notice.
           if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
-            self._bouncedEmailSignup();
+            this._bouncedEmailSignup();
           } else if (AuthErrors.is(err, 'UNEXPECTED_ERROR')) {
             // Hide the error from the user if it is an unexpected error.
             // an error may happen here if the status api is overloaded or
             // if the user is switching networks.
             // Report a known error to Sentry, but not the user.
             // Details: github.com/mozilla/fxa-content-server/issues/2638.
-            self.logError(AuthErrors.toError('POLLING_FAILED'));
+            this.logError(AuthErrors.toError('POLLING_FAILED'));
             var deferred = p.defer();
 
-            self.setTimeout(function () {
-              deferred.resolve(self._startPolling());
-            }, self.VERIFICATION_POLL_IN_MS);
+            this.setTimeout(() => {
+              deferred.resolve(this._startPolling());
+            }, this.VERIFICATION_POLL_IN_MS);
 
             return deferred.promise;
           } else {
-            self.displayError(err);
+            this.displayError(err);
           }
         });
     },

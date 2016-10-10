@@ -31,26 +31,24 @@ define(function (require, exports, module) {
     },
 
     beforeRender: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
+      var account = this.getSignedInAccount();
       return account.fetchProfile()
-        .then(function () {
-          self.user.setAccount(account);
-          self._displayName = account.get('displayName');
+        .then(() => {
+          this.user.setAccount(account);
+          this._displayName = account.get('displayName');
         });
     },
 
     submit: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
-      var displayName = self.getElementValue('input.display-name').trim();
+      var account = this.getSignedInAccount();
+      var displayName = this.getElementValue('input.display-name').trim();
 
       return account.postDisplayName(displayName)
-        .then(function () {
-          self.logViewEvent('success');
-          self.updateDisplayName(displayName);
-          self.displaySuccess(t('Display name updated'));
-          self.navigate('settings');
+        .then(() => {
+          this.logViewEvent('success');
+          this.updateDisplayName(displayName);
+          this.displaySuccess(t('Display name updated'));
+          this.navigate('settings');
         });
     }
   });
