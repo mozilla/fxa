@@ -45,7 +45,7 @@ var makeRoutes = function (options, requireMocks) {
     check: function () { return P.resolve(true) }
   }
   var checkPassword = options.checkPassword || require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
-  var push = options.push || require('../../lib/push')(log, db)
+  var push = options.push || require('../../lib/push')(log, db, {})
   var metricsContext = options.metricsContext || log.metricsContext || require('../../lib/metrics/context')(log, config)
   return proxyquire('../../lib/routes/account', requireMocks || {})(
     log,

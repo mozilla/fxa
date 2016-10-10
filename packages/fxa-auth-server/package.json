@@ -60,7 +60,7 @@
     "scrypt-hash": "1.1.14",
     "through": "2.3.8",
     "uuid": "1.4.1",
-    "web-push": "2.1.1"
+    "web-push": "3.0.0"
   },
   "devDependencies": {
     "commander": "2.9.0",

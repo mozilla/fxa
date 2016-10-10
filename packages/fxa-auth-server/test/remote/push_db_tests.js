@@ -119,7 +119,7 @@ test(
         })
 
         .then(function () {
-          var pushWithUnknown400 = proxyquire('../../lib/push', mocksUnknown400)(mockLog, db)
+          var pushWithUnknown400 = proxyquire('../../lib/push', mocksUnknown400)(mockLog, db, {})
           return pushWithUnknown400.pushToAllDevices(ACCOUNT.uid, 'accountVerify')
         })
         .then(function () {
@@ -134,7 +134,7 @@ test(
         })
 
         .then(function () {
-          var pushWithKnown400 = proxyquire('../../lib/push', mocksKnown400)(mockLog, db)
+          var pushWithKnown400 = proxyquire('../../lib/push', mocksKnown400)(mockLog, db, {})
           return pushWithKnown400.pushToAllDevices(ACCOUNT.uid, 'accountVerify')
         })
         .then(function () {

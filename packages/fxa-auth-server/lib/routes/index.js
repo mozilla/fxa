@@ -25,7 +25,7 @@ module.exports = function (
   var defaults = require('./defaults')(log, P, db, error)
   var idp = require('./idp')(log, serverPublicKeys)
   var checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
-  var push = require('../push')(log, db)
+  var push = require('../push')(log, db, config)
   var devices = require('../devices')(log, db, push)
   var account = require('./account')(
     log,

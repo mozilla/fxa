@@ -92,6 +92,12 @@ var conf = convict({
     default: [],
     env: 'TRUSTED_JKUS'
   },
+  vapidKeysFile: {
+    doc: 'Keys to use for VAPID in push notifications',
+    format: String,
+    default: path.resolve(__dirname, '../config/vapid-keys.json'),
+    env: 'VAPID_KEYS_FILE'
+  },
   db: {
     backend: {
       default: 'httpdb',
