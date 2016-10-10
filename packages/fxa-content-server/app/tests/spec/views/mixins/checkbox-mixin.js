@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var Chai = require('chai');
-  var CheckboxMixin = require('views/mixins/checkbox-mixin');
-  var Cocktail = require('cocktail');
-  var sinon = require('sinon');
-  var Template = require('stache!templates/test_template');
+  const BaseView = require('views/base');
+  const Chai = require('chai');
+  const CheckboxMixin = require('views/mixins/checkbox-mixin');
+  const Cocktail = require('cocktail');
+  const sinon = require('sinon');
+  const Template = require('stache!templates/test_template');
 
   var assert = Chai.assert;
 

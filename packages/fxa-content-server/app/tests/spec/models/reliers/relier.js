@@ -5,14 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var Relier = require('models/reliers/relier');
-  var ResumeToken = require('models/resume-token');
-  var TestHelpers = require('../../../lib/helpers');
-  var WindowMock = require('../../../mocks/window');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const Relier = require('models/reliers/relier');
+  const ResumeToken = require('models/resume-token');
+  const TestHelpers = require('../../../lib/helpers');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

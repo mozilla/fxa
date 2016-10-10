@@ -8,7 +8,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var sinon = require('sinon');
+  const sinon = require('sinon');
 
   function BroadcastChannelMock (name) {
     this._name = name;

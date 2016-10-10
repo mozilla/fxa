@@ -20,12 +20,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var Cocktail = require('cocktail');
-  var ResumeTokenMixin = require('models/mixins/resume-token');
-  var SearchParamMixin = require('models/mixins/search-param');
-  var Storage = require('lib/storage');
-  var uuid = require('uuid');
+  const Backbone = require('backbone');
+  const Cocktail = require('cocktail');
+  const ResumeTokenMixin = require('models/mixins/resume-token');
+  const SearchParamMixin = require('models/mixins/search-param');
+  const Storage = require('lib/storage');
+  const uuid = require('uuid');
 
   var Model = Backbone.Model.extend({
     initialize: function (options) {

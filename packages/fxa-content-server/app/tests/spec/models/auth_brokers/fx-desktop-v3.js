@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3');
-  var sinon = require('sinon');
-  var WindowMock = require('../../../mocks/window');
+  const chai = require('chai');
+  const FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3');
+  const sinon = require('sinon');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

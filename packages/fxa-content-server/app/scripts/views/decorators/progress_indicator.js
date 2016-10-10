@@ -15,8 +15,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var p = require('lib/promise');
-  var ProgressIndicator = require('views/progress_indicator');
+  const p = require('lib/promise');
+  const ProgressIndicator = require('views/progress_indicator');
 
   function showProgressIndicator(handler, _el) {
     var el = _el || 'button[type=submit]';

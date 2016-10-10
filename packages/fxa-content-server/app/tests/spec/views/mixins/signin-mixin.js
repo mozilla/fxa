@@ -5,16 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var assert = require('chai').assert;
-  var AuthBroker = require('models/auth_brokers/base');
-  var Backbone = require('backbone');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var SignInMixin = require('views/mixins/signin-mixin');
-  var sinon = require('sinon');
-  var VerificationMethods = require('lib/verification-methods');
-  var VerificationReasons = require('lib/verification-reasons');
+  const Account = require('models/account');
+  const assert = require('chai').assert;
+  const AuthBroker = require('models/auth_brokers/base');
+  const Backbone = require('backbone');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const SignInMixin = require('views/mixins/signin-mixin');
+  const sinon = require('sinon');
+  const VerificationMethods = require('lib/verification-methods');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var RESUME_TOKEN = 'a big hairy resume token';
 

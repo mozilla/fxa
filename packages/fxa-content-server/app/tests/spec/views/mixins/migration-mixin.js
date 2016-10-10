@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var MigrationMixin = require('views/mixins/migration-mixin');
-  var sinon = require('sinon');
+  const chai = require('chai');
+  const MigrationMixin = require('views/mixins/migration-mixin');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

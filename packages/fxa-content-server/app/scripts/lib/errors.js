@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Strings = require('lib/strings');
+  const _ = require('underscore');
+  const Strings = require('lib/strings');
 
   module.exports = {
     /**

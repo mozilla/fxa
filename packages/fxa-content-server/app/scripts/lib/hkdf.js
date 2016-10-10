@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var p = require('lib/promise');
-  var sjcl = require('sjcl');
+  const p = require('lib/promise');
+  const sjcl = require('sjcl');
 
   /**
    * hkdf - The HMAC-based Key Derivation Function

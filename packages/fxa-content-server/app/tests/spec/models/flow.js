@@ -5,14 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var assert = require('chai').assert;
-  var AuthErrors = require('lib/auth-errors');
-  var Flow = require('models/flow');
-  var ResumeToken = require('models/resume-token');
-  var sinon = require('sinon');
-  var Url = require('lib/url');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const assert = require('chai').assert;
+  const AuthErrors = require('lib/auth-errors');
+  const Flow = require('models/flow');
+  const ResumeToken = require('models/resume-token');
+  const sinon = require('sinon');
+  const Url = require('lib/url');
+  const WindowMock = require('../../mocks/window');
 
   var BODY_FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
   var RESUME_FLOW_ID = '71031D71031D71031D71031D71031D71031D71031D71031D71031D71031D7103';

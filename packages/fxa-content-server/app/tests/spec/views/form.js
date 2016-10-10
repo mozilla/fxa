@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var Duration = require('duration');
-  var FormView = require('views/form');
-  var HaltBehavior = require('views/behaviors/halt');
-  var Metrics = require('lib/metrics');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var Template = require('stache!templates/test_template');
-  var TestHelpers = require('../../lib/helpers');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const Duration = require('duration');
+  const FormView = require('views/form');
+  const HaltBehavior = require('views/behaviors/halt');
+  const Metrics = require('lib/metrics');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const Template = require('stache!templates/test_template');
+  const TestHelpers = require('../../lib/helpers');
 
   var assert = chai.assert;
 

@@ -9,14 +9,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Constants = require('lib/constants');
-  var OAuthErrors = require('lib/oauth-errors');
-  var Relier = require('models/reliers/relier');
-  var RelierKeys = require('lib/relier-keys');
-  var Transform = require('lib/transform');
-  var Validate = require('lib/validate');
-  var Vat = require('lib/vat');
+  const _ = require('underscore');
+  const Constants = require('lib/constants');
+  const OAuthErrors = require('lib/oauth-errors');
+  const Relier = require('models/reliers/relier');
+  const RelierKeys = require('lib/relier-keys');
+  const Transform = require('lib/transform');
+  const Validate = require('lib/validate');
+  const Vat = require('lib/vat');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['verificationRedirect'];
 

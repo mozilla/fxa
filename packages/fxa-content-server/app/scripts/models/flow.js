@@ -14,14 +14,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Cocktail = require('cocktail');
-  var ErrorUtils = require('lib/error-utils');
-  var ResumeTokenMixin = require('models/mixins/resume-token');
-  var SearchParamMixin = require('models/mixins/search-param');
-  var vat = require('lib/vat');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Cocktail = require('cocktail');
+  const ErrorUtils = require('lib/error-utils');
+  const ResumeTokenMixin = require('models/mixins/resume-token');
+  const SearchParamMixin = require('models/mixins/search-param');
+  const vat = require('lib/vat');
 
   var Model = Backbone.Model.extend({
     initialize: function (options) {

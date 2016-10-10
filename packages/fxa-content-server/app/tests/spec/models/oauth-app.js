@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var assert = require('chai').assert;
-  var App = require('models/oauth-app');
-  var sinon = require('sinon');
+  const assert = require('chai').assert;
+  const App = require('models/oauth-app');
+  const sinon = require('sinon');
 
   describe('models/oauth-app', function () {
     var app;

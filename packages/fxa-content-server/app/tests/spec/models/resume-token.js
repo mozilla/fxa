@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var ResumeToken = require('models/resume-token');
+  const chai = require('chai');
+  const ResumeToken = require('models/resume-token');
 
   var assert = chai.assert;
 

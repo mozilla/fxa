@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseModel = require('models/verification/base');
-  var chai = require('chai');
+  const BaseModel = require('models/verification/base');
+  const chai = require('chai');
 
   var assert = chai.assert;
 

@@ -5,26 +5,26 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var BaseBroker = require('models/auth_brokers/base');
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var DOMEventMock = require('../../mocks/dom-event');
-  var ErrorUtils = require('lib/error-utils');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/base');
-  var sinon = require('sinon');
-  var Template = require('stache!templates/test_template');
-  var TestHelpers = require('../../lib/helpers');
-  var Translator = require('lib/translator');
-  var User = require('models/user');
-  var VerificationReasons = require('lib/verification-reasons');
-  var VerificationMethods = require('lib/verification-methods');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const BaseBroker = require('models/auth_brokers/base');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const DOMEventMock = require('../../mocks/dom-event');
+  const ErrorUtils = require('lib/error-utils');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/base');
+  const sinon = require('sinon');
+  const Template = require('stache!templates/test_template');
+  const TestHelpers = require('../../lib/helpers');
+  const Translator = require('lib/translator');
+  const User = require('models/user');
+  const VerificationReasons = require('lib/verification-reasons');
+  const VerificationMethods = require('lib/verification-methods');
+  const WindowMock = require('../../mocks/window');
 
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;

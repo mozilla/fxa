@@ -8,16 +8,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Constants = require('lib/constants');
-  var MarketingEmailPrefs = require('models/marketing-email-prefs');
-  var OAuthToken = require('models/oauth-token');
-  var p = require('lib/promise');
-  var ProfileErrors = require('lib/profile-errors');
-  var ProfileImage = require('models/profile-image');
-  var SignInReasons = require('lib/sign-in-reasons');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Constants = require('lib/constants');
+  const MarketingEmailPrefs = require('models/marketing-email-prefs');
+  const OAuthToken = require('models/oauth-token');
+  const p = require('lib/promise');
+  const ProfileErrors = require('lib/profile-errors');
+  const ProfileImage = require('models/profile-image');
+  const SignInReasons = require('lib/sign-in-reasons');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
 

@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var OAuthErrors = require('lib/oauth-errors');
+  const chai = require('chai');
+  const OAuthErrors = require('lib/oauth-errors');
 
   var assert = chai.assert;
 

@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var NullStorage = require('lib/null-storage');
-  var sinon = require('sinon');
-  var Storage = require('lib/storage');
-  var WindowMock = require('../../mocks/window');
+  const chai = require('chai');
+  const NullStorage = require('lib/null-storage');
+  const sinon = require('sinon');
+  const Storage = require('lib/storage');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

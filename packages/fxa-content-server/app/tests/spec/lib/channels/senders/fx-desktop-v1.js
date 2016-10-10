@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var FxDesktopV1Sender = require('lib/channels/senders/fx-desktop-v1');
-  var sinon = require('sinon');
-  var WindowMock = require('../../../../mocks/window');
+  const chai = require('chai');
+  const FxDesktopV1Sender = require('lib/channels/senders/fx-desktop-v1');
+  const sinon = require('sinon');
+  const WindowMock = require('../../../../mocks/window');
 
   var windowMock;
   var sender;

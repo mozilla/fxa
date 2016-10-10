@@ -5,18 +5,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var Account = require('models/account');
-  var Backbone = require('backbone');
-  var Broker = require('models/auth_brokers/fx-fennec-v1');
-  var chai = require('chai');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/choose_what_to_sync');
+  const $ = require('jquery');
+  const Account = require('models/account');
+  const Backbone = require('backbone');
+  const Broker = require('models/auth_brokers/fx-fennec-v1');
+  const chai = require('chai');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/choose_what_to_sync');
 
   var assert = chai.assert;
 

@@ -10,14 +10,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Cocktail = require('cocktail');
-  var OAuthErrors = require('lib/oauth-errors');
-  var ChannelMixin = require('models/auth_brokers/mixins/channel');
-  var OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
-  var p = require('lib/promise');
-  var Vat = require('lib/vat');
-  var WebChannel = require('lib/channels/web');
+  const _ = require('underscore');
+  const Cocktail = require('cocktail');
+  const OAuthErrors = require('lib/oauth-errors');
+  const ChannelMixin = require('models/auth_brokers/mixins/channel');
+  const OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
+  const p = require('lib/promise');
+  const Vat = require('lib/vat');
+  const WebChannel = require('lib/channels/web');
 
   var proto = OAuthAuthenticationBroker.prototype;
 

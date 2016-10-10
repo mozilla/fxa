@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var DuplexChannel = require('lib/channels/duplex');
-  var NullReceiver = require('lib/channels/receivers/null');
-  var NullSender = require('lib/channels/senders/null');
-  var sinon = require('sinon');
-  var WindowMock = require('../../../mocks/window');
+  const chai = require('chai');
+  const DuplexChannel = require('lib/channels/duplex');
+  const NullReceiver = require('lib/channels/receivers/null');
+  const NullSender = require('lib/channels/senders/null');
+  const sinon = require('sinon');
+  const WindowMock = require('../../../mocks/window');
 
   var channel;
   var windowMock;

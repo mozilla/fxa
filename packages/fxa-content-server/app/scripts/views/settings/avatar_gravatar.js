@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var FormView = require('views/form');
-  var ImageLoader = require('lib/image-loader');
-  var md5 = require('md5');
-  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  var ProfileImage = require('models/profile-image');
-  var showProgressIndicator = require('views/decorators/progress_indicator');
-  var Template = require('stache!templates/settings/avatar_gravatar');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const FormView = require('views/form');
+  const ImageLoader = require('lib/image-loader');
+  const md5 = require('md5');
+  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  const ProfileImage = require('models/profile-image');
+  const showProgressIndicator = require('views/decorators/progress_indicator');
+  const Template = require('stache!templates/settings/avatar_gravatar');
 
   function t (s) {
     return s;

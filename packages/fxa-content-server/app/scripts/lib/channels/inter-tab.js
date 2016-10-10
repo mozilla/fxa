@@ -23,9 +23,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
-  var crosstab = require('crosstab');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
+  const crosstab = require('crosstab');
 
   var BROADCAST_CHANNEL_ID = 'firefox_accounts';
 

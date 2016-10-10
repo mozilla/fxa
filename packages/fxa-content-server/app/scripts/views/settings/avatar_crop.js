@@ -5,17 +5,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var Cropper = require('lib/cropper');
-  var CropperImage = require('models/cropper-image');
-  var FormView = require('views/form');
-  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  var p = require('p-promise');
-  var ProfileImage = require('models/profile-image');
-  var Template = require('stache!templates/settings/avatar_crop');
+  const AuthErrors = require('lib/auth-errors');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const Cropper = require('lib/cropper');
+  const CropperImage = require('models/cropper-image');
+  const FormView = require('views/form');
+  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  const p = require('p-promise');
+  const ProfileImage = require('models/profile-image');
+  const Template = require('stache!templates/settings/avatar_crop');
 
   var HORIZONTAL_GUTTER = 90;
   var VERTICAL_GUTTER = 0;

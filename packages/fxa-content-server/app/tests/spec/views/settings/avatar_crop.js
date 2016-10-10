@@ -5,23 +5,23 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthBroker = require('models/auth_brokers/base');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var chai = require('chai');
-  var CropperImage = require('models/cropper-image');
-  var jQuerySimulate = require('jquery-simulate'); //eslint-disable-line no-unused-vars
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var ProfileMock = require('../../../mocks/profile');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../../lib/helpers');
-  var ui = require('draggable'); //eslint-disable-line no-unused-vars
-  var User = require('models/user');
-  var View = require('views/settings/avatar_crop');
+  const $ = require('jquery');
+  const AuthBroker = require('models/auth_brokers/base');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const chai = require('chai');
+  const CropperImage = require('models/cropper-image');
+  const jQuerySimulate = require('jquery-simulate'); //eslint-disable-line no-unused-vars
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const ProfileMock = require('../../../mocks/profile');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../../lib/helpers');
+  const ui = require('draggable'); //eslint-disable-line no-unused-vars
+  const User = require('models/user');
+  const View = require('views/settings/avatar_crop');
 
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +

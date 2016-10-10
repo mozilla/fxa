@@ -5,17 +5,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var NullChannel = require('lib/channels/null');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var User = require('models/user');
-  var WebChannelAuthenticationBroker = require('models/auth_brokers/web-channel');
-  var WindowMock = require('../../../mocks/window');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const NullChannel = require('lib/channels/null');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const User = require('models/user');
+  const WebChannelAuthenticationBroker = require('models/auth_brokers/web-channel');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

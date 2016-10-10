@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Cocktail = require('cocktail');
-  var FormView = require('views/form');
-  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  var p = require('lib/promise');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Template = require('stache!templates/settings/gravatar_permissions');
+  const Cocktail = require('cocktail');
+  const FormView = require('views/form');
+  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  const p = require('lib/promise');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Template = require('stache!templates/settings/gravatar_permissions');
 
   var GRAVATAR_MOCK_CLIENT_ID = 'gravatar';
   var GRAVATAR_PERMISSION = 'profile:email';

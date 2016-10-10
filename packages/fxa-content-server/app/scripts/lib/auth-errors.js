@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Errors = require('lib/errors');
-  var Logger = require('lib/logger');
+  const _ = require('underscore');
+  const Errors = require('lib/errors');
+  const Logger = require('lib/logger');
   var logger = new Logger();
 
   var t = function (msg) {

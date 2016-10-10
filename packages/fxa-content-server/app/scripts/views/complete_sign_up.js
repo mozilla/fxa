@@ -17,17 +17,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
-  var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var ResendMixin = require('views/mixins/resend-mixin');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  var Url = require('lib/url');
-  var VerificationInfo = require('models/verification/sign-up');
-  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const ResendMixin = require('views/mixins/resend-mixin');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const Url = require('lib/url');
+  const VerificationInfo = require('models/verification/sign-up');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   var t = BaseView.t;
 

@@ -7,8 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var BaseChannel = require('lib/channels/base');
+  const _ = require('underscore');
+  const BaseChannel = require('lib/channels/base');
 
   function NullChannel() {
     // nothing to do.

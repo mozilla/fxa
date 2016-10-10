@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var BackMixin = require('views/mixins/back-mixin');
-  var CheckboxMixin = require('views/mixins/checkbox-mixin');
-  var Cocktail = require('cocktail');
-  var FormView = require('views/form');
-  var Template = require('stache!templates/choose_what_to_sync');
+  const _ = require('underscore');
+  const BackMixin = require('views/mixins/back-mixin');
+  const CheckboxMixin = require('views/mixins/checkbox-mixin');
+  const Cocktail = require('cocktail');
+  const FormView = require('views/form');
+  const Template = require('stache!templates/choose_what_to_sync');
 
   var View = FormView.extend({
     template: Template,

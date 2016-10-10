@@ -6,11 +6,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var BaseView = require('views/base');
-  var Logger = require('lib/logger');
-  var p = require('lib/promise');
-  var Template = require('stache!templates/sub_panels');
+  const Backbone = require('backbone');
+  const BaseView = require('views/base');
+  const Logger = require('lib/logger');
+  const p = require('lib/promise');
+  const Template = require('stache!templates/sub_panels');
 
   const proto = BaseView.prototype;
   const View = BaseView.extend({

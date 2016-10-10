@@ -8,9 +8,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var BaseView = require('views/base');
-  var KeyCodes = require('lib/key-codes');
+  const $ = require('jquery');
+  const BaseView = require('views/base');
+  const KeyCodes = require('lib/key-codes');
 
   module.exports = {
     initialize: function (options) {

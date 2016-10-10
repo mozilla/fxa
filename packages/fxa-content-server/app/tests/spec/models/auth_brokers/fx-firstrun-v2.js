@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var FxFirstrunV2AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v2');
-  var WindowMock = require('../../../mocks/window');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const FxFirstrunV2AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v2');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

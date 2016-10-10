@@ -19,10 +19,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var Backbone = require('backbone');
-  var Cocktail = require('cocktail');
-  var TimerMixin = require('views/mixins/timer-mixin');
+  const $ = require('jquery');
+  const Backbone = require('backbone');
+  const Cocktail = require('cocktail');
+  const TimerMixin = require('views/mixins/timer-mixin');
 
   // The show and hide delays are to minimize flash.
   var SHOW_DELAY_MS = 100;

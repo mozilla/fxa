@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var p = require('lib/promise');
-  var requireOnDemand = require('lib/require-on-demand');
-  var Url = require('lib/url');
-  var PasswordPromptMixin = require('views/mixins/password-prompt-mixin');
+  const _ = require('underscore');
+  const p = require('lib/promise');
+  const requireOnDemand = require('lib/require-on-demand');
+  const Url = require('lib/url');
+  const PasswordPromptMixin = require('views/mixins/password-prompt-mixin');
 
   var PasswordStrengthMixin = {
 

@@ -13,7 +13,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
+  const _ = require('underscore');
 
   var Mixin = {
     setTimeout: function (callback, timeoutMS) {

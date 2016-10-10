@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var FxiOSAuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
-  var NullChannel = require('lib/channels/null');
-  var Relier = require('models/reliers/relier');
-  var WindowMock = require('../../../mocks/window');
+  const chai = require('chai');
+  const FxiOSAuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
+  const NullChannel = require('lib/channels/null');
+  const Relier = require('models/reliers/relier');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

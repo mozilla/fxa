@@ -12,7 +12,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var sjcl = require('sjcl');
+  const sjcl = require('sjcl');
 
   module.exports = {
 

@@ -7,12 +7,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var ProfileErrors = require('lib/profile-errors');
-  var ProfileImage = require('models/profile-image');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const ProfileErrors = require('lib/profile-errors');
+  const ProfileImage = require('models/profile-image');
 
   var MAX_SPINNER_COMPLETE_TIME = 400; // ms
 

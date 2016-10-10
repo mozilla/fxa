@@ -7,11 +7,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Metrics = require('lib/metrics');
-  var Storage = require('lib/storage');
-  var StorageMetrics = require('lib/storage-metrics');
-  var WindowMock = require('../../mocks/window');
+  const chai = require('chai');
+  const Metrics = require('lib/metrics');
+  const Storage = require('lib/storage');
+  const StorageMetrics = require('lib/storage-metrics');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

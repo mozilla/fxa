@@ -12,7 +12,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
+  const Backbone = require('backbone');
 
   var FormPrefill = Backbone.Model.extend({
     defaults: {

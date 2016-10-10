@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var BackMixin = require('views/mixins/back-mixin');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
-  var p = require('lib/promise');
-  var ResendMixin = require('views/mixins/resend-mixin');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Template = require('stache!templates/confirm');
-  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const AuthErrors = require('lib/auth-errors');
+  const BackMixin = require('views/mixins/back-mixin');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
+  const p = require('lib/promise');
+  const ResendMixin = require('views/mixins/resend-mixin');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Template = require('stache!templates/confirm');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   var t = BaseView.t;
 

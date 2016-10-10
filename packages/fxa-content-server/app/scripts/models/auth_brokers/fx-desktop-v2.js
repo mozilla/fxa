@@ -13,12 +13,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Constants = require('lib/constants');
-  var FxSyncWebChannelAuthenticationBroker = require('./fx-sync-web-channel');
-  var HaltBehavior = require('views/behaviors/halt');
-  var NullBehavior = require('views/behaviors/null');
-  var p = require('lib/promise');
+  const _ = require('underscore');
+  const Constants = require('lib/constants');
+  const FxSyncWebChannelAuthenticationBroker = require('./fx-sync-web-channel');
+  const HaltBehavior = require('views/behaviors/halt');
+  const NullBehavior = require('views/behaviors/null');
+  const p = require('lib/promise');
 
   var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 

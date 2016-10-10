@@ -9,11 +9,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var base64url = require('lib/base64url');
-  var Constants = require('lib/constants');
-  var hkdf = require('lib/hkdf');
-  var p = require('p-promise');
-  var sjcl = require('sjcl');
+  const base64url = require('lib/base64url');
+  const Constants = require('lib/constants');
+  const hkdf = require('lib/hkdf');
+  const p = require('p-promise');
+  const sjcl = require('sjcl');
 
   var KEY_CLASS_TAG_A = 'kAr';
   var KEY_CLASS_TAG_B = 'kBr';

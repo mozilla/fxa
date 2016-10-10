@@ -5,20 +5,20 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var FxaClient = require('fxaClient');
-  var FxaClientWrapper = require('lib/fxa-client');
-  var OAuthRelier = require('models/reliers/oauth');
-  var p = require('lib/promise');
-  var ResumeToken = require('models/resume-token');
-  var sinon = require('sinon');
-  var SignInReasons = require('lib/sign-in-reasons');
-  var testHelpers = require('../../lib/helpers');
-  var VerificationMethods = require('lib/verification-methods');
-  var VerificationReasons = require('lib/verification-reasons');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const FxaClient = require('fxaClient');
+  const FxaClientWrapper = require('lib/fxa-client');
+  const OAuthRelier = require('models/reliers/oauth');
+  const p = require('lib/promise');
+  const ResumeToken = require('models/resume-token');
+  const sinon = require('sinon');
+  const SignInReasons = require('lib/sign-in-reasons');
+  const testHelpers = require('../../lib/helpers');
+  const VerificationMethods = require('lib/verification-methods');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var AUTH_SERVER_URL = 'http://127.0.0.1:9000';
   var NON_SYNC_SERVICE = 'chronicle';

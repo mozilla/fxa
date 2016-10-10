@@ -5,22 +5,22 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthBroker = require('models/auth_brokers/base');
-  var AuthErrors = require('lib/auth-errors');
-  var CanvasMock = require('../../../mocks/canvas');
-  var chai = require('chai');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var ProfileMock = require('../../../mocks/profile');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/settings/avatar_camera');
-  var WebRTC = require('webrtc');
-  var WindowMock = require('../../../mocks/window');
+  const $ = require('jquery');
+  const AuthBroker = require('models/auth_brokers/base');
+  const AuthErrors = require('lib/auth-errors');
+  const CanvasMock = require('../../../mocks/canvas');
+  const chai = require('chai');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const ProfileMock = require('../../../mocks/profile');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/settings/avatar_camera');
+  const WebRTC = require('webrtc');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

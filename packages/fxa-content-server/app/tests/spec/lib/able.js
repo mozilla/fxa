@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Able = require('lib/able');
-  var chai = require('chai');
-  var sinon = require('sinon');
+  const Able = require('lib/able');
+  const chai = require('chai');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

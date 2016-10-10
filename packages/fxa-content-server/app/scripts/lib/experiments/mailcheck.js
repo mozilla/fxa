@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseExperiment = require('lib/experiments/base');
+  const BaseExperiment = require('lib/experiments/base');
 
   var createSaveStateDelegate = BaseExperiment.createSaveStateDelegate;
 

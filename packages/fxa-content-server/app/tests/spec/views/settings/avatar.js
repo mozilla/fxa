@@ -5,15 +5,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var FxaClientMock = require('../../../mocks/fxa-client');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var User = require('models/user');
-  var View = require('views/settings/avatar');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const FxaClientMock = require('../../../mocks/fxa-client');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const User = require('models/user');
+  const View = require('views/settings/avatar');
 
   var assert = chai.assert;
   var IMG_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';

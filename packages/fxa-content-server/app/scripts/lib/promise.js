@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var p = require('p-promise');
+  const p = require('p-promise');
 
   // The WebRTC polyfill tries to use native promises which are not available
   // in Firefox until Fx 27, but WebRTC is available in Fx 17. Polyfill

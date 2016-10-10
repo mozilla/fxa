@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var assert = require('chai').assert;
-  var FlowEventMetadata = require('models/flow-event-metadata');
+  const assert = require('chai').assert;
+  const FlowEventMetadata = require('models/flow-event-metadata');
 
   describe('models/flow-event-metadata', function () {
     var flowEventMetadata;

@@ -5,15 +5,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Able = require('lib/able');
-  var chai = require('chai');
-  var ExperimentInterface = require('lib/experiment');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var User = require('models/user');
-  var WindowMock = require('../../mocks/window');
+  const Able = require('lib/able');
+  const chai = require('chai');
+  const ExperimentInterface = require('lib/experiment');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const User = require('models/user');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
   var expInt;

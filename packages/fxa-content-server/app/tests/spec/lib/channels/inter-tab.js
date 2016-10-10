@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BroadcastChannelMock = require('../../../mocks/broadcast-channel');
-  var chai = require('chai');
-  var CrossTabMock = require('../../../mocks/crosstab');
-  var InterTabChannel = require('lib/channels/inter-tab');
-  var sinon = require('sinon');
-  var WindowMock = require('../../../mocks/window');
+  const BroadcastChannelMock = require('../../../mocks/broadcast-channel');
+  const chai = require('chai');
+  const CrossTabMock = require('../../../mocks/crosstab');
+  const InterTabChannel = require('lib/channels/inter-tab');
+  const sinon = require('sinon');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

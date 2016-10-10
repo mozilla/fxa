@@ -5,16 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AppView = require('views/app');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var chai = require('chai');
-  var Environment = require('lib/environment');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const AppView = require('views/app');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const chai = require('chai');
+  const Environment = require('lib/environment');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

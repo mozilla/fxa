@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var p = require('lib/promise');
-  var requireOnDemand = require('lib/require-on-demand');
-  var sinon = require('sinon');
+  const chai = require('chai');
+  const p = require('lib/promise');
+  const requireOnDemand = require('lib/require-on-demand');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

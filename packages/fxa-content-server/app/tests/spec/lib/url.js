@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Url = require('lib/url');
+  const chai = require('chai');
+  const Url = require('lib/url');
 
   var assert = chai.assert;
 

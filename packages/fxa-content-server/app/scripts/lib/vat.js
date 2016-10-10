@@ -7,8 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Validate = require('lib/validate');
-  var Vat = require('vat');
+  const Validate = require('lib/validate');
+  const Vat = require('vat');
 
   Vat.register('base64jwt', Vat.string().test(Validate.isBase64JwtValid));
   Vat.register('email', Vat.string().test(Validate.isEmailValid));

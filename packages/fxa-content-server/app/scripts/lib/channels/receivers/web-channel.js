@@ -11,9 +11,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
-  var Logger = require('lib/logger');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
+  const Logger = require('lib/logger');
 
   function WebChannelReceiver() {
     // nothing to do

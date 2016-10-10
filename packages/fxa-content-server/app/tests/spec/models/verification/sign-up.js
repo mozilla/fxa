@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var Model = require('models/verification/sign-up');
-  var TestHelpers = require('../../../lib/helpers');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const Model = require('models/verification/sign-up');
+  const TestHelpers = require('../../../lib/helpers');
 
   var assert = chai.assert;
 

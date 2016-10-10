@@ -9,8 +9,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Transform = require('lib/transform');
-  var Url = require('lib/url');
+  const Transform = require('lib/transform');
+  const Url = require('lib/url');
 
   module.exports = {
     /**

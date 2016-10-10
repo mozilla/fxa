@@ -5,20 +5,20 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var Cocktail = require('cocktail');
-  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  var FormView = require('views/form');
-  var Notifier = require('lib/channels/notifier');
-  var PasswordMixin = require('views/mixins/password-mixin');
-  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  var PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
-  var ResendMixin = require('views/mixins/resend-mixin');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Template = require('stache!templates/complete_reset_password');
-  var { t } = require('views/base');
-  var Url = require('lib/url');
-  var VerificationInfo = require('models/verification/reset-password');
+  const AuthErrors = require('lib/auth-errors');
+  const Cocktail = require('cocktail');
+  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  const FormView = require('views/form');
+  const Notifier = require('lib/channels/notifier');
+  const PasswordMixin = require('views/mixins/password-mixin');
+  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
+  const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
+  const ResendMixin = require('views/mixins/resend-mixin');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Template = require('stache!templates/complete_reset_password');
+  const { t } = require('views/base');
+  const Url = require('lib/url');
+  const VerificationInfo = require('models/verification/reset-password');
 
   const proto = FormView.prototype;
   const View = FormView.extend({

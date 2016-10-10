@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var BaseAuthenticationBroker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var Relier = require('models/reliers/relier');
-  var SameBrowserVerificationModel = require('models/verification/same-browser');
-  var sinon = require('sinon');
-  var WindowMock = require('../../../mocks/window');
+  const Account = require('models/account');
+  const BaseAuthenticationBroker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const Relier = require('models/reliers/relier');
+  const SameBrowserVerificationModel = require('models/verification/same-browser');
+  const sinon = require('sinon');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

@@ -9,12 +9,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var Backbone = require('backbone');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var LoadingMixin = require('views/mixins/loading-mixin');
-  var p = require('lib/promise');
+  const $ = require('jquery');
+  const Backbone = require('backbone');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const LoadingMixin = require('views/mixins/loading-mixin');
+  const p = require('lib/promise');
 
   var AppView = BaseView.extend({
     initialize: function (options) {

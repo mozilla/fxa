@@ -5,21 +5,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Cocktail = require('cocktail');
-  var domWriter = require('lib/dom-writer');
-  var ErrorUtils = require('lib/error-utils');
-  var ExternalLinksMixin = require('views/mixins/external-links-mixin');
-  var NotifierMixin = require('views/mixins/notifier-mixin');
-  var NullMetrics = require('lib/null-metrics');
-  var Logger = require('lib/logger');
-  var p = require('lib/promise');
-  var Raven = require('raven');
-  var TimerMixin = require('views/mixins/timer-mixin');
-  var VerificationReasons = require('lib/verification-reasons');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Cocktail = require('cocktail');
+  const domWriter = require('lib/dom-writer');
+  const ErrorUtils = require('lib/error-utils');
+  const ExternalLinksMixin = require('views/mixins/external-links-mixin');
+  const NotifierMixin = require('views/mixins/notifier-mixin');
+  const NullMetrics = require('lib/null-metrics');
+  const Logger = require('lib/logger');
+  const p = require('lib/promise');
+  const Raven = require('raven');
+  const TimerMixin = require('views/mixins/timer-mixin');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var DEFAULT_TITLE = window.document.title;
   var STATUS_MESSAGE_ANIMATION_MS = 150;

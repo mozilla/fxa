@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Broker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var View = require('views/cannot_create_account');
+  const Broker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const View = require('views/cannot_create_account');
 
   var assert = chai.assert;
 

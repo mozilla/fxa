@@ -5,21 +5,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var canvasToBlob = require('canvasToBlob'); //eslint-disable-line no-unused-vars
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var Duration = require('duration');
-  var Environment = require('lib/environment');
-  var FormView = require('views/form');
-  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  var p = require('lib/promise');
-  var ProfileImage = require('models/profile-image');
-  var ProgressIndicator = require('views/progress_indicator');
-  var Template = require('stache!templates/settings/avatar_camera');
-  var WebRTC = require('webrtc');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const canvasToBlob = require('canvasToBlob'); //eslint-disable-line no-unused-vars
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const Duration = require('duration');
+  const Environment = require('lib/environment');
+  const FormView = require('views/form');
+  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  const p = require('lib/promise');
+  const ProfileImage = require('models/profile-image');
+  const ProgressIndicator = require('views/progress_indicator');
+  const Template = require('stache!templates/settings/avatar_camera');
+  const WebRTC = require('webrtc');
 
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';

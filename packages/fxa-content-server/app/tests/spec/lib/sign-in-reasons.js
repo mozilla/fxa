@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var assert = require('chai').assert;
-  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
+  const assert = require('chai').assert;
+  const SIGN_IN_REASONS = require('lib/sign-in-reasons');
 
   describe('lib/sign-in-reasons', function () {
     it('exports correct strings', function () {

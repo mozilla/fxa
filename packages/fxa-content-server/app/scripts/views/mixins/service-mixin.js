@@ -8,7 +8,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
+  const BaseView = require('views/base');
 
   module.exports = {
     transformLinks: function () {

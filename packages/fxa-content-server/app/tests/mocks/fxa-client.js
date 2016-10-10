@@ -7,8 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var FxaClientWrapper = require('lib/fxa-client');
-  var p = require('lib/promise');
+  const FxaClientWrapper = require('lib/fxa-client');
+  const p = require('lib/promise');
 
   function FxaClientWrapperMock() {
   }

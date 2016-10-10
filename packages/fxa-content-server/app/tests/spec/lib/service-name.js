@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var ServiceName = require('lib/service-name');
-  var Translator = require('lib/translator');
+  const chai = require('chai');
+  const ServiceName = require('lib/service-name');
+  const Translator = require('lib/translator');
 
   var assert = chai.assert;
   var serviceName;

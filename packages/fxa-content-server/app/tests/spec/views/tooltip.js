@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var KeyCodes = require('lib/key-codes');
-  var Tooltip = require('views/tooltip');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const KeyCodes = require('lib/key-codes');
+  const Tooltip = require('views/tooltip');
 
   var assert = chai.assert;
 

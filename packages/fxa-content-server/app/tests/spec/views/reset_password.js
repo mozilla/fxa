@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Broker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var FormPrefill = require('models/form-prefill');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var View = require('views/reset_password');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Broker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const FormPrefill = require('models/form-prefill');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const View = require('views/reset_password');
 
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;

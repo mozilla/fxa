@@ -12,12 +12,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var MarketingMixin = require('views/mixins/marketing-mixin');
-  var Template = require('stache!templates/marketing_snippet');
-  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const MarketingMixin = require('views/mixins/marketing-mixin');
+  const Template = require('stache!templates/marketing_snippet');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   var View = BaseView.extend({
     template: Template,

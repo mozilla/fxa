@@ -5,14 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BackMixin = require('views/mixins/back-mixin');
-  var BaseView = require('views/base');
-  var Chai = require('chai');
-  var Cocktail = require('cocktail');
-  var KeyCodes = require('lib/key-codes');
-  var Notifier = require('lib/channels/notifier');
-  var sinon = require('sinon');
-  var TestTemplate = require('stache!templates/test_template');
+  const BackMixin = require('views/mixins/back-mixin');
+  const BaseView = require('views/base');
+  const Chai = require('chai');
+  const Cocktail = require('cocktail');
+  const KeyCodes = require('lib/key-codes');
+  const Notifier = require('lib/channels/notifier');
+  const sinon = require('sinon');
+  const TestTemplate = require('stache!templates/test_template');
 
   var assert = Chai.assert;
 

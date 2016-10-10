@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var PostMessageReceiver = require('lib/channels/receivers/postmessage');
-  var sinon = require('sinon');
-  var WindowMock = require('../../../../mocks/window');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const PostMessageReceiver = require('lib/channels/receivers/postmessage');
+  const sinon = require('sinon');
+  const WindowMock = require('../../../../mocks/window');
 
   var windowMock;
   var receiver;

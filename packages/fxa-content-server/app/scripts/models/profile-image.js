@@ -7,10 +7,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var ImageLoader = require('lib/image-loader');
-  var p = require('lib/promise');
-  var ProfileErrors = require('lib/profile-errors');
+  const Backbone = require('backbone');
+  const ImageLoader = require('lib/image-loader');
+  const p = require('lib/promise');
+  const ProfileErrors = require('lib/profile-errors');
 
   var ProfileImage = Backbone.Model.extend({
     defaults: {

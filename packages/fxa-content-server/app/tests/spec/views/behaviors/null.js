@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var NullBehavior = require('views/behaviors/null');
+  const NullBehavior = require('views/behaviors/null');
 
   describe('views/behaviors/null', function () {
     it('does nothing', function () {

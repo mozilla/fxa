@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var HaltBehavior = require('views/behaviors/halt');
+  const chai = require('chai');
+  const HaltBehavior = require('views/behaviors/halt');
 
   var assert = chai.assert;
 

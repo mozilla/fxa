@@ -5,17 +5,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var KeyCodes = require('lib/key-codes');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/settings/display_name');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const KeyCodes = require('lib/key-codes');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/settings/display_name');
 
   var assert = chai.assert;
 

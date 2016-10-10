@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var OAuthToken = require('models/oauth-token');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
+  const chai = require('chai');
+  const OAuthToken = require('models/oauth-token');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

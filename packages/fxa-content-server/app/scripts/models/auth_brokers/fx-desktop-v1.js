@@ -9,11 +9,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var FxDesktopChannel = require('lib/channels/fx-desktop-v1');
-  var FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
-  var HaltBehavior = require('views/behaviors/halt');
-  var Url = require('lib/url');
+  const _ = require('underscore');
+  const FxDesktopChannel = require('lib/channels/fx-desktop-v1');
+  const FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
+  const HaltBehavior = require('views/behaviors/halt');
+  const Url = require('lib/url');
 
   var proto = FxSyncAuthenticationBroker.prototype;
 

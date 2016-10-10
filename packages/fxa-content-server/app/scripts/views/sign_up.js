@@ -4,26 +4,26 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AccountResetMixin = require('views/mixins/account-reset-mixin');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var CheckboxMixin = require('views/mixins/checkbox-mixin');
-  var Cocktail = require('cocktail');
-  var CoppaAgeInput = require('views/coppa/coppa-age-input');
-  var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var FlowBeginMixin = require('views/mixins/flow-begin-mixin');
-  var FormView = require('views/form');
-  var mailcheck = require('lib/mailcheck');
-  var MigrationMixin = require('views/mixins/migration-mixin');
-  var p = require('lib/promise');
-  var PasswordMixin = require('views/mixins/password-mixin');
-  var PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
-  var SignInMixin = require('views/mixins/signin-mixin');
-  var SignUpMixin = require('views/mixins/signup-mixin');
-  var Template = require('stache!templates/sign_up');
+  const AccountResetMixin = require('views/mixins/account-reset-mixin');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const CheckboxMixin = require('views/mixins/checkbox-mixin');
+  const Cocktail = require('cocktail');
+  const CoppaAgeInput = require('views/coppa/coppa-age-input');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
+  const FormView = require('views/form');
+  const mailcheck = require('lib/mailcheck');
+  const MigrationMixin = require('views/mixins/migration-mixin');
+  const p = require('lib/promise');
+  const PasswordMixin = require('views/mixins/password-mixin');
+  const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
+  const SignInMixin = require('views/mixins/signin-mixin');
+  const SignUpMixin = require('views/mixins/signup-mixin');
+  const Template = require('stache!templates/sign_up');
 
   var t = BaseView.t;
 

@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var base64url = require('lib/base64url');
-  var chai = require('chai');
-  var sjcl = require('sjcl');
+  const base64url = require('lib/base64url');
+  const chai = require('chai');
+  const sjcl = require('sjcl');
 
   var assert = chai.assert;
 

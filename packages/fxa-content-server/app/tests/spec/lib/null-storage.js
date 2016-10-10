@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var NullStorage = require('lib/null-storage');
+  const chai = require('chai');
+  const NullStorage = require('lib/null-storage');
 
   var assert = chai.assert;
 

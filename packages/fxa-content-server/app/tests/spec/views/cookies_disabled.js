@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var sinon = require('sinon');
-  var Storage = require('lib/storage');
-  var View = require('views/cookies_disabled');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const sinon = require('sinon');
+  const Storage = require('lib/storage');
+  const View = require('views/cookies_disabled');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

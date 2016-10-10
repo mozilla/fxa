@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var flowBeginMixin = require('views/mixins/flow-begin-mixin');
-  var sinon = require('sinon');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const flowBeginMixin = require('views/mixins/flow-begin-mixin');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

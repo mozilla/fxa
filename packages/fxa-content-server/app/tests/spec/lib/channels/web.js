@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var sinon = require('sinon');
-  var WebChannel = require('lib/channels/web');
-  var WindowMock = require('/tests/mocks/window.js');
+  const chai = require('chai');
+  const sinon = require('sinon');
+  const WebChannel = require('lib/channels/web');
+  const WindowMock = require('/tests/mocks/window.js');
 
   var assert = chai.assert;
 

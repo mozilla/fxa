@@ -13,15 +13,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseRelier = require('models/reliers/base');
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var p = require('lib/promise');
-  var ResumeTokenMixin = require('models/mixins/resume-token');
-  var SearchParamMixin = require('models/mixins/search-param');
-  var Vat = require('lib/vat');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseRelier = require('models/reliers/base');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const p = require('lib/promise');
+  const ResumeTokenMixin = require('models/mixins/resume-token');
+  const SearchParamMixin = require('models/mixins/search-param');
+  const Vat = require('lib/vat');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = [
     'entrypoint',

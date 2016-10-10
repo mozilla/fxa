@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var OAuthClient = require('lib/oauth-client');
-  var OAuthErrors = require('lib/oauth-errors');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var Xhr = require('lib/xhr');
+  const chai = require('chai');
+  const OAuthClient = require('lib/oauth-client');
+  const OAuthErrors = require('lib/oauth-errors');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const Xhr = require('lib/xhr');
 
   var OAUTH_URL = 'http://127.0.0.1:9010';
   var RP_URL = 'http://127.0.0.1:8080/api/oauth';

@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var NavigateBehavior = require('views/behaviors/navigate');
-  var sinon = require('sinon');
+  const chai = require('chai');
+  const NavigateBehavior = require('views/behaviors/navigate');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

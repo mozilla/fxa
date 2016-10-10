@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var assert = require('chai').assert;
-  var p = require('lib/promise');
-  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  var sinon = require('sinon');
+  const assert = require('chai').assert;
+  const p = require('lib/promise');
+  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
+  const sinon = require('sinon');
 
   describe('views/mixins/password-reset-mixin', function () {
     describe('interface', function () {

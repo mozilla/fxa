@@ -5,18 +5,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var CanvasMock = require('../../mocks/canvas');
-  var chai = require('chai');
-  var Cropper = require('lib/cropper');
-  var CropperImage = require('models/cropper-image');
-  var jQuerySimulate = require('jquery-simulate'); //eslint-disable-line no-unused-vars
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var User = require('models/user');
-  var View = require('views/settings/avatar_crop');
+  const Backbone = require('backbone');
+  const CanvasMock = require('../../mocks/canvas');
+  const chai = require('chai');
+  const Cropper = require('lib/cropper');
+  const CropperImage = require('models/cropper-image');
+  const jQuerySimulate = require('jquery-simulate'); //eslint-disable-line no-unused-vars
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const User = require('models/user');
+  const View = require('views/settings/avatar_crop');
 
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';

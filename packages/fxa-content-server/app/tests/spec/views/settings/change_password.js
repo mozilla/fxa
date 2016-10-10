@@ -5,18 +5,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Broker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var Metrics = require('lib/metrics');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/settings/change_password');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Broker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const Metrics = require('lib/metrics');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/settings/change_password');
 
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;

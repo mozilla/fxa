@@ -6,13 +6,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var p = require('lib/promise');
-  var ProgressIndicator = require('views/progress_indicator');
-  var showProgressIndicator = require('views/decorators/progress_indicator');
-  var sinon = require('sinon');
+  const $ = require('jquery');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const p = require('lib/promise');
+  const ProgressIndicator = require('views/progress_indicator');
+  const showProgressIndicator = require('views/decorators/progress_indicator');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

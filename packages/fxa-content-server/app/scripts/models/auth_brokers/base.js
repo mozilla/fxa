@@ -10,15 +10,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Cocktail = require('cocktail');
-  var Environment = require('lib/environment');
-  var NullBehavior = require('views/behaviors/null');
-  var p = require('lib/promise');
-  var SameBrowserVerificationModel = require('models/verification/same-browser');
-  var SearchParamMixin = require('models/mixins/search-param');
-  var Vat = require('lib/vat');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Cocktail = require('cocktail');
+  const Environment = require('lib/environment');
+  const NullBehavior = require('views/behaviors/null');
+  const p = require('lib/promise');
+  const SameBrowserVerificationModel = require('models/verification/same-browser');
+  const SearchParamMixin = require('models/mixins/search-param');
+  const Vat = require('lib/vat');
 
   var QUERY_PARAMETER_SCHEMA = {
     automatedBrowser: Vat.boolean()

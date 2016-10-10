@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
+  const _ = require('underscore');
 
   var DEFAULT_DISPLAY_LENGTH = 240;
   var DEFAULT_EXPORT_LENGTH = 480;

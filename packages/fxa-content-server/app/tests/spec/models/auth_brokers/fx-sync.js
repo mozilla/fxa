@@ -5,15 +5,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
-  var NullChannel = require('lib/channels/null');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var User = require('models/user');
-  var WindowMock = require('../../../mocks/window');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
+  const NullChannel = require('lib/channels/null');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const User = require('models/user');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

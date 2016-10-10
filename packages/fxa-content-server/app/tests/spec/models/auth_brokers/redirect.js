@@ -5,15 +5,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var p = require('lib/promise');
-  var RedirectAuthenticationBroker = require('models/auth_brokers/redirect');
-  var Relier = require('models/reliers/base');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var User = require('models/user');
-  var WindowMock = require('../../../mocks/window');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const p = require('lib/promise');
+  const RedirectAuthenticationBroker = require('models/auth_brokers/redirect');
+  const Relier = require('models/reliers/base');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const User = require('models/user');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
   var REDIRECT_TO = 'https://redirect.here';

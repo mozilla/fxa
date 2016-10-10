@@ -5,17 +5,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Able = require('lib/able');
-  var chai = require('chai');
-  var VerificationReasons = require('lib/verification-reasons');
-  var FxaClient = require('lib/fxa-client');
-  var OAuthBroker = require('models/auth_brokers/oauth');
-  var p = require('lib/promise');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var SyncRelier = require('models/reliers/sync');
-  var View = require('views/ready');
-  var WindowMock = require('../../mocks/window');
+  const Able = require('lib/able');
+  const chai = require('chai');
+  const VerificationReasons = require('lib/verification-reasons');
+  const FxaClient = require('lib/fxa-client');
+  const OAuthBroker = require('models/auth_brokers/oauth');
+  const p = require('lib/promise');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const SyncRelier = require('models/reliers/sync');
+  const View = require('views/ready');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

@@ -7,8 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Constants = require('lib/constants');
+  const _ = require('underscore');
+  const Constants = require('lib/constants');
 
   // taken from the fxa-auth-server
   var HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;

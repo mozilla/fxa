@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var assert = require('chai').assert;
-  var Backbone = require('backbone');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var VerificationReasons = require('lib/verification-reasons');
-  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const assert = require('chai').assert;
+  const Backbone = require('backbone');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const VerificationReasons = require('lib/verification-reasons');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   var View = BaseView.extend({});
   Cocktail.mixin(

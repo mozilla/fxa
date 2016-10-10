@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
-  var NullChannel = require('lib/channels/null');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var User = require('models/user');
-  var WindowMock = require('../../../mocks/window');
+  const chai = require('chai');
+  const FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
+  const NullChannel = require('lib/channels/null');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const User = require('models/user');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

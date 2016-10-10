@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var ResumeToken = require('models/resume-token');
-  var ResumeTokenMixin = require('models/mixins/resume-token');
-  var sinon = require('sinon');
-  var vat = require('lib/vat');
+  const Backbone = require('backbone');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const ResumeToken = require('models/resume-token');
+  const ResumeTokenMixin = require('models/mixins/resume-token');
+  const sinon = require('sinon');
+  const vat = require('lib/vat');
 
   var assert = chai.assert;
 

@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var HeightObserver = require('lib/height-observer');
-  var sinon = require('sinon');
-  var WindowMock = require('../../mocks/window');
+  const chai = require('chai');
+  const HeightObserver = require('lib/height-observer');
+  const sinon = require('sinon');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

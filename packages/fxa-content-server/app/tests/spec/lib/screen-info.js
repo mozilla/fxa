@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var ScreenInfo = require('lib/screen-info');
-  var WindowMock = require('../../mocks/window');
+  const chai = require('chai');
+  const ScreenInfo = require('lib/screen-info');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

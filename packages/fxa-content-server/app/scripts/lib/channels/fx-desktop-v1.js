@@ -9,10 +9,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var DuplexChannel = require('lib/channels/duplex');
-  var FxDesktopV1Sender = require('lib/channels/senders/fx-desktop-v1');
-  var PostMessageReceiver = require('lib/channels/receivers/postmessage');
+  const _ = require('underscore');
+  const DuplexChannel = require('lib/channels/duplex');
+  const FxDesktopV1Sender = require('lib/channels/senders/fx-desktop-v1');
+  const PostMessageReceiver = require('lib/channels/receivers/postmessage');
 
   function FxDesktopV1Channel() {
   }

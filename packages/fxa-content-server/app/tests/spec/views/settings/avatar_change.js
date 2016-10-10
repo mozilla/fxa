@@ -5,21 +5,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var FileReaderMock = require('../../../mocks/file-reader');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var ProfileClient = require('lib/profile-client');
-  var ProfileMock = require('../../../mocks/profile');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/settings/avatar_change');
-  var WindowMock = require('../../../mocks/window');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const FileReaderMock = require('../../../mocks/file-reader');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const ProfileClient = require('lib/profile-client');
+  const ProfileMock = require('../../../mocks/profile');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/settings/avatar_change');
+  const WindowMock = require('../../../mocks/window');
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   var assert = chai.assert;

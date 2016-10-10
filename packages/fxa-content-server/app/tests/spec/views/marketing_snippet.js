@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var VerificationReasons = require('lib/verification-reasons');
-  var Metrics = require('lib/metrics');
-  var View = require('views/marketing_snippet');
-  var WindowMock = require('../../mocks/window');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const VerificationReasons = require('lib/verification-reasons');
+  const Metrics = require('lib/metrics');
+  const View = require('views/marketing_snippet');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var sinon = require('sinon');
-  var WebChannelReceiver = require('lib/channels/receivers/web-channel');
-  var WindowMock = require('../../../../mocks/window');
+  const chai = require('chai');
+  const sinon = require('sinon');
+  const WebChannelReceiver = require('lib/channels/receivers/web-channel');
+  const WindowMock = require('../../../../mocks/window');
 
   var windowMock;
   var receiver;

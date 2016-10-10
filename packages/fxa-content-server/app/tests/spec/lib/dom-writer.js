@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var assert = require('chai').assert;
-  var domWriter = require('lib/dom-writer');
+  const $ = require('jquery');
+  const assert = require('chai').assert;
+  const domWriter = require('lib/dom-writer');
 
   describe('lib/dom-writer', function () {
     var content = '<div id="stage-child">stage child content</div>';

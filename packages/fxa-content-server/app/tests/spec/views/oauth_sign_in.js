@@ -5,21 +5,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var FormPrefill = require('models/form-prefill');
-  var FxaClient = require('lib/fxa-client');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var OAuthBroker = require('models/auth_brokers/oauth');
-  var OAuthRelier = require('models/reliers/oauth');
-  var p = require('lib/promise');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/sign_in');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const FormPrefill = require('models/form-prefill');
+  const FxaClient = require('lib/fxa-client');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const OAuthBroker = require('models/auth_brokers/oauth');
+  const OAuthRelier = require('models/reliers/oauth');
+  const p = require('lib/promise');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/sign_in');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

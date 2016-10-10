@@ -5,18 +5,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Assertion = require('lib/assertion');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
-  var OAuthClient = require('lib/oauth-client');
-  var OAuthErrors = require('lib/oauth-errors');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var User = require('models/user');
+  const Assertion = require('lib/assertion');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
+  const OAuthClient = require('lib/oauth-client');
+  const OAuthErrors = require('lib/oauth-errors');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const User = require('models/user');
 
   var assert = chai.assert;
 

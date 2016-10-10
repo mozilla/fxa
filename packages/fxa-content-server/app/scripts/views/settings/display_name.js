@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  var FormView = require('views/form');
-  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-  var Template = require('stache!templates/settings/display_name');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  const FormView = require('views/form');
+  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const Template = require('stache!templates/settings/display_name');
 
   var t = BaseView.t;
 

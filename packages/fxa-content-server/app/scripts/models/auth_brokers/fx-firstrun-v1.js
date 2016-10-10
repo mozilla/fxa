@@ -10,9 +10,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
-  var HaltBehavior = require('views/behaviors/halt');
+  const _ = require('underscore');
+  const FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
+  const HaltBehavior = require('views/behaviors/halt');
 
   var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 

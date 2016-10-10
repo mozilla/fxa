@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var $ = require('jquery');
-  var AttachedClients = require('models/attached-clients');
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var FormView = require('views/form');
-  var preventDefaultThen = require('views/base').preventDefaultThen;
-  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-  var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
-  var Strings = require('lib/strings');
-  var t = require('views/base').t;
-  var Template = require('stache!templates/settings/clients');
-  var Url = require('lib/url');
+  const _ = require('underscore');
+  const $ = require('jquery');
+  const AttachedClients = require('models/attached-clients');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const FormView = require('views/form');
+  const preventDefaultThen = require('views/base').preventDefaultThen;
+  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
+  const Strings = require('lib/strings');
+  const t = require('views/base').t;
+  const Template = require('stache!templates/settings/clients');
+  const Url = require('lib/url');
 
   var DEVICE_REMOVED_ANIMATION_MS = 150;
   var UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';

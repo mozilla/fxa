@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var chai = require('chai');
-  var Notifier = require('lib/channels/notifier');
-  var NullChannel = require('lib/channels/null');
-  var sinon = require('sinon');
+  const Backbone = require('backbone');
+  const chai = require('chai');
+  const Notifier = require('lib/channels/notifier');
+  const NullChannel = require('lib/channels/null');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

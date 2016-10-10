@@ -9,8 +9,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Validate = require('lib/validate');
-  var VerificationInfo = require('./base');
+  const Validate = require('lib/validate');
+  const VerificationInfo = require('./base');
 
   module.exports = VerificationInfo.extend({
     defaults: {

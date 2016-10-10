@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var chai = require('chai');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var Xhr = require('lib/xhr');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const chai = require('chai');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const Xhr = require('lib/xhr');
 
   var assert = chai.assert;
 

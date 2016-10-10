@@ -7,8 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var Constants = require('lib/constants');
+  const Backbone = require('backbone');
+  const Constants = require('lib/constants');
 
   function shouldResend (tries, maxTries) {
     return tries <= maxTries;

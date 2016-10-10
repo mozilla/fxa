@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var Notifier = require('lib/channels/notifier');
-  var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
-  var sinon = require('sinon');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const Notifier = require('lib/channels/notifier');
+  const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

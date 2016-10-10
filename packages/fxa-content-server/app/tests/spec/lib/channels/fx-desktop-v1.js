@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var FxDesktopV1Channel = require('lib/channels/fx-desktop-v1');
-  var WindowMock = require('../../../mocks/window');
+  const chai = require('chai');
+  const FxDesktopV1Channel = require('lib/channels/fx-desktop-v1');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

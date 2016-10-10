@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var Broker = require('models/auth_brokers/base');
-  var Chai = require('chai');
-  var Cocktail = require('cocktail');
-  var ExternalLinksMixin = require('views/mixins/external-links-mixin');
-  var TestTemplate = require('stache!templates/test_template');
-  var WindowMock = require('../../../mocks/window');
+  const BaseView = require('views/base');
+  const Broker = require('models/auth_brokers/base');
+  const Chai = require('chai');
+  const Cocktail = require('cocktail');
+  const ExternalLinksMixin = require('views/mixins/external-links-mixin');
+  const TestTemplate = require('stache!templates/test_template');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = Chai.assert;
 

@@ -5,22 +5,22 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var Device = require('models/device');
-  var AttachedClients = require('models/attached-clients');
-  var FxaClient = require('lib/fxa-client');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var OAuthApp = require('models/oauth-app');
-  var Session = require('lib/session');
-  var SentryMetrics = require('lib/sentry');
-  var sinon = require('sinon');
-  var User = require('models/user');
-  var VerificationReasons = require('lib/verification-reasons');
+  const Account = require('models/account');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const Device = require('models/device');
+  const AttachedClients = require('models/attached-clients');
+  const FxaClient = require('lib/fxa-client');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const OAuthApp = require('models/oauth-app');
+  const Session = require('lib/session');
+  const SentryMetrics = require('lib/sentry');
+  const sinon = require('sinon');
+  const User = require('models/user');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var assert = chai.assert;
 

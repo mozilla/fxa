@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var assert = require('chai').assert;
-  var Device = require('models/device');
-  var sinon = require('sinon');
+  const assert = require('chai').assert;
+  const Device = require('models/device');
+  const sinon = require('sinon');
 
   describe('models/device', function () {
     var device;

@@ -13,11 +13,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var _ = require('underscore');
-  var Relier = require('models/reliers/relier');
-  var ServiceNameTranslator = require('lib/service-name');
-  var Vat = require('lib/vat');
+  const AuthErrors = require('lib/auth-errors');
+  const _ = require('underscore');
+  const Relier = require('models/reliers/relier');
+  const ServiceNameTranslator = require('lib/service-name');
+  const Vat = require('lib/vat');
 
   /*eslint-disable camelcase*/
   var QUERY_PARAMETER_SCHEMA = {

@@ -18,9 +18,9 @@ define(function (require, exports, module) {
   var FORMAT_SVG = 'svg';
   var FORMAT_PNG = 'png';
 
-  var _ = require('underscore');
-  var MarketingSnippetView = require('views/marketing_snippet');
-  var Template = require('stache!templates/marketing_snippet_ios');
+  const _ = require('underscore');
+  const MarketingSnippetView = require('views/marketing_snippet');
+  const Template = require('stache!templates/marketing_snippet_ios');
 
   var playStoreImageLanguages = [
     'ca',

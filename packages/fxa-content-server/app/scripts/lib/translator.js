@@ -10,10 +10,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var Strings = require('lib/strings');
-  var xhr = require('lib/xhr');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const Strings = require('lib/strings');
+  const xhr = require('lib/xhr');
 
   var Translator = function () {
     this.translations = {};

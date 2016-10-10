@@ -5,16 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Able = require('lib/able');
-  var BaseView = require('views/base');
-  var Chai = require('chai');
-  var Cocktail = require('cocktail');
-  var Metrics = require('lib/metrics');
-  var Mixin = require('views/mixins/experiment-mixin');
-  var Notifier = require('lib/channels/notifier');
-  var TestTemplate = require('stache!templates/test_template');
-  var User = require('models/user');
-  var WindowMock = require('../../../mocks/window');
+  const Able = require('lib/able');
+  const BaseView = require('views/base');
+  const Chai = require('chai');
+  const Cocktail = require('cocktail');
+  const Metrics = require('lib/metrics');
+  const Mixin = require('views/mixins/experiment-mixin');
+  const Notifier = require('lib/channels/notifier');
+  const TestTemplate = require('stache!templates/test_template');
+  const User = require('models/user');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = Chai.assert;
   var View = BaseView.extend({

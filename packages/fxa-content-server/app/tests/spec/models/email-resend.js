@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var EmailResend = require('models/email-resend');
-  var sinon = require('sinon');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const EmailResend = require('models/email-resend');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

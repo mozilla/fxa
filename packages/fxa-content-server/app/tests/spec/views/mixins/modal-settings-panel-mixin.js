@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var Metrics = require('lib/metrics');
-  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  var sinon = require('sinon');
-  var TestTemplate = require('stache!templates/test_template');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const Metrics = require('lib/metrics');
+  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  const sinon = require('sinon');
+  const TestTemplate = require('stache!templates/test_template');
 
   var assert = chai.assert;
 

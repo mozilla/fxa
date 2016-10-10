@@ -10,8 +10,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var p = require('lib/promise');
+  const Backbone = require('backbone');
+  const p = require('lib/promise');
 
   var Relier = Backbone.Model.extend({
     defaults: {

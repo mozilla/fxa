@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Able = require('lib/able');
-  var chai = require('chai');
-  var Metrics = require('lib/metrics');
-  var sinon = require('sinon');
-  var View = require('views/marketing_snippet_ios');
-  var WindowMock = require('../../mocks/window');
-  var VerificationReasons = require('lib/verification-reasons');
+  const Able = require('lib/able');
+  const chai = require('chai');
+  const Metrics = require('lib/metrics');
+  const sinon = require('sinon');
+  const View = require('views/marketing_snippet_ios');
+  const WindowMock = require('../../mocks/window');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var assert = chai.assert;
 

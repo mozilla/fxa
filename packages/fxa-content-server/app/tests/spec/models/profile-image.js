@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var ProfileErrors = require('lib/profile-errors');
-  var ProfileImage = require('models/profile-image');
+  const chai = require('chai');
+  const ProfileErrors = require('lib/profile-errors');
+  const ProfileImage = require('models/profile-image');
 
   var assert = chai.assert;
 

@@ -11,8 +11,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var KeyCodes = require('lib/key-codes');
+  const BaseView = require('views/base');
+  const KeyCodes = require('lib/key-codes');
 
   var BackMixin = {
     _canGoBack: false,

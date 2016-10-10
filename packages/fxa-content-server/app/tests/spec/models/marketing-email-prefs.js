@@ -5,14 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var MarketingEmailClient = require('lib/marketing-email-client');
-  var MarketingEmailPrefs = require('models/marketing-email-prefs');
-  var OAuthToken = require('models/oauth-token');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
+  const Account = require('models/account');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const MarketingEmailClient = require('lib/marketing-email-client');
+  const MarketingEmailPrefs = require('models/marketing-email-prefs');
+  const OAuthToken = require('models/oauth-token');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

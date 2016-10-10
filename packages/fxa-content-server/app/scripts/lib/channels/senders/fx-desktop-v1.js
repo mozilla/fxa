@@ -9,7 +9,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var p = require('lib/promise');
+  const p = require('lib/promise');
 
   function FxDesktopV1Sender() {
     // nothing to do here.

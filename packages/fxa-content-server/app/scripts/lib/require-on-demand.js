@@ -17,9 +17,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Errors = require('lib/errors');
-  var p = require('lib/promise');
+  const _ = require('underscore');
+  const Errors = require('lib/errors');
+  const p = require('lib/promise');
 
   var t = function (msg) {
     return msg;

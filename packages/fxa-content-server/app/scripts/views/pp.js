@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var LegalCopyView = require('views/legal_copy');
-  var Template = require('stache!templates/pp');
+  const AuthErrors = require('lib/auth-errors');
+  const LegalCopyView = require('views/legal_copy');
+  const Template = require('stache!templates/pp');
 
   var View = LegalCopyView.extend({
     className: 'pp',

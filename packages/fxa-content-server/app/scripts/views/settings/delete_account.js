@@ -5,15 +5,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  var FormView = require('views/form');
-  var PasswordMixin = require('views/mixins/password-mixin');
-  var ServiceMixin = require('views/mixins/settings-panel-mixin');
-  var Session = require('lib/session');
-  var SettingsPanelMixin = require('views/mixins/service-mixin');
-  var Template = require('stache!templates/settings/delete_account');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  const FormView = require('views/form');
+  const PasswordMixin = require('views/mixins/password-mixin');
+  const ServiceMixin = require('views/mixins/settings-panel-mixin');
+  const Session = require('lib/session');
+  const SettingsPanelMixin = require('views/mixins/service-mixin');
+  const Template = require('stache!templates/settings/delete_account');
 
   var t = BaseView.t;
 

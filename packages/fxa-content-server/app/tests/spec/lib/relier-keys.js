@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var RelierKeys = require('lib/relier-keys');
+  const chai = require('chai');
+  const RelierKeys = require('lib/relier-keys');
 
   var assert = chai.assert;
 

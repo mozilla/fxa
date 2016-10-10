@@ -5,14 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
-  var sinon = require('sinon');
+  const Backbone = require('backbone');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 

@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Transform = require('lib/transform');
-  var Vat = require('lib/vat');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Transform = require('lib/transform');
+  const Vat = require('lib/vat');
 
   var assert = chai.assert;
 

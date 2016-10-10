@@ -11,9 +11,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Constants = require('lib/constants');
-  var FxFirstrunV1AuthenticationBroker = require('./fx-firstrun-v1');
+  const _ = require('underscore');
+  const Constants = require('lib/constants');
+  const FxFirstrunV1AuthenticationBroker = require('./fx-firstrun-v1');
 
   var proto = FxFirstrunV1AuthenticationBroker.prototype;
 

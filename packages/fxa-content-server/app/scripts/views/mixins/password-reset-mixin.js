@@ -12,8 +12,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const _ = require('underscore');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
 
   module.exports = _.extend({
     /**

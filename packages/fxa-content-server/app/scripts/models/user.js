@@ -11,18 +11,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Account = require('models/account');
-  var Backbone = require('backbone');
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var p = require('lib/promise');
-  var ResumeTokenMixin = require('models/mixins/resume-token');
-  var SearchParamMixin = require('models/mixins/search-param');
-  var Storage = require('lib/storage');
-  var vat = require('lib/vat');
-  var VerificationReasons = require('lib/verification-reasons');
+  const _ = require('underscore');
+  const Account = require('models/account');
+  const Backbone = require('backbone');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const p = require('lib/promise');
+  const ResumeTokenMixin = require('models/mixins/resume-token');
+  const SearchParamMixin = require('models/mixins/search-param');
+  const Storage = require('lib/storage');
+  const vat = require('lib/vat');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var User = Backbone.Model.extend({
     initialize: function (options) {

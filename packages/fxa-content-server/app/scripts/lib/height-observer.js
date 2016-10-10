@@ -10,8 +10,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
 
   function HeightObserver (options) {
     options = options || {};

@@ -5,17 +5,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var domWriter = require('lib/dom-writer');
-  var ErrorUtils = require('lib/error-utils');
-  var FiveHundredTemplate = require('stache!templates/500');
-  var FourHundredTemplate = require('stache!templates/400');
-  var OAuthErrors = require('lib/oauth-errors');
-  var sinon = require('sinon');
-  var Translator = require('lib/translator');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const domWriter = require('lib/dom-writer');
+  const ErrorUtils = require('lib/error-utils');
+  const FiveHundredTemplate = require('stache!templates/500');
+  const FourHundredTemplate = require('stache!templates/400');
+  const OAuthErrors = require('lib/oauth-errors');
+  const sinon = require('sinon');
+  const Translator = require('lib/translator');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

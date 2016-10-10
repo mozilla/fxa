@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var assert = require('chai').assert;
-  var Broker = require('models/auth_brokers/base');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var SignUpMixin = require('views/mixins/signup-mixin');
-  var sinon = require('sinon');
+  const Account = require('models/account');
+  const assert = require('chai').assert;
+  const Broker = require('models/auth_brokers/base');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const SignUpMixin = require('views/mixins/signup-mixin');
+  const sinon = require('sinon');
 
   describe('views/mixins/signup-mixin', function () {
     it('exports correct interface', function () {

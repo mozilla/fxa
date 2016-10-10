@@ -5,30 +5,30 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var Able = require('lib/able');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var CommunicationPreferencesView = require('views/settings/communication_preferences');
-  var FormPrefill = require('models/form-prefill');
-  var FxaClient = require('lib/fxa-client');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var ProfileClient = require('lib/profile-client');
-  var ProfileErrors = require('lib/profile-errors');
-  var ProfileImage = require('models/profile-image');
-  var Relier = require('models/reliers/relier');
-  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-  var sinon = require('sinon');
-  var SubPanels = require('views/sub_panels');
-  var TestHelpers = require('../../lib/helpers');
-  var TestTemplate = require('stache!templates/test_template');
-  var User = require('models/user');
-  var View = require('views/settings');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const Able = require('lib/able');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const CommunicationPreferencesView = require('views/settings/communication_preferences');
+  const FormPrefill = require('models/form-prefill');
+  const FxaClient = require('lib/fxa-client');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const ProfileClient = require('lib/profile-client');
+  const ProfileErrors = require('lib/profile-errors');
+  const ProfileImage = require('models/profile-image');
+  const Relier = require('models/reliers/relier');
+  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const sinon = require('sinon');
+  const SubPanels = require('views/sub_panels');
+  const TestHelpers = require('../../lib/helpers');
+  const TestTemplate = require('stache!templates/test_template');
+  const User = require('models/user');
+  const View = require('views/settings');
 
   var assert = chai.assert;
 

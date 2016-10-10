@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var ExperimentInterface = require('lib/experiment');
+  const ExperimentInterface = require('lib/experiment');
 
   module.exports = {
     initialize: function (options) {

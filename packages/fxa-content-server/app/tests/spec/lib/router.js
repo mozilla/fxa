@@ -5,24 +5,24 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var DisplayNameView = require('views/settings/display_name');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var NullBroker = require('models/auth_brokers/base');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var Router = require('lib/router');
-  var SettingsView = require('views/settings');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var WindowMock = require('../../mocks/window');
+  const Account = require('models/account');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const DisplayNameView = require('views/settings/display_name');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const NullBroker = require('models/auth_brokers/base');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const Router = require('lib/router');
+  const SettingsView = require('views/settings');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

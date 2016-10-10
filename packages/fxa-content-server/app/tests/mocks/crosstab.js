@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var crosstab = require('crosstab');
+  const crosstab = require('crosstab');
 
   function deepStub(target, source) {
     for (var key in source) {

@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var ProgressIndicator = require('views/progress_indicator');
-  var sinon = require('sinon');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const ProgressIndicator = require('views/progress_indicator');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
   var progressIndicator;

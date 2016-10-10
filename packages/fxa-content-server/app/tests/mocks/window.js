@@ -7,11 +7,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
-  var NullStorage = require('lib/null-storage');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
+  const NullStorage = require('lib/null-storage');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
 
   function MutationObserver (notifier) {
     return {

@@ -5,14 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var chai = require('chai');
-  var FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
-  var NullChannel = require('lib/channels/null');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var WindowMock = require('../../../mocks/window');
+  const Account = require('models/account');
+  const chai = require('chai');
+  const FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
+  const NullChannel = require('lib/channels/null');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

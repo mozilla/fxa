@@ -10,7 +10,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
+  const $ = require('jquery');
 
   var MarketingMixin = {
     events: {

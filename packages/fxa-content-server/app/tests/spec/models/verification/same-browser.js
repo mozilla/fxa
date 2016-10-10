@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var SameBrowserVerificationModel = require('models/verification/same-browser');
-  var sinon = require('sinon');
-  var Storage = require('lib/storage');
+  const chai = require('chai');
+  const SameBrowserVerificationModel = require('models/verification/same-browser');
+  const sinon = require('sinon');
+  const Storage = require('lib/storage');
 
   var assert = chai.assert;
 

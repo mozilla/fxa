@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Constants = require('lib/constants');
-  var p = require('lib/promise');
-  var ProfileMock = require('../mocks/profile.js');
-  var sinon = require('sinon');
+  const _ = require('underscore');
+  const Constants = require('lib/constants');
+  const p = require('lib/promise');
+  const ProfileMock = require('../mocks/profile.js');
+  const sinon = require('sinon');
 
   function noOp () {}
 

@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var assert = require('chai').assert;
-  var AttachedClients = require('models/attached-clients');
-  var Constants = require('lib/constants');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var User = require('models/user');
+  const assert = require('chai').assert;
+  const AttachedClients = require('models/attached-clients');
+  const Constants = require('lib/constants');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const User = require('models/user');
 
   describe('models/attached-clients', function () {
     var attachedClients;

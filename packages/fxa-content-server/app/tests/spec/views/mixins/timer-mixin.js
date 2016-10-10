@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var Chai = require('chai');
-  var Cocktail = require('cocktail');
-  var TestHelpers = require('../../../lib/helpers');
-  var TimerMixin = require('views/mixins/timer-mixin');
+  const BaseView = require('views/base');
+  const Chai = require('chai');
+  const Cocktail = require('cocktail');
+  const TestHelpers = require('../../../lib/helpers');
+  const TimerMixin = require('views/mixins/timer-mixin');
 
   var assert = Chai.assert;
 

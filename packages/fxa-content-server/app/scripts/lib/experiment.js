@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var MailcheckExperiment = require('lib/experiments/mailcheck');
-  var ShowPasswordExperiment = require('lib/experiments/show-password');
-  var Url = require('lib/url');
+  const _ = require('underscore');
+  const MailcheckExperiment = require('lib/experiments/mailcheck');
+  const ShowPasswordExperiment = require('lib/experiments/show-password');
+  const Url = require('lib/url');
 
   var CHOOSE_ABLE_EXPERIMENT = 'chooseAbExperiment';
   var FORCE_EXPERIMENT_PARAM = 'forceExperiment';

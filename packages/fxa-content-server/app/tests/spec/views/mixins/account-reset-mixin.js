@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AccountResetMixin = require('views/mixins/account-reset-mixin');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var Chai = require('chai');
-  var Cocktail = require('cocktail');
-  var FxaClient = require('lib/fxa-client');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/base');
-  var sinon = require('sinon');
-  var Template = require('stache!templates/test_template');
-  var User = require('models/user');
+  const AccountResetMixin = require('views/mixins/account-reset-mixin');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const Chai = require('chai');
+  const Cocktail = require('cocktail');
+  const FxaClient = require('lib/fxa-client');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/base');
+  const sinon = require('sinon');
+  const Template = require('stache!templates/test_template');
+  const User = require('models/user');
 
   var assert = Chai.assert;
 

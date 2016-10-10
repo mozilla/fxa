@@ -10,10 +10,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
-  var Storage = require('lib/storage');
-  var Url = require('lib/url');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
+  const Storage = require('lib/storage');
+  const Url = require('lib/url');
 
   var FORCE_GROUP_TYPE = 'forceExperimentGroup';
   var storage = Storage.factory('localStorage');

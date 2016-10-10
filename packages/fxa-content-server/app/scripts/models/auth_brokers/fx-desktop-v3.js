@@ -11,8 +11,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var FxDesktopV2AuthenticationBroker = require('./fx-desktop-v2');
+  const _ = require('underscore');
+  const FxDesktopV2AuthenticationBroker = require('./fx-desktop-v2');
 
   var proto = FxDesktopV2AuthenticationBroker.prototype;
 

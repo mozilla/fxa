@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var RefreshObserver = require('models/refresh-observer');
-  var sinon = require('sinon');
-  var WindowMock = require('../../mocks/window');
+  const chai = require('chai');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const RefreshObserver = require('models/refresh-observer');
+  const sinon = require('sinon');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

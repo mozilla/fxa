@@ -18,8 +18,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var Storage = require('lib/storage');
+  const Backbone = require('backbone');
+  const Storage = require('lib/storage');
 
   var STORAGE_KEY = 'verificationInfo';
 

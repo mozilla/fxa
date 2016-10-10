@@ -11,9 +11,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
-  var p = require('lib/promise');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
+  const p = require('lib/promise');
 
   var SCOPES = 'basket:write profile:email';
 

@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Environment = require('lib/environment');
-  var sinon = require('sinon');
-  var StartupStyles = require('head/startup-styles');
-  var WindowMock = require('../../mocks/window');
+  const chai = require('chai');
+  const Environment = require('lib/environment');
+  const sinon = require('sinon');
+  const StartupStyles = require('head/startup-styles');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

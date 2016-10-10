@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var Notifier = require('lib/channels/notifier');
-  var Session = require('lib/session');
+  const BaseView = require('views/base');
+  const Notifier = require('lib/channels/notifier');
+  const Session = require('lib/session');
 
   var Mixin = {
     notifications: {

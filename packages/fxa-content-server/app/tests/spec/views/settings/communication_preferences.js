@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var Account = require('models/account');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var MarketingEmailPrefs = require('models/marketing-email-prefs');
-  var Metrics = require('lib/metrics');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/settings/communication_preferences');
+  const $ = require('jquery');
+  const Account = require('models/account');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const MarketingEmailPrefs = require('models/marketing-email-prefs');
+  const Metrics = require('lib/metrics');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/settings/communication_preferences');
 
   var assert = chai.assert;
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;

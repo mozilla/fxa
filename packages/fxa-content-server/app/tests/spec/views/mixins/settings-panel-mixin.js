@@ -5,16 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  var FormView = require('views/form');
-  var KeyCodes = require('lib/key-codes');
-  var Metrics = require('lib/metrics');
-  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-  var sinon = require('sinon');
-  var TestTemplate = require('stache!templates/test_template');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  const FormView = require('views/form');
+  const KeyCodes = require('lib/key-codes');
+  const Metrics = require('lib/metrics');
+  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const sinon = require('sinon');
+  const TestTemplate = require('stache!templates/test_template');
 
   var assert = chai.assert;
 

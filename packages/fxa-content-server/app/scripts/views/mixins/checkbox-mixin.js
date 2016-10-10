@@ -9,9 +9,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var FxaCheckbox = require('fxaCheckbox');
-  var Strings = require('lib/strings');
+  const $ = require('jquery');
+  const FxaCheckbox = require('fxaCheckbox');
+  const Strings = require('lib/strings');
 
   module.exports = {
     events: {

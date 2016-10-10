@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Metrics = require('lib/metrics');
-  var NullMetrics = require('lib/null-metrics');
+  const chai = require('chai');
+  const Metrics = require('lib/metrics');
+  const NullMetrics = require('lib/null-metrics');
 
   var assert = chai.assert;
 

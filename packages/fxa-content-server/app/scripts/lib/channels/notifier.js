@@ -9,9 +9,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
-  var Validate = require('lib/validate');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
+  const Validate = require('lib/validate');
 
   // Commands that have the 'internal:' namespace should only be
   // handled by the content server. Other commands may be handled

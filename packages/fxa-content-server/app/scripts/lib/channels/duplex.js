@@ -13,11 +13,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var BaseChannel = require('lib/channels/base');
-  var Duration = require('duration');
-  var Logger = require('lib/logger');
-  var p = require('lib/promise');
+  const _ = require('underscore');
+  const BaseChannel = require('lib/channels/base');
+  const Duration = require('duration');
+  const Logger = require('lib/logger');
+  const p = require('lib/promise');
 
   var DEFAULT_SEND_TIMEOUT_LENGTH_MS = new Duration('90s').milliseconds();
 

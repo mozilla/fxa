@@ -5,18 +5,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var FormView = require('views/form');
-  var NullBehavior = require('views/behaviors/null');
-  var p = require('lib/promise');
-  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  var SignInView = require('views/sign_in');
-  var Template = require('stache!templates/force_auth');
-  var Transform = require('lib/transform');
-  var Vat = require('lib/vat');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const FormView = require('views/form');
+  const NullBehavior = require('views/behaviors/null');
+  const p = require('lib/promise');
+  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
+  const SignInView = require('views/sign_in');
+  const Template = require('stache!templates/force_auth');
+  const Transform = require('lib/transform');
+  const Vat = require('lib/vat');
 
   var RELIER_DATA_SCHEMA = {
     email: Vat.email().required(),

@@ -9,9 +9,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Constants = require('lib/constants');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var xhr = require('lib/xhr');
+  const Constants = require('lib/constants');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const xhr = require('lib/xhr');
 
   function MarketingEmailClient(options) {
     options = options || {};

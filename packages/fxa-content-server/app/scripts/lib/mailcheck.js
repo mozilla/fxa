@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var KeyCodes = require('lib/key-codes');
-  var mailcheck = require('mailcheck'); //eslint-disable-line no-unused-vars
-  var Tooltip = require('views/tooltip');
+  const KeyCodes = require('lib/key-codes');
+  const mailcheck = require('mailcheck'); //eslint-disable-line no-unused-vars
+  const Tooltip = require('views/tooltip');
 
   var DOMAINS = [];
   var SECOND_LEVEL_DOMAINS = [ // domains that get suggested, i.e gnail => gmail

@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var chai = require('chai');
+  const AuthErrors = require('lib/auth-errors');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const chai = require('chai');
 
   var assert = chai.assert;
 

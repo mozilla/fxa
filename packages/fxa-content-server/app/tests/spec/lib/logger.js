@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Logger = require('lib/logger');
-  var sinon = require('sinon');
-  var WindowMock = require('../../mocks/window');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Logger = require('lib/logger');
+  const sinon = require('sinon');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

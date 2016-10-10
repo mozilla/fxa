@@ -5,22 +5,22 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Broker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var VerificationReasons = require('lib/verification-reasons');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/complete_sign_up');
-  var WindowMock = require('../../mocks/window');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Broker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const VerificationReasons = require('lib/verification-reasons');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/complete_sign_up');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

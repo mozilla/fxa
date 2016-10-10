@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var View = require('views/clear_storage');
+  const chai = require('chai');
+  const View = require('views/clear_storage');
 
   var assert = chai.assert;
 

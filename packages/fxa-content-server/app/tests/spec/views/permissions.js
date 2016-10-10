@@ -5,21 +5,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var Backbone = require('backbone');
-  var Broker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var Metrics = require('lib/metrics');
-  var OAuthErrors = require('lib/oauth-errors');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var Notifier = require('lib/channels/notifier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var VerificationReasons = require('lib/verification-reasons');
-  var View = require('views/permissions');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const Backbone = require('backbone');
+  const Broker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const Metrics = require('lib/metrics');
+  const OAuthErrors = require('lib/oauth-errors');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const Notifier = require('lib/channels/notifier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const VerificationReasons = require('lib/verification-reasons');
+  const View = require('views/permissions');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

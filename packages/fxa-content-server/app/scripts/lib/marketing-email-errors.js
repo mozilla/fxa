@@ -7,8 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Errors = require('lib/errors');
+  const _ = require('underscore');
+  const Errors = require('lib/errors');
 
   var t = function (msg) {
     return msg;

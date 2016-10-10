@@ -11,10 +11,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var CloseTemplate = require('stache!templates/partial/close-button');
-  var OAuthErrors = require('lib/oauth-errors');
-  var p = require('lib/promise');
+  const BaseView = require('views/base');
+  const CloseTemplate = require('stache!templates/partial/close-button');
+  const OAuthErrors = require('lib/oauth-errors');
+  const p = require('lib/promise');
 
   var View = BaseView.extend({
     template: CloseTemplate,

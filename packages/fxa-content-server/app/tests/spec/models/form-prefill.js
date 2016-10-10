@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var FormPrefill = require('models/form-prefill');
+  const chai = require('chai');
+  const FormPrefill = require('models/form-prefill');
 
   var assert = chai.assert;
 

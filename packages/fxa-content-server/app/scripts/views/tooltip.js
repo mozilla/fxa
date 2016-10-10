@@ -7,10 +7,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var BaseView = require('views/base');
-  var KeyCodes = require('lib/key-codes');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const BaseView = require('views/base');
+  const KeyCodes = require('lib/key-codes');
 
   var displayedTooltip;
   var PADDING_BELOW_TOOLTIP_PX = 2;

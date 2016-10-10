@@ -5,16 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var Metrics = require('lib/metrics');
-  var OAuthBroker = require('models/auth_brokers/oauth');
-  var OAuthErrors = require('lib/oauth-errors');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var View = require('views/close_button');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const Metrics = require('lib/metrics');
+  const OAuthBroker = require('models/auth_brokers/oauth');
+  const OAuthErrors = require('lib/oauth-errors');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const View = require('views/close_button');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

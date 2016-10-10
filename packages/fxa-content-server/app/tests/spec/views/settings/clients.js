@@ -5,18 +5,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
+  const $ = require('jquery');
   var _ = require ('underscore');
-  var Able = require('lib/able');
-  var assert = require('chai').assert;
-  var BaseView = require('views/base');
-  var AttachedClients = require('models/attached-clients');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var User = require('models/user');
-  var View = require('views/settings/clients');
-  var TestHelpers = require('../../../lib/helpers');
+  const Able = require('lib/able');
+  const assert = require('chai').assert;
+  const BaseView = require('views/base');
+  const AttachedClients = require('models/attached-clients');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const User = require('models/user');
+  const View = require('views/settings/clients');
+  const TestHelpers = require('../../../lib/helpers');
 
   describe('views/settings/clients', function () {
     var UID = '123';

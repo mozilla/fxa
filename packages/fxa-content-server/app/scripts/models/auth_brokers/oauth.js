@@ -10,15 +10,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseAuthenticationBroker = require('models/auth_brokers/base');
-  var Constants = require('lib/constants');
-  var HaltBehavior = require('views/behaviors/halt');
-  var OAuthErrors = require('lib/oauth-errors');
-  var p = require('lib/promise');
-  var Url = require('lib/url');
-  var Validate = require('lib/validate');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseAuthenticationBroker = require('models/auth_brokers/base');
+  const Constants = require('lib/constants');
+  const HaltBehavior = require('views/behaviors/halt');
+  const OAuthErrors = require('lib/oauth-errors');
+  const p = require('lib/promise');
+  const Url = require('lib/url');
+  const Validate = require('lib/validate');
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object

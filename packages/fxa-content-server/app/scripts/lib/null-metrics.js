@@ -10,9 +10,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Metrics = require('lib/metrics');
-  var p = require('lib/promise');
+  const _ = require('underscore');
+  const Metrics = require('lib/metrics');
+  const p = require('lib/promise');
 
   function NullMetrics () {
     // do nothing

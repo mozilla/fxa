@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var Relier = require('models/reliers/relier');
-  var ResumeToken = require('models/resume-token');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  var TestTemplate = require('stache!templates/test_template');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const Relier = require('models/reliers/relier');
+  const ResumeToken = require('models/resume-token');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const TestTemplate = require('stache!templates/test_template');
 
   var assert = chai.assert;
 

@@ -5,16 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var Chai = require('chai');
-  var Cocktail = require('cocktail');
-  var NullBroker = require('models/auth_brokers/base');
-  var OAuthRelier = require('models/reliers/oauth');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var TestTemplate = require('stache!templates/test_template');
-  var WindowMock = require('../../../mocks/window');
+  const BaseView = require('views/base');
+  const Chai = require('chai');
+  const Cocktail = require('cocktail');
+  const NullBroker = require('models/auth_brokers/base');
+  const OAuthRelier = require('models/reliers/oauth');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const TestTemplate = require('stache!templates/test_template');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = Chai.assert;
 

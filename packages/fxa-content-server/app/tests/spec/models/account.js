@@ -5,25 +5,25 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var Assertion = require('lib/assertion');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var Device = require('models/device');
-  var FxaClientWrapper = require('lib/fxa-client');
-  var MarketingEmailClient = require('lib/marketing-email-client');
-  var OAuthApp = require('models/oauth-app');
-  var OAuthClient = require('lib/oauth-client');
-  var OAuthToken = require('models/oauth-token');
-  var p = require('lib/promise');
-  var ProfileClient = require('lib/profile-client');
-  var ProfileErrors = require('lib/profile-errors');
-  var Relier = require('models/reliers/relier');
-  var SignInReasons = require('lib/sign-in-reasons');
-  var sinon = require('sinon');
-  var VerificationMethods = require('lib/verification-methods');
-  var VerificationReasons = require('lib/verification-reasons');
+  const Account = require('models/account');
+  const Assertion = require('lib/assertion');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const Device = require('models/device');
+  const FxaClientWrapper = require('lib/fxa-client');
+  const MarketingEmailClient = require('lib/marketing-email-client');
+  const OAuthApp = require('models/oauth-app');
+  const OAuthClient = require('lib/oauth-client');
+  const OAuthToken = require('models/oauth-token');
+  const p = require('lib/promise');
+  const ProfileClient = require('lib/profile-client');
+  const ProfileErrors = require('lib/profile-errors');
+  const Relier = require('models/reliers/relier');
+  const SignInReasons = require('lib/sign-in-reasons');
+  const sinon = require('sinon');
+  const VerificationMethods = require('lib/verification-methods');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var assert = chai.assert;
 

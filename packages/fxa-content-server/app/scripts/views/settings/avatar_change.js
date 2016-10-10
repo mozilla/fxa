@@ -5,16 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var Cocktail = require('cocktail');
-  var CropperImage = require('models/cropper-image');
-  var FormView = require('views/form');
-  var ImageLoader = require('lib/image-loader');
-  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  var p = require('lib/promise');
-  var Template = require('stache!templates/settings/avatar_change');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const Cocktail = require('cocktail');
+  const CropperImage = require('models/cropper-image');
+  const FormView = require('views/form');
+  const ImageLoader = require('lib/image-loader');
+  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  const p = require('lib/promise');
+  const Template = require('stache!templates/settings/avatar_change');
 
   const proto = FormView.prototype;
   const View = FormView.extend({

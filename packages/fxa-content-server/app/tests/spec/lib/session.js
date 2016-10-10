@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Session = require('lib/session');
+  const chai = require('chai');
+  const Session = require('lib/session');
 
   var assert = chai.assert;
 

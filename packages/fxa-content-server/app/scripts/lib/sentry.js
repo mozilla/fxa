@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Logger = require('lib/logger');
-  var Raven = require('raven');
-  var Url = require('lib/url');
+  const _ = require('underscore');
+  const Logger = require('lib/logger');
+  const Raven = require('raven');
+  const Url = require('lib/url');
 
   var ALLOWED_QUERY_PARAMETERS = [
     'automatedBrowser',

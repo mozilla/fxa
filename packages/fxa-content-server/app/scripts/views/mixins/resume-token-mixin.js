@@ -7,8 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var ResumeToken = require('models/resume-token');
+  const _ = require('underscore');
+  const ResumeToken = require('models/resume-token');
 
   module.exports = {
     /**

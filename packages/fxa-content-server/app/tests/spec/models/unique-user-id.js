@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var ResumeToken = require('models/resume-token');
-  var Storage = require('lib/storage');
-  var UniqueUserId = require('models/unique-user-id');
-  var Url = require('lib/url');
-  var WindowMock = require('../../mocks/window');
+  const chai = require('chai');
+  const ResumeToken = require('models/resume-token');
+  const Storage = require('lib/storage');
+  const UniqueUserId = require('models/unique-user-id');
+  const Url = require('lib/url');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

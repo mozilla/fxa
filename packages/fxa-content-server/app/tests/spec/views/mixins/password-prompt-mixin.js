@@ -5,15 +5,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var PasswordPromptMixin = require('views/mixins/password-prompt-mixin');
-  var PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
-  var sinon = require('sinon');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const PasswordPromptMixin = require('views/mixins/password-prompt-mixin');
+  const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
+  const sinon = require('sinon');
 
-  var FormView = require('views/form');
-  var Template = require('stache!templates/test_template');
+  const FormView = require('views/form');
+  const Template = require('stache!templates/test_template');
 
   var TestView = FormView.extend({
     template: Template

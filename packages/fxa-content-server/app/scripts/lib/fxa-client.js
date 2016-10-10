@@ -9,16 +9,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var Constants = require('lib/constants');
-  var p = require('lib/promise');
-  var requireOnDemand = require('lib/require-on-demand');
-  var Session = require('lib/session');
-  var SignInReasons = require('lib/sign-in-reasons');
-  var VerificationReasons = require('lib/verification-reasons');
-  var VerificationMethods = require('lib/verification-methods');
+  const _ = require('underscore');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const Constants = require('lib/constants');
+  const p = require('lib/promise');
+  const requireOnDemand = require('lib/require-on-demand');
+  const Session = require('lib/session');
+  const SignInReasons = require('lib/sign-in-reasons');
+  const VerificationReasons = require('lib/verification-reasons');
+  const VerificationMethods = require('lib/verification-methods');
 
   function trim(str) {
     return $.trim(str);

@@ -5,25 +5,25 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AccountResetMixin = require('views/mixins/account-reset-mixin');
-  var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
-  var AuthErrors = require('lib/auth-errors');
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var FlowBeginMixin = require('views/mixins/flow-begin-mixin');
-  var FormView = require('views/form');
-  var MigrationMixin = require('views/mixins/migration-mixin');
-  var PasswordMixin = require('views/mixins/password-mixin');
-  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Session = require('lib/session');
-  var showProgressIndicator = require('views/decorators/progress_indicator');
-  var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
-  var SignInMixin = require('views/mixins/signin-mixin');
-  var SignInTemplate = require('stache!templates/sign_in');
+  const AccountResetMixin = require('views/mixins/account-reset-mixin');
+  const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
+  const AuthErrors = require('lib/auth-errors');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
+  const FormView = require('views/form');
+  const MigrationMixin = require('views/mixins/migration-mixin');
+  const PasswordMixin = require('views/mixins/password-mixin');
+  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Session = require('lib/session');
+  const showProgressIndicator = require('views/decorators/progress_indicator');
+  const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
+  const SignInMixin = require('views/mixins/signin-mixin');
+  const SignInTemplate = require('stache!templates/sign_in');
 
   var t = BaseView.t;
 

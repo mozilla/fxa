@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var BackMixin = require('views/mixins/back-mixin');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var Storage = require('lib/storage');
-  var Template = require('stache!templates/cookies_disabled');
+  const AuthErrors = require('lib/auth-errors');
+  const BackMixin = require('views/mixins/back-mixin');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const Storage = require('lib/storage');
+  const Template = require('stache!templates/cookies_disabled');
 
   var View = BaseView.extend({
     constructor: function (options) {

@@ -5,16 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var Assertion = require('lib/assertion');
-  var chai = require('chai');
-  var ConfigLoader = require('lib/config-loader');
-  var Duration = require('duration');
-  var FxaClientWrapper = require('lib/fxa-client');
-  var jwcrypto = require('jwcrypto.rs');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var TestHelpers = require('../../lib/helpers');
+  const $ = require('jquery');
+  const Assertion = require('lib/assertion');
+  const chai = require('chai');
+  const ConfigLoader = require('lib/config-loader');
+  const Duration = require('duration');
+  const FxaClientWrapper = require('lib/fxa-client');
+  const jwcrypto = require('jwcrypto.rs');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const TestHelpers = require('../../lib/helpers');
 
   var assert = chai.assert;
   var AUDIENCE = 'http://123done.org';

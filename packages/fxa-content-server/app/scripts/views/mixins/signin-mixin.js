@@ -7,10 +7,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var p = require('lib/promise');
-  var VerificationMethods = require('lib/verification-methods');
-  var VerificationReasons = require('lib/verification-reasons');
+  const AuthErrors = require('lib/auth-errors');
+  const p = require('lib/promise');
+  const VerificationMethods = require('lib/verification-methods');
+  const VerificationReasons = require('lib/verification-reasons');
 
   module.exports = {
     // force auth extends a view with this mixin

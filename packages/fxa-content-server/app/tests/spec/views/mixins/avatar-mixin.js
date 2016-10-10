@@ -5,23 +5,23 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var AuthErrors = require('lib/auth-errors');
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var BaseView = require('views/base');
-  var Chai = require('chai');
-  var Cocktail = require('cocktail');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var NullChannel = require('lib/channels/null');
-  var p = require('lib/promise');
-  var ProfileErrors = require('lib/profile-errors');
-  var ProfileImage = require('models/profile-image');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
+  const Account = require('models/account');
+  const AuthErrors = require('lib/auth-errors');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const BaseView = require('views/base');
+  const Chai = require('chai');
+  const Cocktail = require('cocktail');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const NullChannel = require('lib/channels/null');
+  const p = require('lib/promise');
+  const ProfileErrors = require('lib/profile-errors');
+  const ProfileImage = require('models/profile-image');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
 
-  var TestHelpers = require('../../../lib/helpers');
-  var User = require('models/user');
+  const TestHelpers = require('../../../lib/helpers');
+  const User = require('models/user');
 
   var assert = Chai.assert;
 

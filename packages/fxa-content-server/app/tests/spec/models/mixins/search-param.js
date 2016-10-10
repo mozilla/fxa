@@ -5,14 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var SearchParamMixin = require('models/mixins/search-param');
-  var TestHelpers = require('../../../lib/helpers');
-  var Vat = require('vat');
-  var WindowMock = require('../../../mocks/window');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const SearchParamMixin = require('models/mixins/search-param');
+  const TestHelpers = require('../../../lib/helpers');
+  const Vat = require('vat');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

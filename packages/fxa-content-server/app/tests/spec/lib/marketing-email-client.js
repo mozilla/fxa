@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var MarketingEmailClient = require('lib/marketing-email-client');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var xhr = require('lib/xhr');
+  const chai = require('chai');
+  const MarketingEmailClient = require('lib/marketing-email-client');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const xhr = require('lib/xhr');
 
   var assert = chai.assert;
 

@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var NullChannel = require('lib/channels/null');
+  const NullChannel = require('lib/channels/null');
 
   var channel;
 
