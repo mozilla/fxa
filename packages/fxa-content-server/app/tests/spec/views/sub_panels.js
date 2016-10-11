@@ -54,7 +54,7 @@ define(function (require, exports, module) {
         notifier: notifier,
         panelViews: panelViews,
         parent: parent,
-        createView: function (Constructor, options) {
+        createView (Constructor, options) {
           return new Constructor(options);
         }
       });

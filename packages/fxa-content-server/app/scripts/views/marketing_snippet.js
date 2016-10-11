@@ -22,13 +22,13 @@ define(function (require, exports, module) {
   var View = BaseView.extend({
     template: Template,
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._service = options.service;
     },
 
-    context: function () {
+    context () {
       var shouldShowMarketing = this._shouldShowSignUpMarketing();
 
       return {
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
       };
     },
 
-    _shouldShowSignUpMarketing: function () {
+    _shouldShowSignUpMarketing () {
       var isFirefoxMobile = this._isFirefoxMobile();
       var isSignUp = this.isSignUp();
       var isSignIn = this.isSignIn();
@@ -48,7 +48,7 @@ define(function (require, exports, module) {
       return (isSignUp || isSignIn) && isSync && ! isFirefoxMobile;
     },
 
-    _isFirefoxMobile: function () {
+    _isFirefoxMobile () {
       // For UA information, see
       // https://developer.mozilla.org/docs/Gecko_user_agent_string_reference
 

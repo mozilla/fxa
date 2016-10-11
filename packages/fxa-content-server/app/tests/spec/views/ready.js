@@ -43,7 +43,7 @@ define(function (require, exports, module) {
       able = new Able();
       metrics = {
         flush: sinon.spy(p),
-        logMarketingImpression: function () {}
+        logMarketingImpression () {}
       };
     }
 

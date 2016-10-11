@@ -156,7 +156,7 @@ define(function (require, exports, module) {
         metrics.destroy();
 
         sandbox = sinon.sandbox.create();
-        xhr = { ajax: function () {} };
+        xhr = { ajax () {} };
         environment = new Environment(windowMock);
         metrics = new Metrics({
           environment: environment,

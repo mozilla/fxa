@@ -61,12 +61,12 @@ define(function (require, exports, module) {
       it('logs the corrected event', function () {
         var mockView = {
           $el: {
-            find: function () {
+            find () {
               return {
-                val: function () {
+                val () {
                   return 'a@gmail.com';
                 },
-                data: function () {
+                data () {
                   return 'a@gmail.com';
                 }
               };
@@ -80,12 +80,12 @@ define(function (require, exports, module) {
       it('does not log the corrected event if email value does not match', function () {
         var mockView = {
           $el: {
-            find: function () {
+            find () {
               return {
-                val: function () {
+                val () {
                   return 'a@snailmail.com';
                 },
-                data: function () {
+                data () {
                   return 'a@gmail.com';
                 }
               };

@@ -21,7 +21,7 @@ define(function (require, exports, module) {
   var proto = Backbone.Model.prototype;
 
   var VerificationInfo = Backbone.Model.extend({
-    initialize: function (options) {
+    initialize (options) {
       proto.initialize.call(this, options);
 
       // clean up any whitespace that was probably added by an MUA.
@@ -47,7 +47,7 @@ define(function (require, exports, module) {
      * @returns {Boolean} `false` if a `validationError` is set, or if
      *   `validate` either throws or returns false. `true` otherwise.
      */
-    isValid: function () {
+    isValid () {
       var isValid;
 
       if (this.isDamaged()) {
@@ -73,7 +73,7 @@ define(function (require, exports, module) {
      * @method validate
      * @param {Object} attributes
      */
-    validate: function (attributes) {
+    validate (attributes) {
       _.each(this.validation, function (validator, key) {
         if (! validator(attributes[key])) {
           throw new Error('invalid ' + key);
@@ -85,7 +85,7 @@ define(function (require, exports, module) {
      * Mark the verification info as expired.
      * @method markExpired
      */
-    markExpired: function () {
+    markExpired () {
       this._isExpired = true;
     },
 
@@ -95,7 +95,7 @@ define(function (require, exports, module) {
      * @method isExpired
      * @returns {Boolean} `true` if expired, `false` otw.
      */
-    isExpired: function () {
+    isExpired () {
       return !! this._isExpired;
     },
 
@@ -103,7 +103,7 @@ define(function (require, exports, module) {
      * Mark the verification info as used.
      * @method markUsed
      */
-    markUsed: function () {
+    markUsed () {
       this._isUsed = true;
     },
 
@@ -113,7 +113,7 @@ define(function (require, exports, module) {
      * @method isUsed
      * @returns {Boolean} `true` if used, `false` otherwise.
      */
-    isUsed: function () {
+    isUsed () {
       return !! this._isUsed;
     },
 
@@ -122,7 +122,7 @@ define(function (require, exports, module) {
      * return `false`.
      * @method markDamaged
      */
-    markDamaged: function () {
+    markDamaged () {
       this._isDamaged = true;
     },
 
@@ -132,7 +132,7 @@ define(function (require, exports, module) {
      * @method isDamaged
      * @returns {Boolean} `true` if damaged, `false` otw.
      */
-    isDamaged: function () {
+    isDamaged () {
       return !! this._isDamaged;
     }
   });

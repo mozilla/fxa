@@ -17,7 +17,7 @@
  * ```js
  * ...
  * notifications: {
- *   'notification-1': function () {
+ *   'notification-1' () {
  *      // handle notification
  *   },
  *   'notification-2': '_handlerName'
@@ -55,7 +55,7 @@ define(function (require, exports, module) {
   }
 
   NotifierProxy.prototype = {
-    delegateNotifications: function (notifications) {
+    delegateNotifications (notifications) {
       var consumer = this._consumer;
       // based on delegateEvents from Backbone.View
       if (! (notifications || (notifications = _.result(consumer, 'notifications')))) {
@@ -81,7 +81,7 @@ define(function (require, exports, module) {
      * @param {String} eventName
      * @param {Object} [data]
      */
-    trigger: function (eventName, data) {
+    trigger (eventName, data) {
       this._notifier.trigger(eventName, data, this._consumer);
     },
 
@@ -92,7 +92,7 @@ define(function (require, exports, module) {
      * @param {String} eventName
      * @param {Object} [data]
      */
-    triggerAll: function (eventName, data) {
+    triggerAll (eventName, data) {
       this._notifier.triggerAll(eventName, data, this._consumer);
     },
 
@@ -102,7 +102,7 @@ define(function (require, exports, module) {
      * @param {String} eventName
      * @param {Object} [data]
      */
-    triggerRemote: function (eventName, data) {
+    triggerRemote (eventName, data) {
       this._notifier.triggerRemote(eventName, data);
     },
 
@@ -112,7 +112,7 @@ define(function (require, exports, module) {
      * @param {String} eventName
      * @param {Function} callback
      */
-    on: function (eventName, callback) {
+    on (eventName, callback) {
       this._notifier.on(eventName, callback);
 
       this._notifierMessages.push({
@@ -128,7 +128,7 @@ define(function (require, exports, module) {
      * @param {String} [eventName]
      * @param {Function} [callback]
      */
-    off: function (eventName, callback) {
+    off (eventName, callback) {
       if (! eventName) {
         // unregister all callbacks for consumer.
         this._notifierMessages.forEach(function (envelope) {
@@ -149,13 +149,13 @@ define(function (require, exports, module) {
     /**
      * Clear any inter tab channel data
      */
-    clear: function () {
+    clear () {
       this._notifier.clear();
     }
   };
 
   var NotifierMixin = {
-    initialize: function (options) {
+    initialize (options) {
       this.notifier = new NotifierProxy({
         consumer: this,
         notifier: options.notifier

@@ -24,7 +24,7 @@ define(function (require, exports, module) {
       convertExternalLinksToText: true
     }),
 
-    _notifyRelierOfLogin: function (account) {
+    _notifyRelierOfLogin (account) {
       /**
        * As a workaround for sign-in/sign-up confirmation view disappearing
        * on iOS, delay the login message sent via the channel by LOGIN_MESSAGE_DELAY_MS.

@@ -23,7 +23,7 @@ define(function (require, exports, module) {
       'click': BaseView.preventDefaultThen('close')
     },
 
-    render: function () {
+    render () {
       return p().then(() => {
         var foxLogo = $('#fox-logo');
         foxLogo.after(this.template());
@@ -32,7 +32,7 @@ define(function (require, exports, module) {
       });
     },
 
-    close: function () {
+    close () {
       this.logError(OAuthErrors.toError('USER_CANCELED_OAUTH_LOGIN'));
       return this.broker.cancel()
         .fail((err) => this.displayError(err));

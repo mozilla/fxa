@@ -26,7 +26,7 @@ define(function (require, exports, module) {
     className: 'avatar-crop',
     viewName: 'settings.avatar.crop',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._cropImg = this.model.get('cropImg');
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
       }
     },
 
-    beforeRender: function () {
+    beforeRender () {
       if (! this._cropImg) {
         this.navigate('settings/avatar/change', {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
@@ -45,12 +45,12 @@ define(function (require, exports, module) {
       }
     },
 
-    afterRender: function () {
+    afterRender () {
       this.canvas = this.$('canvas')[0];
       return proto.afterRender.call(this);
     },
 
-    afterVisible: function () {
+    afterVisible () {
       // Use pre-set dimensions if available
       var width = this._cropImg.get('width');
       var height = this._cropImg.get('height');
@@ -87,7 +87,7 @@ define(function (require, exports, module) {
       return proto.afterVisible.call(this);
     },
 
-    toBlob: function () {
+    toBlob () {
       var defer = p.defer();
 
       this.cropper.toBlob(function (data) {
@@ -98,7 +98,7 @@ define(function (require, exports, module) {
       return defer.promise;
     },
 
-    submit: function () {
+    submit () {
       var account = this.getSignedInAccount();
 
       this.logAccountImageChange(account);
@@ -114,23 +114,23 @@ define(function (require, exports, module) {
         });
     },
 
-    _onRotate: function () {
+    _onRotate () {
       this.logViewEvent('rotate.cw');
     },
 
-    _onTranslate: function () {
+    _onTranslate () {
       this.logViewEvent('translate');
     },
 
-    _onZoomIn: function () {
+    _onZoomIn () {
       this.logViewEvent('zoom.in');
     },
 
-    _onZoomOut: function () {
+    _onZoomOut () {
       this.logViewEvent('zoom.out');
     },
 
-    _onZoomRangeChange: function () {
+    _onZoomRangeChange () {
       this.logViewEvent('zoom.range');
     }
 

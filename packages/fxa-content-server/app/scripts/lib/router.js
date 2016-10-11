@@ -99,7 +99,7 @@ define(function (require, exports, module) {
       'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP })
     },
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this.broker = options.broker;
@@ -115,17 +115,17 @@ define(function (require, exports, module) {
       this.storage = Storage.factory('sessionStorage', this.window);
     },
 
-    onNavigate: function (event) {
+    onNavigate (event) {
       this._nextViewModel = createViewModel(event.nextViewData);
       this.navigate(event.url, event.routerOptions);
     },
 
-    onNavigateBack: function (event) {
+    onNavigateBack (event) {
       this._nextViewModel = createViewModel(event.nextViewData);
       this.navigateBack();
     },
 
-    navigate: function (url, options) {
+    navigate (url, options) {
       options = options || {};
 
       if (! options.hasOwnProperty('trigger')) {
@@ -142,11 +142,11 @@ define(function (require, exports, module) {
       return Backbone.Router.prototype.navigate.call(this, url, options);
     },
 
-    navigateBack: function () {
+    navigateBack () {
       this.window.history.back();
     },
 
-    redirectToSignupOrSettings: function () {
+    redirectToSignupOrSettings () {
       var url = this.user.getSignedInAccount().get('sessionToken') ?
                   '/settings' : '/signup';
       this.navigate(url, { replace: true, trigger: true });
@@ -159,7 +159,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    redirectToBestOAuthChoice: function () {
+    redirectToBestOAuthChoice () {
       // Attempt to get email address from relier
       var email = this.broker.relier.get('email');
 
@@ -206,7 +206,7 @@ define(function (require, exports, module) {
      * @param {Object} options - additional options
      * @returns {Object}
      */
-    getViewOptions: function (options) {
+    getViewOptions (options) {
       // passed in options block can override
       // default options.
       return _.extend({
@@ -217,19 +217,19 @@ define(function (require, exports, module) {
       }, options);
     },
 
-    canGoBack: function () {
+    canGoBack () {
       return !! this.storage.get('canGoBack');
     },
 
-    getCurrentPage: function () {
+    getCurrentPage () {
       return Backbone.history.fragment;
     },
 
-    getCurrentViewName: function () {
+    getCurrentViewName () {
       return this.fragmentToViewName(this.getCurrentPage());
     },
 
-    _afterFirstViewHasRendered: function () {
+    _afterFirstViewHasRendered () {
       // afterLoaded lets the relier know when the first screen has been
       // loaded. It does not expect a response, so no error handler
       // is attached and the promise is not returned.
@@ -245,7 +245,7 @@ define(function (require, exports, module) {
       this.storage.set('canGoBack', true);
     },
 
-    fragmentToViewName: function (fragment) {
+    fragmentToViewName (fragment) {
       fragment = fragment || '';
       // strip leading /
       return fragment.replace(/^\//, '')
@@ -265,7 +265,7 @@ define(function (require, exports, module) {
      * @param {Function} View - view constructor
      * @param {Object} [options]
      */
-    showView: function (View, options) {
+    showView (View, options) {
       this.notifier.trigger(
           'show-view', View, this.getViewOptions(options));
     },
@@ -278,7 +278,7 @@ define(function (require, exports, module) {
      *     the parent of the ChildView
      * @param {Object} [options]
      */
-    showChildView: function (ChildView, ParentView, options) {
+    showChildView (ChildView, ParentView, options) {
       this.notifier.trigger(
           'show-child-view', ChildView, ParentView, this.getViewOptions(options));
     },

@@ -16,7 +16,7 @@ define(function (require, exports, module) {
       uid: null
     },
 
-    validate: function (attributes) {
+    validate (attributes) {
       if (attributes.uid === null || attributes.code === null) {
         throw new Error('invalid');
       }

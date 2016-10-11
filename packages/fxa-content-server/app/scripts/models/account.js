@@ -76,7 +76,7 @@ define(function (require, exports, module) {
   var Account = Backbone.Model.extend({
     defaults: DEFAULTS,
 
-    initialize: function (accountData, options = {}) {
+    initialize (accountData, options = {}) {
       this._oAuthClientId = options.oAuthClientId;
       this._oAuthClient = options.oAuthClient;
       this._assertion = options.assertion;
@@ -100,7 +100,7 @@ define(function (require, exports, module) {
     },
 
     // Hydrate the account
-    fetch: function () {
+    fetch () {
       if (! this.get('sessionToken') || this.get('verified')) {
         return p();
       }
@@ -117,7 +117,7 @@ define(function (require, exports, module) {
         });
     },
 
-    _invalidateSession: function () {
+    _invalidateSession () {
       // Invalid token can happen if user uses 'Disconnect'
       // in Firefox Desktop. Only 'set' will trigger model
       // change, using 'unset' will not.
@@ -132,14 +132,14 @@ define(function (require, exports, module) {
       });
     },
 
-    _fetchProfileOAuthToken: function () {
+    _fetchProfileOAuthToken () {
       return this.createOAuthToken(CONTENT_SERVER_OAUTH_SCOPE)
         .then((accessToken) => {
           this.set('accessToken', accessToken.get('token'));
         });
     },
 
-    profileClient: function () {
+    profileClient () {
       return this.fetch().then(() => {
         // If the account is not verified fail before attempting to fetch a token
         if (! this.get('verified')) {
@@ -151,12 +151,12 @@ define(function (require, exports, module) {
       .then(() => this._profileClient);
     },
 
-    isFromSync: function () {
+    isFromSync () {
       return this.get('sessionTokenContext') === Constants.SESSION_TOKEN_USED_FOR_SYNC;
     },
 
     // returns true if all attributes within ALLOWED_KEYS are defaults
-    isDefault: function () {
+    isDefault () {
       return ! _.find(ALLOWED_KEYS, (key) => {
         return this.get(key) !== DEFAULTS[key];
       });
@@ -164,11 +164,11 @@ define(function (require, exports, module) {
 
     // If we're verified and don't have an accessToken, we should
     // go ahead and get one.
-    _needsAccessToken: function () {
+    _needsAccessToken () {
       return this.get('verified') && ! this.get('accessToken');
     },
 
-    _generateAssertion: function () {
+    _generateAssertion () {
       var sessionToken = this.get('sessionToken');
 
       // assertions live for 25 years, they can be cached and reused while
@@ -186,7 +186,7 @@ define(function (require, exports, module) {
       return assertionPromise;
     },
 
-    createOAuthToken: function (scope) {
+    createOAuthToken (scope) {
       return this._generateAssertion()
         .then((assertion) => {
           var params = {
@@ -220,7 +220,7 @@ define(function (require, exports, module) {
      *   verificationReason: <see lib/verification-reasons.js>
      * }
      */
-    sessionStatus: function () {
+    sessionStatus () {
       var sessionToken = this.get('sessionToken');
       if (! sessionToken) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
@@ -270,11 +270,11 @@ define(function (require, exports, module) {
         });
     },
 
-    isSignedIn: function () {
+    isSignedIn () {
       return this._fxaClient.isSignedIn(this.get('sessionToken'));
     },
 
-    toJSON: function () {
+    toJSON () {
       /*
        * toJSON is explicitly disabled because it fetches all attributes
        * on the model, making accidental data exposure easier than it
@@ -287,11 +287,11 @@ define(function (require, exports, module) {
       throw new Error('toJSON is explicitly disabled, use `.pick` instead');
     },
 
-    toPersistentJSON: function () {
+    toPersistentJSON () {
       return this.pick(ALLOWED_PERSISTENT_KEYS);
     },
 
-    setProfileImage: function (profileImage) {
+    setProfileImage (profileImage) {
       this.set({
         profileImageId: profileImage.get('id'),
         profileImageUrl: profileImage.get('url')
@@ -304,14 +304,14 @@ define(function (require, exports, module) {
       }
     },
 
-    onChange: function () {
+    onChange () {
       // if any data is set outside of the `fetchProfile` function,
       // clear the cache and force a reload of the profile the next time.
       delete this._profileFetchPromise;
     },
 
     _profileFetchPromise: null,
-    fetchProfile: function () {
+    fetchProfile () {
       // Avoid multiple views making profile requests by caching
       // the profile fetch request. Only allow one for a given account,
       // and then re-use the data after that. See #3053
@@ -337,7 +337,7 @@ define(function (require, exports, module) {
       return this._profileFetchPromise;
     },
 
-    fetchCurrentProfileImage: function () {
+    fetchCurrentProfileImage () {
       var profileImage = new ProfileImage();
 
       return this.getAvatar()
@@ -361,7 +361,7 @@ define(function (require, exports, module) {
      * email if user is unverified.
      * @returns {Promise} - resolves when complete
      */
-    signIn: function (password, relier, options = {}) {
+    signIn (password, relier, options = {}) {
       return p().then(() => {
         var email = this.get('email');
         var sessionToken = this.get('sessionToken');
@@ -396,7 +396,7 @@ define(function (require, exports, module) {
      * email if user is unverified.
      * @returns {Promise} - resolves when complete
      */
-    signUp: function (password, relier, options = {}) {
+    signUp (password, relier, options = {}) {
       return this._fxaClient.signUp(
         this.get('email'),
         password,
@@ -419,7 +419,7 @@ define(function (require, exports, module) {
      * @param {String} [options.resume] resume token
      * @returns {Promise} - resolves when complete
      */
-    retrySignUp: function (relier, options = {}) {
+    retrySignUp (relier, options = {}) {
       return this._fxaClient.signUpResend(
         relier,
         this.get('sessionToken'),
@@ -437,7 +437,7 @@ define(function (require, exports, module) {
      * @param {Object} [options.service] - the service issuing signup request
      * @returns {Promise} - resolves when complete
      */
-    verifySignUp: function (code, options = {}) {
+    verifySignUp (code, options = {}) {
       return this._fxaClient.verifyCode(
         this.get('uid'),
         code,
@@ -460,7 +460,7 @@ define(function (require, exports, module) {
      * @returns {Promise} resolves to `true` if email is registered,
      * `false` otw.
      */
-    checkEmailExists: function () {
+    checkEmailExists () {
       return this._fxaClient.checkAccountExistsByEmail(this.get('email'));
     },
 
@@ -470,7 +470,7 @@ define(function (require, exports, module) {
      * @returns {Promise} resolves to `true` if the uid is registered,
      * `false` otw.
      */
-    checkUidExists: function () {
+    checkUidExists () {
       return this._fxaClient.checkAccountExists(this.get('uid'));
     },
 
@@ -479,7 +479,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise} - resolves when complete
      */
-    signOut: function () {
+    signOut () {
       return this._fxaClient.signOut(this.get('sessionToken'));
     },
 
@@ -489,7 +489,7 @@ define(function (require, exports, module) {
      * @param {String} password - The user's password
      * @returns {Promise} - resolves when complete
      */
-    destroy: function (password) {
+    destroy (password) {
       return this._fxaClient.deleteAccount(
         this.get('email'),
         password
@@ -508,7 +508,7 @@ define(function (require, exports, module) {
      *
      * @private
      */
-    _upgradeGrantedPermissions: function () {
+    _upgradeGrantedPermissions () {
       if (this.has('grantedPermissions')) {
         var grantedPermissions = this.get('grantedPermissions');
 
@@ -539,7 +539,7 @@ define(function (require, exports, module) {
      * @param {String} clientId
      * @returns {Object}
      */
-    getClientPermissions: function (clientId) {
+    getClientPermissions (clientId) {
       var permissions = this.get('permissions') || {};
       return permissions[clientId] || {};
     },
@@ -551,7 +551,7 @@ define(function (require, exports, module) {
      * @param {String} permissionName
      * @returns {Boolean}
      */
-    getClientPermission: function (clientId, permissionName) {
+    getClientPermission (clientId, permissionName) {
       var clientPermissions = this.getClientPermissions(clientId);
       return clientPermissions[permissionName];
     },
@@ -567,7 +567,7 @@ define(function (require, exports, module) {
      * @param {String} clientId
      * @param {Object} clientPermissions
      */
-    setClientPermissions: function (clientId, clientPermissions) {
+    setClientPermissions (clientId, clientPermissions) {
       var allPermissions = this.get('permissions') || {};
       allPermissions[clientId] = clientPermissions;
       this.set('permissions', allPermissions);
@@ -582,7 +582,7 @@ define(function (require, exports, module) {
      * @returns {Boolean} `true` if client has seen all the permissions,
      *  `false` otw.
      */
-    hasSeenPermissions: function (clientId, permissions) {
+    hasSeenPermissions (clientId, permissions) {
       var seenPermissions = Object.keys(this.getClientPermissions(clientId));
       // without's signature is `array, *values)`,
       // *values cannot be an array, so convert to a form without can use.
@@ -598,7 +598,7 @@ define(function (require, exports, module) {
      * @param {String[]} permissionNames
      * @returns {String[]}
      */
-    getPermissionsWithValues: function (permissionNames) {
+    getPermissionsWithValues (permissionNames) {
       return permissionNames.map((permissionName) => {
         var accountKey = PERMISSIONS_TO_KEYS[permissionName];
 
@@ -616,7 +616,7 @@ define(function (require, exports, module) {
       }).filter((permissionName) => permissionName !== null);
     },
 
-    getMarketingEmailPrefs: function () {
+    getMarketingEmailPrefs () {
       var emailPrefs = new MarketingEmailPrefs({
         account: this,
         marketingEmailClient: this._marketingEmailClient
@@ -633,7 +633,7 @@ define(function (require, exports, module) {
      * @param {Object} relier
      * @returns {Promise}
      */
-    changePassword: function (oldPassword, newPassword, relier) {
+    changePassword (oldPassword, newPassword, relier) {
       // Try to sign the user in before checking whether the
       // passwords are the same. If the user typed the incorrect old
       // password, they should know that first.
@@ -692,7 +692,7 @@ define(function (require, exports, module) {
      * @param {Object} relier - relier being signed in to.
      * @returns {Promise} - resolves when complete
      */
-    completePasswordReset: function (password, token, code, relier) {
+    completePasswordReset (password, token, code, relier) {
       return this._fxaClient.completePasswordReset(
         this.get('email'),
         password,
@@ -708,7 +708,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise} - resolves when complete
      */
-    fetchDevices: function () {
+    fetchDevices () {
       return this._fxaClient.deviceList(this.get('sessionToken'))
         .then((devices) => {
           devices.map((item) => {
@@ -724,7 +724,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise} resolves when the action completes
      */
-    fetchOAuthApps: function () {
+    fetchOAuthApps () {
       return this._oAuthClient.fetchOAuthApps(this.get('accessToken'))
         .then((oAuthApps) => {
           oAuthApps.map((item) => {
@@ -741,7 +741,7 @@ define(function (require, exports, module) {
      * @param {Object} device - Device model to remove
      * @returns {Promise} - resolves when complete
      */
-    destroyDevice: function (device) {
+    destroyDevice (device) {
       var deviceId = device.get('id');
       var sessionToken = this.get('sessionToken');
 
@@ -758,7 +758,7 @@ define(function (require, exports, module) {
      * @param {Object} oAuthApp - OAuthApp model to remove
      * @returns {Promise} - resolves when complete
      */
-    destroyOAuthApp: function (oAuthApp) {
+    destroyOAuthApp (oAuthApp) {
       var oAuthAppId = oAuthApp.get('id');
       var accessToken = this.get('accessToken');
 
@@ -776,7 +776,7 @@ define(function (require, exports, module) {
      * @param {String} [options.resume] resume token
      * @returns {Promise}
      */
-    resetPassword: function (relier, options = {}) {
+    resetPassword (relier, options = {}) {
       return this._fxaClient.passwordReset(
         this.get('email'),
         relier,
@@ -795,7 +795,7 @@ define(function (require, exports, module) {
      * @param {String} [options.resume] resume token
      * @returns {Promise}
      */
-    retryResetPassword: function (passwordForgotToken, relier, options = {}) {
+    retryResetPassword (passwordForgotToken, relier, options = {}) {
       return this._fxaClient.passwordResetResend(
         this.get('email'),
         passwordForgotToken,
@@ -813,7 +813,7 @@ define(function (require, exports, module) {
      * @returns {Promise} that resolves with the account keys, if they
      *   can be generated, resolves with null otherwise.
      */
-    accountKeys: function () {
+    accountKeys () {
       if (! this.has('keyFetchToken') || ! this.has('unwrapBKey')) {
         return p(null);
       }
@@ -829,7 +829,7 @@ define(function (require, exports, module) {
      * @returns {Promise} that resolves with the relier keys, if they
      *   can be generated, resolves with null otherwise.
      */
-    relierKeys: function (relier) {
+    relierKeys (relier) {
       return this.accountKeys()
         .then((accountKeys) => {
           if (! accountKeys) {

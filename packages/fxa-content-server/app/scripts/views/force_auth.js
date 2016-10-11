@@ -35,7 +35,7 @@ define(function (require, exports, module) {
     afterSignInBrokerMethod: 'afterForceAuth',
     afterSignInNavigateData: { clearQueryParams: true },
 
-    _getAndValidateAccountData: function () {
+    _getAndValidateAccountData () {
       var fieldsToPick = ['email', 'uid'];
       var accountData = {};
       var relier = this.relier;
@@ -50,7 +50,7 @@ define(function (require, exports, module) {
           accountData, RELIER_DATA_SCHEMA, AuthErrors);
     },
 
-    beforeRender: function () {
+    beforeRender () {
       var accountData;
 
       try {
@@ -109,7 +109,7 @@ define(function (require, exports, module) {
       }
     },
 
-    _signUpIfUidChangeSupported: function (account) {
+    _signUpIfUidChangeSupported (account) {
       if (this.broker.hasCapability('allowUidChange')) {
         return this._navigateToForceSignUp(account);
       } else {
@@ -117,7 +117,7 @@ define(function (require, exports, module) {
       }
     },
 
-    _signInIfUidChangeSupported: function (account) {
+    _signInIfUidChangeSupported (account) {
       // if the broker supports a UID change, use force_auth to sign in,
       // otherwise print a big error message.
       if (! this.broker.hasCapability('allowUidChange')) {
@@ -125,7 +125,7 @@ define(function (require, exports, module) {
       }
     },
 
-    _navigateToForceSignUp: function (account) {
+    _navigateToForceSignUp (account) {
       // The default behavior of FxDesktop brokers is to halt before
       // the signup confirmation poll because about:accounts takes care
       // of polling and updating the UI. /force_auth is not opened in
@@ -141,13 +141,13 @@ define(function (require, exports, module) {
       });
     },
 
-    _navigateToForceResetPassword: function () {
+    _navigateToForceResetPassword () {
       return this.navigate(this.broker.transformLink('reset_password'), {
         forceEmail: this.relier.get('email')
       });
     },
 
-    context: function () {
+    context () {
       return {
         email: this.relier.get('email'),
         fatalError: this.model.get('error'),
@@ -159,11 +159,11 @@ define(function (require, exports, module) {
       'click a[href="/reset_password"]': BaseView.cancelEventThen('_navigateToForceResetPassword')
     }),
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       this._formPrefill.set('password', this.getElementValue('.password'));
     },
 
-    onSignInError: function (account, password, error) {
+    onSignInError (account, password, error) {
       if (AuthErrors.is(error, 'UNKNOWN_ACCOUNT')) {
         if (this.relier.has('uid')) {
           if (this.broker.hasCapability('allowUidChange')) {
@@ -184,7 +184,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    afterVisible: function () {
+    afterVisible () {
       var email = this.relier.get('email');
       var account = this.user.getAccountByEmail(email);
 

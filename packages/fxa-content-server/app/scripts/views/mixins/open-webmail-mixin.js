@@ -46,7 +46,7 @@ define(function (require, exports, module) {
       'click #open-webmail': '_webmailTabOpened'
     },
 
-    addUserInfo: function (providerLink, email) {
+    addUserInfo (providerLink, email) {
 
       if (this.getWebmailType(email) === 'gmail'){
         providerLink = providerLink.concat(encodeURIComponent(email));
@@ -55,7 +55,7 @@ define(function (require, exports, module) {
       return providerLink;
     },
 
-    _getService: function (email) {
+    _getService (email) {
       return _.find(WEBMAIL_SERVICES, function (service) {
         return service.regex.test(email);
       });
@@ -66,7 +66,7 @@ define(function (require, exports, module) {
      * @method getContext
      * @returns {Object}
      */
-    getContext: function () {
+    getContext () {
       const context = BaseView.prototype.getContext.call(this);
       const email = context.email;
       const isOpenWebmailButtonVisible = this.isOpenWebmailButtonVisible(email);
@@ -90,7 +90,7 @@ define(function (require, exports, module) {
       return context;
     },
 
-    getWebmailLink: function (email) {
+    getWebmailLink (email) {
       var providerLink = this._getService(email).link;
       return this.addUserInfo(providerLink, email);
     },
@@ -101,22 +101,22 @@ define(function (require, exports, module) {
      * @param {String} email
      * @returns {Boolean}
      */
-    isOpenWebmailButtonVisible: function (email) {
+    isOpenWebmailButtonVisible (email) {
       // The "Open webmail" button is only visible in certain contexts
       // we do not show it in mobile context because it performs worse
       return this.broker.hasCapability('openWebmailButtonVisible') &&
             !! this._getService(email);
     },
 
-    getWebmailButtonText: function (email) {
+    getWebmailButtonText (email) {
       return this.translate(this._getService(email).buttonName);
     },
 
-    getWebmailType: function (email) {
+    getWebmailType (email) {
       return this._getService(email).webmailType;
     },
 
-    _webmailTabOpened: function (event) {
+    _webmailTabOpened (event) {
       var webmailType = this.$el.find(event.target).data('webmailType');
       this.logViewEvent(webmailType + '_clicked');
     }

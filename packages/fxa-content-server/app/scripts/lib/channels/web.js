@@ -23,7 +23,7 @@ define(function (require, exports, module) {
   }
 
   _.extend(WebChannel.prototype, new DuplexChannel(), {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       var win = options.window || window;

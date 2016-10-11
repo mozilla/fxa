@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   var t = BaseView.t;
 
   var AccountResetMixin = {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._session = options.session;
@@ -34,7 +34,7 @@ define(function (require, exports, module) {
      * @param {Object} account - account that has been reset
      * @returns {String}
      */
-    notifyOfResetAccount: function (account) {
+    notifyOfResetAccount (account) {
       this._resetAccount = account;
 
       var err = AuthErrors.toError('ACCOUNT_RESET');
@@ -51,7 +51,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise} - resolves when complete
      */
-    sendAccountResetEmail: function () {
+    sendAccountResetEmail () {
       return this.resetPassword(this._resetAccount.get('email'))
         .fail((err) => {
           this._session.clear('oauth');

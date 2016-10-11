@@ -20,17 +20,17 @@ define(function (require, exports, module) {
     className: 'display-name',
     viewName: 'settings.display-name',
 
-    onProfileUpdate: function () {
+    onProfileUpdate () {
       this.render();
     },
 
-    context: function () {
+    context () {
       return {
         displayName: this._displayName
       };
     },
 
-    beforeRender: function () {
+    beforeRender () {
       var account = this.getSignedInAccount();
       return account.fetchProfile()
         .then(() => {
@@ -39,7 +39,7 @@ define(function (require, exports, module) {
         });
     },
 
-    submit: function () {
+    submit () {
       var account = this.getSignedInAccount();
       var displayName = this.getElementValue('input.display-name').trim();
 

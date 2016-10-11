@@ -16,7 +16,7 @@ define(function (require, exports, module) {
       'verification.success': '_onVerificationSuccess'
     },
 
-    _onVerificationSuccess: function () {
+    _onVerificationSuccess () {
       this.saveState('verified');
 
       // user verified after using show password

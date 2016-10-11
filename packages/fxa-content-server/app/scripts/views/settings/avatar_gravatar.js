@@ -33,7 +33,7 @@ define(function (require, exports, module) {
     className: 'avatar-gravatar',
     viewName: 'settings.avatar.gravatar',
 
-    context: function () {
+    context () {
       return {
         gravatar: this.gravatar
       };
@@ -52,18 +52,18 @@ define(function (require, exports, module) {
         .then(_.bind(this._found, this), _.bind(this._notFound, this));
     }, '.avatar-wrapper', '_gravatarProgressIndicator'),
 
-    _found: function () {
+    _found () {
       this.gravatar = this.gravatarUrl();
       this.render();
     },
 
-    _notFound: function () {
+    _notFound () {
       this.navigate('settings/avatar/change', {
         error: AuthErrors.toError('NO_GRAVATAR_FOUND')
       });
     },
 
-    gravatarUrl: function () {
+    gravatarUrl () {
       var hashedEmail = this.hashedEmail();
       if (this.broker.isAutomatedBrowser()) {
         // Don't return a 404 so we can test the success flow
@@ -72,12 +72,12 @@ define(function (require, exports, module) {
       return GRAVATAR_URL + hashedEmail + '?s=' + DISPLAY_LENGTH + '&d=404';
     },
 
-    hashedEmail: function () {
+    hashedEmail () {
       var email = this.getSignedInAccount().get('email');
       return email ? md5($.trim(email.toLowerCase())) : '';
     },
 
-    submit: function () {
+    submit () {
       var url = this.gravatarUrl();
       var account = this.getSignedInAccount();
 

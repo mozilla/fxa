@@ -16,7 +16,7 @@ define(function (require, exports, module) {
   var View = BaseView.extend({
     template: Template,
 
-    beforeRender: function () {
+    beforeRender () {
       try {
         localStorage.clear();
         sessionStorage.clear();

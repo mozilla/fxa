@@ -293,7 +293,7 @@ define(function (require, exports, module) {
 
         function mockStream() {
           view.stream = {
-            stop: function () {}
+            stop () {}
           };
         }
 

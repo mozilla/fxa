@@ -54,7 +54,7 @@ define(function (require, exports, module) {
 
     mustVerify: true,
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._able = options.able;
@@ -86,7 +86,7 @@ define(function (require, exports, module) {
       'navigate-from-child-view': '_onNavigateFromChildView'
     },
 
-    _initializeSubPanels: function (options) {
+    _initializeSubPanels (options) {
       var areCommunicationPrefsVisible = false;
       var panelViews = options.panelViews || PANEL_VIEWS;
 
@@ -111,7 +111,7 @@ define(function (require, exports, module) {
       });
     },
 
-    context: function () {
+    context () {
       var account = this.getSignedInAccount();
 
       return {
@@ -126,17 +126,17 @@ define(function (require, exports, module) {
     },
 
     // Triggered by AvatarMixin
-    onProfileUpdate: function () {
+    onProfileUpdate () {
       this._showAvatar();
     },
 
-    showChildView: function (ChildView, options) {
+    showChildView (ChildView, options) {
       return this._subPanels.showChildView(ChildView, options);
     },
 
     // When we navigate to settings from a childView
     // close the modal, show any ephemeral messages passed to `navigate`
-    _onNavigateFromChildView: function () {
+    _onNavigateFromChildView () {
       if ($.modal.isActive()) {
         $.modal.close();
       }
@@ -146,7 +146,7 @@ define(function (require, exports, module) {
       this._swapDisplayName();
     },
 
-    beforeRender: function () {
+    beforeRender () {
       var account = this.getSignedInAccount();
 
       return account.fetchProfile()
@@ -174,7 +174,7 @@ define(function (require, exports, module) {
     // When the user adds, removes or changes a display name
     // this gets called and swaps out headers to reflect
     // the updated state of the account
-    _swapDisplayName: function () {
+    _swapDisplayName () {
       var account = this.getSignedInAccount();
       var displayName = account.get('displayName');
       var email = account.get('email');
@@ -191,17 +191,17 @@ define(function (require, exports, module) {
       }
     },
 
-    _setupAvatarChangeLinks: function () {
+    _setupAvatarChangeLinks () {
       this.$('.avatar-wrapper > *').wrap('<a href="/settings/avatar/change" class="change-avatar"></a>');
     },
 
-    _showAvatar: function () {
+    _showAvatar () {
       var account = this.getSignedInAccount();
       return this.displayAccountProfileImage(account)
         .then(() => this._setupAvatarChangeLinks());
     },
 
-    _areCommunicationPrefsVisible: function () {
+    _areCommunicationPrefsVisible () {
       return !! this._able.choose('communicationPrefsVisible', {
         lang: this.navigator.language
       });
@@ -224,7 +224,7 @@ define(function (require, exports, module) {
 
     SUCCESS_MESSAGE_DELAY_MS: new Duration('5s').milliseconds(),
 
-    displaySuccess: function () {
+    displaySuccess () {
       this.clearTimeout(this._successTimeout);
       this._successTimeout = this.setTimeout(() => {
         this.hideSuccess();
@@ -232,7 +232,7 @@ define(function (require, exports, module) {
       return BaseView.prototype.displaySuccess.apply(this, arguments);
     },
 
-    displaySuccessUnsafe: function () {
+    displaySuccessUnsafe () {
       this.clearTimeout(this._successTimeout);
       this._successTimeout = this.setTimeout(() => {
         this.hideSuccess();

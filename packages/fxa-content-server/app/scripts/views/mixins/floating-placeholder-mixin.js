@@ -21,7 +21,7 @@ define(function (require, exports, module) {
       'input input[placeholder]': 'floatingPlaceholderMixinOnInput'
     },
 
-    afterRender: function () {
+    afterRender () {
       this.updateFormValueChanges();
     },
 
@@ -65,11 +65,11 @@ define(function (require, exports, module) {
       }
     },
 
-    focusLabelHelper: function (inputEl) {
+    focusLabelHelper (inputEl) {
       this.$el.find(inputEl).prev('.label-helper').addClass('focused');
     },
 
-    unfocusLabelHelper: function (inputEl) {
+    unfocusLabelHelper (inputEl) {
       this.$el.find(inputEl).prev('.label-helper').removeClass('focused');
     },
 
@@ -79,7 +79,7 @@ define(function (require, exports, module) {
      *
      * @param {Event} event
      */
-    floatingPlaceholderMixinOnInput: function (event) {
+    floatingPlaceholderMixinOnInput (event) {
       const $inputEl = $(event.currentTarget);
 
       // If no form values have changed, no need to show the
@@ -98,17 +98,17 @@ define(function (require, exports, module) {
      *
      * @param {Event} event
      */
-    floatingPlaceholderMixinOnSelect: function (event) {
+    floatingPlaceholderMixinOnSelect (event) {
       const $inputEl = $(event.currentTarget);
       this.showFloatingPlaceholder($inputEl, $inputEl.find('option:first').text());
       this.focusLabelHelper($inputEl);
     },
 
-    onInputFocus: function (event) {
+    onInputFocus (event) {
       this.focusLabelHelper($(event.currentTarget));
     },
 
-    onInputBlur: function (event) {
+    onInputBlur (event) {
       this.unfocusLabelHelper($(event.currentTarget));
     }
   };

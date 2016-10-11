@@ -28,25 +28,25 @@ define(function (require, exports, module) {
       'click .remove': 'removeAvatar'
     },
 
-    initialize: function () {
+    initialize () {
       // override in tests
       this.FileReader = FileReader;
     },
 
-    getAccount: function () {
+    getAccount () {
       if (! this._account) {
         this._account = this.getSignedInAccount();
       }
       return this._account;
     },
 
-    beforeRender: function () {
+    beforeRender () {
       if (this.relier.get('setting') === 'avatar') {
         this.relier.unset('setting');
       }
     },
 
-    context: function () {
+    context () {
       var account = this.getSignedInAccount();
       return {
         'hasProfileImage': account.has('profileImageUrl')
@@ -73,7 +73,7 @@ define(function (require, exports, module) {
       return proto.afterRender.call(this);
     },
 
-    removeAvatar: function () {
+    removeAvatar () {
       var account = this.getAccount();
       return this.deleteDisplayedAccountProfileImage(account)
         .then(() => {
@@ -84,11 +84,11 @@ define(function (require, exports, module) {
         });
     },
 
-    filePicker: function () {
+    filePicker () {
       this.$('#imageLoader').click();
     },
 
-    fileSet: function (e) {
+    fileSet (e) {
       var defer = p.defer();
       var file = e.target.files[0];
       var account = this.getAccount();

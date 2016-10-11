@@ -29,7 +29,7 @@ define(function (require, exports, module) {
      * then prints info.
      *
      */
-    info: function () {
+    info () {
       if (this._window.console && this._window.console.info) {
         this._window.console.info.apply(this._window.console, arguments);
       }
@@ -40,7 +40,7 @@ define(function (require, exports, module) {
      * trace.
      *
      */
-    trace: function () {
+    trace () {
       if (this._window.console && this._window.console.trace) {
         this._window.console.trace();
       }
@@ -51,7 +51,7 @@ define(function (require, exports, module) {
      * then prints warn.
      *
      */
-    warn: function () {
+    warn () {
       if (this._window.console && this._window.console.warn) {
         this._window.console.warn.apply(this._window.console, arguments);
       }
@@ -63,7 +63,7 @@ define(function (require, exports, module) {
      *
      * @param {Error} error Error object with optional errorModule.
      */
-    error: function (error) {
+    error (error) {
       if (this._window.console && this._window.console.error) {
         var errorMessage = '';
 

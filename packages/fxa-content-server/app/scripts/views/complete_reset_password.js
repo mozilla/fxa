@@ -25,7 +25,7 @@ define(function (require, exports, module) {
     template: Template,
     className: 'complete-reset-password',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       var searchParams = Url.searchParams(this.window.location.search);
@@ -67,7 +67,7 @@ define(function (require, exports, module) {
       return proto.afterVisible.call(this);
     },
 
-    context: function () {
+    context () {
       var verificationInfo = this._verificationInfo;
       var doesLinkValidate = verificationInfo.isValid();
       var isLinkExpired = verificationInfo.isExpired();
@@ -83,18 +83,18 @@ define(function (require, exports, module) {
       };
     },
 
-    isValidEnd: function () {
+    isValidEnd () {
       return this._getPassword() === this._getVPassword();
     },
 
-    showValidationErrorsEnd: function () {
+    showValidationErrorsEnd () {
       if (this._getPassword() !== this._getVPassword()) {
         var err = AuthErrors.toError('PASSWORDS_DO_NOT_MATCH');
         this.displayError(err);
       }
     },
 
-    submit: function () {
+    submit () {
       var verificationInfo = this._verificationInfo;
       var password = this._getPassword();
       var token = verificationInfo.get('token');
@@ -148,11 +148,11 @@ define(function (require, exports, module) {
         });
     },
 
-    _getPassword: function () {
+    _getPassword () {
       return this.$('#password').val();
     },
 
-    _getVPassword: function () {
+    _getVPassword () {
       return this.$('#vpassword').val();
     },
 

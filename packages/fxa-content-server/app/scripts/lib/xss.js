@@ -12,7 +12,7 @@ define(function (require, exports, module) {
 
   module.exports = {
     // only allow http or https URLs, encoding the URL.
-    href: function (text) {
+    href (text) {
       if (! _.isString(text)) {
         return;
       }

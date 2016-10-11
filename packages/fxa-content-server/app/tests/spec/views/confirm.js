@@ -38,7 +38,7 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       flow = {
-        pickResumeTokenInfo: function () {}
+        pickResumeTokenInfo () {}
       };
       metrics = new Metrics();
       model = new Backbone.Model();

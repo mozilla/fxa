@@ -20,7 +20,7 @@ define(function (require, exports, module) {
   }
 
   AbleWrapper.prototype = {
-    choose: function () {
+    choose () {
       var able = window.able;
       if (able) {
         return able.choose.apply(able, arguments);

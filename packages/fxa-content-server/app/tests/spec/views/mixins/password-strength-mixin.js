@@ -37,13 +37,13 @@ define(function (require, exports, module) {
         view = new View({
           able: ableMock,
           metrics: {
-            isCollectionEnabled: function () {
+            isCollectionEnabled () {
               return true;
             },
             logViewEvent: sinon.spy()
           },
           user: {
-            get: function () {
+            get () {
               return 'userid';
             }
           },

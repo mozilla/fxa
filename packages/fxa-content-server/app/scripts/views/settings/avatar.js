@@ -16,11 +16,11 @@ define(function (require, exports, module) {
     className: 'avatar',
     viewName: 'settings.avatar',
 
-    onProfileUpdate: function () {
+    onProfileUpdate () {
       this.render();
     },
 
-    context: function () {
+    context () {
       var account = this.getSignedInAccount();
       return {
         avatar: account.has('profileImageUrl')

@@ -66,7 +66,7 @@ define(function (require, exports, module) {
       handleSignedInNotification: false
     }),
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this.session = options.session;
@@ -77,7 +77,7 @@ define(function (require, exports, module) {
                   this, options);
     },
 
-    getOAuthResult: function (account) {
+    getOAuthResult (account) {
       if (! account || ! account.get('sessionToken')) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
@@ -110,23 +110,23 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    sendOAuthResultToRelier: function (/*result*/) {
+    sendOAuthResultToRelier (/*result*/) {
       return p.reject(new Error('subclasses must override sendOAuthResultToRelier'));
     },
 
-    finishOAuthSignInFlow: function (account, additionalResultData) {
+    finishOAuthSignInFlow (account, additionalResultData) {
       additionalResultData = additionalResultData || {};
       additionalResultData.action = Constants.OAUTH_ACTION_SIGNIN;
       return this.finishOAuthFlow(account, additionalResultData);
     },
 
-    finishOAuthSignUpFlow: function (account, additionalResultData) {
+    finishOAuthSignUpFlow (account, additionalResultData) {
       additionalResultData = additionalResultData || {};
       additionalResultData.action = Constants.OAUTH_ACTION_SIGNUP;
       return this.finishOAuthFlow(account, additionalResultData);
     },
 
-    finishOAuthFlow: function (account, additionalResultData) {
+    finishOAuthFlow (account, additionalResultData) {
       this.session.clear('oauth');
       return this.getOAuthResult(account)
         .then((result) => {
@@ -137,7 +137,7 @@ define(function (require, exports, module) {
         });
     },
 
-    persistVerificationData: function (account) {
+    persistVerificationData (account) {
       return p().then(() => {
         var relier = this.relier;
         this.session.set('oauth', {
@@ -154,12 +154,12 @@ define(function (require, exports, module) {
       });
     },
 
-    afterForceAuth: function (account, additionalResultData) {
+    afterForceAuth (account, additionalResultData) {
       return this.finishOAuthSignInFlow(account, additionalResultData)
         .then(() => proto.afterForceAuth.call(this, account));
     },
 
-    afterSignIn: function (account, additionalResultData) {
+    afterSignIn (account, additionalResultData) {
       return this.finishOAuthSignInFlow(account, additionalResultData)
         .then(() => proto.afterSignIn.call(this, account));
     },
@@ -169,16 +169,16 @@ define(function (require, exports, module) {
         .then(() => proto.afterSignInConfirmationPoll.call(this, account));
     },
 
-    afterSignUpConfirmationPoll: function (account) {
+    afterSignUpConfirmationPoll (account) {
       // The original tab always finishes the OAuth flow if it is still open.
       return this.finishOAuthSignUpFlow(account);
     },
 
-    afterResetPasswordConfirmationPoll: function (account) {
+    afterResetPasswordConfirmationPoll (account) {
       return this.finishOAuthSignInFlow(account);
     },
 
-    transformLink: function (link) {
+    transformLink (link) {
       if (link[0] !== '/') {
         link = '/' + link;
       }

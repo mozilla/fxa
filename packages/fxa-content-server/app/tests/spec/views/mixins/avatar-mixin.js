@@ -113,7 +113,7 @@ define(function (require, exports, module) {
     describe('displayAccountProfileImage with spinner', function () {
       var spinnerView;
       var SpinnerView = SettingsView.extend({
-        template: function () {
+        template () {
           return '<div class="avatar-wrapper"></div>';
         }
       });

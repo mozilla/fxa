@@ -47,7 +47,7 @@ define(function (require, exports, module) {
      * @param {String} email
      * @return {Boolean} true if email is valid, false otw.
      */
-    isEmailValid: function (email) {
+    isEmailValid (email) {
       if (typeof email !== 'string' || email.length > 256) {
         return false;
       }
@@ -70,7 +70,7 @@ define(function (require, exports, module) {
      * @param {String} code
      * @returns {Boolean}
      */
-    isCodeValid: function (code) {
+    isCodeValid (code) {
       if (typeof code !== 'string') {
         return false;
       }
@@ -86,7 +86,7 @@ define(function (require, exports, module) {
      * @param {String} code
      * @returns {Boolean}
      */
-    isOAuthCodeValid: function (code) {
+    isOAuthCodeValid (code) {
       if (typeof code !== 'string') {
         return false;
       }
@@ -101,7 +101,7 @@ define(function (require, exports, module) {
      * @param {String} token
      * @returns {Boolean}
      */
-    isTokenValid: function (token) {
+    isTokenValid (token) {
       if (typeof token !== 'string') {
         return false;
       }
@@ -115,7 +115,7 @@ define(function (require, exports, module) {
      * @param {String} uid
      * @returns {Boolean}
      */
-    isUidValid: function (uid) {
+    isUidValid (uid) {
       if (typeof uid !== 'string') {
         return false;
       }
@@ -130,7 +130,7 @@ define(function (require, exports, module) {
      * @param {String} password
      * @returns {Boolean}
      */
-    isPasswordValid: function (password) {
+    isPasswordValid (password) {
       if (typeof password !== 'string') {
         return false;
       }
@@ -190,7 +190,7 @@ define(function (require, exports, module) {
      * @param {String} prompt
      * @returns {Boolean}
      */
-    isPromptValid: function (prompt) {
+    isPromptValid (prompt) {
       var valid = [
         Constants.OAUTH_PROMPT_CONSENT
       ];
@@ -237,7 +237,7 @@ define(function (require, exports, module) {
      * @param {String} uuid - uuid to check
      * @returns {Boolean}
      */
-    isUuidValid: function (uuid) {
+    isUuidValid (uuid) {
       return uuidRegEx.test(uuid);
     },
 

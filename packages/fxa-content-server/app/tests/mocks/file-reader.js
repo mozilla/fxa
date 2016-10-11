@@ -46,7 +46,7 @@ define(function (require, exports, module) {
   };
 
   FileReaderMock.prototype = {
-    readAsDataURL: function (file) {
+    readAsDataURL (file) {
       this.onload({
         target: {
           result: file._dataURL

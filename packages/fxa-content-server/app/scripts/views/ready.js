@@ -63,7 +63,7 @@ define(function (require, exports, module) {
     template: Template,
     className: 'ready',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._able = options.able;
@@ -72,7 +72,7 @@ define(function (require, exports, module) {
       this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
     },
 
-    context: function () {
+    context () {
       return {
         headerId: this._getHeaderId(),
         headerTitle: this._getHeaderTitle(),
@@ -86,27 +86,27 @@ define(function (require, exports, module) {
       };
     },
 
-    _getHeaderId: function () {
+    _getHeaderId () {
       return this._templateInfo.headerId;
     },
 
-    _getHeaderTitle: function () {
+    _getHeaderTitle () {
       var title = this._templateInfo.headerTitle;
       return this.translateInTemplate(title);
     },
 
-    _getReadyToSyncText: function () {
+    _getReadyToSyncText () {
       var readyToSyncText = this._templateInfo.readyToSyncText;
       return this.translateInTemplate(readyToSyncText);
     },
 
-    _submitForProceed: function () {
+    _submitForProceed () {
       return this.metrics.flush().then(() => {
         this.window.location.href = this.relier.get('redirectUri');
       });
     },
 
-    submit: function () {
+    submit () {
       if (this._shouldShowProceedButton()) {
         return this._submitForProceed();
       } else if (this._shouldShowSyncPreferencesButton()) {
@@ -114,7 +114,7 @@ define(function (require, exports, module) {
       }
     },
 
-    _submitForSyncPreferences: function () {
+    _submitForSyncPreferences () {
       return this.metrics.flush().then(() => {
         var entryPoint = 'fxa:' + this.getViewName();
         return this.broker.openSyncPreferences(entryPoint);
@@ -129,7 +129,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      * @private
      */
-    _shouldShowProceedButton: function () {
+    _shouldShowProceedButton () {
       var redirectUri = this.relier.get('redirectUri');
       var verificationRedirect = this.relier.get('verificationRedirect');
 
@@ -145,7 +145,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      * @private
      */
-    _shouldShowSyncPreferencesButton: function () {
+    _shouldShowSyncPreferencesButton () {
       return !! (this.relier.isSync() &&
                  this.broker.hasCapability('syncPreferencesNotification'));
     },

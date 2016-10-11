@@ -17,7 +17,7 @@ define(function (require, exports, module) {
     template: Template,
     className: 'sub-panels',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._panelViews = options.panelViews || [];
@@ -26,7 +26,7 @@ define(function (require, exports, module) {
       this._logger = new Logger();
     },
 
-    showChildView: function (ChildView, options) {
+    showChildView (ChildView, options) {
       if (this._panelViews.indexOf(ChildView) === -1) {
         this._logger.warn('Tried to show a view that is not a subpanel');
         return p(null);
@@ -48,7 +48,7 @@ define(function (require, exports, module) {
         });
     },
 
-    _childViewInstanceFromClass: function (ChildView) {
+    _childViewInstanceFromClass (ChildView) {
       return this.childViews.filter(function (childView) {
         if (childView instanceof ChildView) {
           return true;
@@ -56,16 +56,16 @@ define(function (require, exports, module) {
       })[0];
     },
 
-    _isModalView: function (ChildView) {
+    _isModalView (ChildView) {
       return !! ChildView.prototype.isModal;
     },
 
-    _childViewClassName: function (ChildView) {
+    _childViewClassName (ChildView) {
       return ChildView.prototype.className;
     },
 
     // Render childView if an instance doesn't already exist
-    _createChildViewIfNeeded: function (ChildView, options) {
+    _createChildViewIfNeeded (ChildView, options) {
       options = options || {};
 
       var childView = this._childViewInstanceFromClass(ChildView);
@@ -103,7 +103,7 @@ define(function (require, exports, module) {
       return this.renderChildView(view);
     },
 
-    renderChildView: function (viewToShow) {
+    renderChildView (viewToShow) {
       return viewToShow.render()
         .then(function (shown) {
           if (! shown) {

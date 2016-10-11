@@ -27,7 +27,7 @@ define(function (require, exports, module) {
   _.extend(HeightObserver.prototype, Backbone.Events, {
     _delayMS: 50,
 
-    start: function () {
+    start () {
       if (this._observer) {
         throw new Error('Already started');
       }
@@ -53,7 +53,7 @@ define(function (require, exports, module) {
     },
 
     _lastHeight: -Infinity,
-    _onMutation: function () {
+    _onMutation () {
       var currentHeight = this._targetEl.clientHeight;
       // An element's clientHeight can be misreported on some versions of
       // Fennec - see https://bugzilla.mozilla.org/show_bug.cgi?id=1071620
@@ -65,7 +65,7 @@ define(function (require, exports, module) {
       }
     },
 
-    stop: function () {
+    stop () {
       var observer = this._observer;
       if (observer) {
         observer.disconnect();

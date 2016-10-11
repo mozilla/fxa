@@ -44,7 +44,7 @@ define(function (require, exports, module) {
       beforeSignUpConfirmationPoll: new HaltBehavior()
     }),
 
-    createChannel: function () {
+    createChannel () {
       var channel = new FxDesktopChannel();
 
       channel.initialize({

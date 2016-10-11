@@ -15,13 +15,13 @@ define(function (require, exports, module) {
   }
 
   _.extend(BaseChannel.prototype, Backbone.Events, {
-    initialize: function () {
+    initialize () {
     },
 
-    teardown: function () {
+    teardown () {
     },
 
-    send: function (command, data, done) {
+    send (command, data, done) {
       if (done) {
         done();
       }

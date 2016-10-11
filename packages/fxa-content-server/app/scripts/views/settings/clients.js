@@ -33,7 +33,7 @@ define(function (require, exports, module) {
     className: 'clients',
     viewName: 'settings.clients',
 
-    initialize: function (options) {
+    initialize (options) {
       this._able = options.able;
       this._attachedClients = options.attachedClients;
 
@@ -47,7 +47,7 @@ define(function (require, exports, module) {
       this.listenTo(this._attachedClients, 'remove', this._onItemRemoved);
     },
 
-    _formatAccessTime: function (items) {
+    _formatAccessTime (items) {
       return _.map(items, function (item) {
         if (item.lastAccessTimeFormatted) {
           item.lastAccessTimeFormatted = Strings.interpolate(
@@ -60,7 +60,7 @@ define(function (require, exports, module) {
       });
     },
 
-    context: function () {
+    context () {
       return {
         clients: this._formatAccessTime(this._attachedClients.toJSON()),
         clientsPanelManageString: this._getManageString(),
@@ -81,7 +81,7 @@ define(function (require, exports, module) {
       'click .clients-refresh': preventDefaultThen('_onRefreshClientsList')
     },
 
-    _isPanelEnabled: function () {
+    _isPanelEnabled () {
       const account = this.user.getSignedInAccount();
 
       return this._able.choose('deviceListVisible', {
@@ -90,7 +90,7 @@ define(function (require, exports, module) {
       });
     },
 
-    _getPanelTitle: function () {
+    _getPanelTitle () {
       var title = t('Devices');
 
       if (this._isAppsListVisible()) {
@@ -100,7 +100,7 @@ define(function (require, exports, module) {
       return title;
     },
 
-    _getManageString: function () {
+    _getManageString () {
       var title = t('You can manage your devices below.');
 
       if (this._isAppsListVisible()) {
@@ -110,7 +110,7 @@ define(function (require, exports, module) {
       return title;
     },
 
-    _isAppsListVisible: function () {
+    _isAppsListVisible () {
       // OAuth Apps list is visible if `appsListVisible` chooses `true`.
       return this._able.choose('appsListVisible', {
         forceAppsList: Url.searchParam(FORCE_APPS_LIST_VIEW, this.window.location.search),
@@ -118,11 +118,11 @@ define(function (require, exports, module) {
       });
     },
 
-    _onItemAdded: function () {
+    _onItemAdded () {
       this.render();
     },
 
-    _onItemRemoved: function (item) {
+    _onItemRemoved (item) {
       var id = item.get('id');
       $('#' + id).slideUp(DEVICE_REMOVED_ANIMATION_MS, () => {
         // re-render in case the last device is removed and the
@@ -131,7 +131,7 @@ define(function (require, exports, module) {
       });
     },
 
-    _onDisconnectClient: function (event) {
+    _onDisconnectClient (event) {
       var client = this._attachedClients.get($(event.currentTarget).data('id'));
       var clientType = client.get('clientType');
       this.logViewEvent(clientType + '.disconnect');
@@ -146,7 +146,7 @@ define(function (require, exports, module) {
       }
     },
 
-    _onRefreshClientsList: function () {
+    _onRefreshClientsList () {
       if (this.isPanelOpen()) {
         this.logViewEvent('refresh');
         // only refresh devices if panel is visible
@@ -157,12 +157,12 @@ define(function (require, exports, module) {
       }
     },
 
-    openPanel: function () {
+    openPanel () {
       this.logViewEvent('open');
       this._fetchAttachedClients();
     },
 
-    _fetchAttachedClients: function () {
+    _fetchAttachedClients () {
       return this._attachedClients.fetchClients({
         devices: true,
         oAuthApps: this._isAppsListVisible()

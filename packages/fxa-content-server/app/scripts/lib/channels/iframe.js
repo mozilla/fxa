@@ -45,11 +45,11 @@ define(function (require, exports, module) {
       });
     },
 
-    receiveEvent: function (event) {
+    receiveEvent (event) {
       return this._receiver.receiveEvent(event);
     },
 
-    parseMessage: function (message) {
+    parseMessage (message) {
       try {
         return IFrameChannel.parse(message);
       } catch (e) {

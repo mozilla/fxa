@@ -42,7 +42,7 @@ define(function (require, exports, module) {
     template: Template,
     className: 'sign-up',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._formPrefill = options.formPrefill;
@@ -50,7 +50,7 @@ define(function (require, exports, module) {
       this._able = options.able;
     },
 
-    beforeRender: function () {
+    beforeRender () {
       if (document.cookie.indexOf('tooyoung') > -1) {
         this.navigate('cannot_create_account');
         return p(false);
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
       return FormView.prototype.beforeRender.call(this);
     },
 
-    _createCoppaView: function () {
+    _createCoppaView () {
       if (this._coppa) {
         return p();
       }
@@ -89,7 +89,7 @@ define(function (require, exports, module) {
         });
     },
 
-    afterRender: function () {
+    afterRender () {
       this.logViewEvent('email-optin.visible.' +
           String(this._isEmailOptInEnabled()));
 
@@ -101,7 +101,7 @@ define(function (require, exports, module) {
         });
     },
 
-    afterVisible: function () {
+    afterVisible () {
       if (this.model.get('bouncedEmail')) {
         this.showValidationError('input[type=email]',
                   AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
@@ -129,14 +129,14 @@ define(function (require, exports, module) {
       'click #amo-migration a': 'onAmoSignIn'
     },
 
-    getPrefillEmail: function () {
+    getPrefillEmail () {
       // formPrefill.email comes first because users can edit the email,
       // go to another view, edit the email again, and come back here. We
       // want the last used email.
       return this._formPrefill.get('email') || this.relier.get('email');
     },
 
-    _selectAutoFocusEl: function () {
+    _selectAutoFocusEl () {
       var prefillEmail = this.model.get('forceEmail') || this.getPrefillEmail();
       var prefillPassword = this._formPrefill.get('password');
 
@@ -144,7 +144,7 @@ define(function (require, exports, module) {
             this.model.get('bouncedEmail'), prefillEmail, prefillPassword);
     },
 
-    context: function () {
+    context () {
       var autofocusEl = this._selectAutoFocusEl();
       var forceEmail = this.model.get('forceEmail');
       var prefillEmail = this.getPrefillEmail();
@@ -175,13 +175,13 @@ define(function (require, exports, module) {
       return context;
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       var formPrefill = this._formPrefill;
       formPrefill.set('email', this.getElementValue('.email'));
       formPrefill.set('password', this.getElementValue('.password'));
     },
 
-    isValidEnd: function () {
+    isValidEnd () {
       if (this._isEmailSameAsBouncedEmail()) {
         return false;
       }
@@ -196,7 +196,7 @@ define(function (require, exports, module) {
       return FormView.prototype.isValidEnd.call(this);
     },
 
-    showValidationErrorsEnd: function () {
+    showValidationErrorsEnd () {
       if (this._isEmailSameAsBouncedEmail()) {
         this.showValidationError('input[type=email]',
                 AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED'));
@@ -206,7 +206,7 @@ define(function (require, exports, module) {
       }
     },
 
-    submit: function () {
+    submit () {
       this.notifier.trigger('signup.submit');
       /**
        * The semi-convoluted flow:
@@ -251,12 +251,12 @@ define(function (require, exports, module) {
       });
     },
 
-    _signUp: function (account, password) {
+    _signUp (account, password) {
       return this.signUp(account, password)
         .fail(this.onSignUpError.bind(this, account, password));
     },
 
-    onSignUpError: function (account, password, err) {
+    onSignUpError (account, password, err) {
       if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
         // account exists and is verified,
         // attempt to sign in the user.
@@ -267,12 +267,12 @@ define(function (require, exports, module) {
       throw err;
     },
 
-    _signIn: function (account, password) {
+    _signIn (account, password) {
       return this.signIn(account, password)
         .fail(this.onSignInError.bind(this, account, password));
     },
 
-    onSignInError: function (account, password, err) {
+    onSignInError (account, password, err) {
       // only verified users who already have an account will see
       // the INCORRECT_PASSWORD error.
       if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
@@ -297,31 +297,31 @@ define(function (require, exports, module) {
       throw err;
     },
 
-    onEmailBlur: function () {
+    onEmailBlur () {
       if (this.isInExperiment('mailcheck')) {
         mailcheck(this.$el.find('.email'), this.metrics, this.translator, this);
       }
     },
 
-    onAmoSignIn: function () {
+    onAmoSignIn () {
       // The user has chosen to sign in with a different email, clear the
       // email from the relier so it's not used again on the signin page.
       this.relier.unset('email');
       this.$('input[type=email]').val('');
     },
 
-    _isEmailSameAsBouncedEmail: function () {
+    _isEmailSameAsBouncedEmail () {
       var bouncedEmail = this.model.get('bouncedEmail');
 
       return bouncedEmail &&
              bouncedEmail === this.getElementValue('input[type=email]');
     },
 
-    _isUserOldEnough: function () {
+    _isUserOldEnough () {
       return this._coppa.isUserOldEnough();
     },
 
-    _isEmailFirefoxDomain: function () {
+    _isEmailFirefoxDomain () {
       var email = this.getElementValue('.email');
 
       // "@firefox" or "@firefox.com" email addresses are not valid
@@ -329,7 +329,7 @@ define(function (require, exports, module) {
       return /@firefox(\.com)?$/.test(email);
     },
 
-    _cannotCreateAccount: function () {
+    _cannotCreateAccount () {
       // this is a session cookie. It will go away once:
       // 1. the user closes the tab
       // and
@@ -341,7 +341,7 @@ define(function (require, exports, module) {
       this.navigate('cannot_create_account');
     },
 
-    _initAccount: function () {
+    _initAccount () {
       var account = this.user.initAccount({
         customizeSync: this.$('.customize-sync').is(':checked'),
         email: this.getElementValue('.email'),
@@ -360,12 +360,12 @@ define(function (require, exports, module) {
       return account;
     },
 
-    _suggestSignIn: function (err) {
+    _suggestSignIn (err) {
       err.forceMessage = t('Account already exists. <a href="/signin">Sign in</a>');
       return this.displayErrorUnsafe(err);
     },
 
-    _isEmailOptInEnabled: function () {
+    _isEmailOptInEnabled () {
       return !! this._able.choose('communicationPrefsVisible', {
         lang: this.navigator.language
       });

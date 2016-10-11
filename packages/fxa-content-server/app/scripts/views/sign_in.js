@@ -31,13 +31,13 @@ define(function (require, exports, module) {
     template: SignInTemplate,
     className: 'sign-in',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._formPrefill = options.formPrefill;
     },
 
-    beforeRender: function () {
+    beforeRender () {
       this._account = this._suggestedAccount();
 
       this._account.on('change:accessToken', () => {
@@ -53,25 +53,25 @@ define(function (require, exports, module) {
       });
     },
 
-    getAccount: function () {
+    getAccount () {
       return this._account;
     },
 
-    getPrefillEmail: function () {
+    getPrefillEmail () {
       // formPrefill.email comes first because users can edit the email,
       // go to another view, edit the email again, and come back here. We
       // want the last used email.
       return this._formPrefill.get('email') || this.relier.get('email');
     },
 
-    getEmail: function () {
+    getEmail () {
       var suggestedAccount = this.getAccount();
       var hasSuggestedAccount = suggestedAccount.get('email');
       return hasSuggestedAccount ?
         suggestedAccount.get('email') : this.getPrefillEmail();
     },
 
-    context: function () {
+    context () {
       var suggestedAccount = this.getAccount();
       var hasSuggestedAccount = suggestedAccount.get('email');
       var email = this.getEmail();
@@ -92,22 +92,22 @@ define(function (require, exports, module) {
       'click .use-logged-in': 'useLoggedInAccount'
     },
 
-    afterRender: function () {
+    afterRender () {
       this.transformLinks();
       return FormView.prototype.afterRender.call(this);
     },
 
-    afterVisible: function () {
+    afterVisible () {
       FormView.prototype.afterVisible.call(this);
       return this.displayAccountProfileImage(this.getAccount(), { spinner: true });
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       this._formPrefill.set('email', this.getElementValue('.email'));
       this._formPrefill.set('password', this.getElementValue('.password'));
     },
 
-    submit: function () {
+    submit () {
       var account = this.user.initAccount({
         email: this.getElementValue('.email')
       });
@@ -128,12 +128,12 @@ define(function (require, exports, module) {
      * @returns {Promise}
      * @private
      */
-    _signIn: function (account, password) {
+    _signIn (account, password) {
       return this.signIn(account, password)
         .fail(this.onSignInError.bind(this, account, password));
     },
 
-    onSignInError: function (account, password, err) {
+    onSignInError (account, password, err) {
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
         return this._suggestSignUp(err);
       } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
@@ -147,7 +147,7 @@ define(function (require, exports, module) {
       throw err;
     },
 
-    _suggestSignUp: function (err) {
+    _suggestSignUp (err) {
       err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
       return this.displayErrorUnsafe(err);
     },
@@ -191,7 +191,7 @@ define(function (require, exports, module) {
      *          Returns "null" if the current signin view must not suggest users.
      * @private
      */
-    _suggestedAccount: function () {
+    _suggestedAccount () {
       var account = this.user.getChooserAccount();
       var prefillEmail = this.getPrefillEmail();
 
@@ -215,7 +215,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      * @private
      */
-    _suggestedAccountAskPassword: function (account) {
+    _suggestedAccountAskPassword (account) {
       // If there's no email, obviously we'll have to ask for the password.
       if (! account.get('email')) {
         this.logViewEvent('ask-password.shown.account-unknown');

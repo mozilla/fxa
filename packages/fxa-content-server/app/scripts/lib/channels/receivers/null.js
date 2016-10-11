@@ -16,10 +16,10 @@ define(function (require, exports, module) {
     // nothing to do
   }
   _.extend(NullReceiver.prototype, Backbone.Events, {
-    initialize: function () {
+    initialize () {
     },
 
-    teardown: function () {
+    teardown () {
     }
   });
 

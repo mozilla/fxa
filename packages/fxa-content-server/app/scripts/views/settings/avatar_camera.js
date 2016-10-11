@@ -35,13 +35,13 @@ define(function (require, exports, module) {
     className: 'avatar-camera',
     viewName: 'settings.avatar.camera',
 
-    context: function () {
+    context () {
       return {
         streaming: this.streaming
       };
     },
 
-    initialize: function (options) {
+    initialize (options) {
       this.exportLength = options.exportLength || EXPORT_LENGTH;
       this.displayLength = options.displayLength || DISPLAY_LENGTH;
       this.streaming = false;
@@ -55,14 +55,14 @@ define(function (require, exports, module) {
           this.enableSubmitIfValid();
         };
         this.stream = {
-          stop: function () {}
+          stop () {}
         };
 
         this.window.setTimeout(_.bind(this.onLoadedMetaData, this), ARTIFICIAL_DELAY);
       }
     },
 
-    startStream: function () {
+    startStream () {
       var constraints = {
         audio: false,
         video: true
@@ -82,7 +82,7 @@ define(function (require, exports, module) {
       );
     },
 
-    stopAndDestroyStream: function () {
+    stopAndDestroyStream () {
       if (this.stream) {
         var stream = this.stream;
         var previewEl = this.video;
@@ -106,7 +106,7 @@ define(function (require, exports, module) {
       }
     },
 
-    beforeRender: function () {
+    beforeRender () {
       var environment = new Environment(this.window);
       if (! environment.hasGetUserMedia()) {
         // no camera support, send user back to the change avatar page.
@@ -133,7 +133,7 @@ define(function (require, exports, module) {
       return proto.afterRender.call(this);
     },
 
-    onLoadedMetaData: function () {
+    onLoadedMetaData () {
       if (! this.streaming) {
         var vw = this.video.videoWidth;
         var vh = this.video.videoHeight;
@@ -168,11 +168,11 @@ define(function (require, exports, module) {
       }
     },
 
-    isValidEnd: function () {
+    isValidEnd () {
       return this.streaming;
     },
 
-    submit: function () {
+    submit () {
       var account = this.getSignedInAccount();
       this.logAccountImageChange(account);
 
@@ -189,7 +189,7 @@ define(function (require, exports, module) {
         });
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       this.stopAndDestroyStream();
     },
 
@@ -229,7 +229,7 @@ define(function (require, exports, module) {
 
     // Calculates the position offset needed to center a rectangular image
     // in a square container
-    centeredPos: function (w, h, max) {
+    centeredPos (w, h, max) {
       if (w > h) {
         return { left: (max - w) / 2, top: 0 };
       } else {

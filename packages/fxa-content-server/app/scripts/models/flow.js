@@ -24,7 +24,7 @@ define(function (require, exports, module) {
   const vat = require('lib/vat');
 
   var Model = Backbone.Model.extend({
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this.sentryMetrics = options.sentryMetrics;
@@ -50,7 +50,7 @@ define(function (require, exports, module) {
       flowId: null
     },
 
-    populateFromDataAttribute: function (attribute) {
+    populateFromDataAttribute (attribute) {
       var data = $(this.window.document.body).data(attribute);
       if (! data) {
         this.logError(AuthErrors.toMissingDataAttributeError(attribute));
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
       }
     },
 
-    logError: function (error) {
+    logError (error) {
       return ErrorUtils.captureError(error, this.sentryMetrics);
     },
 

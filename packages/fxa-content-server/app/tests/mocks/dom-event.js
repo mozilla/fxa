@@ -13,19 +13,19 @@ define(function (require, exports, module) {
   }
 
   DOMEventMock.prototype = {
-    preventDefault: function () {
+    preventDefault () {
       this._defaultPrevented = true;
     },
 
-    isDefaultPrevented: function () {
+    isDefaultPrevented () {
       return !! this._defaultPrevented;
     },
 
-    stopPropagation: function () {
+    stopPropagation () {
       this._propagationStopped = true;
     },
 
-    isPropagationStopped: function () {
+    isPropagationStopped () {
       return !! this._propagationStopped;
     }
   };

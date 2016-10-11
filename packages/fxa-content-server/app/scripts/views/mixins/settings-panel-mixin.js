@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const KeyCodes = require('lib/key-codes');
 
   module.exports = {
-    initialize: function (options) {
+    initialize (options) {
       this.parentView = options.parentView;
     },
 
@@ -32,39 +32,39 @@ define(function (require, exports, module) {
         .removeAttr('autofocus');
     },
 
-    onKeyUp: function (event) {
+    onKeyUp (event) {
       if (event.which === KeyCodes.ESCAPE) {
         this.hidePanel();
       }
     },
 
-    _triggerPanel: function (event) {
+    _triggerPanel (event) {
       var href = event && $(event.currentTarget).data('href');
       if (href) {
         this.navigate(href);
       }
     },
 
-    openPanel: function () {
+    openPanel () {
       this.$('.settings-unit').addClass('open');
       this.focus(this.$('[data-autofocus-on-panel-open]'));
     },
 
-    hidePanel: function () {
+    hidePanel () {
       this._closePanelReturnToSettings();
     },
 
-    isPanelOpen: function () {
+    isPanelOpen () {
       return this.$('.settings-unit').hasClass('open');
     },
 
-    _closePanelReturnToSettings: function () {
+    _closePanelReturnToSettings () {
       this.navigate('settings');
       this.clearInput();
       this.closePanel();
     },
 
-    clearInput: function () {
+    clearInput () {
       const $inputEls = this.$('input');
 
       $inputEls.each((i, inputEl) => {
@@ -87,11 +87,11 @@ define(function (require, exports, module) {
       }
     },
 
-    closePanel: function () {
+    closePanel () {
       this.$('.settings-unit').removeClass('open');
     },
 
-    displaySuccess: function (msg) {
+    displaySuccess (msg) {
       if (! this.parentView) {
         return;
       }

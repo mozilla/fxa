@@ -18,7 +18,7 @@ define(function (require, exports, module) {
       context: null,
     },
 
-    fetch: function () {
+    fetch () {
       return p(true);
     },
 
@@ -30,7 +30,7 @@ define(function (require, exports, module) {
      * `true` if the user visits FxA without using
      * a relier
      */
-    isDirectAccess: function () {
+    isDirectAccess () {
       return ! this.has('service');
     },
 
@@ -39,7 +39,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isOAuth: function () {
+    isOAuth () {
       return false;
     },
 
@@ -48,7 +48,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isSync: function () {
+    isSync () {
       return false;
     },
 
@@ -57,7 +57,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isCustomizeSyncChecked: function () {
+    isCustomizeSyncChecked () {
       return false;
     },
 
@@ -66,7 +66,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    wantsKeys: function () {
+    wantsKeys () {
       return false;
     },
 
@@ -76,7 +76,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    deriveRelierKeys: function (/* keys */) {
+    deriveRelierKeys (/* keys */) {
       return p({});
     },
 
@@ -86,7 +86,7 @@ define(function (require, exports, module) {
      *
      * @returns {Object}
      */
-    pickResumeTokenInfo: function () {
+    pickResumeTokenInfo () {
       return {};
     },
 
@@ -95,7 +95,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    allowCachedCredentials: function () {
+    allowCachedCredentials () {
       return true;
     },
 
@@ -104,7 +104,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isTrusted: function () {
+    isTrusted () {
       return true;
     },
 
@@ -113,7 +113,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    accountNeedsPermissions: function (/* account */) {
+    accountNeedsPermissions (/* account */) {
       return false;
     }
   });

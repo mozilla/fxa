@@ -28,7 +28,7 @@ define(function (require, exports, module) {
       width: 1
     },
 
-    initialize: function (options) {
+    initialize (options) {
       if (options &&
           (options.width < Constants.PROFILE_IMAGE_MIN_HEIGHT ||
            options.height < Constants.PROFILE_IMAGE_MIN_WIDTH)) {

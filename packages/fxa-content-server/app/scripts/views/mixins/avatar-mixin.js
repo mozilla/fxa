@@ -21,7 +21,7 @@ define(function (require, exports, module) {
       // populated below using event name aliases
     },
 
-    onProfileUpdate: function (/* data */) {
+    onProfileUpdate (/* data */) {
       // implement in view
     },
 
@@ -37,7 +37,7 @@ define(function (require, exports, module) {
      *                    the profile image is loading.
      * @returns {Promise}
      */
-    displayAccountProfileImage: function (account, options) {
+    displayAccountProfileImage (account, options) {
       options = options || {};
 
       var avatarWrapperEl = this.$(options.wrapperClass || '.avatar-wrapper');
@@ -87,29 +87,29 @@ define(function (require, exports, module) {
         });
     },
 
-    hasDisplayedAccountProfileImage: function () {
+    hasDisplayedAccountProfileImage () {
       return this._displayedProfileImage && ! this._displayedProfileImage.isDefault();
     },
 
-    setDefaultPlaceholderAvatar: function (avatarWrapperEl) {
+    setDefaultPlaceholderAvatar (avatarWrapperEl) {
       avatarWrapperEl = avatarWrapperEl || $('.avatar-wrapper');
       avatarWrapperEl.addClass('with-default');
     },
 
     // Makes sure the account has an up-to-date image cache.
     // This should be called after fetching the current profile image.
-    _updateCachedProfileImage: function (profileImage, account) {
+    _updateCachedProfileImage (profileImage, account) {
       if (! account.isDefault()) {
         account.setProfileImage(profileImage);
         this.user.setAccount(account);
       }
     },
 
-    _shouldShowDefaultProfileImage: function (account) {
+    _shouldShowDefaultProfileImage (account) {
       return ! account.has('profileImageUrl');
     },
 
-    _addLoadingSpinner: function (spinnerWrapperEl) {
+    _addLoadingSpinner (spinnerWrapperEl) {
       if (spinnerWrapperEl) {
         return $('<span class="avatar-spinner"></span>').appendTo(spinnerWrapperEl.addClass('with-spinner'));
       }
@@ -117,7 +117,7 @@ define(function (require, exports, module) {
 
     // "Completes" the spinner, transitioning the semi-circle to a circle, and
     // then removes the spinner element.
-    _completeLoadingSpinner: function (spinnerEl) {
+    _completeLoadingSpinner (spinnerEl) {
       if (_.isUndefined(spinnerEl)) {
         return p();
       }
@@ -147,7 +147,7 @@ define(function (require, exports, module) {
       return deferred.promise;
     },
 
-    logAccountImageChange: function (account) {
+    logAccountImageChange (account) {
       // if the user already has an image set, then report a change event
       if (account.get('hadProfileImageSetBefore')) {
         this.logViewEvent('submit.change');
@@ -156,13 +156,13 @@ define(function (require, exports, module) {
       }
     },
 
-    updateProfileImage: function (profileImage, account) {
+    updateProfileImage (profileImage, account) {
       account.setProfileImage(profileImage);
       return this.user.setAccount(account)
         .then(_.bind(this._notifyProfileUpdate, this, account.get('uid')));
     },
 
-    deleteDisplayedAccountProfileImage: function (account) {
+    deleteDisplayedAccountProfileImage (account) {
       return account.deleteAvatar(this._displayedProfileImage.get('id'))
         .then(() => {
           // A blank image will clear the cache
@@ -170,14 +170,14 @@ define(function (require, exports, module) {
         });
     },
 
-    updateDisplayName: function (displayName) {
+    updateDisplayName (displayName) {
       var account = this.getSignedInAccount();
       account.set('displayName', displayName);
       return this.user.setAccount(account)
         .then(_.bind(this._notifyProfileUpdate, this, account.get('uid')));
     },
 
-    _notifyProfileUpdate: function (uid) {
+    _notifyProfileUpdate (uid) {
       this.notifier.triggerAll(Notifier.PROFILE_CHANGE, {
         uid: uid
       });

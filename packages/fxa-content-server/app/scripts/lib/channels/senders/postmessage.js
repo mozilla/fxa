@@ -30,21 +30,21 @@ define(function (require, exports, module) {
   }
 
   PostMessageSender.prototype = {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._origin = options.origin;
       this._window = options.window;
     },
 
-    send: function (command, data, messageId) {
+    send (command, data, messageId) {
       return p().then(() => {
         var event = stringify(command, data, messageId);
         this._window.postMessage(event, this._origin);
       });
     },
 
-    teardown: function () {
+    teardown () {
     }
   };
 

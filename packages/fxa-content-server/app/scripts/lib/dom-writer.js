@@ -12,7 +12,7 @@ define(function (require, exports, module) {
      * @param {Object} win
      * @param {String | Element} content
      */
-    write: function (win, content) {
+    write (win, content) {
       $('#loading-spinner').hide();
 
       // Two notes:

@@ -43,7 +43,7 @@ define(function (require, exports, module) {
       sendChangePasswordNotice: true
     }),
 
-    getCommand: function (commandName) {
+    getCommand (commandName) {
       if (! this.commands) {
         throw new Error('this.commands must be specified');
       }
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
      *        Channel used to send commands to remote listeners.
      * @returns {undefined}
      */
-    initialize: function (options = {}) {
+    initialize (options = {}) {
       this._logger = new Logger();
 
       // channel can be passed in for testing.
@@ -77,12 +77,12 @@ define(function (require, exports, module) {
       return proto.initialize.call(this, options);
     },
 
-    afterLoaded: function () {
+    afterLoaded () {
       return this.send(this.getCommand('LOADED'))
         .then(() => proto.afterLoaded.call(this));
     },
 
-    beforeSignIn: function (account) {
+    beforeSignIn (account) {
       var email = account.get('email');
       // This will send a message over the channel to determine whether
       // we should cancel the login to sync or not based on Desktop
@@ -105,17 +105,17 @@ define(function (require, exports, module) {
         });
     },
 
-    afterSignIn: function (account) {
+    afterSignIn (account) {
       return this._notifyRelierOfLogin(account)
         .then(() => proto.afterSignIn.call(this, account));
     },
 
-    afterForceAuth: function (account) {
+    afterForceAuth (account) {
       return this._notifyRelierOfLogin(account)
         .then(() => proto.afterForceAuth.apply(this, account));
     },
 
-    beforeSignUpConfirmationPoll: function (account) {
+    beforeSignUpConfirmationPoll (account) {
       // The Sync broker notifies the browser of an unverified login
       // before the user has verified her email. This allows the user
       // to close the original tab or open the verification link in
@@ -124,12 +124,12 @@ define(function (require, exports, module) {
         .then(() => proto.beforeSignUpConfirmationPoll.call(this, account));
     },
 
-    afterResetPasswordConfirmationPoll: function (account) {
+    afterResetPasswordConfirmationPoll (account) {
       return this._notifyRelierOfLogin(account)
         .then(() => proto.afterResetPasswordConfirmationPoll.call(this, account));
     },
 
-    afterChangePassword: function (account) {
+    afterChangePassword (account) {
       // If the message is sent over the WebChannel by the global WebChannel,
       // no need to send it from within the auth broker too.
       if (this.hasCapability('sendChangePasswordNotice')) {
@@ -145,7 +145,7 @@ define(function (require, exports, module) {
       }
     },
 
-    afterDeleteAccount: function (account) {
+    afterDeleteAccount (account) {
       return this.send(this.getCommand('DELETE_ACCOUNT'), {
         email: account.get('email'),
         uid: account.get('uid')
@@ -160,7 +160,7 @@ define(function (require, exports, module) {
      * @method getChannel
      * @returns {Object} channel
      */
-    getChannel: function () {
+    getChannel () {
       if (! this._channel) {
         this._channel = this.createChannel();
       }
@@ -175,11 +175,11 @@ define(function (require, exports, module) {
      * @method createChannel
      * @throws {Error}
      */
-    createChannel: function () {
+    createChannel () {
       throw new Error('createChannel must be overridden');
     },
 
-    _notifyRelierOfLogin: function (account) {
+    _notifyRelierOfLogin (account) {
       /**
        * Workaround for #3078. If the user signs up but does not verify
        * their account, then visit `/` or `/settings`, they are
@@ -203,13 +203,13 @@ define(function (require, exports, module) {
       return this.send(this.getCommand('LOGIN'), loginData);
     },
 
-    _hasRequiredLoginFields: function (loginData) {
+    _hasRequiredLoginFields (loginData) {
       var requiredFields = FxSyncAuthenticationBroker.REQUIRED_LOGIN_FIELDS;
       var loginFields = Object.keys(loginData);
       return ! _.difference(requiredFields, loginFields).length;
     },
 
-    _getLoginData: function (account) {
+    _getLoginData (account) {
       var ALLOWED_FIELDS = [
         'customizeSync',
         'declinedSyncEngines',
@@ -234,7 +234,7 @@ define(function (require, exports, module) {
      * @param {String} entryPoint - where Sync Preferences is opened from
      * @returns {Promise} resolves when notification is sent.
      */
-    openSyncPreferences: function (entryPoint) {
+    openSyncPreferences (entryPoint) {
       if (this.hasCapability('syncPreferencesNotification')) {
         return this.send(this.getCommand('SYNC_PREFERENCES'), {
           entryPoint: entryPoint

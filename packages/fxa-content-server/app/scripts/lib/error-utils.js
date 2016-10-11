@@ -24,7 +24,7 @@ define(function (require, exports, module) {
      * @param {Error} error - error for which to get error page URL
      * @returns {String}
      */
-    getErrorPageTemplate: function (error) {
+    getErrorPageTemplate (error) {
       if (AuthErrors.is(error, 'INVALID_PARAMETER') ||
           AuthErrors.is(error, 'MISSING_PARAMETER') ||
           OAuthErrors.is(error, 'INVALID_PARAMETER') ||
@@ -44,7 +44,7 @@ define(function (require, exports, module) {
      * @param {Object} metrics
      * @param {Object} win
      */
-    captureError: function (error, sentryMetrics, metrics, win) {
+    captureError (error, sentryMetrics, metrics, win) {
       var logger = new Logger(win);
       logger.error(error);
 
@@ -73,7 +73,7 @@ define(function (require, exports, module) {
      * @param {Object} win
      * @returns {Promise};
      */
-    captureAndFlushError: function (error, sentryMetrics, metrics, win) {
+    captureAndFlushError (error, sentryMetrics, metrics, win) {
       this.captureError(error, sentryMetrics, metrics, win);
       return p().then(function () {
         if (metrics) {
@@ -89,7 +89,7 @@ define(function (require, exports, module) {
      * @param {Object} win
      * @param {Object} translator
      */
-    renderError: function (error, win, translator) {
+    renderError (error, win, translator) {
       var errorPageTemplate = this.getErrorPageTemplate(error);
       var errorMessage = this.getErrorMessage(error, translator);
       var errorHtml = errorPageTemplate({
@@ -111,7 +111,7 @@ define(function (require, exports, module) {
      * @param {Object} translator
      * @returns {Promise}
      */
-    fatalError: function (error, sentryMetrics, metrics, win, translator) {
+    fatalError (error, sentryMetrics, metrics, win, translator) {
       return p.all([
         this.captureAndFlushError(error, sentryMetrics, metrics, win),
         this.renderError(error, win, translator)
@@ -126,7 +126,7 @@ define(function (require, exports, module) {
      * @param {Object} [translator] - translator to translate error
      * @return {String} interpolated error text.
      */
-    getErrorMessage: function (error, translator) {
+    getErrorMessage (error, translator) {
       if (error && error.errorModule) {
         return error.errorModule.toInterpolatedMessage(error, translator);
       }

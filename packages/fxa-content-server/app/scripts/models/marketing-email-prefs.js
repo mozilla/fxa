@@ -24,14 +24,14 @@ define(function (require, exports, module) {
       token: null
     },
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._marketingEmailClient = options.marketingEmailClient;
       this._account = options.account;
     },
 
-    _withMarketingEmailClient: function (method) {
+    _withMarketingEmailClient (method) {
       var client = this._marketingEmailClient;
       var args = [].slice.call(arguments, 1);
       return p().then(() => this._account.createOAuthToken(SCOPES))
@@ -58,7 +58,7 @@ define(function (require, exports, module) {
      * @method fetch
      * @returns {Promise}
      */
-    fetch: function () {
+    fetch () {
       return this._withMarketingEmailClient('fetch')
         .then((response) => {
           if (response) {
@@ -77,7 +77,7 @@ define(function (require, exports, module) {
      * @param {String} newsletterId
      * @returns {Promise}
      */
-    optIn: function (newsletterId) {
+    optIn (newsletterId) {
       if (this.isOptedIn(newsletterId)) {
         return p();
       }
@@ -97,7 +97,7 @@ define(function (require, exports, module) {
      * @param {String} newsletterId
      * @returns {Promise}
      */
-    optOut: function (newsletterId) {
+    optOut (newsletterId) {
       if (! this.isOptedIn(newsletterId)) {
         return p();
       }
@@ -116,7 +116,7 @@ define(function (require, exports, module) {
      * @param {String} newsletterId
      * @returns {Boolean}
      */
-    isOptedIn: function (newsletterId) {
+    isOptedIn (newsletterId) {
       var newsletters = this.get('newsletters');
       return newsletters.indexOf(newsletterId) !== -1;
     }

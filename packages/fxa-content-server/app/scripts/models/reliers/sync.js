@@ -32,13 +32,13 @@ define(function (require, exports, module) {
       customizeSync: false
     }),
 
-    initialize: function (attributes, options = {}) {
+    initialize (attributes, options = {}) {
       this._translator = options.translator;
 
       Relier.prototype.initialize.call(this, attributes, options);
     },
 
-    fetch: function () {
+    fetch () {
       return Relier.prototype.fetch.call(this)
         .then(() => {
           this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
@@ -47,7 +47,7 @@ define(function (require, exports, module) {
         });
     },
 
-    isSync: function () {
+    isSync () {
       return true;
     },
 
@@ -56,11 +56,11 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    wantsKeys: function () {
+    wantsKeys () {
       return true;
     },
 
-    _setupServiceName: function () {
+    _setupServiceName () {
       var service = this.get('service');
       if (service) {
         var serviceNameTranslator = new ServiceNameTranslator(this._translator);
@@ -74,7 +74,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isCustomizeSyncChecked: function () {
+    isCustomizeSyncChecked () {
       return !! this.get('customizeSync');
     }
   });

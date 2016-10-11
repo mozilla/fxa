@@ -31,7 +31,7 @@ define(function (require, exports, module) {
     var MISSING_RESUME_DATA = {};
 
     var Model = Backbone.Model.extend({
-      initialize: function (options) {
+      initialize (options) {
         this.sentryMetrics = sentryMetrics;
         this.window = options.window;
       },

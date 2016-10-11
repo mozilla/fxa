@@ -13,22 +13,22 @@ define(function (require, exports, module) {
   }
 
   CanvasMock.prototype = {
-    getContext: function () {
+    getContext () {
       this._context = {
-        translate: function () { },
-        rotate: function () { },
-        drawImage: function () {
+        translate () { },
+        rotate () { },
+        drawImage () {
           this._args = arguments;
         }
       };
 
       return this._context;
     },
-    toDataURL: function () {
+    toDataURL () {
       this._args = arguments;
       return 'data:image/jpeg';
     },
-    toBlob: function (cb) {
+    toBlob (cb) {
       this._args = arguments;
       setTimeout(function () {
         cb({ type: 'image/jpeg' });

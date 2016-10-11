@@ -19,7 +19,7 @@ define(function (require, exports, module) {
       url: undefined
     },
 
-    fetch: function () {
+    fetch () {
       if (! this.has('url')) {
         return p();
       }
@@ -32,7 +32,7 @@ define(function (require, exports, module) {
         });
     },
 
-    isDefault: function () {
+    isDefault () {
       return ! (this.has('url') && this.has('id') && this.has('img'));
     }
   });

@@ -57,7 +57,7 @@ define(function (require, exports, module) {
     // Time to wait for a request to finish before showing a notice
     LONGER_THAN_EXPECTED: new Duration('10s').milliseconds(),
 
-    constructor: function (options) {
+    constructor (options) {
       BaseView.call(this, options);
 
       // attach events of the descendent view and this view.
@@ -96,7 +96,7 @@ define(function (require, exports, module) {
      * @method getFormValues
      * @returns {Object}
      */
-    getFormValues: function () {
+    getFormValues () {
       var values = {};
       var inputEls = this.$('input,textarea,select');
 
@@ -113,7 +113,7 @@ define(function (require, exports, module) {
       return values;
     },
 
-    enableSubmitIfValid: function () {
+    enableSubmitIfValid () {
       // the change event can be called after the form is already
       // submitted if the user presses "enter" in the form. If the
       // form is in the midst of being submitted, bail out now.
@@ -134,7 +134,7 @@ define(function (require, exports, module) {
     /**
      * TODO - this should be called disableSubmit
      */
-    disableForm: function () {
+    disableForm () {
       // the disabled class is used instead of the disabled attribute
       // so that the submit handler is still called. With the submit attribute
       // applied, no submit handler is fired, and the form validation does not
@@ -143,13 +143,13 @@ define(function (require, exports, module) {
       this._isFormEnabled = false;
     },
 
-    enableForm: function () {
+    enableForm () {
       this.$('button[type=submit]').removeClass('disabled');
       this._isFormEnabled = true;
     },
 
     _isFormEnabled: true,
-    isFormEnabled: function () {
+    isFormEnabled () {
       return !! this._isFormEnabled;
     },
 
@@ -234,7 +234,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isValid: function () {
+    isValid () {
       if (! this.isValidStart()) {
         return false;
       }
@@ -260,7 +260,7 @@ define(function (require, exports, module) {
      *
      * @return {Boolean} true if form is valid, false otw.
      */
-    isValidStart: function () {
+    isValidStart () {
       return true;
     },
 
@@ -272,7 +272,7 @@ define(function (require, exports, module) {
      *
      * @return {Boolean} true if form is valid, false otw.
      */
-    isValidEnd: function () {
+    isValidEnd () {
       return true;
     },
 
@@ -284,7 +284,7 @@ define(function (require, exports, module) {
      *
      * @returns {undefined}
      */
-    showValidationErrors: function () {
+    showValidationErrors () {
       this.hideError();
 
       if (this.showValidationErrorsStart()) {
@@ -315,7 +315,7 @@ define(function (require, exports, module) {
      * @param {String} el
      * @returns {String}
      */
-    getElementValue: function (el) {
+    getElementValue (el) {
       return this.$(el).val();
     },
 
@@ -327,7 +327,7 @@ define(function (require, exports, module) {
      *
      * @return {undefined} true if a validation error is displayed.
      */
-    showValidationErrorsStart: function () {
+    showValidationErrorsStart () {
     },
 
     /**
@@ -338,7 +338,7 @@ define(function (require, exports, module) {
      *
      * @return {undefined} true if a validation error is displayed.
      */
-    showValidationErrorsEnd: function () {
+    showValidationErrorsEnd () {
     },
 
     /**
@@ -348,7 +348,7 @@ define(function (require, exports, module) {
      * @param {Error} err
      * @returns {String}
      */
-    showValidationError: function (el, err) {
+    showValidationError (el, err) {
       this.logError(err);
 
       var invalidEl = this.$(el);
@@ -388,7 +388,7 @@ define(function (require, exports, module) {
      * @returns {Promise|Boolean|none} Return a promise if
      *   beforeSubmit is an asynchronous operation.
      */
-    beforeSubmit: function () {
+    beforeSubmit () {
       return this.disableForm();
     },
 
@@ -399,7 +399,7 @@ define(function (require, exports, module) {
      * and beforeSubmit does not return false.
      *
      */
-    submit: function () {
+    submit () {
     },
 
     /**
@@ -412,7 +412,7 @@ define(function (require, exports, module) {
      * @returns {Promise|none} Return a promise if afterSubmit is
      *   an asynchronous operation.
      */
-    afterSubmit: function (result) {
+    afterSubmit (result) {
       return p().then(() => {
         // the flow may be halted by an authentication broker after form
         // submission. Views may display an error without throwing an exception.
@@ -435,7 +435,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean} true if form is being submitted, false otw.
      */
-    isSubmitting: function () {
+    isSubmitting () {
       return this._isSubmitting;
     },
 
@@ -444,7 +444,7 @@ define(function (require, exports, module) {
      *
      * TODO - this should be named disableForm, but that name is already taken.
      */
-    halt: function () {
+    halt () {
       this.$('input,textarea,button').attr('disabled', 'disabled').blur();
       this._isHalted = true;
     },
@@ -454,7 +454,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean} true if the view is halted, false otw.
      */
-    isHalted: function () {
+    isHalted () {
       return this._isHalted;
     },
 
@@ -463,7 +463,7 @@ define(function (require, exports, module) {
      *
      * @returns {Object|null} the form values or null if they haven't changed.
      */
-    detectFormValueChanges: function () {
+    detectFormValueChanges () {
       // oldValues will be `undefined` the first time through.
       var oldValues = this._previousFormValues;
       var newValues = this.getFormValues();
@@ -481,7 +481,7 @@ define(function (require, exports, module) {
      *
      * @returns {Object|null} the form values or null if they haven't changed.
      */
-    updateFormValueChanges: function () {
+    updateFormValueChanges () {
       var newValues = this.detectFormValueChanges();
       if (newValues) {
         this._previousFormValues = newValues;

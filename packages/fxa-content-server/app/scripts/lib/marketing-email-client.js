@@ -23,7 +23,7 @@ define(function (require, exports, module) {
   }
 
   MarketingEmailClient.prototype = {
-    _request: function (method, endpoint, accessToken, data) {
+    _request (method, endpoint, accessToken, data) {
       var url = this._baseUrl + endpoint;
       return this._xhr.oauthAjax({
         accessToken: accessToken,
@@ -37,7 +37,7 @@ define(function (require, exports, module) {
       });
     },
 
-    fetch: function (accessToken) {
+    fetch (accessToken) {
       return this._request('get', '/lookup-user', accessToken)
         .then((response) => {
           // TODO
@@ -52,13 +52,13 @@ define(function (require, exports, module) {
         });
     },
 
-    optIn: function (accessToken, newsletterId) {
+    optIn (accessToken, newsletterId) {
       return this._request('post', '/subscribe', accessToken, {
         newsletters: newsletterId
       });
     },
 
-    optOut: function (accessToken, newsletterId) {
+    optOut (accessToken, newsletterId) {
       return this._request('post', '/unsubscribe', accessToken, {
         newsletters: newsletterId
       });

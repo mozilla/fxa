@@ -11,7 +11,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
 
   module.exports = {
-    transformLinks: function () {
+    transformLinks () {
       this.$('a[href~="/signin"]').attr('href',
           this.broker.transformLink('/signin'));
       this.$('a[href~="/signup"]').attr('href',
@@ -19,7 +19,7 @@ define(function (require, exports, module) {
     },
 
     // override this method so we can fix signup/signin links in errors
-    displayErrorUnsafe: function (err) {
+    displayErrorUnsafe (err) {
       var result = BaseView.prototype.displayErrorUnsafe.call(this, err);
 
       this.transformLinks();

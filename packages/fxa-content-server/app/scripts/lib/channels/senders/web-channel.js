@@ -17,14 +17,14 @@ define(function (require, exports, module) {
   }
 
   WebChannelSender.prototype = {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._window = options.window;
       this._webChannelId = options.webChannelId;
     },
 
-    send: function (command, data, messageId) {
+    send (command, data, messageId) {
       return p().then(() => {
         // save command name for testing purposes
         this._saveEventName(command);
@@ -35,10 +35,10 @@ define(function (require, exports, module) {
       });
     },
 
-    teardown: function () {
+    teardown () {
     },
 
-    _saveEventName: function (command) {
+    _saveEventName (command) {
       var storedEvents;
       try {
         storedEvents = JSON.parse(this._window.sessionStorage.getItem('webChannelEvents')) || [];

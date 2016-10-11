@@ -19,12 +19,12 @@ define(function (require, exports, module) {
       tries: 0
     },
 
-    initialize: function (opt) {
+    initialize (opt) {
       opt = opt || {};
       this.maxTries = opt.maxTries || Constants.EMAIL_RESEND_MAX_TRIES;
     },
 
-    incrementRequestCount: function () {
+    incrementRequestCount () {
       var tries = this.get('tries') + 1;
       this.set('tries', tries);
 
@@ -33,11 +33,11 @@ define(function (require, exports, module) {
       }
     },
 
-    shouldResend: function () {
+    shouldResend () {
       return shouldResend(this.get('tries'), this.maxTries);
     },
 
-    reset: function () {
+    reset () {
       this.set('tries', 0);
     }
   });

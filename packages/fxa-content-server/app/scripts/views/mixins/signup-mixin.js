@@ -14,7 +14,7 @@ define(function (require, exports, module) {
       'click #suggest-sync a': 'onSuggestSyncClick'
     },
 
-    isSyncSuggestionEnabled: function () {
+    isSyncSuggestionEnabled () {
       if (! this.relier.get('service')) {
         this.logViewEvent('sync-suggest.visible');
         return true;
@@ -29,7 +29,7 @@ define(function (require, exports, module) {
      * @param {String} password
      * @return {Object} promise
      */
-    signUp: function (account, password) {
+    signUp (account, password) {
       this.logEvent('flow.signup.submit');
 
       return this.invokeBrokerMethod('beforeSignIn', account)
@@ -65,7 +65,7 @@ define(function (require, exports, module) {
         });
     },
 
-    onSignUpSuccess: function (account) {
+    onSignUpSuccess (account) {
       this.logViewEvent('success');
       this.logViewEvent('signup.success');
 
@@ -91,7 +91,7 @@ define(function (require, exports, module) {
      * interceptor function. Flushes metrics before redirecting
      * @param {Event} event - click event
      */
-    onSuggestSyncClick: function (event) {
+    onSuggestSyncClick (event) {
       event.preventDefault();
 
       this.logViewEvent('sync-suggest.clicked');

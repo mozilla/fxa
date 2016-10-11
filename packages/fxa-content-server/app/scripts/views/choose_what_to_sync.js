@@ -16,7 +16,7 @@ define(function (require, exports, module) {
     template: Template,
     className: 'choose-what-to-sync',
 
-    initialize: function () {
+    initialize () {
       // Account data is passed in from sign up flow.
       this._account = this.user.initAccount(this.model.get('account'));
 
@@ -26,11 +26,11 @@ define(function (require, exports, module) {
       this.onSubmitComplete = this.model.get('onSubmitComplete');
     },
 
-    getAccount: function () {
+    getAccount () {
       return this._account;
     },
 
-    beforeRender: function () {
+    beforeRender () {
       // user cannot proceed if they have not initiated a sign up/in.
       if (! this.getAccount().get('sessionToken')) {
         this.navigate('signup');
@@ -38,7 +38,7 @@ define(function (require, exports, module) {
       }
     },
 
-    context: function () {
+    context () {
       var account = this.getAccount();
 
       return {
@@ -52,7 +52,7 @@ define(function (require, exports, module) {
       };
     },
 
-    submit: function () {
+    submit () {
       var account = this.getAccount();
       var declinedEngines = this._getDeclinedEngines();
 
@@ -74,7 +74,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      * @private
      */
-    _isEngineSupported: function (engineName) {
+    _isEngineSupported (engineName) {
       var supportedEngines =
                 this.broker.getCapability('chooseWhatToSyncWebV1').engines;
       return supportedEngines.indexOf(engineName) > -1;
@@ -87,7 +87,7 @@ define(function (require, exports, module) {
      * @returns {Array}
      * @private
      */
-    _getDeclinedEngines: function () {
+    _getDeclinedEngines () {
       var uncheckedEngineEls =
             this.$el.find('input[name=sync-content]').not(':checked');
 
@@ -102,7 +102,7 @@ define(function (require, exports, module) {
      * @param {Array} declinedEngines
      * @private
      */
-    _trackUncheckedEngines: function (declinedEngines) {
+    _trackUncheckedEngines (declinedEngines) {
       if (_.isArray(declinedEngines)) {
         declinedEngines.forEach((engine) => {
           this.logViewEvent('engine-unchecked.' + engine);

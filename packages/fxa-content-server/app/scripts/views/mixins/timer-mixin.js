@@ -16,7 +16,7 @@ define(function (require, exports, module) {
   const _ = require('underscore');
 
   var Mixin = {
-    setTimeout: function (callback, timeoutMS) {
+    setTimeout (callback, timeoutMS) {
       if (! this._timeouts) {
         this._timeouts = [];
         // clear all timeouts when the view is destroyed.
@@ -34,7 +34,7 @@ define(function (require, exports, module) {
       return timeout;
     },
 
-    clearTimeout: function (timeout) {
+    clearTimeout (timeout) {
       var win = this.window || window;
       win.clearTimeout(timeout);
 

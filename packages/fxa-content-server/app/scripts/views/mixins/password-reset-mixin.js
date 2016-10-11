@@ -23,7 +23,7 @@ define(function (require, exports, module) {
      * @param {String} email
      * @return {Promise} - resolves with auth server response if successful.
      */
-    resetPassword: function (email) {
+    resetPassword (email) {
       var account = this.user.initAccount({ email: email });
       return account.resetPassword(
         this.relier,
@@ -50,7 +50,7 @@ define(function (require, exports, module) {
      * @param {String} passwordForgotToken
      * @return {Promise} - resolves with auth server response if successful.
      */
-    retryResetPassword: function (email, passwordForgotToken) {
+    retryResetPassword (email, passwordForgotToken) {
       var account = this.user.initAccount({ email: email });
       return account.retryResetPassword(
         passwordForgotToken,

@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
 
   var AppView = BaseView.extend({
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._environment = options.environment;
@@ -33,7 +33,7 @@ define(function (require, exports, module) {
       'click a[href^="/"]': 'onAnchorClick'
     },
 
-    onAnchorClick: function (event) {
+    onAnchorClick (event) {
       // if someone killed this event, or the user is holding a modifier
       // key, ignore the event.
       if (event.isDefaultPrevented() ||
@@ -68,7 +68,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    showView: function (View, options) {
+    showView (View, options) {
       return p().then(() => {
         options.model = options.model || new Backbone.Model();
 
@@ -136,7 +136,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    showChildView: function (ChildView, ParentView, options) {
+    showChildView (ChildView, ParentView, options) {
       // If currentView is of the ParentView type, simply show the subView
       return p().then(() => {
         if (! (this._currentView instanceof ParentView)) {
@@ -167,7 +167,7 @@ define(function (require, exports, module) {
      *
      * @param {String} title
      */
-    setTitle: function (title) {
+    setTitle (title) {
       this.window.document.title = title;
     }
 

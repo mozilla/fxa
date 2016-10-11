@@ -318,7 +318,7 @@ define(function (require, exports, module) {
      * @param {Error} err
      * @returns {Object}
      */
-    toInterpolationContext: function (err) {
+    toInterpolationContext (err) {
       // For data returned by backend, see
       // https://github.com/mozilla/fxa-auth-server/blob/master/error.js
       try {

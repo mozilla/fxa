@@ -16,7 +16,7 @@ define(function (require, exports, module) {
   module.exports = {
     isModal: true,
 
-    initialize: function (options) {
+    initialize (options) {
       this.parentView = options.parentView;
     },
 
@@ -25,7 +25,7 @@ define(function (require, exports, module) {
       'click .modal-panel #back': preventDefaultThen('_returnToAvatarChange')
     },
 
-    openPanel: function (event) {
+    openPanel (event) {
       $(this.el).modal({
         opacity: 0.75,
         showClose: false,
@@ -36,25 +36,25 @@ define(function (require, exports, module) {
       });
     },
 
-    _returnToAvatarChange: function () {
+    _returnToAvatarChange () {
       this.navigate('settings/avatar/change');
     },
 
-    _closePanelReturnToSettings: function () {
+    _closePanelReturnToSettings () {
       this.navigate('settings');
       this.closePanel();
     },
 
-    closePanel: function () {
+    closePanel () {
       this.destroy(true);
     },
 
-    closeModalPanel: function () {
+    closeModalPanel () {
       this.closePanel();
       $.modal.close();
     },
 
-    displaySuccess: function (msg) {
+    displaySuccess (msg) {
       this.parentView.displaySuccess(msg);
     }
   };

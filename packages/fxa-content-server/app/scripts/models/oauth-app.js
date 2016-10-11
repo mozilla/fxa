@@ -20,7 +20,7 @@ define(function (require, exports, module) {
       name: null
     },
 
-    destroy: function () {
+    destroy () {
       this.trigger('destroy', this);
     }
   });

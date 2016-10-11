@@ -18,7 +18,7 @@ define(function (require, exports, module) {
   }
 
   _.extend(FxDesktopV1Channel.prototype, new DuplexChannel(), {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       var win = options.window || window;
@@ -41,7 +41,7 @@ define(function (require, exports, module) {
       });
     },
 
-    createMessageId: function (command) {
+    createMessageId (command) {
       // The browser does not return messageIds, it silently ignores any
       // that are sent. It will return a `status` field that is the same
       // as the command. Use the command (which is returned as status)
@@ -49,7 +49,7 @@ define(function (require, exports, module) {
       return command;
     },
 
-    parseMessage: function (message) {
+    parseMessage (message) {
       if (! (message && message.content)) {
         throw new Error('malformed message');
       }

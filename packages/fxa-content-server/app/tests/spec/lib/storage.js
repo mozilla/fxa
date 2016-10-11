@@ -171,7 +171,7 @@ define(function (require, exports, module) {
       it('does not blow up if cookies are disabled', function () {
         var local;
         Object.defineProperty(windowMock, 'localStorage', {
-          get: function () {
+          get () {
             throw new Error('The operation is insecure.');
           }
         });

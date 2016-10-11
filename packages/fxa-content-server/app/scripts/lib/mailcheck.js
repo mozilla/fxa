@@ -45,7 +45,7 @@ define(function (require, exports, module) {
         domains: DOMAINS,
         secondLevelDomains: SECOND_LEVEL_DOMAINS,
         topLevelDomains: TOP_LEVEL_DOMAINS,
-        suggested: function (element, suggestion) {
+        suggested (element, suggestion) {
           // avoid suggesting empty or incomplete domains
           var incompleteDomain = ! suggestion || ! suggestion.domain ||
             suggestion.domain.indexOf('.') === -1;

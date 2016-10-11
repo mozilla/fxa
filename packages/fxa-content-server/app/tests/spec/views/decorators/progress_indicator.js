@@ -21,7 +21,7 @@ define(function (require, exports, module) {
     var progressIndicator;
 
     var View = BaseView.extend({
-      template: function () {
+      template () {
         return '<button type="submit">Button</button>';
       },
       longRunningAction: showProgressIndicator(function () {

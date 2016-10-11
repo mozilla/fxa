@@ -87,14 +87,14 @@ define(function (require, exports, module) {
       Relier.prototype.resumeTokenFields
     ),
 
-    initialize: function (attributes, options = {}) {
+    initialize (attributes, options = {}) {
       Relier.prototype.initialize.call(this, attributes, options);
 
       this._session = options.session;
       this._oAuthClient = options.oAuthClient;
     },
 
-    fetch: function () {
+    fetch () {
       return Relier.prototype.fetch.call(this)
         .then(() => {
           if (this._isVerificationFlow()) {
@@ -118,7 +118,7 @@ define(function (require, exports, module) {
         });
     },
 
-    _normalizeScopesAndPermissions: function () {
+    _normalizeScopesAndPermissions () {
       var permissions = scopeStrToArray(this.get('scope'));
       if (this.isTrusted()) {
         // We have to normalize `profile` into is expanded sub-scopes
@@ -142,7 +142,7 @@ define(function (require, exports, module) {
       this.set('permissions', permissions);
     },
 
-    isOAuth: function () {
+    isOAuth () {
       return true;
     },
 
@@ -151,22 +151,22 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    wantsKeys: function () {
+    wantsKeys () {
       if (this.get('keys')) {
         return true;
       }
       return Relier.prototype.wantsKeys.call(this);
     },
 
-    deriveRelierKeys: function (keys, uid) {
+    deriveRelierKeys (keys, uid) {
       return RelierKeys.deriveRelierKeys(keys, uid, this.get('clientId'));
     },
 
-    _isVerificationFlow: function () {
+    _isVerificationFlow () {
       return !! this.getSearchParam('code');
     },
 
-    _setupVerificationFlow: function () {
+    _setupVerificationFlow () {
       var resumeObj = this._session.oauth;
       if (! resumeObj) {
         // The user is verifying in a second browser. `service` is
@@ -185,14 +185,14 @@ define(function (require, exports, module) {
       this.set(result);
     },
 
-    _setupSignInSignUpFlow: function () {
+    _setupSignInSignUpFlow () {
       // params listed in:
       // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
       this.importSearchParamsUsingSchema(
           SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA, OAuthErrors);
     },
 
-    _setupOAuthRPInfo: function () {
+    _setupOAuthRPInfo () {
       var clientId = this.get('clientId');
 
       return this._oAuthClient.getClientInfo(clientId)
@@ -215,7 +215,7 @@ define(function (require, exports, module) {
         });
     },
 
-    isTrusted: function () {
+    isTrusted () {
       return this.get('trusted');
     },
 
@@ -224,7 +224,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean} `true` if relier asks for consent, false otw.
      */
-    wantsConsent: function () {
+    wantsConsent () {
       return this.get('prompt') === Constants.OAUTH_PROMPT_CONSENT;
     },
 
@@ -236,7 +236,7 @@ define(function (require, exports, module) {
      * @returns {Boolean} `true` if additional permissions
      *   are needed, false otw.
      */
-    accountNeedsPermissions: function (account) {
+    accountNeedsPermissions (account) {
       if (this.isTrusted() && ! this.wantsConsent()) {
         return false;
       }

@@ -27,7 +27,7 @@ define(function (require, exports, module) {
   var BaseAuthenticationBroker = Backbone.Model.extend({
     type: 'base',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this.relier = options.relier;
@@ -66,7 +66,7 @@ define(function (require, exports, module) {
      * @param {String} behaviorName
      * @param {Object} value
      */
-    setBehavior: function (behaviorName, value) {
+    setBehavior (behaviorName, value) {
       this._behaviors.set(behaviorName, value);
     },
 
@@ -76,7 +76,7 @@ define(function (require, exports, module) {
      * @param {String} behaviorName
      * @return {Object}
      */
-    getBehavior: function (behaviorName) {
+    getBehavior (behaviorName) {
       if (! this._behaviors.has(behaviorName)) {
         throw new Error('behavior not found for: ' + behaviorName);
       }
@@ -88,7 +88,7 @@ define(function (require, exports, module) {
      * initialize the broker with any necessary data.
      * @returns {Promise}
      */
-    fetch: function () {
+    fetch () {
       return p().then(() => {
         this._isForceAuth = this._isForceAuthUrl();
         this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
@@ -100,7 +100,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    canCancel: function () {
+    canCancel () {
       return false;
     },
 
@@ -109,7 +109,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    cancel: function () {
+    cancel () {
       return p();
     },
 
@@ -119,7 +119,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    afterLoaded: function () {
+    afterLoaded () {
       return p();
     },
 
@@ -130,7 +130,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    beforeSignIn: function (/* account */) {
+    beforeSignIn (/* account */) {
       return p(this.getBehavior('beforeSignIn'));
     },
 
@@ -141,7 +141,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterSignIn: function (/* account */) {
+    afterSignIn (/* account */) {
       return p(this.getBehavior('afterSignIn'));
     },
 
@@ -153,7 +153,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterSignInConfirmationPoll: function (/* account */) {
+    afterSignInConfirmationPoll (/* account */) {
       return p(this.getBehavior('afterSignInConfirmationPoll'));
     },
 
@@ -163,7 +163,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterForceAuth: function (/* account */) {
+    afterForceAuth (/* account */) {
       return p(this.getBehavior('afterForceAuth'));
     },
 
@@ -175,7 +175,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    persistVerificationData: function (account) {
+    persistVerificationData (account) {
       return p().then(() => {
         // verification info is persisted to localStorage so that
         // the same `context` is used if the user verifies in the same browser.
@@ -198,7 +198,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    unpersistVerificationData: function (account) {
+    unpersistVerificationData (account) {
       return p().then(function () {
         clearSameBrowserVerificationModel(account, 'context');
       });
@@ -211,7 +211,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterSignUp: function (/* account */) {
+    afterSignUp (/* account */) {
       return p(this.getBehavior('afterSignUp'));
     },
 
@@ -223,7 +223,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    beforeSignUpConfirmationPoll: function (/* account */) {
+    beforeSignUpConfirmationPoll (/* account */) {
       return p(this.getBehavior('beforeSignUpConfirmationPoll'));
     },
 
@@ -235,7 +235,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterSignUpConfirmationPoll: function (/* account */) {
+    afterSignUpConfirmationPoll (/* account */) {
       return p(this.getBehavior('afterSignUpConfirmationPoll'));
     },
 
@@ -245,7 +245,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterCompleteSignUp: function (account) {
+    afterCompleteSignUp (account) {
       return this.unpersistVerificationData(account)
         .then(() => this.getBehavior('afterCompleteSignUp'));
     },
@@ -258,7 +258,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterResetPasswordConfirmationPoll: function (/* account */) {
+    afterResetPasswordConfirmationPoll (/* account */) {
       return p(this.getBehavior('afterResetPasswordConfirmationPoll'));
     },
 
@@ -268,7 +268,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterCompleteResetPassword: function (account) {
+    afterCompleteResetPassword (account) {
       return this.unpersistVerificationData(account)
         .then(() => this.getBehavior('afterCompleteResetPassword'));
     },
@@ -279,7 +279,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterChangePassword: function (/* account */) {
+    afterChangePassword (/* account */) {
       return p(this.getBehavior('afterChangePassword'));
     },
 
@@ -289,7 +289,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterDeleteAccount: function (/* account */) {
+    afterDeleteAccount (/* account */) {
       return p(this.getBehavior('afterDeleteAccount'));
     },
 
@@ -299,7 +299,7 @@ define(function (require, exports, module) {
      * @param {String} link
      * @returns {String}
      */
-    transformLink: function (link) {
+    transformLink (link) {
       return link;
     },
 
@@ -309,11 +309,11 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isForceAuth: function () {
+    isForceAuth () {
       return !! this._isForceAuth;
     },
 
-    _isForceAuthUrl: function () {
+    _isForceAuthUrl () {
       var pathname = this.window.location.pathname;
       return pathname === '/force_auth' || pathname === '/oauth/force_auth';
     },
@@ -323,7 +323,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isAutomatedBrowser: function () {
+    isAutomatedBrowser () {
       return !! this.get('automatedBrowser');
     },
 
@@ -374,7 +374,7 @@ define(function (require, exports, module) {
      * @param {String} capabilityName
      * @return {Boolean}
      */
-    hasCapability: function (capabilityName) {
+    hasCapability (capabilityName) {
       return this._capabilities.has(capabilityName) &&
              !! this._capabilities.get(capabilityName);
     },
@@ -385,7 +385,7 @@ define(function (require, exports, module) {
      * @param {String} capabilityName
      * @param {Variant} capabilityValue
      */
-    setCapability: function (capabilityName, capabilityValue) {
+    setCapability (capabilityName, capabilityValue) {
       this._capabilities.set(capabilityName, capabilityValue);
     },
 
@@ -394,7 +394,7 @@ define(function (require, exports, module) {
      *
      * @param {String} capabilityName
      */
-    unsetCapability: function (capabilityName) {
+    unsetCapability (capabilityName) {
       this._capabilities.unset(capabilityName);
     },
 
@@ -404,7 +404,7 @@ define(function (require, exports, module) {
      * @param {String} capabilityName
      * @return {Variant}
      */
-    getCapability: function (capabilityName) {
+    getCapability (capabilityName) {
       return this._capabilities.get(capabilityName);
     }
   });

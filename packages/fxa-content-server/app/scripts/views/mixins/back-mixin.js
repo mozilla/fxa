@@ -16,7 +16,7 @@ define(function (require, exports, module) {
 
   var BackMixin = {
     _canGoBack: false,
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._canGoBack = options.canGoBack;
@@ -35,7 +35,7 @@ define(function (require, exports, module) {
      * @method getContext
      * @returns {Object}
      */
-    getContext: function () {
+    getContext () {
       var context = BaseView.prototype.getContext.call(this);
 
       if (! ('canGoBack' in context)) {
@@ -51,7 +51,7 @@ define(function (require, exports, module) {
      * @method back
      * @param {Object} [nextViewData] - data to send to the next(last) view.
      */
-    back: function (nextViewData) {
+    back (nextViewData) {
       this.logViewEvent('back');
 
       this.notifier.trigger('navigate-back', {
@@ -65,7 +65,7 @@ define(function (require, exports, module) {
      * @method backOnEnter
      * @param {Object} event
      */
-    backOnEnter: function (event) {
+    backOnEnter (event) {
       if (event.which === KeyCodes.ENTER) {
         this.back();
       }
@@ -77,7 +77,7 @@ define(function (require, exports, module) {
      * @method canGoBack
      * @returns {Boolean}
      */
-    canGoBack: function () {
+    canGoBack () {
       return !! this._canGoBack;
     }
   };

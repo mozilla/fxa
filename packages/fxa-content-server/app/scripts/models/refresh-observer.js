@@ -21,7 +21,7 @@ define(function (require, exports, module) {
   }
 
   module.exports = Backbone.Model.extend({
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._metrics = options.metrics;
@@ -34,11 +34,11 @@ define(function (require, exports, module) {
       this._notifier.on('show-child-view', this._onShowChildView.bind(this));
     },
 
-    _onShowView: function (View, viewOptions) {
+    _onShowView (View, viewOptions) {
       this.logIfRefresh(viewOptions.viewName);
     },
 
-    _onShowChildView: function (ChildView, ParentView, viewOptions) {
+    _onShowChildView (ChildView, ParentView, viewOptions) {
       this.logIfRefresh(viewOptions.viewName);
     },
 
@@ -48,7 +48,7 @@ define(function (require, exports, module) {
      *
      * @param {String} viewName
      */
-    logIfRefresh: function (viewName) {
+    logIfRefresh (viewName) {
       var refreshMetrics = this._storage.get('last_page_loaded');
 
       if (isRefresh(refreshMetrics, viewName)) {

@@ -33,7 +33,7 @@ define(function (require, exports, module) {
       SYNC_PREFERENCES: 'fxaccounts:sync_preferences'
     },
 
-    createChannel: function () {
+    createChannel () {
       var channel = new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
       channel.initialize({
         window: this.window

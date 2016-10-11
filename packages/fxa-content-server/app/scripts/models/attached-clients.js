@@ -25,7 +25,7 @@ define(function (require, exports, module) {
       }
     },
 
-    fetchClients: function (clientTypes = {}, user) {
+    fetchClients (clientTypes = {}, user) {
       var account = user.getSignedInAccount();
       var fetchItems = [];
 
@@ -52,7 +52,7 @@ define(function (require, exports, module) {
         });
     },
 
-    comparator: function (a, b) {
+    comparator (a, b) {
       // 1. the current device is first.
       // 2. those with lastAccessTime are sorted in descending order
       // 3. the rest sorted in alphabetical order.

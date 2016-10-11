@@ -20,7 +20,7 @@ define(function (require, exports, module) {
     className: 'gravatar-permissions',
     viewName: 'settings.gravatar-permissions',
 
-    context: function () {
+    context () {
       var account = this.getSignedInAccount();
       var serviceName = this.translator.get('Gravatar');
       return {
@@ -29,7 +29,7 @@ define(function (require, exports, module) {
       };
     },
 
-    beforeRender: function () {
+    beforeRender () {
       var account = this.getSignedInAccount();
       if (account.getClientPermission(GRAVATAR_MOCK_CLIENT_ID, GRAVATAR_PERMISSION)) {
         this.logViewEvent('already-accepted');
@@ -38,7 +38,7 @@ define(function (require, exports, module) {
       }
     },
 
-    submit: function () {
+    submit () {
       var account = this.getSignedInAccount();
       this.logViewEvent('accept');
 

@@ -125,7 +125,7 @@ define(function (require, exports, module) {
   }
 
   FxaClientWrapper.prototype = {
-    _getClient: function () {
+    _getClient () {
       if (this._client) {
         return p(this._client);
       }
@@ -482,7 +482,7 @@ define(function (require, exports, module) {
       return client.sessionStatus(sessionToken);
     }),
 
-    isSignedIn: function (sessionToken) {
+    isSignedIn (sessionToken) {
       // Check if the user is signed in.
       if (! sessionToken) {
         return p(false);

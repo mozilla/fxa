@@ -13,12 +13,12 @@ define(function (require, exports, module) {
 
   var PasswordStrengthMixin = {
 
-    initialize: function (options) {
+    initialize (options) {
       this._able = options.able;
     },
 
     _isPasswordStrengthCheckEnabledValue: undefined,
-    isPasswordStrengthCheckEnabled: function () {
+    isPasswordStrengthCheckEnabled () {
       if (_.isUndefined(this._isPasswordStrengthCheckEnabledValue)) {
         var abData = {
           // the window parameter will override any ab testing features
@@ -38,7 +38,7 @@ define(function (require, exports, module) {
     },
 
     _passwordStrengthCheckerPromise: undefined,
-    getPasswordStrengthChecker: function () {
+    getPasswordStrengthChecker () {
       // returns a promise that resolves once the library is loaded.
       if (! this._passwordStrengthCheckerPromise) {
         this._passwordStrengthCheckerPromise = requireOnDemand('passwordcheck')
@@ -68,7 +68,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    checkPasswordStrength: function (password) {
+    checkPasswordStrength (password) {
       if (! this.isPasswordStrengthCheckEnabled()) {
         return p('DISABLED');
       }
@@ -97,7 +97,7 @@ define(function (require, exports, module) {
         });
     },
 
-    _logStrengthExperimentEvent: function (eventNameSuffix) {
+    _logStrengthExperimentEvent (eventNameSuffix) {
       var eventName = 'experiment.pw_strength.' + eventNameSuffix.toLowerCase();
       this.logViewEvent(eventName);
     }

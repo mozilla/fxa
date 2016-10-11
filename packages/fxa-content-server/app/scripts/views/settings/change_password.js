@@ -31,7 +31,7 @@ define(function (require, exports, module) {
       };
     },
 
-    submit: function () {
+    submit () {
       var account = this.getSignedInAccount();
       var oldPassword = this.$('#old_password').val();
       var newPassword = this.$('#new_password').val();

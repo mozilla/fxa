@@ -67,7 +67,7 @@ define(function (require, exports, module) {
     COMMANDS: COMMAND_NAMES,
     SCHEMATA: SCHEMATA,
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       // internal:* messages are never sent outside of FxA. Messages
@@ -101,7 +101,7 @@ define(function (require, exports, module) {
      * @param {Object} data
      * @param {Context} context
      */
-    triggerAll: function (command, data, context) {
+    triggerAll (command, data, context) {
       this.triggerRemote(command, data);
       this.trigger(command, data, context);
     },
@@ -113,7 +113,7 @@ define(function (require, exports, module) {
      * @param {String} command
      * @param {Object} data
      */
-    triggerRemote: function (command, data) {
+    triggerRemote (command, data) {
       // Validation distinguishes between undefined values and values that are
       // set to undefined. And some channels don't serialise their payloads, so
       // values that are set to undefined get sent with the message. Mitigate
@@ -142,13 +142,13 @@ define(function (require, exports, module) {
     },
 
     // Listen for notifications from other fxa tabs or frames
-    _listen: function (tabChannel) {
+    _listen (tabChannel) {
       _.each(COMMAND_NAMES, (name) => {
         tabChannel.on(name, this.trigger.bind(this, name));
       });
     },
 
-    clear: function () {
+    clear () {
       if (this._tabChannel) {
         this._tabChannel.clear();
       }

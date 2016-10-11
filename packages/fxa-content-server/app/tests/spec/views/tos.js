@@ -25,7 +25,7 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       xhrMock = {
-        ajax: function () {
+        ajax () {
           return p(TEMPLATE_TEXT);
         }
       };

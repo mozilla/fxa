@@ -28,7 +28,7 @@ define(function (require, exports, module) {
   const uuid = require('uuid');
 
   var Model = Backbone.Model.extend({
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this.sentryMetrics = options.sentryMetrics;
@@ -41,7 +41,7 @@ define(function (require, exports, module) {
       uniqueUserId: null
     },
 
-    fetch: function () {
+    fetch () {
       // Try to fetch the uniqueUserId from the resume token.
       // If unavailable there, fetch from localStorage.
       // If not in localStorage either, create a new uniqueUserId.

@@ -19,7 +19,7 @@ define(function (require, exports, module) {
      * @param {String} paramName - name of the search parameter to get
      * @returns {String}
      */
-    getSearchParam: function (paramName) {
+    getSearchParam (paramName) {
       return Url.searchParam(paramName, this.window.location.search);
     },
 
@@ -30,7 +30,7 @@ define(function (require, exports, module) {
      * to get
      * @returns {Object}
      */
-    getSearchParams: function (paramNames) {
+    getSearchParams (paramNames) {
       return Url.searchParams(this.window.location.search, paramNames);
     },
 
@@ -50,7 +50,7 @@ define(function (require, exports, module) {
      * `INVALID_PARAMETER` error is generated, with the error's
      * `param` field set to the invalid field's name.
      */
-    importSearchParamsUsingSchema: function (schema, Errors) {
+    importSearchParamsUsingSchema (schema, Errors) {
       var params = this.getSearchParams(Object.keys(schema));
       var result = Transform.transformUsingSchema(params, schema, Errors);
       this.set(result);

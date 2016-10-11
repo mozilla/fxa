@@ -18,7 +18,7 @@ define(function (require, exports, module) {
       observe: sinon.spy(),
       disconnect: sinon.spy(),
       // test function to call notifier.
-      mockNotify: function (mutations) {
+      mockNotify (mutations) {
         notifier(mutations);
       }
     };
@@ -47,17 +47,17 @@ define(function (require, exports, module) {
     };
 
     this.history = {
-      back: function () {
+      back () {
         win.history.back.called = true;
       },
-      replaceState: function () {}
+      replaceState () {}
     };
 
     this.navigator = {
       userAgent: window.navigator.userAgent,
       mediaDevices: {
         // simulate the API presented by the WebRTC polyfill
-        getUserMedia: function (options) {
+        getUserMedia (options) {
           var deferred = p.defer();
 
           var nav = this;
@@ -65,7 +65,7 @@ define(function (require, exports, module) {
 
           setTimeout(function () {
             var stream = {
-              stop: function () {
+              stop () {
               }
             };
             if (nav._error) {
@@ -81,11 +81,11 @@ define(function (require, exports, module) {
           return deferred.promise;
         }
       },
-      sendBeacon: function () {}
+      sendBeacon () {}
     };
 
     this.URL = {
-      createObjectURL: function (/*stream*/) {
+      createObjectURL (/*stream*/) {
         return '';
       }
     };
@@ -108,7 +108,7 @@ define(function (require, exports, module) {
   }
 
   _.extend(WindowMock.prototype, Backbone.Events, {
-    dispatchEvent: function (event) {
+    dispatchEvent (event) {
       var msg = event.detail.command || event.detail.message;
 
       var listenerEvent = {
@@ -132,46 +132,48 @@ define(function (require, exports, module) {
       }
     },
 
-    isEventDispatched: function (eventName) {
+    isEventDispatched (eventName) {
       return !! (this.dispatchedEvents && this.dispatchedEvents[eventName]);
     },
 
-    addEventListener: function (msg, callback/*, bubbles*/) {
+    addEventListener (msg, callback/*, bubbles*/) {
       this.on(msg, callback);
     },
 
-    removeEventListener: function (msg, callback/*, bubbles*/) {
+    removeEventListener (msg, callback/*, bubbles*/) {
       this.off(msg, callback);
     },
 
+    // Cannot be converted to object shorthand notation
+    // because it's used as a constructor.
     CustomEvent: function (command, data) {
       return data;
     },
 
-    scrollTo: function (/*x, y*/) {
+    scrollTo (/*x, y*/) {
     },
 
-    setTimeout: function (/*callback, timeoutMS*/) {
+    setTimeout (/*callback, timeoutMS*/) {
       this._isTimeoutSet = true;
       return 'timeout';
     },
 
-    isTimeoutSet: function () {
+    isTimeoutSet () {
       return !! this._isTimeoutSet;
     },
 
-    clearTimeout: function (/*timeout*/) {
+    clearTimeout (/*timeout*/) {
     },
 
     navigator: {
       language: 'en-US'
     },
 
-    open: function (url/*, target, windowName*/) {
+    open (url/*, target, windowName*/) {
       console.log('window.open was called with', url);
     },
 
-    postMessage: function (/*msg, targetOrigin*/) {
+    postMessage (/*msg, targetOrigin*/) {
     }
   });
 

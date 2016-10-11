@@ -25,7 +25,7 @@ define(function (require, exports, module) {
   const VerificationReasons = require('lib/verification-reasons');
 
   var User = Backbone.Model.extend({
-    initialize: function (options = {}) {
+    initialize (options = {}) {
       this._oAuthClientId = options.oAuthClientId;
       this._oAuthClient = options.oAuthClient;
       this._profileClient = options.profileClient;
@@ -63,17 +63,17 @@ define(function (require, exports, module) {
     },
 
     // Hydrate the model. Returns a promise.
-    fetch: function () {
+    fetch () {
       return p().then(() => {
         this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
       });
     },
 
-    _accounts: function () {
+    _accounts () {
       return this._storage.get('accounts') || {};
     },
 
-    _getAccount: function (uid) {
+    _getAccount (uid) {
       if (! uid) {
         return null;
       } else {
@@ -81,7 +81,7 @@ define(function (require, exports, module) {
       }
     },
 
-    _setSignedInAccountUid: function (uid) {
+    _setSignedInAccountUid (uid) {
       this._storage.set('currentAccountUid', uid);
       // Clear the in-memory cache if the uid has changed
       if (this._cachedSignedInAccount && this._cachedSignedInAccount.get('uid') !== uid) {
@@ -89,17 +89,17 @@ define(function (require, exports, module) {
       }
     },
 
-    clearSignedInAccountUid: function () {
+    clearSignedInAccountUid () {
       this._storage.remove('currentAccountUid');
       this._cachedSignedInAccount = null;
     },
 
-    _getSignedInAccountData: function () {
+    _getSignedInAccountData () {
       return this._getAccount(this._storage.get('currentAccountUid'));
     },
 
     // persists account data
-    _persistAccount: function (accountData) {
+    _persistAccount (accountData) {
       var account = this.initAccount(accountData);
 
       var accounts = this._accounts();
@@ -110,7 +110,7 @@ define(function (require, exports, module) {
 
     // A convenience method that initializes an account instance from
     // raw account data.
-    initAccount: function (accountData) {
+    initAccount (accountData) {
       if (accountData instanceof Account) {
         // we already have an account instance
         return accountData;
@@ -127,11 +127,11 @@ define(function (require, exports, module) {
       });
     },
 
-    isSyncAccount: function (account) {
+    isSyncAccount (account) {
       return this.initAccount(account).isFromSync();
     },
 
-    getSignedInAccount: function () {
+    getSignedInAccount () {
       if (! this._cachedSignedInAccount) {
         this._cachedSignedInAccount = this.initAccount(this._getSignedInAccountData());
       }
@@ -139,22 +139,22 @@ define(function (require, exports, module) {
       return this._cachedSignedInAccount;
     },
 
-    isSignedInAccount: function (account) {
+    isSignedInAccount (account) {
       return account.get('uid') === this.getSignedInAccount().get('uid');
     },
 
-    setSignedInAccountByUid: function (uid) {
+    setSignedInAccountByUid (uid) {
       if (this._accounts()[uid]) {
         this._setSignedInAccountUid(uid);
       }
     },
 
-    getAccountByUid: function (uid) {
+    getAccountByUid (uid) {
       var account = this._accounts()[uid];
       return this.initAccount(account);
     },
 
-    getAccountByEmail: function (email) {
+    getAccountByEmail (email) {
       // Reverse the list so newest accounts are first
       var uids = Object.keys(this._accounts()).reverse();
       var accounts = this._accounts();
@@ -169,7 +169,7 @@ define(function (require, exports, module) {
     // Return the account selected in the account chooser.
     // Defaults to the last logged in account unless a desktop session
     // has been stored.
-    getChooserAccount: function () {
+    getChooserAccount () {
       var account = _.find(this._accounts(), (account) => {
         return this.isSyncAccount(account);
       }) || this.getSignedInAccount();
@@ -178,7 +178,7 @@ define(function (require, exports, module) {
     },
 
     // Used to clear the current account, but keeps the account details
-    clearSignedInAccount: function () {
+    clearSignedInAccount () {
       var uid = this.getSignedInAccount().get('uid');
       this.clearSignedInAccountUid();
       this._notifier.triggerRemote(this._notifier.COMMANDS.SIGNED_OUT, {
@@ -186,7 +186,7 @@ define(function (require, exports, module) {
       });
     },
 
-    removeAllAccounts: function () {
+    removeAllAccounts () {
       this.clearSignedInAccountUid();
       this._storage.remove('accounts');
     },
@@ -198,7 +198,7 @@ define(function (require, exports, module) {
      * @param {Object} accountData - Account model or object representing
      *   account data.
      */
-    removeAccount: function (accountData) {
+    removeAccount (accountData) {
       var account = this.initAccount(accountData);
 
       if (this.isSignedInAccount(account)) {
@@ -219,7 +219,7 @@ define(function (require, exports, module) {
      * @param {String} password - the user's password
      * @return {Promise} - resolves when complete
      */
-    deleteAccount: function (accountData, password) {
+    deleteAccount (accountData, password) {
       var account = this.initAccount(accountData);
 
       return account.destroy(password)
@@ -232,7 +232,7 @@ define(function (require, exports, module) {
     },
 
     // Stores a new account and sets it as the current account.
-    setSignedInAccount: function (accountData) {
+    setSignedInAccount (accountData) {
       var account = this.initAccount(accountData);
       account.set('lastLogin', Date.now());
 
@@ -245,7 +245,7 @@ define(function (require, exports, module) {
     },
 
     // Hydrate the account then persist it
-    setAccount: function (accountData) {
+    setAccount (accountData) {
       var account = this.initAccount(accountData);
       return account.fetch()
         .then(() => {
@@ -257,7 +257,7 @@ define(function (require, exports, module) {
     // Old sessions store two accounts: The last account the
     // user logged in to FxA with, and the account they logged in to
     // Sync with. If they are different accounts, we'll save both accounts.
-    upgradeFromSession: function (Session, fxaClient) {
+    upgradeFromSession (Session, fxaClient) {
       return p().then(() => {
         if (! this.getSignedInAccount().isDefault()) {
           // We've already upgraded the session
@@ -308,7 +308,7 @@ define(function (require, exports, module) {
     // (12 Jan 2016), only allowed fields are allowed to be
     // set on an account, unexpected fields cause an error.
     // Update any accounts with unexpected data.
-    upgradeFromUnfilteredAccountData: function () {
+    upgradeFromUnfilteredAccountData () {
       return p().then(() => {
         var accountData = this._accounts();
         for (var userid in accountData) {
@@ -325,7 +325,7 @@ define(function (require, exports, module) {
     // Add the last signed in account (if it's different from the
     // Sync account). If the email is the same we assume it's the
     // same account since users can't change email yet.
-    _shouldAddOldSessionAccount: function (Session) {
+    _shouldAddOldSessionAccount (Session) {
       return (Session.email && Session.sessionToken &&
         (! Session.cachedCredentials ||
         Session.cachedCredentials.email !== Session.email));
@@ -340,7 +340,7 @@ define(function (require, exports, module) {
      * @param {Object} [options] - options
      * @returns {Promise} - resolves when complete
      */
-    signInAccount: function (account, password, relier, options) {
+    signInAccount (account, password, relier, options) {
       return account.signIn(password, relier, options)
         .then(() => {
           const isSignUp =
@@ -382,12 +382,12 @@ define(function (require, exports, module) {
      * @param {Object} [options] - options
      * @returns {Promise} - resolves when complete
      */
-    signUpAccount: function (account, password, relier, options) {
+    signUpAccount (account, password, relier, options) {
       return account.signUp(password, relier, options)
         .then(() => this.setSignedInAccount(account));
     },
 
-    signOutAccount: function (account) {
+    signOutAccount (account) {
       return account.signOut()
         .fin(() => {
           // Clear the session, even on failure. Everything is A-OK.
@@ -409,7 +409,7 @@ define(function (require, exports, module) {
      * @param {Object} [options.service] - the service issuing signup request
      * @returns {Promise} - resolves with the account when complete
      */
-    completeAccountSignUp: function (account, code, options) {
+    completeAccountSignUp (account, code, options) {
       // The original tab may no longer be open to notify other
       // windows the user is signed in. If the account has a `sessionToken`,
       // the user verified in the same browser. Notify any tabs that care.
@@ -447,7 +447,7 @@ define(function (require, exports, module) {
      * @return {Object} promise - resolves with the updated account
      * when complete.
      */
-    changeAccountPassword: function (account, oldPassword, newPassword, relier) {
+    changeAccountPassword (account, oldPassword, newPassword, relier) {
       return account.changePassword(oldPassword, newPassword, relier)
         .then(() => {
           return this.setSignedInAccount(account);
@@ -476,7 +476,7 @@ define(function (require, exports, module) {
      * @private
      * @param {Object} account
      */
-    _notifyOfAccountSignIn: function (account) {
+    _notifyOfAccountSignIn (account) {
       // Other tabs only need to know the account `uid` to load any
       // necessary info from localStorage
       this._notifier.triggerRemote(
@@ -494,7 +494,7 @@ define(function (require, exports, module) {
      * @param {Object} relier - relier being signed in to
      * @returns {Promise} - resolves when complete
      */
-    completeAccountPasswordReset: function (account, password, token, code, relier) {
+    completeAccountPasswordReset (account, password, token, code, relier) {
       return account.completePasswordReset(password, token, code, relier)
         .then(() => {
           this._notifyOfAccountSignIn(account);
@@ -508,7 +508,7 @@ define(function (require, exports, module) {
      * @param {Object} client - an attached client
      * @returns {Promise}
      */
-    destroyAccountClient: function (account, client) {
+    destroyAccountClient (account, client) {
       if (client.get('clientType') === Constants.CLIENT_TYPE_DEVICE) {
         return this.destroyAccountDevice(account, client);
       } else if (client.get('clientType') === Constants.CLIENT_TYPE_OAUTH_APP) {
@@ -524,7 +524,7 @@ define(function (require, exports, module) {
      * @param {Object} devices - Devices collection used to store list.
      * @returns {Promise} resolves when the action completes
      */
-    fetchAccountDevices: function (account, devices) {
+    fetchAccountDevices (account, devices) {
       return account.fetchDevices(devices);
     },
 
@@ -536,7 +536,7 @@ define(function (require, exports, module) {
      * @param {Object} oAuthApps - oAuthApps collection used to store list.
      * @returns {Promise} resolves when the action completes
      */
-    fetchAccountOAuthApps: function (account, oAuthApps) {
+    fetchAccountOAuthApps (account, oAuthApps) {
       return account.fetchOAuthApps(oAuthApps);
     },
 
@@ -548,7 +548,7 @@ define(function (require, exports, module) {
      * @param {Object} device - device to destroy
      * @returns {Promise} resolves when the action completes
      */
-    destroyAccountDevice: function (account, device) {
+    destroyAccountDevice (account, device) {
       return account.destroyDevice(device)
         .then(() => {
           if (this.isSignedInAccount(account) && device.get('isCurrentDevice')) {
@@ -564,7 +564,7 @@ define(function (require, exports, module) {
      * @param {Object} oAuthApp - OAuth App to disconnect
      * @returns {Promise} resolves when the action completes
      */
-    destroyAccountApp: function (account, oAuthApp) {
+    destroyAccountApp (account, oAuthApp) {
       return account.destroyOAuthApp(oAuthApp);
     },
 
@@ -575,7 +575,7 @@ define(function (require, exports, module) {
      * @param {Object} account - account to check
      * @returns {Promise} resolves to `true` if an account exists, `false` otw.
      */
-    checkAccountUidExists: function (account) {
+    checkAccountUidExists (account) {
       return account.checkUidExists()
         .then((exists) => {
           if (! exists) {
@@ -592,7 +592,7 @@ define(function (require, exports, module) {
      * @param {Object} account - account to check
      * @returns {Promise} resolves to `true` if an account exists, `false` otw.
      */
-    checkAccountEmailExists: function (account) {
+    checkAccountEmailExists (account) {
       return account.checkEmailExists()
         .then((exists) => {
           if (! exists) {

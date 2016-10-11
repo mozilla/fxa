@@ -47,12 +47,12 @@ define(function (require, exports, module) {
   });
 
   module.exports = Backbone.Model.extend({
-    constructor: function (options) {
+    constructor (options) {
       Backbone.Model.call(this);
       this.initialize(options);
     },
 
-    initialize: function (options) {
+    initialize (options) {
       if (options) {
         this.set(_.pick(options, INITIAL_ATTRIBUTES));
       }

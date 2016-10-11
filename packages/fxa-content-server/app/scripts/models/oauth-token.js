@@ -18,14 +18,14 @@ define(function (require, exports, module) {
       token: undefined
     },
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._oAuthClient = options.oAuthClient;
       this.set('token', options.token);
     },
 
-    destroy: function () {
+    destroy () {
       return this._oAuthClient.destroyToken(this.get('token'));
     }
   });

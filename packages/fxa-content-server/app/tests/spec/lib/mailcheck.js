@@ -23,14 +23,14 @@ define(function (require, exports, module) {
   describe('lib/mailcheck', function () {
     var mockTranslator = window.translator;
     var mockMetrics = {
-      logEvent: function () {
+      logEvent () {
       }
     };
     var mockView;
 
     beforeEach(function () {
       mockView = {
-        isInExperimentGroup: function () {
+        isInExperimentGroup () {
           return true;
         },
         notifier: {

@@ -42,7 +42,7 @@ define(function (require, exports, module) {
      * @method start
      * @param {String} progressEl
      */
-    start: function (progressEl) {
+    start (progressEl) {
       this._count++;
       if (this._count > 1) {
         // Already visible or waiting to become visible. Get outta here.
@@ -66,7 +66,7 @@ define(function (require, exports, module) {
       }, SHOW_DELAY_MS);
     },
 
-    destroy: function () {
+    destroy () {
       this.done();
 
       this.trigger('destroy');
@@ -79,7 +79,7 @@ define(function (require, exports, module) {
      *
      * @method done
      */
-    done: function () {
+    done () {
       if (! this._count) {
         // Either already hidden or waiting to be hidden.
         // No need to hide the indicator again.
@@ -117,7 +117,7 @@ define(function (require, exports, module) {
      *
      * @param {String} progressEl
      */
-    showIndicator: function (progressEl) {
+    showIndicator (progressEl) {
       progressEl = $(progressEl);
       if (progressEl.length) {
         this._progressEl = progressEl;
@@ -132,7 +132,7 @@ define(function (require, exports, module) {
      * @param {String} progressEl
      * @returns {undefined}
      */
-    removeIndicator: function (progressEl) {
+    removeIndicator (progressEl) {
       progressEl = this._progressEl;
       if (progressEl && progressEl.length) {
         progressEl.html(this._progressHTML);
@@ -144,7 +144,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isVisible: function () {
+    isVisible () {
       return !! this._count;
     }
   });

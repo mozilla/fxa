@@ -32,7 +32,7 @@ define(function (require, exports, module) {
 
       it('defers to window.able.choose if available', function () {
         window.able = {
-          choose: function () {
+          choose () {
             return 'value';
           }
         };

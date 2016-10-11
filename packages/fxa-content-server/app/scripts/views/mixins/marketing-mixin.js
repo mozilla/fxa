@@ -17,7 +17,7 @@ define(function (require, exports, module) {
       'click .marketing-link': '_onMarketingClick'
     },
 
-    afterRender: function () {
+    afterRender () {
       this.$('.marketing-link').each((index, element) => {
         element = $(element);
 
@@ -34,12 +34,12 @@ define(function (require, exports, module) {
       });
     },
 
-    _onMarketingClick: function (event) {
+    _onMarketingClick (event) {
       var element = $(event.currentTarget);
       this._logMarketingClick(element);
     },
 
-    _logMarketingClick: function (element) {
+    _logMarketingClick (element) {
       var id = element.attr('data-marketing-id');
       var url = element.attr('href');
 

@@ -31,7 +31,7 @@ define(function (require, exports, module) {
      * @method pickResumeTokenInfo
      * @returns {Object}
      */
-    pickResumeTokenInfo: function () {
+    pickResumeTokenInfo () {
       if (this.resumeTokenFields) {
         return this.pick(this.resumeTokenFields);
       }
@@ -45,7 +45,7 @@ define(function (require, exports, module) {
      * @method populateFromStringifiedResumeToken
      * @param {String} stringifiedResumeToken
      */
-    populateFromStringifiedResumeToken: function (stringifiedResumeToken) {
+    populateFromStringifiedResumeToken (stringifiedResumeToken) {
       if (this.resumeTokenFields) {
         var resumeToken =
           ResumeToken.createFromStringifiedResumeToken(stringifiedResumeToken);
@@ -62,7 +62,7 @@ define(function (require, exports, module) {
      * @param {ResumeToken} resumeToken
      * @returns {undefined}
      */
-    populateFromResumeToken: function (resumeToken) {
+    populateFromResumeToken (resumeToken) {
       if (this.resumeTokenFields) {
         var pickedResumeToken = resumeToken.pick(this.resumeTokenFields);
 

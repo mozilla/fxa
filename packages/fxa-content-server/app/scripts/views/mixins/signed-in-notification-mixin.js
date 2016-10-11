@@ -15,7 +15,7 @@ define(function (require, exports, module) {
       // populated below using event name aliases
     },
 
-    _navigateToSignedInView: function (event) {
+    _navigateToSignedInView (event) {
       if (this.broker.hasCapability('handleSignedInNotification')) {
         this.user.setSignedInAccountByUid(event.uid);
         this.navigate(this.model.get('redirectTo') || 'settings');

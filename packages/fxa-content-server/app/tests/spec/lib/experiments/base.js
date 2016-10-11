@@ -159,7 +159,7 @@ define(function (require, exports, module) {
         experiment.notifications = {
           'one': Experiment.createSaveStateDelegate('thing'),
           'two': 'createSaveStateDelegate',
-          'three': function () {
+          'three' () {
             assert.ok(true, 'stringMethod called');
             done();
           }

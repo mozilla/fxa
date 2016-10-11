@@ -16,14 +16,14 @@ define(function (require, exports, module) {
 
   module.exports = {
 
-    encode: function (bits) {
+    encode (bits) {
       return sjcl.codec.base64.fromBits(bits)
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
         .replace(/=/g, '');
     },
 
-    decode: function (chars) {
+    decode (chars) {
       return sjcl.codec.base64.toBits(
         chars.replace(/-/g, '+').replace(/_/g, '/')
       );

@@ -117,7 +117,7 @@ define(function (require, exports, module) {
      */
     viewName: '',
 
-    constructor: function (options) {
+    constructor (options) {
       options = options || {};
 
       this.broker = options.broker;
@@ -174,7 +174,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    render: function () {
+    render () {
       if (this.layoutClassName) {
         $('body').addClass(this.layoutClassName);
       }
@@ -214,7 +214,7 @@ define(function (require, exports, module) {
      * @param {String|Element} content
      * @returns {undefined}
      */
-    writeToDOM: function (content) {
+    writeToDOM (content) {
       return domWriter.write(this.window, content);
     },
 
@@ -225,7 +225,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise} resolves to true or false.
      */
-    checkAuthorization: function () {
+    checkAuthorization () {
       if (this.mustAuth || this.mustVerify) {
         var account = this.getSignedInAccount();
         return account.sessionStatus()
@@ -266,14 +266,14 @@ define(function (require, exports, module) {
     // If the user navigates to a page that requires auth and their session
     // is not currently cached, we ask them to sign in again. If the relier
     // specifies an email address, we force the user to use that account.
-    _reAuthPage: function () {
+    _reAuthPage () {
       if (this.relier && this.relier.get('email')) {
         return 'force_auth';
       }
       return 'signin';
     },
 
-    displayStatusMessages: function () {
+    displayStatusMessages () {
       var success = this.model.get('success');
       if (success) {
         this.displaySuccess(success);
@@ -293,7 +293,7 @@ define(function (require, exports, module) {
       }
     },
 
-    titleFromView: function (baseTitle) {
+    titleFromView (baseTitle) {
       var title = baseTitle || DEFAULT_TITLE;
       var titleText = this.$('header:first h1').text();
       var subText = this.$('header:first h2').text();
@@ -309,7 +309,7 @@ define(function (require, exports, module) {
       return title;
     },
 
-    getContext: function () {
+    getContext () {
       // use cached context, if available. This prevents the context()
       // function from being called multiple times per render.
       if (! this._context) {
@@ -323,7 +323,7 @@ define(function (require, exports, module) {
       return ctx;
     },
 
-    context: function () {
+    context () {
       // Implement in subclasses
     },
 
@@ -333,7 +333,7 @@ define(function (require, exports, module) {
      * @param {String} text - string to translate
      * @returns {String}
      */
-    translate: function (text) {
+    translate (text) {
       return this.translator.get(text, this.getContext());
     },
 
@@ -347,7 +347,7 @@ define(function (require, exports, module) {
      * @param {String} [text] - string to translate
      * @returns {Function}
      */
-    translateInTemplate: function (text) {
+    translateInTemplate (text) {
       if (text) {
         return this.translate.bind(this, text);
       } else {
@@ -411,7 +411,7 @@ define(function (require, exports, module) {
       return p();
     },
 
-    destroy: function (remove) {
+    destroy (remove) {
       this.trigger('destroy');
 
       if (this.beforeDestroy) {
@@ -437,7 +437,7 @@ define(function (require, exports, module) {
       this.trigger('destroyed');
     },
 
-    trackChildView: function (view) {
+    trackChildView (view) {
       if (! _.contains(this.childViews, view)) {
         this.childViews.push(view);
         view.on('destroyed', _.bind(this.untrackChildView, this, view));
@@ -446,19 +446,19 @@ define(function (require, exports, module) {
       return view;
     },
 
-    untrackChildView: function (view) {
+    untrackChildView (view) {
       this.childViews = _.without(this.childViews, view);
 
       return view;
     },
 
-    destroyChildViews: function () {
+    destroyChildViews () {
       _.invoke(this.childViews, 'destroy');
 
       this.childViews = [];
     },
 
-    isChildViewTracked: function (view) {
+    isChildViewTracked (view) {
       return _.indexOf(this.childViews, view) > -1;
     },
 
@@ -478,7 +478,7 @@ define(function (require, exports, module) {
      */
     displaySuccessUnsafe: _.partial(displaySuccess, 'html'),
 
-    hideSuccess: function () {
+    hideSuccess () {
       this.$('.success').slideUp(STATUS_MESSAGE_ANIMATION_MS);
       this._isSuccessVisible = false;
     },
@@ -488,7 +488,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isSuccessVisible: function () {
+    isSuccessVisible () {
       return !! this._isSuccessVisible;
     },
 
@@ -500,7 +500,7 @@ define(function (require, exports, module) {
      * @return {String} translated error text (if available), untranslated
      *   error text otw.
      */
-    translateError: function (err) {
+    translateError (err) {
       var errors = getErrorModule(err);
       var translated = errors.toInterpolatedMessage(err, this.translator);
 
@@ -513,7 +513,7 @@ define(function (require, exports, module) {
      *
      * @method disableErrors
      */
-    disableErrors: function () {
+    disableErrors () {
       this._areErrorsEnabled = false;
     },
 
@@ -547,7 +547,7 @@ define(function (require, exports, module) {
      *
      * @param {Error} err
      */
-    logError: function (err) {
+    logError (err) {
       err = this._normalizeError(err);
 
       // The error could already be logged, if so, abort mission.
@@ -571,7 +571,7 @@ define(function (require, exports, module) {
      * @param {Error} err
      * @returns {Promise}
      */
-    fatalError: function (err) {
+    fatalError (err) {
       return ErrorUtils.fatalError(
         err, this.sentryMetrics, this.metrics, this.window, this.translator);
     },
@@ -581,11 +581,11 @@ define(function (require, exports, module) {
      *
      * @returns {String}
      */
-    getViewName: function () {
+    getViewName () {
       return this.viewName;
     },
 
-    _normalizeError: function (err) {
+    _normalizeError (err) {
       var errors = getErrorModule(err);
       if (! err) {
         // likely an error in logic, display an unexpected error to the
@@ -609,7 +609,7 @@ define(function (require, exports, module) {
     /**
      * Log the current view
      */
-    logView: function () {
+    logView () {
       this.metrics.logView(this.getViewName());
     },
 
@@ -618,7 +618,7 @@ define(function (require, exports, module) {
      *
      * @param {String} eventName
      */
-    logEvent: function (eventName) {
+    logEvent (eventName) {
       this.metrics.logEvent(eventName);
     },
 
@@ -627,7 +627,7 @@ define(function (require, exports, module) {
      *
      * @param {String} eventName
      */
-    logEventOnce: function (eventName) {
+    logEventOnce (eventName) {
       this.metrics.logEventOnce(eventName);
     },
 
@@ -636,16 +636,16 @@ define(function (require, exports, module) {
      *
      * @param {String} eventName
      */
-    logViewEvent: function (eventName) {
+    logViewEvent (eventName) {
       this.metrics.logViewEvent(this.getViewName(), eventName);
     },
 
-    hideError: function () {
+    hideError () {
       this.$('.error').slideUp(STATUS_MESSAGE_ANIMATION_MS);
       this._isErrorVisible = false;
     },
 
-    isErrorVisible: function () {
+    isErrorVisible () {
       return !! this._isErrorVisible;
     },
 
@@ -656,7 +656,7 @@ define(function (require, exports, module) {
      * @param {Object} [nextViewData] - data to pass to the next view
      * @param {RouterOptions} [routerOptions] - options to pass to the router
      */
-    navigate: function (url, nextViewData, routerOptions) {
+    navigate (url, nextViewData, routerOptions) {
       nextViewData = nextViewData || {};
       routerOptions = routerOptions || {};
 
@@ -757,7 +757,7 @@ define(function (require, exports, module) {
      * @param {String|Function} handler
      * @returns {undefined}
      */
-    invokeHandler: function (handler/*, args...*/) {
+    invokeHandler (handler/*, args...*/) {
       // convert a name to a function.
       if (_.isString(handler)) {
         handler = this[handler];
@@ -785,7 +785,7 @@ define(function (require, exports, module) {
      *
      * @returns {Account}
      */
-    getSignedInAccount: function () {
+    getSignedInAccount () {
       return this.user.getSignedInAccount();
     },
 
@@ -793,7 +793,7 @@ define(function (require, exports, module) {
      * Returns the account that is active in the current view. It may not
      * be the currently logged in account.
      */
-    getAccount: function () {
+    getAccount () {
       // Implement in subclasses
     },
 
@@ -804,7 +804,7 @@ define(function (require, exports, module) {
      * @param {Object} [options] - options to send.
      * @returns {Promise} resolves when complete
      */
-    showChildView: function (/* ChildView, options */) {
+    showChildView (/* ChildView, options */) {
       // Implement in subclasses
       return p();
     },
@@ -816,7 +816,7 @@ define(function (require, exports, module) {
      * @param {String} methodName
      * @returns {Promise}
      */
-    invokeBrokerMethod: function (methodName/*, ...*/) {
+    invokeBrokerMethod (methodName/*, ...*/) {
       var args = [].slice.call(arguments, 1);
 
       var broker = this.broker;
@@ -833,7 +833,7 @@ define(function (require, exports, module) {
      * @returns {Variant} behavior's return value if behavior is a function,
      *         otherwise return the behavior.
      */
-    invokeBehavior: function (behavior) {
+    invokeBehavior (behavior) {
       if (_.isFunction(behavior)) {
         return behavior(this);
       }

@@ -29,7 +29,7 @@ define(function (require, exports, module) {
     // used by unit tests
     VERIFICATION_POLL_IN_MS: Constants.VERIFICATION_POLL_IN_MS,
 
-    initialize: function () {
+    initialize () {
       // Account data is passed in from sign up and sign in flows.
       // It's important for Sync flows where account data holds
       // ephemeral properties like unwrapBKey and keyFetchToken
@@ -38,11 +38,11 @@ define(function (require, exports, module) {
       this.flow = this.model.get('flow');
     },
 
-    getAccount: function () {
+    getAccount () {
       return this._account;
     },
 
-    context: function () {
+    context () {
       var email = this.getAccount().get('email');
       var isSignIn = this.isSignIn();
       var isSignUp = this.isSignUp();
@@ -60,18 +60,18 @@ define(function (require, exports, module) {
       };
     },
 
-    _bouncedEmailSignup: function () {
+    _bouncedEmailSignup () {
       this.navigate('signup', {
         bouncedEmail: this.getAccount().get('email')
       });
     },
 
-    _getMissingSessionTokenScreen: function () {
+    _getMissingSessionTokenScreen () {
       var screenUrl = this.isSignUp() ? 'signup' : 'signin';
       return this.broker.transformLink(screenUrl);
     },
 
-    _navigateToCompleteScreen: function () {
+    _navigateToCompleteScreen () {
       if (this.isSignUp()) {
         this.navigate('signup_complete');
       } else {
@@ -79,7 +79,7 @@ define(function (require, exports, module) {
       }
     },
 
-    beforeRender: function () {
+    beforeRender () {
       // user cannot confirm if they have not initiated a sign up.
       if (! this.getAccount().get('sessionToken')) {
         this.navigate(this._getMissingSessionTokenScreen());

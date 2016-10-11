@@ -39,7 +39,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      *        The promise will resolve if the value was successfully sent.
      */
-    send: function (message, data) {
+    send (message, data) {
       var channel = this.getChannel();
       var send = ensureActionReturnsPromise(channel.send.bind(channel));
 
@@ -55,7 +55,7 @@ define(function (require, exports, module) {
      *        The promise will resolve with the value returned by the remote
      *        listener, or reject if there was an error.
      */
-    request: function (message, data) {
+    request (message, data) {
       var channel = this.getChannel();
       // only new channels have a request. If not, fall back to send.
       var action = (channel.request || channel.send).bind(channel);

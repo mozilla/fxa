@@ -25,7 +25,7 @@ define(function (require, exports, module) {
 
   var AccountResetView = BaseView.extend({
     template: Template,
-    resetPassword: function () {
+    resetPassword () {
       return p();
     }
   });

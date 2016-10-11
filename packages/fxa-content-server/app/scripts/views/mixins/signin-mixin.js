@@ -30,7 +30,7 @@ define(function (require, exports, module) {
      *  user is signing in with a sessionToken.
      * @return {Object} promise
      */
-    signIn: function (account, password) {
+    signIn (account, password) {
       this.logEvent(`flow.${this.signInSubmitContext}.submit`);
 
       if (! account ||
@@ -66,7 +66,7 @@ define(function (require, exports, module) {
         });
     },
 
-    onSignInSuccess: function (account) {
+    onSignInSuccess (account) {
       if (! account.get('verified')) {
         var verificationMethod = account.get('verificationMethod');
         var verificationReason = account.get('verificationReason');

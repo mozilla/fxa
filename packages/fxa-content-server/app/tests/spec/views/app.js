@@ -34,7 +34,7 @@ define(function (require, exports, module) {
         el: $('#container'),
         environment: environment,
         notifier: notifier,
-        createView: function (Constructor, options) {
+        createView (Constructor, options) {
           return new Constructor(options);
         },
         window: windowMock
@@ -131,15 +131,15 @@ define(function (require, exports, module) {
         var isLogged = false;
 
         var DoesNotRenderView = Backbone.View.extend({
-          render: function () {
+          render () {
             return p(false);
           },
 
-          destroy: function () {
+          destroy () {
             isDestroyed = true;
           },
 
-          logView: function () {
+          logView () {
             isLogged = true;
           }
         });
@@ -173,11 +173,11 @@ define(function (require, exports, module) {
           afterVisible: sinon.spy(),
           destroy: sinon.spy(),
           logView: sinon.spy(),
-          render: function () {
+          render () {
             this.$el.html('<div id="rendered-view"></div>');
             return p(true);
           },
-          titleFromView: function () {
+          titleFromView () {
             return 'the title';
           }
         });
@@ -231,7 +231,7 @@ define(function (require, exports, module) {
           render: sinon.spy(function () {
             return p(true);
           }),
-          titleFromView: function () {
+          titleFromView () {
             return 'the title';
           }
         });
@@ -243,7 +243,7 @@ define(function (require, exports, module) {
           render: sinon.spy(function () {
             return p(true);
           }),
-          titleFromView: function () {
+          titleFromView () {
             return 'the second title';
           }
         });
@@ -294,7 +294,7 @@ define(function (require, exports, module) {
           render: sinon.spy(function () {
             return p(true);
           }),
-          titleFromView: function () {
+          titleFromView () {
             return 'the title';
           }
         });
@@ -354,7 +354,7 @@ define(function (require, exports, module) {
           render: sinon.spy(function () {
             return p.reject(renderError);
           }),
-          titleFromView: function () {
+          titleFromView () {
             return 'the title';
           }
         });
@@ -387,7 +387,7 @@ define(function (require, exports, module) {
         showChildView: sinon.spy(function (ChildView, options) {
           return new ChildView(options);
         }),
-        titleFromView: function () {
+        titleFromView () {
           return 'the title';
         }
       });
@@ -400,7 +400,7 @@ define(function (require, exports, module) {
         render: sinon.spy(function () {
           return p(true);
         }),
-        titleFromView: function (base) {
+        titleFromView (base) {
           return base + ', the second title';
         }
       });

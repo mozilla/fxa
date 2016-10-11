@@ -28,15 +28,15 @@ define(function (require, exports, module) {
     formIsValid: false,
     isFormSubmitted: false,
 
-    isValid: function () {
+    isValid () {
       return this.formIsValid;
     },
 
-    showValidationErrors: function () {
+    showValidationErrors () {
       return this.showValidationError('body', 'invalid form');
     },
 
-    submit: function () {
+    submit () {
       this.isFormSubmitted = true;
     }
   });

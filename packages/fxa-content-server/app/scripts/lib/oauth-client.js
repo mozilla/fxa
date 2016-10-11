@@ -21,7 +21,7 @@ define(function (require, exports, module) {
   }
 
   OAuthClient.prototype = {
-    _request: function (method, endpoint, params) {
+    _request (method, endpoint, params) {
       return this._xhr[method](this._oAuthUrl + endpoint, params || null)
         .fail(function (xhr) {
           var err = OAuthErrors.normalizeXHRError(xhr);
@@ -89,7 +89,7 @@ define(function (require, exports, module) {
      * @param {String} [params.ttl]
      * @returns {Promise}
      */
-    getToken: function (params = {}) {
+    getToken (params = {}) {
       // set authorization TTL to 5 minutes.
       // Docs: github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
       // Issue: #3982

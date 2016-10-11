@@ -191,7 +191,7 @@ define(function (require, exports, module) {
      *
      * @param {Error} err
      */
-    captureException: function (err) {
+    captureException (err) {
       var tags = {};
 
       this._exceptionTags.forEach(function (tagName) {
@@ -217,7 +217,7 @@ define(function (require, exports, module) {
      *
      * window.onerror reverted back to normal, TraceKit disabled
      */
-    remove: function () {
+    remove () {
       Raven.uninstall();
     },
     // Private functions, exposed for testing

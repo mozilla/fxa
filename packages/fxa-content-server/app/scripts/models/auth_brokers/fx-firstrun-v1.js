@@ -32,14 +32,14 @@ define(function (require, exports, module) {
       openWebmailButtonVisible: true
     }),
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._iframeChannel = options.iframeChannel;
       return proto.initialize.call(this, options);
     },
 
-    fetch: function () {
+    fetch () {
       return proto.fetch.call(this).then(() => {
         // Some settings do not work in an iframe due to x-frame and
         // same-origin policies. Allow the firstrun flow to decide whether
@@ -52,31 +52,31 @@ define(function (require, exports, module) {
       });
     },
 
-    afterLoaded: function () {
+    afterLoaded () {
       this._iframeChannel.send(this._iframeCommands.LOADED);
 
       return proto.afterLoaded.apply(this, arguments);
     },
 
-    afterSignIn: function () {
+    afterSignIn () {
       this._iframeChannel.send(this._iframeCommands.LOGIN);
 
       return proto.afterSignIn.apply(this, arguments);
     },
 
-    afterSignInConfirmationPoll: function () {
+    afterSignInConfirmationPoll () {
       this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
 
       return proto.afterSignInConfirmationPoll.apply(this, arguments);
     },
 
-    afterResetPasswordConfirmationPoll: function () {
+    afterResetPasswordConfirmationPoll () {
       this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
 
       return proto.afterResetPasswordConfirmationPoll.apply(this, arguments);
     },
 
-    beforeSignUpConfirmationPoll: function (account) {
+    beforeSignUpConfirmationPoll (account) {
       this._iframeChannel.send(this._iframeCommands.SIGNUP_MUST_VERIFY, {
         emailOptIn: !! account.get('needsOptedInToMarketingEmail')
       });
@@ -84,7 +84,7 @@ define(function (require, exports, module) {
       return proto.beforeSignUpConfirmationPoll.apply(this, arguments);
     },
 
-    afterSignUpConfirmationPoll: function () {
+    afterSignUpConfirmationPoll () {
       this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
 
       return proto.afterSignUpConfirmationPoll.apply(this, arguments);

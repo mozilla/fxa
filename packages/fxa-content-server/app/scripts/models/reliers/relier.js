@@ -87,7 +87,7 @@ define(function (require, exports, module) {
       utmTerm: null
     },
 
-    initialize: function (attributes, options = {}) {
+    initialize (attributes, options = {}) {
       this._queryParameterSchema = options.isVerification ?
         VERIFICATION_QUERY_PARAMETER_SCHEMA : QUERY_PARAMETER_SCHEMA;
 
@@ -102,7 +102,7 @@ define(function (require, exports, module) {
      *
      * e.g.
      *
-     * fetch: function () {
+     * fetch () {
      *   return Relier.prototype.fetch.call(this)
      *       .then(function () {
      *         // do overriding behavior here.
@@ -112,7 +112,7 @@ define(function (require, exports, module) {
      * @method fetch
      * @returns {Promise}
      */
-    fetch: function () {
+    fetch () {
       return p().then(() => {
         // parse the resume token before importing any other data.
         // query parameters and server provided data override
@@ -141,7 +141,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    allowCachedCredentials: function () {
+    allowCachedCredentials () {
       return this.get('allowCachedCredentials');
     },
 

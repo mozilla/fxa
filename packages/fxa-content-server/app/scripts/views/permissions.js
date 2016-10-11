@@ -54,7 +54,7 @@ define(function (require, exports, module) {
     template: Template,
     className: 'permissions',
 
-    initialize: function (options) {
+    initialize (options) {
       // Account data is passed in from sign up and sign in flows.
       this._account = this.user.initAccount(this.model.get('account'));
 
@@ -67,11 +67,11 @@ define(function (require, exports, module) {
       this._validatePermissions(this.relier.get('permissions') || []);
     },
 
-    getAccount: function () {
+    getAccount () {
       return this._account;
     },
 
-    context: function () {
+    context () {
       var account = this.getAccount();
       var requestedPermissions = this.relier.get('permissions');
       var applicablePermissions =
@@ -90,7 +90,7 @@ define(function (require, exports, module) {
      * @private
      * @param {String} requestedPermissionNames
      */
-    _validatePermissions: function (requestedPermissionNames) {
+    _validatePermissions (requestedPermissionNames) {
       requestedPermissionNames.forEach(function (permissionName) {
         var permission = this._getPermissionConfig(permissionName);
         // log the invalid scope instead of throwing an error
@@ -110,7 +110,7 @@ define(function (require, exports, module) {
      * @returns {Object} permission, if found.
      * @throws if permission is invalid
      */
-    _getPermissionConfig: function (permissionName) {
+    _getPermissionConfig (permissionName) {
       var permission = _.findWhere(PERMISSIONS, { name: permissionName });
 
       if (! permission) {
@@ -129,7 +129,7 @@ define(function (require, exports, module) {
      * @param {String[]} requestedPermissionNames
      * @returns {Object[]} applicable permissions
      */
-    _getApplicablePermissions: function (account, requestedPermissionNames) {
+    _getApplicablePermissions (account, requestedPermissionNames) {
       // only show permissions that have corresponding values.
       var permissionsWithValues =
         account.getPermissionsWithValues(requestedPermissionNames);
@@ -155,7 +155,7 @@ define(function (require, exports, module) {
      * @param {String} permissionName
      * @returns {Number} permission index if found, -1 otw.
      */
-    _getPermissionIndex: function (permissionName) {
+    _getPermissionIndex (permissionName) {
       return _.findIndex(PERMISSIONS, function (permission) {
         return permission.name === permissionName;
       });
@@ -168,7 +168,7 @@ define(function (require, exports, module) {
      * @param {String[]} permissionNames
      * @returns {String[]} sorted permissionNames
      */
-    _sortPermissions: function (permissionNames) {
+    _sortPermissions (permissionNames) {
       return [].concat(permissionNames).sort((a, b) => {
         var aIndex = this._getPermissionIndex(a);
         var bIndex = this._getPermissionIndex(b);
@@ -184,7 +184,7 @@ define(function (require, exports, module) {
      * @param {String[]} permissionNames
      * @returns {String} HTML
      */
-    _getPermissionsHTML: function (account, permissionNames) {
+    _getPermissionsHTML (account, permissionNames) {
       var sortedPermissionNames = this._sortPermissions(permissionNames);
 
       // convert the permission names to HTML
@@ -230,7 +230,7 @@ define(function (require, exports, module) {
      * @private
      * @returns {Object}
      */
-    _getFormPermissions: function () {
+    _getFormPermissions () {
       var $permissionEls = this.$('.permission');
       var clientPermissions = {};
 
@@ -241,7 +241,7 @@ define(function (require, exports, module) {
       return clientPermissions;
     },
 
-    beforeRender: function () {
+    beforeRender () {
       // user cannot proceed if they have not initiated a sign up/in.
       if (! this.getAccount().get('sessionToken')) {
         this.navigate(this._previousView());
@@ -254,7 +254,7 @@ define(function (require, exports, module) {
       }
     },
 
-    submit: function () {
+    submit () {
       var account = this.getAccount();
 
       this.logViewEvent('accept');
@@ -266,7 +266,7 @@ define(function (require, exports, module) {
         .then(this.onSubmitComplete);
     },
 
-    _previousView: function () {
+    _previousView () {
       var page = this.isSignUp() ? '/signup' : '/signin';
       return this.broker.transformLink(page);
     }

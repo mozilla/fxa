@@ -16,7 +16,7 @@ define(function (require, exports, module) {
      * @param {Error|Number|String} searchFor
      * @returns {Object}
      */
-    find: function (searchFor) {
+    find (searchFor) {
       var found;
       if (typeof searchFor.errno === 'number') {
         found = this.find(searchFor.errno);
@@ -37,7 +37,7 @@ define(function (require, exports, module) {
      * @param {Error} err
      * @returns {String|Error}
      */
-    toMessage: function (err) {
+    toMessage (err) {
       if (! err) {
         // No error, assume no response from the backend and
         // the service is unavailable.
@@ -72,7 +72,7 @@ define(function (require, exports, module) {
      * @param {Object} translator
      * @returns {String}
      */
-    toInterpolatedMessage: function (err, translator) {
+    toInterpolatedMessage (err, translator) {
       var msg = this.toMessage(err);
       var interpolationContext = this.toInterpolationContext(err);
       if (translator) {
@@ -87,7 +87,7 @@ define(function (require, exports, module) {
      *
      * @returns {Object}
      */
-    toInterpolationContext: function (/*err*/) {
+    toInterpolationContext (/*err*/) {
       return {};
     },
 
@@ -97,7 +97,7 @@ define(function (require, exports, module) {
      * @param {Error} err
      * @returns {Number|Error}
      */
-    toErrno: function (err) {
+    toErrno (err) {
       var errnoSource = this.find(err);
       // try to find an error with an errno.
       if (errnoSource && errnoSource.errno) {
@@ -115,7 +115,7 @@ define(function (require, exports, module) {
      * @param {String} [context]
      * @returns {Error}
      */
-    toError: function (type, context) {
+    toError (type, context) {
       var errno = this.toErrno(type);
       var message = this.toMessage(errno);
 
@@ -152,7 +152,7 @@ define(function (require, exports, module) {
      * @param {String} paramName
      * @returns {Error}
      */
-    toInvalidParameterError: function (paramName) {
+    toInvalidParameterError (paramName) {
       var err = this.toError('INVALID_PARAMETER');
       err.param = paramName;
       return err;
@@ -166,7 +166,7 @@ define(function (require, exports, module) {
      * @param {String} paramName
      * @returns {Error}
      */
-    toMissingParameterError: function (paramName) {
+    toMissingParameterError (paramName) {
       var err = this.toError('MISSING_PARAMETER');
       err.param = paramName;
       return err;
@@ -180,7 +180,7 @@ define(function (require, exports, module) {
      * @param {String} propertyName
      * @returns {Error}
      */
-    toInvalidResumeTokenPropertyError: function (propertyName) {
+    toInvalidResumeTokenPropertyError (propertyName) {
       var err = this.toError('INVALID_RESUME_TOKEN_PROPERTY');
       err.property = propertyName;
       return err;
@@ -194,7 +194,7 @@ define(function (require, exports, module) {
      * @param {String} propertyName
      * @returns {Error}
      */
-    toMissingResumeTokenPropertyError: function (propertyName) {
+    toMissingResumeTokenPropertyError (propertyName) {
       var err = this.toError('MISSING_RESUME_TOKEN_PROPERTY');
       err.property = propertyName;
       return err;
@@ -208,7 +208,7 @@ define(function (require, exports, module) {
      * @param {String} propertyName
      * @returns {Error}
      */
-    toInvalidDataAttributeError: function (propertyName) {
+    toInvalidDataAttributeError (propertyName) {
       var err = this.toError('INVALID_DATA_ATTRIBUTE');
       err.property = propertyName;
       return err;
@@ -222,7 +222,7 @@ define(function (require, exports, module) {
      * @param {String} propertyName
      * @returns {Error}
      */
-    toMissingDataAttributeError: function (propertyName) {
+    toMissingDataAttributeError (propertyName) {
       var err = this.toError('MISSING_DATA_ATTRIBUTE');
       err.property = propertyName;
       return err;
@@ -235,7 +235,7 @@ define(function (require, exports, module) {
      * @param {String} type
      * @returns {Boolean}
      */
-    is: function (error, type) {
+    is (error, type) {
       var code = this.toErrno(type);
       return error.errno === code;
     },
@@ -246,11 +246,11 @@ define(function (require, exports, module) {
      * @param {Object} error - error to check
      * @returns {Boolean} - true if from this module, false otw.
      */
-    created: function (error) {
+    created (error) {
       return error.namespace === this.NAMESPACE;
     },
 
-    normalizeXHRError: function (xhr) {
+    normalizeXHRError (xhr) {
       var err;
 
       if (! xhr || xhr.status === 0) {

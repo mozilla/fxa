@@ -16,14 +16,14 @@ define(function (require, exports, module) {
   }
 
   NullSender.prototype = {
-    initialize: function (/*options*/) {
+    initialize (/*options*/) {
     },
 
-    send: function (/*command, data, messageId*/) {
+    send (/*command, data, messageId*/) {
       return p();
     },
 
-    teardown: function () {
+    teardown () {
     }
   };
 

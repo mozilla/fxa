@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   const ExperimentInterface = require('lib/experiment');
 
   module.exports = {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this.experiments = new ExperimentInterface({
@@ -29,7 +29,7 @@ define(function (require, exports, module) {
      * @param {String} experimentName
      * @return {Boolean}
      */
-    isInExperiment: function (experimentName) {
+    isInExperiment (experimentName) {
       return this.experiments.isInExperiment(experimentName);
     },
 
@@ -40,7 +40,7 @@ define(function (require, exports, module) {
      * @param {String} groupName
      * @return {Boolean}
      */
-    isInExperimentGroup: function (experimentName, groupName) {
+    isInExperimentGroup (experimentName, groupName) {
       return this.experiments.isInExperimentGroup(experimentName, groupName);
     }
   };

@@ -23,13 +23,13 @@ define(function (require, exports, module) {
     className: 'communication-preferences',
     viewName: 'settings.communication-preferences',
 
-    enableSubmitIfValid: function () {
+    enableSubmitIfValid () {
       // overwrite this to prevent the default FormView method from hiding errors
       // after render
       this.enableForm();
     },
 
-    getMarketingEmailPrefs: function () {
+    getMarketingEmailPrefs () {
       if (! this._marketingEmailPrefs) {
         this._marketingEmailPrefs =
             this.getSignedInAccount().getMarketingEmailPrefs();
@@ -46,7 +46,7 @@ define(function (require, exports, module) {
     // Selenium can proceed. See #3357 and #3061
     _isBasketReady: false,
 
-    afterVisible: function () {
+    afterVisible () {
       var emailPrefs = this.getMarketingEmailPrefs();
 
       // the email prefs fetch is done in afterVisible instead of a render
@@ -77,7 +77,7 @@ define(function (require, exports, module) {
         });
     },
 
-    context: function () {
+    context () {
       var emailPrefs = this.getMarketingEmailPrefs();
       var isOptedIn = emailPrefs.isOptedIn(NEWSLETTER_ID);
       this.logViewEvent('newsletter.optin.' + String(isOptedIn));
@@ -93,12 +93,12 @@ define(function (require, exports, module) {
       };
     },
 
-    submit: function () {
+    submit () {
       var emailPrefs = this.getMarketingEmailPrefs();
       return this.setOptInStatus(NEWSLETTER_ID, ! emailPrefs.isOptedIn(NEWSLETTER_ID));
     },
 
-    setOptInStatus: function (newsletterId, isOptedIn) {
+    setOptInStatus (newsletterId, isOptedIn) {
       var method = isOptedIn ? 'optIn' : 'optOut';
       this.logViewEvent(method);
 

@@ -55,7 +55,7 @@ define(function (require, exports, module) {
   var View = MarketingSnippetView.extend({
     template: Template,
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       MarketingSnippetView.prototype.initialize.call(this, options);
@@ -63,7 +63,7 @@ define(function (require, exports, module) {
       this._language = options.language;
     },
 
-    context: function () {
+    context () {
       var shouldShowMarketing = this._shouldShowSignUpMarketing();
       var isIos = this._isIos();
       var isAndroid = this._isAndroid();
@@ -80,17 +80,17 @@ define(function (require, exports, module) {
       };
     },
 
-    _isIos: function () {
+    _isIos () {
       var plat = this.window.navigator.platform;
 
       return /i(Phone|Pad|Pod)/.test(plat);
     },
 
-    _isAndroid: function () {
+    _isAndroid () {
       return /android/i.test(this.window.navigator.userAgent);
     },
 
-    _storeImage: function (buttonDir, imageFormat) {
+    _storeImage (buttonDir, imageFormat) {
       var buttonPath = _.contains(playStoreImageLanguages, this._language) ?
                           this._language : 'en';
 
@@ -101,7 +101,7 @@ define(function (require, exports, module) {
       return '/images/' + buttonDir + '/' + buttonPath + '.' + imageFormat;
     },
 
-    _isHighRes: function () {
+    _isHighRes () {
       var win = this.window;
 
       return !! (win.matchMedia && win.matchMedia('(-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx), (min-resolution: 144dpi)'));

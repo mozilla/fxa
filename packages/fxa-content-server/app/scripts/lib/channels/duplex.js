@@ -29,7 +29,7 @@ define(function (require, exports, module) {
   }
 
   OutstandingRequests.prototype = {
-    add: function (messageId, request) {
+    add (messageId, request) {
       // remove any old outstanding messages with the same messageId
       this.remove(messageId);
 
@@ -40,7 +40,7 @@ define(function (require, exports, module) {
       this._requests[messageId] = request;
     },
 
-    remove: function (messageId) {
+    remove (messageId) {
       var outstanding = this.get(messageId);
       if (outstanding) {
         this._window.clearTimeout(outstanding.timeout);
@@ -48,11 +48,11 @@ define(function (require, exports, module) {
       }
     },
 
-    get: function (messageId) {
+    get (messageId) {
       return this._requests[messageId];
     },
 
-    clear: function () {
+    clear () {
       for (var messageId in this._requests) {
         this.remove(this._requests[messageId]);
       }
@@ -63,7 +63,7 @@ define(function (require, exports, module) {
   }
 
   _.extend(DuplexChannel.prototype, new BaseChannel(), {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._sender = options.sender;
@@ -86,7 +86,7 @@ define(function (require, exports, module) {
       });
     },
 
-    teardown: function () {
+    teardown () {
       this._outstandingRequests.clear();
       if (this._sender) {
         this._sender.teardown();
@@ -105,7 +105,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      *        Promise will resolve whenever message is sent.
      */
-    send: function (command, data) {
+    send (command, data) {
       return p().then(() => {
         return this._sender.send(command, data, null);
       });
@@ -119,7 +119,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      *        Promise will resolve when the response is received.
      */
-    request: function (command, data) {
+    request (command, data) {
       var messageId = this.createMessageId(command, data);
       var outstanding = {
         command: command,
@@ -153,11 +153,11 @@ define(function (require, exports, module) {
      * @param {Object} [data]
      * @return {String}
      */
-    createMessageId: function (command, data) {
+    createMessageId (command, data) {
       return Date.now();
     },
 
-    onMessageReceived: function (message) {
+    onMessageReceived (message) {
       var parsedMessage = this.parseMessage(message);
       var data = parsedMessage.data;
       var messageId = parsedMessage.messageId;
@@ -186,7 +186,7 @@ define(function (require, exports, module) {
      *    a response.
      *    @param {Object} parsedMessage.data - data
      */
-    parseMessage: function (message) {
+    parseMessage (message) {
       return {
         command: message.command,
         data: message.data,

@@ -43,7 +43,7 @@ define(function (require, exports, module) {
   }
 
   MockOAuthServers.prototype = {
-    destroy: function () {
+    destroy () {
       this.fakeServer.restore();
     }
   };

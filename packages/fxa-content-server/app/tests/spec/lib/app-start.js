@@ -624,7 +624,7 @@ define(function (require, exports, module) {
         });
 
         appStart._iframeChannel = {
-          send: function (message, data) {
+          send (message, data) {
             TestHelpers.wrapAssertion(function () {
               assert.equal(message, 'resize');
               assert.typeOf(data.height, 'number');
@@ -839,7 +839,7 @@ define(function (require, exports, module) {
 
           sinon.stub(appStart, '_getSameBrowserVerificationModel', function () {
             return {
-              get: function () {
+              get () {
                 return 'fx_ios_v1';
               }
             };
@@ -866,7 +866,7 @@ define(function (require, exports, module) {
 
           sinon.stub(appStart, '_getSameBrowserVerificationModel', function () {
             return {
-              get: function () {
+              get () {
                 return undefined;
               }
             };

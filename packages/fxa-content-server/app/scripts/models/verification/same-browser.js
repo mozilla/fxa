@@ -26,7 +26,7 @@ define(function (require, exports, module) {
   var proto = Backbone.Model.prototype;
 
   var SameBrowserVerificationModel = Backbone.Model.extend({
-    initialize: function (attributes, options) {
+    initialize (attributes, options) {
       proto.initialize.call(this, attributes, options);
 
       this._email = options.email;
@@ -46,7 +46,7 @@ define(function (require, exports, module) {
      * @returns {String}
      * @private
      */
-    _getUsersStorageId: function () {
+    _getUsersStorageId () {
       return this._uid || this._email;
     },
 
@@ -54,7 +54,7 @@ define(function (require, exports, module) {
      * Persist verification info to localStorage. Info will be loaded on
      * verification in verification occurs in the same browser.
      */
-    persist: function () {
+    persist () {
       var id = this._getUsersStorageId();
       if (id) {
         var verificationInfo = this._storage.get(STORAGE_KEY) || {};
@@ -67,7 +67,7 @@ define(function (require, exports, module) {
     /**
      * Load verification info for the current user from localStorage
      */
-    load: function () {
+    load () {
       var id = this._getUsersStorageId();
       if (id) {
         var usersStoredInfo = (this._storage.get(STORAGE_KEY) || {})[id];
@@ -80,7 +80,7 @@ define(function (require, exports, module) {
     /**
      * Clear verification info from localStorage
      */
-    clear: function () {
+    clear () {
       var id = this._getUsersStorageId();
       if (id) {
         var verificationInfo = this._storage.get(STORAGE_KEY) || {};

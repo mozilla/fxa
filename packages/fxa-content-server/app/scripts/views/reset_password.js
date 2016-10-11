@@ -20,19 +20,19 @@ define(function (require, exports, module) {
     template: Template,
     className: 'reset_password',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._formPrefill = options.formPrefill;
     },
 
-    context: function () {
+    context () {
       return {
         forceEmail: this.model.get('forceEmail')
       };
     },
 
-    beforeRender: function () {
+    beforeRender () {
       var email = this.relier.get('email');
       var canSkip = this.relier.get('resetPasswordConfirm') === false;
       if (canSkip && email) {
@@ -46,7 +46,7 @@ define(function (require, exports, module) {
       return FormView.prototype.beforeRender.call(this);
     },
 
-    afterRender: function () {
+    afterRender () {
       if (this.relier.isOAuth()) {
         this.transformLinks();
       }
@@ -54,15 +54,15 @@ define(function (require, exports, module) {
       FormView.prototype.afterRender.call(this);
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       this._formPrefill.set('email', this.getElementValue('.email'));
     },
 
-    submit: function () {
+    submit () {
       return this._resetPassword(this.getElementValue('.email'));
     },
 
-    _resetPassword: function (email) {
+    _resetPassword (email) {
       return this.resetPassword(email)
         .fail((err) => {
           // clear oauth session

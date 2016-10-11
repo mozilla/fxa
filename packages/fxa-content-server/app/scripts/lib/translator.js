@@ -20,12 +20,12 @@ define(function (require, exports, module) {
   };
 
   Translator.prototype = {
-    set: function (translations) {
+    set (translations) {
       this.translations = translations;
     },
 
     // Fetches our JSON translation file
-    fetch: function () {
+    fetch () {
       return xhr.getJSON('/i18n/client.json')
           .then((data) => {
             // Only update the translations if some came back
@@ -50,7 +50,7 @@ define(function (require, exports, module) {
      * @param {String} context
      * @returns {String}
      */
-    get: function (key, context) {
+    get (key, context) {
       var translation = this.translations[key];
       /**
        * See http://www.lehman.cuny.edu/cgi-bin/man-cgi?msgfmt+1
@@ -95,7 +95,7 @@ define(function (require, exports, module) {
      * @param {Object} [context] - context to pass to translator
      * @returns {Function}
      */
-    translateInTemplate: function (forceText, context) {
+    translateInTemplate (forceText, context) {
       return (templateText) => {
         return this.get(forceText || templateText, context);
       };

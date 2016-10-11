@@ -18,14 +18,14 @@ define(function (require, exports, module) {
       'change input[type=checkbox]': 'logCheckboxChange'
     },
 
-    afterRender: function () {
+    afterRender () {
       this.$el.find('.fxa-checkbox').get().forEach(function (el) {
         // FxaCheckbox enhances the native checkbox and provides custom styling
         new FxaCheckbox(el).init();
       });
     },
 
-    logCheckboxChange: function (event) {
+    logCheckboxChange (event) {
       var target = $(event.currentTarget);
       var isChecked = target.is(':checked');
       var checkedText = isChecked ? 'checked' : 'unchecked';

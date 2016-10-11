@@ -25,7 +25,7 @@ define(function (require, exports, module) {
      * @method load
      * @returns {Object}
      */
-    load: function () {
+    load () {
       var values = {};
 
       // Try parsing sessionStorage values
@@ -60,7 +60,7 @@ define(function (require, exports, module) {
      * if they no longer appear in sessionStorage or localStorage.
      * @method reload
      */
-    reload: function () {
+    reload () {
       var values = this.load();
       // Clear values that no longer exist in storage.
       _.each(this, function (value, key) {
@@ -82,7 +82,7 @@ define(function (require, exports, module) {
      * @param {String} [value]
      * @returns {undefined}
      */
-    set: function (key, value) {
+    set (key, value) {
       if (typeof value === 'undefined' && typeof key === 'object') {
         return _.each(key, function (value, key) {
           this.set(key, value);
@@ -100,7 +100,7 @@ define(function (require, exports, module) {
      * Persist data to sessionStorage or localStorage
      * @method persist
      */
-    persist: function () {
+    persist () {
       // items on the blacklist do not get saved to sessionStorage.
       var toSaveToSessionStorage = {};
       var toSaveToLocalStorage = {};
@@ -131,7 +131,7 @@ define(function (require, exports, module) {
      * @param {String} key
      * @returns {Object}
      */
-    get: function (key) {
+    get (key) {
       return this[key];
     },
 
@@ -144,7 +144,7 @@ define(function (require, exports, module) {
      * @method clear
      * @param {String} [key]
      */
-    clear: function (key) {
+    clear (key) {
       // no key specified, clear everything.
       if (typeof key === 'undefined') {
         for (key in this) {
@@ -167,7 +167,7 @@ define(function (require, exports, module) {
      * @param {String} key
      * @private
      */
-    testRemove: function (key) {
+    testRemove (key) {
       if (this.hasOwnProperty(key)) {
         this[key] = null;
         delete this[key];
@@ -179,7 +179,7 @@ define(function (require, exports, module) {
      * @method testClear
      * @private
      */
-    testClear: function () {
+    testClear () {
       for (var key in this) {
         if (this.hasOwnProperty(key)) {
           this[key] = null;

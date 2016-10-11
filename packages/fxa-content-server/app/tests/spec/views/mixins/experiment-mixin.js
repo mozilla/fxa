@@ -23,7 +23,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(View, Mixin);
 
   var mockExperiment = {
-    isInGroup: function () {
+    isInGroup () {
       return true;
     }
   };

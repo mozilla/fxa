@@ -21,7 +21,7 @@ define(function (require, exports, module) {
     var model;
 
     var Model = Backbone.Model.extend({
-      initialize: function (options) {
+      initialize (options) {
         this.window = options.window;
       }
     });

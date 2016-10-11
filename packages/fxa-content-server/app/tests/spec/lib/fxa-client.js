@@ -306,8 +306,8 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         clientMock = {
-          accountStatus: function () {},
-          recoveryEmailStatus: function () {}
+          accountStatus () {},
+          recoveryEmailStatus () {}
         };
 
         accountInfo = err = null;
@@ -751,13 +751,13 @@ define(function (require, exports, module) {
         var code = 'code';
 
         var relier = {
-          has: function () {
+          has () {
             return false;
           },
-          isSync: function () {
+          isSync () {
             return true;
           },
-          wantsKeys: function () {
+          wantsKeys () {
             return true;
           }
         };
@@ -901,13 +901,13 @@ define(function (require, exports, module) {
         var trimmedEmail = trim(email);
 
         var relier = {
-          has: function () {
+          has () {
             return false;
           },
-          isSync: function () {
+          isSync () {
             return true;
           },
-          wantsKeys: function () {
+          wantsKeys () {
             return true;
           }
         };

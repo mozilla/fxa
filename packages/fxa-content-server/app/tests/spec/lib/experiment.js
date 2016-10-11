@@ -25,10 +25,10 @@ define(function (require, exports, module) {
   var user;
   var UUID = 'a mock uuid';
   var mockExperiment = {
-    initialize: function () {
+    initialize () {
       return true;
     },
-    isInGroup: function () {
+    isInGroup () {
       return true;
     }
   };
@@ -112,7 +112,8 @@ define(function (require, exports, module) {
 
       it('choose experiments', function () {
         expInt._allExperiments = {
-          'mock': function () {
+          // Cannot use object shorthand because it's converts
+          mock: function () {
             return mockExperiment;
           }
         };

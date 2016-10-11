@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/cookies_disabled');
 
   var View = BaseView.extend({
-    constructor: function (options) {
+    constructor (options) {
       BaseView.call(this, options);
 
       this._Storage = options.Storage || Storage;
@@ -26,7 +26,7 @@ define(function (require, exports, module) {
       'click #submit-btn': 'backIfLocalStorageEnabled'
     },
 
-    backIfLocalStorageEnabled: function () {
+    backIfLocalStorageEnabled () {
       if (! this._Storage.isLocalStorageEnabled()) {
         return this.displayError(AuthErrors.toError('COOKIES_STILL_DISABLED'));
       }

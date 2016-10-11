@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   function History() {}
 
   History.prototype = {
-    start: function () {
+    start () {
     }
   };
 

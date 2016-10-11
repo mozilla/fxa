@@ -12,7 +12,7 @@ define(function (require, exports, module) {
     template: CannotCreateAccountTemplate,
     className: 'cannot-create-account',
 
-    context: function () {
+    context () {
       return {
         isSync: this.relier.isSync()
       };

@@ -22,7 +22,7 @@ define(function (require, exports, module) {
   }
 
   _.extend(StorageMetrics.prototype, new Metrics(), {
-    _send: function (data) {
+    _send (data) {
       var metrics = storage.get('metrics_all');
 
       if (! Array.isArray(metrics)) {
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
       return p(data);
     },
 
-    isMetricsCollectionEnabled: function () {
+    isMetricsCollectionEnabled () {
       return false;
     }
   });

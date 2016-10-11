@@ -35,7 +35,7 @@ define(function (require, exports, module) {
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       var searchParams = Url.searchParams(this.window.location.search);
@@ -57,11 +57,11 @@ define(function (require, exports, module) {
       this._email = this._account.get('email');
     },
 
-    getAccount: function () {
+    getAccount () {
       return this._account;
     },
 
-    _navigateToCompleteScreen: function () {
+    _navigateToCompleteScreen () {
       if (this.isSignUp()) {
         this.navigate('signup_complete');
       } else {
@@ -69,7 +69,7 @@ define(function (require, exports, module) {
       }
     },
 
-    beforeRender: function () {
+    beforeRender () {
       var verificationInfo = this._verificationInfo;
       if (! verificationInfo.isValid()) {
         // One or more parameters fails validation. Abort and show an
@@ -156,7 +156,7 @@ define(function (require, exports, module) {
           });
     },
 
-    context: function () {
+    context () {
       var verificationInfo = this._verificationInfo;
       return {
         canResend: this._canResend(),
@@ -168,7 +168,7 @@ define(function (require, exports, module) {
       };
     },
 
-    _canResend: function () {
+    _canResend () {
       // _getResendSessionToken is only returned if the user signed up in the
       // same browser in which they opened the verification link.
       return !! this._getResendSessionToken() && this.isSignUp();
@@ -178,7 +178,7 @@ define(function (require, exports, module) {
     // address. We intentionally don't cache it during view initialization so that
     // we can capture sessionTokens from accounts created (in this browser)
     // since the view was loaded.
-    _getResendSessionToken: function () {
+    _getResendSessionToken () {
       return this.user.getAccountByEmail(this._email).get('sessionToken');
     },
 

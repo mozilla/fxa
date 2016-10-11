@@ -23,7 +23,7 @@ define(function (require, exports, module) {
     // tracks the type of a tooltip, used for metrics purposes
     type: 'generic',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
       this.message = options.message || '';
       this.dismissible  = options.dismissible || false;
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
       this.invalidEl = $(options.invalidEl);
     },
 
-    template: function () {
+    template () {
       return this.translator.get(this.message);
     },
 
@@ -63,7 +63,7 @@ define(function (require, exports, module) {
       return proto.afterRender.call(this);
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       displayedTooltip = null;
 
       // ditch the events we manually added to reduce interference
@@ -73,7 +73,7 @@ define(function (require, exports, module) {
       invalidEl.find('option').off('click', this._destroy);
     },
 
-    setPosition: function () {
+    setPosition () {
       // by default, the position is above the input/select element
       // to show the tooltip below the element, we use JS to set
       // the top of the tooltip to be just below the element it is
@@ -93,7 +93,7 @@ define(function (require, exports, module) {
       }
     },
 
-    bindDOMEvents: function () {
+    bindDOMEvents () {
       var invalidEl = this.invalidEl;
 
       // destroy the tooltip any time the user

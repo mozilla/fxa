@@ -133,7 +133,7 @@ define(function (require, exports, module) {
   _.extend(Metrics.prototype, Backbone.Events, {
     ALLOWED_FIELDS: ALLOWED_FIELDS,
 
-    init: function () {
+    init () {
       this._flush = _.bind(this.flush, this, true);
       $(this._window).on('unload', this._flush);
       // iOS will not send events once the window is in the background,
@@ -146,7 +146,7 @@ define(function (require, exports, module) {
       this._resetInactivityFlushTimeout();
     },
 
-    destroy: function () {
+    destroy () {
       $(this._window).off('unload', this._flush);
       $(this._window).off('blur', this._flush);
       this._clearInactivityFlushTimeout();
@@ -158,7 +158,7 @@ define(function (require, exports, module) {
      * @param {String} isPageUnloading
      * @returns {Promise}
      */
-    flush: function (isPageUnloading) {
+    flush (isPageUnloading) {
       // Inactivity timer is restarted when the next event/timer comes in.
       // This avoids sending empty result sets if the tab is
       // just sitting there open with no activity.
@@ -181,16 +181,16 @@ define(function (require, exports, module) {
         });
     },
 
-    _isFlushRequired: function (data) {
+    _isFlushRequired (data) {
       return data.events.length !== 0 ||
         Object.keys(data.timers).length !== 0;
     },
 
-    _clearInactivityFlushTimeout: function () {
+    _clearInactivityFlushTimeout () {
       clearTimeout(this._inactivityFlushTimeout);
     },
 
-    _resetInactivityFlushTimeout: function () {
+    _resetInactivityFlushTimeout () {
       this._clearInactivityFlushTimeout();
 
       this._inactivityFlushTimeout =
@@ -206,7 +206,7 @@ define(function (require, exports, module) {
      *
      * @returns {Object}
      */
-    getAllData: function () {
+    getAllData () {
       var loadData = this._speedTrap.getLoad();
       var unloadData = this._speedTrap.getUnload();
 
@@ -250,7 +250,7 @@ define(function (require, exports, module) {
      *
      * @returns {Object}
      */
-    getFilteredData: function () {
+    getFilteredData () {
       var allowedData = _.pick(this.getAllData(), ALLOWED_FIELDS);
 
       return _.pick(allowedData, function (value, key) {
@@ -258,7 +258,7 @@ define(function (require, exports, module) {
       });
     },
 
-    _send: function (data, isPageUnloading) {
+    _send (data, isPageUnloading) {
       var url = this._collector + '/metrics';
       var payload = JSON.stringify(data);
 
@@ -294,7 +294,7 @@ define(function (require, exports, module) {
      *
      * @param {String} eventName
      */
-    logEvent: function (eventName) {
+    logEvent (eventName) {
       this._resetInactivityFlushTimeout();
       this.events.capture(eventName);
     },
@@ -304,7 +304,7 @@ define(function (require, exports, module) {
      *
      * @param {String} eventName
      */
-    logEventOnce: function (eventName) {
+    logEventOnce (eventName) {
       if (! this._eventMemory[eventName]) {
         this.logEvent(eventName);
         this._eventMemory[eventName] = true;
@@ -316,7 +316,7 @@ define(function (require, exports, module) {
      *
      * @param {String} timerName
      */
-    startTimer: function (timerName) {
+    startTimer (timerName) {
       this._resetInactivityFlushTimeout();
       this.timers.start(timerName);
     },
@@ -326,7 +326,7 @@ define(function (require, exports, module) {
      *
      * @param {String} timerName
      */
-    stopTimer: function (timerName) {
+    stopTimer (timerName) {
       this._resetInactivityFlushTimeout();
       this.timers.stop(timerName);
     },
@@ -336,7 +336,7 @@ define(function (require, exports, module) {
      *
      * @param {Error} error
      */
-    logError: function (error) {
+    logError (error) {
       this.logEvent(this.errorToId(error));
     },
 
@@ -346,7 +346,7 @@ define(function (require, exports, module) {
      * @param {Error} error
      * @returns {String}
      */
-    errorToId: function (error) {
+    errorToId (error) {
       var id = Strings.interpolate('error.%s.%s.%s', [
         error.context || 'unknown context',
         error.namespace || 'unknown namespace',
@@ -360,7 +360,7 @@ define(function (require, exports, module) {
      *
      * @param {String} viewName
      */
-    logView: function (viewName) {
+    logView (viewName) {
       this.logEvent(this.viewToId(viewName));
     },
 
@@ -370,7 +370,7 @@ define(function (require, exports, module) {
      * @param {String} viewName
      * @param {String} eventName
      */
-    logViewEvent: function (viewName, eventName) {
+    logViewEvent (viewName, eventName) {
       var event = Strings.interpolate('%(viewName)s.%(eventName)s', {
         eventName: eventName,
         viewName: viewName,
@@ -385,7 +385,7 @@ define(function (require, exports, module) {
      * @param {String} viewName
      * @return {String} identifier
      */
-    viewToId: function (viewName) {
+    viewToId (viewName) {
       // `screen.` is a legacy artifact from when each View was a screen.
       // The idenifier is kept to avoid updating all metrics queries.
       return 'screen.' + viewName;
@@ -396,7 +396,7 @@ define(function (require, exports, module) {
      * @param {String} choice - type of experiment
      * @param {String} group - the experiment group (treatment or control)
      */
-    logExperiment: function (choice, group) {
+    logExperiment (choice, group) {
       if (! choice || ! group) {
         return;
       }
@@ -419,7 +419,7 @@ define(function (require, exports, module) {
      * @param {String} campaignId - marketing campaign id
      * @param {String} url - url of marketing link
      */
-    logMarketingImpression: function (campaignId, url) {
+    logMarketingImpression (campaignId, url) {
       campaignId = campaignId || UNKNOWN_CAMPAIGN_ID;
 
       var impressions = this._marketingImpressions;
@@ -440,7 +440,7 @@ define(function (require, exports, module) {
      * @param {String} campaignId - marketing campaign id
      * @param {String} url - URL clicked.
      */
-    logMarketingClick: function (campaignId, url) {
+    logMarketingClick (campaignId, url) {
       campaignId = campaignId || UNKNOWN_CAMPAIGN_ID;
 
       var impression = this.getMarketingImpression(campaignId, url);
@@ -450,16 +450,16 @@ define(function (require, exports, module) {
       }
     },
 
-    getMarketingImpression: function (campaignId, url) {
+    getMarketingImpression (campaignId, url) {
       var impressions = this._marketingImpressions;
       return impressions[campaignId] && impressions[campaignId][url];
     },
 
-    setBrokerType: function (brokerType) {
+    setBrokerType (brokerType) {
       this._brokerType = brokerType;
     },
 
-    isCollectionEnabled: function () {
+    isCollectionEnabled () {
       return this._isSampledUser;
     },
 
@@ -472,11 +472,11 @@ define(function (require, exports, module) {
       }
     },
 
-    getFlowEventMetadata: function () {
+    getFlowEventMetadata () {
       return this._flowEventMetadata.attributes;
     },
 
-    setFlowEventMetadata: function () {
+    setFlowEventMetadata () {
       this._flowEventMetadata.set.apply(this._flowEventMetadata, arguments);
     }
   });

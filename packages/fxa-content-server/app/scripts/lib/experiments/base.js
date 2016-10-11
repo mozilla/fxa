@@ -48,7 +48,7 @@ define(function (require, exports, module) {
      * @returns {boolean}
      *  Returns 'true' when the experiment successfully initialized. Otherwise 'false'.
      */
-    initialize: function (name, options) {
+    initialize (name, options) {
       this._initialized = false;
       // all experiments require these options
       if (! (name &&
@@ -95,7 +95,7 @@ define(function (require, exports, module) {
       return true;
     },
 
-    delegateNotifications: function (notifications) {
+    delegateNotifications (notifications) {
       // based on delegateEvents from Backbone.View
       if (! (notifications || (notifications = _.result(this, 'notifications')))) {
         return false;
@@ -120,7 +120,7 @@ define(function (require, exports, module) {
      * @param {String} groupType
      * @returns {boolean}
      */
-    isInGroup: function (groupType) {
+    isInGroup (groupType) {
       return !! (groupType && groupType === this._groupType);
     },
 
@@ -130,7 +130,7 @@ define(function (require, exports, module) {
      * @method logEvent
      * @param {String} event
      */
-    logEvent: function (event) {
+    logEvent (event) {
       if (this._initialized && event) {
         this.metrics.logEvent(this._loggingNamespace + event);
       }
@@ -144,7 +144,7 @@ define(function (require, exports, module) {
      * @param {String} state
      * @returns {Boolean|undefined}
      */
-    saveState: function (state) {
+    saveState (state) {
       if (! state) {
         return false;
       }
@@ -169,7 +169,7 @@ define(function (require, exports, module) {
      * @param {String} state
      * @returns {boolean}
      */
-    hasState: function (state) {
+    hasState (state) {
       if (! state) {
         return null;
       }

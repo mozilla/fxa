@@ -23,13 +23,13 @@ define(function (require, exports, module) {
     template: Template,
     className: 'confirm-reset-password',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
       this._verificationPollMS = options.verificationPollMS ||
               this.VERIFICATION_POLL_IN_MS;
     },
 
-    context: function () {
+    context () {
       var email = this.model.get('email');
       var isSignInEnabled = this.relier.get('resetPasswordConfirm');
 
@@ -41,7 +41,7 @@ define(function (require, exports, module) {
       };
     },
 
-    beforeRender: function () {
+    beforeRender () {
       // user cannot confirm if they have not initiated a reset password
       if (! this.model.has('passwordForgotToken')) {
         this.navigate('reset_password');
@@ -49,7 +49,7 @@ define(function (require, exports, module) {
       }
     },
 
-    afterVisible: function () {
+    afterVisible () {
       var account = this.user.initAccount({ email: this.model.get('email') });
       return this.broker.persistVerificationData(account)
         .then(() => {
@@ -71,7 +71,7 @@ define(function (require, exports, module) {
         });
     },
 
-    _waitForConfirmation: function () {
+    _waitForConfirmation () {
       var confirmationDeferred = this._confirmationDeferred = p.defer();
       var confirmationPromise = this._confirmationPromise = confirmationDeferred.promise;
 
@@ -139,7 +139,7 @@ define(function (require, exports, module) {
       return confirmationPromise;
     },
 
-    _finishPasswordResetSameBrowser: function (sessionInfo) {
+    _finishPasswordResetSameBrowser (sessionInfo) {
       // Only the account UID, unwrapBKey and keyFetchToken are passed
       // from the verification tab. Load other from localStorage
       var account = this.user.getAccountByUid(sessionInfo.uid);
@@ -181,11 +181,11 @@ define(function (require, exports, module) {
         });
     },
 
-    _getSignInRoute: function () {
+    _getSignInRoute () {
       return this.broker.transformLink('/signin').replace(/^\//, '');
     },
 
-    _finishPasswordResetDifferentBrowser: function () {
+    _finishPasswordResetDifferentBrowser () {
       // user verified in a different browser, make them sign in. OAuth
       // users will be redirected back to the RP, Sync users will be
       // taken to the Sync controlled completion page.
@@ -224,7 +224,7 @@ define(function (require, exports, module) {
         });
     },
 
-    _stopWaitingForServerConfirmation: function () {
+    _stopWaitingForServerConfirmation () {
       if (this._waitForServerConfirmationTimeout) {
         this.clearTimeout(this._waitForServerConfirmationTimeout);
       }
@@ -232,7 +232,7 @@ define(function (require, exports, module) {
     },
 
     _isWaitingForLoginMessage: false,
-    _waitForLoginMessage: function () {
+    _waitForLoginMessage () {
       var deferred = p.defer();
 
       this._isWaitingForLoginMessage = true;
@@ -242,7 +242,7 @@ define(function (require, exports, module) {
       return deferred.promise;
     },
 
-    _stopListeningForInterTabMessages: function () {
+    _stopListeningForInterTabMessages () {
       this._isWaitingForLoginMessage = false;
       this.notifier.off();
       // Sensitive data is passed between tabs using localStorage.
@@ -250,7 +250,7 @@ define(function (require, exports, module) {
       this.notifier.clear();
     },
 
-    _stopWaiting: function () {
+    _stopWaiting () {
       this._stopWaitingForServerConfirmation();
       this._stopListeningForInterTabMessages();
     },

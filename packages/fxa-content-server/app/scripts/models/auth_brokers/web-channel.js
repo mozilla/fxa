@@ -31,7 +31,7 @@ define(function (require, exports, module) {
       webChannelId: null
     }),
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       // channel can be passed in for testing.
@@ -40,7 +40,7 @@ define(function (require, exports, module) {
       return proto.initialize.call(this, options);
     },
 
-    fetch: function () {
+    fetch () {
       return proto.fetch.call(this)
         .then(() => {
           if (this._isVerificationFlow()) {
@@ -51,7 +51,7 @@ define(function (require, exports, module) {
         });
     },
 
-    sendOAuthResultToRelier: function (result) {
+    sendOAuthResultToRelier (result) {
       if (result.closeWindow !== true) {
         result.closeWindow = false;
       }
@@ -73,7 +73,7 @@ define(function (require, exports, module) {
      * keys 'kAr' and 'kBr'.
      */
 
-    getOAuthResult: function (account) {
+    getOAuthResult (account) {
       return proto.getOAuthResult.call(this, account)
         .then((result) => {
           if (! this.relier.wantsKeys()) {
@@ -88,7 +88,7 @@ define(function (require, exports, module) {
         });
     },
 
-    afterSignIn: function (account, additionalResultData) {
+    afterSignIn (account, additionalResultData) {
       if (! additionalResultData) {
         additionalResultData = {};
       }
@@ -103,7 +103,7 @@ define(function (require, exports, module) {
                 this, account, additionalResultData);
     },
 
-    afterForceAuth: function (account, additionalResultData) {
+    afterForceAuth (account, additionalResultData) {
       if (! additionalResultData) {
         additionalResultData = {};
       }
@@ -112,7 +112,7 @@ define(function (require, exports, module) {
                 this, account, additionalResultData);
     },
 
-    beforeSignUpConfirmationPoll: function (account) {
+    beforeSignUpConfirmationPoll (account) {
       // If the relier wants keys, the signup verification tab will need
       // to be able to fetch them in order to complete the flow.
       // Send them as part of the oauth session data.
@@ -138,19 +138,19 @@ define(function (require, exports, module) {
      * but it's unlikely to trigger in practice.
      */
 
-    hasPendingOAuthFlow: function () {
+    hasPendingOAuthFlow () {
       this.session.reload();
       return !! (this.session.oauth);
     },
 
-    afterSignUpConfirmationPoll: function (account) {
+    afterSignUpConfirmationPoll (account) {
       if (this.hasPendingOAuthFlow()) {
         return this.finishOAuthSignUpFlow(account);
       }
       return p();
     },
 
-    afterCompleteSignUp: function (account) {
+    afterCompleteSignUp (account) {
       // The original tab may be closed, so the verification tab should
       // send the OAuth result to the browser to ensure the flow completes.
       //
@@ -173,14 +173,14 @@ define(function (require, exports, module) {
         });
     },
 
-    afterResetPasswordConfirmationPoll: function (account) {
+    afterResetPasswordConfirmationPoll (account) {
       if (this.hasPendingOAuthFlow()) {
         return this.finishOAuthSignInFlow(account);
       }
       return p();
     },
 
-    afterCompleteResetPassword: function (account) {
+    afterCompleteResetPassword (account) {
       // The original tab may be closed, so the verification tab should
       // send the OAuth result to the browser to ensure the flow completes.
       //
@@ -198,7 +198,7 @@ define(function (require, exports, module) {
     },
 
     // used by the ChannelMixin to get a channel.
-    getChannel: function () {
+    getChannel () {
       if (this._channel) {
         return this._channel;
       }
@@ -211,15 +211,15 @@ define(function (require, exports, module) {
       return channel;
     },
 
-    _isVerificationFlow: function () {
+    _isVerificationFlow () {
       return !! this.getSearchParam('code');
     },
 
-    _setupSigninSignupFlow: function () {
+    _setupSigninSignupFlow () {
       this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, OAuthErrors);
     },
 
-    _setupVerificationFlow: function () {
+    _setupVerificationFlow () {
       var resumeObj = this.session.oauth;
 
       if (! resumeObj) {

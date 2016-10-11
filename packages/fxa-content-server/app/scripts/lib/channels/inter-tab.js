@@ -38,16 +38,16 @@ define(function (require, exports, module) {
   }
 
   BroadcastChannelAdapter.prototype = {
-    onMessage: function (event) {
+    onMessage (event) {
       var envelope = JSON.parse(event.data);
       this.trigger(envelope.name, envelope.data);
     },
 
-    send: function (name, data) {
+    send (name, data) {
       this._broadcastChannel.postMessage(this.stringify(name, data));
     },
 
-    clear: function () {
+    clear () {
       // do nothing
     },
 
@@ -58,7 +58,7 @@ define(function (require, exports, module) {
      * @param {Object} [data]
      * @returns {String}
      */
-    stringify: function (name, data) {
+    stringify (name, data) {
       return JSON.stringify({
         data: data || {},
         name: name
@@ -76,7 +76,7 @@ define(function (require, exports, module) {
   }
 
   LocalStorageAdapter.prototype = {
-    send: function (name, data) {
+    send (name, data) {
       // Sensitive data is sent across the channel and should only
       // be in localStorage if absolutely necessary. Only send
       // data if another tab is listening.
@@ -100,7 +100,7 @@ define(function (require, exports, module) {
       }
     },
 
-    on: function (name, callback) {
+    on (name, callback) {
       this._handlers[name] = this._handlers[name] || [];
       var sentMessageIds = this._sentMessageIds;
 
@@ -115,7 +115,7 @@ define(function (require, exports, module) {
       this._crosstab.util.events.on(name, callbackWrapper);
     },
 
-    off: function (name, callback) {
+    off (name, callback) {
       var handlersForName = this._handlers[name] || [];
       handlersForName.forEach(function (handler) {
         if (handler.callback === callback) {
@@ -124,7 +124,7 @@ define(function (require, exports, module) {
       }, this);
     },
 
-    clear: function () {
+    clear () {
       this._crosstab.util.clearMessages();
     }
   };
@@ -170,7 +170,7 @@ define(function (require, exports, module) {
      * @param {Object} [data]
      * @returns {undefined}
      */
-    send: function (name, data) {
+    send (name, data) {
       return this._adapter.send(name, data);
     },
 
@@ -183,7 +183,7 @@ define(function (require, exports, module) {
      *
      * @return {String} key - key used to unregister a listener
      */
-    on: function (name, callback) {
+    on (name, callback) {
       return this._adapter.on(name, callback);
     },
 
@@ -195,7 +195,7 @@ define(function (require, exports, module) {
      * @param {Function} callback
      * @returns {undefined}
      */
-    off: function (name, callback) {
+    off (name, callback) {
       return this._adapter.off(name, callback);
     },
 
@@ -205,7 +205,7 @@ define(function (require, exports, module) {
      * @method clear
      * @returns {undefined}
      */
-    clear: function () {
+    clear () {
       return this._adapter.clear();
     }
   };

@@ -88,7 +88,7 @@ define(function (require, exports, module) {
   module.exports = _.extend({}, Errors, {
     ERRORS: ERRORS,
     NAMESPACE: 'basket-errors',
-    normalizeXHRError: function (xhr) {
+    normalizeXHRError (xhr) {
       var respJSON = xhr.responseJSON;
       if (respJSON && ! ('errno' in respJSON) && respJSON.code) {
         // the basket API returns code instead of errno. Convert.

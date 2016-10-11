@@ -49,7 +49,7 @@ define(function (require, exports, module) {
 
     type: 'fx-desktop-v2',
 
-    afterResetPasswordConfirmationPoll: function (/*account*/) {
+    afterResetPasswordConfirmationPoll (/*account*/) {
       // this is only called if the user verifies in the same browser.
       // With Fx's E10s enabled, the account data only contains an
       // unwrapBKey and keyFetchToken, not enough to sign in the user.
@@ -58,13 +58,13 @@ define(function (require, exports, module) {
       return p(new HaltBehavior());
     },
 
-    afterCompleteResetPassword: function (account) {
+    afterCompleteResetPassword (account) {
       // See the note in afterResetPasswordConfirmationPoll
       return this._notifyRelierOfLogin(account)
         .then(() => proto.afterCompleteResetPassword.call(this, account));
     },
 
-    fetch: function () {
+    fetch () {
       return proto.fetch.call(this).then(() => {
         if (! this.environment.isAboutAccounts()) {
           // The default behavior of FxDesktop brokers is to halt before

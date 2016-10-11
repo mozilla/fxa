@@ -23,7 +23,7 @@ define(function (require, exports, module) {
       type: null
     },
 
-    destroy: function () {
+    destroy () {
       // Both a sessionToken and deviceId are needed to destroy a device.
       // An account `has a` device, therefore account destroys the device.
       this.trigger('destroy', this);
