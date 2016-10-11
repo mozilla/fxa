@@ -1,3 +1,13 @@
+<a name="1.71.2"></a>
+## [1.71.2](https://github.com/mozilla/fxa-auth-server/compare/v1.71.1...v1.71.2) (2016-10-11)
+
+
+### Bug Fixes
+
+* **push:** Add metrics events for reason=accountConfirm; r=seanmonstar ([45dfa20](https://github.com/mozilla/fxa-auth-server/commit/45dfa20))
+
+
+
 <a name="1.71.1"></a>
 ## [1.71.1](https://github.com/mozilla/fxa-auth-server/compare/v1.71.0...v1.71.1) (2016-10-05)
 
