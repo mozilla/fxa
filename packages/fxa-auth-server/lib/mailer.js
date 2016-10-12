@@ -103,6 +103,23 @@ module.exports = function (config, log) {
           }
         ))
       }
+      mailer.sendUnblockCode = function (account, unblockCode, opts) {
+        return P.resolve(mailer.unblockCodeEmail(
+          {
+            acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            email: account.email,
+            ip: opts.ip,
+            location: opts.location,
+            timeZone: opts.timeZone,
+            uaBrowser: opts.uaBrowser,
+            uaBrowserVersion: opts.uaBrowserVersion,
+            uaOS: opts.uaOS,
+            uaOSVersion: opts.uaOSVersion,
+            uid: account.uid.toString('hex'),
+            unblockCode: unblockCode
+          }
+        ))
+      }
       return mailer
     }
   )

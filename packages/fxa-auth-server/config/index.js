@@ -498,6 +498,57 @@ var conf = convict({
       default: /.+@mozilla\.com$/,
       env: 'LASTACCESSTIME_UPDATES_EMAIL_ADDRESSES'
     }
+  },
+  signinUnblock: {
+    codeLength: {
+      doc: 'Number of base36 digits to make up an unblockCode',
+      default: 8,
+      env: 'SIGNIN_UNBLOCK_CODE_LENGTH'
+    },
+    codeLifetime: {
+      doc: 'How long an unblockCode should be valid for',
+      format: 'duration',
+      default: '1 hour',
+      env: 'SIGNIN_UNBLOCK_CODE_LIFETIME'
+    },
+    enabled: {
+      default: true
+    },
+    allowedEmailAddresses: {
+      doc: 'If feature enabled, allow sign-in unblock for email addresses matching this regex.',
+      format: RegExp,
+      default: '.+@mozilla\\.com$',
+      env: 'SIGNIN_UNBLOCK_ALLOWED_EMAILS'
+    },
+    forcedEmailAddresses: {
+      doc: 'If feature enabled, force sign-in unblock for email addresses matching this regex.',
+      format: RegExp,
+      default: '^$', // default is no one
+      env: 'SIGNIN_UNBLOCK_FORCED_EMAILS'
+    },
+    sampleRate: {
+      doc: 'signin unblock sample rate, between 0.0 and 1.0',
+      default: 1.0,
+      env: 'SIGNIN_UNBLOCK_RATE'
+    },
+    supportedClients: {
+      doc: 'support sign-in unblock for only these clients',
+      format: Array,
+      default: [
+        'web',
+        'oauth',
+        'iframe',
+        'fx_firstrun_v1',
+        'fx_firstrun_v2',
+        'fx_desktop_v1',
+        'fx_desktop_v2',
+        'fx_desktop_v3',
+        'fx_ios_v1',
+        'fx_ios_v2',
+        'fx_fennec_v1'
+      ],
+      env: 'SIGNIN_UNBLOCK_SUPPORTED_CLIENTS'
+    }
   }
 })
 
@@ -518,6 +569,7 @@ conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/v1/complete_
 conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/reset_password')
 conf.set('smtp.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/settings/change_password')
 conf.set('smtp.verifyLoginUrl', conf.get('contentServer.url') + '/complete_signin')
+conf.set('smtp.reportSignInUrl', conf.get('contentServer.url') + '/report_signin')
 
 conf.set('isProduction', conf.get('env') === 'prod')
 

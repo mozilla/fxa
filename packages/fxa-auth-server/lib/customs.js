@@ -55,14 +55,16 @@ module.exports = function (log, error) {
           // log a flow event that user got blocked.
           log.flowEvent('customs.blocked', request)
 
+          var unblock = !!result.unblock
           if (result.retryAfter) {
             // create a localized retryAfterLocalized value from retryAfter, for example '713' becomes '12 minutes'.
             var retryAfterLocalized = localizeTimestamp.format(Date.now() + (result.retryAfter * 1000),
                 request.headers['accept-language'])
 
-            throw error.tooManyRequests(result.retryAfter, retryAfterLocalized)
+            throw error.tooManyRequests(result.retryAfter, retryAfterLocalized, unblock)
+          } else {
+            throw error.requestBlocked(unblock)
           }
-          throw error.requestBlocked()
         }
         if (result.suspect) {
           request.app.isSuspiciousRequest = true

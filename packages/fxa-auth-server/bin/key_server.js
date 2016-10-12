@@ -39,6 +39,7 @@ function main() {
   var error = require('../lib/error')
   var Token = require('../lib/tokens')(log, config)
   var Password = require('../lib/crypto/password')(log, config)
+  var UnblockCode = require('../lib/crypto/base36')(config.signinUnblock.codeLength)
 
   var signer = require('../lib/signer')(config.secretKeyFile, config.domain)
   var serverPublicKeys = {
@@ -89,7 +90,8 @@ function main() {
           Token.KeyFetchToken,
           Token.AccountResetToken,
           Token.PasswordForgotToken,
-          Token.PasswordChangeToken
+          Token.PasswordChangeToken,
+          UnblockCode
         )
 
         DB.connect(config[config.db.backend])

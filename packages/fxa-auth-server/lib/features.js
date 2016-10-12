@@ -9,6 +9,7 @@ const crypto = require('crypto')
 module.exports = config => {
   const lastAccessTimeUpdates = config.lastAccessTimeUpdates
   const signinConfirmation = config.signinConfirmation
+  const signinUnblock = config.signinUnblock
 
   return {
     /**
@@ -52,7 +53,6 @@ module.exports = config => {
       // edge-cases in device login flows that haven't been fully tested.
       // Temporarily avoid them for regular users by checking the `context` flag,
       // and create pre-verified sessions for unsupported clients.
-      // This check will go away in the final version of this feature.
       const context = request.payload &&
         request.payload.metricsContext &&
         request.payload.metricsContext.context
@@ -62,6 +62,43 @@ module.exports = config => {
 
       // Check to see if user in roll-out cohort.
       return isSampledUser(signinConfirmation.sample_rate, uid, 'signinConfirmation')
+    },
+
+
+    /**
+     * Returns whether or not to use signin unblock feature on a request.
+     *
+     * @param account
+     * @param config
+     * @param request
+     * @returns {boolean}
+     */
+    isSigninUnblockEnabledForUser(uid, email, request) {
+      if (! signinUnblock.enabled) {
+        return false
+      }
+
+      if (signinUnblock.forcedEmailAddresses && signinUnblock.forcedEmailAddresses.test(email)) {
+        return true
+      }
+
+      if (signinUnblock.allowedEmailAddresses.test(email)) {
+        return true
+      }
+
+      // While we're testing this feature, there may be some funky
+      // edge-cases in device login flows that haven't been fully tested.
+      // Temporarily avoid them for regular users by checking the `context` flag,
+      const context = request.payload &&
+        request.payload.metricsContext &&
+        request.payload.metricsContext.context
+
+      if (signinUnblock.supportedClients.indexOf(context) === -1) {
+        return false
+      }
+
+      // Check to see if user in roll-out cohort.
+      return isSampledUser(signinUnblock.sampleRate, uid, 'signinUnblock')
     },
 
     /**

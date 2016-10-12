@@ -86,6 +86,7 @@ The currently-defined error responses are:
 * status code 400, errno 124:  session already registered by another device
 * status code 400, errno 125:  request blocked for security reasons
 * status code 400, errno 126:  account must be reset
+* status code 400, errno 127:  invalid unblock code
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * status code 503, errno 202:  feature has been disabled for operational reasons
 * any status code, errno 999:  unknown error
@@ -318,6 +319,7 @@ ___Parameters___
 * authPW - the PBKDF2/HKDF stretched password as a hex string
 * service - (optional) opaque alphanumeric token to be included in verification links
 * reason - (optional) alphanumeric string indicating the reason for establishing a new session; may be "login" (the default) or "reconnect"
+* unblockCode - (optional) base36 code used to unblock certain  rate-limitings
 
 ### Request
 
@@ -363,6 +365,7 @@ Failing requests may be due to the following errors:
 * status code 413, errno 113:  request body too large
 * status code 400, errno 120:  incorrect email case
 * status code 400, errno 126:  account must be reset
+* status code 400, errno 127:  invalid unblock code
 
 ## GET /v1/account/keys
 

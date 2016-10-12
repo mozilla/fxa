@@ -2,11 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
 var BASE64_JWT = validators.BASE64_JWT
 var DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
 var URLSAFEBASE64 = validators.URLSAFEBASE64
+var BASE_36 = validators.BASE_36
 var PUSH_PAYLOADS_SCHEMA_PATH = '../../docs/pushpayloads.schema.json'
 
 // An arbitrary, but very generous, limit on the number of active sessions.
@@ -56,7 +59,9 @@ module.exports = function (
   })
   const features = require('../features')(config)
 
-  var securityHistoryEnabled = config.securityHistory && config.securityHistory.enabled
+  const securityHistoryEnabled = config.securityHistory && config.securityHistory.enabled
+  const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
+  const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 0
 
   var routes = [
     {
@@ -354,6 +359,7 @@ module.exports = function (
             redirectTo: isA.string().uri().optional(),
             resume: isA.string().optional(),
             reason: isA.string().max(16).optional(),
+            unblockCode: isA.string().regex(BASE_36).length(unblockCodeLen).optional(),
             metricsContext: metricsContext.schema
           }
         },
@@ -380,7 +386,7 @@ module.exports = function (
         var redirectTo = request.payload.redirectTo
         var resume = request.payload.resume
         var tokenVerificationId = crypto.randomBytes(16)
-        var emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation, emailSent
+        var emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation, emailSent, unblockCode, customsErr, allowSigninUnblock, didSigninUnblock
         var ip = request.app.clientAddress
 
         metricsContext.validate(request)
@@ -393,8 +399,11 @@ module.exports = function (
           })
         }
 
-        customs.check(request, email, 'accountLogin')
+        checkIsBlockForced()
+          .then(() => customs.check(request, email, 'accountLogin'))
+          .catch(checkUnblockCode)
           .then(readEmailRecord)
+          .then(checkEmailAndPassword)
           .then(checkSecurityHistory)
           .then(checkNumberOfActiveSessions)
           .then(createSessionToken)
@@ -405,7 +414,32 @@ module.exports = function (
           .then(sendVerifyLoginEmail)
           .then(recordSecurityEvent)
           .then(createResponse)
+          .catch(gateSigninUnblock)
           .done(reply, reply)
+
+        function checkIsBlockForced () {
+          let forced = config.signinUnblock && config.signinUnblock.enabled && config.signinUnblock.forcedEmailAddresses
+
+          if (forced && forced.test(email)) {
+            return P.reject(error.requestBlocked(true))
+          }
+
+          return P.resolve()
+        }
+
+        function checkUnblockCode (e) {
+          var method = e.output.payload.verificationMethod
+          if (method === 'email-captcha') {
+            // only set `unblockCode` if it is required from customs
+            unblockCode = request.payload.unblockCode
+            if (unblockCode) {
+              unblockCode = unblockCode.toUpperCase()
+            }
+            customsErr = e
+            return
+          }
+          throw e
+        }
 
         function readEmailRecord () {
           return db.emailRecord(email)
@@ -413,44 +447,39 @@ module.exports = function (
               function (result) {
                 emailRecord = result
 
-                // Session token verification is only enabled for certain users during phased rollout.
-                // Even when it is enabled, we only do the email challenge if:
-                //  * the request wants keys, since unverified sessions are fine to use for e.g. oauth login.
-                //  * the email is verified, since content-server triggers a resend of the verification
-                //    email on unverified accounts, which doubles as sign-in confirmation.
-                if (! features.isSigninConfirmationEnabledForUser(emailRecord.uid, emailRecord.email, request)) {
-                  tokenVerificationId = undefined
-                  mustVerifySession = false
-                  doSigninConfirmation = false
-                } else {
-                  // The user doesn't *have* to verify their session if they're not requesting keys,
-                  // but we still create it with a non-null tokenVerificationId, so it will still
-                  // be considered unverified.  This prevents the session from being used for sync
-                  // unless the user explicitly requests us to resend the confirmation email, and completes it.
-                  mustVerifySession = requestHelper.wantsKeys(request)
-                  doSigninConfirmation = mustVerifySession && emailRecord.emailVerified
-                }
-
-                if(email !== emailRecord.email) {
-                  customs.flag(request.app.clientAddress, {
-                    email: email,
-                    errno: error.ERRNO.INCORRECT_PASSWORD
-                  })
-                  throw error.incorrectPassword(emailRecord.email, email)
-                }
-
-                return checkPassword(emailRecord, authPW, request.app.clientAddress)
-                  .then(
-                    function (match) {
-                      if (! match) {
-                        throw error.incorrectPassword(emailRecord.email, email)
+                allowSigninUnblock = features.isSigninUnblockEnabledForUser(emailRecord.uid, email, request)
+                if (allowSigninUnblock && unblockCode) {
+                  return db.consumeUnblockCode(emailRecord.uid, unblockCode)
+                    .then(
+                      (code) => {
+                        if (Date.now() - code.createdAt > unblockCodeLifetime) {
+                          log.info({
+                            op: 'Account.login.unblockCode.expired',
+                            uid: emailRecord.uid.toString('hex')
+                          })
+                          throw error.invalidUnblockCode()
+                        }
+                        didSigninUnblock = true
+                        return log.activityEvent('account.login.confirmedUnblockCode', request, {
+                          uid: emailRecord.uid.toString('hex')
+                        })
                       }
-
-                      return log.activityEvent('account.login', request, {
-                        uid: emailRecord.uid.toString('hex')
-                      })
-                    }
-                  )
+                    )
+                    .catch(
+                      (err) => {
+                        if (err.errno === error.ERRNO.UNBLOCK_CODE_INVALID) {
+                          customs.flag(request.app.clientAddress, {
+                            email: email,
+                            errno: err.errno
+                          })
+                        }
+                        throw err
+                      }
+                    )
+                }
+                if (!didSigninUnblock && customsErr) {
+                  throw customsErr
+                }
               },
               function (err) {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
@@ -524,6 +553,51 @@ module.exports = function (
                 log.error({
                   op: 'Account.history.error',
                   err: err,
+                  uid: emailRecord.uid.toString('hex')
+                })
+              }
+            )
+        }
+
+        function checkEmailAndPassword () {
+          // Session token verification is only enabled for certain users during phased rollout.
+          //
+          // If the user went through the sigin-unblock flow, they have already verified their email.
+          // No need to also require confirmation afterwards.
+          //
+          // Even when it is enabled, we only do the email challenge if:
+          //  * the request wants keys, since unverified sessions are fine to use for e.g. oauth login.
+          //  * the email is verified, since content-server triggers a resend of the verification
+          //    email on unverified accounts, which doubles as sign-in confirmation.
+          if (didSigninUnblock || !features.isSigninConfirmationEnabledForUser(emailRecord.uid, emailRecord.email, request)) {
+            tokenVerificationId = undefined
+            mustVerifySession = false
+            doSigninConfirmation = false
+          } else {
+            // The user doesn't *have* to verify their session if they're not requesting keys,
+            // but we still create it with a non-null tokenVerificationId, so it will still
+            // be considered unverified.  This prevents the session from being used for sync
+            // unless the user explicitly requests us to resend the confirmation email, and completes it.
+            mustVerifySession = requestHelper.wantsKeys(request)
+            doSigninConfirmation = mustVerifySession && emailRecord.emailVerified
+          }
+
+          if(email !== emailRecord.email) {
+            customs.flag(request.app.clientAddress, {
+              email: email,
+              errno: error.ERRNO.INCORRECT_PASSWORD
+            })
+            throw error.incorrectPassword(emailRecord.email, email)
+          }
+
+          return checkPassword(emailRecord, authPW, request.app.clientAddress)
+            .then(
+              function (match) {
+                if (! match) {
+                  throw error.incorrectPassword(emailRecord.email, email)
+                }
+
+                return log.activityEvent('account.login', request, {
                   uid: emailRecord.uid.toString('hex')
                 })
               }
@@ -740,6 +814,18 @@ module.exports = function (
             response.verificationReason = 'login'
           }
           return P.resolve(response)
+        }
+
+        function gateSigninUnblock (err) {
+          // customs.check will always add these properties if the
+          // customs server has not rate-limited unblock. Nonetheless,
+          // we shouldn't signal to the content-server that it is
+          // possible to unblock the user if the feature is not allowed.
+          if (!allowSigninUnblock && err.output && err.output.payload) {
+            delete err.output.payload.verificationMethod
+            delete err.output.payload.verificationReason
+          }
+          throw err
         }
       }
     },
@@ -1535,6 +1621,94 @@ module.exports = function (
       handler: function (request, reply) {
         log.error({ op: 'Account.UnlockCodeVerify', request: request })
         reply(error.gone())
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/login/send_unblock_code',
+      config: {
+        validate: {
+          payload: {
+            email: validators.email().required(),
+            metricsContext: metricsContext.schema
+          }
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Account.SendUnblockCode', request)
+
+        var email = request.payload.email
+        var ip = request.app.clientAddress
+        var emailRecord
+
+        return customs.check(request, email, 'sendUnblockCode')
+          .then(lookupAccount)
+          .then(createUnblockCode)
+          .then(mailUnblockCode)
+          .then(() => log.activityEvent('account.login.sentUnblockCode', request, {
+            uid: emailRecord.uid.toString('hex')
+          }))
+          .done(() => {
+            reply({})
+          }, reply)
+
+        function lookupAccount() {
+          return db.emailRecord(email)
+            .then((record) => {
+              emailRecord = record
+              return record.uid
+            })
+        }
+
+        function createUnblockCode(uid) {
+
+          if (features.isSigninUnblockEnabledForUser(uid, email, request)) {
+            return db.createUnblockCode(uid)
+          } else {
+            throw error.featureNotEnabled()
+          }
+        }
+
+        function mailUnblockCode(code) {
+          return getGeoData(ip)
+            .then((geoData) => {
+              return mailer.sendUnblockCode(emailRecord, code, userAgent.call({
+                acceptLanguage: request.app.acceptLanguage,
+                ip: ip,
+                location: geoData.location,
+                timeZone: geoData.timeZone
+              }, request.headers['user-agent'], log))
+            })
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/login/reject_unblock_code',
+      config: {
+        validate: {
+          payload: {
+            uid: isA.string().max(32).regex(HEX_STRING).required(),
+            unblockCode: isA.string().regex(BASE_36).length(unblockCodeLen).required()
+          }
+        }
+      },
+      handler: function (request, reply) {
+        var uid = Buffer(request.payload.uid, 'hex')
+        var code = request.payload.unblockCode.toUpperCase()
+
+        log.begin('Account.RejectUnblockCode', request)
+        db.consumeUnblockCode(uid, code)
+          .then(
+            () => {
+              log.info({
+                op: 'account.login.rejectedUnblockCode',
+                uid: request.payload.uid,
+                unblockCode: code
+              })
+              return {}
+            }
+          ).done(reply, reply)
       }
     },
     {

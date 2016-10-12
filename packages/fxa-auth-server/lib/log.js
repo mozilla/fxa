@@ -25,7 +25,10 @@ var ACTIVITY_FLOW_EVENTS = Object.keys(ALWAYS_ACTIVITY_FLOW_EVENTS)
   }, {
     // These activity events are flow events when there is a flowId
     'account.keyfetch': true,
-    'account.signed': true
+    'account.login.sentUnblockCode': true,
+    'account.login.confirmedUnblockCode': true,
+    'account.signed': true,
+    'device.created': true
   })
 
 function unbuffer(object) {
