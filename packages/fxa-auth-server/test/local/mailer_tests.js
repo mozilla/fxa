@@ -23,6 +23,7 @@ var messageTypes = [
   'postVerifyEmail',
   'recoveryEmail',
   'suspiciousLocationEmail',
+  'unblockCodeEmail',
   'verificationReminderEmail',
   'verifyEmail',
   'verifyLoginEmail'
@@ -50,6 +51,14 @@ var typesContainPasswordChangeLinks = [
   'verifyLoginEmail'
 ]
 
+var typesContainUnblockCode = [
+  'unblockCodeEmail'
+]
+
+var typesContainReportSignInLinks = [
+  'unblockCodeEmail'
+]
+
 var typesContainAndroidStoreLinks = [
   'postVerifyEmail'
 ]
@@ -68,6 +77,7 @@ var typesContainAlternativeLinks = [
 
 var typesContainLocationData = [
   'newDeviceLoginEmail',
+  'unblockCodeEmail',
   'verifyLoginEmail'
 ]
 
@@ -108,7 +118,8 @@ P.all(
           email: 'a@b.com',
           locations: [],
           service: 'service',
-          uid: 'uid'
+          uid: 'uid',
+          unblockCode: 'AS6334PK'
         }
 
         test(
@@ -200,6 +211,38 @@ P.all(
               mailer.mailer.sendMail = function (emailConfig) {
                 t.ok(includes(emailConfig.html, passwordChangeLink))
                 t.ok(includes(emailConfig.text, passwordChangeLink))
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
+
+        if (includes(typesContainUnblockCode, type)) {
+          test(
+            'unblock code is in email template output for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                t.ok(includes(emailConfig.html, message.unblockCode))
+                t.ok(includes(emailConfig.text, message.unblockCode))
+
+                t.end()
+              }
+              mailer[type](message)
+            }
+          )
+        }
+
+        if (includes(typesContainReportSignInLinks, type)) {
+          test(
+            'report sign-in link is in email template output for ' + type,
+            function (t) {
+              mailer.mailer.sendMail = function (emailConfig) {
+                var reportSignInLink =
+                  mailer.createReportSignInLink(type, message)
+                t.ok(includes(emailConfig.html, reportSignInLink))
+                t.ok(includes(emailConfig.text, reportSignInLink))
+
                 t.end()
               }
               mailer[type](message)

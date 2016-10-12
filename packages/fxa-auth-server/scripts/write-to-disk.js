@@ -17,6 +17,7 @@
  *   postVerifyEmail
  *   recoveryEmail
  *   suspiciousLocationEmail
+ *   unblockCodeEmail
  *   verificationReminderEmail:first
  *   verificationReminderEmail:second
  *   verifyEmail
@@ -97,9 +98,10 @@ function sendMail(mailer, messageToSend) {
     timeZone: 'Europe/Madrid',
     type: messageSubType,
     uaBrowser: 'Firefox',
-    uaBrowserVersion: '47',
+    uaBrowserVersion: '51',
     uaOS: 'Mac OSX',
     uaOSVersion: '10.11',
+    unblockCode: '1ILO0Z5P',
     uid: '6510cb04abd742c6b3e4abefc7e39c9f'
   }
 
