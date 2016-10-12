@@ -242,6 +242,18 @@ define([
           pushAuthKey: DEVICE_AUTH_KEY
         }
       )
+    },
+    sendUnblockCode: {
+      status: 200,
+      body: '{}'
+    },
+    unblockEmail: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001", "headers": {"x-unblock-code": "ASDF1234"}}]'
+    },
+    rejectUnblockCode: {
+      status: 200,
+      body: '{}'
     }
   };
 });

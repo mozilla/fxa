@@ -309,6 +309,83 @@ define([
           client.accountStatusByEmail();
         }, 'Missing email');
       });
+
+      test('#login unblock accept', function () {
+        var user = 'block' + new Date().getTime();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function (result) {
+
+            return respond(client.signIn(email, password, { context: 'fx_desktop_v3' }), ErrorMocks.signInBlocked);
+          })
+          .then(assert.fail, function (error) {
+            assert.equal(error.errno, 125);
+            assert.equal(error.verificationMethod, 'email-captcha');
+            assert.equal(error.verificationReason, 'login');
+
+            return respond(client.sendUnblockCode(email, { context: 'fx_desktop_v3' }), RequestMocks.sendUnblockCode);
+          })
+          .then(function () {
+            return respond(mail.wait(user, 2), RequestMocks.unblockEmail);
+          })
+          .then(function (emails) {
+            var unblockCode = emails[1].headers['x-unblock-code'];
+            assert.ok(unblockCode, 'unblockCode is returned');
+
+            return respond(client.signIn(email, password, {
+              unblockCode: unblockCode,
+              context: 'fx_desktop_v3'
+            }), RequestMocks.signIn);
+          })
+          .then(
+            function (result) {
+              assert.ok(result.uid);
+            },
+            assert.notOk
+          );
+      });
+
+      test('#login unblock reject', function () {
+        var user = 'block' + new Date().getTime();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
+        var uid;
+        var unblockCode;
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function (result) {
+            uid = result.uid;
+            return respond(client.signIn(email, password, { context: 'fx_desktop_v3' }), ErrorMocks.signInBlocked);
+          })
+          .then(assert.fail, function (error) {
+            assert.equal(error.errno, 125);
+            assert.equal(error.verificationMethod, 'email-captcha');
+            assert.equal(error.verificationReason, 'login');
+
+            return respond(client.sendUnblockCode(email, { context: 'fx_desktop_v3' }), RequestMocks.sendUnblockCode);
+          })
+          .then(function () {
+
+            return respond(mail.wait(user, 2), RequestMocks.unblockEmail);
+          })
+          .then(function (emails) {
+            unblockCode = emails[1].headers['x-unblock-code'];
+            assert.ok(unblockCode, 'unblockCode is returned');
+
+            return respond(client.rejectUnblockCode(uid, unblockCode), RequestMocks.rejectUnblockCode);
+          })
+          .then(function () {
+            return respond(client.signIn(email, password, {
+              unblockCode: unblockCode,
+              context: 'fx_desktop_v3'
+            }), ErrorMocks.signInInvalidUnblockCode);
+          })
+          .then(assert.fail, function (error) {
+            assert.equal(error.errno, 127);
+          });
+      });
     });
   }
 });

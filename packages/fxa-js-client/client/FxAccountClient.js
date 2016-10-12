@@ -196,6 +196,8 @@ define([
    *     @param {String} [options.metricsContext.utmMedium] marketing campaign medium
    *     @param {String} [options.metricsContext.utmSource] marketing campaign source
    *     @param {String} [options.metricsContext.utmTerm] marketing campaign search term
+   *   @param {String} [options.unblockCode]
+   *   Login unblock code.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signIn = function (email, password, options) {
@@ -245,6 +247,10 @@ define([
 
           if (options.service) {
             data.service = options.service;
+          }
+
+          if (options.unblockCode) {
+            data.unblockCode = options.unblockCode;
           }
 
           return self.request.send(endpoint, 'POST', null, data)
@@ -1071,6 +1077,60 @@ define([
       });
   };
 
+  /**
+   * Send an unblock code
+   *
+   * @method sendUnblockCode
+   * @param {String} email email where to send the login authorization code
+   * @param {Object} [options={}] Options
+   *   @param {Object} [options.metricsContext={}] Metrics context metadata
+   *     @param {String} options.metricsContext.flowId identifier for the current event flow
+   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {String} [options.metricsContext.context] context identifier
+   *     @param {String} [options.metricsContext.entrypoint] entrypoint identifier
+   *     @param {String} [options.metricsContext.migration] migration identifier
+   *     @param {String} [options.metricsContext.service] service identifier
+   *     @param {String} [options.metricsContext.utmCampaign] marketing campaign identifier
+   *     @param {String} [options.metricsContext.utmContent] marketing campaign content identifier
+   *     @param {String} [options.metricsContext.utmMedium] marketing campaign medium
+   *     @param {String} [options.metricsContext.utmSource] marketing campaign source
+   *     @param {String} [options.metricsContext.utmTerm] marketing campaign search term
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.sendUnblockCode = function (email, options) {
+    required(email, 'email');
+
+    var data = {
+      email: email
+    };
+
+    if (options && options.metricsContext) {
+      data.metricsContext = metricsContext.marshall(options.metricsContext);
+    }
+
+    return this.request.send('/account/login/send_unblock_code', 'POST', null, data);
+  };
+
+  /**
+   * Reject a login unblock code. Code will be deleted from the server
+   * and will not be able to be used again.
+   *
+   * @method rejectLoginAuthorizationCode
+   * @param {String} uid Account ID
+   * @param {String} unblockCode unblock code
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.rejectUnblockCode = function (uid, unblockCode) {
+    required(uid, 'uid');
+    required(unblockCode, 'unblockCode');
+
+    var data = {
+      uid: uid,
+      unblockCode: unblockCode
+    };
+
+    return this.request.send('/account/login/reject_unblock_code', 'POST', null, data);
+  };
 
   return FxAccountClient;
 });
