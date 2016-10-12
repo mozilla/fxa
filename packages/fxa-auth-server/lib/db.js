@@ -19,7 +19,8 @@ module.exports = function (
   KeyFetchToken,
   AccountResetToken,
   PasswordForgotToken,
-  PasswordChangeToken) {
+  PasswordChangeToken,
+  UnblockCode) {
 
   const features = require('./features')(config)
 
@@ -801,6 +802,49 @@ module.exports = function (
     })
 
     return this.pool.get('/securityEvents/' + params.uid.toString('hex') + '/ip/' + params.ipAddr)
+  }
+
+  DB.prototype.createUnblockCode = function (uid) {
+    log.trace({
+      op: 'DB.createUnblockCode',
+      uid: uid
+    })
+    var unblock = UnblockCode()
+    return this.pool.put('/account/' + uid.toString('hex') + '/unblock/' + unblock)
+      .then(
+        () => {
+          return unblock
+        },
+        (err) => {
+          // duplicates should be super rare, but it's feasible that a
+          // uid already has an existing unblockCode. Just try again.
+          if (isRecordAlreadyExistsError(err)) {
+            log.error({
+              op: 'DB.createUnblockCode.duplicate',
+              err: err,
+              uid: uid
+            })
+            return this.createUnblockCode(uid)
+          }
+          throw err
+        }
+      )
+  }
+
+  DB.prototype.consumeUnblockCode = function (uid, code) {
+    log.trace({
+      op: 'DB.consumeUnblockCode',
+      uid: uid
+    })
+    return this.pool.del('/account/' + uid.toString('hex') + '/unblock/' + code)
+      .catch(
+        function (err) {
+          if (isNotFoundError(err)) {
+            throw error.invalidUnblockCode()
+          }
+          throw err
+        }
+      )
   }
 
   return DB

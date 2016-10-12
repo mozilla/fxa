@@ -24,6 +24,7 @@ var ERRNO = {
   INVALID_REQUEST_SIGNATURE: 109,
   INVALID_TIMESTAMP: 111,
   INVALID_TOKEN: 110,
+  INVALID_UNBLOCK_CODE: 127,
   INVALID_VERIFICATION_CODE: 105,
   MISSING_CONTENT_LENGTH_HEADER: 112,
   MISSING_PARAMETER: 108,
@@ -327,7 +328,7 @@ AppError.requestBodyTooLarge = function () {
   })
 }
 
-AppError.tooManyRequests = function (retryAfter, retryAfterLocalized) {
+AppError.tooManyRequests = function (retryAfter, retryAfterLocalized, canUnblock) {
   if (!retryAfter) {
     retryAfter = 30
   }
@@ -338,6 +339,11 @@ AppError.tooManyRequests = function (retryAfter, retryAfterLocalized) {
 
   if (retryAfterLocalized) {
     extraData.retryAfterLocalized = retryAfterLocalized
+  }
+
+  if (canUnblock) {
+    extraData.verificationMethod = 'email-captcha'
+    extraData.verificationReason = 'login'
   }
 
   return new AppError(
@@ -354,13 +360,20 @@ AppError.tooManyRequests = function (retryAfter, retryAfterLocalized) {
   )
 }
 
-AppError.requestBlocked = function () {
+AppError.requestBlocked = function (canUnblock) {
+  var extra
+  if (canUnblock) {
+    extra = {
+      verificationMethod: 'email-captcha',
+      verificationReason: 'login'
+    }
+  }
   return new AppError({
     code: 400,
     error: 'Request blocked',
     errno: ERRNO.REQUEST_BLOCKED,
     message: 'The request was blocked for security reasons'
-  })
+  }, extra)
 }
 
 AppError.serviceUnavailable = function (retryAfter) {
@@ -446,6 +459,15 @@ AppError.deviceSessionConflict = function () {
       message: 'Session already registered by another device'
     }
   )
+}
+
+AppError.invalidUnblockCode = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_UNBLOCK_CODE,
+    message: 'Invalid unblock code'
+  })
 }
 
 module.exports = AppError

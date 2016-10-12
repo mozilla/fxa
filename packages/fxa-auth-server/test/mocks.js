@@ -6,33 +6,85 @@
  * Shared helpers for mocking things out in the tests.
  */
 
-var sinon = require('sinon')
-var extend = require('util')._extend
-var P = require('../lib/promise')
-var crypto = require('crypto')
+const sinon = require('sinon')
+const extend = require('util')._extend
+const P = require('../lib/promise')
+const crypto = require('crypto')
 
-var CUSTOMS_METHOD_NAMES = ['check', 'checkAuthenticated', 'flag', 'reset']
+const CUSTOMS_METHOD_NAMES = [
+  'check',
+  'checkAuthenticated',
+  'flag',
+  'reset'
+]
 
-var DB_METHOD_NAMES = ['account', 'createAccount', 'createDevice', 'createKeyFetchToken',
-                       'createPasswordForgotToken', 'createSessionToken', 'deleteAccount',
-                       'deleteDevice', 'deleteKeyFetchToken', 'deletePasswordChangeToken',
-                       'deleteVerificationReminder', 'devices', 'emailRecord', 'forgotPasswordVerified',
-                       'resetAccount', 'securityEvent', 'securityEvents', 'sessions',
-                       'sessionTokenWithVerificationStatus', 'updateDevice', 'updateLocale',
-                       'updateSessionToken', 'verifyEmail', 'verifyTokens',]
+const DB_METHOD_NAMES = [
+  'account',
+  'consumeUnblockCode',
+  'createAccount',
+  'createDevice',
+  'createKeyFetchToken',
+  'createPasswordForgotToken',
+  'createSessionToken',
+  'createUnblockCode',
+  'deleteAccount',
+  'deleteDevice',
+  'deleteKeyFetchToken',
+  'deletePasswordChangeToken',
+  'deleteVerificationReminder',
+  'devices',
+  'emailRecord',
+  'forgotPasswordVerified',
+  'resetAccount',
+  'securityEvent',
+  'securityEvents',
+  'sessions',
+  'sessionTokenWithVerificationStatus',
+  'updateDevice',
+  'updateLocale',
+  'updateSessionToken',
+  'verifyEmail',
+  'verifyTokens'
+]
 
-var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'warn', 'timing',
-                        'activityEvent', 'flowEvent', 'notifyAttachedServices']
+const LOG_METHOD_NAMES = [
+  'activityEvent',
+  'begin',
+  'error',
+  'flowEvent',
+  'increment',
+  'info',
+  'notifyAttachedServices',
+  'warn',
+  'timing',
+  'trace'
+]
 
-var MAILER_METHOD_NAMES = ['sendVerifyCode', 'sendVerifyLoginEmail',
-                           'sendNewDeviceLoginNotification', 'sendPasswordChangedNotification',
-                           'sendPasswordResetNotification', 'sendPostVerifyEmail']
+const MAILER_METHOD_NAMES = [
+  'sendNewDeviceLoginNotification',
+  'sendPasswordChangedNotification',
+  'sendPasswordResetNotification',
+  'sendPostVerifyEmail',
+  'sendUnblockCode',
+  'sendVerifyCode',
+  'sendVerifyLoginEmail'
+]
 
-var METRICS_CONTEXT_METHOD_NAMES = ['stash', 'gather', 'validate']
+const METRICS_CONTEXT_METHOD_NAMES = [
+  'gather',
+  'stash',
+  'validate'
+]
 
-var PUSH_METHOD_NAMES = ['notifyDeviceConnected', 'notifyDeviceDisconnected', 'notifyUpdate',
-                         'pushToAllDevices', 'pushToDevices', 'notifyPasswordChanged',
-                         'notifyPasswordReset']
+const PUSH_METHOD_NAMES = [
+  'notifyDeviceConnected',
+  'notifyDeviceDisconnected',
+  'notifyPasswordChanged',
+  'notifyPasswordReset',
+  'notifyUpdate',
+  'pushToAllDevices',
+  'pushToDevices'
+]
 
 module.exports = {
   mockCustoms: mockObject(CUSTOMS_METHOD_NAMES),
@@ -51,7 +103,7 @@ function mockDB (data, errors) {
   errors = errors || {}
 
   return mockObject(DB_METHOD_NAMES)({
-    account: sinon.spy(function () {
+    account: sinon.spy(() => {
       return P.resolve({
         email: data.email,
         emailCode: data.emailCode,
@@ -61,7 +113,7 @@ function mockDB (data, errors) {
         wrapWrapKb: data.wrapWrapKb
       })
     }),
-    createAccount: sinon.spy(function () {
+    createAccount: sinon.spy(() => {
       return P.resolve({
         uid: data.uid,
         email: data.email,
@@ -70,8 +122,8 @@ function mockDB (data, errors) {
         wrapWrapKb: data.wrapWrapKb
       })
     }),
-    createDevice: sinon.spy(function () {
-      return P.resolve(Object.keys(data.device).reduce(function (result, key) {
+    createDevice: sinon.spy(() => {
+      return P.resolve(Object.keys(data.device).reduce((result, key) => {
         result[key] = data.device[key]
         return result
       }, {
@@ -79,14 +131,14 @@ function mockDB (data, errors) {
         createdAt: data.deviceCreatedAt
       }))
     }),
-    createKeyFetchToken: sinon.spy(function () {
+    createKeyFetchToken: sinon.spy(() => {
       return P.resolve({
         data: crypto.randomBytes(32),
         tokenId: data.keyFetchTokenId,
         uid: data.uid
       })
     }),
-    createPasswordForgotToken: sinon.spy(function () {
+    createPasswordForgotToken: sinon.spy(() => {
       return P.resolve({
         data: crypto.randomBytes(32),
         passCode: data.passCode,
@@ -94,12 +146,12 @@ function mockDB (data, errors) {
         uid: data.uid
       })
     }),
-    createSessionToken: sinon.spy(function () {
+    createSessionToken: sinon.spy(() => {
       return P.resolve({
         data: crypto.randomBytes(32),
         email: data.email,
         emailVerified: data.emailVerified,
-        lastAuthAt: function () {
+        lastAuthAt: () => {
           return Date.now()
         },
         tokenId: data.sessionTokenId,
@@ -108,10 +160,10 @@ function mockDB (data, errors) {
         uid: data.uid
       })
     }),
-    devices: sinon.spy(function () {
+    devices: sinon.spy(() => {
       return P.resolve(data.devices || [])
     }),
-    emailRecord: sinon.spy(function () {
+    emailRecord: sinon.spy(() => {
       if (errors.emailRecord) {
         return P.reject(errors.emailRecord)
       }
@@ -122,31 +174,31 @@ function mockDB (data, errors) {
         email: data.email,
         emailVerified: data.emailVerified,
         kA: crypto.randomBytes(32),
-        lastAuthAt: function () {
+        lastAuthAt: () => {
           return Date.now()
         },
         uid: data.uid,
         wrapWrapKb: crypto.randomBytes(32)
       })
     }),
-    forgotPasswordVerified: sinon.spy(function () {
+    forgotPasswordVerified: sinon.spy(() => {
       return P.resolve(data.accountResetToken)
     }),
-    securityEvents: sinon.spy(function () {
+    securityEvents: sinon.spy(() => {
       return P.resolve([])
     }),
-    sessions: sinon.spy(function () {
+    sessions: sinon.spy(() => {
       return P.resolve(data.sessions || [])
     }),
-    updateDevice: sinon.spy(function (uid, sessionTokenId, device) {
+    updateDevice: sinon.spy((uid, sessionTokenId, device) => {
       return P.resolve(device)
     }),
-    sessionTokenWithVerificationStatus: sinon.spy(function () {
+    sessionTokenWithVerificationStatus: sinon.spy(() => {
       return P.resolve({
         tokenVerified: true
       })
     }),
-    verifyTokens: sinon.spy(function () {
+    verifyTokens: sinon.spy(() => {
       if (errors.verifyTokens) {
         return P.reject(errors.verifyTokens)
       }
@@ -156,12 +208,9 @@ function mockDB (data, errors) {
 }
 
 function mockObject (methodNames) {
-  return function (methods) {
-    return methodNames.reduce(function (object, name) {
-      object[name] = methods && methods[name] || sinon.spy(function () {
-        return P.resolve()
-      })
-
+  return methods => {
+    return methodNames.reduce((object, name) => {
+      object[name] = methods && methods[name] || sinon.spy(() => P.resolve())
       return object
     }, {})
   }
@@ -171,14 +220,14 @@ function mockDevices (data) {
   data = data || {}
 
   return {
-    upsert: sinon.spy(function () {
+    upsert: sinon.spy(() => {
       return P.resolve({
         id: data.deviceId || crypto.randomBytes(16),
         name: data.deviceName || 'mock device name',
         type: data.deviceType || 'desktop'
       })
     }),
-    synthesizeName: sinon.spy(function () {
+    synthesizeName: sinon.spy(() => {
       return data.deviceName || null
     })
   }
@@ -188,8 +237,8 @@ function mockDevices (data) {
 // You can pass in an object of custom logging methods
 // if you need to e.g. make assertions about logged values.
 function mockLog (methods) {
-  var log = extend({}, methods)
-  LOG_METHOD_NAMES.forEach(function(name) {
+  const log = extend({}, methods)
+  LOG_METHOD_NAMES.forEach((name) => {
     if (!log[name]) {
       log[name] = function() {}
     }
@@ -202,8 +251,9 @@ function mockLog (methods) {
 function spyLog (methods) {
   methods = extend({}, methods)
   methods.messages = methods.messages || []
-  LOG_METHOD_NAMES.forEach(function(name) {
+  LOG_METHOD_NAMES.forEach(name => {
     if (!methods[name]) {
+      // arrow function would alter `this` inside the method
       methods[name] = function() {
         this.messages.push({
           level: name,
