@@ -35,7 +35,8 @@ wait
 
 cd fxa-content-server; npm i --production; npm i; cp server/config/local.json-dist server/config/local.json; cd ..
 
-cd fxa-auth-server; npm i; node ./scripts/gen_keys.js; cd ..
+cd fxa-auth-server; npm i; node ./scripts/gen_keys.js; node ./scripts/gen_vapid_keys.js ; cd ..
+
 # Install a custom http only verifier
 cd browserid-verifier; npm i; npm i vladikoff/browserid-local-verify#http; cd ..
 
