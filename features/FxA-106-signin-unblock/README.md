@@ -90,7 +90,20 @@ A user that successfully enters the code will be signed in. If the user is signi
 
 ![about:preferences#sync](about-preferences.png)
 
-A user that clicks the “report it to us” link will see a screen that allows them to submit a report:
+There is no way to know whether a user has entered the correct password on
+the signin page until after the user has entered the unblock code. The
+password is only checked once the request is considered "unblocked."
+
+Users that enter an incorrect password on a signin screen then a valid
+unblock code will be sent back to the appropriate signin screen. For
+`/signin` and `/signup`, users are sent to `/signin`. `/force_auth` users
+will be sent back to `/force_auth`. The OAuth variants of these flows
+will return the user to `/oauth/(signin|force_auth)`.
+
+![unblock signin with code entered, incorrect password](incorrect-password.png)
+
+A user that clicks the email's “report it to us” link will see a screen
+that allows them to submit a report:
 
 ![report to us screen](report-screen.png)
 
@@ -107,14 +120,21 @@ First, the auth-server grows a new "login_authorizations" table whose rows conta
 
 When an incoming login attempt is received, it is processed as follows:
 
+* Check if the email address is on the "force block" list.
+  * If block is forced, respond with:
+    * errno=125
+    * verificationMethod: `email`
+    * verificationReason: `blocked`
 * Pass the request to customs-server for analysis.
 * If customs-server returns `{block: true}` then lookup if `unblock` code is valid.
   * If `unblock` is valid, and the customs server hasn’t explicitly blocked `unblock`:
     * Mark the `unblock` code as used/invalid in the `login_authorizations` table.
     * Ignore the customs-server block and continue processing the login attempt.
-  * If the customs server has rate-limited `unblocking`, return errno=125
+  * If the customs server has rate-limited `unblocking`, respond:
+    * errno=125
     * Do not include `verificationMethod`/`verificationReason`, as unblocking is currently rate-limited
-  * If `unblock` is not a valid code, return errno=125
+  * If `unblock` is not a valid code, respond with:
+    * errno=125
     * verificationMethod: `email`
     * verificationReason: `blocked`
     * When 2FA is implemented, these two fields can be used to offer alternative methods of authorizing the signin
