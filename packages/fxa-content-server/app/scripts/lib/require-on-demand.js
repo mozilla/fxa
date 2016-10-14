@@ -49,7 +49,15 @@ define(function (require, exports, module) {
   });
   /*eslint-enable sorting/sort-object-props*/
 
-  function requireOnDemand(resourceToGet) {
+  /**
+   * Require a dependency on demand
+   *
+   * @param {String} resourceToGet - path or URL of the resource to get.
+   * @param {Object} [win] - window object, useful to pass in for testing.
+   * Defaults to `window`
+   * @returns {Promise}
+   */
+  function requireOnDemand(resourceToGet, win = window) {
     return p().then(function () {
       var deferred = p.defer();
 
@@ -61,7 +69,7 @@ define(function (require, exports, module) {
       // the resource into the main bundle. Instead, the item will
       // be loaded on demand, and the module returned when the promise
       // resolves.
-      var getNow = window.require;
+      var getNow = win.require;
       getNow([resourceToGet], deferred.resolve.bind(deferred),
         function (requireErr) {
           // RequireJS errors described in
