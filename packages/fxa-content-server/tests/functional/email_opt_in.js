@@ -5,44 +5,42 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
-  'require',
   'tests/lib/helpers',
   'tests/lib/basket',
   'tests/functional/lib/helpers',
   'tests/functional/lib/test'
-], function (intern, registerSuite, assert, require, TestHelpers, waitForBasket, FunctionalHelpers, Test) {
-  var PAGE_URL = intern.config.fxaContentRoot + 'signup';
+], function (intern, registerSuite, TestHelpers, _waitForBasket, FunctionalHelpers, Test) {
+  var SIGNIN_PAGE_URL = intern.config.fxaContentRoot + 'signin';
+  var SIGNUP_PAGE_URL = intern.config.fxaContentRoot + 'signup';
   var fxaProduction = intern.config.fxaProduction;
 
   var email;
   var PASSWORD = '12345678';
 
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  var thenify = FunctionalHelpers.thenify;
 
-  function testOptedIn(context) {
-    return function () {
-      return context.remote
-        .findByCssSelector('#marketing-email-optin')
-          .getVisibleText()
-          .then(function (buttonText) {
-            assert.equal(buttonText, 'Unsubscribe');
-          })
-        .end();
-    };
-  }
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
+  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  var waitForBasket = thenify(_waitForBasket);
 
-  function testNotOptedIn(context) {
-    return function () {
-      return context.remote
-        .findByCssSelector('#marketing-email-optin')
-          .getVisibleText()
-          .then(function (buttonText) {
-            assert.equal(buttonText, 'Subscribe');
-          })
-        .end();
-    };
-  }
+  var testOptedIn = thenify(function () {
+    return this.parent
+      .then(testElementTextEquals('#marketing-email-optin', 'Unsubscribe'));
+  });
+
+  var testNotOptedIn = thenify(function () {
+    return this.parent
+      .then(testElementTextEquals('#marketing-email-optin', 'Subscribe'));
+  });
 
   var suiteName = 'communication preferences';
   if (fxaProduction) {
@@ -63,170 +61,98 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote
+        .then(clearBrowserState(this));
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote
+        .then(clearBrowserState(this));
     },
 
-    'opt in to the marketing email': function () {
-      var self = this;
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
-        .then(function () {
-          return fillOutSignUp(self, email, PASSWORD, { optInToMarketingEmail: true });
-        })
-
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
-
-        .findByCssSelector('#communication-preferences.basket-ready')
-        .end()
-
-        .then(waitForBasket(email))
-
-        .findByCssSelector('#communication-preferences .settings-unit-toggle')
-          .click()
-        .end()
-
-        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
-
-        .then(testOptedIn(self));
-    },
-
-    'opt-in with a plus sign in the email address': function () {
-      var self = this;
+    'opt-in on signup': function () {
+      // The plus sign is to ensure the email address is URI-encoded when
+      // passed to basket. See a43061d3
       email = TestHelpers.createEmail('signup{id}+extra');
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
-        .then(function () {
-          return fillOutSignUp(self, email, PASSWORD, { optInToMarketingEmail: true });
-        })
+      return this.remote
+        .then(openPage(this, SIGNUP_PAGE_URL, '#fxa-signup-header'))
+        .then(fillOutSignUp(this, email, PASSWORD, { optInToMarketingEmail: true }))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openVerificationLinkInSameTab(email, 0))
 
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
-
-        .findByCssSelector('#communication-preferences.basket-ready')
-        .end()
-
+        .then(testElementExists('#communication-preferences.basket-ready'))
         .then(waitForBasket(email))
-
-        .findByCssSelector('#communication-preferences .settings-unit-toggle')
-          .click()
-        .end()
-
-        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
-
-        .then(testOptedIn(self))
+        .then(click('#communication-preferences .settings-unit-toggle'))
+        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
+        .then(testOptedIn())
 
         // user signed up to basket, so has a preferences URL
-        .findByCssSelector('#preferences-url')
-        .end()
+        .then(testElementExists('#preferences-url'))
 
         // ensure the changes stick across refreshes
         .refresh()
 
-        .findByCssSelector('#communication-preferences.basket-ready')
-        .end()
-
-        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
-
-        .then(testOptedIn(self))
-
-        .findByCssSelector('#marketing-email-optin')
-          .click()
-        .end()
-
-        .then(FunctionalHelpers.testSuccessWasShown(self))
+        .then(testElementExists('#communication-preferences.basket-ready'))
+        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
+        .then(testOptedIn())
+        .then(click('#marketing-email-optin'))
+        .then(testSuccessWasShown(this))
 
         // ensure the opt-out sticks across refreshes
         .refresh()
 
-        .findByCssSelector('#communication-preferences.basket-ready')
-        .end()
+        .then(testElementExists('#communication-preferences.basket-ready'))
+        .then(click('#communication-preferences .settings-unit-toggle'))
+        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
 
-        .findByCssSelector('#communication-preferences .settings-unit-toggle')
-          .click()
-        .end()
-
-        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
-
-        .then(testNotOptedIn(self));
+        .then(testNotOptedIn());
     },
 
-    'do not opt in to the marketing email': function () {
-      var self = this;
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
-        .then(function () {
-          return fillOutSignUp(self, email, PASSWORD, { optInToMarketingEmail: false });
-        })
+    'do not opt-in on signup': function () {
+      return this.remote
+        .then(openPage(this, SIGNUP_PAGE_URL, '#fxa-signup-header'))
+        .then(fillOutSignUp(this, email, PASSWORD, { optInToMarketingEmail: false }))
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openVerificationLinkInSameTab(email, 0))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
+        .then(testElementExists('#communication-preferences.basket-ready'))
+        .then(click('#communication-preferences .settings-unit-toggle'))
 
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
+        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
 
-        .findByCssSelector('#communication-preferences.basket-ready')
-        .end()
+        .then(testNotOptedIn());
+    },
 
-        .findByCssSelector('#communication-preferences .settings-unit-toggle')
-          .click()
-        .end()
+    'opt in from settings after sign-in': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(this, SIGNIN_PAGE_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(this, email, PASSWORD))
 
-        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
+        .then(testElementExists('#communication-preferences.basket-ready'))
+        .then(click('#communication-preferences .settings-unit-toggle'))
 
-        .then(testNotOptedIn(self))
+        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
+
+        .then(testNotOptedIn())
 
         // user does not have a basket account, so the
         // manage link does not exist.
 
-        .then(Test.noElementByCssSelector(self, '#preferences-url'))
-
-        .findByCssSelector('#marketing-email-optin')
-          .click()
-        .end()
-
-        .then(FunctionalHelpers.testSuccessWasShown(self))
-
-        .then(function () {
-          return waitForBasket(email);
-        })
+        .then(Test.noElementByCssSelector(this, '#preferences-url'))
+        .then(click('#marketing-email-optin'))
+        .then(testSuccessWasShown(this))
+        .then(waitForBasket(email))
 
         // ensure the opt-in sticks across refreshes
         .refresh()
-
-        .findByCssSelector('#communication-preferences.basket-ready')
-        .end()
-
-        .findByCssSelector('#communication-preferences .settings-unit-toggle')
-          .click()
-        .end()
-
-        .then(FunctionalHelpers.visibleByQSA('#communication-preferences .settings-unit-details'))
-
-        .then(testOptedIn(self))
-
-        // user should not have a preferences URL
-        .findByCssSelector('#preferences-url')
-        .end();
+        .then(testElementExists('#communication-preferences.basket-ready'))
+        .then(click('#communication-preferences .settings-unit-toggle'))
+        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
+        .then(testOptedIn())
+        // user should now have a preferences URL
+        .then(testElementExists('#preferences-url'));
     }
   });
 
