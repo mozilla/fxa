@@ -11,7 +11,6 @@ var dbServer = require('../fxa-auth-db-server')
 var error = dbServer.errors
 var logger = require('../lib/logging')('bin.server')
 var DB = require('../lib/db/mysql')(logger, error)
-var notifier = require('../lib/notifier.js')(logger, config)
 
 function logCharsetInfo(db, poolName) {
   // Record some information about mysql connection configuration and
@@ -66,24 +65,4 @@ DB.connect(config)
     // Log connection config and charset info
     logCharsetInfo(db, 'MASTER')
     logCharsetInfo(db, 'SLAVE')
-
-    // Publish notifications via simple background loop.
-    if (config.notifications.publishUrl) {
-      var publish = function () {
-        // Randomize sleep time to de-synchronize between webheads.
-        var sleepTime = config.notifications.pollIntervalSeconds * 1000
-        sleepTime = sleepTime / 2 + Math.floor(Math.random() * sleepTime)
-        db.processUnpublishedEvents(function (events) {
-          if (events.length > 0) {
-            // If there were events, loop again immediately.
-            // We only go to sleep there was nothing to publish.
-            sleepTime = 0
-            return notifier.publish(events)
-          }
-        }).finally(function () {
-          setTimeout(publish, sleepTime).unref()
-        })
-      }
-      publish()
-    }
   })

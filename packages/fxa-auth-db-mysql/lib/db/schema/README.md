@@ -33,7 +33,6 @@ To document this, we're trying to keep to the following order though obviously d
 * passwordChangeTokens
 * passwordForgotTokens
 * accounts
-* eventLog
 
 As a slice of history related to this decision, you can follow along in cronological order in these four issues/pulls:
 

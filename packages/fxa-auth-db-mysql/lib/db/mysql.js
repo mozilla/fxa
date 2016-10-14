@@ -4,7 +4,6 @@
 
 var crypto = require('crypto')
 var ip = require('ip')
-var util = require('util')
 var mysql = require('mysql')
 var P = require('../promise')
 
@@ -158,7 +157,7 @@ module.exports = function (log, error) {
 
   // Insert : accounts
   // Values : uid = $1, normalizedEmail = $2, email = $3, emailCode = $4, emailVerified = $5, kA = $6, wrapWrapKb = $7, authSalt = $8, verifierVersion = $9, verifyHash = $10, verifierSetAt = $11, createdAt = $12, locale = $13
-  var CREATE_ACCOUNT = 'CALL createAccount_4(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  var CREATE_ACCOUNT = 'CALL createAccount_5(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createAccount = function (uid, data) {
     return this.write(
@@ -494,7 +493,7 @@ module.exports = function (log, error) {
   // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens,
   //          passwordForgotTokens, accounts, devices, unverifiedTokens
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_10(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_11(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])
@@ -647,7 +646,7 @@ module.exports = function (log, error) {
   // Update : accounts
   // Set    : verifyHash = $2, authSalt = $3, wrapWrapKb = $4, verifierSetAt = $5, verifierVersion = $6
   // Where  : uid = $1
-  var RESET_ACCOUNT = 'CALL resetAccount_7(?, ?, ?, ?, ?, ?)'
+  var RESET_ACCOUNT = 'CALL resetAccount_8(?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.resetAccount = function (uid, data) {
     return this.write(
@@ -659,7 +658,7 @@ module.exports = function (log, error) {
   // Update : accounts
   // Set    : emailVerified = true
   // Where  : uid = $1
-  var VERIFY_EMAIL = 'CALL verifyEmail_2(?)'
+  var VERIFY_EMAIL = 'CALL verifyEmail_3(?)'
 
   MySql.prototype.verifyEmail = function (uid) {
     return this.write(VERIFY_EMAIL, [uid])
@@ -952,92 +951,6 @@ module.exports = function (log, error) {
       PRUNE,
       [pruneBefore, now]
     )
-  }
-
-  // Execute a callback with an ordered list of unpublished events.
-  //
-  // This method will fetch the next batch of unpublished events from
-  // the db and pass them to the provided callback, which should return
-  // a promise.  If the callback completes successfully then the events
-  // will be marked as published; if it completes with an error then the
-  // events will remain unpublished and available for a subsequent fetch.
-  //
-  // If the callback succeeds in processing some, but not all, of the events
-  // then it should return the number of events successfully processed.
-  // We assume they're processed in order.
-  //
-  // The database enforces mutual exclusion of access to events in order to
-  // prevent publication of duplicates.  If another client is currently
-  // accessing the events, then the callback is not invoked and this method
-  // will reject with an EventQueueLockedError error object.
-
-  var GET_UNPUBLISHED_EVENTS = 'CALL getUnpublishedEvents_1()'
-  var ACK_PUBLISHED_EVENTS = 'CALL ackPublishedEvents_1(?)'
-
-  function EventQueueLockedError(message) {
-    this.message = message || 'event queue locked'
-    Error.captureStackTrace(this, EventQueueLockedError)
-  }
-  util.inherits(EventQueueLockedError, Error)
-
-  MySql.prototype.processUnpublishedEvents = function (fn) {
-    // Internally we use a db-level lock for mutual exclusion.
-    // We have to call GET_LOCK() and RELEASE_LOCK() on the same
-    // db connection or things will get very confused.
-    return this.getConnection('MASTER')
-      .then(
-        function (connection) {
-          // We must manually release this connection when we're done.
-          return query(connection, GET_UNPUBLISHED_EVENTS, [])
-            .then(
-              function (results) {
-                // Did we successfully acquire the lock?
-                if (!results[0][0].lockAcquired) {
-                  throw new EventQueueLockedError()
-                }
-                // We're now holding a db-level lock that must be released.
-                // Luckily MySQL will clear it if our connection dies,
-                // and we kill the connection in the event of error.
-                var events = results[2]
-                return P.resolve(events).then(fn)
-                  .then(
-                    function (numProcessed) {
-                      var ackPos
-                      // Default to acknowledging the entire list.
-                      if (typeof numProcessed === 'undefined') {
-                        numProcessed = events.length
-                      }
-                      if (numProcessed === 0) {
-                        ackPos = 0
-                      } else {
-                        ackPos = events[numProcessed - 1].pos
-                      }
-                      // ACK_PUBLISHED_EVENTS will release the lock.
-                      return query(connection, ACK_PUBLISHED_EVENTS, [ackPos])
-                    }
-                  )
-              }
-            )
-            .then(
-              function (res) {
-                // All is well, return the connection to the pool.
-                connection.release()
-                return res
-              },
-              function (err) {
-                // Something went wrong.  Unless we're sure we don't have the
-                // lock, destroy the connection so we don't leave it hanging.
-                if (err instanceof EventQueueLockedError) {
-                  connection.release()
-                } else {
-                  log.error('MySql.processUnpublishedEvents', { err: err })
-                  connection.destroy()
-                }
-                throw err
-              }
-            )
-        }
-      )
   }
 
   // Utility method for logging connection config at startup
