@@ -56,6 +56,14 @@ process.stdin.on('end', function () {
     actions.push(mc.setAsync('allowedIPs', input.allowedIPs, 0))
   }
 
+  if (input.allowedEmailDomains) {
+    actions.push(mc.setAsync('allowedEmailDomains', input.allowedEmailDomains, 0))
+  }
+
+  if (input.requestChecks) {
+    actions.push(mc.setAsync('requestChecks', input.requestChecks, 0))
+  }
+
   P.all(actions)
     .catch(
       function (err) {

@@ -40,6 +40,7 @@ module.exports = function createServer(config, log) {
   var limits = require('./limits')(config, mc, log)
   var allowedIPs = require('./allowed_ips')(config, mc, log)
   var allowedEmailDomains = require('./allowed_email_domains')(config, mc, log)
+  var requestChecks = require('./requestChecks')(config, mc, log)
 
   if (config.updatePollIntervalSeconds) {
     limits.refresh({ pushOnMissing: true })
@@ -48,6 +49,8 @@ module.exports = function createServer(config, log) {
     allowedIPs.pollForUpdates()
     allowedEmailDomains.refresh({ pushOnMissing: true })
     allowedEmailDomains.pollForUpdates()
+    requestChecks.refresh({ pushOnMissing: true })
+    requestChecks.pollForUpdates()
   }
 
   var IpEmailRecord = require('./ip_email_record')(limits)
@@ -112,6 +115,8 @@ module.exports = function createServer(config, log) {
       var email = req.body.email
       var ip = req.body.ip
       var action = req.body.action
+      var headers = req.body.headers || {}
+      var payload = req.body.payload || {}
 
       if (!email || !ip || !action) {
         var err = {code: 'MissingParameters', message: 'email, ip and action are all required'}
@@ -145,33 +150,25 @@ module.exports = function createServer(config, log) {
             }
 
             var retryAfter = [blockEmail, blockIpEmail, blockIp].reduce(max)
+            var block = retryAfter > 0
+            var suspect = false
 
-            var allowedIP = ip in allowedIPs.ips
-            var allowedEmailDomain = allowedEmailDomains.isAllowed(email)
-
-            if (retryAfter > 0) {
-              if (allowedIP) {
-                retryAfter = 0
-              }
-              if (allowedEmailDomain) {
-                retryAfter = 0
-              }
+            if (requestChecks.treatEveryoneWithSuspicion) {
+              suspect = true
             }
+            // The private branch puts some additional request checks here.
+            // We just use the variables so that eslint doesn't complain about them.
+            payload || headers
+
             var canUnblock = emailRecord.canUnblock()
 
             // IP's that are in blocklist should be blocked
             // and not return a retryAfter because it is not known
             // when they would be removed from blocklist
-            if (config.ipBlocklist.enable && blockListManager.contains(ip) && !allowedIP && !allowedEmailDomain) {
+            if (config.ipBlocklist.enable && blockListManager.contains(ip)) {
               if (!config.ipBlocklist.logOnly) {
-
-                // When blocklist is enabled, explicitly skip setting records.
-                // Requests issued while on blocklist will not count towards
-                // the rate limit.
-                return {
-                  block: true,
-                  unblock: canUnblock
-                }
+                block = true
+                retryAfter = 0
               }
             }
 
@@ -179,9 +176,10 @@ module.exports = function createServer(config, log) {
               .then(
                 function () {
                   return {
-                    block: retryAfter > 0,
+                    block: block,
+                    retryAfter: retryAfter,
                     unblock: canUnblock,
-                    retryAfter: retryAfter
+                    suspect: suspect
                   }
                 }
               )
@@ -189,7 +187,33 @@ module.exports = function createServer(config, log) {
         )
         .then(
           function (result) {
-            log.info({ op: 'request.check', email: email, ip: ip, action: action, block: result.block })
+            // Regardless of all the above checks, there are some
+            // IPs and emails that we just won't block.  These are
+            // typically for Mozilla QA purposes.  We check them at
+            // the end so as not to pay the overhead of the checks
+            // on the many requests that are *not* QA-related.
+            if (result.block || result.suspect) {
+              if (ip in allowedIPs.ips || allowedEmailDomains.isAllowed(email)) {
+                log.info({
+                  op: 'request.check.allowed',
+                  ip: ip,
+                  block: result.block,
+                  suspect: result.suspect
+                })
+                result.block = false
+                result.suspect = false
+              }
+            }
+
+            log.info({
+              op: 'request.check',
+              email: email,
+              ip: ip,
+              action: action,
+              block: result.block,
+              unblock: result.unblock,
+              suspect: result.suspect
+            })
             res.send(result)
           },
           function (err) {
@@ -248,7 +272,7 @@ module.exports = function createServer(config, log) {
             // Default is to block request on any server based error
             res.send({
               block: true,
-              retryAfter: limits.blockIntervalMs
+              retryAfter: limits.blockIntervalSeconds
             })
           }
         )

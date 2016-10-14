@@ -91,7 +91,7 @@ test(
 )
 
 test(
-  'allowed ip is not blocked',
+  'allowed ip is not blocked, even by this explicit blocking action',
   function (t) {
     return client.postAsync('/check', { email: TEST_EMAIL, ip: ALLOWED_IP, action: 'accountLogin' })
       .spread(function (req, res, obj) {
@@ -108,7 +108,7 @@ test(
       })
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check worked')
-        t.equal(obj.block, true, 'request was blocked')
+        t.equal(obj.block, false, 'request was not blocked')
         t.end()
       })
       .catch(function(err){
