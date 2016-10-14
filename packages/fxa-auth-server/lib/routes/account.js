@@ -699,12 +699,9 @@ module.exports = function (
 
         function sendVerifyAccountEmail() {
           // Delegate sending emails for unverified users to auth-server.
-          // Will be removed once all clients have been updated not to send verify emails.
-          // https://github.com/mozilla/fxa-auth-server/issues/1325
-          var shouldSendVerifyAccountEmail = requestHelper.shouldSendVerifyAccountEmail(emailRecord, request)
           emailSent = false
 
-          if (shouldSendVerifyAccountEmail) {
+          if (!emailRecord.emailVerified) {
             // Only use tokenVerificationId if it is set, otherwise use the corresponding email code
             // This covers the cases where sign-in confirmation is disabled or not needed.
             var emailCode = tokenVerificationId ? tokenVerificationId : emailRecord.emailCode
