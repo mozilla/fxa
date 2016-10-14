@@ -177,7 +177,7 @@ Lug.prototype.summary = function (request, response) {
 
 Lug.prototype.notifyAttachedServices = function (name, request, data) {
   var self = this
-  return this.metricsContext.gather({}, request, name)
+  return this.metricsContext.gather({}, request)
     .then(
       function (metricsContextData) {
         var e = {
@@ -250,7 +250,7 @@ Lug.prototype.flowEvent = function (event, request) {
   return this.metricsContext.gather({
     event: event,
     userAgent: request.headers['user-agent']
-  }, request, event).then(
+  }, request).then(
     function (info) {
       if (info.flow_id) {
         info.event = event

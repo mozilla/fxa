@@ -239,7 +239,7 @@ module.exports = function (
             .then(
               function (result) {
                 sessionToken = result
-                return metricsContext.stash(sessionToken, 'account.signed', form.metricsContext)
+                return metricsContext.stash(sessionToken, form.metricsContext)
               }
             )
             .then(
@@ -249,7 +249,7 @@ module.exports = function (
                 return metricsContext.stash({
                   uid: account.uid,
                   id: account.emailCode.toString('hex')
-                }, 'account.verified', form.metricsContext)
+                }, form.metricsContext)
               }
             )
         }
@@ -312,7 +312,7 @@ module.exports = function (
               .then(
                 function (result) {
                   keyFetchToken = result
-                  return metricsContext.stash(keyFetchToken, 'account.keyfetch', form.metricsContext)
+                  return metricsContext.stash(keyFetchToken, form.metricsContext)
                 }
               )
           }
@@ -639,7 +639,7 @@ module.exports = function (
             .then(
               function (result) {
                 sessionToken = result
-                return metricsContext.stash(sessionToken, 'account.signed', form.metricsContext)
+                return metricsContext.stash(sessionToken, form.metricsContext)
               }
             )
             .then(
@@ -650,7 +650,7 @@ module.exports = function (
                   return metricsContext.stash({
                     uid: emailRecord.uid,
                     id: tokenVerificationId.toString('hex')
-                  }, 'account.confirmed', form.metricsContext)
+                  }, form.metricsContext)
                 }
               }
             )
@@ -677,7 +677,7 @@ module.exports = function (
                   .then(
                     function (result) {
                       keyFetchToken = result
-                      return metricsContext.stash(keyFetchToken, 'account.keyfetch', form.metricsContext)
+                      return metricsContext.stash(keyFetchToken, form.metricsContext)
                     }
                   )
                 }
@@ -1547,7 +1547,7 @@ module.exports = function (
                     .then(function () {
                       log.timing('account.verified', Date.now() - account.createdAt)
                       log.increment('account.verified')
-                      return log.notifyAttachedServices('verified', request, {
+                      return log.notifyAttachedServices('verified', fakeRequestObject, {
                         email: account.email,
                         uid: account.uid,
                         locale: account.locale
