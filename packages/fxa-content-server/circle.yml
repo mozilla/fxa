@@ -24,4 +24,4 @@ machine:
 test:
   override:
     - ps aux | grep vnc
-    - node_modules/.bin/intern-runner config=tests/intern_functional_circle fxaAuthRoot=http://fxadeploybox.dev.lcip.org:9000 fxaEmailRoot=http://fxadeploybox.dev.lcip.org:9001 fxaOauthApp=http://fxadeploybox.dev.lcip.org:8080 fxaUntrustedOauthApp=http://fxadeploybox.dev.lcip.org:10139 fxaProduction=true
+    - node_modules/.bin/intern-runner config=tests/intern_functional_circle fxaAuthRoot=https://fxa-ci.dev.lcip.org/auth fxaEmailRoot=http://restmail.net fxaOauthApp=https://oauth-fxa-ci.dev.lcip.org fxaUntrustedOauthApp=https://321done-fxa-ci.dev.lcip.org fxaProduction=true
