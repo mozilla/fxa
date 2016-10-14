@@ -582,6 +582,7 @@ define(function (require, exports, module) {
 
     describe('focus', () => {
       it('focuses an element, sets the cursor position', (done) => {
+        $('html').addClass('no-touch');
         requiresFocus(() => {
           // webkit fails unless focusing another element first.
           $('#otherElement').focus();
