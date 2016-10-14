@@ -9,7 +9,6 @@ var P = require('../../lib/promise')
 var hawk = require('hawk')
 var request = require('request')
 
-
 var config = require('../../config').getProperties()
 
 TestServer.start(config)
