@@ -14,6 +14,8 @@ module.exports.BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0
 
 module.exports.URLSAFEBASE64 = /^[a-zA-Z0-9-_]*$/
 
+module.exports.BASE_36 = /^[a-zA-Z0-9]*$/
+
 // Match display-safe unicode characters.
 // We're pretty liberal with what's allowed in a unicode string,
 // but we exclude the following classes of characters:

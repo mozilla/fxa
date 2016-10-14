@@ -25,7 +25,7 @@ module.exports = function (
   var defaults = require('./defaults')(log, P, db, error)
   var idp = require('./idp')(log, serverPublicKeys)
   var checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
-  var push = require('../push')(log, db)
+  var push = require('../push')(log, db, config)
   var devices = require('../devices')(log, db, push)
   var account = require('./account')(
     log,
@@ -56,7 +56,8 @@ module.exports = function (
     config.verifierVersion,
     customs,
     checkPassword,
-    push
+    push,
+    metricsContext
   )
   var session = require('./session')(log, isA, error, db)
   var sign = require('./sign')(log, P, isA, error, signer, db, config.domain, devices)

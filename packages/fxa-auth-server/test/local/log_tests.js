@@ -140,14 +140,13 @@ test(
     }).then(function () {
       t.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
       var args = metricsContext.gather.args[0]
-      t.equal(args.length, 3, 'metricsContext.gather was passed three arguments')
+      t.equal(args.length, 2, 'metricsContext.gather was passed two arguments')
       t.equal(typeof args[0], 'object', 'first argument was object')
       t.notEqual(args[0], null, 'first argument was not null')
       t.equal(Object.keys(args[0]).length, 2, 'first argument had two properties')
       t.equal(args[0].event, 'account.created', 'event property was correct')
       t.equal(args[0].userAgent, 'foo', 'userAgent property was correct')
       t.equal(args[1], request, 'second argument was request object')
-      t.equal(args[2], 'account.created', 'third argument was event name')
 
       t.equal(logger.info.callCount, 2, 'logger.info was called twice')
       t.equal(logger.info.args[0][0], 'activityEvent', 'first call was activityEvent')

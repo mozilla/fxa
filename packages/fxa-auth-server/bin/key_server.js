@@ -24,18 +24,22 @@ function main() {
       log.info({ op: 'geodb.check', result: result })
     })
 
-  process.stdout.write(JSON.stringify({
-    event: 'config',
-    data: config
-  }) + '\n')
+  // RegExp instances serialise to empty objects, display regex strings instead.
+  const stringifiedConfig =
+    JSON.stringify(config, (k, v) =>
+      v && v.constructor === RegExp ? v.toString() : v
+    )
+
+  process.stdout.write('{"event":"config","data":' + stringifiedConfig + '}\n')
 
   if (config.env !== 'prod') {
-    log.info(config, 'starting config')
+    log.info(stringifiedConfig, 'starting config')
   }
 
   var error = require('../lib/error')
   var Token = require('../lib/tokens')(log, config)
   var Password = require('../lib/crypto/password')(log, config)
+  var UnblockCode = require('../lib/crypto/base36')(config.signinUnblock.codeLength)
 
   var signer = require('../lib/signer')(config.secretKeyFile, config.domain)
   var serverPublicKeys = {
@@ -86,7 +90,8 @@ function main() {
           Token.KeyFetchToken,
           Token.AccountResetToken,
           Token.PasswordForgotToken,
-          Token.PasswordChangeToken
+          Token.PasswordChangeToken,
+          UnblockCode
         )
 
         DB.connect(config[config.db.backend])

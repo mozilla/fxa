@@ -49,6 +49,23 @@ module.exports = function (log, error) {
       }
     }
 
+    function getHeaderValue(headerName, message){
+      var value = ''
+      if (message.mail && message.mail.headers) {
+        message.mail.headers.some(function (header) {
+          if (header.name === headerName) {
+            value = header.value
+            return true
+          }
+
+          return false
+        })
+      }
+
+      return value
+    }
+
+
     function handleBounce(message) {
       var recipients = []
       if (message.bounce && message.bounce.bounceType === 'Permanent') {
@@ -57,17 +74,43 @@ module.exports = function (log, error) {
       else if (message.complaint && message.complaint.complaintFeedbackType === 'abuse') {
         recipients = message.complaint.complainedRecipients
       }
+
+      // SES can now send custom headers if enabled on topic.
+      // Headers are stored as an array of name/value pairs.
+      // Log the `X-Template-Name` header to help track the email template that bounced.
+      // Ref: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
+      var templateName = getHeaderValue('X-Template-Name', message)
+
       return P.each(recipients, function (recipient) {
+
         var email = recipient.emailAddress
-        log.info({
+        var logData = {
           op: 'handleBounce',
           action: recipient.action,
           email: email,
           bounce: !!message.bounce,
           diagnosticCode: recipient.diagnosticCode,
           status: recipient.status
-        })
+        }
+
+        // Template name corresponds directly with the email template that was used
+        if(templateName) {
+          logData.template = templateName
+        }
+
+        // Log the type of bounce that occurred
+        // Ref: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html#bounce-types
+        if (message.bounce && message.bounce.bounceType) {
+          logData.bounceType = message.bounce.bounceType
+
+          if (message.bounce && message.bounce.bounceSubType) {
+            logData.bounceSubType = message.bounce.bounceSubType
+          }
+        }
+
+        log.info(logData)
         log.increment('account.email_bounced')
+
         return findEmailRecord(email)
           .then(
             deleteAccountIfUnverified,

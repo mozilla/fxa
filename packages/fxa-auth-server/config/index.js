@@ -92,6 +92,12 @@ var conf = convict({
     default: [],
     env: 'TRUSTED_JKUS'
   },
+  vapidKeysFile: {
+    doc: 'Keys to use for VAPID in push notifications',
+    format: String,
+    default: path.resolve(__dirname, '../config/vapid-keys.json'),
+    env: 'VAPID_KEYS_FILE'
+  },
   db: {
     backend: {
       default: 'httpdb',
@@ -414,7 +420,7 @@ var conf = convict({
     flow_id_expiry: {
       doc: 'Time after which flowIds are considered stale.',
       format: 'duration',
-      default: '30 minutes',
+      default: '2 hours',
       env: 'FLOW_ID_EXPIRY'
     }
   },
@@ -492,6 +498,95 @@ var conf = convict({
       default: /.+@mozilla\.com$/,
       env: 'LASTACCESSTIME_UPDATES_EMAIL_ADDRESSES'
     }
+  },
+  signinUnblock: {
+    codeLength: {
+      doc: 'Number of base36 digits to make up an unblockCode',
+      default: 8,
+      env: 'SIGNIN_UNBLOCK_CODE_LENGTH'
+    },
+    codeLifetime: {
+      doc: 'How long an unblockCode should be valid for',
+      format: 'duration',
+      default: '1 hour',
+      env: 'SIGNIN_UNBLOCK_CODE_LIFETIME'
+    },
+    enabled: {
+      default: true
+    },
+    allowedEmailAddresses: {
+      doc: 'If feature enabled, allow sign-in unblock for email addresses matching this regex.',
+      format: RegExp,
+      default: '.+@mozilla\\.com$',
+      env: 'SIGNIN_UNBLOCK_ALLOWED_EMAILS'
+    },
+    forcedEmailAddresses: {
+      doc: 'If feature enabled, force sign-in unblock for email addresses matching this regex.',
+      format: RegExp,
+      default: '^$', // default is no one
+      env: 'SIGNIN_UNBLOCK_FORCED_EMAILS'
+    },
+    sampleRate: {
+      doc: 'signin unblock sample rate, between 0.0 and 1.0',
+      default: 1.0,
+      env: 'SIGNIN_UNBLOCK_RATE'
+    },
+    supportedClients: {
+      doc: 'support sign-in unblock for only these clients',
+      format: Array,
+      default: [
+        'web',
+        'oauth',
+        'iframe',
+        'fx_firstrun_v1',
+        'fx_firstrun_v2',
+        'fx_desktop_v1',
+        'fx_desktop_v2',
+        'fx_desktop_v3',
+        'fx_ios_v1',
+        'fx_ios_v2',
+        'fx_fennec_v1'
+      ],
+      env: 'SIGNIN_UNBLOCK_SUPPORTED_CLIENTS'
+    }
+  },
+  hpkpConfig: {
+    enabled: {
+      default: false,
+      doc: 'Feature flag for appending HPKP headers',
+      format: Boolean,
+      env: 'HPKP_ENABLE'
+    },
+    reportOnly: {
+      default: true,
+      doc: 'Enable report only mode',
+      format: Boolean,
+      env: 'HPKP_REPORT_ONLY'
+    },
+    reportUri: {
+      default: '',
+      doc: 'Enable report only mode',
+      format: String,
+      env: 'HPKP_REPORT_URI'
+    },
+    includeSubDomains: {
+      default: true,
+      doc: 'Include Sub-Domains',
+      format: Boolean,
+      env: 'HPKP_INCLUDE_SUBDOMAINS'
+    },
+    maxAge: {
+      default: 1,
+      doc: 'Max age for HPKP headers (seconds)',
+      format: Number,
+      env: 'HPKP_MAX_AGE'
+    },
+    sha256s: {
+      default: [],
+      doc: 'Supported pin-sha256s',
+      format: Array,
+      env: 'HPKP_PIN_SHA256'
+    }
   }
 })
 
@@ -512,6 +607,7 @@ conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/v1/complete_
 conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/reset_password')
 conf.set('smtp.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/settings/change_password')
 conf.set('smtp.verifyLoginUrl', conf.get('contentServer.url') + '/complete_signin')
+conf.set('smtp.reportSignInUrl', conf.get('contentServer.url') + '/report_signin')
 
 conf.set('isProduction', conf.get('env') === 'prod')
 

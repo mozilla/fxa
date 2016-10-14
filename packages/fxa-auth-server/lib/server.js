@@ -103,7 +103,37 @@ function create(log, error, config, routes, db) {
 
   var server = new Hapi.Server(serverOptions)
 
+  // register 'inert' to support service static files
+  server.register(require('inert'), function () {
+    // callback required
+  })
+
   server.connection(connectionOptions)
+
+  if (config.hpkpConfig && config.hpkpConfig.enabled) {
+    var hpkpOptions = {
+      maxAge: config.hpkpConfig.maxAge,
+      sha256s: config.hpkpConfig.sha256s,
+      includeSubdomains: config.hpkpConfig.includeSubDomains
+    }
+
+    if(config.hpkpConfig.reportUri){
+      hpkpOptions.reportUri = config.hpkpConfig.reportUri
+    }
+
+    if(config.hpkpConfig.reportOnly){
+      hpkpOptions.reportOnly = config.hpkpConfig.reportOnly
+    }
+
+    server.register({
+      register: require('hapi-hpkp'),
+      options: hpkpOptions
+    }, function (err) {
+      if (err) {
+        throw err
+      }
+    })
+  }
 
   server.register(require('hapi-auth-hawk'), function (err) {
     if (err) {
@@ -191,12 +221,6 @@ function create(log, error, config, routes, db) {
       server.route(routes)
     })
   })
-
-  // register 'inert' to support service static files
-  server.register(require('inert'), function () {
-    // callback required
-  })
-
 
   server.ext(
     'onRequest',

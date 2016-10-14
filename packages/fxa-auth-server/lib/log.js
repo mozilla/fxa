@@ -25,7 +25,10 @@ var ACTIVITY_FLOW_EVENTS = Object.keys(ALWAYS_ACTIVITY_FLOW_EVENTS)
   }, {
     // These activity events are flow events when there is a flowId
     'account.keyfetch': true,
-    'account.signed': true
+    'account.login.sentUnblockCode': true,
+    'account.login.confirmedUnblockCode': true,
+    'account.signed': true,
+    'device.created': true
   })
 
 function unbuffer(object) {
@@ -174,7 +177,7 @@ Lug.prototype.summary = function (request, response) {
 
 Lug.prototype.notifyAttachedServices = function (name, request, data) {
   var self = this
-  return this.metricsContext.gather({}, request, name)
+  return this.metricsContext.gather({}, request)
     .then(
       function (metricsContextData) {
         var e = {
@@ -247,7 +250,7 @@ Lug.prototype.flowEvent = function (event, request) {
   return this.metricsContext.gather({
     event: event,
     userAgent: request.headers['user-agent']
-  }, request, event).then(
+  }, request).then(
     function (info) {
       if (info.flow_id) {
         info.event = event

@@ -26,6 +26,7 @@ var makeRoutes = function (options) {
   var Password = require('../../lib/crypto/password')(log, config)
   var customs = options.customs || {}
   var checkPassword = require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
+  var metricsContext = options.metricsContext || log.metricsContext || require('../../lib/metrics/context')(log, config)
   return require('../../lib/routes/password')(
     log,
     isA,
@@ -37,7 +38,8 @@ var makeRoutes = function (options) {
     config.verifierVersion,
     options.customs || {},
     checkPassword,
-    options.push || {}
+    options.push || {},
+    metricsContext
   )
 }
 

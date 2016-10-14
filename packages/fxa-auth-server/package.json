@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.70.0",
+  "version": "1.71.2",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -43,10 +43,11 @@
     "fxa-auth-mailer": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
     "fxa-geodb": "0.0.7",
     "fxa-jwtool": "0.7.1",
-    "fxa-shared": "1.0.2",
-    "hapi": "15.0.3",
+    "fxa-shared": "1.0.3",
+    "hapi": "14.2.0",
     "hapi-auth-hawk": "3.0.1",
     "hapi-fxa-oauth": "2.2.0",
+    "hapi-hpkp": "git+https://github.com/vbudhram/hapi-hpkp.git#master",
     "hkdf": "0.0.2",
     "inert": "4.0.2",
     "joi": "9.0.4",
@@ -57,10 +58,10 @@
     "node-uap": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
     "poolee": "1.0.1",
     "request": "2.74.0",
-    "scrypt-hash": "1.1.13",
+    "scrypt-hash": "1.1.14",
     "through": "2.3.8",
     "uuid": "1.4.1",
-    "web-push": "2.1.1"
+    "web-push": "3.0.0"
   },
   "devDependencies": {
     "commander": "2.9.0",

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var sinon = require('sinon')
 
 var test = require('tap').test
@@ -36,6 +38,7 @@ var makeRoutes = function (options, requireMocks) {
   }
   config.lastAccessTimeUpdates = {}
   config.signinConfirmation = config.signinConfirmation || {}
+  config.signinUnblock = config.signinUnblock || {}
 
   var log = options.log || mocks.mockLog()
   var Password = options.Password || require('../../lib/crypto/password')(log, config)
@@ -45,7 +48,7 @@ var makeRoutes = function (options, requireMocks) {
     check: function () { return P.resolve(true) }
   }
   var checkPassword = options.checkPassword || require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
-  var push = options.push || require('../../lib/push')(log, db)
+  var push = options.push || require('../../lib/push')(log, db, {})
   var metricsContext = options.metricsContext || log.metricsContext || require('../../lib/metrics/context')(log, config)
   return proxyquire('../../lib/routes/account', requireMocks || {})(
     log,
@@ -666,25 +669,22 @@ test('/account/create', function (t) {
     t.equal(mockMetricsContext.stash.callCount, 3, 'metricsContext.stash was called three times')
 
     args = mockMetricsContext.stash.args[0]
-    t.equal(args.length, 3, 'metricsContext.stash was passed three arguments first time')
+    t.equal(args.length, 2, 'metricsContext.stash was passed two arguments first time')
     t.deepEqual(args[0].tokenId, sessionTokenId, 'first argument was session token')
     t.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
-    t.equal(args[1], 'account.signed', 'second argument was event name')
-    t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
+    t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
 
     args = mockMetricsContext.stash.args[1]
-    t.equal(args.length, 3, 'metricsContext.stash was passed three arguments second time')
+    t.equal(args.length, 2, 'metricsContext.stash was passed two arguments second time')
     t.equal(args[0].id, emailCode.toString('hex'), 'first argument was synthesized token')
     t.deepEqual(args[0].uid, uid, 'token.uid was correct')
-    t.deepEqual(args[1], 'account.verified', 'second argument was event name')
-    t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
+    t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
 
     args = mockMetricsContext.stash.args[2]
-    t.equal(args.length, 3, 'metricsContext.stash was passed three arguments third time')
+    t.equal(args.length, 2, 'metricsContext.stash was passed two arguments third time')
     t.deepEqual(args[0].tokenId, keyFetchTokenId, 'first argument was key fetch token')
     t.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
-    t.deepEqual(args[1], 'account.keyfetch', 'second argument was event name')
-    t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
+    t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
 
     var securityEvent = mockDB.securityEvent
     t.equal(securityEvent.callCount, 1, 'db.securityEvent is called')
@@ -698,13 +698,18 @@ test('/account/create', function (t) {
 })
 
 test('/account/login', function (t) {
-  t.plan(5)
+  t.plan(6)
   var config = {
     newLoginNotificationEnabled: true,
     securityHistory: {
       enabled: true
     },
-    signinConfirmation: {}
+    signinConfirmation: {},
+    signinUnblock: {
+      allowedEmailAddresses: /^.*$/,
+      codeLifetime: 1000,
+      enabled: true
+    }
   }
   var mockRequest = mocks.mockRequest({
     query: {
@@ -729,6 +734,21 @@ test('/account/login', function (t) {
     payload: {
       authPW: crypto.randomBytes(32).toString('hex'),
       email: 'test@mozilla.com',
+      service: 'dcdb5ae7add825d2',
+      reason: 'signin',
+      metricsContext: {
+        flowBeginTime: Date.now(),
+        flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+        service: 'dcdb5ae7add825d2'
+      }
+    }
+  })
+  var mockRequestWithUnblockCode = mocks.mockRequest({
+    query: {},
+    payload: {
+      authPW: crypto.randomBytes(32).toString('hex'),
+      email: 'test@mozilla.com',
+      unblockCode: 'ABCD1234',
       service: 'dcdb5ae7add825d2',
       reason: 'signin',
       metricsContext: {
@@ -770,16 +790,15 @@ test('/account/login', function (t) {
   })
   var mockMailer = mocks.mockMailer()
   var mockPush = mocks.mockPush()
+  var mockCustoms = {
+    check: () => P.resolve()
+  }
   var accountRoutes = makeRoutes({
     checkPassword: function () {
       return P.resolve(true)
     },
     config: config,
-    customs: {
-      check: function () {
-        return P.resolve()
-      }
-    },
+    customs: mockCustoms,
     db: mockDB,
     log: mockLog,
     mailer: mockMailer,
@@ -821,18 +840,16 @@ test('/account/login', function (t) {
         t.equal(mockMetricsContext.stash.callCount, 2, 'metricsContext.stash was called twice')
 
         args = mockMetricsContext.stash.args[0]
-        t.equal(args.length, 3, 'metricsContext.stash was passed three arguments first time')
+        t.equal(args.length, 2, 'metricsContext.stash was passed two arguments first time')
         t.deepEqual(args[0].tokenId, sessionTokenId, 'first argument was session token')
         t.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
-        t.equal(args[1], 'account.signed', 'second argument was event name')
-        t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
+        t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
 
         args = mockMetricsContext.stash.args[1]
-        t.equal(args.length, 3, 'metricsContext.stash was passed three arguments second time')
+        t.equal(args.length, 2, 'metricsContext.stash was passed two arguments second time')
         t.deepEqual(args[0].tokenId, keyFetchTokenId, 'first argument was key fetch token')
         t.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
-        t.deepEqual(args[1], 'account.keyfetch', 'second argument was event name')
-        t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
+        t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
 
         t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
         t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.city, 'Mountain View')
@@ -926,14 +943,11 @@ test('/account/login', function (t) {
         t.equal(response.verificationReason, 'login', 'verificationReason is login')
 
         t.equal(mockMetricsContext.stash.callCount, 3, 'metricsContext.stash was called three times')
-        t.equal(mockMetricsContext.stash.args[0][1], 'account.signed', 'first call was for account.signed')
         var args = mockMetricsContext.stash.args[1]
-        t.equal(args.length, 3, 'metricsContext.stash was passed three arguments second time')
+        t.equal(args.length, 2, 'metricsContext.stash was passed two arguments second time')
         t.ok(/^[0-9a-f]{32}$/.test(args[0].id), 'first argument was synthesized token')
         t.deepEqual(args[0].uid, uid, 'token.uid was correct')
-        t.deepEqual(args[1], 'account.confirmed', 'second argument was event name')
-        t.equal(args[2], mockRequest.payload.metricsContext, 'third argument was metrics context')
-        t.deepEqual(mockMetricsContext.stash.args[2][1], 'account.keyfetch', 'third call was for account.keyfetch')
+        t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
 
         t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
         t.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city, 'Mountain View')
@@ -1162,7 +1176,6 @@ test('/account/login', function (t) {
         }).then(function () {
           mockMailer.sendVerifyCode.reset()
         })
-
       })
     })
   })
@@ -1282,7 +1295,6 @@ test('/account/login', function (t) {
         t.equal(record, undefined, 'log.info was not called for Account.history.verified')
       })
     })
-
   })
 
   t.test('records security event', function (t) {
@@ -1297,6 +1309,93 @@ test('/account/login', function (t) {
       t.equal(securityQuery.uid, uid)
       t.equal(securityQuery.ipAddr, clientAddress)
       t.equal(securityQuery.name, 'account.login')
+    })
+  })
+
+  t.test('blocked by customs', (t) => {
+    t.plan(2)
+    t.test('can unblock', (t) => {
+      t.plan(2)
+      mockCustoms.check = () => P.reject(error.requestBlocked(true))
+      t.test('signin unblock disabled', (t) => {
+        t.plan(4)
+        config.signinUnblock.enabled = false
+        return runTest(route, mockRequest, (err) => {
+          t.equal(err.errno, error.ERRNO.REQUEST_BLOCKED, 'correct errno is returned')
+          t.equal(err.output.statusCode, 400, 'correct status code is returned')
+          t.equal(err.output.payload.verificationMethod, undefined, 'no verificationMethod')
+          t.equal(err.output.payload.verificationReason, undefined, 'no verificationReason')
+        })
+      })
+
+      t.test('signin unblock enabled', (t) => {
+        t.plan(2)
+        config.signinUnblock.enabled = true
+
+        t.test('without unblock code', (t) => {
+          t.plan(4)
+          return runTest(route, mockRequest, (err) => {
+            t.equal(err.errno, error.ERRNO.REQUEST_BLOCKED, 'correct errno is returned')
+            t.equal(err.output.statusCode, 400, 'correct status code is returned')
+            t.equal(err.output.payload.verificationMethod, 'email-captcha', 'with verificationMethod')
+            t.equal(err.output.payload.verificationReason, 'login', 'with verificationReason')
+          })
+        })
+
+        t.test('with unblock code', (t) => {
+          t.plan(3)
+          t.test('invalid code', (t) => {
+            t.plan(2)
+            mockDB.consumeUnblockCode = () => P.reject(error.invalidUnblockCode())
+            return runTest(route, mockRequestWithUnblockCode, (err) => {
+              t.equal(err.errno, error.ERRNO.INVALID_UNBLOCK_CODE, 'correct errno is returned')
+              t.equal(err.output.statusCode, 400, 'correct status code is returned')
+            })
+          })
+
+          t.test('expired code', (t) => {
+            mockDB.consumeUnblockCode = () => P.resolve({ createdAt: Date.now() - config.signinUnblock.codeLifetime - 1 })
+            return runTest(route, mockRequestWithUnblockCode, (err) => {
+              t.equal(err.errno, error.ERRNO.INVALID_UNBLOCK_CODE, 'correct errno is returned')
+              t.equal(err.output.statusCode, 400, 'correct status code is returned')
+            })
+          })
+
+          t.test('valid code', (t) => {
+            t.plan(1)
+            mockDB.consumeUnblockCode = () => P.resolve({ createdAt: Date.now() })
+            return runTest(route, mockRequestWithUnblockCode, (res) => {
+              t.ok(!(res instanceof Error), 'successful login')
+            })
+          })
+        })
+      })
+    })
+
+    t.test('cannot unblock', (t) => {
+      t.plan(2)
+      mockCustoms.check = () => P.reject(error.requestBlocked(false))
+      config.signinUnblock.enabled = true
+
+      t.test('without an unblock code', (t) => {
+        t.plan(4)
+        return runTest(route, mockRequest, (err) => {
+          t.equal(err.errno, error.ERRNO.REQUEST_BLOCKED, 'correct errno is returned')
+          t.equal(err.output.statusCode, 400, 'correct status code is returned')
+          t.equal(err.output.payload.verificationMethod, undefined, 'no verificationMethod')
+          t.equal(err.output.payload.verificationReason, undefined, 'no verificationReason')
+        })
+      })
+
+      t.test('with unblock code', (t) => {
+        t.plan(4)
+        return runTest(route, mockRequestWithUnblockCode, (err) => {
+          t.equal(err.errno, error.ERRNO.REQUEST_BLOCKED, 'correct errno is returned')
+          t.equal(err.output.statusCode, 400, 'correct status code is returned')
+          t.equal(err.output.payload.verificationMethod, undefined, 'no verificationMethod')
+          t.equal(err.output.payload.verificationReason, undefined, 'no verificationReason')
+        })
+      })
     })
   })
 })
@@ -1639,4 +1738,97 @@ test('/account/devices', function (t) {
     t.equal(mockDevices.synthesizeName.args[0].length, 1, 'mockDevices.synthesizeName was passed one argument')
     t.equal(mockDevices.synthesizeName.args[0][0], unnamedDevice, 'mockDevices.synthesizeName was passed unnamed device')
   })
+})
+
+test('/account/login/send_unblock_code', function (t) {
+  t.plan(2)
+  var uid = uuid.v4('binary').toString('hex')
+  var mockRequest = mocks.mockRequest({
+    payload: {
+      email: TEST_EMAIL,
+      metricsContext: {
+        context: 'fx_desktop_v3',
+        flowBeginTime: Date.now(),
+        flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+        entrypoint: 'preferences',
+        utmContent: 'some-content-string'
+      }
+    }
+  })
+  var mockMailer = mocks.mockMailer()
+  var mockDb = mocks.mockDB({
+    uid: uid,
+    email: TEST_EMAIL
+  })
+  var config = {
+    signinUnblock: {
+      allowedEmailAddresses: /^.*$/
+    }
+  }
+  var accountRoutes = makeRoutes({
+    config: config,
+    db: mockDb,
+    mailer: mockMailer
+  })
+  var route = getRoute(accountRoutes, '/account/login/send_unblock_code')
+
+  t.test('signin unblock enabled', function (t) {
+    t.plan(9)
+    config.signinUnblock.enabled = true
+    return runTest(route, mockRequest, function (response) {
+      t.ok(!(response instanceof Error), response.stack)
+      t.deepEqual(response, {}, 'response has no keys')
+
+      t.equal(mockDb.emailRecord.callCount, 1, 'db.emailRecord called')
+      t.equal(mockDb.emailRecord.args[0][0], TEST_EMAIL)
+
+      t.equal(mockDb.createUnblockCode.callCount, 1, 'db.createUnblockCode called')
+      var dbArgs = mockDb.createUnblockCode.args[0]
+      t.equal(dbArgs.length, 1)
+      t.equal(dbArgs[0], uid)
+
+      t.equal(mockMailer.sendUnblockCode.callCount, 1, 'called mailer.sendUnblockCode')
+      var args = mockMailer.sendUnblockCode.args[0]
+      t.equal(args.length, 3, 'mailer.sendUnblockCode called with 3 args')
+    })
+  })
+
+  t.test('signin unblock disabled', function (t) {
+    t.plan(2)
+    config.signinUnblock.enabled = false
+
+    return runTest(route, mockRequest, function (err) {
+      t.equal(err.output.statusCode, 503, 'correct status code is returned')
+      t.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
+    })
+  })
+})
+
+test('/account/login/reject_unblock_code', function (t) {
+  t.plan(6)
+  var uid = uuid.v4('binary').toString('hex')
+  var unblockCode = 'A1B2C3D4'
+  var mockRequest = mocks.mockRequest({
+    payload: {
+      uid: uid,
+      unblockCode: unblockCode
+    }
+  })
+  var mockDb = mocks.mockDB()
+  var accountRoutes = makeRoutes({
+    db: mockDb
+  })
+  var route = getRoute(accountRoutes, '/account/login/reject_unblock_code')
+
+  return runTest(route, mockRequest, function (response) {
+    t.ok(!(response instanceof Error), response.stack)
+    t.deepEqual(response, {}, 'response has no keys')
+
+    t.equal(mockDb.consumeUnblockCode.callCount, 1, 'consumeUnblockCode is called')
+    var args = mockDb.consumeUnblockCode.args[0]
+    t.equal(args.length, 2)
+    t.equal(args[0].toString('hex'), uid)
+    t.equal(args[1], unblockCode)
+  })
+
 })

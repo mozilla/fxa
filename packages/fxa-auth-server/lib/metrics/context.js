@@ -4,17 +4,17 @@
 
 'use strict'
 
-var crypto = require('crypto')
-var isA = require('joi')
-var bufferEqualConstantTime = require('buffer-equal-constant-time')
-var HEX = require('../routes/validators').HEX_STRING
-var P = require('../promise')
-var Memcached = require('memcached')
+const crypto = require('crypto')
+const isA = require('joi')
+const bufferEqualConstantTime = require('buffer-equal-constant-time')
+const HEX = require('../routes/validators').HEX_STRING
+const P = require('../promise')
+const Memcached = require('memcached')
 P.promisifyAll(Memcached.prototype)
 
-var FLOW_ID_LENGTH = 64
+const FLOW_ID_LENGTH = 64
 
-var SCHEMA = isA.object({
+const SCHEMA = isA.object({
   flowId: isA.string().length(64).regex(HEX).optional(),
   flowBeginTime: isA.number().integer().positive().optional(),
   context: isA.string().optional(),
@@ -28,18 +28,18 @@ var SCHEMA = isA.object({
   utmTerm: isA.string().optional()
 }).and('flowId', 'flowBeginTime').optional()
 
-var NOP = function () {
+const NOP = function () {
   return P.resolve()
 }
 
-var NULL_MEMCACHED = {
+const NULL_MEMCACHED = {
   delAsync: NOP,
   getAsync: NOP,
   setAsync: NOP
 }
 
 module.exports = function (log, config) {
-  var _memcached
+  let _memcached
 
   return {
     schema: SCHEMA,
@@ -49,40 +49,20 @@ module.exports = function (log, config) {
   }
 
   /**
-   * Stashes metrics context metadata using a key derived from a token
-   * and an event. Asynchronous, returns a promise.
+   * Stashes metrics context metadata using a key derived from a token.
+   * Asynchronous, returns a promise.
    *
    * @param token    token to stash the metadata against
-   * @param events   array of event names that constitute a flow
    * @param metadata metrics context metadata
    */
-  function stash (token, events, metadata) {
+  function stash (token, metadata) {
     if (! metadata) {
       return P.resolve()
     }
 
-    if (events && typeof events === 'string') {
-      events = [ events ]
-    }
-
-    if (! token || ! Array.isArray(events)) {
-      log.error({
-        op: 'metricsContext.stash',
-        err: new Error('Invalid argument'),
-        token: token,
-        events: events
-      })
-      return P.resolve()
-    }
-
-    var memcached = getMemcached()
-
-    return P.all(events.map(function (event) {
-      return memcached.setAsync(getKey(token, event), metadata, config.memcached.lifetime)
-        .catch(function (err) {
-          log.error({ op: 'metricsContext.stash', err: err })
-        })
-    }))
+    return P.resolve()
+      .then(() => getMemcached().setAsync(getKey(token), metadata, config.memcached.lifetime))
+      .catch(err => log.error({ op: 'metricsContext.stash', err: err, token: token }))
   }
 
   function getMemcached () {
@@ -118,29 +98,22 @@ module.exports = function (log, config) {
    *
    * @param data    target object
    * @param request request object
-   * @param event   event name
    */
-  function gather (data, request, event) {
-    var metadata = request.payload && request.payload.metricsContext
-    var token = request.auth && request.auth.credentials
-    var doNotTrack = request.headers && request.headers.dnt === '1'
-    var memcached = getMemcached()
-    var key = getKey(token, event)
+  function gather (data, request) {
+    const metadata = request.payload && request.payload.metricsContext
+    const token = request.auth && request.auth.credentials
+    const doNotTrack = request.headers && request.headers.dnt === '1'
+    const memcached = getMemcached()
 
     return P.resolve()
-      .then(function () {
+      .then(() => {
         if (metadata) {
           return metadata
         }
 
-        if (key) {
-          return memcached.getAsync(key)
-        }
+        return memcached.getAsync(getKey(token))
       })
-      .catch(function (err) {
-        log.error({ op: 'memcached.get', err: err })
-      })
-      .then(function (metadata) {
+      .then(metadata => {
         if (metadata) {
           data.time = Date.now()
           data.flow_id = metadata.flowId
@@ -159,17 +132,8 @@ module.exports = function (log, config) {
           }
         }
       })
-      .then(function () {
-        if (key) {
-          return memcached.delAsync(key)
-        }
-      })
-      .catch(function (err) {
-        log.error({ op: 'memcached.del', err: err })
-      })
-      .then(function () {
-        return data
-      })
+      .catch(err => log.error({ op: 'metricsContext.gather', err: err, token: token }))
+      .then(() => data)
   }
 
   /**
@@ -180,7 +144,7 @@ module.exports = function (log, config) {
    * @param request object
    */
   function validate(request) {
-    var metadata = request.payload.metricsContext
+    const metadata = request.payload.metricsContext
 
     if (!metadata) {
       return logInvalidContext(request, 'missing context')
@@ -200,9 +164,9 @@ module.exports = function (log, config) {
     // additional contextual information about the request.  It's a simple way
     // to check that the metrics came from the right place, without having to
     // share state between content-server and auth-server.
-    var flowSignature = metadata.flowId.substr(FLOW_ID_LENGTH / 2, FLOW_ID_LENGTH)
-    var flowSignatureBytes = new Buffer(flowSignature, 'hex')
-    var expectedSignatureBytes = calculateFlowSignatureBytes(request, metadata)
+    const flowSignature = metadata.flowId.substr(FLOW_ID_LENGTH / 2, FLOW_ID_LENGTH)
+    const flowSignatureBytes = new Buffer(flowSignature, 'hex')
+    const expectedSignatureBytes = calculateFlowSignatureBytes(request, metadata)
     if (! bufferEqualConstantTime(flowSignatureBytes, expectedSignatureBytes)) {
       return logInvalidContext(request, 'invalid signature')
     }
@@ -234,8 +198,8 @@ module.exports = function (log, config) {
   function calculateFlowSignatureBytes(request, metadata) {
     // We want a digest that's half the length of a flowid,
     // and we want the length in bytes rather than hex.
-    var signatureLength = FLOW_ID_LENGTH / 2 / 2
-    var key = config.metrics.flow_id_key
+    const signatureLength = FLOW_ID_LENGTH / 2 / 2
+    const key = config.metrics.flow_id_key
     return crypto.createHmac('sha256', key)
       .update([
         metadata.flowId.substr(0, FLOW_ID_LENGTH / 2),
@@ -247,10 +211,17 @@ module.exports = function (log, config) {
   }
 }
 
-function getKey (token, event) {
-  if (token && event) {
-    return [ token.uid.toString('hex'), token.id, event ].join(':')
+function getKey (token) {
+  if (! token || ! token.uid || ! token.id) {
+    const err = new Error('Invalid token')
+    throw err
   }
+
+  const hash = crypto.createHash('sha256')
+  hash.update(token.uid)
+  hash.update(token.id)
+
+  return hash.digest('base64')
 }
 
 function calculateFlowTime (time, flowBeginTime) {

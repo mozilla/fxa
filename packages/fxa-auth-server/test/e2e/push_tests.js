@@ -7,6 +7,7 @@ var proxyquire = require('proxyquire')
 
 var test = tap.test
 var P = require('../../lib/promise')
+var config = require('../../config').getProperties()
 var spyLog = require('../mocks').spyLog
 var mockUid = new Buffer('foo')
 
@@ -49,7 +50,7 @@ test(
         }
       })
 
-      var push = proxyquire('../../lib/push', {})(thisSpyLog, mockDbResult)
+      var push = proxyquire('../../lib/push', {})(thisSpyLog, mockDbResult, config)
       var options = {
         data: new Buffer('foodata')
       }

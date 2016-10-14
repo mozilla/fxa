@@ -19,7 +19,8 @@ const crypto = {
 
 const config = {
   lastAccessTimeUpdates: {},
-  signinConfirmation: {}
+  signinConfirmation: {},
+  signinUnblock: {}
 }
 
 const features = proxyquire('../../lib/features', {
@@ -30,10 +31,11 @@ test(
   'interface is correct',
   t => {
     t.equal(typeof features, 'object', 'object type should be exported')
-    t.equal(Object.keys(features).length, 3, 'object should have two properties')
+    t.equal(Object.keys(features).length, 4, 'object should have four properties')
     t.equal(typeof features.isSampledUser, 'function', 'isSampledUser should be function')
     t.equal(typeof features.isLastAccessTimeEnabledForUser, 'function', 'isLastAccessTimeEnabledForUser should be function')
     t.equal(typeof features.isSigninConfirmationEnabledForUser, 'function', 'isSigninConfirmationEnabledForUser should be function')
+    t.equal(typeof features.isSigninUnblockEnabledForUser, 'function', 'isSigninUnblockEnabledForUser should be function')
 
     t.equal(crypto.createHash.callCount, 1, 'crypto.createHash should have been called once on require')
     let args = crypto.createHash.args[0]
@@ -225,6 +227,53 @@ test(
     config.signinConfirmation.forceEmailRegex = /.+@mozilla\.com$/
     request.payload.metricsContext.context = 'iframe'
     t.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), false, 'should return false when feature is disabled')
+
+    t.end()
+  }
+)
+
+test(
+  'isSigninUnblockEnabledForUser',
+  t => {
+    const uid = 'wibble'
+    const email = 'blee@mozilla.com'
+    const request = {
+      payload: {
+        metricsContext: {
+          context: 'iframe'
+        }
+      }
+    }
+    // First 27 characters are ignored, last 13 are 0.02 * 0xfffffffffffff
+    hashResult = '000000000000000000000000000051eb851eb852'
+
+    const unblock = config.signinUnblock
+
+    unblock.enabled = true
+    unblock.sampleRate = 0.02
+    unblock.allowedEmailAddresses = /.+@notmozilla.com$/
+    unblock.supportedClients = [ 'wibble', 'iframe' ]
+    t.equal(features.isSigninUnblockEnabledForUser(uid, email, request), false, 'should return false when email is not allowed and uid is not sampled')
+
+    unblock.forcedEmailAddresses = /.+/
+    t.equal(features.isSigninUnblockEnabledForUser(uid, email, request), true, 'should return true when forced on')
+    unblock.forcedEmailAddresses = /^$/
+
+    unblock.allowedEmailAddresses = /.+@mozilla.com$/
+    t.equal(features.isSigninUnblockEnabledForUser(uid, email, request), true, 'should return true when email is allowed')
+
+    unblock.allowedEmailAddresses = /.+@notmozilla.com$/
+    unblock.sampleRate = 0.03
+    t.equal(features.isSigninUnblockEnabledForUser(uid, email, request), true, 'should return when uid is sampled')
+
+
+    request.payload.metricsContext.context = ''
+    t.equal(features.isSigninUnblockEnabledForUser(uid, email, request), false, 'should return false when context is not supported')
+
+
+    request.payload.metricsContext.context = 'iframe'
+    unblock.enabled = false
+    t.equal(features.isSigninUnblockEnabledForUser(uid, email, request), false, 'should return false when feature is disabled')
 
     t.end()
   }

@@ -21,7 +21,8 @@ module.exports = function (
   verifierVersion,
   customs,
   checkPassword,
-  push
+  push,
+  metricsContext
   ) {
 
   function failVerifyAttempt(passwordForgotToken) {
@@ -302,7 +303,8 @@ module.exports = function (
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional(),
-            resume: isA.string().max(2048).optional()
+            resume: isA.string().max(2048).optional(),
+            metricsContext: metricsContext.schema
           }
         },
         response: {
@@ -377,7 +379,8 @@ module.exports = function (
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional(),
-            resume: isA.string().max(2048).optional()
+            resume: isA.string().max(2048).optional(),
+            metricsContext: metricsContext.schema
           }
         },
         response: {
@@ -434,7 +437,8 @@ module.exports = function (
         },
         validate: {
           payload: {
-            code: isA.string().min(32).max(32).regex(HEX_STRING).required()
+            code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
+            metricsContext: metricsContext.schema
           }
         },
         response: {

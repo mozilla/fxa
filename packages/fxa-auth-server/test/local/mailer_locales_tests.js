@@ -58,7 +58,7 @@ require('../../lib/mailer')(config, log)
             [ 'bogus-value',                         'en'    ],
             [ 'en-US,en;q=0.5',                      'en'    ],
             [ 'es-AR,es;q=0.8,en-US;q=0.5,en;q=0.3', 'es-AR' ],
-            [ 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3', 'es'    ],
+            [ 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3', 'es-ES' ],
             [ 'sv-SE,sv;q=0.8,en-US;q=0.5,en;q=0.3', 'sv-SE' ],
             [ 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3', 'zh-CN' ]
           ]
