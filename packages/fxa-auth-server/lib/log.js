@@ -64,15 +64,6 @@ Lug.prototype.close = function() {
   return this.statsd.close()
 }
 
-// Certain events can include contextual metrics data
-// such as utm_* tracking parameters.  This helper method
-// is here to work around a circular dependency between
-// this module and the `metricsContext` module.
-Lug.prototype.setMetricsContext = function (metricsContext) {
-  this.metricsContext = metricsContext
-}
-
-
 // Expose the standard error/warn/info/debug/etc log methods.
 
 Lug.prototype.trace = function (data) {
@@ -176,16 +167,15 @@ Lug.prototype.summary = function (request, response) {
 // and broadcast to relying services over SNS/SQS.
 
 Lug.prototype.notifyAttachedServices = function (name, request, data) {
-  var self = this
-  return this.metricsContext.gather({}, request)
+  return request.gatherMetricsContext({})
     .then(
-      function (metricsContextData) {
+      metricsContextData => {
         var e = {
           event: name,
           data: unbuffer(data)
         }
         e.data.metricsContext = metricsContextData
-        self.stdout.write(JSON.stringify(e) + '\n')
+        this.stdout.write(JSON.stringify(e) + '\n')
       }
     )
 }
@@ -229,8 +219,6 @@ Lug.prototype.activityEvent = function (event, request, data) {
 // These events help understand the user's sign-in or sign-up journey.
 
 Lug.prototype.flowEvent = function (event, request) {
-  var self = this
-
   if (! event) {
     this.error({ op: 'log.flowEvent', missingEvent: true })
     return P.resolve()
@@ -247,18 +235,18 @@ Lug.prototype.flowEvent = function (event, request) {
     return P.resolve()
   }
 
-  return this.metricsContext.gather({
+  return request.gatherMetricsContext({
     event: event,
     userAgent: request.headers['user-agent']
-  }, request).then(
-    function (info) {
+  }).then(
+    info => {
       if (info.flow_id) {
         info.event = event
         optionallySetService(info, request)
 
-        self.logger.info('flowEvent', info)
+        this.logger.info('flowEvent', info)
       } else if (ALWAYS_ACTIVITY_FLOW_EVENTS[event]) {
-        self.error({ op: 'log.flowEvent', event: event, missingFlowId: true })
+        this.error({ op: 'log.flowEvent', event: event, missingFlowId: true })
       }
     }
   )

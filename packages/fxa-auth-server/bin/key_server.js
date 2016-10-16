@@ -13,9 +13,6 @@ var log = require('../lib/log')(config.log.level)
 var getGeoData = require('../lib/geodb')(log)
 
 function main() {
-  var metricsContext = require('../lib/metrics/context')(log, config)
-  log.setMetricsContext(metricsContext)
-
   // Force the geo to load and run at startup, not waiting for it to run on
   // some route later.
   var knownIp = '63.245.221.32' // Mozilla MTV
@@ -108,8 +105,7 @@ function main() {
                 mailer,
                 Password,
                 config,
-                customs,
-                metricsContext
+                customs
               )
               server = Server.create(log, error, config, routes, db)
 

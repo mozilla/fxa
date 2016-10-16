@@ -267,6 +267,8 @@ function spyLog (methods) {
 }
 
 function mockRequest (data) {
+  const metricsContext = data.metricsContext || module.exports.mockMetricsContext()
+
   return {
     app: {
       acceptLanguage: 'en-US',
@@ -275,11 +277,14 @@ function mockRequest (data) {
     auth: {
       credentials: data.credentials
     },
+    gatherMetricsContext: metricsContext.gather,
     headers: {
       'user-agent': 'test user-agent'
     },
+    payload: data.payload,
     query: data.query,
-    payload: data.payload
+    stashMetricsContext: metricsContext.stash,
+    validateMetricsContext: metricsContext.validate
   }
 }
 

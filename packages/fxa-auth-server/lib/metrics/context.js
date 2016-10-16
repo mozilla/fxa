@@ -42,7 +42,6 @@ module.exports = function (log, config) {
   let _memcached
 
   return {
-    schema: SCHEMA,
     stash: stash,
     gather: gather,
     validate: validate
@@ -52,10 +51,13 @@ module.exports = function (log, config) {
    * Stashes metrics context metadata using a key derived from a token.
    * Asynchronous, returns a promise.
    *
+   * @name stashMetricsContext
+   * @this request
    * @param token    token to stash the metadata against
-   * @param metadata metrics context metadata
    */
-  function stash (token, metadata) {
+  function stash (token) {
+    const metadata = this.payload && this.payload.metricsContext
+
     if (! metadata) {
       return P.resolve()
     }
@@ -92,18 +94,18 @@ module.exports = function (log, config) {
 
   /**
    * Gathers metrics context metadata onto data, using either metadata
-   * passed in from a request or previously-stashed metadata for a
-   * token. Asynchronous, returns a promise that resolves to data,
-   * with metrics context metadata copied to it.
+   * passed in with a request or previously-stashed metadata for a
+   * token. Asynchronous, returns a promise that resolves to data, with
+   * metrics context metadata copied to it.
    *
-   * @param data    target object
-   * @param request request object
+   * @name gatherMetricsContext
+   * @this request
+   * @param data target object
    */
-  function gather (data, request) {
-    const metadata = request.payload && request.payload.metricsContext
-    const token = request.auth && request.auth.credentials
-    const doNotTrack = request.headers && request.headers.dnt === '1'
-    const memcached = getMemcached()
+  function gather (data) {
+    const metadata = this.payload && this.payload.metricsContext
+    const doNotTrack = this.headers && this.headers.dnt === '1'
+    let token
 
     return P.resolve()
       .then(() => {
@@ -111,7 +113,9 @@ module.exports = function (log, config) {
           return metadata
         }
 
-        return memcached.getAsync(getKey(token))
+        token = getToken(this)
+
+        return getMemcached().getAsync(getKey(token))
       })
       .then(metadata => {
         if (metadata) {
@@ -136,28 +140,44 @@ module.exports = function (log, config) {
       .then(() => data)
   }
 
+  function getToken (request) {
+    if (request.auth && request.auth.credentials) {
+      return request.auth.credentials
+    }
+
+    if (request.payload && request.payload.uid && request.payload.code) {
+      return {
+        uid: Buffer(request.payload.uid, 'hex'),
+        id: request.payload.code
+      }
+    }
+
+    throw new Error('Invalid credentials')
+  }
+
   /**
    * Checks whether a request's flowId and flowBeginTime are valid.
    * Returns a boolean, `true` if the request is valid, `false` if
    * it's invalid.
    *
-   * @param request object
+   * @name validateMetricsContext
+   * @this request
    */
-  function validate(request) {
-    const metadata = request.payload.metricsContext
+  function validate() {
+    const metadata = this.payload.metricsContext
 
     if (!metadata) {
-      return logInvalidContext(request, 'missing context')
+      return logInvalidContext(this, 'missing context')
     }
     if (!metadata.flowId) {
-      return logInvalidContext(request, 'missing flowId')
+      return logInvalidContext(this, 'missing flowId')
     }
     if (!metadata.flowBeginTime) {
-      return logInvalidContext(request, 'missing flowBeginTime')
+      return logInvalidContext(this, 'missing flowBeginTime')
     }
 
     if (Date.now() - metadata.flowBeginTime > config.metrics.flow_id_expiry) {
-      return logInvalidContext(request, 'expired flowBeginTime')
+      return logInvalidContext(this, 'expired flowBeginTime')
     }
 
     // The first half of the id is random bytes, the second half is a HMAC of
@@ -166,15 +186,15 @@ module.exports = function (log, config) {
     // share state between content-server and auth-server.
     const flowSignature = metadata.flowId.substr(FLOW_ID_LENGTH / 2, FLOW_ID_LENGTH)
     const flowSignatureBytes = new Buffer(flowSignature, 'hex')
-    const expectedSignatureBytes = calculateFlowSignatureBytes(request, metadata)
+    const expectedSignatureBytes = calculateFlowSignatureBytes(this, metadata)
     if (! bufferEqualConstantTime(flowSignatureBytes, expectedSignatureBytes)) {
-      return logInvalidContext(request, 'invalid signature')
+      return logInvalidContext(this, 'invalid signature')
     }
 
     log.info({
       op: 'metrics.context.validate',
       valid: true,
-      agent: request.headers['user-agent']
+      agent: this.headers['user-agent']
     })
     log.increment('metrics.context.valid')
     return true
@@ -231,3 +251,6 @@ function calculateFlowTime (time, flowBeginTime) {
 
   return time - flowBeginTime
 }
+
+module.exports.schema = SCHEMA
+

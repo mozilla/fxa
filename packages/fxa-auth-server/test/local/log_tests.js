@@ -19,10 +19,10 @@ var statsd = {
   write: sinon.spy()
 }
 var metricsContext = {
-  gather: sinon.spy(function (data, request) {
-    return P.resolve(request.payload && {
-      flow_id: request.payload.metricsContext.flowId,
-      service: request.payload.metricsContext.service
+  gather: sinon.spy(function (data) {
+    return P.resolve(this.payload && {
+      flow_id: this.payload.metricsContext.flowId,
+      service: this.payload.metricsContext.service
     })
   })
 }
@@ -36,7 +36,6 @@ mocks['./metrics/statsd'] = function () {
   return statsd
 }
 var log = proxyquire('../../lib/log', mocks)('foo', 'bar')
-log.setMetricsContext(metricsContext)
 
 test(
   'initialised correctly',
@@ -85,6 +84,7 @@ test(
   'log.activityEvent',
   function (t) {
     var request = {
+      gatherMetricsContext: metricsContext.gather,
       headers: {
         'user-agent': 'foo'
       },
@@ -126,6 +126,7 @@ test(
   'log.activityEvent with flow event',
   function (t) {
     var request = {
+      gatherMetricsContext: metricsContext.gather,
       headers: {
         'user-agent': 'foo'
       },
@@ -140,13 +141,13 @@ test(
     }).then(function () {
       t.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
       var args = metricsContext.gather.args[0]
-      t.equal(args.length, 2, 'metricsContext.gather was passed two arguments')
-      t.equal(typeof args[0], 'object', 'first argument was object')
-      t.notEqual(args[0], null, 'first argument was not null')
-      t.equal(Object.keys(args[0]).length, 2, 'first argument had two properties')
+      t.equal(args.length, 1, 'metricsContext.gather was passed one argument')
+      t.equal(typeof args[0], 'object', 'argument was object')
+      t.notEqual(args[0], null, 'argument was not null')
+      t.equal(Object.keys(args[0]).length, 2, 'argument had two properties')
       t.equal(args[0].event, 'account.created', 'event property was correct')
       t.equal(args[0].userAgent, 'foo', 'userAgent property was correct')
-      t.equal(args[1], request, 'second argument was request object')
+      t.equal(metricsContext.gather.thisValues[0], request, 'this was request object')
 
       t.equal(logger.info.callCount, 2, 'logger.info was called twice')
       t.equal(logger.info.args[0][0], 'activityEvent', 'first call was activityEvent')
@@ -171,6 +172,7 @@ test(
   'log.activityEvent with flow event and missing flowId',
   function (t) {
     var request = {
+      gatherMetricsContext: metricsContext.gather,
       headers: {
         'user-agent': 'foo'
       },
@@ -214,6 +216,7 @@ test(
   'log.activityEvent with optional flow event and missing flowId',
   function (t) {
     var request = {
+      gatherMetricsContext: metricsContext.gather,
       headers: {
         'user-agent': 'foo'
       },
@@ -249,6 +252,7 @@ test(
   'log.activityEvent with service payload parameter',
   function (t) {
     return log.activityEvent('wibble', {
+      gatherMetricsContext: metricsContext.gather,
       headers: {},
       payload: {
         metricsContext: {},
@@ -267,6 +271,7 @@ test(
       t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
       t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
 
+      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
       t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       t.equal(logger.error.callCount, 0, 'logger.error was not called')
       t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
@@ -282,6 +287,7 @@ test(
   'log.activityEvent with service query parameter',
   function (t) {
     return log.activityEvent('foo', {
+      gatherMetricsContext: metricsContext.gather,
       headers: {},
       payload: {
         metricsContext: {}
@@ -298,6 +304,7 @@ test(
       t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
       t.equal(statsd.write.args[0][0], logger.info.args[0][1], 'statsd.write argument was correct')
 
+      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
       t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       t.equal(logger.error.callCount, 0, 'logger.error was not called')
       t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
@@ -313,6 +320,7 @@ test(
   'log.activityEvent with extra data',
   function (t) {
     return log.activityEvent('foo', {
+      gatherMetricsContext: metricsContext.gather,
       headers: {
         'user-agent': 'bar'
       },
@@ -333,6 +341,7 @@ test(
       t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
       t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
 
+      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
       t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       t.equal(logger.error.callCount, 0, 'logger.error was not called')
       t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
@@ -348,6 +357,7 @@ test(
   'log.activityEvent with no data',
   function (t) {
     return log.activityEvent('foo', {
+      gatherMetricsContext: metricsContext.gather,
       headers: {},
       payload: {
         metricsContext: {}
@@ -376,6 +386,7 @@ test(
   'log.activityEvent with no uid',
   function (t) {
     return log.activityEvent('foo', {
+      gatherMetricsContext: metricsContext.gather,
       headers: {},
       payload: {
         metricsContext: {}
@@ -403,7 +414,18 @@ test(
 test(
   'log.flowEvent with bad event name',
   t => {
-    return log.flowEvent(undefined).then(() => {
+    return log.flowEvent(undefined, {
+      gatherMetricsContext: metricsContext.gather,
+      headers: {
+        'user-agent': 'foo'
+      },
+      payload: {
+        metricsContext: {
+          flowId: 'bar',
+          service: 'baz'
+        }
+      }
+    }).then(() => {
       t.equal(logger.error.callCount, 1, 'logger.error was called once')
       const args = logger.error.args[0]
       t.equal(args[0], 'log.flowEvent', 'correct op')
@@ -423,7 +445,15 @@ test(
 test(
   'log.flowEvent with a bad request',
   t => {
-    return log.flowEvent('account.signed').then(() => {
+    return log.flowEvent('account.signed', {
+      gatherMetricsContext: metricsContext.gather,
+      payload: {
+        metricsContext: {
+          flowId: 'foo',
+          service: 'bar'
+        }
+      }
+    }).then(() => {
       t.equal(logger.error.callCount, 1, 'logger.error was called once')
       const args = logger.error.args[0]
       t.equal(args[0], 'log.flowEvent', 'correct op')
@@ -445,6 +475,7 @@ test(
   'log.flowEvent with content server account.signed event',
   t => {
     return log.flowEvent('account.signed', {
+      gatherMetricsContext: metricsContext.gather,
       headers: {
         'user-agent': 'foo'
       },
@@ -473,6 +504,7 @@ test(
   'log.flowEvent properly logs with no errors',
   t => {
     return log.flowEvent('account.signed', {
+      gatherMetricsContext: metricsContext.gather,
       headers: {
         'user-agent': 'foo'
       },
@@ -508,6 +540,7 @@ test(
   'log.flowEvent with flow event and missing flowId',
   t => {
     return log.flowEvent('account.login', {
+      gatherMetricsContext: metricsContext.gather,
       headers: {
         'user-agent': 'foo'
       },
@@ -539,6 +572,7 @@ test(
   'log.flowEvent with optional flow event and missing flowId',
   t => {
     return log.flowEvent('account.keyfetch', {
+      gatherMetricsContext: metricsContext.gather,
       headers: {
         'user-agent': 'foo'
       },

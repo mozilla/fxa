@@ -18,8 +18,7 @@ module.exports = function (
   mailer,
   Password,
   config,
-  customs,
-  metricsContext
+  customs
   ) {
   var isPreVerified = require('../preverifier')(error, config)
   var defaults = require('./defaults')(log, P, db, error)
@@ -42,7 +41,6 @@ module.exports = function (
     isPreVerified,
     checkPassword,
     push,
-    metricsContext,
     devices
   )
   var password = require('./password')(
@@ -56,8 +54,7 @@ module.exports = function (
     config.verifierVersion,
     customs,
     checkPassword,
-    push,
-    metricsContext
+    push
   )
   var session = require('./session')(log, isA, error, db)
   var sign = require('./sign')(log, P, isA, error, signer, db, config.domain, devices)

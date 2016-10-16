@@ -49,7 +49,6 @@ var makeRoutes = function (options, requireMocks) {
   }
   var checkPassword = options.checkPassword || require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
   var push = options.push || require('../../lib/push')(log, db, {})
-  var metricsContext = options.metricsContext || log.metricsContext || require('../../lib/metrics/context')(log, config)
   return proxyquire('../../lib/routes/account', requireMocks || {})(
     log,
     crypto,
@@ -65,7 +64,6 @@ var makeRoutes = function (options, requireMocks) {
     isPreVerified,
     checkPassword,
     push,
-    metricsContext,
     options.devices || require('../../lib/devices')(log, db, push)
   )
 }
@@ -566,7 +564,13 @@ test('/account/device/destroy', function (t) {
 })
 
 test('/account/create', function (t) {
+  var mockMetricsContext = mocks.mockMetricsContext({
+    gather: sinon.spy(function (data) {
+      return P.resolve(this.payload && this.payload.metricsContext)
+    })
+  })
   var mockRequest = mocks.mockRequest({
+    metricsContext: mockMetricsContext,
     payload: {
       email: TEST_EMAIL,
       authPW: crypto.randomBytes(32).toString('hex'),
@@ -609,12 +613,6 @@ test('/account/create', function (t) {
       write: sinon.spy()
     }
   })
-  var mockMetricsContext = mocks.mockMetricsContext({
-    gather: sinon.spy(function (data, request) {
-      return P.resolve(request.payload.metricsContext)
-    })
-  })
-  mockLog.setMetricsContext(mockMetricsContext)
   mockLog.activityEvent = sinon.spy(function () {
     return P.resolve()
   })
@@ -629,7 +627,6 @@ test('/account/create', function (t) {
     db: mockDB,
     log: mockLog,
     mailer: mockMailer,
-    metricsContext: mockMetricsContext,
     Password: function () {
       return {
         unwrap: function () {
@@ -662,29 +659,27 @@ test('/account/create', function (t) {
     t.deepEqual(args[2], { uid: uid.toString('hex') }, 'third argument contained uid')
 
     t.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
-    args = mockMetricsContext.validate.args[0]
-    t.equal(args.length, 1, 'validate was called with a single argument')
-    t.deepEqual(args[0], mockRequest, 'validate was called with the request')
+    t.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
 
     t.equal(mockMetricsContext.stash.callCount, 3, 'metricsContext.stash was called three times')
 
     args = mockMetricsContext.stash.args[0]
-    t.equal(args.length, 2, 'metricsContext.stash was passed two arguments first time')
-    t.deepEqual(args[0].tokenId, sessionTokenId, 'first argument was session token')
+    t.equal(args.length, 1, 'metricsContext.stash was passed one argument first time')
+    t.deepEqual(args[0].tokenId, sessionTokenId, 'argument was session token')
     t.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
-    t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
+    t.equal(mockMetricsContext.stash.thisValues[0], mockRequest, 'this was request')
 
     args = mockMetricsContext.stash.args[1]
-    t.equal(args.length, 2, 'metricsContext.stash was passed two arguments second time')
-    t.equal(args[0].id, emailCode.toString('hex'), 'first argument was synthesized token')
+    t.equal(args.length, 1, 'metricsContext.stash was passed one argument second time')
+    t.equal(args[0].id, emailCode.toString('hex'), 'argument was synthesized token')
     t.deepEqual(args[0].uid, uid, 'token.uid was correct')
-    t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
+    t.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
 
     args = mockMetricsContext.stash.args[2]
-    t.equal(args.length, 2, 'metricsContext.stash was passed two arguments third time')
-    t.deepEqual(args[0].tokenId, keyFetchTokenId, 'first argument was key fetch token')
+    t.equal(args.length, 1, 'metricsContext.stash was passed one argument third time')
+    t.deepEqual(args[0].tokenId, keyFetchTokenId, 'argument was key fetch token')
     t.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
-    t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
+    t.equal(mockMetricsContext.stash.thisValues[2], mockRequest, 'this was request')
 
     var securityEvent = mockDB.securityEvent
     t.equal(securityEvent.callCount, 1, 'db.securityEvent is called')
@@ -711,10 +706,13 @@ test('/account/login', function (t) {
       enabled: true
     }
   }
+  var mockMetricsContext = mocks.mockMetricsContext({
+    gather: sinon.spy(function (data) {
+      return P.resolve(this.payload && this.payload.metricsContext)
+    })
+  })
   var mockRequest = mocks.mockRequest({
-    query: {
-      keys: 'true'
-    },
+    metricsContext: mockMetricsContext,
     payload: {
       authPW: crypto.randomBytes(32).toString('hex'),
       email: TEST_EMAIL,
@@ -727,10 +725,13 @@ test('/account/login', function (t) {
         entrypoint: 'preferences',
         utmContent: 'some-content-string'
       }
+    },
+    query: {
+      keys: 'true'
     }
   })
   var mockRequestNoKeys = mocks.mockRequest({
-    query: {},
+    metricsContext: mockMetricsContext,
     payload: {
       authPW: crypto.randomBytes(32).toString('hex'),
       email: 'test@mozilla.com',
@@ -741,7 +742,8 @@ test('/account/login', function (t) {
         flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
         service: 'dcdb5ae7add825d2'
       }
-    }
+    },
+    query: {}
   })
   var mockRequestWithUnblockCode = mocks.mockRequest({
     query: {},
@@ -779,12 +781,6 @@ test('/account/login', function (t) {
       write: sinon.spy()
     }
   })
-  var mockMetricsContext = mocks.mockMetricsContext({
-    gather: sinon.spy(function (data, request) {
-      return P.resolve(request.payload.metricsContext)
-    })
-  })
-  mockLog.setMetricsContext(mockMetricsContext)
   mockLog.activityEvent = sinon.spy(function () {
     return P.resolve()
   })
@@ -802,7 +798,6 @@ test('/account/login', function (t) {
     db: mockDB,
     log: mockLog,
     mailer: mockMailer,
-    metricsContext: mockMetricsContext,
     push: mockPush
   })
   var route = getRoute(accountRoutes, '/account/login')
@@ -833,23 +828,21 @@ test('/account/login', function (t) {
         t.deepEqual(args[2], {uid: uid.toString('hex')}, 'third argument contained uid')
 
         t.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
-        args = mockMetricsContext.validate.args[0]
-        t.equal(args.length, 1, 'validate was called with a single argument')
-        t.deepEqual(args[0], mockRequest, 'validate was called with the request')
+        t.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
 
         t.equal(mockMetricsContext.stash.callCount, 2, 'metricsContext.stash was called twice')
 
         args = mockMetricsContext.stash.args[0]
-        t.equal(args.length, 2, 'metricsContext.stash was passed two arguments first time')
-        t.deepEqual(args[0].tokenId, sessionTokenId, 'first argument was session token')
+        t.equal(args.length, 1, 'metricsContext.stash was passed one argument first time')
+        t.deepEqual(args[0].tokenId, sessionTokenId, 'argument was session token')
         t.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
-        t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
+        t.equal(mockMetricsContext.stash.thisValues[0], mockRequest, 'this was request')
 
         args = mockMetricsContext.stash.args[1]
-        t.equal(args.length, 2, 'metricsContext.stash was passed two arguments second time')
-        t.deepEqual(args[0].tokenId, keyFetchTokenId, 'first argument was key fetch token')
+        t.equal(args.length, 1, 'metricsContext.stash was passed one argument second time')
+        t.deepEqual(args[0].tokenId, keyFetchTokenId, 'argument was key fetch token')
         t.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
-        t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
+        t.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
 
         t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
         t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.city, 'Mountain View')
@@ -944,10 +937,10 @@ test('/account/login', function (t) {
 
         t.equal(mockMetricsContext.stash.callCount, 3, 'metricsContext.stash was called three times')
         var args = mockMetricsContext.stash.args[1]
-        t.equal(args.length, 2, 'metricsContext.stash was passed two arguments second time')
-        t.ok(/^[0-9a-f]{32}$/.test(args[0].id), 'first argument was synthesized token')
+        t.equal(args.length, 1, 'metricsContext.stash was passed one argument second time')
+        t.ok(/^[0-9a-f]{32}$/.test(args[0].id), 'argument was synthesized token')
         t.deepEqual(args[0].uid, uid, 'token.uid was correct')
-        t.equal(args[1], mockRequest.payload.metricsContext, 'second argument was metrics context')
+        t.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
 
         t.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
         t.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city, 'Mountain View')
@@ -1453,17 +1446,7 @@ test('/recovery_email/verify_code', function (t) {
         var args = mockLog.activityEvent.args[0]
         t.equal(args.length, 3, 'activityEvent was passed three arguments')
         t.equal(args[0], 'account.verified', 'first argument was event name')
-        t.deepEqual(args[1], {
-          auth: {
-            credentials: {
-              uid: Buffer(uid, 'hex'),
-              id: mockRequest.payload.code,
-            }
-          },
-          headers: mockRequest.headers,
-          payload: mockRequest.payload,
-          query: mockRequest.query
-        }, 'second argument was synthesized request object')
+        t.equal(args[1], mockRequest, 'second argument was request object')
         t.deepEqual(args[2], { uid: uid }, 'third argument contained uid')
 
         t.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')
@@ -1545,17 +1528,7 @@ test('/recovery_email/verify_code', function (t) {
         var args = mockLog.activityEvent.args[0]
         t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
         t.equal(args[0], 'account.confirmed', 'first argument was event name')
-        t.deepEqual(args[1], {
-          auth: {
-            credentials: {
-              uid: Buffer(uid, 'hex'),
-              id: mockRequest.payload.code,
-            }
-          },
-          headers: mockRequest.headers,
-          payload: mockRequest.payload,
-          query: mockRequest.query
-        }, 'second argument was synthesized request object')
+        t.equal(args[1], mockRequest, 'second argument was request object')
         t.deepEqual(args[2], { uid: uid }, 'third argument contained uid')
 
         t.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')

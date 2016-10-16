@@ -27,6 +27,8 @@ var butil = require('../crypto/butil')
 var userAgent = require('../userAgent')
 var requestHelper = require('../routes/utils/request_helper')
 
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
+
 module.exports = function (
   log,
   crypto,
@@ -42,7 +44,6 @@ module.exports = function (
   isPreVerified,
   checkPassword,
   push,
-  metricsContext,
   devices
   ) {
 
@@ -77,7 +78,7 @@ module.exports = function (
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
             preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional(),
-            metricsContext: metricsContext.schema
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
         response: {
@@ -104,7 +105,7 @@ module.exports = function (
         var tokenVerificationId = emailCode
         var preVerified, password, verifyHash, account, sessionToken, keyFetchToken
 
-        metricsContext.validate(request)
+        request.validateMetricsContext()
 
         customs.check(request, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
@@ -239,17 +240,17 @@ module.exports = function (
             .then(
               function (result) {
                 sessionToken = result
-                return metricsContext.stash(sessionToken, form.metricsContext)
+                return request.stashMetricsContext(sessionToken)
               }
             )
             .then(
               function () {
                 // There is no session token when we emit account.verified
                 // so stash the data against a synthesized "token" instead.
-                return metricsContext.stash({
+                return request.stashMetricsContext({
                   uid: account.uid,
                   id: account.emailCode.toString('hex')
-                }, form.metricsContext)
+                })
               }
             )
         }
@@ -312,7 +313,7 @@ module.exports = function (
               .then(
                 function (result) {
                   keyFetchToken = result
-                  return metricsContext.stash(keyFetchToken, form.metricsContext)
+                  return request.stashMetricsContext(keyFetchToken)
                 }
               )
           }
@@ -360,7 +361,7 @@ module.exports = function (
             resume: isA.string().optional(),
             reason: isA.string().max(16).optional(),
             unblockCode: isA.string().regex(BASE_36).length(unblockCodeLen).optional(),
-            metricsContext: metricsContext.schema
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
         response: {
@@ -389,7 +390,7 @@ module.exports = function (
         var emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation, emailSent, unblockCode, customsErr, allowSigninUnblock, didSigninUnblock
         var ip = request.app.clientAddress
 
-        metricsContext.validate(request)
+        request.validateMetricsContext()
 
         // Monitor for any clients still sending obsolete 'contentToken' param.
         if (request.payload.contentToken) {
@@ -639,7 +640,7 @@ module.exports = function (
             .then(
               function (result) {
                 sessionToken = result
-                return metricsContext.stash(sessionToken, form.metricsContext)
+                return request.stashMetricsContext(sessionToken)
               }
             )
             .then(
@@ -647,10 +648,10 @@ module.exports = function (
                 if (doSigninConfirmation) {
                   // There is no session token when we emit account.confirmed
                   // so stash the data against a synthesized "token" instead.
-                  return metricsContext.stash({
+                  return request.stashMetricsContext({
                     uid: emailRecord.uid,
                     id: tokenVerificationId.toString('hex')
-                  }, form.metricsContext)
+                  })
                 }
               }
             )
@@ -677,7 +678,7 @@ module.exports = function (
                   .then(
                     function (result) {
                       keyFetchToken = result
-                      return metricsContext.stash(keyFetchToken, form.metricsContext)
+                      return request.stashMetricsContext(keyFetchToken)
                     }
                   )
                 }
@@ -1454,22 +1455,6 @@ module.exports = function (
         var service = request.payload.service || request.query.service
         var reminder = request.payload.reminder || request.query.reminder
 
-        // Because we have no session token on this endpoint, metrics context
-        // metadata was stashed against a synthesized token for the benefit of
-        // the activity events. This fake request object allows the correct
-        // metadata to be gathered when we emit the events.
-        var fakeRequestObject = {
-          auth: {
-            credentials: {
-              uid: uid,
-              id: request.payload.code
-            }
-          },
-          headers: request.headers,
-          payload: request.payload,
-          query: request.query
-        }
-
         log.begin('Account.RecoveryEmailVerify', request)
         db.account(uid)
           .then(
@@ -1508,7 +1493,7 @@ module.exports = function (
                       uid: uidHex,
                       code: request.payload.code
                     })
-                    log.activityEvent('account.confirmed', fakeRequestObject, {
+                    log.activityEvent('account.confirmed', request, {
                       uid: uidHex
                     })
                     push.notifyUpdate(uid, 'accountConfirm')
@@ -1544,14 +1529,14 @@ module.exports = function (
                     .then(function () {
                       log.timing('account.verified', Date.now() - account.createdAt)
                       log.increment('account.verified')
-                      return log.notifyAttachedServices('verified', fakeRequestObject, {
+                      return log.notifyAttachedServices('verified', request, {
                         email: account.email,
                         uid: account.uid,
                         locale: account.locale
                       })
                     })
                     .then(function () {
-                      return log.activityEvent('account.verified', fakeRequestObject, {
+                      return log.activityEvent('account.verified', request, {
                         uid: uidHex
                       })
                     })
@@ -1627,7 +1612,7 @@ module.exports = function (
         validate: {
           payload: {
             email: validators.email().required(),
-            metricsContext: metricsContext.schema
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         }
       },

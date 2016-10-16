@@ -10,6 +10,8 @@ var butil = require('../crypto/butil')
 var P = require('../promise')
 var requestHelper = require('../routes/utils/request_helper')
 
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
+
 module.exports = function (
   log,
   isA,
@@ -21,8 +23,7 @@ module.exports = function (
   verifierVersion,
   customs,
   checkPassword,
-  push,
-  metricsContext
+  push
   ) {
 
   function failVerifyAttempt(passwordForgotToken) {
@@ -304,7 +305,7 @@ module.exports = function (
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
-            metricsContext: metricsContext.schema
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
         response: {
@@ -380,7 +381,7 @@ module.exports = function (
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
-            metricsContext: metricsContext.schema
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
         response: {
@@ -438,7 +439,7 @@ module.exports = function (
         validate: {
           payload: {
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
-            metricsContext: metricsContext.schema
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
         response: {

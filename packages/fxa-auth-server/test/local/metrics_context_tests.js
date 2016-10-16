@@ -10,7 +10,8 @@ const test = require('../ptaptest')
 const mocks = require('../mocks')
 const log = mocks.spyLog()
 const Memcached = require('memcached')
-const metricsContext = require('../../lib/metrics/context')(log, {
+const metricsContextModule = require('../../lib/metrics/context')
+const metricsContext = metricsContextModule(log, {
   memcached: {
     address: '127.0.0.1:1121',
     idle: 500,
@@ -22,21 +23,22 @@ const P = require('../../lib/promise')
 test(
   'metricsContext interface is correct',
   function (t) {
+    t.equal(typeof metricsContextModule, 'function', 'function is exported')
+    t.equal(typeof metricsContextModule.schema, 'object', 'metricsContext.schema is object')
+    t.notEqual(metricsContextModule.schema, null, 'metricsContext.schema is not null')
+
     t.equal(typeof metricsContext, 'object', 'metricsContext is object')
     t.notEqual(metricsContext, null, 'metricsContext is not null')
-    t.equal(Object.keys(metricsContext).length, 4, 'metricsContext has 4 properties')
-
-    t.equal(typeof metricsContext.schema, 'object', 'metricsContext.schema is object')
-    t.notEqual(metricsContext.schema, null, 'metricsContext.schema is not null')
+    t.equal(Object.keys(metricsContext).length, 3, 'metricsContext has 3 properties')
 
     t.equal(typeof metricsContext.stash, 'function', 'metricsContext.stash is function')
-    t.equal(metricsContext.stash.length, 2, 'metricsContext.stash expects 2 arguments')
+    t.equal(metricsContext.stash.length, 1, 'metricsContext.stash expects 1 argument')
 
     t.equal(typeof metricsContext.gather, 'function', 'metricsContext.gather is function')
-    t.equal(metricsContext.gather.length, 2, 'metricsContext.gather expects 2 arguments')
+    t.equal(metricsContext.gather.length, 1, 'metricsContext.gather expects 1 argument')
 
     t.equal(typeof metricsContext.validate, 'function', 'metricsContext.validate is function')
-    t.equal(metricsContext.validate.length, 1, 'metricsContext.validate expects 1 argument')
+    t.equal(metricsContext.validate.length, 0, 'metricsContext.validate expects no arguments')
 
     t.end()
   }
@@ -53,10 +55,14 @@ test(
     sinon.stub(Memcached.prototype, 'setAsync', function () {
       return P.resolve('wibble')
     })
-    metricsContext.stash({
+    metricsContext.stash.call({
+      payload: {
+        metricsContext: 'bar'
+      }
+    }, {
       uid: uid,
       id: id
-    }, 'bar').then(function (result) {
+    }).then(result => {
       t.equal(result, 'wibble', 'result is correct')
 
       t.equal(Memcached.prototype.setAsync.callCount, 1, 'memcached.setAsync was called once')
@@ -80,10 +86,14 @@ test(
     sinon.stub(Memcached.prototype, 'setAsync', function () {
       return P.reject('wibble')
     })
-    metricsContext.stash({
+    metricsContext.stash.call({
+      payload: {
+        metricsContext: 'bar'
+      }
+    }, {
       uid: Buffer.alloc(32, 'cd'),
       id: 'foo'
-    }, 'bar').then(function (result) {
+    }).then(result => {
       t.equal(result, undefined, 'result is undefined')
 
       t.equal(Memcached.prototype.setAsync.callCount, 1, 'memcached.setAsync was called once')
@@ -102,14 +112,18 @@ test(
 )
 
 test(
-  'metricsContext.stash without token',
+  'metricsContext.stash with bad token',
   function (t) {
     sinon.stub(Memcached.prototype, 'setAsync', function () {
       return P.resolve('wibble')
     })
-    metricsContext.stash({
+    metricsContext.stash.call({
+      payload: {
+        metricsContext: 'bar'
+      }
+    }, {
       id: 'foo'
-    }, 'bar').then(function (result) {
+    }).then(result => {
       t.equal(result, undefined, 'result is undefined')
 
       t.equal(log.error.callCount, 1, 'log.error was called once')
@@ -134,10 +148,12 @@ test(
     sinon.stub(Memcached.prototype, 'setAsync', function () {
       return P.resolve('wibble')
     })
-    metricsContext.stash({
+    metricsContext.stash.call({
+      payload: {}
+    }, {
       uid: Buffer.alloc(32, 'cd'),
       id: 'foo'
-    }).then(function (result) {
+    }).then(result => {
       t.equal(result, undefined, 'result is undefined')
 
       t.equal(Memcached.prototype.setAsync.callCount, 0, 'memcached.setAsync was not called')
@@ -160,7 +176,7 @@ test(
       })
     })
     var time = Date.now() - 1
-    metricsContext.gather({}, {
+    metricsContext.gather.call({
       payload: {
         metricsContext: {
           flowId: 'mock flow id',
@@ -177,7 +193,7 @@ test(
           ignore: 'mock ignorable property'
         }
       }
-    }).then(function (result) {
+    }, {}).then(function (result) {
       t.equal(typeof result, 'object', 'result is object')
       t.notEqual(result, null, 'result is not null')
       t.equal(Object.keys(result).length, 12, 'result has 12 properties')
@@ -208,13 +224,13 @@ test(
 test(
   'metricsContext.gather with bad flowBeginTime',
   function (t) {
-    metricsContext.gather({}, {
+    metricsContext.gather.call({
       payload: {
         metricsContext: {
           flowBeginTime: Date.now() + 10000
         }
       }
-    }).then(function (result) {
+    }, {}).then(function (result) {
       t.equal(typeof result, 'object', 'result is object')
       t.notEqual(result, null, 'result is not null')
       t.strictEqual(result.flow_time, 0, 'result.time is zero')
@@ -230,7 +246,7 @@ test(
   'metricsContext.gather with DNT header',
   function (t) {
     var time = Date.now() - 1
-    metricsContext.gather({}, {
+    metricsContext.gather.call({
       headers: {
         dnt: '1'
       },
@@ -250,7 +266,7 @@ test(
           ignore: 'mock ignorable property'
         }
       }
-    }).then(function (result) {
+    }, {}).then(function (result) {
       t.equal(Object.keys(result).length, 7, 'result has 7 properties')
       t.equal(result.utm_campaign, undefined, 'result.utm_campaign is undefined')
       t.equal(result.utm_content, undefined, 'result.utm_content is undefined')
@@ -290,14 +306,14 @@ test(
         ignore: 'ignore me'
       })
     })
-    metricsContext.gather({}, {
+    metricsContext.gather.call({
       auth: {
         credentials: {
           uid: uid,
           id: id
         }
       }
-    }).then(function (result) {
+    }, {}).then(function (result) {
       t.equal(Memcached.prototype.getAsync.callCount, 1, 'memcached.getAsync was called once')
       t.equal(Memcached.prototype.getAsync.args[0].length, 1, 'memcached.getAsync was passed one argument')
       t.equal(Memcached.prototype.getAsync.args[0][0], hash.digest('base64'), 'memcached.getAsync argument was correct')
@@ -329,6 +345,48 @@ test(
 )
 
 test(
+  'metricsContext.gather with fake token',
+  function (t) {
+    const time = Date.now() - 1
+    const uid = Buffer.alloc(32, '77')
+    const id = 'wibble'
+    const hash = crypto.createHash('sha256')
+    hash.update(uid)
+    hash.update(id)
+    sinon.stub(Memcached.prototype, 'getAsync', function () {
+      return P.resolve({
+        flowId: 'flowId',
+        flowBeginTime: time
+      })
+    })
+    metricsContext.gather.call({
+      payload: {
+        uid: uid.toString('hex'),
+        code: id
+      }
+    }, {}).then(function (result) {
+      t.equal(Memcached.prototype.getAsync.callCount, 1, 'memcached.getAsync was called once')
+      t.equal(Memcached.prototype.getAsync.args[0].length, 1, 'memcached.getAsync was passed one argument')
+      t.equal(Memcached.prototype.getAsync.args[0][0], hash.digest('base64'), 'memcached.getAsync argument was correct')
+
+      t.equal(typeof result, 'object', 'result is object')
+      t.notEqual(result, null, 'result is not null')
+      t.equal(Object.keys(result).length, 12, 'result has 12 properties')
+      t.ok(result.time > time, 'result.time seems correct')
+      t.equal(result.flow_id, 'flowId', 'result.flow_id is correct')
+      t.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
+      t.ok(result.flow_time < time, 'result.flow_time is less than the current time')
+
+      t.equal(log.error.callCount, 0, 'log.error was not called')
+
+      Memcached.prototype.getAsync.restore()
+
+      t.end()
+    })
+  }
+)
+
+test(
   'metricsContext.gather with bad token',
   function (t) {
     sinon.stub(Memcached.prototype, 'getAsync', function () {
@@ -337,13 +395,13 @@ test(
         flowBeginTime: Date.now()
       })
     })
-    metricsContext.gather({}, {
+    metricsContext.gather.call({
       auth: {
         credentials: {
           uid: Buffer.alloc(32, 'cd')
         }
       }
-    }).then(function (result) {
+    }, {}).then(function (result) {
       t.equal(typeof result, 'object', 'result is object')
       t.notEqual(result, null, 'result is not null')
       t.equal(Object.keys(result).length, 0, 'result is empty')
@@ -363,6 +421,36 @@ test(
 )
 
 test(
+  'metricsContext.gather with no token',
+  function (t) {
+    sinon.stub(Memcached.prototype, 'getAsync', function () {
+      return P.resolve({
+        flowId: 'flowId',
+        flowBeginTime: Date.now()
+      })
+    })
+    metricsContext.gather.call({
+      auth: {}
+    }, {}).then(function (result) {
+      t.equal(typeof result, 'object', 'result is object')
+      t.notEqual(result, null, 'result is not null')
+      t.equal(Object.keys(result).length, 0, 'result is empty')
+
+      t.equal(log.error.callCount, 1, 'log.error was called once')
+      t.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
+      t.equal(log.error.args[0][0].op, 'metricsContext.gather', 'op property was correct')
+      t.equal(log.error.args[0][0].err.message, 'Invalid credentials', 'err.message property was correct')
+      t.equal(log.error.args[0][0].token, undefined, 'token property was correct')
+
+      Memcached.prototype.getAsync.restore()
+      log.error.reset()
+
+      t.end()
+    })
+  }
+)
+
+test(
   'metricsContext.gather with metadata and token',
   function (t) {
     var time = Date.now() - 1
@@ -372,7 +460,7 @@ test(
         flowBeginTime: time
       })
     })
-    metricsContext.gather({}, {
+    metricsContext.gather.call({
       auth: {
         credentials: {
           uid: Buffer.alloc(8, 'ff'),
@@ -385,7 +473,7 @@ test(
           flowBeginTime: time
         }
       }
-    }).then(function (result) {
+    }, {}).then(function (result) {
       t.equal(typeof result, 'object', 'result is object')
       t.notEqual(result, null, 'result is not null')
       t.equal(result.flow_id, 'baz', 'result.flow_id is correct')
@@ -406,14 +494,14 @@ test(
     sinon.stub(Memcached.prototype, 'getAsync', function () {
       return P.reject('foo')
     })
-    metricsContext.gather({}, {
+    metricsContext.gather.call({
       auth: {
         credentials: {
           uid: Buffer.alloc(8, 'ff'),
           id: 'bar'
         }
       }
-    }).then(function () {
+    }, {}).then(function () {
       t.equal(log.error.callCount, 1, 'log.error was called once')
       t.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
       t.equal(log.error.args[0][0].op, 'metricsContext.gather', 'argument op property was correct')
@@ -445,7 +533,11 @@ test(
     metricsContextWithoutMemcached.stash({
       uid: Buffer.alloc(8, 'ff'),
       id: 'bar'
-    }, 'baz').then(function (result) {
+    }, {
+      payload: {
+        metricsContext: 'baz'
+      }
+    }).then(result => {
       t.equal(result, undefined, 'result is undefined')
 
       t.equal(Memcached.prototype.setAsync.callCount, 0, 'memcached.setAsync was not called')
@@ -474,14 +566,14 @@ test(
         flowBeginTime: 42
       })
     })
-    metricsContextWithoutMemcached.gather({}, {
+    metricsContextWithoutMemcached.gather.call({
       auth: {
         credentials: {
           uid: Buffer.alloc(8, 'ff'),
           id: 'baz'
         }
       }
-    }).then(function () {
+    }, {}).then(function () {
       t.equal(Memcached.prototype.getAsync.callCount, 0, 'memcached.getAsync was not called')
       t.equal(log.error.callCount, 0, 'log.error was not called')
 
@@ -514,7 +606,7 @@ test(
     }
 
     var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
-    var valid = metricsContext.validate(mockRequest)
+    var valid = metricsContext.validate.call(mockRequest)
 
     t.notOk(valid, 'the data is treated as invalid')
     t.equal(mockLog.info.callCount, 0, 'log.info was not called')
@@ -551,7 +643,7 @@ test(
     }
 
     var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
-    var valid = metricsContext.validate(mockRequest)
+    var valid = metricsContext.validate.call(mockRequest)
 
     t.notOk(valid, 'the data is treated as invalid')
     t.notOk(mockRequest.payload.metricsContext.flowBeginTime, 'the invalid flow data was removed')
@@ -589,7 +681,7 @@ test(
     }
 
     var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
-    var valid = metricsContext.validate(mockRequest)
+    var valid = metricsContext.validate.call(mockRequest)
 
     t.notOk(valid, 'the data is treated as invalid')
     t.notOk(mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
@@ -628,7 +720,7 @@ test(
     }
 
     var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
-    var valid = metricsContext.validate(mockRequest)
+    var valid = metricsContext.validate.call(mockRequest)
 
     t.notOk(valid, 'the data is treated as invalid')
     t.notOk(mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
@@ -667,7 +759,7 @@ test(
     }
 
     var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
-    var valid = metricsContext.validate(mockRequest)
+    var valid = metricsContext.validate.call(mockRequest)
 
     t.notOk(valid, 'the data is treated as invalid')
     t.notOk(mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
@@ -713,7 +805,7 @@ test(
 
     try {
       var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
-      var valid = metricsContext.validate(mockRequest)
+      var valid = metricsContext.validate.call(mockRequest)
     } finally {
       Date.now.restore()
     }
@@ -762,7 +854,7 @@ test(
 
     try {
       var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
-      var valid = metricsContext.validate(mockRequest)
+      var valid = metricsContext.validate.call(mockRequest)
     } finally {
       Date.now.restore()
     }
@@ -811,7 +903,7 @@ test(
 
     try {
       var metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
-      var valid = metricsContext.validate(mockRequest)
+      var valid = metricsContext.validate.call(mockRequest)
     } finally {
       Date.now.restore()
     }

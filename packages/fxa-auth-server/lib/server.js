@@ -296,6 +296,12 @@ function create(log, error, config, routes, db) {
     }
   )
 
+  const metricsContext = require('./metrics/context')(log, config)
+
+  server.decorate('request', 'stashMetricsContext', metricsContext.stash)
+  server.decorate('request', 'gatherMetricsContext', metricsContext.gather)
+  server.decorate('request', 'validateMetricsContext', metricsContext.validate)
+
   server.stat = function() {
     return {
       stat: 'mem',
