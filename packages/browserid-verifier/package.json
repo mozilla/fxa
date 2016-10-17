@@ -15,24 +15,26 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-    "async": "0.9.0",
-    "browserid-local-verify": "0.3.2",
+    "async": "2.0.1",
+    "body-parser": "1.15.2",
+    "browserid-local-verify": "0.5.0",
     "compute-cluster": "0.0.9",
-    "convict": "1.1.2",
-    "express": "3.8.1",
-    "intel": "0.5.2",
+    "convict": "1.5.0",
+    "express": "4.14.0",
+    "intel": "1.1.1",
+    "morgan": "1.7.0",
     "optimist": "0.6.1",
     "toobusy-js": "strml/node-toobusy#ed8b8bb6909a82ae3007940cd5ac42f0488b00ab",
-    "underscore": "1.7.0"
+    "underscore": "1.8.3"
   },
   "devDependencies": {
     "ass": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
-    "jshint": "2.5.1",
-    "mocha": "1.20.0",
-    "request": "2.36.0",
-    "should": "4.0.0",
-    "temp": "0.7.0",
-    "walk": "2.3.3"
+    "jshint": "2.9.3",
+    "mocha": "3.1.0",
+    "request": "2.75.0",
+    "should": "11.1.0",
+    "temp": "0.8.3",
+    "walk": "2.3.9"
   },
   "scripts": {
     "test": "mocha -t 5000 -R spec tests/*.js"

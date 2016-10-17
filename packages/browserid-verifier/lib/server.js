@@ -4,6 +4,8 @@
 
 const
 express = require('express'),
+bodyParser = require('body-parser'),
+morgan = require('morgan'),
 http = require('http'),
 toobusy = require('toobusy-js'),
 log = require('./log').getLogger('bid.server'),
@@ -63,7 +65,7 @@ app.use(function(req, res, next) {
 });
 
 // log HTTP requests
-app.use(express.logger({
+app.use(morgan('common', {
   stream: {
     write: function(message){
       // trim newlines as our logger inserts them for us.
@@ -88,15 +90,15 @@ app.use(function(req, res, next) {
 // log summary - GH24
 app.use(summary());
 
-app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({ limit: "10kb" }));
+app.use(bodyParser.json({ limit: "10kb" }));
+app.use(bodyParser.urlencoded({ limit: "10kb" }));
 
 app.post('/verify', v1api.bind(v1api, verifier));
 app.post('/', v1api.bind(v1api, verifier));
 app.post('/v2', v2api.bind(v2api, verifier));
 
 function wrongMethod(req, res) {
-  return res.send(405);
+  return res.sendStatus(405);
 }
 
 ['/verify', '/', '/v2'].forEach(function(route) {

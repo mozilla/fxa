@@ -26,8 +26,9 @@ function verify(verifier, req, res) {
     // why couldn't we extract these guys?  Is it because the request parameters weren't encoded as we expect? GH-643
     const want_ct = [ 'application/x-www-form-urlencoded', 'application/json' ];
     var reason;
+    var ct = 'none';
     try {
-      var ct = req.headers['content-type'] || 'none';
+      ct = req.headers['content-type'] || ct;
       if (ct.indexOf(';') !== -1) {
         ct = ct.substr(0, ct.indexOf(';'));
       }

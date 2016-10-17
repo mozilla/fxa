@@ -15,9 +15,8 @@ describe('custom log formatter', function() {
     var output = [];
     var handler = new intel.handlers.Stream({
       stream: {
-        write: function(data, cb) {
+        write: function(data) {
           output.push(JSON.parse(data));
-          cb();
         }
       }
     });
@@ -25,14 +24,12 @@ describe('custom log formatter', function() {
     var log = intel.getLogger('bid.test');
     log.setLevel(log.DEBUG).addHandler(handler);
     log.propagate = false;
-    log.debug('hello world').then(function() {
-      log.debug({'field': 'value'}).then(function() {
-        should(output[0].message).equal('hello world');
-        should(output[1].field).equal('value');
-        should.not.exist(output[1].message);
-        done();
-      });
-    });
+    log.debug('hello world');
+    log.debug({'field': 'value'});
+    should(output[0].message).equal('hello world');
+    should(output[1].field).equal('value');
+    should.not.exist(output[1].message);
+    done();
   });
 
 });

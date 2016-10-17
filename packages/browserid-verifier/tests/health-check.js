@@ -4,9 +4,10 @@
 
 /* global describe,it,require */
 
+require('should');
+
 var
 Verifier = require('./lib/verifier.js'),
-should = require('should'),
 request = require('request');
 
 describe('health check', function() {
