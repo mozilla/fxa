@@ -40,7 +40,7 @@ install:
   - npm --version
 
 script:
-  - if [ $TRAVIS_NODE_VERSION == "4" ]; then export CXX=g++-4.8; fi
+  - if [ $TRAVIS_NODE_VERSION == "4.5" ]; then export CXX=g++-4.8; fi
   - npm config set spin false
   - npm install
   - ./test/curl.sh
