@@ -1157,6 +1157,7 @@ define([
     return function () {
       return this.parent
         .findByCssSelector(selector)
+        .then(visibleByQSA(selector))
         .getVisibleText()
         .then(function (resultText) {
           assert.equal(resultText, expected);
@@ -1176,6 +1177,7 @@ define([
     return function () {
       return this.parent
         .findByCssSelector(selector)
+        .then(visibleByQSA(selector))
         .getVisibleText()
         .then(function (resultText) {
           assert.include(resultText.toLowerCase(), expected.toLowerCase());
