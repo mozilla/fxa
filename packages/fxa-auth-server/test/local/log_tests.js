@@ -169,6 +169,38 @@ test(
 )
 
 test(
+  'device.created is not treated as a flow event',
+  function (t) {
+    var request = {
+      gatherMetricsContext: metricsContext.gather,
+      headers: {
+        'user-agent': 'foo'
+      },
+      payload: {
+        metricsContext: {
+          flowId: 'bar'
+        }
+      }
+    }
+    return log.activityEvent('device.created', request, {
+      uid: 'baz'
+    }).then(function () {
+      t.equal(logger.info.callCount, 1, 'logger.info was called once')
+      t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
+
+      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      t.equal(logger.error.callCount, 0, 'logger.error was not called')
+      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+      logger.info.reset()
+      statsd.write.reset()
+    })
+  }
+)
+
+test(
   'log.activityEvent with flow event and missing flowId',
   function (t) {
     var request = {
