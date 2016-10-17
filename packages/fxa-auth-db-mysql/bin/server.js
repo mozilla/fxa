@@ -13,10 +13,6 @@ var logger = require('../lib/logging')('bin.server')
 var DB = require('../lib/db/mysql')(logger, error)
 var notifier = require('../lib/notifier.js')(logger, config)
 
-function shutdown() {
-  process.nextTick(process.exit)
-}
-
 function logCharsetInfo(db, poolName) {
   // Record some information about mysql connection configuration and
   // charset at startup.
@@ -27,7 +23,7 @@ function logCharsetInfo(db, poolName) {
       }
     )
     .then(
-      function() { 
+      function() {
         return db._connectionConfig(poolName)
       }
     )
@@ -67,7 +63,7 @@ DB.connect(config)
       logger.info('mem', stats)
     })
 
-    // Log connection config and charset info 
+    // Log connection config and charset info
     logCharsetInfo(db, 'MASTER')
     logCharsetInfo(db, 'SLAVE')
 
