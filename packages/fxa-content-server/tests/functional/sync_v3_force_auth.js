@@ -16,6 +16,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
+  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
@@ -206,6 +207,34 @@ define([
         // ensure the email is filled in, and not editible.
         .then(testElementValueEquals('input[type=email]', email))
         .then(testElementDisabled('input[type=email]'));
+    },
+
+    'verified, blocked': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openForceAuth({
+          query: {
+            context: 'fx_desktop_v3',
+            email: email,
+            forceAboutAccounts: 'true',
+            service: 'sync',
+            uid: TestHelpers.createUID()
+          }
+        }))
+        .then(noSuchBrowserNotification(this, 'fxaccounts:logout'))
+        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(fillOutForceAuth(PASSWORD))
+        // user is able to sign in, browser notified of new uid
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+
+        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(fillOutSignInUnblock(email, 0))
+
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-signin-unblock-header'));
     }
   });
 });

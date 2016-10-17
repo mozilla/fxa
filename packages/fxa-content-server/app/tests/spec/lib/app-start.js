@@ -916,6 +916,28 @@ define(function (require, exports, module) {
         assert.isTrue(userMock.upgradeFromSession.called);
       });
     });
+
+    describe('isReportSignIn', () => {
+      beforeEach(() => {
+        appStart = new AppStart({
+          user: userMock,
+          window: windowMock
+        });
+      });
+
+      it('returns true for pathname = `/report_signin`', () => {
+        windowMock.location.pathname = '/report_signin';
+        assert.isTrue(appStart._isReportSignIn());
+      });
+
+      const notReportSignIn = ['/', '/signup', '/signin', '/force_auth'];
+      notReportSignIn.forEach((pathname) => {
+        it(`returns false for ${pathname}`, () => {
+          windowMock.location.pathname = pathname;
+          assert.isFalse(appStart._isReportSignIn());
+        });
+      });
+    });
   });
 });
 

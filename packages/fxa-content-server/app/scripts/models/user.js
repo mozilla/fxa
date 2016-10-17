@@ -338,6 +338,7 @@ define(function (require, exports, module) {
      * @param {String} password - the user's password
      * @param {Object} relier - relier being signed in to
      * @param {Object} [options] - options
+     *   @param {String} [options.unblockCode] - unblock code
      * @returns {Promise} - resolves when complete
      */
     signInAccount (account, password, relier, options) {
@@ -600,6 +601,18 @@ define(function (require, exports, module) {
           }
           return exists;
         });
+    },
+
+    /**
+     * Reject the unblockCode for the given account. This invalidates
+     * the unblock code and logs the signin attempt as suspicious.
+     *
+     * @param {Object} account
+     * @param {String} unblockCode
+     * @returns {Promise}
+     */
+    rejectAccountUnblockCode(account, unblockCode) {
+      return account.rejectUnblockCode(unblockCode);
     }
   });
 

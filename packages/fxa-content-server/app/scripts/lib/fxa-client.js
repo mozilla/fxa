@@ -215,6 +215,7 @@ define(function (require, exports, module) {
      *   @param {String} [options.sessionTokenContext] - The context for which
      *                   the session token is being created. Defaults to the
      *                   relier's context.
+     *   @param {String} [options.unblockCode] - Unblock code.
      * @returns {Promise}
      */
     signIn: withClient((client, originalEmail, password, relier, options = {}) => {
@@ -234,6 +235,10 @@ define(function (require, exports, module) {
 
       if (relier.has('redirectTo')) {
         signInOptions.redirectTo = relier.get('redirectTo');
+      }
+
+      if (options.unblockCode) {
+        signInOptions.unblockCode = options.unblockCode;
       }
 
       if (options.resume) {
@@ -556,6 +561,34 @@ define(function (require, exports, module) {
 
     deviceDestroy: withClient((client, sessionToken, deviceId) => {
       return client.deviceDestroy(sessionToken, deviceId);
+    }),
+
+    /**
+     * Send an unblock email.
+     *
+     * @param {String} email - destination email address
+     * @param {Object} [options] - options
+     *   @param {String} [options.metricsContext] - context metadata for use in
+     *                   flow events
+     * @returns {Promise} resolves with response when complete.
+     */
+    sendUnblockEmail: withClient((client, email, options = {}) => {
+      const sendUnblockCodeOptions = {};
+
+      setMetricsContext(sendUnblockCodeOptions, options);
+
+      return client.sendUnblockCode(email, sendUnblockCodeOptions);
+    }),
+
+    /**
+     * Reject an unblock code.
+     *
+     * @param {String} uid - user id
+     * @param {String} unblockCode - unblock code
+     * @returns {Promise} resolves when complete.
+     */
+    rejectUnblockCode: withClient((client, uid, unblockCode) => {
+      return client.rejectUnblockCode(uid, unblockCode);
     })
   };
 

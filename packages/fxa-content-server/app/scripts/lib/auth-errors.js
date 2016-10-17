@@ -112,6 +112,10 @@ define(function (require, exports, module) {
       errno: 126,
       message: t('Your account has been locked for security reasons')
     },
+    INCORRECT_UNBLOCK_CODE: {
+      errno: 127,
+      message: t('Invalid authorization code')
+    },
     SERVER_BUSY: {
       errno: 201,
       message: t('Server busy, try again soon')
@@ -304,6 +308,18 @@ define(function (require, exports, module) {
     INPUT_REQUIRED: {
       errno: 1042,
       message: t('This is a required field')
+    },
+    UNBLOCK_CODE_REQUIRED: {
+      errno: 1043,
+      message: t('Authorization code required')
+    },
+    INVALID_UNBLOCK_CODE: {
+      errno: 1044,
+      message: t('Invalid authorization code')
+    },
+    DAMAGED_REJECT_UNBLOCK_LINK: {
+      errno: 1045,
+      message: t('Damaged link')
     }
   };
   /*eslint-enable sorting/sort-object-props*/

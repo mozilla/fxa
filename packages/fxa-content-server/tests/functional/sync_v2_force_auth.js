@@ -16,6 +16,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
+  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openForceAuth = FunctionalHelpers.openForceAuth;
@@ -25,7 +26,7 @@ define([
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
-  var setupTest = thenify(function (context, options) {
+  var setupTest = thenify(function (options) {
     options = options || {};
     var forceAuthOptions = { query: {
       context: 'fx_desktop_v2',
@@ -37,17 +38,27 @@ define([
       forceAuthOptions.query.forceAboutAccounts = 'true';
     }
 
+    const successSelector = options.blocked ? '#fxa-signin-unblock-header' :
+                            options.preVerified ? '#fxa-confirm-signin-header' :
+                            '#fxa-confirm-header';
+
     return this.parent
-      .then(clearBrowserState(context))
+      .then(clearBrowserState(this.parent))
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openForceAuth(forceAuthOptions))
-      .then(noSuchBrowserNotification(context, 'fxaccounts:logout'))
-      .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
+      .then(noSuchBrowserNotification(this.parent, 'fxaccounts:logout'))
+      .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutForceAuth(PASSWORD))
 
-      .then(testElementExists(options.preVerified ? '#fxa-confirm-signin-header' : '#fxa-confirm-header'))
-      .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'))
-      .then(testIsBrowserNotified(context, 'fxaccounts:login'));
+      .then(testElementExists(successSelector))
+      .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'))
+
+      .then(() => {
+        if (! options.blocked) {
+          return this.parent
+            .then(testIsBrowserNotified(this.parent, 'fxaccounts:login'));
+        }
+      });
   });
 
   registerSuite({
@@ -59,10 +70,7 @@ define([
 
     'verified - about:accounts, verify same browser': function () {
       return this.remote
-        .then(setupTest(this, {
-          forceAboutAccounts: true,
-          preVerified: true
-        }))
+        .then(setupTest({ forceAboutAccounts: true, preVerified: true }))
 
         .then(openVerificationLinkInNewTab(this, email, 0))
         .switchToWindow('newwindow')
@@ -75,10 +83,7 @@ define([
 
     'verified - about:accounts, verify, from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(setupTest(this, {
-          forceAboutAccounts: true,
-          preVerified: true
-        }))
+        .then(setupTest({ forceAboutAccounts: true, preVerified: true }))
 
         .then(openVerificationLinkDifferentBrowser(email))
         // about:accounts will take over post-verification, no transition
@@ -87,10 +92,7 @@ define([
 
     'unverified - about:accounts': function () {
       return this.remote
-        .then(setupTest(this,  {
-          forceAboutAccounts: true,
-          preVerified: false
-        }))
+        .then(setupTest({ forceAboutAccounts: true, preVerified: false }))
 
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'));
@@ -98,9 +100,7 @@ define([
 
     'verified - web flow, verify, from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(setupTest(this, {
-          preVerified: true
-        }))
+        .then(setupTest({ preVerified: true }))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
 
@@ -110,14 +110,23 @@ define([
 
     'unverified - web flow, verify, from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(setupTest(this,  {
-          preVerified: false
-        }))
+        .then(setupTest({ preVerified: false }))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
 
         .then(openVerificationLinkDifferentBrowser(email, 1))
         .then(testElementExists('#fxa-sign-up-complete-header'));
+    },
+
+    'verified, blocked': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+
+      return this.remote
+        .then(setupTest({ blocked: true, forceAboutAccounts: true, preVerified: true }))
+        .then(fillOutSignInUnblock(email, 0))
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-signin-unblock-header'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
     }
   });
 });

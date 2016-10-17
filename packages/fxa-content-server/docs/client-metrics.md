@@ -191,13 +191,19 @@ The event stream is a log of events and the time they occurred while the user is
 * delete-account.deleted - user successfully deleted an account
 
 #### force_auth
+* error.force_auth.auth.114 - request has been throttled
+* error.force_auth.auth.125 - request has been blocked
 * flow.force_auth.engage - user engaged the form
 * flow.force_auth.submit - user submit the form with front-end validation passing
 
-#### force_auth
 #### legal
 #### pp
 #### ready
+#### report-signin
+* report-signin.submit - User has submit the signin report.
+* error.report-signin.auth.127 - unblock code does not match one on record
+* error.report-signin.auth.1045 - report sign in link is damaged
+
 #### reset_password
 * error.reset_password.auth.102 - unknown account
 * error.reset_password.auth.1011 - user did not enter an email address
@@ -270,7 +276,10 @@ The event stream is a log of events and the time they occurred while the user is
 #### signin
 * error.oauth.signin.auth.1011 - user did not enter an email address
 * error.oauth.signin.auth.1023 - user entered an email address that was invalid
+* error.signin.auth.103 - incorrect password
+* error.signin.auth.114 - request has been throttled
 * error.signin.auth.121 - account locked
+* error.signin.auth.125 - request has been blocked
 * error.signin.auth.1011 - user did not enter an email address
 * error.signin.auth.1023 - user entered an email address that was invalid
 * flow.signin.engage - user engaged the form
@@ -291,9 +300,24 @@ The event stream is a log of events and the time they occurred while the user is
 * signin-permissions.accept - user accepts and grants the requested permissions
 * signin-permissions.success - sign in successfully occurred
 
+#### signin-reported
+No page specific events
+
+#### signin_unblock
+* signin-unblock.submit - User has submit the signin unblock code
+* error.signin-unblock.auth.103 - password is incorrect
+* error.signin-unblock.auth.114 - request has been throttled
+* error.signin-unblock.auth.125 - request has been blocked
+* error.signin-unblock.auth.127 - unblock code does not match one on record
+* error.signin-unblock.auth.1043 - user did not enter an unblock code
+* error.signin-unblock.auth.1044 - user entered unblock code is malformed
+
 #### signup
 * error.oauth.signup.auth.1011 - user did not enter an email address
 * error.oauth.signup.auth.1023 - user entered an email address that was invalid
+* error.signup.auth.103 - incorrect password (for signin from signup)
+* error.signup.auth.114 - request has been throttled
+* error.signup.auth.125 - request has been blocked
 * error.signup.auth.1011 - user did not enter an email address
 * error.signup.auth.1011 - user did not enter an email address
 * error.signup.auth.1012 - user did not enter year of birth

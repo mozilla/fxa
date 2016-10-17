@@ -5,6 +5,7 @@
 define([
   './functional/sign_in',
   './functional/sign_in_cached',
+  './functional/sign_in_blocked',
   './functional/sync_sign_in',
   './functional/sync_force_auth',
   './functional/sign_up',
@@ -47,6 +48,7 @@ define([
   './functional/sync_settings',
   './functional/change_password',
   './functional/force_auth',
+  './functional/force_auth_blocked',
   './functional/404',
   './functional/500',
   './functional/pages',

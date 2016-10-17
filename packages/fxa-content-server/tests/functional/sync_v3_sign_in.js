@@ -21,6 +21,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var noEmailExpected = FunctionalHelpers.noEmailExpected;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
@@ -33,19 +34,30 @@ define([
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-  var setupTest = thenify(function (context, isUserVerified) {
+  var setupTest = thenify(function (options) {
+    options = options || {};
+
+    const successSelector = options.blocked ? '#fxa-signin-unblock-header' :
+                            options.preVerified ? '#fxa-confirm-signin-header' :
+                            '#fxa-confirm-header';
+
     return this.parent
-      .then(clearBrowserState(context, { force: true }))
-      .then(createUser(email, PASSWORD, { preVerified: isUserVerified }))
-      .then(openPage(context, PAGE_URL, '#fxa-signin-header'))
-      .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
-      .then(fillOutSignIn(context, email, PASSWORD))
+      .then(clearBrowserState(this.parent, { force: true }))
+      .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
+      .then(openPage(this.parent, PAGE_URL, '#fxa-signin-header'))
+      .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
+      .then(fillOutSignIn(this.parent, email, PASSWORD))
 
-      .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'))
-      .then(testIsBrowserNotified(context, 'fxaccounts:login'))
+      .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'))
 
-      // Sync users must always re-verify their email
-      .then(testElementExists(isUserVerified ? '#fxa-confirm-signin-header' : '#fxa-confirm-header'));
+      .then(() => {
+        if (! options.blocked) {
+          return this.parent
+            .then(testIsBrowserNotified(this.parent, 'fxaccounts:login'));
+        }
+      })
+
+      .then(testElementExists(successSelector));
   });
 
   registerSuite({
@@ -60,7 +72,7 @@ define([
 
     'verified, verify same browser': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest({ preVerified: true }))
 
         .then(openVerificationLinkInNewTab(this, email, 0))
         .switchToWindow('newwindow')
@@ -78,7 +90,7 @@ define([
 
     'verified, resend email, verify same browser': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest({ preVerified: true }))
 
         .then(click('#resend'))
         .then(visibleByQSA('.success'))
@@ -95,7 +107,7 @@ define([
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest({ preVerified: true }))
 
         .then(openVerificationLinkDifferentBrowser(email))
 
@@ -108,7 +120,7 @@ define([
       this.timeout = 60 * 1000;
 
       return this.remote
-        .then(setupTest(this, false))
+        .then(setupTest({ preVerified: false }))
 
         // email 0 - initial sign up email
         // email 1 - sign in w/ unverified address email
@@ -137,6 +149,19 @@ define([
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition('#fxa-confirm-header'));
+    },
+
+    'verified, blocked': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+
+      return this.remote
+        .then(setupTest({ blocked: true, preVerified: true }))
+
+        .then(fillOutSignInUnblock(email, 0))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-signin-unblock-header'));
     }
   });
 });

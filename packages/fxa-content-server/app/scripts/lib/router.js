@@ -33,9 +33,12 @@ define(function (require, exports, module) {
   const PermissionsView = require('../views/permissions');
   const PpView = require('../views/pp');
   const ReadyView = require('../views/ready');
+  const ReportSignInView = require('views/report_sign_in');
   const ResetPasswordView = require('../views/reset_password');
   const SettingsView = require('../views/settings');
   const SignInView = require('../views/sign_in');
+  const SignInReportedView = require('views/sign_in_reported');
+  const SignInUnblockView = require('../views/sign_in_unblock');
   const SignUpView = require('../views/sign_up');
   const Storage = require('./storage');
   const TosView = require('../views/tos');
@@ -56,7 +59,7 @@ define(function (require, exports, module) {
     return new Backbone.Model(data || {});
   }
 
-  var Router = Backbone.Router.extend({
+  const Router = Backbone.Router.extend({
     routes: {
       '(/)': 'redirectToSignupOrSettings',
       'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
@@ -76,6 +79,7 @@ define(function (require, exports, module) {
       'oauth/force_auth(/)': createViewHandler(ForceAuthView),
       'oauth/signin(/)': createViewHandler(SignInView),
       'oauth/signup(/)': createViewHandler(SignUpView),
+      'report_signin(/)': createViewHandler(ReportSignInView),
       'reset_password(/)': createViewHandler(ResetPasswordView),
       'reset_password_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
       'settings(/)': createViewHandler(SettingsView),
@@ -93,6 +97,8 @@ define(function (require, exports, module) {
       'signin(/)': createViewHandler(SignInView),
       'signin_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),
+      'signin_reported(/)': createViewHandler(SignInReportedView),
+      'signin_unblock(/)': createViewHandler(SignInUnblockView),
       'signup(/)': createViewHandler(SignUpView),
       'signup_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
       'signup_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_UP }),
@@ -221,8 +227,19 @@ define(function (require, exports, module) {
       return !! this.storage.get('canGoBack');
     },
 
+    /**
+     * Get the pathname of the current page.
+     *
+     * @returns {String}
+     */
     getCurrentPage () {
-      return Backbone.history.fragment;
+      const fragment = Backbone.history.fragment || '';
+                // strip leading /
+      return fragment.replace(/^\//, '')
+                // strip trailing /
+                .replace(/\/$/, '')
+                // we only want the pathname
+                .replace(/\?.*/, '');
     },
 
     getCurrentViewName () {

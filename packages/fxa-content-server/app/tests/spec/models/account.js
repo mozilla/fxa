@@ -317,7 +317,10 @@ define(function (require, exports, module) {
               return p();
             });
 
-            return account.signIn(PASSWORD, relier, { resume: 'resume token' });
+            return account.signIn(PASSWORD, relier, {
+              resume: 'resume token',
+              unblockCode: 'unblock code'
+            });
           });
 
           it('delegates to the fxaClient', function () {
@@ -327,7 +330,8 @@ define(function (require, exports, module) {
                 foo: 'bar'
               },
               reason: SignInReasons.SIGN_IN,
-              resume: 'resume token'
+              resume: 'resume token',
+              unblockCode: 'unblock code'
             }));
           });
 
@@ -381,7 +385,10 @@ define(function (require, exports, module) {
               return p({ sessionToken: SESSION_TOKEN, verified: true });
             });
 
-            return account.signIn(PASSWORD, relier, { resume: 'resume token' });
+            return account.signIn(PASSWORD, relier, {
+              resume: 'resume token',
+              unblockCode: 'unblock code'
+            });
           });
 
           it('delegates to the fxaClient', function () {
@@ -391,7 +398,8 @@ define(function (require, exports, module) {
                 foo: 'bar'
               },
               reason: SignInReasons.SIGN_IN,
-              resume: 'resume token'
+              resume: 'resume token',
+              unblockCode: 'unblock code'
             }));
           });
 
@@ -1936,6 +1944,36 @@ define(function (require, exports, module) {
 
       it('delegates to the fxaClient', () => {
         assert.isTrue(fxaClient.isPasswordResetComplete.calledWith('token'));
+      });
+    });
+
+    describe('sendUnblockEmail', () => {
+      beforeEach(() => {
+        account.set('email', EMAIL);
+
+        sinon.stub(fxaClient, 'sendUnblockEmail', () => p({}));
+        return account.sendUnblockEmail();
+      });
+
+      it('delegates to the fxaClient with the metricsContext', () => {
+        const metricsContext = metrics.getFlowEventMetadata();
+        assert.isTrue(
+          fxaClient.sendUnblockEmail.calledWith(EMAIL, { metricsContext })
+        );
+      });
+    });
+
+    describe('rejectUnblockCode', () => {
+      beforeEach(() => {
+        account.set('uid', UID);
+
+        sinon.stub(fxaClient, 'rejectUnblockCode', () => p({}));
+
+        return account.rejectUnblockCode('code');
+      });
+
+      it('delegates to the fxaClient', () => {
+        assert.isTrue(fxaClient.rejectUnblockCode.calledWith(UID, 'code'));
       });
     });
   });

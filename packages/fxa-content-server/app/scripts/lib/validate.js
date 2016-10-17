@@ -9,19 +9,24 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Constants = require('lib/constants');
+  const UNBLOCK_CODE_LENGTH = Constants.UNBLOCK_CODE_LENGTH;
 
   // taken from the fxa-auth-server
-  var HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
+  const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
 
   // URL RegEx taken from http://blog.mattheworiordan.com/post/13174566389/url-regular-expression-for-links-with-or-without
-  var urlRegEx = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/; //eslint-disable-line max-len
+  const urlRegEx = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/; //eslint-disable-line max-len
 
 
   // URN Regex
-  var urnRegEx = /^urn:[a-zA-Z0-9][a-zA-Z0-9-]{1,31}:([a-zA-Z0-9()+,.:=@;$_!*'-]|%[0-9A-Fa-f]{2})+$/;
+  const urnRegEx = /^urn:[a-zA-Z0-9][a-zA-Z0-9-]{1,31}:([a-zA-Z0-9()+,.:=@;$_!*'-]|%[0-9A-Fa-f]{2})+$/;
 
   // Matches a UUID, e.g.: 12345678-1234-1234-1234-1234567890ab
-  var uuidRegEx = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegEx = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  // case insensitive match of an unblock code, e.g.: AB12YU7Z
+  const unblockCodeRegExpStr = `^[a-z0-9]{${UNBLOCK_CODE_LENGTH}}$`;
+  const unblockCodeRegExp = new RegExp(unblockCodeRegExpStr, 'i');
 
   // Email regex, accepts punycoded addresses. See:
   //   * http://blog.gerv.net/2011/05/html5_email_address_regexp/
@@ -36,10 +41,10 @@ define(function (require, exports, module) {
   //   * http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
   // '/' in the character class is (reduntantly) backslash-escaped to produce
   // the same minimized form in node 4.x and node 0.10.
-  var emailRegex = /^[\w.!#$%&’*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
+  const emailRegex = /^[\w.!#$%&’*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
 
   // A Base64 encoded JWT
-  var BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/;
+  const BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/;
 
   var Validate = {
     /**
@@ -288,6 +293,16 @@ define(function (require, exports, module) {
      */
     isBase64JwtValid: function isJwtValid(value) {
       return BASE64_JWT.test(value);
+    },
+
+    /**
+     * Check if an unblock code is valid
+     *
+     * @param {String} value
+     * @returns {Boolean}
+     */
+    isUnblockCodeValid (value) {
+      return unblockCodeRegExp.test(value);
     }
   };
 

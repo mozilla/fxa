@@ -7,31 +7,49 @@ define([
   'intern!object',
   'intern/chai!assert',
   'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var OAUTH_APP = config.fxaOauthApp;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
 
   var PASSWORD = 'password';
   var user;
   var email;
 
-  var client;
+  var thenify = FunctionalHelpers.thenify;
+
+  var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
+  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
+  var type = FunctionalHelpers.type;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+
+  var testAtOAuthApp = thenify(function () {
+    return this.parent
+      .findByCssSelector('#loggedin')
+      .end()
+
+      .getCurrentUrl()
+      .then(function (url) {
+        // redirected back to the App
+        assert.ok(url.indexOf(OAUTH_APP) > -1);
+      });
+  });
 
   registerSuite({
-    name: 'oauth sign in',
+    name: 'oauth sign_in',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
       return FunctionalHelpers.clearBrowserState(this, {
         '123done': true,
@@ -40,112 +58,61 @@ define([
     },
 
     'with missing client_id': function () {
-      return this.remote.get(require.toUrl(SIGNIN_ROOT + '?scope=profile'))
-        .findByCssSelector('#fxa-400-header')
-        .end();
+      return this.remote
+        .then(openPage(this, SIGNIN_ROOT + '?scope=profile', '#fxa-400-header'));
     },
 
     'with missing scope': function () {
-      return this.remote.get(require.toUrl(SIGNIN_ROOT + '?client_id=client_id'))
-        .findByCssSelector('#fxa-400-header')
-        .end();
+      return this.remote
+        .then(openPage(this, SIGNIN_ROOT + '?client_id=client_id', '#fxa-400-header'));
     },
 
     'with invalid client_id': function () {
-      return this.remote.get(require.toUrl(SIGNIN_ROOT + '?client_id=invalid_client_id&scope=profile'))
-        .findByCssSelector('#fxa-400-header')
-        .end();
+      return this.remote
+        .then(openPage(this, SIGNIN_ROOT + '?client_id=invalid_client_id&scope=profile', '#fxa-400-header'));
     },
 
     'verified': function () {
-      var self = this;
+      return this.remote
+        .then(openFxaFromRp(this, 'signin'))
+        .then(createUser(email, PASSWORD, { preVerified: true }))
 
-      return FunctionalHelpers.openFxaFromRp(self, 'signin')
-        .then(function () {
-          return client.signUp(email, PASSWORD, { preVerified: true });
-        })
+        .then(fillOutSignIn(this, email, PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
-
-        .findByCssSelector('#loggedin')
-        .getCurrentUrl()
-        .then(function (url) {
-          // redirected back to the App
-          assert.ok(url.indexOf(OAUTH_APP) > -1);
-        })
-        .end();
+        .then(testAtOAuthApp());
     },
 
     'verified using a cached login': function () {
-      var self = this;
       // verify account
-      return FunctionalHelpers.openFxaFromRp(self, 'signin')
-        .then(function () {
-          return client.signUp(email, PASSWORD, { preVerified: true });
-        })
+      return this.remote
+        .then(openFxaFromRp(this, 'signin'))
+        .then(createUser(email, PASSWORD, { preVerified: true }))
 
         // sign in with a verified account to cache credentials
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
+        .then(fillOutSignIn(this, email, PASSWORD))
 
-        .findByCssSelector('#loggedin')
-        .getCurrentUrl()
-        .then(function (url) {
-          // redirected back to the App
-          assert.ok(url.indexOf(OAUTH_APP) > -1);
-        })
-        .end()
+        .then(testAtOAuthApp())
+        .then(click('#logout'))
 
-        // let items load
-        .findByCssSelector('#logout')
-          .click()
-        .end()
-
-        .then(FunctionalHelpers.visibleByQSA('.ready #splash .signin'))
-        .end()
-
+        .then(visibleByQSA('.ready #splash .signin'))
         // round 2 - with the cached credentials
-        .findByCssSelector('.ready #splash .signin')
-          .click()
-        .end()
+        .then(click('.ready #splash .signin'))
 
-        .findByCssSelector('#fxa-signin-header')
-        .end()
+        .then(testElementExists('#fxa-signin-header'))
+        .then(type('input[type=password]', PASSWORD))
+        .then(click('button[type="submit"]'))
 
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        .findByCssSelector('#loggedin')
-        .getCurrentUrl()
-        .then(function (url) {
-          // redirected back to the App
-          assert.ok(url.indexOf(OAUTH_APP) > -1);
-        })
-        .end();
+        .then(testAtOAuthApp());
     },
 
     'unverified, acts like signup': function () {
-      var self = this;
+      return this.remote
+        .then(openFxaFromRp(this, 'signin'))
+        .then(createUser(email, PASSWORD, { preVerified: false }))
 
-      return FunctionalHelpers.openFxaFromRp(self, 'signin')
-        .then(function () {
-          return client.signUp(email, PASSWORD, { preVerified: false });
-        })
+        .then(fillOutSignIn(this, email, PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
-
-        .findByCssSelector('#fxa-confirm-header')
+        .then(testElementExists('#fxa-confirm-header'))
 
         .then(function () {
           // get the second email, the first was sent on client.signUp w/
@@ -154,86 +121,91 @@ define([
           return FunctionalHelpers.getVerificationLink(user, 1);
         })
         .then(function (verifyUrl) {
-          return self.remote
+          return this.parent
             // user verifies in the same tab, so they are logged in to the RP.
-            .get(require.toUrl(verifyUrl))
-
-            .findByCssSelector('#loggedin')
-            .end();
+            .then(openPage(this.parent, verifyUrl, '#loggedin'));
         });
 
     },
 
     'unverified with a cached login': function () {
-      var self = this;
-      return FunctionalHelpers.openFxaFromRp(self, 'signup')
-        .findByCssSelector('#fxa-signup-header')
-        .end()
+      return this.remote
+        .then(openFxaFromRp(this, 'signup'))
+        .then(testElementExists('#fxa-signup-header'))
 
         // first, sign the user up to cache the login
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(this, email, PASSWORD))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-header'))
 
         // round 2 - try to sign in with the unverified user.
-        .then(function () {
-          return FunctionalHelpers.openFxaFromRp(self, 'signin');
-        })
+        .then(openFxaFromRp(this, 'signin'))
 
-        .findByCssSelector('#fxa-signin-header .service')
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(testElementExists('#fxa-signin-header .service'))
+        .then(type('input[type=password]', PASSWORD))
+        .then(click('button[type="submit"]'))
 
         // success is using a cached login and being redirected
         // to a confirmation screen
-        .findByCssSelector('#fxa-confirm-header')
-        .end();
+        .then(testElementExists('#fxa-confirm-header'));
     },
 
     'oauth endpoint chooses the right auth flows': function () {
-      var self = this;
-
-      return self.remote
-        .get(require.toUrl(OAUTH_APP))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+      return this.remote
+        .then(openPage(this, OAUTH_APP, '.ready #splash'))
 
         // use the 'Choose my sign-in flow for me' button
-        .findByCssSelector('.ready #splash .sign-choose')
-        .click()
-        .end()
+        .then(click('.ready #splash .sign-choose'))
 
-        .findByCssSelector('#fxa-signup-header')
-        .end()
+        .then(testElementExists('#fxa-signup-header'))
+        .then(fillOutSignUp(this, email, PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
-
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-header'))
 
         // go back to the OAuth app, the /oauth flow should
         // now suggest a cached login
         .get(require.toUrl(OAUTH_APP))
         // again, use the 'Choose my sign-in flow for me' button
-        .findByCssSelector('.ready #splash .sign-choose')
-        .click()
-        .end()
+        .then(click('.ready #splash .sign-choose'))
 
-        .findByCssSelector('#fxa-signin-header')
-        .end();
+        .then(testElementExists('#fxa-signin-header'));
     },
+
+    'verified, blocked': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+
+      return this.remote
+        .then(openFxaFromRp(this, 'signin'))
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+
+        .then(fillOutSignIn(this, email, PASSWORD))
+
+        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(fillOutSignInUnblock(email, 0))
+
+        .then(testAtOAuthApp());
+    },
+
+    'verified, blocked, incorrect password': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+
+      return this.remote
+        .then(openFxaFromRp(this, 'signin'))
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+
+        .then(fillOutSignIn(this, email, 'bad' + PASSWORD))
+
+        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(fillOutSignInUnblock(email, 0))
+
+        .then(testUrlPathnameEquals('/oauth/signin'))
+        .then(fillOutSignIn(this, email, PASSWORD))
+
+        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(fillOutSignInUnblock(email, 1))
+
+        .then(testAtOAuthApp());
+    }
   });
 
 });

@@ -6,34 +6,38 @@ define(function (require, exports, module) {
   'use strict';
 
   const Account = require('models/account');
-  const assert = require('chai').assert;
+  const { assert } = require('chai');
   const AuthBroker = require('models/auth_brokers/base');
+  const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const SignInMixin = require('views/mixins/signin-mixin');
   const sinon = require('sinon');
+  const User = require('models/user');
   const VerificationMethods = require('lib/verification-methods');
   const VerificationReasons = require('lib/verification-reasons');
 
-  var RESUME_TOKEN = 'a big hairy resume token';
+  const RESUME_TOKEN = 'a big hairy resume token';
 
   describe('views/mixins/signin-mixin', function () {
     it('exports correct interface', function () {
       assert.isObject(SignInMixin);
-      assert.lengthOf(Object.keys(SignInMixin), 5);
+      assert.lengthOf(Object.keys(SignInMixin), 6);
       assert.isFunction(SignInMixin.signIn);
+      assert.isFunction(SignInMixin.onSignInBlocked);
       assert.isFunction(SignInMixin.onSignInSuccess);
       assert.equal(SignInMixin.signInSubmitContext, 'signin', 'has a submit context');
     });
 
     describe('signIn', function () {
-      var account;
-      var broker;
-      var flow;
-      var model;
-      var relier;
-      var view;
+      let account;
+      let broker;
+      let flow;
+      let model;
+      let relier;
+      let user;
+      let view;
 
       beforeEach(function () {
         account = new Account({
@@ -43,6 +47,8 @@ define(function (require, exports, module) {
         broker = new AuthBroker();
         flow = {};
         model = new Backbone.Model();
+        user = new User();
+        sinon.stub(user, 'signInAccount', (account) => p(account));
 
         relier = new Relier();
         view = {
@@ -50,6 +56,8 @@ define(function (require, exports, module) {
             clear: sinon.spy()
           },
           broker: broker,
+          currentPage: 'force_auth',
+          displayError: sinon.spy(),
           flow: flow,
           getStringifiedResumeToken: sinon.spy(function () {
             return RESUME_TOKEN;
@@ -62,15 +70,13 @@ define(function (require, exports, module) {
           logViewEvent: sinon.spy(),
           model: model,
           navigate: sinon.spy(),
+          on: sinon.spy(),
+          onSignInBlocked: SignInMixin.onSignInBlocked,
           onSignInSuccess: SignInMixin.onSignInSuccess,
           relier: relier,
           signIn: SignInMixin.signIn,
           signInSubmitContext: SignInMixin.signInSubmitContext,
-          user: {
-            signInAccount: sinon.spy(function (account) {
-              return p(account);
-            })
-          }
+          user: user
         };
       });
 
@@ -90,8 +96,8 @@ define(function (require, exports, module) {
 
         it('signs in the user', function () {
           assert.isTrue(
-            view.user.signInAccount.calledWith(account, 'password', relier));
-          assert.equal(view.user.signInAccount.args[0][3].resume, RESUME_TOKEN);
+            user.signInAccount.calledWith(account, 'password', relier));
+          assert.equal(user.signInAccount.args[0][3].resume, RESUME_TOKEN);
         });
 
         it('redirects to the `signin_permissions` screen', function () {
@@ -186,8 +192,8 @@ define(function (require, exports, module) {
 
         it('signs in the user', function () {
           assert.isTrue(
-            view.user.signInAccount.calledWith(account, 'password', relier));
-          assert.equal(view.user.signInAccount.args[0][3].resume, RESUME_TOKEN);
+            user.signInAccount.calledWith(account, 'password', relier));
+          assert.equal(user.signInAccount.args[0][3].resume, RESUME_TOKEN);
           assert.equal(view.logEvent.args[0], 'flow.signin.submit', 'correct submit event');
         });
 
@@ -214,8 +220,8 @@ define(function (require, exports, module) {
 
         it('signs in the user', function () {
           assert.isTrue(
-            view.user.signInAccount.calledWith(account, 'password', relier));
-          assert.equal(view.user.signInAccount.args[0][3].resume, RESUME_TOKEN);
+            user.signInAccount.calledWith(account, 'password', relier));
+          assert.equal(user.signInAccount.args[0][3].resume, RESUME_TOKEN);
         });
 
         it('calls view.navigate correctly', function () {
@@ -225,6 +231,72 @@ define(function (require, exports, module) {
           assert.equal(args[0], 'confirm_signin');
           assert.strictEqual(args[1].account, account);
           assert.strictEqual(args[1].flow, flow);
+        });
+      });
+
+      describe('blocked', () => {
+        let blockedError;
+
+        beforeEach(() => {
+          blockedError = AuthErrors.toError('REQUEST_BLOCKED');
+
+          user.signInAccount.restore();
+          sinon.stub(user, 'signInAccount', () => p.reject(blockedError));
+        });
+
+        describe('cannot unblock', () => {
+          let err;
+          beforeEach(() => {
+            return view.signIn(account, 'password')
+              .then(assert.fail, (_err) => err = _err);
+          });
+
+          it('re-throws the error for display at a lower level', () => {
+            assert.strictEqual(err, blockedError);
+          });
+        });
+
+        describe('can unblock', () => {
+          describe('email successfully sent', () => {
+            beforeEach(() => {
+              blockedError.verificationReason = VerificationReasons.SIGN_IN;
+              blockedError.verificationMethod = VerificationMethods.EMAIL_CAPTCHA;
+
+              sinon.stub(account, 'sendUnblockEmail', () => p());
+
+              return view.signIn(account, 'password');
+            });
+
+            it('redirects to `signin_unblock` with the account and password', () => {
+              assert.isTrue(view.navigate.calledWith(
+                'signin_unblock',
+                {
+                  account: account,
+                  lastPage: 'force_auth',
+                  password: 'password'
+                }
+              ));
+            });
+          });
+
+          describe('error sending email', () => {
+            const err = AuthErrors.toError('UNEXPECTED_ERROR');
+            let thrownErr;
+
+            beforeEach(() => {
+              blockedError.verificationReason = VerificationReasons.SIGN_IN;
+              blockedError.verificationMethod = VerificationMethods.EMAIL_CAPTCHA;
+
+              sinon.stub(account, 'sendUnblockEmail', () => p.reject(err));
+
+              return view.signIn(account, 'password')
+                .then(assert.fail, (_err) => thrownErr = _err);
+            });
+
+            it('re-throws the error for display', () => {
+              assert.strictEqual(thrownErr, err);
+            });
+          });
         });
       });
 

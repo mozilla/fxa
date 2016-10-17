@@ -22,6 +22,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = FunctionalHelpers.openPage;
@@ -34,6 +35,7 @@ define([
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
+  var type = FunctionalHelpers.type;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   function testAtConfirmScreen (email) {
@@ -51,7 +53,7 @@ define([
   }
 
   registerSuite({
-    name: 'signup',
+    name: 'sign_up',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -267,6 +269,41 @@ define([
         .then(testElementValueEquals('input[type=email]', email))
         .then(testElementValueEquals('input[type=password]', 'bad' + PASSWORD));
     },
+
+    'blocked - signup with existing account, coppa is empty, credentials are correct': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+
+      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: ' ' })
+
+        // should have navigated to settings view
+        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(testElementTextInclude('.verification-email-message', email))
+        .then(fillOutSignInUnblock(email, 0))
+
+        .then(testElementExists('#fxa-settings-header'));
+    },
+
+    'blocked - signup with existing account, coppa is empty, credentials are wrong': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+
+      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: ' ' })
+
+        // should have navigated to settings view
+        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(testElementTextInclude('.verification-email-message', email))
+        .then(fillOutSignInUnblock(email, 0))
+
+        .then(testElementExists('#fxa-signin-header'))
+        .then(type('input[type=password]', PASSWORD))
+        .then(click('button[type=submit]'))
+
+        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(testElementTextInclude('.verification-email-message', email))
+        .then(fillOutSignInUnblock(email, 1))
+
+        .then(testElementExists('#fxa-settings-header'));
+    },
+
 
     'signup with new account, coppa is empty': function () {
       return this.remote

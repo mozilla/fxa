@@ -3,17 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * List of methods by which a user can verify.
- * A user can currently only verify via email.
- * In the future SMS and TOTP could also be included.
+ * An extremely small view that thanks the user for reporting
+ * a suspicious sign-in attempt.
  */
-
 define(function (require, exports, module) {
   'use strict';
 
-  return {
-    EMAIL: 'email',
-    EMAIL_CAPTCHA: 'email-captcha'
-  };
+  const BaseView = require('views/base');
+  const Template = require('stache!templates/sign_in_reported');
+
+  module.exports = BaseView.extend({
+    template: Template
+  });
 });
 

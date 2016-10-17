@@ -360,6 +360,21 @@ define(function (require, exports, module) {
         Backbone.history.fragment = 'settings';
         assert.equal(router.getCurrentPage(), 'settings');
       });
+
+      it('strips any query parameters from the fragment', () => {
+        Backbone.history.fragment = 'force_auth?email=testuser@testuser.com';
+        assert.equal(router.getCurrentPage(), 'force_auth');
+      });
+
+      it('strips leading `/` from the fragment', () => {
+        Backbone.history.fragment = '/force_auth';
+        assert.equal(router.getCurrentPage(), 'force_auth');
+      });
+
+      it('strips trailing `/` from the fragment', () => {
+        Backbone.history.fragment = 'force_auth/';
+        assert.equal(router.getCurrentPage(), 'force_auth');
+      });
     });
 
     describe('createViewHandler', function () {

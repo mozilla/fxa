@@ -14,6 +14,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
+  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openForceAuth = FunctionalHelpers.openForceAuth;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
@@ -25,21 +26,33 @@ define([
   var PASSWORD = 'password';
   var email;
 
-  var setupTest = thenify(function (context, preVerified) {
+  var setupTest = thenify(function (options) {
+    options = options || {};
+
+    const successSelector = options.blocked ? '#fxa-signin-unblock-header' :
+                            options.preVerified ? '#fxa-confirm-signin-header' :
+                            '#fxa-confirm-header';
+
+
     return this.parent
-      .then(clearBrowserState(context))
-      .then(createUser(email, PASSWORD, { preVerified: preVerified }))
+      .then(clearBrowserState(this.parent))
+      .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openForceAuth({ query: {
         context: 'fx_fennec_v1',
         email: email,
         service: 'sync'
       }}))
-      .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
+      .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutForceAuth(PASSWORD))
 
-      .then(testElementExists(preVerified ? '#fxa-confirm-signin-header' : '#fxa-confirm-header'))
-      .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'))
-      .then(testIsBrowserNotified(context, 'fxaccounts:login'));
+      .then(testElementExists(successSelector))
+      .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'))
+      .then(() => {
+        if (! options.blocked) {
+          return this.parent
+            .then(testIsBrowserNotified(this.parent, 'fxaccounts:login'));
+        }
+      });
   });
 
   registerSuite({
@@ -51,7 +64,7 @@ define([
 
     'verified, verify same browser': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest({ preVerified: true }))
 
         .then(openVerificationLinkInNewTab(this, email, 0))
         .switchToWindow('newwindow')
@@ -76,7 +89,7 @@ define([
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest({ preVerified: true }))
 
         .then(openVerificationLinkDifferentBrowser(email))
 
@@ -85,7 +98,19 @@ define([
 
     'unverified': function () {
       return this.remote
-        .then(setupTest(this, false));
+        .then(setupTest({ preVerified: false }));
+    },
+
+    'verified, blocked': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+
+      return this.remote
+        .then(setupTest({ blocked: true, preVerified: true }))
+
+        .then(fillOutSignInUnblock(email, 0))
+        .then(testIsBrowserNotified(this.parent, 'fxaccounts:login'))
+
+        .then(testElementExists('#fxa-sign-in-complete-header'));
     }
   });
 });

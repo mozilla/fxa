@@ -85,13 +85,39 @@ define(function (require, exports, module) {
 
     describe('beforeSignIn', function () {
       it('is happy if the user clicks `yes`', function () {
-        channelMock.request = sinon.spy(function () {
-          return p({ ok: true });
+        channelMock.request = sinon.spy(() => p({ ok: true }));
+
+        return broker.beforeSignIn(account)
+          .then(() => {
+            assert.isTrue(channelMock.request.calledOnce);
+            assert.isTrue(channelMock.request.calledWith('can_link_account'));
+          });
+      });
+
+      it('does not repeat can_link_account requests for the same user', () => {
+        channelMock.request = sinon.spy(() => p({ ok: true }));
+
+        return broker.beforeSignIn(account)
+          .then(() => broker.beforeSignIn(account))
+          .then(() => {
+            assert.isTrue(channelMock.request.calledOnce);
+            assert.isTrue(channelMock.request.calledWith('can_link_account'));
+          });
+      });
+
+      it('does repeat can_link_account requests for different users', () => {
+        channelMock.request = sinon.spy(() => p({ ok: true }));
+
+        const account2 = user.initAccount({
+          email: 'testuser2@testuser.com'
         });
 
         return broker.beforeSignIn(account)
-          .then(function () {
-            assert.isTrue(channelMock.request.calledWith('can_link_account'));
+          .then(() => broker.beforeSignIn(account2))
+          .then(() => {
+            assert.equal(channelMock.request.callCount, 2);
+            assert.equal(channelMock.request.args[0][0], 'can_link_account');
+            assert.equal(channelMock.request.args[1][0], 'can_link_account');
           });
       });
 

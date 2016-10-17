@@ -11,7 +11,7 @@ cd node_modules/fxa-auth-server
 npm i
 LOG_LEVEL=error node ./node_modules/fxa-auth-db-mysql/bin/mem.js &
 node ./scripts/gen_keys.js
-npm start &> /dev/null &
+SIGNIN_UNBLOCK_ALLOWED_EMAILS="^block.*@restmail\\.net$" SIGNIN_UNBLOCK_FORCED_EMAILS="^block.*@restmail\\.net$" npm start &> /dev/null &
 cd ../..
 
 # OAuth

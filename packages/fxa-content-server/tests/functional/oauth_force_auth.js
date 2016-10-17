@@ -17,6 +17,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
+  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
@@ -78,6 +79,22 @@ define([
 
         // switch to the original window
         .then(closeCurrentWindow())
+
+        .then(testElementExists('#loggedin'))
+        // redirected back to the App
+        .then(testUrlEquals(OAUTH_APP));
+    },
+
+    'verified, blocked': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openFxaFromRp(this, 'force_auth', { query: { email: email }}))
+        .then(fillOutForceAuth(PASSWORD))
+
+        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(fillOutSignInUnblock(email, 0))
 
         .then(testElementExists('#loggedin'))
         // redirected back to the App

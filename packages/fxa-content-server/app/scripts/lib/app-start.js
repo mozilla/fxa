@@ -694,9 +694,14 @@ define(function (require, exports, module) {
              this._searchParam('token');
     },
 
+    _isReportSignIn () {
+      return this._window.location.pathname === '/report_signin';
+    },
+
     _isVerification () {
       return this._isSignUpVerification() ||
-             this._isPasswordResetVerification();
+             this._isPasswordResetVerification() ||
+             this._isReportSignIn();
     },
 
     _isFxFirstrunV1 () {

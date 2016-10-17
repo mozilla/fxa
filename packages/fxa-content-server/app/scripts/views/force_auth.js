@@ -56,6 +56,8 @@ define(function (require, exports, module) {
       try {
         accountData = this._getAndValidateAccountData();
       } catch (err) {
+        // uid query parameter validation errors are not handled here,
+        // rather they are handled on startup by the relier.
         this.fatalError(err);
         return false;
       }
@@ -150,7 +152,6 @@ define(function (require, exports, module) {
     context () {
       return {
         email: this.relier.get('email'),
-        fatalError: this.model.get('error'),
         password: this._formPrefill.get('password')
       };
     },

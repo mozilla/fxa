@@ -73,18 +73,19 @@ define(function (require, exports, module) {
     done();
   }
 
-  function createRandomHexString(length) {
-    var str = '';
-    var lettersToChooseFrom = 'abcdefABCDEF01234567890';
-    var numberOfPossibilities = lettersToChooseFrom.length;
+  function createRandomString(length, base = 36) {
+    let str = '';
+    let alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
 
-    for (var i = 0; i < length; ++i) {
-      var indexToUse = Math.floor(Math.random() * numberOfPossibilities);
-      str += lettersToChooseFrom.charAt(indexToUse);
+    for (let i = 0; i < length; ++i) {
+      let indexToUse = Math.floor(Math.random() * base);
+      str += alphabet.charAt(indexToUse);
     }
 
     return str;
   }
+
+  const createRandomHexString = (length) => createRandomString(length, 16);
 
   function createUid() {
     return createRandomHexString(Constants.UID_LENGTH);
@@ -165,6 +166,7 @@ define(function (require, exports, module) {
     addFxaClientSpy: addFxaClientSpy,
     createEmail: createEmail,
     createRandomHexString: createRandomHexString,
+    createRandomString: createRandomString,
     createUid: createUid,
     emailToUser: emailToUser,
     getValueLabel: getValueLabel,

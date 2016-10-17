@@ -9,6 +9,7 @@ define([
   intern.functionalSuites = [
     'tests/functional/sign_in',
     'tests/functional/sign_in_cached',
+    'tests/functional/sign_in_blocked',
     'tests/functional/sync_sign_in',
     'tests/functional/sign_up',
     'tests/functional/complete_sign_up',

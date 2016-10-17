@@ -355,10 +355,12 @@ define(function (require, exports, module) {
      * @param {String} password - The user's password
      * @param {Object} relier - Relier being signed in to
      * @param {Object} [options]
-     * @param {String} [options.reason] - Reason for the sign in. See definitons
-     * in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
-     * @param {String} [options.resume] - Resume token to send in verification
-     * email if user is unverified.
+     *   @param {String} [options.reason] - Reason for the sign in.
+     *   See definitons in sign-in-reasons.js. Defaults to
+     *   SIGN_IN_REASONS.SIGN_IN.
+     *   @param {String} [options.resume] - Resume token to send
+     *   in verification email if user is unverified.
+     *   @param {String} [options.unblockCode] - Unblock code.
      * @returns {Promise} - resolves when complete
      */
     signIn (password, relier, options = {}) {
@@ -370,7 +372,8 @@ define(function (require, exports, module) {
           return this._fxaClient.signIn(email, password, relier, {
             metricsContext: this._metrics.getFlowEventMetadata(),
             reason: options.reason || SignInReasons.SIGN_IN,
-            resume: options.resume
+            resume: options.resume,
+            unblockCode: options.unblockCode
           });
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
@@ -849,6 +852,33 @@ define(function (require, exports, module) {
      */
     isPasswordResetComplete (token) {
       return this._fxaClient.isPasswordResetComplete(token);
+    },
+
+    /**
+     * Send an unblock email.
+     *
+     * @returns {Promise} resolves when complete
+     */
+    sendUnblockEmail () {
+      return this._fxaClient.sendUnblockEmail(
+        this.get('email'),
+        {
+          metricsContext: this._metrics.getFlowEventMetadata()
+        }
+      );
+    },
+
+    /**
+     * Reject a login unblock code.
+     *
+     * @param {String} unblockCode
+     * @returns {Promise} resolves when complete
+     */
+    rejectUnblockCode (unblockCode) {
+      return this._fxaClient.rejectUnblockCode(
+        this.get('uid'),
+        unblockCode
+      );
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,

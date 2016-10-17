@@ -19,11 +19,13 @@ define(function (require, exports, module) {
   const emailInput = require('views/elements/email-input');
   const passwordInput = require('views/elements/password-input');
   const textInput = require('views/elements/text-input');
+  const unblockCodeInput = require('views/elements/unblock-code-input');
 
   const elementHelpers = [
     checkboxInput,
     emailInput,
     passwordInput,
+    unblockCodeInput,
     textInput,
     defaultElement // defaultElement is last since it is the fallback.
   ];

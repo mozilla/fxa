@@ -21,23 +21,32 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = thenify(FunctionalHelpers.openPage);
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
-  var setupTest = thenify(function (context, preVerified) {
+  var setupTest = thenify(function (options) {
+    options = options || {};
+
     return this.parent
-      .then(clearBrowserState(context))
-      .then(createUser(email, PASSWORD, { preVerified: preVerified }))
-      .then(openPage(context, PAGE_URL, '#fxa-signin-header'))
-      .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
-      .then(fillOutSignIn(context, email, PASSWORD))
-      .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'))
-      .then(testIsBrowserNotified(context, 'fxaccounts:login'));
+      .then(clearBrowserState(this.parent))
+      .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
+      .then(openPage(this.parent, PAGE_URL, '#fxa-signin-header'))
+      .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
+      .then(fillOutSignIn(this.parent, email, PASSWORD))
+      .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'))
+      .then(() => {
+        if (! options.blocked) {
+          return this.parent
+            .then(testIsBrowserNotified(this.parent, 'fxaccounts:login'));
+        }
+      });
   });
 
   registerSuite({
@@ -49,7 +58,7 @@ define([
 
     'verified, verify same browser': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest({ preVerified: true }))
 
         .then(testElementExists('#fxa-confirm-signin-header'))
 
@@ -76,7 +85,7 @@ define([
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest({ preVerified: true }))
 
         .then(openVerificationLinkDifferentBrowser(email))
 
@@ -85,7 +94,7 @@ define([
 
     'unverified': function () {
       return this.remote
-        .then(setupTest(this, false))
+        .then(setupTest({ preVerified: false }))
 
         .then(testElementExists('#fxa-confirm-header'))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
@@ -100,6 +109,20 @@ define([
           .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-sign-up-complete-header'));
+    },
+
+    'blocked, valid code entered': function () {
+      email = TestHelpers.createEmail('block{id}');
+
+      return this.remote
+        .then(setupTest({ blocked: true, preVerified: true }))
+
+        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(testElementTextInclude('.verification-email-message', email))
+        .then(fillOutSignInUnblock(email, 0))
+
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testElementExists('#fxa-sign-in-complete-header'));
     }
   });
 });

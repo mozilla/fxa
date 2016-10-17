@@ -923,5 +923,15 @@ define(function (require, exports, module) {
         assert.equal(view.checkAuthorization.callCount, 1);
       });
     });
+
+    describe('getSearchParams', () => {
+      it('returns an object representation of window.location.search', () => {
+        const searchString = '?search=1';
+
+        windowMock.location.search = searchString;
+        const searchParams = view.getSearchParams();
+        assert.equal(searchParams.search, '1');
+      });
+    });
   });
 });

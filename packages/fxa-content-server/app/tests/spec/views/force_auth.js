@@ -6,10 +6,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const Account = require('models/account');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const Broker = require('models/auth_brokers/base');
-  const chai = require('chai');
   const FormPrefill = require('models/form-prefill');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
@@ -21,9 +21,6 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const View = require('views/force_auth');
   const WindowMock = require('../../mocks/window');
-
-  var assert = chai.assert;
-
 
   describe('/views/force_auth', function () {
     var broker;
@@ -341,6 +338,22 @@ define(function (require, exports, module) {
         it('isValid is successful when the password is filled out', function () {
           view.$('.password').val('password');
           assert.isTrue(view.isValid());
+        });
+      });
+
+      describe('`INCORRECT_PASSWORD` passed in from the previous view', () => {
+        beforeEach(function () {
+          isEmailRegistered = true;
+
+          model.set('error', AuthErrors.toError('INCORRECT_PASSWORD'));
+
+          return view.render().then(() => view.afterVisible());
+        });
+
+        it('renders the error, allows user to enter their password again', () => {
+          assert.include(
+            view.$('.error').text().toLowerCase(), 'incorrect password');
+          assert.lengthOf(view.$('input[type=password]'), 1);
         });
       });
     });

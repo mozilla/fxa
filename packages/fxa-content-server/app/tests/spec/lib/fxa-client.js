@@ -1186,6 +1186,32 @@ define(function (require, exports, module) {
           realClient.deviceDestroy.calledWith('session token', 'device id'));
       });
     });
+
+    describe('sendUnblockEmail', () => {
+      const metricsContext = {};
+      beforeEach(() => {
+        sinon.stub(realClient, 'sendUnblockCode', () => p({}));
+
+        return client.sendUnblockEmail(email, { metricsContext });
+      });
+
+      it('sends a login authorization email', () => {
+        assert.isTrue(
+          realClient.sendUnblockCode.calledWith(email, { metricsContext }));
+      });
+    });
+
+    describe('rejectUnblockCode', () => {
+      beforeEach(() => {
+        sinon.stub(realClient, 'rejectUnblockCode', () => p({}));
+
+        return client.rejectUnblockCode('uid', 'code');
+      });
+
+      it('rejects the authorization code', () => {
+        assert.isTrue(realClient.rejectUnblockCode.calledWith('uid', 'code'));
+      });
+    });
   });
 });
 

@@ -5,14 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const Constants = require('lib/constants');
   const TestHelpers = require('../../lib/helpers');
   const Validate = require('lib/validate');
 
-  var assert = chai.assert;
-
-  var createRandomHexString = TestHelpers.createRandomHexString;
+  const createRandomBase36String =
+    (length) => TestHelpers.createRandomString(length, 36);
+  const createRandomHexString = TestHelpers.createRandomHexString;
 
   describe('lib/validate', function () {
     describe('isEmailValid', function () {
@@ -465,6 +465,34 @@ define(function (require, exports, module) {
         it('returns true for ' + item, function () {
           assert.isTrue(Validate.isBase64JwtValid(item));
         });
+      });
+    });
+
+    describe('isUnblockCodeValid', () => {
+      const validUnblockCode =
+        createRandomBase36String(Constants.UNBLOCK_CODE_LENGTH);
+      const containsSpace = validUnblockCode.substr(0, 1) + ' ' +
+        validUnblockCode.substr(1, Constants.UNBLOCK_CODE_LENGTH - 2);
+
+      const invalidTypes = [
+        '',
+        createRandomBase36String(Constants.UNBLOCK_CODE_LENGTH - 1),
+        createRandomBase36String(Constants.UNBLOCK_CODE_LENGTH + 1),
+        createRandomBase36String(Constants.UNBLOCK_CODE_LENGTH * 2),
+        '#' + createRandomBase36String(Constants.UNBLOCK_CODE_LENGTH - 1),
+        containsSpace
+      ];
+
+      invalidTypes.forEach((item) => {
+        it('returns false for ' + item, () => {
+          assert.isFalse(Validate.isUnblockCodeValid(item));
+        });
+      });
+
+      it('returns true for valid code', () => {
+        assert.isTrue(Validate.isUnblockCodeValid(validUnblockCode));
+        assert.isTrue(Validate.isUnblockCodeValid(validUnblockCode.toLowerCase()));
+        assert.isTrue(Validate.isUnblockCodeValid(validUnblockCode.toUpperCase()));
       });
     });
   });

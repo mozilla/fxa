@@ -20,17 +20,20 @@ define(function (require, exports, module) {
       'click': '_engageSignInForm',
       'input input': '_engageSignInForm'
     },
+
     /**
      * Sign in a user
      *
-     * @param {Account} account
-     *     @param {String} account.sessionToken
-     *     Session token from the account
+     * @param {Account} account - account being signed in to
+     *   @param {String} account.sessionToken
+     *   Session token from the account
      * @param {String} [password] - the user's password. Can be null if
      *  user is signing in with a sessionToken.
+     * @param {Object} [options]
+     *   @param {String} [options.unblockCode] - unblock code
      * @return {Object} promise
      */
-    signIn (account, password) {
+    signIn (account, password, options = {}) {
       this.logEvent(`flow.${this.signInSubmitContext}.submit`);
 
       if (! account ||
@@ -45,7 +48,8 @@ define(function (require, exports, module) {
             // a resume token is passed in to allow
             // unverified account or session users to complete
             // email verification.
-            resume: this.getStringifiedResumeToken()
+            resume: this.getStringifiedResumeToken(),
+            unblockCode: options.unblockCode
           });
         })
         .then((account) => {
@@ -63,7 +67,40 @@ define(function (require, exports, module) {
           }
 
           return this.onSignInSuccess(account);
+        })
+        .fail((err) => {
+          if (AuthErrors.is(err, 'THROTTLED') ||
+              AuthErrors.is(err, 'REQUEST_BLOCKED')) {
+            return this.onSignInBlocked(account, password, err);
+          }
+
+          // re-throw error, it'll be handled elsewhere.
+          throw err;
         });
+    },
+
+    onSignInBlocked (account, password, err) {
+      // signin is blocked and can be unblocked.
+      if (err.verificationReason === VerificationReasons.SIGN_IN &&
+          err.verificationMethod === VerificationMethods.EMAIL_CAPTCHA) {
+
+        // Sending the unblock email could itself be rate limited.
+        // If it is, the error should be displayed on this screen
+        // and the user shouldn't even have the chance to continue.
+
+        return account.sendUnblockEmail()
+          .then(() => {
+            return this.navigate('signin_unblock', {
+              account: account,
+              lastPage: this.currentPage,
+              password: password
+            });
+          });
+      }
+
+      // Signin is blocked and cannot be unblocked, show the
+      // error at another level.
+      return p.reject(err);
     },
 
     onSignInSuccess (account) {

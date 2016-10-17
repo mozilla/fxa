@@ -25,6 +25,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = thenify(FunctionalHelpers.openPage);
@@ -35,17 +36,26 @@ define([
   var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-  var setupTest = thenify(function (context, preVerified, options) {
+  var setupTest = thenify(function (options) {
     options = options || {};
 
+    const successSelector = options.blocked ? '#fxa-signin-unblock-header' :
+                            options.preVerified ? '#fxa-confirm-signin-header' :
+                            '#fxa-confirm-header';
+
     return this.parent
-      .then(createUser(email, PASSWORD, { preVerified: preVerified }))
-      .then(openPage(context, options.pageUrl || PAGE_URL, '#fxa-signin-header'))
+      .then(createUser(email, PASSWORD, { preVerified: !! options.preVerified }))
+      .then(openPage(this.parent, options.pageUrl || PAGE_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
-      .then(fillOutSignIn(context, email, PASSWORD))
-      .then(testIsBrowserNotified(context, 'can_link_account'))
-      .then(testIsBrowserNotifiedOfLogin(context, email, { checkVerified: false }))
-      .then(testElementExists(preVerified ? '#fxa-confirm-signin-header' : '#fxa-confirm-header'));
+      .then(fillOutSignIn(this.parent, email, PASSWORD))
+      .then(testIsBrowserNotified(this.parent, 'can_link_account'))
+      .then(() => {
+        if (! options.blocked) {
+          return this.parent
+            .then(testIsBrowserNotifiedOfLogin(this.parent, email, { checkVerified: false }));
+        }
+      })
+      .then(testElementExists(successSelector));
   });
 
   registerSuite({
@@ -59,7 +69,7 @@ define([
 
     'verified, verify same browser': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest({ preVerified: true }))
 
         .then(openVerificationLinkInNewTab(this, email, 0))
         .switchToWindow('newwindow')
@@ -72,7 +82,7 @@ define([
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest({ preVerified: true }))
 
         .then(openVerificationLinkDifferentBrowser(email))
 
@@ -82,7 +92,7 @@ define([
 
     'verified, resend email, verify same browser': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest({ preVerified: true }))
 
         .then(click('#resend'))
         .then(visibleByQSA('.success'))
@@ -99,19 +109,19 @@ define([
 
     'verified, do not confirm signin, load root': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest({ preVerified: true }))
 
         .then(openPage(this, ROOT_URL, '#fxa-confirm-signin-header'));
     },
 
     'unverified': function () {
       return this.remote
-        .then(setupTest(this, false));
+        .then(setupTest({ preVerified: false }));
     },
 
     'unverified, do not confirm signin, load root': function () {
       return this.remote
-        .then(setupTest(this, false))
+        .then(setupTest({ preVerified: false }))
 
         .then(openPage(this, ROOT_URL, '#fxa-confirm-header'));
     },
@@ -120,6 +130,19 @@ define([
       return this.remote
         .then(openPage(this, PAGE_URL_WITH_MIGRATION, '#fxa-signin-header'))
         .then(visibleByQSA('.info.nudge'));
+    },
+
+    'verified, blocked': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+
+      return this.remote
+        .then(setupTest({ blocked: true, preVerified: true }))
+
+        .then(fillOutSignInUnblock(email, 0))
+        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: true }))
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-signin-unblock-header'));
     }
   });
 });
