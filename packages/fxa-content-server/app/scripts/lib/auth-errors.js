@@ -319,7 +319,7 @@ define(function (require, exports, module) {
     },
     DAMAGED_REJECT_UNBLOCK_LINK: {
       errno: 1045,
-      message: t('Damaged link')
+      message: t('Link damaged')
     }
   };
   /*eslint-enable sorting/sort-object-props*/
