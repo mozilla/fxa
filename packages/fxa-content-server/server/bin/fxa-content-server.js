@@ -42,6 +42,7 @@ var fourOhFour = require('../lib/404');
 var serverErrorHandler = require('../lib/500');
 var localizedRender = require('../lib/localized-render');
 var csp = require('../lib/csp');
+var hpkp = require('../lib/hpkp');
 var cspRulesBlocking = require('../lib/csp/blocking')(config);
 var cspRulesReportOnly = require('../lib/csp/report-only')(config);
 var frameGuard = require('../lib/frame-guard')(config);
@@ -83,6 +84,9 @@ function makeApp() {
   }
   if (config.get('csp.reportOnlyEnabled')) {
     app.use(csp({ rules: cspRulesReportOnly }));
+  }
+  if (config.get('hpkp.enabled')) {
+    app.use(hpkp(config));
   }
 
   app.disable('x-powered-by');

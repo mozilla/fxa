@@ -16,6 +16,7 @@ define([
     'tests/server/flow-event',
     'tests/server/flow-metrics',
     'tests/server/frame-guard',
+    'tests/server/hpkp',
     'tests/server/l10n',
     'tests/server/lang',
     'tests/server/metrics',

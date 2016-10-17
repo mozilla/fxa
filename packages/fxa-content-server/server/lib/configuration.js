@@ -149,6 +149,44 @@ var conf = module.exports = convict({
     doc: 'Google Analytics id',
     format: String
   },
+  hpkp: {
+    enabled: {
+      default: false,
+      doc: 'Feature flag for appending HPKP headers',
+      env: 'HPKP_ENABLE',
+      format: Boolean
+    },
+    includeSubDomains: {
+      default: true,
+      doc: 'Include Sub-Domains',
+      env: 'HPKP_INCLUDE_SUBDOMAINS',
+      format: Boolean
+    },
+    maxAge: {
+      default: 1,
+      doc: 'Max age for HPKP headers (seconds)',
+      env: 'HPKP_MAX_AGE',
+      format: Number
+    },
+    reportOnly: {
+      default: true,
+      doc: 'Enable report only mode',
+      env: 'HPKP_REPORT_ONLY',
+      format: Boolean
+    },
+    reportUri: {
+      default: '',
+      doc: 'Enable report only mode',
+      env: 'HPKP_REPORT_URI',
+      format: String
+    },
+    sha256s: {
+      default: [],
+      doc: 'Supported pin-sha256s (at least two shas required)',
+      env: 'HPKP_PIN_SHA256',
+      format: Array
+    }
+  },
   hsts_max_age: {
     default: '180 days',
     doc: 'Max age of the STS directive',
