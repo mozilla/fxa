@@ -47,7 +47,9 @@ var output = {
 mc.getAsync('limits')
   .then(
     function (data) {
-      if (!data) { console.error('no limits set') }
+      if (!data) {
+        console.error('no limits set')
+      }
       else {
         output.limits = data
       }
@@ -56,7 +58,9 @@ mc.getAsync('limits')
   )
   .then(
     function (data) {
-      if (!data) { console.error('no allowedIPs set') }
+      if (!data) {
+        console.error('no allowedIPs set')
+      }
       else {
         output.allowedIPs = data
       }
@@ -65,7 +69,9 @@ mc.getAsync('limits')
   )
   .then(
     function (data) {
-      if (!data) { console.error('no allowedEmailDomains set') }
+      if (!data) {
+        console.error('no allowedEmailDomains set')
+      }
       else {
         output.allowedEmailDomains = data
       }
@@ -74,7 +80,9 @@ mc.getAsync('limits')
   )
   .then(
     function (data) {
-      if (!data) { console.error('no requestChecks set') }
+      if (!data) {
+        console.error('no requestChecks set')
+      }
       else {
         output.requestChecks = data
       }

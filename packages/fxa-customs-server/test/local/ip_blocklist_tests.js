@@ -274,6 +274,13 @@ test(
 
         t.end()
       })
+      .finally(function () {
+        // Try to clean up after ourselves
+        try {
+          fs.unlinkSync(tmpFilename)
+        } catch (err) {
+        }
+      })
 
   }
 )
