@@ -181,6 +181,15 @@ module.exports = function (fs, path, url, convict) {
         'mockmyid.com'
       ]
     },
+    requestChecks: {
+      treatEveryoneWithSuspicion: {
+        doc: 'Whether to flag all requests as suspicious by default',
+        format: Boolean,
+        default: false,
+        env: 'TREAT_EVERYONE_WITH_SUSPICION'
+      }
+      // The private branch puts some additional private config here.
+    },
     ipBlocklist: {
       enable: {
         doc: 'Flag to enable ip blocklist',

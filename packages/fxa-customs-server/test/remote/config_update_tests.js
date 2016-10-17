@@ -21,6 +21,9 @@ var client = restify.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
 
+var IP = '10.0.0.5'
+var EMAIL = 'test@example.com'
+
 Promise.promisifyAll(client, { multiArgs: true })
 
 test(
@@ -164,6 +167,56 @@ test(
         t.fail(err)
         t.end()
       })
+  }
+)
+
+test(
+  'change requestChecks.treatEveryoneWithSuspicion',
+  function (t) {
+    return client.postAsync('/check', {
+      ip: IP,
+      email: EMAIL,
+      action: 'accountCreate'
+    })
+    .spread(function (req, res, obj) {
+      t.deepEqual(obj, {
+        block: false,
+        retryAfter: 0,
+        suspect: false,
+        unblock: true
+      }, 'request was not suspicious before the change')
+      return mcHelper.setRequestChecks({
+        treatEveryoneWithSuspicion: true
+      })
+    })
+    .then(function () {
+      return Promise.delay(1010)
+    })
+    .then(function() {
+      return client.postAsync('/check', {
+        ip: IP,
+        email: EMAIL,
+        action: 'accountCreate'
+      })
+    })
+    .spread(function (req, res, obj) {
+      t.deepEqual(obj, {
+        block: false,
+        retryAfter: 0,
+        suspect: true,
+        unblock: true
+      }, 'request was suspicious after the change')
+      return mcHelper.setRequestChecks({
+        treatEveryoneWithSuspicion: false
+      })
+    })
+    .then(function () {
+      t.end()
+    })
+    .catch(function (err) {
+      t.fail(err)
+      t.end()
+    })
   }
 )
 
