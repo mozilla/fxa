@@ -26,7 +26,8 @@
       "cwd": "fxa-auth-server",
       "env": {
         "NODE_ENV": "dev",
-        "IP_ADDRESS": "0.0.0.0"
+        "IP_ADDRESS": "0.0.0.0",
+        "SIGNIN_UNBLOCK_FORCED_EMAILS": "^block.*@restmail\\.net$"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
