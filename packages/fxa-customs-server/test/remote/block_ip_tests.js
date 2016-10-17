@@ -9,13 +9,16 @@ var mcHelper = require('../memcache-helper')
 
 var TEST_EMAIL = 'test@example.com'
 var TEST_IP = '192.0.2.1'
-var ALLOWED_IP = '63.245.214.162'
+var ALLOWED_IP = '192.0.3.1'
 
 var config = {
   listen: {
     port: 7000
   }
 }
+
+process.env.ALLOWED_IPS = ALLOWED_IP
+
 var testServer = new TestServer(config)
 
 var client = restify.createJsonClient({

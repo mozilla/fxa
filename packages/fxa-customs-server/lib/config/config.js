@@ -165,11 +165,7 @@ module.exports = function (fs, path, url, convict) {
       doc: 'An array of IPs that will not be blocked or rate-limited.',
       format: Array,
       env: 'ALLOWED_IPS',
-      // These are IPs we know to be affiliated with Mozilla.
-      default: [
-        '63.245.214.162',
-        '63.245.214.168'
-      ]
+      default: []
     },
     allowedEmailDomains: {
       doc: 'An array of email domains that will not be blocked or rate-limited.',
