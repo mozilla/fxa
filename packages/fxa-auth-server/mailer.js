@@ -268,7 +268,6 @@ module.exports = function (log) {
       subject: gettext('Verify your Firefox Account'),
       template: templateName,
       templateValues: {
-        alternativeLink: links.alternativeLink,
         email: message.email,
         link: links.link,
         oneClickLink: links.oneClickLink,
@@ -344,7 +343,6 @@ module.exports = function (log) {
       subject: gettext('Confirm new sign-in to Firefox'),
       template: templateName,
       templateValues: {
-        alternativeLink: links.alternativeLink,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
@@ -385,7 +383,6 @@ module.exports = function (log) {
       subject: gettext('Reset your Firefox Account password'),
       template: templateName,
       templateValues: {
-        alternativeLink: links.alternativeLink,
         code: message.code,
         email: message.email,
         link: links.link,
@@ -508,7 +505,6 @@ module.exports = function (log) {
       subject: gettext('Firefox Account verified'),
       template: templateName,
       templateValues: {
-        alternativeLink: links.alternativeLink,
         androidUrl: links.androidLink,
         androidLinkAttributes: linkAttributes(links.androidLink),
         link: links.link,
@@ -592,7 +588,6 @@ module.exports = function (log) {
       subject: subject,
       template: templateName,
       templateValues: {
-        alternativeLink: links.alternativeLink,
         email: message.email,
         link: links.link,
         oneClickLink: links.oneClickLink,
@@ -636,7 +631,6 @@ module.exports = function (log) {
     var utmContent = templateNameToContentMap[templateName]
 
     if (primaryLink && utmContent) {
-      links['alternativeLink'] = this._generateUTMLink(primaryLink, query, templateName, utmContent + '-alternative')
       links['link'] = this._generateUTMLink(primaryLink, query, templateName, utmContent)
     }
     links['privacyUrl'] = this.createPrivacyLink(templateName)

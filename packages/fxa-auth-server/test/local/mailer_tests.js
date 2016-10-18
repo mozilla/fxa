@@ -67,14 +67,6 @@ var typesContainIOSStoreLinks = [
   'postVerifyEmail'
 ]
 
-var typesContainAlternativeLinks = [
-  'postVerifyEmail',
-  'recoveryEmail',
-  'verificationReminderEmail',
-  'verifyEmail',
-  'verifyLoginEmail'
-]
-
 var typesContainLocationData = [
   'newDeviceLoginEmail',
   'unblockCodeEmail',
@@ -153,23 +145,6 @@ P.all(
             mailer[type](message)
           }
         )
-
-        if (includes(typesContainAlternativeLinks, type)){
-          test(
-            'test alternative link is in email template output for ' + type,
-            function (t) {
-              // Because the alternative link could be from anything, just test that
-              // it contains part of the `alternative` utm param
-              var alternativeBit = '-alternative'
-
-              mailer.mailer.sendMail = function (emailConfig) {
-                t.ok(includes(emailConfig.html, alternativeBit))
-                t.end()
-              }
-              mailer[type](message)
-            }
-          )
-        }
 
         if (includes(typesContainSupportLinks, type)) {
           test(
