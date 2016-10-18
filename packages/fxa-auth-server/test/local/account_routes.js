@@ -784,6 +784,9 @@ test('/account/login', function (t) {
   mockLog.activityEvent = sinon.spy(function () {
     return P.resolve()
   })
+  mockLog.flowEvent = sinon.spy(function () {
+    return P.resolve()
+  })
   var mockMailer = mocks.mockMailer()
   var mockPush = mocks.mockPush()
   var mockCustoms = {
@@ -1355,10 +1358,15 @@ test('/account/login', function (t) {
           })
 
           t.test('valid code', (t) => {
-            t.plan(1)
+            t.plan(4)
             mockDB.consumeUnblockCode = () => P.resolve({ createdAt: Date.now() })
             return runTest(route, mockRequestWithUnblockCode, (res) => {
               t.ok(!(res instanceof Error), 'successful login')
+              t.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent was called once')
+              const args = mockLog.flowEvent.args[0]
+              t.equal(args.length, 2, 'log.flowEvent was passed two arguments')
+              t.equal(args[0], 'account.login.confirmedUnblockCode', 'first argument was event name')
+              mockLog.flowEvent.reset()
             })
           })
         })
@@ -1738,15 +1746,17 @@ test('/account/login/send_unblock_code', function (t) {
       allowedEmailAddresses: /^.*$/
     }
   }
+  const mockLog = mocks.spyLog()
   var accountRoutes = makeRoutes({
     config: config,
     db: mockDb,
+    log: mockLog,
     mailer: mockMailer
   })
   var route = getRoute(accountRoutes, '/account/login/send_unblock_code')
 
   t.test('signin unblock enabled', function (t) {
-    t.plan(9)
+    t.plan(12)
     config.signinUnblock.enabled = true
     return runTest(route, mockRequest, function (response) {
       t.ok(!(response instanceof Error), response.stack)
@@ -1763,16 +1773,24 @@ test('/account/login/send_unblock_code', function (t) {
       t.equal(mockMailer.sendUnblockCode.callCount, 1, 'called mailer.sendUnblockCode')
       var args = mockMailer.sendUnblockCode.args[0]
       t.equal(args.length, 3, 'mailer.sendUnblockCode called with 3 args')
+
+      t.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent was called once')
+      args = mockLog.flowEvent.args[0]
+      t.equal(args.length, 2, 'log.flowEvent was passed two arguments')
+      t.equal(args[0], 'account.login.sentUnblockCode', 'first argument was event name')
+      mockLog.flowEvent.reset()
     })
   })
 
   t.test('signin unblock disabled', function (t) {
-    t.plan(2)
+    t.plan(3)
     config.signinUnblock.enabled = false
 
     return runTest(route, mockRequest, function (err) {
       t.equal(err.output.statusCode, 503, 'correct status code is returned')
       t.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
+
+      t.equal(mockLog.flowEvent.callCount, 0, 'log.flowEvent was not called')
     })
   })
 })

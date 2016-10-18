@@ -461,9 +461,7 @@ module.exports = function (
                           throw error.invalidUnblockCode()
                         }
                         didSigninUnblock = true
-                        return log.activityEvent('account.login.confirmedUnblockCode', request, {
-                          uid: emailRecord.uid.toString('hex')
-                        })
+                        return log.flowEvent('account.login.confirmedUnblockCode', request)
                       }
                     )
                     .catch(
@@ -1627,9 +1625,7 @@ module.exports = function (
           .then(lookupAccount)
           .then(createUnblockCode)
           .then(mailUnblockCode)
-          .then(() => log.activityEvent('account.login.sentUnblockCode', request, {
-            uid: emailRecord.uid.toString('hex')
-          }))
+          .then(() => log.flowEvent('account.login.sentUnblockCode', request))
           .done(() => {
             reply({})
           }, reply)
