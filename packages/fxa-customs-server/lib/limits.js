@@ -79,7 +79,7 @@ module.exports = function (config, mc, log) {
       var current = limits[key]
       var future = settings[key]
       if (typeof(current) !== typeof(future)) {
-        log.error({ op: 'limits.validate.err', key: key, msg: 'types do not match'})
+        log.error({ op: 'limits.validate.err', key: key, message: 'types do not match'})
         settings[key] = current
       }
       else if (!deepEqual(current, future)) {
