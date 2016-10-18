@@ -7,10 +7,10 @@
 // exception for the /tests/index.html path, which are the frontend unit
 // tests.
 
-var url = require('url');
+const url = require('url');
 
 function getOrigin(link) {
-  var parsed = url.parse(link);
+  const parsed = url.parse(link);
   return parsed.protocol + '//' + parsed.host;
 }
 
@@ -19,12 +19,21 @@ function getOrigin(link) {
  * to be blocked if it runs afowl of a rule.
  */
 module.exports = function (config) {
-  var BLOB = 'blob:';
-  var CDN_URL = config.get('static_resource_url');
-  var DATA = 'data:';
-  var GRAVATAR = 'https://secure.gravatar.com';
-  var PUBLIC_URL = config.get('public_url');
-  var SELF = "'self'";
+  const AUTH_SERVER = getOrigin(config.get('fxaccount_url'));
+  const BLOB = 'blob:';
+  const CDN_URL = config.get('static_resource_url');
+  const DATA = 'data:';
+  // The sha of the embedded <style> tag in default-profile.svg.
+  const EMBEDDED_STYLE_SHA = "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='";
+  const GRAVATAR = 'https://secure.gravatar.com';
+  const MARKETING_EMAIL_SERVER = getOrigin(config.get('marketing_email.api_url'));
+  const NONE = 'none';
+  const OAUTH_SERVER = getOrigin(config.get('oauth_url'));
+  const PROFILE_SERVER = getOrigin(config.get('profile_url'));
+  const PROFILE_IMAGES_SERVER = getOrigin(config.get('profile_images_url'));
+  const PUBLIC_URL = config.get('public_url');
+  const SELF = "'self'";
+  const UNSAFE_EVAL = "'unsafe-eval'";
 
 
   function addCdnRuleIfRequired(target) {
@@ -35,16 +44,18 @@ module.exports = function (config) {
     return target;
   }
 
-  var rules = {
+  const rules = {
     directives: {
       connectSrc: [
         SELF,
-        getOrigin(config.get('fxaccount_url')),
-        config.get('oauth_url'),
-        config.get('profile_url'),
-        config.get('marketing_email.api_url')
+        AUTH_SERVER,
+        OAUTH_SERVER,
+        PROFILE_SERVER,
+        MARKETING_EMAIL_SERVER
       ],
-      defaultSrc: [SELF],
+      defaultSrc: [
+        SELF
+      ],
       fontSrc: addCdnRuleIfRequired([
         SELF
       ]),
@@ -52,23 +63,41 @@ module.exports = function (config) {
         SELF,
         DATA,
         GRAVATAR,
-        config.get('profile_images_url')
+        PROFILE_IMAGES_SERVER
       ]),
       mediaSrc: [BLOB],
+      objectSrc: [NONE],
       reportUri: config.get('csp.reportUri'),
       scriptSrc: addCdnRuleIfRequired([
+        SELF,
         // allow unsafe-eval for functional tests. A report-only middleware
         // is also added that does not allow 'unsafe-eval' so that we can see
         // if other scripts are being added.
-        SELF, "'unsafe-eval'"
+        UNSAFE_EVAL
       ]),
       styleSrc: addCdnRuleIfRequired([
         SELF,
-        // The sha of the embedded <style> tag in default-profile.svg.
-        "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='"
+        EMBEDDED_STYLE_SHA
       ])
     },
-    reportOnly: false
+    reportOnly: false,
+    // Sources are exported for unit tests
+    Sources: { //eslint-disable-line sorting/sort-object-props
+      AUTH_SERVER,
+      BLOB,
+      CDN_URL,
+      DATA,
+      EMBEDDED_STYLE_SHA,
+      GRAVATAR,
+      MARKETING_EMAIL_SERVER,
+      NONE,
+      OAUTH_SERVER,
+      PROFILE_IMAGES_SERVER,
+      PROFILE_SERVER,
+      PUBLIC_URL,
+      SELF,
+      UNSAFE_EVAL
+    }
   };
 
   return rules;
