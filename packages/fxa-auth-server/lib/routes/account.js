@@ -186,7 +186,7 @@ module.exports = function (
             function (result) {
               account = result
 
-              return log.activityEvent('account.created', request, {
+              return request.emitMetricsEvent('account.created', {
                 uid: account.uid.toString('hex')
               })
             }
@@ -461,7 +461,7 @@ module.exports = function (
                           throw error.invalidUnblockCode()
                         }
                         didSigninUnblock = true
-                        return log.flowEvent('account.login.confirmedUnblockCode', request)
+                        return request.emitMetricsEvent('account.login.confirmedUnblockCode')
                       }
                     )
                     .catch(
@@ -596,7 +596,7 @@ module.exports = function (
                   throw error.incorrectPassword(emailRecord.email, email)
                 }
 
-                return log.activityEvent('account.login', request, {
+                return request.emitMetricsEvent('account.login', {
                   uid: emailRecord.uid.toString('hex')
                 })
               }
@@ -984,7 +984,7 @@ module.exports = function (
         db.deleteKeyFetchToken(keyFetchToken)
           .then(
             function () {
-              return log.activityEvent('account.keyfetch', request, {
+              return request.emitMetricsEvent('account.keyfetch', {
                 uid: keyFetchToken.uid.toString('hex')
               })
             }
@@ -1264,7 +1264,7 @@ module.exports = function (
           .then(
             function (res) {
               result = res
-              return log.activityEvent('device.deleted', request, {
+              return request.emitMetricsEvent('device.deleted', {
                 uid: uid.toString('hex'),
                 device_id: id
               })
@@ -1491,7 +1491,7 @@ module.exports = function (
                       uid: uidHex,
                       code: request.payload.code
                     })
-                    log.activityEvent('account.confirmed', request, {
+                    request.emitMetricsEvent('account.confirmed', {
                       uid: uidHex
                     })
                     push.notifyUpdate(uid, 'accountConfirm')
@@ -1534,7 +1534,7 @@ module.exports = function (
                       })
                     })
                     .then(function () {
-                      return log.activityEvent('account.verified', request, {
+                      return request.emitMetricsEvent('account.verified', {
                         uid: uidHex
                       })
                     })
@@ -1549,7 +1549,7 @@ module.exports = function (
                           op: 'mailer.send',
                           name: reminderOp
                         })
-                        return log.activityEvent('account.reminder', request, {
+                        return request.emitMetricsEvent('account.reminder', {
                           uid: uidHex
                         })
                       }
@@ -1625,7 +1625,7 @@ module.exports = function (
           .then(lookupAccount)
           .then(createUnblockCode)
           .then(mailUnblockCode)
-          .then(() => log.flowEvent('account.login.sentUnblockCode', request))
+          .then(() => request.emitMetricsEvent('account.login.sentUnblockCode'))
           .done(() => {
             reply({})
           }, reply)
@@ -1760,7 +1760,7 @@ module.exports = function (
             .then(
               function (accountData) {
                 account = accountData
-                return log.activityEvent('account.reset', request, {
+                return request.emitMetricsEvent('account.reset', {
                   uid: account.uid.toString('hex')
                 })
               }
@@ -1910,7 +1910,7 @@ module.exports = function (
                 )
                 .then(
                   function () {
-                    return log.activityEvent('account.deleted', request, {
+                    return request.emitMetricsEvent('account.deleted', {
                       uid: uid
                     })
                   }

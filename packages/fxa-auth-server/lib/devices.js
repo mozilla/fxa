@@ -24,7 +24,7 @@ module.exports = function (log, db, push) {
     return db[operation](sessionToken.uid, sessionToken.tokenId, deviceInfo)
       .then(function (device) {
         result = device
-        return log.activityEvent(event, request, {
+        return request.emitMetricsEvent(event, {
           uid: sessionToken.uid.toString('hex'),
           device_id: result.id.toString('hex'),
           is_placeholder: isPlaceholderDevice

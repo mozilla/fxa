@@ -3,11 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var log = {
-  trace: function () {},
-  flowEvent: function () {},
+const log = {
+  trace: () => {},
+  activityEvent: () => {},
+  flowEvent: () => {},
   error: console.error, // eslint-disable-line no-console
 }
+const mocks = require('../mocks')
 var error = require('../../lib/error.js')
 var nock = require('nock')
 
@@ -468,14 +470,12 @@ function newIp() {
 }
 
 function newRequest() {
-  return {
-    app: {
-      clientAddress: newIp()
-    },
+  return mocks.mockRequest({
+    clientAddress: newIp(),
     headers: {},
     query: {},
     payload: {}
-  }
+  })
 }
 
 

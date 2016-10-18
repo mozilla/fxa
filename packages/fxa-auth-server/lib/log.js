@@ -10,23 +10,13 @@ var logConfig = config.get('log')
 var P = require('./promise')
 var StatsDCollector = require('./metrics/statsd')
 
-var ALWAYS_ACTIVITY_FLOW_EVENTS = {
-  // These activity events are always flow events
-  'account.confirmed': true,
-  'account.created': true,
-  'account.login': true,
-  'account.verified': true
+// It's an error if a flow event doesn't have a flow_id,
+// but some events are also emitted outside of user flows.
+// Don't log the error for those events.
+const OPTIONAL_FLOW_EVENTS = {
+  'account.keyfetch': true,
+  'account.signed': true
 }
-
-var ACTIVITY_FLOW_EVENTS = Object.keys(ALWAYS_ACTIVITY_FLOW_EVENTS)
-  .reduce(function (events, event) {
-    events[event] = true
-    return events
-  }, {
-    // These activity events are flow events when there is a flowId
-    'account.keyfetch': true,
-    'account.signed': true
-  })
 
 function unbuffer(object) {
   var keys = Object.keys(object)
@@ -184,7 +174,7 @@ Lug.prototype.notifyAttachedServices = function (name, request, data) {
 Lug.prototype.activityEvent = function (event, request, data) {
   if (! data || ! data.uid) {
     this.error({ op: 'log.activityEvent', data: data })
-    return P.resolve()
+    return
   }
 
   var info = {
@@ -203,13 +193,6 @@ Lug.prototype.activityEvent = function (event, request, data) {
 
   this.logger.info('activityEvent', info)
   this.statsd.write(info)
-
-  if (! ACTIVITY_FLOW_EVENTS[event]) {
-    return P.resolve()
-  }
-
-  // log a flowEvent for all activityEvents
-  return this.flowEvent(event, request)
 }
 
 // Log a flow metrics event.
@@ -226,12 +209,6 @@ Lug.prototype.flowEvent = function (event, request) {
     return P.resolve()
   }
 
-  if (event === 'account.signed' && request.query && request.query.service === 'content-server') {
-    // HACK: Prevent the content server from distorting our flow completion rates.
-    //       Longer term we need to replace this with something better, obviously.
-    return P.resolve()
-  }
-
   return request.gatherMetricsContext({
     event: event,
     userAgent: request.headers['user-agent']
@@ -242,7 +219,7 @@ Lug.prototype.flowEvent = function (event, request) {
         optionallySetService(info, request)
 
         this.logger.info('flowEvent', info)
-      } else if (ALWAYS_ACTIVITY_FLOW_EVENTS[event]) {
+      } else if (! OPTIONAL_FLOW_EVENTS[event]) {
         this.error({ op: 'log.flowEvent', event: event, missingFlowId: true })
       }
     }

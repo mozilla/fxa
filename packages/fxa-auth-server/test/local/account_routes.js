@@ -226,10 +226,12 @@ test('/recovery_email/status', function (t) {
 
 test('/account/reset', function (t) {
   var uid = uuid.v4('binary')
-  var mockRequest = mocks.mockRequest({
+  const mockLog = mocks.spyLog()
+  const mockRequest = mocks.mockRequest({
     credentials: {
       uid: uid.toString('hex')
     },
+    log: mockLog,
     payload: {
       authPW: crypto.randomBytes(32).toString('hex')
     }
@@ -240,7 +242,6 @@ test('/account/reset', function (t) {
     wrapWrapKb: crypto.randomBytes(32)
   })
   var mockCustoms = mocks.mockCustoms()
-  var mockLog = mocks.spyLog()
   var mockPush = mocks.mockPush()
   var accountRoutes = makeRoutes({
     config: {
@@ -525,6 +526,7 @@ test('/account/device/destroy', function (t) {
     credentials: {
       uid: uid.toString('hex'),
     },
+    log: mockLog,
     payload: {
       id: deviceId
     }
@@ -564,12 +566,27 @@ test('/account/device/destroy', function (t) {
 })
 
 test('/account/create', function (t) {
-  var mockMetricsContext = mocks.mockMetricsContext({
+  // We want to test what's actually written to stdout by the logger.
+  const mockLog = log('ERROR', 'test', {
+    stdout: {
+      on: sinon.spy(),
+      write: sinon.spy()
+    },
+    stderr: {
+      on: sinon.spy(),
+      write: sinon.spy()
+    }
+  })
+  mockLog.activityEvent = sinon.spy(() => {
+    return P.resolve()
+  })
+  const mockMetricsContext = mocks.mockMetricsContext({
     gather: sinon.spy(function (data) {
       return P.resolve(this.payload && this.payload.metricsContext)
     })
   })
-  var mockRequest = mocks.mockRequest({
+  const mockRequest = mocks.mockRequest({
+    log: mockLog,
     metricsContext: mockMetricsContext,
     payload: {
       email: TEST_EMAIL,
@@ -601,20 +618,6 @@ test('/account/create', function (t) {
     wrapWrapKb: 'wibble'
   }, {
     emailRecord: new error.unknownAccount()
-  })
-  // We want to test what's actually written to stdout by the logger.
-  var mockLog = log('ERROR', 'test', {
-    stdout: {
-      on: sinon.spy(),
-      write: sinon.spy()
-    },
-    stderr: {
-      on: sinon.spy(),
-      write: sinon.spy()
-    }
-  })
-  mockLog.activityEvent = sinon.spy(function () {
-    return P.resolve()
   })
   var mockMailer = mocks.mockMailer()
   var mockPush = mocks.mockPush()
@@ -706,12 +709,30 @@ test('/account/login', function (t) {
       enabled: true
     }
   }
-  var mockMetricsContext = mocks.mockMetricsContext({
+  // We want to test what's actually written to stdout by the logger.
+  const mockLog = log('ERROR', 'test', {
+    stdout: {
+      on: sinon.spy(),
+      write: sinon.spy()
+    },
+    stderr: {
+      on: sinon.spy(),
+      write: sinon.spy()
+    }
+  })
+  mockLog.activityEvent = sinon.spy(() => {
+    return P.resolve()
+  })
+  mockLog.flowEvent = sinon.spy(() => {
+    return P.resolve()
+  })
+  const mockMetricsContext = mocks.mockMetricsContext({
     gather: sinon.spy(function (data) {
       return P.resolve(this.payload && this.payload.metricsContext)
     })
   })
-  var mockRequest = mocks.mockRequest({
+  const mockRequest = mocks.mockRequest({
+    log: mockLog,
     metricsContext: mockMetricsContext,
     payload: {
       authPW: crypto.randomBytes(32).toString('hex'),
@@ -730,7 +751,8 @@ test('/account/login', function (t) {
       keys: 'true'
     }
   })
-  var mockRequestNoKeys = mocks.mockRequest({
+  const mockRequestNoKeys = mocks.mockRequest({
+    log: mockLog,
     metricsContext: mockMetricsContext,
     payload: {
       authPW: crypto.randomBytes(32).toString('hex'),
@@ -745,7 +767,8 @@ test('/account/login', function (t) {
     },
     query: {}
   })
-  var mockRequestWithUnblockCode = mocks.mockRequest({
+  const mockRequestWithUnblockCode = mocks.mockRequest({
+    log: mockLog,
     query: {},
     payload: {
       authPW: crypto.randomBytes(32).toString('hex'),
@@ -769,23 +792,6 @@ test('/account/login', function (t) {
     keyFetchTokenId: keyFetchTokenId,
     sessionTokenId: sessionTokenId,
     uid: uid
-  })
-  // We want to test what's actually written to stdout by the logger.
-  var mockLog = log('ERROR', 'test', {
-    stdout: {
-      on: sinon.spy(),
-      write: sinon.spy()
-    },
-    stderr: {
-      on: sinon.spy(),
-      write: sinon.spy()
-    }
-  })
-  mockLog.activityEvent = sinon.spy(function () {
-    return P.resolve()
-  })
-  mockLog.flowEvent = sinon.spy(function () {
-    return P.resolve()
   })
   var mockMailer = mocks.mockMailer()
   var mockPush = mocks.mockPush()
@@ -824,11 +830,17 @@ test('/account/login', function (t) {
         t.deepEqual(eventData.data.metricsContext, mockRequest.payload.metricsContext, 'it contained the metrics context')
 
         t.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        var args = mockLog.activityEvent.args[0]
+        let args = mockLog.activityEvent.args[0]
         t.equal(args.length, 3, 'log.activityEvent was passed three arguments')
         t.equal(args[0], 'account.login', 'first argument was event name')
         t.equal(args[1], mockRequest, 'second argument was request object')
         t.deepEqual(args[2], {uid: uid.toString('hex')}, 'third argument contained uid')
+
+        t.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent was called once')
+        args = mockLog.flowEvent.args[0]
+        t.equal(args.length, 2, 'log.flowEvent was passed two arguments')
+        t.equal(args[0], 'account.login', 'first argument was event name')
+        t.equal(args[1], mockRequest, 'second argument was request object')
 
         t.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
         t.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
@@ -856,6 +868,8 @@ test('/account/login', function (t) {
         t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
         t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
       }).then(function () {
+        mockLog.activityEvent.reset()
+        mockLog.flowEvent.reset()
         mockMailer.sendNewDeviceLoginNotification.reset()
         mockDB.createSessionToken.reset()
         mockMetricsContext.stash.reset()
@@ -1354,6 +1368,9 @@ test('/account/login', function (t) {
             return runTest(route, mockRequestWithUnblockCode, (err) => {
               t.equal(err.errno, error.ERRNO.INVALID_UNBLOCK_CODE, 'correct errno is returned')
               t.equal(err.output.statusCode, 400, 'correct status code is returned')
+
+              mockLog.activityEvent.reset()
+              mockLog.flowEvent.reset()
             })
           })
 
@@ -1362,10 +1379,10 @@ test('/account/login', function (t) {
             mockDB.consumeUnblockCode = () => P.resolve({ createdAt: Date.now() })
             return runTest(route, mockRequestWithUnblockCode, (res) => {
               t.ok(!(res instanceof Error), 'successful login')
-              t.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent was called once')
-              const args = mockLog.flowEvent.args[0]
-              t.equal(args.length, 2, 'log.flowEvent was passed two arguments')
-              t.equal(args[0], 'account.login.confirmedUnblockCode', 'first argument was event name')
+              t.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
+              t.equal(mockLog.flowEvent.args[0][0], 'account.login.confirmedUnblockCode', 'first event was account.login.confirmedUnblockCode')
+              t.equal(mockLog.flowEvent.args[1][0], 'account.login', 'second event was account.login')
+
               mockLog.flowEvent.reset()
             })
           })
@@ -1404,7 +1421,9 @@ test('/account/login', function (t) {
 test('/recovery_email/verify_code', function (t) {
   t.plan(2)
   var uid = uuid.v4('binary').toString('hex')
-  var mockRequest = mocks.mockRequest({
+  const mockLog = mocks.spyLog()
+  const mockRequest = mocks.mockRequest({
+    log: mockLog,
     query: {},
     payload: {
       uid: uid,
@@ -1422,7 +1441,6 @@ test('/recovery_email/verify_code', function (t) {
     verifyTokens: error.invalidVerificationCode({})
   }
   var mockDB = mocks.mockDB(dbData, dbErrors)
-  var mockLog = mocks.spyLog()
   var mockMailer = mocks.mockMailer()
   const mockPush = mocks.mockPush()
   var mockCustoms = mocks.mockCustoms()
@@ -1451,11 +1469,17 @@ test('/recovery_email/verify_code', function (t) {
         t.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
 
         t.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once')
-        var args = mockLog.activityEvent.args[0]
+        let args = mockLog.activityEvent.args[0]
         t.equal(args.length, 3, 'activityEvent was passed three arguments')
         t.equal(args[0], 'account.verified', 'first argument was event name')
         t.equal(args[1], mockRequest, 'second argument was request object')
         t.deepEqual(args[2], { uid: uid }, 'third argument contained uid')
+
+        t.equal(mockLog.flowEvent.callCount, 1, 'flowEvent was called once')
+        args = mockLog.flowEvent.args[0]
+        t.equal(args.length, 2, 'flowEvent was passed two arguments')
+        t.equal(args[0], 'account.verified', 'first argument was event name')
+        t.equal(args[1], mockRequest, 'second argument was request object')
 
         t.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')
         args = mockPush.notifyUpdate.args[0]
@@ -1469,6 +1493,7 @@ test('/recovery_email/verify_code', function (t) {
         mockDB.verifyTokens.reset()
         mockDB.verifyEmail.reset()
         mockLog.activityEvent.reset()
+        mockLog.flowEvent.reset()
         mockLog.notifyAttachedServices.reset()
         mockMailer.sendPostVerifyEmail.reset()
         mockPush.notifyUpdate.reset()
@@ -1479,15 +1504,14 @@ test('/recovery_email/verify_code', function (t) {
       mockRequest.payload.reminder = 'second'
 
       return runTest(route, mockRequest, function (response) {
-        t.equal(mockLog.activityEvent.callCount, 2, 'activityEvent was called twice')
-        t.equal(mockLog.activityEvent.args[0][0], 'account.verified', 'first call was account.verified')
-        var args = mockLog.activityEvent.args[1]
-        t.equal(args.length, 3, 'activityEvent was passed three arguments second time')
-        t.equal(args[0], 'account.reminder', 'first argument was event name')
+        t.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once')
+
+        t.equal(mockLog.flowEvent.callCount, 2, 'flowEvent was called twice')
+        t.equal(mockLog.flowEvent.args[0][0], 'account.verified', 'first event was account.verified')
+        const args = mockLog.flowEvent.args[1]
+        t.equal(args.length, 2, 'flowEvent was passed two arguments')
+        t.equal(args[0], 'account.reminder', 'second event was account.reminder')
         t.equal(args[1], mockRequest, 'second argument was request object')
-        t.deepEqual(args[2], {
-          uid: uid.toString('hex')
-        }, 'third argument contained uid')
 
         t.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
         t.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')
@@ -1498,6 +1522,7 @@ test('/recovery_email/verify_code', function (t) {
         mockDB.verifyTokens.reset()
         mockDB.verifyEmail.reset()
         mockLog.activityEvent.reset()
+        mockLog.flowEvent.reset()
         mockLog.notifyAttachedServices.reset()
         mockMailer.sendPostVerifyEmail.reset()
         mockPush.notifyUpdate.reset()
@@ -1558,7 +1583,8 @@ test('/account/keys', function (t) {
   t.plan(2)
   var keyFetchTokenId = crypto.randomBytes(16)
   var uid = uuid.v4('binary')
-  var mockRequest = mocks.mockRequest({
+  const mockLog = mocks.spyLog()
+  const mockRequest = mocks.mockRequest({
     credentials: {
       emailVerified: true,
       id: keyFetchTokenId.toString('hex'),
@@ -1567,10 +1593,10 @@ test('/account/keys', function (t) {
       tokenVerificationId: undefined,
       tokenVerified: true,
       uid: uid
-    }
+    },
+    log: mockLog
   })
   var mockDB = mocks.mockDB()
-  var mockLog = mocks.spyLog()
   var accountRoutes = makeRoutes({
     db: mockDB,
     log: mockLog
@@ -1619,8 +1645,9 @@ test('/account/destroy', function (t) {
     email: email,
     uid: uid
   })
-  var mockLog = mocks.spyLog()
-  var mockRequest = mocks.mockRequest({
+  const mockLog = mocks.spyLog()
+  const mockRequest = mocks.mockRequest({
+    log: mockLog,
     payload: {
       email: email,
       authPW: new Array(65).join('f')
@@ -1724,7 +1751,9 @@ test('/account/devices', function (t) {
 test('/account/login/send_unblock_code', function (t) {
   t.plan(2)
   var uid = uuid.v4('binary').toString('hex')
+  const mockLog = mocks.spyLog()
   var mockRequest = mocks.mockRequest({
+    log: mockLog,
     payload: {
       email: TEST_EMAIL,
       metricsContext: {
@@ -1746,7 +1775,6 @@ test('/account/login/send_unblock_code', function (t) {
       allowedEmailAddresses: /^.*$/
     }
   }
-  const mockLog = mocks.spyLog()
   var accountRoutes = makeRoutes({
     config: config,
     db: mockDb,

@@ -267,18 +267,20 @@ function spyLog (methods) {
 }
 
 function mockRequest (data) {
+  const events = require('../lib/metrics/events')(data.log || module.exports.mockLog())
   const metricsContext = data.metricsContext || module.exports.mockMetricsContext()
 
   return {
     app: {
       acceptLanguage: 'en-US',
-      clientAddress: '63.245.221.32' // MTV
+      clientAddress: data.clientAddress || '63.245.221.32' // MTV
     },
     auth: {
       credentials: data.credentials
     },
+    emitMetricsEvent: events.emit,
     gatherMetricsContext: metricsContext.gather,
-    headers: {
+    headers: data.headers || {
       'user-agent': 'test user-agent'
     },
     payload: data.payload,

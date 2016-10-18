@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var test = require('../ptaptest')
 var sinon = require('sinon')
 var proxyquire = require('proxyquire')
@@ -92,198 +94,42 @@ test(
         metricsContext: {}
       }
     }
-    return log.activityEvent('bar', request, {
+    log.activityEvent('bar', request, {
       uid: 'baz'
-    }).then(function () {
-      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
-      var args = logger.info.args[0]
-      t.equal(args.length, 2, 'logger.info was passed two arguments')
-      t.equal(args[0], 'activityEvent', 'first argument was correct')
-      t.equal(typeof args[1], 'object', 'second argument was object')
-      t.notEqual(args[1], null, 'second argument was not null')
-      t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
-      t.equal(args[1].uid, 'baz', 'uid property was correct')
-
-      t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-      args = statsd.write.args[0]
-      t.equal(args.length, 1, 'statsd.write was passed one argument')
-      t.equal(args[0], logger.info.args[0][1], 'statsd.write argument was correct')
-
-      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      t.equal(logger.error.callCount, 0, 'logger.error was not called')
-      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.info.reset()
-      statsd.write.reset()
     })
-  }
-)
 
-test(
-  'log.activityEvent with flow event',
-  function (t) {
-    var request = {
-      gatherMetricsContext: metricsContext.gather,
-      headers: {
-        'user-agent': 'foo'
-      },
-      payload: {
-        metricsContext: {
-          flowId: 'bar'
-        }
-      }
-    }
-    return log.activityEvent('account.created', request, {
-      uid: 'baz'
-    }).then(function () {
-      t.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
-      var args = metricsContext.gather.args[0]
-      t.equal(args.length, 1, 'metricsContext.gather was passed one argument')
-      t.equal(typeof args[0], 'object', 'argument was object')
-      t.notEqual(args[0], null, 'argument was not null')
-      t.equal(Object.keys(args[0]).length, 2, 'argument had two properties')
-      t.equal(args[0].event, 'account.created', 'event property was correct')
-      t.equal(args[0].userAgent, 'foo', 'userAgent property was correct')
-      t.equal(metricsContext.gather.thisValues[0], request, 'this was request object')
+    t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
 
-      t.equal(logger.info.callCount, 2, 'logger.info was called twice')
-      t.equal(logger.info.args[0][0], 'activityEvent', 'first call was activityEvent')
-      t.equal(logger.info.args[1][0], 'flowEvent', 'second call was flowEvent')
-      t.equal(logger.info.args[1][1].event, 'account.created', 'flowEvent had correct event name')
+    t.equal(logger.info.callCount, 1, 'logger.info was called once')
+    let args = logger.info.args[0]
+    t.equal(args.length, 2, 'logger.info was passed two arguments')
+    t.equal(args[0], 'activityEvent', 'first argument was correct')
+    t.equal(typeof args[1], 'object', 'second argument was object')
+    t.notEqual(args[1], null, 'second argument was not null')
+    t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
+    t.equal(args[1].uid, 'baz', 'uid property was correct')
 
-      t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
+    t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
+    args = statsd.write.args[0]
+    t.equal(args.length, 1, 'statsd.write was passed one argument')
+    t.equal(args[0], logger.info.args[0][1], 'statsd.write argument was correct')
 
-      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      t.equal(logger.error.callCount, 0, 'logger.error was not called')
-      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+    t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    t.equal(logger.error.callCount, 0, 'logger.error was not called')
+    t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
 
-      metricsContext.gather.reset()
-      logger.info.reset()
-      statsd.write.reset()
-    })
-  }
-)
+    logger.info.reset()
+    statsd.write.reset()
 
-test(
-  'device.created is not treated as a flow event',
-  function (t) {
-    var request = {
-      gatherMetricsContext: metricsContext.gather,
-      headers: {
-        'user-agent': 'foo'
-      },
-      payload: {
-        metricsContext: {
-          flowId: 'bar'
-        }
-      }
-    }
-    return log.activityEvent('device.created', request, {
-      uid: 'baz'
-    }).then(function () {
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
-      t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-
-      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      t.equal(logger.error.callCount, 0, 'logger.error was not called')
-      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.info.reset()
-      statsd.write.reset()
-    })
-  }
-)
-
-test(
-  'log.activityEvent with flow event and missing flowId',
-  function (t) {
-    var request = {
-      gatherMetricsContext: metricsContext.gather,
-      headers: {
-        'user-agent': 'foo'
-      },
-      payload: {
-        metricsContext: {}
-      }
-    }
-    return log.activityEvent('account.created', request, {
-      uid: 'bar'
-    }).then(function () {
-      t.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
-
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
-      t.equal(logger.info.args[0][0], 'activityEvent', 'call was activityEvent')
-
-      t.equal(logger.error.callCount, 1, 'logger.error was called once')
-      var args = logger.error.args[0]
-      t.equal(args.length, 2, 'logger.error was passed two arguments')
-      t.equal(args[0], 'log.flowEvent')
-      t.deepEqual(args[1], {
-        op: 'log.flowEvent',
-        event: 'account.created',
-        missingFlowId: true
-      }, 'error data was correct')
-
-      t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-
-      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      metricsContext.gather.reset()
-      logger.info.reset()
-      logger.error.reset()
-      statsd.write.reset()
-    })
-  }
-)
-
-test(
-  'log.activityEvent with optional flow event and missing flowId',
-  function (t) {
-    var request = {
-      gatherMetricsContext: metricsContext.gather,
-      headers: {
-        'user-agent': 'foo'
-      },
-      payload: {
-        metricsContext: {}
-      }
-    }
-    return log.activityEvent('account.signed', request, {
-      uid: 'bar'
-    }).then(function () {
-      t.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
-
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
-      t.equal(logger.info.args[0][0], 'activityEvent', 'call was activityEvent')
-
-      t.equal(logger.error.callCount, 0, 'logger.error was not called')
-
-      t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-
-      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      t.equal(logger.error.callCount, 0, 'logger.error was not called')
-      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      metricsContext.gather.reset()
-      logger.info.reset()
-      statsd.write.reset()
-    })
+    t.end()
   }
 )
 
 test(
   'log.activityEvent with service payload parameter',
   function (t) {
-    return log.activityEvent('wibble', {
+    log.activityEvent('wibble', {
       gatherMetricsContext: metricsContext.gather,
       headers: {},
       payload: {
@@ -292,33 +138,35 @@ test(
       }
     }, {
       uid: 'ugg'
-    }).then(function () {
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
-      var args = logger.info.args[0]
-      t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
-      t.equal(args[1].service, 'blee', 'service property was correct')
-      t.equal(args[1].uid, 'ugg', 'service property was correct')
-      t.equal(args[1].event, 'wibble', 'service property was correct')
-
-      t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-      t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
-
-      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      t.equal(logger.error.callCount, 0, 'logger.error was not called')
-      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.info.reset()
-      statsd.write.reset()
     })
+
+    t.equal(logger.info.callCount, 1, 'logger.info was called once')
+    const args = logger.info.args[0]
+    t.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
+    t.equal(args[1].service, 'blee', 'service property was correct')
+    t.equal(args[1].uid, 'ugg', 'service property was correct')
+    t.equal(args[1].event, 'wibble', 'service property was correct')
+
+    t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
+    t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
+
+    t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+    t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    t.equal(logger.error.callCount, 0, 'logger.error was not called')
+    t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+    logger.info.reset()
+    statsd.write.reset()
+
+    t.end()
   }
 )
 
 test(
   'log.activityEvent with service query parameter',
   function (t) {
-    return log.activityEvent('foo', {
+    log.activityEvent('foo', {
       gatherMetricsContext: metricsContext.gather,
       headers: {},
       payload: {
@@ -329,29 +177,31 @@ test(
       }
     }, {
       uid: 'baz'
-    }).then(function () {
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
-      t.equal(logger.info.args[0][1].service, 'bar', 'service property was correct')
-
-      t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-      t.equal(statsd.write.args[0][0], logger.info.args[0][1], 'statsd.write argument was correct')
-
-      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      t.equal(logger.error.callCount, 0, 'logger.error was not called')
-      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.info.reset()
-      statsd.write.reset()
     })
+
+    t.equal(logger.info.callCount, 1, 'logger.info was called once')
+    t.equal(logger.info.args[0][1].service, 'bar', 'service property was correct')
+
+    t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
+    t.equal(statsd.write.args[0][0], logger.info.args[0][1], 'statsd.write argument was correct')
+
+    t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+    t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    t.equal(logger.error.callCount, 0, 'logger.error was not called')
+    t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+    logger.info.reset()
+    statsd.write.reset()
+
+    t.end()
   }
 )
 
 test(
   'log.activityEvent with extra data',
   function (t) {
-    return log.activityEvent('foo', {
+    log.activityEvent('foo', {
       gatherMetricsContext: metricsContext.gather,
       headers: {
         'user-agent': 'bar'
@@ -363,61 +213,65 @@ test(
       baz: 'qux',
       uid: 42,
       wibble: 'blee'
-    }).then(function () {
-      t.equal(logger.info.callCount, 1, 'logger.info was called once')
-      var args = logger.info.args[0]
-      t.equal(Object.keys(args[1]).length, 5, 'second argument had 5 properties')
-      t.equal(args[1].baz, 'qux', 'first extra data property was correct')
-      t.equal(args[1].wibble, 'blee', 'second extra data property was correct')
-
-      t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-      t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
-
-      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      t.equal(logger.error.callCount, 0, 'logger.error was not called')
-      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.info.reset()
-      statsd.write.reset()
     })
+
+    t.equal(logger.info.callCount, 1, 'logger.info was called once')
+    const args = logger.info.args[0]
+    t.equal(Object.keys(args[1]).length, 5, 'second argument had 5 properties')
+    t.equal(args[1].baz, 'qux', 'first extra data property was correct')
+    t.equal(args[1].wibble, 'blee', 'second extra data property was correct')
+
+    t.equal(statsd.write.callCount, 1, 'statsd.write was called once')
+    t.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
+
+    t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+    t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    t.equal(logger.error.callCount, 0, 'logger.error was not called')
+    t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+    logger.info.reset()
+    statsd.write.reset()
+
+    t.end()
   }
 )
 
 test(
   'log.activityEvent with no data',
   function (t) {
-    return log.activityEvent('foo', {
+    log.activityEvent('foo', {
       gatherMetricsContext: metricsContext.gather,
       headers: {},
       payload: {
         metricsContext: {}
       }
-    }).then(function () {
-      t.equal(logger.error.callCount, 1, 'logger.error was called once')
-      var args = logger.error.args[0]
-      t.equal(args.length, 2, 'logger.error was passed two arguments')
-      t.equal(args[0], 'log.activityEvent', 'first argument was correct')
-      t.equal(Object.keys(args[1]).length, 2, 'second argument had two properties')
-      t.equal(args[1].data, undefined, 'data property was undefined')
-
-      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-      t.equal(statsd.write.callCount, 0, 'statsd.write was not called')
-      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-      t.equal(logger.info.callCount, 0, 'logger.info was not called')
-
-      logger.error.reset()
     })
+
+    t.equal(logger.error.callCount, 1, 'logger.error was called once')
+    const args = logger.error.args[0]
+    t.equal(args.length, 2, 'logger.error was passed two arguments')
+    t.equal(args[0], 'log.activityEvent', 'first argument was correct')
+    t.equal(Object.keys(args[1]).length, 2, 'second argument had two properties')
+    t.equal(args[1].data, undefined, 'data property was undefined')
+
+    t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+    t.equal(statsd.write.callCount, 0, 'statsd.write was not called')
+    t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+    t.equal(logger.info.callCount, 0, 'logger.info was not called')
+
+    logger.error.reset()
+
+    t.end()
   }
 )
 
 test(
   'log.activityEvent with no uid',
   function (t) {
-    return log.activityEvent('foo', {
+    log.activityEvent('foo', {
       gatherMetricsContext: metricsContext.gather,
       headers: {},
       payload: {
@@ -425,21 +279,23 @@ test(
       }
     }, {
       foo: 'bar'
-    }).then(function () {
-      t.equal(logger.error.callCount, 1, 'logger.error was called once')
-      var args = logger.error.args[0]
-      t.equal(Object.keys(args[1].data).length, 1, 'data property had one property')
-      t.equal(args[1].data.foo, 'bar', 'data property had correct property')
-
-      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-      t.equal(statsd.write.callCount, 0, 'statsd.write was not called')
-      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-      t.equal(logger.info.callCount, 0, 'logger.info was not called')
-
-      logger.error.reset()
     })
+
+    t.equal(logger.error.callCount, 1, 'logger.error was called once')
+    const args = logger.error.args[0]
+    t.equal(Object.keys(args[1].data).length, 1, 'data property had one property')
+    t.equal(args[1].data.foo, 'bar', 'data property had correct property')
+
+    t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+    t.equal(statsd.write.callCount, 0, 'statsd.write was not called')
+    t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+    t.equal(logger.info.callCount, 0, 'logger.info was not called')
+
+    logger.error.reset()
+
+    t.end()
   }
 )
 
@@ -499,35 +355,6 @@ test(
       t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
 
       logger.error.reset()
-    })
-  }
-)
-
-test(
-  'log.flowEvent with content server account.signed event',
-  t => {
-    return log.flowEvent('account.signed', {
-      gatherMetricsContext: metricsContext.gather,
-      headers: {
-        'user-agent': 'foo'
-      },
-      payload: {
-        metricsContext: {
-          flowId: 'bar',
-          service: 'baz'
-        },
-        service: 'qux'
-      },
-      query: {
-        service: 'content-server'
-      }
-    }).then(() => {
-      t.equal(logger.error.callCount, 0, 'logger.error was not called')
-      t.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      t.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      t.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-      t.equal(logger.info.callCount, 0, 'logger.info was not called')
-      t.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
     })
   }
 )

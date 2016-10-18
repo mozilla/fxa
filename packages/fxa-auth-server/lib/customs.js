@@ -53,7 +53,7 @@ module.exports = function (log, error) {
       function (result) {
         if (result.block) {
           // log a flow event that user got blocked.
-          log.flowEvent('customs.blocked', request)
+          request.emitMetricsEvent('customs.blocked')
 
           var unblock = !!result.unblock
           if (result.retryAfter) {

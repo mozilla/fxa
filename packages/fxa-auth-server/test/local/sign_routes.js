@@ -19,8 +19,8 @@ test(
     var mockDevices = mocks.mockDevices({
       deviceId: deviceId
     })
-    var mockLog = mocks.spyLog()
-    var mockRequest = mocks.mockRequest({
+    const mockLog = mocks.spyLog()
+    const mockRequest = mocks.mockRequest({
       credentials: {
         accountCreatedAt: Date.now(),
         emailVerified: true,
@@ -31,6 +31,7 @@ test(
         tokenId: crypto.randomBytes(16),
         uid: uuid.v4('binary')
       },
+      log: mockLog,
       payload: {
         duration: 0,
         publicKey: {

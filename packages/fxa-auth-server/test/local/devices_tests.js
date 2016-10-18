@@ -44,7 +44,9 @@ test('require', function (t) {
 
     t.test('devices.upsert', function (t) {
       t.plan(3)
-      var request = {}
+      const request = mocks.mockRequest({
+        log: log
+      })
       var sessionToken = {
         tokenId: crypto.randomBytes(16),
         uid: uuid.v4('binary')

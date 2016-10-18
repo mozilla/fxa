@@ -297,10 +297,12 @@ function create(log, error, config, routes, db) {
   )
 
   const metricsContext = require('./metrics/context')(log, config)
-
   server.decorate('request', 'stashMetricsContext', metricsContext.stash)
   server.decorate('request', 'gatherMetricsContext', metricsContext.gather)
   server.decorate('request', 'validateMetricsContext', metricsContext.validate)
+
+  const metricsEvents = require('./metrics/events')(log)
+  server.decorate('request', 'emitMetricsEvent', metricsEvents.emit)
 
   server.stat = function() {
     return {

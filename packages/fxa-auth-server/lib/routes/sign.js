@@ -127,15 +127,11 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
           .then(
             function(result) {
               certResult = result
-              return log.activityEvent(
-                'account.signed',
-                request,
-                {
-                  uid: uid,
-                  account_created_at: sessionToken.accountCreatedAt,
-                  device_id: deviceId
-                }
-              )
+              return request.emitMetricsEvent('account.signed', {
+                uid: uid,
+                account_created_at: sessionToken.accountCreatedAt,
+                device_id: deviceId
+              })
             }
           )
           .then(
