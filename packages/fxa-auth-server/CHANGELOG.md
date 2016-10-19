@@ -1,3 +1,24 @@
+<a name="1.72.0"></a>
+# [1.72.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.71.0...v1.72.0) (2016-10-19)
+
+
+### Bug Fixes
+
+* **mailer:** Sentence call all the email subject's ([9fc6626](https://github.com/mozilla/fxa-auth-mailer/commit/9fc6626)), closes [#214](https://github.com/mozilla/fxa-auth-mailer/issues/214)
+* **mailer:** Use `monospace` for the unblock code for better legibility. ([aca2db4](https://github.com/mozilla/fxa-auth-mailer/commit/aca2db4))
+* **travis:** test on node 4 and 6; always CXX=g++-4.8 ([44f76da](https://github.com/mozilla/fxa-auth-mailer/commit/44f76da))
+
+### Features
+
+* **mailer:** Add the signin unblock email ([4ca3de3](https://github.com/mozilla/fxa-auth-mailer/commit/4ca3de3))
+* **mailer:** Remove the `Alternatively` link from all emails. ([55b6c3f](https://github.com/mozilla/fxa-auth-mailer/commit/55b6c3f)), closes [#228](https://github.com/mozilla/fxa-auth-mailer/issues/228)
+
+### Refactor
+
+* **mailer:** Use the location partial for the unblock_code template ([ee96417](https://github.com/mozilla/fxa-auth-mailer/commit/ee96417))
+
+
+
 <a name="1.71.0"></a>
 # [1.71.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.69.0...v1.71.0) (2016-10-05)
 

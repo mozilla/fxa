@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-mailer",
-  "version": "1.71.0",
+  "version": "1.72.0",
   "description": "Library to send out verification emails in the fxa-auth-server which renders emails from a template (and handles localization).",
   "main": "index.js",
   "scripts": {
