@@ -6,44 +6,47 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
+  const { assert } = require('chai');
   const Assertion = require('lib/assertion');
-  const chai = require('chai');
-  const ConfigLoader = require('lib/config-loader');
   const Duration = require('duration');
   const FxaClientWrapper = require('lib/fxa-client');
   const jwcrypto = require('jwcrypto.rs');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const TestHelpers = require('../../lib/helpers');
+  const Url = require('lib/url');
 
-  var assert = chai.assert;
-  var AUDIENCE = 'http://123done.org';
-  var ISSUER = 'http://' + document.location.hostname + ':9000';
-  var email;
-  var password = 'password';
-  var client;
-  var assertionLibrary;
-  var relier;
-  var sessionToken;
-  var config;
+  const AUDIENCE = 'http://123done.org';
+  const LONG_LIVED_ASSERTION_DURATION = new Duration('52w').milliseconds() * 25;// 25 years
+  const PASSWORD = 'password';
 
-  var LONG_LIVED_ASSERTION_DURATION = new Duration('52w').milliseconds() * 25;// 25 years
+  let email;
+  let client;
+  let assertionLibrary;
+  let relier;
+  let sessionToken;
+  let config;
 
   describe('lib/assertion', function () {
     before(function () {
-      var configLoader = new ConfigLoader();
-      config = {
-        authServerUrl: 'http://127.0.0.1:9000'
-      };
-      configLoader.useConfig(config);
+      // this test generates a real assertion which requires a server signed
+      // certificate. To do so, a backing server is needed. Fetch client config
+      // to find out the configured auth server so that the certificate can be
+      // signed.
+      //
+      // Date.now() is appended on the end to act as a cache buster.
+      // fxa-client-configuration has long lived cache headers which are not
+      // awesome for unit testing of client config changes.
+      return $.getJSON('/.well-known/fxa-client-configuration?' + Date.now())
+        .then((result) => {
+          config = result;
+        });
     });
 
     beforeEach(function () {
-      ISSUER = config.authServerUrl;
-
       relier = new Relier();
       client = new FxaClientWrapper({
-        authServerUrl: config.authServerUrl,
+        authServerUrl: config.auth_server_base_url,
         relier: relier
       });
       assertionLibrary = new Assertion({
@@ -51,7 +54,7 @@ define(function (require, exports, module) {
       });
       email = ' ' + TestHelpers.createEmail() + ' ';
 
-      return client.signUp(email, password, relier, {
+      return client.signUp(email, PASSWORD, relier, {
         preVerified: true
       })
       .then(function (result) {
@@ -70,7 +73,8 @@ define(function (require, exports, module) {
           })
           .then(function () {
             var defer = p.defer();
-            $.getJSON(ISSUER + '/.well-known/browserid', function (data) {
+            const issuer = Url.getOrigin(config.auth_server_base_url);
+            $.getJSON(issuer + '/.well-known/browserid', function (data) {
               try {
                 assert.ok(data, 'Received .well-known data');
                 var fxaRootKey = jwcrypto.loadPublicKeyFromObject(data['public-key']);
