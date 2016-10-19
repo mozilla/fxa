@@ -8,6 +8,7 @@
     "start-remote": "node scripts/check-local-config && CONFIG_FILES=server/config/local.json,server/config/content.json grunt server",
     "postinstall": "bower update --config.interactive=false -s",
     "test": "intern-runner config=tests/intern",
+    "test-circle": "intern-runner config=tests/intern_functional_circle fxaAuthRoot=https://fxa-ci.dev.lcip.org/auth fxaEmailRoot=http://restmail.net fxaOauthApp=https://oauth-fxa-ci.dev.lcip.org fxaUntrustedOauthApp=https://321done-fxa-ci.dev.lcip.org fxaProduction=true",
     "test-functional": "intern-runner config=tests/intern_functional",
     "test-functional-oauth": "intern-runner config=tests/intern_functional_oauth",
     "test-sauce": "intern-runner config=tests/intern_sauce",

@@ -9,5 +9,8 @@
   "profile_url": "https://fxa-ci.dev.lcip.org/profile",
   "profile_images_url": "https://fxa-ci.dev.lcip.org/profile",
   "allowed_parent_origins": ["https://123done-fxa-ci.dev.lcip.org"],
-  "use_https": false
+  "use_https": false,
+  "i18n": {
+    "supportedLanguages": ["en"]
+  }
 }

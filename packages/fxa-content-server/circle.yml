@@ -7,7 +7,7 @@ dependencies:
   override:
     - cp server/config/local.json-dist server/config/local.json
     - npm i --production
-    - node_modules/.bin/grunt build
+    - CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build
     - nohup bash -c "CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt serverproc:dist &"
     - npm install intern@3.1.1 bower zaach/node-XMLHttpRequest.git#onerror firefox-profile@0.3.12 request@2.74.0 sync-exec@0.6.2 convict@1.4.0
     - wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar
@@ -23,5 +23,5 @@ machine:
 
 test:
   override:
-    - ps aux | grep vnc
-    - node_modules/.bin/intern-runner config=tests/intern_functional_circle fxaAuthRoot=https://fxa-ci.dev.lcip.org/auth fxaEmailRoot=http://restmail.net fxaOauthApp=https://oauth-fxa-ci.dev.lcip.org fxaUntrustedOauthApp=https://321done-fxa-ci.dev.lcip.org fxaProduction=true
+    - npm run test-circle:
+        parallel: true
