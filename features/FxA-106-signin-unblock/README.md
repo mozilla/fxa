@@ -19,9 +19,9 @@ Users whose login attempts are blocked by our fraud-and-abuse system will be abl
 
 If we send emails that allow users to unblock themselves after being flagged as suspicious by security measures, then we will increase the completion rate of legitimate login attempts without allowing significantly more fraudulent logins, because users will be able to immediately continue without waiting for a time period to elapse.
 
-We will know this to be true when we see an increase in the completion rate of login attempts that triggered a security measures, as a percentage of all login attempts
-that trigger a security measure.
-Metrics
+We will know this to be true when we see an increase in the completion rate of login attempts that triggered a security measures, as a percentage of all login attempts that trigger a security measure.
+
+## Metrics
 
 As a high-level success metric, we want to know the following:
 
@@ -29,18 +29,20 @@ As a high-level success metric, we want to know the following:
 
 We expect the starting value of this metric to be close to zero, since it is not obvious to users whether and how they can complete the flow after being blocked by a security measure. They currently can, in some cases, by waiting for a rate-limiting ban to expire, but this is not explained in the UI and users are unlikely to do so in practice.
 
-TODO: mock graph here
+![unblock success rate](unblock-success-rate.jpg)
 
 As a detailed metric of the effectiveness of the technical details of this feature, we want to know how many users...:
 
-* Had login requests blocked for security reasons?
-* Chose to verify their account to unblock themselves?
-* Successfully logged in after verifying ownership of the account?
-* Chose to report the login?
+* Attempted to login (account.login.attempt)
+* Had login requests blocked for security reasons? (account.login.blocked)
+* Had unblock codes sent? (account.login.sentUnblockCode)
+* Successfully verified an unblock code? (account.login.confirmedUnblockCode)
+* Successfully logged in after verifying an unblockCode? (account.login.unblockedLogin)
+* Chose to report the login? (account.login.rejectUnblockCode)
 
 Taken together, these metrics form a success funnel for the email authorization feature.
 
-TODO: mock graph here
+![unblock funnel](unblock-funnel.jpg)
 
 ## Assumptions
 
@@ -261,19 +263,25 @@ Failing requests may be due to the following errors:
 
 ### Login Success Rate of Blocked Users
 
-Formula: Successful logins of blocked users / blocked users
+Successful logins of blocked users / blocked users
+
+Formula: account.login.unblockedLogin / account.login.blocked
 
 [add chart here]
 
 ### Block Rate of Logins
 
-Formula: Blocked users that try to login / All users that try to login
+Blocked users / All users that try to login
+
+Formula: account.login.blocked / account.login.attempt
 
 [add chart here]
 
 ### Report Login Rate
 
-Formula: # of submits on the `/report_signin` screen / # of unblock emails sent.
+Logins reported / unblock emails sent.
+
+Formula: account.login.rejectUnblockCode / account.login.sentUnblockCode
 
 [add chart here]
 
