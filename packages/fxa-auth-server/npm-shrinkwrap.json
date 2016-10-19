@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.71.2",
+  "version": "1.72.0",
   "dependencies": {
     "ajv": {
       "version": "4.1.7",
@@ -284,9 +284,9 @@
       }
     },
     "fxa-auth-mailer": {
-      "version": "1.71.0",
+      "version": "1.72.0",
       "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#303eec39e113969463be0fa3ba2d4fa1e4ccc4af",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#07ade43a91486c0a5a3f0229bad4d009a86a5406",
       "dependencies": {
         "bluebird": {
           "version": "2.9.34",
