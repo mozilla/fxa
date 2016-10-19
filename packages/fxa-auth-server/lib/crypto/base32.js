@@ -5,7 +5,7 @@
 'use strict'
 
 const assert = require('assert')
-const crypto = require('crypto')
+const random = require('./random')
 
 const ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
 
@@ -17,14 +17,16 @@ assert.equal(ALPHABET.indexOf('O'), -1, 'should not contain O')
 assert.equal(ALPHABET.indexOf('U'), -1, 'should not contain U')
 
 function base32(len) {
-  const out = []
-  const bytes = crypto.randomBytes(len)
+  return random(len)
+    .then(bytes => {
+      const out = []
 
-  for (let i = 0; i < len; i++) {
-    out.push(ALPHABET[bytes[i] % 32])
-  }
+      for (let i = 0; i < len; i++) {
+        out.push(ALPHABET[bytes[i] % 32])
+      }
 
-  return out.join('')
+      return out.join('')
+    })
 }
 
 module.exports = (len) => {

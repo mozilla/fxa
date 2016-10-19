@@ -2,13 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var validators = require('./validators')
-var HEX_STRING = validators.HEX_STRING
+'use strict'
 
-var crypto = require('crypto')
-var butil = require('../crypto/butil')
-var P = require('../promise')
-var requestHelper = require('../routes/utils/request_helper')
+const validators = require('./validators')
+const HEX_STRING = validators.HEX_STRING
+
+const butil = require('../crypto/butil')
+const P = require('../promise')
+const random = require('../crypto/random')
+const requestHelper = require('../routes/utils/request_helper')
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 
@@ -142,9 +144,7 @@ module.exports = function (
         var passwordChangeToken = request.auth.credentials
         var authPW = Buffer(request.payload.authPW, 'hex')
         var wrapKb = Buffer(request.payload.wrapKb, 'hex')
-        var authSalt = crypto.randomBytes(32)
         var sessionTokenId = request.payload.sessionToken
-        var password = new Password(authPW, authSalt, verifierVersion)
         var wantsKeys = requestHelper.wantsKeys(request)
         var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
           devicesToNotify
@@ -187,7 +187,13 @@ module.exports = function (
         }
 
         function changePassword() {
-          return db.deletePasswordChangeToken(passwordChangeToken)
+          let authSalt, password
+          return random(32)
+            .then(bytes => {
+              authSalt = bytes
+              password = new Password(authPW, authSalt, verifierVersion)
+              return db.deletePasswordChangeToken(passwordChangeToken)
+            })
             .then(
               function () {
                 return password.verifyHash()
@@ -236,18 +242,26 @@ module.exports = function (
         }
 
         function createSessionToken() {
-          // Create a sessionToken with the verification status of the current session
-          var sessionTokenOptions = {
-            uid: account.uid,
-            email: account.email,
-            emailCode: account.emailCode,
-            emailVerified: account.emailVerified,
-            verifierSetAt: account.verifierSetAt,
-            mustVerify: wantsKeys,
-            tokenVerificationId: verifiedStatus ? null : crypto.randomBytes(16)
-          }
+          return P.resolve()
+            .then(() => {
+              if (!verifiedStatus) {
+                return random(16)
+              }
+            })
+            .then(maybeToken => {
+              // Create a sessionToken with the verification status of the current session
+              let sessionTokenOptions = {
+                uid: account.uid,
+                email: account.email,
+                emailCode: account.emailCode,
+                emailVerified: account.emailVerified,
+                verifierSetAt: account.verifierSetAt,
+                mustVerify: wantsKeys,
+                tokenVerificationId: maybeToken
+              }
 
-          return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+              return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+            })
             .then(
               function (result) {
                 sessionToken = result

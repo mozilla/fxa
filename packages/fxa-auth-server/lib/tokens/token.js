@@ -25,7 +25,7 @@
 
 var config = require('../../config').getProperties()
 
-module.exports = function (log, crypto, P, hkdf, Bundle, error) {
+module.exports = function (log, random, P, hkdf, Bundle, error) {
 
   // Token constructor.
   //
@@ -59,28 +59,9 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
   // This uses randomly-generated seed data to derive the keys.
   //
   Token.createNewToken = function(TokenType, details) {
-    var d = P.defer()
-    crypto.randomBytes(
-      32,
-      function (err, bytes) {
-        if (err) {
-          d.reject(err)
-        } else {
-          Token.deriveTokenKeys(TokenType, bytes)
-            .then(
-              function (keys) {
-                d.resolve(new TokenType(keys, details || {}))
-              }
-            )
-            .catch(
-              function (err) {
-                d.reject(err)
-              }
-            )
-        }
-      }
-    )
-    return d.promise
+    return random(32)
+      .then(bytes => Token.deriveTokenKeys(TokenType, bytes))
+      .then(keys => new TokenType(keys, details || {}))
   }
 
 

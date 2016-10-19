@@ -2,14 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('./promise')
-var Pool = require('./pool')
-var userAgent = require('./userAgent')
+'use strict'
 
-var crypto = require('crypto')
-var butil = require('./crypto/butil')
-var unbuffer = butil.unbuffer
-var bufferize = butil.bufferize
+const P = require('./promise')
+const Pool = require('./pool')
+const userAgent = require('./userAgent')
+
+const butil = require('./crypto/butil')
+const bufferize = butil.bufferize
+const unbuffer = butil.unbuffer
+const random = require('./crypto/random')
 
 module.exports = function (
   config,
@@ -533,51 +535,52 @@ module.exports = function (
 
   DB.prototype.createDevice = function (uid, sessionTokenId, deviceInfo) {
     log.trace({ op: 'DB.createDevice', uid: uid, id: deviceInfo.id })
-    var self = this
-    deviceInfo.id = crypto.randomBytes(16)
-    deviceInfo.createdAt = Date.now()
-    return this.pool.put(
-      '/account/' + uid.toString('hex') +
-      '/device/' + deviceInfo.id.toString('hex'),
-      unbuffer({
-        sessionTokenId: sessionTokenId,
-        createdAt: deviceInfo.createdAt,
-        name: deviceInfo.name,
-        type: deviceInfo.type,
-        callbackURL: deviceInfo.pushCallback,
-        callbackPublicKey: deviceInfo.pushPublicKey,
-        callbackAuthKey: deviceInfo.pushAuthKey
+
+    return random(16)
+      .then(id => {
+        deviceInfo.id = id
+        deviceInfo.createdAt = Date.now()
+        return this.pool.put(
+          '/account/' + uid.toString('hex') +
+          '/device/' + deviceInfo.id.toString('hex'),
+          unbuffer({
+            sessionTokenId: sessionTokenId,
+            createdAt: deviceInfo.createdAt,
+            name: deviceInfo.name,
+            type: deviceInfo.type,
+            callbackURL: deviceInfo.pushCallback,
+            callbackPublicKey: deviceInfo.pushPublicKey,
+            callbackAuthKey: deviceInfo.pushAuthKey
+          })
+        )
       })
-    )
-    .then(
-      function () {
-        return deviceInfo
-      },
-      function (err) {
-        if (isRecordAlreadyExistsError(err)) {
-          return self.devices(uid)
-            .then(
-              // It's possible (but extraordinarily improbable) that we generated
-              // a duplicate device id, so check the devices for this account. If
-              // we find a duplicate, retry with a new id. If we don't find one,
-              // the problem was caused by the unique sessionToken constraint so
-              // return an appropriate error.
-              function (devices) {
-                var isDuplicateDeviceId = devices.reduce(function (is, device) {
-                  return is || device.id.toString('hex') === deviceInfo.id.toString('hex')
-                }, false)
+      .then(
+        () => deviceInfo,
+        err => {
+          if (isRecordAlreadyExistsError(err)) {
+            return this.devices(uid)
+              .then(
+                // It's possible (but extraordinarily improbable) that we generated
+                // a duplicate device id, so check the devices for this account. If
+                // we find a duplicate, retry with a new id. If we don't find one,
+                // the problem was caused by the unique sessionToken constraint so
+                // return an appropriate error.
+                devices => {
+                  const isDuplicateDeviceId = devices.reduce((is, device) => {
+                    is || device.id.toString('hex') === deviceInfo.id.toString('hex')
+                  }, false)
 
-                if (isDuplicateDeviceId) {
-                  return self.createDevice(uid, sessionTokenId, deviceInfo)
+                  if (isDuplicateDeviceId) {
+                    return this.createDevice(uid, sessionTokenId, deviceInfo)
+                  }
+
+                  throw error.deviceSessionConflict()
                 }
-
-                throw error.deviceSessionConflict()
-              }
-            )
+              )
+          }
+          throw err
         }
-        throw err
-      }
-    )
+      )
   }
 
   DB.prototype.updateDevice = function (uid, sessionTokenId, deviceInfo) {
