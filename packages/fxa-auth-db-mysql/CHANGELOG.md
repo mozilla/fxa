@@ -1,3 +1,13 @@
+<a name="0.72.0"></a>
+# [0.72.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.71.0...v0.72.0) (2016-10-19)
+
+
+### Bug Fixes
+
+* **securityEvents:** Tweak securityEvents db queries based on @jrgm feedback ([ffa5561](https://github.com/mozilla/fxa-auth-db-mysql/commit/ffa5561))
+
+
+
 <a name="0.71.0"></a>
 # [0.71.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.70.0...v0.71.0) (2016-10-05)
 
