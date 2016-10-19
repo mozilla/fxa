@@ -66,7 +66,7 @@ module.exports = function (config, mc, log) {
         settings[key] = current
       }
       else if (typeof(current) !== typeof(future)) {
-        log.error({ op: 'requestChecks.validate.err', key: key, msg: 'types do not match' })
+        log.error({ op: 'requestChecks.validate.err', key: key, message: 'types do not match' })
         settings[key] = current
       }
       else if (!deepEqual(current, future)) {
