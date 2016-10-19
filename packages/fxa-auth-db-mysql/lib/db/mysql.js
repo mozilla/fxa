@@ -518,7 +518,7 @@ module.exports = function (log, error) {
 
   // Delete : unverifiedTokens
   // Where  : tokenVerificationId = $1, uid = $2
-  var VERIFY_TOKENS = 'CALL verifyToken_2(?, ?)'
+  var VERIFY_TOKENS = 'CALL verifyToken_3(?, ?)'
 
   MySql.prototype.verifyTokens = function (tokenVerificationId, accountData) {
     return this.read(VERIFY_TOKENS, [tokenVerificationId, accountData.uid])
@@ -1136,7 +1136,7 @@ module.exports = function (log, error) {
     'account.reset': 3
   }
 
-  var CREATE_SECURITY_EVENT = 'CALL createSecurityEvent_1(?, ?, ?, ?, ?)'
+  var CREATE_SECURITY_EVENT = 'CALL createSecurityEvent_2(?, ?, ?, ?, ?)'
   MySql.prototype.createSecurityEvent = function (data) {
     var uid = data.uid
     var tokenId = data.tokenId
