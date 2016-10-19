@@ -1,4 +1,14 @@
 
+v0.72.0
+
+  * fix(blocklist): Convert date to milliseconds for file comparison (#143); r=rfk
+  * feat(blocklist): Add latest firehol sample list (#144); r=rfk
+  * fix(logging): Don't attempt to log a 'msg' field.
+  * chore(config): Don't set allow ALLOWED_IPS by default. (#138); r=jrgm
+  * chore(lint): Fix up some linty issues noticed in PR review.
+  * feat(requestChecks): Backport "requestChecks" framework from private repo.
+  * fix(unblock): Return `unblock` value for IPs on a blocklist
+
 v0.71.0
 
   * feat(unblock): add unblock rate limits (#131)
