@@ -1,3 +1,42 @@
+<a name="0.72.0"></a>
+# 0.72.0 (2016-10-19)
+
+
+### Bug Fixes
+
+* **styles:** adjust stacking for Firefox 49 (#4259) ([bd02425](https://github.com/mozilla/fxa-content-server/commit/bd02425))
+* **teamcity:** add configuration for latest6.dev.lcip.org ([9887e9a](https://github.com/mozilla/fxa-content-server/commit/9887e9a))
+* **teamcity:** path location should be really relative to the script ([ba0bcd5](https://github.com/mozilla/fxa-content-server/commit/ba0bcd5))
+* **teamcity:** path location should be relative to the script ([e8f397e](https://github.com/mozilla/fxa-content-server/commit/e8f397e))
+* **teamcity:** update module versions to match package.json (#4254) r=vladikoff ([f181a2e](https://github.com/mozilla/fxa-content-server/commit/f181a2e))
+* **test:** Fix the "focus" test (#4275) ([fd5c7b7](https://github.com/mozilla/fxa-content-server/commit/fd5c7b7)), closes [(#4275](https://github.com/(/issues/4275)
+* **test:** Fix the requireOnDemand unit tests in Fx 52. (#4276) ([caa82d8](https://github.com/mozilla/fxa-content-server/commit/caa82d8)), closes [(#4276](https://github.com/(/issues/4276)
+* **tests:** Fix the `oauth query parameter validation` functional tests. (#4286) ([a70cc82](https://github.com/mozilla/fxa-content-server/commit/a70cc82)), closes [(#4286](https://github.com/(/issues/4286)
+* **text:** Change `Damaged link` to `Link damaged` to consolidate strings (#4287) ([c3c8c79](https://github.com/mozilla/fxa-content-server/commit/c3c8c79))
+
+### Features
+
+* signin unblock (#4154) ([18850e1](https://github.com/mozilla/fxa-content-server/commit/18850e1))
+* **hpkp:** Add HPKP headers (#4097) ([660f604](https://github.com/mozilla/fxa-content-server/commit/660f604))
+* **metrics:** Always send a metricsContext.context from the content server. (#4251) ([1fefb77](https://github.com/mozilla/fxa-content-server/commit/1fefb77))
+* **server:** Ban all `object`s using CSP. (#4285) ([b6e9a25](https://github.com/mozilla/fxa-content-server/commit/b6e9a25))
+* **test:** Point circle at fxa-ci.dev.lcip.org (#4282) ([3cec607](https://github.com/mozilla/fxa-content-server/commit/3cec607))
+* **test:** Use package.json for version info for teamcity dep install ([8de7ef0](https://github.com/mozilla/fxa-content-server/commit/8de7ef0))
+* **tests:** Update Fx and Selenium versions on Travis. (#4271) ([5831294](https://github.com/mozilla/fxa-content-server/commit/5831294))
+
+### Refactor
+
+* **client:** `var`=>`const` for all requires (#4263) ([5490a0b](https://github.com/mozilla/fxa-content-server/commit/5490a0b))
+* **client:** Ditch `var self=this` (#4264) ([808ad8d](https://github.com/mozilla/fxa-content-server/commit/808ad8d))
+* **client:** Remove colon from device timestamps (#4222) r=shane-tomlinson,vladikoff ([253da2e](https://github.com/mozilla/fxa-content-server/commit/253da2e))
+* **client:** Use object shorthand for functions. (#4265) ([f44c262](https://github.com/mozilla/fxa-content-server/commit/f44c262))
+* **incorrect-password:** Changed Text in case of wrong password (#4258) r=vladikoff ([9279e69](https://github.com/mozilla/fxa-content-server/commit/9279e69))
+* **signup:** Messaging Size Matched (#4249) r=vladikoff ([05db4d2](https://github.com/mozilla/fxa-content-server/commit/05db4d2))
+* **test:** Update the confirm functional test to use helpers. (#4273) ([35b9330](https://github.com/mozilla/fxa-content-server/commit/35b9330))
+* **tests:** Update the email-optin tests to use helpers. (#4279) ([2f273cd](https://github.com/mozilla/fxa-content-server/commit/2f273cd))
+
+
+
 <a name="0.71.0"></a>
 # 0.71.0 (2016-10-06)
 
