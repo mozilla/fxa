@@ -67,7 +67,7 @@ module.exports = function (log, config) {
     var startTime = Date.now()
     return statFile(filePath)
       .then(function (fileStats) {
-        self.fileLastModified = fileStats.mtime
+        self.fileLastModified = fileStats.mtime.getTime()
         self.fileSize = fileStats.size
         return readFile(filePath, 'utf8')
       })
@@ -181,7 +181,7 @@ module.exports = function (log, config) {
 
     return statFile(self.filePath)
       .then(function (fileStats) {
-        var mtime = fileStats.mtime
+        var mtime = fileStats.mtime.getTime()
         if (mtime > self.fileLastModified) {
           return self.load(self.filePath)
         }
