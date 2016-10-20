@@ -1,3 +1,13 @@
+<a name="0.72.1"></a>
+## 0.72.1 (2016-10-20)
+
+
+### Bug Fixes
+
+* **csp:** single-quote 'none' keyword (#4311) ([22557a9](https://github.com/mozilla/fxa-content-server/commit/22557a9))
+
+
+
 <a name="0.72.0"></a>
 # 0.72.0 (2016-10-19)
 

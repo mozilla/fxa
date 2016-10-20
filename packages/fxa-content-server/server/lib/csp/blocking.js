@@ -23,15 +23,21 @@ module.exports = function (config) {
   const BLOB = 'blob:';
   const CDN_URL = config.get('static_resource_url');
   const DATA = 'data:';
-  // The sha of the embedded <style> tag in default-profile.svg.
-  const EMBEDDED_STYLE_SHA = "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='";
   const GRAVATAR = 'https://secure.gravatar.com';
   const MARKETING_EMAIL_SERVER = getOrigin(config.get('marketing_email.api_url'));
-  const NONE = 'none';
   const OAUTH_SERVER = getOrigin(config.get('oauth_url'));
   const PROFILE_SERVER = getOrigin(config.get('profile_url'));
   const PROFILE_IMAGES_SERVER = getOrigin(config.get('profile_images_url'));
   const PUBLIC_URL = config.get('public_url');
+
+  //
+  // Double quoted values
+  //
+  const NONE = "'none'";
+  // The sha of the embedded <style> tag in default-profile.svg.
+  const EMBEDDED_STYLE_SHA = "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='";
+  // keyword sources - https://www.w3.org/TR/CSP2/#keyword_source
+  // Note: "'unsafe-inline'" is not yet used in this module.
   const SELF = "'self'";
   const UNSAFE_EVAL = "'unsafe-eval'";
 
