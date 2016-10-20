@@ -1,4 +1,4 @@
-FROM node:0.10-slim
+FROM node:6.9-slim
 
 # add a non-privileged user for installing and running
 # the application
