@@ -1,4 +1,4 @@
-FROM node:0.10-slim
+FROM node:4.6-slim
 
 # add a non-privileged user for installing and running
 # the application
@@ -11,7 +11,7 @@ WORKDIR /app
 COPY package.json package.json
 RUN apt-get update && \
     apt-get install -y libgmp-dev git python build-essential && \
-    su app -c "npm install" && \
+    su app -c "npm --loglevel warn install" && \
     npm cache clear && \
     apt remove -y libgmp-dev git python build-essential && \
     apt-get autoremove -y && \
