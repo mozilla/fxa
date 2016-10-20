@@ -1,8 +1,4 @@
-FROM node:0.10.42
-
-# install libgmp-dev for fast crypto and 
-RUN apt update && \
-    apt install -y libgmp-dev
+FROM node:0.10-slim
 
 # add a non-privileged user for installing and running
 # the application
@@ -11,17 +7,20 @@ RUN groupadd --gid 10001 app && \
 
 WORKDIR /app
 
-# Install node requirements and clean up unneeded cache data
+# Install node requirements and clean up temporary files
 COPY package.json package.json
-RUN su app -c "npm install" && \
+RUN apt-get update && \
+    apt-get install -y libgmp-dev git python build-essential && \
+    su app -c "npm install" && \
     npm cache clear && \
-    rm -rf ~app/.node-gyp && \
-    apt remove -y libgmp-dev && \
+    apt remove -y libgmp-dev git python build-essential && \
     apt-get autoremove -y && \
-    apt-get clean
+    apt-get clean && \
+    rm -rf ~app/.node-gyp && \
+    rm -rf ~app/.npm && \
+    rm -r /tmp/* && \
+    rm -r /var/lib/apt/lists/*
 
-# Finally copy in the app's source file
-# More cache friendly?
 COPY . /app
 
 USER app
