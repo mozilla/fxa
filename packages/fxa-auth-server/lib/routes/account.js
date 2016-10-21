@@ -140,6 +140,16 @@ module.exports = function (
             .then(
               function (result) {
                 preVerified = result
+
+                let flowCompleteSignal
+                if (service === 'sync') {
+                  flowCompleteSignal = 'account.signed'
+                } else if (preVerified) {
+                  flowCompleteSignal = 'account.created'
+                } else {
+                  flowCompleteSignal = 'account.verified'
+                }
+                request.setMetricsFlowCompleteSignal(flowCompleteSignal)
               }
             )
         }
@@ -580,6 +590,16 @@ module.exports = function (
             mustVerifySession = requestHelper.wantsKeys(request)
             doSigninConfirmation = mustVerifySession && emailRecord.emailVerified
           }
+
+          let flowCompleteSignal
+          if (service === 'sync') {
+            flowCompleteSignal = 'account.signed'
+          } else if (doSigninConfirmation) {
+            flowCompleteSignal = 'account.confirmed'
+          } else {
+            flowCompleteSignal = 'account.login'
+          }
+          request.setMetricsFlowCompleteSignal(flowCompleteSignal)
 
           if(email !== emailRecord.email) {
             customs.flag(request.app.clientAddress, {

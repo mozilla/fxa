@@ -29,7 +29,7 @@ test(
 
     t.equal(typeof metricsContext, 'object', 'metricsContext is object')
     t.notEqual(metricsContext, null, 'metricsContext is not null')
-    t.equal(Object.keys(metricsContext).length, 3, 'metricsContext has 3 properties')
+    t.equal(Object.keys(metricsContext).length, 5, 'metricsContext has 5 properties')
 
     t.equal(typeof metricsContext.stash, 'function', 'metricsContext.stash is function')
     t.equal(metricsContext.stash.length, 1, 'metricsContext.stash expects 1 argument')
@@ -37,8 +37,14 @@ test(
     t.equal(typeof metricsContext.gather, 'function', 'metricsContext.gather is function')
     t.equal(metricsContext.gather.length, 1, 'metricsContext.gather expects 1 argument')
 
+    t.equal(typeof metricsContext.clear, 'function', 'metricsContext.clear is function')
+    t.equal(metricsContext.clear.length, 0, 'metricsContext.gather expects no arguments')
+
     t.equal(typeof metricsContext.validate, 'function', 'metricsContext.validate is function')
     t.equal(metricsContext.validate.length, 0, 'metricsContext.validate expects no arguments')
+
+    t.equal(typeof metricsContext.setFlowCompleteSignal, 'function', 'metricsContext.setFlowCompleteSignal is function')
+    t.equal(metricsContext.setFlowCompleteSignal.length, 1, 'metricsContext.setFlowCompleteSignal expects 1 argument')
 
     t.end()
   }
@@ -181,6 +187,7 @@ test(
         metricsContext: {
           flowId: 'mock flow id',
           flowBeginTime: time,
+          flowCompleteSignal: 'mock flow complete signal',
           context: 'mock context',
           entrypoint: 'mock entry point',
           migration: 'mock migration',
@@ -196,11 +203,12 @@ test(
     }, {}).then(function (result) {
       t.equal(typeof result, 'object', 'result is object')
       t.notEqual(result, null, 'result is not null')
-      t.equal(Object.keys(result).length, 12, 'result has 12 properties')
+      t.equal(Object.keys(result).length, 13, 'result has 13 properties')
       t.ok(result.time > time, 'result.time seems correct')
       t.equal(result.flow_id, 'mock flow id', 'result.flow_id is correct')
       t.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
       t.ok(result.flow_time < time, 'result.flow_time is less than the current time')
+      t.equal(result.flowCompleteSignal, 'mock flow complete signal', 'result.flowCompleteSignal is correct')
       t.equal(result.context, 'mock context', 'result.context is correct')
       t.equal(result.entrypoint, 'mock entry point', 'result.entrypoint is correct')
       t.equal(result.migration, 'mock migration', 'result.migration is correct')
@@ -254,6 +262,7 @@ test(
         metricsContext: {
           flowId: 'mock flow id',
           flowBeginTime: time,
+          flowCompleteSignal: 'mock flow complete signal',
           context: 'mock context',
           entrypoint: 'mock entry point',
           migration: 'mock migration',
@@ -267,7 +276,7 @@ test(
         }
       }
     }, {}).then(function (result) {
-      t.equal(Object.keys(result).length, 7, 'result has 7 properties')
+      t.equal(Object.keys(result).length, 8, 'result has 8 properties')
       t.equal(result.utm_campaign, undefined, 'result.utm_campaign is undefined')
       t.equal(result.utm_content, undefined, 'result.utm_content is undefined')
       t.equal(result.utm_medium, undefined, 'result.utm_medium is undefined')
@@ -294,6 +303,7 @@ test(
       return P.resolve({
         flowId: 'flowId',
         flowBeginTime: time,
+        flowCompleteSignal: 'flowCompleteSignal',
         context: 'context',
         entrypoint: 'entrypoint',
         migration: 'migration',
@@ -320,11 +330,12 @@ test(
 
       t.equal(typeof result, 'object', 'result is object')
       t.notEqual(result, null, 'result is not null')
-      t.equal(Object.keys(result).length, 12, 'result has 12 properties')
+      t.equal(Object.keys(result).length, 13, 'result has 13 properties')
       t.ok(result.time > time, 'result.time seems correct')
       t.equal(result.flow_id, 'flowId', 'result.flow_id is correct')
       t.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
       t.ok(result.flow_time < time, 'result.flow_time is less than the current time')
+      t.equal(result.flowCompleteSignal, 'flowCompleteSignal', 'result.flowCompleteSignal is correct')
       t.equal(result.context, 'context', 'result.context is correct')
       t.equal(result.entrypoint, 'entrypoint', 'result.entry point is correct')
       t.equal(result.migration, 'migration', 'result.migration is correct')
@@ -371,7 +382,7 @@ test(
 
       t.equal(typeof result, 'object', 'result is object')
       t.notEqual(result, null, 'result is not null')
-      t.equal(Object.keys(result).length, 12, 'result has 12 properties')
+      t.equal(Object.keys(result).length, 13, 'result has 13 properties')
       t.ok(result.time > time, 'result.time seems correct')
       t.equal(result.flow_id, 'flowId', 'result.flow_id is correct')
       t.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
@@ -439,7 +450,7 @@ test(
       t.equal(log.error.callCount, 1, 'log.error was called once')
       t.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
       t.equal(log.error.args[0][0].op, 'metricsContext.gather', 'op property was correct')
-      t.equal(log.error.args[0][0].err.message, 'Invalid credentials', 'err.message property was correct')
+      t.equal(log.error.args[0][0].err.message, 'Missing token', 'err.message property was correct')
       t.equal(log.error.args[0][0].token, undefined, 'token property was correct')
 
       Memcached.prototype.getAsync.restore()
@@ -581,6 +592,126 @@ test(
       log.error.reset()
 
       t.end()
+    })
+  }
+)
+
+test(
+  'metricsContext.clear with token',
+  t => {
+    const uid = Buffer.alloc(32, '77')
+    const id = 'wibble'
+    const hash = crypto.createHash('sha256')
+    hash.update(uid)
+    hash.update(id)
+    sinon.stub(Memcached.prototype, 'delAsync', () => P.resolve())
+    return metricsContext.clear.call({
+      auth: {
+        credentials: {
+          uid: uid,
+          id: id
+        }
+      }
+    }).then(() => {
+      t.equal(Memcached.prototype.delAsync.callCount, 1, 'memcached.delAsync was called once')
+      t.equal(Memcached.prototype.delAsync.args[0].length, 1, 'memcached.delAsync was passed one argument')
+      t.equal(Memcached.prototype.delAsync.args[0][0], hash.digest('base64'), 'memcached.delAsync argument was correct')
+
+      Memcached.prototype.delAsync.restore()
+    })
+  }
+)
+
+test(
+  'metricsContext.clear with fake token',
+  t => {
+    const uid = Buffer.alloc(32, '66')
+    const id = 'blee'
+    const hash = crypto.createHash('sha256')
+    hash.update(uid)
+    hash.update(id)
+    sinon.stub(Memcached.prototype, 'delAsync', () => P.resolve())
+    return metricsContext.clear.call({
+      payload: {
+        uid: uid.toString('hex'),
+        code: id
+      }
+    }).then(() => {
+      t.equal(Memcached.prototype.delAsync.callCount, 1, 'memcached.delAsync was called once')
+      t.equal(Memcached.prototype.delAsync.args[0].length, 1, 'memcached.delAsync was passed one argument')
+      t.equal(Memcached.prototype.delAsync.args[0][0], hash.digest('base64'), 'memcached.delAsync argument was correct')
+
+      Memcached.prototype.delAsync.restore()
+    })
+  }
+)
+
+test(
+  'metricsContext.clear with no token',
+  t => {
+    sinon.stub(Memcached.prototype, 'delAsync', () => P.resolve())
+    return metricsContext.clear.call({}).then(() => {
+      t.equal(Memcached.prototype.delAsync.callCount, 0, 'memcached.delAsync was not called')
+
+      Memcached.prototype.delAsync.restore()
+    }).catch(err => t.fail(err))
+  }
+)
+
+test(
+  'metricsContext.clear with memcached error',
+  t => {
+    const uid = Buffer.alloc(32, '77')
+    const id = 'wibble'
+    const hash = crypto.createHash('sha256')
+    hash.update(uid)
+    hash.update(id)
+    sinon.stub(Memcached.prototype, 'delAsync', () => P.reject('blee'))
+    return metricsContext.clear.call({
+      auth: {
+        credentials: {
+          uid: uid,
+          id: id
+        }
+      }
+    })
+    .then(() => t.fail('call to metricsContext.clear should have failed'))
+    .catch(err => {
+      t.equal(err, 'blee', 'metricsContext.clear should have rejected with memcached error')
+      t.equal(Memcached.prototype.delAsync.callCount, 1, 'memcached.delAsync was called once')
+
+      Memcached.prototype.delAsync.restore()
+    })
+  }
+)
+
+test(
+  'metricsContext.clear with config.memcached.address === "none"',
+  t => {
+    const metricsContextWithoutMemcached = require('../../lib/metrics/context')(log, {
+      memcached: {
+        address: 'none',
+        idle: 500,
+        lifetime: 30
+      }
+    })
+    const uid = Buffer.alloc(32, '77')
+    const id = 'wibble'
+    const hash = crypto.createHash('sha256')
+    hash.update(uid)
+    hash.update(id)
+    sinon.stub(Memcached.prototype, 'delAsync', () => P.resolve())
+    return metricsContextWithoutMemcached.clear.call({
+      auth: {
+        credentials: {
+          uid: uid,
+          id: id
+        }
+      }
+    }).then(() => {
+      t.equal(Memcached.prototype.delAsync.callCount, 0, 'memcached.delAsync was not called')
+
+      Memcached.prototype.delAsync.restore()
     })
   }
 )
@@ -921,3 +1052,30 @@ test(
     t.end()
   }
 )
+
+test(
+  'setFlowCompleteSignal',
+  t => {
+    const request = {
+      payload: {
+        metricsContext: {}
+      }
+    }
+    metricsContext.setFlowCompleteSignal.call(request, 'wibble')
+    t.deepEqual(request.payload.metricsContext, { flowCompleteSignal: 'wibble' }, 'flowCompleteSignal was set correctly')
+    t.end()
+  }
+)
+
+test(
+  'setFlowCompleteSignal without metricsContext',
+  t => {
+    const request = {
+      payload: {}
+    }
+    metricsContext.setFlowCompleteSignal.call(request, 'wibble')
+    t.deepEqual(request.payload, {}, 'flowCompleteSignal was not set')
+    t.end()
+  }
+)
+

@@ -299,7 +299,9 @@ function create(log, error, config, routes, db) {
   const metricsContext = require('./metrics/context')(log, config)
   server.decorate('request', 'stashMetricsContext', metricsContext.stash)
   server.decorate('request', 'gatherMetricsContext', metricsContext.gather)
+  server.decorate('request', 'clearMetricsContext', metricsContext.clear)
   server.decorate('request', 'validateMetricsContext', metricsContext.validate)
+  server.decorate('request', 'setMetricsFlowCompleteSignal', metricsContext.setFlowCompleteSignal)
 
   const metricsEvents = require('./metrics/events')(log)
   server.decorate('request', 'emitMetricsEvent', metricsEvents.emit)

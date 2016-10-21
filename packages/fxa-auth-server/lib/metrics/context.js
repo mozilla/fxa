@@ -4,12 +4,14 @@
 
 'use strict'
 
-const crypto = require('crypto')
-const isA = require('joi')
 const bufferEqualConstantTime = require('buffer-equal-constant-time')
+const crypto = require('crypto')
+const error = require('../error')
 const HEX = require('../routes/validators').HEX_STRING
-const P = require('../promise')
+const isA = require('joi')
 const Memcached = require('memcached')
+const P = require('../promise')
+
 P.promisifyAll(Memcached.prototype)
 
 const FLOW_ID_LENGTH = 64
@@ -44,7 +46,9 @@ module.exports = function (log, config) {
   return {
     stash: stash,
     gather: gather,
-    validate: validate
+    clear: clear,
+    validate: validate,
+    setFlowCompleteSignal: setFlowCompleteSignal
   }
 
   /**
@@ -122,6 +126,7 @@ module.exports = function (log, config) {
           data.time = Date.now()
           data.flow_id = metadata.flowId
           data.flow_time = calculateFlowTime(data.time, metadata.flowBeginTime)
+          data.flowCompleteSignal = metadata.flowCompleteSignal
           data.context = metadata.context
           data.entrypoint = metadata.entrypoint
           data.migration = metadata.migration
@@ -152,7 +157,26 @@ module.exports = function (log, config) {
       }
     }
 
-    throw new Error('Invalid credentials')
+    throw error.missingToken()
+  }
+
+  /**
+   * Attempt to clear previously-stashed metrics context metadata.
+   *
+   * @name clearMetricsContext
+   * @this request
+   */
+  function clear () {
+    return P.resolve()
+      .then(() => getMemcached().delAsync(getKey(getToken(this))))
+      .catch(err => {
+        // Swallow errors from getToken on this method because we expect
+        // them to occur when the flow complete signal is `account.login`
+        // or `account.created`.
+        if (err.errno !== error.ERRNO.MISSING_TOKEN) {
+          throw err
+        }
+      })
   }
 
   /**
@@ -228,6 +252,19 @@ module.exports = function (log, config) {
       ].join('\n'))
       .digest()
       .slice(0, signatureLength)
+  }
+
+  /**
+   * Sets the event name that will signal completion of the current flow.
+   *
+   * @name setMetricsFlowCompleteSignal
+   * @this request
+   * @param {String} flowCompleteSignal
+   */
+  function setFlowCompleteSignal (flowCompleteSignal) {
+    if (this.payload && this.payload.metricsContext) {
+      this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal
+    }
   }
 }
 

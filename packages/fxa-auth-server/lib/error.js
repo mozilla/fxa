@@ -28,6 +28,7 @@ var ERRNO = {
   INVALID_VERIFICATION_CODE: 105,
   MISSING_CONTENT_LENGTH_HEADER: 112,
   MISSING_PARAMETER: 108,
+  MISSING_TOKEN: 128,
   REQUEST_TOO_LARGE: 113,
   REQUEST_BLOCKED: 125,
   SERVER_BUSY: 201,
@@ -469,6 +470,13 @@ AppError.invalidUnblockCode = function () {
     message: 'Invalid unblock code'
   })
 }
+
+AppError.missingToken = () => new AppError({
+  code: 400,
+  error: 'Bad Request',
+  errno: ERRNO.MISSING_TOKEN,
+  message: 'Missing token'
+})
 
 module.exports = AppError
 module.exports.ERRNO = ERRNO

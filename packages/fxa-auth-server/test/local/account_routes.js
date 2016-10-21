@@ -684,6 +684,11 @@ test('/account/create', function (t) {
     t.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
     t.equal(mockMetricsContext.stash.thisValues[2], mockRequest, 'this was request')
 
+    t.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1, 'metricsContext.setFlowCompleteSignal was called once')
+    args = mockMetricsContext.setFlowCompleteSignal.args[0]
+    t.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
+    t.deepEqual(args[0], 'account.signed', 'argument was event name')
+
     var securityEvent = mockDB.securityEvent
     t.equal(securityEvent.callCount, 1, 'db.securityEvent is called')
     securityEvent = securityEvent.args[0][0]
@@ -859,6 +864,11 @@ test('/account/login', function (t) {
         t.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
         t.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
 
+        t.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1, 'metricsContext.setFlowCompleteSignal was called once')
+        args = mockMetricsContext.setFlowCompleteSignal.args[0]
+        t.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
+        t.deepEqual(args[0], 'account.signed', 'argument was event name')
+
         t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
         t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.city, 'Mountain View')
         t.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.country, 'United States')
@@ -873,6 +883,7 @@ test('/account/login', function (t) {
         mockMailer.sendNewDeviceLoginNotification.reset()
         mockDB.createSessionToken.reset()
         mockMetricsContext.stash.reset()
+        mockMetricsContext.setFlowCompleteSignal.reset()
       })
     })
 
@@ -1000,6 +1011,7 @@ test('/account/login', function (t) {
       }).then(function () {
         mockMailer.sendVerifyLoginEmail.reset()
         mockDB.createSessionToken.reset()
+        mockMetricsContext.setFlowCompleteSignal.reset()
       })
     })
 
@@ -1028,11 +1040,16 @@ test('/account/login', function (t) {
         // since it can't have been a new device connection.
         t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
         t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+
+        t.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1, 'metricsContext.setFlowCompleteSignal was called once')
+        t.deepEqual(mockMetricsContext.setFlowCompleteSignal.args[0][0], 'account.login', 'argument was event name')
+
         t.ok(response.verified, 'response indicates account is verified')
         t.notOk(response.verificationMethod, 'verificationMethod doesn\'t exist')
         t.notOk(response.verificationReason, 'verificationReason doesn\'t exist')
       }).then(function () {
         mockDB.createSessionToken.reset()
+        mockMetricsContext.setFlowCompleteSignal.reset()
       })
     })
 

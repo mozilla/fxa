@@ -219,13 +219,19 @@ Lug.prototype.flowEvent = function (event, request) {
         optionallySetService(info, request)
 
         this.logger.info('flowEvent', info)
+
+        if (event === info.flowCompleteSignal) {
+          this.logger.info('flowEvent', Object.assign({}, info, {
+            event: 'flow.complete'
+          }))
+          request.clearMetricsContext()
+        }
       } else if (! OPTIONAL_FLOW_EVENTS[event]) {
         this.error({ op: 'log.flowEvent', event: event, missingFlowId: true })
       }
     }
   )
 }
-
 
 function optionallySetService (data, request) {
   // don't overwrite service if it is already set
