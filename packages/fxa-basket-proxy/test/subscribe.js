@@ -5,11 +5,13 @@
 var assert = require('assert');
 var request = require('supertest');
 
+var config = require('../lib/config');
 var app = require('../lib/app')();
 
 var mocks = require('./lib/mocks');
 
 var UID = 'abcdef123456';
+var DEFAULT_SOURCE_URL = config.get('basket.source_url');
 
 
 describe('the /subscribe route', function () {
@@ -25,9 +27,11 @@ describe('the /subscribe route', function () {
       email: EMAIL,
     });
     mocks.mockBasketResponse().post('/subscribe/', function (body) {
+      /*eslint-disable camelcase */
       assert.deepEqual(body, {
         email: EMAIL,
-        newsletters: NEWSLETTERS
+        newsletters: NEWSLETTERS,
+        source_url: DEFAULT_SOURCE_URL
       });
       return true;
     }).reply(200, {
@@ -54,9 +58,11 @@ describe('the /subscribe route', function () {
       email: EMAIL,
     });
     mocks.mockBasketResponse().post('/subscribe/', function (body) {
+      /*eslint-disable camelcase */
       assert.deepEqual(body, {
         email: EMAIL,
         newsletters: NEWSLETTERS,
+        source_url: DEFAULT_SOURCE_URL,
         sync: 'Y'
       });
       return true;
@@ -100,9 +106,11 @@ describe('the /subscribe route', function () {
       email: EMAIL,
     });
     mocks.mockBasketResponse().post('/subscribe/', function (body) {
+      /*eslint-disable camelcase */
       assert.deepEqual(body, {
         email: EMAIL,
         newsletters: NEWSLETTERS,
+        source_url: DEFAULT_SOURCE_URL
       });
       return true;
     }).replyWithError('ruh-roh!');
@@ -134,6 +142,7 @@ describe('the /subscribe route', function () {
       assert.deepEqual(body, {
         email: EMAIL,
         newsletters: NEWSLETTERS,
+        source_url: DEFAULT_SOURCE_URL,
         accept_lang: ACCEPT_LANG
       });
       return true;
@@ -145,6 +154,42 @@ describe('the /subscribe route', function () {
       .set('authorization', 'Bearer TOKEN')
       .set('accept-language', ACCEPT_LANG)
       .send({ newsletters: NEWSLETTERS })
+      .expect(200, {
+        status: 'ok',
+      })
+      .end(done);
+  });
+
+  it('passes through the source_url param if provided', function (done) {
+    var EMAIL = 'test@example.com';
+    var NEWSLETTERS = 'a,b,c';
+    var SOURCE_URL = 'https://secure.example.com';
+    mocks.mockOAuthResponse().reply(200, {
+      user: UID,
+      scope: 'basket:write'
+    });
+    mocks.mockProfileResponse().reply(200, {
+      email: EMAIL,
+    });
+    mocks.mockBasketResponse().post('/subscribe/', function (body) {
+      /*eslint-disable camelcase */
+      assert.deepEqual(body, {
+        email: EMAIL,
+        newsletters: NEWSLETTERS,
+        source_url: SOURCE_URL
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok',
+    });
+    request(app)
+      .post('/subscribe')
+      .set('authorization', 'Bearer TOKEN')
+      /*eslint-disable camelcase */
+      .send({
+        newsletters: NEWSLETTERS,
+        source_url: SOURCE_URL
+      })
       .expect(200, {
         status: 'ok',
       })
