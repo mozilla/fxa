@@ -5,6 +5,9 @@
 
 var logger = require('../logging')('routes.subscribe');
 var basket = require('../basket');
+var config = require('../config');
+
+var DEFAULT_SOURCE_URL = config.get('basket.source_url');
 
 module.exports = function subscribe(req, res) {
   if (! res.locals.creds) {
@@ -15,9 +18,14 @@ module.exports = function subscribe(req, res) {
 
   var params = req.body;
   params.email = res.locals.creds.email;
+  /* eslint-disable camelcase */
   if (req.headers['accept-language']) {
-    params.accept_lang = req.headers['accept-language']; //eslint-disable-line camelcase
+    params.accept_lang = req.headers['accept-language'];
   }
+  if (! params.source_url) {
+    params.source_url = DEFAULT_SOURCE_URL;
+  }
+  /* eslint-enable camelcase */
   logger.info('params', params);
   logger.info('activityEvent', {
     event: 'basket.subscribe',
