@@ -57,7 +57,7 @@ var conf = convict({
     lifetime: {
       doc: 'Lifetime for memcached values (seconds)',
       format: 'nat',
-      default: 1800,
+      default: 7200,
       env: 'MEMCACHE_METRICS_CONTEXT_LIFETIME'
     }
   },
