@@ -731,7 +731,7 @@ module.exports = function (
               redirectTo: redirectTo,
               resume: resume,
               acceptLanguage: request.app.acceptLanguage
-            })
+            }).then(() => request.emitMetricsEvent('email.verification.sent'))
           }
         }
 
@@ -774,7 +774,7 @@ module.exports = function (
             return getGeoData(ip)
               .then(
                 function (geoData) {
-                  mailer.sendVerifyLoginEmail(
+                  return mailer.sendVerifyLoginEmail(
                     emailRecord,
                     tokenVerificationId,
                     userAgent.call({
@@ -789,6 +789,7 @@ module.exports = function (
                   )
                 }
               )
+              .then(() => request.emitMetricsEvent('email.confirmation.sent'))
           }
         }
 
@@ -1402,21 +1403,21 @@ module.exports = function (
           payload: {
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
-            resume: isA.string().max(2048).optional()
+            resume: isA.string().max(2048).optional(),
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         }
       },
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailResend', request)
-        var sessionToken = request.auth.credentials
-        var service = request.payload.service || request.query.service
-
-        // Choose which type of email and code to resend
-        var code, func
+        const sessionToken = request.auth.credentials
+        const service = request.payload.service || request.query.service
         if (sessionToken.emailVerified && sessionToken.tokenVerified) {
           return reply({})
         }
 
+        // Choose which type of email and code to resend
+        let code, func, event
         if (sessionToken.tokenVerificationId) {
           code = sessionToken.tokenVerificationId
         } else {
@@ -1425,8 +1426,10 @@ module.exports = function (
 
         if (!sessionToken.emailVerified) {
           func = mailer.sendVerifyCode
+          event = 'verification'
         } else {
           func = mailer.sendVerifyLoginEmail
+          event = 'confirmation'
         }
 
         return customs.check(
@@ -1445,10 +1448,9 @@ module.exports = function (
               acceptLanguage: request.app.acceptLanguage
             }, request.headers['user-agent'], log)
           ))
+          .then(() => request.emitMetricsEvent(`email.${event}.resent`))
           .done(
-            function () {
-              reply({})
-            },
+            () => reply({}),
             reply
           )
       }
@@ -1467,29 +1469,34 @@ module.exports = function (
         }
       },
       handler: function (request, reply) {
-        var uidHex = request.payload.uid
-        var uid = Buffer(uidHex, 'hex')
-        var code = Buffer(request.payload.code, 'hex')
-        var service = request.payload.service || request.query.service
-        var reminder = request.payload.reminder || request.query.reminder
+        const uidHex = request.payload.uid
+        const uid = Buffer(uidHex, 'hex')
+        const code = Buffer(request.payload.code, 'hex')
+        const service = request.payload.service || request.query.service
+        const reminder = request.payload.reminder || request.query.reminder
 
         log.begin('Account.RecoveryEmailVerify', request)
+
+        // verify_code because we don't know what type this is yet, but
+        // we want to record right away before anything could fail, so
+        // we can see in a flow that a user tried to verify, even if it
+        // failed right away.
+        request.emitMetricsEvent('email.verify_code.clicked')
+
         db.account(uid)
           .then(
-            function (account) {
+            (account) => {
               // This endpoint is not authenticated, so we need to look up
               // the target email address before we can check it with customs.
               return customs.check(request, account.email, 'recoveryEmailVerifyCode')
                 .then(
-                  function () {
-                    return account
-                  }
+                  () => account
                 )
             }
           )
           .then(
-            function (account) {
-              var isAccountVerification = butil.buffersAreEqual(code, account.emailCode)
+            (account) => {
+              let isAccountVerification = butil.buffersAreEqual(code, account.emailCode)
 
               /**
                * Logic for account and token verification

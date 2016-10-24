@@ -224,6 +224,90 @@ test('/recovery_email/status', function (t) {
   })
 })
 
+test('/recovery_email/resend_code', t => {
+  t.plan(2)
+  const config = {
+    signinConfirmation: {}
+  }
+  const mockDB = mocks.mockDB()
+  const mockLog = mocks.mockLog()
+  mockLog.flowEvent = sinon.spy(() => {
+    return P.resolve()
+  })
+  const mockMailer = mocks.mockMailer()
+  const mockMetricsContext = mocks.mockMetricsContext({
+    gather: sinon.spy(function (data) {
+      return P.resolve(this.payload && this.payload.metricsContext)
+    })
+  })
+  const accountRoutes = makeRoutes({
+    config: config,
+    db: mockDB,
+    log: mockLog,
+    mailer: mockMailer
+  })
+  const route = getRoute(accountRoutes, '/recovery_email/resend_code')
+
+  t.test('verification', t => {
+    t.plan(2)
+    const mockRequest = mocks.mockRequest({
+      log: mockLog,
+      metricsContext: mockMetricsContext,
+      credentials: {
+        uid: uuid.v4('binary').toString('hex'),
+        email: TEST_EMAIL,
+        emailVerified: false,
+        tokenVerified: false
+      },
+      query: {},
+      payload: {
+        metricsContext: {
+          flowBeginTime: Date.now(),
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          entrypoint: 'preferences',
+          utmContent: 'some-content-string'
+        }
+      }
+    })
+    mockLog.flowEvent.reset()
+
+    return runTest(route, mockRequest, response => {
+      t.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
+      t.equal(mockLog.flowEvent.args[0][0], 'email.verification.resent')
+    })
+  })
+
+  t.test('confirmation', t => {
+    t.plan(2)
+    const mockRequest = mocks.mockRequest({
+      log: mockLog,
+      metricsContext: mockMetricsContext,
+      credentials: {
+        uid: uuid.v4('binary').toString('hex'),
+        email: TEST_EMAIL,
+        emailVerified: true,
+        tokenVerified: false
+      },
+      query: {},
+      payload: {
+        metricsContext: {
+          flowBeginTime: Date.now(),
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          entrypoint: 'preferences',
+          utmContent: 'some-content-string'
+        }
+      }
+    })
+    mockLog.flowEvent.reset()
+
+    return runTest(route, mockRequest, response => {
+      t.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
+      t.equal(mockLog.flowEvent.args[0][0], 'email.confirmation.resent')
+    })
+  })
+
+})
+
 test('/account/reset', function (t) {
   var uid = uuid.v4('binary')
   const mockLog = mocks.spyLog()
@@ -913,7 +997,9 @@ test('/account/login', function (t) {
           // Verify that the email code was sent
           var verifyCallArgs = mockMailer.sendVerifyCode.getCall(0).args
           t.equal(verifyCallArgs[1], emailCode, 'mailer.sendVerifyCode was called with emailCode')
-
+          t.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
+          t.equal(mockLog.flowEvent.args[0][0], 'account.login', 'first event was login')
+          t.equal(mockLog.flowEvent.args[1][0], 'email.verification.sent', 'second event was sent')
           t.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
           t.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
           t.equal(response.verified, false, 'response indicates account is unverified')
@@ -921,6 +1007,7 @@ test('/account/login', function (t) {
           t.equal(response.verificationReason, 'signup', 'verificationReason is signup')
           t.equal(response.emailSent, true, 'email sent')
         }).then(function () {
+          mockLog.flowEvent.reset()
           mockMailer.sendVerifyCode.reset()
           mockDB.createSessionToken.reset()
           mockMetricsContext.stash.reset()
@@ -963,6 +1050,10 @@ test('/account/login', function (t) {
         t.equal(response.verificationMethod, 'email', 'verificationMethod is email')
         t.equal(response.verificationReason, 'login', 'verificationReason is login')
 
+        t.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
+        t.equal(mockLog.flowEvent.args[0][0], 'account.login', 'first event was login')
+        t.equal(mockLog.flowEvent.args[1][0], 'email.confirmation.sent', 'second event was sent')
+
         t.equal(mockMetricsContext.stash.callCount, 3, 'metricsContext.stash was called three times')
         var args = mockMetricsContext.stash.args[1]
         t.equal(args.length, 1, 'metricsContext.stash was passed one argument second time')
@@ -975,6 +1066,7 @@ test('/account/login', function (t) {
         t.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.country, 'United States')
         t.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].timeZone, 'America/Los_Angeles')
       }).then(function () {
+        mockLog.flowEvent.reset()
         mockMailer.sendVerifyLoginEmail.reset()
         mockDB.createSessionToken.reset()
         mockMetricsContext.stash.reset()
@@ -1492,8 +1584,9 @@ test('/recovery_email/verify_code', function (t) {
         t.equal(args[1], mockRequest, 'second argument was request object')
         t.deepEqual(args[2], { uid: uid }, 'third argument contained uid')
 
-        t.equal(mockLog.flowEvent.callCount, 1, 'flowEvent was called once')
-        args = mockLog.flowEvent.args[0]
+        t.equal(mockLog.flowEvent.callCount, 2, 'flowEvent was called twice')
+        t.equal(mockLog.flowEvent.args[0][0], 'email.verify_code.clicked', 'first event was clicked')
+        args = mockLog.flowEvent.args[1]
         t.equal(args.length, 2, 'flowEvent was passed two arguments')
         t.equal(args[0], 'account.verified', 'first argument was event name')
         t.equal(args[1], mockRequest, 'second argument was request object')
@@ -1523,11 +1616,12 @@ test('/recovery_email/verify_code', function (t) {
       return runTest(route, mockRequest, function (response) {
         t.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once')
 
-        t.equal(mockLog.flowEvent.callCount, 2, 'flowEvent was called twice')
-        t.equal(mockLog.flowEvent.args[0][0], 'account.verified', 'first event was account.verified')
-        const args = mockLog.flowEvent.args[1]
+        t.equal(mockLog.flowEvent.callCount, 3, 'flowEvent was called thrice')
+        t.equal(mockLog.flowEvent.args[0][0], 'email.verify_code.clicked', 'first event was clicked')
+        t.equal(mockLog.flowEvent.args[1][0], 'account.verified', 'second event was account.verified')
+        const args = mockLog.flowEvent.args[2]
         t.equal(args.length, 2, 'flowEvent was passed two arguments')
-        t.equal(args[0], 'account.reminder', 'second event was account.reminder')
+        t.equal(args[0], 'account.reminder', 'third event was account.reminder')
         t.equal(args[1], mockRequest, 'second argument was request object')
 
         t.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
