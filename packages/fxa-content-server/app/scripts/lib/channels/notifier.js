@@ -146,12 +146,6 @@ define(function (require, exports, module) {
       _.each(COMMAND_NAMES, (name) => {
         tabChannel.on(name, this.trigger.bind(this, name));
       });
-    },
-
-    clear () {
-      if (this._tabChannel) {
-        this._tabChannel.clear();
-      }
     }
   }, COMMAND_NAMES);
 

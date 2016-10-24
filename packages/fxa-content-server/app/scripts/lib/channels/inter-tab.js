@@ -4,20 +4,12 @@
 
 /**
  * This is a special channel that communicates between two
- * tabs of the same browser. It uses one of two adapaters to
- * communicate: BroadcastChannelAdapter or LocalStorageAdapter.
+ * tabs of the same browser, using BroadcastChannels
+ * to communicate.
  *
- * The preferred adapter is the BroadcastChannelAdapter. It uses
- * the BroadcastChannel API to communicate between browser tabs. See
- * https://developer.mozilla.org/docs/Web/API/Broadcast_Channel_API.
- * The BroadcastChannelAdapter is the prefered way to communicate
- * because it does not write any sensitive data to disk.
+ * See https://developer.mozilla.org/docs/Web/API/Broadcast_Channel_API.
  *
- * LocalStorageAdapter uses localStorage and storage events to communicate
- * between tabs. LocalStorageAdapter is used for legacy browsers without
- * BroadcastChannel API support. Any data sent over this channel
- * can be written to disk, so care must be taken to ensure all
- * sensitive data is erased as soon as it is consumed by the receiving tab.
+ * If BroadcastChannel is not supported, no inter-tab communication occurs.
  */
 
 define(function (require, exports, module) {
@@ -25,30 +17,28 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Backbone = require('backbone');
-  const crosstab = require('crosstab');
 
-  var BROADCAST_CHANNEL_ID = 'firefox_accounts';
+  const BROADCAST_CHANNEL_ID = 'firefox_accounts';
 
-  function BroadcastChannelAdapter(options) {
-    options = options || {};
-    var win = options.window || window;
+  function BroadcastChannelAdapter(options = {}) {
+    const win = options.window || window;
 
-    this._broadcastChannel = new win.BroadcastChannel(BROADCAST_CHANNEL_ID);
-    this._broadcastChannel.onmessage = this.onMessage.bind(this);
+    if ('BroadcastChannel' in win) {
+      this._broadcastChannel = new win.BroadcastChannel(BROADCAST_CHANNEL_ID);
+      this._broadcastChannel.onmessage = this.onMessage.bind(this);
+    }
   }
 
   BroadcastChannelAdapter.prototype = {
     onMessage (event) {
-      var envelope = JSON.parse(event.data);
+      const envelope = JSON.parse(event.data);
       this.trigger(envelope.name, envelope.data);
     },
 
     send (name, data) {
-      this._broadcastChannel.postMessage(this.stringify(name, data));
-    },
-
-    clear () {
-      // do nothing
+      if (this._broadcastChannel) {
+        this._broadcastChannel.postMessage(this.stringify(name, data));
+      }
     },
 
     /**
@@ -58,161 +48,14 @@ define(function (require, exports, module) {
      * @param {Object} [data]
      * @returns {String}
      */
-    stringify (name, data) {
+    stringify (name, data = {}) {
       return JSON.stringify({
-        data: data || {},
+        data: data,
         name: name
       });
     }
   };
 
   _.extend(BroadcastChannelAdapter.prototype, Backbone.Events);
-
-
-  function LocalStorageAdapter(options) {
-    this._crosstab = options.crosstab || crosstab;
-    this._handlers = {};
-    this._sentMessageIds = {};
-  }
-
-  LocalStorageAdapter.prototype = {
-    send (name, data) {
-      // Sensitive data is sent across the channel and should only
-      // be in localStorage if absolutely necessary. Only send
-      // data if another tab is listening.
-      try {
-        if (this._crosstab.util.tabCount() > 1) {
-          // crosstab sends notifications to the the current tab as well
-          // as any remote tabs. This behavior is not what we want. Give
-          // each message an id, if a message is received in this tab
-          // with the same id, ignore it.
-          var id = this._crosstab.util.generateId();
-          var envelope = {
-            data: data,
-            id: id
-          };
-          this._sentMessageIds[id] = true;
-          this._crosstab.broadcast(name, envelope, null);
-        }
-      } catch (e) {
-        // this can blow up if the browser does not support localStorage
-        // or if on a mobile device. Ignore the error.
-      }
-    },
-
-    on (name, callback) {
-      this._handlers[name] = this._handlers[name] || [];
-      var sentMessageIds = this._sentMessageIds;
-
-      var callbackWrapper =
-        createIgnoreMessagesFromThisTabWrapper(callback, sentMessageIds);
-
-      this._handlers[name].push({
-        callback: callback,
-        callbackWrapper: callbackWrapper
-      });
-
-      this._crosstab.util.events.on(name, callbackWrapper);
-    },
-
-    off (name, callback) {
-      var handlersForName = this._handlers[name] || [];
-      handlersForName.forEach(function (handler) {
-        if (handler.callback === callback) {
-          this._crosstab.util.events.off(name, handler.callbackWrapper);
-        }
-      }, this);
-    },
-
-    clear () {
-      this._crosstab.util.clearMessages();
-    }
-  };
-
-  function createIgnoreMessagesFromThisTabWrapper(callback, sentMessageIds) {
-    // crosstab sends notifications to the the current tab as well
-    // as any remote tabs. This behavior is not what we want. Wrap
-    // the supplied callback that checks whether the current tab sent
-    // the event, if so, do not call the callback.
-    return function (event) {
-      var envelope = event.data;
-      var id = envelope.id;
-
-      if (! sentMessageIds[id]) {
-        callback(envelope.data);
-      } else {
-        // The event is only triggered once, no need to continue to keep
-        // track of the sent message ids.
-        delete sentMessageIds[id];
-      }
-    };
-  }
-
-  function InterTabChannel(options) {
-    options = options || {};
-    var win = options.window || window;
-
-    if (options.adapter) {
-      this._adapter = options.adapter;
-    } else if (_.isFunction(win.BroadcastChannel)) {
-      this._adapter = new BroadcastChannelAdapter(options);
-    } else {
-      this._adapter = new LocalStorageAdapter(options);
-    }
-  }
-
-  InterTabChannel.prototype = {
-    /**
-     * Send a message
-     *
-     * @method send
-     * @param {String} name
-     * @param {Object} [data]
-     * @returns {undefined}
-     */
-    send (name, data) {
-      return this._adapter.send(name, data);
-    },
-
-    /**
-     * Register a listener
-     *
-     * @method on
-     * @param {String} name
-     * @param {Function} callback
-     *
-     * @return {String} key - key used to unregister a listener
-     */
-    on (name, callback) {
-      return this._adapter.on(name, callback);
-    },
-
-    /**
-     * Unregister a listener
-     *
-     * @method off
-     * @param {String} name
-     * @param {Function} callback
-     * @returns {undefined}
-     */
-    off (name, callback) {
-      return this._adapter.off(name, callback);
-    },
-
-    /**
-     * Clear all data.
-     *
-     * @method clear
-     * @returns {undefined}
-     */
-    clear () {
-      return this._adapter.clear();
-    }
-  };
-
-  InterTabChannel.BroadcastChannelAdapter = BroadcastChannelAdapter;
-  InterTabChannel.LocalStorageAdapter = LocalStorageAdapter;
-
-
-  module.exports = InterTabChannel;
+  module.exports = BroadcastChannelAdapter;
 });

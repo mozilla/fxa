@@ -246,9 +246,6 @@ define(function (require, exports, module) {
     _stopListeningForInterTabMessages () {
       this._isWaitingForLoginMessage = false;
       this.notifier.off();
-      // Sensitive data is passed between tabs using localStorage.
-      // Delete the data from storage as soon as possible.
-      this.notifier.clear();
     },
 
     _stopWaiting () {

@@ -166,17 +166,6 @@ define(function (require, exports, module) {
         assert.isTrue(notifier.triggerRemote.calledWith('fxaccounts:logout', data));
       });
     });
-
-    describe('notifier.clear', function () {
-      beforeEach(function () {
-        sinon.spy(notifier, 'clear');
-        view.notifier.clear();
-      });
-
-      it('clears notifier data', function () {
-        assert.isTrue(notifier.clear.called);
-      });
-    });
   });
 });
 

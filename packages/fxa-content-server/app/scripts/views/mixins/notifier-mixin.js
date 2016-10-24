@@ -144,13 +144,6 @@ define(function (require, exports, module) {
           this._notifier.off(envelope.name, envelope.callback);
         }
       }, this);
-    },
-
-    /**
-     * Clear any inter tab channel data
-     */
-    clear () {
-      this._notifier.clear();
     }
   };
 
