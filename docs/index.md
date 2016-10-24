@@ -45,7 +45,6 @@ development, and will be happy to help answer any questions you might have:
 * [Jon Buckley](https://github.com/jbuck) - Operations (Toronto, approx UTC-5)
 * [Ryan Feeley](https://github.com/rfeeley) - UX (Toronto, approx UTC-5)
 * [Chris Karlof](https://github.com/ckarlof) - Identity Services Manager (San Francisco, approx UTC-8)
-* [Edwin Wong](https://github.com/edwong) - Program Manager (San Francisco, approx UTC-8)
 * [Alex Davis](https://github.com/davismtl) - Product Manager (Mountain View, approx UTC-8)
 
 We meet regularly to triage bugs and make grand plans for the future.  Anyone is welcome to
