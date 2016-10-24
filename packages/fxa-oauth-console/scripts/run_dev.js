@@ -6,7 +6,6 @@
 
 const cp = require('child_process');
 const path = require('path');
-const opn = require('opn');
 
 var config = require('../lib/config').get('server');
 console.log(config); //eslint-disable-line no-console
@@ -17,9 +16,5 @@ emberBuild.on('exit', process.exit);
 var server = cp.spawn(path.join(__dirname, '..', 'node_modules', '.bin', 'nodemon'), ['bin/server.js', '--watch', 'lib'], { stdio: 'inherit' });
 server.on('exit', process.exit);
 
-setTimeout(function () {
-  var port = config.port === '80' ? '' : ':' + config.port;
-
-  opn('http://' + config.host + port);
-}, 5000);
-
+var port = config.port === '80' ? '' : ':' + config.port;
+console.log('Console is available at:', 'http://' + config.host + port);

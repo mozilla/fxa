@@ -59,7 +59,6 @@
     "grunt-eslint": "17.3.1",
     "load-grunt-tasks": "3.3.0",
     "nodemon": "^1.2.1",
-    "opn": "^1.0.0",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
   "engines": {
