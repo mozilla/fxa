@@ -5,27 +5,31 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
-  'intern/node_modules/dojo/Promise',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, Promise, nodeXMLHttpRequest,
-        FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, TestHelpers,
+             FunctionalHelpers) {
   var config = intern.config;
 
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var PASSWORD = 'password';
   var RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v2&service=sync';
 
-  var client;
   var email;
 
+  var thenify = FunctionalHelpers.thenify;
+
+  var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutResetPassword = thenify(FunctionalHelpers.fillOutResetPassword);
+  var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  var openPage = FunctionalHelpers.openPage;
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
   registerSuite({
     name: 'Firefox Desktop Sync v2 reset password',
@@ -34,15 +38,8 @@ define([
       // timeout after 90 seconds
       this.timeout = 90000;
 
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
       email = TestHelpers.createEmail();
-
-      return Promise.all([
-        client.signUp(email, PASSWORD, { preVerified: true }),
-        FunctionalHelpers.clearBrowserState(this)
-      ]);
+      return FunctionalHelpers.clearBrowserState(this);
     },
 
     teardown: function () {
@@ -51,52 +48,55 @@ define([
     },
 
     'reset password, verify same browser': function () {
-      var self = this;
+      return this.remote
+        .then(openPage(this, RESET_PASSWORD_URL, '#fxa-reset-password-header'))
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(fillOutResetPassword(this, email))
 
-      return openPage(self, RESET_PASSWORD_URL, '#fxa-reset-password-header')
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
-        })
-
-        .findByCssSelector('#fxa-confirm-reset-password-header')
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                self, email, 0);
-        })
         .switchToWindow('newwindow')
 
-        .findByCssSelector('#fxa-complete-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-complete-reset-password-header'))
+        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(
-                    self, PASSWORD, PASSWORD);
-        })
-
-        .findByCssSelector('#fxa-reset-password-complete-header')
-        .end()
-
-        .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          assert.ok(text.indexOf('Firefox Sync') > -1);
-        })
-
-        .end()
+        .then(testElementExists('#fxa-reset-password-complete-header'))
+        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
 
         // the verification tab sends the WebChannel message. This fixes
         // two problems: 1) initiating tab is closed, 2) The initiating
         // tab when running in E10s does not have all the necessary data
         // because localStorage is not shared.
-        .then(testIsBrowserNotified(self, 'fxaccounts:login'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
 
         .then(closeCurrentWindow())
 
-        .then(FunctionalHelpers.testSuccessWasShown(self))
-        .then(noSuchBrowserNotification(self, 'fxaccounts:login'));
+        .then(testSuccessWasShown(this))
+        .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
+    },
+
+    'reset password with a gmail address, get the open gmail button': function () {
+      var email = 'signin' + Math.random() + '@gmail.com';
+      this.timeout = 90000;
+
+      return this.remote
+        .then(openPage(this, RESET_PASSWORD_URL, '#fxa-reset-password-header'))
+        .then(createUser(email, PASSWORD, { preVerified: true } ))
+        .then(fillOutResetPassword(this, email))
+
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
+        .then(click('[data-webmail-type="gmail"]'))
+
+        .getAllWindowHandles()
+          .then(function (handles) {
+            return this.parent.switchToWindow(handles[1]);
+          })
+
+        .then(testElementExists('.google-header-bar'))
+        .then(closeCurrentWindow())
+
+        .then(testElementExists('#fxa-confirm-reset-password-header'));
     }
   });
 
