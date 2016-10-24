@@ -16,6 +16,5 @@
 (cd fxa-basket-proxy && git checkout master && git pull origin master && npm i && cd ..) || echo "fxa-basket-proxy update failed"
 
 (cd 123done && git checkout oauth && git pull origin oauth && npm i && cd ..) || echo "123done update failed"
-(cd loop-server && git checkout master && git pull origin master && npm i && cd ..) || echo "Loop update failed"
 (cd syncserver && git checkout master && git pull origin master && make build && cd ..) || echo "syncserver update failed"
 
