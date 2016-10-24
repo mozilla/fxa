@@ -103,7 +103,7 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('.client-name')
+        .findByCssSelector('.client-device .client-name')
         .getVisibleText()
         .then(function (val) {
           assert.equal(val, TEST_DEVICE_NAME, 'client name is correct');
@@ -129,12 +129,12 @@ define([
         .end()
 
         // wait for 2 devices
-        .findByCssSelector('.client:nth-child(2)')
+        .findByCssSelector('.client-device:nth-child(2)')
         .end()
 
         // browser device should be sorted first
         .then(FunctionalHelpers.testElementTextEquals(
-          '.client:nth-child(1) .client-name',
+          '.client-device:nth-child(1) .client-name',
           BROWSER_DEVICE_NAME
           )
         )
@@ -150,24 +150,22 @@ define([
 
         // current device has the text `current device`
         .then(FunctionalHelpers.testElementTextEquals(
-          '.client:nth-child(1) .client-name + .device-current',
+          '.client-device:nth-child(1) .client-name + .device-current',
           'current device'
           )
         )
 
         // external update should show in the device list
-        .findByCssSelector('.clients-refresh')
-          .click()
-        .end()
+        .then(click('.clients-refresh'))
 
         // external text change is hard to track, use pollUntil
         .then(FunctionalHelpers.pollUntil(function (newName) {
-          var deviceName = document.querySelectorAll('.client:nth-child(2) .client-name')[0].textContent.trim();
+          var deviceName = document.querySelectorAll('.client-device:nth-child(2) .client-name')[0].textContent.trim();
 
           return deviceName === newName ? true : null;
         }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
 
-        .findByCssSelector('.client:nth-child(2) .client-name')
+        .findByCssSelector('.client-device:nth-child(2) .client-name')
           .getVisibleText()
           .then(function (val) {
             assert.equal(val, TEST_DEVICE_NAME_UPDATED, 'device name is correct');
@@ -175,7 +173,7 @@ define([
         .end()
 
         // clicking disconnect on the second device should update the list
-        .then(click('.client:nth-child(2) .client-disconnect'))
+        .then(click('.client-device:nth-child(2) .client-disconnect'))
 
         // get the modal dialog
         .then(testElementExists('.intro'))
@@ -186,7 +184,7 @@ define([
 
         .then(pollUntilGoneByQSA('#client-disconnect'))
 
-        .then(click('.client:nth-child(2) .client-disconnect'))
+        .then(click('.client-device:nth-child(2) .client-disconnect'))
         .then(click('select.disconnect-reasons > option[value="lost"]'))
 
         // wait until button is enabled (disabled class has gone away)
@@ -198,26 +196,22 @@ define([
 
         // disconnect waits until successful AJAX device delete
         .then(FunctionalHelpers.pollUntil(function (newName) {
-          var numberOfDevices = document.querySelectorAll('.client-list .client').length;
+          var numberOfDevices = document.querySelectorAll('.client-list .client-device').length;
 
           return numberOfDevices === 1 ? true : null;
         }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
 
-        .findByCssSelector('.clients-refresh')
-          .click()
-        .end()
+        .then(click('.clients-refresh'))
 
         // should still have 1 device after refresh
         .then(FunctionalHelpers.pollUntil(function (newName) {
-          var numberOfDevices = document.querySelectorAll('.client-list .client').length;
+          var numberOfDevices = document.querySelectorAll('.client-list .client-device').length;
 
           return numberOfDevices === 1 ? true : null;
         }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
 
         // clicking disconnect on the current device should sign you out
-        .findByCssSelector('.client:nth-child(1) .client-disconnect')
-          .click()
-        .end()
+        .then(click('.client-device:nth-child(1) .client-disconnect'))
 
         .then(click('select.disconnect-reasons > option[value="lost"]'))
         // wait until button is enabled

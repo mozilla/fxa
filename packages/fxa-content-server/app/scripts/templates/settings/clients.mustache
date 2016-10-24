@@ -14,8 +14,6 @@
     <div class="error"></div>
 
     <form novalidate>
-      {{#t}}Firefox is available for <a href="%(linkWindows)s">Windows</a>, <a href="%(linkOSX)s">OS X</a>, <a href="%(linkAndroid)s">Android</a>, <a href="%(linkIOS)s">iOS</a> and <a href="%(linkLinux)s">Linux</a>.{{/t}}
-      {{clientsPanelManageString}}
       <ul class="client-list button-row">
         {{#clients}}
           <li class="client {{type}} client-{{clientType}}" id="{{id}}">
@@ -36,6 +34,18 @@
             </button>
           </li>
         {{/clients}}
+        {{#showMobileApps}}
+          <li class="client mobile">
+            <div class="client-name">{{#t}}Firefox for iOS{{/t}}</div>
+            <div class="last-connected">none connected</div>
+            <a target="_blank" href="{{ linkIOS }}" class="settings-button secondary" data-get-app="ios">{{#t}}Get app{{/t}}</a>
+          </li>
+          <li class="client mobile">
+            <div class="client-name">{{#t}}Firefox for Android{{/t}}</div>
+            <div class="last-connected">none connected</div>
+            <a target="_blank" href="{{ linkAndroid }}" class="settings-button secondary" data-get-app="android">{{#t}}Get app{{/t}}</a>
+          </li>
+        {{/showMobileApps}}
         <a href="{{devicesSupportUrl}}">{{#t}}Missing or duplicate items?{{/t}}</a>
       </ul>
 

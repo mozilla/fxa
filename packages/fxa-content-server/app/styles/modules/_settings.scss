@@ -519,8 +519,13 @@ section.modal-panel {
     min-width: 95px;
     position: absolute;
     right: 0;
+    text-align: center;
     top: 0;
     width: 20%;
+  }
+
+  a.settings-button {
+    padding-top: 8px;
   }
 
   .device-current {

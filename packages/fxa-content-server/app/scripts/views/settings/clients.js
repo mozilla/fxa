@@ -19,14 +19,16 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/settings/clients');
   const Url = require('lib/url');
 
-  var DEVICE_REMOVED_ANIMATION_MS = 150;
-  var UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
-  var DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
-  var FIREFOX_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/new/' + UTM_PARAMS;
-  var FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/android/' + UTM_PARAMS;
-  var FIREFOX_IOS_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/ios/' +  UTM_PARAMS;
-  var FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
-  var FORCE_APPS_LIST_VIEW = 'forceAppsList';
+  const DEVICE_REMOVED_ANIMATION_MS = 150;
+  const UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
+  const DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
+  const FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc' +
+    '?campaign=fxa-devices-page&adgroup=android&creative=button';
+  const FIREFOX_IOS_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc?' +
+    'campaign=fxa-devices-page&adgroup=ios&creative=button' +
+    '&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8';
+  const FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
+  const FORCE_APPS_LIST_VIEW = 'forceAppsList';
 
   var View = FormView.extend({
     template: Template,
@@ -61,24 +63,24 @@ define(function (require, exports, module) {
     },
 
     context () {
+      let clients = this._attachedClients.toJSON();
+
       return {
-        clients: this._formatAccessTime(this._attachedClients.toJSON()),
-        clientsPanelManageString: this._getManageString(),
+        clients: this._formatAccessTime(clients),
         clientsPanelTitle: this._getPanelTitle(),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelEnabled: this._isPanelEnabled(),
         isPanelOpen: this.isPanelOpen(),
         linkAndroid: FIREFOX_ANDROID_DOWNLOAD_LINK,
         linkIOS: FIREFOX_IOS_DOWNLOAD_LINK,
-        linkLinux: FIREFOX_DOWNLOAD_LINK,
-        linkOSX: FIREFOX_DOWNLOAD_LINK,
-        linkWindows: FIREFOX_DOWNLOAD_LINK
+        showMobileApps: ! this._showMobileApps(clients)
       };
     },
 
     events: {
       'click .client-disconnect': preventDefaultThen('_onDisconnectClient'),
-      'click .clients-refresh': preventDefaultThen('_onRefreshClientsList')
+      'click .clients-refresh': preventDefaultThen('_onRefreshClientsList'),
+      'click [data-get-app]': '_onGetApp'
     },
 
     _isPanelEnabled () {
@@ -90,21 +92,30 @@ define(function (require, exports, module) {
       });
     },
 
+    /**
+     * Returns true if we should show mobile app placeholders
+     *
+     * @param {Client[]} clients - array of attached clients
+     * @returns {Boolean}
+     * @private
+     */
+    _showMobileApps (clients) {
+      if (! this.broker.hasCapability('convertExternalLinksToText')) {
+        // if we cannot show links exit out early
+        return false;
+      }
+
+      // we would show mobile apps if there are no mobile clients
+      return ! _.some(clients, function (client) {
+        return client.type === 'mobile';
+      });
+    },
+
     _getPanelTitle () {
       var title = t('Devices');
 
       if (this._isAppsListVisible()) {
         title = t('Devices & apps');
-      }
-
-      return title;
-    },
-
-    _getManageString () {
-      var title = t('You can manage your devices below.');
-
-      if (this._isAppsListVisible()) {
-        title = t('You can manage your devices and apps below.');
       }
 
       return title;
@@ -155,6 +166,11 @@ define(function (require, exports, module) {
           this.render();
         });
       }
+    },
+
+    _onGetApp (event) {
+      var appType = this.$el.find(event.currentTarget).data('get-app');
+      this.logViewEvent(`get.${appType}`);
     },
 
     openPanel () {
