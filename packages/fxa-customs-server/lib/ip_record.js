@@ -39,17 +39,21 @@ module.exports = function (limits, now) {
   IpRecord.prototype.isOverBadLogins = function () {
     this.trimBadLogins(now())
     // IPs are limited based on the number of unique email
-    // addresses they access.  Take the highest-weighted
-    // bad-login event for each email address.
-    var total = 0
-    var seen = {}
+    // addresses they access.  Sum the highest-weighted
+    // bad-login event for each user account to determine
+    // the overall bad-logins score.
+    var weights = {}
     this.lf.forEach(function(info) {
-      var incr = limits.badLoginErrnoWeights[info.e] || 1
-      if (info.u in seen && seen[info.u] < incr) {
-        total -= seen[info.u]
-        seen[info.u] = incr
-      }
-      total += incr
+      var user = info.u
+      var errno = info.e
+      weights[user] = Math.max(
+        limits.badLoginErrnoWeights[errno] || 1,
+        weights[user] || 0
+      )
+    })
+    var total = 0
+    Object.keys(weights).forEach(function(user) {
+      total += weights[user]
     })
     return total > limits.maxBadLoginsPerIp
   }
