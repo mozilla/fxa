@@ -57,6 +57,10 @@ define(function (require, exports, module) {
       assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
     });
 
+    it('has the `convertExternalLinksToText` capability by default, disables links on privacy pages', function () {
+      assert.isTrue(broker.hasCapability('convertExternalLinksToText'));
+    });
+
     it('does not have the `emailVerificationMarketingSnippet` capability by default', function () {
       assert.isFalse(broker.hasCapability('emailVerificationMarketingSnippet'));
     });

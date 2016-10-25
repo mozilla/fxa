@@ -28,6 +28,7 @@ define(function (require, exports, module) {
       chooseWhatToSyncWebV1: {
         engines: Constants.DEFAULT_DECLINED_ENGINES
       },
+      convertExternalLinksToText: true,
       emailVerificationMarketingSnippet: false,
       syncPreferencesNotification: true
     }),
