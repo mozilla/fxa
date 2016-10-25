@@ -23,9 +23,10 @@ define(function (require, exports, module) {
     // tracks the type of a tooltip, used for metrics purposes
     type: 'generic',
 
-    initialize (options) {
-      options = options || {};
+    initialize (options = {}) {
       this.message = options.message || '';
+      this.unsafeMessage = options.unsafeMessage || '';
+
       this.dismissible  = options.dismissible || false;
       this.extraClassNames = options.extraClassNames || '';
 
@@ -37,7 +38,15 @@ define(function (require, exports, module) {
     },
 
     template () {
-      return this.translator.get(this.message);
+      // If both `message` and `unsafeMessage` are set, prefer `message`
+      // since it'll be HTML escaped.
+      if (this.message) {
+        return this.translate(this.message);
+      } else if (this.unsafeMessage) {
+        return this.unsafeTranslate(this.unsafeMessage);
+      }
+
+      return '';
     },
 
     afterRender () {

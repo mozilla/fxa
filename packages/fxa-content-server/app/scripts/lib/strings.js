@@ -5,10 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const t = (msg) => msg;
 
-  var t = function (msg) {
-    return msg;
-  };
+  const HTML_CHAR_CODE = /&(\D+|#\d+);/i;
+  const HTML_TAG = /<.*>/;
+  const NAMED_VARIABLE = /\%\(([a-zA-Z]+)\)s/g;
+  const UNNAMED_VARIABLE = /%s/g;
+  // safe variables have an `escaped` prefix.
+  const UNSAFE_VARIABLE = /\%\(((?!escaped)[a-zA-Z]+)\)s/g;
 
   // temporary strings that can be extracted for the
   // l10n team to start translations.
@@ -40,31 +44,50 @@ define(function (require, exports, module) {
    * the context
    * @method interpolate
    * @param {String} string
-   * @param {String} context
+   * @param {Object|Array} [context] - defaults to []
    * @returns {String}
    */
-  function interpolate(string, context) {
-    if (! context) {
-      context = [];
-    }
-
-    var interpolated = string.replace(/\%s/g, function (match) {
+  function interpolate(string, context = []) {
+    return string.replace(UNNAMED_VARIABLE, (match) => {
       // boot out non arrays and arrays with not enough items.
       if (! (context.shift && context.length > 0)) {
         return match;
       }
       return context.shift();
-    });
-
-    interpolated = interpolated.replace(/\%\(([a-zA-Z]+)\)s/g, function (match, name) {
+    }).replace(NAMED_VARIABLE, (match, name) => {
       return name in context ? context[name] : match;
     });
+  }
 
-    return interpolated;
+  /**
+   * Check whether the string contains HTML. Very very loose interpretation of
+   * what HTML means. If it contains an HTML character code-like thing, it's
+   * considered HTML. If it contains <> with *anything* in the middle, it's
+   * considered HTML.
+   *
+   * @param {String} string
+   * @returns {Boolean} true if string has HTML, false otw.
+   */
+  function hasHTML(string) {
+    return HTML_CHAR_CODE.test(string) || HTML_TAG.test(string);
+  }
+
+  /**
+   * Check whether all interpolation variables have an `escaped` prefix.
+   * This is a gentle reminder to developers that they must properly escape
+   * variables because the string is written to the DOM w/o HTML escaping.
+   *
+   * @param {String} string
+   * @returns {Boolean} true if has unsafe variables, false otw.
+   */
+  function hasUnsafeVariables(string) {
+    return UNNAMED_VARIABLE.test(string) || UNSAFE_VARIABLE.test(string);
   }
 
   module.exports = {
-    interpolate: interpolate
+    hasHTML,
+    hasUnsafeVariables,
+    interpolate
   };
 
 });

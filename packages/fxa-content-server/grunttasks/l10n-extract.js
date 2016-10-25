@@ -23,7 +23,7 @@ module.exports = function (grunt) {
     var clientWalker = extract({
       'input-dir': path.join(__dirname, '..', '.es5', 'scripts'),
       'join-existing': false,
-      'keyword': 't',
+      'keyword': ['t', 'unsafeTranslate'],
       'output': 'client.pot',
       'output-dir': messagesOutputPath,
       parsers: {
@@ -37,7 +37,7 @@ module.exports = function (grunt) {
         exclude: /pages\/dist/,
         'input-dir': path.join(__dirname, '..', 'server'),
         'join-existing': true,
-        'keyword': 't',
+        'keyword': ['t', 'unsafeTranslate'],
         'output': 'server.pot',
         'output-dir': messagesOutputPath,
         parsers: {

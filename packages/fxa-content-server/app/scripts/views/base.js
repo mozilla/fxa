@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   const Logger = require('lib/logger');
   const p = require('lib/promise');
   const Raven = require('raven');
+  const Strings = require('lib/strings');
   const TimerMixin = require('views/mixins/timer-mixin');
   const Url = require('lib/url');
   const VerificationReasons = require('lib/verification-reasons');
@@ -281,10 +282,10 @@ define(function (require, exports, module) {
         this.model.unset('success');
       }
 
-      var successUnsafe = this.model.get('successUnsafe');
-      if (successUnsafe) {
-        this.displaySuccessUnsafe(successUnsafe);
-        this.model.unset('successUnsafe');
+      var unsafeSuccess = this.model.get('unsafeSuccess');
+      if (unsafeSuccess) {
+        this.unsafeDisplaySuccess(unsafeSuccess);
+        this.model.unset('unsafeSuccess');
       }
 
       var error = this.model.get('error');
@@ -318,8 +319,11 @@ define(function (require, exports, module) {
       }
       var ctx = this._context;
 
-      // `t` is a mustache helper to translate strings.
+      // `t` is a Mustache helper to translate and HTML escape strings.
       ctx.t = this.translateInTemplate.bind(this);
+      // `unsafeTranslate` is a Mustache helper that translates a
+      // string without HTML escaping. Prefer `t`
+      ctx.unsafeTranslate = this.unsafeTranslateInTemplate.bind(this);
 
       return ctx;
     },
@@ -329,31 +333,67 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Translate a string
+     * Translate a string, output will be HTML escaped.
      *
      * @param {String} text - string to translate
+     * @param {Object} [context] - interpolation context, defaults to
+     * this.getContext();
      * @returns {String}
      */
-    translate (text) {
-      return this.translator.get(text, this.getContext());
+    translate (text, context = this.getContext()) {
+      if (Strings.hasHTML(text)) {
+        const err = AuthErrors.toError('HTML_WILL_BE_ESCAPED');
+        err.string = text;
+        this.logError(err);
+      }
+
+      return _.escape(this.translator.get(text, context));
     },
 
     /**
-     * Create a function that can be used by Mustache
-     * to translate a string. Useful for translate a string
-     * for use in the template, which itself depends on
-     * this.getContext(). This function avoids
-     * infinite recursion.
+     * Translate a string, do not escape the output.
+     * This should rarely be used, prefer `translate`
+     *
+     * ** WARNING ** DOES NOT HTML ESCAPE
+     *
+     * @param {String} text - string to translate
+     * @param {Object} [context] - interpolation context, defaults to
+     * this.getContext();
+     * @returns {String}
+     */
+    unsafeTranslate (text, context = this.getContext()) {
+      if (Strings.hasUnsafeVariables(text)) {
+        const err = AuthErrors.toError('UNSAFE_INTERPOLATION_VARIABLE_NAME');
+        err.string = text;
+        this.logError(err);
+      }
+
+      return this.translator.get(text, context);
+    },
+
+    /**
+     * Return a Mustache helper that translates a string.
+     * Translations are HTML escaped.
      *
      * @param {String} [text] - string to translate
      * @returns {Function}
      */
     translateInTemplate (text) {
-      if (text) {
-        return this.translate.bind(this, text);
-      } else {
-        return this.translate.bind(this);
-      }
+      return innerText => this.translate(text || innerText);
+    },
+
+    /**
+     * Return a Mustache helper that translates a string.
+     * Translations are not HTML escaped.
+     * Prefer `translateInTemplate`
+     *
+     * ** WARNING ** DOES NOT HTML ESCAPE
+     *
+     * @param {string} [text] - string to translate
+     * @returns {function}
+     */
+    unsafeTranslateInTemplate (text) {
+      return innerText => this.unsafeTranslate(text || innerText);
     },
 
     /**
@@ -472,12 +512,10 @@ define(function (require, exports, module) {
     displaySuccess: _.partial(displaySuccess, 'text'),
 
     /**
-     * Display a success message
-     * @method displaySuccess
-     * If msg is not given, the contents of the .success element's HTML
-     * will not be updated.
+     * Display a success message. If msg is not given, the contents of
+     * the .success element's HTML will not be updated.
      */
-    displaySuccessUnsafe: _.partial(displaySuccess, 'html'),
+    unsafeDisplaySuccess: _.partial(displaySuccess, 'html'),
 
     hideSuccess () {
       this.$('.success').slideUp(STATUS_MESSAGE_ANIMATION_MS);
@@ -534,14 +572,14 @@ define(function (require, exports, module) {
      * because msg could contain XSS. Use with caution and never
      * with unsanitized user generated content.
      *
-     * @method displayErrorUnsafe
+     * @method unsafeDisplayError
      * @param {String} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
      *
      * @return {String} translated error text (if available), untranslated
      *   error text otw.
      */
-    displayErrorUnsafe: _.partial(displayError, 'html'),
+    unsafeDisplayError: _.partial(displayError, 'html'),
 
     /**
      * Log an error to the event stream

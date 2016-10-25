@@ -20,7 +20,7 @@
       <div class="error"></div>
       <div class="success"></div>
       {{#isSyncMigration}}
-          <div class="info nudge" id="sync-migration">{{#t}}Migrate your sync data by signing in to your Firefox&nbsp;Account.{{/t}}</div>
+          <div class="info nudge" id="sync-migration">{{#unsafeTranslate}}Migrate your sync data by signing in to your Firefox&nbsp;Account.{{/unsafeTranslate}}</div>
       {{/isSyncMigration}}
 
       {{#suggestedAccount}}
@@ -89,7 +89,7 @@
       </div>
 
       <div class="extra-links">
-        {{#t}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
+        {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/unsafeTranslate}}
       </div>
       {{/suggestedAccount}}
 

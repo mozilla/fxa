@@ -15,7 +15,7 @@
     <div class="graphic graphic-mail">{{#t}}Email Sent{{/t}}</div>
 
     {{#isSignUp}}
-    <p class="verification-email-message">{{#t}}A verification link has been sent&nbsp;to %(email)s{{/t}}</p>
+    <p class="verification-email-message">{{#unsafeTranslate}}A verification link has been sent&nbsp;to %(escapedEmail)s{{/unsafeTranslate}}</p>
     {{/isSignUp}}
     {{#isSignIn}}
     <p class="verification-email-message">{{#t}}To better protect your Firefox data, we've emailed a confirmation link to %(email)s{{/t}}</p>
@@ -23,7 +23,7 @@
 
     {{#isOpenWebmailButtonVisible}}
       <div class="button-row">
-        <a href="{{{ unsafeWebmailLink }}}" data-webmail-type="{{webmailType}}" class="button" target="_blank" id="open-webmail" type="button">{{webmailButtonText}}</a>
+        <a href="{{{ escapedWebmailLink }}}" data-webmail-type="{{webmailType}}" class="button" target="_blank" id="open-webmail" type="button">{{webmailButtonText}}</a>
       </div>
     {{/isOpenWebmailButtonVisible}}
 

@@ -51,7 +51,7 @@ define(function (require, exports, module) {
       return view.render();
     });
 
-    describe('displayErrorUnsafe', function () {
+    describe('unsafeDisplayError', function () {
       describe('with a broker that munges links', function () {
         beforeEach(function () {
           sinon.stub(broker, 'transformLink', function (link) {
@@ -60,24 +60,24 @@ define(function (require, exports, module) {
         });
 
         it('converts /signin links to /oauth/signin', function () {
-          view.displayErrorUnsafe('<a href="/signin" id="replaceMe">error</a>');
+          view.unsafeDisplayError('<a href="/signin" id="replaceMe">error</a>');
           assert.equal(view.$('#replaceMe').attr('href'), '/oauth/signin');
         });
 
         it('converts /signup links to /oauth/signup', function () {
-          view.displayErrorUnsafe('<a href="/signup" id="replaceMe">error</a>');
+          view.unsafeDisplayError('<a href="/signup" id="replaceMe">error</a>');
           assert.equal(view.$('#replaceMe').attr('href'), '/oauth/signup');
         });
       });
 
       describe('with a broker that does not munge links', function () {
         it('leaves /signin alone', function () {
-          view.displayErrorUnsafe('<a href="/signin" id="replaceMe">error</a>');
+          view.unsafeDisplayError('<a href="/signin" id="replaceMe">error</a>');
           assert.equal(view.$('#replaceMe').attr('href'), '/signin');
         });
 
         it('leaves /signup alone', function () {
-          view.displayErrorUnsafe('<a href="/signup" id="replaceMe">error</a>');
+          view.unsafeDisplayError('<a href="/signup" id="replaceMe">error</a>');
           assert.equal(view.$('#replaceMe').attr('href'), '/signup');
         });
       });

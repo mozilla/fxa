@@ -320,7 +320,22 @@ define(function (require, exports, module) {
     DAMAGED_REJECT_UNBLOCK_LINK: {
       errno: 1045,
       message: t('Link damaged')
+    },
+    // logged when view.unsafeTranslate called with a string that
+    // contains a variable without an `escaped` prefix
+    UNSAFE_INTERPOLATION_VARIABLE_NAME: {
+      errno: 1046,
+      // not user facing, only used for logging, not wrapped in `t`
+      message: 'String contains variables that are not escaped: %(string)s'
+    },
+    // logged when view.translate called with a string that contains
+    // HTML.
+    HTML_WILL_BE_ESCAPED: {
+      errno: 1047,
+      // not user facing, only used for logging, not wrapped in `t`
+      message: 'HTML will be escaped: %(string)s'
     }
+
   };
   /*eslint-enable sorting/sort-object-props*/
 
@@ -361,6 +376,14 @@ define(function (require, exports, module) {
         } else if (this.is(err, 'MISSING_DATA_ATTRIBUTE')) {
           return {
             property: err.property
+          };
+        } else if (this.is(err, 'UNSAFE_INTERPOLATION_VARIABLE_NAME')) {
+          return {
+            string: err.string
+          };
+        } else if (this.is(err, 'HTML_WILL_BE_ESCAPED')) {
+          return {
+            string: err.string
           };
         } else if (this.is(err, 'THROTTLED')) {
           if (err.retryAfterLocalized) {

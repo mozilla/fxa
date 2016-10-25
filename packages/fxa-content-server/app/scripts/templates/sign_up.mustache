@@ -21,15 +21,15 @@
     <div class="success"></div>
 
     {{#showSyncSuggestion}}
-      <div class="info nudge" id="suggest-sync">{{#t}}Looking for Firefox Sync? <a href="https://mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started">Get started here</a>{{/t}}</div>
+    <div class="info nudge" id="suggest-sync">{{#unsafeTranslate}}Looking for Firefox Sync? <a href="%(escapedSyncSuggestionUrl)s">Get started here</a>{{/unsafeTranslate}}</div>
     {{/showSyncSuggestion}}
 
     {{#isSyncMigration}}
-      <div class="info nudge" id="sync-migration">{{#t}}Migrate your sync data by creating a new Firefox&nbsp;Account.{{/t}}</div>
+      <div class="info nudge" id="sync-migration">{{#unsafeTranslate}}Migrate your sync data by creating a new Firefox&nbsp;Account.{{/unsafeTranslate}}</div>
     {{/isSyncMigration}}
 
     {{#isAmoMigration}}
-        <div class="info nudge pad" id="amo-migration">{{#t}}Have an account with a different email? <a href="%(signinUri)s">Sign in</a>{{/t}}</div>
+        <div class="info nudge pad" id="amo-migration">{{#unsafeTranslate}}Have an account with a different email? <a href="%(escapedSignInUri)s">Sign in</a>{{/unsafeTranslate}}</div>
     {{/isAmoMigration}}
 
     <form novalidate>
@@ -56,7 +56,7 @@
       </div>
 
       <div class="extra-links">
-        {{#t}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
+        {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/unsafeTranslate}}
       </div>
 
       {{#isEmailOptInVisible}}

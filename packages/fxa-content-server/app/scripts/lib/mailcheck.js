@@ -7,31 +7,30 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const KeyCodes = require('lib/key-codes');
   const mailcheck = require('mailcheck'); //eslint-disable-line no-unused-vars
   const Tooltip = require('views/tooltip');
+  const t = (msg) => msg;
 
-  var DOMAINS = [];
-  var SECOND_LEVEL_DOMAINS = [ // domains that get suggested, i.e gnail => gmail
+  const DOMAINS = [];
+  const SECOND_LEVEL_DOMAINS = [ // domains that get suggested, i.e gnail => gmail
     'gmail', 'qq', 'yandex', 'o2', 'rambler', 'googlemail', 't-online', 'mail', 'web',
     'sbcglobal', 'msn', 'hotmail', 'me', 'aol', 'seznam', 'comcast', 'orange',
     'gmx', 'ymail', 'outlook', 'live', 'yahoo'
   ];
-  var TOP_LEVEL_DOMAINS = [];
-  var MIN_CHARS = 5; // start suggesting email correction after MIN_CHARS
-  var SUGGEST_DIV_CLASS = 'tooltip-suggest';
+  const TOP_LEVEL_DOMAINS = [];
+  const MIN_CHARS = 5; // start suggesting email correction after MIN_CHARS
+  const SUGGEST_DIV_CLASS = 'tooltip-suggest';
 
-  function t(str, params, translator) {
-    return translator.interpolate(translator.get(str), params);
-  }
+  const DID_YOU_MEAN_TEXT = t('Did you mean <span tabindex="1">%(escapedDomain)s</span>?');
+
 
   /**
    * @param {Object} target DOM input node to target with mailcheck
-   * @param {Object} metrics Metrics logger
-   * @param {Object} translator Translator object passed by the view
    * @param {Object} view View mailcheck is used with
    */
-  module.exports = function checkMailInput(target, metrics, translator, view) {
+  module.exports = function checkMailInput(target, view) {
     var element = $(target);
     if (! element.length || ! view) {
       return;
@@ -57,12 +56,17 @@ define(function (require, exports, module) {
           // user got a suggestion to check their email input
           view.notifier.trigger('mailcheck.suggested');
           if (view.isInExperimentGroup('mailcheck', 'treatment')) {
-            var tooltip = new Tooltip({
+
+            const message = view.unsafeTranslate(DID_YOU_MEAN_TEXT, {
+              escapedDomain: _.escape(suggestion.domain)
+            });
+
+            let tooltip = new Tooltip({
               dismissible: true,
               extraClassNames: SUGGEST_DIV_CLASS,
               invalidEl: target,
-              message: t('Did you mean <span tabindex="1">%(domain)s</span>?', suggestion, translator),
-              type: 'mailcheck'
+              type: 'mailcheck',
+              unsafeMessage: message
             });
 
             tooltip.render();
@@ -78,6 +82,7 @@ define(function (require, exports, module) {
                 // the user has used the suggestion
                 view.notifier.trigger('mailcheck.clicked');
                 tooltip._destroy();
+                tooltip = null;
               }
             });
           }

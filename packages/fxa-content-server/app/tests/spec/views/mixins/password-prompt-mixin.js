@@ -6,8 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const chai = require('chai');
+  const { assert }  = require('chai');
   const Cocktail = require('cocktail');
+  const p = require('lib/promise');
   const PasswordPromptMixin = require('views/mixins/password-prompt-mixin');
   const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
   const sinon = require('sinon');
@@ -15,7 +16,7 @@ define(function (require, exports, module) {
   const FormView = require('views/form');
   const Template = require('stache!templates/test_template');
 
-  var TestView = FormView.extend({
+  const TestView = FormView.extend({
     template: Template
   });
 
@@ -25,9 +26,8 @@ define(function (require, exports, module) {
     PasswordStrengthMixin
   );
 
-  var TOOLTIP_SELECTOR = '.tooltip-warning';
+  const TOOLTIP_SELECTOR = '.tooltip-warning';
 
-  var assert = chai.assert;
 
   describe('views/mixins/password-prompt-mixin', function () {
     var view;
@@ -99,7 +99,7 @@ define(function (require, exports, module) {
         assert.isTrue(view.checkPasswordStrength.calledWith('charlie2'));
       });
 
-      it('displays tooltip when password is weak', function (done) {
+      it('displays tooltip when password is weak', function () {
         var password = 'charlie2';
         view.$(PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR).val(password);
         sinon.stub(view, 'checkPasswordStrength', function (password) {
@@ -107,45 +107,28 @@ define(function (require, exports, module) {
         });
         view.language = 'en-rr';
         view.onPasswordBlur();
-        // wait for tooltip
-        setTimeout(function () {
-          assert.equal(view.$(TOOLTIP_SELECTOR).length, 1);
-          done();
-        }, 50);
+        return p()
+          // wait for tooltip
+          .delay(50)
+          .then(() => {
+            assert.equal(view.$(TOOLTIP_SELECTOR).length, 1);
+          });
       });
 
-      it('does not display tooltip when password is strong', function (done) {
+      it('does not display tooltip when password is strong', function () {
         var password = 'imstronglol';
         view.$(PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR).val(password);
         sinon.stub(view, 'checkPasswordStrength', function (password) {
           // do nothing
         });
         view.onPasswordBlur();
-        // wait for tooltip
-        setTimeout(function () {
-          assert.equal(view.$(TOOLTIP_SELECTOR).length, 0);
-          done();
-        }, 50);
+        return p()
+          // wait for tooltip
+          .delay(50)
+          .then(() => {
+            assert.equal(view.$(TOOLTIP_SELECTOR).length, 0);
+          });
       });
-
-      it('tooltip has no link for non-english locales', function (done) {
-        var password = 'charlie2';
-        view.$(PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR).val(password);
-        sinon.stub(view, 'checkPasswordStrength', function (password) {
-          view.displayPasswordWarningPrompt();
-        });
-        sinon.stub(view, '_isEnglishLocale', function () {
-          return false;
-        });
-        view.onPasswordBlur();
-        // wait for tooltip
-        setTimeout(function () {
-          assert.equal(view.$(TOOLTIP_SELECTOR + '> a').length, 0, 'does not have a link');
-          done();
-        }, 50);
-      });
-
     });
-
   });
 });

@@ -67,14 +67,14 @@ define(function (require, exports, module) {
 
     describe('notifyOfResetAccount', function () {
       beforeEach(function () {
-        sinon.spy(view, 'displayErrorUnsafe');
+        sinon.spy(view, 'unsafeDisplayError');
 
         view.notifyOfResetAccount(account);
       });
 
       it('displays an error with a `send reset email` link', function () {
-        assert.isTrue(view.displayErrorUnsafe.called);
-        var err = view.displayErrorUnsafe.args[0][0];
+        assert.isTrue(view.unsafeDisplayError.called);
+        var err = view.unsafeDisplayError.args[0][0];
         assert.isTrue(AuthErrors.is(err, 'ACCOUNT_RESET'));
 
         assert.include(view.$('.error').html(), '/confirm_reset_password');

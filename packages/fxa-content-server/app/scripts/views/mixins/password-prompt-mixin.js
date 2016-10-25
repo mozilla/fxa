@@ -10,7 +10,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const t = require('views/base').t;
+  const { t } = require('views/base');
   const Tooltip = require('views/tooltip');
 
   // this link is not suitable for L10N and should be available in only `en` locales.
@@ -19,8 +19,7 @@ define(function (require, exports, module) {
   const TOOLTIP_MESSAGES = {
     FOCUS_PROMPT_MESSAGE: t('8 characters minimum, but longer if you plan to sync passwords.'),
     INITIAL_PROMPT_MESSAGE: t('A strong, unique password will keep your Firefox data safe from intruders.'),
-    WARNING_PROMPT_MESSAGE: t('This is a common password; please consider another one.'),
-    WARNING_PROMPT_MESSAGE_WITH_LINK: t('This is a common password; please consider another one.')
+    WARNING_PROMPT_MESSAGE: t('This is a common password; please consider another one.')
   };
 
   const PasswordPromptMixin = {
@@ -46,12 +45,8 @@ define(function (require, exports, module) {
     },
 
     displayPasswordWarningPrompt () {
-      let promptContent = TOOLTIP_MESSAGES.WARNING_PROMPT_MESSAGE;
-      if (this._isEnglishLocale()) {
-        promptContent = TOOLTIP_MESSAGES.WARNING_PROMPT_MESSAGE_WITH_LINK;
-      }
-
-      promptContent = this.translate(promptContent);
+      const promptContent =
+        this.translate(TOOLTIP_MESSAGES.WARNING_PROMPT_MESSAGE);
 
       const tooltip = new Tooltip({
         dismissible: false,

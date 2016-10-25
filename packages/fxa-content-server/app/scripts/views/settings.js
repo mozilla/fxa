@@ -232,12 +232,12 @@ define(function (require, exports, module) {
       return BaseView.prototype.displaySuccess.apply(this, arguments);
     },
 
-    displaySuccessUnsafe () {
+    unsafeDisplaySuccess () {
       this.clearTimeout(this._successTimeout);
       this._successTimeout = this.setTimeout(() => {
         this.hideSuccess();
       }, this.SUCCESS_MESSAGE_DELAY_MS);
-      return BaseView.prototype.displaySuccessUnsafe.apply(this, arguments);
+      return BaseView.prototype.unsafeDisplaySuccess.apply(this, arguments);
     }
   });
 

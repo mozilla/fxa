@@ -90,7 +90,7 @@ define(function (require, exports, module) {
           this.updateProfileImage(new ProfileImage({ id: result.id, url: url }), account);
 
           this.navigate('settings', {
-            successUnsafe: t('Courtesy of <a href="https://www.gravatar.com">Gravatar</a>')
+            unsafeSuccess: t('Courtesy of <a href="https://www.gravatar.com">Gravatar</a>')
           });
           return result;
         });

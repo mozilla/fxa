@@ -65,6 +65,53 @@ define(function (require, exports, module) {
         assert.equal(interpolated, 'Hi testuser@testuser.com, you have been signed in since %s');
       });
     });
+
+    describe('hasHTML', () => {
+      it('returns `false` if the string contains no HTML', () => {
+        assert.isFalse(Strings.hasHTML(''));
+        assert.isFalse(Strings.hasHTML('contains no HTML'));
+        assert.isFalse(Strings.hasHTML('contains no <html'));
+        assert.isFalse(Strings.hasHTML('contains no >html'));
+      });
+
+      it('returns `true` if the string contains HTML', () => {
+        assert.isTrue(Strings.hasHTML('contains <html>'));
+        assert.isTrue(Strings.hasHTML('contains <html/>'));
+        assert.isTrue(Strings.hasHTML('contains < html/>'));
+        assert.isTrue(Strings.hasHTML('contains < html />'));
+        assert.isTrue(Strings.hasHTML('contains <html />'));
+        assert.isTrue(Strings.hasHTML('contains <> HTML like construct'));
+        assert.isTrue(Strings.hasHTML('contains </> HTML like construct'));
+        assert.isTrue(Strings.hasHTML('contains &nbsp; HTML escaped character'));
+        assert.isTrue(Strings.hasHTML('contains &#63; HTML escaped character'));
+      });
+    });
+
+    describe('hasUnsafeVariables', () => {
+      it('returns `false` if the string contains no variables', () => {
+        assert.isFalse(Strings.hasUnsafeVariables(''));
+        assert.isFalse(
+          Strings.hasUnsafeVariables('nothing to interpolate'));
+      });
+
+      it('returns `false` if variables are escaped', () => {
+        assert.isFalse(
+          Strings.hasUnsafeVariables('this has a %(escapedVariable)s'));
+        assert.isFalse(
+          Strings.hasUnsafeVariables('this has multiple %(escapedVariable)s, here %(escapedToo)s'));
+      });
+
+      it('returns `true` for unnamed variables', () => {
+        assert.isTrue(Strings.hasUnsafeVariables('%s'));
+      });
+
+      it('returns `true` for variables w/o an `escaped` prefix', () => {
+        assert.isTrue(
+          Strings.hasUnsafeVariables('this has an %(unsafeVariable)s'));
+        assert.isTrue(
+          Strings.hasUnsafeVariables('this has both %(escapedSafeVariable)s and %(unsafeVariable)s'));
+      });
+    });
   });
 });
 

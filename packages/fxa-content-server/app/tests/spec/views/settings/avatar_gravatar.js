@@ -148,7 +148,7 @@ define(function (require, exports, module) {
               assert.equal(view.updateProfileImage.args[0][1], account);
               assert.equal(result.id, 'foo');
               assert.isTrue(view.navigate.calledWith('settings'));
-              assert.equal(view.navigate.args[0][1].successUnsafe, 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');
+              assert.equal(view.navigate.args[0][1].unsafeSuccess, 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');
             });
         });
 

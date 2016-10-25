@@ -107,6 +107,9 @@ The event stream is a log of events and the time they occurred while the user is
 * error.&lt;resource&gt;.require-on-demand.1000 - resource dependency fetch has timed out.
 * error.&lt;resource&gt;.require-on-demand.1001 - resource dependency does not have a define.
 * error.&lt;resource&gt;.require-on-demand.1002 - resource dependency had a script error.
+* error.&lt;screen_name&gt;.auth.1046 - attempt to render HTML using a string that contains an unescaped interpolation variable.
+* error.&lt;screen_name&gt;.auth.1047 - attempt to render an escaped string
+    that contains HTML.
 * error.&lt;unexpected_origin&gt;.auth.1027 - a postMessage message was received from an unexpected origin.
 * error.&lt;image_url&gt;.profile.997 - a profile image could not load.
 * error.&lt;screen_name&gt;.&lt;service&gt;.998 - System unavailable.

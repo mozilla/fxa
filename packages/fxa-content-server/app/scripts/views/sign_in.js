@@ -149,7 +149,7 @@ define(function (require, exports, module) {
 
     _suggestSignUp (err) {
       err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
-      return this.displayErrorUnsafe(err);
+      return this.unsafeDisplayError(err);
     },
 
     /**

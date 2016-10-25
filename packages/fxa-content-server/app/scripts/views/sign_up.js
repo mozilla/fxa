@@ -157,6 +157,8 @@ define(function (require, exports, module) {
         chooseWhatToSyncCheckbox: this.broker.hasCapability('chooseWhatToSyncCheckbox'),
         email: prefillEmail,
         error: this.error,
+        escapedSignInUri: encodeURI(this.broker.transformLink('/signin')),
+        escapedSyncSuggestionUrl: encodeURI('https://mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started'), // eslint-disable-line max-len
         forceEmail: forceEmail,
         isAmoMigration: this.isAmoMigration(),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
@@ -168,8 +170,7 @@ define(function (require, exports, module) {
         serviceName: relier.get('serviceName'),
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
-        showSyncSuggestion: this.isSyncSuggestionEnabled(),
-        signinUri: this.broker.transformLink('/signin')
+        showSyncSuggestion: this.isSyncSuggestionEnabled()
       };
 
       return context;
@@ -299,7 +300,7 @@ define(function (require, exports, module) {
 
     onEmailBlur () {
       if (this.isInExperiment('mailcheck')) {
-        mailcheck(this.$el.find('.email'), this.metrics, this.translator, this);
+        mailcheck(this.$el.find('.email'), this);
       }
     },
 
@@ -362,7 +363,7 @@ define(function (require, exports, module) {
 
     _suggestSignIn (err) {
       err.forceMessage = t('Account already exists. <a href="/signin">Sign in</a>');
-      return this.displayErrorUnsafe(err);
+      return this.unsafeDisplayError(err);
     },
 
     _isEmailOptInEnabled () {

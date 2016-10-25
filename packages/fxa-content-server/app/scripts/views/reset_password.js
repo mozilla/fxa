@@ -69,7 +69,7 @@ define(function (require, exports, module) {
           Session.clear('oauth');
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
             err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
-            return this.displayErrorUnsafe(err);
+            return this.unsafeDisplayError(err);
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
             this.logEvent('login.canceled');
             // if user canceled login, just stop

@@ -5,12 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const $ = require('jquery');
-  const chai = require('chai');
+  const { assert } = require('chai');
   const KeyCodes = require('lib/key-codes');
   const Tooltip = require('views/tooltip');
-
-  var assert = chai.assert;
 
   function _createEvent(keyCode) {
     var keyEvent = $.Event('keydown');
@@ -20,14 +19,14 @@ define(function (require, exports, module) {
   }
 
   describe('views/tooltip', function () {
-    var tooltip;
+    let tooltip;
+    const htmlMessage = 'this is an <span>HTML tooltip</span>';
 
     beforeEach(function () {
       $('#container').html('<div class="input-row"><input id="focusMe" /></div>');
-
       tooltip = new Tooltip({
         invalidEl: '#focusMe',
-        message: 'this is a tooltip'
+        message: htmlMessage
       });
     });
 
@@ -37,27 +36,43 @@ define(function (require, exports, module) {
     });
 
     describe('render', function () {
-      it('renders and attaches the tooltip', function () {
-        return tooltip.render()
-            .then(function () {
-              assert.equal(tooltip.$el.text(), 'this is a tooltip');
-              assert.equal($('.tooltip').length, 1);
-            });
+      beforeEach(() => {
+        return tooltip.render();
+      });
+
+      it('HTML escapes and renders and attaches the tooltip', function () {
+        assert.equal(tooltip.$el.html(), _.escape(htmlMessage));
+        assert.equal($('.tooltip').length, 1);
       });
 
       it('only one tooltip can be rendered at a time', function () {
-        var tooltip2 = new Tooltip({
+        const tooltip2 = new Tooltip({
           invalidEl: '#focusMe',
           message: 'this is a second tooltip'
         });
 
-        return tooltip.render()
-            .then(function () {
-              return tooltip2.render();
-            })
-            .then(function () {
-              assert.equal($('.tooltip').length, 1);
-            });
+        return tooltip2.render()
+          .then(function () {
+            assert.equal($('.tooltip').length, 1);
+          });
+      });
+
+
+      describe('with `unsafeMessage`', () => {
+        beforeEach(() => {
+          $('#container').html('<div class="input-row"><input id="focusMe" /></div>');
+          tooltip = new Tooltip({
+            invalidEl: '#focusMe',
+            unsafeMessage: htmlMessage
+          });
+
+          return tooltip.render();
+        });
+
+        it('renders the tooltip as HTML', () => {
+          assert.equal(tooltip.$el.html(), htmlMessage);
+          assert.equal($('.tooltip').length, 1);
+        });
       });
     });
 

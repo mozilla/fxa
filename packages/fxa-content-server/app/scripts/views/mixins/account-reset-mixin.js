@@ -43,7 +43,7 @@ define(function (require, exports, module) {
         t('Your account has been locked for security reasons') + '<br>' +
         '<a href="/confirm_reset_password">' + t('Reset password') + '</a>';
 
-      return this.displayErrorUnsafe(err);
+      return this.unsafeDisplayError(err);
     },
 
     /**

@@ -5,12 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const $ = require('jquery');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const BaseBroker = require('models/auth_brokers/base');
   const BaseView = require('views/base');
-  const chai = require('chai');
   const DOMEventMock = require('../../mocks/dom-event');
   const ErrorUtils = require('lib/error-utils');
   const Metrics = require('lib/metrics');
@@ -29,8 +30,6 @@ define(function (require, exports, module) {
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
-  var assert = chai.assert;
-
   describe('views/base', function () {
     var broker;
     var metrics;
@@ -48,12 +47,19 @@ define(function (require, exports, module) {
       template: Template
     });
 
+    const HTML_MESSAGE = '<span>html</span>';
+    const UNESCAPED_HTML_TRANSLATION = '<span>translated html</span>';
+    const ESCAPED_HTML_TRANSLATION = _.escape(UNESCAPED_HTML_TRANSLATION);
+    const UNSAFE_INTERPOLATION_VARIABLE = '%(unsafeInterpolationVariable)s';
+
     beforeEach(function () {
       translator = new Translator('en-US', ['en-US']);
       translator.set({
         'another message': 'another translated message',
         'the error message': 'a translated error message',
-        'the success message': 'a translated success message'
+        'the success message': 'a translated success message',
+        [HTML_MESSAGE]: UNESCAPED_HTML_TRANSLATION,
+        [UNSAFE_INTERPOLATION_VARIABLE]: UNSAFE_INTERPOLATION_VARIABLE
       });
 
       broker = new BaseBroker();
@@ -393,9 +399,35 @@ define(function (require, exports, module) {
     });
 
     describe('translate', function () {
-      it('translates a message, if a translation is available', function () {
+      it('translates a message, if a translation is available, does not log', function () {
+        sinon.spy(view, 'logError');
+
         assert.equal(view.translate('no translation'), 'no translation');
         assert.equal(view.translate('another message'), 'another translated message');
+        assert.isFalse(view.logError.called);
+      });
+
+      it('escapes HTML strings, logs an error', () => {
+        sinon.spy(view, 'logError');
+        assert.equal(view.translate(HTML_MESSAGE), ESCAPED_HTML_TRANSLATION);
+        assert.isTrue(view.logError.calledOnce);
+        assert.isTrue(
+          AuthErrors.is(view.logError.args[0][0], 'HTML_WILL_BE_ESCAPED'));
+      });
+    });
+
+    describe('unsafeTranslate', () => {
+      it('does not escape, logs error if variable names lack `escaped` prefix', () => {
+        sinon.spy(view, 'logError');
+
+        assert.equal(
+          view.unsafeTranslate(HTML_MESSAGE), UNESCAPED_HTML_TRANSLATION);
+        assert.isFalse(view.logError.called);
+
+        view.unsafeTranslate(UNSAFE_INTERPOLATION_VARIABLE);
+        assert.isTrue(view.logError.calledOnce);
+        assert.isTrue(
+          AuthErrors.is(view.logError.args[0][0], 'UNSAFE_INTERPOLATION_VARIABLE_NAME'));
       });
     });
 
@@ -411,6 +443,22 @@ define(function (require, exports, module) {
           var translationFunc = view.translateInTemplate();
 
           assert.equal(translationFunc('another message'), 'another translated message');
+        });
+      });
+    });
+
+    describe('unsafeTranslateInTemplate', function () {
+      describe('returns a function that can by used by Handlebars to do translation', function () {
+        it('can be bound to a string on creation', function () {
+          var translationFunc = view.unsafeTranslateInTemplate(HTML_MESSAGE);
+
+          assert.equal(translationFunc(), UNESCAPED_HTML_TRANSLATION);
+        });
+
+        it('returned function can be passed a string at runtime', function () {
+          var translationFunc = view.unsafeTranslateInTemplate();
+
+          assert.equal(translationFunc(HTML_MESSAGE), UNESCAPED_HTML_TRANSLATION);
         });
       });
     });
@@ -511,9 +559,9 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('displayErrorUnsafe', function () {
+    describe('unsafeDisplayError', function () {
       it('allows HTML in error messages', function () {
-        var msg = view.displayErrorUnsafe('an error message<div>with html</div>');
+        var msg = view.unsafeDisplayError('an error message<div>with html</div>');
         var expected = 'an error message<div>with html</div>';
         assert.equal(view.$('.error').html(), expected);
         assert.equal(msg, expected);
@@ -548,6 +596,13 @@ define(function (require, exports, module) {
         view.displaySuccess('the success message');
         assert.isTrue(view.isSuccessVisible());
         assert.isFalse(view.isErrorVisible());
+      });
+    });
+
+    describe('unsafeDisplaySuccess', () => {
+      it('allows HTML in messages', () => {
+        view.unsafeDisplaySuccess(HTML_MESSAGE);
+        assert.equal(view.$('.success').html(), UNESCAPED_HTML_TRANSLATION);
       });
     });
 

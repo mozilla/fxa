@@ -335,13 +335,13 @@ define(function (require, exports, module) {
             return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
           });
 
-          sinon.spy(view, 'displayErrorUnsafe');
+          sinon.spy(view, 'unsafeDisplayError');
 
           return view.submit();
         });
 
         it('shows a link to the signup page', function () {
-          var err = view.displayErrorUnsafe.args[0][0];
+          var err = view.unsafeDisplayError.args[0][0];
           assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
           assert.include(err.forceMessage, '/signup');
         });

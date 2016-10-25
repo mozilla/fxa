@@ -439,13 +439,13 @@ define(function (require, exports, module) {
       });
 
       describe('hide success', function () {
-        it('displaySuccessUnsafe', function () {
+        it('unsafeDisplaySuccess', function () {
           view.SUCCESS_MESSAGE_DELAY_MS = 5;
           var spy = sinon.spy(view, 'hideSuccess');
 
           return view.render()
             .then(function () {
-              view.displaySuccessUnsafe('hi');
+              view.unsafeDisplaySuccess('hi');
               return p().delay(10);
             })
             .then(function () {

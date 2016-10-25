@@ -12,20 +12,25 @@ define(function (require, exports, module) {
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/settings/gravatar_permissions');
 
-  var GRAVATAR_MOCK_CLIENT_ID = 'gravatar';
-  var GRAVATAR_PERMISSION = 'profile:email';
+  const GRAVATAR_MOCK_CLIENT_ID = 'gravatar';
+  const GRAVATAR_PERMISSION = 'profile:email';
 
-  var View = FormView.extend({
+  const View = FormView.extend({
     template: Template,
     className: 'gravatar-permissions',
     viewName: 'settings.gravatar-permissions',
 
     context () {
-      var account = this.getSignedInAccount();
-      var serviceName = this.translator.get('Gravatar');
+      const email = this.getSignedInAccount().get('email');
+
+      // w/o a context, `this.translate` calls `this.getContext()` which
+      // calls this function, causing infinite recursion. Pass the
+      // context to avoid infinite recursion.
+      const serviceName = this.translate('Gravatar', {});
+
       return {
-        email: account.get('email'),
-        serviceName: serviceName
+        email,
+        serviceName
       };
     },
 

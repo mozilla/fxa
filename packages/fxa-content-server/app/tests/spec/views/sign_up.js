@@ -622,7 +622,7 @@ define(function (require, exports, module) {
         sandbox.spy(notifier, 'trigger');
 
         sandbox.spy(view, 'displayError');
-        sandbox.spy(view, 'displayErrorUnsafe');
+        sandbox.spy(view, 'unsafeDisplayError');
         sandbox.spy(view, 'logEvent');
         sandbox.spy(view, 'navigate');
 
@@ -678,7 +678,7 @@ define(function (require, exports, module) {
 
           it('does not display any errors', function () {
             assert.isFalse(view.displayError.called);
-            assert.isFalse(view.displayErrorUnsafe.called);
+            assert.isFalse(view.unsafeDisplayError.called);
           });
         });
 
@@ -776,7 +776,7 @@ define(function (require, exports, module) {
 
             it('does not display any errors', function () {
               assert.isFalse(view.displayError.called);
-              assert.isFalse(view.displayErrorUnsafe.called);
+              assert.isFalse(view.unsafeDisplayError.called);
             });
 
             describe('when the user revisits', function () {
@@ -834,9 +834,9 @@ define(function (require, exports, module) {
             assert.equal(args[0], 'signup.submit');
           });
 
-          it('calls view.displayErrorUnsafe correctly', function () {
-            assert.equal(view.displayErrorUnsafe.callCount, 1);
-            var args = view.displayErrorUnsafe.args[0];
+          it('calls view.unsafeDisplayError correctly', function () {
+            assert.equal(view.unsafeDisplayError.callCount, 1);
+            var args = view.unsafeDisplayError.args[0];
             assert.lengthOf(args, 1);
             var error = args[0];
             assert.include(error.forceMessage, 'href="/signin"');
@@ -867,7 +867,7 @@ define(function (require, exports, module) {
 
           it('does not display any errors', function () {
             assert.isFalse(view.displayError.called);
-            assert.isFalse(view.displayErrorUnsafe.called);
+            assert.isFalse(view.unsafeDisplayError.called);
           });
 
           it('calls view.logEvent correctly', function () {
@@ -985,7 +985,7 @@ define(function (require, exports, module) {
 
           it('does not display any errors', function () {
             assert.isFalse(view.displayError.called);
-            assert.isFalse(view.displayErrorUnsafe.called);
+            assert.isFalse(view.unsafeDisplayError.called);
           });
         });
 
@@ -1038,7 +1038,7 @@ define(function (require, exports, module) {
 
           it('does not display any errors', function () {
             assert.isFalse(view.displayError.called);
-            assert.isFalse(view.displayErrorUnsafe.called);
+            assert.isFalse(view.unsafeDisplayError.called);
           });
 
           it('calls view.logEvent correctly', function () {
@@ -1076,7 +1076,7 @@ define(function (require, exports, module) {
 
           it('does not display any errors', function () {
             assert.isFalse(view.displayError.called);
-            assert.isFalse(view.displayErrorUnsafe.called);
+            assert.isFalse(view.unsafeDisplayError.called);
           });
 
           it('fails correctly', function () {

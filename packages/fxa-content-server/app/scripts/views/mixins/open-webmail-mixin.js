@@ -75,7 +75,7 @@ define(function (require, exports, module) {
 
       if (email && isOpenWebmailButtonVisible) {
         _.extend(context, {
-          unsafeWebmailLink: this.getWebmailLink(email),
+          escapedWebmailLink: encodeURI(this.getWebmailLink(email)),
           // function.bind is used to avoid infinite recursion.
           // getWebmailButtonText calls this.translate which calls
           // this.context, which will call this.getContext since context is
