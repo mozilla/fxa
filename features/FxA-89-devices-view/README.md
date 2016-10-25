@@ -17,7 +17,7 @@ Engineering bugs: https://waffle.io/mozilla/fxa?milestone=FxA-89:%20devices%20vi
   I want the devices connected to my account
   to have recognizable names by default.
 * I want to easily see the type
-  and browser details of the each device, 
+  and browser details of the each device,
 * So that I can better tell what device I am currently using,
   I want it to be easily distinguishable from the other items.
 * So that I can easily detect when a device is no longer active,
@@ -237,8 +237,8 @@ It should contain the UTM parameters as specified
 and should not contain any locale in the URL.
 
 The link to get Firefox for iOS:
- 
-* https://app.adjust.com/2uo1qc?campaign=fxa-device-manager&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8 
+
+* https://app.adjust.com/2uo1qc?campaign=fxa-device-manager&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8
 * The `fallback` parameter  will force the App Store
   since default is Play Store if link is opened
   on desktop instead of a mobile device.
@@ -411,3 +411,23 @@ Acceptance criteria:
       by accessing the devices view on a desktop browser,
       and then go to the sync preferences on the mobile device,
       I immediately see that the device is disconnected.
+
+****
+
+
+## Results
+
+### Phase 1 Results
+
+A [new dashboard created in DataDog](https://app.datadoghq.com/dash/203154/fxa-content---devices-and-apps) to keep track of Devices view usage.
+
+Here are some results from Phase 1 of devices view:
+
+* At most 38% of those who view the Devices view press the "Refresh" button.
+* Device Disconnect reason breakdown:
+  * ~4% - lost
+  * ~6% - suspicious
+  * ~30% - would rather not say
+  * ~60% - old device
+* From all who saw the "Devices" screen, ~20% users tried to disconnect something. 
+* ~65% of users confirmed disconnection after seeing the modal
