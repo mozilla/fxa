@@ -178,6 +178,26 @@ define(function (require, exports, module) {
 
       });
 
+      it('names devices "Firefox" if there is no name', function () {
+        attachedClients = new AttachedClients([
+          {
+            clientType: 'device',
+            id: 'device-1',
+            isCurrentDevice: false,
+            type: 'desktop'
+          }
+        ], {
+          notifier: notifier
+        });
+
+        return initView()
+          .then(function () {
+            $('#container').html(view.el);
+            assert.equal($('#container #device-1 .client-name').text().trim(), 'Firefox', 'device name is Firefox');
+          });
+
+      });
+
     });
 
     describe('device added to collection', function () {
