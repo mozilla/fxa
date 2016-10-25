@@ -67,7 +67,8 @@ const MAILER_METHOD_NAMES = [
   'sendPostVerifyEmail',
   'sendUnblockCode',
   'sendVerifyCode',
-  'sendVerifyLoginEmail'
+  'sendVerifyLoginEmail',
+  'sendRecoveryCode'
 ]
 
 const METRICS_CONTEXT_METHOD_NAMES = [
@@ -144,7 +145,10 @@ function mockDB (data, errors) {
         data: crypto.randomBytes(32),
         passCode: data.passCode,
         tokenId: data.passwordForgotTokenId,
-        uid: data.uid
+        uid: data.uid,
+        ttl: function () {
+          return data.passwordForgotTokenTTL || 100
+        }
       })
     }),
     createSessionToken: sinon.spy(() => {

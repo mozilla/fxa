@@ -321,10 +321,17 @@ module.exports = function (
         log.begin('Password.forgotSend', request)
         var email = request.payload.email
         var service = request.payload.service || request.query.service
-        customs.check(
-          request,
-          email,
-          'passwordForgotSendCode')
+
+        request.validateMetricsContext()
+
+        request.emitMetricsEvent('password.forgot.send_code.start')
+          .then(
+            customs.check.bind(
+              customs,
+              request,
+              email,
+              'passwordForgotSendCode')
+          )
           .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
@@ -344,6 +351,11 @@ module.exports = function (
                   redirectTo: request.payload.redirectTo,
                   resume: request.payload.resume,
                   acceptLanguage: request.app.acceptLanguage
+                }
+              )
+              .then(
+                function() {
+                  return request.emitMetricsEvent('password.forgot.send_code.completed')
                 }
               )
               .then(
@@ -397,10 +409,17 @@ module.exports = function (
         log.begin('Password.forgotResend', request)
         var passwordForgotToken = request.auth.credentials
         var service = request.payload.service || request.query.service
-        customs.check(
-          request,
-          passwordForgotToken.email,
-          'passwordForgotResendCode')
+
+        request.validateMetricsContext()
+
+        request.emitMetricsEvent('password.forgot.resend_code.start')
+          .then(
+            customs.check.bind(
+              customs,
+              request,
+              passwordForgotToken.email,
+              'passwordForgotResendCode')
+          )
           .then(
             mailer.sendRecoveryCode.bind(
               mailer,
@@ -413,6 +432,11 @@ module.exports = function (
                 acceptLanguage: request.app.acceptLanguage
               }
             )
+          )
+          .then(
+            function(){
+              return request.emitMetricsEvent('password.forgot.resend_code.completed')
+            }
           )
           .done(
             function () {
@@ -452,10 +476,17 @@ module.exports = function (
         log.begin('Password.forgotVerify', request)
         var passwordForgotToken = request.auth.credentials
         var code = Buffer(request.payload.code, 'hex')
-        customs.check(
-          request,
-          passwordForgotToken.email,
-          'passwordForgotVerifyCode')
+
+        request.validateMetricsContext()
+
+        request.emitMetricsEvent('password.forgot.verify_code.start')
+          .then(
+            customs.check.bind(
+              customs,
+              request,
+              passwordForgotToken.email,
+              'passwordForgotVerifyCode')
+          )
           .then(
             function () {
               if (butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
@@ -471,6 +502,11 @@ module.exports = function (
                       )
                       .then(
                         function () {
+                          request.emitMetricsEvent('password.forgot.verify_code.completed')
+                        }
+                      )
+                      .then(
+                        function () {
                           return accountResetToken
                         }
                       )
@@ -478,6 +514,7 @@ module.exports = function (
                   )
                   .done(
                     function (accountResetToken) {
+
                       reply(
                         {
                           accountResetToken: accountResetToken.data.toString('hex')

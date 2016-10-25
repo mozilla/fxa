@@ -11,6 +11,8 @@ var uuid = require('uuid')
 var crypto = require('crypto')
 var isA = require('joi')
 var error = require('../../lib/error')
+const sinon = require('sinon')
+const log = require('../../lib/log')
 
 var TEST_EMAIL = 'foo@gmail.com'
 
@@ -52,16 +54,36 @@ test(
       passwordForgotTokenId: crypto.randomBytes(16),
       uid: uid
     })
+    var mockMailer = mocks.mockMailer()
+    var mockMetricsContext = mocks.mockMetricsContext()
+    var mockLog = log('ERROR', 'test', {
+      stdout: {
+        on: sinon.spy(),
+        write: sinon.spy()
+      },
+      stderr: {
+        on: sinon.spy(),
+        write: sinon.spy()
+      }
+    })
+    mockLog.flowEvent = sinon.spy(() => {
+      return P.resolve()
+    })
     var passwordRoutes = makeRoutes({
       customs: mockCustoms,
-      db: mockDB
+      db: mockDB,
+      mailer : mockMailer,
+      metricsContext: mockMetricsContext,
+      log: mockLog
     })
 
     var mockRequest = mocks.mockRequest({
+      log: mockLog,
       payload: {
         email: TEST_EMAIL
       },
-      query: {}
+      query: {},
+      metricsContext: mockMetricsContext
     })
     return new P(function(resolve) {
       getRoute(passwordRoutes, '/password/forgot/send_code')
@@ -75,7 +97,71 @@ test(
       t.equal(args.length, 1, 'db.createPasswordForgotToken was passed one argument')
       t.deepEqual(args[0].uid, uid, 'db.createPasswordForgotToken was passed the correct uid')
       t.equal(args[0].createdAt, undefined, 'db.createPasswordForgotToken was not passed a createdAt timestamp')
+
+      t.equal(mockRequest.validateMetricsContext.callCount, 1, 'validateMetricsContext was called')
+      t.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
+      t.equal(mockLog.flowEvent.args[0][0], 'password.forgot.send_code.start', 'password.forgot.send_code.start event was logged')
+      t.equal(mockLog.flowEvent.args[1][0], 'password.forgot.send_code.completed', 'password.forgot.send_code.completed event was logged')
     })
+  }
+)
+
+test(
+  '/password/forgot/resend_code',
+  function (t) {
+    var mockCustoms = mocks.mockCustoms()
+    var uid = uuid.v4('binary')
+    var mockDB = mocks.mockDB()
+    var mockMailer = mocks.mockMailer()
+    var mockMetricsContext = mocks.mockMetricsContext()
+    var mockLog = log('ERROR', 'test', {
+      stdout: {
+        on: sinon.spy(),
+        write: sinon.spy()
+      },
+      stderr: {
+        on: sinon.spy(),
+        write: sinon.spy()
+      }
+    })
+    mockLog.flowEvent = sinon.spy(() => {
+      return P.resolve()
+    })
+    var passwordRoutes = makeRoutes({
+      customs: mockCustoms,
+      db: mockDB,
+      mailer : mockMailer,
+      metricsContext: mockMetricsContext,
+      log: mockLog
+    })
+
+    var mockRequest = mocks.mockRequest({
+      credentials: {
+        data: crypto.randomBytes(16),
+        email: TEST_EMAIL,
+        passCode: Buffer('abcdef', 'hex'),
+        ttl: function () { return 17 },
+        uid: uid
+      },
+      log: mockLog,
+      payload: {
+        email: TEST_EMAIL
+      },
+      query: {},
+      metricsContext: mockMetricsContext
+    })
+    return new P(function(resolve) {
+      getRoute(passwordRoutes, '/password/forgot/resend_code')
+        .handler(mockRequest, resolve)
+    })
+      .then(function(response) {
+        t.equal(mockMailer.sendRecoveryCode.callCount, 1, 'mailer.sendRecoveryCode was called once')
+
+        t.equal(mockRequest.validateMetricsContext.callCount, 1, 'validateMetricsContext was called')
+        t.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
+        t.equal(mockLog.flowEvent.args[0][0], 'password.forgot.resend_code.start', 'password.forgot.resend_code.start event was logged')
+        t.equal(mockLog.flowEvent.args[1][0], 'password.forgot.resend_code.completed', 'password.forgot.resend_code.completed event was logged')
+      })
   }
 )
 
@@ -95,13 +181,29 @@ test(
       uid: uid
     })
     var mockMailer = mocks.mockMailer()
+    var mockMetricsContext = mocks.mockMetricsContext()
+    var mockLog = log('ERROR', 'test', {
+      stdout: {
+        on: sinon.spy(),
+        write: sinon.spy()
+      },
+      stderr: {
+        on: sinon.spy(),
+        write: sinon.spy()
+      }
+    })
+    mockLog.flowEvent = sinon.spy(() => {
+      return P.resolve()
+    })
     var passwordRoutes = makeRoutes({
       customs: mockCustoms,
       db: mockDB,
-      mailer: mockMailer
+      mailer: mockMailer,
+      metricsContext: mockMetricsContext
     })
 
     var mockRequest = mocks.mockRequest({
+      log: mockLog,
       credentials: {
         email: TEST_EMAIL,
         passCode: Buffer('abcdef', 'hex'),
@@ -127,6 +229,11 @@ test(
       var args = mockDB.forgotPasswordVerified.args[0]
       t.equal(args.length, 1, 'db.passwordForgotVerified was passed one argument')
       t.deepEqual(args[0].uid, uid, 'db.forgotPasswordVerified was passed the correct token')
+
+      t.equal(mockRequest.validateMetricsContext.callCount, 1, 'validateMetricsContext was called')
+      t.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
+      t.equal(mockLog.flowEvent.args[0][0], 'password.forgot.verify_code.start', 'password.forgot.verify_code.start event was logged')
+      t.equal(mockLog.flowEvent.args[1][0], 'password.forgot.verify_code.completed', 'password.forgot.verify_code.completed event was logged')
     })
   }
 )
