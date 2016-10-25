@@ -6,7 +6,7 @@ define([
   'intern',
   'intern!object',
   'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
+  'intern/browser_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'app/scripts/lib/constants',
   'tests/lib/restmail',

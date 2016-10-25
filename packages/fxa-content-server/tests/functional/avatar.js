@@ -6,7 +6,7 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'intern/node_modules/dojo/node!path',
+  'intern/browser_modules/dojo/node!path',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, path, TestHelpers, FunctionalHelpers) {

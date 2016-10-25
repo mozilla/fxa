@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!path',
-  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!sync-exec'
+  'intern/browser_modules/dojo/has!host-node?intern/browser_modules/dojo/node!path',
+  'intern/browser_modules/dojo/has!host-node?intern/browser_modules/dojo/node!sync-exec'
 ],
 function (path, exec) {
   var createProfile = function (config) {

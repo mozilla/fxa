@@ -4,7 +4,7 @@
 
 define([
   'tests/lib/request',
-  'intern/node_modules/dojo/Promise',
+  'intern/browser_modules/dojo/Promise',
   'intern/dojo/node!../../server/lib/configuration'
 ], function (request, Promise, config) {
   var API_KEY = config.get('basket.api_key');

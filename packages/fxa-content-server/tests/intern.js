@@ -7,7 +7,7 @@
 // packages, suites, excludeInstrumentation, and (if you want functional tests) functionalSuites.
 define([
   'intern',
-  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/topic',
+  'intern/browser_modules/dojo/has!host-node?intern/browser_modules/dojo/topic',
   './tools/firefox_profile'
 ],
 function (intern, topic, firefoxProfile) {

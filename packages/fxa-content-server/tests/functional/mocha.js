@@ -9,7 +9,7 @@ define([
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/Promise',
   'require',
-  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!child_process'
+  'intern/browser_modules/dojo/has!host-node?intern/browser_modules/dojo/node!child_process'
 ], function (intern, registerSuite, assert, config, Promise, require, child_process) { //eslint-disable-line camelcase
   var ERROR_COLOR = '\x1b[1;31m';       // red
   var DESCRIPTION_COLOR = '\x1b[1;36m'; // cyan

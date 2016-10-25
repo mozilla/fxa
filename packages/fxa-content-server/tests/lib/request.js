@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'intern/node_modules/dojo/Promise'
+  'intern/browser_modules/dojo/node!xmlhttprequest',
+  'intern/browser_modules/dojo/Promise'
 ], function (nodeXMLHttpRequest, Promise) {
 
   function request(uri, method, jsonPayload, headers) {

@@ -4,7 +4,7 @@
 
 define([
   'tests/lib/request',
-  'intern/node_modules/dojo/Promise'
+  'intern/browser_modules/dojo/Promise'
 ], function (request, Promise) {
 
   /**

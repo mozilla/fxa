@@ -11,7 +11,7 @@ define([
   'intern/dojo/node!htmlparser2',
   'intern/dojo/node!request',
   'intern/dojo/node!url',
-  'intern/node_modules/dojo/Promise'
+  'intern/browser_modules/dojo/Promise'
 ], function (intern, registerSuite, assert, config, csp,
   htmlparser2, request, url, Promise) {
   var httpUrl, httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');

@@ -5,7 +5,7 @@
 define([
   'intern',
   'intern!object',
-  'intern/node_modules/dojo/node!querystring',
+  'intern/browser_modules/dojo/node!querystring',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, Querystring, FunctionalHelpers) {
   var config = intern.config;
