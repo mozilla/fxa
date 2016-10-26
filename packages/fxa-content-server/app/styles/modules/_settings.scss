@@ -496,10 +496,10 @@ section.modal-panel {
 
 .client {
   // default client icon is desktop
-  background-image: url('/images/device-icon-pc.png');
+  background-image: url('/images/icon-device-laptop.svg');
   background-position: 0 2px;
   background-repeat: no-repeat;
-  background-size: 30px 30px;
+  background-size: 32px 32px;
 
   height: 40px;
   list-style: none;
@@ -544,11 +544,11 @@ section.modal-panel {
 }
 
 .client.mobile {
-  background-image: url('/images/device-icon-mobile.png');
+  background-image: url('/images/icon-device-phone.svg');
 }
 
 .client.tablet {
-  background-image: url('/images/device-icon-tablet.png');
+  background-image: url('/images/icon-device-tablet.svg');
 }
 
 .client-device {
