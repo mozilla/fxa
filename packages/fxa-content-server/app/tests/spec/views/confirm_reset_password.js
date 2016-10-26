@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const Broker = require('models/auth_brokers/base');
-  const chai = require('chai');
   const FxaClient = require('../../mocks/fxa-client');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
@@ -21,23 +21,21 @@ define(function (require, exports, module) {
   const View = require('views/confirm_reset_password');
   const WindowMock = require('../../mocks/window');
 
-  var assert = chai.assert;
+  const EMAIL = 'testuser@testuser.com';
+  const LOGIN_MESSAGE_TIMEOUT_MS = 300;
+  const PASSWORD_FORGOT_TOKEN = 'fake password reset token';
+  const VERIFICATION_POLL_TIMEOUT_MS = 100;
 
   describe('views/confirm_reset_password', function () {
-    var EMAIL = 'testuser@testuser.com';
-    var LOGIN_MESSAGE_TIMEOUT_MS = 300;
-    var PASSWORD_FORGOT_TOKEN = 'fake password reset token';
-    var VERIFICATION_POLL_TIMEOUT_MS = 100;
-
-    var broker;
-    var fxaClient;
-    var metrics;
-    var model;
-    var notifier;
-    var relier;
-    var user;
-    var view;
-    var windowMock;
+    let broker;
+    let fxaClient;
+    let metrics;
+    let model;
+    let notifier;
+    let relier;
+    let user;
+    let view;
+    let windowMock;
 
     function createDeps() {
       destroyView();
@@ -97,6 +95,8 @@ define(function (require, exports, module) {
       }
     }
 
+    beforeEach(createDeps);
+
     afterEach(function () {
       metrics.destroy();
       metrics = null;
@@ -106,24 +106,13 @@ define(function (require, exports, module) {
 
     describe('render', function () {
       beforeEach(function () {
-        createDeps();
-
         sinon.spy(broker, 'persistVerificationData');
 
-        return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
-      });
-
-      afterEach(function () {
-        destroyView();
+        return view.render();
       });
 
       it('redirects to /reset_password if no passwordForgotToken', function () {
         model.unset('passwordForgotToken');
-
-        createView();
 
         sinon.spy(view, 'navigate');
 
@@ -139,7 +128,7 @@ define(function (require, exports, module) {
             // Check to make sure the normal signin link is drawn
             assert.equal(view.$('a[href="/signin"]').length, 1);
             assert.equal(view.$('a[href="/force_auth?email=testuser%40testuser.com"]').length, 0);
-            assert.ok($('#fxa-confirm-reset-password-header').length);
+            assert.ok(view.$('#fxa-confirm-reset-password-header').length);
           });
       });
 
@@ -157,20 +146,13 @@ define(function (require, exports, module) {
       });
 
       it('does not allow XSS emails through for forceAuth', function () {
-        createDeps();
-
         sinon.stub(broker, 'isForceAuth', function () {
           return true;
         });
 
         var xssEmail = 'testuser@testuser.com" onclick="javascript:alert(1)"';
 
-        model.set({
-          email: xssEmail,
-          passwordForgotToken: PASSWORD_FORGOT_TOKEN
-        });
-
-        createView();
+        model.set('email', xssEmail);
 
         return view.render()
           .then(function () {
@@ -206,8 +188,6 @@ define(function (require, exports, module) {
 
     describe('afterVisible', function () {
       beforeEach(function () {
-        createDeps();
-
         sinon.spy(broker, 'persistVerificationData');
       });
 
@@ -296,12 +276,7 @@ define(function (require, exports, module) {
 
     describe('_waitForConfirmation', function () {
       beforeEach(function () {
-        createDeps();
         fxaClient.isPasswordResetComplete.restore();
-      });
-
-      afterEach(function () {
-        destroyView();
       });
 
       it('waits for the server confirmation if `complete_reset_password_tab_open` message is not received', function () {
@@ -381,14 +356,6 @@ define(function (require, exports, module) {
 
 
     describe('_finishPasswordResetDifferentBrowser', function () {
-      beforeEach(function () {
-        createDeps();
-      });
-
-      afterEach(function () {
-        destroyView();
-      });
-
       it('redirects to page specified by broker if user verifies in a second browser', function () {
         sinon.stub(broker, 'transformLink', function () {
           // synthesize the OAuth broker.
@@ -406,8 +373,6 @@ define(function (require, exports, module) {
 
     describe('_finishPasswordResetSameBrowser', function () {
       beforeEach(function () {
-        createDeps();
-
         sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
           return p();
         });
@@ -425,10 +390,6 @@ define(function (require, exports, module) {
         });
 
         return user.setAccount(account);
-      });
-
-      afterEach(function () {
-        destroyView();
       });
 
       describe('with an unknown account uid', function () {
@@ -507,16 +468,7 @@ define(function (require, exports, module) {
 
     describe('resend', function () {
       beforeEach(function () {
-        createDeps();
-
-        return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
-      });
-
-      afterEach(function () {
-        destroyView();
+        return view.render();
       });
 
       it('resends the confirmation email, shows success message', function () {
@@ -555,6 +507,22 @@ define(function (require, exports, module) {
         return view.resend()
           .then(assert.fail, function (err) {
             assert.equal(err.message, 'synthesized error from auth server');
+          });
+      });
+    });
+
+    describe('openWebmail feature', function () {
+      it('it is not visible in basic contexts', function () {
+        assert.lengthOf($('#open-webmail'), 0);
+      });
+
+      it('is visible with the the openGmailButtonVisible capability and email is @gmail.com', function () {
+        broker.setCapability('openWebmailButtonVisible', true);
+        model.set('email', 'a@gmail.com');
+
+        return view.render()
+          .then(() => {
+            assert.lengthOf(view.$('#open-webmail'), 1);
           });
       });
     });
