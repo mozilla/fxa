@@ -32,7 +32,7 @@ exports.strategy = function() {
 
       token.verify(tok).done(function tokenFound(details) {
         logger.info(authName + '.success', details);
-        reply(null, {
+        reply.continue({
           credentials: details
         });
       }, function noToken(err) {

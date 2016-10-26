@@ -27,7 +27,7 @@ module.exports = {
   },
   response: {
     schema: {
-      clients: Joi.array().includes(
+      clients: Joi.array().items(
         Joi.object().keys({
           id: validators.clientId,
           name: Joi.string().required(),

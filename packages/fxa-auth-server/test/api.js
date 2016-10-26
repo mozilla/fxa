@@ -1014,14 +1014,14 @@ describe('/v1', function() {
               url: '/token',
               payload: {
                 client_id: id2, // client2 stole it somehow
-                client_secret: secret2,
+                client_secret: secret2.toString('hex'),
                 grant_type: 'refresh_token',
                 refresh_token: refresh
               }
             });
           }).then(function(res) {
             assert.equal(res.statusCode, 400);
-            assert.equal(res.result.errno, 109);
+            assert.equal(res.result.errno, 108, 'invalid token');
           });
         });
 
@@ -2322,7 +2322,7 @@ describe('/v1', function() {
               }
             });
           })
-          .then(function (res ) {
+          .then(function (res) {
             assert.equal(res.result.length, 2);
             return Server.api.delete({
               url: '/client-tokens/' + client2Id.toString('hex'),

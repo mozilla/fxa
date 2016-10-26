@@ -51,10 +51,17 @@ describe('authBearer', function() {
 
   describe('authenticate', function() {
     it('provides credentials if token is valid', function(done) {
-      authBearer.strategy().authenticate(mockRequest, function (err, result) {
+      // mock hapi/lib/reply.js
+      var mockReply = function (err) {
+        throw err;
+      };
+
+      mockReply.continue = function (result) {
         assert.equal(result.credentials.user, 'bar');
         done();
-      });
+      };
+
+      authBearer.strategy().authenticate(mockRequest, mockReply);
     });
 
     it('errors if no Bearer in request', function(done) {

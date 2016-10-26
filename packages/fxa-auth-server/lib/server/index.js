@@ -21,11 +21,14 @@ exports.create = function createServer() {
       '*** localRedirects is set to TRUE. Should only be used for developers.');
   }
   var isProd = env.isProdLike();
-  var server = Hapi.createServer(
-    config.server.host,
-    config.server.port,
+  var server = new Hapi.Server(
     require('./config')
   );
+
+  server.connection({
+    host: config.server.host,
+    port: config.server.port
+  });
 
   server.auth.scheme(authBearer.AUTH_SCHEME, authBearer.strategy);
   server.auth.strategy(authBearer.AUTH_STRATEGY, authBearer.AUTH_SCHEME);
@@ -83,7 +86,7 @@ exports.create = function createServer() {
     next(response);
   });
 
-  server.ext('onPreAuth', function (request, next) {
+  server.ext('onPreAuth', function (request, reply) {
     // Construct source-ip-address chain for logging.
     var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
     xff.push(request.info.remoteAddress);
@@ -99,7 +102,7 @@ exports.create = function createServer() {
 
     request.app.remoteAddressChain = xff;
     request.app.clientAddress = xff[clientAddressIndex];
-    next();
+    reply.continue();
   });
 
   return server;
