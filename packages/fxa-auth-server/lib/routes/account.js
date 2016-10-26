@@ -477,7 +477,8 @@ module.exports = function (
                     )
                     .catch(
                       (err) => {
-                        if (err.errno === error.ERRNO.UNBLOCK_CODE_INVALID) {
+                        if (err.errno === error.ERRNO.INVALID_UNBLOCK_CODE) {
+                          request.emitMetricsEvent('account.login.invalidUnblockCode')
                           customs.flag(request.app.clientAddress, {
                             email: email,
                             errno: err.errno

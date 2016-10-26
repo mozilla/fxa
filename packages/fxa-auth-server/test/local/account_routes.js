@@ -885,7 +885,8 @@ test('/account/login', function (t) {
   var mockMailer = mocks.mockMailer()
   var mockPush = mocks.mockPush()
   var mockCustoms = {
-    check: () => P.resolve()
+    check: () => P.resolve(),
+    flag: () => P.resolve()
   }
   var accountRoutes = makeRoutes({
     checkPassword: function () {
@@ -1437,7 +1438,7 @@ test('/account/login', function (t) {
       t.plan(2)
       mockCustoms.check = () => P.reject(error.requestBlocked(true))
       t.test('signin unblock disabled', (t) => {
-        t.plan(7)
+        t.plan(6)
         config.signinUnblock.enabled = false
         mockLog.flowEvent.reset()
         return runTest(route, mockRequest, (err) => {
@@ -1445,9 +1446,8 @@ test('/account/login', function (t) {
           t.equal(err.output.statusCode, 400, 'correct status code is returned')
           t.equal(err.output.payload.verificationMethod, undefined, 'no verificationMethod')
           t.equal(err.output.payload.verificationReason, undefined, 'no verificationReason')
-          t.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent called twice')
-          t.equal(mockLog.flowEvent.args[0][0], 'flow.signin.submit', 'first event is submit')
-          t.equal(mockLog.flowEvent.args[1][0], 'account.login.blocked', 'second event is blocked')
+          t.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
+          t.equal(mockLog.flowEvent.args[0][0], 'account.login.blocked', 'first event is blocked')
 
           mockLog.flowEvent.reset()
         })
@@ -1459,27 +1459,31 @@ test('/account/login', function (t) {
         mockLog.flowEvent.reset()
 
         t.test('without unblock code', (t) => {
-          t.plan(7)
+          t.plan(6)
           return runTest(route, mockRequest, (err) => {
             t.equal(err.errno, error.ERRNO.REQUEST_BLOCKED, 'correct errno is returned')
             t.equal(err.output.statusCode, 400, 'correct status code is returned')
             t.equal(err.output.payload.verificationMethod, 'email-captcha', 'with verificationMethod')
             t.equal(err.output.payload.verificationReason, 'login', 'with verificationReason')
-            t.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent called twice')
-            t.equal(mockLog.flowEvent.args[0][0], 'flow.signin.submit', 'first event is submit')
-            t.equal(mockLog.flowEvent.args[1][0], 'account.login.blocked', 'second event is blocked')
+            t.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
+            t.equal(mockLog.flowEvent.args[0][0], 'account.login.blocked', 'first event is blocked')
             mockLog.flowEvent.reset()
           })
         })
 
         t.test('with unblock code', (t) => {
           t.plan(3)
+          mockLog.flowEvent.reset()
+
           t.test('invalid code', (t) => {
-            t.plan(2)
             mockDB.consumeUnblockCode = () => P.reject(error.invalidUnblockCode())
             return runTest(route, mockRequestWithUnblockCode, (err) => {
               t.equal(err.errno, error.ERRNO.INVALID_UNBLOCK_CODE, 'correct errno is returned')
               t.equal(err.output.statusCode, 400, 'correct status code is returned')
+              t.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent called twice')
+              t.equal(mockLog.flowEvent.args[1][0], 'account.login.invalidUnblockCode', 'second event is invalid')
+
+              mockLog.flowEvent.reset()
             })
           })
 
@@ -1488,6 +1492,9 @@ test('/account/login', function (t) {
             return runTest(route, mockRequestWithUnblockCode, (err) => {
               t.equal(err.errno, error.ERRNO.INVALID_UNBLOCK_CODE, 'correct errno is returned')
               t.equal(err.output.statusCode, 400, 'correct status code is returned')
+
+              t.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent called twice')
+              t.equal(mockLog.flowEvent.args[1][0], 'account.login.invalidUnblockCode', 'second event is invalid')
 
               mockLog.activityEvent.reset()
               mockLog.flowEvent.reset()
