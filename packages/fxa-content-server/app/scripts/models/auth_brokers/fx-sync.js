@@ -233,22 +233,8 @@ define(function (require, exports, module) {
       loginData.verified = !! loginData.verified;
       loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkEmail;
       return loginData;
-    },
-
-    /**
-     * Notify the browser that it should open sync preferences
-     *
-     * @method openSyncPreferences
-     * @param {String} entryPoint - where Sync Preferences is opened from
-     * @returns {Promise} resolves when notification is sent.
-     */
-    openSyncPreferences (entryPoint) {
-      if (this.hasCapability('syncPreferencesNotification')) {
-        return this.send(this.getCommand('SYNC_PREFERENCES'), {
-          entryPoint: entryPoint
-        });
-      }
     }
+
   }, {
     REQUIRED_LOGIN_FIELDS: [
       'customizeSync',

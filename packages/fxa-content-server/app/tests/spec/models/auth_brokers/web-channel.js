@@ -95,10 +95,6 @@ define(function (require, exports, module) {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 
-    it('does not have the `syncPreferencesNotification` capability by default', function () {
-      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
-    });
-
     describe('fetch', function () {
       describe('for the signin/signup flow', function () {
         it('fetches the webChannelId from the query parameters', function () {

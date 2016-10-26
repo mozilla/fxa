@@ -10,14 +10,6 @@
 
     {{#isSync}}
       <p class="account-ready-service">{{readyToSyncText}}</p>
-        
-      {{#shouldShowSyncPreferencesButton}}
-        <form novalidate>
-          <div class="button-row">
-            <button id="sync-preferences" type="submit">{{#t}}Sync preferences{{/t}}</button>
-          </div>
-        </form>
-      {{/shouldShowSyncPreferencesButton}}
     {{/isSync}}
 
     {{^isSync}}

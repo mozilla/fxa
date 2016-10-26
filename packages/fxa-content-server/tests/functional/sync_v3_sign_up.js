@@ -108,15 +108,6 @@ define([
           })
         .end()
 
-        // attempt to open sync preferences
-        .findByCssSelector('#sync-preferences')
-          .click()
-        .end()
-
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences', function (data) {
-          assert.equal(data.entryPoint, 'fxa:signup-complete');
-        }))
-
         .then(closeCurrentWindow())
 
         // We do not expect the verification poll to occur. The poll

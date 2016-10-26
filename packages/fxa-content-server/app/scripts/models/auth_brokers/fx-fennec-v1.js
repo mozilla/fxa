@@ -29,8 +29,7 @@ define(function (require, exports, module) {
         engines: Constants.DEFAULT_DECLINED_ENGINES
       },
       convertExternalLinksToText: true,
-      emailVerificationMarketingSnippet: false,
-      syncPreferencesNotification: true
+      emailVerificationMarketingSnippet: false
     }),
 
     type: 'fx-fennec-v1'

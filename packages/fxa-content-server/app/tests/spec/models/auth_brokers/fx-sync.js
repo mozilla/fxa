@@ -35,7 +35,9 @@ define(function (require, exports, module) {
           DELETE_ACCOUNT: 'delete_account',
           LOADED: 'loaded',
           LOGIN: 'login',
-          SYNC_PREFERENCES: 'sync_preferences'
+          /*
+          SYNC_PREFERENCES: 'sync_preferences' // Removed in issue #4250
+          */
         },
         window: windowMock
       }, options));
@@ -68,10 +70,6 @@ define(function (require, exports, module) {
 
     it('has the `emailVerificationMarketingSnippet` capability by default', function () {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
-    });
-
-    it('does not have the `syncPreferencesNotification` capability by default', function () {
-      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
     });
 
     describe('afterLoaded', function () {
@@ -350,39 +348,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('openSyncPreferences', function () {
-      beforeEach(function () {
-        broker.unsetCapability('syncPreferencesNotification');
-        sinon.spy(broker, 'send');
-      });
-
-      describe('without the `syncPreferencesNotification` capability', function () {
-        beforeEach(function () {
-          return broker.openSyncPreferences('fxa:signup-complete');
-        });
-
-        it('does not send the `sync_preferences` message', function () {
-          assert.isFalse(broker.send.calledWith('sync_preferences'));
-        });
-      });
-
-      describe('with the `syncPreferencesNotification` capability', function () {
-        beforeEach(function () {
-          broker.setCapability('syncPreferencesNotification', true);
-
-          return broker.openSyncPreferences('fxa:signup-complete');
-        });
-
-        it('sends the `sync_preferences` message', function () {
-          assert.isTrue(broker.send.calledWith(
-            'sync_preferences',
-            {
-              entryPoint: 'fxa:signup-complete'
-            }
-          ));
-        });
-      });
-    });
   });
 });
 

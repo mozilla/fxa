@@ -93,10 +93,6 @@ define(function (require, exports, module) {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 
-    it('does not have the `syncPreferencesNotification` capability by default', function () {
-      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
-    });
-
     describe('sendOAuthResultToRelier', function () {
       it('must be overridden', function () {
         return broker.sendOAuthResultToRelier()

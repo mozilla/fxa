@@ -54,10 +54,6 @@ define(function (require, exports, module) {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 
-    it('does not have the `syncPreferencesNotification` capability by default', function () {
-      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
-    });
-
     describe('createChannel', function () {
       it('creates a channel', function () {
         assert.ok(broker.createChannel());

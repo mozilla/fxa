@@ -29,8 +29,10 @@ define(function (require, exports, module) {
       CHANGE_PASSWORD: null,
       DELETE_ACCOUNT: 'fxaccounts:delete_account',
       LOADED: 'fxaccounts:loaded',
-      LOGIN: 'fxaccounts:login',
-      SYNC_PREFERENCES: 'fxaccounts:sync_preferences'
+      LOGIN: 'fxaccounts:login'
+      /*
+      SYNC_PREFERENCES: 'fxaccounts:sync_preferences' // Removed in issue #4250
+      */
     },
 
     createChannel () {

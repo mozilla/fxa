@@ -193,12 +193,12 @@ Specify an alternate context in which Firefox Accounts is being run, if not as a
 * `fx_desktop_v2` - Firefox Accounts is being used to sign in to Sync on
    Firefox Desktop using WebChannels.
 * `fx_desktop_v3` - Firefox Accounts is being used to sign in to Sync on
-   Firefox Desktop using WebChannels. Adds the `syncPreferencesNotification`
+   Firefox Desktop using WebChannels. Used to add the `syncPreferencesNotification`
    capability
 * `fx_fennec_v1` - Firefox Accounts is being used to sign in to Sync on
    Firefox for Android using WebChannels.
 * `fx_firstrun_v2` - Firefox Accounts is being used to sign in to Sync
-   on the Firefox Desktop firstrun page. Adds the
+   on the Firefox Desktop firstrun page. Used to add the
    `syncPreferencesNotification` capability
 * `fx_ios_v1` - Firefox Accounts is being used to sign in to Sync on Firefox
    for iOS using CustomEvents.

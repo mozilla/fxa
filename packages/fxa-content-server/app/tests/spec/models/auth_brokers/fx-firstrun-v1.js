@@ -58,10 +58,6 @@ define(function (require, exports, module) {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 
-    it('does not have the `syncPreferencesNotification` capability by default', function () {
-      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
-    });
-
     describe('afterLoaded', function () {
       it('notifies the iframe channel', function () {
         sinon.spy(iframeChannel, 'send');

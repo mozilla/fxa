@@ -65,10 +65,6 @@ define(function (require, exports, module) {
       assert.isFalse(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 
-    it('has the `syncPreferencesNotification` capability by default', function () {
-      assert.isTrue(broker.hasCapability('syncPreferencesNotification'));
-    });
-
     it('has all sync content types', function () {
       assert.equal(broker.defaultCapabilities.chooseWhatToSyncWebV1.engines, Constants.DEFAULT_DECLINED_ENGINES);
     });

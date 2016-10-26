@@ -5,7 +5,8 @@
 /**
  * V2 of the FxFirstrun broker
  *
- * Enable syncPreferencesNotification on the verification complete screen.
+ * It used to enable syncPreferencesNotification on the verification complete screen.
+ * Issue #4250
  */
 
 define(function (require, exports, module) {
@@ -22,8 +23,7 @@ define(function (require, exports, module) {
       chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: {
         engines: Constants.DEFAULT_DECLINED_ENGINES
-      },
-      syncPreferencesNotification: true
+      }
     }),
 
     type: 'fx-firstrun-v2'

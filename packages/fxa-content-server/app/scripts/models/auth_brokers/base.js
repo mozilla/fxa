@@ -359,12 +359,7 @@ define(function (require, exports, module) {
       /**
        * Is signup supported? the fx_ios_v1 broker can disable it.
        */
-      signup: true,
-      /**
-       * Should the *_complete pages show a `Sync preferences` button
-       * if the relier is Firefox Sync?
-       */
-      syncPreferencesNotification: false
+      signup: true
     },
 
     /**

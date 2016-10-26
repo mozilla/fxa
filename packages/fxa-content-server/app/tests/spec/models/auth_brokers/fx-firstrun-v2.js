@@ -32,10 +32,6 @@ define(function (require, exports, module) {
       it('has the `chooseWhatToSyncWebV1` capability by default', function () {
         assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
       });
-
-      it('has the `syncPreferencesNotification` capability', function () {
-        assert.isTrue(broker.hasCapability('syncPreferencesNotification'));
-      });
     });
   });
 });

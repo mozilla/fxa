@@ -24,7 +24,6 @@ define([
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var noEmailExpected = FunctionalHelpers.noEmailExpected;
   var noPageTransition = FunctionalHelpers.noPageTransition;
-  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = thenify(FunctionalHelpers.openPage);
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
@@ -77,11 +76,6 @@ define([
         .then(openVerificationLinkInNewTab(this, email, 0))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-in-complete-header'))
-          .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
-          // user should be able to click on a sync preferences button.
-          .then(click('#sync-preferences'))
-          // browser is notified of desire to open Sync preferences
-          .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
@@ -140,11 +134,6 @@ define([
 
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-up-complete-header'))
-          .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
-          // user should be able to click on a sync preferences button.
-          .then(click('#sync-preferences'))
-          // browser is notified of desire to open Sync preferences
-          .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition

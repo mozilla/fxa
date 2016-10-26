@@ -5,7 +5,8 @@
 /**
  * A variant of the FxSync broker that speaks "v3" of the protocol.
  *
- * Enable syncPreferencesNotification on the verification complete screen.
+ * It used to enable syncPreferencesNotification on the verification complete screen.
+ * Issue #4250
  */
 
 define(function (require, exports, module) {
@@ -18,8 +19,7 @@ define(function (require, exports, module) {
 
   var FxDesktopV3AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      allowUidChange: true,
-      syncPreferencesNotification: true
+      allowUidChange: true
     }),
 
     type: 'fx-desktop-v3'

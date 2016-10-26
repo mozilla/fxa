@@ -254,10 +254,6 @@ define(function (require, exports, module) {
         it('returns `true` for `emailVerificationMarketingSnippet` by default', function () {
           assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
         });
-
-        it('returns `false` for `syncPreferencesNotification` by default', function () {
-          assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
-        });
       });
 
       describe('getCapability', function () {

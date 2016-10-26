@@ -81,8 +81,7 @@ define(function (require, exports, module) {
         redirectUri: this.relier.get('redirectUri'),
         service: this.relier.get('service'),
         serviceName: this.relier.get('serviceName'),
-        shouldShowProceedButton: this._shouldShowProceedButton(),
-        shouldShowSyncPreferencesButton: this._shouldShowSyncPreferencesButton()
+        shouldShowProceedButton: this._shouldShowProceedButton()
       };
     },
 
@@ -109,16 +108,7 @@ define(function (require, exports, module) {
     submit () {
       if (this._shouldShowProceedButton()) {
         return this._submitForProceed();
-      } else if (this._shouldShowSyncPreferencesButton()) {
-        return this._submitForSyncPreferences();
       }
-    },
-
-    _submitForSyncPreferences () {
-      return this.metrics.flush().then(() => {
-        var entryPoint = 'fxa:' + this.getViewName();
-        return this.broker.openSyncPreferences(entryPoint);
-      });
     },
 
     /**
@@ -137,17 +127,6 @@ define(function (require, exports, module) {
                  redirectUri &&
                  Url.isNavigable(redirectUri) &&
                  verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS);
-    },
-
-    /**
-     * Determine whether the `Sync Preferences` button should be shown.
-     *
-     * @returns {Boolean}
-     * @private
-     */
-    _shouldShowSyncPreferencesButton () {
-      return !! (this.relier.isSync() &&
-                 this.broker.hasCapability('syncPreferencesNotification'));
     },
 
     afterRender () {

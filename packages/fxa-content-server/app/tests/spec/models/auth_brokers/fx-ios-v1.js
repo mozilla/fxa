@@ -53,10 +53,6 @@ define(function (require, exports, module) {
         assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
       });
 
-      it('does not have the `syncPreferencesNotification` capability by default', function () {
-        assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
-      });
-
       it('broker loginMessageDelayMS delayed is set', function () {
         assert.equal(broker.attributes.loginMessageDelayMS, loginMessageDelayMS);
       });
