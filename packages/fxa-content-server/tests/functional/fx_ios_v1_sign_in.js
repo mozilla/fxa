@@ -63,7 +63,7 @@ define([
       email = TestHelpers.createEmail('sync{id}');
 
       return this.remote
-        .then(clearBrowserState(this));
+        .then(clearBrowserState(this, { force: true }));
     },
 
     'verified, verify same browser': function () {
