@@ -14,11 +14,15 @@ const summary = require('../logging/summary');
 
 exports.create = function createServer() {
   var isProd = env.isProdLike();
-  var server = Hapi.createServer(
-    config.serverInternal.host,
-    config.serverInternal.port,
+
+  var server = new Hapi.Server(
     require('./config')
   );
+
+  server.connection({
+    host: config.serverInternal.host,
+    port: config.serverInternal.port
+  });
 
   server.auth.scheme(auth.AUTH_SCHEME, auth.strategy);
   server.auth.strategy(auth.AUTH_STRATEGY, auth.AUTH_SCHEME);

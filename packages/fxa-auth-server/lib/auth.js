@@ -47,7 +47,7 @@ exports.strategy = function() {
         }
 
         logger.info('success', details);
-        reply(null, {
+        reply.continue({
           credentials: details
         });
       }, function noToken(err) {

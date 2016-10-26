@@ -3,19 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = {
-  cors: true,
-  debug: false,
-  payload: {
-    maxBytes: 16384
-  },
-  security: {
-    hsts: {
-      maxAge: 15552000,
-      includeSubdomains: true
-    },
-    xframe: false,
-    xss: false,
-    noOpen: false,
-    noSniff: false
+  connections: {
+    routes: {
+      cors: true,
+      payload: {
+        maxBytes: 16384
+      },
+      security: {
+        hsts: {
+          maxAge: 15552000,
+          includeSubdomains: true
+        },
+        xframe: false,
+        xss: false,
+        noOpen: false,
+        noSniff: false
+      }
+    }
   }
 };

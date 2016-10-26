@@ -18,25 +18,34 @@ function actionToPathname(action) {
     return '';
   }
 
-  throw AppError.invalidRequestParameter('action');
+  throw new Error('Bad action parameter');
 }
 
 module.exports = {
   handler: function redirectAuthorization(req, reply) {
     var redirect = url.parse(config.get('contentUrl'), true);
+    var err = false;
 
-    redirect.pathname += actionToPathname(req.query.action);
-    delete req.query.action;
-
-    if (req.query.login_hint && !req.query.email) {
-      req.query.email = req.query.login_hint;
-      delete req.query.login_hint;
+    try {
+      redirect.pathname += actionToPathname(req.query.action, reply);
+    } catch (e) {
+      err = true;
+      reply(AppError.invalidRequestParameter('action'));
     }
 
-    redirect.query = req.query;
+    if (! err) {
+      delete req.query.action;
 
-    delete redirect.search;
-    delete redirect.path;
-    reply().redirect(url.format(redirect));
+      if (req.query.login_hint && !req.query.email) {
+        req.query.email = req.query.login_hint;
+        delete req.query.login_hint;
+      }
+
+      redirect.query = req.query;
+
+      delete redirect.search;
+      delete redirect.path;
+      reply().redirect(url.format(redirect));
+    }
   }
 };
