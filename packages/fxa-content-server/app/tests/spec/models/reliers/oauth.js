@@ -6,13 +6,12 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const chai = require('chai');
+  const { assert } = require('chai');
   const Constants = require('lib/constants');
   const OAuthClient = require('lib/oauth-client');
   const OAuthErrors = require('lib/oauth-errors');
   const OAuthRelier = require('models/reliers/oauth');
   const p = require('lib/promise');
-  const RelierKeys = require('lib/relier-keys');
   const Session = require('lib/session');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
@@ -20,7 +19,6 @@ define(function (require, exports, module) {
   const WindowMock = require('../../../mocks/window');
 
   /*eslint-disable camelcase */
-  var assert = chai.assert;
   var getValueLabel = TestHelpers.getValueLabel;
 
   describe('models/reliers/oauth', function () {
@@ -468,21 +466,6 @@ define(function (require, exports, module) {
         assert.isFalse(relier.wantsKeys());
         relier.set('keys', true);
         assert.isTrue(relier.wantsKeys());
-      });
-    });
-
-    describe('deriveRelierKeys', function () {
-      it('derives `kAr` and `kBr` account master keys', function () {
-        sinon.stub(RelierKeys, 'deriveRelierKeys', function () {
-          return p({ kAr: 'kAr', kBr: 'kBr' });
-        });
-        var mockKeys = { kA: 'kA', kB: 'kB' };
-        return relier.deriveRelierKeys(mockKeys, 'uid')
-          .then(function (keys) {
-            assert.isTrue(RelierKeys.deriveRelierKeys.calledWith(mockKeys, 'uid'));
-            assert.equal(keys.kAr, 'kAr');
-            assert.equal(keys.kBr, 'kBr');
-          });
       });
     });
 

@@ -66,7 +66,6 @@ define(function (require, exports, module) {
   const Url = require('lib/url');
   const User = require('models/user');
   const WebChannel = require('lib/channels/web');
-  const WebChannelAuthenticationBroker = require('models/auth_brokers/web-channel');
 
   function Start(options = {}) {
     this._authenticationBroker = options.broker;
@@ -338,14 +337,6 @@ define(function (require, exports, module) {
         } else if (this._isFxiOSV1()) {
           this._authenticationBroker = new FxiOSV1AuthenticationBroker({
             relier: this._relier,
-            window: this._window
-          });
-        } else if (this._isWebChannel()) {
-          this._authenticationBroker = new WebChannelAuthenticationBroker({
-            assertionLibrary: this._assertionLibrary,
-            oAuthClient: this._oAuthClient,
-            relier: this._relier,
-            session: Session,
             window: this._window
           });
         } else if (this._isOAuth()) {
@@ -710,12 +701,6 @@ define(function (require, exports, module) {
 
     _isFxFirstrunV2 () {
       return this._isContext(Constants.FX_FIRSTRUN_V2_CONTEXT);
-    },
-
-    _isWebChannel () {
-      return !! (this._searchParam('webChannelId') || // signup/signin
-                (this._isOAuthVerificationSameBrowser() &&
-                  Session.oauth && Session.oauth.webChannelId));
     },
 
     _isInAnIframe () {

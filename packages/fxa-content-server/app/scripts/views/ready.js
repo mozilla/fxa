@@ -18,7 +18,6 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/ready');
-  const Url = require('lib/url');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   const t = msg => msg;
@@ -125,7 +124,6 @@ define(function (require, exports, module) {
 
       return !! (this.isSignUp() &&
                  redirectUri &&
-                 Url.isNavigable(redirectUri) &&
                  verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS);
     },
 

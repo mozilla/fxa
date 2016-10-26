@@ -41,11 +41,6 @@ Direct access is when a user enters the URL https://accounts.firefox.com into th
 #### OAuth Redirect
 The OAuth redirect flow is used by web based RPs. A user visiting the RP is redirected from the RP to Firefox Accounts. Once the user successfully authenticates with Firefox Accounts, an [OAuth code](http://tools.ietf.org/html/rfc6749#section-1.3.1) is generated, and the user is sent back to the RP with the OAuth code. The RP uses returned code to fetch information about the user from the Firefox Accounts OAuth and Profile servers.
 
-#### OAuth Lightbox
-The OAuth lightbox flow is similar to the OAuth redirect flow, except instead of redirecting away from the RP, a lightbox with Firefox Accounts is overlayed on top of RP content.
-
-#### OAuth WebChannel
-A [WebChannel](https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/WebChannel.jsm) is a Firefox abstraction that allows services that are built into the browser to communicate with Firefox Accounts. A WebChannel uses [Custom Events](https://developer.mozilla.org/docs/Creating_Custom_Events_That_Can_Pass_Data) to create a two-way communication channel between the browser and Firefox Accounts. WebChannel integrations show Firefox Accounts in a native browser panel. Upon successful user authentication, the OAuth code is sent to the relier via the WebChannel. Future native browser services will use the WebChannel.
 
 #### Firefox Sync
 Firefox Sync is a one-off integration that is documented for completeness. Like the WebChannel, Sync uses [Custom Events](https://developer.mozilla.org/docs/Creating_Custom_Events_That_Can_Pass_Data) to create a two-way communication channel between the browser and Firefox Accounts.

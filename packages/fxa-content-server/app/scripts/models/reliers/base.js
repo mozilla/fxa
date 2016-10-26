@@ -71,16 +71,6 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Derive relier-specific keys from the account master keys.
-     * By default no keys are available.
-     *
-     * @returns {Promise}
-     */
-    deriveRelierKeys (/* keys */) {
-      return p({});
-    },
-
-    /**
      * Get the resume token info to be passed along in the email
      * verification links
      *

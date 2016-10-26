@@ -114,25 +114,19 @@ define(function (require, exports, module) {
       return p.reject(new Error('subclasses must override sendOAuthResultToRelier'));
     },
 
-    finishOAuthSignInFlow (account, additionalResultData) {
-      additionalResultData = additionalResultData || {};
-      additionalResultData.action = Constants.OAUTH_ACTION_SIGNIN;
-      return this.finishOAuthFlow(account, additionalResultData);
+    finishOAuthSignInFlow (account) {
+      return this.finishOAuthFlow(account, { action: Constants.OAUTH_ACTION_SIGNIN });
     },
 
-    finishOAuthSignUpFlow (account, additionalResultData) {
-      additionalResultData = additionalResultData || {};
-      additionalResultData.action = Constants.OAUTH_ACTION_SIGNUP;
-      return this.finishOAuthFlow(account, additionalResultData);
+    finishOAuthSignUpFlow (account) {
+      return this.finishOAuthFlow(account, { action: Constants.OAUTH_ACTION_SIGNUP });
     },
 
-    finishOAuthFlow (account, additionalResultData) {
+    finishOAuthFlow (account, additionalResultData = {}) {
       this.session.clear('oauth');
       return this.getOAuthResult(account)
         .then((result) => {
-          if (additionalResultData) {
-            result = _.extend(result, additionalResultData);
-          }
+          result = _.extend(result, additionalResultData);
           return this.sendOAuthResultToRelier(result);
         });
     },
@@ -146,26 +140,25 @@ define(function (require, exports, module) {
           client_id: relier.get('clientId'), //eslint-disable-line camelcase
           keys: relier.get('keys'),
           scope: relier.get('scope'),
-          state: relier.get('state'),
-          webChannelId: this.get('webChannelId')
+          state: relier.get('state')
         });
 
         return proto.persistVerificationData.call(this, account);
       });
     },
 
-    afterForceAuth (account, additionalResultData) {
-      return this.finishOAuthSignInFlow(account, additionalResultData)
+    afterForceAuth (account) {
+      return this.finishOAuthSignInFlow(account)
         .then(() => proto.afterForceAuth.call(this, account));
     },
 
-    afterSignIn (account, additionalResultData) {
-      return this.finishOAuthSignInFlow(account, additionalResultData)
+    afterSignIn (account) {
+      return this.finishOAuthSignInFlow(account)
         .then(() => proto.afterSignIn.call(this, account));
     },
 
-    afterSignInConfirmationPoll (account, additionalResultData) {
-      return this.finishOAuthSignInFlow(account, additionalResultData)
+    afterSignInConfirmationPoll (account) {
+      return this.finishOAuthSignInFlow(account)
         .then(() => proto.afterSignInConfirmationPoll.call(this, account));
     },
 

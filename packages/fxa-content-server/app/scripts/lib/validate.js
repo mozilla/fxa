@@ -18,9 +18,6 @@ define(function (require, exports, module) {
   const urlRegEx = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/; //eslint-disable-line max-len
 
 
-  // URN Regex
-  const urnRegEx = /^urn:[a-zA-Z0-9][a-zA-Z0-9-]{1,31}:([a-zA-Z0-9()+,.:=@;$_!*'-]|%[0-9A-Fa-f]{2})+$/;
-
   // Matches a UUID, e.g.: 12345678-1234-1234-1234-1234567890ab
   const uuidRegEx = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -214,26 +211,6 @@ define(function (require, exports, module) {
      */
     isUrlValid: function isUrlValid(url) {
       return urlRegEx.test(url);
-    },
-
-    /**
-     * Check if string is valid urn per RFC 2141.
-     *
-     * @param {String} urn - urn to check
-     * @returns {Boolean}
-     */
-    isUrnValid: function isUrnValid(urn) {
-      return urnRegEx.test(urn);
-    },
-
-    /**
-     * Check if string is valid uri.
-     *
-     * @param {String} uri - uri to check
-     * @returns {Boolean}
-     */
-    isUriValid: function isUriValid(uri) {
-      return Validate.isUrlValid(uri) || Validate.isUrnValid(uri);
     },
 
     /**

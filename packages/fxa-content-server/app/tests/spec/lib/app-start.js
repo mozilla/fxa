@@ -29,7 +29,6 @@ define(function (require, exports, module) {
   const RefreshObserver = require('models/refresh-observer');
   const Relier = require('models/reliers/relier');
   const SameBrowserVerificationModel = require('models/verification/same-browser');
-  const Session = require('lib/session');
   const sinon = require('sinon');
   const Storage = require('lib/storage');
   const StorageMetrics = require('lib/storage-metrics');
@@ -37,7 +36,6 @@ define(function (require, exports, module) {
   const TestHelpers = require('../../lib/helpers');
   const Url = require('lib/url');
   const User = require('models/user');
-  const WebChannelBroker = require('models/auth_brokers/web-channel');
   const WindowMock = require('../../mocks/window');
 
   describe('lib/app-start', function () {
@@ -303,31 +301,6 @@ define(function (require, exports, module) {
           });
 
           return testExpectedBrokerCreated(FxiOSV1Broker);
-        });
-      });
-
-      describe('web channel', function () {
-        it('returns a WebChannel broker if `webChannelId` is present', function () {
-          windowMock.location.search = Url.objToSearchString({
-            webChannelId: 'channel id'
-          });
-
-          return testExpectedBrokerCreated(WebChannelBroker);
-        });
-
-        it('returns a WebChannel broker if verifying in the same brower where a signup was initiated from a web channel', function () {
-          Session.set('oauth', {
-            client_id: 'client id', //eslint-disable-line camelcase
-            webChannelId: 'channel id'
-          });
-
-          windowMock.location.search = Url.objToSearchString({
-            code: 'code',
-            service: 'client id',
-            uid: 'users id'
-          });
-
-          return testExpectedBrokerCreated(WebChannelBroker);
         });
       });
 

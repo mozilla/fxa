@@ -61,8 +61,7 @@ define(function (require, exports, module) {
         action: 'action',
         clientId: 'clientId',
         scope: 'scope',
-        state: 'state',
-        webChannelId: 'webChannelId'
+        state: 'state'
       });
 
       user = new User();

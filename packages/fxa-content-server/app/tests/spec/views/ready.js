@@ -176,9 +176,6 @@ define(function (require, exports, module) {
         relier.set('verificationRedirect', 'always');
         assert.isTrue(view.context().shouldShowProceedButton);
 
-        relier.set('redirectUri', 'urn:ietf:wg:oauth:2.0:fx:webchannel');
-        assert.isFalse(view.context().shouldShowProceedButton);
-
         relier.set('redirectUri', null);
         assert.isFalse(view.context().shouldShowProceedButton);
       });

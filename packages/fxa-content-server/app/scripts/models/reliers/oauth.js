@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const Constants = require('lib/constants');
   const OAuthErrors = require('lib/oauth-errors');
   const Relier = require('models/reliers/relier');
-  const RelierKeys = require('lib/relier-keys');
   const Transform = require('lib/transform');
   const Validate = require('lib/validate');
   const Vat = require('lib/vat');
@@ -25,7 +24,7 @@ define(function (require, exports, module) {
     id: Vat.hex().required().renameTo('clientId'),
     image_uri: Vat.url().allow('').renameTo('imageUri'),
     name: Vat.string().required().min(1).renameTo('serviceName'),
-    redirect_uri: Vat.uri().required().renameTo('redirectUri'),
+    redirect_uri: Vat.url().required().renameTo('redirectUri'),
     trusted: Vat.boolean().required()
   };
 
@@ -34,8 +33,8 @@ define(function (require, exports, module) {
     client_id: Vat.hex().required().renameTo('clientId'),
     keys: Vat.boolean(),
     prompt: Vat.string().test(Validate.isPromptValid),
-    redirectTo: Vat.uri(),
-    redirect_uri: Vat.uri().renameTo('redirectUri'),
+    redirectTo: Vat.url(),
+    redirect_uri: Vat.url().renameTo('redirectUri'),
     scope: Vat.string().required().min(1),
     service: Vat.string(),
     state: Vat.string(),
@@ -48,7 +47,7 @@ define(function (require, exports, module) {
     client_id: Vat.hex().required().renameTo('clientId'),
     keys: Vat.boolean(),
     prompt: Vat.string().test(Validate.isPromptValid),
-    redirect_uri: Vat.uri().renameTo('redirectUri'),
+    redirect_uri: Vat.url().renameTo('redirectUri'),
     // scopes are optional when verifying, user could be verifying in a 2nd browser
     scope: Vat.string().min(1),
     service: Vat.string().min(1),
@@ -156,10 +155,6 @@ define(function (require, exports, module) {
         return true;
       }
       return Relier.prototype.wantsKeys.call(this);
-    },
-
-    deriveRelierKeys (keys, uid) {
-      return RelierKeys.deriveRelierKeys(keys, uid, this.get('clientId'));
     },
 
     _isVerificationFlow () {

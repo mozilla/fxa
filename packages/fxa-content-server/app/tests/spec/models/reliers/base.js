@@ -53,15 +53,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('deriveRelierKeys', function () {
-      it('returns no keys', function () {
-        relier.deriveRelierKeys('uid', { kA: 'kA', kB: 'kB' })
-          .then(function (keys) {
-            assert.equal(keys, {});
-          });
-      });
-    });
-
     describe('isCustomizeSyncChecked', function () {
       it('returns `false`', function () {
         assert.isFalse(relier.isCustomizeSyncChecked());
