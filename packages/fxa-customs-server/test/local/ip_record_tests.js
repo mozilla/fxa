@@ -169,19 +169,43 @@ test(
   'addBadLogins works per IP',
   function (t) {
     var ir = simpleIpRecord()
-    ir.addBadLogin({ errno: 999 })
+    ir.addBadLogin({ email: 'test1@example.com', errno: 999 })
     t.equal(ir.isOverBadLogins(), false, 'one record is not over')
-    ir.addBadLogin({ errno: 555 })
-    ir.addBadLogin({ errno: 444 })
+    ir.addBadLogin({ email: 'test2@example.com', errno: 555 })
+    ir.addBadLogin({ email: 'test3@example.com', errno: 444 })
     t.equal(ir.isOverBadLogins(), false, 'three records is not over')
-    ir.addBadLogin({ errno: 777 })
+    ir.addBadLogin({ email: 'test4@example.com', errno: 777 })
     t.equal(ir.isOverBadLogins(), true, 'four records is over')
 
     var ir2 = simpleIpRecord()
-    ir2.addBadLogin({ errno: 102 })
+    ir2.addBadLogin({ email: 'test1@example.com', errno: 102 })
     t.equal(ir2.isOverBadLogins(), false, 'one unknown record is not over')
-    ir2.addBadLogin({ errno: 102 })
+    ir2.addBadLogin({ email: 'test2@example.com', errno: 102 })
     t.equal(ir2.isOverBadLogins(), true, 'two unknown records is over')
+    t.end()
+  }
+)
+
+test(
+  'isOverBadLogins counts max per unique email addresses',
+  function (t) {
+    var ir = simpleIpRecord()
+    ir.addBadLogin({ email: 'test1@example.com' })
+    ir.addBadLogin({ email: 'test1@example.com' })
+    ir.addBadLogin({ email: 'test1@example.com' })
+    ir.addBadLogin({ email: 'test1@example.com' })
+    ir.addBadLogin({ email: 'test1@example.com' })
+    t.equal(ir.isOverBadLogins(), false, 'one email does not put it over')
+
+    ir.addBadLogin({ email: 'test2@example.com' })
+    t.equal(ir.isOverBadLogins(), false, 'two emails does not put it over')
+
+    ir.addBadLogin({ email: 'test3@example.com' })
+    t.equal(ir.isOverBadLogins(), false, 'three emails does not put it over')
+
+    ir.addBadLogin({ email: 'test1@example.com', errno: 102 })
+    t.equal(ir.isOverBadLogins(), true, 'extra score for first email puts it over')
+
     t.end()
   }
 )
