@@ -59,7 +59,7 @@ define([
         .then(testElementExists('#fxa-settings-header'));
     },
 
-    'valid code with whitepsace at the beginning entered': function () {
+    'valid code with whitespace at the beginning entered': function () {
       return this.remote
         .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(this, email, PASSWORD))
@@ -76,7 +76,7 @@ define([
         .then(testElementExists('#fxa-settings-header'));
     },
 
-    'valid code with whitepsace at the end entered': function () {
+    'valid code with whitespace at the end entered': function () {
       return this.remote
         .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(this, email, PASSWORD))

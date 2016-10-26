@@ -87,7 +87,7 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('whitepsace', function () {
+        describe('whitespace', function () {
           beforeEach(function () {
             windowMock.location.search = TestHelpers.toSearchString({
               context: ' '
@@ -134,7 +134,7 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('whitepsace', function () {
+        describe('whitespace', function () {
           beforeEach(function () {
             windowMock.location.search = TestHelpers.toSearchString({
               context: CONTEXT,
