@@ -439,6 +439,7 @@ module.exports = function (
         }
 
         function checkUnblockCode (e) {
+          request.emitMetricsEvent('account.login.blocked')
           var method = e.output.payload.verificationMethod
           if (method === 'email-captcha') {
             // only set `unblockCode` if it is required from customs
@@ -476,7 +477,8 @@ module.exports = function (
                     )
                     .catch(
                       (err) => {
-                        if (err.errno === error.ERRNO.UNBLOCK_CODE_INVALID) {
+                        if (err.errno === error.ERRNO.INVALID_UNBLOCK_CODE) {
+                          request.emitMetricsEvent('account.login.invalidUnblockCode')
                           customs.flag(request.app.clientAddress, {
                             email: email,
                             errno: err.errno
