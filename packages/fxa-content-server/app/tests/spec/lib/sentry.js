@@ -172,6 +172,41 @@ define(function (require, exports, module) {
         assert.equal(resultData.request.headers.Referer, goodData.request.headers.Referer);
       });
 
+      it('properly erases sensitive information from abs_path', function () {
+        var url = 'https://accounts.firefox.com/complete_reset_password';
+        var badCulprit = 'https://accounts.firefox.com/scripts/57f6d4e4.main.js';
+        var badAbsPath = 'https://accounts.firefox.com/complete_reset_password?token=foo&code=bar&email=a@a.com&service=sync&resume=barbar';
+        var goodAbsPath = 'https://accounts.firefox.com/complete_reset_password?token=VALUE&code=VALUE&email=VALUE&service=sync&resume=VALUE';
+        var data = {
+          culprit: badCulprit,
+          exception: {
+            values: [
+              {
+                stacktrace: {
+                  frames: [
+                    {
+                      abs_path: badAbsPath //eslint-disable-line camelcase
+                    },
+                    {
+                      abs_path: badAbsPath //eslint-disable-line camelcase
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          request: {
+            url: url
+          }
+        };
+
+        var sentry = new SentryMetrics(host);
+        var resultData = sentry.__beforeSend(data);
+
+        assert.equal(resultData.exception.values[0].stacktrace.frames[0].abs_path, goodAbsPath);
+        assert.equal(resultData.exception.values[0].stacktrace.frames[1].abs_path, goodAbsPath);
+      });
+
     });
 
     describe('cleanUpQueryParam', function () {

@@ -58,6 +58,19 @@ define(function (require, exports, module) {
         }
       }
 
+      if (data.exception && data.exception.values) {
+        _.each(data.exception.values, function (value) {
+          if (value.stacktrace && value.stacktrace.frames) {
+            _.each(value.stacktrace.frames, function (frame) {
+              if (frame.abs_path) {
+                // clean up query parameters in absolute paths
+                frame.abs_path = cleanUpQueryParam(frame.abs_path); //eslint-disable-line camelcase
+              }
+            });
+          }
+        });
+      }
+
       if (data.request.headers && data.request.headers.Referer) {
         data.request.headers.Referer = cleanUpQueryParam(data.request.headers.Referer);
       }
@@ -98,7 +111,7 @@ define(function (require, exports, module) {
    * @returns {String} url
    * @private
    */
-  function cleanUpQueryParam(url) {
+  function cleanUpQueryParam(url = '') {
     var startOfParams = url.indexOf('?');
     var newUrl = url;
     var params;
