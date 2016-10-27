@@ -319,7 +319,7 @@ ___Parameters___
 * authPW - the PBKDF2/HKDF stretched password as a hex string
 * service - (optional) opaque alphanumeric token to be included in verification links
 * reason - (optional) alphanumeric string indicating the reason for establishing a new session; may be "login" (the default) or "reconnect"
-* unblockCode - (optional) base36 code used to unblock certain  rate-limitings
+* unblockCode - (optional) alphanumeric code used to unblock certain  rate-limitings
 
 ### Request
 

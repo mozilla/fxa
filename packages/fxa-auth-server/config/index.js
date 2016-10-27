@@ -501,7 +501,7 @@ var conf = convict({
   },
   signinUnblock: {
     codeLength: {
-      doc: 'Number of base36 digits to make up an unblockCode',
+      doc: 'Number of alphanumeric digits to make up an unblockCode',
       default: 8,
       env: 'SIGNIN_UNBLOCK_CODE_LENGTH'
     },
