@@ -1,5 +1,8 @@
 dependencies:
   pre:
+    - pip install mozdownload mozinstall
+    - mozdownload --version 46.0 --destination firefox.tar.bz2
+    - mozinstall firefox.tar.bz2
     - sudo apt-get install expect tightvncserver
     - ulimit -S -n 2048;
     - mkdir -p $HOME/.vnc
