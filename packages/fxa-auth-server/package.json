@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "commander": "2.9.0",
-    "eslint-config-fxa": "2.1.0",
+    "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
     "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
     "fxa-conventional-changelog": "1.1.0",
     "grunt": "1.0.1",

@@ -2,17 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var validators = require('./validators')
-var HEX_STRING = validators.HEX_STRING
+'use strict'
 
-module.exports = function (log, crypto, isA, config, redirectDomain) {
+const validators = require('./validators')
+const HEX_STRING = validators.HEX_STRING
 
-  var routes = [
+module.exports = (log, random, isA, config, redirectDomain) => {
+  return [
     {
       method: 'POST',
       path: '/get_random_bytes',
       handler: function getRandomBytes(request, reply) {
-        reply({ data: crypto.randomBytes(32).toString('hex') })
+        random(32)
+          .done(
+            bytes => reply({ data: bytes.toString('hex') }),
+            err => reply(err)
+          )
       }
     },
     {
@@ -51,6 +56,4 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
       }
     }
   ]
-
-  return routes
 }

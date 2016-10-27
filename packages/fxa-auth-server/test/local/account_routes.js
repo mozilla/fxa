@@ -51,7 +51,7 @@ var makeRoutes = function (options, requireMocks) {
   var push = options.push || require('../../lib/push')(log, db, {})
   return proxyquire('../../lib/routes/account', requireMocks || {})(
     log,
-    crypto,
+    require('../../lib/crypto/random'),
     P,
     uuid,
     isA,

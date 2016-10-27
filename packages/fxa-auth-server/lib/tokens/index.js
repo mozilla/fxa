@@ -8,6 +8,7 @@ const inherits = require('util').inherits
 const P = require('../promise')
 const hkdf = require('../crypto/hkdf')
 const butil = require('../crypto/butil')
+const random = require('../crypto/random')
 
 const error = require('../error')
 
@@ -19,14 +20,13 @@ module.exports = (log, config) => {
     passwordForgotToken: 1000 * 60 * 15
   }
   const Bundle = require('./bundle')(crypto, P, hkdf, butil, error)
-  const Token = require('./token')(log, crypto, P, hkdf, Bundle, error)
+  const Token = require('./token')(log, random, P, hkdf, Bundle, error)
 
   const KeyFetchToken = require('./key_fetch_token')(log, inherits, Token, P, error)
   const AccountResetToken = require('./account_reset_token')(
     log,
     inherits,
     Token,
-    crypto,
     lifetimes.accountResetToken
   )
   const SessionToken = require('./session_token')(log, inherits, Token, config)
@@ -34,7 +34,7 @@ module.exports = (log, config) => {
     log,
     inherits,
     Token,
-    crypto,
+    random,
     lifetimes.passwordForgotToken
   )
 

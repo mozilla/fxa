@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var crypto = require('crypto')
+'use strict'
 
-var P = require('../promise')
-var uuid = require('uuid')
-var isA = require('joi')
-var url = require('url')
+const P = require('../promise')
+const uuid = require('uuid')
+const isA = require('joi')
+const url = require('url')
+const random = require('../crypto/random')
 
 module.exports = function (
   log,
@@ -20,15 +21,15 @@ module.exports = function (
   config,
   customs
   ) {
-  var isPreVerified = require('../preverifier')(error, config)
-  var defaults = require('./defaults')(log, P, db, error)
-  var idp = require('./idp')(log, serverPublicKeys)
-  var checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
-  var push = require('../push')(log, db, config)
-  var devices = require('../devices')(log, db, push)
-  var account = require('./account')(
+  const isPreVerified = require('../preverifier')(error, config)
+  const defaults = require('./defaults')(log, P, db, error)
+  const idp = require('./idp')(log, serverPublicKeys)
+  const checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
+  const push = require('../push')(log, db, config)
+  const devices = require('../devices')(log, db, push)
+  const account = require('./account')(
     log,
-    crypto,
+    random,
     P,
     uuid,
     isA,
@@ -43,7 +44,7 @@ module.exports = function (
     push,
     devices
   )
-  var password = require('./password')(
+  const password = require('./password')(
     log,
     isA,
     error,
@@ -56,29 +57,29 @@ module.exports = function (
     checkPassword,
     push
   )
-  var session = require('./session')(log, isA, error, db)
-  var sign = require('./sign')(log, P, isA, error, signer, db, config.domain, devices)
-  var util = require('./util')(
+  const session = require('./session')(log, isA, error, db)
+  const sign = require('./sign')(log, P, isA, error, signer, db, config.domain, devices)
+  const util = require('./util')(
     log,
-    crypto,
+    random,
     isA,
     config,
     config.smtp.redirectDomain
   )
 
-  var basePath = url.parse(config.publicUrl).path
+  let basePath = url.parse(config.publicUrl).path
   if (basePath === '/') { basePath = '' }
 
-  var v1Routes = [].concat(
+  const v1Routes = [].concat(
     account,
     password,
     session,
     sign,
     util
   )
-  v1Routes.forEach(function(r) { r.path = basePath + '/v1' + r.path })
-  defaults.forEach(function(r) { r.path = basePath + r.path })
-  var allRoutes = defaults.concat(idp, v1Routes)
+  v1Routes.forEach(r => { r.path = basePath + '/v1' + r.path })
+  defaults.forEach(r => { r.path = basePath + r.path })
+  const allRoutes = defaults.concat(idp, v1Routes)
 
   return allRoutes
 }

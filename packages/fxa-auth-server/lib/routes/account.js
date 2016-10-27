@@ -31,7 +31,7 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 
 module.exports = function (
   log,
-  crypto,
+  random,
   P,
   uuid,
   isA,
@@ -93,17 +93,14 @@ module.exports = function (
       handler: function accountCreate(request, reply) {
         log.begin('Account.create', request)
 
-        var emailCode = crypto.randomBytes(16)
         var form = request.payload
         var query = request.query
         var email = form.email
-        var authSalt = crypto.randomBytes(32)
         var authPW = Buffer(form.authPW, 'hex')
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
         var service = form.service || query.service
-        var tokenVerificationId = emailCode
-        var preVerified, password, verifyHash, account, sessionToken, keyFetchToken
+        var preVerified, password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, authSalt
 
         request.validateMetricsContext()
 
@@ -111,6 +108,7 @@ module.exports = function (
           .then(db.emailRecord.bind(db, email))
           .then(deleteAccount, ignoreUnknownAccountError)
           .then(checkPreVerified)
+          .then(generateRandomValues)
           .then(createPassword)
           .then(createAccount)
           .then(createSessionToken)
@@ -154,6 +152,18 @@ module.exports = function (
             )
         }
 
+        function generateRandomValues() {
+          return random(16)
+            .then(bytes => {
+              emailCode = bytes
+              tokenVerificationId = bytes
+              return random(32)
+            })
+            .then(bytes => {
+              authSalt = bytes
+            })
+        }
+
         function createPassword () {
           password = new Password(authPW, authSalt, config.verifierVersion)
           return password.verifyHash()
@@ -176,14 +186,15 @@ module.exports = function (
             })
           }
 
-          return db.createAccount({
+          return random(64)
+          .then(bytes => db.createAccount({
             uid: uuid.v4('binary'),
             createdAt: Date.now(),
             email: email,
             emailCode: emailCode,
             emailVerified: form.preVerified || preVerified,
-            kA: crypto.randomBytes(32),
-            wrapWrapKb: crypto.randomBytes(32),
+            kA: bytes.slice(0, 32), // 0..31
+            wrapWrapKb: bytes.slice(32), // 32..63
             accountResetToken: null,
             passwordForgotToken: null,
             authSalt: authSalt,
@@ -191,7 +202,7 @@ module.exports = function (
             verifyHash: verifyHash,
             verifierSetAt: Date.now(),
             locale: locale
-          })
+          }))
           .then(
             function (result) {
               account = result
@@ -390,15 +401,15 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.login', request)
 
-        var form = request.payload
-        var email = form.email
-        var authPW = Buffer(form.authPW, 'hex')
-        var service = request.payload.service || request.query.service
-        var redirectTo = request.payload.redirectTo
-        var resume = request.payload.resume
-        var tokenVerificationId = crypto.randomBytes(16)
-        var emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation, emailSent, unblockCode, customsErr, allowSigninUnblock, didSigninUnblock
-        var ip = request.app.clientAddress
+        const form = request.payload
+        const email = form.email
+        const authPW = Buffer(form.authPW, 'hex')
+        const service = request.payload.service || request.query.service
+        const redirectTo = request.payload.redirectTo
+        const resume = request.payload.resume
+        const ip = request.app.clientAddress
+        let needsVerificationId = true
+        let emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation, emailSent, unblockCode, customsErr, allowSigninUnblock, didSigninUnblock, tokenVerificationId
 
         request.validateMetricsContext()
 
@@ -581,7 +592,7 @@ module.exports = function (
           //  * the email is verified, since content-server triggers a resend of the verification
           //    email on unverified accounts, which doubles as sign-in confirmation.
           if (didSigninUnblock || !features.isSigninConfirmationEnabledForUser(emailRecord.uid, emailRecord.email, request)) {
-            tokenVerificationId = undefined
+            needsVerificationId = false
             mustVerifySession = false
             doSigninConfirmation = false
           } else {
@@ -646,17 +657,27 @@ module.exports = function (
         }
 
         function createSessionToken () {
-          var sessionTokenOptions = {
-            uid: emailRecord.uid,
-            email: emailRecord.email,
-            emailCode: emailRecord.emailCode,
-            emailVerified: emailRecord.emailVerified,
-            verifierSetAt: emailRecord.verifierSetAt,
-            mustVerify: mustVerifySession,
-            tokenVerificationId: tokenVerificationId
-          }
+          return P.resolve()
+            .then(() => {
+              if (needsVerificationId) {
+                return random(16).then(bytes => {
+                  tokenVerificationId = bytes
+                })
+              }
+            })
+            .then(() => {
+              let sessionTokenOptions = {
+                uid: emailRecord.uid,
+                email: emailRecord.email,
+                emailCode: emailRecord.emailCode,
+                emailVerified: emailRecord.emailVerified,
+                verifierSetAt: emailRecord.verifierSetAt,
+                mustVerify: mustVerifySession,
+                tokenVerificationId: tokenVerificationId
+              }
 
-          return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+              return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+            })
             .then(
               function (result) {
                 sessionToken = result
@@ -1737,8 +1758,6 @@ module.exports = function (
         log.begin('Account.reset', request)
         var accountResetToken = request.auth.credentials
         var authPW = Buffer(request.payload.authPW, 'hex')
-        var authSalt = crypto.randomBytes(32)
-        var password = new Password(authPW, authSalt, config.verifierVersion)
         var account, sessionToken, keyFetchToken, verifyHash, wrapKb, devicesToNotify
         var hasSessionToken = request.payload.sessionToken
 
@@ -1762,7 +1781,14 @@ module.exports = function (
         }
 
         function resetAccountData () {
-          return password.verifyHash()
+          let authSalt, password, wrapWrapKb
+          return random(64)
+            .then(bytes => {
+              authSalt = bytes.slice(0, 32) // 0..31
+              wrapWrapKb = bytes.slice(32) // 32..63
+              password = new Password(authPW, authSalt, config.verifierVersion)
+              return password.verifyHash()
+            })
             .then(
               function (verifyHashData) {
                 verifyHash = verifyHashData
@@ -1772,7 +1798,7 @@ module.exports = function (
                   {
                     authSalt: authSalt,
                     verifyHash: verifyHash,
-                    wrapWrapKb: crypto.randomBytes(32),
+                    wrapWrapKb: wrapWrapKb,
                     verifierVersion: password.version
                   }
                 )

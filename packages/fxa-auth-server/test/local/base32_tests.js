@@ -16,12 +16,12 @@ test('base32 takes 1 integer argument, returns a function', (t) => {
 
 test('base32 output', (t) => {
   const gen = base32(10)
-  const code = gen()
-  t.equal(code.length, 10, 'matches length')
-  t.ok(/^[0-9A-Z]+$/.test(code), 'no lowercase letters')
-  t.equal(code.indexOf('I'), -1, 'no I')
-  t.equal(code.indexOf('L'), -1, 'no L')
-  t.equal(code.indexOf('O'), -1, 'no O')
-  t.equal(code.indexOf('U'), -1, 'no U')
-  t.end()
+  return gen().then(code => {
+    t.equal(code.length, 10, 'matches length')
+    t.ok(/^[0-9A-Z]+$/.test(code), 'no lowercase letters')
+    t.equal(code.indexOf('I'), -1, 'no I')
+    t.equal(code.indexOf('L'), -1, 'no L')
+    t.equal(code.indexOf('O'), -1, 'no O')
+    t.equal(code.indexOf('U'), -1, 'no U')
+  })
 })
