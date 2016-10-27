@@ -6,8 +6,8 @@ define([
   'intern!tdd',
   'intern/chai!assert',
   'tests/addons/environment',
-  'tests/lib/push-constants'
-], function (tdd, assert, Environment, PushTestConstants) {
+  'tests/addons/sinon'
+], function (tdd, assert, Environment, sinon) {
 
   with (tdd) {
     suite('signUp', function () {
@@ -18,6 +18,9 @@ define([
       var RequestMocks;
       var ErrorMocks;
       var setupEnv = new Environment();
+      var xhr;
+      var xhrOpen;
+      var xhrSend;
 
       beforeEach(function () {
         var env = new Environment();
@@ -27,6 +30,14 @@ define([
         client = env.client;
         RequestMocks = env.RequestMocks;
         ErrorMocks = env.ErrorMocks;
+        xhr = env.xhr;
+        xhrOpen = sinon.spy(xhr.prototype, 'open');
+        xhrSend = sinon.spy(xhr.prototype, 'send');
+      });
+
+      afterEach(function () {
+        xhrOpen.restore();
+        xhrSend.restore();
       });
 
       test('#basic', function () {
@@ -39,6 +50,13 @@ define([
               assert.property(res, 'uid', 'uid should be returned on signUp');
               assert.property(res, 'sessionToken', 'sessionToken should be returned on signUp');
               assert.notProperty(res, 'keyFetchToken', 'keyFetchToken should not be returned on signUp');
+
+              assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
+              assert.include(xhrOpen.args[0][1], '/account/create', 'path is correct');
+              var sentData = JSON.parse(xhrSend.args[0][0]);
+              assert.equal(Object.keys(sentData).length, 2);
+              assert.equal(sentData.email, email, 'email is correct');
+              assert.equal(sentData.authPW.length, 64, 'length of authPW');
             },
             assert.notOk
           );
@@ -58,6 +76,9 @@ define([
               assert.property(res, 'sessionToken', 'sessionToken should be returned on signUp');
               assert.property(res, 'keyFetchToken', 'keyFetchToken should be returned on signUp');
               assert.property(res, 'unwrapBKey', 'unwrapBKey should be returned on signUp');
+
+              assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
+              assert.include(xhrOpen.args[0][1], '/account/create?keys=true', 'path is correct');
             },
             assert.notOk
           );
@@ -90,6 +111,14 @@ define([
               assert.ok(redirectTo, 'redirectTo is returned');
               assert.ok(resume, 'resume is returned');
 
+              assert.include(xhrOpen.args[0][1], '/account/create', 'path is correct');
+              var sentData = JSON.parse(xhrSend.args[0][0]);
+              assert.equal(Object.keys(sentData).length, 5);
+              assert.equal(sentData.email, email, 'email is correct');
+              assert.equal(sentData.authPW.length, 64, 'length of authPW');
+              assert.equal(sentData.service, opts.service);
+              assert.equal(sentData.resume, opts.resume);
+              assert.equal(sentData.redirectTo, opts.redirectTo);
             },
             assert.notOk
           );
