@@ -74,7 +74,7 @@ define(function (require, exports, module) {
         this.logViewEvent('preverified.success');
         return this.invokeBrokerMethod('afterSignIn', account)
           .then(() => {
-            this.navigate('signup_complete');
+            this.navigate('signup_confirmed');
           });
       }
 

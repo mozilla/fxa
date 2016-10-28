@@ -73,11 +73,11 @@ define(function (require, exports, module) {
       return this.broker.transformLink(screenUrl);
     },
 
-    _navigateToCompleteScreen () {
+    _navigateToConfirmedScreen () {
       if (this.isSignUp()) {
-        this.navigate('signup_complete');
+        this.navigate('signup_confirmed');
       } else {
-        this.navigate('signin_complete');
+        this.navigate('signin_confirmed');
       }
     },
 
@@ -130,7 +130,7 @@ define(function (require, exports, module) {
               success: t('Account verified successfully')
             });
           } else {
-            return this._navigateToCompleteScreen();
+            return this._navigateToConfirmedScreen();
           }
         })
         .fail((err) => {

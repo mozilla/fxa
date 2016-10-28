@@ -335,8 +335,8 @@ define(function (require, exports, module) {
           });
         });
 
-        it('redirects to `/reset_password_complete`', function () {
-          assert.isTrue(view.navigate.calledWith('reset_password_complete'));
+        it('redirects to `/reset_password_verified`', function () {
+          assert.isTrue(view.navigate.calledWith('reset_password_verified'));
         });
       });
 

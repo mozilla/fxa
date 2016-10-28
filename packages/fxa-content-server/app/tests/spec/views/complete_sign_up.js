@@ -405,8 +405,8 @@ define(function (require, exports, module) {
                 assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignUp'));
               });
 
-              it('redirects to /signup_complete', function () {
-                assert.isTrue(view.navigate.calledWith('signup_complete'));
+              it('redirects to /signup_verified', function () {
+                assert.isTrue(view.navigate.calledWith('signup_verified'));
               });
 
               it('logs success', function () {
@@ -421,8 +421,8 @@ define(function (require, exports, module) {
                 return view.render();
               });
 
-              it('redirects to /signin_complete', function () {
-                assert.isTrue(view.navigate.calledWith('signin_complete'));
+              it('redirects to /signin_verified', function () {
+                assert.isTrue(view.navigate.calledWith('signin_verified'));
               });
             });
           });
@@ -475,8 +475,8 @@ define(function (require, exports, module) {
                 return view.render();
               });
 
-              it('redirects to /signup_complete', function () {
-                assert.isTrue(view.navigate.calledWith('signup_complete'));
+              it('redirects to /signup_verified', function () {
+                assert.isTrue(view.navigate.calledWith('signup_verified'));
               });
             });
           });

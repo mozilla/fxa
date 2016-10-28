@@ -125,7 +125,8 @@ module.exports = function (config, i18n) {
       '/oauth/signup',
       '/report_signin',
       '/reset_password',
-      '/reset_password_complete',
+      '/reset_password_confirmed',
+      '/reset_password_verified',
       '/settings',
       '/settings/avatar/camera',
       '/settings/avatar/change',
@@ -139,13 +140,15 @@ module.exports = function (config, i18n) {
       '/settings/delete_account',
       '/settings/display_name',
       '/signin',
-      '/signin_complete',
+      '/signin_confirmed',
       '/signin_permissions',
       '/signin_reported',
       '/signin_unblock',
+      '/signin_verified',
       '/signup',
-      '/signup_complete',
+      '/signup_confirmed',
       '/signup_permissions',
+      '/signup_verified',
       '/verify_email'
     ];
 

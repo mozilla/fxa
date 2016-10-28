@@ -408,8 +408,8 @@ define(function (require, exports, module) {
           return view.afterVisible();
         });
 
-        it('redirects to `signup_complete`', function () {
-          assert.isTrue(view.navigate.calledWith('signup_complete'));
+        it('redirects to `signup_confirmed`', function () {
+          assert.isTrue(view.navigate.calledWith('signup_confirmed'));
         });
       });
 
@@ -424,8 +424,8 @@ define(function (require, exports, module) {
           return view.afterVisible();
         });
 
-        it('redirects to `/signin_complete`', function () {
-          assert.isTrue(view.navigate.calledWith('signin_complete'));
+        it('redirects to `/signin_confirmed`', function () {
+          assert.isTrue(view.navigate.calledWith('signin_confirmed'));
         });
       });
     });

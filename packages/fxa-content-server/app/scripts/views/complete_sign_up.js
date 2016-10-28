@@ -61,11 +61,11 @@ define(function (require, exports, module) {
       return this._account;
     },
 
-    _navigateToCompleteScreen () {
+    _navigateToVerifiedScreen () {
       if (this.isSignUp()) {
-        this.navigate('signup_complete');
+        this.navigate('signup_verified');
       } else {
-        this.navigate('signin_complete');
+        this.navigate('signin_verified');
       }
     },
 
@@ -109,7 +109,7 @@ define(function (require, exports, module) {
             var account = this.getAccount();
 
             if (! this.relier.isDirectAccess()) {
-              this._navigateToCompleteScreen();
+              this._navigateToVerifiedScreen();
               return false;
             }
 
@@ -120,7 +120,7 @@ define(function (require, exports, module) {
                     success: t('Account verified successfully')
                   });
                 } else {
-                  this._navigateToCompleteScreen();
+                  this._navigateToVerifiedScreen();
                 }
                 return false;
               });

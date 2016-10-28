@@ -42,7 +42,7 @@ define(function (require, exports, module) {
       headerTitle: t('Password reset'),
       readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
     },
-    // signin_complete is only shown to Sync for now.
+    // signin_confirmed and signin_verified are only shown to Sync for now.
     SIGN_IN: {
       headerId: 'fxa-sign-in-complete-header',
       headerTitle: t('Sign-in confirmed'),

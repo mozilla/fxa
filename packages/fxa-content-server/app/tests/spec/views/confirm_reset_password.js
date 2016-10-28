@@ -446,8 +446,8 @@ define(function (require, exports, module) {
           assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
         });
 
-        it('redirects to `/reset_password_complete`', function () {
-          assert.isTrue(view.navigate.calledWith('reset_password_complete'));
+        it('redirects to `/reset_password_confirmed`', function () {
+          assert.isTrue(view.navigate.calledWith('reset_password_confirmed'));
         });
       });
 

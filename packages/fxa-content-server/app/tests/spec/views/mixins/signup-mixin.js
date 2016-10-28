@@ -145,7 +145,7 @@ define(function (require, exports, module) {
           assert.equal(view.navigate.callCount, 1);
           var args = view.navigate.args[0];
           assert.lengthOf(args, 1);
-          assert.equal(args[0], 'signup_complete');
+          assert.equal(args[0], 'signup_confirmed');
         });
       });
 
