@@ -51,3 +51,14 @@ A script running against a [nightly build setup of Circle CI](https://circleci.c
 will be able to report outdated modules for several repositories.
 In addition it would forward NSP alerts to Sentry that can provide a visualization of affected repositories and
 alert developers using email.
+
+## Results
+
+* Problem 1: Outdated node modules in FxA code repositories.
+  * Most important modules, such as hapi, were updated once projects moved to node.js 4+ servers.
+* Problem 2: Outdated version of node.js.
+  * The node.js version has been updated to version 4 as part of another milestone.
+* Problem 3: Late response to security issues reported by NSP (Node Security Project).
+* Problem 4: Some repositories are not covered by the NSP scanner.
+  * More repositories are now covered using the new NSP scanner.
+  * New security alerts are being sent out by email and Slack!
