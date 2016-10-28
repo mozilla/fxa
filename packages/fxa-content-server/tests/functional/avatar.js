@@ -24,7 +24,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
@@ -40,7 +40,7 @@ define([
   function signUp(context, email) {
     return context.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(clearBrowserState(context))
+      .then(clearBrowserState())
 
       .then(openPage(context, SIGNIN_URL, '#fxa-signin-header'))
       .then(fillOutSignIn(context, email, PASSWORD))
@@ -57,7 +57,7 @@ define([
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'go to settings then avatar change': function () {

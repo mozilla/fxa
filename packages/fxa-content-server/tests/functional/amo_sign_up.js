@@ -16,6 +16,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -26,7 +27,7 @@ define([
     name: 'oauth amo sign up',
 
     beforeEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'as a migrating user': function () {

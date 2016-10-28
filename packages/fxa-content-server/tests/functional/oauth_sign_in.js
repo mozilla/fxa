@@ -51,10 +51,11 @@ define([
       email = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
 
-      return FunctionalHelpers.clearBrowserState(this, {
-        '123done': true,
-        contentServer: true
-      });
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState({
+          '123done': true,
+          contentServer: true
+        }));
     },
 
     'with missing client_id': function () {

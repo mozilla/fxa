@@ -46,10 +46,11 @@ define([
       email = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
 
-      return FunctionalHelpers.clearBrowserState(this, {
-        '321done': true,
-        contentServer: true
-      });
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState({
+          '321done': true,
+          contentServer: true
+        }));
     },
 
     'signin verified': function () {
@@ -348,10 +349,11 @@ define([
       email = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
 
-      return FunctionalHelpers.clearBrowserState(this, {
-        '123done': true,
-        contentServer: true
-      });
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState({
+          '123done': true,
+          contentServer: true
+        }));
     },
 
     'signup without `prompt=consent`': function () {

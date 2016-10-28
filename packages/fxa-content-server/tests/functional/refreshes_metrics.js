@@ -7,16 +7,19 @@ define([
   'intern!object',
   'require',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, require, TestHelpers) {
+], function (intern, registerSuite, require, FunctionalHelpers) {
   var AUTOMATED = '?automatedBrowser=true';
   var url = intern.config.fxaContentRoot + 'signup' + AUTOMATED;
   var signin = intern.config.fxaContentRoot + 'signin' + AUTOMATED;
+
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
 
   registerSuite({
     name: 'refreshing a screen logs a refresh event',
 
     beforeEach: function () {
-      return TestHelpers.clearBrowserState(this);
+      return this.remote
+        .then(clearBrowserState());
     },
 
     'refreshing the signup screen': function () {
@@ -38,7 +41,7 @@ define([
         .findById('fxa-signin-header')
 
         .then(function () {
-          return TestHelpers.testAreEventsLogged(self, ['screen.signup',
+          return FunctionalHelpers.testAreEventsLogged(self, ['screen.signup',
           'screen.signup', 'signup.refresh']);
         })
         .end();

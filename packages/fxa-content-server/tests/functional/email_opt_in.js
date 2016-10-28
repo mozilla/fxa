@@ -19,7 +19,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
@@ -62,12 +62,12 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
       return this.remote
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     afterEach: function () {
       return this.remote
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     'opt-in on signup': function () {

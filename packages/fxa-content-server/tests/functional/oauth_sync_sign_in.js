@@ -41,17 +41,19 @@ define([
       email2 = TestHelpers.createEmail();
 
       // clear localStorage to avoid pollution from other tests.
-      return FunctionalHelpers.clearBrowserState(this, {
-        '123done': true,
-        contentServer: true
-      });
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState({
+          '123done': true,
+          contentServer: true
+        }));
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this, {
-        '123done': true,
-        contentServer: true
-      });
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState({
+          '123done': true,
+          contentServer: true
+        }));
     },
 
     'sign in to OAuth with Sync creds': function () {

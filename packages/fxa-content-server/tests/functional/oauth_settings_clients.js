@@ -18,7 +18,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
   var click = FunctionalHelpers.click;
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -37,7 +37,7 @@ define([
       email = TestHelpers.createEmail();
 
       return this.remote
-        .then(clearBrowserState(this, {
+        .then(clearBrowserState({
           '123done': true,
           contentServer: true
         }));

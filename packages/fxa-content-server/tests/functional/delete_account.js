@@ -3,20 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'intern',
   'intern!object',
-  'intern/browser_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, nodeXMLHttpRequest,
-      FxaClient, TestHelpers, FunctionalHelpers)  {
-  var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-
+], function (registerSuite, TestHelpers, FunctionalHelpers)  {
   var PASSWORD = 'password';
   var email;
-  var client;
+
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
+  var createUser = FunctionalHelpers.createUser;
 
   registerSuite({
     name: 'delete_account',
@@ -24,19 +19,13 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
 
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-
-      var self = this;
-      return client.signUp(email, PASSWORD, { preVerified: true })
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        });
+      return this.remote
+        .then(clearBrowserState())
+        .then(createUser(email, PASSWORD, { preVerified: true }));
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'sign in, delete account': function () {

@@ -27,13 +27,15 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState());
     },
 
     afterEach: function () {
       var self = this;
 
-      return FunctionalHelpers.clearBrowserState(this)
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState())
         .then(function () {
           // ensure the next test suite (bounced_email) loads a fresh
           // signup page. If a fresh signup page is not forced, the

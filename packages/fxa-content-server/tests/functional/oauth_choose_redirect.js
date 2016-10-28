@@ -13,6 +13,8 @@ define([
   var PASSWORD = 'password';
 
   var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var getQueryParamValue = FunctionalHelpers.getQueryParamValue;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
   var openPage = FunctionalHelpers.openPage;
@@ -36,7 +38,7 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
 
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'oauth endpoint redirects to signup with an unregistered email': function () {

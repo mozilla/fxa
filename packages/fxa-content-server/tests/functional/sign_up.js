@@ -18,7 +18,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var click = FunctionalHelpers.click;
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
@@ -57,11 +57,11 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'with an invalid email': function () {
@@ -77,12 +77,11 @@ define([
     },
 
     'signup, verify same browser': function () {
-      var self = this;
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(visibleByQSA('#suggest-sync'))
         .then(fillOutSignUp(this, email, PASSWORD))
         .then(testAtConfirmScreen(email))
-        .then(openVerificationLinkInNewTab(self, email, 0))
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
@@ -94,13 +93,12 @@ define([
     },
 
     'signup, verify same browser with original tab closed, sign out': function () {
-      var self = this;
       return this.remote
         .then(fillOutSignUp(this, email, PASSWORD))
         .then(testAtConfirmScreen(email))
 
-        .then(FunctionalHelpers.openExternalSite(self))
-        .then(openVerificationLinkInNewTab(self, email, 0))
+        .then(FunctionalHelpers.openExternalSite(this))
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
@@ -124,7 +122,6 @@ define([
     'signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function () {
       // https://github.com/mozilla/fxa-content-server/issues/2209
       var secondEmail = TestHelpers.createEmail();
-      var self = this;
       this.timeout = 90000;
 
       return this.remote
@@ -133,21 +130,21 @@ define([
         .then(openVerificationLinkInSameTab(email, 0))
 
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(self))
+        .then(testSuccessWasShown(this))
         .then(click('#signout'))
 
         .then(testElementExists('#fxa-signin-header'))
 
-        .then(fillOutSignUp(self, secondEmail, PASSWORD))
+        .then(fillOutSignUp(this, secondEmail, PASSWORD))
         .then(testAtConfirmScreen(secondEmail))
         .then(openVerificationLinkInSameTab(secondEmail, 0))
 
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(self))
+        .then(testSuccessWasShown(this))
         .then(click('#signout'))
 
         .then(testElementExists('#fxa-signin-header'))
-        .then(fillOutSignIn(self, email, PASSWORD))
+        .then(fillOutSignIn(this, email, PASSWORD))
         .then(testElementExists('#fxa-settings-header'));
     },
 
@@ -175,14 +172,13 @@ define([
     },
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
-      var self = this;
       return this.remote
         .then(fillOutSignUp(this, email, PASSWORD))
         .then(testAtConfirmScreen(email))
 
         // clear local/sessionStorage to synthesize continuing in
         // a separate browser.
-        .then(clearBrowserState(self))
+        .then(clearBrowserState())
         .then(openVerificationLinkInSameTab(email, 0))
 
         // user cannot be signed in and redirected to the settings page
@@ -193,12 +189,11 @@ define([
     'signup with email with leading whitespace on the email': function () {
       var emailWithoutSpace = email;
       var emailWithSpace = ('   ' + email);
-      var self = this;
       return this.remote
         .then(fillOutSignUp(this, emailWithSpace, PASSWORD))
         .then(testAtConfirmScreen(emailWithoutSpace))
-        .then(clearBrowserState(self))
-        .then(fillOutSignIn(self, emailWithoutSpace, PASSWORD))
+        .then(clearBrowserState())
+        .then(fillOutSignIn(this, emailWithoutSpace, PASSWORD))
 
         // user is not confirmed, success is seeing the confirm screen.
         .then(testElementExists('#fxa-confirm-header'));
@@ -208,12 +203,11 @@ define([
       var emailWithoutSpace = email;
       var emailWithSpace = ('   ' + email);
 
-      var self = this;
       return this.remote
         .then(fillOutSignUp(this, emailWithSpace, PASSWORD))
         .then(testAtConfirmScreen(emailWithoutSpace))
-        .then(clearBrowserState(self))
-        .then(fillOutSignIn(self, emailWithoutSpace, PASSWORD))
+        .then(clearBrowserState())
+        .then(fillOutSignIn(this, emailWithoutSpace, PASSWORD))
 
         // user is not confirmed, success is seeing the confirm screen.
         .then(testElementExists('#fxa-confirm-header'));
@@ -343,11 +337,9 @@ define([
     },
 
     'signup with a verified account signs the user in': function () {
-      var self = this;
-
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignUp(self, email, PASSWORD))
+        .then(fillOutSignUp(this, email, PASSWORD))
 
         // should have navigated to settings view
         .then(testElementExists('#fxa-settings-header'));
@@ -355,11 +347,9 @@ define([
 
     'signup with an unverified account and different password re-signs up user': function () {
 
-      var self = this;
-
       return this.remote
         .then(createUser(email, PASSWORD))
-        .then(fillOutSignUp(self, email, 'different password'))
+        .then(fillOutSignUp(this, email, 'different password'))
 
         // Being pushed to the confirmation screen is success.
         .then(testElementTextInclude('.verification-email-message', email));
@@ -374,9 +364,8 @@ define([
     },
 
     'form prefill information is cleared after signup->sign out': function () {
-      var self = this;
       return this.remote
-        .then(fillOutSignUp(self, email, PASSWORD))
+        .then(fillOutSignUp(this, email, PASSWORD))
         .then(testAtConfirmScreen(email))
 
         .then(openVerificationLinkDifferentBrowser(email))
@@ -395,17 +384,16 @@ define([
 
     'signup, open sign-in in second tab, verify in third tab': function () {
       var windowName = 'sign-up inter-tab functional test';
-      var self = this;
-      return self.remote
+      return this.remote
         .then(fillOutSignUp(this, email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(function () {
-          return FunctionalHelpers.openSignInInNewTab(self, windowName);
+          return FunctionalHelpers.openSignInInNewTab(this.parent, windowName);
         })
         .switchToWindow(windowName)
 
         .then(testElementExists('#fxa-signin-header'))
-        .then(openVerificationLinkInNewTab(self, email, 0))
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
@@ -420,12 +408,11 @@ define([
 
     'signup, open sign-up in second tab, verify in original tab': function () {
       var windowName = 'sign-up inter-tab functional test';
-      var self = this;
       return this.remote
         .then(fillOutSignUp(this, email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(function () {
-          return FunctionalHelpers.openSignUpInNewTab(self, windowName);
+          return FunctionalHelpers.openSignUpInNewTab(this.parent, windowName);
         })
         .switchToWindow(windowName)
 
@@ -436,7 +423,7 @@ define([
           return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
+          return this.parent.get(require.toUrl(verificationLink));
         })
         .switchToWindow(windowName)
         .then(testElementExists('#fxa-settings-header'))
@@ -475,11 +462,9 @@ define([
   });
 
   function testRepopulateFields(dest, header) {
-    var self = this;
+    return openPage(this, PAGE_URL, '#fxa-signup-header')
 
-    return openPage(self, PAGE_URL, '#fxa-signup-header')
-
-      .then(fillOutSignUp(self, email, PASSWORD, { submit: false }))
+      .then(fillOutSignUp(this, email, PASSWORD, { submit: false }))
 
       .then(click('a[href="' + dest + '"]'))
 

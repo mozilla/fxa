@@ -23,7 +23,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var click = FunctionalHelpers.click;
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
@@ -60,7 +60,7 @@ define([
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
       return this.remote
-        .then(clearBrowserState(this, {
+        .then(clearBrowserState({
           '123done': true,
           contentServer: true
         }));
@@ -181,7 +181,7 @@ define([
         .end()
 
         // clear browser state to simulate opening link in a new browser
-        .then(clearBrowserState(self, {
+        .then(clearBrowserState({
           '123done': true,
           contentServer: true
         }))

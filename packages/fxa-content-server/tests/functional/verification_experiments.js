@@ -14,6 +14,7 @@ define([
   var EXP_CONTROL = '&forceExperimentGroup=control';
   var EXP_TREATMENT = '&forceExperimentGroup=treatment';
 
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var testElementExists = FunctionalHelpers.testElementExists;
 
@@ -21,11 +22,11 @@ define([
     name: 'verification_experiments - mailcheck',
 
     beforeEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'treatment works': function () {
@@ -76,11 +77,11 @@ define([
     name: 'verification_experiments - showPassword',
 
     beforeEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'treatment works': function () {

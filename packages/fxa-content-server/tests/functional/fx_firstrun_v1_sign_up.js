@@ -18,6 +18,7 @@ define([
   var email;
   var PASSWORD = '12345678';
 
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
@@ -32,7 +33,8 @@ define([
     afterEach: function () {
       var self = this;
 
-      return FunctionalHelpers.clearBrowserState(this)
+      return this.remote
+        .then(clearBrowserState())
         .then(function () {
           // ensure the next test suite (bounced_email) loads a fresh
           // signup page. If a fresh signup page is not forced, the

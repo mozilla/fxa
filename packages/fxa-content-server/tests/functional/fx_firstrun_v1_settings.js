@@ -11,7 +11,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var click = FunctionalHelpers.click;
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
   var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
@@ -40,7 +40,7 @@ define([
 
       return this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this))
+        .then(clearBrowserState())
         .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(this, email, FIRST_PASSWORD))

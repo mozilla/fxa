@@ -35,37 +35,38 @@ define([
     return context.remote || context.parent || context;
   }
 
-  function clearBrowserState(context, options) {
-    options = options || {};
+  function clearBrowserState(options) {
+    return function () {
+      options = options || {};
+      if (! ('contentServer' in options)) {
+        options.contentServer = true;
+      }
 
-    if (! ('contentServer' in options)) {
-      options.contentServer = true;
-    }
+      if (! ('123done' in options)) {
+        options['123done'] = false;
+      }
 
-    if (! ('123done' in options)) {
-      options['123done'] = false;
-    }
+      if (! ('321done' in options)) {
+        options['321done'] = false;
+      }
 
-    if (! ('321done' in options)) {
-      options['321done'] = false;
-    }
-
-    return getRemote(context)
-      .then(function () {
-        if (options.contentServer) {
-          return clearContentServerState(context, options);
-        }
-      })
-      .then(function () {
-        if (options['123done']) {
-          return clear123DoneState(context);
-        }
-      })
-      .then(function () {
-        if (options['321done']) {
-          return clear123DoneState(context, true);
-        }
-      });
+      return this.parent
+        .then(function () {
+          if (options.contentServer) {
+            return clearContentServerState(this.parent, options);
+          }
+        })
+        .then(function () {
+          if (options['123done']) {
+            return clear123DoneState(this.parent);
+          }
+        })
+        .then(function () {
+          if (options['321done']) {
+            return clear123DoneState(this.parent, true);
+          }
+        });
+    };
   }
 
   function clearContentServerState(context, options) {

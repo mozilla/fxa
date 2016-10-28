@@ -24,7 +24,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var openPage = thenify(FunctionalHelpers.openPage);
@@ -51,7 +51,7 @@ define([
       email = TestHelpers.createEmail();
 
       return this.remote
-        .then(clearBrowserState(this))
+        .then(clearBrowserState())
         .then(createUser(email, PASSWORD));
     }
   };
@@ -80,7 +80,7 @@ define([
       });
 
       return this.remote
-        .then(clearBrowserState(this))
+        .then(clearBrowserState())
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(function (result) {
           accountData = result;
@@ -92,7 +92,7 @@ define([
     var url = SETTINGS_URL + page;
     suite['visit settings' + page + ' with an invalid sessionToken redirects to signin'] = function () {
       return this.remote
-        .then(clearBrowserState(this))
+        .then(clearBrowserState())
         .then(function () {
           // invalidate the session token
           return client.sessionDestroy(accountData.sessionToken);

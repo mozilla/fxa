@@ -22,10 +22,11 @@ define([
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
-      return FunctionalHelpers.clearBrowserState(this, {
-        '123done': true,
-        contentServer: true
-      });
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState({
+          '123done': true,
+          contentServer: true
+        }));
     },
 
     'signup, same browser same window, verification_redirect=always': function () {
@@ -139,13 +140,11 @@ define([
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(function () {
-          // clear browser state to simulate opening link in a new browser
-          return FunctionalHelpers.clearBrowserState(self, {
-            '123done': true,
-            contentServer: true
-          });
-        })
+        // clear browser state to simulate opening link in a new browser
+        .then(FunctionalHelpers.clearBrowserState({
+          '123done': true,
+          contentServer: true
+        }))
 
         .then(function () {
           return FunctionalHelpers.getVerificationLink(email, 0);

@@ -13,7 +13,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
@@ -37,7 +37,7 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
       return this.remote
-        .then(clearBrowserState(this, {
+        .then(clearBrowserState({
           '123done': true,
           contentServer: true
         }));

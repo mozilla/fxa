@@ -15,7 +15,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
@@ -37,12 +37,12 @@ define([
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     afterEach: function () {
       return this.remote
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     'valid code entered': function () {

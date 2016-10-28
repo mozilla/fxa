@@ -25,11 +25,11 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      return clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     after: function () {
-      return clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'Upgrade from Session w/o cached credentials, session invalid': function () {

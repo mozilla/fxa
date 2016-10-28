@@ -67,9 +67,10 @@ define([
     },
 
     beforeEach: function () {
-      return FunctionalHelpers.clearBrowserState(this, {
-        contentServer: true
-      });
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState({
+          contentServer: true
+        }));
     },
 
     'invalid access_type': function () {

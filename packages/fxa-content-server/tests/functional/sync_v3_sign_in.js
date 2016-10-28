@@ -16,7 +16,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
@@ -41,7 +41,7 @@ define([
                             '#fxa-confirm-header';
 
     return this.parent
-      .then(clearBrowserState(this.parent, { force: true }))
+      .then(clearBrowserState({ force: true }))
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openPage(this.parent, PAGE_URL, '#fxa-signin-header'))
       .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
@@ -66,7 +66,7 @@ define([
       email = TestHelpers.createEmail('sync{id}');
 
       return this.remote
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     'verified, verify same browser': function () {

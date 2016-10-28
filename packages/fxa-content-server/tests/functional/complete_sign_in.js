@@ -23,7 +23,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
@@ -59,7 +59,7 @@ define([
       email = TestHelpers.createEmail('sync{id}');
       user = TestHelpers.emailToUser(email);
       return this.remote
-        .then(clearBrowserState(this))
+        .then(clearBrowserState())
         .then(setupTest(this, true));
     },
 

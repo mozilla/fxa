@@ -13,7 +13,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var click = FunctionalHelpers.click;
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
   var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
   var fillOutDeleteAccount = thenify(FunctionalHelpers.fillOutDeleteAccount);
@@ -39,7 +39,7 @@ define([
   var setupTest = thenify(function (shouldVerifySignin) {
     return this.parent
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-      .then(clearBrowserState(this.parent))
+      .then(clearBrowserState())
       .then(openPage(this.parent, SIGNIN_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
       .then(fillOutSignIn(this.parent, email, FIRST_PASSWORD))

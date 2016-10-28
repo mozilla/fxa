@@ -23,10 +23,11 @@ define([
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
-      return FunctionalHelpers.clearBrowserState(this, {
-        '123done': true,
-        contentServer: true
-      });
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState({
+          '123done': true,
+          contentServer: true
+        }));
     },
 
     'preverified sign up': function () {

@@ -16,7 +16,7 @@ define([
     name: 'alternate styles',
 
     beforeEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(FunctionalHelpers.clearBrowserState());
     },
 
     'the `chromeless` style is not applied if not iframed sync': function () {

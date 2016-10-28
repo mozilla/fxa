@@ -30,7 +30,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
@@ -124,7 +124,7 @@ define([
       email = TestHelpers.createEmail();
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     'visit confirmation screen without initiating reset_password, user is redirected to /reset_password': function () {
@@ -389,7 +389,7 @@ define([
 
         // clear all browser state, simulate opening in
         // a new browser
-        .then(clearBrowserState(this, { contentServer: true }))
+        .then(clearBrowserState({ contentServer: true }))
 
         .then(function () {
           return FunctionalHelpers.getVerificationLink(email, 0);
@@ -420,7 +420,7 @@ define([
           .then(function () {
             return initiateResetPassword(self, email, 0);
           })
-          .then(clearBrowserState(this));
+          .then(clearBrowserState());
     },
 
     'complete reset, then re-open verification link, click resend': function () {
@@ -453,7 +453,7 @@ define([
       email = TestHelpers.createEmail();
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     'browse directly to page with email on query params': function () {
@@ -486,7 +486,7 @@ define([
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     'original page transitions after completion': function () {
@@ -512,7 +512,7 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
       return this.remote
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     'open /reset_password page, enter unknown email, wait for error': function () {

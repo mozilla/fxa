@@ -19,7 +19,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
@@ -40,13 +40,13 @@ define([
 
       return this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this))
+        .then(clearBrowserState())
         .then(fillOutSignIn(this, email, FIRST_PASSWORD))
         .then(testElementExists('#fxa-settings-header'));
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'sign in, try to change password with an incorrect old password': function () {

@@ -12,7 +12,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
@@ -43,7 +43,7 @@ define([
                             '#fxa-confirm-header';
 
     return this.parent
-      .then(clearBrowserState(this.parent))
+      .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openForceAuth(forceAuthOptions))
       .then(noSuchBrowserNotification(this.parent, 'fxaccounts:logout'))

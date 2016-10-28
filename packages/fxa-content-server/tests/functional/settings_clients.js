@@ -6,15 +6,11 @@ define([
   'intern',
   'intern/chai!assert',
   'intern!object',
-  'intern/browser_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, assert, registerSuite, nodeXMLHttpRequest,
-      FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, assert, registerSuite, TestHelpers, FunctionalHelpers) {
 
   var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SIGNIN_URL_DEVICE_LIST = SIGNIN_URL + '?forceDeviceList=1';
 
@@ -28,28 +24,28 @@ define([
   var client;
   var accountData;
 
-  var testElementExists = FunctionalHelpers.testElementExists;
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
   var pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
+  var testElementExists = FunctionalHelpers.testElementExists;
 
   registerSuite({
     name: 'settings clients',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-      var self = this;
-      return client.signUp(email, FIRST_PASSWORD, {preVerified: true})
+      client = FunctionalHelpers.getFxaClient();
+      return this.remote
+        .then(createUser(email, FIRST_PASSWORD, {preVerified: true}))
         .then(function (result) {
           accountData = result;
-          return FunctionalHelpers.clearBrowserState(self);
-        });
+        })
+        .then(clearBrowserState());
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'device panel is not visible without query param': function () {

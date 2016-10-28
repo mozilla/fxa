@@ -16,7 +16,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
@@ -41,11 +41,11 @@ define([
         .then(function (result) {
           accountData = result;
         })
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'with an invalid email': function () {
@@ -204,7 +204,7 @@ define([
 
       return this.remote
         .then(createUser(email, FIRST_PASSWORD))
-        .then(clearBrowserState(this))
+        .then(clearBrowserState())
         .then(fillOutSignIn(this, email, FIRST_PASSWORD))
         .then(testElementExists('#fxa-confirm-header'));
     },
@@ -224,7 +224,7 @@ define([
 
       return this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this, { force: true }))
+        .then(clearBrowserState({ force: true }))
         .then(fillOutSignIn(this, email, FIRST_PASSWORD))
         .then(testElementExists('#fxa-settings-header'))
         .execute(function () {
@@ -242,7 +242,7 @@ define([
     afterEach: function () {
       // browser state must be cleared or the tests that follow fail.
       return this.remote
-        .then(clearBrowserState(this, { force: true }));
+        .then(clearBrowserState({ force: true }));
     },
 
     'a focus on the settings page after session expires redirects to signin': function () {

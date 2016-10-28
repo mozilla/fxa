@@ -15,7 +15,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
@@ -31,8 +31,7 @@ define([
 
     beforeEach: function () {
       // clear localStorage to avoid polluting other tests.
-      return this.remote
-        .then(clearBrowserState(this));
+      return this.remote.then(clearBrowserState());
     },
 
     'visit confirmation screen without initiating sign up, user is redirected to /signup': function () {

@@ -18,7 +18,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
@@ -63,7 +63,7 @@ define([
       email = TestHelpers.createEmail('sync{id}');
 
       return this.remote
-        .then(clearBrowserState(this, { force: true }));
+        .then(clearBrowserState({ force: true }));
     },
 
     'verified, verify same browser': function () {

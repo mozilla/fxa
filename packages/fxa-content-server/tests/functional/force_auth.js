@@ -9,6 +9,7 @@ define([
 ], function (registerSuite, TestHelpers, FunctionalHelpers) {
   var thenify = FunctionalHelpers.thenify;
 
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
@@ -36,7 +37,7 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
 
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'with a missing email': function () {

@@ -12,6 +12,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var mousedown = FunctionalHelpers.mousedown;
   var mouseup = FunctionalHelpers.mouseup;
   var openPage = thenify(FunctionalHelpers.openPage);
@@ -22,7 +23,7 @@ define([
     name: 'password visibility',
 
     beforeEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'show password ended with mouseup': function () {

@@ -28,7 +28,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var clearSessionStorage = thenify(FunctionalHelpers.clearSessionStorage);
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
@@ -51,7 +51,7 @@ define([
       email = TestHelpers.createEmail('sync{id}');
       email2 = TestHelpers.createEmail();
       return this.remote
-        .then(clearBrowserState(this, { force: true }))
+        .then(clearBrowserState({ force: true }))
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(createUser(email2, PASSWORD, { preVerified: true }));
     },

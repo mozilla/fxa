@@ -19,6 +19,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var click = FunctionalHelpers.click;
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutResetPassword = thenify(FunctionalHelpers.fillOutResetPassword);
@@ -39,12 +40,12 @@ define([
       this.timeout = 90000;
 
       email = TestHelpers.createEmail();
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     teardown: function () {
       // clear localStorage to avoid polluting other tests.
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'reset password, verify same browser': function () {

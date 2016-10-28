@@ -16,7 +16,8 @@ define([
     name: 'pp',
 
     beforeEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState());
     },
 
     'start at signup': function () {
