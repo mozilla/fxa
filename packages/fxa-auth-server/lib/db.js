@@ -812,24 +812,28 @@ module.exports = function (
       op: 'DB.createUnblockCode',
       uid: uid
     })
-    var unblock = UnblockCode()
-    return this.pool.put('/account/' + uid.toString('hex') + '/unblock/' + unblock)
+    return UnblockCode()
       .then(
-        () => {
-          return unblock
-        },
-        (err) => {
-          // duplicates should be super rare, but it's feasible that a
-          // uid already has an existing unblockCode. Just try again.
-          if (isRecordAlreadyExistsError(err)) {
-            log.error({
-              op: 'DB.createUnblockCode.duplicate',
-              err: err,
-              uid: uid
-            })
-            return this.createUnblockCode(uid)
-          }
-          throw err
+        (unblock) => {
+          return this.pool.put('/account/' + uid.toString('hex') + '/unblock/' + unblock)
+            .then(
+              () => {
+                return unblock
+              },
+              (err) => {
+                // duplicates should be super rare, but it's feasible that a
+                // uid already has an existing unblockCode. Just try again.
+                if (isRecordAlreadyExistsError(err)) {
+                  log.error({
+                    op: 'DB.createUnblockCode.duplicate',
+                    err: err,
+                    uid: uid
+                  })
+                  return this.createUnblockCode(uid)
+                }
+                throw err
+              }
+            )
         }
       )
   }

@@ -10,6 +10,7 @@ var log = { trace: console.log, info: console.log } // eslint-disable-line no-co
 
 var config = require('../../config').getProperties()
 var P = require('../../lib/promise')
+var UnblockCode = require('../../lib/crypto/base32')(config.signinUnblock.codeLength)
 var TestServer = require('../test_server')
 const lastAccessTimeUpdates = {
   enabled: true,
@@ -27,7 +28,8 @@ const DB = require('../../lib/db')(
   Token.KeyFetchToken,
   Token.AccountResetToken,
   Token.PasswordForgotToken,
-  Token.PasswordChangeToken
+  Token.PasswordChangeToken,
+  UnblockCode
 )
 
 var TOKEN_FRESHNESS_THRESHOLD = require('../../lib/tokens/session_token').TOKEN_FRESHNESS_THRESHOLD
@@ -616,6 +618,55 @@ test(
       .then(function (events) {
         t.equal(events.length, 2)
       })
+    })
+  }
+)
+
+test(
+  'unblock code',
+  function (t) {
+    var unblockCode
+    return dbConn.then(function(db) {
+      return db.createUnblockCode(ACCOUNT.uid)
+      .then(function(_unblockCode) {
+        t.ok(_unblockCode)
+        unblockCode = _unblockCode
+
+        return db.consumeUnblockCode(ACCOUNT.uid, 'NOTREAL')
+      })
+      .then(
+        function () {
+          t.fail('consumeUnblockCode() with an invalid unblock code should not succeed')
+        },
+        function (err) {
+          t.equal(err.errno, 127, 'consumeUnblockCode() fails with the correct error code')
+          var msg = 'Error: Invalid unblock code'
+          t.equal(msg, '' + err, 'consumeUnblockCode() fails with the correct message')
+        }
+      )
+      .then(
+        function() {
+          return db.consumeUnblockCode(ACCOUNT.uid, unblockCode)
+        }
+      )
+      .then(
+        function() {
+          // re-use unblock code, no longer valid
+          return db.consumeUnblockCode(ACCOUNT.uid, unblockCode)
+        }, function (err) {
+          t.fail('consumeUnblockCode() with a valid unblock code should succeed')
+        }
+      )
+      .then(
+        function () {
+          t.fail('consumeUnblockCode() with an invalid unblock code should not succeed')
+        },
+        function (err) {
+          t.equal(err.errno, 127, 'consumeUnblockCode() fails with the correct error code')
+          var msg = 'Error: Invalid unblock code'
+          t.equal(msg, '' + err, 'consumeUnblockCode() fails with the correct message')
+        }
+      )
     })
   }
 )
