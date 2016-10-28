@@ -199,6 +199,11 @@ define([
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(fillOutSignInUnblock(email, 0))
 
+        // wait until at the signin page to check the URL to
+        // avoid latency problems with submitting the unblock code.
+        // w/o the wait, the URL can be checked before
+        // the submit completes.
+        .then(testElementExists('#fxa-signin-header'))
         .then(testUrlPathnameEquals('/oauth/signin'))
         .then(fillOutSignIn(this, email, PASSWORD))
 
