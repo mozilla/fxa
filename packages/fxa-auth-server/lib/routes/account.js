@@ -1201,12 +1201,25 @@ module.exports = function (
 
         var endpointAction = 'devicesNotify'
         var stringUid = uid.toString('hex')
+
+        function catchPushError(err) {
+          // push may fail due to not found devices or a bad push action
+          // log the error but still respond with a 200.
+          log.error({
+            op: 'Account.devicesNotify',
+            uid: stringUid,
+            error: err
+          })
+        }
+
         return customs.checkAuthenticated(endpointAction, ip, stringUid)
           .then(function () {
             if (body.to === 'all') {
               return push.pushToAllDevices(uid, endpointAction, pushOptions)
+                .catch(catchPushError)
             } else {
               return push.pushToDevices(uid, body.to, endpointAction, pushOptions)
+                .catch(catchPushError)
             }
           })
           .done(

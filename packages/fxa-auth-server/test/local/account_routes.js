@@ -466,7 +466,7 @@ test('/account/device', function (t) {
 })
 
 test('/account/devices/notify', function (t) {
-  t.plan(5)
+  t.plan(6)
   var config = {}
   var uid = uuid.v4('binary')
   var mockRequest = mocks.mockRequest({
@@ -597,6 +597,33 @@ test('/account/devices/notify', function (t) {
     .catch(function (err) {
       t.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once')
       t.equal(err.message, 'Client has sent too many requests')
+    })
+  })
+
+  t.test('logs error if no devices found', function (t) {
+    t.plan(1)
+    mockRequest.payload = {
+      to: ['bogusid1', 'bogusid2'],
+      TTL: 60,
+      payload: pushPayload
+    }
+
+    var mockLog = mocks.spyLog()
+    var mockPush = mocks.mockPush({
+      pushToDevices: () => P.reject('Devices ids not found in devices')
+    })
+    var mockCustoms = {
+      checkAuthenticated: () => P.resolve()
+    }
+
+    route = getRoute(makeRoutes({
+      customs: mockCustoms,
+      log: mockLog,
+      push: mockPush
+    }), '/account/devices/notify')
+
+    return runTest(route, mockRequest, function (response) {
+      t.equal(JSON.stringify(response), '{}', 'response should not throw push errors')
     })
   })
 })
