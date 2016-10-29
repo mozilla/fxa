@@ -1,9 +1,0 @@
-{
-  "logging": {
-    "fmt": "pretty",
-    "level": "verbose"
-  },
-  "oauth": {
-    "url": "https://oauth.dev.lcip.org/v1"
-  }
-}
