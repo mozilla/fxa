@@ -113,7 +113,7 @@ function main() {
                 function (err) {
                   if (err) {
                     log.error({ op: 'server.start.1', msg: 'failed startup with error',
-                                err: { message: err.message } })
+                      err: { message: err.message } })
                     process.exit(1)
                   } else {
                     log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
