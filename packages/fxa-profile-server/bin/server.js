@@ -8,7 +8,7 @@ const events = require('../lib/events');
 const logger = require('../lib/logging')('bin.server');
 const server = require('../lib/server').create();
 
-logger.debug('config', config);
+logger.info('config', config);
 db.ping().done(function() {
   server.start(function() {
     logger.info('listening', server.info.uri);
