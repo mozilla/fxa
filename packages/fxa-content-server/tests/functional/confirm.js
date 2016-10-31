@@ -13,6 +13,8 @@ define([
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
   var PASSWORD = '12345678';
 
+  var email;
+
   var thenify = FunctionalHelpers.thenify;
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
@@ -30,6 +32,7 @@ define([
     name: 'confirm',
 
     beforeEach: function () {
+      email = TestHelpers.createEmail();
       // clear localStorage to avoid polluting other tests.
       return this.remote.then(clearBrowserState());
     },
@@ -43,7 +46,7 @@ define([
     },
 
     'sign up, wait for confirmation screen, click resend': function () {
-      var email = TestHelpers.createEmail();
+      var email = 'test_signin' + Math.random() + '@mailinator.com';
 
       return this.remote
         .then(openPage(this, SIGNUP_URL, '#fxa-signup-header'))
@@ -51,7 +54,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-header'))
         .then(testElementTextInclude('.verification-email-message', email))
-        .then(noSuchElement(this, '#open-webmail'))
+        .then(noSuchElement(this, '#open-webmail'), 'no webmail button')
 
         .then(click('#resend'))
 
@@ -61,8 +64,7 @@ define([
         .then(testSuccessWasShown(this));
     },
 
-    'sign up with a gmail address, get the open gmail button': function () {
-      var email = 'signin' + Math.random() + '@gmail.com';
+    'sign up with a restmail address, get the open restmail button': function () {
       var SIGNUP_URL = intern.config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync';
       this.timeout = 90000;
 
@@ -76,14 +78,18 @@ define([
         .then(click('button[type="submit"]'))
 
         .then(testElementExists('#fxa-confirm-header'))
-        .then(click('[data-webmail-type="gmail"]'))
+        .then(click('[data-webmail-type="restmail"]'))
 
         .getAllWindowHandles()
           .then(function (handles) {
             return this.parent.switchToWindow(handles[1]);
           })
 
-        .then(testElementExists('.google-header-bar'))
+          // wait until url is correct
+        .then(FunctionalHelpers.pollUntil(function (email) {
+          return window.location.pathname.endsWith(email);
+        }, [email], 10000))
+
         .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-confirm-header'));

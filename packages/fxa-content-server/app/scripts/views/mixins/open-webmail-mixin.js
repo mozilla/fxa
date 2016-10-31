@@ -39,6 +39,12 @@ define(function (require, exports, module) {
       regex: /@outlook\.com$/,
       webmailType: 'outlook'
     },
+    {
+      buttonName: t('Open Restmail'),
+      link: 'http://restmail.net/mail/',
+      regex: /@restmail\.net/,
+      webmailType: 'restmail'
+    },
   ];
 
   return {
@@ -47,8 +53,9 @@ define(function (require, exports, module) {
     },
 
     addUserInfo (providerLink, email) {
+      var mailType = this.getWebmailType(email);
 
-      if (this.getWebmailType(email) === 'gmail'){
+      if (mailType === 'gmail' || mailType === 'restmail'){
         providerLink = providerLink.concat(encodeURIComponent(email));
       }
 

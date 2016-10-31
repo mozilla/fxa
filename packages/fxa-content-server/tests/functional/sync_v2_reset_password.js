@@ -77,8 +77,7 @@ define([
         .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
     },
 
-    'reset password with a gmail address, get the open gmail button': function () {
-      var email = 'signin' + Math.random() + '@gmail.com';
+    'reset password with a restmail address, get the open webmail button': function () {
       this.timeout = 90000;
 
       return this.remote
@@ -87,14 +86,17 @@ define([
         .then(fillOutResetPassword(this, email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
-        .then(click('[data-webmail-type="gmail"]'))
+        .then(click('[data-webmail-type="restmail"]'))
 
         .getAllWindowHandles()
           .then(function (handles) {
             return this.parent.switchToWindow(handles[1]);
           })
 
-        .then(testElementExists('.google-header-bar'))
+          // wait until url is correct
+        .then(FunctionalHelpers.pollUntil(function (email) {
+          return window.location.pathname.endsWith(email);
+        }, [email], 10000))
         .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-confirm-reset-password-header'));
