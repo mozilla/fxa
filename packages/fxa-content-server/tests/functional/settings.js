@@ -17,12 +17,14 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
+  var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var focus = FunctionalHelpers.focus;
   var getFxaClient = FunctionalHelpers.getFxaClient;
   var openPage = thenify(FunctionalHelpers.openPage);
+  var openSettingsInNewTab = thenify(FunctionalHelpers.openSettingsInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
 
@@ -172,27 +174,21 @@ define([
 
     'sign in, open settings in a second tab, sign out': function () {
       var windowName = 'sign-out inter-tab functional test';
-      var self = this;
-      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD)
-        .then(function () {
-          return FunctionalHelpers.openSettingsInNewTab(self, windowName);
-        })
+      return this.remote
+        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
+        // wait for the settings page or else when the new tab is opened,
+        // the user is asked to sign in.
+        .then(testElementExists('#fxa-settings-header'))
+
+        .then(openSettingsInNewTab(this, windowName))
         .switchToWindow(windowName)
+        .then(testElementExists('#fxa-settings-header'))
+        .then(click('#signout'))
 
-        .findById('fxa-settings-header')
-        .end()
-
-        .findById('signout')
-          .click()
-        .end()
-
-        .findById('fxa-signin-header')
-        .end()
-
+        .then(testElementExists('#fxa-signin-header'))
         .then(closeCurrentWindow())
 
-        .findById('fxa-signin-header')
-        .end();
+        .then(testElementExists('#fxa-signin-header'));
     }
   });
 
