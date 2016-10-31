@@ -7,8 +7,8 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
-  'intern/dojo/node!request'
-], function (intern, registerSuite, assert, config, request) {
+  'intern/dojo/node!got'
+], function (intern, registerSuite, assert, config, got) {
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
@@ -18,31 +18,29 @@ define([
   suite['#post /metrics - returns 200'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
-    request.post(serverUrl + '/metrics', {
+    got.post(serverUrl + '/metrics', {
       data: {
         events: [{
           offset: 1,
           type: 'event1'
         }]
       }
-    },
-    dfd.callback(function (err, res) {
+    }).then(function (res) {
       assert.equal(res.statusCode, 200);
-    }, dfd.reject.bind(dfd)));
+    }).then(dfd.resolve, dfd.reject);
   };
 
   suite['#post /metrics - returns 200 if Content-Type is text/plain'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
-    request.post(serverUrl + '/metrics', {
+    got.post(serverUrl + '/metrics', {
       data: '',
       headers: {
         'Content-Type': 'text/plain;charset=UTF-8'
       }
-    },
-    dfd.callback(function (err, res) {
+    }).then(function (res) {
       assert.equal(res.statusCode, 200);
-    }, dfd.reject.bind(dfd)));
+    }).then(dfd.resolve, dfd.reject);
   };
 
   registerSuite(suite);

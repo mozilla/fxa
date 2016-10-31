@@ -8,9 +8,9 @@ define([
   'intern/chai!assert',
   'intern/dojo/node!../../../server/lib/configuration',
   'intern/dojo/node!../../../server/lib/routes/get-fxa-client-configuration',
-  'intern/dojo/node!request',
+  'intern/dojo/node!got',
   'intern/dojo/node!sinon'
-], function (intern, registerSuite, assert, config, getFxAClientConfig, request, sinon) {
+], function (intern, registerSuite, assert, config, getFxAClientConfig, got, sinon) {
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
@@ -123,28 +123,28 @@ define([
   suite['#get /.well-known/fxa-client-configuration - returns a JSON doc with expected values'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
-    request(serverUrl + '/.well-known/fxa-client-configuration', {},
-    dfd.callback(function (err, res) {
-      assert.equal(res.statusCode, 200);
-      assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
+    got(serverUrl + '/.well-known/fxa-client-configuration', {})
+      .then(function (res) {
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
 
-      var maxAge = config.get('fxa_client_configuration.max_age') / 1000;
-      assert.equal(res.headers['cache-control'], 'public, max-age=' + maxAge);
+        var maxAge = config.get('fxa_client_configuration.max_age') / 1000;
+        assert.equal(res.headers['cache-control'], 'public, max-age=' + maxAge);
 
-      var result = JSON.parse(res.body);
-      assert.equal(Object.keys(result).length, 4);
+        var result = JSON.parse(res.body);
+        assert.equal(Object.keys(result).length, 4);
 
-      var conf = intern.config;
-      var expectAuthRoot = conf.fxaAuthRoot;
-      if (conf.fxaDevBox || ! conf.fxaProduction) {
-        expectAuthRoot = expectAuthRoot.replace(/\/v1$/, '');
-      }
+        var conf = intern.config;
+        var expectAuthRoot = conf.fxaAuthRoot;
+        if (conf.fxaDevBox || ! conf.fxaProduction) {
+          expectAuthRoot = expectAuthRoot.replace(/\/v1$/, '');
+        }
 
-      assert.equal(result.auth_server_base_url, expectAuthRoot);
-      assert.equal(result.oauth_server_base_url, conf.fxaOAuthRoot);
-      assert.equal(result.profile_server_base_url, conf.fxaProfileRoot);
-      assert.equal(result.sync_tokenserver_base_url, conf.fxaTokenRoot);
-    }, dfd.reject.bind(dfd)));
+        assert.equal(result.auth_server_base_url, expectAuthRoot);
+        assert.equal(result.oauth_server_base_url, conf.fxaOAuthRoot);
+        assert.equal(result.profile_server_base_url, conf.fxaProfileRoot);
+        assert.equal(result.sync_tokenserver_base_url, conf.fxaTokenRoot);
+      }).then(dfd.resolve, dfd.reject);
   };
 
   registerSuite(suite);

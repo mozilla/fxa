@@ -9,11 +9,11 @@ define([
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/node!../../server/lib/csp',
   'intern/dojo/node!htmlparser2',
-  'intern/dojo/node!request',
+  'intern/dojo/node!got',
   'intern/dojo/node!url',
   'intern/browser_modules/dojo/Promise'
 ], function (intern, registerSuite, assert, config, csp,
-  htmlparser2, request, url, Promise) {
+  htmlparser2, got, url, Promise) {
   var httpUrl, httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   if (intern.config.fxaProduction) {
@@ -145,14 +145,10 @@ define([
   registerSuite(suite);
 
   function makeRequest(url, requestOptions) {
-    return new Promise(function (resolve, reject) {
-      request(url, requestOptions, function (err, res) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(res);
+    return got(url, requestOptions)
+      .catch(function (err) {
+        return err.response;
       });
-    });
   }
 
   function checkHeaders(route, res) {
@@ -186,7 +182,7 @@ define([
    * and fonts, that the correct CORS headers are set.
    */
   function extractAndCheckUrls(res) {
-    var href = url.parse(res.request.href);
+    var href = url.parse(res.url);
     var origin = [ href.protocol, '//', href.host ].join('');
     return extractUrls(res.body)
       .then(checkUrls.bind(null, origin));

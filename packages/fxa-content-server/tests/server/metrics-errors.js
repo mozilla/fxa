@@ -7,13 +7,13 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
-  'intern/dojo/node!request',
+  'intern/dojo/node!got',
   'intern/dojo/node!./helpers/init-logging',
   'intern/dojo/node!fs',
   'intern/dojo/node!path',
   'intern/dojo/node!proxyquire',
   'intern/dojo/node!url'
-], function (intern, registerSuite, assert, config, request, initLogging, fs, path, proxyquire, url) {
+], function (intern, registerSuite, assert, config, got, initLogging, fs, path, proxyquire, url) {
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
@@ -23,36 +23,41 @@ define([
   suite['#get deprecated /metrics-errors endpoint - returns 200'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
-    request.get(serverUrl + '/metrics-errors', dfd.callback(function (err, res) {
-      assert.equal(res.statusCode, 200);
-    }, dfd.reject.bind(dfd)));
+    got.get(serverUrl + '/metrics-errors')
+      .then(function (res) {
+        assert.equal(res.statusCode, 200);
+      })
+      .then(dfd.resolve, dfd.reject);
   };
 
   suite['#post /metrics-errors - returns 200 without query'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
-    request.post(serverUrl + '/metrics-errors', dfd.callback(function (err, res) {
-      assert.equal(res.statusCode, 200);
-    }, dfd.reject.bind(dfd)));
+    got.post(serverUrl + '/metrics-errors')
+      .then(function (res) {
+        assert.equal(res.statusCode, 200);
+      })
+      .then(dfd.resolve, dfd.reject);
   };
 
   suite['#post /metrics-errors - returns 200 with an error query'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
-    request.post(serverUrl + '/metrics-errors?sentry_version=4', dfd.callback(function (err, res) {
-      assert.equal(res.statusCode, 200);
-    }, dfd.reject.bind(dfd)));
+    got.post(serverUrl + '/metrics-errors?sentry_version=4')
+      .then(function (res) {
+        assert.equal(res.statusCode, 200);
+      })
+      .then(dfd.resolve, dfd.reject);
   };
 
   suite['#post /metrics-errors - returns 200 with an error query and a body'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
-    request.post({
+    got.post(serverUrl + '/metrics-errors?sentry_version=4', {
       body: JSON.stringify({ logger: 'javascript', project: 'metrics-errors' }),
-      url: serverUrl + '/metrics-errors?sentry_version=4'
-    }, dfd.callback(function (err, res) {
+    }).then(function (res) {
       assert.equal(res.statusCode, 200);
-    }, dfd.reject.bind(dfd)));
+    }).then(dfd.resolve, dfd.reject);
   };
 
   // This test cannot be run remotely like the other tests in tests/server.

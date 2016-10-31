@@ -4,7 +4,7 @@
 
 var _ = require('lodash');
 var logger = require('mozlog')('server.metrics-errors');
-var request = require('request');
+var got = require('got');
 var querystring = require('querystring');
 
 var config = require('../configuration');
@@ -64,13 +64,10 @@ function reportError(query, body) {
     body = setExtraSentryData(body);
     var newQuery = querystring.stringify(query);
 
-    request.post({
-      body: body,
-      url: sentryConfig.endpoint + '?' + newQuery
-    }, function (err, resp, body) {
-      if (err || resp.statusCode !== 200) {
-        logger.error(err, body);
-      }
+    got.post(sentryConfig.endpoint + '?' + newQuery, {
+      body: body
+    }).catch(function (err) {
+      logger.error(err, body);
     });
   }
 }

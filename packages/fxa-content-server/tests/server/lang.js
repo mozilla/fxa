@@ -10,11 +10,11 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
-  'intern/dojo/node!request',
+  'intern/dojo/node!got',
   'intern/dojo/node!url',
   'intern/dojo/node!util',
   'intern/dojo/node!fxa-shared',
-], function (intern, registerSuite, assert, config, request, url, util, fxaShared) {
+], function (intern, registerSuite, assert, config, got, url, util, fxaShared) {
   var languages = fxaShared.l10n.supportedLanguages;
   var httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
@@ -31,32 +31,34 @@ define([
 
     suite['#https get ' + httpsUrl + '/ -> ' + lang] = function () {
       var dfd = this.async(intern.config.asyncTimeout);
-      request(httpsUrl + '/', options, dfd.callback(function (err, res) {
-        assert.ok(! err);
-        assert.equal(res.statusCode, 200);
-        var re = new RegExp(util.format('lang="%s"', lang));
-        assert.ok(res.body.match(re), 'html has correct lang attribute');
-      }, dfd.reject.bind(dfd)));
+      got(httpsUrl + '/', options)
+        .then(function (res) {
+          assert.equal(res.statusCode, 200);
+          var re = new RegExp(util.format('lang="%s"', lang));
+          assert.ok(res.body.match(re), 'html has correct lang attribute');
+        })
+        .then(dfd.resolve, dfd.reject);
     };
 
     suite['#https get ' + httpsUrl + '/i18n/client.json -> ' + lang] = function () {
       var dfd = this.async(intern.config.asyncTimeout);
-      request(httpsUrl + '/i18n/client.json', options, dfd.callback(function (err, res) {
-        assert.ok(! err);
-        assert.equal(res.statusCode, 200);
-        if (intern.config.fxaProduction) {
-          // using the empty string '' as the key below is intentional
-          var language = JSON.parse(res.body)[''].language;
-          language = language.replace('_', '-'); // e.g., pt_BR -> pt-BR
+      got(httpsUrl + '/i18n/client.json', options)
+        .then(function (res) {
+          assert.equal(res.statusCode, 200);
+          if (intern.config.fxaProduction) {
+            // using the empty string '' as the key below is intentional
+            var language = JSON.parse(res.body)[''].language;
+            language = language.replace('_', '-'); // e.g., pt_BR -> pt-BR
 
-          // A quirk of i18n normalization. Whatever.
-          if (lang === 'sr-LATN') {
-            lang = 'sr-Latn';
+            // A quirk of i18n normalization. Whatever.
+            if (lang === 'sr-LATN') {
+              lang = 'sr-Latn';
+            }
+
+            assert.equal(lang, language);
           }
-
-          assert.equal(lang, language);
-        }
-      }, dfd.reject.bind(dfd)));
+        })
+        .then(dfd.resolve, dfd.reject);
     };
   }
 
