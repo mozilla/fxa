@@ -521,22 +521,8 @@ define([
             assert.strictEqual(mocks.gaCollector.write.callCount, 5);
           },
 
-          'flowEvent was called correctly': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 6);
-            var args = mocks.flowEvent.args[4];
-            assert.lengthOf(args, 3);
-            assert.equal(args[0].type, 'flow.wibble.begin');
-            assert.equal(args[0].time, 2029);
-            assert.equal(args[0].flowTime, 0);
-            assert.equal(args[1].flowId, 'qux');
-            assert.strictEqual(args[1].flowBeginTime, 2029);
-            args = mocks.flowEvent.args[5];
-            assert.lengthOf(args, 3);
-            assert.equal(args[0].type, 'flow.wibble');
-            assert.equal(args[0].time, 2049);
-            assert.equal(args[0].flowTime, 20);
-            assert.equal(args[1].flowId, 'qux');
-            assert.strictEqual(args[1].flowBeginTime, 2029);
+          'flowEvent was not called': function () {
+            assert.strictEqual(mocks.flowEvent.callCount, 4);
           }
         }
       }

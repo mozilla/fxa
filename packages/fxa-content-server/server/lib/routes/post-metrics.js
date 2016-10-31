@@ -65,31 +65,17 @@ function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
     return;
   }
 
-  var events = metrics.events || [];
-  var flowEvents = _.filter(events, function(event) {
+  if (! metrics.flowBeginTime) {
+    // Don't risk corrupting good data by attempting to fix bad.
+    return;
+  }
+
+  const events = metrics.events || [];
+  const flowEvents = _.filter(events, event => {
     return event.type.indexOf('flow.') === 0;
   });
 
-  if (! metrics.flowBeginTime) {
-    // This will only kick in if something clobbered the data-flow-begin
-    // attribute in the DOM, i.e. hopefully never.
-    flowEvents.some(function (event) {
-      if (FLOW_BEGIN_EVENT_TYPES.test(event.type)) {
-        metrics.flowBeginTime = estimateTime({
-          /*eslint-disable sorting/sort-object-props*/
-          start: metrics.startTime,
-          offset: event.offset,
-          sent: metrics.flushTime,
-          received: requestReceivedTime
-          /*eslint-enable sorting/sort-object-props*/
-        });
-
-        return true;
-      }
-    });
-  }
-
-  flowEvents.forEach(function (event) {
+  flowEvents.forEach(event => {
     if (FLOW_BEGIN_EVENT_TYPES.test(event.type)) {
       event.time = metrics.flowBeginTime;
       event.flowTime = 0;
