@@ -1,3 +1,58 @@
+<a name="0.73.0"></a>
+# 0.73.0 (2016-11-01)
+
+
+### Bug Fixes
+
+* **build:** Bring back SRI. (#4353) r=vladikoff ([6b1a510](https://github.com/mozilla/fxa-content-server/commit/6b1a510)), closes [#4347](https://github.com/mozilla/fxa-content-server/issues/4347)
+* **client:** All template writes are by default HTML escaped. (#4296) ([4329101](https://github.com/mozilla/fxa-content-server/commit/4329101))
+* **client:** Fix the `Open Gmail` button on confirm_reset_password (#4328) r=philbooth,vladik ([9838d93](https://github.com/mozilla/fxa-content-server/commit/9838d93)), closes [(#4328](https://github.com/(/issues/4328) [#4327](https://github.com/mozilla/fxa-content-server/issues/4327)
+* **client:** Use open in webmail button on reset sent page (#4313) r=vladikoff ([4004ec4](https://github.com/mozilla/fxa-content-server/commit/4004ec4))
+* **devices:** handle blank device names (#4323) r=shane-tomlinson,vbudhram ([1be81aa](https://github.com/mozilla/fxa-content-server/commit/1be81aa)), closes [#4205](https://github.com/mozilla/fxa-content-server/issues/4205)
+* **links:** fix privacy links for Fennec Android (#4320) ([c0c7de5](https://github.com/mozilla/fxa-content-server/commit/c0c7de5)), closes [(#4320](https://github.com/(/issues/4320)
+* **metrics:** ignore flow events if begin time is missing (#4351) r=vladikoff ([1186e29](https://github.com/mozilla/fxa-content-server/commit/1186e29))
+* **metrics:** Stop double counting the `*_complete` screen views. ([c4ab494](https://github.com/mozilla/fxa-content-server/commit/c4ab494))
+* **package.json:** Remove the left over reference to fxaIframeOauthApp (#4310) r=vladikoff ([6bd869e](https://github.com/mozilla/fxa-content-server/commit/6bd869e))
+* **sentry:** clean up abs_path in reports (#4331) ([3ac9ac7](https://github.com/mozilla/fxa-content-server/commit/3ac9ac7))
+* **styles:** adjust device and apps button size (#4332) r=vbudhram  ([e25595e](https://github.com/mozilla/fxa-content-server/commit/e25595e)), closes [#4266](https://github.com/mozilla/fxa-content-server/issues/4266)
+* **styles:** adjust modal h2 styles (#4321) ([c7a0de0](https://github.com/mozilla/fxa-content-server/commit/c7a0de0))
+* **test:** Fix `oauth sign_in - verified, blocked, incorrect password` (#4341) r=vladikoff ([9aec0eb](https://github.com/mozilla/fxa-content-server/commit/9aec0eb)), closes [(#4341](https://github.com/(/issues/4341)
+* **test:** Fix flaky sign-in-cached functional test. (#4352) ([1e0122f](https://github.com/mozilla/fxa-content-server/commit/1e0122f)), closes [(#4352](https://github.com/(/issues/4352)
+* **tests:** add restmail to open webmail providers to fix test rate limits (#4346); r=vbudhr ([f039edd](https://github.com/mozilla/fxa-content-server/commit/f039edd)), closes [(#4346](https://github.com/(/issues/4346) [#4318](https://github.com/mozilla/fxa-content-server/issues/4318)
+* **tests:** Allow the unit tests to be run against any auth server (#4299) ([d39313b](https://github.com/mozilla/fxa-content-server/commit/d39313b))
+* **tests:** Fix "FxiOS v1 sign_in - verified, verify same browser" Cirlce (#4334) r=vladikof ([a26ed29](https://github.com/mozilla/fxa-content-server/commit/a26ed29)), closes [(#4334](https://github.com/(/issues/4334)
+* **tests:** Fix the `sign in, open settings in a second tab` test. (#4338) r=vladikoff ([42e2398](https://github.com/mozilla/fxa-content-server/commit/42e2398)), closes [(#4338](https://github.com/(/issues/4338) [#4337](https://github.com/mozilla/fxa-content-server/issues/4337)
+* **tests:** load Intern modules from new browser_modules ([33f1bdd](https://github.com/mozilla/fxa-content-server/commit/33f1bdd))
+* **tests:** set to Firefox 46 ([19a7489](https://github.com/mozilla/fxa-content-server/commit/19a7489))
+* **tests:** switch from request to got in teamcity test runner (#4354) r=vladikoff,rfk ([e3a8720](https://github.com/mozilla/fxa-content-server/commit/e3a8720))
+* **travis:** test on node 4 and 6 ([b13494d](https://github.com/mozilla/fxa-content-server/commit/b13494d))
+* **typo:** fix the whitepsace ([fa8e444](https://github.com/mozilla/fxa-content-server/commit/fa8e444))
+
+### chore
+
+* **client:** Remove OAuth WebChannel Keys support. (#4295) ([c07664f](https://github.com/mozilla/fxa-content-server/commit/c07664f))
+* **docs:** add circle ci badge ([c83c994](https://github.com/mozilla/fxa-content-server/commit/c83c994))
+* **repo:** Merge train-72 fixes back to master (#4312) ([806e164](https://github.com/mozilla/fxa-content-server/commit/806e164)), closes [(#4312](https://github.com/(/issues/4312)
+
+### Features
+
+* **devices:** add mobile get app placeholders (#4261) r=vbudhram,shane-tomlinson ([861af52](https://github.com/mozilla/fxa-content-server/commit/861af52)), closes [#4261](https://github.com/mozilla/fxa-content-server/issues/4261)
+* **icons:** Use optimized svg icons in device view (#4294) r=vladikoff ([703e372](https://github.com/mozilla/fxa-content-server/commit/703e372))
+* **metrics:** Add reset password flow metrics ([cc02b52](https://github.com/mozilla/fxa-content-server/commit/cc02b52))
+* **sentry:** Add sentry middleware for express (#4345) r=vbudhram ([4bd04bf](https://github.com/mozilla/fxa-content-server/commit/4bd04bf)), closes [#4208](https://github.com/mozilla/fxa-content-server/issues/4208)
+* **tests:** Allow CircleCI test parallelization. (#4298) ([42b80c9](https://github.com/mozilla/fxa-content-server/commit/42b80c9))
+
+### Refactor
+
+* **client:** Reduce repetition when initializing the auth-brokers. ([66cfb66](https://github.com/mozilla/fxa-content-server/commit/66cfb66))
+* **client:** remove crosstab. (#4192) r=vladikoff ([07b5902](https://github.com/mozilla/fxa-content-server/commit/07b5902)), closes [#3415](https://github.com/mozilla/fxa-content-server/issues/3415)
+* **deps:** switch from request to got module (#4344) r=rfk ([f1d7cf9](https://github.com/mozilla/fxa-content-server/commit/f1d7cf9))
+* **disconnect:** OAuth services Disconnect button does not need … (#4314) r=vladikoff ([bb87fc3](https://github.com/mozilla/fxa-content-server/commit/bb87fc3))
+* **settings:** remove sync preference button (#4326) ([9f43ddf](https://github.com/mozilla/fxa-content-server/commit/9f43ddf))
+* **tests:** Remove `context` from `clearBrowserState` (#4343) r=vladikoff ([421d376](https://github.com/mozilla/fxa-content-server/commit/421d376))
+
+
+
 <a name="0.72.1"></a>
 ## 0.72.1 (2016-10-20)
 
