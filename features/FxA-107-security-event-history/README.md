@@ -124,20 +124,20 @@ and decide whether to proceed to Phase 2.
 
 Acceptance Criteria:
 
-[ ] The fxa-auth-server records a security event
-    with IP address when the user creates an account,
-    logs in, or resets their password.
-[ ] When the user completes an email verification loop
-    in response to creation, login, or reset, the
-    corresponding security event is marked as "verified".
-[ ] When a user successfully signs in,
-    and their IP address matches a verified security event,
-    then an `Account.history.verified` event is logged.
-[ ] When a user successfully signs in,
-    and their IP address matches an unverified security event,
-    then an `Account.history.unverified` event is logged.
-[ ] There is a graph showing the hit-rate over time,
-    for each different value of `recency`.
+* [ ] The fxa-auth-server records a security event
+      with IP address when the user creates an account,
+      logs in, or resets their password.
+* [ ] When the user completes an email verification loop
+      in response to creation, login, or reset, the
+      corresponding security event is marked as "verified".
+* [ ] When a user successfully signs in,
+      and their IP address matches a verified security event,
+      then an `Account.history.verified` event is logged.
+* [ ] When a user successfully signs in,
+      and their IP address matches an unverified security event,
+      then an `Account.history.unverified` event is logged.
+* [ ] There is a graph showing the hit-rate over time,
+      for each different value of `recency`.
 
 ### Phase 2
 
@@ -158,16 +158,16 @@ and decide whether to proceed to Phase 3.
 
 Acceptance Criteria:
 
-[ ] The sign-in confirmation email includes a link
-    to report a fraudulent login, which
-    destroys the corresponding sessionToken.
-[ ] If an `Account.history.verified` event was emitted
-    for a login, and that login is reported as fradulent,
-    then an `Accont.history.false_positive` event is
-    emitted with the same `recency` as reported
-    in the original event.
-[ ] There is a graph showing the false-positive rate over time,
-    for each different value of `recency`.
+* [ ] The sign-in confirmation email includes a link
+      to report a fraudulent login, which
+      destroys the corresponding sessionToken.
+* [ ] If an `Account.history.verified` event was emitted
+      for a login, and that login is reported as fradulent,
+      then an `Accont.history.false_positive` event is
+      emitted with the same `recency` as reported
+      in the original event.
+* [ ] There is a graph showing the false-positive rate over time,
+      for each different value of `recency`.
 
 ### Phase 3
 
@@ -180,22 +180,22 @@ for this decision.
 
 Acceptance Criteria:
 
-[ ] If a login matches the security-event history
-    within the selected recency threshold,
-    the corresponding tokens are created verified
-    and a sign-in confirmation email is not sent.
-[ ] If a login matches the security-event history
-    but outside of the selected recency threshold,
-    the corresponding tokens are created unverified
-    and the user must do sign-in confirmation as before.
-[ ] The "new sync login" notification email includes
-    a link to report a fraudulent login, which
-    destroys the corresponding sessionToken.
-[ ] If a login for which we avoided sending a confirmation email
-    is reported as fraudulent, an `Account.history.false_positive`
-    event is still emitted as before.
-[ ] There is a simple way for Operations to disable this feature,
-    in response to e.g. a sudden increase in fraudulent logins.
+* [ ] If a login matches the security-event history
+      within the selected recency threshold,
+      the corresponding tokens are created verified
+      and a sign-in confirmation email is not sent.
+* [ ] If a login matches the security-event history
+      but outside of the selected recency threshold,
+      the corresponding tokens are created unverified
+      and the user must do sign-in confirmation as before.
+* [ ] The "new sync login" notification email includes
+      a link to report a fraudulent login, which
+      destroys the corresponding sessionToken.
+* [ ] If a login for which we avoided sending a confirmation email
+      is reported as fraudulent, an `Account.history.false_positive`
+      event is still emitted as before.
+* [ ] There is a simple way for Operations to disable this feature,
+      in response to e.g. a sudden increase in fraudulent logins.
 
 
 ## Detailed design
