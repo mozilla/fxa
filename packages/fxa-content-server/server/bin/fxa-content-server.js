@@ -13,11 +13,12 @@ var express = require('express');
 var fs = require('fs');
 var helmet = require('helmet');
 var https = require('https');
+var mozlog = require('mozlog');
 var path = require('path');
 var serveStatic = require('serve-static');
-var mozlog = require('mozlog');
 
 var config = require('../lib/configuration');
+var raven = require('../lib/raven');
 
 // This can't possibly be best way to librar-ify this module.
 var isMain = process.argv[1] === __filename;
@@ -62,6 +63,9 @@ function makeApp() {
   app.engine('html', consolidate.handlebars);
   app.set('view engine', 'html');
   app.set('views', PAGE_TEMPLATE_DIRECTORY);
+
+  // The request handler must be the first item
+  app.use(raven.ravenModule.middleware.express.requestHandler(raven.ravenMiddleware));
 
   // i18n adds metadata to a request to help
   // with translating templates on the server.
@@ -139,6 +143,9 @@ function makeApp() {
 
   // it's a four-oh-four not found.
   app.use(fourOhFour);
+
+  // The error handler must be before any other error middleware
+  app.use(raven.ravenModule.middleware.express.errorHandler(raven.ravenMiddleware));
 
   // server error!
   app.use(serverErrorHandler);

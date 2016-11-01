@@ -411,6 +411,11 @@ var conf = module.exports = convict({
       default: undefined,
       doc: 'Remote Sentry endpoint',
       format: String
+    },
+    server_errors_dsn: {
+      default: undefined,
+      doc: 'Sentry config for Express server-side errors. If not set, then no errors reported.',
+      format: String
     }
   },
   static_directory: {

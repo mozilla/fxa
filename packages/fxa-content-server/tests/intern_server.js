@@ -27,6 +27,7 @@ define([
     'tests/server/noindex',
     'tests/server/configuration',
     'tests/server/statsd-collector',
+    'tests/server/raven',
     'tests/server/routes/get-config',
     'tests/server/routes/get-fxa-client-configuration',
     'tests/server/routes/get-index',
