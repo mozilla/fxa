@@ -51,6 +51,25 @@ function GH(options) {
       }
     }
   })
+
+  // Expose the 'repos' API with promisified semantics, and with
+  // a wrapper to fetch all result pages at once.
+  var self = this
+  this.repos = {}
+  Object.keys(this._gh.repos).forEach(function(methodName) {
+    if (typeof self._gh.repos[methodName] === 'function') {
+      self.repos[methodName] = function(msg) {
+        msg.user = msg.user || 'mozilla'
+        msg.per_page = msg.per_page || 50
+        return new P(function(resolve, reject) {
+          self._gh.repos[methodName](msg, function(err, res) {
+            if (err) return reject(err)
+            resolve(self._getAllPages(res))
+          })
+        })
+      }
+    }
+  })
 }
 
 GH.prototype._getAllPages = function _getAllPages(curPage, acc) {

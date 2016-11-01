@@ -38,3 +38,4 @@ fxa-bugzilla-mirror
 grunt-l10n-lint
 fxa-metrics-dashboard
 fxa-activity-metrics
+mozlog
