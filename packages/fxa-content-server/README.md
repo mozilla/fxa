@@ -1,6 +1,7 @@
 # Firefox Accounts Content Server
 
 [![Build Status: Travis](https://travis-ci.org/mozilla/fxa-content-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-content-server)
+[![Build Status: Circle CI](https://circleci.com/gh/mozilla/fxa-content-server.svg?style=shield)](https://circleci.com/gh/mozilla/fxa-content-server)
 [![Coverage Status](https://img.shields.io/coveralls/mozilla/fxa-content-server.svg)](https://coveralls.io/r/mozilla/fxa-content-server)
 
 Static server that hosts [Firefox Account sign up](https://accounts.firefox.com), sign in, email verification, etc. flows.
