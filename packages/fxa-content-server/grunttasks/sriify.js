@@ -146,8 +146,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('sriify', 'Add SRI integrity attributes to static resources', function (taskName, subtaskName) {
-
+  grunt.registerTask('sriify', 'Add SRI integrity attributes to static resources', function (subtaskName) {
     // sri is run twice. The first time to find the sri hashes for
     // the resources embedded in main.js. This will modify main.js
     // so sri must be called again to find the final sri value for
