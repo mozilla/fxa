@@ -1605,6 +1605,7 @@ define(function (require, exports, module) {
           EMAIL,
           relier,
           {
+            metricsContext: metrics.getFlowEventMetadata(),
             resume: 'resume token'
           }
         ));
@@ -1635,6 +1636,7 @@ define(function (require, exports, module) {
           'password forgot token',
           relier,
           {
+            metricsContext: metrics.getFlowEventMetadata(),
             resume: 'resume token'
           }
         ));

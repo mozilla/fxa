@@ -689,13 +689,15 @@ define(function (require, exports, module) {
     });
 
     describe('passwordReset', function () {
-      it('requests a password reset', function () {
+      beforeEach(function () {
         sinon.stub(realClient, 'passwordForgotSendCode', function () {
           return p({
             passwordForgotToken: 'token'
           });
         });
+      });
 
+      it('requests a password reset', function () {
         return client.passwordReset(email, relier, { resume: resumeToken })
           .then(function () {
             var params = {
@@ -710,11 +712,29 @@ define(function (require, exports, module) {
                 ));
           });
       });
+
+      it('passes along an optional `metricsContext`', function () {
+        return client.passwordReset(email, relier, { metricsContext: {}, resume: resumeToken})
+          .then(function () {
+            var params = {
+              metricsContext: {},
+              redirectTo: REDIRECT_TO,
+              resume: resumeToken,
+              service: SYNC_SERVICE,
+            };
+            assert.isTrue(
+              realClient.passwordForgotSendCode.calledWith(
+                trim(email),
+                params
+              ));
+          });
+      });
     });
 
     describe('passwordResetResend', function () {
-      it('resends the validation email', function () {
-        var passwordForgotToken = 'token';
+      var passwordForgotToken = 'token';
+
+      beforeEach(function(){
         sinon.stub(realClient, 'passwordForgotSendCode', function () {
           return p({
             passwordForgotToken: passwordForgotToken
@@ -724,7 +744,9 @@ define(function (require, exports, module) {
         sinon.stub(realClient, 'passwordForgotResendCode', function () {
           return p({});
         });
+      });
 
+      it('resends the validation email', function () {
         return client.passwordReset(email, relier, { resume: resumeToken })
           .then(function () {
             return client.passwordResetResend(email, passwordForgotToken, relier, { resume: resumeToken });
@@ -743,25 +765,50 @@ define(function (require, exports, module) {
                 ));
           });
       });
+
+      it('passes along an optional `metricsContext`', function () {
+        var options = {
+          metricsContext: {},
+          resume: resumeToken
+        };
+
+        return client.passwordReset(email, relier, options)
+          .then(function () {
+            return client.passwordResetResend(email, passwordForgotToken, relier, options);
+          })
+          .then(function () {
+            var params = {
+              metricsContext: {},
+              redirectTo: REDIRECT_TO,
+              resume: resumeToken,
+              service: SYNC_SERVICE
+            };
+            assert.isTrue(
+              realClient.passwordForgotResendCode.calledWith(
+                trim(email),
+                passwordForgotToken,
+                params
+              ));
+          });
+      });
     });
 
     describe('completePasswordReset', function () {
-      it('completes the password reset', function () {
-        var token = 'token';
-        var code = 'code';
+      var token = 'token';
+      var code = 'code';
+      var relier = {
+        has () {
+          return false;
+        },
+        isSync () {
+          return true;
+        },
+        wantsKeys () {
+          return true;
+        }
+      };
 
-        var relier = {
-          has () {
-            return false;
-          },
-          isSync () {
-            return true;
-          },
-          wantsKeys () {
-            return true;
-          }
-        };
-
+      beforeEach(function () {
         sinon.stub(realClient, 'passwordForgotVerifyCode', function () {
           return p({
             accountResetToken: 'reset_token'
@@ -778,7 +825,9 @@ define(function (require, exports, module) {
             verified: true
           });
         });
+      });
 
+      it('completes the password reset', function () {
         return client.completePasswordReset(email, password, token, code, relier)
           .then(function (sessionData) {
             assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
@@ -793,6 +842,21 @@ define(function (require, exports, module) {
             assert.equal(sessionData.uid, 'uid');
             assert.equal(sessionData.unwrapBKey, 'unwrap b key');
             assert.isTrue(sessionData.verified);
+          });
+      });
+
+      it('passes along an optional `metricsContext`', function () {
+        var options = {
+          metricsContext: {}
+        };
+
+        return client.completePasswordReset(email, password, token, code, relier, options)
+          .then(function () {
+            var params = {
+              metricsContext: options.metricsContext
+            };
+            assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
+              code, token, params));
           });
       });
     });

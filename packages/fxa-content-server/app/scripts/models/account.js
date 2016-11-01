@@ -701,7 +701,10 @@ define(function (require, exports, module) {
         password,
         token,
         code,
-        relier
+        relier,
+        {
+          metricsContext: this._metrics.getFlowEventMetadata()
+        }
       )
       .then(this.set.bind(this));
     },
@@ -784,6 +787,7 @@ define(function (require, exports, module) {
         this.get('email'),
         relier,
         {
+          metricsContext: this._metrics.getFlowEventMetadata(),
           resume: options.resume
         }
       );
@@ -804,6 +808,7 @@ define(function (require, exports, module) {
         passwordForgotToken,
         relier,
         {
+          metricsContext: this._metrics.getFlowEventMetadata(),
           resume: options.resume
         }
       );

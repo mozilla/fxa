@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const Able = require('lib/able');
   const AuthErrors = require('lib/auth-errors');
   const Broker = require('models/auth_brokers/base');
   const chai = require('chai');
@@ -28,6 +29,7 @@ define(function (require, exports, module) {
     var PASSWORD = 'password';
     var TOKEN = 'feed';
 
+    var able;
     var broker;
     var fxaClient;
     var isPasswordResetComplete;
@@ -49,6 +51,7 @@ define(function (require, exports, module) {
 
     function initView() {
       view = new View({
+        able: able,
         broker: broker,
         metrics: metrics,
         notifier: notifier,
@@ -60,6 +63,7 @@ define(function (require, exports, module) {
     }
 
     beforeEach(function () {
+      able = new Able();
       broker = new Broker();
       fxaClient = new FxaClient();
       metrics = new Metrics();
@@ -67,6 +71,7 @@ define(function (require, exports, module) {
       relier = new Relier();
       user = new User({
         fxaClient: fxaClient,
+        metrics: metrics,
         notifier: notifier
       });
       windowMock = new WindowMock();
@@ -215,6 +220,25 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterRender', function () {
+      var FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
+
+      beforeEach(function () {
+        $('body').data('flowId', FLOW_ID);
+        $('body').data('flowBegin', -1);
+        sinon.spy(metrics, 'setFlowEventMetadata');
+        return view.afterRender();
+      });
+
+      it('called metrics.setFlowEventMetadata correctly', function () {
+        assert.equal(metrics.setFlowEventMetadata.callCount, 1);
+        var args = metrics.setFlowEventMetadata.args[0];
+        assert.lengthOf(args, 1);
+        assert.lengthOf(Object.keys(args[0]), 2);
+        assert.equal(args[0].flowId, FLOW_ID);
+        assert.equal(args[0].flowBeginTime, -1);
+      });
+    });
 
     describe('isValid', function () {
       it('returns true if password & vpassword valid and the same', function () {

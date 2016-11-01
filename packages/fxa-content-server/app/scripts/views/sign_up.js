@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const CoppaAgeInput = require('views/coppa/coppa-age-input');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
   const FormView = require('views/form');
   const mailcheck = require('lib/mailcheck');
@@ -378,6 +379,8 @@ define(function (require, exports, module) {
     AccountResetMixin,
     CheckboxMixin,
     ExperimentMixin,
+    FlowEventsMixin,
+    // FlowEventsMixin must be mixed in before FlowBeginMixin
     FlowBeginMixin,
     MigrationMixin,
     PasswordMixin,

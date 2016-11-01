@@ -359,6 +359,8 @@ define(function (require, exports, module) {
      * @param {String} originalEmail
      * @param {Relier} relier
      * @param {Object} [options]
+     *   @param {String} [options.metricsContext] - context metadata for use in
+     *                   flow events
      *   @param {String} [options.resume] - Resume token, passed in the
      *                   verification link if the user must verify their email.
      *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
@@ -377,6 +379,8 @@ define(function (require, exports, module) {
       if (options.resume) {
         clientOptions.resume = options.resume;
       }
+
+      setMetricsContext(clientOptions, options);
 
       return client.passwordForgotSendCode(email, clientOptions)
         .then(function (result) {
@@ -399,6 +403,8 @@ define(function (require, exports, module) {
         clientOptions.resume = options.resume;
       }
 
+      setMetricsContext(clientOptions, options);
+
       return client.passwordForgotResendCode(
         email,
         passwordForgotToken,
@@ -406,18 +412,23 @@ define(function (require, exports, module) {
       );
     }),
 
-    completePasswordReset: withClient((client, originalEmail, newPassword, token, code, relier) => {
+    completePasswordReset: withClient((client, originalEmail, newPassword, token, code, relier, options = {}) => {
       const email = trim(originalEmail);
 
-      return client.passwordForgotVerifyCode(code, token)
+      var accountResetOptions = {
+        keys: wantsKeys(relier),
+        sessionToken: true
+      };
+
+      var passwordVerifyCodeOptions = {};
+      setMetricsContext(passwordVerifyCodeOptions, options);
+
+      return client.passwordForgotVerifyCode(code, token, passwordVerifyCodeOptions)
         .then(result => {
           return client.accountReset(email,
             newPassword,
             result.accountResetToken,
-            {
-              keys: wantsKeys(relier),
-              sessionToken: true
-            }
+            accountResetOptions
           );
         })
         .then(accountData => {

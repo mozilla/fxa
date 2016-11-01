@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const FormView = require('views/form');
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Session = require('lib/session');
@@ -83,6 +84,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
+    FlowEventsMixin,
     PasswordResetMixin,
     ServiceMixin
   );

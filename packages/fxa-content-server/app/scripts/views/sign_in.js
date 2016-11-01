@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
   const FormView = require('views/form');
   const MigrationMixin = require('views/mixins/migration-mixin');
@@ -262,6 +263,8 @@ define(function (require, exports, module) {
     AccountResetMixin,
     AvatarMixin,
     ExperimentMixin,
+    FlowEventsMixin,
+    // FlowEventsMixin must be mixed in before FlowBeginMixin
     FlowBeginMixin,
     MigrationMixin,
     PasswordMixin,
