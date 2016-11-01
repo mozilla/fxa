@@ -80,6 +80,7 @@ node ./tests/teamcity/install-npm-deps.js \
   extend                          \
   firefox-profile                 \
   fxa-shared                      \
+  got                             \
   helmet                          \
   htmlparser2                     \
   intern                          \
@@ -87,7 +88,6 @@ node ./tests/teamcity/install-npm-deps.js \
   mozlog                          \
   node-statsd                     \
   proxyquire                      \
-  request                         \
   node-uap                        \
   sinon                           \
   sync-exec                       \

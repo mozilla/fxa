@@ -81,8 +81,8 @@ node ./tests/teamcity/install-npm-deps.js \
   convict                         \
   firefox-profile                 \
   fxa-shared                      \
+  got                             \
   intern                          \
-  request                         \
   sync-exec                       \
   xmlhttprequest
 
