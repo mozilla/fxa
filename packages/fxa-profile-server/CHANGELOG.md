@@ -1,3 +1,18 @@
+<a name="0.73.0"></a>
+# [0.73.0](https://github.com/mozilla/fxa-profile-server/compare/v0.71.0...v0.73.0) (2016-11-02)
+
+
+### Bug Fixes
+
+* **config:** log config at info level at startup ([57adbe5](https://github.com/mozilla/fxa-profile-server/commit/57adbe5))
+* **travis:** build on node 4 and 6 ([ff81c7c](https://github.com/mozilla/fxa-profile-server/commit/ff81c7c))
+
+### chore
+
+* **config:** remove obsolete awsbox config file (#215) ([80b2709](https://github.com/mozilla/fxa-profile-server/commit/80b2709))
+
+
+
 <a name="0.71.0"></a>
 # [0.71.0](https://github.com/mozilla/fxa-profile-server/compare/v0.70.0...v0.71.0) (2016-10-05)
 
