@@ -1,3 +1,13 @@
+<a name"0.73.0"></a>
+## 0.73.0 (2016-11-02)
+
+
+#### Bug Fixes
+
+* **deps:** update to hapi 14 and joi 9 ([9bc87c01](https://github.com/mozilla/fxa-oauth-server/commit/9bc87c01), closes [#424](https://github.com/mozilla/fxa-oauth-server/issues/424))
+* **travis:** test on node4/node6 with default npm & g++-4.8 ([b4e1dd8e](https://github.com/mozilla/fxa-oauth-server/commit/b4e1dd8e))
+
+
 <a name"0.71.0"></a>
 ## 0.71.0 (2016-10-05)
 
