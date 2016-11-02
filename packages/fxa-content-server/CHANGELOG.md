@@ -1,3 +1,17 @@
+<a name="0.73.1"></a>
+## 0.73.1 (2016-11-02)
+
+
+### Bug Fixes
+
+* **tests:** raven is a test dependency for server tests ([d6f0900](https://github.com/mozilla/fxa-content-server/commit/d6f0900))
+
+### chore
+
+* **deps:** update got, shrinkwrap (#4360) ([0970140](https://github.com/mozilla/fxa-content-server/commit/0970140))
+
+
+
 <a name="0.73.0"></a>
 # 0.73.0 (2016-11-01)
 
