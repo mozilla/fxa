@@ -1,3 +1,13 @@
+<a name="0.73.0"></a>
+# [0.73.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.71.0...v0.73.0) (2016-11-02)
+
+
+### Bug Fixes
+
+* **basket:** Always send a source_url param to /subscribe ([7e88cdb](https://github.com/mozilla/fxa-basket-proxy/commit/7e88cdb))
+
+
+
 <a name="0.71.0"></a>
 # [0.71.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.64.0...v0.71.0) (2016-10-05)
 
