@@ -87,8 +87,9 @@ node ./tests/teamcity/install-npm-deps.js \
   lodash                          \
   mozlog                          \
   node-statsd                     \
-  proxyquire                      \
   node-uap                        \
+  proxyquire                      \
+  raven                           \
   sinon                           \
   sync-exec                       \
   universal-analytics             \
