@@ -1283,7 +1283,7 @@ define([
         var client = getFxaClient();
 
         return client.signUp(
-            email, password, { preVerified: options.preVerified });
+          email, password, { lang: 'en', preVerified: options.preVerified });
       });
     };
   }
