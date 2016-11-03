@@ -52,13 +52,15 @@ define(function (require, exports, module) {
       // For UA information, see
       // https://developer.mozilla.org/docs/Gecko_user_agent_string_reference
 
-      var ua = this.window.navigator.userAgent;
+      const ua = this.window.navigator.userAgent;
 
       // covers both B2G and Firefox for Android
-      var isMobileFirefox = /Mobile/.test(ua) && /Firefox/.test(ua);
-      var isTabletFirefox = /Tablet/.test(ua) && /Firefox/.test(ua);
+      const isMobileAndroidFirefox = /Mobile/.test(ua) && /Firefox/.test(ua);
+      const isTabletAndroidFirefox = /Tablet/.test(ua) && /Firefox/.test(ua);
+      // Fx on iOS
+      const isMobileIosFirefox = /FxiOS/.test(ua);
 
-      return isMobileFirefox || isTabletFirefox;
+      return isMobileAndroidFirefox || isTabletAndroidFirefox || isMobileIosFirefox;
     }
   });
 

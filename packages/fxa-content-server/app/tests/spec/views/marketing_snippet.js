@@ -26,6 +26,22 @@ define(function (require, exports, module) {
       view = new View(options);
     }
 
+    function testMarketingNotDisplayed (userAgent) {
+      windowMock.navigator.userAgent = userAgent;
+
+      createView({
+        language: 'en',
+        service: Constants.SYNC_SERVICE,
+        type: VerificationReasons.SIGN_UP
+      });
+
+      return view.render()
+        .then(() => {
+          assert.lengthOf(view.$('.marketing.default'), 0);
+        });
+    }
+
+
     beforeEach(function () {
       windowMock = new WindowMock();
     });
@@ -82,32 +98,20 @@ define(function (require, exports, module) {
       });
 
       it('shows nothing to english speaking users on Firefox for Android', function () {
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Android; Tablet; rv:26.0) Gecko/26.0 Firefox/26.0';
-
-        createView({
-          language: 'en',
-          service: Constants.SYNC_SERVICE,
-          type: VerificationReasons.SIGN_UP
-        });
-
-        return view.render()
-          .then(function () {
-            assert.equal(view.$('.marketing.default').length, 0);
-          });
+        return testMarketingNotDisplayed(
+          'Mozilla/5.0 (Android; Tablet; rv:26.0) Gecko/26.0 Firefox/26.0');
       });
 
       it('shows nothing to english speaking users on B2G', function () {
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0';
-        createView({
-          language: 'en',
-          service: Constants.SYNC_SERVICE,
-          type: VerificationReasons.SIGN_UP
-        });
+        return testMarketingNotDisplayed(
+          'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0');
+      });
 
-        return view.render()
-          .then(function () {
-            assert.equal(view.$('.marketing.default').length, 0);
-          });
+      it('shows nothing to english speaking users on Firefox for iOS', function () {
+        return testMarketingNotDisplayed(
+          'Mozilla/5.0 (iPod touch; CPU iPhone ' +
+          'OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) ' +
+          'FxiOS/1.0 Mobile/12F69 Safari/600.1.4');
       });
 
       it('shows nothing to non-english speaking, non-sync users', function () {
