@@ -58,9 +58,9 @@ define([
       assert.lengthOf(route.process, 2);
     },
 
-    'route.process strips trailing slashes from URLs in config': function () {
+    'route.process strips trailing slashes and suffixes from URLs in config': function () {
       /*eslint-disable camelcase*/
-      mocks.config.fxaccount_url += '//';
+      mocks.config.fxaccount_url += '//v1/';
       mocks.config.oauth_url += '/path/component/';
       mocks.config.profile_url += '/path/component';
       /*eslint-enable camelcase*/
@@ -136,9 +136,7 @@ define([
 
         var conf = intern.config;
         var expectAuthRoot = conf.fxaAuthRoot;
-        if (conf.fxaDevBox || ! conf.fxaProduction) {
-          expectAuthRoot = expectAuthRoot.replace(/\/v1$/, '');
-        }
+        expectAuthRoot = expectAuthRoot.replace(/\/v1$/, '');
 
         assert.equal(result.auth_server_base_url, expectAuthRoot);
         assert.equal(result.oauth_server_base_url, conf.fxaOAuthRoot);

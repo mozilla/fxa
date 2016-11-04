@@ -8,6 +8,12 @@ function normalizeUrl(url) {
   return url;
 }
 
+function stripV1Suffix(url) {
+  // Strip the /v1 suffix, if present.
+  url = url.replace(/\/+v1$/, '');
+  return url;
+}
+
 module.exports = function (config) {
   var route = {};
   route.method = 'get';
@@ -15,7 +21,9 @@ module.exports = function (config) {
 
   var fxaClientConfig = {
     /*eslint-disable camelcase */
-    auth_server_base_url: normalizeUrl(config.get('fxaccount_url')),
+    // The content-server can accept fxaccount_url URL with or without
+    // a /v1 suffix, but Firefox client code expects it without.
+    auth_server_base_url: stripV1Suffix(normalizeUrl(config.get('fxaccount_url'))),
     oauth_server_base_url: normalizeUrl(config.get('oauth_url')),
     profile_server_base_url: normalizeUrl(config.get('profile_url')),
     sync_tokenserver_base_url: normalizeUrl(config.get('sync_tokenserver_url'))
