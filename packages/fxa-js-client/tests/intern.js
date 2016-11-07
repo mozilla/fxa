@@ -17,13 +17,14 @@ define(['intern/lib/args'], function (args) {
       server = 'http://127.0.0.1:9000';
     }
 
-    if (server === 'DEV') {
-      server = 'https://api-accounts.dev.lcip.org';
+    if (server === 'LATEST') {
+      server = 'https://latest.dev.lcip.org/auth';
     }
 
-    if (server === 'LATEST') {
-      server = 'https://api-accounts-latest.dev.lcip.org';
+    if (server === 'STABLE') {
+      server = 'https://stable.dev.lcip.org/auth';
     }
+
     console.log('Running against ' + server);
   } else {
     console.log('Running with mocks...');
