@@ -8,10 +8,6 @@ var error = dbServer.errors
 var logger = require('../lib/logging')('bin.server')
 var DB = require('../lib/db/mem')(logger, error)
 
-function shutdown() {
-  process.nextTick(process.exit)
-}
-
 DB.connect(config)
   .done(function (db) {
     var server = dbServer.createServer(db)
