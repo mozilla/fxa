@@ -20,6 +20,11 @@ module.exports = function (log, db) {
    * @returns {boolean}
    */
   function shouldRemind() {
+    // if disabled then do not remind
+    if (reminderConfig.rate === 0) {
+      return false
+    }
+
     // random between 0 and 100, inclusive
     var rand = Math.floor(Math.random() * (100 + 1))
     return rand <= (reminderConfig.rate * 100)
