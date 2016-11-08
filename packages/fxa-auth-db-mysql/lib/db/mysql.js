@@ -1049,7 +1049,7 @@ module.exports = function (log, error) {
     'account.reset': 3
   }
 
-  var CREATE_SECURITY_EVENT = 'CALL createSecurityEvent_2(?, ?, ?, ?, ?)'
+  var CREATE_SECURITY_EVENT = 'CALL createSecurityEvent_3(?, ?, ?, ?, ?)'
   MySql.prototype.createSecurityEvent = function (data) {
     var uid = data.uid
     var tokenId = data.tokenId
