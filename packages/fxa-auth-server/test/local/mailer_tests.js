@@ -463,14 +463,14 @@ P.all(
           uaBrowserVersion: '32',
           uaOS: 'Windows',
           uaOSVersion: '8.1'
-        }), 'Firefox 32, Windows 8.1')
+        }), 'Firefox on Windows 8.1')
 
         t.equal(mailer._formatUserAgentInfo({
           uaBrowser: 'Chrome',
           uaBrowserVersion: undefined,
           uaOS: 'Windows',
           uaOSVersion: '10',
-        }), 'Chrome, Windows 10')
+        }), 'Chrome on Windows 10')
 
         t.equal(mailer._formatUserAgentInfo({
           uaBrowser: undefined,
@@ -484,21 +484,21 @@ P.all(
           uaBrowserVersion: '6',
           uaOS: 'Linux',
           uaOSVersion: '9'
-        }), 'MSIE 6, Linux 9')
+        }), 'MSIE on Linux 9')
 
         t.equal(mailer._formatUserAgentInfo({
           uaBrowser: 'MSIE',
           uaBrowserVersion: undefined,
           uaOS: 'Linux',
           uaOSVersion: undefined
-        }), 'MSIE, Linux')
+        }), 'MSIE on Linux')
 
         t.equal(mailer._formatUserAgentInfo({
           uaBrowser: 'MSIE',
           uaBrowserVersion: '8',
           uaOS: undefined,
           uaOSVersion: '4'
-        }), 'MSIE 8')
+        }), 'MSIE')
 
         t.equal(mailer._formatUserAgentInfo({
           uaBrowser: 'MSIE',
@@ -527,4 +527,3 @@ P.all(
 
   }
 )
-
