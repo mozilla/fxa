@@ -4,12 +4,14 @@
 
 var extend = require('util')._extend
 
+var sinon = require('sinon')
 var P = require('bluebird')
 var test = require('tap').test
 
 var nullLog = {
   trace: function () {},
-  info: function () {}
+  info: function () {},
+  error: function () {}
 }
 
 var config = require('../../config')
@@ -524,6 +526,53 @@ P.all(
         t.end()
       }
     )
+
+    test(
+      'resolves sendMail status',
+      function (t) {
+        var mailer = new Mailer(translator, templates, config.get('mail'))
+        sinon.stub(mailer.mailer, 'sendMail', function (config, cb) {
+          cb(null, { resp: 'ok' })
+        })
+
+        var message = {
+          email: 'test@restmail.net',
+          subject: 'subject',
+          template: 'suspiciousLocationEmail',
+          uid: 'foo'
+        }
+
+        return mailer.send(message)
+          .then(function (status) {
+            t.equal(status.resp, 'ok')
+            t.done()
+          })
+      }
+    )
+
+    test(
+      'rejects sendMail status',
+      function (t) {
+        var mailer = new Mailer(translator, templates, config.get('mail'))
+        sinon.stub(mailer.mailer, 'sendMail', function (config, cb) {
+          cb(new Error('Fail'))
+        })
+
+        var message = {
+          email: 'test@restmail.net',
+          subject: 'subject',
+          template: 'suspiciousLocationEmail',
+          uid: 'foo'
+        }
+
+        return mailer.send(message)
+          .then(t.notOk, function (err) {
+            t.equal(err.message, 'Fail')
+            t.done()
+          })
+      }
+    )
+
 
   }
 )
