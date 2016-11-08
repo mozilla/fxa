@@ -12,7 +12,7 @@ The auth-mailer also includes a restify API to send emails, but the auth server 
 
 ## Prerequisites
 
-* node 0.10.x
+* node 4
 * npm
 * postfix
 
