@@ -23,16 +23,16 @@
           <p>
             {{#t}}Get the full Sync experience.{{/t}}
             <br>
-            {{#t}}Download Firefox for mobile devices.{{/t}}
+            <span class="download-firefox-mobile">{{#t}}Download Firefox for mobile devices.{{/t}}</span>
           </p>
 
           <ul>
             <li>
-                <a class="marketing-link marketing-link-android" href="https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&adgroup=android&creative=button" data-marketing-id="spring-2015-android-ios-sync"><img width="152" height="45" src="{{ playStoreImage }}" alt="{{#t}}Download Firefox for Android.{{/t}}"></a>
+              <a class="marketing-link marketing-link-ios" href="https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&adgroup=ios&creative=button&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8" data-marketing-id="spring-2015-android-ios-sync"><img width="152" height="45" src="{{ appStoreImage }}" alt="{{#t}}Download Firefox for iOS!{{/t}}" /></a>
             </li>
-            <li>
-                <a class="marketing-link marketing-link-ios" href="https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&adgroup=ios&creative=button&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8" data-marketing-id="spring-2015-android-ios-sync"><img width="152" height="53" src="{{ appStoreImage }}" alt="{{#t}}Download Firefox for iOS!{{/t}}" /></a>
-            </li>
+			<li>
+              <a class="marketing-link marketing-link-android" href="https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&adgroup=android&creative=button" data-marketing-id="spring-2015-android-ios-sync"><img width="152" height="45"  src="{{ playStoreImage }}" alt="{{#t}}Download Firefox for Android.{{/t}}"></a>
+            </li>  
           </ul>
         </div>
       {{/isOther}}
