@@ -2,6 +2,7 @@ Firefox Accounts Mailer
 ==========================
 
 [![Build Status](https://travis-ci.org/mozilla/fxa-auth-mailer.svg?branch=master)](https://travis-ci.org/mozilla/fxa-auth-mailer)
+[![Coverage Status](https://coveralls.io/repos/github/mozilla/fxa-auth-mailer/badge.svg?branch=master)](https://coveralls.io/github/mozilla/fxa-auth-mailer?branch=master)
 
 Library to send out verification emails in the [fxa-auth-server](https://github.com/mozilla/fxa-auth-server/) which renders emails from a template (and handles localization).
 
