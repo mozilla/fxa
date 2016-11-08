@@ -1,4 +1,4 @@
-FROM node:4.5
+FROM node:4.6.1
 
 RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
