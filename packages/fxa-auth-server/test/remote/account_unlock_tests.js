@@ -2,18 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+'use strict'
+
+const assert = require('insist')
 var TestServer = require('../test_server')
 const Client = require('../client')()
 
 var config = require('../../config').getProperties()
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote account unlock', function() {
+  this.timeout(15000)
+  let server
+  before(() => {
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
 
-  test(
+  it(
     '/account/lock is no longer supported',
-    function (t) {
+    () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
         .then(
           function (c) {
@@ -22,18 +31,18 @@ TestServer.start(config)
         )
         .then(
           function () {
-            t.fail('should get an error')
+            assert(false, 'should get an error')
           },
           function (e) {
-            t.equal(e.code, 410, 'correct error status code')
+            assert.equal(e.code, 410, 'correct error status code')
           }
         )
     }
   )
 
-  test(
+  it(
     '/account/unlock/resend_code is no longer supported',
-    function (t) {
+    () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
         .then(
           function (c) {
@@ -42,18 +51,18 @@ TestServer.start(config)
         )
         .then(
           function () {
-            t.fail('should get an error')
+            assert(false, 'should get an error')
           },
           function (e) {
-            t.equal(e.code, 410, 'correct error status code')
+            assert.equal(e.code, 410, 'correct error status code')
           }
         )
     }
   )
 
-  test(
+  it(
     '/account/unlock/verify_code is no longer supported',
-    function (t) {
+    () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
         .then(
           function (c) {
@@ -62,20 +71,16 @@ TestServer.start(config)
         )
         .then(
           function () {
-            t.fail('should get an error')
+            assert(false, 'should get an error')
           },
           function (e) {
-            t.equal(e.code, 410, 'correct error status code')
+            assert.equal(e.code, 410, 'correct error status code')
           }
         )
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    return TestServer.stop(server)
+  })
 })

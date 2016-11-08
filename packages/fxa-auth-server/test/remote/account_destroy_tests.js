@@ -2,18 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
-var TestServer = require('../test_server')
+'use strict'
+
+const assert = require('insist')
+const TestServer = require('../test_server')
 const Client = require('../client')()
 
-var config = require('../../config').getProperties()
+const config = require('../../config').getProperties()
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote account destroy', () => {
 
-  test(
+  let server
+
+  before(function() {
+    this.timeout(15000)
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
+
+  it(
     'account destroy',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -36,18 +47,18 @@ TestServer.start(config)
         )
         .then(
           function (keys) {
-            t.fail('account not destroyed')
+            assert(false, 'account not destroyed')
           },
           function (err) {
-            t.equal(err.message, 'Unknown account', 'account destroyed')
+            assert.equal(err.message, 'Unknown account', 'account destroyed')
           }
         )
     }
   )
 
-  test(
+  it(
     'invalid authPW on account destroy',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'ok'
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
@@ -58,19 +69,17 @@ TestServer.start(config)
           }
         )
         .then(
-          t.fail,
+          () => {
+            assert(false)
+          },
           function (err) {
-            t.equal(err.errno, 103)
+            assert.equal(err.errno, 103)
           }
         )
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    return TestServer.stop(server)
+  })
 })

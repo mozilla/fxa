@@ -58,6 +58,9 @@ function AppError(options, extra, headers) {
   this.message = options.message || DEFAULTS.message
   this.isBoom = true
   this.stack = options.stack
+  if (!this.stack) {
+    Error.captureStackTrace(this, AppError)
+  }
   this.errno = options.errno || DEFAULTS.errno
   this.output = {
     statusCode: options.code || DEFAULTS.code,

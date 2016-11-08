@@ -2,19 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+'use strict'
+
+const assert = require('insist')
 var url = require('url')
 const Client = require('../client')()
 var TestServer = require('../test_server')
 
 var config = require('../../config').getProperties()
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote recovery email verify', function() {
+  this.timeout(15000)
+  let server
+  before(() => {
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
 
-  test(
+  it(
     'create account verify with incorrect code',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -31,7 +40,7 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, false, 'new account is not verified')
+            assert.equal(status.verified, false, 'new account is not verified')
           }
         )
         .then(
@@ -41,10 +50,10 @@ TestServer.start(config)
         )
         .then(
           function () {
-            t.fail('verified email with bad code')
+            assert(false, 'verified email with bad code')
           },
           function (err) {
-            t.equal(err.message.toString(), 'Invalid verification code', 'bad attempt')
+            assert.equal(err.message.toString(), 'Invalid verification code', 'bad attempt')
           }
         )
         .then(
@@ -54,15 +63,15 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, false, 'account not verified')
+            assert.equal(status.verified, false, 'account not verified')
           }
         )
     }
   )
 
-  test(
+  it(
     'verification email link',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'something'
       var client = null // eslint-disable-line no-unused-vars
@@ -85,20 +94,16 @@ TestServer.start(config)
           function (emailData) {
             var link = emailData.headers['x-link']
             var query = url.parse(link, true).query
-            t.ok(query.uid, 'uid is in link')
-            t.ok(query.code, 'code is in link')
-            t.equal(query.redirectTo, options.redirectTo, 'redirectTo is in link')
-            t.equal(query.service, options.service, 'service is in link')
+            assert.ok(query.uid, 'uid is in link')
+            assert.ok(query.code, 'code is in link')
+            assert.equal(query.redirectTo, options.redirectTo, 'redirectTo is in link')
+            assert.equal(query.service, options.service, 'service is in link')
           }
         )
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    return TestServer.stop(server)
+  })
 })

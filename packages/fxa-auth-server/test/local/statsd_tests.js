@@ -2,226 +2,230 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var tap = require('tap')
-var test = tap.test
+'use strict'
 
+const assert = require('insist')
 var StatsDCollector = require('../../lib/metrics/statsd')
 var mockLog = require('../mocks').mockLog()
 
-test(
-  'statsd init failure cases',
-  function (t) {
+describe('metrics/statsd', () => {
+  it(
+    'statsd init failure cases',
+    () => {
+      assert.throws(() => {
+        void new StatsDCollector()
+      }, 'Log is required')
 
-    try {
-      void new StatsDCollector()
-    } catch (e) {
-      t.equal(e.message, 'Log is required')
+      assert.doesNotThrow(() => {
+        var statsd = new StatsDCollector(mockLog)
+        statsd.init()
+      })
     }
+  )
 
-    try {
+  it(
+    'statsd init',
+    () => {
       var statsd = new StatsDCollector(mockLog)
       statsd.init()
-    } catch (e) {
-      t.fail('should not throw')
+      assert.equal(statsd.connected, true)
     }
+  )
 
-    t.end()
-  }
-)
-
-test(
-  'statsd init',
-  function (t) {
-    var statsd = new StatsDCollector(mockLog)
-    statsd.init()
-    t.equal(statsd.connected, true)
-    t.end()
-  }
-)
-
-test(
-  'statsd write',
-  function (t) {
-    function StatsDMock() {
-      return {
-        socket: {},
-        increment: function (name, value, sampleRate, tags) {
-          t.equal(name, 'fxa.auth.some-event')
-          t.equal(value, 1)
-          t.ok(sampleRate)
-          t.equal(Array.isArray(tags), true)
-          t.equal(tags.length, 0)
-          t.end()
+  it(
+    'statsd write',
+    () => {
+      let count = 0
+      function StatsDMock() {
+        return {
+          socket: {},
+          increment: function (name, value, sampleRate, tags) {
+            assert.equal(name, 'fxa.auth.some-event')
+            assert.equal(value, 1)
+            assert.ok(sampleRate)
+            assert.equal(Array.isArray(tags), true)
+            assert.equal(tags.length, 0)
+            count++
+          }
         }
       }
+
+      var statsd = new StatsDCollector(mockLog)
+      statsd.init()
+      statsd.client = new StatsDMock()
+      statsd.write({
+        event: 'some-event',
+        uid: 'id'
+      })
+      assert.equal(count, 1)
     }
+  )
 
-    var statsd = new StatsDCollector(mockLog)
-    statsd.init()
-    statsd.client = new StatsDMock()
-    statsd.write({
-      event: 'some-event',
-      uid: 'id'
-    })
-  }
-)
-
-test(
-  'statsd write with tags',
-  function (t) {
-    function StatsDMock() {
-      return {
-        socket: {},
-        increment: function (name, value, sampleRate, tags) {
-          t.equal(name, 'fxa.auth.some-event')
-          t.equal(value, 1)
-          t.ok(sampleRate)
-          t.deepEquals(tags, [
-            'agent_ua_family:Firefox',
-            'agent_ua_version:43.0',
-            'agent_ua_version_major:43',
-            'agent_os_version:10.11',
-            'agent_os_family:Mac OS X',
-            'agent_os_major:10'
-          ])
-          t.end()
+  it(
+    'statsd write with tags',
+    () => {
+      let count = 0
+      function StatsDMock() {
+        return {
+          socket: {},
+          increment: function (name, value, sampleRate, tags) {
+            assert.equal(name, 'fxa.auth.some-event')
+            assert.equal(value, 1)
+            assert.ok(sampleRate)
+            assert.deepEqual(tags, [
+              'agent_ua_family:Firefox',
+              'agent_ua_version:43.0',
+              'agent_ua_version_major:43',
+              'agent_os_version:10.11',
+              'agent_os_family:Mac OS X',
+              'agent_os_major:10'
+            ])
+            count++
+          }
         }
       }
+
+      var statsd = new StatsDCollector(mockLog)
+      statsd.init()
+      statsd.client = new StatsDMock()
+      statsd.write({
+        event: 'some-event',
+        uid: 'id',
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:43.0) Gecko/20100101 Firefox/43.0'
+      })
+      assert.equal(count, 1)
     }
+  )
 
-    var statsd = new StatsDCollector(mockLog)
-    statsd.init()
-    statsd.client = new StatsDMock()
-    statsd.write({
-      event: 'some-event',
-      uid: 'id',
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:43.0) Gecko/20100101 Firefox/43.0'
-    })
-  }
-)
-
-test(
-  'statsd write via log.increment',
-  function (t) {
-    function StatsDMock() {
-      return {
-        socket: {},
-        increment: function (name, value, sampleRate, tags) {
-          t.equal(name, 'fxa.auth.some-event')
-          t.equal(value, 1)
-          t.ok(sampleRate)
-          t.equal(Array.isArray(tags), true)
-          t.equal(tags.length, 0)
-          t.end()
+  it(
+    'statsd write via log.increment',
+    () => {
+      let count = 0
+      function StatsDMock() {
+        return {
+          socket: {},
+          increment: function (name, value, sampleRate, tags) {
+            assert.equal(name, 'fxa.auth.some-event')
+            assert.equal(value, 1)
+            assert.ok(sampleRate)
+            assert.equal(Array.isArray(tags), true)
+            assert.equal(tags.length, 0)
+            count++
+          }
         }
       }
+
+      var statsd = new StatsDCollector(mockLog)
+      statsd.init()
+      statsd.client = new StatsDMock()
+      var log = require('../../lib/log')('info')
+      log.statsd = statsd
+      log.increment('some-event')
+      assert.equal(count, 1)
     }
+  )
 
-    var statsd = new StatsDCollector(mockLog)
-    statsd.init()
-    statsd.client = new StatsDMock()
-    var log = require('../../lib/log')('info')
-    log.statsd = statsd
-    log.increment('some-event')
-  }
-)
-
-test(
-  'statsd write error',
-  function (t) {
-    var mockLog = {
-      error: function (log) {
-        t.equal(log.op, 'statsd.increment')
-        t.equal(log.err.message, 'Failed to send message')
-        t.end()
-      }
-    }
-
-    function StatsDMock() {
-      return {
-        socket: {},
-        increment: function (name, value, sampleRate, tags, cb) {
-          cb(new Error('Failed to send message'))
+  it(
+    'statsd write error',
+    () => {
+      let count = 0
+      var mockLog = {
+        error: function (log) {
+          assert.equal(log.op, 'statsd.increment')
+          assert.equal(log.err.message, 'Failed to send message')
+          count++
         }
       }
-    }
 
-    var statsd = new StatsDCollector(mockLog)
-    statsd.init()
-    statsd.client = new StatsDMock()
-    statsd.write({
-      event: 'some-event',
-      uid: 'id'
-    })
-  }
-)
-
-test(
-  'statsd.timing',
-  function (t) {
-    function StatsDMock() {
-      return {
-        socket: {},
-        increment: function () {
-          t.fail('statsd.increment should not be called')
-          t.end()
-        },
-        timing: function () {
-          t.equal(arguments.length, 5, 'statsd.timing received the correct number arguments')
-          t.equal(arguments[0], 'fxa.auth.foo.time', 'statsd.timing received the correct name argument')
-          t.equal(arguments[1], 1, 'statsd.timing received the correct timing argument')
-          t.equal(typeof arguments[2], 'number', 'statsd.timing received the correct timing argument')
-          t.equal(arguments[3], undefined, 'statsd.timing received the correct tags argument')
-          t.equal(typeof arguments[4], 'function', 'statsd.timing received the correct callback argument')
-          t.end()
+      function StatsDMock() {
+        return {
+          socket: {},
+          increment: function (name, value, sampleRate, tags, cb) {
+            cb(new Error('Failed to send message'))
+          }
         }
       }
+
+      var statsd = new StatsDCollector(mockLog)
+      statsd.init()
+      statsd.client = new StatsDMock()
+      statsd.write({
+        event: 'some-event',
+        uid: 'id'
+      })
+      assert.equal(count, 1)
     }
+  )
 
-    var statsd = new StatsDCollector(mockLog)
-    statsd.init()
-    statsd.client = new StatsDMock()
-    var log = require('../../lib/log')('info')
-    log.statsd = statsd
-    log.timing('foo', 1)
-  }
-)
-
-test(
-  'statsd.timing error',
-  function (t) {
-    var mockLog = {
-      error: function (log) {
-        t.equal(log.op, 'statsd.timing')
-        t.equal(log.err, 'foo')
-        t.end()
-      }
-    }
-
-    function StatsDMock() {
-      return {
-        socket: {},
-        timing: function () {
-          arguments[4]('foo')
+  it(
+    'statsd.timing',
+    () => {
+      let count = 0
+      function StatsDMock() {
+        return {
+          socket: {},
+          increment: function () {
+            assert(false, 'statsd.increment should not be called')
+          },
+          timing: function () {
+            assert.equal(arguments.length, 5, 'statsd.timing received the correct number arguments')
+            assert.equal(arguments[0], 'fxa.auth.foo.time', 'statsd.timing received the correct name argument')
+            assert.equal(arguments[1], 1, 'statsd.timing received the correct timing argument')
+            assert.equal(typeof arguments[2], 'number', 'statsd.timing received the correct timing argument')
+            assert.equal(arguments[3], undefined, 'statsd.timing received the correct tags argument')
+            assert.equal(typeof arguments[4], 'function', 'statsd.timing received the correct callback argument')
+            count++
+          }
         }
       }
+
+      var statsd = new StatsDCollector(mockLog)
+      statsd.init()
+      statsd.client = new StatsDMock()
+      var log = require('../../lib/log')('info')
+      log.statsd = statsd
+      log.timing('foo', 1)
+      assert.equal(count, 1)
     }
+  )
 
-    var statsd = new StatsDCollector(mockLog)
-    statsd.init()
-    statsd.client = new StatsDMock()
-    statsd.timing('wibble', 42)
-  }
-)
+  it(
+    'statsd.timing error',
+    () => {
+      let count = 0
+      var mockLog = {
+        error: function (log) {
+          assert.equal(log.op, 'statsd.timing')
+          assert.equal(log.err, 'foo')
+          count++
+        }
+      }
 
-test(
-  'statsd close',
-  function (t) {
-    var statsd = new StatsDCollector(mockLog)
-    statsd.init()
-    t.equal(statsd.connected, true)
-    statsd.close()
-    t.equal(statsd.connected, false)
-    t.end()
-  }
-)
+      function StatsDMock() {
+        return {
+          socket: {},
+          timing: function () {
+            arguments[4]('foo')
+          }
+        }
+      }
+
+      var statsd = new StatsDCollector(mockLog)
+      statsd.init()
+      statsd.client = new StatsDMock()
+      statsd.timing('wibble', 42)
+      assert.equal(count, 1)
+    }
+  )
+
+  it(
+    'statsd close',
+    () => {
+      var statsd = new StatsDCollector(mockLog)
+      statsd.init()
+      assert.equal(statsd.connected, true)
+      statsd.close()
+      assert.equal(statsd.connected, false)
+    }
+  )
+})

@@ -2,41 +2,41 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+'use strict'
+
+const assert = require('insist')
 var TestServer = require('../test_server')
 var P = require('../../lib/promise')
-var request = require('request')
+var request = P.promisify(require('request'))
 var path = require('path')
 
-process.env.OLD_PUBLIC_KEY_FILE = path.resolve(__dirname, '../../config/public-key.json')
-var config = require('../../config').getProperties()
+describe('remote sign key', function() {
+  this.timeout(15000)
+  let server
+  before(() => {
+    process.env.OLD_PUBLIC_KEY_FILE = path.resolve(__dirname, '../../config/public-key.json')
+    var config = require('../../config').getProperties()
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
 
-TestServer.start(config)
-.then(function main(server) {
-
-  test(
+  it(
     '.well-known/browserid has keys',
-    function (t) {
-      var d = P.defer()
-      request('http://127.0.0.1:9000/.well-known/browserid',
-        function (err, res, body) {
-          if (err) { d.reject(err) }
-          t.equal(res.statusCode, 200)
+    () => {
+      return request('http://127.0.0.1:9000/.well-known/browserid')
+        .spread((res, body) => {
+          assert.equal(res.statusCode, 200)
           var json = JSON.parse(body)
-          t.equal(json.authentication, '/.well-known/browserid/sign_in.html')
-          t.equal(json.keys.length, 2)
-          d.resolve(json)
-        }
-      )
-      return d.promise
+          assert.equal(json.authentication, '/.well-known/browserid/sign_in.html')
+          assert.equal(json.keys.length, 2)
+        })
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    delete process.env.OLD_PUBLIC_KEY_FILE
+    return TestServer.stop(server)
+  })
 })

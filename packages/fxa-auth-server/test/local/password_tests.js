@@ -2,85 +2,88 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
-var log = {}
-var config = {}
-var Password = require('../../lib/crypto/password')(log, config)
+'use strict'
 
-test(
-  'password version zero',
-  function (t) {
-    var pwd = Buffer('aaaaaaaaaaaaaaaa')
-    var salt = Buffer('bbbbbbbbbbbbbbbb')
-    var p1 = new Password(pwd, salt, 0)
-    t.equal(p1.version, 0, 'should be using version zero')
-    var p2 = new Password(pwd, salt, 0)
-    t.equal(p2.version, 0, 'should be using version zero')
-    return p1.verifyHash()
-    .then(
-      function (hash) {
-        return p2.matches(hash)
-      }
-    )
-    .then(
-      function (matched) {
-        t.ok(matched, 'identical passwords should match')
-      }
-    )
-  }
-)
+const assert = require('insist')
+const log = {}
+const config = {}
+const Password = require('../../lib/crypto/password')(log, config)
 
-test(
-  'password version one',
-  function (t) {
-    var pwd = Buffer('aaaaaaaaaaaaaaaa')
-    var salt = Buffer('bbbbbbbbbbbbbbbb')
-    var p1 = new Password(pwd, salt, 1)
-    t.equal(p1.version, 1, 'should be using version one')
-    var p2 = new Password(pwd, salt, 1)
-    t.equal(p2.version, 1, 'should be using version one')
-    return p1.verifyHash()
-    .then(
-      function (hash) {
-        return p2.matches(hash)
-      }
-    )
-    .then(
-      function (matched) {
-        t.ok(matched, 'identical passwords should match')
-      }
-    )
-  }
-)
+describe('Password', () => {
+  it(
+    'password version zero',
+    () => {
+      var pwd = Buffer('aaaaaaaaaaaaaaaa')
+      var salt = Buffer('bbbbbbbbbbbbbbbb')
+      var p1 = new Password(pwd, salt, 0)
+      assert.equal(p1.version, 0, 'should be using version zero')
+      var p2 = new Password(pwd, salt, 0)
+      assert.equal(p2.version, 0, 'should be using version zero')
+      return p1.verifyHash()
+      .then(
+        function (hash) {
+          return p2.matches(hash)
+        }
+      )
+      .then(
+        function (matched) {
+          assert.ok(matched, 'identical passwords should match')
+        }
+      )
+    }
+  )
 
-test(
-  'passwords of different versions should not match',
-  function (t) {
-    var pwd = Buffer('aaaaaaaaaaaaaaaa')
-    var salt = Buffer('bbbbbbbbbbbbbbbb')
-    var p1 = new Password(pwd, salt, 0)
-    var p2 = new Password(pwd, salt, 1)
-    return p1.verifyHash()
-    .then(
-      function (hash) {
-        return p2.matches(hash)
-      }
-    )
-    .then(
-      function (matched) {
-        t.ok(!matched, 'passwords should not match')
-      }
-    )
-  }
-)
+  it(
+    'password version one',
+    () => {
+      var pwd = Buffer('aaaaaaaaaaaaaaaa')
+      var salt = Buffer('bbbbbbbbbbbbbbbb')
+      var p1 = new Password(pwd, salt, 1)
+      assert.equal(p1.version, 1, 'should be using version one')
+      var p2 = new Password(pwd, salt, 1)
+      assert.equal(p2.version, 1, 'should be using version one')
+      return p1.verifyHash()
+      .then(
+        function (hash) {
+          return p2.matches(hash)
+        }
+      )
+      .then(
+        function (matched) {
+          assert.ok(matched, 'identical passwords should match')
+        }
+      )
+    }
+  )
 
-test(
-  'scrypt queue stats can be reported',
-  function (t) {
-    var stat = Password.stat()
-    t.equal(stat.stat, 'scrypt')
-    t.ok(stat.hasOwnProperty('numPending'))
-    t.ok(stat.hasOwnProperty('numPendingHWM'))
-    t.end()
-  }
-)
+  it(
+    'passwords of different versions should not match',
+    () => {
+      var pwd = Buffer('aaaaaaaaaaaaaaaa')
+      var salt = Buffer('bbbbbbbbbbbbbbbb')
+      var p1 = new Password(pwd, salt, 0)
+      var p2 = new Password(pwd, salt, 1)
+      return p1.verifyHash()
+      .then(
+        function (hash) {
+          return p2.matches(hash)
+        }
+      )
+      .then(
+        function (matched) {
+          assert.ok(!matched, 'passwords should not match')
+        }
+      )
+    }
+  )
+
+  it(
+    'scrypt queue stats can be reported',
+    () => {
+      var stat = Password.stat()
+      assert.equal(stat.stat, 'scrypt')
+      assert.ok(stat.hasOwnProperty('numPending'))
+      assert.ok(stat.hasOwnProperty('numPendingHWM'))
+    }
+  )
+})

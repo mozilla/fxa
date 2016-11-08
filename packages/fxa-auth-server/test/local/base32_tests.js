@@ -2,26 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const test = require('tap').test
+const assert = require('insist')
 const base32 = require('../../lib/crypto/base32')
 
-test('base32 takes 1 integer argument, returns a function', (t) => {
-  t.equal(typeof base32, 'function')
-  t.equal(base32.length, 1)
-  const gen = base32(10)
-  t.equal(typeof gen, 'function')
-  t.equal(gen.length, 0)
-  t.end()
-})
+describe('base32', () => {
+  it('takes 1 integer argument, returns a function', () => {
+    assert.equal(typeof base32, 'function')
+    assert.equal(base32.length, 1)
+    const gen = base32(10)
+    assert.equal(typeof gen, 'function')
+    assert.equal(gen.length, 0)
+  })
 
-test('base32 output', (t) => {
-  const gen = base32(10)
-  return gen().then(code => {
-    t.equal(code.length, 10, 'matches length')
-    t.ok(/^[0-9A-Z]+$/.test(code), 'no lowercase letters')
-    t.equal(code.indexOf('I'), -1, 'no I')
-    t.equal(code.indexOf('L'), -1, 'no L')
-    t.equal(code.indexOf('O'), -1, 'no O')
-    t.equal(code.indexOf('U'), -1, 'no U')
+  it('should have correct output', () => {
+    const gen = base32(10)
+    return gen().then(code => {
+      assert.equal(code.length, 10, 'matches length')
+      assert.ok(/^[0-9A-Z]+$/.test(code), 'no lowercase letters')
+      assert.equal(code.indexOf('I'), -1, 'no I')
+      assert.equal(code.indexOf('L'), -1, 'no L')
+      assert.equal(code.indexOf('O'), -1, 'no O')
+      assert.equal(code.indexOf('U'), -1, 'no U')
+    })
   })
 })

@@ -26,4 +26,12 @@ api.route(
   ]
 )
 
-api.start()
+process.on('SIGINT', () => {
+  process.exit(0)
+})
+
+api.start((err) => {
+  if (err) {
+    console.log(err) // eslint-disable-line no-console
+  }
+})

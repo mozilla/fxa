@@ -4,28 +4,26 @@
 
 'use strict'
 
-const test = require('../ptaptest')
+const assert = require('insist')
 const requestHelper = require('../../lib/routes/utils/request_helper')
 
-test(
-  'interface is correct',
-  t => {
-    t.equal(typeof requestHelper, 'object', 'object type should be exported')
-    t.equal(Object.keys(requestHelper).length, 1, 'object should have one properties')
-    t.equal(typeof requestHelper.wantsKeys, 'function', 'wantsKeys should be function')
+describe('requestHelper', () => {
+  it(
+    'interface is correct',
+    () => {
+      assert.equal(typeof requestHelper, 'object', 'object type should be exported')
+      assert.equal(Object.keys(requestHelper).length, 1, 'object should have one properties')
+      assert.equal(typeof requestHelper.wantsKeys, 'function', 'wantsKeys should be function')
+    }
+  )
 
-    t.end()
-  }
-)
-
-test(
-  'wantsKeys',
-  t => {
-    t.equal(!! requestHelper.wantsKeys({}), false, 'should return falsey if request.query is not set')
-    t.equal(requestHelper.wantsKeys({ query: {} }), false, 'should return false if query.keys is not set')
-    t.equal(requestHelper.wantsKeys({ query: { keys: 'wibble' } }), false, 'should return false if keys is not true')
-    t.equal(requestHelper.wantsKeys({ query: { keys: 'true' } }), true, 'should return true if keys is true')
-
-    t.end()
-  }
-)
+  it(
+    'wantsKeys',
+    () => {
+      assert.equal(!! requestHelper.wantsKeys({}), false, 'should return falsey if request.query is not set')
+      assert.equal(requestHelper.wantsKeys({ query: {} }), false, 'should return false if query.keys is not set')
+      assert.equal(requestHelper.wantsKeys({ query: { keys: 'wibble' } }), false, 'should return false if keys is not true')
+      assert.equal(requestHelper.wantsKeys({ query: { keys: 'true' } }), true, 'should return true if keys is true')
+    }
+  )
+})

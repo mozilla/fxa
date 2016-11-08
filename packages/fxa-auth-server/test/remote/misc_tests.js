@@ -2,31 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+'use strict'
+
+const assert = require('insist')
 var TestServer = require('../test_server')
 const Client = require('../client')()
 var P = require('../../lib/promise')
 var hawk = require('hawk')
-var request = require('request')
+var request = P.promisify(require('request'))
 
 var config = require('../../config').getProperties()
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote misc', function() {
+  this.timeout(15000)
+  let server
+  before(() => {
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
 
   function testVersionRoute(route) {
-    return function (t) {
-      request(config.publicUrl + route, function (err, res, body) {
-        t.ok(!err, 'No error fetching ' + route)
-
+    return () => {
+      return request(config.publicUrl + route).spread((res, body) => {
         var json = JSON.parse(body)
-        t.deepEqual(Object.keys(json), ['version', 'commit', 'source'])
-        t.equal(json.version, require('../../package.json').version, 'package version')
-        t.ok(json.source && json.source !== 'unknown', 'source repository')
+        assert.deepEqual(Object.keys(json), ['version', 'commit', 'source'])
+        assert.equal(json.version, require('../../package.json').version, 'package version')
+        assert.ok(json.source && json.source !== 'unknown', 'source repository')
 
         // check that the git hash just looks like a hash
-        t.ok(json.commit.match(/^[0-9a-f]{40}$/), 'The git hash actually looks like one')
-        t.end()
+        assert.ok(json.commit.match(/^[0-9a-f]{40}$/), 'The git hash actually looks like one')
       })
     }
   }
@@ -35,7 +41,7 @@ TestServer.start(config)
     var randomAllowedOrigin = config.corsOrigin[Math.floor(Math.random() * config.corsOrigin.length)]
     var expectedOrigin = withAllowedOrigin ? randomAllowedOrigin : undefined
 
-    return function(t) {
+    return () => {
       var options = {
         url: config.publicUrl + '/'
       }
@@ -44,87 +50,81 @@ TestServer.start(config)
           'Origin': (withAllowedOrigin ? randomAllowedOrigin : 'http://notallowed')
         }
       }
-      request(options, function(err, res, body) {
-        t.equal(res.headers['access-control-allow-origin'], expectedOrigin, 'Access-Control-Allow-Origin header was set correctly')
-        t.end()
+      return request(options).spread((res, body) => {
+        assert.equal(res.headers['access-control-allow-origin'], expectedOrigin, 'Access-Control-Allow-Origin header was set correctly')
       })
     }
   }
 
-  test(
+  it(
     'unsupported api version',
-    function (t) {
-      request(config.publicUrl + '/v0/account/create', function (err, res) {
-        t.equal(res.statusCode, 410, 'http gone')
-        t.end()
+    () => {
+      return request(config.publicUrl + '/v0/account/create').spread((res) => {
+        assert.equal(res.statusCode, 410, 'http gone')
       })
     }
   )
 
-  test(
+  it(
     '/ returns version, git hash and source repo',
     testVersionRoute('/')
   )
 
-  test(
+  it(
     '/__version__ returns version, git hash and source repo',
     testVersionRoute('/__version__')
   )
 
-  test(
+  it(
     'returns no Access-Control-Allow-Origin with no Origin set',
     testCORSHeader(undefined)
   )
 
-  test(
+  it(
     'returns correct Access-Control-Allow-Origin with whitelisted Origin',
     testCORSHeader(true)
   )
 
-  test(
+  it(
     'returns no Access-Control-Allow-Origin with not whitelisted Origin',
     testCORSHeader(false)
   )
 
-  test(
+  it(
     '/verify_email redirects',
-    function (t) {
+    () => {
       var path = '/v1/verify_email?code=0000&uid=0000'
-      request(
+      return request(
         {
           url: config.publicUrl + path,
           followRedirect: false
-        },
-        function (err, res, body) {
-          t.equal(res.statusCode, 302, 'redirected')
-          //t.equal(res.headers.location, config.contentServer.url + path)
-          t.end()
-        }
-      )
+        })
+        .spread((res, body) => {
+          assert.equal(res.statusCode, 302, 'redirected')
+          //assert.equal(res.headers.location, config.contentServer.url + path)
+        })
     }
   )
 
-  test(
+  it(
     '/complete_reset_password redirects',
-    function (t) {
+    () => {
       var path = '/v1/complete_reset_password?code=0000&email=a@b.c&token=0000'
-      request(
+      return request(
         {
           url: config.publicUrl + path,
           followRedirect: false
-        },
-        function (err, res, body) {
-          t.equal(res.statusCode, 302, 'redirected')
-          //t.equal(res.headers.location, config.contentServer.url + path)
-          t.end()
-        }
-      )
+        })
+        .spread((res, body) => {
+          assert.equal(res.statusCode, 302, 'redirected')
+          //assert.equal(res.headers.location, config.contentServer.url + path)
+        })
     }
   )
 
-  test(
+  it(
     'timestamp header',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var url = null
@@ -144,7 +144,6 @@ TestServer.start(config)
         )
         .then(
           function (token) {
-            var d = P.defer()
             var method = 'GET'
             var verify = {
               credentials: token,
@@ -153,48 +152,39 @@ TestServer.start(config)
             var headers = {
               Authorization: hawk.client.header(url, method, verify).field
             }
-            request(
+            return request(
               {
                 method: method,
                 url: url,
                 headers: headers,
                 json: true
-              },
-              function (err, res, body) {
-                if (err) {
-                  d.reject(err)
-                } else {
-                  var now = +new Date() / 1000
-                  t.ok(res.headers.timestamp > now - 60, 'has timestamp header')
-                  t.ok(res.headers.timestamp < now + 60, 'has timestamp header')
-                  d.resolve()
-                }
-              }
-            )
-            return d.promise
+              })
+              .spread((res, body) => {
+                var now = +new Date() / 1000
+                assert.ok(res.headers.timestamp > now - 60, 'has timestamp header')
+                assert.ok(res.headers.timestamp < now + 60, 'has timestamp header')
+              })
           }
         )
     }
   )
 
-  test(
+  it(
     'Strict-Transport-Security header',
-    function (t) {
-      request(
+    () => {
+      return request(
         {
           url: config.publicUrl + '/'
-        },
-        function (err, res, body) {
-          t.equal(res.headers['strict-transport-security'], 'max-age=15552000; includeSubDomains')
-          t.end()
-        }
-      )
+        })
+        .spread((res, body) => {
+          assert.equal(res.headers['strict-transport-security'], 'max-age=15552000; includeSubDomains')
+        })
     }
   )
 
-  test(
+  it(
     'oversized payload',
-    function (t) {
+    () => {
       var client = new Client(config.publicUrl)
       return client.api.doRequest(
         'POST',
@@ -205,37 +195,37 @@ TestServer.start(config)
       )
       .then(
         function (body) {
-          t.fail('request should have failed')
+          assert(false, 'request should have failed')
         },
         function (err) {
           if (err.errno) {
-            t.equal(err.errno, 113, 'payload too large')
+            assert.equal(err.errno, 113, 'payload too large')
           }
           else {
             // nginx returns an html response
-            t.ok(/413 Request Entity Too Large/.test(err), 'payload too large')
+            assert.ok(/413 Request Entity Too Large/.test(err), 'payload too large')
           }
         }
       )
     }
   )
 
-  test(
+  it(
     'random bytes',
-    function (t) {
+    () => {
       var client = new Client(config.publicUrl)
       return client.api.getRandomBytes()
         .then(
           function (x) {
-            t.equal(x.data.length, 64)
+            assert.equal(x.data.length, 64)
           }
         )
     }
   )
 
-  test(
+  it(
     'fetch /.well-known/browserid support document',
-    function (t) {
+    () => {
       var client = new Client(config.publicUrl)
       function fetch(url) {
         return client.api.doRequest('GET', config.publicUrl + url)
@@ -243,12 +233,12 @@ TestServer.start(config)
       return fetch('/.well-known/browserid')
       .then(
         function (doc) {
-          t.ok(doc.hasOwnProperty('public-key'), 'doc has public key')
-          t.ok(/^[0-9]+$/.test(doc['public-key'].n), 'n is base 10')
-          t.ok(/^[0-9]+$/.test(doc['public-key'].e), 'e is base 10')
-          t.ok(doc.hasOwnProperty('authentication'), 'doc has auth page')
-          t.ok(doc.hasOwnProperty('provisioning'), 'doc has provisioning page')
-          t.equal(doc.keys.length, 1)
+          assert.ok(doc.hasOwnProperty('public-key'), 'doc has public key')
+          assert.ok(/^[0-9]+$/.test(doc['public-key'].n), 'n is base 10')
+          assert.ok(/^[0-9]+$/.test(doc['public-key'].e), 'e is base 10')
+          assert.ok(doc.hasOwnProperty('authentication'), 'doc has auth page')
+          assert.ok(doc.hasOwnProperty('provisioning'), 'doc has provisioning page')
+          assert.equal(doc.keys.length, 1)
           return doc
         }
       )
@@ -257,7 +247,7 @@ TestServer.start(config)
           return fetch(doc.authentication)
           .then(
             function (authPage) {
-              t.ok(authPage, 'auth page can be fetched')
+              assert.ok(authPage, 'auth page can be fetched')
               return doc
             }
           )
@@ -268,7 +258,7 @@ TestServer.start(config)
           return fetch(doc.provisioning)
           .then(
             function (provPage) {
-              t.ok(provPage, 'provisioning page can be fetched')
+              assert.ok(provPage, 'provisioning page can be fetched')
               return doc
             }
           )
@@ -277,11 +267,7 @@ TestServer.start(config)
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    return TestServer.stop(server)
+  })
 })

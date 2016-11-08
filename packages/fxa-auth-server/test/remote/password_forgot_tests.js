@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+'use strict'
+
+const assert = require('insist')
 var url = require('url')
 const Client = require('../client')()
 var TestServer = require('../test_server')
@@ -10,14 +12,21 @@ var crypto = require('crypto')
 var base64url = require('base64url')
 
 var config = require('../../config').getProperties()
-process.env.SIGNIN_CONFIRMATION_ENABLED = false
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote password forgot', function() {
+  this.timeout(15000)
+  let server
+  before(() => {
+    process.env.SIGNIN_CONFIRMATION_ENABLED = false
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
 
-  test(
+  it(
     'forgot password',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var newPassword = 'ez'
@@ -45,7 +54,7 @@ TestServer.start(config)
         )
         .then(
           function (code) {
-            t.throws(function() { client.resetPassword(newPassword) })
+            assert.throws(function() { client.resetPassword(newPassword) })
             return resetPassword(client, code, newPassword)
           }
         )
@@ -58,7 +67,7 @@ TestServer.start(config)
           function (emailData) {
             var link = emailData.headers['x-link']
             var query = url.parse(link, true).query
-            t.ok(query.email, 'email is in the link')
+            assert.ok(query.email, 'email is in the link')
           }
         )
         .then(
@@ -68,10 +77,10 @@ TestServer.start(config)
         )
         .then(
           function (keys) {
-            t.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
-            t.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
-            t.deepEqual(kA, keys.kA, 'kA was not reset')
-            t.equal(client.kB.length, 32, 'kB exists, has the right length')
+            assert.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
+            assert.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            assert.deepEqual(kA, keys.kA, 'kA was not reset')
+            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
         .then( // make sure we can still login after password reset
@@ -88,9 +97,9 @@ TestServer.start(config)
     }
   )
 
-  test(
+  it(
     'forgot password limits verify attempts',
-    function (t) {
+    () => {
       var code = null
       var email = server.uniqueEmail()
       var password = 'hothamburger'
@@ -125,7 +134,7 @@ TestServer.start(config)
         )
         .then(
           function (c) {
-            t.equal(code, c, 'same code as before')
+            assert.equal(code, c, 'same code as before')
           }
         )
         .then(
@@ -135,11 +144,11 @@ TestServer.start(config)
         )
         .then(
           function () {
-            t.fail('reset password with bad code')
+            assert(false, 'reset password with bad code')
           },
           function (err) {
-            t.equal(err.tries, 2, 'used a try')
-            t.equal(err.message, 'Invalid verification code', 'bad attempt 1')
+            assert.equal(err.tries, 2, 'used a try')
+            assert.equal(err.message, 'Invalid verification code', 'bad attempt 1')
           }
         )
         .then(
@@ -149,11 +158,11 @@ TestServer.start(config)
         )
         .then(
           function () {
-            t.fail('reset password with bad code')
+            assert(false, 'reset password with bad code')
           },
           function (err) {
-            t.equal(err.tries, 1, 'used a try')
-            t.equal(err.message, 'Invalid verification code', 'bad attempt 2')
+            assert.equal(err.tries, 1, 'used a try')
+            assert.equal(err.message, 'Invalid verification code', 'bad attempt 2')
           }
         )
         .then(
@@ -163,11 +172,11 @@ TestServer.start(config)
         )
         .then(
           function () {
-            t.fail('reset password with bad code')
+            assert(false, 'reset password with bad code')
           },
           function (err) {
-            t.equal(err.tries, 0, 'used a try')
-            t.equal(err.message, 'Invalid verification code', 'bad attempt 3')
+            assert.equal(err.tries, 0, 'used a try')
+            assert.equal(err.message, 'Invalid verification code', 'bad attempt 3')
           }
         )
         .then(
@@ -177,18 +186,18 @@ TestServer.start(config)
         )
         .then(
           function () {
-            t.fail('reset password with invalid token')
+            assert(false, 'reset password with invalid token')
           },
           function (err) {
-            t.equal(err.message, 'Invalid authentication token in request signature', 'token is now invalid')
+            assert.equal(err.message, 'Invalid authentication token in request signature', 'token is now invalid')
           }
         )
     }
   )
 
-  test(
+  it(
     'recovery email link',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'something'
       var client = null
@@ -221,19 +230,19 @@ TestServer.start(config)
           function (emailData) {
             var link = emailData.headers['x-link']
             var query = url.parse(link, true).query
-            t.ok(query.token, 'uid is in link')
-            t.ok(query.code, 'code is in link')
-            t.equal(query.redirectTo, options.redirectTo, 'redirectTo is in link')
-            t.equal(query.service, options.service, 'service is in link')
-            t.equal(query.email, email, 'email is in link')
+            assert.ok(query.token, 'uid is in link')
+            assert.ok(query.code, 'code is in link')
+            assert.equal(query.redirectTo, options.redirectTo, 'redirectTo is in link')
+            assert.equal(query.service, options.service, 'service is in link')
+            assert.equal(query.email, email, 'email is in link')
           }
         )
     }
   )
 
-  test(
+  it(
     'password forgot status with valid token',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'something'
       return Client.create(config.publicUrl, email, password)
@@ -247,8 +256,8 @@ TestServer.start(config)
               )
               .then(
                 function (x) {
-                  t.equal(x.tries, 3, 'three tries remaining')
-                  t.ok(x.ttl > 0 && x.ttl <= (60 * 60), 'ttl is ok')
+                  assert.equal(x.tries, 3, 'three tries remaining')
+                  assert.ok(x.ttl > 0 && x.ttl <= (60 * 60), 'ttl is ok')
                 }
               )
           }
@@ -256,23 +265,23 @@ TestServer.start(config)
     }
   )
 
-  test(
+  it(
     'password forgot status with invalid token',
-    function (t) {
+    () => {
       var client = new Client(config.publicUrl)
       return client.api.passwordForgotStatus('0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF')
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.errno, 110, 'invalid token')
+            assert.equal(err.errno, 110, 'invalid token')
           }
         )
     }
   )
 
-  test(
+  it(
     '/password/forgot/verify_code should set an unverified account as verified',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'something'
       var client = null
@@ -285,7 +294,7 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, false, 'email unverified')
+            assert.equal(status.verified, false, 'email unverified')
           }
         )
         .then(
@@ -315,15 +324,15 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, true, 'account unverified')
+            assert.equal(status.verified, true, 'account unverified')
           }
         )
     }
   )
 
-  test(
+  it(
     'forgot password with service query parameter',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var options = {
         redirectTo: 'https://sync.' + config.smtp.redirectDomain,
@@ -346,14 +355,14 @@ TestServer.start(config)
         .then(function (emailData) {
           var link = emailData.headers['x-link']
           var query = url.parse(link, true).query
-          t.equal(query.service, options.serviceQuery, 'service is in link')
+          assert.equal(query.service, options.serviceQuery, 'service is in link')
         })
     }
   )
 
-  test(
+  it(
     'forgot password, then get device list',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var newPassword = 'foo'
       var client
@@ -377,7 +386,7 @@ TestServer.start(config)
         )
         .then(
           function (devices) {
-            t.equal(devices.length, 1, 'devices list contains 1 item')
+            assert.equal(devices.length, 1, 'devices list contains 1 item')
           }
         )
         .then(
@@ -407,24 +416,22 @@ TestServer.start(config)
         )
         .then(
           function (devices) {
-            t.equal(devices.length, 0, 'devices list is empty')
+            assert.equal(devices.length, 0, 'devices list is empty')
           }
         )
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
-})
+  after(() => {
+    delete process.env.SIGNIN_CONFIRMATION_ENABLED
+    return TestServer.stop(server)
+  })
 
-function resetPassword(client, code, newPassword, options) {
-  return client.verifyPasswordResetCode(code)
-    .then(function() {
-      return client.resetPassword(newPassword, {}, options)
-    })
-}
+  function resetPassword(client, code, newPassword, options) {
+    return client.verifyPasswordResetCode(code)
+      .then(function() {
+        return client.resetPassword(newPassword, {}, options)
+      })
+  }
+
+})
