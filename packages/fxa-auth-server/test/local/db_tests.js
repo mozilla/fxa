@@ -70,6 +70,65 @@ test(
 )
 
 test(
+  'get account by uid',
+  function (t) {
+    t.plan(1)
+
+    var accountData
+    var db
+
+    return dbConn
+      .then(function (dbObj) {
+        db = dbObj
+        accountData = testHelpers.createTestAccount()
+
+        return db.pool.put(
+          '/account/' + accountData.uid.toString('hex'),
+          unbuffer(accountData)
+        )
+      })
+      .then(function () {
+        return db.account(accountData.uid)
+      })
+      .then(function (account) {
+        t.false(account.emailVerified, false)
+        t.end()
+      }, function (err) {
+        throw err
+      })
+  }
+)
+
+test(
+  'throws db errors',
+  function (t) {
+    t.plan(2)
+    var db
+
+    return dbConn
+      .then(function (dbObj) {
+        db = dbObj
+        return db.emailRecord('unknownEmail@restmail.net')
+      })
+      .then(function () {
+        t.notOk()
+      }, function (err) {
+        t.ok(err)
+        return db.emailRecord('unknownEmail@restmail.net')
+
+      })
+      .then(function () {
+        t.notOk()
+      }, function (err) {
+        t.ok(err)
+        t.end()
+      })
+
+
+  }
+)
+
+test(
   'teardown',
   function (t) {
     return dbConn.then(function(db) {
