@@ -28,7 +28,6 @@ define(function (require, exports, module) {
     'campaign=fxa-devices-page&adgroup=ios&creative=button' +
     '&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8';
   const FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
-  const FORCE_APPS_LIST_VIEW = 'forceAppsList';
 
   var View = FormView.extend({
     template: Template,
@@ -67,7 +66,6 @@ define(function (require, exports, module) {
 
       return {
         clients: this._formatAccessTime(clients),
-        clientsPanelTitle: this._getPanelTitle(),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelEnabled: this._isPanelEnabled(),
         isPanelOpen: this.isPanelOpen(),
@@ -108,24 +106,6 @@ define(function (require, exports, module) {
       // we would show mobile apps if there are no mobile clients
       return ! _.some(clients, function (client) {
         return client.type === 'mobile';
-      });
-    },
-
-    _getPanelTitle () {
-      var title = t('Devices');
-
-      if (this._isAppsListVisible()) {
-        title = t('Devices & apps');
-      }
-
-      return title;
-    },
-
-    _isAppsListVisible () {
-      // OAuth Apps list is visible if `appsListVisible` chooses `true`.
-      return this._able.choose('appsListVisible', {
-        forceAppsList: Url.searchParam(FORCE_APPS_LIST_VIEW, this.window.location.search),
-        isMetricsEnabledValue: this.metrics.isCollectionEnabled()
       });
     },
 
@@ -181,7 +161,7 @@ define(function (require, exports, module) {
     _fetchAttachedClients () {
       return this._attachedClients.fetchClients({
         devices: true,
-        oAuthApps: this._isAppsListVisible()
+        oAuthApps: true
       }, this.user);
     }
 

@@ -10,7 +10,7 @@ define([
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var CONTENT_SERVER = config.fxaContentRoot;
-  var APPS_SETTINGS_URL = CONTENT_SERVER + 'settings/clients?forceDeviceList=1&forceAppsList=1';
+  var APPS_SETTINGS_URL = CONTENT_SERVER + 'settings/clients?forceDeviceList=1';
   var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 
   var PASSWORD = 'password';

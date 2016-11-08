@@ -2,7 +2,7 @@
 <div id="clients" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}}">
   <div class="settings-unit-stub">
     <header class="settings-unit-summary">
-      <h2 class="settings-unit-title">{{clientsPanelTitle}}</h2>
+      <h2 class="settings-unit-title">{{#t}}Devices & apps{{/t}}</h2>
     </header>
     <button class="settings-button secondary settings-unit-toggle hidden"
       data-href="settings/clients">
@@ -16,7 +16,7 @@
     <form novalidate>
       <ul class="client-list button-row">
         {{#clients}}
-          <li class="client {{type}} client-{{clientType}}" id="{{id}}">
+          <li class="client {{type}} client-{{clientType}}" data-name="{{name}}" id="{{id}}">
             <div class="client-name" title="{{name}}">{{name}}</div>
             {{#isCurrentDevice}}
             <div class="device-current">{{#t}}current device{{/t}}</div>

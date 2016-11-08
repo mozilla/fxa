@@ -141,20 +141,54 @@ define(function (require, exports, module) {
         assert.ok(view.$('li.client').length, 2);
       });
 
-      it('renders attachedClients and apps if apps view enabled', function () {
-        sinon.stub(view, '_isAppsListVisible', function () {
-          return true;
-        });
+      it('renders attachedClients and apps', function () {
         assert.equal(view.$('#clients .settings-unit-title').text().trim(), 'Devices & apps');
         assert.ok(view.$('#clients').text().trim().indexOf('manage your attachedClients and apps below'));
       });
 
-      it('properly sets the type of the device', function () {
+      it('properly sets the type of devices', function () {
         assert.ok(view.$('#device-1').hasClass('tablet'));
         assert.notOk(view.$('#device-1').hasClass('desktop'));
         assert.ok(view.$('#device-2').hasClass('mobile'));
         assert.notOk(view.$('#device-2').hasClass('desktop'));
         assert.equal($('#container [data-get-app]').length, 0, '0 mobile app placeholders');
+      });
+
+      it('properly sets the type of apps', function () {
+        attachedClients = new AttachedClients([
+          {
+            clientType: 'oAuthApp',
+            id: 'app-1',
+            lastAccessTime: Date.now(),
+            name: '123Done'
+          },
+          {
+            clientType: 'oAuthApp',
+            id: 'app-2',
+            lastAccessTime: Date.now(),
+            name: 'Pocket'
+          },
+          {
+            clientType: 'oAuthApp',
+            id: 'app-3',
+            lastAccessTime: Date.now(),
+            name: 'Add-ons'
+          }
+        ], {
+          notifier: notifier
+        });
+
+        return initView()
+          .then(function () {
+            $('#container').html(view.el);
+            assert.ok(view.$('#app-1').hasClass('client-oAuthApp'));
+            assert.notOk(view.$('#app-1').hasClass('desktop'));
+            assert.equal(view.$('#app-1').data('name'), '123Done');
+            assert.equal(view.$('#app-2').data('name'), 'Pocket');
+            assert.equal(view.$('#app-3').data('name'), 'Add-ons');
+            assert.equal($('#container [data-get-app]').length, 2, 'has mobile app placeholders');
+          });
+
       });
 
       it('app placeholders for mobile if there are no mobile clients', function () {
@@ -175,7 +209,6 @@ define(function (require, exports, module) {
             $('#container').html(view.el);
             assert.equal($('#container [data-get-app]').length, 2, '2 mobile app placeholders');
           });
-
       });
 
       it('names devices "Firefox" if there is no name', function () {

@@ -563,6 +563,18 @@ section.modal-panel {
   }
 }
 
+.client-oAuthApp {
+  background-image: url('/images/icon-client-default.svg');
+
+  &[data-name='Add-ons'] {
+    background-image: url('/images/icon-service-addon.svg');
+  }
+
+  &[data-name='Pocket'] {
+    background-image: url('/images/icon-service-pocket.svg');
+  }
+}
+
 #client-disconnect {
   .intro {
     margin-bottom: 30px;
