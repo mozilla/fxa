@@ -1,3 +1,13 @@
+<a name="0.73.1"></a>
+## [0.73.1](https://github.com/mozilla/fxa-profile-server/compare/v0.73.0...v0.73.1) (2016-11-08)
+
+
+### chore
+
+* **nodejs:** Upgrade to Node.js v4.6.1 ([20a7f7b](https://github.com/mozilla/fxa-profile-server/commit/20a7f7b))
+
+
+
 <a name="0.73.0"></a>
 # [0.73.0](https://github.com/mozilla/fxa-profile-server/compare/v0.71.0...v0.73.0) (2016-11-02)
 
