@@ -89,6 +89,7 @@ define([
     },
 
     'unverified': function () {
+      this.timeout = 90 * 1000;
       return this.remote
         .then(setupTest({ preVerified: false }))
 
