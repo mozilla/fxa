@@ -262,19 +262,5 @@ module.exports = function (level, name, options) {
     }
   )
 
-  Object.keys(console).forEach(
-    function (key) {
-      console[key] = function () { // eslint-disable-line no-console
-        var json = { op: 'console', message: util.format.apply(null, arguments) }
-        if(log[key]) {
-          log[key](json)
-        }
-        else {
-          log.warn(json)
-        }
-      }
-    }
-  )
-
   return log
 }

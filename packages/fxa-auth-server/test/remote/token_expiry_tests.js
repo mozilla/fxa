@@ -2,21 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+'use strict'
+
+const assert = require('insist')
 var TestServer = require('../test_server')
 const Client = require('../client')()
 
-process.env.PASSWORD_CHANGE_TOKEN_TTL = '1'
-var config = require('../../config').getProperties()
-
 function fail() { throw new Error() }
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote token expiry', function() {
+  this.timeout(15000)
+  let server, config
+  before(() => {
+    process.env.PASSWORD_CHANGE_TOKEN_TTL = '1'
+    config = require('../../config').getProperties()
 
-  test(
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
+
+  it(
     'token expiry',
-    function (t) {
+    () => {
       // FYI config.tokenLifetimes.passwordChangeToken = 1
       var email = Math.random() + '@example.com'
       var password = 'ok'
@@ -29,17 +38,14 @@ TestServer.start(config)
         .then(
           fail,
           function (err) {
-            t.equal(err.errno, 110, 'invalid token')
+            assert.equal(err.errno, 110, 'invalid token')
           }
         )
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    delete process.env.PASSWORD_CHANGE_TOKEN_TTL
+    return TestServer.stop(server)
+  })
 })

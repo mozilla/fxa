@@ -2,19 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
+const assert = require('assert')
 const Client = require('../client')()
 var crypto = require('crypto')
-var test = require('tap').test
 var TestServer = require('../test_server')
 
 var config = require('../../config').getProperties()
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote account login', () => {
+  let server
 
-  test(
+  before(function() {
+    this.timeout(15000)
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
+
+  it(
     'the email is returned in the error on Incorrect password errors',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'abcdef'
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
@@ -24,19 +34,19 @@ TestServer.start(config)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400)
-            t.equal(err.errno, 103)
-            t.equal(err.email, email)
+            assert.equal(err.code, 400)
+            assert.equal(err.errno, 103)
+            assert.equal(err.email, email)
           }
         )
     }
   )
 
-  test(
+  it(
     'the email is returned in the error on Incorrect email case errors with correct password',
-    function (t) {
+    () => {
       var signupEmail = server.uniqueEmail()
       var loginEmail = signupEmail.toUpperCase()
       var password = 'abcdef'
@@ -47,37 +57,37 @@ TestServer.start(config)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400)
-            t.equal(err.errno, 120)
-            t.equal(err.email, signupEmail)
+            assert.equal(err.code, 400)
+            assert.equal(err.errno, 120)
+            assert.equal(err.email, signupEmail)
           }
         )
     }
   )
 
-  test(
+  it(
     'Unknown account should not exist',
-    function (t) {
+    () => {
       var client = new Client(config.publicUrl)
       client.email = server.uniqueEmail()
       client.authPW = crypto.randomBytes(32)
       return client.login()
         .then(
           function () {
-            t.fail('account should not exist')
+            assert(false, 'account should not exist')
           },
           function (err) {
-            t.equal(err.errno, 102, 'account does not exist')
+            assert.equal(err.errno, 102, 'account does not exist')
           }
         )
     }
   )
 
-  test(
+  it(
     'No keyFetchToken without keys=true',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'abcdef'
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
@@ -88,15 +98,15 @@ TestServer.start(config)
         )
         .then(
           function (c) {
-            t.equal(c.keyFetchToken, null, 'should not have keyFetchToken')
+            assert.equal(c.keyFetchToken, null, 'should not have keyFetchToken')
           }
         )
     }
   )
 
-  test(
+  it(
     'login works with unicode email address',
-    function (t) {
+    () => {
       var email = server.uniqueUnicodeEmail()
       var password = 'wibble'
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
@@ -107,15 +117,15 @@ TestServer.start(config)
         )
         .then(
           function (client) {
-            t.ok(client, 'logged in to account')
+            assert.ok(client, 'logged in to account')
           }
         )
     }
   )
 
-  test(
+  it(
     'account login works with minimal metricsContext metadata',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       return Client.createAndVerify(config.publicUrl, email, 'foo', server.mailbox)
         .then(function () {
@@ -127,14 +137,14 @@ TestServer.start(config)
           })
         })
         .then(function (client) {
-          t.ok(client, 'logged in to account')
+          assert.ok(client, 'logged in to account')
         })
     }
   )
 
-  test(
+  it(
     'account login fails with invalid metricsContext flowId',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       return Client.createAndVerify(config.publicUrl, email, 'foo', server.mailbox)
         .then(function () {
@@ -146,16 +156,16 @@ TestServer.start(config)
           })
         })
         .then(function () {
-          t.fail('account login should have failed')
+          assert(false, 'account login should have failed')
         }, function (err) {
-          t.ok(err, 'account login failed')
+          assert.ok(err, 'account login failed')
         })
     }
   )
 
-  test(
+  it(
     'account login fails with invalid metricsContext flowBeginTime',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       return Client.createAndVerify(config.publicUrl, email, 'foo', server.mailbox)
         .then(function () {
@@ -167,18 +177,14 @@ TestServer.start(config)
           })
         })
         .then(function () {
-          t.fail('account login should have failed')
+          assert(false, 'account login should have failed')
         }, function (err) {
-          t.ok(err, 'account login failed')
+          assert.ok(err, 'account login failed')
         })
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    return TestServer.stop(server)
+  })
 })

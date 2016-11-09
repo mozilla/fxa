@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var tap = require('tap')
+'use strict'
+
+const assert = require('insist')
 var proxyquire = require('proxyquire')
 var uuid = require('uuid')
 
-var test = tap.test
 var P = require('../../lib/promise')
 var mockLog = require('../mocks').mockLog
 
@@ -29,109 +30,115 @@ var mockDb = {
   }
 }
 
-test(
-  'creates reminders with valid options and rate',
-  function (t) {
-    var moduleMocks = {
-      '../config': {
-        'get': function (item) {
-          if (item === 'verificationReminders') {
-            return {
-              rate: 1
+describe('verification reminders', () => {
+  it(
+    'creates reminders with valid options and rate',
+    () => {
+      var moduleMocks = {
+        '../config': {
+          'get': function (item) {
+            if (item === 'verificationReminders') {
+              return {
+                rate: 1
+              }
             }
           }
         }
       }
-    }
 
-    var addedTimes = 0
-    var thisMockLog = mockLog({
-      increment: function (name) {
-        if (name === 'verification-reminders.created') {
-          addedTimes++
-          if (addedTimes === 5) {
-            t.end()
+      var addedTimes = 0
+      var thisMockLog = mockLog({
+        increment: function (name) {
+          if (name === 'verification-reminders.created') {
+            addedTimes++
           }
-        }
-      }
-    })
-
-    var verificationReminder = proxyquire('../../lib/verification-reminders', moduleMocks)(thisMockLog, mockDb)
-
-    verificationReminder.create(reminderData)
-    verificationReminder.create(reminderData)
-    verificationReminder.create(reminderData)
-    verificationReminder.create(reminderData)
-    verificationReminder.create(reminderData)
-  }
-)
-
-test(
-  'does not create reminders when rate is 0',
-  function (t) {
-    var moduleMocks = {
-      '../config': {
-        'get': function (item) {
-          if (item === 'verificationReminders') {
-            return {
-              rate: 0
-            }
-          }
-        }
-      }
-    }
-
-    var verificationReminder = proxyquire('../../lib/verification-reminders', moduleMocks)(mockLog, mockDb)
-    verificationReminder.create(reminderData)
-      .then(function (result) {
-        if (result === false) {
-          t.end()
         }
       })
-  }
-)
 
-test(
-  'deletes reminders',
-  function (t) {
-    var thisMockLog = mockLog({
-      increment: function (name) {
-        if (name === 'verification-reminders.deleted') {
-          t.end()
+      var verificationReminder = proxyquire('../../lib/verification-reminders', moduleMocks)(thisMockLog, mockDb)
+
+      return P.all([
+        verificationReminder.create(reminderData),
+        verificationReminder.create(reminderData),
+        verificationReminder.create(reminderData),
+        verificationReminder.create(reminderData),
+        verificationReminder.create(reminderData)
+      ]).then(() => {
+        assert.equal(addedTimes, 5)
+      })
+    }
+  )
+
+  it(
+    'does not create reminders when rate is 0',
+    () => {
+      var moduleMocks = {
+        '../config': {
+          'get': function (item) {
+            if (item === 'verificationReminders') {
+              return {
+                rate: 0
+              }
+            }
+          }
         }
       }
-    })
-    var thisMockDb = {
-      deleteVerificationReminder: function (reminderData) {
-        t.ok(reminderData.email)
-        t.ok(reminderData.type)
-        return P.resolve()
-      }
+
+      var verificationReminder = proxyquire('../../lib/verification-reminders', moduleMocks)(mockLog, mockDb)
+      verificationReminder.create(reminderData)
+        .then(function (result) {
+          assert.equal(result, false)
+        })
     }
+  )
 
-    var verificationReminder = proxyquire('../../lib/verification-reminders', {})(thisMockLog, thisMockDb)
-    verificationReminder.delete(reminderData)
-  }
-)
+  it(
+    'deletes reminders',
+    () => {
+      let count = 0
+      var thisMockLog = mockLog({
+        increment: function (name) {
+          if (name === 'verification-reminders.deleted') {
+            count++
+          }
+        }
+      })
+      var thisMockDb = {
+        deleteVerificationReminder: function (reminderData) {
+          assert.ok(reminderData.email)
+          assert.ok(reminderData.type)
+          return P.resolve()
+        }
+      }
 
-test(
-  'deletes reminders can catch errors',
-  function (t) {
-    var thisMockLog = mockLog({
-      error: function (logErr) {
-        t.equal(logErr.op, 'verification-reminder.delete')
-        t.ok(logErr.err.message)
-        t.end()
-      }
-    })
-    var thisMockDb = {
-      deleteVerificationReminder: function () {
-        return P.reject(new Error('Something is wrong'))
-      }
+      var verificationReminder = proxyquire('../../lib/verification-reminders', {})(thisMockLog, thisMockDb)
+      return verificationReminder.delete(reminderData).then(() => {
+        assert.equal(count, 1)
+      })
     }
+  )
 
-    var verificationReminder = proxyquire('../../lib/verification-reminders', {})(thisMockLog, thisMockDb)
-    verificationReminder.delete(reminderData)
-  }
-)
+  it(
+    'deletes reminders can catch errors',
+    () => {
+      let count = 0
+      var thisMockLog = mockLog({
+        error: function (logErr) {
+          assert.equal(logErr.op, 'verification-reminder.delete')
+          assert.ok(logErr.err.message)
+          count++
+        }
+      })
+      var thisMockDb = {
+        deleteVerificationReminder: function () {
+          return P.reject(new Error('Something is wrong'))
+        }
+      }
 
+      var verificationReminder = proxyquire('../../lib/verification-reminders', {})(thisMockLog, thisMockDb)
+      return verificationReminder.delete(reminderData).then(() => {
+        assert.equal(count, 1)
+      })
+    }
+  )
+})

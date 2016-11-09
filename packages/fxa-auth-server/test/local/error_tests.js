@@ -2,97 +2,95 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+const assert = require('insist')
 var messages = require('joi/lib/language')
 var AppError = require('../../lib/error')
 
-test(
-  'tightly-coupled joi message hack is okay',
-  function (t) {
-    t.equal(typeof messages.errors.any.required, 'string')
-    t.not(messages.errors.any.required, '')
-    t.end()
-  }
-)
+describe('AppErrors', () => {
 
-test(
-  'exported functions exist',
-  function (t) {
-    t.equal(typeof AppError, 'function')
-    t.equal(AppError.length, 3)
-    t.equal(typeof AppError.translate, 'function')
-    t.equal(AppError.translate.length, 1)
-    t.equal(typeof AppError.invalidRequestParameter, 'function')
-    t.equal(AppError.invalidRequestParameter.length, 1)
-    t.equal(typeof AppError.missingRequestParameter, 'function')
-    t.equal(AppError.missingRequestParameter.length, 1)
-    t.end()
-  }
-)
+  it(
+    'tightly-coupled joi message hack is okay',
+    () => {
+      assert.equal(typeof messages.errors.any.required, 'string')
+      assert.notEqual(messages.errors.any.required, '')
+    }
+  )
 
-test(
-  'error.translate with missing required parameters',
-  function (t) {
-    var result = AppError.translate({
-      output: {
-        payload: {
-          message: 'foo' + messages.errors.any.required,
-          validation: {
-            keys: [ 'bar', 'baz' ]
+  it(
+    'exported functions exist',
+    () => {
+      assert.equal(typeof AppError, 'function')
+      assert.equal(AppError.length, 3)
+      assert.equal(typeof AppError.translate, 'function')
+      assert.equal(AppError.translate.length, 1)
+      assert.equal(typeof AppError.invalidRequestParameter, 'function')
+      assert.equal(AppError.invalidRequestParameter.length, 1)
+      assert.equal(typeof AppError.missingRequestParameter, 'function')
+      assert.equal(AppError.missingRequestParameter.length, 1)
+    }
+  )
+
+  it(
+    'should translate with missing required parameters',
+    () => {
+      var result = AppError.translate({
+        output: {
+          payload: {
+            message: 'foo' + messages.errors.any.required,
+            validation: {
+              keys: [ 'bar', 'baz' ]
+            }
           }
         }
-      }
-    })
-    t.ok(result instanceof AppError, 'instanceof AppError')
-    t.equal(result.errno, 108)
-    t.equal(result.message, 'Missing parameter in request body: bar')
-    t.equal(result.output.statusCode, 400)
-    t.equal(result.output.payload.error, 'Bad Request')
-    t.equal(result.output.payload.errno, result.errno)
-    t.equal(result.output.payload.message, result.message)
-    t.equal(result.output.payload.param, 'bar')
-    t.end()
-  }
-)
+      })
+      assert.ok(result instanceof AppError, 'instanceof AppError')
+      assert.equal(result.errno, 108)
+      assert.equal(result.message, 'Missing parameter in request body: bar')
+      assert.equal(result.output.statusCode, 400)
+      assert.equal(result.output.payload.error, 'Bad Request')
+      assert.equal(result.output.payload.errno, result.errno)
+      assert.equal(result.output.payload.message, result.message)
+      assert.equal(result.output.payload.param, 'bar')
+    }
+  )
 
-test(
-  'error.translate with invalid parameter',
-  function (t) {
-    var result = AppError.translate({
-      output: {
-        payload: {
-          validation: 'foo'
+  it(
+    'should translate with invalid parameter',
+    () => {
+      var result = AppError.translate({
+        output: {
+          payload: {
+            validation: 'foo'
+          }
         }
-      }
-    })
-    t.ok(result instanceof AppError, 'instanceof AppError')
-    t.equal(result.errno, 107)
-    t.equal(result.message, 'Invalid parameter in request body')
-    t.equal(result.output.statusCode, 400)
-    t.equal(result.output.payload.error, 'Bad Request')
-    t.equal(result.output.payload.errno, result.errno)
-    t.equal(result.output.payload.message, result.message)
-    t.equal(result.output.payload.validation, 'foo')
-    t.end()
-  }
-)
+      })
+      assert.ok(result instanceof AppError, 'instanceof AppError')
+      assert.equal(result.errno, 107)
+      assert.equal(result.message, 'Invalid parameter in request body')
+      assert.equal(result.output.statusCode, 400)
+      assert.equal(result.output.payload.error, 'Bad Request')
+      assert.equal(result.output.payload.errno, result.errno)
+      assert.equal(result.output.payload.message, result.message)
+      assert.equal(result.output.payload.validation, 'foo')
+    }
+  )
 
-test(
-  'tooManyRequests',
-  function (t) {
-    var result = AppError.tooManyRequests(900, 'in 15 minutes')
-    t.ok(result instanceof AppError, 'instanceof AppError')
-    t.equal(result.errno, 114)
-    t.equal(result.message, 'Client has sent too many requests')
-    t.equal(result.output.statusCode, 429)
-    t.equal(result.output.payload.error, 'Too Many Requests')
-    t.equal(result.output.payload.retryAfter, 900)
-    t.equal(result.output.payload.retryAfterLocalized, 'in 15 minutes')
+  it(
+    'tooManyRequests',
+    () => {
+      var result = AppError.tooManyRequests(900, 'in 15 minutes')
+      assert.ok(result instanceof AppError, 'instanceof AppError')
+      assert.equal(result.errno, 114)
+      assert.equal(result.message, 'Client has sent too many requests')
+      assert.equal(result.output.statusCode, 429)
+      assert.equal(result.output.payload.error, 'Too Many Requests')
+      assert.equal(result.output.payload.retryAfter, 900)
+      assert.equal(result.output.payload.retryAfterLocalized, 'in 15 minutes')
 
-    result = AppError.tooManyRequests(900)
-    t.equal(result.output.payload.retryAfter, 900)
-    t.notOk(result.output.payload.retryAfterLocalized)
+      result = AppError.tooManyRequests(900)
+      assert.equal(result.output.payload.retryAfter, 900)
+      assert(!result.output.payload.retryAfterLocalized)
 
-    t.end()
-  }
-)
+    }
+  )
+})

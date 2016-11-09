@@ -2,43 +2,48 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-process.env.PUBLIC_URL = 'http://127.0.0.1:9000/auth'
+'use strict'
 
-var test = require('../ptaptest')
+
+const assert = require('insist')
 var TestServer = require('../test_server')
 const Client = require('../client')()
 var P = require('../../lib/promise')
-var request = require('request')
+var request = P.promisify(require('request'))
 
-var config = require('../../config').getProperties()
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote base path', function() {
+  this.timeout(15000)
+  let server, config
+  before(() => {
+    process.env.PUBLIC_URL = 'http://127.0.0.1:9000/auth'
+    config = require('../../config').getProperties()
+    config.publicUrl = process.env.PUBLIC_URL
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
 
   function testVersionRoute(path) {
-    return function (t) {
-      var d = P.defer()
-      request(config.publicUrl + path,
-        function (err, res, body) {
-          if (err) { d.reject(err) }
-          t.equal(res.statusCode, 200)
+    return () => {
+      return request(config.publicUrl + path)
+        .spread((res, body) => {
+          assert.equal(res.statusCode, 200)
           var json = JSON.parse(body)
-          t.deepEqual(Object.keys(json), ['version', 'commit', 'source'])
-          t.equal(json.version, require('../../package.json').version, 'package version')
-          t.ok(json.source && json.source !== 'unknown', 'source repository')
+          assert.deepEqual(Object.keys(json), ['version', 'commit', 'source'])
+          assert.equal(json.version, require('../../package.json').version, 'package version')
+          assert.ok(json.source && json.source !== 'unknown', 'source repository')
 
           // check that the git hash just looks like a hash
-          t.ok(json.commit.match(/^[0-9a-f]{40}$/), 'The git hash actually looks like one')
-          d.resolve(json)
-        }
-      )
-      return d.promise
+          assert.ok(json.commit.match(/^[0-9a-f]{40}$/), 'The git hash actually looks like one')
+        })
     }
   }
 
-  test(
+  it(
     'alternate base path',
-    function (t) {
+    () => {
       var email = Math.random() + '@example.com'
       var password = 'ok'
       // if this doesn't crash, we're all good
@@ -46,38 +51,30 @@ TestServer.start(config)
     }
   )
 
-  test(
+  it(
     '.well-known did not move',
-    function (t) {
-      var d = P.defer()
-      request('http://127.0.0.1:9000/.well-known/browserid',
-        function (err, res, body) {
-          if (err) { d.reject(err) }
-          t.equal(res.statusCode, 200)
+    () => {
+      return request('http://127.0.0.1:9000/.well-known/browserid')
+        .spread((res, body) => {
+          assert.equal(res.statusCode, 200)
           var json = JSON.parse(body)
-          t.equal(json.authentication, '/.well-known/browserid/sign_in.html')
-          d.resolve(json)
-        }
-      )
-      return d.promise
+          assert.equal(json.authentication, '/.well-known/browserid/sign_in.html')
+        })
     }
   )
 
-  test(
+  it(
     '"/" returns valid version information',
     testVersionRoute('/')
   )
 
-  test(
+  it(
     '"/__version__" returns valid version information',
     testVersionRoute('/__version__')
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    delete process.env.PUBLIC_URL
+    return TestServer.stop(server)
+  })
 })
