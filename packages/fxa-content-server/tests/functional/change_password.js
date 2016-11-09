@@ -58,7 +58,7 @@ define([
         .then(testElementDisplayed('#change-password .error'))
 
         // click the show button, the error should not be hidden.
-        .then(click('[for=show-old-password]'))
+        .then(click('[for=show-old_password]'))
         .then(testElementDisplayed('#change-password .error'))
 
         // Change form so that it is valid, error should be hidden.

@@ -44,17 +44,17 @@ define(function (require, exports, module) {
     it('logs when a checkbox is toggled on', function () {
       sinon.spy(view, 'logViewEvent');
 
-      view.$('#show-password').click();
+      view.$('#id-checkbox').click();
 
-      assert.isTrue(view.logViewEvent.calledWith('checkbox.change.show-password.checked'));
+      assert.isTrue(view.logViewEvent.calledWith('checkbox.change.id-checkbox.checked'));
     });
 
     it('logs when a checkbox is toggled off', function () {
       sinon.spy(view, 'logViewEvent');
 
-      view.$('#show-password').attr('checked', 'checked').click();
+      view.$('#id-checkbox').attr('checked', 'checked').click();
 
-      assert.isTrue(view.logViewEvent.calledWith('checkbox.change.show-password.unchecked'));
+      assert.isTrue(view.logViewEvent.calledWith('checkbox.change.id-checkbox.unchecked'));
     });
 
     it('works if the element has a `name` but no `id`', function () {

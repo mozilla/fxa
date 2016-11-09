@@ -334,8 +334,12 @@ define(function (require, exports, module) {
       errno: 1047,
       // not user facing, only used for logging, not wrapped in `t`
       message: 'HTML will be escaped: %(string)s'
+    },
+    CANNOT_CHANGE_INPUT_TYPE: {
+      errno: 1048,
+      // not user facing, only used for logging, not wrapped in `t`
+      message: 'Cannot change input type: %(type)s'
     }
-
   };
   /*eslint-enable sorting/sort-object-props*/
 
@@ -384,6 +388,10 @@ define(function (require, exports, module) {
         } else if (this.is(err, 'HTML_WILL_BE_ESCAPED')) {
           return {
             string: err.string
+          };
+        } else if (this.is(err, 'CANNOT_CHANGE_INPUT_TYPE')) {
+          return {
+            type: err.type
           };
         } else if (this.is(err, 'THROTTLED')) {
           if (err.retryAfterLocalized) {

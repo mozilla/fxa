@@ -1317,16 +1317,29 @@ define([
    *
    * @param {string} selector
    * @param {string} text
+   * @param {object} [options] options
+   *   @param {boolean [options.clearValue] - clear element value before
+   *   typing. Defaults to true.
    * @returns {promise}
    */
-  function type(selector, text) {
+  function type(selector, text, options) {
+    options = options || {};
+
+    // always clear unless explicitly overridden
+    var clearValue = options.clearValue !== false;
+
     return function () {
       text = String(text);
 
       return this.parent
         .findByCssSelector(selector)
           .click()
-          .clearValue()
+
+          .then(function () {
+            if (clearValue) {
+              return this.parent.clearValue();
+            }
+          })
 
           .getAttribute('type')
           .then(function (type) {

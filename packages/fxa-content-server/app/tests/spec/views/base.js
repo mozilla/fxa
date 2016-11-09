@@ -99,6 +99,23 @@ define(function (require, exports, module) {
       view = windowMock = metrics = null;
     });
 
+    describe('renderTemplate', () => {
+      it('invokes the template with merged `context` and `additionalContext`', () => {
+        const template = sinon.spy();
+        const additionalContext = {
+          baz: 'buz'
+        };
+        sinon.stub(view, 'getContext', () => {
+          return { foo: 'bar' };
+        });
+
+        view.renderTemplate(template, additionalContext);
+
+        assert.isTrue(template.calledOnce);
+        assert.isTrue(template.calledWith({ baz: 'buz', foo: 'bar' }));
+      });
+    });
+
     describe('render', function () {
       it('adds the `layoutClassName` to the body', function () {
         assert.isTrue($('body').hasClass('layout'));

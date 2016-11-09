@@ -199,7 +199,7 @@ define(function (require, exports, module) {
             // view is rendered or else stale data may
             // be returned.
             this._context = null;
-            this.$el.html(this.template(this.getContext()));
+            this.$el.html(this.renderTemplate(this.template.bind(this)));
           })
           .then(_.bind(this.afterRender, this))
           .then(() => {
@@ -208,6 +208,20 @@ define(function (require, exports, module) {
             return true;
           });
         });
+    },
+
+    /**
+     * Render a template using view's own context combined with
+     * any additional passed in context.
+     *
+     * @param {Function} template - template function
+     * @param {Object} [additionalContext] - additional context to pass to
+     * template function.
+     * @returns {String} - rendered template
+     */
+    renderTemplate (template, additionalContext = {}) {
+      const context = _.extend({}, this.getContext(), additionalContext);
+      return template(context);
     },
 
     /**
