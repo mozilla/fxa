@@ -26,6 +26,7 @@ define([
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var openPage = thenify(FunctionalHelpers.openPage);
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+  var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
@@ -96,6 +97,10 @@ define([
         .then(testElementExists('#communication-preferences.basket-ready'))
         .then(visibleByQSA('#communication-preferences .settings-unit-details'))
         .then(testOptedIn())
+
+        // preference url would open in a new tab
+        .then(testAttributeEquals('#preferences-url', 'target', '_blank'))
+
         .then(click('#marketing-email-optin'))
         .then(testSuccessWasShown(this))
 
