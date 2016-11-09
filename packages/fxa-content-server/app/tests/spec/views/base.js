@@ -786,6 +786,26 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('logFlowEvent', () => {
+      beforeEach(() => {
+        view.logFlowEvent('foo', 'bar');
+      });
+
+      it('logs the correct event', () => {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.bar.foo'));
+      });
+    });
+
+    describe('logFlowEventOnce', () => {
+      beforeEach(() => {
+        view.logFlowEventOnce('baz', 'qux');
+      });
+
+      it('logs the correct event', () => {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.qux.baz'));
+      });
+    });
+
     describe('logViewEvent', function () {
       beforeEach(function () {
         view.logViewEvent('event1');

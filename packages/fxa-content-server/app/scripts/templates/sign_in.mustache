@@ -47,8 +47,8 @@
            </form>
 
            <div class="links">
-             <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
-             <a href="/#" class="right use-different">{{#t}}Use a different account{{/t}}</a><br/>
+             <a href="/reset_password" class="left reset-password" data-flow-event="forgot-password">{{#t}}Forgot password?{{/t}}</a>
+             <a href="/#" class="right use-different" data-flow-event="use-different-account">{{#t}}Use a different account{{/t}}</a><br/>
            </div>
         {{/chooserAskForPassword}}
 
@@ -58,7 +58,7 @@
           </div>
 
           <div class="links">
-            <a href="/#" class="use-different">{{#t}}Use a different account{{/t}}</a><br/>
+            <a href="/#" class="use-different" data-flow-event="use-different-account">{{#t}}Use a different account{{/t}}</a><br/>
           </div>
         {{/chooserAskForPassword}}
       {{/suggestedAccount}}
@@ -84,8 +84,8 @@
       </form>
 
       <div class="links">
-          <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
-          <a href="/signup" class="right sign-up">{{#t}}Create an account{{/t}}</a>
+          <a href="/reset_password" class="left reset-password" data-flow-event="forgot-password">{{#t}}Forgot password?{{/t}}</a>
+          <a href="/signup" class="right sign-up" data-flow-event="create-account">{{#t}}Create an account{{/t}}</a>
       </div>
 
       <div class="extra-links">

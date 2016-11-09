@@ -11,8 +11,8 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const CoppaAgeInput = require('views/coppa/coppa-age-input');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FormView = require('views/form');
   const mailcheck = require('lib/mailcheck');
   const MigrationMixin = require('views/mixins/migration-mixin');
@@ -84,7 +84,10 @@ define(function (require, exports, module) {
       return coppaView.render()
         .then(() => {
           this.trackChildView(coppaView);
-          coppaView.on('submit', this.validateAndSubmit.bind(this));
+          // CoppaAgeInput inherits from FormView, which cancels submit events.
+          // Explicitly propagate submit events from the COPPA input so that the
+          // rest of our event-handling, e.g. the flow.engage event, works.
+          coppaView.on('submit', () => this.trigger('submit'));
 
           this._coppa = coppaView;
         });
@@ -379,8 +382,8 @@ define(function (require, exports, module) {
     AccountResetMixin,
     CheckboxMixin,
     ExperimentMixin,
-    FlowEventsMixin,
     // FlowEventsMixin must be mixed in before FlowBeginMixin
+    FlowEventsMixin,
     FlowBeginMixin,
     MigrationMixin,
     PasswordMixin,

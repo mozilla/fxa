@@ -30,10 +30,13 @@ define(function (require, exports, module) {
      * @return {Object} promise
      */
     signUp (account, password) {
-      this.logEvent('flow.signup.submit');
-
       return this.invokeBrokerMethod('beforeSignIn', account)
         .then(() => {
+          // Always pass `signup` for viewName regardless of the actual view
+          // because we want to log the real action that is being performed.
+          // This is important for the infamous signin-from-signup feature.
+          this.logFlowEvent('attempt', 'signup');
+
           return this.user.signUpAccount(account, password, this.relier, {
             resume: this.getStringifiedResumeToken()
           });

@@ -23,11 +23,10 @@ define(function (require, exports, module) {
   describe('views/mixins/signin-mixin', function () {
     it('exports correct interface', function () {
       assert.isObject(SignInMixin);
-      assert.lengthOf(Object.keys(SignInMixin), 6);
+      assert.lengthOf(Object.keys(SignInMixin), 3);
       assert.isFunction(SignInMixin.signIn);
       assert.isFunction(SignInMixin.onSignInBlocked);
       assert.isFunction(SignInMixin.onSignInSuccess);
-      assert.equal(SignInMixin.signInSubmitContext, 'signin', 'has a submit context');
     });
 
     describe('signIn', function () {
@@ -52,9 +51,12 @@ define(function (require, exports, module) {
 
         relier = new Relier();
         view = {
+          _clickLink: SignInMixin._clickLink,
+          _engageSignInForm: SignInMixin._engageSignInForm,
           _formPrefill: {
             clear: sinon.spy()
           },
+          _submitSignInForm: SignInMixin._submitSignInForm,
           broker: broker,
           currentPage: 'force_auth',
           displayError: sinon.spy(),
@@ -65,8 +67,7 @@ define(function (require, exports, module) {
           invokeBrokerMethod: sinon.spy(function () {
             return p();
           }),
-          logEvent: sinon.spy(),
-          logEventOnce: sinon.spy(),
+          logFlowEvent: sinon.spy(),
           logViewEvent: sinon.spy(),
           model: model,
           navigate: sinon.spy(),
@@ -75,7 +76,6 @@ define(function (require, exports, module) {
           onSignInSuccess: SignInMixin.onSignInSuccess,
           relier: relier,
           signIn: SignInMixin.signIn,
-          signInSubmitContext: SignInMixin.signInSubmitContext,
           user: user
         };
       });
@@ -194,7 +194,6 @@ define(function (require, exports, module) {
           assert.isTrue(
             user.signInAccount.calledWith(account, 'password', relier));
           assert.equal(user.signInAccount.args[0][3].resume, RESUME_TOKEN);
-          assert.equal(view.logEvent.args[0], 'flow.signin.submit', 'correct submit event');
         });
 
         it('calls view.navigate correctly', function () {
@@ -204,6 +203,13 @@ define(function (require, exports, module) {
           assert.equal(args[0], 'confirm');
           assert.strictEqual(args[1].account, account);
           assert.strictEqual(args[1].flow, flow);
+        });
+
+        it('calls logFlowEvent correctly', () => {
+          assert.equal(view.logFlowEvent.callCount, 1);
+          assert.equal(view.logFlowEvent.args[0].length, 2);
+          assert.equal(view.logFlowEvent.args[0][0], 'attempt');
+          assert.equal(view.logFlowEvent.args[0][1], 'signin');
         });
       });
 
@@ -231,6 +237,13 @@ define(function (require, exports, module) {
           assert.equal(args[0], 'confirm_signin');
           assert.strictEqual(args[1].account, account);
           assert.strictEqual(args[1].flow, flow);
+        });
+
+        it('calls logFlowEvent correctly', () => {
+          assert.equal(view.logFlowEvent.callCount, 1);
+          assert.equal(view.logFlowEvent.args[0].length, 2);
+          assert.equal(view.logFlowEvent.args[0][0], 'attempt');
+          assert.equal(view.logFlowEvent.args[0][1], 'signin');
         });
       });
 

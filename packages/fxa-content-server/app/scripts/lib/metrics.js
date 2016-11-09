@@ -75,6 +75,16 @@ define(function (require, exports, module) {
     }, []);
   }
 
+  function marshallFlowEvent (eventName, viewName) {
+    if (! viewName) {
+      return `flow.${eventName}`;
+    }
+
+    // Strip out the `oauth.` prefix if present because
+    // OAuthiness is already encoded in the service property.
+    return `flow.${viewName.replace(/^oauth\./, '')}.${eventName}`;
+  }
+
   function Metrics (options = {}) {
     // by default, send the metrics to the content server.
     this._collector = options.collector || '';
@@ -468,8 +478,16 @@ define(function (require, exports, module) {
       if (flowId !== this._flowId) {
         this._flowId = flowId;
         this._flowBeginTime = flowBeginTime;
-        this.logEvent(`flow.${viewName}.begin`);
+        this.logFlowEvent('begin', viewName);
       }
+    },
+
+    logFlowEvent (eventName, viewName) {
+      this.logEvent(marshallFlowEvent(eventName, viewName));
+    },
+
+    logFlowEventOnce (eventName, viewName) {
+      this.logEventOnce(marshallFlowEvent(eventName, viewName));
     },
 
     getFlowEventMetadata () {

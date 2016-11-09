@@ -679,6 +679,26 @@ define(function (require, exports, module) {
       this.metrics.logViewEvent(this.getViewName(), eventName);
     },
 
+    /**
+     * Log a flow event to the event stream
+     *
+     * @param {String} eventName
+     * @param {String} viewName
+     */
+    logFlowEvent (eventName, viewName) {
+      this.metrics.logFlowEvent(eventName, viewName);
+    },
+
+    /**
+     * Log a flow event once per page load
+     *
+     * @param {String} eventName
+     * @param {String} viewName
+     */
+    logFlowEventOnce (eventName, viewName) {
+      this.metrics.logFlowEventOnce(eventName, viewName);
+    },
+
     hideError () {
       this.$('.error').slideUp(STATUS_MESSAGE_ANIMATION_MS);
       this._isErrorVisible = false;

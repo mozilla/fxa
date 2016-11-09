@@ -49,6 +49,7 @@ define(function (require, exports, module) {
           }),
           logEvent: sinon.spy(),
           logEventOnce: sinon.spy(),
+          logFlowEvent: sinon.spy(),
           logViewEvent: sinon.spy(),
           navigate: sinon.spy(),
           onSignUpSuccess: SignUpMixin.onSignUpSuccess,
@@ -121,6 +122,13 @@ define(function (require, exports, module) {
           assert.isTrue(view.logViewEvent.calledWith('success'));
           assert.isTrue(view.logViewEvent.calledWith('signup.success'));
           assert.isTrue(view.logViewEvent.calledWith('preverified.success'));
+        });
+
+        it('calls view.logFlowEvent correctly', () => {
+          assert.equal(view.logFlowEvent.callCount, 1);
+          assert.equal(view.logFlowEvent.args[0].length, 2);
+          assert.equal(view.logFlowEvent.args[0][0], 'attempt');
+          assert.equal(view.logFlowEvent.args[0][1], 'signup');
         });
 
         it('calls view._formPrefill.clear', function () {

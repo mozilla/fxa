@@ -556,40 +556,55 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_engageForm', function () {
-      it('logs the engage event', function () {
+    describe('flow events', () => {
+      beforeEach(() => {
         return view.render()
-          .then(function () {
+          .then(() => {
+            $('#container').html(view.el);
             view.afterVisible();
-            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
-            view.$('form').click();
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
           });
       });
-    });
 
-    describe('flow submit', function () {
-      it('logs the engage event', function () {
-        return view.render()
-          .then(function () {
-            view.afterVisible();
-            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
-            view.$('form').click();
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
-          });
+      it('logs the begin event', () => {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.begin'));
       });
-    });
 
-    it('records the correct submit event', function () {
-      return view.render()
-        .then(function () {
-          view.$('.password').val('password');
-          view.submit();
-          assert.equal(view.signInSubmitContext, 'force-auth', 'correct submit context');
-          assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.submit'));
+      it('logs the engage event (click)', () => {
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
+        view.$('input').trigger('click');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
+      });
+
+      it('logs the engage event (input)', () => {
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
+        view.$('input').trigger('input');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
+      });
+
+      it('logs the engage event (keyup)', () => {
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
+        view.$('input').trigger({
+          type: 'keyup',
+          which: 9
         });
-    });
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
+      });
 
+      it('logs the forgot-password event', () => {
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.forgot-password'));
+        view.$('[data-flow-event="forgot-password"]').click();
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.forgot-password'));
+      });
+
+      it('logs the submit event', () => {
+        view.$('#submit-btn').click();
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.submit'));
+        view.enableForm();
+        view.$('#submit-btn').click();
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.submit'));
+      });
+    });
   });
 
   function testNavigatesToForceSignUp(view, email) {

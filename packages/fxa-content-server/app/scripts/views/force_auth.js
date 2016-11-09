@@ -28,7 +28,6 @@ define(function (require, exports, module) {
   var View = SignInView.extend({
     template: Template,
     className: 'force-auth',
-    signInSubmitContext: 'force-auth',
 
     // used by the signin-mixin to decide which broker method to
     // call with which data when signin is successful.

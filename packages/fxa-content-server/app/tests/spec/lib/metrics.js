@@ -586,5 +586,30 @@ define(function (require, exports, module) {
         assert.isDefined(metrics._activeExperiments['mailcheck']);
       });
     });
+
+    it('metrics.logFlowEvent', () => {
+      metrics.logFlowEvent('foo', 'signin');
+      metrics.logFlowEvent('foo', 'signin');
+      metrics.logFlowEvent('bar', 'oauth.signin');
+      metrics.logFlowEvent('baz');
+
+      const events = metrics.getFilteredData().events;
+      assert.equal(events.length, 4);
+      assert.equal(events[0].type, 'flow.signin.foo');
+      assert.equal(events[1].type, 'flow.signin.foo');
+      assert.equal(events[2].type, 'flow.signin.bar');
+      assert.equal(events[3].type, 'flow.baz');
+    });
+
+    it('metrics.logFlowEventOnce', () => {
+      metrics.logFlowEventOnce('foo', 'signin');
+      metrics.logFlowEventOnce('foo', 'signin');
+      metrics.logFlowEventOnce('foo', 'signup');
+
+      const events = metrics.getFilteredData().events;
+      assert.equal(events.length, 2);
+      assert.equal(events[0].type, 'flow.signin.foo');
+      assert.equal(events[1].type, 'flow.signup.foo');
+    });
   });
 });

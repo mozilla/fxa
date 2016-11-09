@@ -13,14 +13,6 @@ define(function (require, exports, module) {
   const VerificationReasons = require('lib/verification-reasons');
 
   module.exports = {
-    // force auth extends a view with this mixin
-    // for metrics purposes we need to know the view submit context
-    signInSubmitContext: 'signin',
-    events: {
-      'click': '_engageSignInForm',
-      'input input': '_engageSignInForm'
-    },
-
     /**
      * Sign in a user
      *
@@ -34,8 +26,6 @@ define(function (require, exports, module) {
      * @return {Object} promise
      */
     signIn (account, password, options = {}) {
-      this.logEvent(`flow.${this.signInSubmitContext}.submit`);
-
       if (! account ||
             account.isDefault() ||
             (! account.has('sessionToken') && ! password)) {
@@ -44,6 +34,11 @@ define(function (require, exports, module) {
 
       return this.invokeBrokerMethod('beforeSignIn', account)
         .then(() => {
+          // Always pass `signin` for viewName regardless of the actual view
+          // because we want to log the real action that is being performed.
+          // This is important for the infamous signin-from-signup feature.
+          this.logFlowEvent('attempt', 'signin');
+
           return this.user.signInAccount(account, password, this.relier, {
             // a resume token is passed in to allow
             // unverified account or session users to complete
@@ -143,23 +138,6 @@ define(function (require, exports, module) {
 
       return this.invokeBrokerMethod(brokerMethod, account)
         .then(this.navigate.bind(this, this.model.get('redirectTo') || 'settings', {}, navigateData));
-    },
-
-    _engageSignInForm (event) {
-      if (event && event.target) {
-        var target = this.$el.find(event.target).attr('id');
-
-        if (target === 'have-account') {
-          // if the user clicks on 'have-account' we count that as flow event instead of the 'engage' event.
-          // Details: https://github.com/mozilla/fxa-content-server/pull/4221
-          this.logEvent('flow.have-account');
-          return;
-        }
-      }
-
-      // user has engaged with the sign in, sign up or force auth form
-      // the flow event will be different depending on the view name
-      this.logEventOnce(`flow.${this.viewName}.engage`);
     }
   };
 });
