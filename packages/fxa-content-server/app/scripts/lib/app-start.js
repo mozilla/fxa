@@ -24,7 +24,6 @@ define(function (require, exports, module) {
   const Assertion = require('lib/assertion');
   const Backbone = require('backbone');
   const BaseAuthenticationBroker = require('models/auth_brokers/base');
-  const CloseButtonView = require('views/close_button');
   const ConfigLoader = require('lib/config-loader');
   const Constants = require('lib/constants');
   const Environment = require('lib/environment');
@@ -136,8 +135,6 @@ define(function (require, exports, module) {
                     .then(_.bind(this.initializeAuthenticationBroker, this))
                     // depends on the authentication broker
                     .then(_.bind(this.initializeHeightObserver, this))
-                    // the close button depends on the broker
-                    .then(_.bind(this.initializeCloseButton, this))
                     // storage format upgrades depend on user
                     .then(_.bind(this.upgradeStorageFormats, this))
 
@@ -382,15 +379,6 @@ define(function (require, exports, module) {
         });
 
         heightObserver.start();
-      }
-    },
-
-    initializeCloseButton () {
-      if (this._authenticationBroker.canCancel()) {
-        this._closeButton = new CloseButtonView({
-          broker: this._authenticationBroker
-        });
-        this._closeButton.render();
       }
     },
 

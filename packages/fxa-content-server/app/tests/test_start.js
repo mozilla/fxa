@@ -109,7 +109,6 @@ function (Translator, Session) {
     '../tests/spec/views/cannot_create_account',
     '../tests/spec/views/choose_what_to_sync',
     '../tests/spec/views/clear_storage',
-    '../tests/spec/views/close_button',
     '../tests/spec/views/complete_reset_password',
     '../tests/spec/views/complete_sign_up',
     '../tests/spec/views/confirm',

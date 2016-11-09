@@ -45,13 +45,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('cancel', function () {
-      it('returns a promise', function () {
-        return broker.cancel()
-          .then(assert.pass);
-      });
-    });
-
     describe('persistVerificationData', function () {
       var verificationInfo;
 

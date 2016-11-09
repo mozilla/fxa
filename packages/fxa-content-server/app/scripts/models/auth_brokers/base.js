@@ -95,24 +95,6 @@ define(function (require, exports, module) {
       });
     },
 
-    /*
-     * Check if the environment supports the cancelling of the flow.
-     *
-     * @returns {Boolean}
-     */
-    canCancel () {
-      return false;
-    },
-
-    /**
-     * The user wants to cancel
-     *
-     * @returns {Promise}
-     */
-    cancel () {
-      return p();
-    },
-
     /**
      * Called after the first view is rendered. Can be used
      * to notify the RP the system is loaded.
