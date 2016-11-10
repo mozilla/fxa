@@ -85,7 +85,7 @@ define(function (require, exports, module) {
       url = url.slice(0, url.indexOf('?')) + '?s=' + EXPORT_LENGTH;
       this.logAccountImageChange(account);
 
-      return account.postAvatar(url, true)
+      return account.postAvatar(url)
         .then((result) => {
           this.updateProfileImage(new ProfileImage({ id: result.id, url: url }), account);
 

@@ -893,7 +893,6 @@ define(function (require, exports, module) {
   [
     'getProfile',
     'getAvatar',
-    'getAvatars',
     'postAvatar',
     'deleteAvatar',
     'uploadAvatar',

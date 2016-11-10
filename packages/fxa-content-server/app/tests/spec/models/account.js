@@ -43,7 +43,6 @@ define(function (require, exports, module) {
     var PNG_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
     var PROFILE_CLIENT_METHODS = [
       'getAvatar',
-      'getAvatars',
       'postAvatar',
       'deleteAvatar',
       'uploadAvatar'
@@ -838,25 +837,6 @@ define(function (require, exports, module) {
               assert.isTrue(profileClient.getAvatar.calledWith(accessToken));
               assert.equal(result.avatar, URL);
               assert.equal(result.id, 'foo');
-            });
-        });
-
-        it('gets avatars', function () {
-          sinon.stub(profileClient, 'getAvatars', function () {
-            return {
-              avatars: [
-                { id: 'foo', selected: true, url: URL },
-                { id: 'bar', selected: false, url: 'barurl' }
-              ]
-            };
-          });
-
-          return account.getAvatars()
-            .then(function (result) {
-              assert.isTrue(profileClient.getAvatars.calledWith(accessToken));
-              assert.ok(result.avatars);
-              assert.equal(result.avatars.length, 2);
-              assert.equal(result.avatars[0].url, URL);
             });
         });
 

@@ -92,27 +92,6 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('getAvatars', function () {
-        it('normally responds with avatar', function () {
-          server.respondWith('GET', PROFILE_URL + '/v1/avatars',
-            [200, { 'Content-Type': 'application/json' },
-              JSON.stringify({
-                avatars: [
-                  { id: 'foo', selected: true, url: URL },
-                  { id: 'bar', selected: false, url: 'barurl' }
-                ]
-              })
-            ]);
-
-          return client.getAvatars(token)
-            .then(function (result) {
-              assert.ok(result.avatars);
-              assert.equal(result.avatars.length, 2);
-              assert.equal(result.avatars[0].url, URL);
-            });
-        });
-      });
-
       describe('postAvatar', function () {
         it('post an avatar url', function () {
           server.respondWith('POST', PROFILE_URL + '/v1/avatar',
