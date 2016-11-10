@@ -230,7 +230,7 @@ describe('/profile', function() {
     mock.email('user@example.domain');
     var aid = avatarId();
     var PROVIDER = 'gravatar';
-    return db.addAvatar(aid, user, GRAVATAR, PROVIDER, true)
+    return db.addAvatar(aid, user, GRAVATAR, PROVIDER)
     .then(function() {
       return Server.api.get({
         url: '/profile',
@@ -412,18 +412,14 @@ describe('/avatar', function() {
   var user = uid();
   var id1 = avatarId();
   var id2 = avatarId();
-  var id3 = avatarId();
 
   describe('GET', function() {
     before(function() {
       var grav1 = GRAVATAR.slice(0, -1) + '1';
-      var grav2 = GRAVATAR.slice(0, -1) + '2';
-      return db.addAvatar(id1, user, grav1, PROVIDER, true)
+      return db.addAvatar(id1, user, grav1, PROVIDER)
         .then(function() {
           // replace grav1 as selected
-          return db.addAvatar(id2, user, GRAVATAR, PROVIDER, true);
-        }).then(function() {
-          return db.addAvatar(id3, user, grav2, PROVIDER, false);
+          return db.addAvatar(id2, user, GRAVATAR, PROVIDER);
         });
     });
     it('should return selected avatar', function() {
@@ -717,7 +713,7 @@ describe('/avatar', function() {
     describe('gravatar', function() {
       var id = avatarId();
       before(function() {
-        return db.addAvatar(id, user, GRAVATAR, PROVIDER, true);
+        return db.addAvatar(id, user, GRAVATAR, PROVIDER);
       });
 
       it('should fail if not owned by user', function() {
@@ -814,20 +810,17 @@ describe('/avatars', function() {
 
   before(function() {
     var grav1 = GRAVATAR.slice(0, -1) + '1';
-    var grav2 = GRAVATAR.slice(0, -1) + '2';
-    return db.addAvatar(avatarId(), user, grav1, PROVIDER, true)
+    return db.addAvatar(avatarId(), user, grav1, PROVIDER)
       .then(function() {
         // replace grav1 as selected
-        return db.addAvatar(avatarId(), user, GRAVATAR, PROVIDER, true);
-      }).then(function() {
-        return db.addAvatar(avatarId(), user, grav2, PROVIDER, false);
+        return db.addAvatar(avatarId(), user, GRAVATAR, PROVIDER);
       }).then(function() {
         // other user!
-        return db.addAvatar(avatarId(), uid(), grav1, PROVIDER, true);
+        return db.addAvatar(avatarId(), uid(), grav1, PROVIDER);
       });
   });
 
-  it('should return a list of avatars', function() {
+  it('should return a deprecated status', function() {
     mock.token({
       user: user,
       scope: ['profile:avatar:write']
@@ -838,19 +831,7 @@ describe('/avatars', function() {
         authorization: 'Bearer ' + tok
       }
     }).then(function(res) {
-      assert.equal(res.statusCode, 200);
-      assert.equal(res.result.avatars.length, 3);
-      var selected = false;
-      res.result.avatars.forEach(function(av) {
-        assert(av.id);
-        if (av.url === GRAVATAR) {
-          assert(av.selected);
-          selected = true;
-        } else {
-          assert(!av.selected);
-        }
-      });
-      assert(selected);
+      assert.equal(res.statusCode, 500); // TODO: 410...
     });
   });
 });

@@ -198,8 +198,7 @@ curl -v \
   "avatars": [
     {
       "id": "81625c14128d46c2b600e74a017fa4a8",
-      "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96",
-      "selected": true
+      "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96"
     }
   ]
 }
@@ -214,7 +213,7 @@ Add a URL for an avatar to the user's profile.
 #### Request
 
 - `url` - The URL of the image. Must be from a supported provider.
-- `selected` - Boolean, whether it should be the selected avatar.
+- `selected` - (DEPRECATED) Boolean, whether it should be the selected avatar.
 
 Supported Providers:
 
@@ -228,8 +227,7 @@ curl -v \
 -H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
 "https://profile.accounts.firefox.com/v1/avatar" \
 -d '{
-  "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96",
-  "selected": true
+  "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96"
 }'
 ```
 

@@ -52,7 +52,7 @@ module.exports = {
     var uid = req.auth.credentials.user;
     workers.upload(id, req.payload, req.headers)
       .then(function save() {
-        return db.addAvatar(id, uid, url, FXA_PROVIDER, true);
+        return db.addAvatar(id, uid, url, FXA_PROVIDER);
       })
       .done(function uploadDone() {
         reply({ url: url, id: hex(id) }).code(201);
