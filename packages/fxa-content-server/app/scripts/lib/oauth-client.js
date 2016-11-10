@@ -86,6 +86,7 @@ define(function (require, exports, module) {
      * @param {String} params.assertion
      * @param {String} params.client_id
      * @param {String} params.scope
+     * @param {String} params.response_type
      * @param {String} [params.ttl]
      * @returns {Promise}
      */

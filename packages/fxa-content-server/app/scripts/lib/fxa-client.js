@@ -208,7 +208,7 @@ define(function (require, exports, module) {
      *                   be synced. Defaults to `false`
      *   @param {String} [options.metricsContext] - context metadata for use in
      *                   flow events
-     *   @param {String} [options.reason] - Reason for the sign in. See definitons
+     *   @param {String} [options.reason] - Reason for the sign in. See definitions
      *                   in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
      *   @param {String} [options.resume] - Resume token, passed in the
      *                   verification link if the user must verify their email.

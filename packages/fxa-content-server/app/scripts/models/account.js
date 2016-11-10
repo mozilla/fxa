@@ -356,7 +356,7 @@ define(function (require, exports, module) {
      * @param {Object} relier - Relier being signed in to
      * @param {Object} [options]
      *   @param {String} [options.reason] - Reason for the sign in.
-     *   See definitons in sign-in-reasons.js. Defaults to
+     *   See definitions in sign-in-reasons.js. Defaults to
      *   SIGN_IN_REASONS.SIGN_IN.
      *   @param {String} [options.resume] - Resume token to send
      *   in verification email if user is unverified.

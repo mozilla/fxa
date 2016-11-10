@@ -234,7 +234,7 @@ define(function (require, exports, module) {
 
     /**
      * Called after password reset email confirmation poll completes.
-     * Can be used to notify the RP that the user has sucessfully reset their
+     * Can be used to notify the RP that the user has successfully reset their
      * password.
      *
      * @param {Object} account

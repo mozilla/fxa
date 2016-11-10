@@ -188,7 +188,7 @@ define(function (require, exports, module) {
       var email = this.relier.get('email');
       var account = this.user.getAccountByEmail(email);
 
-      // Use FormView's afterVisible because SignIn attemps to
+      // Use FormView's afterVisible because SignIn attempts to
       // display a profile image for the "suggested" account.
       FormView.prototype.afterVisible.call(this);
       // Display the profile image if possible, otherwise show a placeholder.
