@@ -47,7 +47,7 @@ define(function (require, exports, module) {
   });
 
   module.exports = Backbone.Model.extend({
-    constructor (options) {
+    constructor: function (options) {
       Backbone.Model.call(this);
       this.initialize(options);
     },
