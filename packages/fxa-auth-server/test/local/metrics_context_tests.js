@@ -703,6 +703,55 @@ describe('metricsConext', () => {
   )
 
   it(
+    'metricsContext.validate with valid data',
+    () => {
+      const flowBeginTime = 1451566800000
+      const flowId = '1234567890abcdef1234567890abcdef6a7c0469a1e3d6dfa7d9bed7ae209672'
+      sinon.stub(Date, 'now', function() {
+        return flowBeginTime + 59999
+      })
+      const mockLog = mocks.spyLog()
+      const mockConfig = {
+        metrics: {
+          flow_id_expiry: 60000,
+          flow_id_key: 'S3CR37'
+        }
+      }
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent'
+        },
+        payload: {
+          metricsContext: {
+            context: 'fx_desktop_v3',
+            entrypoint: 'menupanel',
+            flowId,
+            flowBeginTime,
+            migration: 'sync11',
+            service: 'sync'
+          }
+        }
+      }
+
+      const metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+      const result = metricsContext.validate.call(mockRequest)
+
+      assert.strictEqual(result, true, 'result was true')
+      assert.equal(mockRequest.payload.metricsContext.flowId, '1234567890abcdef1234567890abcdef6a7c0469a1e3d6dfa7d9bed7ae209672', 'valid flow data was not removed')
+      assert.equal(mockLog.warn.callCount, 0, 'log.warn was not called')
+      assert.equal(mockLog.info.callCount, 1, 'log.info was called once')
+      assert.equal(mockLog.info.args[0].length, 1, 'log.info was passed one argument')
+      assert.deepEqual(mockLog.info.args[0][0], {
+        op: 'metrics.context.validate',
+        valid: true,
+        agent: 'test-agent'
+      }, 'log.info was passed correct argument')
+
+      Date.now.restore()
+    }
+  )
+
+  it(
     'metricsContext.validate with missing data bundle',
     () => {
       var mockLog = mocks.spyLog()
@@ -753,7 +802,11 @@ describe('metricsConext', () => {
         },
         payload: {
           metricsContext: {
-            flowBeginTime: Date.now()
+            context: 'fx_desktop_v3',
+            entrypoint: 'menupanel',
+            flowBeginTime: Date.now() - 1,
+            migration: 'sync11',
+            service: 'sync'
           }
         }
       }
@@ -790,7 +843,11 @@ describe('metricsConext', () => {
         },
         payload: {
           metricsContext: {
-            flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
+            context: 'fx_desktop_v3',
+            entrypoint: 'menupanel',
+            flowId: 'f1031df1031df1031df1031df1031df1031df1031df1031df1031df1031df103',
+            migration: 'sync11',
+            service: 'sync'
           }
         }
       }
@@ -827,8 +884,12 @@ describe('metricsConext', () => {
         },
         payload: {
           metricsContext: {
-            flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-            flowBeginTime: Date.now() - mockConfig.metrics.flow_id_expiry - 1
+            context: 'fx_desktop_v3',
+            entrypoint: 'menupanel',
+            flowId: 'f1031df1031df1031df1031df1031df1031df1031df1031df1031df1031df103',
+            flowBeginTime: Date.now() - mockConfig.metrics.flow_id_expiry - 1,
+            migration: 'sync11',
+            service: 'sync'
           }
         }
       }
@@ -850,6 +911,245 @@ describe('metricsConext', () => {
   )
 
   it(
+    'metricsContext.validate with invalid context',
+    () => {
+      const flowBeginTime = 1451566800000
+      const flowId = '1234567890abcdef1234567890abcdef6a7c0469a1e3d6dfa7d9bed7ae209672'
+      sinon.stub(Date, 'now', function() {
+        return flowBeginTime + 59999
+      })
+      const mockLog = mocks.spyLog()
+      const mockConfig = {
+        metrics: {
+          flow_id_expiry: 60000,
+          flow_id_key: 'S3CR37'
+        }
+      }
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent'
+        },
+        payload: {
+          metricsContext: {
+            context: '!',
+            entrypoint: 'menupanel',
+            flowId,
+            flowBeginTime,
+            migration: 'sync11',
+            service: 'sync'
+          }
+        }
+      }
+
+      const metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+      const result = metricsContext.validate.call(mockRequest)
+
+      assert.strictEqual(result, false, 'result was false')
+      assert.strictEqual(mockRequest.payload.metricsContext.flowId, undefined, 'invalid flow data was removed')
+      assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
+      assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+      assert.equal(mockLog.warn.args[0].length, 1, 'log.warn was passed one argument')
+      assert.deepEqual(mockLog.warn.args[0][0], {
+        op: 'metrics.context.validate',
+        valid: false,
+        reason: 'invalid data',
+        agent: 'test-agent'
+      }, 'log.warn was passed correct argument')
+
+      Date.now.restore()
+    }
+  )
+
+  it(
+    'metricsContext.validate with invalid entrypoint',
+    () => {
+      const flowBeginTime = 1451566800000
+      const flowId = '1234567890abcdef1234567890abcdef6a7c0469a1e3d6dfa7d9bed7ae209672'
+      sinon.stub(Date, 'now', function() {
+        return flowBeginTime + 59999
+      })
+      const mockLog = mocks.spyLog()
+      const mockConfig = {
+        metrics: {
+          flow_id_expiry: 60000,
+          flow_id_key: 'S3CR37'
+        }
+      }
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent'
+        },
+        payload: {
+          metricsContext: {
+            context: 'fx_desktop_v3',
+            entrypoint: '!',
+            flowId,
+            flowBeginTime,
+            migration: 'sync11',
+            service: 'sync'
+          }
+        }
+      }
+
+      const metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+      const result = metricsContext.validate.call(mockRequest)
+
+      assert.strictEqual(result, false, 'result was false')
+      assert.strictEqual(mockRequest.payload.metricsContext.flowId, undefined, 'invalid flow data was removed')
+      assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
+      assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+      assert.equal(mockLog.warn.args[0].length, 1, 'log.warn was passed one argument')
+      assert.deepEqual(mockLog.warn.args[0][0], {
+        op: 'metrics.context.validate',
+        valid: false,
+        reason: 'invalid data',
+        agent: 'test-agent'
+      }, 'log.warn was passed correct argument')
+
+      Date.now.restore()
+    }
+  )
+
+  it(
+    'metricsContext.validate with invalid migration',
+    () => {
+      const flowBeginTime = 1451566800000
+      const flowId = '1234567890abcdef1234567890abcdef6a7c0469a1e3d6dfa7d9bed7ae209672'
+      sinon.stub(Date, 'now', function() {
+        return flowBeginTime + 59999
+      })
+      const mockLog = mocks.spyLog()
+      const mockConfig = {
+        metrics: {
+          flow_id_expiry: 60000,
+          flow_id_key: 'S3CR37'
+        }
+      }
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent'
+        },
+        payload: {
+          metricsContext: {
+            context: 'fx_desktop_v3',
+            entrypoint: 'menupanel',
+            flowId,
+            flowBeginTime,
+            migration: 'sync111',
+            service: 'sync'
+          }
+        }
+      }
+
+      const metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+      const result = metricsContext.validate.call(mockRequest)
+
+      assert.strictEqual(result, false, 'result was false')
+      assert.strictEqual(mockRequest.payload.metricsContext.flowId, undefined, 'invalid flow data was removed')
+      assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
+      assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+      assert.equal(mockLog.warn.args[0].length, 1, 'log.warn was passed one argument')
+      assert.deepEqual(mockLog.warn.args[0][0], {
+        op: 'metrics.context.validate',
+        valid: false,
+        reason: 'invalid data',
+        agent: 'test-agent'
+      }, 'log.warn was passed correct argument')
+
+      Date.now.restore()
+    }
+  )
+
+  it(
+    'metricsContext.validate with invalid service',
+    () => {
+      const flowBeginTime = 1451566800000
+      const flowId = '1234567890abcdef1234567890abcdef6a7c0469a1e3d6dfa7d9bed7ae209672'
+      sinon.stub(Date, 'now', function() {
+        return flowBeginTime + 59999
+      })
+      const mockLog = mocks.spyLog()
+      const mockConfig = {
+        metrics: {
+          flow_id_expiry: 60000,
+          flow_id_key: 'S3CR37'
+        }
+      }
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent'
+        },
+        payload: {
+          metricsContext: {
+            context: 'fx_desktop_v3',
+            entrypoint: 'menupanel',
+            flowId,
+            flowBeginTime,
+            migration: 'sync11',
+            service: 'foo'
+          }
+        }
+      }
+
+      const metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+      const result = metricsContext.validate.call(mockRequest)
+
+      assert.strictEqual(result, false, 'result was false')
+      assert.strictEqual(mockRequest.payload.metricsContext.flowId, undefined, 'invalid flow data was removed')
+      assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
+      assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+      assert.equal(mockLog.warn.args[0].length, 1, 'log.warn was passed one argument')
+      assert.deepEqual(mockLog.warn.args[0][0], {
+        op: 'metrics.context.validate',
+        valid: false,
+        reason: 'invalid data',
+        agent: 'test-agent'
+      }, 'log.warn was passed correct argument')
+
+      Date.now.restore()
+    }
+  )
+
+  it(
+    'metricsContext.validate without optional data',
+    () => {
+      const flowBeginTime = 1451566800000
+      const flowId = '1234567890abcdef1234567890abcdef6a7c0469a1e3d6dfa7d9bed7ae209672'
+      sinon.stub(Date, 'now', function() {
+        return flowBeginTime + 59999
+      })
+      const mockLog = mocks.spyLog()
+      const mockConfig = {
+        metrics: {
+          flow_id_expiry: 60000,
+          flow_id_key: 'S3CR37'
+        }
+      }
+      const mockRequest = {
+        headers: {
+          'user-agent': 'test-agent'
+        },
+        payload: {
+          metricsContext: {
+            flowId,
+            flowBeginTime
+          }
+        }
+      }
+
+      const metricsContext = require('../../lib/metrics/context')(mockLog, mockConfig)
+      const result = metricsContext.validate.call(mockRequest)
+
+      assert.strictEqual(result, true, 'result was true')
+      assert.equal(mockRequest.payload.metricsContext.flowId, '1234567890abcdef1234567890abcdef6a7c0469a1e3d6dfa7d9bed7ae209672', 'valid flow data was not removed')
+      assert.equal(mockLog.warn.callCount, 0, 'log.warn was not called')
+      assert.equal(mockLog.info.callCount, 1, 'log.info was called')
+
+      Date.now.restore()
+    }
+  )
+
+  it(
     'metricsContext.validate with an invalid flow signature',
     () => {
       var mockLog = mocks.spyLog()
@@ -865,8 +1165,12 @@ describe('metricsConext', () => {
         },
         payload: {
           metricsContext: {
-            flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-            flowBeginTime: Date.now()
+            context: 'fx_desktop_v3',
+            entrypoint: 'menupanel',
+            flowId: 'f1031df1031df1031df1031df1031df1031df1031df1031df1031df1031df103',
+            flowBeginTime: Date.now() - 1,
+            migration: 'sync11',
+            service: 'sync'
           }
         }
       }
@@ -906,8 +1210,12 @@ describe('metricsConext', () => {
         },
         payload: {
           metricsContext: {
+            context: 'fx_desktop_v3',
+            entrypoint: 'menupanel',
             flowId: expectedSalt + expectedHmac,
-            flowBeginTime: expectedTime
+            flowBeginTime: expectedTime,
+            migration: 'sync11',
+            service: 'sync'
           }
         }
       }
@@ -954,8 +1262,12 @@ describe('metricsConext', () => {
         },
         payload: {
           metricsContext: {
+            context: 'fx_desktop_v3',
+            entrypoint: 'menupanel',
             flowId: expectedSalt + expectedHmac,
-            flowBeginTime: expectedTime - 1
+            flowBeginTime: expectedTime - 1,
+            migration: 'sync11',
+            service: 'sync'
           }
         }
       }
@@ -1002,8 +1314,12 @@ describe('metricsConext', () => {
         },
         payload: {
           metricsContext: {
+            context: 'fx_desktop_v3',
+            entrypoint: 'menupanel',
             flowId: expectedSalt + expectedHmac,
-            flowBeginTime: expectedTime
+            flowBeginTime: expectedTime,
+            migration: 'sync11',
+            service: 'sync'
           }
         }
       }
