@@ -5,7 +5,8 @@
 
 var _ = require('lodash');
 var config = require('../configuration');
-var flowEvent = require('../flow-event');
+const flowEvent = require('../flow-event');
+const flowMetrics = require('../flow-metrics');
 var MetricsCollector = require('../metrics-collector-stderr');
 var StatsDCollector = require('../statsd-collector');
 var GACollector = require('../ga-collector');
@@ -13,7 +14,17 @@ var logger = require('mozlog')('server.post-metrics');
 
 var DISABLE_CLIENT_METRICS_STDERR = config.get('client_metrics').stderr_collector_disabled;
 
-var FLOW_BEGIN_EVENT_TYPES = /^flow\.[a-z_-]+\.begin$/;
+const FLOW_BEGIN_EVENT_TYPES = /^flow\.[a-z_-]+\.begin$/;
+const FLOW_ID_KEY = config.get('flow_id_key');
+const FLOW_ID_EXPIRY = config.get('flow_id_expiry');
+
+const VALID_METRICS_PROPERTIES = [
+  { key: 'context', pattern: /^[0-9a-z_-]+$/ },
+  { key: 'entrypoint', pattern: /^[\w\.-]+$/ },
+  { key: 'flowId', pattern: /^[0-9a-f]{64}$/ },
+  { key: 'migration', pattern: /^(sync11|amo|none)$/ },
+  { key: 'service', pattern: /^(sync|content-server|none|[0-9a-f]{16})$/ }
+];
 
 module.exports = function () {
   var metricsCollector = new MetricsCollector();
@@ -65,7 +76,7 @@ function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
     return;
   }
 
-  if (! metrics.flowBeginTime) {
+  if (! isValidFlowData(metrics, requestReceivedTime)) {
     // Don't risk corrupting good data by attempting to fix bad.
     return;
   }
@@ -88,11 +99,49 @@ function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
         received: requestReceivedTime
         /*eslint-enable sorting/sort-object-props*/
       });
+
+      if (! isValidTime(event.time, requestReceivedTime)) {
+        return;
+      }
+
       event.flowTime = event.time - metrics.flowBeginTime;
     }
 
     flowEvent(event, metrics, req);
   });
+}
+
+function isValidFlowData (metrics, requestReceivedTime) {
+  if (! metrics.flowId) {
+    return false;
+  }
+
+  if (! isValidTime(parseInt(metrics.flowBeginTime), requestReceivedTime)) {
+    return false;
+  }
+
+  if (! VALID_METRICS_PROPERTIES.every(p => isValidProperty(metrics[p.key], p.pattern))) {
+    return false;
+  }
+
+  return flowMetrics.validate(FLOW_ID_KEY, metrics.flowId, metrics.flowBeginTime, metrics.agent);
+}
+
+function isValidTime (time, requestReceivedTime) {
+  const age = requestReceivedTime - time;
+  if (age > FLOW_ID_EXPIRY || age < 0 || isNaN(age)) {
+    return false;
+  }
+
+  return true;
+}
+
+function isValidProperty (property, pattern) {
+  if (property) {
+    return pattern.test(property);
+  }
+
+  return true;
 }
 
 function estimateTime (times) {

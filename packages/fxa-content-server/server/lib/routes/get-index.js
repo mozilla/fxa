@@ -35,7 +35,7 @@ module.exports = function (config) {
   route.path = '/';
 
   route.process = function (req, res) {
-    var flowEventData = flowMetrics(FLOW_ID_KEY, req.headers['user-agent']);
+    const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
 
     res.render('index', {
       config: serializedConfig,

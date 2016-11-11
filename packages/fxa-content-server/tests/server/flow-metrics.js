@@ -42,13 +42,20 @@ define([
     Date.now.restore();
   };
 
-  suite['returns current timestamp for flowBeginTime'] = function () {
+  suite['create and validate functions are exported'] = () => {
+    assert.isObject(flowMetrics);
+    assert.lengthOf(Object.keys(flowMetrics), 2);
+    assert.equal(typeof flowMetrics.create, 'function');
+    assert.equal(typeof flowMetrics.validate, 'function');
+  };
+
+  suite['create returns current timestamp for flowBeginTime'] = () => {
     mockDateNow = 42;
-    var flowEventData = flowMetrics(mockFlowIdKey, mockUserAgent);
+    var flowEventData = flowMetrics.create(mockFlowIdKey, mockUserAgent);
     assert.equal(flowEventData.flowBeginTime, 42);
   };
 
-  suite['correctly generates a known test vector'] = function () {
+  suite['create correctly generates a known test vector'] = () => {
     mockDateNow = 1451566800000;
     mockFlowIdKey = 'S3CR37';
     mockUserAgent = 'Firefox';
@@ -67,48 +74,134 @@ define([
     var expectedSalt = '4d6f7a696c6c6146697265666f782121';
     var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206';
 
-    var flowEventData = flowMetrics(mockFlowIdKey, mockUserAgent);
+    var flowEventData = flowMetrics.create(mockFlowIdKey, mockUserAgent);
 
     assert.equal(flowEventData.flowBeginTime, 1451566800000);
     assert.equal(flowEventData.flowId, expectedSalt + expectedHmac);
   };
 
-  suite['generates different flowIds for different keys'] = function () {
-    var flowEventData1 = flowMetrics('key1', mockUserAgent);
-    var flowEventData2 = flowMetrics('key2', mockUserAgent);
+  suite['create generates different flowIds for different keys'] = () => {
+    var flowEventData1 = flowMetrics.create('key1', mockUserAgent);
+    var flowEventData2 = flowMetrics.create('key2', mockUserAgent);
 
     assert.notEqual(flowEventData1.flowId, flowEventData2.flowId);
     assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
   };
 
-  suite['generates different flowIds for different user agents'] = function () {
-    var flowEventData1 = flowMetrics(mockFlowIdKey, 'Firefox');
-    var flowEventData2 = flowMetrics(mockFlowIdKey, 'Chrome');
+  suite['create generates different flowIds for different user agents'] = () => {
+    var flowEventData1 = flowMetrics.create(mockFlowIdKey, 'Firefox');
+    var flowEventData2 = flowMetrics.create(mockFlowIdKey, 'Chrome');
 
     assert.notEqual(flowEventData1.flowId, flowEventData2.flowId);
     assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
   };
 
-  suite['generates different flowIds for different random salts'] = function () {
+  suite['create generates different flowIds for different random salts'] = () => {
     mockRandomBytes = 'MozillaFirefox!!';
-    var flowEventData1 = flowMetrics(mockFlowIdKey, mockUserAgent);
+    var flowEventData1 = flowMetrics.create(mockFlowIdKey, mockUserAgent);
 
     mockRandomBytes = 'AllHailSeaMonkey';
-    var flowEventData2 = flowMetrics(mockFlowIdKey, mockUserAgent);
+    var flowEventData2 = flowMetrics.create(mockFlowIdKey, mockUserAgent);
 
     assert.notEqual(flowEventData1.flowId, flowEventData2.flowId);
     assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
   };
 
-  suite['generates different flowIds for different timestamps'] = function () {
+  suite['create generates different flowIds for different timestamps'] = () => {
     mockDateNow = +(new Date(2016, 0, 1));
-    var flowEventData1 = flowMetrics(mockFlowIdKey, mockUserAgent);
+    var flowEventData1 = flowMetrics.create(mockFlowIdKey, mockUserAgent);
 
     mockDateNow = +(new Date(2016, 1, 29));
-    var flowEventData2 = flowMetrics(mockFlowIdKey, mockUserAgent);
+    var flowEventData2 = flowMetrics.create(mockFlowIdKey, mockUserAgent);
 
     assert.notEqual(flowEventData1.flowId, flowEventData2.flowId);
     assert.notEqual(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
+  };
+
+  suite['validate returns true for good data'] = () => {
+    // Force the mocks to return bad data to be sure it really works
+    mockDateNow = 1478626838531;
+    mockFlowIdKey = 'foo';
+    mockUserAgent = 'bar';
+    mockRandomBytes = 'baz';
+
+    const result = flowMetrics.validate(
+      // Good data is from the create test
+      'S3CR37',
+      '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
+      1451566800000,
+      'Firefox'
+    );
+
+    assert.strictEqual(result, true);
+  };
+
+  suite['validate returns false for a bad flow id'] = () => {
+    // Force the mocks to return good data to be sure it really works
+    mockDateNow = 1451566800000;
+    mockFlowIdKey = 'S3CR37';
+    mockUserAgent = 'Firefox';
+    mockRandomBytes = 'MozillaFirefox!!';
+
+    const result = flowMetrics.validate(
+      'S3CR37',
+      'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+      1451566800000,
+      'Firefox'
+    );
+
+    assert.strictEqual(result, false);
+  };
+
+  suite['validate returns false for a bad key'] = () => {
+    // Force the mocks to return good data to be sure it really works
+    mockDateNow = 1451566800000;
+    mockFlowIdKey = 'S3CR37';
+    mockUserAgent = 'Firefox';
+    mockRandomBytes = 'MozillaFirefox!!';
+
+    const result = flowMetrics.validate(
+      'foo',
+      '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
+      1451566800000,
+      'Firefox'
+    );
+
+    assert.strictEqual(result, false);
+  };
+
+  suite['validate returns false for a bad flow begin time'] = () => {
+    // Force the mocks to return good data to be sure it really works
+    mockDateNow = 1451566800000;
+    mockFlowIdKey = 'S3CR37';
+    mockUserAgent = 'Firefox';
+    mockRandomBytes = 'MozillaFirefox!!';
+
+    const result = flowMetrics.validate(
+      'S3CR37',
+      '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
+      1478626838531,
+      'Firefox'
+    );
+
+    assert.strictEqual(result, false);
+  };
+
+  suite['validate returns false for a bad user agent string'] = () => {
+    // Force the mocks to return good data to be sure it really works
+    mockDateNow = 1451566800000;
+    mockFlowIdKey = 'S3CR37';
+    mockUserAgent = 'Firefox';
+    mockRandomBytes = 'MozillaFirefox!!';
+
+    const result = flowMetrics.validate(
+      'S3CR37',
+      '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
+      1451566800000,
+      'foo'
+    );
+
+    assert.strictEqual(result, false);
   };
 
   registerSuite(suite);

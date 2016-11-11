@@ -27,7 +27,7 @@ module.exports = function (event, data, request) {
   var pickedData = _.pick(data, isDNT(request) ? DNT_ALLOWED_DATA : NO_DNT_ALLOWED_DATA);
   var eventData = _.assign({
     event: event.type,
-    flow_id: limitLength(data.flowId), //eslint-disable-line camelcase
+    flow_id: data.flowId, //eslint-disable-line camelcase
     flow_time: event.flowTime, //eslint-disable-line camelcase
     hostname: HOSTNAME,
     op: 'flowEvent',

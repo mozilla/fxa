@@ -126,6 +126,12 @@ var conf = module.exports = convict({
       doc: 'poll the experiments git repo for changes'
     }
   },
+  flow_id_expiry: {
+    default: '2 hours',
+    doc: 'Time after which flow ids are considered stale',
+    env: 'FLOW_ID_EXPIRY',
+    format: 'duration'
+  },
   flow_id_key: {
     default: 'YOU MUST CHANGE ME',
     doc: 'HMAC key used to verify flow event data',

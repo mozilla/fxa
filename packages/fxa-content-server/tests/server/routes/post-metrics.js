@@ -12,36 +12,55 @@ define([
   'intern/dojo/node!sinon',
   'intern/dojo/node!../helpers/init-logging'
 ], function (registerSuite, assert, Promise, _, path, proxyquire, sinon, initLogging) {
-  var mocks, route, instance;
+  var mocks, route, instance, flowMetricsValidateResult, sandbox;
 
   registerSuite({
     name: 'routes/post-metrics',
 
     setup: function () {
+      sandbox = sinon.sandbox.create();
       mocks = {
         config: {
-          get: sinon.spy(function () {
-            return false;
-          })
+          get (key) {
+            switch (key) {
+              /*eslint-disable indent*/
+              case 'client_metrics':
+                return {
+                  stderr_collector_disabled: false //eslint-disable-line camelcase
+                };
+              case 'flow_id_key':
+                return 'foo';
+              case 'flow_id_expiry':
+                return 7200000;
+              /*eslint-enable indent*/
+            }
+
+            return {};
+          }
         },
-        flowEvent: sinon.spy(),
+        flowEvent: sandbox.spy(),
+        flowMetrics: {
+          create: sandbox.spy(),
+          validate: sandbox.spy(() => flowMetricsValidateResult)
+        },
         gaCollector: {
-          write: sinon.spy()
+          write: sandbox.spy()
         },
         metricsCollector: {
-          write: sinon.spy()
+          write: sandbox.spy()
         },
         mozlog: {
-          error: sinon.spy()
+          error: sandbox.spy()
         },
         statsdCollector: {
-          init: sinon.spy(),
-          write: sinon.spy()
+          init: sandbox.spy(),
+          write: sandbox.spy()
         }
       };
       route = proxyquire(
         path.join(process.cwd(), 'server/lib/routes/post-metrics'), {
           '../flow-event': mocks.flowEvent,
+          '../flow-metrics': mocks.flowMetrics,
           '../configuration': mocks.config,
           '../ga-collector': function () {
             return mocks.gaCollector;
@@ -78,7 +97,7 @@ define([
         assert.lengthOf(instance.process, 2);
       },
 
-      'route.process': {
+      'route.process with valid flow data': {
         setup: function () {
           sinon.stub(Date, 'now', function () {
             return 1000;
@@ -86,9 +105,13 @@ define([
           setupMetricsHandlerTests({
             /*eslint-disable sorting/sort-object-props*/
             data: {
+              context: 'fx_desktop_v3',
+              entrypoint: 'menupanel',
               flowBeginTime: 42,
-              flowId: 'qux',
+              flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
               isSampledUser: true,
+              migration: 'sync11',
+              service: '1234567890abcdef',
               startTime: 10,
               flushTime: 20
             },
@@ -97,7 +120,8 @@ define([
               { type: 'bar', offset: 1 },
               { type: 'flow.signup.begin', offset: 2 },
               { type: 'baz', offset: 3 },
-              { type: 'flow.signup.engage', offset: 4 }
+              { type: 'flow.signup.engage', offset: 11 },
+              { type: 'flow.signup.submit', offset: 4 }
             ],
             userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
             /*eslint-enable sorting/sort-object-props*/
@@ -106,6 +130,7 @@ define([
 
         teardown: function () {
           Date.now.restore();
+          sandbox.reset();
         },
 
         'response.json was called correctly': function () {
@@ -126,6 +151,7 @@ define([
 
         'process.nextTick callback': {
           setup: function () {
+            flowMetricsValidateResult = true;
             mocks.nextTick.args[0][0]();
           },
 
@@ -139,11 +165,11 @@ define([
             var args = mocks.metricsCollector.write.args[0];
             assert.lengthOf(args, 1);
             assert.equal(args[0], mocks.request.body);
-            assert.lengthOf(Object.keys(args[0]), 7);
+            assert.lengthOf(Object.keys(args[0]), 11);
 
             assert.equal(args[0].agent, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0');
             assert.isArray(args[0].events);
-            assert.lengthOf(args[0].events, 5);
+            assert.lengthOf(args[0].events, 6);
             assert.isObject(args[0].events[0]);
             assert.lengthOf(Object.keys(args[0].events[0]), 2);
             assert.equal(args[0].events[0].type, 'foo');
@@ -163,14 +189,23 @@ define([
             assert.equal(args[0].events[3].type, 'baz');
             assert.equal(args[0].events[3].offset, 3);
             assert.isObject(args[0].events[4]);
-            assert.lengthOf(Object.keys(args[0].events[4]), 4);
+            assert.lengthOf(Object.keys(args[0].events[4]), 3);
             assert.equal(args[0].events[4].type, 'flow.signup.engage');
-            assert.equal(args[0].events[4].offset, 4);
-            assert.equal(args[0].events[4].time, 994);
-            assert.equal(args[0].events[4].flowTime, 952);
-            assert.equal(args[0].flowId, 'qux');
+            assert.equal(args[0].events[4].offset, 11);
+            assert.equal(args[0].events[4].time, 1001);
+            assert.isObject(args[0].events[5]);
+            assert.lengthOf(Object.keys(args[0].events[5]), 4);
+            assert.equal(args[0].events[5].type, 'flow.signup.submit');
+            assert.equal(args[0].events[5].offset, 4);
+            assert.equal(args[0].events[5].time, 994);
+            assert.equal(args[0].events[5].flowTime, 952);
+            assert.equal(args[0].flowId, '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef');
             assert.equal(args[0].flowBeginTime, 42);
             assert.strictEqual(args[0].isSampledUser, true);
+            assert.strictEqual(args[0].context, 'fx_desktop_v3');
+            assert.strictEqual(args[0].entrypoint, 'menupanel');
+            assert.strictEqual(args[0].migration, 'sync11');
+            assert.strictEqual(args[0].service, '1234567890abcdef');
             assert.strictEqual(args[0].startTime, 10);
             assert.strictEqual(args[0].flushTime, 20);
           },
@@ -198,20 +233,347 @@ define([
             assert.strictEqual(args[0].flowTime, 0);
             assert.equal(args[0].time, 42);
             assert.isObject(args[1]);
-            assert.equal(args[1].flowId, 'qux');
+            assert.equal(args[1].flowId, '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef');
             assert.strictEqual(args[1].flowBeginTime, 42);
+            assert.strictEqual(args[1].context, 'fx_desktop_v3');
+            assert.strictEqual(args[1].service, '1234567890abcdef');
             assert.equal(args[2], mocks.request);
             // second flowEvent
             args = mocks.flowEvent.args[1];
             assert.isObject(args[0]);
-            assert.equal(args[0].type, 'flow.signup.engage');
+            assert.equal(args[0].type, 'flow.signup.submit');
             assert.strictEqual(args[0].flowTime, 952);
             assert.equal(args[0].time, 994);
             assert.isObject(args[1]);
-            assert.equal(args[1].flowId, 'qux');
+            assert.equal(args[1].flowId, '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef');
             assert.strictEqual(args[1].flowBeginTime, 42);
+            assert.strictEqual(args[1].context, 'fx_desktop_v3');
+            assert.strictEqual(args[1].entrypoint, 'menupanel');
+            assert.strictEqual(args[1].migration, 'sync11');
+            assert.strictEqual(args[1].service, '1234567890abcdef');
             assert.equal(args[2], mocks.request);
           }
+        }
+      },
+
+      'route.process with invalid flow id': {
+        setup () {
+          flowMetricsValidateResult = true;
+          sinon.stub(Date, 'now', () => {
+            return 1000;
+          });
+          setupMetricsHandlerTests({
+            /*eslint-disable sorting/sort-object-props*/
+            data: {
+              context: 'fx_desktop_v3',
+              entrypoint: 'menupanel',
+              flowBeginTime: 42,
+              flowId: '1234567890abcdef1234567890abcdef',
+              isSampledUser: true,
+              migration: 'sync11',
+              service: '1234567890abcdef',
+              startTime: 10,
+              flushTime: 20
+            },
+            events: [
+              { type: 'foo', offset: 0 },
+              { type: 'bar', offset: 1 },
+              { type: 'flow.signup.begin', offset: 2 },
+              { type: 'baz', offset: 3 },
+              { type: 'flow.signup.engage', offset: 4 }
+            ],
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+            /*eslint-enable sorting/sort-object-props*/
+          });
+        },
+
+        teardown () {
+          Date.now.restore();
+          sandbox.reset();
+        },
+
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
+        }
+      },
+
+      'route.process with invalid flow begin time': {
+        setup () {
+          flowMetricsValidateResult = true;
+          sinon.stub(Date, 'now', () => {
+            return 41;
+          });
+          setupMetricsHandlerTests({
+            /*eslint-disable sorting/sort-object-props*/
+            data: {
+              context: 'fx_desktop_v3',
+              entrypoint: 'menupanel',
+              flowBeginTime: 42,
+              flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+              isSampledUser: true,
+              migration: 'sync11',
+              service: '1234567890abcdef',
+              startTime: 10,
+              flushTime: 20
+            },
+            events: [
+              { type: 'foo', offset: 0 },
+              { type: 'bar', offset: 1 },
+              { type: 'flow.signup.begin', offset: 2 },
+              { type: 'baz', offset: 3 },
+              { type: 'flow.signup.engage', offset: 4 }
+            ],
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+            /*eslint-enable sorting/sort-object-props*/
+          });
+        },
+
+        teardown () {
+          Date.now.restore();
+          sandbox.reset();
+        },
+
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
+        }
+      },
+
+      'route.process with invalid context': {
+        setup () {
+          flowMetricsValidateResult = true;
+          sinon.stub(Date, 'now', () => {
+            return 1000;
+          });
+          setupMetricsHandlerTests({
+            /*eslint-disable sorting/sort-object-props*/
+            data: {
+              context: '!',
+              entrypoint: 'menupanel',
+              flowBeginTime: 42,
+              flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+              isSampledUser: true,
+              migration: 'sync11',
+              service: '1234567890abcdef',
+              startTime: 10,
+              flushTime: 20
+            },
+            events: [
+              { type: 'foo', offset: 0 },
+              { type: 'bar', offset: 1 },
+              { type: 'flow.signup.begin', offset: 2 },
+              { type: 'baz', offset: 3 },
+              { type: 'flow.signup.engage', offset: 4 }
+            ],
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+            /*eslint-enable sorting/sort-object-props*/
+          });
+        },
+
+        teardown () {
+          Date.now.restore();
+          sandbox.reset();
+        },
+
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
+        }
+      },
+
+      'route.process with invalid entrypoint': {
+        setup () {
+          flowMetricsValidateResult = true;
+          sinon.stub(Date, 'now', () => {
+            return 1000;
+          });
+          setupMetricsHandlerTests({
+            /*eslint-disable sorting/sort-object-props*/
+            data: {
+              context: 'fx_desktop_v3',
+              entrypoint: '!',
+              flowBeginTime: 42,
+              flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+              isSampledUser: true,
+              migration: 'sync11',
+              service: '1234567890abcdef',
+              startTime: 10,
+              flushTime: 20
+            },
+            events: [
+              { type: 'foo', offset: 0 },
+              { type: 'bar', offset: 1 },
+              { type: 'flow.signup.begin', offset: 2 },
+              { type: 'baz', offset: 3 },
+              { type: 'flow.signup.engage', offset: 4 }
+            ],
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+            /*eslint-enable sorting/sort-object-props*/
+          });
+        },
+
+        teardown () {
+          Date.now.restore();
+          sandbox.reset();
+        },
+
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
+        }
+      },
+
+      'route.process with invalid migration': {
+        setup () {
+          flowMetricsValidateResult = true;
+          sinon.stub(Date, 'now', () => {
+            return 1000;
+          });
+          setupMetricsHandlerTests({
+            /*eslint-disable sorting/sort-object-props*/
+            data: {
+              context: 'fx_desktop_v3',
+              entrypoint: 'menupanel',
+              flowBeginTime: 42,
+              flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+              isSampledUser: true,
+              migration: 'foo',
+              service: '1234567890abcdef',
+              startTime: 10,
+              flushTime: 20
+            },
+            events: [
+              { type: 'foo', offset: 0 },
+              { type: 'bar', offset: 1 },
+              { type: 'flow.signup.begin', offset: 2 },
+              { type: 'baz', offset: 3 },
+              { type: 'flow.signup.engage', offset: 4 }
+            ],
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+            /*eslint-enable sorting/sort-object-props*/
+          });
+        },
+
+        teardown () {
+          Date.now.restore();
+          sandbox.reset();
+        },
+
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
+        }
+      },
+
+      'route.process with invalid service': {
+        setup () {
+          flowMetricsValidateResult = true;
+          sinon.stub(Date, 'now', () => {
+            return 1000;
+          });
+          setupMetricsHandlerTests({
+            /*eslint-disable sorting/sort-object-props*/
+            data: {
+              context: 'fx_desktop_v3',
+              entrypoint: 'menupanel',
+              flowBeginTime: 42,
+              flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+              isSampledUser: true,
+              migration: 'sync11',
+              service: '1234567890abcdef1234567890abcdef',
+              startTime: 10,
+              flushTime: 20
+            },
+            events: [
+              { type: 'foo', offset: 0 },
+              { type: 'bar', offset: 1 },
+              { type: 'flow.signup.begin', offset: 2 },
+              { type: 'baz', offset: 3 },
+              { type: 'flow.signup.engage', offset: 4 }
+            ],
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+            /*eslint-enable sorting/sort-object-props*/
+          });
+        },
+
+        teardown () {
+          Date.now.restore();
+          sandbox.reset();
+        },
+
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
+        }
+      },
+
+      'route.process without optional flow data': {
+        setup: function () {
+          flowMetricsValidateResult = true;
+          sinon.stub(Date, 'now', function () {
+            return 1000;
+          });
+          setupMetricsHandlerTests({
+            /*eslint-disable sorting/sort-object-props*/
+            data: {
+              flowBeginTime: 42,
+              flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+              isSampledUser: true,
+              startTime: 10,
+              flushTime: 20
+            },
+            events: [
+              { type: 'foo', offset: 0 },
+              { type: 'bar', offset: 1 },
+              { type: 'flow.signup.begin', offset: 2 },
+              { type: 'baz', offset: 3 },
+              { type: 'flow.signup.engage', offset: 11 },
+              { type: 'flow.signup.submit', offset: 4 }
+            ],
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+            /*eslint-enable sorting/sort-object-props*/
+          });
+        },
+
+        teardown () {
+          Date.now.restore();
+          sandbox.reset();
+        },
+
+        'two flow events were emitted': () => {
+          assertFlowEventCallCount(2);
+        }
+      },
+
+      'route.process with valid-seeming flow data but flowMetrics.validate returns false': {
+        setup () {
+          flowMetricsValidateResult = false;
+          sinon.stub(Date, 'now', () => {
+            return 1000;
+          });
+          setupMetricsHandlerTests({
+            /*eslint-disable sorting/sort-object-props*/
+            data: {
+              flowBeginTime: 42,
+              flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+              isSampledUser: true,
+              startTime: 10,
+              flushTime: 20
+            },
+            events: [
+              { type: 'foo', offset: 0 },
+              { type: 'bar', offset: 1 },
+              { type: 'flow.signup.begin', offset: 2 },
+              { type: 'baz', offset: 3 },
+              { type: 'flow.signup.engage', offset: 4 }
+            ],
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+            /*eslint-enable sorting/sort-object-props*/
+          });
+        },
+
+        teardown () {
+          Date.now.restore();
+          sandbox.reset();
+        },
+
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
         }
       },
 
@@ -220,7 +582,7 @@ define([
           setupMetricsHandlerTests({
             data: {
               flowBeginTime: 42,
-              flowId: 'qux',
+              flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
               isSampledUser: true
             },
             events: [
@@ -234,47 +596,25 @@ define([
           });
         },
 
-        'response.json was called': function () {
-          assert.equal(mocks.response.json.callCount, 1);
+        teardown () {
+          sandbox.reset();
         },
 
-        'process.nextTick was called': function () {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup: function () {
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was not called': function () {
-            assert.strictEqual(mocks.mozlog.error.callCount, 0);
-          },
-
-          'metricsCollector.write was called': function () {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 2);
-          },
-
-          'statsdCollector.write was called': function () {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 2);
-          },
-
-          'gaCollector.write was called': function () {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 2);
-          },
-
-          'flowEvent was not called': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 2);
-          }
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
         }
       },
 
       'route.process without isSampledUser': {
         setup: function () {
+          flowMetricsValidateResult = true;
+          sinon.stub(Date, 'now', function () {
+            return 1000;
+          });
           setupMetricsHandlerTests({
             data: {
               flowBeginTime: 42,
-              flowId: 'qux'
+              flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
             },
             events: [
               /*eslint-disable sorting/sort-object-props*/
@@ -288,6 +628,11 @@ define([
           });
         },
 
+        teardown () {
+          Date.now.restore();
+          sandbox.reset();
+        },
+
         'response.json was called': function () {
           assert.equal(mocks.response.json.callCount, 1);
         },
@@ -298,6 +643,7 @@ define([
 
         'process.nextTick callback': {
           setup: function () {
+            flowMetricsValidateResult = true;
             mocks.nextTick.args[0][0]();
           },
 
@@ -306,30 +652,33 @@ define([
           },
 
           'metricsCollector.write was not called': function () {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 2);
+            assert.strictEqual(mocks.metricsCollector.write.callCount, 0);
           },
 
           'statsdCollector.write was not called': function () {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 2);
+            assert.strictEqual(mocks.statsdCollector.write.callCount, 0);
           },
 
           'gaCollector.write was called': function () {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 3);
+            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
           },
 
           'flowEvent was called': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 3);
+            assert.strictEqual(mocks.flowEvent.callCount, 1);
           }
         }
       },
 
       'route.process with text/plain Content-Type': {
         setup: function () {
+          sinon.stub(Date, 'now', function () {
+            return 1000;
+          });
           setupMetricsHandlerTests({
             contentType: 'text/plain',
             data: {
               flowBeginTime: 77,
-              flowId: 'bar',
+              flowId: 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
               isSampledUser: true
             },
             events: [
@@ -343,6 +692,11 @@ define([
           });
         },
 
+        teardown () {
+          Date.now.restore();
+          sandbox.reset();
+        },
+
         'response.json was called': function () {
           assert.equal(mocks.response.json.callCount, 1);
         },
@@ -353,6 +707,7 @@ define([
 
         'process.nextTick callback': {
           setup: function () {
+            flowMetricsValidateResult = true;
             mocks.nextTick.args[0][0]();
           },
 
@@ -361,9 +716,9 @@ define([
           },
 
           'metricsCollector.write was called correctly': function () {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 3);
+            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
 
-            var args = mocks.metricsCollector.write.args[2];
+            var args = mocks.metricsCollector.write.args[0];
             assert.lengthOf(args, 1);
             assert.isObject(args[0]);
             assert.lengthOf(Object.keys(args[0]), 5);
@@ -371,35 +726,35 @@ define([
             assert.equal(args[0].agent, 'baz');
             assert.isArray(args[0].events);
             assert.lengthOf(args[0].events, 2);
-            assert.equal(args[0].flowId, 'bar');
+            assert.equal(args[0].flowId, 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890');
             assert.equal(args[0].flowBeginTime, 77);
             assert.strictEqual(args[0].isSampledUser, true);
           },
 
           'statsdCollector.write was called correctly': function () {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 3);
-            var args = mocks.statsdCollector.write.args[2];
+            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
+            var args = mocks.statsdCollector.write.args[0];
             assert.lengthOf(args, 1);
             assert.isObject(args[0]);
           },
 
           'gaCollector.write was called correctly': function () {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 4);
-            var args = mocks.gaCollector.write.args[3];
+            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
+            var args = mocks.gaCollector.write.args[0];
             assert.lengthOf(args, 1);
             assert.isObject(args[0]);
           },
 
           'flowEvent was called correctly': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 4);
-            var args = mocks.flowEvent.args[3];
+            assert.strictEqual(mocks.flowEvent.callCount, 1);
+            var args = mocks.flowEvent.args[0];
             assert.lengthOf(args, 3);
             assert.isObject(args[0]);
             assert.equal(args[0].type, 'flow.force_auth.begin');
             assert.strictEqual(args[0].flowTime, 0);
             assert.equal(args[0].time, 77);
             assert.isObject(args[1]);
-            assert.equal(args[1].flowId, 'bar');
+            assert.equal(args[1].flowId, 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890');
             assert.strictEqual(args[1].flowBeginTime, 77);
             assert.equal(args[2], mocks.request);
           }
@@ -435,6 +790,7 @@ define([
 
         'process.nextTick callback': {
           setup: function () {
+            flowMetricsValidateResult = true;
             mocks.nextTick.args[0][0]();
           },
 
@@ -446,19 +802,19 @@ define([
           },
 
           'metricsCollector.write was not called': function () {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 3);
+            assert.strictEqual(mocks.metricsCollector.write.callCount, 0);
           },
 
           'statsdCollector.write was not called': function () {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 3);
+            assert.strictEqual(mocks.statsdCollector.write.callCount, 0);
           },
 
           'gaCollector.write was not called': function () {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 4);
+            assert.strictEqual(mocks.gaCollector.write.callCount, 0);
           },
 
           'flowEvent was not called': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 4);
+            assert.strictEqual(mocks.flowEvent.callCount, 0);
           }
         }
       },
@@ -471,7 +827,7 @@ define([
           setupMetricsHandlerTests({
             /*eslint-disable sorting/sort-object-props*/
             data: {
-              flowId: 'qux',
+              flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
               isSampledUser: true,
               startTime: 1,
               flushTime: 2
@@ -490,6 +846,7 @@ define([
 
         teardown: function () {
           Date.now.restore();
+          sandbox.reset();
         },
 
         'response.json was called': function () {
@@ -510,19 +867,19 @@ define([
           },
 
           'metricsCollector.write was called': function () {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 4);
+            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
           },
 
           'statsdCollector.write was called': function () {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 4);
+            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
           },
 
           'gaCollector.write was called': function () {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 5);
+            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
           },
 
           'flowEvent was not called': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 4);
+            assert.strictEqual(mocks.flowEvent.callCount, 0);
           }
         }
       }
@@ -533,7 +890,7 @@ define([
     options = options || {};
     mocks.request = {
       body: {},
-      get: sinon.spy(function (header) {
+      get: sandbox.spy(function (header) {
         switch (header.toLowerCase()) {
         case 'content-type':
           return options.contentType || 'application/json';
@@ -552,11 +909,24 @@ define([
     if (options.isBodyJSON) {
       mocks.request.body = JSON.stringify(mocks.request.body);
     }
-    mocks.response = { json: sinon.spy() };
-    mocks.nextTick = sinon.spy();
+    mocks.response = { json: sandbox.spy() };
+    mocks.nextTick = sandbox.spy();
     var nextTickCopy = process.nextTick;
     process.nextTick = mocks.nextTick;
     instance.process(mocks.request, mocks.response);
     process.nextTick = nextTickCopy;
+  }
+
+  function assertFlowEventCallCount (count) {
+    assert.equal(mocks.response.json.callCount, 1, 'response.json was called once');
+    assert.equal(mocks.nextTick.callCount, 1, 'process.nextTick was called once');
+
+    mocks.nextTick.args[0][0]();
+
+    assert.strictEqual(mocks.mozlog.error.callCount, 0, 'mozlog.error was not called');
+    assert.strictEqual(mocks.metricsCollector.write.callCount, 1, 'metricsCollector.write was called once');
+    assert.strictEqual(mocks.statsdCollector.write.callCount, 1, 'statsdCollector.write was called once');
+    assert.strictEqual(mocks.gaCollector.write.callCount, 1, 'gaCollector.write was called once');
+    assert.strictEqual(mocks.flowEvent.callCount, count, `flowEvent was called ${count} times`);
   }
 });
