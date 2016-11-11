@@ -40,6 +40,14 @@ const NULL_MEMCACHED = {
   setAsync: NOP
 }
 
+const VALID_PROPERTIES = [
+  { key: 'context', pattern: /^[0-9a-z_-]+$/ },
+  { key: 'entrypoint', pattern: /^[\w\.-]+$/ },
+  { key: 'flowId', pattern: /^[0-9a-f]{64}$/ },
+  { key: 'migration', pattern: /^(sync11|amo)$/ },
+  { key: 'service', pattern: /^(sync|content-server|[0-9a-f]{16})$/ }
+]
+
 module.exports = function (log, config) {
   let _memcached
 
@@ -200,8 +208,13 @@ module.exports = function (log, config) {
       return logInvalidContext(this, 'missing flowBeginTime')
     }
 
-    if (Date.now() - metadata.flowBeginTime > config.metrics.flow_id_expiry) {
+    const age = Date.now() - metadata.flowBeginTime
+    if (age > config.metrics.flow_id_expiry || age <= 0) {
       return logInvalidContext(this, 'expired flowBeginTime')
+    }
+
+    if (! isValidData(metadata)) {
+      return logInvalidContext(this, 'invalid data')
     }
 
     // The first half of the id is random bytes, the second half is a HMAC of
@@ -287,6 +300,17 @@ function calculateFlowTime (time, flowBeginTime) {
   }
 
   return time - flowBeginTime
+}
+
+function isValidData (data) {
+  return VALID_PROPERTIES.every(p => {
+    const property = data[p.key]
+    if (property) {
+      return p.pattern.test(property)
+    }
+
+    return true
+  })
 }
 
 module.exports.schema = SCHEMA
