@@ -10,6 +10,7 @@ module.exports = config => {
   const lastAccessTimeUpdates = config.lastAccessTimeUpdates
   const signinConfirmation = config.signinConfirmation
   const signinUnblock = config.signinUnblock
+  const securityHistory = config.securityHistory
 
   return {
     /**
@@ -99,6 +100,28 @@ module.exports = config => {
 
       // Check to see if user in roll-out cohort.
       return isSampledUser(signinUnblock.sampleRate, uid, 'signinUnblock')
+    },
+
+    /**
+     * Return whether or not this request should bypass sign-in confirmation. Currently,
+     * just checks if user has had a verified security event in the past day.
+     *
+     * @param verified
+     * @param recency
+     * @returns {boolean}
+     */
+    canBypassSiginConfirmation(verified, recency) {
+      let bypass = false
+
+      // IP Profiling sets bypass to true if this user has verified a session
+      // within the past day from this ip address.
+      let ipProfilingEnabled = securityHistory.enabled && securityHistory.ipProfiling &&
+        securityHistory.ipProfiling.enabled
+      if (ipProfilingEnabled && verified && recency === 'day') {
+        bypass = true
+      }
+
+      return bypass
     },
 
     /**

@@ -409,7 +409,10 @@ module.exports = function (
         const resume = request.payload.resume
         const ip = request.app.clientAddress
         let needsVerificationId = true
-        let emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation, emailSent, unblockCode, customsErr, allowSigninUnblock, didSigninUnblock, tokenVerificationId
+        let emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation,
+          emailSent, unblockCode, customsErr, allowSigninUnblock, didSigninUnblock, tokenVerificationId
+
+        let securityEventRecency, securityEventVerified = false
 
         request.validateMetricsContext()
 
@@ -425,8 +428,8 @@ module.exports = function (
           .then(() => customs.check(request, email, 'accountLogin'))
           .catch(checkUnblockCode)
           .then(readEmailRecord)
-          .then(checkEmailAndPassword)
           .then(checkSecurityHistory)
+          .then(checkEmailAndPassword)
           .then(checkNumberOfActiveSessions)
           .then(createSessionToken)
           .then(createKeyFetchToken)
@@ -525,40 +528,33 @@ module.exports = function (
           })
             .then(
               function (events) {
-                // if we've seen this address for this user before, we
-                // can skip signin confirmation
-                //
-                // for now, just log that we *could* have done so
                 if (events.length > 0) {
                   var latest = 0
-                  var verified = false
-
                   events.forEach(function(ev) {
                     if (ev.verified) {
-                      verified = true
+                      securityEventVerified = true
                       if (ev.createdAt > latest) {
                         latest = ev.createdAt
                       }
                     }
                   })
-                  if (verified) {
+                  if (securityEventVerified) {
                     var since = Date.now() - latest
-                    var recency
                     if (since < MS_ONE_DAY) {
-                      recency = 'day'
+                      securityEventRecency = 'day'
                     } else if (since < MS_ONE_WEEK) {
-                      recency = 'week'
+                      securityEventRecency = 'week'
                     } else if (since < MS_ONE_MONTH) {
-                      recency = 'month'
+                      securityEventRecency = 'month'
                     } else {
-                      recency = 'old'
+                      securityEventRecency = 'old'
                     }
 
                     log.info({
                       op: 'Account.history.verified',
                       uid: emailRecord.uid.toString('hex'),
                       events: events.length,
-                      recency: recency
+                      recency: securityEventRecency
                     })
                   } else {
                     log.info({
@@ -591,7 +587,20 @@ module.exports = function (
           //  * the request wants keys, since unverified sessions are fine to use for e.g. oauth login.
           //  * the email is verified, since content-server triggers a resend of the verification
           //    email on unverified accounts, which doubles as sign-in confirmation.
-          if (didSigninUnblock || !features.isSigninConfirmationEnabledForUser(emailRecord.uid, emailRecord.email, request)) {
+          //  * the login is flagged that it can be bypassed
+
+          // Check to see if this login can bypass sign-in confirmation. Current scenarios include
+          //  * User has already logged in from this ip address and verified the sign-in
+          let bypassSiginConfirmation = features.canBypassSiginConfirmation(securityEventVerified, securityEventRecency)
+          if (bypassSiginConfirmation) {
+            log.info({
+              op: 'Account.ipprofiling.seenAddress',
+              uid: emailRecord.uid.toString('hex')
+            })
+          }
+
+          if (didSigninUnblock || !features.isSigninConfirmationEnabledForUser(emailRecord.uid, emailRecord.email, request)
+            || bypassSiginConfirmation) {
             needsVerificationId = false
             mustVerifySession = false
             doSigninConfirmation = false

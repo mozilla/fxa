@@ -16,6 +16,7 @@ describe('remote recovery email resend code', function() {
   before(() => {
     process.env.SIGNIN_CONFIRMATION_ENABLED = true
     process.env.SIGNIN_CONFIRMATION_RATE = 1.0
+    process.env.IP_PROFILING_ENABLED = false
 
     return TestServer.start(config)
       .then(s => {
@@ -150,6 +151,7 @@ describe('remote recovery email resend code', function() {
   after(() => {
     delete process.env.SIGNIN_CONFIRMATION_ENABLED
     delete process.env.SIGNIN_CONFIRMATION_RATE
+    delete process.env.IP_PROFILING_ENABLED
     return TestServer.stop(server)
   })
 })
