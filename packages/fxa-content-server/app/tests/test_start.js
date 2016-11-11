@@ -119,7 +119,6 @@ function (Translator, Session) {
     '../tests/spec/views/force_auth',
     '../tests/spec/views/form',
     '../tests/spec/views/marketing_snippet',
-    '../tests/spec/views/marketing_snippet_ios',
     '../tests/spec/views/mixins/account-reset-mixin',
     '../tests/spec/views/mixins/avatar-mixin',
     '../tests/spec/views/mixins/back-mixin',

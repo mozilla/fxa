@@ -113,27 +113,9 @@ define(function (require, exports, module) {
           });
       });
 
-      it('shows some form of marketing for english speakers if capability is supported', function () {
-        relier.set('service', 'sync');
-        sinon.stub(broker, 'hasCapability', function (type) {
-          if (type === 'emailVerificationMarketingSnippet') {
-            return true;
-          }
-        });
-
-        createView(VerificationReasons.SIGN_UP, 'en');
-
-        return view.render()
-          .then(function () {
-            assert.equal(view.$('.marketing').length, 1);
-          });
-      });
-
-      it('shows the spring 2015 snippet if the campaign has started', function () {
-        sinon.stub(able, 'choose', function () {
-          return true;
-        });
-        sinon.stub(broker, 'hasCapability', function (type) {
+      it('shows the marketing campaign if supported by broker', function () {
+        sinon.stub(able, 'choose', () => true);
+        sinon.stub(broker, 'hasCapability', (type) => {
           if (type === 'emailVerificationMarketingSnippet') {
             return true;
           }
@@ -144,7 +126,6 @@ define(function (require, exports, module) {
 
         return view.render()
           .then(function () {
-            assert.isTrue(able.choose.calledWith('springCampaign2015'));
             assert.ok(view.$('.os-general').length);
           });
       });

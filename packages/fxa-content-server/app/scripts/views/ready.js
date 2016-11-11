@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const Constants = require('lib/constants');
   const FormView = require('views/form');
   const MarketingSnippet = require('views/marketing_snippet');
-  const MarketingSnippetiOS = require('views/marketing_snippet_ios');
   const p = require('lib/promise');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/ready');
@@ -139,7 +138,7 @@ define(function (require, exports, module) {
         return p();
       }
 
-      var marketingSnippetOpts = {
+      const marketingSnippetOpts = {
         el: this.$('.marketing-area'),
         lang: this.lang,
         metrics: this.metrics,
@@ -147,12 +146,7 @@ define(function (require, exports, module) {
         type: this.model.get('type')
       };
 
-      var marketingSnippet;
-      if (this._able.choose('springCampaign2015')) {
-        marketingSnippet = new MarketingSnippetiOS(marketingSnippetOpts);
-      } else {
-        marketingSnippet = new MarketingSnippet(marketingSnippetOpts);
-      }
+      const marketingSnippet = new MarketingSnippet(marketingSnippetOpts);
 
       this.trackChildView(marketingSnippet);
 
