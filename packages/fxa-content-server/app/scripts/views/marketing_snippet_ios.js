@@ -55,14 +55,6 @@ define(function (require, exports, module) {
   var View = MarketingSnippetView.extend({
     template: Template,
 
-    initialize (options) {
-      options = options || {};
-
-      MarketingSnippetView.prototype.initialize.call(this, options);
-
-      this._language = options.language;
-    },
-
     context () {
       var shouldShowMarketing = this._shouldShowSignUpMarketing();
       var isIos = this._isIos();
@@ -91,8 +83,8 @@ define(function (require, exports, module) {
     },
 
     _storeImage (buttonDir, imageFormat) {
-      var buttonPath = _.contains(playStoreImageLanguages, this._language) ?
-                          this._language : 'en';
+      var buttonPath =
+        _.contains(playStoreImageLanguages, this.lang) ? this.lang : 'en';
 
       if (this._isHighRes() && imageFormat === FORMAT_PNG) {
         buttonPath += '@2x';

@@ -91,7 +91,7 @@ define(function (require, exports, module) {
      * @private
      */
     _isEnglishLocale () {
-      return !! (this.language && this.language.indexOf('en') === 0);
+      return !! (this.lang && this.lang.indexOf('en') === 0);
     },
 
     // Constants, exposed for testing

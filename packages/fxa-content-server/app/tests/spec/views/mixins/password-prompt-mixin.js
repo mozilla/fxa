@@ -105,7 +105,7 @@ define(function (require, exports, module) {
         sinon.stub(view, 'checkPasswordStrength', function (password) {
           view.displayPasswordWarningPrompt();
         });
-        view.language = 'en-rr';
+        view.lang = 'en-rr';
         view.onPasswordBlur();
         return p()
           // wait for tooltip

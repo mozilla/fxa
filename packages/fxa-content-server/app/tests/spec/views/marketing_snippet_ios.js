@@ -23,7 +23,7 @@ define(function (require, exports, module) {
 
       options.service = 'sync';
       options.type = VerificationReasons.SIGN_UP;
-      options.language = options.language || 'en';
+      options.lang = options.lang || 'en';
 
       options.window = windowMock;
 
@@ -95,7 +95,7 @@ define(function (require, exports, module) {
 
       it('shows localized buttons for supported languages', function () {
         createView({
-          language: 'de'
+          lang: 'de'
         });
 
         return view.render()
@@ -107,7 +107,7 @@ define(function (require, exports, module) {
 
       it('shows en-US buttons for unsupported languages', function () {
         createView({
-          language: 'klingon'
+          lang: 'klingon'
         });
 
         return view.render()

@@ -119,7 +119,7 @@ define(function (require, exports, module) {
      */
     viewName: '',
 
-    constructor (options) {
+    constructor: function (options) {
       options = options || {};
 
       this.broker = options.broker;
@@ -130,7 +130,7 @@ define(function (require, exports, module) {
       this.sentryMetrics = options.sentryMetrics || Raven;
       this.childViews = [];
       this.user = options.user;
-      this.language = options.language;
+      this.lang = options.lang;
       this.window = options.window || window;
       this.logger = new Logger(this.window);
 

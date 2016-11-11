@@ -30,7 +30,7 @@ define(function (require, exports, module) {
       windowMock.navigator.userAgent = userAgent;
 
       createView({
-        language: 'en',
+        lang: 'en',
         service: Constants.SYNC_SERVICE,
         type: VerificationReasons.SIGN_UP
       });
@@ -57,7 +57,7 @@ define(function (require, exports, module) {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
 
         createView({
-          language: 'en',
+          lang: 'en',
           service: Constants.SYNC_SERVICE,
           type: VerificationReasons.SIGN_UP
         });
@@ -72,7 +72,7 @@ define(function (require, exports, module) {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
 
         createView({
-          language: 'en',
+          lang: 'en',
           service: Constants.SYNC_SERVICE,
           type: VerificationReasons.SIGN_IN
         });
@@ -87,7 +87,7 @@ define(function (require, exports, module) {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
 
         createView({
-          language: 'en',
+          lang: 'en',
           type: VerificationReasons.SIGN_UP
         });
 
@@ -116,7 +116,7 @@ define(function (require, exports, module) {
 
       it('shows nothing to non-english speaking, non-sync users', function () {
         createView({
-          language: 'ru',
+          lang: 'ru',
           surveyPercentage: 0,
           type: VerificationReasons.SIGN_UP
         });
@@ -129,7 +129,7 @@ define(function (require, exports, module) {
 
       it('logs the marketing type and link', function () {
         createView({
-          language: 'de',
+          lang: 'de',
           service: Constants.SYNC_SERVICE,
           type: VerificationReasons.SIGN_UP
         });
@@ -149,7 +149,7 @@ define(function (require, exports, module) {
     describe('a click on the marketing material', function () {
       it('is logged', function () {
         createView({
-          language: 'de',
+          lang: 'de',
           service: Constants.SYNC_SERVICE,
           type: VerificationReasons.SIGN_UP
         });

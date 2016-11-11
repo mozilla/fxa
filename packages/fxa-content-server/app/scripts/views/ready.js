@@ -66,7 +66,6 @@ define(function (require, exports, module) {
       options = options || {};
 
       this._able = options.able;
-      this._language = options.language;
 
       this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
     },
@@ -142,7 +141,7 @@ define(function (require, exports, module) {
 
       var marketingSnippetOpts = {
         el: this.$('.marketing-area'),
-        language: this._language,
+        lang: this.lang,
         metrics: this.metrics,
         service: this.relier.get('service'),
         type: this.model.get('type')

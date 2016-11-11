@@ -47,11 +47,12 @@ define(function (require, exports, module) {
       };
     }
 
-    function createView(type) {
+    function createView(type, lang) {
       view = new View({
         able: able,
         broker: broker,
         fxaClient: fxaClient,
+        lang: lang,
         metrics: metrics,
         relier: relier,
         type: type,
@@ -113,7 +114,6 @@ define(function (require, exports, module) {
       });
 
       it('shows some form of marketing for english speakers if capability is supported', function () {
-        Session.set('language', 'en');
         relier.set('service', 'sync');
         sinon.stub(broker, 'hasCapability', function (type) {
           if (type === 'emailVerificationMarketingSnippet') {
@@ -121,7 +121,7 @@ define(function (require, exports, module) {
           }
         });
 
-        createView(VerificationReasons.SIGN_UP);
+        createView(VerificationReasons.SIGN_UP, 'en');
 
         return view.render()
           .then(function () {

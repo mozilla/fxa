@@ -57,7 +57,7 @@ define(function (require, exports, module) {
     // Time to wait for a request to finish before showing a notice
     LONGER_THAN_EXPECTED: new Duration('10s').milliseconds(),
 
-    constructor (options) {
+    constructor: function (options) {
       BaseView.call(this, options);
 
       // attach events of the descendent view and this view.
