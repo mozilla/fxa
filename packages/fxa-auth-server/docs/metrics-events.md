@@ -194,19 +194,15 @@ in the preceding five days.
 
 ## Significant changes
 
-### Train 73
+### Train 74
 
-* Expiry time
-  for metrics context data in memcached
-  was increased from 30 minutes
-  to 2 hours.
-
-* The `flow.complete` event
+* Flow event data validation
   was implemented.
 
-* The `${viewName}` part
-  of `flow.${viewName}.begin`
-  and `flow.${viewName}.engage`
+* The `${viewName}` part of
+  `flow.${viewName}.begin`,
+  `flow.${viewName}.engage` and
+  `flow.${viewName}.submit`
   was fixed,
   rendering earlier data incorrect.
 
@@ -220,6 +216,16 @@ in the preceding five days.
   was implemented.
 
 * The `flow.${action}.attempt` event
+  was implemented.
+
+### Train 73
+
+* Expiry time
+  for metrics context data in memcached
+  was increased from 30 minutes
+  to 2 hours.
+
+* The `flow.complete` event
   was implemented.
 
 ### Train 72
