@@ -112,7 +112,7 @@ var conf = convict({
       default: 20
     },
     pollTime: {
-      doc: 'Poll duration in milliseconds.',
+      doc: 'Poll duration in milliseconds. 0 is disabled.',
       format: 'duration',
       default: '30 seconds'
     }

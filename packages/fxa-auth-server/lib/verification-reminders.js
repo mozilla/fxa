@@ -73,12 +73,21 @@ module.exports = function (mailer, db, options) {
         })
     },
     poll: function poll () {
+      /* istanbul ignore next */
       var self = this
 
+      /* istanbul ignore next */
+      if (reminderConfig.pollTime === 0) {
+        log.info('poll', { message: 'polling is disabled' })
+        return
+      }
+
+      /* istanbul ignore next */
       setTimeout(function () {
         self.poll()
       }, reminderConfig.pollTime)
 
+      /* istanbul ignore next */
       self._continuousPoll()
     }
   }
