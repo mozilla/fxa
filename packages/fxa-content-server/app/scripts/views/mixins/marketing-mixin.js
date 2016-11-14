@@ -3,47 +3,34 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A view mixin that takes care of logging marketing impressions
- * and clicks.
+ * A view mixin that takes care of creating the marketing snippet, if needed.
  */
 
 define(function (require, exports, module) {
   'use strict';
 
-  const $ = require('jquery');
+  const MarketingSnippet = require('views/marketing_snippet');
+  const p = require('lib/promise');
 
-  var MarketingMixin = {
-    events: {
-      'click .marketing-link': '_onMarketingClick'
-    },
-
+  const MarketingMixin = {
     afterRender () {
-      this.$('.marketing-link').each((index, element) => {
-        element = $(element);
+      if (! this.broker.hasCapability('emailVerificationMarketingSnippet')) {
+        return p();
+      }
 
-        // all links must open in a new tab or else their clicks
-        // are not logged.
-        if (! element.attr('target')) {
-          element.attr('target', '_blank');
-        }
+      const marketingSnippetOpts = {
+        el: this.$('.marketing-area'),
+        lang: this.lang,
+        metrics: this.metrics,
+        service: this.relier.get('service'),
+        type: this.model.get('type')
+      };
 
-        var id = element.attr('data-marketing-id');
-        var url = element.attr('href');
+      const marketingSnippet = new MarketingSnippet(marketingSnippetOpts);
 
-        this.metrics.logMarketingImpression(id, url);
-      });
-    },
+      this.trackChildView(marketingSnippet);
 
-    _onMarketingClick (event) {
-      var element = $(event.currentTarget);
-      this._logMarketingClick(element);
-    },
-
-    _logMarketingClick (element) {
-      var id = element.attr('data-marketing-id');
-      var url = element.attr('href');
-
-      this.metrics.logMarketingClick(id, url);
+      return marketingSnippet.render();
     }
   };
 

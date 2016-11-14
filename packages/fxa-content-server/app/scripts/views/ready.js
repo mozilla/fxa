@@ -13,8 +13,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
   const FormView = require('views/form');
-  const MarketingSnippet = require('views/marketing_snippet');
-  const p = require('lib/promise');
+  const MarketingMixin = require('views/mixins/marketing-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/ready');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
@@ -129,33 +128,13 @@ define(function (require, exports, module) {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
 
-      return this._createMarketingSnippet()
-        .then(proto.afterRender.bind(this));
-    },
-
-    _createMarketingSnippet () {
-      if (! this.broker.hasCapability('emailVerificationMarketingSnippet')) {
-        return p();
-      }
-
-      const marketingSnippetOpts = {
-        el: this.$('.marketing-area'),
-        lang: this.lang,
-        metrics: this.metrics,
-        service: this.relier.get('service'),
-        type: this.model.get('type')
-      };
-
-      const marketingSnippet = new MarketingSnippet(marketingSnippetOpts);
-
-      this.trackChildView(marketingSnippet);
-
-      return marketingSnippet.render();
+      return proto.afterRender.call(this);
     }
   });
 
   Cocktail.mixin(
     View,
+    MarketingMixin,
     ServiceMixin,
     VerificationReasonMixin
   );

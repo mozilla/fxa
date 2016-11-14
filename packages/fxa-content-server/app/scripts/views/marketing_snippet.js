@@ -13,11 +13,12 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const $ = require('jquery');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
-  const MarketingMixin = require('views/mixins/marketing-mixin');
   const Template = require('stache!templates/marketing_snippet');
+  const UserAgent = require('lib/user-agent');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   const APP_STORE_BUTTON = 'apple_app_store_button';
@@ -63,6 +64,10 @@ define(function (require, exports, module) {
       this._service = options.service;
     },
 
+    events: {
+      'click .marketing-link': '_onMarketingClick'
+    },
+
     context () {
       const showSignUpMarketing = this._shouldShowSignUpMarketing();
       const isIos = this._isIos();
@@ -81,6 +86,24 @@ define(function (require, exports, module) {
       };
     },
 
+    afterRender () {
+      this.$('.marketing-link').each((index, element) => {
+        const $element = $(element);
+
+        const id = $element.attr('data-marketing-id');
+        const url = $element.attr('href');
+
+        this.metrics.logMarketingImpression(id, url);
+      });
+    },
+
+    _getUap () {
+      if (! this._uap) {
+        this._uap = new UserAgent(this.window.navigator.userAgent);
+      }
+      return this._uap;
+    },
+
     _shouldShowSignUpMarketing () {
       const isFirefoxMobile = this._isFirefoxMobile();
       const isSignUp = this.isSignUp();
@@ -93,28 +116,18 @@ define(function (require, exports, module) {
     },
 
     _isFirefoxMobile () {
-      // For UA information, see
-      // https://developer.mozilla.org/docs/Gecko_user_agent_string_reference
+      const uap = this._getUap();
 
-      const ua = this.window.navigator.userAgent;
-
-      // covers both B2G and Firefox for Android
-      const isMobileAndroidFirefox = /Mobile/.test(ua) && /Firefox/.test(ua);
-      const isTabletAndroidFirefox = /Tablet/.test(ua) && /Firefox/.test(ua);
-      // Fx on iOS
-      const isMobileIosFirefox = /FxiOS/.test(ua);
-
-      return isMobileAndroidFirefox || isTabletAndroidFirefox || isMobileIosFirefox;
+      return uap.isFirefox() &&
+             (uap.isIos() || uap.isAndroid());
     },
 
     _isIos () {
-      const plat = this.window.navigator.platform;
-
-      return /i(Phone|Pad|Pod)/.test(plat);
+      return this._getUap().isIos();
     },
 
     _isAndroid () {
-      return /android/i.test(this.window.navigator.userAgent);
+      return this._getUap().isAndroid();
     },
 
     _storeImage (buttonDir, imageFormat) {
@@ -132,12 +145,23 @@ define(function (require, exports, module) {
       const win = this.window;
 
       return !! (win.matchMedia && win.matchMedia('(-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx), (min-resolution: 144dpi)'));
+    },
+
+    _onMarketingClick (event) {
+      var element = $(event.currentTarget);
+      this._logMarketingClick(element);
+    },
+
+    _logMarketingClick (element) {
+      var id = element.attr('data-marketing-id');
+      var url = element.attr('href');
+
+      this.metrics.logMarketingClick(id, url);
     }
   });
 
   Cocktail.mixin(
     View,
-    MarketingMixin,
     VerificationReasonMixin
   );
 

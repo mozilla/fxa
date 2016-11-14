@@ -92,6 +92,7 @@ require.config({
     speedTrap: '../bower_components/speed-trap/dist/speed-trap',
     stache: '../bower_components/requirejs-mustache/stache',
     text: '../bower_components/requirejs-text/text',
+    'ua-parser-js': '../bower_components/ua-parser-js/src/ua-parser',
     underscore: '../bower_components/underscore/underscore',
     uuid: '../bower_components/node-uuid/uuid',
     vat: '../bower_components/vat/vat',
