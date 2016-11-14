@@ -1,3 +1,46 @@
+<a name="0.74.0"></a>
+# 0.74.0 (2016-11-14)
+
+
+### Bug Fixes
+
+* **client:** Do not show marketing material on Fx for iOS. (#4368), r=@vbudhram ([7909cc5](https://github.com/mozilla/fxa-content-server/commit/7909cc5)), closes [#4366](https://github.com/mozilla/fxa-content-server/issues/4366)
+* **client:** Fix unlocalized app store buttons. (#4394) ([edb9404](https://github.com/mozilla/fxa-content-server/commit/edb9404)), closes [(#4394](https://github.com/(/issues/4394)
+* **client:** Make the constructor a normal function in FlowEventMetadata ([a078e6f](https://github.com/mozilla/fxa-content-server/commit/a078e6f))
+* **client:** Merge marketing_snippet_ios and marketing_snippet (#4384) ([cb34b95](https://github.com/mozilla/fxa-content-server/commit/cb34b95))
+* **client:** Open email preferences in new tab (#2500) (#4387) r=shane-tomlinson,vladikoff ([452cce0](https://github.com/mozilla/fxa-content-server/commit/452cce0)), closes [#2500](https://github.com/mozilla/fxa-content-server/issues/2500)
+* **config:** Strip any trailing '/v1' from `auth_server_base_url`. (#4357); r=shane-tomlinson ([ba0c0c0](https://github.com/mozilla/fxa-content-server/commit/ba0c0c0))
+* **logging:** validate flow id before emitting events ([ccfc033](https://github.com/mozilla/fxa-content-server/commit/ccfc033))
+* **metrics:** overhaul flow events for more accurate funnel analysis ([7507f2a](https://github.com/mozilla/fxa-content-server/commit/7507f2a))
+* **password:** hide show password label until theres text in the pass… (#4099) r=vladikoff,ryan ([01e6fcb](https://github.com/mozilla/fxa-content-server/commit/01e6fcb)), closes [#4095](https://github.com/mozilla/fxa-content-server/issues/4095)
+* **routes:** Redirect *_complete to *_verified r=vladikoff ([295cfc5](https://github.com/mozilla/fxa-content-server/commit/295cfc5))
+* **signup:** Changes style of badges (#4340) r=vladikoff ([c44a1b4](https://github.com/mozilla/fxa-content-server/commit/c44a1b4)), closes [#3697](https://github.com/mozilla/fxa-content-server/issues/3697)
+* **test:** Always send a locale when creating an account. (#4363) ([2268a64](https://github.com/mozilla/fxa-content-server/commit/2268a64))
+* **test:** Fix the "device and apps panel works" functional test. ([6b7eb2c](https://github.com/mozilla/fxa-content-server/commit/6b7eb2c)), closes [#4397](https://github.com/mozilla/fxa-content-server/issues/4397)
+* **test:** Fix the "device and apps panel works" functional test. (#4403) r=vladikoff ([105b14c](https://github.com/mozilla/fxa-content-server/commit/105b14c)), closes [(#4403](https://github.com/(/issues/4403) [#4397](https://github.com/mozilla/fxa-content-server/issues/4397)
+* **test:** Sync reset password, verify different browser. ([05d21a5](https://github.com/mozilla/fxa-content-server/commit/05d21a5)), closes [#4399](https://github.com/mozilla/fxa-content-server/issues/4399)
+* **test:** Sync reset password, verify different browser. (#4402) ([96ad29c](https://github.com/mozilla/fxa-content-server/commit/96ad29c))
+* **test:** Try to figure out `Firstrun v1 sign_in - unverified` (#4365) r=vladikoff ([40f78e1](https://github.com/mozilla/fxa-content-server/commit/40f78e1))
+* **typo:** fix typos ([ea84f99](https://github.com/mozilla/fxa-content-server/commit/ea84f99))
+
+### chore
+
+* **lint:** fix sasslint in marketing ios ([94b17b6](https://github.com/mozilla/fxa-content-server/commit/94b17b6))
+
+### Features
+
+* **apps:** add new service icons, enable apps feature (#4381) r=vbudhram ([72b06a5](https://github.com/mozilla/fxa-content-server/commit/72b06a5)), closes [#4213](https://github.com/mozilla/fxa-content-server/issues/4213)
+* **client:** Add iOS App banner to pages (#4371) r=vladikoff ([58e57e5](https://github.com/mozilla/fxa-content-server/commit/58e57e5))
+* **client:** Send `source_url` to Basket's `/subscribe` endpoint (#4342); r=rfk ([4bdbfa1](https://github.com/mozilla/fxa-content-server/commit/4bdbfa1)), closes [#4315](https://github.com/mozilla/fxa-content-server/issues/4315)
+
+### Refactor
+
+* **avatar:** remove getAvatars, prepare to remove 'selected' param ([ad89416](https://github.com/mozilla/fxa-content-server/commit/ad89416))
+* **avatar:** remove getAvatars, prepare to remove 'selected' param (#4393) r=shane-tomlinson ([76ccf02](https://github.com/mozilla/fxa-content-server/commit/76ccf02))
+* **cancel:** auth_brokers/base.js->canCancel moved to capabilities (#4374) r=vladikoff,shane- ([80b9999](https://github.com/mozilla/fxa-content-server/commit/80b9999)), closes [#3235](https://github.com/mozilla/fxa-content-server/issues/3235)
+
+
+
 <a name="0.73.1"></a>
 ## 0.73.1 (2016-11-02)
 
