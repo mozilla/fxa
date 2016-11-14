@@ -9,35 +9,54 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
 
-  function searchParams (str, allowedFields) {
-    const search = (typeof str === 'string' ? str : window.location.search).replace(/^\?/, '');
-    if (! search) {
-      return {};
-    }
-
-    const pairs = search.split('&');
-    const terms = {};
-
-    _.each(pairs, function (pair) {
-      const keyValue = pair.split('=');
-      terms[keyValue[0]] = decodeURIComponent(keyValue[1]).trim();
-    });
-
-    if (! allowedFields) {
-      return terms;
-    }
-
-    return _.pick(terms, allowedFields);
-  }
-
   module.exports = {
-    searchParams: searchParams,
-    searchParam (name, str) {
-      const terms = searchParams(str);
+    /**
+     * Convert a search string to its object representation, one entry
+     * per query parameter
+     *
+     * @param {String} str - string to convert
+     * @param {String[]} [allowedFields] - list of allowed fields. If not
+     * declared, all fields are allowed.
+     * @returns {Object}
+     */
+    searchParams (str, allowedFields) {
+      const search = str.replace(/^\?/, '').trim();
+      if (! search) {
+        return {};
+      }
 
-      return terms[name];
+      const pairs = search.split('&');
+      const terms = {};
+
+      _.each(pairs, (pair) => {
+        const [key, value] = pair.split('=');
+        terms[key] = decodeURIComponent(value).trim();
+      });
+
+      if (! allowedFields) {
+        return terms;
+      }
+
+      return _.pick(terms, allowedFields);
     },
 
+    /**
+     * Return the value of a single query parameter in the string
+     *
+     * @param {String} name - name of the query parameter
+     * @param {String} [str] - search string
+     * @returns {String}
+     */
+    searchParam (name, str) {
+      return this.searchParams(str)[name];
+    },
+
+    /**
+     * Convert an object to a search string.
+     *
+     * @param {Object} obj - object to convert
+     * @returns {String}
+     */
     objToSearchString (obj) {
       const params = [];
       for (let paramName in obj) {
@@ -53,6 +72,12 @@ define(function (require, exports, module) {
       return '?' + params.join('&');
     },
 
+    /**
+     * Get the origin portion of the URL
+     *
+     * @param {String} url
+     * @returns {String}
+     */
     getOrigin (url) {
       if (! url) {
         return '';
@@ -90,12 +115,13 @@ define(function (require, exports, module) {
       return origin;
     },
 
-    removeParamFromSearchString (name, str) {
-      const params = this.searchParams(str);
-      delete params[name];
-      return this.objToSearchString(params);
-    },
-
+    /**
+     * Update the search string in the given URL.
+     *
+     * @param {String} uri - uri to update
+     * @param {Object} newParams
+     * @returns {String}
+     */
     updateSearchString (uri, newParams) {
       let params = {};
       const startOfParams = uri.indexOf('?');
@@ -105,6 +131,21 @@ define(function (require, exports, module) {
       }
       _.extend(params, newParams);
       return uri + this.objToSearchString(params);
+    },
+
+    /**
+     * Clean the search string by only allowing search parameters declared in
+     * `allowedFields`
+     *
+     * @param {String} uri - uri with search string to clean.
+     * @param {String[]} allowedFields - list of allowed fields.
+     * @returns {String}
+     */
+    cleanSearchString (uri, allowedFields) {
+      const [ base, search = '' ] = uri.split('?');
+      const cleanedQueryParams =
+        this.searchParams(search, allowedFields);
+      return base + this.objToSearchString(cleanedQueryParams);
     }
   };
 });

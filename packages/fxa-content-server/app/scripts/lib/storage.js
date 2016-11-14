@@ -74,7 +74,7 @@ define(function (require, exports, module) {
         storage = win.sessionStorage;
       } else {
         // HACK: Allows the functional tests to simulate disabled local storage.
-        if (Url.searchParam('disable_local_storage') === '1') {
+        if (Url.searchParam('disable_local_storage', win.location.search) === '1') {
           throw new Error('disabled for tests');
         }
 

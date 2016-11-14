@@ -11,20 +11,30 @@ define(function (require, exports, module) {
 
   const Constants = require('lib/constants');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const Url = require('lib/url');
   const xhr = require('lib/xhr');
 
-  function MarketingEmailClient(options) {
-    options = options || {};
+  const ALLOWED_SOURCE_URL_QUERY_PARAMS = [
+    'client_id',
+    'service',
+    'utm_campaign',
+    'utm_content',
+    'utm_medium',
+    'utm_source',
+    'utm_term'
+  ];
 
-    this._xhrTimeout = options.timeout || Constants.DEFAULT_XHR_TIMEOUT_MS;
-    this._xhr = options.xhr || xhr;
+  function MarketingEmailClient(options = {}) {
     this._baseUrl = options.baseUrl;
     this._preferencesUrl = options.preferencesUrl;
+    this._window = options.window || window;
+    this._xhr = options.xhr || xhr;
+    this._xhrTimeout = options.timeout || Constants.DEFAULT_XHR_TIMEOUT_MS;
   }
 
   MarketingEmailClient.prototype = {
     _request (method, endpoint, accessToken, data) {
-      var url = this._baseUrl + endpoint;
+      const url = this._baseUrl + endpoint;
       return this._xhr.oauthAjax({
         accessToken: accessToken,
         data: data,
@@ -53,8 +63,11 @@ define(function (require, exports, module) {
     },
 
     optIn (accessToken, newsletterId) {
+      const cleanedSourceUrl =
+        Url.cleanSearchString(this._window.location.href, ALLOWED_SOURCE_URL_QUERY_PARAMS);
       return this._request('post', '/subscribe', accessToken, {
-        newsletters: newsletterId
+        newsletters: newsletterId,
+        source_url: cleanedSourceUrl //eslint-disable-line camelcase
       });
     },
 

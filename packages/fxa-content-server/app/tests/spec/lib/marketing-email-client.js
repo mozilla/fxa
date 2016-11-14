@@ -5,21 +5,22 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const MarketingEmailClient = require('lib/marketing-email-client');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
   const p = require('lib/promise');
   const sinon = require('sinon');
   const xhr = require('lib/xhr');
+  const WindowMock = require('../../mocks/window');
 
-  var assert = chai.assert;
+  const BASE_URL = 'https://basket.mozilla.com';
+  const PREFERENCES_URL = 'https://www.allizom.org/newsletter/existing/';
 
   describe('lib/marketing-email-client', function () {
-    var BASE_URL = 'https://basket.mozilla.com';
-    var PREFERENCES_URL = 'https://www.allizom.org/newsletter/existing/';
 
-    var client;
-    var xhrMock;
+    let client;
+    let xhrMock;
+    let windowMock;
 
     beforeEach(function () {
       // Xhr has no constructor
@@ -28,9 +29,12 @@ define(function (require, exports, module) {
         return p();
       };
 
+      windowMock = new WindowMock();
+
       client = new MarketingEmailClient({
         baseUrl: BASE_URL,
         preferencesUrl: PREFERENCES_URL,
+        window: windowMock,
         xhr: xhrMock
       });
     });
@@ -90,22 +94,35 @@ define(function (require, exports, module) {
     });
 
     describe('optIn', function () {
-      it('opts the user in', function () {
+      it('opts in the user', function () {
         sinon.spy(xhrMock, 'ajax');
+
+        windowMock.location.href =
+          'https://accounts.firefox.com/settings?client_id=clientsid&' +
+          'service=sync&uid=asdfasd&utm_campaign=newsletter&' +
+          'utm_content=content&utm_medium=email&utm_source=menupanel&' +
+          'utm_term=awesome&unknown=false&email=no@no.com';
 
         return client.optIn('token', 'newsletter_id')
           .then(function () {
-            var request = xhrMock.ajax.args[0][0];
+            const request = xhrMock.ajax.args[0][0];
+            const cleanedSourceUrl =
+              'https://accounts.firefox.com/settings?client_id=clientsid&' +
+              'service=sync&utm_campaign=newsletter&utm_content=content&' +
+              'utm_medium=email&utm_source=menupanel&utm_term=awesome';
             assert.equal(request.url, BASE_URL + '/subscribe');
             assert.equal(request.type, 'post');
             assert.include(request.headers.Authorization, 'token');
-            assert.deepEqual(request.data, { newsletters: 'newsletter_id' });
+            assert.deepEqual(request.data, {
+              newsletters: 'newsletter_id',
+              source_url: cleanedSourceUrl //eslint-disable-line camelcase
+            });
           });
       });
     });
 
     describe('optOut', function () {
-      it('opts the user out', function () {
+      it('opts out the user', function () {
         sinon.spy(xhrMock, 'ajax');
 
         return client.optOut('token', 'newsletter_id')
