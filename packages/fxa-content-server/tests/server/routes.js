@@ -102,6 +102,37 @@ define([
     routes['/en/legal/non_existent'] = { statusCode: 404 };
   }
 
+  var redirectedRoutes = {
+    '/reset_password_complete': {
+      location: '/reset_password_verified',
+      statusCode: 302
+    },
+    '/signin_complete': {
+      location: '/signin_verified',
+      statusCode: 302
+    },
+    '/signup_complete': {
+      location: '/signup_verified',
+      statusCode: 302
+    }
+  };
+
+  Object.keys(routes).forEach(function (key) {
+    var requestOptions = {
+      headers: {
+        'Accept': routes[key].headerAccept || 'text/html'
+      }
+    };
+
+    routeTest(key, routes[key].statusCode, requestOptions);
+  });
+
+  Object.keys(redirectedRoutes).forEach(function (key) {
+    redirectTest(key);
+  });
+
+  registerSuite(suite);
+
   function routeTest(route, expectedStatusCode, requestOptions) {
     suite['#https get ' + httpsUrl + route] = function () {
       var dfd = this.async(intern.config.asyncTimeout);
@@ -132,17 +163,31 @@ define([
     };
   }
 
-  Object.keys(routes).forEach(function (key) {
-    var requestOptions = {
-      headers: {
-        'Accept': routes[key].headerAccept || 'text/html'
-      }
+  function redirectTest(route) {
+    suite['https get ' + httpsUrl + route] = function () {
+      var dfd = this.async(intern.config.asyncTimeout);
+
+      var routeConfig = redirectedRoutes[route];
+
+      var requestOptions = {
+        followRedirect: false,
+        headers: {
+          'Accept': 'text/html'
+        }
+      };
+
+      makeRequest(httpsUrl + route, requestOptions)
+        .then(function (res) {
+          assert.equal(res.statusCode, routeConfig.statusCode);
+          assert.equal(res.headers.location, routeConfig.location);
+
+          return res;
+        })
+        .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+
+      return dfd;
     };
-
-    routeTest(key, routes[key].statusCode, requestOptions);
-  });
-
-  registerSuite(suite);
+  }
 
   function makeRequest(url, requestOptions) {
     return got(url, requestOptions)

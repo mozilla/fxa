@@ -42,6 +42,7 @@ define([
     'report_signin',
     'reset_password',
     'reset_password_confirmed',
+    'reset_password_complete', // redirects to reset_password_verified
     'reset_password_verified',
     'settings',
     'settings/avatar',
@@ -57,12 +58,14 @@ define([
     'settings/display_name',
     'signin',
     'signin_confirmed',
+    'signin_complete', // redirects to signin_verified
     'signin_permissions',
     'signin_reported',
     'signin_unblock',
     'signin_verified',
     'signup',
     'signup_confirmed',
+    'signup_complete', // redirects to signup_verified
     'signup_permissions',
     'signup_verified',
     'verify_email',
