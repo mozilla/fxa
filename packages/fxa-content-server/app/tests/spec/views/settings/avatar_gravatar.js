@@ -122,9 +122,8 @@ define(function (require, exports, module) {
         });
 
         it('submits', function () {
-          sinon.stub(profileClientMock, 'postAvatar', function (token, url, selected) {
+          sinon.stub(profileClientMock, 'postAvatar', function (token, url) {
             assert.include(url, GRAVATAR_URL + EMAIL_HASH);
-            assert.isTrue(selected);
             return p({
               id: 'foo'
             });
