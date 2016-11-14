@@ -1,0 +1,2 @@
+FROM fxa-profile-server:build
+RUN npm install

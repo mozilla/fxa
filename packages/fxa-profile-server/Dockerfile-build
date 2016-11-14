@@ -1,25 +1,21 @@
-FROM node:4.6.2
+FROM mhart/alpine-node:4.6.2
 
-RUN groupadd --gid 10001 app && \
-    useradd --uid 10001 --gid 10001 --home /app --create-home app
+RUN addgroup -g 10001 app && \
+    adduser -D -G app -h /app -u 10001 app
+WORKDIR /app
 
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install graphicsmagick && \
-    apt-get clean
+# S3 bucket in Cloud Services prod IAM
+ADD https://s3.amazonaws.com/dumb-init-dist/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
+
+RUN apk add --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --no-cache graphicsmagick
 
 USER app
-
-WORKDIR /app
 
 COPY scripts/check_gm.sh scripts/check_gm.sh
 COPY package.json package.json
 
-RUN npm install && \
-    npm cache clear && \
-    rm -rf ~app/.node-gyp && \
-    rm -rf ~app/.npm
+RUN npm install --production && rm -rf ~app/.npm /tmp/*
 
 COPY . /app
-
-ENTRYPOINT ["/app/scripts/docker-exec.sh"]
-CMD ["test"]

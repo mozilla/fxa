@@ -21,13 +21,12 @@ dependencies:
         "$CIRCLE_BUILD_URL"
         | tee config/version.json version.json
 
-    - docker build -f Dockerfile-build -t app:build .
-
-    - docker images --no-trunc | awk '/^app:build/ {print $3}' | tee $CIRCLE_ARTIFACTS/docker-image-shasum256.txt
+    - docker build -f Dockerfile-build -t fxa-profile-server:build .
+    - docker build -f Dockerfile-test -t fxa-profile-server:test .
 
 test:
   override:
-    - docker run app:build test
+    - docker run fxa-profile-server:test npm test
 
 # appropriately tag and push the container to dockerhub
 deployment:
@@ -36,7 +35,7 @@ deployment:
     commands:
       - "[ ! -z $DOCKERHUB_REPO ]"
       - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
-      - "docker tag app:build ${DOCKERHUB_REPO}:latest"
+      - "docker tag fxa-profile-server:build ${DOCKERHUB_REPO}:latest"
       - "docker push ${DOCKERHUB_REPO}:latest"
 
   hub_releases:
@@ -46,6 +45,6 @@ deployment:
       - "[ ! -z $DOCKERHUB_REPO ]"
       - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
       - "echo ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
-      - "docker tag app:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
+      - "docker tag fxa-profile-server:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
       - "docker images"
       - "docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
