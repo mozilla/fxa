@@ -4,11 +4,10 @@
 
 define([
   'intern',
-  'intern/chai!assert',
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, assert, registerSuite, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
 
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -24,11 +23,18 @@ define([
   var client;
   var accountData;
 
+  var thenify = FunctionalHelpers.thenify;
+
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var noSuchElement = FunctionalHelpers.noSuchElement;
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var pollUntil = FunctionalHelpers.pollUntil;
   var pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
   var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
 
   registerSuite({
     name: 'settings clients',
@@ -49,38 +55,24 @@ define([
     },
 
     'device panel is not visible without query param': function () {
-      var self = this;
-      return FunctionalHelpers.openPage(this, SIGNIN_URL, '#fxa-signin-header')
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
-        })
+      return this.remote
+        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
 
-        .findByCssSelector('#fxa-settings-header')
-        .end()
-
-        .then(FunctionalHelpers.noSuchElement(this, '#devices'));
+        .then(testElementExists('#fxa-settings-header'))
+        .then(noSuchElement(this, '#devices'));
     },
 
     'device and apps panel works with query param, same device': function () {
-      var self = this;
-      self.timeout = 90 * 1000;
+      this.timeout = 90 * 1000;
       var testDeviceId;
 
-      return FunctionalHelpers.openPage(this, SIGNIN_URL_DEVICE_LIST, '#fxa-signin-header')
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
-        })
+      return this.remote
+        .then(openPage(this, SIGNIN_URL_DEVICE_LIST, '#fxa-signin-header'))
+        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
 
-        .findByCssSelector('#fxa-settings-header')
-        .end()
-
-        .findByCssSelector('#clients .settings-unit-stub button')
-          .click()
-        .end()
-
-        .findByCssSelector('.clients-refresh')
-          .click()
-        .end()
+        .then(testElementExists('#fxa-settings-header'))
+        .then(click('#clients .settings-unit-stub button'))
 
         // add a device from the test runner
         .then(function () {
@@ -95,16 +87,11 @@ define([
           testDeviceId = device.id;
         })
 
-        .findByCssSelector('.clients-refresh')
-          .click()
-        .end()
+        .then(click('.clients-refresh'))
 
-        .findByCssSelector('.client-device .client-name')
-        .getVisibleText()
-        .then(function (val) {
-          assert.equal(val, TEST_DEVICE_NAME, 'client name is correct');
-        })
-        .end()
+        .then(testElementTextEquals(
+          '.client-device .client-name', TEST_DEVICE_NAME
+        ))
 
         // add a device using a session token from the browser
         .execute(function (uid) {
@@ -120,20 +107,16 @@ define([
           );
         })
 
-        .findByCssSelector('.clients-refresh')
-          .click()
-        .end()
+        .then(click('.clients-refresh'))
 
         // wait for 2 devices
-        .findByCssSelector('.client-device:nth-child(2)')
-        .end()
+        .then(testElementExists('.client-device:nth-child(2)'))
 
         // browser device should be sorted first
-        .then(FunctionalHelpers.testElementTextEquals(
+        .then(testElementTextEquals(
           '.client-device:nth-child(1) .client-name',
           BROWSER_DEVICE_NAME
-          )
-        )
+        ))
 
         // update external device from the test runner
         .then(function () {
@@ -148,25 +131,22 @@ define([
         .then(FunctionalHelpers.testElementTextEquals(
           '.client-device:nth-child(1) .client-name + .device-current',
           'current device'
-          )
-        )
+        ))
 
         // external update should show in the device list
         .then(click('.clients-refresh'))
 
         // external text change is hard to track, use pollUntil
-        .then(FunctionalHelpers.pollUntil(function (newName) {
+        .then(pollUntil(function (newName) {
           var deviceName = document.querySelectorAll('.client-device:nth-child(2) .client-name')[0].textContent.trim();
 
           return deviceName === newName ? true : null;
         }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
 
-        .findByCssSelector('.client-device:nth-child(2) .client-name')
-          .getVisibleText()
-          .then(function (val) {
-            assert.equal(val, TEST_DEVICE_NAME_UPDATED, 'device name is correct');
-          })
-        .end()
+        .then(testElementTextEquals(
+          '.client-device:nth-child(2) .client-name',
+          TEST_DEVICE_NAME_UPDATED
+        ))
 
         // clicking disconnect on the second device should update the list
         .then(click('.client-device:nth-child(2) .client-disconnect'))
@@ -177,46 +157,31 @@ define([
 
         // test cancel
         .then(click('.cancel-disconnect'))
-
-        .then(pollUntilGoneByQSA('#client-disconnect'))
+        .waitForDeletedByCssSelector('#client-disconnect')
+        .end()
 
         .then(click('.client-device:nth-child(2) .client-disconnect'))
         .then(click('select.disconnect-reasons > option[value="lost"]'))
-
         // wait until button is enabled (disabled class has gone away)
         .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
-
         .then(click('#client-disconnect .primary'))
-
         .then(click('#client-disconnect .reason-help'))
 
         // disconnect waits until successful AJAX device delete
-        .then(FunctionalHelpers.pollUntil(function (newName) {
-          var numberOfDevices = document.querySelectorAll('.client-list .client-device').length;
-
-          return numberOfDevices === 1 ? true : null;
-        }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
+        .waitForDeletedByCssSelector('.client-device:nth-child(2)')
+        .end()
 
         .then(click('.clients-refresh'))
-
-        // should still have 1 device after refresh
-        .then(FunctionalHelpers.pollUntil(function (newName) {
-          var numberOfDevices = document.querySelectorAll('.client-list .client-device').length;
-
-          return numberOfDevices === 1 ? true : null;
-        }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
-
+        // second device is still gone.
+        .then(noSuchElement(this, '.client-device:nth-child(2)'))
         // clicking disconnect on the current device should sign you out
         .then(click('.client-device:nth-child(1) .client-disconnect'))
-
         .then(click('select.disconnect-reasons > option[value="lost"]'))
         // wait until button is enabled
         .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
-
         .then(click('#client-disconnect .primary'))
 
-        .findByCssSelector('#fxa-signin-header')
-        .end();
+        .then(testElementExists('#fxa-signin-header'));
     }
   });
 });
