@@ -220,4 +220,9 @@ conf.set('mail.initiatePasswordChangeUrl', contentServerUrl + '/settings/change_
 conf.set('mail.verifyLoginUrl', contentServerUrl + '/complete_signin')
 conf.set('mail.reportSignInUrl', contentServerUrl + '/reject_unblock_code')
 
+// Extra Validations
+if (conf.get('locales').indexOf(conf.get('defaultLanguage')) === -1) {
+  throw new Error('defaultLanguage must be in supportedLanguages')
+}
+
 module.exports = conf
