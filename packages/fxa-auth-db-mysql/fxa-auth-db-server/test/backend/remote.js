@@ -112,7 +112,7 @@ module.exports = function(cfg, server) {
     'account not found',
     function (t) {
       t.plan(2)
-      return client.getThen('/account/0123456789ABCDEF0123456789ABCDEF')
+      return client.getThen('/account/hello-world')
         .then(function(r) {
           t.fail('This request should have failed (instead it suceeded)')
         }, function(err) {
@@ -508,7 +508,7 @@ module.exports = function(cfg, server) {
   test(
     'device handling',
     function (t) {
-      t.plan(69)
+      t.plan(63)
       var user = fake.newUserDataHex()
       var zombieUser = fake.newUserDataHex()
       return client.getThen('/account/' + user.accountId + '/devices')
@@ -612,20 +612,6 @@ module.exports = function(cfg, server) {
           var devices = r.obj
           t.equal(devices.length, 1, 'devices contains one item again')
 
-          return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
-            name: '4a6f686e'
-          })
-        })
-        .then(function(r) {
-          respOk(t, r)
-          return client.getThen('/account/' + user.accountId + '/devices')
-        })
-        .then(function(r) {
-          respOk(t, r)
-          var devices = r.obj
-          t.equal(devices.length, 1, 'devices contains one item again')
-          t.equal(devices[0].name, '4a6f686e', 'name was not automagically bufferized')
-
           return client.delThen('/account/' + user.accountId + '/device/' + user.deviceId)
         })
         .then(function(r) {
@@ -642,7 +628,7 @@ module.exports = function(cfg, server) {
   test(
     'key fetch token handling',
     function (t) {
-      t.plan(41)
+      t.plan(43)
       var user = fake.newUserDataHex()
       user.sessionToken.tokenVerificationId = user.keyFetchToken.tokenVerificationId
       var verifiedUser = fake.newUserDataHex()
@@ -785,6 +771,18 @@ module.exports = function(cfg, server) {
         })
         .then(function (r) {
           t.equal(r.obj.tokenVerificationId, null, 'tokenVerificationId is null')
+
+          // Attempt to verify the verified key fetch token
+          return client.postThen('/tokens/' + verifiedUser.keyFetchToken.tokenVerificationId + '/verify', {
+            uid: user.accountId
+          })
+        })
+        .then(function () {
+          t.fail('Verifying a verified token should have failed')
+        }, function (err) {
+          testNotFound(t, err)
+        })
+        .then(function () {
           // Delete both key fetch tokens
           return P.all([
             client.delThen('/keyFetchToken/' + user.keyFetchTokenId),

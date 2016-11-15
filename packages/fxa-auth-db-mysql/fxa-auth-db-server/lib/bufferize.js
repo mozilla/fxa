@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+
 function unbuffer(object) {
   var keys = Object.keys(object)
   for (var i = 0; i < keys.length; i++) {
@@ -13,22 +15,21 @@ function unbuffer(object) {
   return object
 }
 
-function bufferize(object, onlyTheseKeys) {
+function bufferize(object, ignore) {
   var keys = Object.keys(object)
-  if (onlyTheseKeys) {
-    keys = keys.filter(key => onlyTheseKeys.has(key))
-  }
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i]
     var value = object[key]
-    object[key] = new Buffer(value, 'hex')
+    if (ignore.indexOf(key) === -1 && typeof value === 'string' && HEX_STRING.test(value)) {
+      object[key] = Buffer(value, 'hex')
+    }
   }
   return object
 }
 
-function bufferizeRequest(keys, req, res, next) {
-  if (req.body) { req.body = bufferize(req.body, keys) }
-  if (req.params) { req.params = bufferize(req.params, keys) }
+function bufferizeRequest(ignore, req, res, next) {
+  if (req.body) { req.body = bufferize(req.body, ignore) }
+  if (req.params) { req.params = bufferize(req.params, ignore) }
   next()
 }
 
