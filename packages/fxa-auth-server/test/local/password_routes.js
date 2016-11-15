@@ -245,6 +245,13 @@ describe('/password', () => {
     '/change/finish',
     () => {
       var uid = uuid.v4('binary')
+      var mockDB = mocks.mockDB({
+        email: TEST_EMAIL,
+        uid: uid
+      })
+      var mockPush = mocks.mockPush()
+      var mockMailer = mocks.mockMailer()
+      var mockLog = mocks.spyLog()
       var mockRequest = mocks.mockRequest({
         credentials: {
           uid: uid.toString('hex')
@@ -256,18 +263,14 @@ describe('/password', () => {
         },
         query: {
           keys: 'true'
-        }
+        },
+        log: mockLog
       })
-      var mockDB = mocks.mockDB({
-        email: TEST_EMAIL,
-        uid: uid
-      })
-      var mockPush = mocks.mockPush()
-      var mockMailer = mocks.mockMailer()
       var passwordRoutes = makeRoutes({
         db: mockDB,
         push: mockPush,
-        mailer: mockMailer
+        mailer: mockMailer,
+        log: mockLog
       })
 
       return new P(function(resolve) {
@@ -286,6 +289,13 @@ describe('/password', () => {
         assert.equal(mockDB.account.callCount, 1)
         assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1)
         assert.equal(mockMailer.sendPasswordChangedNotification.firstCall.args[0], TEST_EMAIL)
+
+        assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+        var args = mockLog.activityEvent.args[0]
+        assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+        assert.equal(args[0], 'account.changedPassword', 'first argument was event name')
+        assert.equal(args[1], mockRequest, 'second argument was request object')
+        assert.deepEqual(args[2], { uid: uid.toString('hex') }, 'third argument contained uid')
       })
     }
   )
