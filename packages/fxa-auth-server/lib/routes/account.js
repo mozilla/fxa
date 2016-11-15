@@ -753,6 +753,13 @@ module.exports = function (
           emailSent = false
 
           if (!emailRecord.emailVerified) {
+            if (didSigninUnblock) {
+              log.info({
+                op: 'Account.login.unverified.unblocked',
+                uid: emailRecord.uid.toString('hex')
+              })
+            }
+
             // Only use tokenVerificationId if it is set, otherwise use the corresponding email code
             // This covers the cases where sign-in confirmation is disabled or not needed.
             var emailCode = tokenVerificationId ? tokenVerificationId : emailRecord.emailCode
