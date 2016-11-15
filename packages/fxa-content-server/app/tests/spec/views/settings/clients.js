@@ -211,6 +211,26 @@ define(function (require, exports, module) {
           });
       });
 
+      it('no app placeholders if there is a tablet device', function () {
+        attachedClients = new AttachedClients([
+          {
+            clientType: 'device',
+            id: 'device-1',
+            isCurrentDevice: false,
+            name: 'alpha',
+            type: 'tablet'
+          }
+        ], {
+          notifier: notifier
+        });
+
+        return initView()
+          .then(function () {
+            $('#container').html(view.el);
+            assert.equal($('#container [data-get-app]').length, 0, 'no mobile app placeholders');
+          });
+      });
+
       it('names devices "Firefox" if there is no name', function () {
         attachedClients = new AttachedClients([
           {

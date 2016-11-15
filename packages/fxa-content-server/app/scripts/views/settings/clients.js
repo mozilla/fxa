@@ -71,7 +71,7 @@ define(function (require, exports, module) {
         isPanelOpen: this.isPanelOpen(),
         linkAndroid: FIREFOX_ANDROID_DOWNLOAD_LINK,
         linkIOS: FIREFOX_IOS_DOWNLOAD_LINK,
-        showMobileApps: ! this._showMobileApps(clients)
+        showMobileApps: this._showMobileApps(clients)
       };
     },
 
@@ -98,14 +98,14 @@ define(function (require, exports, module) {
      * @private
      */
     _showMobileApps (clients) {
-      if (! this.broker.hasCapability('convertExternalLinksToText')) {
+      if (this.broker.hasCapability('convertExternalLinksToText')) {
         // if we cannot show links exit out early
         return false;
       }
 
-      // we would show mobile apps if there are no mobile clients
+      // we would show mobile apps if there are no mobile or tablet clients
       return ! _.some(clients, function (client) {
-        return client.type === 'mobile';
+        return client.type === 'mobile' || client.type === 'tablet';
       });
     },
 
