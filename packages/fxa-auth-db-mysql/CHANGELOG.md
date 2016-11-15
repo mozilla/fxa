@@ -1,3 +1,18 @@
+<a name="0.74.0"></a>
+# [0.74.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.72.0...v0.74.0) (2016-11-15)
+
+
+### chore
+
+* **lint:** Include ./bin/*.js in eslint coverage ([6c8eeba](https://github.com/mozilla/fxa-auth-db-mysql/commit/6c8eeba))
+* **securityEvents:** Stop writing to the `securityEvents.tokenId` column. ([1e3763d](https://github.com/mozilla/fxa-auth-db-mysql/commit/1e3763d))
+
+### Features
+
+* **eventLog:** Remove the unused "eventLog" feature. ([a138e76](https://github.com/mozilla/fxa-auth-db-mysql/commit/a138e76))
+
+
+
 <a name="0.72.0"></a>
 # [0.72.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.71.0...v0.72.0) (2016-10-19)
 
