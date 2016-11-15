@@ -1,3 +1,17 @@
+<a name="0.74.0"></a>
+# [0.74.0](https://github.com/mozilla/fxa-profile-server/compare/v0.73.1...v0.74.0) (2016-11-15)
+
+
+### Bug Fixes
+
+* **docker:** Shrink docker image size (#220) r=vladikoff ([37f7402](https://github.com/mozilla/fxa-profile-server/commit/37f7402))
+
+### chore
+
+* **nodejs:** Upgrade to Node.js v4.6.2 ([a428830](https://github.com/mozilla/fxa-profile-server/commit/a428830))
+
+
+
 <a name="0.73.1"></a>
 ## [0.73.1](https://github.com/mozilla/fxa-profile-server/compare/v0.73.0...v0.73.1) (2016-11-08)
 
