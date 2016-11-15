@@ -7,6 +7,7 @@
 const P = require('../promise')
 
 const ACTIVITY_EVENTS = new Set([
+  'account.changedPassword',
   'account.confirmed',
   'account.created',
   'account.deleted',
@@ -25,6 +26,7 @@ const ACTIVITY_EVENTS = new Set([
 // It's far easier to define the events that *aren't* a flow
 // event than it is to define those that are.
 const NOT_FLOW_EVENTS = new Set([
+  'account.changedPassword',
   'account.deleted',
   'account.reset',
   'device.created',

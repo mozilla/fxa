@@ -219,6 +219,18 @@ module.exports = function (
                 )
               }
             )
+            .then(
+              function (result) {
+                return request.emitMetricsEvent('account.changedPassword', {
+                  uid: passwordChangeToken.uid.toString('hex')
+                })
+                .then(
+                  function () {
+                    return result
+                  }
+                )
+              }
+            )
         }
 
         function notifyAccount() {
