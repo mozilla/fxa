@@ -17,6 +17,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
+  var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
 
   registerSuite({
     name: 'oauth reset password',
@@ -58,9 +59,7 @@ define([
         .findById('fxa-reset-password-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
-        })
+        .then(fillOutResetPassword(email))
 
         .findById('fxa-confirm-reset-password-header')
         .end()
@@ -109,9 +108,7 @@ define([
           .click()
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
-        })
+        .then(fillOutResetPassword(email))
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
         .end()
@@ -146,9 +143,7 @@ define([
           .click()
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
-        })
+        .then(fillOutResetPassword(email))
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
         .end()
@@ -180,9 +175,7 @@ define([
         .findById('fxa-reset-password-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
-        })
+        .then(fillOutResetPassword(email))
 
         .findById('fxa-confirm-reset-password-header')
         .end()
@@ -224,9 +217,7 @@ define([
         .findById('fxa-reset-password-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.fillOutResetPassword(self, email);
-        })
+        .then(fillOutResetPassword(email))
 
         .findById('fxa-confirm-reset-password-header')
         // clear all browser state, simulate opening in a new

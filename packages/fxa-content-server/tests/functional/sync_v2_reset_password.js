@@ -22,7 +22,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutResetPassword = thenify(FunctionalHelpers.fillOutResetPassword);
+  var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = thenify(FunctionalHelpers.openPage);
@@ -52,7 +52,7 @@ define([
       return this.remote
         .then(openPage(this, RESET_PASSWORD_URL, '#fxa-reset-password-header'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutResetPassword(this, email))
+        .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
         .then(openVerificationLinkInNewTab(this, email, 0))
@@ -83,7 +83,7 @@ define([
       return this.remote
         .then(openPage(this, RESET_PASSWORD_URL, '#fxa-reset-password-header'))
         .then(createUser(email, PASSWORD, { preVerified: true } ))
-        .then(fillOutResetPassword(this, email))
+        .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
         .then(click('[data-webmail-type="restmail"]'))

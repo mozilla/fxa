@@ -135,7 +135,6 @@ define([
     },
 
     'open /reset_password page from /signin': function () {
-      var self = this;
       return openPage(this, SIGNIN_PAGE_URL, '#fxa-signin-header')
 
         .then(type('input[type=email]', email))
@@ -153,26 +152,27 @@ define([
         // email should not be pre-filled
         .then(testElementValueEquals('input[type=email]', ''))
 
-        .then(function () {
-          return fillOutResetPassword(self, email);
-        })
+        .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'));
     },
 
     'enter an email with leading whitespace': function () {
-      return fillOutResetPassword(this, '   ' + email)
+      return this.remote
+        .then(fillOutResetPassword('   ' + email))
         .then(testElementExists('#fxa-confirm-reset-password-header'));
     },
 
     'enter an email with trailing whitespace': function () {
-      return fillOutResetPassword(this, email + '   ')
+      return this.remote
+        .then(fillOutResetPassword(email + '   '))
         .then(testElementExists('#fxa-confirm-reset-password-header'));
     },
 
     'open confirm_reset_password page, click resend': function () {
       var user = TestHelpers.emailToUser(email);
-      return fillOutResetPassword(this, email)
+      return this.remote
+        .then(fillOutResetPassword(email))
         .then(click('#resend'))
 
         .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2))
@@ -273,7 +273,8 @@ define([
       var self = this;
       self.timeout = TIMEOUT;
 
-      return FunctionalHelpers.fillOutResetPassword(self, email)
+      return this.remote
+        .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
@@ -304,7 +305,8 @@ define([
     'reset password, verify same browser with original tab closed': function () {
       var self = this;
 
-      return FunctionalHelpers.fillOutResetPassword(self, email)
+      return this.remote
+        .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
@@ -333,7 +335,8 @@ define([
       var self = this;
       self.timeout = 90 * 1000;
 
-      return FunctionalHelpers.fillOutResetPassword(self, email)
+      return this.remote
+        .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
@@ -356,7 +359,8 @@ define([
       var self = this;
       self.timeout = 90 * 1000;
 
-      return FunctionalHelpers.fillOutResetPassword(self, email)
+      return this.remote
+        .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
@@ -383,7 +387,8 @@ define([
       var self = this;
 
       self.timeout = 90 * 1000;
-      return FunctionalHelpers.fillOutResetPassword(self, email)
+      return this.remote
+        .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
@@ -490,7 +495,8 @@ define([
     },
 
     'original page transitions after completion': function () {
-      return fillOutResetPassword(this, email)
+      return this.remote
+        .then(fillOutResetPassword(email))
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         .then(function () {
@@ -516,7 +522,8 @@ define([
     },
 
     'open /reset_password page, enter unknown email, wait for error': function () {
-      return fillOutResetPassword(this, email)
+      return this.remote
+        .then(fillOutResetPassword(email))
         // The error area shows a link to /signup
         .then(FunctionalHelpers.visibleByQSA('.error'))
 

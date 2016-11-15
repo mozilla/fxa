@@ -738,36 +738,28 @@ define([
     };
   }
 
-  function fillOutResetPassword(context, email, options) {
+  function fillOutResetPassword(email, options) {
     options = options || {};
 
-    var remote = getRemote(context);
-    return remote
-      .getCurrentUrl()
-      .then(function (currentUrl) {
-        // only load the reset_password page if not already at
-        // the reset_password page.
-        // the leading [\/#] allows for either the standard redirect or iframe
-        // flow. The iframe flow must use the window hash for routing.
-        if (! /[\/#]reset_password(?:$|\?)/.test(currentUrl) && ! options.skipPageRedirect) {
-          return remote
-            .get(require.toUrl(RESET_PASSWORD_URL))
-            .setFindTimeout(intern.config.pageLoadTimeout);
-        }
-      })
+    return function () {
+      return this.parent
+        .getCurrentUrl()
+        .then(function (currentUrl) {
+          // only load the reset_password page if not already at
+          // the reset_password page.
+          // the leading [\/#] allows for either the standard redirect or iframe
+          // flow. The iframe flow must use the window hash for routing.
+          if (! /[\/#]reset_password(?:$|\?)/.test(currentUrl) && ! options.skipPageRedirect) {
+            return this.parent
+              .get(require.toUrl(RESET_PASSWORD_URL))
+              .setFindTimeout(intern.config.pageLoadTimeout);
+          }
+        })
 
-      .findByCssSelector('#fxa-reset-password-header')
-      .end()
-
-      .findByCssSelector('form input.email')
-        .click()
-        .clearValue()
-        .type(email)
-      .end()
-
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
+        .then(testElementExists('#fxa-reset-password-header'))
+        .then(type('form input.email', email))
+        .then(click('button[type="submit"]'));
+    };
   }
 
   /**
