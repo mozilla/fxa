@@ -512,6 +512,9 @@ module.exports = function (
                     email: email,
                     errno: err.errno
                   })
+                  if (customsErr) {
+                    throw customsErr
+                  }
                 }
                 throw err
               }

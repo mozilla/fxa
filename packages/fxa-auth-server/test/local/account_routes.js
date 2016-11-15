@@ -1476,6 +1476,11 @@ describe('/account/login', function () {
         mockCustoms.check = () => P.reject(error.requestBlocked(true))
       })
 
+      beforeEach(() => {
+        mockLog.activityEvent.reset()
+        mockLog.flowEvent.reset()
+      })
+
       after(() => {
         mockCustoms.check = oldCheck
       })
@@ -1516,6 +1521,15 @@ describe('/account/login', function () {
         describe('with unblock code', () => {
           mockLog.flowEvent.reset()
 
+          let previousEmailRecord
+          before(() => {
+            previousEmailRecord = mockDB.emailRecord
+          })
+
+          afterEach(() => {
+            mockDB.emailRecord = previousEmailRecord
+          })
+
           it('invalid code', () => {
             mockDB.consumeUnblockCode = () => P.reject(error.invalidUnblockCode())
             return runTest(route, mockRequestWithUnblockCode).then(() => assert.ok(false), err => {
@@ -1539,6 +1553,14 @@ describe('/account/login', function () {
 
               mockLog.activityEvent.reset()
               mockLog.flowEvent.reset()
+            })
+          })
+
+          it('unknown account', () => {
+            mockDB.emailRecord = () => P.reject(new error.unknownAccount())
+            return runTest(route, mockRequestWithUnblockCode).then(() => assert(false), err => {
+              assert.equal(err.errno, error.ERRNO.REQUEST_BLOCKED)
+              assert.equal(err.output.statusCode, 400)
             })
           })
 
