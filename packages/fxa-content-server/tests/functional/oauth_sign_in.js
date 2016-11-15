@@ -24,7 +24,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
   var openPage = thenify(FunctionalHelpers.openPage);
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -135,7 +135,7 @@ define([
         .then(testElementExists('#fxa-signup-header'))
 
         // first, sign the user up to cache the login
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-confirm-header'))
 
@@ -159,7 +159,7 @@ define([
         .then(click('.ready #splash .sign-choose'))
 
         .then(testElementExists('#fxa-signup-header'))
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-confirm-header'))
 

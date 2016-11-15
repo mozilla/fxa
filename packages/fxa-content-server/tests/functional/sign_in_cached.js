@@ -33,7 +33,7 @@ define([
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
-  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openPage = thenify(FunctionalHelpers.openPage);
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
@@ -148,7 +148,7 @@ define([
       return this.remote
         .then(openPage(this, PAGE_SIGNUP_DESKTOP, '#fxa-signup-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
         .then(click('button[type="submit"]'))
@@ -169,7 +169,7 @@ define([
 
       return this.remote
         .then(openPage(this, PAGE_SIGNUP, '#fxa-signup-header'))
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-confirm-header'))
 

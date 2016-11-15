@@ -18,6 +18,7 @@ define([
   var PASSWORD = '12345678';
 
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
@@ -52,9 +53,7 @@ define([
 
         .then(FunctionalHelpers.noSuchElement(self, '#customize-sync'))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
 
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
         // the login message is only sent after the confirm screen is shown.

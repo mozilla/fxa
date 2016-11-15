@@ -19,7 +19,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
   var click = FunctionalHelpers.click;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var testElementExists = FunctionalHelpers.testElementExists;
   var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
@@ -48,7 +48,7 @@ define([
       self.timeout = 90 * 1000;
 
       return openFxaFromRp(this, 'signup')
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-header'))
         .then(getVerificationLink(email, 0))
         .then(function (verificationLink) {

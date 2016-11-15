@@ -20,6 +20,7 @@ define([
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testAttributeExists = FunctionalHelpers.testAttributeExists;
@@ -55,10 +56,7 @@ define([
 
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
 
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
 

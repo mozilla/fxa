@@ -17,7 +17,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openForceAuth = FunctionalHelpers.openForceAuth;
@@ -148,7 +148,7 @@ define([
         // ensure the email is filled in, and not editible.
         .then(testElementValueEquals('input[type=email]', email))
         .then(testElementDisabled('input[type=email]'))
-        .then(fillOutSignUp(this, email, PASSWORD, { enterEmail: false }))
+        .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
 
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
         .then(click('button[type=submit]'))

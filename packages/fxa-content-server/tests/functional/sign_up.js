@@ -23,7 +23,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
@@ -49,7 +49,7 @@ define([
   function signUpWithExistingAccount (context, email, firstPassword, secondPassword, options) {
     return context.remote
       .then(createUser(email, firstPassword, { preVerified: true }))
-      .then(fillOutSignUp(context, email, secondPassword, options));
+      .then(fillOutSignUp(email, secondPassword, options));
   }
 
   registerSuite({
@@ -79,7 +79,7 @@ define([
     'signup, verify same browser': function () {
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(visibleByQSA('#suggest-sync'))
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(openVerificationLinkInNewTab(this, email, 0))
 
@@ -94,7 +94,7 @@ define([
 
     'signup, verify same browser with original tab closed, sign out': function () {
       return this.remote
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
 
         .then(FunctionalHelpers.openExternalSite(this))
@@ -125,7 +125,7 @@ define([
       this.timeout = 90000;
 
       return this.remote
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(openVerificationLinkInSameTab(email, 0))
 
@@ -135,7 +135,7 @@ define([
 
         .then(testElementExists('#fxa-signin-header'))
 
-        .then(fillOutSignUp(this, secondEmail, PASSWORD))
+        .then(fillOutSignUp(secondEmail, PASSWORD))
         .then(testAtConfirmScreen(secondEmail))
         .then(openVerificationLinkInSameTab(secondEmail, 0))
 
@@ -150,7 +150,7 @@ define([
 
     'signup, verify same browser by replacing the original tab': function () {
       return this.remote
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(openVerificationLinkInSameTab(email, 0))
 
@@ -160,7 +160,7 @@ define([
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
 
         .then(openVerificationLinkDifferentBrowser(email))
@@ -173,7 +173,7 @@ define([
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
       return this.remote
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
 
         // clear local/sessionStorage to synthesize continuing in
@@ -190,7 +190,7 @@ define([
       var emailWithoutSpace = email;
       var emailWithSpace = ('   ' + email);
       return this.remote
-        .then(fillOutSignUp(this, emailWithSpace, PASSWORD))
+        .then(fillOutSignUp(emailWithSpace, PASSWORD))
         .then(testAtConfirmScreen(emailWithoutSpace))
         .then(clearBrowserState())
         .then(fillOutSignIn(this, emailWithoutSpace, PASSWORD))
@@ -204,7 +204,7 @@ define([
       var emailWithSpace = ('   ' + email);
 
       return this.remote
-        .then(fillOutSignUp(this, emailWithSpace, PASSWORD))
+        .then(fillOutSignUp(emailWithSpace, PASSWORD))
         .then(testAtConfirmScreen(emailWithoutSpace))
         .then(clearBrowserState())
         .then(fillOutSignIn(this, emailWithoutSpace, PASSWORD))
@@ -215,7 +215,7 @@ define([
 
     'signup with invalid email address': function () {
       return this.remote
-        .then(fillOutSignUp(this, email + '-', PASSWORD))
+        .then(fillOutSignUp(email + '-', PASSWORD))
 
         // wait five seconds to allow any errant navigation to occur
         .then(noPageTransition('#fxa-signup-header', 5000))
@@ -301,7 +301,7 @@ define([
 
     'signup with new account, coppa is empty': function () {
       return this.remote
-        .then(fillOutSignUp(this, email, PASSWORD, { age: ' ' }))
+        .then(fillOutSignUp(email, PASSWORD, { age: ' ' }))
 
         // navigation should not occur
         .then(noPageTransition('#fxa-signup-header'))
@@ -330,7 +330,7 @@ define([
 
     'signup with new account, coppa is too young': function () {
       return this.remote
-        .then(fillOutSignUp(this, email, PASSWORD, { age: 12 }))
+        .then(fillOutSignUp(email, PASSWORD, { age: 12 }))
 
         // should have navigated to cannot-create-account view
         .then(testElementExists('#fxa-cannot-create-account-header'));
@@ -339,17 +339,16 @@ define([
     'signup with a verified account signs the user in': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         // should have navigated to settings view
         .then(testElementExists('#fxa-settings-header'));
     },
 
     'signup with an unverified account and different password re-signs up user': function () {
-
       return this.remote
         .then(createUser(email, PASSWORD))
-        .then(fillOutSignUp(this, email, 'different password'))
+        .then(fillOutSignUp(email, 'different password'))
 
         // Being pushed to the confirmation screen is success.
         .then(testElementTextInclude('.verification-email-message', email));
@@ -365,7 +364,7 @@ define([
 
     'form prefill information is cleared after signup->sign out': function () {
       return this.remote
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
 
         .then(openVerificationLinkDifferentBrowser(email))
@@ -385,7 +384,7 @@ define([
     'signup, open sign-in in second tab, verify in third tab': function () {
       var windowName = 'sign-up inter-tab functional test';
       return this.remote
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(function () {
           return FunctionalHelpers.openSignInInNewTab(this.parent, windowName);
@@ -409,7 +408,7 @@ define([
     'signup, open sign-up in second tab, verify in original tab': function () {
       var windowName = 'sign-up inter-tab functional test';
       return this.remote
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(function () {
           return FunctionalHelpers.openSignUpInNewTab(this.parent, windowName);
@@ -434,7 +433,7 @@ define([
 
     'signup, open verification link, open verification link again': function () {
       return this.remote
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(openVerificationLinkInNewTab(this, email, 0))
 
@@ -464,7 +463,7 @@ define([
   function testRepopulateFields(dest, header) {
     return openPage(this, PAGE_URL, '#fxa-signup-header')
 
-      .then(fillOutSignUp(this, email, PASSWORD, { submit: false }))
+      .then(fillOutSignUp(email, PASSWORD, { submit: false }))
 
       .then(click('a[href="' + dest + '"]'))
 

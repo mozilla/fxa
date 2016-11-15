@@ -13,6 +13,7 @@ define([
   var email;
 
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
 
   registerSuite({
     name: 'oauth sign up verification_redirect',
@@ -38,9 +39,7 @@ define([
         .then(function (url) {
           return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -66,9 +65,7 @@ define([
         .then(function (url) {
           return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -99,9 +96,7 @@ define([
         .then(function (url) {
           return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -133,9 +128,7 @@ define([
         .then(function (url) {
           return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
         })
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()

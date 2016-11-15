@@ -26,6 +26,7 @@ define([
   var uid;
 
   var createRandomHexString = TestHelpers.createRandomHexString;
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
 
   registerSuite({
     name: 'complete_sign_up',
@@ -180,9 +181,7 @@ define([
       return self.remote
         .setFindTimeout(intern.config.pageLoadTimeout)
         // Sign up and obtain a verification link
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
         .findById('fxa-confirm-header')
         .end()
 
@@ -194,9 +193,7 @@ define([
         })
 
         // Sign up again to invalidate the old verification link
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, 'different_password');
-        })
+        .then(fillOutSignUp(email, 'different_password'))
         .findById('fxa-confirm-header')
         .end()
 

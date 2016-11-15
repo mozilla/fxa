@@ -26,7 +26,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var noEmailExpected = FunctionalHelpers.noEmailExpected;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
@@ -43,7 +43,7 @@ define([
       .then(function () {
         return openFxaFromRp(context, 'signup');
       })
-      .then(fillOutSignUp(context, email, secondPassword, options));
+      .then(fillOutSignUp(email, secondPassword, options));
   }
 
   registerSuite({
@@ -80,7 +80,7 @@ define([
         })
         .end()
 
-        .then(fillOutSignUp(self, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -116,7 +116,7 @@ define([
 
       return openFxaFromRp(self, 'signup')
 
-        .then(fillOutSignUp(self, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -142,7 +142,7 @@ define([
 
       return openFxaFromRp(self, 'signup')
 
-        .then(fillOutSignUp(self, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -157,7 +157,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signup')
-        .then(fillOutSignUp(self, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -175,7 +175,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signup')
-        .then(fillOutSignUp(self, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -273,7 +273,7 @@ define([
       });
 
       return openFxaFromRp(self, 'signup')
-        .then(fillOutSignUp(self, bouncedEmail, PASSWORD))
+        .then(fillOutSignUp(bouncedEmail, PASSWORD))
 
         .findById('fxa-confirm-header')
         .end()

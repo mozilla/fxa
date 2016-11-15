@@ -23,7 +23,7 @@ define([
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
-  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openPage = thenify(FunctionalHelpers.openPage);
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
@@ -77,7 +77,7 @@ define([
       email = TestHelpers.createEmail('signup{id}+extra');
       return this.remote
         .then(openPage(this, SIGNUP_PAGE_URL, '#fxa-signup-header'))
-        .then(fillOutSignUp(this, email, PASSWORD, { optInToMarketingEmail: true }))
+        .then(fillOutSignUp(email, PASSWORD, { optInToMarketingEmail: true }))
 
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInSameTab(email, 0))
@@ -117,7 +117,7 @@ define([
     'do not opt-in on signup': function () {
       return this.remote
         .then(openPage(this, SIGNUP_PAGE_URL, '#fxa-signup-header'))
-        .then(fillOutSignUp(this, email, PASSWORD, { optInToMarketingEmail: false }))
+        .then(fillOutSignUp(email, PASSWORD, { optInToMarketingEmail: false }))
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInSameTab(email, 0))
 

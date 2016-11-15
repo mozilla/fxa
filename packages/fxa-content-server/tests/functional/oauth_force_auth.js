@@ -18,7 +18,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testElementDisabled = FunctionalHelpers.testElementDisabled;
@@ -65,7 +65,7 @@ define([
         // ensure the email is filled in, and not editible.
         .then(testElementValueEquals('input[type=email]', email))
         .then(testElementDisabled('input[type=email]'))
-        .then(fillOutSignUp(this, email, PASSWORD, { enterEmail: false }))
+        .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
 
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInNewTab(this, email, 0))

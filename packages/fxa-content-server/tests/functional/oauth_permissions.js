@@ -25,7 +25,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
-  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openFxaFromTrustedRp = thenify(FunctionalHelpers.openFxaFromRp);
@@ -126,7 +126,7 @@ define([
           })
         .end()
 
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-permissions-header'))
         .then(click('#accept'))
@@ -177,7 +177,7 @@ define([
     'signup, then signin with no additional permissions': function () {
       return this.remote
         .then(openFxaFromUntrustedRp(this, 'signup'))
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-permissions-header'))
         .then(click('#accept'))
@@ -359,7 +359,7 @@ define([
     'signup without `prompt=consent`': function () {
       return this.remote
         .then(openFxaFromTrustedRp(this, 'signup'))
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         // no permissions asked for, straight to confirm
         .then(testElementExists('#fxa-confirm-header'));
@@ -368,7 +368,7 @@ define([
     'signup with `prompt=consent`': function () {
       return this.remote
         .then(openFxaFromTrustedRp(this, 'signup', { query: { prompt: 'consent' }}))
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         // permissions are asked for with `prompt=consent`
         .then(testElementExists('#fxa-permissions-header'))

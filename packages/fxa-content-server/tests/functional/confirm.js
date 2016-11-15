@@ -20,7 +20,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
@@ -50,7 +50,7 @@ define([
 
       return this.remote
         .then(openPage(this, SIGNUP_URL, '#fxa-signup-header'))
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-confirm-header'))
         .then(testElementTextInclude('.verification-email-message', email))
@@ -72,7 +72,7 @@ define([
         .then(openPage(this, SIGNUP_URL, '#fxa-signup-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
 
-        .then(fillOutSignUp(this, email, PASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#choose-what-to-sync'))
         .then(click('button[type="submit"]'))

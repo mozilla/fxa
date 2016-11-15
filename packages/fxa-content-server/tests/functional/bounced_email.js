@@ -18,6 +18,7 @@ define([
   var PASSWORD = '12345678';
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
 
   registerSuite({
     name: 'sign_up with an email that bounces',
@@ -37,7 +38,8 @@ define([
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      return FunctionalHelpers.fillOutSignUp(this, bouncedEmail, PASSWORD)
+      return this.remote
+        .then(fillOutSignUp(bouncedEmail, PASSWORD))
         .findById('fxa-confirm-header')
         .end()
 

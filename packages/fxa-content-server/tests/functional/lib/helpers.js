@@ -687,7 +687,7 @@ define([
     };
   }
 
-  function fillOutSignUp(context, email, password, options) {
+  function fillOutSignUp(email, password, options) {
     options = options || {};
 
     var customizeSync = options.customizeSync || false;
@@ -696,45 +696,46 @@ define([
     var age = options.age || 24;
     var submit = options.submit !== false;
 
-    var remote = getRemote(context);
-    return remote
-      .getCurrentUrl()
-      .then(function (currentUrl) {
-        // only load the signup page if not already at a signup page.
-        // the leading [\/#] allows for either the standard redirect or iframe
-        // flow. The iframe flow must use the window hash for routing.
-        if (! /[\/#]signup(?:$|\?)/.test(currentUrl)) {
-          return remote
-            .get(require.toUrl(SIGNUP_URL))
-            .setFindTimeout(intern.config.pageLoadTimeout);
-        }
-      })
+    return function () {
+      return this.parent
+        .getCurrentUrl()
+        .then(function (currentUrl) {
+          // only load the signup page if not already at a signup page.
+          // the leading [\/#] allows for either the standard redirect or iframe
+          // flow. The iframe flow must use the window hash for routing.
+          if (! /[\/#]signup(?:$|\?)/.test(currentUrl)) {
+            return this.parent
+              .get(require.toUrl(SIGNUP_URL))
+              .setFindTimeout(intern.config.pageLoadTimeout);
+          }
+        })
 
-      .then(function () {
-        if (enterEmail) {
-          return type('input[type=email]', email).call(this);
-        }
-      })
-      .then(type('input[type=password]', password))
-      .then(type('#age', age || '24'))
+        .then(function () {
+          if (enterEmail) {
+            return type('input[type=email]', email).call(this);
+          }
+        })
+        .then(type('input[type=password]', password))
+        .then(type('#age', age || '24'))
 
-      .then(function () {
-        if (customizeSync) {
-          return click('form input.customize-sync').call(this);
-        }
-      })
+        .then(function () {
+          if (customizeSync) {
+            return click('form input.customize-sync').call(this);
+          }
+        })
 
-      .then(function () {
-        if (optInToMarketingEmail) {
-          return click('form input.marketing-email-optin').call(this);
-        }
-      })
+        .then(function () {
+          if (optInToMarketingEmail) {
+            return click('form input.marketing-email-optin').call(this);
+          }
+        })
 
-      .then(function () {
-        if (submit) {
-          return click('button[type="submit"]').call(this);
-        }
-      });
+        .then(function () {
+          if (submit) {
+            return click('button[type="submit"]').call(this);
+          }
+        });
+    };
   }
 
   function fillOutResetPassword(context, email, options) {

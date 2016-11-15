@@ -28,6 +28,7 @@ define([
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
@@ -72,10 +73,7 @@ define([
 
         .findByCssSelector('#fxa-signup-header')
         .end()
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
 
@@ -127,10 +125,7 @@ define([
 
         .findByCssSelector('#fxa-signup-header')
         .end()
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -166,10 +161,7 @@ define([
 
         .findByCssSelector('#fxa-signup-header')
         .end()
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -196,10 +188,7 @@ define([
 
         .findByCssSelector('#fxa-signup-header')
         .end()
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
 
@@ -228,11 +217,7 @@ define([
 
         .findByCssSelector('#fxa-signup-header')
         .end()
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
-
+        .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
 
@@ -281,11 +266,7 @@ define([
             assert.isNull(checkedAttribute);
           })
         .end()
-
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(
-              self, email, PASSWORD, { customizeSync: true });
-        })
+        .then(fillOutSignUp(email, PASSWORD, { customizeSync: true }))
 
         .then(function () {
           return testIsBrowserNotifiedOfLogin(self, email);

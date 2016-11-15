@@ -7,13 +7,11 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (registerSuite, TestHelpers, FunctionalHelpers) {
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openForceAuth = FunctionalHelpers.openForceAuth;
   var testElementDisabled = FunctionalHelpers.testElementDisabled;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -127,7 +125,7 @@ define([
         .then(testElementValueEquals('input[type=email]', email))
         .then(testElementDisabled('input[type=email]'))
 
-        .then(fillOutSignUp(this, email, PASSWORD, { enterEmail: false }))
+        .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
         .then(testElementExists('#fxa-confirm-header'));
     },
 

@@ -18,7 +18,11 @@ define([
   var email;
   var PASSWORD = '12345678';
 
+  var thenify = FunctionalHelpers.thenify;
+
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  var openPage = thenify(FunctionalHelpers.openPage);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
@@ -52,12 +56,11 @@ define([
     'sign up, verify same browser': function () {
       var self = this;
 
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(this, PAGE_URL, '#fxa-signup-header'))
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD);
-        })
+        .then(fillOutSignUp(email, PASSWORD))
 
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
 
