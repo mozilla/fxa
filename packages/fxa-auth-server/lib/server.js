@@ -62,7 +62,6 @@ function create(log, error, config, routes, db) {
       routes: {
         cors: {
           additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
-          isOriginExposed: false,
           origin: config.corsOrigin
         },
         security: {
@@ -104,9 +103,43 @@ function create(log, error, config, routes, db) {
 
   var server = new Hapi.Server(serverOptions)
 
+  // register 'inert' to support service static files
+  server.register(require('inert'), function () {
+    // callback required
+  })
+
   server.connection(connectionOptions)
 
+  if (config.hpkpConfig && config.hpkpConfig.enabled) {
+    var hpkpOptions = {
+      maxAge: config.hpkpConfig.maxAge,
+      sha256s: config.hpkpConfig.sha256s,
+      includeSubdomains: config.hpkpConfig.includeSubDomains
+    }
+
+    if(config.hpkpConfig.reportUri){
+      hpkpOptions.reportUri = config.hpkpConfig.reportUri
+    }
+
+    if(config.hpkpConfig.reportOnly){
+      hpkpOptions.reportOnly = config.hpkpConfig.reportOnly
+    }
+
+    server.register({
+      register: require('hapi-hpkp'),
+      options: hpkpOptions
+    }, function (err) {
+      if (err) {
+        throw err
+      }
+    })
+  }
+
   server.register(require('hapi-auth-hawk'), function (err) {
+    if (err) {
+      throw err
+    }
+
     server.auth.strategy(
       'sessionTokenWithDevice',
       'hawk',
@@ -175,15 +208,19 @@ function create(log, error, config, routes, db) {
         hawk: hawkOptions
       }
     )
+
+    server.register(require('hapi-fxa-oauth'), function (err) {
+      if (err) {
+        throw err
+      }
+
+      server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth)
+
+      // routes should be registered after all auth strategies have initialized:
+      // ref: http://hapijs.com/tutorials/auth
+      server.route(routes)
+    })
   })
-
-  server.register(require('hapi-fxa-oauth'), function (err) {
-    server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth)
-  })
-
-  server.route(routes)
-
-  server.app.log = log
 
   server.ext(
     'onRequest',
@@ -258,6 +295,16 @@ function create(log, error, config, routes, db) {
       reply(response)
     }
   )
+
+  const metricsContext = require('./metrics/context')(log, config)
+  server.decorate('request', 'stashMetricsContext', metricsContext.stash)
+  server.decorate('request', 'gatherMetricsContext', metricsContext.gather)
+  server.decorate('request', 'clearMetricsContext', metricsContext.clear)
+  server.decorate('request', 'validateMetricsContext', metricsContext.validate)
+  server.decorate('request', 'setMetricsFlowCompleteSignal', metricsContext.setFlowCompleteSignal)
+
+  const metricsEvents = require('./metrics/events')(log)
+  server.decorate('request', 'emitMetricsEvent', metricsEvents.emit)
 
   server.stat = function() {
     return {

@@ -2,24 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('./promise')
-var Pool = require('./pool')
-var userAgent = require('./userAgent')
+'use strict'
 
-var crypto = require('crypto')
-var butil = require('./crypto/butil')
-var unbuffer = butil.unbuffer
-var bufferize = butil.bufferize
+const P = require('./promise')
+const Pool = require('./pool')
+const userAgent = require('./userAgent')
+
+const butil = require('./crypto/butil')
+const bufferize = butil.bufferize
+const unbuffer = butil.unbuffer
+const random = require('./crypto/random')
 
 module.exports = function (
-  backend,
+  config,
   log,
   error,
   SessionToken,
   KeyFetchToken,
   AccountResetToken,
   PasswordForgotToken,
-  PasswordChangeToken) {
+  PasswordChangeToken,
+  UnblockCode) {
+
+  const features = require('./features')(config)
 
   function DB(options) {
     this.pool = new Pool(options.url)
@@ -83,7 +88,7 @@ module.exports = function (
 
   DB.prototype.createSessionToken = function (authToken, userAgentString) {
     log.trace({ op: 'DB.createSessionToken', uid: authToken && authToken.uid })
-    return SessionToken.create(userAgent.call(authToken, userAgentString))
+    return SessionToken.create(userAgent.call(authToken, userAgentString, log))
       .then(
         function (sessionToken) {
           return this.pool.put(
@@ -99,6 +104,7 @@ module.exports = function (
                 uaOS: sessionToken.uaOS,
                 uaOSVersion: sessionToken.uaOSVersion,
                 uaDeviceType: sessionToken.uaDeviceType,
+                mustVerify: sessionToken.mustVerify,
                 tokenVerificationId: sessionToken.tokenVerificationId
               },
               'inplace'
@@ -434,14 +440,22 @@ module.exports = function (
             return bufferize({
               id: item.id,
               sessionToken: item.sessionTokenId,
-              lastAccessTime: item.lastAccessTime,
+              lastAccessTime: marshallLastAccessTime(item.lastAccessTime, uid, item.email),
               name: item.name,
               type: item.type,
               pushCallback: item.callbackURL,
               pushPublicKey: item.callbackPublicKey,
-              pushAuthKey: item.callbackAuthKey
+              pushAuthKey: item.callbackAuthKey,
+              uaBrowser: item.uaBrowser,
+              uaBrowserVersion: item.uaBrowserVersion,
+              uaOS: item.uaOS,
+              uaOSVersion: item.uaOSVersion,
+              uaDeviceType: item.uaDeviceType
             }, {
-              ignore: [ 'name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey' ]
+              ignore: [
+                'name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey',
+                'uaBrowser', 'uaBrowserVersion', 'uaOS', 'uaOSVersion', 'uaDeviceType'
+              ]
             })
           })
         },
@@ -452,6 +466,17 @@ module.exports = function (
           throw err
         }
       )
+  }
+
+  function marshallLastAccessTime (lastAccessTime, uid, email) {
+    // Updating lastAccessTime on session tokens may not be enabled.
+    // If it isn't, return null instead of the timestamp so that the
+    // content server knows not to display it to users.
+    if (features.isLastAccessTimeEnabledForUser(uid, email)) {
+      return lastAccessTime
+    }
+
+    return null
   }
 
   DB.prototype.sessionWithDevice = function (id) {
@@ -510,51 +535,52 @@ module.exports = function (
 
   DB.prototype.createDevice = function (uid, sessionTokenId, deviceInfo) {
     log.trace({ op: 'DB.createDevice', uid: uid, id: deviceInfo.id })
-    var self = this
-    deviceInfo.id = crypto.randomBytes(16)
-    deviceInfo.createdAt = Date.now()
-    return this.pool.put(
-      '/account/' + uid.toString('hex') +
-      '/device/' + deviceInfo.id.toString('hex'),
-      unbuffer({
-        sessionTokenId: sessionTokenId,
-        createdAt: deviceInfo.createdAt,
-        name: deviceInfo.name,
-        type: deviceInfo.type,
-        callbackURL: deviceInfo.pushCallback,
-        callbackPublicKey: deviceInfo.pushPublicKey,
-        callbackAuthKey: deviceInfo.pushAuthKey
+
+    return random(16)
+      .then(id => {
+        deviceInfo.id = id
+        deviceInfo.createdAt = Date.now()
+        return this.pool.put(
+          '/account/' + uid.toString('hex') +
+          '/device/' + deviceInfo.id.toString('hex'),
+          unbuffer({
+            sessionTokenId: sessionTokenId,
+            createdAt: deviceInfo.createdAt,
+            name: deviceInfo.name,
+            type: deviceInfo.type,
+            callbackURL: deviceInfo.pushCallback,
+            callbackPublicKey: deviceInfo.pushPublicKey,
+            callbackAuthKey: deviceInfo.pushAuthKey
+          })
+        )
       })
-    )
-    .then(
-      function () {
-        return deviceInfo
-      },
-      function (err) {
-        if (isRecordAlreadyExistsError(err)) {
-          return self.devices(uid)
-            .then(
-              // It's possible (but extraordinarily improbable) that we generated
-              // a duplicate device id, so check the devices for this account. If
-              // we find a duplicate, retry with a new id. If we don't find one,
-              // the problem was caused by the unique sessionToken constraint so
-              // return an appropriate error.
-              function (devices) {
-                var isDuplicateDeviceId = devices.reduce(function (is, device) {
-                  return is || device.id.toString('hex') === deviceInfo.id.toString('hex')
-                }, false)
+      .then(
+        () => deviceInfo,
+        err => {
+          if (isRecordAlreadyExistsError(err)) {
+            return this.devices(uid)
+              .then(
+                // It's possible (but extraordinarily improbable) that we generated
+                // a duplicate device id, so check the devices for this account. If
+                // we find a duplicate, retry with a new id. If we don't find one,
+                // the problem was caused by the unique sessionToken constraint so
+                // return an appropriate error.
+                devices => {
+                  const isDuplicateDeviceId = devices.reduce((is, device) => {
+                    is || device.id.toString('hex') === deviceInfo.id.toString('hex')
+                  }, false)
 
-                if (isDuplicateDeviceId) {
-                  return self.createDevice(uid, sessionTokenId, deviceInfo)
+                  if (isDuplicateDeviceId) {
+                    return this.createDevice(uid, sessionTokenId, deviceInfo)
+                  }
+
+                  throw error.deviceSessionConflict()
                 }
-
-                throw error.deviceSessionConflict()
-              }
-            )
+              )
+          }
+          throw err
         }
-        throw err
-      }
-    )
+      )
   }
 
   DB.prototype.updateDevice = function (uid, sessionTokenId, deviceInfo) {
@@ -761,6 +787,71 @@ module.exports = function (
     })
 
     return this.pool.del('/verificationReminders', reminderData)
+  }
+
+  DB.prototype.securityEvent = function (event) {
+    log.trace({
+      op: 'DB.securityEvent',
+      securityEvent: event
+    })
+
+    return this.pool.post('/securityEvents', unbuffer(event))
+  }
+
+  DB.prototype.securityEvents = function (params) {
+    log.trace({
+      op: 'DB.securityEvents',
+      params: params
+    })
+
+    return this.pool.get('/securityEvents/' + params.uid.toString('hex') + '/ip/' + params.ipAddr)
+  }
+
+  DB.prototype.createUnblockCode = function (uid) {
+    log.trace({
+      op: 'DB.createUnblockCode',
+      uid: uid
+    })
+    return UnblockCode()
+      .then(
+        (unblock) => {
+          return this.pool.put('/account/' + uid.toString('hex') + '/unblock/' + unblock)
+            .then(
+              () => {
+                return unblock
+              },
+              (err) => {
+                // duplicates should be super rare, but it's feasible that a
+                // uid already has an existing unblockCode. Just try again.
+                if (isRecordAlreadyExistsError(err)) {
+                  log.error({
+                    op: 'DB.createUnblockCode.duplicate',
+                    err: err,
+                    uid: uid
+                  })
+                  return this.createUnblockCode(uid)
+                }
+                throw err
+              }
+            )
+        }
+      )
+  }
+
+  DB.prototype.consumeUnblockCode = function (uid, code) {
+    log.trace({
+      op: 'DB.consumeUnblockCode',
+      uid: uid
+    })
+    return this.pool.del('/account/' + uid.toString('hex') + '/unblock/' + code)
+      .catch(
+        function (err) {
+          if (isNotFoundError(err)) {
+            throw error.invalidUnblockCode()
+          }
+          throw err
+        }
+      )
   }
 
   return DB

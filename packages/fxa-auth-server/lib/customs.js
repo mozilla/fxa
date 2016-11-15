@@ -4,6 +4,11 @@
 
 var P = require('./promise')
 var Pool = require('./pool')
+var config = require('../config')
+var localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
+  supportedLanguages: config.get('i18n').supportedLanguages,
+  defaultLanguage: config.get('i18n').defaultLanguage
+})
 
 module.exports = function (log, error) {
 
@@ -47,10 +52,19 @@ module.exports = function (log, error) {
     .then(
       function (result) {
         if (result.block) {
+          // log a flow event that user got blocked.
+          request.emitMetricsEvent('customs.blocked')
+
+          var unblock = !!result.unblock
           if (result.retryAfter) {
-            throw error.tooManyRequests(result.retryAfter)
+            // create a localized retryAfterLocalized value from retryAfter, for example '713' becomes '12 minutes'.
+            var retryAfterLocalized = localizeTimestamp.format(Date.now() + (result.retryAfter * 1000),
+                request.headers['accept-language'])
+
+            throw error.tooManyRequests(result.retryAfter, retryAfterLocalized, unblock)
+          } else {
+            throw error.requestBlocked(unblock)
           }
-          throw error.requestBlocked()
         }
         if (result.suspect) {
           request.app.isSuspiciousRequest = true

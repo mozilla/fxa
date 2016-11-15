@@ -36,6 +36,14 @@ var reasonToEvents = {
     noCallback: 'push.account_verify.no_push_callback',
     noKeys: 'push.account_verify.data_but_no_keys'
   },
+  accountConfirm: {
+    send: 'push.account_confirm.send',
+    success: 'push.account_confirm.success',
+    resetSettings: 'push.account_confirm.reset_settings',
+    failed: 'push.account_confirm.failed',
+    noCallback: 'push.account_confirm.no_push_callback',
+    noKeys: 'push.account_confirm.data_but_no_keys'
+  },
   passwordReset: {
     send: 'push.password_reset.send',
     success: 'push.password_reset.success',
@@ -78,7 +86,17 @@ var reasonToEvents = {
   }
 }
 
-module.exports = function (log, db) {
+module.exports = function (log, db, config) {
+  var vapid
+  if (config.vapidKeysFile) {
+    var vapidKeys = require(config.vapidKeysFile)
+    vapid = {
+      privateKey: vapidKeys.privateKey,
+      publicKey:  vapidKeys.publicKey,
+      subject: config.publicUrl
+    }
+  }
+
   /**
    * Reports push errors to logs
    *
@@ -293,6 +311,9 @@ module.exports = function (log, db) {
     sendPush: function sendPush(uid, devices, reason, options) {
       options = options || {}
       var events = reasonToEvents[reason]
+      if (! events) {
+        return P.reject('Unknown push reason: ' + reason)
+      }
       // There's no spec-compliant way to error out as a result of having
       // too many devices to notify.  For now, just log metrics about it.
       if (devices.length > MAX_ACTIVE_DEVICES) {
@@ -311,18 +332,25 @@ module.exports = function (log, db) {
         if (device.pushCallback) {
           // send the push notification
           incrementPushAction(events.send)
-          var pushParams = { 'TTL': options.TTL || '0' }
+          var pushSubscription = { endpoint: device.pushCallback }
+          var pushPayload = null
+          var pushOptions = { 'TTL': options.TTL || '0' }
           if (options.data) {
             if (!device.pushPublicKey || !device.pushAuthKey) {
               reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), uid, deviceId)
               incrementPushAction(events.noKeys)
               return
             }
-            pushParams.userPublicKey = device.pushPublicKey
-            pushParams.userAuth = device.pushAuthKey
-            pushParams.payload = options.data
+            pushSubscription.keys = {
+              p256dh: device.pushPublicKey,
+              auth: device.pushAuthKey
+            }
+            pushPayload = options.data
           }
-          return webpush.sendNotification(device.pushCallback, pushParams)
+          if (vapid) {
+            pushOptions.vapidDetails = vapid
+          }
+          return webpush.sendNotification(pushSubscription, pushPayload, pushOptions)
           .then(
             function () {
               incrementPushAction(events.success)

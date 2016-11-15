@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* eslint-disable no-console */
 var config = require('../config').getProperties()
 
 // SMTP half
@@ -23,6 +24,8 @@ require('simplesmtp').createSimpleServer(
       function (mail) {
         var link = mail.headers['x-link']
         var rc = mail.headers['x-recovery-code']
+        var rul = mail.headers['x-report-signin-link']
+        var uc = mail.headers['x-unblock-code']
         var vc = mail.headers['x-verify-code']
         var name = emailName(mail.headers.to)
         if (vc) {
@@ -30,6 +33,11 @@ require('simplesmtp').createSimpleServer(
         }
         else if (rc) {
           console.log('\x1B[34m', link, '\x1B[39m')
+        }
+        else if (uc) {
+          console.log('\x1B[36mUnblock code:', uc, '\x1B[39m')
+          console.log('\x1B[36mReport link:', rul, '\x1B[39m')
+
         }
         else {
           console.error('\x1B[31mNo verify code match\x1B[39m')
@@ -89,4 +97,6 @@ api.route(
   ]
 )
 
-api.start()
+api.start(function () {
+  console.log('mail_helper started...')
+})

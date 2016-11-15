@@ -2,233 +2,239 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+'use strict'
+
+const assert = require('insist')
 var url = require('url')
-var Client = require('../client')
+const Client = require('../client')()
 var TestServer = require('../test_server')
 
 var config = require('../../config').getProperties()
-process.env.SIGNIN_CONFIRMATION_ENABLED = false
 
-TestServer.start(config)
-  .then(function main(server) {
-
-    test(
-      'account reset w/o sessionToken',
-      function (t) {
-        var email = server.uniqueEmail()
-        var password = 'allyourbasearebelongtous'
-        var newPassword = 'ez'
-        var wrapKb, kA, client
-
-        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
-          .then(
-            function (x) {
-              client = x
-            }
-          )
-          .then(
-            function () {
-              return client.keys()
-            }
-          )
-          .then(
-            function (keys) {
-              wrapKb = keys.wrapKb
-              kA = keys.kA
-              return client.forgotPassword()
-            }
-          )
-          .then(
-            function () {
-              return server.mailbox.waitForCode(email)
-            }
-          )
-          .then(
-            function (code) {
-              t.throws(function() {
-                client.resetPassword(newPassword)
-              })
-              return resetPassword(client, code, newPassword, {sessionToken: false})
-            }
-          )
-          .then(
-            function (response) {
-              t.notOk(response.sessionToken, 'session token is not in response')
-              t.notOk(response.keyFetchToken, 'keyFetchToken token is not in response')
-              t.notOk(response.verified, 'verified is not in response')
-            }
-          )
-          .then(
-            function () {
-              return server.mailbox.waitForEmail(email)
-            }
-          )
-          .then(
-            function (emailData) {
-              var link = emailData.headers['x-link']
-              var query = url.parse(link, true).query
-              t.ok(query.email, 'email is in the link')
-            }
-          )
-          .then(
-            function () {
-              // make sure we can still login after password reset
-              return Client.login(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
-            }
-          )
-          .then(
-            function (x) {
-              client = x
-              return client.keys()
-            }
-          )
-          .then(
-            function (keys) {
-              t.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
-              t.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
-              t.deepEqual(kA, keys.kA, 'kA was not reset')
-              t.equal(client.kB.length, 32, 'kB exists, has the right length')
-            }
-          )
-      }
-    )
-
-    test(
-      'account reset with keys',
-      function (t) {
-        var email = server.uniqueEmail()
-        var password = 'allyourbasearebelongtous'
-        var newPassword = 'ez'
-        var wrapKb, kA, client
-
-        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
-          .then(
-            function (x) {
-              client = x
-            }
-          )
-          .then(
-            function () {
-              return client.keys()
-            }
-          )
-          .then(
-            function (keys) {
-              wrapKb = keys.wrapKb
-              kA = keys.kA
-              return client.forgotPassword()
-            }
-          )
-          .then(
-            function () {
-              return server.mailbox.waitForCode(email)
-            }
-          )
-          .then(
-            function (code) {
-              t.throws(function() {
-                client.resetPassword(newPassword)
-              })
-              return resetPassword(client, code, newPassword,  {keys:true})
-            }
-          )
-          .then(
-            function (response) {
-              t.ok(response.sessionToken, 'session token is in response')
-              t.ok(response.keyFetchToken, 'keyFetchToken token is in response')
-              t.equal(response.verified, true,  'verified is true')
-            }
-          )
-          .then(
-            function () {
-              return server.mailbox.waitForEmail(email)
-            }
-          )
-          .then(
-            function (emailData) {
-              var link = emailData.headers['x-link']
-              var query = url.parse(link, true).query
-              t.ok(query.email, 'email is in the link')
-            }
-          )
-          .then(
-            function () {
-              // make sure we can still login after password reset
-              return Client.login(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
-            }
-          )
-          .then(
-            function (x) {
-              client = x
-              return client.keys()
-            }
-          )
-          .then(
-            function (keys) {
-              t.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
-              t.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
-              t.deepEqual(kA, keys.kA, 'kA was not reset')
-              t.equal(client.kB.length, 32, 'kB exists, has the right length')
-            }
-          )
-      }
-    )
-
-    test(
-      'account reset w/o keys, with sessionToken',
-      function (t) {
-        var email = server.uniqueEmail()
-        var password = 'allyourbasearebelongtous'
-        var newPassword = 'ez'
-        var client
-
-        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-          .then(
-            function (x) {
-              client = x
-            }
-          )
-          .then(
-            function () {
-              return client.forgotPassword()
-            }
-          )
-          .then(
-            function () {
-              return server.mailbox.waitForCode(email)
-            }
-          )
-          .then(
-            function (code) {
-              t.throws(function() {
-                client.resetPassword(newPassword)
-              })
-              return resetPassword(client, code, newPassword)
-            }
-          )
-          .then(
-            function (response) {
-              t.ok(response.sessionToken, 'session token is in response')
-              t.notOk(response.keyFetchToken, 'keyFetchToken token is not in response')
-              t.equal(response.verified, true,  'verified is true')
-            }
-          )
-      }
-    )
-
-    test(
-      'teardown',
-      function (t) {
-        server.stop()
-        t.end()
-      }
-    )
+describe('remote account reset', function() {
+  this.timeout(15000)
+  let server
+  before(() => {
+    process.env.SIGNIN_CONFIRMATION_ENABLED = false
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
   })
 
-function resetPassword(client, code, newPassword, options) {
-  return client.verifyPasswordResetCode(code)
-    .then(function() {
-      return client.resetPassword(newPassword, {}, options)
-    })
-}
+  it(
+    'account reset w/o sessionToken',
+    () => {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var newPassword = 'ez'
+      var wrapKb, kA, client
+
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
+        .then(
+          function (x) {
+            client = x
+          }
+        )
+        .then(
+          function () {
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            wrapKb = keys.wrapKb
+            kA = keys.kA
+            return client.forgotPassword()
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (code) {
+            assert.throws(function() {
+              client.resetPassword(newPassword)
+            })
+            return resetPassword(client, code, newPassword, {sessionToken: false})
+          }
+        )
+        .then(
+          function (response) {
+            assert(!response.sessionToken, 'session token is not in response')
+            assert(!response.keyFetchToken, 'keyFetchToken token is not in response')
+            assert(!response.verified, 'verified is not in response')
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            var link = emailData.headers['x-link']
+            var query = url.parse(link, true).query
+            assert.ok(query.email, 'email is in the link')
+          }
+        )
+        .then(
+          function () {
+            // make sure we can still login after password reset
+            return Client.login(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
+          }
+        )
+        .then(
+          function (x) {
+            client = x
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            assert.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
+            assert.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            assert.deepEqual(kA, keys.kA, 'kA was not reset')
+            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
+          }
+        )
+    }
+  )
+
+  it(
+    'account reset with keys',
+    () => {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var newPassword = 'ez'
+      var wrapKb, kA, client
+
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
+        .then(
+          function (x) {
+            client = x
+          }
+        )
+        .then(
+          function () {
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            wrapKb = keys.wrapKb
+            kA = keys.kA
+            return client.forgotPassword()
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (code) {
+            assert.throws(function() {
+              client.resetPassword(newPassword)
+            })
+            return resetPassword(client, code, newPassword,  {keys:true})
+          }
+        )
+        .then(
+          function (response) {
+            assert.ok(response.sessionToken, 'session token is in response')
+            assert.ok(response.keyFetchToken, 'keyFetchToken token is in response')
+            assert.equal(response.verified, true,  'verified is true')
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            var link = emailData.headers['x-link']
+            var query = url.parse(link, true).query
+            assert.ok(query.email, 'email is in the link')
+          }
+        )
+        .then(
+          function () {
+            // make sure we can still login after password reset
+            return Client.login(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
+          }
+        )
+        .then(
+          function (x) {
+            client = x
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            assert.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
+            assert.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            assert.deepEqual(kA, keys.kA, 'kA was not reset')
+            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
+          }
+        )
+    }
+  )
+
+  it(
+    'account reset w/o keys, with sessionToken',
+    () => {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var newPassword = 'ez'
+      var client
+
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function (x) {
+            client = x
+          }
+        )
+        .then(
+          function () {
+            return client.forgotPassword()
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (code) {
+            assert.throws(function() {
+              client.resetPassword(newPassword)
+            })
+            return resetPassword(client, code, newPassword)
+          }
+        )
+        .then(
+          function (response) {
+            assert.ok(response.sessionToken, 'session token is in response')
+            assert(!response.keyFetchToken, 'keyFetchToken token is not in response')
+            assert.equal(response.verified, true,  'verified is true')
+          }
+        )
+    }
+  )
+
+  after(() => {
+    delete process.env.SIGNIN_CONFIRMATION_ENABLE
+    return TestServer.stop(server)
+  })
+
+  function resetPassword(client, code, newPassword, options) {
+    return client.verifyPasswordResetCode(code)
+      .then(function() {
+        return client.resetPassword(newPassword, {}, options)
+      })
+  }
+})

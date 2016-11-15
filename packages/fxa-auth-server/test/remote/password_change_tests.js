@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var Client = require('../client')
+'use strict'
+
+const assert = require('insist')
+const Client = require('../client')()
 var config = require('../../config').getProperties()
-var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var url = require('url')
 
@@ -18,15 +20,23 @@ function getSessionTokenId(sessionTokenHex) {
     )
 }
 
-process.env.SIGNIN_CONFIRMATION_ENABLED = true
-process.env.SIGNIN_CONFIRMATION_RATE = 1.0
+describe('remote password change', function() {
+  this.timeout(15000)
+  let server
+  before(() => {
+    process.env.SIGNIN_CONFIRMATION_ENABLED = true
+    process.env.SIGNIN_CONFIRMATION_RATE = 1.0
+    process.env.IP_PROFILING_ENABLED = false
 
-TestServer.start(config)
-.then(function main(server) {
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
 
-  test(
+  it(
     'password change, with unverified session',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var newPassword = 'foobar'
@@ -54,7 +64,7 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, true, 'account is verified')
+            assert.equal(status.verified, true, 'account is verified')
           }
         )
         .then(
@@ -82,9 +92,9 @@ TestServer.start(config)
         .then(
           function (status) {
             // Verify correct status
-            t.equal(status.verified, false, 'account is unverified')
-            t.equal(status.emailVerified, true, 'account email is verified')
-            t.equal(status.sessionVerified, false, 'account session is unverified')
+            assert.equal(status.verified, false, 'account is unverified')
+            assert.equal(status.emailVerified, true, 'account email is verified')
+            assert.equal(status.sessionVerified, false, 'account session is unverified')
           }
         )
         .then(
@@ -100,9 +110,9 @@ TestServer.start(config)
         .then(
           function (response) {
             // Verify correct change password response
-            t.notEqual(response.sessionToken, originalSessionToken, 'session token has changed')
-            t.ok(response.keyFetchToken, 'key fetch token returned')
-            t.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
+            assert.notEqual(response.sessionToken, originalSessionToken, 'session token has changed')
+            assert.ok(response.keyFetchToken, 'key fetch token returned')
+            assert.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
           }
         )
         .then(
@@ -113,10 +123,10 @@ TestServer.start(config)
         .then(
           function (emailData) {
             var subject = emailData.headers['subject']
-            t.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly')
+            assert.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly')
             var link = emailData.headers['x-link']
             var query = url.parse(link, true).query
-            t.ok(query.email, 'email is in the link')
+            assert.ok(query.email, 'email is in the link')
           }
         )
         .then(
@@ -127,9 +137,9 @@ TestServer.start(config)
         .then(
           function (status) {
             // Verify correct status
-            t.equal(status.verified, false, 'account is unverified')
-            t.equal(status.emailVerified, true, 'account email is verified')
-            t.equal(status.sessionVerified, false, 'account session is unverified')
+            assert.equal(status.verified, false, 'account is unverified')
+            assert.equal(status.emailVerified, true, 'account email is verified')
+            assert.equal(status.sessionVerified, false, 'account session is unverified')
           }
         )
         .then(
@@ -145,16 +155,16 @@ TestServer.start(config)
         )
         .then(
           function (keys) {
-            t.deepEqual(keys.kB, kB, 'kB is preserved')
-            t.deepEqual(keys.kA, kA, 'kA is preserved')
+            assert.deepEqual(keys.kB, kB, 'kB is preserved')
+            assert.deepEqual(keys.kA, kA, 'kA is preserved')
           }
         )
     }
   )
 
-  test(
+  it(
     'password change, with verified session',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var newPassword = 'foobar'
@@ -182,7 +192,7 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, true, 'account is verified')
+            assert.equal(status.verified, true, 'account is verified')
           }
         )
         .then(
@@ -197,9 +207,9 @@ TestServer.start(config)
         )
         .then(
           function (response) {
-            t.notEqual(response.sessionToken, originalSessionToken, 'session token has changed')
-            t.ok(response.keyFetchToken, 'key fetch token returned')
-            t.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
+            assert.notEqual(response.sessionToken, originalSessionToken, 'session token has changed')
+            assert.ok(response.keyFetchToken, 'key fetch token returned')
+            assert.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
           }
         )
         .then(
@@ -210,10 +220,10 @@ TestServer.start(config)
         .then(
           function (emailData) {
             var subject = emailData.headers['subject']
-            t.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly')
+            assert.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly')
             var link = emailData.headers['x-link']
             var query = url.parse(link, true).query
-            t.ok(query.email, 'email is in the link')
+            assert.ok(query.email, 'email is in the link')
           }
         )
         .then(
@@ -223,7 +233,7 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, true, 'account is verified')
+            assert.equal(status.verified, true, 'account is verified')
           }
         )
         .then(
@@ -239,27 +249,25 @@ TestServer.start(config)
         )
         .then(
           function (keys) {
-            t.deepEqual(keys.kB, kB, 'kB is preserved')
-            t.deepEqual(keys.kA, kA, 'kA is preserved')
+            assert.deepEqual(keys.kB, kB, 'kB is preserved')
+            assert.deepEqual(keys.kA, kA, 'kA is preserved')
           }
         )
     }
   )
 
-  test(
-    'password change, with raw session data rather than session token id',
-    function (t) {
+  it(
+    'password change, with raw session data rather than session token id, return invalid token error',
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var newPassword = 'foobar'
-      var client, firstAuthPW, originalSessionToken
+      var client
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
           function (x) {
             client = x
-            originalSessionToken = client.sessionToken
-            firstAuthPW = x.authPW.toString('hex')
             return client.keys()
           }
         )
@@ -270,7 +278,7 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, true, 'account is verified')
+            assert.equal(status.verified, true, 'account is verified')
           }
         )
         .then(
@@ -279,32 +287,20 @@ TestServer.start(config)
           }
         )
         .then(
-          function (response) {
-            t.notEqual(response.sessionToken, originalSessionToken, 'session token has changed')
-            t.ok(response.keyFetchToken, 'key fetch token returned')
-            t.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
-          }
-        )
-        .then(
           function () {
-            return server.mailbox.waitForEmail(email)
-          }
-        )
-        .then(
-          function (emailData) {
-            var subject = emailData.headers['subject']
-            t.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly')
-            var link = emailData.headers['x-link']
-            var query = url.parse(link, true).query
-            t.ok(query.email, 'email is in the link')
+            assert(false)
+          },
+          function (err) {
+            assert.equal(err.errno, 110, 'Invalid token error')
+            assert.equal(err.message, 'Invalid authentication token in request signature')
           }
         )
     }
   )
 
-  test(
+  it(
     'password change w/o sessionToken',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var newPassword = 'foobar'
@@ -331,9 +327,9 @@ TestServer.start(config)
         )
         .then(
           function (response) {
-            t.notOk(response.sessionToken, 'no session token returned')
-            t.notOk(response.keyFetchToken, 'no key fetch token returned')
-            t.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
+            assert(!response.sessionToken, 'no session token returned')
+            assert(!response.keyFetchToken, 'no key fetch token returned')
+            assert.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
           }
         )
         .then(
@@ -344,10 +340,10 @@ TestServer.start(config)
         .then(
           function (emailData) {
             var subject = emailData.headers['subject']
-            t.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly')
+            assert.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly')
             var link = emailData.headers['x-link']
             var query = url.parse(link, true).query
-            t.ok(query.email, 'email is in the link')
+            assert.ok(query.email, 'email is in the link')
           }
         )
         .then(
@@ -363,16 +359,16 @@ TestServer.start(config)
         )
         .then(
           function (keys) {
-            t.deepEqual(keys.kB, kB, 'kB is preserved')
-            t.deepEqual(keys.kA, kA, 'kA is preserved')
+            assert.deepEqual(keys.kB, kB, 'kB is preserved')
+            assert.deepEqual(keys.kA, kA, 'kA is preserved')
           }
         )
     }
   )
 
-  test(
+  it(
     'wrong password on change start',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -390,19 +386,18 @@ TestServer.start(config)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.errno, 103, 'invalid password')
+            assert.equal(err.errno, 103, 'invalid password')
           }
         )
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    delete process.env.SIGNIN_CONFIRMATION_ENABLED
+    delete process.env.SIGNIN_CONFIRMATION_RATE
+    delete process.env.IP_PROFILING_ENABLED
+    return TestServer.stop(server)
+  })
 })

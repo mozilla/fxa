@@ -5,12 +5,12 @@
 var config = require('../config').getProperties()
 var log = require('../lib/log')(config.log.level, 'fxa-email-bouncer')
 var error = require('../lib/error')
-var Token = require('../lib/tokens')(log, config.tokenLifetimes)
+var Token = require('../lib/tokens')(log, config)
 var SQSReceiver = require('../lib/sqs')(log)
 var bounces = require('../lib/bounces')(log, error)
 
 var DB = require('../lib/db')(
-  config.db.backend,
+  config,
   log,
   error,
   Token.SessionToken,

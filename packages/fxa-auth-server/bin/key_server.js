@@ -2,26 +2,41 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Only `require()` the newrelic module if explicity enabled.
+// If required, modules will be instrumented.
+require('../lib/newrelic')()
+
 var config = require('../config').getProperties()
 var jwtool = require('fxa-jwtool')
 
-function main() {
-  var log = require('../lib/log')(config.log.level)
-  var metricsContext = require('../lib/metrics/context')(log, config)
-  log.setMetricsContext(metricsContext)
+var log = require('../lib/log')(config.log.level)
+var getGeoData = require('../lib/geodb')(log)
 
-  process.stdout.write(JSON.stringify({
-    event: 'config',
-    data: config
-  }) + '\n')
+function main() {
+  // Force the geo to load and run at startup, not waiting for it to run on
+  // some route later.
+  var knownIp = '63.245.221.32' // Mozilla MTV
+  getGeoData(knownIp)
+    .then(function(result) {
+      log.info({ op: 'geodb.check', result: result })
+    })
+
+  // RegExp instances serialise to empty objects, display regex strings instead.
+  const stringifiedConfig =
+    JSON.stringify(config, (k, v) =>
+      v && v.constructor === RegExp ? v.toString() : v
+    )
+
+  process.stdout.write('{"event":"config","data":' + stringifiedConfig + '}\n')
 
   if (config.env !== 'prod') {
-    log.info(config, 'starting config')
+    log.info(stringifiedConfig, 'starting config')
   }
 
   var error = require('../lib/error')
-  var Token = require('../lib/tokens')(log, config.tokenLifetimes)
+  var Token = require('../lib/tokens')(log, config)
   var Password = require('../lib/crypto/password')(log, config)
+  var UnblockCode = require('../lib/crypto/base32')(config.signinUnblock.codeLength)
 
   var signer = require('../lib/signer')(config.secretKeyFile, config.domain)
   var serverPublicKeys = {
@@ -65,14 +80,15 @@ function main() {
         mailer = m
 
         var DB = require('../lib/db')(
-          config.db.backend,
+          config,
           log,
           error,
           Token.SessionToken,
           Token.KeyFetchToken,
           Token.AccountResetToken,
           Token.PasswordForgotToken,
-          Token.PasswordChangeToken
+          Token.PasswordChangeToken,
+          UnblockCode
         )
 
         DB.connect(config[config.db.backend])
@@ -89,8 +105,7 @@ function main() {
                 mailer,
                 Password,
                 config,
-                customs,
-                metricsContext
+                customs
               )
               server = Server.create(log, error, config, routes, db)
 
@@ -98,7 +113,7 @@ function main() {
                 function (err) {
                   if (err) {
                     log.error({ op: 'server.start.1', msg: 'failed startup with error',
-                                err: { message: err.message } })
+                      err: { message: err.message } })
                     process.exit(1)
                   } else {
                     log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })

@@ -12,13 +12,13 @@ var TestServer = require('../test/test_server')
 TestServer.start(config, false)
   .then(
   function (server) {
-    var tap = spawn(
-      path.join(path.dirname(__dirname), 'node_modules/.bin/tap'),
+    var cp = spawn(
+      path.join(path.dirname(__dirname), 'node_modules/.bin/mocha'),
       ['test/remote'],
       { stdio: 'inherit' }
     )
 
-    tap.on('close', function(code) {
+    cp.on('close', function(code) {
       server.stop()
     })
   }

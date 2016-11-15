@@ -86,6 +86,7 @@ The currently-defined error responses are:
 * status code 400, errno 124:  session already registered by another device
 * status code 400, errno 125:  request blocked for security reasons
 * status code 400, errno 126:  account must be reset
+* status code 400, errno 127:  invalid unblock code
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * status code 503, errno 202:  feature has been disabled for operational reasons
 * any status code, errno 999:  unknown error
@@ -318,6 +319,7 @@ ___Parameters___
 * authPW - the PBKDF2/HKDF stretched password as a hex string
 * service - (optional) opaque alphanumeric token to be included in verification links
 * reason - (optional) alphanumeric string indicating the reason for establishing a new session; may be "login" (the default) or "reconnect"
+* unblockCode - (optional) alphanumeric code used to unblock certain  rate-limitings
 
 ### Request
 
@@ -363,6 +365,7 @@ Failing requests may be due to the following errors:
 * status code 413, errno 113:  request body too large
 * status code 400, errno 120:  incorrect email case
 * status code 400, errno 126:  account must be reset
+* status code 400, errno 127:  invalid unblock code
 
 ## GET /v1/account/keys
 
@@ -1277,6 +1280,7 @@ with an array of device details in the JSON body:
     "id": "0f7aa00356e5416e82b3bef7bc409eef",
     "isCurrentDevice": true,
     "lastAccessTime": 1449235471335,
+    "lastAccessTimeFormatted": "a few seconds ago",
     "name": "My Phone",
     "type": "mobile",
     "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
@@ -1287,6 +1291,7 @@ with an array of device details in the JSON body:
     "id": "0f7aa00356e5416e82b3bef7bc409eef",
     "isCurrentDevice": false,
     "lastAccessTime": 1417699471335,
+    "lastAccessTimeFormatted": "a few seconds ago",
     "name": "My Desktop",
     "type": null,
     "pushCallback": "https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75",
@@ -1500,7 +1505,8 @@ Content-Type: application/json
  "error": "Service Unavailable",
  "message": "The server is experiencing heavy load, please try again shortly",
  "info": "https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format",
- "retryAfter": 30
+ "retryAfter": 30,
+ "retryAfterLocalized": "in a few seconds"
 }
 ```
 
@@ -1519,7 +1525,8 @@ Content-Type: application/json
  "error": "Too Many Requests",
  "message": "This client has sent too many requests",
  "info": "https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format",
- "retryAfter": 30
+ "retryAfter": 30,
+ "retryAfterLocalized": "in a few seconds"
 }
 ```
 

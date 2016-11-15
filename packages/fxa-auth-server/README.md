@@ -17,13 +17,13 @@ Services ecosystem.
 
 ## Prerequisites
 
-* node 0.10.x or higher
+* node 4.5.0 or higher
 * npm
 * Grunt
 
 ## Install
 
-You'll need node 0.10.x or higher and npm to run the server. On some systems running the server as root will cause working directory permissions issues with node. It is recommended that you create a seperate, standard user to ensure a clean and more secure installation.
+On some systems running the server as root will cause working directory permissions issues with node. It is recommended that you create a separate, standard user to ensure a clean and more secure installation.
 
 Clone the git repository and install dependencies:
 
@@ -123,18 +123,6 @@ This server depends on a database server
 from the [`fxa-auth-db-mysql` repo](https://github.com/mozilla/fxa-auth-db-mysql/).
 When running the tests, it uses a memory-store
 that mocks behaviour of the production MySQL server.
-
-## Using with FxOS
-
-By default, FxOS uses the production Firefox Accounts server (`api.accounts.firefox.com/v1`). If you want to use a different account server on a device, you need to update a preference value `identity.fxaccounts.auth.uri`.
-
-* Download this script: https://gist.github.com/edmoz/5596162
-* `chmod +x modPref.sh; ./modPref.sh pull`
-* Edit `prefs.js` to change `identity.fxaccounts.auth.uri`, e.g., add a line
-```
-user_pref("identity.fxaccounts.auth.uri", "https://api-accounts.stage.mozaws.net/v1");
-```
-* `./modPref.sh push prefs.js`
 
 ## License
 

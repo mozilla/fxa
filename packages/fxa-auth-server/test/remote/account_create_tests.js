@@ -2,20 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+'use strict'
+
+const assert = require('insist')
 var TestServer = require('../test_server')
 var crypto = require('crypto')
-var Client = require('../client')
+const Client = require('../client')()
 var config = require('../../config').getProperties()
-// XXX: update this later to avoid issues.
-process.env.NODE_ENV = 'dev'
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote account create', function() {
+  this.timeout(15000)
+  let server
+  before(() => {
+    // XXX: update this later to avoid issues.
+    process.env.NODE_ENV = 'dev'
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
 
-  test(
+  it(
     'unverified account fail when getting keys',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -23,7 +32,7 @@ TestServer.start(config)
         .then(
           function (x) {
             client = x
-            t.ok(client.authAt, 'authAt was set')
+            assert.ok(client.authAt, 'authAt was set')
           }
         )
         .then(
@@ -33,19 +42,19 @@ TestServer.start(config)
         )
         .then(
           function (keys) {
-            t.fail('got keys before verifying email')
+            assert(false, 'got keys before verifying email')
           },
           function (err) {
-            t.equal(err.errno, 104, 'Unverified account error code')
-            t.equal(err.message, 'Unverified account', 'Unverified account error message')
+            assert.equal(err.errno, 104, 'Unverified account error code')
+            assert.equal(err.message, 'Unverified account', 'Unverified account error message')
           }
         )
     }
   )
 
-  test(
+  it(
     'create and verify account',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -53,7 +62,7 @@ TestServer.start(config)
         .then(
           function (x) {
             client = x
-            t.ok(client.authAt, 'authAt was set')
+            assert.ok(client.authAt, 'authAt was set')
           }
         )
         .then(
@@ -63,7 +72,7 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, false)
+            assert.equal(status.verified, false)
           }
         )
         .then(
@@ -83,7 +92,7 @@ TestServer.start(config)
         )
         .then(
           function (emailData) {
-            t.equal(
+            assert.equal(
               emailData.headers['x-link'].indexOf(config.smtp.syncUrl),
               0,
               'sync url present')
@@ -96,16 +105,16 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, true)
+            assert.equal(status.verified, true)
           }
         )
     }
   )
 
 
-  test(
+  it(
     'create account with service identifier and resume',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null // eslint-disable-line no-unused-vars
@@ -123,16 +132,16 @@ TestServer.start(config)
         )
         .then(
           function (emailData) {
-            t.equal(emailData.headers['x-service-id'], 'abcdef')
-            t.ok(emailData.headers['x-link'].indexOf('resume=foo') > -1)
+            assert.equal(emailData.headers['x-service-id'], 'abcdef')
+            assert.ok(emailData.headers['x-link'].indexOf('resume=foo') > -1)
           }
         )
     }
   )
 
-  test(
+  it(
     'create account allows localization of emails',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -149,8 +158,8 @@ TestServer.start(config)
         )
         .then(
           function (emailData) {
-            t.assert(emailData.text.indexOf('Activate now') !== -1, 'not en-US')
-            t.assert(emailData.text.indexOf('Ativar agora') === -1, 'not pt-BR')
+            assert(emailData.text.indexOf('Activate now') !== -1, 'not en-US')
+            assert(emailData.text.indexOf('Ativar agora') === -1, 'not pt-BR')
             return client.destroyAccount()
           }
         )
@@ -171,35 +180,35 @@ TestServer.start(config)
         )
         .then(
           function (emailData) {
-            t.assert(emailData.text.indexOf('Activate now') === -1, 'not en-US')
-            t.assert(emailData.text.indexOf('Ativar agora') !== -1, 'is pt-BR')
+            assert(emailData.text.indexOf('Activate now') === -1, 'not en-US')
+            assert(emailData.text.indexOf('Ativar agora') !== -1, 'is pt-BR')
             return client.destroyAccount()
           }
         )
     }
   )
 
-  test(
+  it(
     'Unknown account should not exist',
-    function (t) {
+    () => {
       var client = new Client(config.publicUrl)
       client.email = server.uniqueEmail()
       client.authPW = crypto.randomBytes(32)
       return client.auth()
         .then(
           function () {
-            t.fail('account should not exist')
+            assert(false, 'account should not exist')
           },
           function (err) {
-            t.equal(err.errno, 102, 'account does not exist')
+            assert.equal(err.errno, 102, 'account does not exist')
           }
         )
     }
   )
 
-  test(
+  it(
     '/account/create works with proper data',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'ilikepancakes'
       var client
@@ -207,7 +216,7 @@ TestServer.start(config)
         .then(
           function (x) {
             client = x
-            t.ok(client.uid, 'account created')
+            assert.ok(client.uid, 'account created')
           }
         ).then(
           function () {
@@ -215,15 +224,15 @@ TestServer.start(config)
           }
         ).then(
           function () {
-            t.ok(client.sessionToken, 'client can login')
+            assert.ok(client.sessionToken, 'client can login')
           }
         )
     }
   )
 
-  test(
+  it(
     '/account/create returns a sessionToken',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'ilikepancakes'
       var client = new Client(config.publicUrl)
@@ -233,8 +242,8 @@ TestServer.start(config)
             return c.api.accountCreate(c.email, c.authPW)
               .then(
                 function (response) {
-                  t.ok(response.sessionToken, 'has a sessionToken')
-                  t.equal(response.keyFetchToken, undefined, 'no keyFetchToken without keys=true')
+                  assert.ok(response.sessionToken, 'has a sessionToken')
+                  assert.equal(response.keyFetchToken, undefined, 'no keyFetchToken without keys=true')
                 }
               )
           }
@@ -242,9 +251,9 @@ TestServer.start(config)
     }
   )
 
-  test(
+  it(
     '/account/create returns a keyFetchToken when keys=true',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'ilikepancakes'
       var client = new Client(config.publicUrl)
@@ -254,8 +263,8 @@ TestServer.start(config)
             return c.api.accountCreate(c.email, c.authPW, { keys: true })
               .then(
                 function (response) {
-                  t.ok(response.sessionToken, 'has a sessionToken')
-                  t.ok(response.keyFetchToken, 'keyFetchToken with keys=true')
+                  assert.ok(response.sessionToken, 'has a sessionToken')
+                  assert.ok(response.keyFetchToken, 'keyFetchToken with keys=true')
                 }
               )
           }
@@ -263,9 +272,9 @@ TestServer.start(config)
     }
   )
 
-  test(
+  it(
     'signup with same email, different case',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var email2 = email.toUpperCase()
       var password = 'abcdef'
@@ -276,18 +285,18 @@ TestServer.start(config)
           }
         )
         .then(
-          t.fail,
+          assert.fail,
           function (err) {
-            t.equal(err.code, 400)
-            t.equal(err.errno, 101, 'Account already exists')
+            assert.equal(err.code, 400)
+            assert.equal(err.errno, 101, 'Account already exists')
           }
         )
     }
   )
 
-  test(
+  it(
     're-signup against an unverified email',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'abcdef'
       return Client.create(config.publicUrl, email, password)
@@ -304,15 +313,15 @@ TestServer.start(config)
         )
         .then(
           function (client) {
-            t.ok(client.uid, 'account created')
+            assert.ok(client.uid, 'account created')
           }
         )
     }
   )
 
-  test(
+  it(
     'invalid redirectTo',
-    function (t) {
+    () => {
       var api = new Client.Api(config.publicUrl)
       var email = server.uniqueEmail()
       var authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
@@ -321,9 +330,9 @@ TestServer.start(config)
       }
       return api.accountCreate(email, authPW, options)
       .then(
-        t.fail,
+        assert.fail,
         function (err) {
-          t.equal(err.errno, 107, 'bad redirectTo rejected')
+          assert.equal(err.errno, 107, 'bad redirectTo rejected')
         }
       )
       .then(
@@ -332,28 +341,29 @@ TestServer.start(config)
         }
       )
       .then(
-        t.fail,
+        assert.fail,
         function (err) {
-          t.equal(err.errno, 107, 'bad redirectTo rejected')
+          assert.equal(err.errno, 107, 'bad redirectTo rejected')
         }
       )
     }
   )
 
-  test(
+  it(
     'another invalid redirectTo',
-    function (t) {
+    () => {
       var api = new Client.Api(config.publicUrl)
       var email = server.uniqueEmail()
       var authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
       var options = {
         redirectTo: 'https://www.fake.com/.firefox.com'
       }
+
       return api.accountCreate(email, authPW, options)
       .then(
-        t.fail,
+        assert.fail,
         function (err) {
-          t.equal(err.errno, 107, 'bad redirectTo rejected')
+          assert.equal(err.errno, 107, 'bad redirectTo rejected')
         }
       )
       .then(
@@ -364,46 +374,46 @@ TestServer.start(config)
         }
       )
       .then(
-        t.fail,
+        assert.fail,
         function (err) {
-          t.equal(err.errno, 107, 'bad redirectTo rejected')
+          assert.equal(err.errno, 107, 'bad redirectTo rejected')
         }
       )
     }
   )
 
-  test(
+  it(
     'create account with service query parameter',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       return Client.create(config.publicUrl, email, 'foo', { serviceQuery: 'bar' })
         .then(function () {
           return server.mailbox.waitForEmail(email)
         })
         .then(function (emailData) {
-          t.equal(emailData.headers['x-service-id'], 'bar', 'service query parameter was propagated')
+          assert.equal(emailData.headers['x-service-id'], 'bar', 'service query parameter was propagated')
         })
     }
   )
 
-  test(
+  it(
     'account creation works with unicode email address',
-    function (t) {
+    () => {
       var email = server.uniqueUnicodeEmail()
       return Client.create(config.publicUrl, email, 'foo')
         .then(function (client) {
-          t.ok(client, 'created account')
+          assert.ok(client, 'created account')
           return server.mailbox.waitForEmail(email)
         })
         .then(function (emailData) {
-          t.ok(emailData, 'received email')
+          assert.ok(emailData, 'received email')
         })
     }
   )
 
-  test(
+  it(
     'account creation works with minimal metricsContext metadata',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
@@ -411,14 +421,14 @@ TestServer.start(config)
           flowBeginTime: 1
         }
       }).then(function (client) {
-        t.ok(client, 'created account')
+        assert.ok(client, 'created account')
       })
     }
   )
 
-  test(
+  it(
     'account creation fails with invalid metricsContext flowId',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
@@ -426,16 +436,16 @@ TestServer.start(config)
           flowBeginTime: 1
         }
       }).then(function () {
-        t.fail('account creation should have failed')
+        assert(false, 'account creation should have failed')
       }, function (err) {
-        t.ok(err, 'account creation failed')
+        assert.ok(err, 'account creation failed')
       })
     }
   )
 
-  test(
+  it(
     'account creation fails with invalid metricsContext flowBeginTime',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
@@ -443,16 +453,16 @@ TestServer.start(config)
           flowBeginTime: 0
         }
       }).then(function () {
-        t.fail('account creation should have failed')
+        assert(false, 'account creation should have failed')
       }, function (err) {
-        t.ok(err, 'account creation failed')
+        assert.ok(err, 'account creation failed')
       })
     }
   )
 
-  test(
+  it(
     'account creation works with maximal metricsContext metadata',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
@@ -469,58 +479,58 @@ TestServer.start(config)
           utmTerm: 'frang'
         }
       }).then(function (client) {
-        t.ok(client, 'created account')
+        assert.ok(client, 'created account')
       })
     }
   )
 
-  test(
+  it(
     'account creation works with empty metricsContext metadata',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {}
       }).then(function (client) {
-        t.ok(client, 'created account')
+        assert.ok(client, 'created account')
       })
     }
   )
 
-  test(
+  it(
     'account creation fails with missing flowBeginTime',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
           flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d'
         }
       }).then(function () {
-        t.fail('account creation should have failed')
+        assert(false, 'account creation should have failed')
       }, function (err) {
-        t.ok(err, 'account creation failed')
+        assert.ok(err, 'account creation failed')
       })
     }
   )
 
-  test(
+  it(
     'account creation fails with missing flowId',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
           flowBeginTime: Date.now()
         }
       }).then(function () {
-        t.fail('account creation should have failed')
+        assert(false, 'account creation should have failed')
       }, function (err) {
-        t.ok(err, 'account creation failed')
+        assert.ok(err, 'account creation failed')
       })
     }
   )
 
-  test(
+  it(
     'create account for non-sync service does not get post-verify email',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -528,7 +538,7 @@ TestServer.start(config)
         .then(
           function (x) {
             client = x
-            t.ok('account was created')
+            assert.ok('account was created')
           }
         )
         .then(
@@ -548,7 +558,7 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, true)
+            assert.equal(status.verified, true)
           }
         )
         .then(
@@ -566,15 +576,15 @@ TestServer.start(config)
         )
         .then(
           function (code) {
-            t.ok(code, 'the next email was reset-password, not post-verify')
+            assert.ok(code, 'the next email was reset-password, not post-verify')
           }
         )
     }
   )
 
-  test(
+  it(
     'create account for unspecified service does not get post-verify email',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -582,7 +592,7 @@ TestServer.start(config)
         .then(
           function (x) {
             client = x
-            t.ok('account was created')
+            assert.ok('account was created')
           }
         )
         .then(
@@ -602,7 +612,7 @@ TestServer.start(config)
         )
         .then(
           function (status) {
-            t.equal(status.verified, true)
+            assert.equal(status.verified, true)
           }
         )
         .then(
@@ -620,17 +630,13 @@ TestServer.start(config)
         )
         .then(
           function (code) {
-            t.ok(code, 'the next email was reset-password, not post-verify')
+            assert.ok(code, 'the next email was reset-password, not post-verify')
           }
         )
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    return TestServer.stop(server)
+  })
 })

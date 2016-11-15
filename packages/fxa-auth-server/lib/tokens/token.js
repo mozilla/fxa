@@ -25,7 +25,7 @@
 
 var config = require('../../config').getProperties()
 
-module.exports = function (log, crypto, P, hkdf, Bundle, error) {
+module.exports = function (log, random, P, hkdf, Bundle, error) {
 
   // Token constructor.
   //
@@ -59,34 +59,9 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
   // This uses randomly-generated seed data to derive the keys.
   //
   Token.createNewToken = function(TokenType, details) {
-    var d = P.defer()
-    // capturing the domain here is a workaround for:
-    // https://github.com/joyent/node/issues/3965
-    // this will be fixed in node v0.12
-    var domain = process.domain
-    crypto.randomBytes(
-      32,
-      function (err, bytes) {
-        if (domain) domain.enter()
-        if (err) {
-          d.reject(err)
-        } else {
-          Token.deriveTokenKeys(TokenType, bytes)
-            .then(
-              function (keys) {
-                d.resolve(new TokenType(keys, details || {}))
-              }
-            )
-            .catch(
-              function (err) {
-                d.reject(err)
-              }
-            )
-        }
-        if (domain) domain.exit()
-      }
-    )
-    return d.promise
+    return random(32)
+      .then(bytes => Token.deriveTokenKeys(TokenType, bytes))
+      .then(keys => new TokenType(keys, details || {}))
   }
 
 

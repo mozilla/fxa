@@ -10,6 +10,14 @@ var logConfig = config.get('log')
 var P = require('./promise')
 var StatsDCollector = require('./metrics/statsd')
 
+// It's an error if a flow event doesn't have a flow_id,
+// but some events are also emitted outside of user flows.
+// Don't log the error for those events.
+const OPTIONAL_FLOW_EVENTS = {
+  'account.keyfetch': true,
+  'account.signed': true
+}
+
 function unbuffer(object) {
   var keys = Object.keys(object)
   for (var i = 0; i < keys.length; i++) {
@@ -42,15 +50,6 @@ util.inherits(Lug, EventEmitter)
 Lug.prototype.close = function() {
   return this.statsd.close()
 }
-
-// Certain events can include contextual metrics data
-// such as utm_* tracking parameters.  This helper method
-// is here to work around a circular dependency between
-// this module and the `metricsContext` module.
-Lug.prototype.setMetricsContext = function (metricsContext) {
-  this.metricsContext = metricsContext
-}
-
 
 // Expose the standard error/warn/info/debug/etc log methods.
 
@@ -131,7 +130,8 @@ Lug.prototype.summary = function (request, response) {
   }
   line.uid = (request.auth && request.auth.credentials) ?
     request.auth.credentials.uid :
-    payload.uid || query.uid || response.uid || '00'
+    payload.uid || query.uid || response.uid ||
+    (response.source && response.source.uid) || '00'
   line.service = payload.service || query.service
   line.reason = payload.reason || query.reason
   line.redirectTo = payload.redirectTo || query.redirectTo
@@ -154,16 +154,15 @@ Lug.prototype.summary = function (request, response) {
 // and broadcast to relying services over SNS/SQS.
 
 Lug.prototype.notifyAttachedServices = function (name, request, data) {
-  var self = this
-  return this.metricsContext.gather({}, request, name)
+  return request.gatherMetricsContext({})
     .then(
-      function (metricsContextData) {
+      metricsContextData => {
         var e = {
           event: name,
           data: unbuffer(data)
         }
         e.data.metricsContext = metricsContextData
-        self.stdout.write(JSON.stringify(e) + '\n')
+        this.stdout.write(JSON.stringify(e) + '\n')
       }
     )
 }
@@ -175,30 +174,67 @@ Lug.prototype.notifyAttachedServices = function (name, request, data) {
 Lug.prototype.activityEvent = function (event, request, data) {
   if (! data || ! data.uid) {
     this.error({ op: 'log.activityEvent', data: data })
+    return
+  }
+
+  var info = {
+    event: event
+  }
+
+  if (request.headers['user-agent']) {
+    info.userAgent = request.headers['user-agent']
+  }
+
+  optionallySetService(info, request)
+
+  Object.keys(data).forEach(function (key) {
+    info[key] = data[key]
+  })
+
+  this.logger.info('activityEvent', info)
+  this.statsd.write(info)
+}
+
+// Log a flow metrics event.
+// These events help understand the user's sign-in or sign-up journey.
+
+Lug.prototype.flowEvent = function (event, request) {
+  if (! event) {
+    this.error({ op: 'log.flowEvent', missingEvent: true })
     return P.resolve()
   }
 
-  var self = this
+  if (! request || ! request.headers) {
+    this.error({ op: 'log.flowEvent', event: event, badRequest: true })
+    return P.resolve()
+  }
 
-  return this.metricsContext.gather({
+  return request.gatherMetricsContext({
     event: event,
     userAgent: request.headers['user-agent']
-  }, request, event).then(
-    function (info) {
-      optionallySetService(info, request)
+  }).then(
+    info => {
+      if (info.flow_id) {
+        info.event = event
+        optionallySetService(info, request)
 
-      Object.keys(data).forEach(function (key) {
-        info[key] = data[key]
-      })
+        this.logger.info('flowEvent', info)
 
-      self.logger.info('activityEvent', info)
-      self.statsd.write(info)
+        if (event === info.flowCompleteSignal) {
+          this.logger.info('flowEvent', Object.assign({}, info, {
+            event: 'flow.complete'
+          }))
+          request.clearMetricsContext()
+        }
+      } else if (! OPTIONAL_FLOW_EVENTS[event]) {
+        this.error({ op: 'log.flowEvent', event: event, missingFlowId: true })
+      }
     }
   )
 }
 
 function optionallySetService (data, request) {
-  // don't overwrite service if it is specified in metricsContext
+  // don't overwrite service if it is already set
   if (data.service) {
     return
   }
@@ -222,20 +258,6 @@ module.exports = function (level, name, options) {
     function (err) {
       if (err.code === 'EPIPE') {
         log.emit('error', err)
-      }
-    }
-  )
-
-  Object.keys(console).forEach(
-    function (key) {
-      console[key] = function () {
-        var json = { op: 'console', message: util.format.apply(null, arguments) }
-        if(log[key]) {
-          log[key](json)
-        }
-        else {
-          log.warn(json)
-        }
       }
     }
   )

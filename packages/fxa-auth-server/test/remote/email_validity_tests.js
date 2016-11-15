@@ -2,19 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+'use strict'
+
+const assert = require('insist')
 var TestServer = require('../test_server')
-var Client = require('../client')
+const Client = require('../client')()
 var P = require('../../lib/promise')
 
 var config = require('../../config').getProperties()
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote email validity', function() {
+  this.timeout(15000)
+  let server
+  before(() => {
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
 
-  test(
+  it(
     '/account/create with a variety of malformed email addresses',
-    function (t) {
+    () => {
       var pwd = '123456'
 
       var emails = [
@@ -33,9 +42,9 @@ TestServer.start(config)
       emails.forEach(function(email, i) {
         emails[i] = Client.create(config.publicUrl, email, pwd)
           .then(
-            t.fail,
+            assert.fail,
             function (err) {
-              t.equal(err.code, 400, 'http 400 : malformed email is rejected')
+              assert.equal(err.code, 400, 'http 400 : malformed email is rejected')
             }
           )
       })
@@ -44,15 +53,15 @@ TestServer.start(config)
     }
   )
 
-  test(
+  it(
     '/account/create with a variety of unusual but valid email addresses',
-    function (t) {
+    () => {
       var pwd = '123456'
 
       var emails = [
         'tim@tim-example.net',
         'a+b+c@example.com',
-        '#!?-@t-e-s-t.c-o-m',
+        '#!?-@t-e-s-assert.c-o-m',
         String.fromCharCode(1234) + '@example.com',
         'test@' + String.fromCharCode(5678) + '.com'
       ]
@@ -61,11 +70,10 @@ TestServer.start(config)
         emails[i] = Client.create(config.publicUrl, email, pwd)
           .then(
             function(c) {
-              t.pass('Email ' + email + ' is valid')
               return c.destroyAccount()
             },
             function (err) {
-              t.fail('Email address ' + email + " should have been allowed, but it wasn't")
+              assert(false, 'Email address ' + email + " should have been allowed, but it wasn't")
             }
           )
       })
@@ -74,11 +82,7 @@ TestServer.start(config)
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    return TestServer.stop(server)
+  })
 })

@@ -3,6 +3,7 @@
 /sandbox
 /config/public-key.json
 /config/secret-key.json
+/config/vapid-keys.json
 *.swp
 server.log*
 secret*
@@ -14,3 +15,4 @@ secret*
 *.pyc
 /.vagrant
 .nyc_output
+npm-debug.log

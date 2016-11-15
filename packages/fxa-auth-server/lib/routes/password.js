@@ -2,13 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var validators = require('./validators')
-var HEX_STRING = validators.HEX_STRING
+'use strict'
 
-var crypto = require('crypto')
-var butil = require('../crypto/butil')
-var P = require('../promise')
-var requestHelper = require('../routes/utils/request_helper')
+const validators = require('./validators')
+const HEX_STRING = validators.HEX_STRING
+
+const butil = require('../crypto/butil')
+const P = require('../promise')
+const random = require('../crypto/random')
+const requestHelper = require('../routes/utils/request_helper')
+
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 
 module.exports = function (
   log,
@@ -23,8 +27,6 @@ module.exports = function (
   checkPassword,
   push
   ) {
-
-  var Tokens = require('../tokens/index')(log)
 
   function failVerifyAttempt(passwordForgotToken) {
     return (passwordForgotToken.failAttempt()) ?
@@ -83,9 +85,8 @@ module.exports = function (
                   .then(
                     function (keyFetchToken) {
                       return db.createPasswordChangeToken({
-                          uid: emailRecord.uid
-                        }
-                      )
+                        uid: emailRecord.uid
+                      })
                       .then(
                         function (passwordChangeToken) {
                           return {
@@ -143,12 +144,10 @@ module.exports = function (
         var passwordChangeToken = request.auth.credentials
         var authPW = Buffer(request.payload.authPW, 'hex')
         var wrapKb = Buffer(request.payload.wrapKb, 'hex')
-        var authSalt = crypto.randomBytes(32)
         var sessionTokenId = request.payload.sessionToken
-        var password = new Password(authPW, authSalt, verifierVersion)
         var wantsKeys = requestHelper.wantsKeys(request)
         var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
-            devicesToNotify
+          devicesToNotify
 
         getSessionVerificationStatus()
           .then(fetchDevicesToNotify)
@@ -163,30 +162,9 @@ module.exports = function (
           if (sessionTokenId) {
             var tokenId = Buffer(sessionTokenId, 'hex')
             return db.sessionTokenWithVerificationStatus(tokenId)
-              .catch(
-                function (err) {
-                  // Older versions of content-server passed the raw token data
-                  // rather than the id; handle both for b/w compatibility.
-                  if (err.errno !== error.ERRNO.INVALID_TOKEN) {
-                    throw err
-                  }
-                  return Tokens.SessionToken.fromHex(sessionTokenId)
-                    .then(
-                      function (tokenData) {
-                        tokenId = tokenData.tokenId
-                        return db.sessionTokenWithVerificationStatus(tokenId)
-                      }
-                    )
-                }
-              )
               .then(
                 function (tokenData) {
                   verifiedStatus = tokenData.tokenVerified
-                }
-              )
-              .catch(
-                function () {
-                  verifiedStatus = false
                 }
               )
           } else {
@@ -209,7 +187,13 @@ module.exports = function (
         }
 
         function changePassword() {
-          return db.deletePasswordChangeToken(passwordChangeToken)
+          let authSalt, password
+          return random(32)
+            .then(bytes => {
+              authSalt = bytes
+              password = new Password(authPW, authSalt, verifierVersion)
+              return db.deletePasswordChangeToken(passwordChangeToken)
+            })
             .then(
               function () {
                 return password.verifyHash()
@@ -231,6 +215,18 @@ module.exports = function (
                     authSalt: authSalt,
                     wrapWrapKb: wrapWrapKb,
                     verifierVersion: password.version
+                  }
+                )
+              }
+            )
+            .then(
+              function (result) {
+                return request.emitMetricsEvent('account.changedPassword', {
+                  uid: passwordChangeToken.uid.toString('hex')
+                })
+                .then(
+                  function () {
+                    return result
                   }
                 )
               }
@@ -258,17 +254,26 @@ module.exports = function (
         }
 
         function createSessionToken() {
-          // Create a sessionToken with the verification status of the current session
-          var sessionTokenOptions = {
-            uid: account.uid,
-            email: account.email,
-            emailCode: account.emailCode,
-            emailVerified: account.emailVerified,
-            verifierSetAt: account.verifierSetAt,
-            tokenVerificationId: verifiedStatus ? null : crypto.randomBytes(16)
-          }
+          return P.resolve()
+            .then(() => {
+              if (!verifiedStatus) {
+                return random(16)
+              }
+            })
+            .then(maybeToken => {
+              // Create a sessionToken with the verification status of the current session
+              let sessionTokenOptions = {
+                uid: account.uid,
+                email: account.email,
+                emailCode: account.emailCode,
+                emailVerified: account.emailVerified,
+                verifierSetAt: account.verifierSetAt,
+                mustVerify: wantsKeys,
+                tokenVerificationId: maybeToken
+              }
 
-          return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+              return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+            })
             .then(
               function (result) {
                 sessionToken = result
@@ -281,16 +286,16 @@ module.exports = function (
             // Create a verified keyFetchToken. This is deliberately verified because we don't
             // want to perform an email confirmation loop.
             return db.createKeyFetchToken({
-                uid: account.uid,
-                kA: account.kA,
-                wrapKb: wrapKb,
-                emailVerified: account.emailVerified
-              })
-              .then(
-                function (result) {
-                  keyFetchToken = result
-                }
-              )
+              uid: account.uid,
+              kA: account.kA,
+              wrapKb: wrapKb,
+              emailVerified: account.emailVerified
+            })
+            .then(
+              function (result) {
+                keyFetchToken = result
+              }
+            )
           }
         }
 
@@ -325,7 +330,8 @@ module.exports = function (
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional(),
-            resume: isA.string().max(2048).optional()
+            resume: isA.string().max(2048).optional(),
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
         response: {
@@ -341,10 +347,17 @@ module.exports = function (
         log.begin('Password.forgotSend', request)
         var email = request.payload.email
         var service = request.payload.service || request.query.service
-        customs.check(
-          request,
-          email,
-          'passwordForgotSendCode')
+
+        request.validateMetricsContext()
+
+        request.emitMetricsEvent('password.forgot.send_code.start')
+          .then(
+            customs.check.bind(
+              customs,
+              request,
+              email,
+              'passwordForgotSendCode')
+          )
           .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
@@ -364,6 +377,11 @@ module.exports = function (
                   redirectTo: request.payload.redirectTo,
                   resume: request.payload.resume,
                   acceptLanguage: request.app.acceptLanguage
+                }
+              )
+              .then(
+                function() {
+                  return request.emitMetricsEvent('password.forgot.send_code.completed')
                 }
               )
               .then(
@@ -400,7 +418,8 @@ module.exports = function (
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional(),
-            resume: isA.string().max(2048).optional()
+            resume: isA.string().max(2048).optional(),
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
         response: {
@@ -416,10 +435,17 @@ module.exports = function (
         log.begin('Password.forgotResend', request)
         var passwordForgotToken = request.auth.credentials
         var service = request.payload.service || request.query.service
-        customs.check(
-          request,
-          passwordForgotToken.email,
-          'passwordForgotResendCode')
+
+        request.validateMetricsContext()
+
+        request.emitMetricsEvent('password.forgot.resend_code.start')
+          .then(
+            customs.check.bind(
+              customs,
+              request,
+              passwordForgotToken.email,
+              'passwordForgotResendCode')
+          )
           .then(
             mailer.sendRecoveryCode.bind(
               mailer,
@@ -432,6 +458,11 @@ module.exports = function (
                 acceptLanguage: request.app.acceptLanguage
               }
             )
+          )
+          .then(
+            function(){
+              return request.emitMetricsEvent('password.forgot.resend_code.completed')
+            }
           )
           .done(
             function () {
@@ -457,7 +488,8 @@ module.exports = function (
         },
         validate: {
           payload: {
-            code: isA.string().min(32).max(32).regex(HEX_STRING).required()
+            code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
         response: {
@@ -470,49 +502,70 @@ module.exports = function (
         log.begin('Password.forgotVerify', request)
         var passwordForgotToken = request.auth.credentials
         var code = Buffer(request.payload.code, 'hex')
-        if (butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
-            passwordForgotToken.ttl() > 0) {
-          db.forgotPasswordVerified(passwordForgotToken)
-            .then(
-              function (accountResetToken) {
-                return mailer.sendPasswordResetNotification(
-                  passwordForgotToken.email,
-                  {
-                    acceptLanguage: request.app.acceptLanguage
-                  }
-                )
-                .then(
-                  function () {
-                    return accountResetToken
-                  }
-                )
+
+        request.validateMetricsContext()
+
+        request.emitMetricsEvent('password.forgot.verify_code.start')
+          .then(
+            customs.check.bind(
+              customs,
+              request,
+              passwordForgotToken.email,
+              'passwordForgotVerifyCode')
+          )
+          .then(
+            function () {
+              if (butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
+                  passwordForgotToken.ttl() > 0) {
+                db.forgotPasswordVerified(passwordForgotToken)
+                  .then(
+                    function (accountResetToken) {
+                      return mailer.sendPasswordResetNotification(
+                        passwordForgotToken.email,
+                        {
+                          acceptLanguage: request.app.acceptLanguage
+                        }
+                      )
+                      .then(
+                        function () {
+                          request.emitMetricsEvent('password.forgot.verify_code.completed')
+                        }
+                      )
+                      .then(
+                        function () {
+                          return accountResetToken
+                        }
+                      )
+                    }
+                  )
+                  .done(
+                    function (accountResetToken) {
+
+                      reply(
+                        {
+                          accountResetToken: accountResetToken.data.toString('hex')
+                        }
+                      )
+                    },
+                    reply
+                  )
               }
-            )
-            .done(
-              function (accountResetToken) {
-                reply(
-                  {
-                    accountResetToken: accountResetToken.data.toString('hex')
-                  }
-                )
-              },
-              reply
-            )
-        }
-        else {
-          failVerifyAttempt(passwordForgotToken)
-            .done(
-              function () {
-                reply(
-                  error.invalidVerificationCode({
-                    tries: passwordForgotToken.tries,
-                    ttl: passwordForgotToken.ttl()
-                  })
-                )
-              },
-              reply
-            )
-        }
+              else {
+                failVerifyAttempt(passwordForgotToken)
+                  .done(
+                    function () {
+                      reply(
+                        error.invalidVerificationCode({
+                          tries: passwordForgotToken.tries,
+                          ttl: passwordForgotToken.ttl()
+                        })
+                      )
+                    },
+                    reply
+                  )
+              }
+            }
+          )
       }
     },
     {

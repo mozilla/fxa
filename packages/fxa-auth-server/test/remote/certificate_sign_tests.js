@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
+'use strict'
+
+const assert = require('insist')
 var TestServer = require('../test_server')
-var Client = require('../client')
+const Client = require('../client')()
 var jwtool = require('fxa-jwtool')
 
 var config = require('../../config').getProperties()
@@ -16,12 +18,19 @@ var publicKey = {
   'e': '65537'
 }
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote certificate sign', function() {
+  this.timeout(15000)
+  let server
+  before(() => {
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
 
-  test(
+  it(
     'certificate sign',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -35,22 +44,22 @@ TestServer.start(config)
         )
         .then(
           function (cert) {
-            t.equal(typeof(cert), 'string', 'cert exists')
+            assert.equal(typeof(cert), 'string', 'cert exists')
             var payload = jwtool.verify(cert, pubSigKey.pem)
-            t.equal(payload.iss, config.domain, 'issuer is correct')
-            t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
-            t.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
-            t.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
-            t.equal(payload['fxa-verifiedEmail'], email, 'verifiedEmail is correct')
-            t.equal(payload['fxa-tokenVerified'], true, 'tokenVerified is correct')
+            assert.equal(payload.iss, config.domain, 'issuer is correct')
+            assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
+            assert.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
+            assert.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
+            assert.equal(payload['fxa-verifiedEmail'], email, 'verifiedEmail is correct')
+            assert.equal(payload['fxa-tokenVerified'], true, 'tokenVerified is correct')
           }
         )
     }
   )
 
-  test(
+  it(
     'certificate sign requires a verified account',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -64,18 +73,18 @@ TestServer.start(config)
         )
         .then(
           function (cert) {
-            t.fail('should not be able to sign with unverified account')
+            assert(false, 'should not be able to sign with unverified account')
           },
           function (err) {
-            t.equal(err.errno, 104, 'should get an unverifiedAccount error')
+            assert.equal(err.errno, 104, 'should get an unverifiedAccount error')
           }
         )
     }
   )
 
-  test(
+  it(
     '/certificate/sign inputs',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = '123456'
       var client = null
@@ -88,97 +97,97 @@ TestServer.start(config)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400, 'string as publicKey')
+            assert.equal(err.code, 400, 'string as publicKey')
             // empty object as publicKey
             return client.sign({}, 1000)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400, 'empty object as publicKey')
+            assert.equal(err.code, 400, 'empty object as publicKey')
             // invalid publicKey argument
             return client.sign({ algorithm: 'RS', n: 'x', e: 'y', invalid: true }, 1000)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400, 'invalid publicKey argument')
+            assert.equal(err.code, 400, 'invalid publicKey argument')
             // undefined duration
             return client.sign({ algorithm: 'RS', n: 'x', e: 'y' }, undefined)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400, 'undefined duration')
+            assert.equal(err.code, 400, 'undefined duration')
             // missing publicKey arguments (e)
             return client.sign({ algorithm: 'RS', n: 'x' }, 1000)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400, 'missing publicKey arguments (e)')
+            assert.equal(err.code, 400, 'missing publicKey arguments (e)')
             // missing publicKey arguments (n)
             return client.sign({ algorithm: 'RS', e: 'x' }, 1000)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400, 'missing publicKey arguments (n)')
+            assert.equal(err.code, 400, 'missing publicKey arguments (n)')
             // missing publicKey arguments (y)
             return client.sign({ algorithm: 'DS', p: 'p', q: 'q', g: 'g' }, 1000)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400, 'missing publicKey arguments (y)')
+            assert.equal(err.code, 400, 'missing publicKey arguments (y)')
             // missing publicKey arguments (p)
             return client.sign({ algorithm: 'DS', y: 'y', q: 'q', g: 'g' }, 1000)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400, 'missing publicKey arguments (p)')
+            assert.equal(err.code, 400, 'missing publicKey arguments (p)')
             // missing publicKey arguments (q)
             return client.sign({ algorithm: 'DS', y: 'y', p: 'p', g: 'g' }, 1000)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400, 'missing publicKey arguments (q)')
+            assert.equal(err.code, 400, 'missing publicKey arguments (q)')
             // missing publicKey arguments (g)
             return client.sign({ algorithm: 'DS', y: 'y', p: 'p', q: 'q' }, 1000)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400, 'missing publicKey arguments (g)')
+            assert.equal(err.code, 400, 'missing publicKey arguments (g)')
             // invalid algorithm
             return client.sign({ algorithm: 'NSA' }, 1000)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.code, 400, 'invalid algorithm')
+            assert.equal(err.code, 400, 'invalid algorithm')
           }
         )
     }
   )
 
-  test(
+  it(
     'no payload',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var duration = 1000 * 60 * 60 * 24 // 24 hours
@@ -210,19 +219,15 @@ TestServer.start(config)
           }
         )
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.errno, 109, 'Missing payload authentication')
+            assert.equal(err.errno, 109, 'Missing payload authentication')
           }
         )
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    return TestServer.stop(server)
+  })
 })

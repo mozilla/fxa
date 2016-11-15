@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var cp = require('child_process')
 var crypto = require('crypto')
 var P = require('../lib/promise')
@@ -9,13 +11,20 @@ var request = require('request')
 var mailbox = require('./mailbox')
 var createDBServer = require('fxa-auth-db-mysql')
 
+let currentServer
+
+/* eslint-disable no-console */
 function TestServer(config, printLogs) {
-  this.printLogs = printLogs === false ? false : true
+  currentServer = this
+  if (printLogs === undefined) {
+    printLogs = (process.env.REMOTE_TEST_LOGS === 'true')
+  }
+  this.printLogs = printLogs
   this.config = config
   this.server = null
   this.mail = null
   this.oauth = null
-  this.mailbox = mailbox(config.smtp.api.host, config.smtp.api.port)
+  this.mailbox = mailbox(config.smtp.api.host, config.smtp.api.port, this.printLogs)
 }
 
 function waitLoop(testServer, url, cb) {
@@ -29,30 +38,49 @@ function waitLoop(testServer, url, cb) {
           return cb(err)
         }
         if (!testServer.server) {
-          console.log('starting...')
+          if (testServer.printLogs) {
+            console.log('starting...')
+          }
           testServer.start()
         }
-        console.log('waiting...')
+        if (testServer.printLogs) {
+          console.log('waiting...')
+        }
         return setTimeout(waitLoop.bind(null, testServer, url, cb), 100)
+      } else if (res.statusCode !== 200) {
+        cb(body)
       }
       cb()
     }
   )
 }
 
+function processKill(p, kid, signal) {
+  return new P((resolve, reject) => {
+    p.on('exit', (code, sig) => {
+      resolve()
+    })
+    p.kill(signal)
+  })
+}
+
 TestServer.start = function (config, printLogs) {
   var d = P.defer()
-  createDBServer().then(
-    function (db) {
-      db.listen(config.httpdb.url.split(':')[2])
-      db.on('error', function () {})
-      var testServer = new TestServer(config, printLogs)
-      testServer.db = db
-      waitLoop(testServer, config.publicUrl, function (err) {
-        return err ? d.reject(err) : d.resolve(testServer)
-      })
-    }
-  )
+  TestServer.stop().then(() => {
+    return createDBServer().then(
+      function (db) {
+        db.listen(config.httpdb.url.split(':')[2])
+        db.on('error', function () {})
+        var testServer = new TestServer(config, printLogs)
+        testServer.db = db
+        waitLoop(testServer, config.publicUrl, function (err) {
+          return err ? d.reject(err) : d.resolve(testServer)
+        })
+      }
+    )
+  }).done(null, err => {
+    d.reject(err)
+  })
   return d.promise
 }
 
@@ -100,14 +128,30 @@ TestServer.prototype.start = function () {
   }
 }
 
+TestServer.stop = function (maybeServer) {
+  if (maybeServer) {
+    return maybeServer.stop()
+  } else if (currentServer) {
+    return currentServer.stop()
+  } else {
+    return P.resolve()
+  }
+}
+
 TestServer.prototype.stop = function () {
+  currentServer = undefined
   try { this.db.close() } catch (e) {}
   if (this.server) {
-    this.server.kill('SIGINT')
-    this.mail.kill()
+    let doomed = [
+      processKill(this.server, 'server', 'SIGINT'),
+      processKill(this.mail, 'mail')
+    ]
     if (this.oauth) {
-      this.oauth.kill()
+      doomed.push(processKill(this.oauth, 'oauth'))
     }
+    return P.all(doomed)
+  } else {
+    return P.resolve()
   }
 }
 

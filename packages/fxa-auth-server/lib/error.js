@@ -6,32 +6,34 @@ var inherits = require('util').inherits
 var messages = require('joi/lib/language').errors
 
 var ERRNO = {
+  SERVER_CONFIG_ERROR: 100,
   ACCOUNT_EXISTS: 101,
+  ACCOUNT_UNKNOWN: 102,
+  INCORRECT_PASSWORD: 103,
+  ACCOUNT_UNVERIFIED: 104,
+  INVALID_VERIFICATION_CODE: 105,
+  INVALID_JSON: 106,
+  INVALID_PARAMETER: 107,
+  MISSING_PARAMETER: 108,
+  INVALID_REQUEST_SIGNATURE: 109,
+  INVALID_TOKEN: 110,
+  INVALID_TIMESTAMP: 111,
+  MISSING_CONTENT_LENGTH_HEADER: 112,
+  REQUEST_TOO_LARGE: 113,
+  THROTTLED: 114,
+  INVALID_NONCE: 115,
+  ENDPOINT_NOT_SUPPORTED: 116,
+  INCORRECT_EMAIL_CASE: 120,
   // ACCOUNT_LOCKED: 121,
   // ACCOUNT_NOT_LOCKED: 122,
-  ACCOUNT_RESET: 126,
-  ACCOUNT_UNKNOWN: 102,
-  ACCOUNT_UNVERIFIED: 104,
   DEVICE_UNKNOWN: 123,
   DEVICE_CONFLICT: 124,
-  ENDPOINT_NOT_SUPPORTED: 116,
-  FEATURE_NOT_ENABLED: 202,
-  INCORRECT_EMAIL_CASE: 120,
-  INCORRECT_PASSWORD: 103,
-  INVALID_JSON: 106,
-  INVALID_NONCE: 115,
-  INVALID_PARAMETER: 107,
-  INVALID_REQUEST_SIGNATURE: 109,
-  INVALID_TIMESTAMP: 111,
-  INVALID_TOKEN: 110,
-  INVALID_VERIFICATION_CODE: 105,
-  MISSING_CONTENT_LENGTH_HEADER: 112,
-  MISSING_PARAMETER: 108,
-  REQUEST_TOO_LARGE: 113,
   REQUEST_BLOCKED: 125,
+  ACCOUNT_RESET: 126,
+  INVALID_UNBLOCK_CODE: 127,
+  MISSING_TOKEN: 128,
   SERVER_BUSY: 201,
-  SERVER_CONFIG_ERROR: 100,
-  THROTTLED: 114,
+  FEATURE_NOT_ENABLED: 202,
   UNEXPECTED_ERROR: 999
 }
 
@@ -56,6 +58,9 @@ function AppError(options, extra, headers) {
   this.message = options.message || DEFAULTS.message
   this.isBoom = true
   this.stack = options.stack
+  if (!this.stack) {
+    Error.captureStackTrace(this, AppError)
+  }
   this.errno = options.errno || DEFAULTS.errno
   this.output = {
     statusCode: options.code || DEFAULTS.code,
@@ -327,10 +332,24 @@ AppError.requestBodyTooLarge = function () {
   })
 }
 
-AppError.tooManyRequests = function (retryAfter) {
+AppError.tooManyRequests = function (retryAfter, retryAfterLocalized, canUnblock) {
   if (!retryAfter) {
     retryAfter = 30
   }
+
+  var extraData = {
+    retryAfter: retryAfter
+  }
+
+  if (retryAfterLocalized) {
+    extraData.retryAfterLocalized = retryAfterLocalized
+  }
+
+  if (canUnblock) {
+    extraData.verificationMethod = 'email-captcha'
+    extraData.verificationReason = 'login'
+  }
+
   return new AppError(
     {
       code: 429,
@@ -338,22 +357,27 @@ AppError.tooManyRequests = function (retryAfter) {
       errno: ERRNO.THROTTLED,
       message: 'Client has sent too many requests'
     },
-    {
-      retryAfter: retryAfter
-    },
+    extraData,
     {
       'retry-after': retryAfter
     }
   )
 }
 
-AppError.requestBlocked = function () {
+AppError.requestBlocked = function (canUnblock) {
+  var extra
+  if (canUnblock) {
+    extra = {
+      verificationMethod: 'email-captcha',
+      verificationReason: 'login'
+    }
+  }
   return new AppError({
     code: 400,
     error: 'Request blocked',
     errno: ERRNO.REQUEST_BLOCKED,
     message: 'The request was blocked for security reasons'
-  })
+  }, extra)
 }
 
 AppError.serviceUnavailable = function (retryAfter) {
@@ -406,15 +430,17 @@ AppError.gone = function () {
 }
 
 AppError.mustResetAccount = function (email) {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: ERRNO.ACCOUNT_RESET,
-    message: 'Account must be reset'
-  },
-  {
-    email: email
-  })
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.ACCOUNT_RESET,
+      message: 'Account must be reset'
+    },
+    {
+      email: email
+    }
+  )
 }
 
 AppError.unknownDevice = function () {
@@ -438,6 +464,22 @@ AppError.deviceSessionConflict = function () {
     }
   )
 }
+
+AppError.invalidUnblockCode = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_UNBLOCK_CODE,
+    message: 'Invalid unblock code'
+  })
+}
+
+AppError.missingToken = () => new AppError({
+  code: 400,
+  error: 'Bad Request',
+  errno: ERRNO.MISSING_TOKEN,
+  message: 'Missing token'
+})
 
 module.exports = AppError
 module.exports.ERRNO = ERRNO

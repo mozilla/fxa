@@ -2,16 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
 var BASE64_JWT = validators.BASE64_JWT
 var DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
 var URLSAFEBASE64 = validators.URLSAFEBASE64
+var BASE_36 = validators.BASE_36
 var PUSH_PAYLOADS_SCHEMA_PATH = '../../docs/pushpayloads.schema.json'
 
 // An arbitrary, but very generous, limit on the number of active sessions.
 // Currently only for metrics purposes, not enforced.
 var MAX_ACTIVE_SESSIONS = 200
+
+var MS_ONE_DAY = 1000 * 60 * 60 * 24
+var MS_ONE_WEEK = MS_ONE_DAY * 7
+var MS_ONE_MONTH = MS_ONE_DAY * 30
 
 var path = require('path')
 var ajv = require('ajv')()
@@ -20,9 +27,11 @@ var butil = require('../crypto/butil')
 var userAgent = require('../userAgent')
 var requestHelper = require('../routes/utils/request_helper')
 
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
+
 module.exports = function (
   log,
-  crypto,
+  random,
   P,
   uuid,
   isA,
@@ -35,7 +44,7 @@ module.exports = function (
   isPreVerified,
   checkPassword,
   push,
-  metricsContext
+  devices
   ) {
 
   // Loads and compiles a json validator for the payloads received
@@ -45,6 +54,15 @@ module.exports = function (
   var validatePushPayload = ajv.compile(schema)
   var verificationReminder = require('../verification-reminders')(log, db)
   var getGeoData = require('../geodb')(log)
+  var localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
+    supportedLanguages: config.i18n.supportedLanguages,
+    defaultLanguage: config.i18n.defaultLanguage
+  })
+  const features = require('../features')(config)
+
+  const securityHistoryEnabled = config.securityHistory && config.securityHistory.enabled
+  const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
+  const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 0
 
   var routes = [
     {
@@ -60,7 +78,7 @@ module.exports = function (
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
             preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional(),
-            metricsContext: metricsContext.schema
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
         response: {
@@ -75,29 +93,28 @@ module.exports = function (
       handler: function accountCreate(request, reply) {
         log.begin('Account.create', request)
 
-        var emailCode = crypto.randomBytes(16)
         var form = request.payload
         var query = request.query
         var email = form.email
-        var authSalt = crypto.randomBytes(32)
         var authPW = Buffer(form.authPW, 'hex')
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
         var service = form.service || query.service
-        var tokenVerificationId = emailCode
-        var preVerified, password, verifyHash, account, sessionToken, keyFetchToken, doSigninConfirmation
+        var preVerified, password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, authSalt
 
-        metricsContext.validate(request)
+        request.validateMetricsContext()
 
         customs.check(request, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
           .then(deleteAccount, ignoreUnknownAccountError)
           .then(checkPreVerified)
+          .then(generateRandomValues)
           .then(createPassword)
           .then(createAccount)
           .then(createSessionToken)
           .then(sendVerifyCode)
           .then(createKeyFetchToken)
+          .then(recordSecurityEvent)
           .then(createResponse)
           .done(reply, reply)
 
@@ -121,8 +138,30 @@ module.exports = function (
             .then(
               function (result) {
                 preVerified = result
+
+                let flowCompleteSignal
+                if (service === 'sync') {
+                  flowCompleteSignal = 'account.signed'
+                } else if (preVerified) {
+                  flowCompleteSignal = 'account.created'
+                } else {
+                  flowCompleteSignal = 'account.verified'
+                }
+                request.setMetricsFlowCompleteSignal(flowCompleteSignal)
               }
             )
+        }
+
+        function generateRandomValues() {
+          return random(16)
+            .then(bytes => {
+              emailCode = bytes
+              tokenVerificationId = bytes
+              return random(32)
+            })
+            .then(bytes => {
+              authSalt = bytes
+            })
         }
 
         function createPassword () {
@@ -147,14 +186,15 @@ module.exports = function (
             })
           }
 
-          return db.createAccount({
+          return random(64)
+          .then(bytes => db.createAccount({
             uid: uuid.v4('binary'),
             createdAt: Date.now(),
             email: email,
             emailCode: emailCode,
             emailVerified: form.preVerified || preVerified,
-            kA: crypto.randomBytes(32),
-            wrapWrapKb: crypto.randomBytes(32),
+            kA: bytes.slice(0, 32), // 0..31
+            wrapWrapKb: bytes.slice(32), // 32..63
             accountResetToken: null,
             passwordForgotToken: null,
             authSalt: authSalt,
@@ -162,12 +202,12 @@ module.exports = function (
             verifyHash: verifyHash,
             verifierSetAt: Date.now(),
             locale: locale
-          })
+          }))
           .then(
             function (result) {
               account = result
 
-              return log.activityEvent('account.created', request, {
+              return request.emitMetricsEvent('account.created', {
                 uid: account.uid.toString('hex')
               })
             }
@@ -199,40 +239,39 @@ module.exports = function (
         }
 
         function createSessionToken () {
-          doSigninConfirmation = requestHelper.shouldEnableSigninConfirmation(account, config, request)
+          const enableTokenVerification =
+            features.isSigninConfirmationEnabledForUser(account.uid, account.email, request)
 
           // Verified sessions should only be created for preverified tokens
-          // and when sign-in confirmation is disabled
-          if (preVerified || ! doSigninConfirmation) {
+          // and when sign-in confirmation is disabled or not needed.
+          if (preVerified || ! enableTokenVerification) {
             tokenVerificationId = undefined
           }
 
           return db.createSessionToken({
-              uid: account.uid,
-              email: account.email,
-              emailCode: account.emailCode,
-              emailVerified: account.emailVerified,
-              verifierSetAt: account.verifierSetAt,
-              createdAt: parseInt(query._createdAt),
-              tokenVerificationId: tokenVerificationId
-            }, userAgentString)
+            uid: account.uid,
+            email: account.email,
+            emailCode: account.emailCode,
+            emailVerified: account.emailVerified,
+            verifierSetAt: account.verifierSetAt,
+            createdAt: parseInt(query._createdAt),
+            mustVerify: enableTokenVerification && requestHelper.wantsKeys(request),
+            tokenVerificationId: tokenVerificationId
+          }, userAgentString)
             .then(
               function (result) {
                 sessionToken = result
-                return metricsContext.stash(sessionToken, [
-                  'device.created',
-                  'account.signed'
-                ], form.metricsContext)
+                return request.stashMetricsContext(sessionToken)
               }
             )
             .then(
               function () {
                 // There is no session token when we emit account.verified
                 // so stash the data against a synthesized "token" instead.
-                return metricsContext.stash({
+                return request.stashMetricsContext({
                   uid: account.uid,
                   id: account.emailCode.toString('hex')
-                }, 'account.verified', form.metricsContext)
+                })
               }
             )
         }
@@ -295,9 +334,21 @@ module.exports = function (
               .then(
                 function (result) {
                   keyFetchToken = result
-                  return metricsContext.stash(keyFetchToken, 'account.keyfetch', form.metricsContext)
+                  return request.stashMetricsContext(keyFetchToken)
                 }
               )
+          }
+        }
+
+        function recordSecurityEvent() {
+          if (securityHistoryEnabled) {
+            // don't block response recording db event
+            db.securityEvent({
+              name: 'account.create',
+              uid: account.uid,
+              ipAddr: request.app.clientAddress,
+              tokenId: sessionToken.tokenId
+            })
           }
         }
 
@@ -330,7 +381,8 @@ module.exports = function (
             redirectTo: isA.string().uri().optional(),
             resume: isA.string().optional(),
             reason: isA.string().max(16).optional(),
-            metricsContext: metricsContext.schema
+            unblockCode: isA.string().regex(BASE_36).length(unblockCodeLen).optional(),
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
         response: {
@@ -341,24 +393,28 @@ module.exports = function (
             verificationMethod: isA.string().optional(),
             verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
-            authAt: isA.number().integer()
+            authAt: isA.number().integer(),
+            emailSent: isA.boolean().optional()
           }
         }
       },
       handler: function (request, reply) {
         log.begin('Account.login', request)
 
-        var form = request.payload
-        var email = form.email
-        var authPW = Buffer(form.authPW, 'hex')
-        var service = request.payload.service || request.query.service
-        var redirectTo = request.payload.redirectTo
-        var resume = request.payload.resume
-        var tokenVerificationId = crypto.randomBytes(16)
-        var emailRecord, sessions, sessionToken, keyFetchToken, doSigninConfirmation
-        var ip = request.app.clientAddress
+        const form = request.payload
+        const email = form.email
+        const authPW = Buffer(form.authPW, 'hex')
+        const service = request.payload.service || request.query.service
+        const redirectTo = request.payload.redirectTo
+        const resume = request.payload.resume
+        const ip = request.app.clientAddress
+        let needsVerificationId = true
+        let emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation,
+          emailSent, unblockCode, customsErr, allowSigninUnblock, didSigninUnblock, tokenVerificationId
 
-        metricsContext.validate(request)
+        let securityEventRecency, securityEventVerified = false
+
+        request.validateMetricsContext()
 
         // Monitor for any clients still sending obsolete 'contentToken' param.
         if (request.payload.contentToken) {
@@ -368,16 +424,48 @@ module.exports = function (
           })
         }
 
-        customs.check(request, email, 'accountLogin')
+        checkIsBlockForced()
+          .then(() => customs.check(request, email, 'accountLogin'))
+          .catch(checkUnblockCode)
           .then(readEmailRecord)
+          .then(checkSecurityHistory)
+          .then(checkEmailAndPassword)
           .then(checkNumberOfActiveSessions)
           .then(createSessionToken)
           .then(createKeyFetchToken)
           .then(emitSyncLoginEvent)
+          .then(sendVerifyAccountEmail)
           .then(sendNewDeviceLoginNotification)
           .then(sendVerifyLoginEmail)
+          .then(recordSecurityEvent)
           .then(createResponse)
+          .catch(gateSigninUnblock)
           .done(reply, reply)
+
+        function checkIsBlockForced () {
+          let forced = config.signinUnblock && config.signinUnblock.enabled && config.signinUnblock.forcedEmailAddresses
+
+          if (forced && forced.test(email)) {
+            return P.reject(error.requestBlocked(true))
+          }
+
+          return P.resolve()
+        }
+
+        function checkUnblockCode (e) {
+          request.emitMetricsEvent('account.login.blocked')
+          var method = e.output.payload.verificationMethod
+          if (method === 'email-captcha') {
+            // only set `unblockCode` if it is required from customs
+            unblockCode = request.payload.unblockCode
+            if (unblockCode) {
+              unblockCode = unblockCode.toUpperCase()
+            }
+            customsErr = e
+            return
+          }
+          throw e
+        }
 
         function readEmailRecord () {
           return db.emailRecord(email)
@@ -385,28 +473,38 @@ module.exports = function (
               function (result) {
                 emailRecord = result
 
-                doSigninConfirmation = requestHelper.shouldEnableSigninConfirmation(emailRecord, config, request)
-
-                if(email !== emailRecord.email) {
-                  customs.flag(request.app.clientAddress, {
-                    email: email,
-                    errno: error.ERRNO.INCORRECT_PASSWORD
-                  })
-                  throw error.incorrectPassword(emailRecord.email, email)
-                }
-
-                return checkPassword(emailRecord, authPW, request.app.clientAddress)
-                  .then(
-                    function (match) {
-                      if (! match) {
-                        throw error.incorrectPassword(emailRecord.email, email)
+                allowSigninUnblock = features.isSigninUnblockEnabledForUser(emailRecord.uid, email, request)
+                if (allowSigninUnblock && unblockCode) {
+                  return db.consumeUnblockCode(emailRecord.uid, unblockCode)
+                    .then(
+                      (code) => {
+                        if (Date.now() - code.createdAt > unblockCodeLifetime) {
+                          log.info({
+                            op: 'Account.login.unblockCode.expired',
+                            uid: emailRecord.uid.toString('hex')
+                          })
+                          throw error.invalidUnblockCode()
+                        }
+                        didSigninUnblock = true
+                        return request.emitMetricsEvent('account.login.confirmedUnblockCode')
                       }
-
-                      return log.activityEvent('account.login', request, {
-                        uid: emailRecord.uid.toString('hex')
-                      })
-                    }
-                  )
+                    )
+                    .catch(
+                      (err) => {
+                        if (err.errno === error.ERRNO.INVALID_UNBLOCK_CODE) {
+                          request.emitMetricsEvent('account.login.invalidUnblockCode')
+                          customs.flag(request.app.clientAddress, {
+                            email: email,
+                            errno: err.errno
+                          })
+                        }
+                        throw err
+                      }
+                    )
+                }
+                if (!didSigninUnblock && customsErr) {
+                  throw customsErr
+                }
               },
               function (err) {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
@@ -416,6 +514,133 @@ module.exports = function (
                   })
                 }
                 throw err
+              }
+            )
+        }
+
+        function checkSecurityHistory () {
+          if (!securityHistoryEnabled) {
+            return
+          }
+          return db.securityEvents({
+            uid: emailRecord.uid,
+            ipAddr: request.app.clientAddress
+          })
+            .then(
+              function (events) {
+                if (events.length > 0) {
+                  var latest = 0
+                  events.forEach(function(ev) {
+                    if (ev.verified) {
+                      securityEventVerified = true
+                      if (ev.createdAt > latest) {
+                        latest = ev.createdAt
+                      }
+                    }
+                  })
+                  if (securityEventVerified) {
+                    var since = Date.now() - latest
+                    if (since < MS_ONE_DAY) {
+                      securityEventRecency = 'day'
+                    } else if (since < MS_ONE_WEEK) {
+                      securityEventRecency = 'week'
+                    } else if (since < MS_ONE_MONTH) {
+                      securityEventRecency = 'month'
+                    } else {
+                      securityEventRecency = 'old'
+                    }
+
+                    log.info({
+                      op: 'Account.history.verified',
+                      uid: emailRecord.uid.toString('hex'),
+                      events: events.length,
+                      recency: securityEventRecency
+                    })
+                  } else {
+                    log.info({
+                      op: 'Account.history.unverified',
+                      uid: emailRecord.uid.toString('hex'),
+                      events: events.length
+                    })
+                  }
+                }
+              },
+              function (err) {
+                // for now, security events are purely for metrics
+                // so errors shouldn't stop the login attempt
+                log.error({
+                  op: 'Account.history.error',
+                  err: err,
+                  uid: emailRecord.uid.toString('hex')
+                })
+              }
+            )
+        }
+
+        function checkEmailAndPassword () {
+          // Session token verification is only enabled for certain users during phased rollout.
+          //
+          // If the user went through the sigin-unblock flow, they have already verified their email.
+          // No need to also require confirmation afterwards.
+          //
+          // Even when it is enabled, we only do the email challenge if:
+          //  * the request wants keys, since unverified sessions are fine to use for e.g. oauth login.
+          //  * the email is verified, since content-server triggers a resend of the verification
+          //    email on unverified accounts, which doubles as sign-in confirmation.
+          //  * the login is flagged that it can be bypassed
+
+          // Check to see if this login can bypass sign-in confirmation. Current scenarios include
+          //  * User has already logged in from this ip address and verified the sign-in
+          let bypassSiginConfirmation = features.canBypassSiginConfirmation(securityEventVerified, securityEventRecency)
+          if (bypassSiginConfirmation) {
+            log.info({
+              op: 'Account.ipprofiling.seenAddress',
+              uid: emailRecord.uid.toString('hex')
+            })
+          }
+
+          if (didSigninUnblock || !features.isSigninConfirmationEnabledForUser(emailRecord.uid, emailRecord.email, request)
+            || bypassSiginConfirmation) {
+            needsVerificationId = false
+            mustVerifySession = false
+            doSigninConfirmation = false
+          } else {
+            // The user doesn't *have* to verify their session if they're not requesting keys,
+            // but we still create it with a non-null tokenVerificationId, so it will still
+            // be considered unverified.  This prevents the session from being used for sync
+            // unless the user explicitly requests us to resend the confirmation email, and completes it.
+            mustVerifySession = requestHelper.wantsKeys(request)
+            doSigninConfirmation = mustVerifySession && emailRecord.emailVerified
+          }
+
+          let flowCompleteSignal
+          if (service === 'sync') {
+            flowCompleteSignal = 'account.signed'
+          } else if (doSigninConfirmation) {
+            flowCompleteSignal = 'account.confirmed'
+          } else {
+            flowCompleteSignal = 'account.login'
+          }
+          request.setMetricsFlowCompleteSignal(flowCompleteSignal)
+
+          if(email !== emailRecord.email) {
+            customs.flag(request.app.clientAddress, {
+              email: email,
+              errno: error.ERRNO.INCORRECT_PASSWORD
+            })
+            throw error.incorrectPassword(emailRecord.email, email)
+          }
+
+          return checkPassword(emailRecord, authPW, request.app.clientAddress)
+            .then(
+              function (match) {
+                if (! match) {
+                  throw error.incorrectPassword(emailRecord.email, email)
+                }
+
+                return request.emitMetricsEvent('account.login', {
+                  uid: emailRecord.uid.toString('hex')
+                })
               }
             )
         }
@@ -441,23 +666,31 @@ module.exports = function (
         }
 
         function createSessionToken () {
-          var sessionTokenOptions = {
-            uid: emailRecord.uid,
-            email: emailRecord.email,
-            emailCode: emailRecord.emailCode,
-            emailVerified: emailRecord.emailVerified,
-            verifierSetAt: emailRecord.verifierSetAt,
-            tokenVerificationId: doSigninConfirmation ? tokenVerificationId : undefined
-          }
+          return P.resolve()
+            .then(() => {
+              if (needsVerificationId) {
+                return random(16).then(bytes => {
+                  tokenVerificationId = bytes
+                })
+              }
+            })
+            .then(() => {
+              let sessionTokenOptions = {
+                uid: emailRecord.uid,
+                email: emailRecord.email,
+                emailCode: emailRecord.emailCode,
+                emailVerified: emailRecord.emailVerified,
+                verifierSetAt: emailRecord.verifierSetAt,
+                mustVerify: mustVerifySession,
+                tokenVerificationId: tokenVerificationId
+              }
 
-          return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+              return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+            })
             .then(
               function (result) {
                 sessionToken = result
-                return metricsContext.stash(sessionToken, [
-                  'device.created',
-                  'account.signed'
-                ], form.metricsContext)
+                return request.stashMetricsContext(sessionToken)
               }
             )
             .then(
@@ -465,10 +698,10 @@ module.exports = function (
                 if (doSigninConfirmation) {
                   // There is no session token when we emit account.confirmed
                   // so stash the data against a synthesized "token" instead.
-                  return metricsContext.stash({
+                  return request.stashMetricsContext({
                     uid: emailRecord.uid,
                     id: tokenVerificationId.toString('hex')
-                  }, 'account.confirmed', form.metricsContext)
+                  })
                 }
               }
             )
@@ -490,12 +723,12 @@ module.exports = function (
                     kA: emailRecord.kA,
                     wrapKb: wrapKb,
                     emailVerified: emailRecord.emailVerified,
-                    tokenVerificationId: doSigninConfirmation ? tokenVerificationId : undefined
+                    tokenVerificationId: tokenVerificationId
                   })
                   .then(
                     function (result) {
                       keyFetchToken = result
-                      return metricsContext.stash(keyFetchToken, 'account.keyfetch', form.metricsContext)
+                      return request.stashMetricsContext(keyFetchToken)
                     }
                   )
                 }
@@ -515,10 +748,42 @@ module.exports = function (
           }
         }
 
+        function sendVerifyAccountEmail() {
+          // Delegate sending emails for unverified users to auth-server.
+          emailSent = false
+
+          if (!emailRecord.emailVerified) {
+            if (didSigninUnblock) {
+              log.info({
+                op: 'Account.login.unverified.unblocked',
+                uid: emailRecord.uid.toString('hex')
+              })
+            }
+
+            // Only use tokenVerificationId if it is set, otherwise use the corresponding email code
+            // This covers the cases where sign-in confirmation is disabled or not needed.
+            var emailCode = tokenVerificationId ? tokenVerificationId : emailRecord.emailCode
+            emailSent = true
+
+            return mailer.sendVerifyCode(emailRecord, emailCode, {
+              service: service,
+              redirectTo: redirectTo,
+              resume: resume,
+              acceptLanguage: request.app.acceptLanguage
+            }).then(() => request.emitMetricsEvent('email.verification.sent'))
+          }
+        }
+
         function sendNewDeviceLoginNotification() {
-          // New device notification emails should only be sent for requesting keys and
-          // not performing a sign-in confirmation.
-          var shouldSendNewDeviceLoginEmail = config.newLoginNotificationEnabled && requestHelper.wantsKeys(request) && !doSigninConfirmation
+          // New device notification emails should only be sent when requesting keys.
+          // They're not sent if performing a sign-in confirmation
+          // (in which case you get the sign-in confirmation email)
+          // or if the account is unverified (in which case
+          // content-server triggers a resend of the account verification email)
+          var shouldSendNewDeviceLoginEmail = config.newLoginNotificationEnabled
+            && requestHelper.wantsKeys(request)
+            && ! doSigninConfirmation
+            && emailRecord.emailVerified
           if (shouldSendNewDeviceLoginEmail) {
             return getGeoData(ip)
               .then(
@@ -530,7 +795,7 @@ module.exports = function (
                       ip: ip,
                       location: geoData.location,
                       timeZone: geoData.timeZone
-                    }, request.headers['user-agent'])
+                    }, request.headers['user-agent'], log)
                   )
                 }
               )
@@ -538,11 +803,7 @@ module.exports = function (
         }
 
         function sendVerifyLoginEmail() {
-          // Verify sign-in emails are only sent for verified accounts and requesting keys and if they fall within
-          // the sample rate of roll-out. In the scenario where keys are requested, but feature is disabled
-          // the tokens are created verified.
-          var shouldSendVerifyLoginEmail = requestHelper.wantsKeys(request) && emailRecord.emailVerified && doSigninConfirmation
-          if (shouldSendVerifyLoginEmail) {
+          if (doSigninConfirmation) {
             log.info({
               op: 'account.signin.confirm.start',
               uid: emailRecord.uid.toString('hex'),
@@ -552,7 +813,7 @@ module.exports = function (
             return getGeoData(ip)
               .then(
                 function (geoData) {
-                  mailer.sendVerifyLoginEmail(
+                  return mailer.sendVerifyLoginEmail(
                     emailRecord,
                     tokenVerificationId,
                     userAgent.call({
@@ -563,10 +824,23 @@ module.exports = function (
                       resume: resume,
                       service: service,
                       timeZone: geoData.timeZone
-                    }, request.headers['user-agent'])
+                    }, request.headers['user-agent'], log)
                   )
                 }
               )
+              .then(() => request.emitMetricsEvent('email.confirmation.sent'))
+          }
+        }
+
+        function recordSecurityEvent() {
+          if (securityHistoryEnabled) {
+            // don't block response recording db event
+            db.securityEvent({
+              name: 'account.login',
+              uid: emailRecord.uid,
+              ipAddr: request.app.clientAddress,
+              tokenId: sessionToken && sessionToken.tokenId
+            })
           }
         }
 
@@ -578,24 +852,36 @@ module.exports = function (
             authAt: sessionToken.lastAuthAt()
           }
 
+          response.emailSent = emailSent
+
           if (! requestHelper.wantsKeys(request)) {
             return P.resolve(response)
           }
 
           response.keyFetchToken = keyFetchToken.data.toString('hex')
 
-          if (doSigninConfirmation) {
-            response.verificationMethod = 'email'
+          if(! emailRecord.emailVerified) {
             response.verified = false
-
-            if(! emailRecord.emailVerified) {
-              response.verificationReason = 'signup'
-            } else {
-              response.verificationReason = 'login'
-            }
+            response.verificationMethod = 'email'
+            response.verificationReason = 'signup'
+          } else if (doSigninConfirmation) {
+            response.verified = false
+            response.verificationMethod = 'email'
+            response.verificationReason = 'login'
           }
-
           return P.resolve(response)
+        }
+
+        function gateSigninUnblock (err) {
+          // customs.check will always add these properties if the
+          // customs server has not rate-limited unblock. Nonetheless,
+          // we shouldn't signal to the content-server that it is
+          // possible to unblock the user if the feature is not allowed.
+          if (!allowSigninUnblock && err.output && err.output.payload) {
+            delete err.output.payload.verificationMethod
+            delete err.output.payload.verificationReason
+          }
+          throw err
         }
       }
     },
@@ -758,7 +1044,7 @@ module.exports = function (
         db.deleteKeyFetchToken(keyFetchToken)
           .then(
             function () {
-              return log.activityEvent('account.keyfetch', request, {
+              return request.emitMetricsEvent('account.keyfetch', {
                 uid: keyFetchToken.uid.toString('hex')
               })
             }
@@ -803,7 +1089,7 @@ module.exports = function (
           schema: isA.object({
             id: isA.string().length(32).regex(HEX_STRING).required(),
             createdAt: isA.number().positive().optional(),
-            // We previously allowed devices to register with arbitrry unicode names,
+            // We previously allowed devices to register with arbitrary unicode names,
             // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
             name: isA.string().max(255).optional(),
             type: isA.string().max(16).optional(),
@@ -829,6 +1115,9 @@ module.exports = function (
           if (config.deviceUpdatesEnabled === false) {
             throw error.featureNotEnabled()
           }
+        } else if (sessionToken.deviceId) {
+          // Keep the old id, which is probably from a synthesized device record
+          payload.id = sessionToken.deviceId.toString('hex')
         }
 
         if (payload.pushCallback && (!payload.pushPublicKey || !payload.pushAuthKey)) {
@@ -836,10 +1125,9 @@ module.exports = function (
           payload.pushAuthKey = ''
         }
 
-        upsertDevice().then(
+        devices.upsert(request, sessionToken, payload).then(
           function (device) {
             reply(butil.unbuffer(device))
-            push.notifyDeviceConnected(sessionToken.uid, device.name, device.id.toString('hex'))
           },
           reply
         )
@@ -870,45 +1158,6 @@ module.exports = function (
             log.increment('device.update.pushPublicKey')
           }
           return spurious
-        }
-
-        function upsertDevice () {
-          var operation, event, result
-          if (payload.id) {
-            operation = 'updateDevice'
-            event = 'device.updated'
-          } else {
-            operation = 'createDevice'
-            event = 'device.created'
-          }
-
-          return db[operation](sessionToken.uid, sessionToken.tokenId, payload)
-            .then(
-              function (res) {
-                result = res
-                return log.activityEvent(event, request, {
-                  uid: sessionToken.uid.toString('hex'),
-                  device_id: result.id.toString('hex')
-                })
-              }
-            )
-            .then(
-              function () {
-                if (operation === 'createDevice') {
-                  return log.notifyAttachedServices('device:create', request, {
-                    uid: sessionToken.uid,
-                    id: result.id,
-                    type: result.type,
-                    timestamp: result.createdAt
-                  })
-                }
-              }
-            )
-            .then(
-              function () {
-                return result
-              }
-            )
         }
       }
     },
@@ -968,12 +1217,25 @@ module.exports = function (
 
         var endpointAction = 'devicesNotify'
         var stringUid = uid.toString('hex')
+
+        function catchPushError(err) {
+          // push may fail due to not found devices or a bad push action
+          // log the error but still respond with a 200.
+          log.error({
+            op: 'Account.devicesNotify',
+            uid: stringUid,
+            error: err
+          })
+        }
+
         return customs.checkAuthenticated(endpointAction, ip, stringUid)
           .then(function () {
             if (body.to === 'all') {
               return push.pushToAllDevices(uid, endpointAction, pushOptions)
+                .catch(catchPushError)
             } else {
               return push.pushToDevices(uid, body.to, endpointAction, pushOptions)
+                .catch(catchPushError)
             }
           })
           .done(
@@ -996,9 +1258,10 @@ module.exports = function (
             id: isA.string().length(32).regex(HEX_STRING).required(),
             isCurrentDevice: isA.boolean().required(),
             lastAccessTime: isA.number().min(0).required().allow(null),
-            // We previously allowed devices to register with arbitrry unicode names,
+            lastAccessTimeFormatted: isA.string().optional().allow(''),
+            // We previously allowed devices to register with arbitrary unicode names,
             // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
-            name: isA.string().max(255).required(),
+            name: isA.string().max(255).required().allow(''),
             type: isA.string().max(16).required(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
             pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow('').allow(null),
@@ -1011,11 +1274,29 @@ module.exports = function (
         var sessionToken = request.auth.credentials
         var uid = sessionToken.uid
         db.devices(uid).then(
-          function (devices) {
-            reply(devices.map(function (device) {
+          function (deviceArray) {
+            reply(deviceArray.map(function (device) {
+              if (! device.name) {
+                device.name = devices.synthesizeName(device)
+              }
+
+              if (! device.type) {
+                device.type = device.uaDeviceType || 'desktop'
+              }
+
               device.isCurrentDevice =
                 device.sessionToken.toString('hex') === sessionToken.tokenId.toString('hex')
+
+              device.lastAccessTimeFormatted = localizeTimestamp.format(device.lastAccessTime,
+                request.headers['accept-language'])
+
               delete device.sessionToken
+              delete device.uaBrowser
+              delete device.uaBrowserVersion
+              delete device.uaOS
+              delete device.uaOSVersion
+              delete device.uaDeviceType
+
               return butil.unbuffer(device)
             }))
           },
@@ -1056,7 +1337,7 @@ module.exports = function (
           .then(
             function (res) {
               result = res
-              return log.activityEvent('device.deleted', request, {
+              return request.emitMetricsEvent('device.deleted', {
                 uid: uid.toString('hex'),
                 device_id: id
               })
@@ -1141,7 +1422,18 @@ module.exports = function (
 
           var sessionVerified = sessionToken.tokenVerified
           var emailVerified = !!sessionToken.emailVerified
-          var isVerified = emailVerified && sessionVerified
+
+          // For backwards-compatibility reasons, the reported verification status
+          // depends on whether the sessionToken was created with keys=true and
+          // whether it has subsequently been verified.  If it was created with
+          // keys=true then we musn't say verified=true until the session itself
+          // has been verified.  Otherwise, desktop clients will attempt to use
+          // an unverified session to connect to sync, and produce a very confusing
+          // user experience.
+          var isVerified = emailVerified
+          if (sessionToken.mustVerify) {
+            isVerified = isVerified && sessionVerified
+          }
 
           return {
             email: sessionToken.email,
@@ -1163,21 +1455,21 @@ module.exports = function (
           payload: {
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
-            resume: isA.string().max(2048).optional()
+            resume: isA.string().max(2048).optional(),
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         }
       },
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailResend', request)
-        var sessionToken = request.auth.credentials
-        var service = request.payload.service || request.query.service
-
-        // Choose which type of email and code to resend
-        var code, func
+        const sessionToken = request.auth.credentials
+        const service = request.payload.service || request.query.service
         if (sessionToken.emailVerified && sessionToken.tokenVerified) {
           return reply({})
         }
 
+        // Choose which type of email and code to resend
+        let code, func, event
         if (sessionToken.tokenVerificationId) {
           code = sessionToken.tokenVerificationId
         } else {
@@ -1186,8 +1478,10 @@ module.exports = function (
 
         if (!sessionToken.emailVerified) {
           func = mailer.sendVerifyCode
+          event = 'verification'
         } else {
           func = mailer.sendVerifyLoginEmail
+          event = 'confirmation'
         }
 
         return customs.check(
@@ -1204,12 +1498,11 @@ module.exports = function (
               redirectTo: request.payload.redirectTo,
               resume: request.payload.resume,
               acceptLanguage: request.app.acceptLanguage
-            }, request.headers['user-agent'])
+            }, request.headers['user-agent'], log)
           ))
+          .then(() => request.emitMetricsEvent(`email.${event}.resent`))
           .done(
-            function () {
-              reply({})
-            },
+            () => reply({}),
             reply
           )
       }
@@ -1228,32 +1521,34 @@ module.exports = function (
         }
       },
       handler: function (request, reply) {
-        var uidHex = request.payload.uid
-        var uid = Buffer(uidHex, 'hex')
-        var code = Buffer(request.payload.code, 'hex')
-        var service = request.payload.service || request.query.service
-        var reminder = request.payload.reminder || request.query.reminder
-
-        // Because we have no session token on this endpoint, metrics context
-        // metadata was stashed against a synthesized token for the benefit of
-        // the activity events. This fake request object allows the correct
-        // metadata to be gathered when we emit the events.
-        var fakeRequestObject = {
-          auth: {
-            credentials: {
-              uid: uid,
-              id: request.payload.code
-            }
-          },
-          headers: request.headers,
-          payload: request.payload,
-          query: request.query
-        }
+        const uidHex = request.payload.uid
+        const uid = Buffer(uidHex, 'hex')
+        const code = Buffer(request.payload.code, 'hex')
+        const service = request.payload.service || request.query.service
+        const reminder = request.payload.reminder || request.query.reminder
 
         log.begin('Account.RecoveryEmailVerify', request)
+
+        // verify_code because we don't know what type this is yet, but
+        // we want to record right away before anything could fail, so
+        // we can see in a flow that a user tried to verify, even if it
+        // failed right away.
+        request.emitMetricsEvent('email.verify_code.clicked')
+
         db.account(uid)
           .then(
-            function (account) {
+            (account) => {
+              // This endpoint is not authenticated, so we need to look up
+              // the target email address before we can check it with customs.
+              return customs.check(request, account.email, 'recoveryEmailVerifyCode')
+                .then(
+                  () => account
+                )
+            }
+          )
+          .then(
+            (account) => {
+              let isAccountVerification = butil.buffersAreEqual(code, account.emailCode)
 
               /**
                * Logic for account and token verification
@@ -1268,17 +1563,21 @@ module.exports = function (
                */
               return db.verifyTokens(code, account)
                 .then(function () {
-                  log.info({
-                    op: 'account.signin.confirm.success',
-                    uid: uidHex,
-                    code: request.payload.code
-                  })
-                  return log.activityEvent('account.confirmed', fakeRequestObject, {
-                    uid: uidHex
-                  })
+                  if (! isAccountVerification) {
+                    // Don't log sign-in confirmation success for the account verification case
+                    log.info({
+                      op: 'account.signin.confirm.success',
+                      uid: uidHex,
+                      code: request.payload.code
+                    })
+                    request.emitMetricsEvent('account.confirmed', {
+                      uid: uidHex
+                    })
+                    push.notifyUpdate(uid, 'accountConfirm')
+                  }
                 })
                 .catch(function (err) {
-                  if (err.errno === error.ERRNO.INVALID_VERIFICATION_CODE && butil.buffersAreEqual(code, account.emailCode)) {
+                  if (err.errno === error.ERRNO.INVALID_VERIFICATION_CODE && isAccountVerification) {
                     // The code is just for the account, not for any sessions
                     return true
                   }
@@ -1314,7 +1613,7 @@ module.exports = function (
                       })
                     })
                     .then(function () {
-                      return log.activityEvent('account.verified', fakeRequestObject, {
+                      return request.emitMetricsEvent('account.verified', {
                         uid: uidHex
                       })
                     })
@@ -1329,7 +1628,7 @@ module.exports = function (
                           op: 'mailer.send',
                           name: reminderOp
                         })
-                        return log.activityEvent('account.reminder', request, {
+                        return request.emitMetricsEvent('account.reminder', {
                           uid: uidHex
                         })
                       }
@@ -1385,6 +1684,92 @@ module.exports = function (
     },
     {
       method: 'POST',
+      path: '/account/login/send_unblock_code',
+      config: {
+        validate: {
+          payload: {
+            email: validators.email().required(),
+            metricsContext: METRICS_CONTEXT_SCHEMA
+          }
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Account.SendUnblockCode', request)
+
+        var email = request.payload.email
+        var ip = request.app.clientAddress
+        var emailRecord
+
+        return customs.check(request, email, 'sendUnblockCode')
+          .then(lookupAccount)
+          .then(createUnblockCode)
+          .then(mailUnblockCode)
+          .then(() => request.emitMetricsEvent('account.login.sentUnblockCode'))
+          .done(() => {
+            reply({})
+          }, reply)
+
+        function lookupAccount() {
+          return db.emailRecord(email)
+            .then((record) => {
+              emailRecord = record
+              return record.uid
+            })
+        }
+
+        function createUnblockCode(uid) {
+
+          if (features.isSigninUnblockEnabledForUser(uid, email, request)) {
+            return db.createUnblockCode(uid)
+          } else {
+            throw error.featureNotEnabled()
+          }
+        }
+
+        function mailUnblockCode(code) {
+          return getGeoData(ip)
+            .then((geoData) => {
+              return mailer.sendUnblockCode(emailRecord, code, userAgent.call({
+                acceptLanguage: request.app.acceptLanguage,
+                ip: ip,
+                location: geoData.location,
+                timeZone: geoData.timeZone
+              }, request.headers['user-agent'], log))
+            })
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/login/reject_unblock_code',
+      config: {
+        validate: {
+          payload: {
+            uid: isA.string().max(32).regex(HEX_STRING).required(),
+            unblockCode: isA.string().regex(BASE_36).length(unblockCodeLen).required()
+          }
+        }
+      },
+      handler: function (request, reply) {
+        var uid = Buffer(request.payload.uid, 'hex')
+        var code = request.payload.unblockCode.toUpperCase()
+
+        log.begin('Account.RejectUnblockCode', request)
+        db.consumeUnblockCode(uid, code)
+          .then(
+            () => {
+              log.info({
+                op: 'account.login.rejectedUnblockCode',
+                uid: request.payload.uid,
+                unblockCode: code
+              })
+              return {}
+            }
+          ).done(reply, reply)
+      }
+    },
+    {
+      method: 'POST',
       path: '/account/reset',
       config: {
         auth: {
@@ -1402,8 +1787,6 @@ module.exports = function (
         log.begin('Account.reset', request)
         var accountResetToken = request.auth.credentials
         var authPW = Buffer(request.payload.authPW, 'hex')
-        var authSalt = crypto.randomBytes(32)
-        var password = new Password(authPW, authSalt, config.verifierVersion)
         var account, sessionToken, keyFetchToken, verifyHash, wrapKb, devicesToNotify
         var hasSessionToken = request.payload.sessionToken
 
@@ -1411,6 +1794,7 @@ module.exports = function (
           .then(resetAccountData)
           .then(createSessionToken)
           .then(createKeyFetchToken)
+          .then(recordSecurityEvent)
           .then(createResponse)
           .done(reply, reply)
 
@@ -1426,7 +1810,14 @@ module.exports = function (
         }
 
         function resetAccountData () {
-          return password.verifyHash()
+          let authSalt, password, wrapWrapKb
+          return random(64)
+            .then(bytes => {
+              authSalt = bytes.slice(0, 32) // 0..31
+              wrapWrapKb = bytes.slice(32) // 32..63
+              password = new Password(authPW, authSalt, config.verifierVersion)
+              return password.verifyHash()
+            })
             .then(
               function (verifyHashData) {
                 verifyHash = verifyHashData
@@ -1436,7 +1827,7 @@ module.exports = function (
                   {
                     authSalt: authSalt,
                     verifyHash: verifyHash,
-                    wrapWrapKb: crypto.randomBytes(32),
+                    wrapWrapKb: wrapWrapKb,
                     verifierVersion: password.version
                   }
                 )
@@ -1453,7 +1844,7 @@ module.exports = function (
             .then(
               function (accountData) {
                 account = accountData
-                return log.activityEvent('account.reset', request, {
+                return request.emitMetricsEvent('account.reset', {
                   uid: account.uid.toString('hex')
                 })
               }
@@ -1512,16 +1903,28 @@ module.exports = function (
               throw error.missingRequestParameter('sessionToken')
             }
             return db.createKeyFetchToken({
-                uid: account.uid,
-                kA: account.kA,
-                wrapKb: wrapKb,
-                emailVerified: account.emailVerified
-              })
-              .then(
-                function (result) {
-                  keyFetchToken = result
-                }
-              )
+              uid: account.uid,
+              kA: account.kA,
+              wrapKb: wrapKb,
+              emailVerified: account.emailVerified
+            })
+            .then(
+              function (result) {
+                keyFetchToken = result
+              }
+            )
+          }
+        }
+
+        function recordSecurityEvent() {
+          if (securityHistoryEnabled) {
+             // don't block response recording db event
+            db.securityEvent({
+              name: 'account.reset',
+              uid: account.uid,
+              ipAddr: request.app.clientAddress,
+              tokenId: sessionToken && sessionToken.tokenId
+            })
           }
         }
 
@@ -1531,6 +1934,7 @@ module.exports = function (
           if (!hasSessionToken) {
             return {}
           }
+
 
           var response = {
             uid: sessionToken.uid.toString('hex'),
@@ -1590,7 +1994,7 @@ module.exports = function (
                 )
                 .then(
                   function () {
-                    return log.activityEvent('account.deleted', request, {
+                    return request.emitMetricsEvent('account.deleted', {
                       uid: uid
                     })
                   }

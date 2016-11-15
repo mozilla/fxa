@@ -4,10 +4,12 @@
 
 'use strict'
 
-var test = require('../ptaptest')
+const assert = require('insist')
+var mocks = require('../mocks')
 var proxyquire = require('proxyquire')
 var sinon = require('sinon')
 
+var ELLIPSIS = '\u2026'
 var parserResult
 
 var uaParser = {
@@ -20,337 +22,482 @@ var userAgent = proxyquire('../../lib/userAgent', {
   'node-uap': uaParser
 })
 
-test(
-  'exports function',
-  function (t) {
-    t.equal(typeof userAgent, 'function')
-    t.equal(userAgent.length, 1)
-    t.end()
-  }
-)
+var log = mocks.spyLog()
 
-test(
-  'sets data correctly',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'foo',
-        major: '1',
-        minor: '0'
-      },
-      os: {
-        family: 'bar',
-        major: '2',
-        minor: '0'
-      },
-      device: {
-        family: 'baz'
-      }
+describe('userAgent', () => {
+  it(
+    'exports function',
+    () => {
+      assert.equal(typeof userAgent, 'function')
+      assert.equal(userAgent.length, 2)
     }
-    var context = {}
-    var result = userAgent.call(context, 'qux')
+  )
 
-    t.equal(uaParser.parse.callCount, 1)
-    t.ok(uaParser.parse.calledWithExactly('qux'))
-
-    t.equal(result, context)
-    t.equal(Object.keys(result).length, 5)
-    t.equal(result.uaBrowser, 'foo')
-    t.equal(result.uaBrowserVersion, '1')
-    t.equal(result.uaOS, 'bar')
-    t.equal(result.uaOSVersion, '2')
-    t.equal(result.uaDeviceType, 'mobile')
-
-    t.end()
-    uaParser.parse.reset()
-  }
-)
-
-test(
-  'ignores family:Other',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'Other',
-        major: '1',
-        minor: '0'
-      },
-      os: {
-        family: 'Other',
-        major: '2',
-        minor: '0'
-      },
-      device: {
-        family: 'Other'
+  it(
+    'sets data correctly',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'foo',
+          major: '1',
+          minor: '0'
+        },
+        os: {
+          family: 'bar',
+          major: '2',
+          minor: '0'
+        },
+        device: {
+          family: 'baz'
+        }
       }
+      var context = {}
+      var result = userAgent.call(context, 'qux', log)
+
+      assert.equal(uaParser.parse.callCount, 1)
+      assert.ok(uaParser.parse.calledWithExactly('qux'))
+
+      assert.equal(result, context)
+      assert.equal(Object.keys(result).length, 5)
+      assert.equal(result.uaBrowser, 'foo')
+      assert.equal(result.uaBrowserVersion, '1')
+      assert.equal(result.uaOS, 'bar')
+      assert.equal(result.uaOSVersion, '2')
+      assert.equal(result.uaDeviceType, 'mobile')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
     }
-    var context = {}
-    var result = userAgent.call(context, 'wibble')
+  )
 
-    t.equal(uaParser.parse.callCount, 1)
-    t.ok(uaParser.parse.calledWithExactly('wibble'))
-
-    t.equal(result, context)
-    t.equal(Object.keys(result).length, 5)
-    t.equal(result.uaBrowser, null)
-    t.equal(result.uaOS, null)
-    t.equal(result.uaDeviceType, null)
-
-    t.end()
-    uaParser.parse.reset()
-  }
-)
-
-test(
-  'appends minor version if set',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'foo',
-        major: '1',
-        minor: '1'
-      },
-      os: {
-        family: 'bar',
-        major: '2',
-        minor: '34567'
-      },
-      device: {
-        family: 'baz'
+  it(
+    'ignores family:Other',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'Other',
+          major: '1',
+          minor: '0'
+        },
+        os: {
+          family: 'Other',
+          major: '2',
+          minor: '0'
+        },
+        device: {
+          family: 'Other'
+        }
       }
+      var context = {}
+      var result = userAgent.call(context, 'wibble', log)
+
+      assert.equal(uaParser.parse.callCount, 1)
+      assert.ok(uaParser.parse.calledWithExactly('wibble'))
+
+      assert.equal(result, context)
+      assert.equal(Object.keys(result).length, 5)
+      assert.equal(result.uaBrowser, 'wibble')
+      assert.equal(result.uaOS, null)
+      assert.equal(result.uaDeviceType, null)
+
+      assert.equal(log.info.callCount, 1)
+      var args = log.info.args[0]
+      assert.equal(args.length, 1)
+      assert.deepEqual(args[0], {
+        op: 'userAgent:truncate',
+        userAgent: 'wibble'
+      })
+
+      uaParser.parse.reset()
+      log.info.reset()
     }
-    var context = {}
-    var result = userAgent.call(context)
+  )
 
-    t.equal(result.uaBrowserVersion, '1.1')
-    t.equal(result.uaOSVersion, '2.34567')
-
-    t.end()
-    uaParser.parse.reset()
-  }
-)
-
-test(
-  'recognises Android as a mobile OS',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'foo',
-        major: '1',
-        minor: '0'
-      },
-      os: {
-        family: 'Android',
-        major: '2',
-        minor: '0'
-      },
-      device: {
-        family: 'Other'
+  it(
+    'appends minor version if set',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'foo',
+          major: '1',
+          minor: '1'
+        },
+        os: {
+          family: 'bar',
+          major: '2',
+          minor: '34567'
+        },
+        device: {
+          family: 'baz'
+        }
       }
+      var context = {}
+      var result = userAgent.call(context, log)
+
+      assert.equal(result.uaBrowserVersion, '1.1')
+      assert.equal(result.uaOSVersion, '2.34567')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
     }
-    var context = {}
-    var result = userAgent.call(context)
+  )
 
-    t.equal(result.uaDeviceType, 'mobile')
-
-    t.end()
-    uaParser.parse.reset()
-  }
-)
-
-test(
-  'recognises iOS as a mobile OS',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'foo',
-        major: '1',
-        minor: '0'
-      },
-      os: {
-        family: 'iOS',
-        major: '2',
-        minor: '0'
-      },
-      device: {
-        family: 'Other'
+  it(
+    'recognises Android phones as a mobile OS',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'foo',
+          major: '1',
+          minor: '0'
+        },
+        os: {
+          family: 'Android',
+          major: '2',
+          minor: '0'
+        },
+        device: {
+          family: 'Other'
+        }
       }
+      var context = {}
+      var result = userAgent.call(context, log)
+
+      assert.equal(result.uaDeviceType, 'mobile')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
     }
-    var context = {}
-    var result = userAgent.call(context)
+  )
 
-    t.equal(result.uaDeviceType, 'mobile')
-
-    t.end()
-    uaParser.parse.reset()
-  }
-)
-
-test(
-  'recognises Firefox OS as a mobile OS',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'foo',
-        major: '1',
-        minor: '0'
-      },
-      os: {
-        family: 'Firefox OS',
-        major: '2',
-        minor: '0'
-      },
-      device: {
-        family: 'Other'
+  it(
+    'recognises iOS as a mobile OS',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'foo',
+          major: '1',
+          minor: '0'
+        },
+        os: {
+          family: 'iOS',
+          major: '2',
+          minor: '0'
+        },
+        device: {
+          family: 'Other'
+        }
       }
+      var context = {}
+      var result = userAgent.call(context, log)
+
+      assert.equal(result.uaDeviceType, 'mobile')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
     }
-    var context = {}
-    var result = userAgent.call(context)
+  )
 
-    t.equal(result.uaDeviceType, 'mobile')
-
-    t.end()
-    uaParser.parse.reset()
-  }
-)
-
-test(
-  'recognises Windows Phone as a mobile OS',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'foo',
-        major: '1',
-        minor: '0'
-      },
-      os: {
-        family: 'Windows Phone',
-        major: '2',
-        minor: '0'
-      },
-      device: {
-        family: 'Other'
+  it(
+    'recognises Firefox OS as a mobile OS',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'foo',
+          major: '1',
+          minor: '0'
+        },
+        os: {
+          family: 'Firefox OS',
+          major: '2',
+          minor: '0'
+        },
+        device: {
+          family: 'Other'
+        }
       }
+      var context = {}
+      var result = userAgent.call(context, log)
+
+      assert.equal(result.uaDeviceType, 'mobile')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
     }
-    var context = {}
-    var result = userAgent.call(context)
+  )
 
-    t.equal(result.uaDeviceType, 'mobile')
-
-    t.end()
-    uaParser.parse.reset()
-  }
-)
-
-test(
-  'recognises BlackBerry OS as a mobile OS',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'foo',
-        major: '1',
-        minor: '0'
-      },
-      os: {
-        family: 'BlackBerry OS',
-        major: '2',
-        minor: '0'
-      },
-      device: {
-        family: 'Other'
+  it(
+    'recognises Windows Phone as a mobile OS',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'foo',
+          major: '1',
+          minor: '0'
+        },
+        os: {
+          family: 'Windows Phone',
+          major: '2',
+          minor: '0'
+        },
+        device: {
+          family: 'Other'
+        }
       }
+      var context = {}
+      var result = userAgent.call(context, log)
+
+      assert.equal(result.uaDeviceType, 'mobile')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
     }
-    var context = {}
-    var result = userAgent.call(context)
+  )
 
-    t.equal(result.uaDeviceType, 'mobile')
-
-    t.end()
-    uaParser.parse.reset()
-  }
-)
-
-test(
-  'does not recognise Mac OS X as a mobile OS',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'foo',
-        major: '1',
-        minor: '0'
-      },
-      os: {
-        family: 'Mac OS X',
-        major: '2',
-        minor: '0'
-      },
-      device: {
-        family: 'Other'
+  it(
+    'recognises BlackBerry OS as a mobile OS',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'foo',
+          major: '1',
+          minor: '0'
+        },
+        os: {
+          family: 'BlackBerry OS',
+          major: '2',
+          minor: '0'
+        },
+        device: {
+          family: 'Other'
+        }
       }
+      var context = {}
+      var result = userAgent.call(context, log)
+
+      assert.equal(result.uaDeviceType, 'mobile')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
     }
-    var context = {}
-    var result = userAgent.call(context)
+  )
 
-    t.equal(result.uaDeviceType, null)
-
-    t.end()
-    uaParser.parse.reset()
-  }
-)
-
-test(
-  'does not recognise Linux as a mobile OS',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'foo',
-        major: '1',
-        minor: '0'
-      },
-      os: {
-        family: 'Linux',
-        major: '2',
-        minor: '0'
-      },
-      device: {
-        family: 'Other'
+  it(
+    'does not recognise Mac OS X as a mobile OS',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'foo',
+          major: '1',
+          minor: '0'
+        },
+        os: {
+          family: 'Mac OS X',
+          major: '2',
+          minor: '0'
+        },
+        device: {
+          family: 'Other'
+        }
       }
+      var context = {}
+      var result = userAgent.call(context, log)
+
+      assert.equal(result.uaDeviceType, null)
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
     }
-    var context = {}
-    var result = userAgent.call(context)
+  )
 
-    t.equal(result.uaDeviceType, null)
-
-    t.end()
-    uaParser.parse.reset()
-  }
-)
-
-test(
-  'does not recognise Windows as a mobile OS',
-  function (t) {
-    parserResult = {
-      ua: {
-        family: 'foo',
-        major: '1',
-        minor: '0'
-      },
-      os: {
-        family: 'Windows',
-        major: '2',
-        minor: '0'
-      },
-      device: {
-        family: 'Other'
+  it(
+    'does not recognise Linux as a mobile OS',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'foo',
+          major: '1',
+          minor: '0'
+        },
+        os: {
+          family: 'Linux',
+          major: '2',
+          minor: '0'
+        },
+        device: {
+          family: 'Other'
+        }
       }
+      var context = {}
+      var result = userAgent.call(context, log)
+
+      assert.equal(result.uaDeviceType, null)
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
     }
-    var context = {}
-    var result = userAgent.call(context)
+  )
 
-    t.equal(result.uaDeviceType, null)
+  it(
+    'does not recognise Windows as a mobile OS',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'foo',
+          major: '1',
+          minor: '0'
+        },
+        os: {
+          family: 'Windows',
+          major: '2',
+          minor: '0'
+        },
+        device: {
+          family: 'Other'
+        }
+      }
+      var context = {}
+      var result = userAgent.call(context, log)
 
-    t.end()
-    uaParser.parse.reset()
-  }
-)
+      assert.equal(result.uaDeviceType, null)
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
+    }
+  )
+
+  it(
+    'recognises iPads as tablets',
+    () => {
+      parserResult = {
+        userAgent: 'Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Mobile/11A465',
+        ua: {
+          family: 'Mobile Safari UI/WKWebView',
+          major: '7',
+          minor: '0'
+        },
+        os: {
+          family: 'iOS',
+          major: '7',
+          minor: '0'
+        },
+        device: {
+          family: 'iPad'
+        }
+      }
+      var context = {}
+      var result = userAgent.call(context, log)
+
+      assert.equal(result.uaDeviceType, 'tablet')
+
+      uaParser.parse.reset()
+    }
+  )
+
+
+  it(
+    'recognises Android tablets as tablets',
+    () => {
+      parserResult = {
+        userAgent: 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 7 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.59 Safari/537.36',
+        ua: {
+          family: 'Chrome Mobile',
+          major: '31',
+          minor: '0'
+        },
+        os: {
+          family: 'Android',
+          major: '4',
+          minor: '4'
+        },
+        device: {
+          family: 'Nexus 7'
+        }
+      }
+      var context = {}
+      var result = userAgent.call(context, log)
+
+      assert.equal(result.uaDeviceType, 'tablet')
+
+      uaParser.parse.reset()
+    }
+  )
+
+  it(
+    'uaBrowser falls back to truncated user agent string',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'Other'
+        },
+        os: {
+          family: 'Other'
+        },
+        device: {
+          family: 'Other'
+        }
+      }
+      var context = {}
+      var userAgentString = new Array(201).join('x')
+      var result = userAgent.call(context, userAgentString, log)
+
+      assert.equal(result.uaBrowser, new Array(61).join('x') + ELLIPSIS)
+
+      assert.equal(log.info.callCount, 1)
+      var args = log.info.args[0]
+      assert.equal(args.length, 1)
+      assert.deepEqual(args[0], {
+        op: 'userAgent:truncate',
+        userAgent: userAgentString
+      })
+
+      uaParser.parse.reset()
+      log.info.reset()
+    }
+  )
+
+  it(
+    'truncated fallback is relaxed for parentheses',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'Other'
+        },
+        os: {
+          family: 'Other'
+        },
+        device: {
+          family: 'Other'
+        }
+      }
+      var context = {}
+      var expected = new Array(11).join('x') + ' (' + new Array(61).join('y') + ')'
+      var userAgentString = expected + new Array(101).join('z')
+      var result = userAgent.call(context, userAgentString, log)
+
+      assert.equal(result.uaBrowser, expected + ELLIPSIS)
+
+      assert.equal(log.info.callCount, 1)
+      var args = log.info.args[0]
+      assert.equal(args.length, 1)
+      assert.deepEqual(args[0], {
+        op: 'userAgent:truncate',
+        userAgent: userAgentString
+      })
+
+      uaParser.parse.reset()
+      log.info.reset()
+    }
+  )
+})
 

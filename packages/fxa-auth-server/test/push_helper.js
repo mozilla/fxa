@@ -40,29 +40,51 @@ PushManager.prototype.getSubscription = function getSubscription() {
   var d = P.defer()
   var ws = new WebSocket(this.server)
 
-  ws.on('open', function open() {
-    var helloMessage = {
-      messageType: 'hello',
-      use_webpush: true
-    }
+  // Registration is a two-step handshake.
+  // We send and receive a "hello" message, then send and receive a "register" message.
+  // See http://mozilla-push-service.readthedocs.io/en/latest/design/#simplepush-protocol
 
-    var registerMessage = {
-      messageType: 'register',
-      channelID: self.channelId
-    }
+  function send(msg) {
+    ws.send(JSON.stringify(msg), { mask: true }, function(err) {
+      if (err) onError(err)
+    })
+  }
 
-    ws.send(JSON.stringify(helloMessage), { mask: true })
-    ws.send(JSON.stringify(registerMessage), { mask: true })
-  }).on('error', function error(code, description) {
+  function onError(err) {
+    d.reject(err)
     ws.close()
-    throw new Error(code + description)
-  }).on('message', function message(data, flags) {
-    data = JSON.parse(data)
-    if (data && data.messageType === 'register') {
-      ws.close()
-      return d.resolve({
+  }
+
+  var handlers = {
+    'hello': function() {
+      send({
+        messageType: 'register',
+        channelID: self.channelId
+      })
+    },
+    'register': function(data) {
+      d.resolve({
         endpoint: data.pushEndpoint
       })
+      ws.close()
+    },
+    '': function(data) {
+      onError(new Error('Unexpected ws message: ' + JSON.stringify(data)))
+    }
+  }
+
+  ws.on('open', function open() {
+    send({
+      messageType: 'hello',
+      use_webpush: true
+    })
+  }).on('error', function error(code, description) {
+    onError(new Error(code + description))
+  }).on('message', function message(data, flags) {
+    data = JSON.parse(data)
+    if (data && data.messageType) {
+      var handler = handlers[data.messageType] || handlers['']
+      handler(data)
     }
   })
 

@@ -2,24 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
-var Client = require('../client')
+'use strict'
+
+const assert = require('insist')
+const Client = require('../client')()
 var TestServer = require('../test_server')
 var jwtool = require('fxa-jwtool')
 
 var config = require('../../config').getProperties()
-process.env.SIGNIN_CONFIRMATION_ENABLED = false
 
 var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile)
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote flow', function() {
+  this.timeout(15000)
+  let server
+  let email1
+  before(() => {
+    process.env.SIGNIN_CONFIRMATION_ENABLED = false
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+        email1 = server.uniqueEmail()
+      })
+  })
 
-  var email1 = server.uniqueEmail()
 
-  test(
+  it(
     'Create account flow',
-    function (t) {
+    () => {
       var email = email1
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -38,10 +48,10 @@ TestServer.start(config)
         )
         .then(
           function (keys) {
-            t.ok(Buffer.isBuffer(keys.kA), 'kA exists')
-            t.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists')
-            t.ok(Buffer.isBuffer(keys.kB), 'kB exists')
-            t.equal(client.kB.length, 32, 'kB exists, has the right length')
+            assert.ok(Buffer.isBuffer(keys.kA), 'kA exists')
+            assert.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists')
+            assert.ok(Buffer.isBuffer(keys.kB), 'kB exists')
+            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
         .then(
@@ -51,17 +61,17 @@ TestServer.start(config)
         )
         .then(
           function (cert) {
-            t.equal(typeof(cert), 'string', 'cert exists')
+            assert.equal(typeof(cert), 'string', 'cert exists')
             var payload = jwtool.verify(cert, pubSigKey.pem)
-            t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
+            assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
           }
         )
     }
   )
 
-  test(
+  it(
     'Login flow',
-    function (t) {
+    () => {
       var email = email1
       var password = 'allyourbasearebelongtous'
       var client = null
@@ -75,17 +85,17 @@ TestServer.start(config)
         .then(
           function (x) {
             client = x
-            t.ok(client.authAt, 'authAt was set')
-            t.ok(client.uid, 'got a uid')
+            assert.ok(client.authAt, 'authAt was set')
+            assert.ok(client.uid, 'got a uid')
             return client.keys()
           }
         )
         .then(
           function (keys) {
-            t.ok(Buffer.isBuffer(keys.kA), 'kA exists')
-            t.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists')
-            t.ok(Buffer.isBuffer(keys.kB), 'kB exists')
-            t.equal(client.kB.length, 32, 'kB exists, has the right length')
+            assert.ok(Buffer.isBuffer(keys.kA), 'kA exists')
+            assert.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists')
+            assert.ok(Buffer.isBuffer(keys.kB), 'kB exists')
+            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
         .then(
@@ -95,17 +105,14 @@ TestServer.start(config)
         )
         .then(
           function (cert) {
-            t.equal(typeof(cert), 'string', 'cert exists')
+            assert.equal(typeof(cert), 'string', 'cert exists')
           }
         )
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    delete process.env.SIGNIN_CONFIRMATION_ENABLED
+    return TestServer.stop(server)
+  })
 })

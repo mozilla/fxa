@@ -2,100 +2,105 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
-var butil = require('../../lib/crypto/butil')
+'use strict'
 
-test(
-  'buffersAreEqual returns false if lengths are different',
-  function (t) {
-    t.equal(butil.buffersAreEqual(Buffer(2), Buffer(4)), false)
-    t.end()
-  }
-)
+const assert = require('assert')
+const butil = require('../../lib/crypto/butil')
 
-test(
-  'buffersAreEqual returns true if buffers have same bytes',
-  function (t) {
-    var b1 = Buffer('abcd', 'hex')
-    var b2 = Buffer('abcd', 'hex')
-    t.equal(butil.buffersAreEqual(b1, b2), true)
-    t.end()
-  }
-)
+describe('butil', () => {
 
-test(
-  'xorBuffers throws an Error if lengths are different',
-  function (t) {
-    try {
-      butil.xorBuffers(Buffer(2), Buffer(4))
-    }
-    catch (e) {
-      return t.end()
-    }
-    t.fail('did not throw')
-  }
-)
+  describe('.buffersAreEqual', () => {
 
-test(
-  'xorBuffers works',
-  function (t) {
-    var b1 = Buffer('e5', 'hex')
-    var b2 = Buffer('5e', 'hex')
-    t.deepEqual(butil.xorBuffers(b1, b2), Buffer('bb', 'hex'))
-    t.end()
-  }
-)
+    it(
+      'returns false if lengths are different',
+      () => {
+        assert.equal(butil.buffersAreEqual(Buffer(2), Buffer(4)), false)
+      }
+    )
 
-test(
-  'bufferize works',
-  function (t) {
-    var argument = { foo: 'bar', baz: 'f00d' }
-    var result = butil.bufferize(argument)
-    t.notEqual(result, argument)
-    t.equal(Object.keys(result).length, Object.keys(argument).length)
-    t.equal(typeof result.foo, 'string')
-    t.equal(result.foo, argument.foo)
-    t.ok(Buffer.isBuffer(result.baz))
-    t.equal(result.baz.length, 2)
-    t.equal(result.baz[0], 0xf0)
-    t.equal(result.baz[1], 0x0d)
-    t.end()
-  }
-)
+    it(
+      'returns true if buffers have same bytes',
+      () => {
+        const b1 = Buffer('abcd', 'hex')
+        const b2 = Buffer('abcd', 'hex')
+        assert.equal(butil.buffersAreEqual(b1, b2), true)
+      }
+    )
 
-test(
-  'bufferize works in-place',
-  function (t) {
-    var argument = { foo: 'beef', bar: 'baz' }
-    var result = butil.bufferize(argument, { inplace: true })
-    t.equal(result, argument)
-    t.equal(Object.keys(result).length, 2)
-    t.ok(Buffer.isBuffer(result.foo))
-    t.equal(result.foo.length, 2)
-    t.equal(result.foo[0], 0xbe)
-    t.equal(result.foo[1], 0xef)
-    t.equal(typeof result.bar, 'string')
-    t.equal(result.bar, 'baz')
-    t.end()
-  }
-)
+  })
 
-test(
-  'bufferize ignores exceptions',
-  function (t) {
-    var argument = { foo: 'bar', baz: 'f00d', qux: 'beef' }
-    var result = butil.bufferize(argument, { ignore: [ 'baz' ] })
-    t.notEqual(argument, result)
-    t.equal(Object.keys(result).length, Object.keys(argument).length)
-    t.equal(typeof result.foo, 'string')
-    t.equal(result.foo, argument.foo)
-    t.equal(typeof result.baz, 'string')
-    t.equal(result.baz, argument.baz)
-    t.ok(Buffer.isBuffer(result.qux))
-    t.equal(result.qux.length, 2)
-    t.equal(result.qux[0], 0xbe)
-    t.equal(result.qux[1], 0xef)
-    t.end()
-  }
-)
+  describe('.xorBuffers', () => {
 
+    it(
+      'throws an Error if lengths are different',
+      () => {
+        assert.throws(() => {
+          butil.xorBuffers(Buffer(2), Buffer(4))
+        })
+      }
+    )
+
+    it(
+      'should return a Buffer with bits ORed',
+      () => {
+        const b1 = Buffer('e5', 'hex')
+        const b2 = Buffer('5e', 'hex')
+        assert.deepEqual(butil.xorBuffers(b1, b2), Buffer('bb', 'hex'))
+      }
+    )
+
+  })
+
+  describe('.bufferize', () => {
+    it(
+      'should bufferize hex-looking values',
+      () => {
+        const argument = { foo: 'bar', baz: 'f00d' }
+        const result = butil.bufferize(argument)
+        assert.notEqual(result, argument)
+        assert.equal(Object.keys(result).length, Object.keys(argument).length)
+        assert.equal(typeof result.foo, 'string')
+        assert.equal(result.foo, argument.foo)
+        assert.ok(Buffer.isBuffer(result.baz))
+        assert.equal(result.baz.length, 2)
+        assert.equal(result.baz[0], 0xf0)
+        assert.equal(result.baz[1], 0x0d)
+      }
+    )
+
+    it(
+      'should convert in-place',
+      () => {
+        const argument = { foo: 'beef', bar: 'baz' }
+        const result = butil.bufferize(argument, { inplace: true })
+        assert.equal(result, argument)
+        assert.equal(Object.keys(result).length, 2)
+        assert.ok(Buffer.isBuffer(result.foo))
+        assert.equal(result.foo.length, 2)
+        assert.equal(result.foo[0], 0xbe)
+        assert.equal(result.foo[1], 0xef)
+        assert.equal(typeof result.bar, 'string')
+        assert.equal(result.bar, 'baz')
+      }
+    )
+
+    it(
+      'should ignore exceptions',
+      () => {
+        const argument = { foo: 'bar', baz: 'f00d', qux: 'beef' }
+        const result = butil.bufferize(argument, { ignore: [ 'baz' ] })
+        assert.notEqual(argument, result)
+        assert.equal(Object.keys(result).length, Object.keys(argument).length)
+        assert.equal(typeof result.foo, 'string')
+        assert.equal(result.foo, argument.foo)
+        assert.equal(typeof result.baz, 'string')
+        assert.equal(result.baz, argument.baz)
+        assert.ok(Buffer.isBuffer(result.qux))
+        assert.equal(result.qux.length, 2)
+        assert.equal(result.qux[0], 0xbe)
+        assert.equal(result.qux[1], 0xef)
+      }
+    )
+  })
+
+})

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var config = require('../config').get('geodb')
-var geodb = require('fxa-geodb')(config.dbPath)
+var geodb = require('fxa-geodb')(config)
 var P = require('./promise')
 var ACCURACY_MAX_KM = 200
 var ACCURACY_MIN_KM = 25
@@ -14,6 +14,9 @@ var ACCURACY_MIN_KM = 25
 * `location` data. On failure, returns an empty object
 **/
 module.exports = function (log) {
+
+  log.info({ op: 'geodb.start', enabled: config.enabled, dbPath: config.dbPath })
+
   return function (ip) {
     // this is a kill-switch and can be used to not return location data
     if (config.enabled === false) {
@@ -42,7 +45,9 @@ module.exports = function (log) {
         return {
           location: {
             city: location.city,
-            country: location.country
+            country: location.country,
+            state: location.state,
+            stateCode: location.stateCode
           },
           timeZone: location.timeZone
         }

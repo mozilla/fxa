@@ -2,18 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+'use strict'
+
+const assert = require('insist')
 var TestServer = require('../test_server')
-var Client = require('../client')
+const Client = require('../client')()
 
 var config = require('../../config').getProperties()
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote session destroy', function() {
+  this.timeout(15000)
+  let server
+  before(() => {
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
 
-  test(
+  it(
     'session destroy',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'foobar'
       var client = null
@@ -33,25 +42,25 @@ TestServer.start(config)
         )
         .then(
           function () {
-            t.equal(client.sessionToken, null, 'session token deleted')
+            assert.equal(client.sessionToken, null, 'session token deleted')
             client.sessionToken = sessionToken
             return client.sessionStatus()
           }
         )
         .then(
           function (status) {
-            t.fail('got status with destroyed session')
+            assert(false, 'got status with destroyed session')
           },
           function (err) {
-            t.equal(err.errno, 110, 'session is invalid')
+            assert.equal(err.errno, 110, 'session is invalid')
           }
         )
     }
   )
 
-  test(
+  it(
     'session status with valid token',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'testx'
       var uid = null
@@ -69,31 +78,27 @@ TestServer.start(config)
         )
         .then(
           function (x) {
-            t.deepEqual(x, { uid: uid }, 'good status')
+            assert.deepEqual(x, { uid: uid }, 'good status')
           }
         )
     }
   )
 
-  test(
+  it(
     'session status with invalid token',
-    function (t) {
+    () => {
       var client = new Client(config.publicUrl)
       return client.api.sessionStatus('0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF')
         .then(
-          t.fail,
+          () => assert(false),
           function (err) {
-            t.equal(err.errno, 110, 'invalid token')
+            assert.equal(err.errno, 110, 'invalid token')
           }
         )
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    return TestServer.stop(server)
+  })
 })

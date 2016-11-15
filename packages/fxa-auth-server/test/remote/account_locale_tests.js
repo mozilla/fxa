@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('../ptaptest')
-var TestServer = require('../test_server')
-var Client = require('../client')
+'use strict'
+
+const assert = require('insist')
+const TestServer = require('../test_server')
+const Client = require('../client')()
 
 var config = require('../../config').getProperties()
 var key = {
@@ -13,12 +15,20 @@ var key = {
   'e': '65537'
 }
 
-TestServer.start(config)
-.then(function main(server) {
+describe('remote account locale', function() {
+  this.timeout(15000)
 
-  test(
+  let server
+  before(() => {
+    return TestServer.start(config)
+      .then(s => {
+        server = s
+      })
+  })
+
+  it(
     'signing a cert against an account with no locale will save the locale',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'ilikepancakes'
       var client
@@ -31,7 +41,7 @@ TestServer.start(config)
         )
         .then(
           function (response) {
-            t.ok(!response.locale, 'account has no locale')
+            assert.ok(!response.locale, 'account has no locale')
             return client.login()
           }
         )
@@ -52,15 +62,15 @@ TestServer.start(config)
         )
         .then(
           function (response) {
-            t.equal(response.locale, 'en-US', 'account has a locale')
+            assert.equal(response.locale, 'en-US', 'account has a locale')
           }
         )
     }
   )
 
-  test(
+  it(
     'a really long (invalid) locale',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'ilikepancakes'
       return Client.create(
@@ -76,15 +86,15 @@ TestServer.start(config)
       )
       .then(
         function (response) {
-          t.ok(!response.locale, 'account has no locale')
+          assert.ok(!response.locale, 'account has no locale')
         }
       )
     }
   )
 
-  test(
+  it(
     'a really long (valid) locale',
-    function (t) {
+    () => {
       var email = server.uniqueEmail()
       var password = 'ilikepancakes'
       return Client.create(
@@ -100,17 +110,14 @@ TestServer.start(config)
       )
       .then(
         function (response) {
-          t.equal(response.locale, 'en-US,en;q=0.8', 'account has no locale')
+          assert.equal(response.locale, 'en-US,en;q=0.8', 'account has no locale')
         }
       )
     }
   )
 
-  test(
-    'teardown',
-    function (t) {
-      server.stop()
-      t.end()
-    }
-  )
+  after(() => {
+    return TestServer.stop(server)
+  })
+
 })

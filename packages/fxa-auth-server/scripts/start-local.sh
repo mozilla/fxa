@@ -3,6 +3,7 @@
 set -euo pipefail
 
 node ./scripts/gen_keys.js
+node ./scripts/gen_vapid_keys.js
 node ./test/mail_helper.js &
 MH=$!
 node ./node_modules/fxa-auth-db-mysql/bin/mem.js &

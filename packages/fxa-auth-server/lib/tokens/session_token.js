@@ -10,7 +10,8 @@ var ONE_HOUR = 60 * 60 * 1000
 // See https://github.com/mozilla/fxa-auth-server/pull/1169
 var TOKEN_FRESHNESS_THRESHOLD = 50 * 365 * 24 * ONE_HOUR // 50 years or post Y2038 ;-)
 
-module.exports = function (log, inherits, Token) {
+module.exports = (log, inherits, Token, config) => {
+  const features = require('../features')(config)
 
   function SessionToken(keys, details) {
     Token.call(this, keys, details)
@@ -21,6 +22,7 @@ module.exports = function (log, inherits, Token) {
     this.emailVerified = !!details.emailVerified
     this.verifierSetAt = details.verifierSetAt
     this.locale = details.locale || null
+    this.mustVerify = !!details.mustVerify || false
 
     if (details.createdAt > 0) {
       this.accountCreatedAt = details.createdAt
@@ -64,7 +66,7 @@ module.exports = function (log, inherits, Token) {
 
     var freshData = userAgent.call({
       lastAccessTime: Date.now()
-    }, userAgentString)
+    }, userAgentString, log)
 
     if (this.isFresh(freshData)) {
       return false
@@ -81,7 +83,10 @@ module.exports = function (log, inherits, Token) {
       this.uaOS === freshData.uaOS &&
       this.uaOSVersion === freshData.uaOSVersion &&
       this.uaDeviceType === freshData.uaDeviceType &&
-      this.lastAccessTime + TOKEN_FRESHNESS_THRESHOLD > freshData.lastAccessTime
+      (
+        ! features.isLastAccessTimeEnabledForUser(this.uid, this.email) ||
+        this.lastAccessTime + TOKEN_FRESHNESS_THRESHOLD > freshData.lastAccessTime
+      )
 
     log.info({
       op: 'SessionToken.isFresh',
