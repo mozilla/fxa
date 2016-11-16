@@ -50,7 +50,7 @@ define(function (require, exports, module) {
   }
 
 
-  function certificate(audience, sessionToken) {
+  function certificate(audience, sessionToken, service) {
     //TODO: check for a valid cert in localStorage first?
     return generateKeyPair.call(this)
       .then((kp) => {
@@ -58,7 +58,7 @@ define(function (require, exports, module) {
         // assertion here on the machine
         return P.all([
           this._fxaClient.certificateSign(
-            kp.publicKey.toSimpleObject(), CERT_DURATION_MS, sessionToken),
+            kp.publicKey.toSimpleObject(), CERT_DURATION_MS, sessionToken, service),
           assertion(this._jwcrypto, kp.secretKey, audience)
         ]);
       });
@@ -73,11 +73,11 @@ define(function (require, exports, module) {
     }, secretKey);
   }
 
-  function bundle(sessionToken, audience) {
+  function bundle(sessionToken, audience, service) {
     return requireOnDemand('jwcrypto')
       .then((jwcrypto) => {
         this._jwcrypto = jwcrypto;
-        return certificate.call(this, audience || this._audience, sessionToken);
+        return certificate.call(this, audience || this._audience, sessionToken, service);
       })
       .spread((cert, ass) => {
         return this._jwcrypto.cert.bundle([cert.cert], ass);

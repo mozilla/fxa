@@ -1150,6 +1150,33 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('certificateSign with service argument', () => {
+      it('signs certificate', () => {
+        const publicKey = {
+          algorithm: 'RS',
+          e: '65537',
+          n: '47593859672356105035714943391967496145446066925677857909539347' +
+             '68202714280652973091341316862993582789079872007974809511698859' +
+             '885077002492642203267408776123'
+        };
+        const duration = 86400000;
+
+        sinon.stub(realClient, 'certificateSign', () => {
+          return p('cert_is_returned');
+        });
+
+        return client.certificateSign(publicKey, duration, null, 'foo')
+          .then(cert => {
+            assert.ok(cert);
+
+            assert.equal(realClient.certificateSign.callCount, 1);
+            const args = realClient.certificateSign.args[0];
+            assert.lengthOf(args, 4);
+            assert.deepEqual(args[3], { service: 'foo' });
+          });
+      });
+    });
+
     describe('isSignedIn', function () {
       it('resolves to false if no sessionToken passed in', function () {
         return client.isSignedIn()
