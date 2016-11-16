@@ -1,3 +1,13 @@
+<a name="1.74.1"></a>
+## [1.74.1](https://github.com/mozilla/fxa-auth-server/compare/v1.74.0...v1.74.1) (2016-11-16)
+
+
+### Bug Fixes
+
+* **unblock:** rethrow customs server error when account is unknown ([b5bda6b](https://github.com/mozilla/fxa-auth-server/commit/b5bda6b))
+
+
+
 <a name="1.74.0"></a>
 # [1.74.0](https://github.com/mozilla/fxa-auth-server/compare/v1.73.1...v1.74.0) (2016-11-15)
 
