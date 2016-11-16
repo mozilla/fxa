@@ -29,6 +29,7 @@ app/bower_components
 .*
 !.gitignore
 !.git*
+!.eslintrc
 !.bowerrc
 !.editorconfig
 !.npmignore
