@@ -1,24 +1,7 @@
 {
   "exceptions": [
-    // moment
-    "https://nodesecurity.io/advisories/55",
-
     // uglify-js
     "https://nodesecurity.io/advisories/39",
-    "https://nodesecurity.io/advisories/48",
-
-    // hapi
-    "https://nodesecurity.io/advisories/45",
-    "https://nodesecurity.io/advisories/63",
-    "https://nodesecurity.io/advisories/65",
-
-    // negotiator
-    "https://nodesecurity.io/advisories/106",
-
-    // minimatch
-    "https://nodesecurity.io/advisories/118",
-
-    // Issues pending fix:
-    "https://nodesecurity.io/advisories/121"
+    "https://nodesecurity.io/advisories/48"
   ]
 }
