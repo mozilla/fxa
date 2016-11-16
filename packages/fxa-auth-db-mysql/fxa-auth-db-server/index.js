@@ -43,14 +43,25 @@ function createServer(db) {
   var api = restify.createServer()
   api.use(restify.bodyParser())
   api.use(restify.queryParser())
-  api.use(bufferize.bufferizeRequest.bind(null, [
-    'uaBrowser',
-    'uaBrowserVersion',
-    'uaOS',
-    'uaOSVersion',
-    'uaDeviceType',
-    'unblockCode'
-  ]))
+  api.use(bufferize.bufferizeRequest.bind(null, new Set([
+    // These are all the different params that we handle as binary Buffers,
+    // but are passed into the API as hex strings.
+    'authKey',
+    'authSalt',
+    'data',
+    'deviceId',
+    'emailCode',
+    'id',
+    'kA',
+    'keyBundle',
+    'passCode',
+    'sessionTokenId',
+    'tokenId',
+    'tokenVerificationId',
+    'uid',
+    'verifyHash',
+    'wrapWrapKb'
+  ])))
 
   api.get('/account/:id', withIdAndBody(db.account))
   api.del('/account/:id', withIdAndBody(db.deleteAccount))

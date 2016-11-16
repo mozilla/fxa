@@ -15,22 +15,38 @@ function unbuffer(object) {
   return object
 }
 
-function bufferize(object, ignore) {
+function bufferize(object, onlyTheseKeys) {
   var keys = Object.keys(object)
+  if (onlyTheseKeys) {
+    keys = keys.filter(key => onlyTheseKeys.has(key))
+  }
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i]
     var value = object[key]
-    if (ignore.indexOf(key) === -1 && typeof value === 'string' && HEX_STRING.test(value)) {
-      object[key] = Buffer(value, 'hex')
+    // Don't convert things with no value, but we still want
+    // to bufferize falsy things like the empty string.
+    if (typeof value !== 'undefined' && value !== null) {
+      if (typeof value !== 'string' || ! HEX_STRING.test(value)) {
+        throw new Error('Invalid hex data for ' + key + ': "' + value + '"')
+      }
+      object[key] = Buffer.from(value, 'hex')
     }
   }
   return object
 }
 
-function bufferizeRequest(ignore, req, res, next) {
-  if (req.body) { req.body = bufferize(req.body, ignore) }
-  if (req.params) { req.params = bufferize(req.params, ignore) }
-  next()
+function bufferizeRequest(keys, req, res, next) {
+  try {
+    if (req.body) { req.body = bufferize(req.body, keys) }
+    if (req.params) { req.params = bufferize(req.params, keys) }
+  } catch (err) {
+    // Failure here means invalid hex data in a bufferized field.
+    if (! err.statusCode) {
+      err.statusCode = 400
+    }
+    return next(err)
+  }
+  return next()
 }
 
 module.exports = {
