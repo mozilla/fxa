@@ -63,6 +63,10 @@ describe('remote db', function() {
       })
       .then(x => {
         db = x
+        return db.createAccount(ACCOUNT)
+      })
+      .then((account) => {
+        assert.deepEqual(account.uid, ACCOUNT.uid, 'account.uid is the same as the input ACCOUNT.uid')
       })
   })
 
@@ -76,13 +80,7 @@ describe('remote db', function() {
   it(
     'account creation',
     () => {
-      return db.createAccount(ACCOUNT)
-        .then(function(account) {
-          assert.deepEqual(account.uid, ACCOUNT.uid, 'account.uid is the same as the input ACCOUNT.uid')
-        })
-        .then(function() {
-          return db.accountExists(ACCOUNT.email)
-        })
+      return db.accountExists(ACCOUNT.email)
         .then(function(exists) {
           assert.ok(exists, 'account exists for this email address')
         })
