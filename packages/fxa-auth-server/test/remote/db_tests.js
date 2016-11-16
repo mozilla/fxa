@@ -411,7 +411,10 @@ describe('remote db', function() {
       var tokenId
       return db.emailRecord(ACCOUNT.email)
         .then(function(emailRecord) {
-          return db.forgotPasswordVerified(emailRecord)
+          return db.createPasswordForgotToken(emailRecord)
+        })
+        .then(function(passwordForgotToken) {
+          return db.forgotPasswordVerified(passwordForgotToken)
         })
         .then(function(accountResetToken) {
           assert.deepEqual(accountResetToken.uid, ACCOUNT.uid, 'account reset token uid should be the same as the account.uid')
