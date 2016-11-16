@@ -106,6 +106,9 @@ define(function (require, exports, module) {
     });
 
     afterEach(function () {
+      if ($.prototype.trigger.restore) {
+        $.prototype.trigger.restore();
+      }
       view.remove();
       view.destroy();
 
@@ -296,14 +299,14 @@ define(function (require, exports, module) {
       beforeEach(function () {
         return initView()
           .then(function () {
-            sinon.stub(view, '_fetchAttachedClients', function () {
-            });
+            sinon.spy($.prototype, 'trigger');
             return view.openPanel();
           });
       });
 
       it('fetches the device list', function () {
-        assert.isTrue(view._fetchAttachedClients.called);
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.clients.open'));
+        assert.isTrue($.prototype.trigger.called, 'calls form submit of the ForView');
       });
     });
 
@@ -359,16 +362,17 @@ define(function (require, exports, module) {
       });
 
       it('calls `_fetchAttachedClients` using a button', function () {
+        sinon.spy($.prototype, 'trigger');
         sinon.stub(view, 'isPanelOpen', function () {
           return true;
         });
 
-        sinon.stub(view, '_fetchAttachedClients', function () {
+        sinon.stub(view, 'submit', function () {
           return p();
         });
 
         $('.clients-refresh').click();
-        assert.isTrue(view._fetchAttachedClients.called);
+        assert.isTrue($.prototype.trigger.called, 'calls form submit of the ForView');
       });
 
     });

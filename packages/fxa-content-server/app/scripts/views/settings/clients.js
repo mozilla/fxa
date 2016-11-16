@@ -77,7 +77,6 @@ define(function (require, exports, module) {
 
     events: {
       'click .client-disconnect': preventDefaultThen('_onDisconnectClient'),
-      'click .clients-refresh': preventDefaultThen('_onRefreshClientsList'),
       'click [data-get-app]': '_onGetApp'
     },
 
@@ -137,17 +136,6 @@ define(function (require, exports, module) {
       }
     },
 
-    _onRefreshClientsList () {
-      if (this.isPanelOpen()) {
-        this.logViewEvent('refresh');
-        // only refresh devices if panel is visible
-        // if panel is hidden there is no point of fetching devices
-        this._fetchAttachedClients().then(() => {
-          this.render();
-        });
-      }
-    },
-
     _onGetApp (event) {
       var appType = this.$el.find(event.currentTarget).data('get-app');
       this.logViewEvent(`get.${appType}`);
@@ -155,7 +143,8 @@ define(function (require, exports, module) {
 
     openPanel () {
       this.logViewEvent('open');
-      this._fetchAttachedClients();
+      // manually submit using an element to trigger the progress indicator mixin
+      this.$el.find('.clients-refresh').trigger('submit');
     },
 
     _fetchAttachedClients () {
@@ -163,7 +152,18 @@ define(function (require, exports, module) {
         devices: true,
         oAuthApps: true
       }, this.user);
-    }
+    },
+
+    submit () {
+      if (this.isPanelOpen()) {
+        this.logViewEvent('refresh');
+        // only refresh devices if panel is visible
+        // if panel is hidden there is no point of fetching devices
+        return this._fetchAttachedClients().then(() => {
+          this.render();
+        });
+      }
+    },
 
   });
 

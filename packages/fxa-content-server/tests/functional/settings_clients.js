@@ -87,6 +87,9 @@ define([
           testDeviceId = device.id;
         })
 
+        // on a slow connection we wait until early refresh stops first
+        .then(pollUntilGoneByQSA('.clients-refresh.disabled'))
+
         .then(click('.clients-refresh'))
 
         .then(testElementTextEquals(
