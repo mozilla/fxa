@@ -27,6 +27,8 @@ var MOBILE_OS_FAMILIES = {
 
 var ELLIPSIS = '\u2026'
 
+const SYNC_MOBILE_USER_AGENT = /^Firefox-(Android|iOS)-FxA(?:ccounts)?\/(\S+)/
+
 module.exports = function (userAgentString, log) {
   var userAgentData = ua.parse(userAgentString)
 
@@ -36,9 +38,19 @@ module.exports = function (userAgentString, log) {
   this.uaOSVersion = getVersion(userAgentData.os) || null
   this.uaDeviceType = getDeviceType(userAgentData) || null
 
-  if (! this.uaBrowser && ! this.uaOS) {
-    // In the worst case, fall back to a truncated user agent string
-    this.uaBrowser = truncate(userAgentString || '', log)
+  if (! this.uaBrowser) {
+    const matches = SYNC_MOBILE_USER_AGENT.exec(userAgentString)
+    if (matches && matches.length === 3) {
+      this.uaBrowser = 'Firefox'
+      this.uaBrowserVersion = matches[2]
+      this.uaOS = matches[1]
+      if (! this.uaDeviceType) {
+        this.uaDeviceType = 'mobile'
+      }
+    } else if (! this.uaOS) {
+      // In the worst case, fall back to a truncated user agent string
+      this.uaBrowser = truncate(userAgentString || '', log)
+    }
   }
 
   return this
