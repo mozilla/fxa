@@ -82,12 +82,13 @@ define(function (require, exports, module) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
-      return this._assertionLibrary.generate(account.get('sessionToken'))
+      const relier = this.relier;
+      const clientId = relier.get('clientId');
+      return this._assertionLibrary.generate(account.get('sessionToken'), null, clientId)
         .then((assertion) => {
-          var relier = this.relier;
           var oauthParams = {
             assertion: assertion,
-            client_id: relier.get('clientId'), //eslint-disable-line camelcase
+            client_id: clientId, //eslint-disable-line camelcase
             scope: relier.get('scope'),
             state: relier.get('state')
           };

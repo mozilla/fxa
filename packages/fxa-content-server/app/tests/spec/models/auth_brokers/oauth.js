@@ -222,7 +222,7 @@ define(function (require, exports, module) {
       it('gets an object with the OAuth login information', function () {
         return broker.getOAuthResult(account)
           .then(function (result) {
-            assert.isTrue(assertionLibrary.generate.calledWith(account.get('sessionToken')));
+            assert.isTrue(assertionLibrary.generate.calledWith(account.get('sessionToken'), null, 'clientId'));
             assert.equal(result.redirect, VALID_OAUTH_CODE_REDIRECT_URL);
             assert.equal(result.state, 'state');
             assert.equal(result.code, VALID_OAUTH_CODE);

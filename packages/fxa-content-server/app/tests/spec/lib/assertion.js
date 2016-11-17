@@ -13,12 +13,14 @@ define(function (require, exports, module) {
   const jwcrypto = require('jwcrypto.rs');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
   const TestHelpers = require('../../lib/helpers');
   const Url = require('lib/url');
 
   const AUDIENCE = 'http://123done.org';
   const LONG_LIVED_ASSERTION_DURATION = new Duration('52w').milliseconds() * 25;// 25 years
   const PASSWORD = 'password';
+  const SERVICE = '0123456789abcdef';
 
   let email;
   let client;
@@ -49,6 +51,7 @@ define(function (require, exports, module) {
         authServerUrl: config.auth_server_base_url,
         relier: relier
       });
+      sinon.spy(client, 'certificateSign');
       assertionLibrary = new Assertion({
         fxaClient: client
       });
@@ -65,11 +68,15 @@ define(function (require, exports, module) {
     describe('validate', function () {
       it('generates a valid assertion', function () {
         var assertion;
-        return assertionLibrary.generate(sessionToken, AUDIENCE)
+        return assertionLibrary.generate(sessionToken, AUDIENCE, SERVICE)
           .then(function (ass) {
             assertion = ass;
             assert.isNotNull(ass, 'Assertion is not null');
             assert.include(ass, '~', 'Result has the ~');
+            assert.equal(client.certificateSign.callCount, 1, 'fxaClient.certificateSign was called once');
+            const args = client.certificateSign.args[0];
+            assert.lengthOf(args, 4, 'fxaClient.certificateSign was passed 4 arguments');
+            assert.equal(args[3], SERVICE, 'service was set correctly');
           })
           .then(function () {
             var defer = p.defer();
@@ -136,6 +143,20 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('validate with default service', () => {
+      it('generates a valid assertion', () => {
+        return assertionLibrary.generate(sessionToken, AUDIENCE)
+          .then(assertion => {
+            assert.isNotNull(assertion, 'Assertion is not null');
+            assert.include(assertion, '~', 'Result has the ~');
+
+            assert.equal(client.certificateSign.callCount, 1, 'fxaClient.certificateSign was called once');
+            const args = client.certificateSign.args[0];
+            assert.lengthOf(args, 4, 'fxaClient.certificateSign was passed 4 arguments');
+            assert.isUndefined(args[3], 'service was undefined');
+          });
+      });
+    });
   });
 });
 

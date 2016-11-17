@@ -483,13 +483,13 @@ define(function (require, exports, module) {
       return client.accountDestroy(email, password);
     }),
 
-    certificateSign: withClient((client, pubkey, duration, sessionToken) => {
+    certificateSign: withClient((client, pubkey, duration, sessionToken, service) => {
       return client.certificateSign(
         sessionToken,
         pubkey,
         duration,
         {
-          service: Constants.CONTENT_SERVER_SERVICE
+          service: service || Constants.CONTENT_SERVER_SERVICE
         }
       );
     }),
