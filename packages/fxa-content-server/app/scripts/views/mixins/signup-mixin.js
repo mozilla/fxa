@@ -38,7 +38,7 @@ define(function (require, exports, module) {
           this.logFlowEvent('attempt', 'signup');
 
           return this.user.signUpAccount(account, password, this.relier, {
-            resume: this.getStringifiedResumeToken()
+            resume: this.getStringifiedResumeToken(account)
           });
         })
         .then((account) => {

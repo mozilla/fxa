@@ -323,15 +323,13 @@ define(function (require, exports, module) {
 
     describe('resend', function () {
       it('resends the confirmation email', function () {
-        sinon.stub(account, 'retrySignUp', function () {
-          return p();
-        });
-        sinon.stub(view, 'getStringifiedResumeToken', function () {
-          return 'resume token';
-        });
+        sinon.stub(account, 'retrySignUp', () => p());
+        sinon.stub(view, 'getStringifiedResumeToken', () => 'resume token');
 
         return view.resend()
-          .then(function () {
+          .then(() => {
+            assert.isTrue(view.getStringifiedResumeToken.calledOnce);
+            assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
             assert.isTrue(account.retrySignUp.calledWith(
               relier,
               {

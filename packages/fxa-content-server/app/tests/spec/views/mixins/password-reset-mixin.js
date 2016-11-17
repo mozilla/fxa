@@ -34,9 +34,7 @@ define(function (require, exports, module) {
         relier = {};
 
         view = {
-          getStringifiedResumeToken: sinon.spy(function () {
-            return 'resume token';
-          }),
+          getStringifiedResumeToken: sinon.spy(() => 'resume token'),
           navigate: sinon.spy(),
           relier: relier,
           user: {
@@ -50,6 +48,8 @@ define(function (require, exports, module) {
       });
 
       it('initiates an account and calls the expected account method', function () {
+        assert.isTrue(view.getStringifiedResumeToken.calledOnce);
+        assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
         assert.isTrue(view.user.initAccount.calledWith({ email: email }));
         assert.isTrue(account.resetPassword.calledWith(
           relier,
@@ -88,9 +88,7 @@ define(function (require, exports, module) {
         relier = {};
 
         view = {
-          getStringifiedResumeToken: sinon.spy(function () {
-            return 'resume token';
-          }),
+          getStringifiedResumeToken: sinon.spy(() => 'resume token'),
           navigate: sinon.spy(),
           relier: relier,
           user: {
@@ -104,7 +102,9 @@ define(function (require, exports, module) {
           view, email, passwordForgotToken);
       });
 
-      it('initiates an account and calls the expected account method', function () {
+      it('initiates an account and calls the expected account method', () => {
+        assert.isTrue(view.getStringifiedResumeToken.calledOnce);
+        assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
         assert.isTrue(view.user.initAccount.calledWith({ email: email }));
         assert.isTrue(account.retryResetPassword.calledWith(
           passwordForgotToken,

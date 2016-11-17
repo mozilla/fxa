@@ -11,13 +11,16 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
+  const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
   const MarketingEmailPrefs = require('models/marketing-email-prefs');
   const OAuthToken = require('models/oauth-token');
   const p = require('lib/promise');
   const ProfileErrors = require('lib/profile-errors');
   const ProfileImage = require('models/profile-image');
+  const ResumeTokenMixin = require('models/mixins/resume-token');
   const SignInReasons = require('lib/sign-in-reasons');
+  const vat = require('lib/vat');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
 
@@ -97,6 +100,12 @@ define(function (require, exports, module) {
 
       this._boundOnChange = this.onChange.bind(this);
       this.on('change', this._boundOnChange);
+    },
+
+    resumeTokenFields: ['email'],
+
+    resumeTokenSchema: {
+      email: vat.email()
     },
 
     // Hydrate the account
@@ -929,6 +938,11 @@ define(function (require, exports, module) {
           });
       };
     });
+
+  Cocktail.mixin(
+    Account,
+    ResumeTokenMixin
+  );
 
   module.exports = Account;
 });

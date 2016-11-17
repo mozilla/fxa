@@ -167,12 +167,10 @@ define(function (require, exports, module) {
     },
 
     resend () {
-      return this.getAccount().retrySignUp(
-        this.relier,
-        {
-          resume: this.getStringifiedResumeToken()
-        }
-      )
+      const account = this.getAccount();
+      return account.retrySignUp(this.relier, {
+        resume: this.getStringifiedResumeToken(account)
+      })
       .fail((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           return this.navigate('signup', {

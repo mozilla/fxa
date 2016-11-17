@@ -61,9 +61,7 @@ define(function (require, exports, module) {
           currentPage: 'force_auth',
           displayError: sinon.spy(),
           flow: flow,
-          getStringifiedResumeToken: sinon.spy(function () {
-            return RESUME_TOKEN;
-          }),
+          getStringifiedResumeToken: sinon.spy(() => RESUME_TOKEN),
           invokeBrokerMethod: sinon.spy(function () {
             return p();
           }),
@@ -95,6 +93,8 @@ define(function (require, exports, module) {
         });
 
         it('signs in the user', function () {
+          assert.isTrue(view.getStringifiedResumeToken.calledOnce);
+          assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
           assert.isTrue(
             user.signInAccount.calledWith(account, 'password', relier));
           assert.equal(user.signInAccount.args[0][3].resume, RESUME_TOKEN);
@@ -191,6 +191,8 @@ define(function (require, exports, module) {
         });
 
         it('signs in the user', function () {
+          assert.isTrue(view.getStringifiedResumeToken.calledOnce);
+          assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
           assert.isTrue(
             user.signInAccount.calledWith(account, 'password', relier));
           assert.equal(user.signInAccount.args[0][3].resume, RESUME_TOKEN);
@@ -225,6 +227,8 @@ define(function (require, exports, module) {
         });
 
         it('signs in the user', function () {
+          assert.isTrue(view.getStringifiedResumeToken.calledOnce);
+          assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
           assert.isTrue(
             user.signInAccount.calledWith(account, 'password', relier));
           assert.equal(user.signInAccount.args[0][3].resume, RESUME_TOKEN);
@@ -327,4 +331,3 @@ define(function (require, exports, module) {
     });
   });
 });
-

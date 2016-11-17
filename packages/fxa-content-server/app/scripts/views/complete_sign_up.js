@@ -186,12 +186,9 @@ define(function (require, exports, module) {
     // and clicks the "Resend" link.
     resend () {
       var account = this.user.getAccountByEmail(this._email);
-      return account.retrySignUp(
-        this.relier,
-        {
-          resume: this.getStringifiedResumeToken()
-        }
-      )
+      return account.retrySignUp(this.relier, {
+        resume: this.getStringifiedResumeToken(account)
+      })
       .fail((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           return this.navigate('signup', {
