@@ -189,7 +189,7 @@ describe('remote password forgot', function() {
             assert(false, 'reset password with invalid token')
           },
           function (err) {
-            assert.equal(err.message, 'Invalid authentication token in request signature', 'token is now invalid')
+            assert.equal(err.message, 'The authentication token could not be found', 'token is now invalid')
           }
         )
     }

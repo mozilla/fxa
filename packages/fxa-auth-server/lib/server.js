@@ -48,7 +48,7 @@ function create(log, error, config, routes, db) {
         .done(
           function (token) {
             if (token.expired(Date.now())) {
-              return cb(error.invalidToken())
+              return cb(error.invalidToken('The authentication token has expired'))
             }
             return cb(null, token)
           },

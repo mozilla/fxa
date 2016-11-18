@@ -276,9 +276,7 @@ module.exports = function (
           return SessionToken.fromHex(data.tokenData, data)
         },
         function (err) {
-          if (isNotFoundError(err)) {
-            err = error.invalidToken()
-          }
+          err = wrapTokenNotFoundError(err)
           throw err
         }
       )
@@ -301,9 +299,7 @@ module.exports = function (
           return SessionToken.fromHex(data.tokenData, data)
         },
         function (err) {
-          if (isNotFoundError(err)) {
-            err = error.invalidToken()
-          }
+          err = wrapTokenNotFoundError(err)
           throw err
         }
       )
@@ -318,9 +314,7 @@ module.exports = function (
           return KeyFetchToken.fromId(id, data)
         },
         function (err) {
-          if (isNotFoundError(err)) {
-            err = error.invalidToken()
-          }
+          err = wrapTokenNotFoundError(err)
           throw err
         }
       )
@@ -335,9 +329,7 @@ module.exports = function (
           return KeyFetchToken.fromId(id, data)
         },
         function (err) {
-          if (isNotFoundError(err)) {
-            err = error.invalidToken()
-          }
+          err = wrapTokenNotFoundError(err)
           throw err
         }
       )
@@ -352,9 +344,7 @@ module.exports = function (
           return AccountResetToken.fromHex(data.tokenData, data)
         },
         function (err) {
-          if (isNotFoundError(err)) {
-            err = error.invalidToken()
-          }
+          err = wrapTokenNotFoundError(err)
           throw err
         }
       )
@@ -369,9 +359,7 @@ module.exports = function (
           return PasswordForgotToken.fromHex(data.tokenData, data)
         },
         function (err) {
-          if (isNotFoundError(err)) {
-            err = error.invalidToken()
-          }
+          err = wrapTokenNotFoundError(err)
           throw err
         }
       )
@@ -386,9 +374,7 @@ module.exports = function (
           return PasswordChangeToken.fromHex(data.tokenData, data)
         },
         function (err) {
-          if (isNotFoundError(err)) {
-            err = error.invalidToken()
-          }
+          err = wrapTokenNotFoundError(err)
           throw err
         }
       )
@@ -496,9 +482,7 @@ module.exports = function (
         return SessionToken.fromHex(data.tokenData, data)
       },
       function (err) {
-        if (isNotFoundError(err)) {
-          err = error.invalidToken()
-        }
+        err = wrapTokenNotFoundError(err)
         throw err
       }
     )
@@ -852,6 +836,13 @@ module.exports = function (
           throw err
         }
       )
+  }
+
+  function wrapTokenNotFoundError (err) {
+    if (isNotFoundError(err)) {
+      err = error.invalidToken('The authentication token could not be found')
+    }
+    return err
   }
 
   return DB

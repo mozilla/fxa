@@ -292,7 +292,7 @@ describe('remote password change', function() {
           },
           function (err) {
             assert.equal(err.errno, 110, 'Invalid token error')
-            assert.equal(err.message, 'Invalid authentication token in request signature')
+            assert.equal(err.message, 'The authentication token could not be found')
           }
         )
     }
