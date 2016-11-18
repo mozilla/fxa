@@ -31,6 +31,7 @@
     "fxa-notifier-aws": "1.0.0",
     "fxa-shared": "1.0.3",
     "hapi": "14.2.0",
+    "hapi-hpkp": "1.0.0",
     "joi": "^9.2.0",
     "mozlog": "^2.0.3",
     "mysql": "^2.5.5",
