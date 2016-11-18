@@ -206,7 +206,7 @@ describe('remote db', function() {
             assert(false, 'The above sessionToken() call should fail, since the sessionToken has been deleted')
           }, function(err) {
             assert.equal(err.errno, 110, 'sessionToken() fails with the correct error code')
-            var msg = 'Error: Invalid authentication token in request signature'
+            var msg = 'Error: The authentication token could not be found'
             assert.equal(msg, '' + err, 'sessionToken() fails with the correct message')
           })
         })
@@ -399,7 +399,7 @@ describe('remote db', function() {
           assert(false, 'The above keyFetchToken() call should fail, since the keyFetchToken has been deleted')
         }, function(err) {
           assert.equal(err.errno, 110, 'keyFetchToken() fails with the correct error code')
-          var msg = 'Error: Invalid authentication token in request signature'
+          var msg = 'Error: The authentication token could not be found'
           assert.equal(msg, '' + err, 'keyFetchToken() fails with the correct message')
         })
     }
@@ -438,7 +438,7 @@ describe('remote db', function() {
           assert(false, 'The above accountResetToken() call should fail, since the accountResetToken has been deleted')
         }, function(err) {
           assert.equal(err.errno, 110, 'accountResetToken() fails with the correct error code')
-          var msg = 'Error: Invalid authentication token in request signature'
+          var msg = 'Error: The authentication token could not be found'
           assert.equal(msg, '' + err, 'accountResetToken() fails with the correct message')
         })
     }
@@ -488,7 +488,7 @@ describe('remote db', function() {
           assert(false, 'The above passwordForgotToken() call should fail, since the passwordForgotToken has been deleted')
         }, function(err) {
           assert.equal(err.errno, 110, 'passwordForgotToken() fails with the correct error code')
-          var msg = 'Error: Invalid authentication token in request signature'
+          var msg = 'Error: The authentication token could not be found'
           assert.equal(msg, '' + err, 'passwordForgotToken() fails with the correct message')
         })
     }

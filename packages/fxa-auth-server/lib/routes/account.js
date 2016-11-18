@@ -1413,7 +1413,7 @@ module.exports = function (
                   function () {
                     // Act as though we deleted the account asynchronously
                     // and caused the sessionToken to become invalid.
-                    throw error.invalidToken()
+                    throw error.invalidToken('This account was invalid and has been deleted')
                   }
                 )
             }
