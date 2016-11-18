@@ -172,6 +172,20 @@ define(function (require, exports, module) {
             });
       });
 
+      it('does not render if the view has already navigated', () => {
+        sinon.spy(view, 'renderTemplate');
+        sinon.spy(view, 'navigate');
+        sinon.stub(view, 'beforeRender', function () {
+          this.navigate('signin');
+        });
+
+        return view.render()
+          .then(() => {
+            assert.isTrue(view.navigate.called);
+            assert.isFalse(view.renderTemplate.called);
+          });
+      });
+
       it('redirects to `/signin` if the user is not authenticated', function () {
         var account = user.initAccount({
           email: 'a@a.com',

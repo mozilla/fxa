@@ -41,7 +41,6 @@ define(function (require, exports, module) {
         this.navigate('settings/avatar/change', {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });
-        return false;
       }
     },
 

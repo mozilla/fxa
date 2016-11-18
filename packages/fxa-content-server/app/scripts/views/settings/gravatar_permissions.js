@@ -39,7 +39,6 @@ define(function (require, exports, module) {
       if (account.getClientPermission(GRAVATAR_MOCK_CLIENT_ID, GRAVATAR_PERMISSION)) {
         this.logViewEvent('already-accepted');
         this.navigate('settings/avatar/gravatar');
-        return false;
       }
     },
 

@@ -170,7 +170,9 @@ define(function (require, exports, module) {
      * * beforeRender - called before rendering occurs. Can be used
      *   to perform data validation. Return a promise to
      *   perform an asynchronous check. Return false or a promise
-     *   that resolves to false to prevent rendering.
+     *   that resolves to false to prevent rendering. If `navigate` is
+     *   called in `beforeRender`, rendering of the current view
+     *   is prevented.
      * * afterRender - called after the rendering occurs. Can be used
      *   to print an error message after the view is already rendered.
      *
@@ -181,14 +183,18 @@ define(function (require, exports, module) {
         $('body').addClass(this.layoutClassName);
       }
 
+      // reset _hasNavigated for every render, otherwise settings panels
+      // cannot re-render themselves after displaying an inline child view.
+      this._hasNavigated = false;
       return p()
         .then(() => this.checkAuthorization())
         .then((isUserAuthorized) => {
           return isUserAuthorized && this.beforeRender();
         })
         .then((shouldRender) => {
-          // rendering is opt out.
-          if (shouldRender === false) {
+          // rendering is opt out, should not occur if the view
+          // has already navigated.
+          if (shouldRender === false || this._hasNavigated) {
             return false;
           }
 
@@ -744,6 +750,7 @@ define(function (require, exports, module) {
         routerOptions: routerOptions,
         url: url
       });
+      this._hasNavigated = true;
     },
 
     /**

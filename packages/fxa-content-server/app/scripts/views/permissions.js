@@ -245,7 +245,7 @@ define(function (require, exports, module) {
       // user cannot proceed if they have not initiated a sign up/in.
       if (! this.getAccount().get('sessionToken')) {
         this.navigate(this._previousView());
-        return false;
+        return;
       }
 
       var account = this.getAccount();
