@@ -27,7 +27,9 @@
       "env": {
         "NODE_ENV": "dev",
         "IP_ADDRESS": "0.0.0.0",
-        "SIGNIN_UNBLOCK_FORCED_EMAILS": "^block.*@restmail\\.net$"
+        "SIGNIN_UNBLOCK_FORCED_EMAILS": "^block.*@restmail\\.net$",
+        "SIGNIN_CONFIRMATION_ENABLED": "true",
+        "SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX": "^sync.*@restmail\\.net$"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
