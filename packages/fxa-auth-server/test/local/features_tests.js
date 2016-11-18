@@ -202,7 +202,7 @@ describe('features', () => {
 
       config.signinConfirmation.enabled = true
       config.signinConfirmation.sample_rate = 0.03
-      config.signinConfirmation.enabledEmailAddresses = /.+@mozilla\.com$/
+      config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.com$/
       config.signinConfirmation.supportedClients = [ 'wibble', 'iframe' ]
       assert.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), true, 'should return true when request is suspicious')
 
@@ -210,7 +210,7 @@ describe('features', () => {
       request.app.isSuspiciousRequest = false
       assert.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), true, 'should return true when email address matches')
 
-      config.signinConfirmation.enabledEmailAddresses = /.+@mozilla\.org$/
+      config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.org$/
       request.payload.metricsContext.context = 'iframe'
       assert.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), false, 'should return false when email address and sample rate do not match')
 
@@ -221,7 +221,6 @@ describe('features', () => {
       assert.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), false, 'should return false when context does not match')
 
       config.signinConfirmation.enabled = false
-      config.signinConfirmation.forceEmailRegex = /.+@mozilla\.com$/
       request.payload.metricsContext.context = 'iframe'
       assert.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), false, 'should return false when feature is disabled')
     }
@@ -277,27 +276,35 @@ describe('features', () => {
     () => {
       const request = {}
       const securityEvents = []
+      const forceEmail = 'test@force.com'
+      const email = 'test@notforce.com'
 
       config.securityHistory.enabled = true
       config.securityHistory.ipProfiling = {
         enabled: true
       }
-      assert.equal(features.canBypassSiginConfirmation(true, 'day', securityEvents, request), true, 'should return true if verified and recency within day')
+      assert.equal(features.canBypassSiginConfirmation(email, true, 'day', securityEvents, request), true, 'should return true if verified and recency within day')
 
       config.securityHistory.enabled = true
       config.securityHistory.ipProfiling = {
         enabled: false
       }
-      assert.equal(features.canBypassSiginConfirmation(true, 'day', securityEvents, request), false, 'should return false if profiling disabled')
+      assert.equal(features.canBypassSiginConfirmation(email, true, 'day', securityEvents, request), false, 'should return false if profiling disabled')
 
       config.securityHistory.enabled = true
       config.securityHistory.ipProfiling = {
         enabled: true
       }
-      assert.equal(features.canBypassSiginConfirmation(true, 'week', securityEvents, request), false, 'should return false if verified but not within day')
+      assert.equal(features.canBypassSiginConfirmation(email, true, 'week', securityEvents, request), false, 'should return false if verified but not within day')
 
       config.securityHistory.enabled = false
-      assert.equal(features.canBypassSiginConfirmation(true, 'day', securityEvents, request), false, 'should return false if security events disabled')
+      assert.equal(features.canBypassSiginConfirmation(email, true, 'day', securityEvents, request), false, 'should return false if security events disabled')
+
+      config.signinConfirmation.enabled = true
+      config.signinConfirmation.sample_rate = 1
+      config.signinConfirmation.forcedEmailAddresses = /.+@force\.com$/
+      config.securityHistory.enabled = true
+      assert.equal(features.canBypassSiginConfirmation(forceEmail, true, 'day', securityEvents, request), false, 'should return false if sign-in confirmation forced email')
     }
   )
 })

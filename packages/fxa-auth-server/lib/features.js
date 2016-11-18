@@ -46,7 +46,7 @@ module.exports = config => {
       }
 
       // Or if the email address matches the regex.
-      if (signinConfirmation.enabledEmailAddresses.test(email)) {
+      if (signinConfirmation.forcedEmailAddresses.test(email)) {
         return true
       }
 
@@ -110,18 +110,17 @@ module.exports = config => {
      * @param recency
      * @returns {boolean}
      */
-    canBypassSiginConfirmation(verified, recency) {
-      let bypass = false
+    canBypassSiginConfirmation(email, verified, recency) {
+      // If sign-in confirmation is forced for an email, it can't be bypassed.
+      if (signinConfirmation.enabled && signinConfirmation.forcedEmailAddresses.test(email)) {
+        return false
+      }
 
-      // IP Profiling sets bypass to true if this user has verified a session
+      // IP Profiling returns true if this user has verified a session
       // within the past day from this ip address.
       let ipProfilingEnabled = securityHistory.enabled && securityHistory.ipProfiling &&
         securityHistory.ipProfiling.enabled
-      if (ipProfilingEnabled && verified && recency === 'day') {
-        bypass = true
-      }
-
-      return bypass
+      return ipProfilingEnabled && verified && recency === 'day'
     },
 
     /**

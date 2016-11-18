@@ -1064,7 +1064,7 @@ describe('/account/login', function () {
     before(() => {
       config.signinConfirmation.enabled = true
       config.signinConfirmation.supportedClients = [ 'fx_desktop_v3' ]
-      config.signinConfirmation.enabledEmailAddresses = /.+@mozilla\.com$/
+      config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.com$/
 
       mockDB.emailRecord = function () {
         return P.resolve({

@@ -594,7 +594,7 @@ module.exports = function (
 
           // Check to see if this login can bypass sign-in confirmation. Current scenarios include
           //  * User has already logged in from this ip address and verified the sign-in
-          let bypassSiginConfirmation = features.canBypassSiginConfirmation(securityEventVerified, securityEventRecency)
+          let bypassSiginConfirmation = features.canBypassSiginConfirmation(emailRecord.email, securityEventVerified, securityEventRecency)
           if (bypassSiginConfirmation) {
             log.info({
               op: 'Account.ipprofiling.seenAddress',

@@ -92,8 +92,10 @@ var config = {
     }
   },
   signinConfirmation: {
-    enabledEmailAddresses: /^.*$/,
-    enabled: true
+    forcedEmailAddresses: /.+@mozilla\.com$/,
+    enabled: true,
+    sample_rate: 1,
+    supportedClients: ['fx_desktop_v3']
   },
   signinUnblock: {
     enabled: false
@@ -277,6 +279,72 @@ describe('IP Profiling', () => {
             assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
             assert.equal(response.verified, false, 'session verified')
           })
+        })
+
+      it(
+        'previously verified session with forced sign-in confirmation',
+        () => {
+          var forceSigninEmail = 'forcedemail@mozilla.com'
+          mockRequest.payload.email = forceSigninEmail
+
+          var mockDB = mocks.mockDB({
+            email: forceSigninEmail,
+            emailVerified: true,
+            keyFetchTokenId: keyFetchTokenId,
+            sessionTokenId: sessionTokenId,
+            uid: uid
+          })
+
+          mockDB.emailRecord = function () {
+            return P.resolve({
+              authSalt: crypto.randomBytes(32),
+              data: crypto.randomBytes(32),
+              email: forceSigninEmail,
+              emailVerified: true,
+              kA: crypto.randomBytes(32),
+              lastAuthAt: function () {
+                return Date.now()
+              },
+              uid: uid,
+              wrapWrapKb: crypto.randomBytes(32)
+            })
+          }
+
+          mockDB.securityEvents = function () {
+            return P.resolve([
+              {
+                name: 'account.login',
+                createdAt: Date.now(),
+                verified: true
+              }
+            ])
+          }
+
+          var accountRoutes = makeRoutes({
+            checkPassword: function () {
+              return P.resolve(true)
+            },
+            config: config,
+            customs: mockCustoms,
+            db: mockDB,
+            log: mockLog,
+            mailer: mockMailer,
+            push: mockPush
+          })
+
+          route = getRoute(accountRoutes, '/account/login')
+
+          return runTest(route, mockRequest, function (response) {
+            assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+            assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+            assert.equal(response.verified, false, 'session verified')
+            return runTest(route, mockRequest)
+          })
+            .then(function (response) {
+              assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 2, 'mailer.sendVerifyLoginEmail was called')
+              assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+              assert.equal(response.verified, false, 'session verified')
+            })
         })
 
       afterEach(() => {
