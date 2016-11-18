@@ -46,7 +46,6 @@ define(function (require, exports, module) {
       // user cannot confirm if they have not initiated a reset password
       if (! this.model.has('passwordForgotToken')) {
         this.navigate('reset_password');
-        return false;
       }
     },
 

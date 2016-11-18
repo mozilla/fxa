@@ -85,7 +85,6 @@ define(function (require, exports, module) {
       // user cannot confirm if they have not initiated a sign up.
       if (! this.getAccount().get('sessionToken')) {
         this.navigate(this._getMissingSessionTokenScreen());
-        return false;
       }
     },
 

@@ -5,7 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const assert = require('chai').assert;
+  const _ = require('underscore');
+  const { assert } = require('chai');
   const Account = require('models/account');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
@@ -29,6 +30,7 @@ define(function (require, exports, module) {
     let broker;
     let metrics;
     let model;
+    let notifier;
     let relier;
     let view;
     let windowMock;
@@ -60,12 +62,15 @@ define(function (require, exports, module) {
         password: 'password'
       });
 
+      notifier = _.extend({}, Backbone.Events);
+
       view = new View({
         able,
         broker,
         canGoBack: true,
         metrics,
         model,
+        notifier,
         relier,
         viewName: 'sign-in-unblock',
         window: windowMock
@@ -92,7 +97,7 @@ define(function (require, exports, module) {
       describe('without an account', () => {
         beforeEach(() => {
           model.unset('account');
-          sinon.stub(view, 'navigate', () => {});
+          sinon.spy(view, 'navigate');
 
           return view.render();
         });

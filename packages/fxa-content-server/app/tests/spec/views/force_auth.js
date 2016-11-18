@@ -362,6 +362,8 @@ define(function (require, exports, module) {
       var password = 'password';
 
       beforeEach(function () {
+        // stub out `beforeRender` to ensure no redirect occurs.
+        sinon.stub(view, 'beforeRender', () => p());
         sinon.stub(view, '_signIn', function (account) {
           return p();
         });
@@ -558,9 +560,10 @@ define(function (require, exports, module) {
 
     describe('flow events', () => {
       beforeEach(() => {
+        // stub out `beforeRender` to ensure no redirection occurs.
+        sinon.stub(view, 'beforeRender', () => p());
         return view.render()
           .then(() => {
-            $('#container').html(view.el);
             view.afterVisible();
           });
       });
@@ -598,6 +601,7 @@ define(function (require, exports, module) {
       });
 
       it('logs the submit event', () => {
+        $('#container').html(view.el);
         view.$('#submit-btn').click();
         assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.submit'));
         view.enableForm();

@@ -110,7 +110,7 @@ define(function (require, exports, module) {
 
             if (! this.relier.isDirectAccess()) {
               this._navigateToVerifiedScreen();
-              return false;
+              return;
             }
 
             return account.isSignedIn()
@@ -122,7 +122,6 @@ define(function (require, exports, module) {
                 } else {
                   this._navigateToVerifiedScreen();
                 }
-                return false;
               });
           })
           .fail((err) => {

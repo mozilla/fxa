@@ -113,7 +113,6 @@ define(function (require, exports, module) {
         this.navigate('settings/avatar/change', {
           error: AuthErrors.toError('NO_CAMERA')
         });
-        return false;
       }
     },
 

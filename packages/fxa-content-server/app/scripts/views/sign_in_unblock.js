@@ -37,7 +37,6 @@ define(function (require, exports, module) {
     beforeRender () {
       if (! this.model.get('account')) {
         this.navigate(this._getAuthPage());
-        return false;
       }
     },
 
