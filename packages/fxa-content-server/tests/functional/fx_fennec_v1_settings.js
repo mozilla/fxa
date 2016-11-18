@@ -15,7 +15,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
   var fillOutDeleteAccount = thenify(FunctionalHelpers.fillOutDeleteAccount);
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
@@ -46,7 +46,7 @@ define([
         .then(clearBrowserState())
         .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
-        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
+        .then(fillOutSignIn(email, FIRST_PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
 

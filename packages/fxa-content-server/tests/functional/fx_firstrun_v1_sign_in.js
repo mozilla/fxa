@@ -20,7 +20,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
@@ -41,7 +41,7 @@ define([
       .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
       // delay for the webchannel message
       .sleep(500)
-      .then(fillOutSignIn(this.parent, email, PASSWORD))
+      .then(fillOutSignIn(email, PASSWORD))
       .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'));
   });
 

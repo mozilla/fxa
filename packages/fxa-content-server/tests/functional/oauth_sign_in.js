@@ -22,7 +22,7 @@ define([
 
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
@@ -78,7 +78,7 @@ define([
         .then(openFxaFromRp(this, 'signin'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testAtOAuthApp());
     },
@@ -90,7 +90,7 @@ define([
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
         // sign in with a verified account to cache credentials
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testAtOAuthApp())
         .then(click('#logout'))
@@ -111,7 +111,7 @@ define([
         .then(openFxaFromRp(this, 'signin'))
         .then(createUser(email, PASSWORD, { preVerified: false }))
 
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-confirm-header'))
 
@@ -179,7 +179,7 @@ define([
         .then(openFxaFromRp(this, 'signin'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(fillOutSignInUnblock(email, 0))
@@ -194,7 +194,7 @@ define([
         .then(openFxaFromRp(this, 'signin'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
-        .then(fillOutSignIn(this, email, 'bad' + PASSWORD))
+        .then(fillOutSignIn(email, 'bad' + PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(fillOutSignInUnblock(email, 0))
@@ -205,7 +205,7 @@ define([
         // the submit completes.
         .then(testElementExists('#fxa-signin-header'))
         .then(testUrlPathnameEquals('/oauth/signin'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(fillOutSignInUnblock(email, 1))

@@ -20,7 +20,7 @@ define([
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var noEmailExpected = FunctionalHelpers.noEmailExpected;
   var noPageTransition = FunctionalHelpers.noPageTransition;
@@ -45,7 +45,7 @@ define([
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openPage(this.parent, PAGE_URL, '#fxa-signin-header'))
       .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
-      .then(fillOutSignIn(this.parent, email, PASSWORD))
+      .then(fillOutSignIn(email, PASSWORD))
 
       .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'))
 

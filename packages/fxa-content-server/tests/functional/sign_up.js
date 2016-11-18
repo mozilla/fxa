@@ -21,7 +21,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noPageTransition = FunctionalHelpers.noPageTransition;
@@ -144,7 +144,7 @@ define([
         .then(click('#signout'))
 
         .then(testElementExists('#fxa-signin-header'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists('#fxa-settings-header'));
     },
 
@@ -193,7 +193,7 @@ define([
         .then(fillOutSignUp(emailWithSpace, PASSWORD))
         .then(testAtConfirmScreen(emailWithoutSpace))
         .then(clearBrowserState())
-        .then(fillOutSignIn(this, emailWithoutSpace, PASSWORD))
+        .then(fillOutSignIn(emailWithoutSpace, PASSWORD))
 
         // user is not confirmed, success is seeing the confirm screen.
         .then(testElementExists('#fxa-confirm-header'));
@@ -207,7 +207,7 @@ define([
         .then(fillOutSignUp(emailWithSpace, PASSWORD))
         .then(testAtConfirmScreen(emailWithoutSpace))
         .then(clearBrowserState())
-        .then(fillOutSignIn(this, emailWithoutSpace, PASSWORD))
+        .then(fillOutSignIn(emailWithoutSpace, PASSWORD))
 
         // user is not confirmed, success is seeing the confirm screen.
         .then(testElementExists('#fxa-confirm-header'));

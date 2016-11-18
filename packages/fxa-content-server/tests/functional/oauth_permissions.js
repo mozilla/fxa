@@ -24,7 +24,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var noSuchElement = FunctionalHelpers.noSuchElement;
@@ -57,7 +57,7 @@ define([
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openFxaFromUntrustedRp(this, 'signin'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-permissions-header'))
         .then(click('#accept'))
@@ -70,7 +70,7 @@ define([
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openFxaFromUntrustedRp(this, 'signin'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-permissions-header'))
         .then(click('#accept'))
@@ -97,7 +97,7 @@ define([
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: false }))
         .then(openFxaFromUntrustedRp(this, 'signin'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-permissions-header'))
         .then(click('#accept'))
@@ -232,7 +232,7 @@ define([
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openFxaFromUntrustedRp(this, 'signin'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-permissions-header'))
         // display name is not available because user has not set their name
@@ -268,7 +268,7 @@ define([
     'signin with additional requested permission': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         // make display_name available from the start
         .then(click('#display-name button.settings-unit-toggle'))
@@ -310,7 +310,7 @@ define([
     'signin after de-selecting a requested permission': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         // make display_name available from the start
         .then(click('#display-name button.settings-unit-toggle'))
@@ -381,7 +381,7 @@ define([
       return this.remote
         .then(openFxaFromTrustedRp(this, 'signin'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         // no permissions asked for, straight to relier
         .then(testElementExists('#loggedin'));
@@ -391,7 +391,7 @@ define([
       return this.remote
         .then(openFxaFromTrustedRp(this, 'signin', { query: { prompt: 'consent' }}))
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         // permissions are asked for with `prompt=consent`
         .then(testElementExists('#fxa-permissions-header'))
@@ -404,7 +404,7 @@ define([
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openFxaFromTrustedRp(this, 'signin'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         // no permissions asked for, straight to relier
         .then(testElementExists('#loggedin'))

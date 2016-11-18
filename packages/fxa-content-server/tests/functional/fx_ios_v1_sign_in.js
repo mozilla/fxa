@@ -21,7 +21,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
@@ -45,7 +45,7 @@ define([
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openPage(this.parent, PAGE_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
-      .then(fillOutSignIn(this.parent, email, PASSWORD))
+      .then(fillOutSignIn(email, PASSWORD))
       .then(testIsBrowserNotified(this.parent, 'can_link_account'))
       .then(() => {
         if (! options.blocked) {
@@ -116,7 +116,7 @@ define([
         .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
         .execute(listenForFxaCommands)
 
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(visibleByQSA('.error'));
     },

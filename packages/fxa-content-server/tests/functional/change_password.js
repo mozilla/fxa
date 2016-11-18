@@ -23,7 +23,7 @@ define([
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
   var openPage = thenify(FunctionalHelpers.openPage);
   var testElementDisplayed = FunctionalHelpers.testElementDisplayed;
@@ -41,7 +41,8 @@ define([
       return this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
-        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
+        .then(fillOutSignIn(email, FIRST_PASSWORD))
+
         .then(testElementExists('#fxa-settings-header'));
     },
 
@@ -84,7 +85,7 @@ define([
 
         .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
         .then(click('.use-different'))
-        .then(fillOutSignIn(this, email, SECOND_PASSWORD))
+        .then(fillOutSignIn(email, SECOND_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'));
     },

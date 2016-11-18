@@ -22,7 +22,7 @@ define([
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
@@ -62,7 +62,7 @@ define([
         .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
         .execute(listenForFxaCommands)
 
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
         .then(testIsBrowserNotifiedOfLogin(this, email))
 
         // Sync sign ins must be verified.

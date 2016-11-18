@@ -20,7 +20,7 @@ define([
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var openPage = thenify(FunctionalHelpers.openPage);
   var openSignInInNewTab = thenify(FunctionalHelpers.openSignInInNewTab);
   var openSignUpInNewTab = thenify(FunctionalHelpers.openSignUpInNewTab);
@@ -56,7 +56,7 @@ define([
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: false }))
         .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
         .then(testElementTextInclude('.verification-email-message', email));
     },
 
@@ -64,21 +64,21 @@ define([
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(this, AVATAR_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists('#avatar-change'));
     },
 
     'sign in verified with correct password': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists('#fxa-settings-header'));
     },
 
     'sign in verified with incorrect password, click `forgot password?`': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignIn(this, email, 'incorrect password'))
+        .then(fillOutSignIn(email, 'incorrect password'))
         // success is seeing the error message.
         .then(visibleByQSA('.error'))
         // If user clicks on "forgot your password?",
@@ -89,7 +89,7 @@ define([
 
     'sign in with an unknown account allows the user to sign up': function () {
       return this.remote
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
         // The error area shows a link to /signup
         .then(visibleByQSA('.error'))
         .then(click('.error a[href="/signup"]'))
@@ -101,21 +101,21 @@ define([
     'sign in with email with leading space strips space': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignIn(this, '   ' + email, PASSWORD))
+        .then(fillOutSignIn('   ' + email, PASSWORD))
         .then(testElementExists('#fxa-settings-header'));
     },
 
     'sign in with email with trailing space strips space': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignIn(this, email + '   ', PASSWORD))
+        .then(fillOutSignIn(email + '   ', PASSWORD))
         .then(testElementExists('#fxa-settings-header'));
     },
 
     'sign in verified with password that incorrectly has leading whitespace': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignIn(this, email, '  ' + PASSWORD))
+        .then(fillOutSignIn(email, '  ' + PASSWORD))
         // success is seeing the error message.
         .then(visibleByQSA('.error'))
         .then(testElementTextInclude('.error', 'password'));
@@ -132,7 +132,7 @@ define([
     'form prefill information is cleared after sign in->sign out': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         // success is seeing the sign-in-complete screen.
         .then(testElementExists('#fxa-settings-header'))
@@ -154,7 +154,7 @@ define([
         .switchToWindow(windowName)
 
         .then(testElementExists('#fxa-signin-header'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
         .then(closeCurrentWindow())
@@ -172,7 +172,7 @@ define([
         .then(testElementExists('#fxa-signup-header'))
         .switchToWindow('')
 
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
         .switchToWindow(windowName)
 
         .then(testElementExists('#fxa-settings-header'))

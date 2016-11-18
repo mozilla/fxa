@@ -26,7 +26,7 @@ define([
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var openPage = thenify(FunctionalHelpers.openPage);
   var testElementExists = FunctionalHelpers.testElementExists;
 
@@ -61,7 +61,7 @@ define([
       var url = SETTINGS_URL + page;
 
       return this.remote
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-header'))
 
         // Expect to get redirected to confirm since the account is unverified
@@ -105,7 +105,7 @@ define([
     suite['visit settings' + page + ' with an unknown uid parameter redirects to signin'] = function () {
       return this.remote
         .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
 
@@ -116,7 +116,7 @@ define([
     suite['visit settings' + page + ' with a known uid does not redirect'] = function () {
       return this.remote
         .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
 

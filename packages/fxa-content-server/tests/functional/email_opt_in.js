@@ -22,7 +22,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openPage = thenify(FunctionalHelpers.openPage);
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
@@ -133,7 +133,7 @@ define([
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(this, SIGNIN_PAGE_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#communication-preferences.basket-ready'))
         .then(click('#communication-preferences .settings-unit-toggle'))

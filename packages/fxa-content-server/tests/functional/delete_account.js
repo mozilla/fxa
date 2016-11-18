@@ -13,6 +13,8 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
 
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+
   registerSuite({
     name: 'delete_account',
 
@@ -30,7 +32,8 @@ define([
 
     'sign in, delete account': function () {
       var self = this;
-      return FunctionalHelpers.fillOutSignIn(this, email, PASSWORD)
+      return this.remote
+        .then(fillOutSignIn(email, PASSWORD))
         .findById('fxa-settings-header')
         .end()
 
@@ -54,7 +57,8 @@ define([
     },
 
     'sign in, cancel delete account': function () {
-      return FunctionalHelpers.fillOutSignIn(this, email, PASSWORD)
+      return this.remote
+        .then(fillOutSignIn(email, PASSWORD))
         .findById('fxa-settings-header')
         .end()
 

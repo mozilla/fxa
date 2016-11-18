@@ -25,7 +25,7 @@ define([
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noSuchElement = thenify(FunctionalHelpers.noSuchElement);
   var openPage = thenify(FunctionalHelpers.openPage);
@@ -40,7 +40,7 @@ define([
       .then(createUser(email, PASSWORD, {preVerified: true}))
       .then(openPage(context, PAGE_SIGNIN_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
-      .then(fillOutSignIn(context, email, PASSWORD))
+      .then(fillOutSignIn(email, PASSWORD))
       .then(testIsBrowserNotified(context, 'can_link_account'))
       .then(testIsBrowserNotifiedOfLogin(context, email, {checkVerified: false}))
       .then(testElementExists('#fxa-confirm-signin-header'))

@@ -20,7 +20,7 @@ define([
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var focus = FunctionalHelpers.focus;
   var getFxaClient = FunctionalHelpers.getFxaClient;
   var openPage = thenify(FunctionalHelpers.openPage);
@@ -75,11 +75,8 @@ define([
     },
 
     'sign in, go to settings, sign out': function () {
-      var self = this;
       return FunctionalHelpers.openPage(this, SIGNIN_URL, '#fxa-signin-header')
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
-        })
+        .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .findByCssSelector('#fxa-settings-header')
         .end()
@@ -96,7 +93,8 @@ define([
 
     'sign in, go to settings with setting param set to avatar redirects to avatar change page ': function () {
       var self = this;
-      return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD, true)
+      return this.remote
+        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
 
         .findById('fxa-settings-header')
         .end()
@@ -116,7 +114,8 @@ define([
 
     'sign in, go to settings with setting param and additional params redirects to avatar change page ': function () {
       var self = this;
-      return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD, true)
+      return this.remote
+        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
 
         .findById('fxa-settings-header')
         .end()
@@ -137,9 +136,7 @@ define([
     'sign in with setting param set to avatar redirects to avatar change page ': function () {
       var self = this;
       return FunctionalHelpers.openPage(self, SIGNIN_URL + '?setting=avatar', '#fxa-signin-header')
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
-        })
+        .then(fillOutSignIn(email, FIRST_PASSWORD))
         .findById('avatar-options')
         .end();
     },
@@ -147,16 +144,14 @@ define([
     'sign in with setting param and additional params redirects to avatar change page ': function () {
       var self = this;
       return FunctionalHelpers.openPage(self, SIGNIN_URL + '?setting=avatar&uid=' + accountData.uid, '#fxa-signin-header')
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
-        })
+        .then(fillOutSignIn(email, FIRST_PASSWORD))
         .findById('avatar-options')
         .end();
     },
 
     'sign in, go to settings and opening display_name panel autofocuses the first input element': function () {
-      var self = this;
-      return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD, true)
+      return this.remote
+        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
         .findByCssSelector('[data-href="settings/display_name"]')
           .click()
         .end()
@@ -175,7 +170,7 @@ define([
     'sign in, open settings in a second tab, sign out': function () {
       var windowName = 'sign-out inter-tab functional test';
       return this.remote
-        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
+        .then(fillOutSignIn(email, FIRST_PASSWORD))
         // wait for the settings page or else when the new tab is opened,
         // the user is asked to sign in.
         .then(testElementExists('#fxa-settings-header'))
@@ -201,7 +196,8 @@ define([
       return this.remote
         .then(createUser(email, FIRST_PASSWORD))
         .then(clearBrowserState())
-        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
+        .then(fillOutSignIn(email, FIRST_PASSWORD))
+
         .then(testElementExists('#fxa-confirm-header'));
     },
 
@@ -221,7 +217,8 @@ define([
       return this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
         .then(clearBrowserState({ force: true }))
-        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
+        .then(fillOutSignIn(email, FIRST_PASSWORD))
+
         .then(testElementExists('#fxa-settings-header'))
         .execute(function () {
           // get the first (and only) stored account data, we want to destroy

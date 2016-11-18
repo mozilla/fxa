@@ -27,7 +27,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var openPage = thenify(FunctionalHelpers.openPage);
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -43,7 +43,7 @@ define([
       .then(clearBrowserState())
 
       .then(openPage(context, SIGNIN_URL, '#fxa-signin-header'))
-      .then(fillOutSignIn(context, email, PASSWORD))
+      .then(fillOutSignIn(email, PASSWORD))
       .then(testElementExists('#fxa-settings-header'));
   }
 

@@ -655,24 +655,25 @@ define([
       });
   }
 
-  function fillOutSignIn(context, email, password, alwaysLoad) {
-    var remote = getRemote(context);
-    return remote
-      .getCurrentUrl()
-      .then(function (currentUrl) {
-        // only load the signin page if not already at a signin page.
-        // the leading [\/#] allows for either the standard redirect or iframe
-        // flow. The iframe flow must use the window hash for routing.
-        if (! /[\/#]signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
-          return remote
-            .get(require.toUrl(SIGNIN_URL))
-            .setFindTimeout(intern.config.pageLoadTimeout);
-        }
-      })
+  function fillOutSignIn(email, password, alwaysLoad) {
+    return function () {
+      return this.parent
+        .getCurrentUrl()
+        .then(function (currentUrl) {
+          // only load the signin page if not already at a signin page.
+          // the leading [\/#] allows for either the standard redirect or iframe
+          // flow. The iframe flow must use the window hash for routing.
+          if (! /[\/#]signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
+            return this.parent
+              .get(require.toUrl(SIGNIN_URL))
+              .setFindTimeout(intern.config.pageLoadTimeout);
+          }
+        })
 
-      .then(type('input[type=email]', email))
-      .then(type('input[type=password]', password))
-      .then(click('button[type="submit"]'));
+        .then(type('input[type=email]', email))
+        .then(type('input[type=password]', password))
+        .then(click('button[type="submit"]'));
+    };
   }
 
   function fillOutSignInUnblock(email, number) {
