@@ -2,28 +2,124 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var _ = require('lodash');
-var os = require('os');
-var Promise = require('bluebird');
+const _ = require('lodash');
+const config = require('./configuration');
+const flowMetrics = require('./flow-metrics');
+const os = require('os');
 
-var DNT_ALLOWED_DATA = [
+const DNT_ALLOWED_DATA = [
   'context',
   'entrypoint',
   'migration',
   'service',
 ];
-var NO_DNT_ALLOWED_DATA = DNT_ALLOWED_DATA.concat([
+const NO_DNT_ALLOWED_DATA = DNT_ALLOWED_DATA.concat([
   'utm_campaign',
   'utm_content',
   'utm_medium',
   'utm_source',
   'utm_term'
 ]);
-var HOSTNAME = os.hostname();
-var MAX_DATA_LENGTH = 100;
-var VERSION = 1;
+const HOSTNAME = os.hostname();
+const MAX_DATA_LENGTH = 100;
+const VERSION = 1;
 
-module.exports = function (event, data, request) {
+const FLOW_BEGIN_EVENT_TYPES = /^flow\.[a-z_-]+\.begin$/;
+const FLOW_ID_KEY = config.get('flow_id_key');
+const FLOW_ID_EXPIRY = config.get('flow_id_expiry');
+
+const ENTRYPOINT_PATTERN = /^[\w\.-]+$/;
+const SERVICE_PATTERN = /^(sync|content-server|none|[0-9a-f]{16})$/;
+const VALID_FLOW_EVENT_PROPERTIES = [
+  { key: 'client_id', pattern: SERVICE_PATTERN },
+  { key: 'context', pattern: /^[0-9a-z_-]+$/ },
+  { key: 'entryPoint', pattern: ENTRYPOINT_PATTERN },
+  { key: 'entrypoint', pattern: ENTRYPOINT_PATTERN },
+  { key: 'flowId', pattern: /^[0-9a-f]{64}$/ },
+  { key: 'migration', pattern: /^(sync11|amo|none)$/ },
+  { key: 'service', pattern: SERVICE_PATTERN }
+];
+
+const IS_DISABLED = config.get('client_metrics').stderr_collector_disabled;
+
+module.exports = (req, metrics, requestReceivedTime) => {
+  if (IS_DISABLED || ! isValidFlowData(metrics, requestReceivedTime)) {
+    return;
+  }
+
+  const events = metrics.events || [];
+  const flowEvents = _.filter(events, event => {
+    return event.type.indexOf('flow.') === 0;
+  });
+
+  flowEvents.forEach(event => {
+    if (FLOW_BEGIN_EVENT_TYPES.test(event.type)) {
+      event.time = metrics.flowBeginTime;
+      event.flowTime = 0;
+    } else {
+      event.time = estimateTime({
+        /*eslint-disable sorting/sort-object-props*/
+        start: metrics.startTime,
+        offset: event.offset,
+        sent: metrics.flushTime,
+        received: requestReceivedTime
+        /*eslint-enable sorting/sort-object-props*/
+      });
+
+      if (! isValidTime(event.time, requestReceivedTime)) {
+        return;
+      }
+
+      event.flowTime = event.time - metrics.flowBeginTime;
+    }
+
+    logFlowEvent(event, metrics, req);
+  });
+};
+
+function isValidFlowData (metrics, requestReceivedTime) {
+  if (! metrics.flowId) {
+    return false;
+  }
+
+  if (! isValidTime(metrics.flowBeginTime, requestReceivedTime)) {
+    return false;
+  }
+
+  if (! VALID_FLOW_EVENT_PROPERTIES.every(p => isValidProperty(metrics[p.key], p.pattern))) {
+    return false;
+  }
+
+  return flowMetrics.validate(FLOW_ID_KEY, metrics.flowId, metrics.flowBeginTime, metrics.agent);
+}
+
+function isValidTime (time, requestReceivedTime) {
+  if (typeof time !== 'number') {
+    return false;
+  }
+
+  const age = requestReceivedTime - time;
+  if (age > FLOW_ID_EXPIRY || age < 0 || isNaN(age)) {
+    return false;
+  }
+
+  return true;
+}
+
+function isValidProperty (propertyValue, pattern) {
+  if (propertyValue) {
+    return pattern.test(propertyValue);
+  }
+
+  return true;
+}
+
+function estimateTime (times) {
+  var skew = times.received - times.sent;
+  return times.start + times.offset + skew;
+}
+
+function logFlowEvent (event, data, request) {
   var pickedData = _.pick(data, isDNT(request) ? DNT_ALLOWED_DATA : NO_DNT_ALLOWED_DATA);
   var eventData = _.assign({
     event: event.type,
@@ -32,7 +128,7 @@ module.exports = function (event, data, request) {
     hostname: HOSTNAME,
     op: 'flowEvent',
     pid: process.pid,
-    time: event.time,
+    time: new Date(event.time).toISOString(),
     userAgent: request.headers['user-agent'],
     v: VERSION
   }, _.mapValues(pickedData, sanitiseData));
@@ -40,18 +136,9 @@ module.exports = function (event, data, request) {
   optionallySetFallbackData(eventData, 'service', data.client_id);
   optionallySetFallbackData(eventData, 'entrypoint', data.entryPoint);
 
-  if (typeof eventData.time === 'number') {
-    eventData.time = new Date(eventData.time).toISOString();
-  }
-
-  return new Promise(function (resolve) {
-    setImmediate(function () {
-      // The data pipeline listens on stderr.
-      process.stderr.write(JSON.stringify(eventData) + '\n');
-      resolve();
-    });
-  });
-};
+  // The data pipeline listens on stderr.
+  process.stderr.write(JSON.stringify(eventData) + '\n');
+}
 
 function isDNT (request) {
   return request.headers.dnt === '1';
@@ -66,7 +153,7 @@ function limitLength (data) {
 }
 
 function sanitiseData (data) {
-  if (data === 'none') {
+  if (! data || data === 'none') {
     return undefined;
   }
 

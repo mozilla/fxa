@@ -5,421 +5,619 @@
 define([
   'intern!object',
   'intern/chai!assert',
-  'intern/dojo/node!../../server/lib/flow-event',
+  'intern/dojo/node!lodash',
   'intern/dojo/node!os',
+  'intern/dojo/node!path',
+  'intern/dojo/node!proxyquire',
   'intern/dojo/node!sinon',
-], function (registerSuite, assert, flowEvent, os, sinon) {
-  var time, write;
+], (registerSuite, assert, _, os, path, proxyquire, sinon) => {
+  var config, sandbox, mocks, flowEvent, flowMetricsValidateResult;
 
   registerSuite({
     name: 'flow-event',
 
-    'interface is correct': function () {
+    beforeEach () {
+      config = {
+        /*eslint-disable camelcase*/
+        client_metrics: {
+          stderr_collector_disabled: false
+        },
+        flow_id_expiry: 7200000,
+        flow_id_key: 'foo'
+        /*eslint-enable camelcase*/
+      };
+      sandbox = sinon.sandbox.create();
+      sandbox.stub(process.stderr, 'write', () => {});
+      mocks = {
+        config: {
+          get (key) {
+            return config[key];
+          }
+        },
+        flowMetrics: {
+          validate: sandbox.spy(() => flowMetricsValidateResult)
+        },
+        request: {
+          headers: {
+            'user-agent': 'bar'
+          }
+        },
+        time: 1479127399349
+      };
+      flowEvent = proxyquire(path.resolve('server/lib/flow-event'), {
+        './configuration': mocks.config,
+        './flow-metrics': mocks.flowMetrics
+      });
+    },
+
+    afterEach () {
+      sandbox.restore();
+    },
+
+    'interface is correct': () => {
       assert.isFunction(flowEvent);
       assert.lengthOf(flowEvent, 3);
     },
 
-    'call flowEvent with service and entrypoint': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'mock flow time',
-          time: 'mock time',
-          type: 'mock event'
-        }, {
-          context: 'mock context',
-          entrypoint: 'mock entrypoint',
-          flowId: 'mock flow id',
-          migration: 'mock migration',
-          service: 'mock service',
+    'call flowEvent with valid flow data': {
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        flowMetricsValidateResult = true;
+        setup({
+          events: [
+            { offset: 5, type: 'wibble' },
+            { offset: 5, type: 'flow.signup.begin' },
+            { offset: timeSinceFlowBegin, type: 'flow.signup.good-offset-now' },
+            { offset: timeSinceFlowBegin + 1, type: 'flow.signup.bad-offset-future' },
+            { offset: timeSinceFlowBegin - config.flow_id_expiry - 1, type: 'flow.signup.bad-offset-expired' },
+            { offset: timeSinceFlowBegin - config.flow_id_expiry, type: 'flow.signup.good-offset-oldest' }
+          ],
+        }, timeSinceFlowBegin);
+      },
+
+      'process.stderr.write was called three times': () => {
+        assert.equal(process.stderr.write.callCount, 3);
+      },
+
+      'first call to process.stderr.write was correct': () => {
+        const args = process.stderr.write.args[0];
+        assert.lengthOf(args, 1);
+        assert.equal(args[0][args[0].length - 1], '\n');
+        assert.deepEqual(JSON.parse(args[0]), {
           /*eslint-disable camelcase*/
+          context: 'fx_desktop_v3',
+          entrypoint: 'menupanel',
+          event: 'flow.signup.begin',
+          flow_id: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flow_time: 0,
+          hostname: os.hostname(),
+          migration: 'sync11',
+          op: 'flowEvent',
+          pid: process.pid,
+          service: '1234567890abcdef',
+          time: new Date(mocks.time - 1000).toISOString(),
+          userAgent: mocks.request.headers['user-agent'],
           utm_campaign: 'mock utm_campaign',
           utm_content: 'mock utm_content',
           utm_medium: 'mock utm_medium',
           utm_source: 'mock utm_source',
           utm_term: 'mock utm_term',
+          v: 1
           /*eslint-enable camelcase*/
-          zignore: 'ignore me'
-        }, {
-          headers: { 'user-agent': 'foo' }
         });
       },
 
-      teardown: function () {
-        process.stderr.write = write;
+      'second call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[1][0]);
+        assert.lengthOf(Object.keys(arg), 18);
+        assert.equal(arg.event, 'flow.signup.good-offset-now');
+        assert.equal(arg.time, new Date(mocks.time).toISOString());
       },
 
-      'process.stderr.write was called correctly': function () {
+      'third call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[2][0]);
+        assert.lengthOf(Object.keys(arg), 18);
+        assert.equal(arg.event, 'flow.signup.good-offset-oldest');
+        assert.equal(arg.time, new Date(mocks.time - config.flow_id_expiry).toISOString());
+      }
+    },
+
+    'call flowEvent with invalid flow id': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          flowId: '1234567890abcdef1234567890abcdef'
+        }, 1000);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
+    },
+
+    'call flowEvent with invalid flow begin time': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          flowBeginTime: mocks.time + 1
+        }, 1000);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
+    },
+
+    'call flowEvent with string flow begin time': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          flowBeginTime: `${mocks.time - 1000}`
+        }, 1000);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
+    },
+
+    'call flowEvent with invalid context': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          context: '!'
+        }, 1000);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
+    },
+
+    'call flowEvent with invalid entrypoint': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          entrypoint: '!'
+        }, 1000);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
+    },
+
+    'call flowEvent with invalid migration': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          migration: 'sync111'
+        }, 1000);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
+    },
+
+    'call flowEvent with invalid service': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          service: '1234567890abcdef1234567890abcdef'
+        }, 1000);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
+    },
+
+    'call flowEvent without optional flow data': {
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
+      },
+
+      'process.stderr.write was called once': () => {
         assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.isUndefined(arg.context);
+        assert.isUndefined(arg.entrypoint);
+        assert.isUndefined(arg.migration);
+        assert.isUndefined(arg.service);
+        assert.isUndefined(arg.utm_campaign);
+        assert.isUndefined(arg.utm_content);
+        assert.isUndefined(arg.utm_medium);
+        assert.isUndefined(arg.utm_source);
+        assert.isUndefined(arg.utm_term);
+      }
+    },
 
-        var args = process.stderr.write.args[0];
-        assert.lengthOf(args, 1);
-        assert.equal(args[0][args[0].length - 1], '\n');
+    'call flowEvent without flow id': {
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flushTime: flowBeginTime,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
+      },
 
-        var eventData = JSON.parse(args[0]);
-        assert.isObject(eventData);
-        assert.lengthOf(Object.keys(eventData), 18);
-        assert.equal(eventData.op, 'flowEvent');
-        assert.equal(eventData.hostname, os.hostname());
-        assert.equal(eventData.pid, process.pid);
-        assert.equal(eventData.v, 1);
-        assert.equal(eventData.event, 'mock event');
-        assert.equal(eventData.userAgent, 'foo');
-        assert.equal(eventData.time, 'mock time');
-        assert.equal(eventData.flow_id, 'mock flow id');
-        assert.equal(eventData.flow_time, 'mock flow time');
-        assert.equal(eventData.context, 'mock context');
-        assert.equal(eventData.entrypoint, 'mock entrypoint');
-        assert.equal(eventData.migration, 'mock migration');
-        assert.equal(eventData.service, 'mock service');
-        /*eslint-disable camelcase*/
-        assert.equal(eventData.utm_campaign, 'mock utm_campaign');
-        assert.equal(eventData.utm_content, 'mock utm_content');
-        assert.equal(eventData.utm_medium, 'mock utm_medium');
-        assert.equal(eventData.utm_source, 'mock utm_source');
-        assert.equal(eventData.utm_term, 'mock utm_term');
-        /*eslint-enable camelcase*/
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
+    },
+
+    'call flowEvent without flow begin time': {
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
+    },
+
+    'call flowEvent with valid-seeming flow data but flowMetrics.validate returns false': {
+      beforeEach () {
+        flowMetricsValidateResult = false;
+        setup({}, 1000);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
+    },
+
+    'call flowEvent without flow event': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          events: [
+            { offset: 0, type: 'blargh' }
+          ]
+        }, 1000);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
       }
     },
 
     'call flowEvent with client_id': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'foo',
-          time: 'bar',
-          type: 'wibble'
-        }, {
-          client_id: 'mock client id', //eslint-disable-line camelcase
-          ignore: 'ignore me'
-        }, {
-          headers: { 'user-agent': 'blee' }
-        });
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          client_id: 'deadbeefbaadf00d', //eslint-disable-line camelcase
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
       },
 
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
+      'process.stderr.write was called correctly': () => {
         assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.equal(arg.service, 'deadbeefbaadf00d');
+      }
+    },
 
-        var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(eventData), 9);
-        assert.equal(eventData.op, 'flowEvent');
-        assert.equal(eventData.hostname, os.hostname());
-        assert.equal(eventData.pid, process.pid);
-        assert.equal(eventData.v, 1);
-        assert.equal(eventData.event, 'wibble');
-        assert.equal(eventData.userAgent, 'blee');
-        assert.equal(eventData.time, 'bar');
-        assert.equal(eventData.flow_time, 'foo');
-        assert.equal(eventData.service, 'mock client id');
+    'call flowEvent with invalid client_id': {
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          client_id: 'deadbeef', //eslint-disable-line camelcase
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
       }
     },
 
     'call flowEvent with service and client_id': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'foo',
-          time: 'bar',
-          type: 'wibble'
-        }, {
-          client_id: 'mock client id', //eslint-disable-line camelcase
-          service: 'mock service',
-          zignore: 'ignore me'
-        }, {
-          headers: { 'user-agent': 'blee' }
-        });
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          client_id: 'deadbeefbaadf00d', //eslint-disable-line camelcase
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          service: '1234567890abcdef',
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
       },
 
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
+      'process.stderr.write was called correctly': () => {
         assert.equal(process.stderr.write.callCount, 1);
-
-        var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(eventData), 9);
-        assert.equal(eventData.service, 'mock service');
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.equal(arg.service, '1234567890abcdef');
       }
     },
 
     'call flowEvent with entryPoint': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'foo',
-          time: 'bar',
-          type: 'wibble'
-        }, {
-          entryPoint: 'mock entryPoint', //eslint-disable-line camelcase
-          ignore: 'ignore me'
-        }, {
-          headers: { 'user-agent': 'blee' }
-        });
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          entryPoint: 'menubar',
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
       },
 
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
+      'process.stderr.write was called correctly': () => {
         assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.equal(arg.entrypoint, 'menubar');
+      }
+    },
 
-        var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(eventData), 9);
-        assert.equal(eventData.entrypoint, 'mock entryPoint');
+    'call flowEvent with invalid entryPoint': {
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          entryPoint: '!',
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
       }
     },
 
     'call flowEvent with entrypoint and entryPoint': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'foo',
-          time: 'bar',
-          type: 'wibble'
-        }, {
-          entryPoint: 'mock entryPoint',
-          entrypoint: 'mock entrypoint',
-          ignore: 'ignore me'
-        }, {
-          headers: { 'user-agent': 'blee' }
-        });
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          entryPoint: 'menubar',
+          entrypoint: 'menupanel',
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
       },
 
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
+      'process.stderr.write was called correctly': () => {
         assert.equal(process.stderr.write.callCount, 1);
-
-        var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(eventData), 9);
-        assert.equal(eventData.entrypoint, 'mock entrypoint');
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.equal(arg.entrypoint, 'menupanel');
       }
     },
 
     'call flowEvent with 101-character data': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'foo',
-          time: 'bar',
-          type: 'wibble'
-        }, {
-          context: (new Array(102)).join('0')
-        }, {
-          headers: { 'user-agent': 'blee' }
-        });
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          context: new Array(102).join('0'),
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
       },
 
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
+      'process.stderr.write was called correctly': () => {
         assert.equal(process.stderr.write.callCount, 1);
-
-        var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(eventData.context, 100);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.lengthOf(arg.context, 100);
       }
     },
 
     'call flowEvent with 100-character data': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'foo',
-          time: 'bar',
-          type: 'wibble'
-        }, {
-          entrypoint: (new Array(101)).join('x')
-        }, {
-          headers: { 'user-agent': 'blee' }
-        });
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          entrypoint: new Array(101).join('0'),
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
       },
 
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
+      'process.stderr.write was called correctly': () => {
         assert.equal(process.stderr.write.callCount, 1);
-
-        var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(eventData.entrypoint, 100);
-      }
-    },
-
-    'call flowEvent with "none" data': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'foo',
-          time: 'bar',
-          type: 'wibble'
-        }, {
-          migration: 'none'
-        }, {
-          headers: { 'user-agent': 'blee' }
-        });
-      },
-
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
-        assert.equal(process.stderr.write.callCount, 1);
-
-        var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.equal(Object.keys(eventData).indexOf('migration'), -1);
-      }
-    },
-
-    'call flowEvent with 101-character client_id': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'foo',
-          time: 'bar',
-          type: 'wibble'
-        }, {
-          client_id: (new Array(102)).join(' ') //eslint-disable-line camelcase
-        }, {
-          headers: { 'user-agent': 'blee' }
-        });
-      },
-
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
-        assert.equal(process.stderr.write.callCount, 1);
-
-        var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(eventData.service, 100);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.lengthOf(arg.entrypoint, 100);
       }
     },
 
     'call flowEvent with 101-character entryPoint': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'foo',
-          time: 'bar',
-          type: 'wibble'
-        }, {
-          entryPoint: (new Array(102)).join(' ') //eslint-disable-line camelcase
-        }, {
-          headers: { 'user-agent': 'blee' }
-        });
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          entryPoint: new Array(102).join('x'), //eslint-disable-line camelcase
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
       },
 
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
+      'process.stderr.write was called correctly': () => {
         assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.lengthOf(arg.entrypoint, 100);
+      }
+    },
 
-        var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(eventData.entrypoint, 100);
+    'call flowEvent with "none" data': {
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          migration: 'none',
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
+      },
+
+      'process.stderr.write was called correctly': () => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.isUndefined(arg.migration);
+      }
+    },
+
+    'call flowEvent with falsy data': {
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          service: 0,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
+      },
+
+      'process.stderr.write was called correctly': () => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.isUndefined(arg.service);
       }
     },
 
     'call flowEvent with DNT header': {
-      setup: function () {
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'mock flow time',
-          time: 'mock time',
-          type: 'mock event'
-        }, {
-          client_id: 'mock client_id', //eslint-disable-line camelcase
-          context: 'mock context',
-          entryPoint: 'mock entryPoint',
-          entrypoint: 'mock entrypoint',
-          migration: 'mock migration',
-          service: 'mock service',
-          /*eslint-disable camelcase*/
-          utm_campaign: 'mock utm_campaign',
-          utm_content: 'mock utm_content',
-          utm_medium: 'mock utm_medium',
-          utm_source: 'mock utm_source',
-          utm_term: 'mock utm_term',
-          /*eslint-enable camelcase*/
-          zignore: 'ignore me'
-        }, {
-          headers: { 'dnt': '1', 'user-agent': 'foo' }
-        });
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        mocks.request.headers.dnt = '1';
+        setup({}, 1000);
       },
 
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
+      'process.stderr.write was called correctly': () => {
         assert.equal(process.stderr.write.callCount, 1);
-
-        var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(eventData), 12);
-        assert.equal(eventData.op, 'flowEvent');
-        assert.equal(eventData.hostname, os.hostname());
-        assert.equal(eventData.pid, process.pid);
-        assert.equal(eventData.v, 1);
-        assert.equal(eventData.event, 'mock event');
-        assert.equal(eventData.userAgent, 'foo');
-        assert.equal(eventData.time, 'mock time');
-        assert.equal(eventData.flow_time, 'mock flow time');
-        assert.equal(eventData.context, 'mock context');
-        assert.equal(eventData.entrypoint, 'mock entrypoint');
-        assert.equal(eventData.migration, 'mock migration');
-        assert.equal(eventData.service, 'mock service');
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        console.log(process.stderr.write.args[0][0]);
+        assert.isUndefined(arg.utm_campaign);
+        assert.isUndefined(arg.utm_content);
+        assert.isUndefined(arg.utm_medium);
+        assert.isUndefined(arg.utm_source);
+        assert.isUndefined(arg.utm_term);
       }
-    },
-
-    'call flowEvent with numeric time': {
-      setup: function () {
-        time = Date.now();
-        write = process.stderr.write;
-        process.stderr.write = sinon.spy();
-        return flowEvent({
-          flowTime: 'foo',
-          time: time,
-          type: 'wibble'
-        }, {}, {
-          headers: { 'user-agent': 'blee' }
-        });
-      },
-
-      teardown: function () {
-        process.stderr.write = write;
-      },
-
-      'process.stderr.write was called correctly': function () {
-        assert.equal(process.stderr.write.callCount, 1);
-
-        var eventData = JSON.parse(process.stderr.write.args[0][0]);
-        assert.equal(eventData.time, new Date(time).toISOString());
-      }
-    },
+    }
   });
+
+  function setup (data, timeSinceFlowBegin) {
+    try {
+      const flowBeginTime = data.flowBeginTime || mocks.time - timeSinceFlowBegin;
+      flowEvent(mocks.request, {
+        context: data.context || 'fx_desktop_v3',
+        entrypoint: data.entrypoint || 'menupanel',
+        events: data.events || [
+          { offset: 0, type: 'flow.signup.begin' }
+        ],
+        flowBeginTime,
+        flowId: data.flowId || '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        flushTime: flowBeginTime,
+        migration: data.migration || 'sync11',
+        service: data.service || '1234567890abcdef',
+        startTime: flowBeginTime - timeSinceFlowBegin,
+        /*eslint-disable camelcase*/
+        utm_campaign: data.utm_campaign || 'mock utm_campaign',
+        utm_content: data.utm_content || 'mock utm_content',
+        utm_medium: data.utm_medium || 'mock utm_medium',
+        utm_source: data.utm_source || 'mock utm_source',
+        utm_term: data.utm_term || 'mock utm_term',
+        /*eslint-enable camelcase*/
+        zignore: 'ignore me'
+      }, mocks.time);
+    } catch (err) {
+      console.error(err.stack);
+    }
+  }
 });
