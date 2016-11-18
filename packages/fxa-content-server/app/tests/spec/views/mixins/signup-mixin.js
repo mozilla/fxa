@@ -22,11 +22,12 @@ define(function (require, exports, module) {
     });
 
     describe('signUp', function () {
-      var account;
-      var broker;
-      var flow;
-      var relier;
-      var view;
+      let account;
+      let broker;
+      let flow;
+      let relier;
+      let user;
+      let view;
 
       beforeEach(function () {
         account = new Account({
@@ -36,14 +37,17 @@ define(function (require, exports, module) {
         broker = new Broker();
         flow = {};
         relier = new Relier();
+        user = {
+          signUpAccount: sinon.spy((account) => p(account))
+        };
 
         view = {
           _formPrefill: {
             clear: sinon.spy()
           },
-          broker: broker,
-          flow: flow,
-          getStringifiedResumeToken: sinon.spy(),
+          broker,
+          flow,
+          getStringifiedResumeToken: sinon.spy(() => 'resume token'),
           invokeBrokerMethod: sinon.spy(function () {
             return p();
           }),
@@ -53,13 +57,9 @@ define(function (require, exports, module) {
           logViewEvent: sinon.spy(),
           navigate: sinon.spy(),
           onSignUpSuccess: SignUpMixin.onSignUpSuccess,
-          relier: relier,
+          relier,
           signUp: SignUpMixin.signUp,
-          user: {
-            signUpAccount: sinon.spy(function (account) {
-              return p(account);
-            })
-          }
+          user
         };
       });
 
@@ -70,6 +70,15 @@ define(function (require, exports, module) {
           });
 
           return view.signUp(account, 'password');
+        });
+
+        it('calls user.signUpAccount correctly', () => {
+          assert.isTrue(user.signUpAccount.calledOnce);
+          assert.isTrue(user.signUpAccount.calledWith(
+            account, 'password', relier, { resume: 'resume token' }));
+
+          assert.isTrue(view.getStringifiedResumeToken.calledOnce);
+          assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
         });
 
         it('redirects to the `signup_permissions` screen', function () {
@@ -95,6 +104,15 @@ define(function (require, exports, module) {
           return view.signUp(account, 'password');
         });
 
+        it('calls user.signUpAccount correctly', () => {
+          assert.isTrue(user.signUpAccount.calledOnce);
+          assert.isTrue(user.signUpAccount.calledWith(
+            account, 'password', relier, { resume: 'resume token' }));
+
+          assert.isTrue(view.getStringifiedResumeToken.calledOnce);
+          assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
+        });
+
         it('redirects to the `choose_what_to_sync` screen', function () {
           assert.isTrue(view.navigate.calledOnce);
 
@@ -114,6 +132,15 @@ define(function (require, exports, module) {
           account.set('verified', true);
 
           return view.signUp(account, 'password');
+        });
+
+        it('calls user.signUpAccount correctly', () => {
+          assert.isTrue(user.signUpAccount.calledOnce);
+          assert.isTrue(user.signUpAccount.calledWith(
+            account, 'password', relier, { resume: 'resume token' }));
+
+          assert.isTrue(view.getStringifiedResumeToken.calledOnce);
+          assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
         });
 
         it('calls view.logViewEvent correctly', function () {
@@ -162,6 +189,15 @@ define(function (require, exports, module) {
           account.set('verified', false);
 
           return view.signUp(account, 'password');
+        });
+
+        it('calls user.signUpAccount correctly', () => {
+          assert.isTrue(user.signUpAccount.calledOnce);
+          assert.isTrue(user.signUpAccount.calledWith(
+            account, 'password', relier, { resume: 'resume token' }));
+
+          assert.isTrue(view.getStringifiedResumeToken.calledOnce);
+          assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
         });
 
         it('calls view.logViewEvent correctly', function () {
@@ -215,4 +251,3 @@ define(function (require, exports, module) {
     });
   });
 });
-

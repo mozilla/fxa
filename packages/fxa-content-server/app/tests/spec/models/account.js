@@ -6,9 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   const Account = require('models/account');
+  const { assert } = require('chai');
   const Assertion = require('lib/assertion');
   const AuthErrors = require('lib/auth-errors');
-  const chai = require('chai');
   const Constants = require('lib/constants');
   const Device = require('models/device');
   const FxaClientWrapper = require('lib/fxa-client');
@@ -20,12 +20,11 @@ define(function (require, exports, module) {
   const ProfileClient = require('lib/profile-client');
   const ProfileErrors = require('lib/profile-errors');
   const Relier = require('models/reliers/relier');
+  const ResumeToken = require('models/resume-token');
   const SignInReasons = require('lib/sign-in-reasons');
   const sinon = require('sinon');
   const VerificationMethods = require('lib/verification-methods');
   const VerificationReasons = require('lib/verification-reasons');
-
-  var assert = chai.assert;
 
   describe('models/account', function () {
     var account;
@@ -1905,6 +1904,34 @@ define(function (require, exports, module) {
 
       it('delegates to the fxaClient', () => {
         assert.isTrue(fxaClient.rejectUnblockCode.calledWith(UID, 'code'));
+      });
+    });
+
+    describe('populateFromResumeToken', () => {
+      describe('ResumeToken contains `email`', () => {
+        beforeEach(() => {
+          let resumeToken = new ResumeToken({ email: EMAIL });
+
+          account.unset('email');
+          account.populateFromResumeToken(resumeToken);
+        });
+
+        it('populates `email`', () => {
+          assert.equal(account.get('email'), EMAIL);
+        });
+      });
+
+      describe('ResumeToken does not contain `email`', () => {
+        beforeEach(() => {
+          let resumeToken = new ResumeToken({});
+
+          account.unset('email');
+          account.populateFromResumeToken(resumeToken);
+        });
+
+        it('does not populate `email`', () => {
+          assert.isFalse(account.has('email'));
+        });
       });
     });
   });

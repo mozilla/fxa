@@ -25,12 +25,9 @@ define(function (require, exports, module) {
      */
     resetPassword (email) {
       var account = this.user.initAccount({ email: email });
-      return account.resetPassword(
-        this.relier,
-        {
-          resume: this.getStringifiedResumeToken()
-        }
-      )
+      return account.resetPassword(this.relier, {
+        resume: this.getStringifiedResumeToken(account)
+      })
       .then((result) => {
         this.navigate('confirm_reset_password', {
           email: email,
@@ -52,13 +49,9 @@ define(function (require, exports, module) {
      */
     retryResetPassword (email, passwordForgotToken) {
       var account = this.user.initAccount({ email: email });
-      return account.retryResetPassword(
-        passwordForgotToken,
-        this.relier,
-        {
-          resume: this.getStringifiedResumeToken()
-        }
-      );
+      return account.retryResetPassword(passwordForgotToken, this.relier, {
+        resume: this.getStringifiedResumeToken(account)
+      });
     }
   }, ResumeTokenMixin);
 });

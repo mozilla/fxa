@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const Broker = require('models/auth_brokers/base');
-  const chai = require('chai');
   const Constants = require('lib/constants');
   const VerificationReasons = require('lib/verification-reasons');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
@@ -21,8 +21,6 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const View = require('views/complete_sign_up');
   const WindowMock = require('../../mocks/window');
-
-  var assert = chai.assert;
 
   describe('views/complete_sign_up', function () {
     var account;
@@ -538,28 +536,15 @@ define(function (require, exports, module) {
             uid: validUid
           });
 
-          sinon.stub(account, 'verifySignUp', function () {
-            return p();
-          });
-
-          sinon.stub(retrySignUpAccount, 'retrySignUp', function () {
-            return p();
-          });
-
-          sinon.stub(user, 'getAccountByUid', function () {
-            return account;
-          });
-
-          sinon.stub(user, 'getAccountByEmail', function () {
-            return retrySignUpAccount;
-          });
+          sinon.stub(account, 'verifySignUp', () => p());
+          sinon.stub(retrySignUpAccount, 'retrySignUp', () => p());
+          sinon.stub(user, 'getAccountByUid', () => account);
+          sinon.stub(user, 'getAccountByEmail', () => retrySignUpAccount);
 
           windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
           initView();
 
-          sinon.stub(view, 'getStringifiedResumeToken', function () {
-            return 'resume token';
-          });
+          sinon.stub(view, 'getStringifiedResumeToken', () => 'resume token');
 
           return view.render()
             .then(function () {
@@ -568,6 +553,8 @@ define(function (require, exports, module) {
         });
 
         it('tells the account to retry signUp', function () {
+          assert.isTrue(view.getStringifiedResumeToken.calledOnce);
+          assert.isTrue(view.getStringifiedResumeToken.calledWith(retrySignUpAccount));
           assert.isTrue(retrySignUpAccount.retrySignUp.calledWith(
             relier,
             {

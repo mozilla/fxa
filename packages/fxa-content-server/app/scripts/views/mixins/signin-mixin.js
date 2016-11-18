@@ -43,7 +43,7 @@ define(function (require, exports, module) {
             // a resume token is passed in to allow
             // unverified account or session users to complete
             // email verification.
-            resume: this.getStringifiedResumeToken(),
+            resume: this.getStringifiedResumeToken(account),
             unblockCode: options.unblockCode
           });
         })
