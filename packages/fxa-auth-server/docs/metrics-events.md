@@ -194,6 +194,15 @@ in the preceding five days.
 
 ## Significant changes
 
+### Train 75
+
+* The correct `service` parameter
+  was passed to `/certificate/sign`
+  for OAuth reliers,
+  stopping those requests from
+  being identified as originating from
+  the content server.
+
 ### Train 74
 
 * Flow event data validation
