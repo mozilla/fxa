@@ -131,9 +131,12 @@ define([
         .then(type('#password', PASSWORD))
         .then(click('button[type=submit]'))
 
-        // User verified from the same IP address so does not
-        // have to go through signin confirmation.
-        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: true }));
+        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: false }))
+
+        // user verified the reset password in another browser, they must
+        // re-verify they want to sign in on this device to avoid
+        // opening up an attack vector.
+        .then(testElementExists('#fxa-confirm-signin-header'));
     },
 
     'reset password, verify different browser - from new browser\'s P.O.V.': function () {
