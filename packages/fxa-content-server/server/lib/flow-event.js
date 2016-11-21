@@ -17,8 +17,7 @@ const NO_DNT_ALLOWED_DATA = DNT_ALLOWED_DATA.concat([
   'utm_campaign',
   'utm_content',
   'utm_medium',
-  'utm_source',
-  'utm_term'
+  'utm_source'
 ]);
 const HOSTNAME = os.hostname();
 const MAX_DATA_LENGTH = 100;
@@ -28,7 +27,7 @@ const FLOW_BEGIN_EVENT = 'flow.begin';
 const FLOW_ID_KEY = config.get('flow_id_key');
 const FLOW_ID_EXPIRY = config.get('flow_id_expiry');
 
-const ENTRYPOINT_PATTERN = /^[\w\.-]+$/;
+const ENTRYPOINT_PATTERN = /^[\w.-]+$/;
 const SERVICE_PATTERN = /^(sync|content-server|none|[0-9a-f]{16})$/;
 const VALID_FLOW_EVENT_PROPERTIES = [
   { key: 'client_id', pattern: SERVICE_PATTERN },
@@ -39,6 +38,8 @@ const VALID_FLOW_EVENT_PROPERTIES = [
   { key: 'migration', pattern: /^(sync11|amo|none)$/ },
   { key: 'service', pattern: SERVICE_PATTERN }
 ];
+
+const UTM_PATTERN = /^[\w.%-]+$/;
 
 const IS_DISABLED = config.get('client_metrics').stderr_collector_disabled;
 
@@ -131,7 +132,6 @@ function estimateTime (times) {
 }
 
 function logFlowEvent (event, data, request) {
-  var pickedData = _.pick(data, isDNT(request) ? DNT_ALLOWED_DATA : NO_DNT_ALLOWED_DATA);
   var eventData = _.assign({
     event: event.type,
     flow_id: data.flowId, //eslint-disable-line camelcase
@@ -142,13 +142,30 @@ function logFlowEvent (event, data, request) {
     time: new Date(event.time).toISOString(),
     userAgent: request.headers['user-agent'],
     v: VERSION
-  }, _.mapValues(pickedData, sanitiseData));
+  }, _.mapValues(pickFlowData(data, request), sanitiseData));
 
   optionallySetFallbackData(eventData, 'service', data.client_id);
   optionallySetFallbackData(eventData, 'entrypoint', data.entryPoint);
 
   // The data pipeline listens on stderr.
   process.stderr.write(JSON.stringify(eventData) + '\n');
+}
+
+function pickFlowData (data, request) {
+  if (isDNT(request)) {
+    return _.pick(data, DNT_ALLOWED_DATA);
+  }
+
+  const pickedData = _.pick(data, NO_DNT_ALLOWED_DATA);
+
+  return _.pickBy(pickedData, (value, key) => {
+    if (key.indexOf('utm_') === 0) {
+      // Silently drop utm_ properties that contain unexpected characters.
+      return UTM_PATTERN.test(value);
+    }
+
+    return true;
+  });
 }
 
 function isDNT (request) {
