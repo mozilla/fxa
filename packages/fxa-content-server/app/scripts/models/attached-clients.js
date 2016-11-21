@@ -59,6 +59,9 @@ define(function (require, exports, module) {
       if (a.get('isCurrentDevice')) {
         return -1;
       }
+      if (b.get('isCurrentDevice')) {
+        return 1;
+      }
       // check lastAccessTime. If one has an access time and the other does
       // not, the one with the access time is automatically higher in the
       // list. If both have access times, sort in descending order, unless
@@ -83,11 +86,11 @@ define(function (require, exports, module) {
 
       if (aName < bName) {
         return -1;
-      } else if (a === b) {
-        return 0;
+      } else if (aName > bName) {
+        return 1;
       }
 
-      return 1;
+      return 0;
     }
 
   });

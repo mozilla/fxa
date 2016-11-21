@@ -27,11 +27,24 @@ define(function (require, exports, module) {
       });
     });
 
+    function shuffle(items) {
+      for (var i = items.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = items[i];
+        items[i] = items[j];
+        items[j] = tmp;
+      }
+      return items;
+    }
+
     describe('properly orders the attached clients', function () {
       var now = Date.now();
 
       beforeEach(function () {
-        attachedClients.set([
+        // We input the list of clients in a random order,
+        // so that the tests won't accidentally depend on implementation
+        // details of how the underlying sort algorithm works.
+        attachedClients.set(shuffle([
           {
             clientType: Constants.CLIENT_TYPE_DEVICE,
             isCurrentDevice: false,
@@ -79,7 +92,7 @@ define(function (require, exports, module) {
             lastAccessTime: null,
             name: 'an oauth'
           }
-        ]);
+        ]));
       });
 
       it('places the `current` device first', function () {
