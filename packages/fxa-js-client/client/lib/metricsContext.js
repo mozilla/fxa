@@ -8,32 +8,12 @@
 define([], function () {
   'use strict';
 
-  var OPTIONS = {
-    context: true,
-    entrypoint: true,
-    migration: true,
-    service: true,
-    utmCampaign: true,
-    utmContent: true,
-    utmMedium: true,
-    utmSource: true,
-    utmTerm: true
-  };
-
   return {
     marshall: function (data) {
-      var metricsContext = {
+      return {
         flowId: data.flowId,
         flowBeginTime: data.flowBeginTime
       };
-
-      for (var key in data) {
-        if (data.hasOwnProperty(key) && data[key] && OPTIONS[key]) {
-          metricsContext[key] = data[key];
-        }
-      }
-
-      return metricsContext;
     }
   };
 });
