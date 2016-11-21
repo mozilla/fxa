@@ -75,7 +75,7 @@ module.exports = function (config, i18n) {
       res.redirect(removeVersionPrefix(req.originalUrl));
     });
 
-    if (config.get('env') === 'development') {
+    if (config.get('babel.enabled')) {
       // Compile ES2015 scripts to ES5 before serving to the client.
       // This is done for two reasons:
       // 1. The blanket code coverage tool does not understand ES6, only ES5.
@@ -91,7 +91,9 @@ module.exports = function (config, i18n) {
         exclude: ['scripts/{head|vendor}/**'],
         srcPath: path.join(__dirname, '..', '..', 'app')
       }));
+    }
 
+    if (config.get('env') === 'development') {
       // front end mocha tests
       app.get('/tests/index.html', function (req, res) {
         var checkCoverage = 'coverage' in req.query &&
@@ -189,4 +191,3 @@ module.exports = function (config, i18n) {
     });
   };
 };
-
