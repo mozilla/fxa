@@ -1,10 +1,5 @@
 language: node_js
 
-# workaround for obsolete `temp` module 0.6
-env:
-  global:
-    - TMPDIR=/tmp
-
 node_js:
  - "4.5"
 
