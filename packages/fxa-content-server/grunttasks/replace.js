@@ -34,6 +34,7 @@ module.exports = function (grunt) {
         '<%= yeoman.dist %>/scripts/*.js'
       ]
     },
+
     tos_pp: { //eslint-disable-line camelcase
       overwrite: true,
       replacements: [
@@ -49,6 +50,23 @@ module.exports = function (grunt) {
       src: [
         '<%= yeoman.pp_md_src %>/*.md',
         '<%= yeoman.tos_md_src %>/*.md'
+      ]
+    },
+
+    // Replace the require('text!/i18n/client.json') with {} because
+    // /i18n/client.json does not exist on disk and requirejs would
+    // blow up otherwise. The translations will be insert later in the
+    // build step, one translated main.js file per locale.
+    'fetch_translations': {
+      overwrite: true,
+      replacements: [
+        {
+          from: /__translations__:.*/,
+          to: '__translations__:{},'
+        }
+      ],
+      src: [
+        '<%= yeoman.es5 %>/scripts/lib/translator.js'
       ]
     }
   });

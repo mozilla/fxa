@@ -13,33 +13,22 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const _ = require('underscore');
   const Strings = require('lib/strings');
-  const xhr = require('lib/xhr');
 
-  var Translator = function () {
-    this.translations = {};
+  const Translator = function () {
   };
 
   Translator.prototype = {
-    set (translations) {
-      this.translations = translations;
-    },
+    // In dev mode, this will request localized translations.
+    // In prod mode, this will be replaced with the actual translations.
+    // `__translations__` is used in hopes that it's a slight bit less likely
+    // than `translations` to be used in another module, a collision would
+    // bork the build.
+    // DO NOT EDIT BELOW HERE W/O CHECKING LOCALIZED BUILDS
+    __translations__: JSON.parse(require('text!/i18n/client.json')),
+    // DO NOT EDIT ABOVE HERE W/O CHECKING LOCALIZED BUILDS
 
-    // Fetches our JSON translation file
-    fetch () {
-      return xhr.getJSON('/i18n/client.json')
-          .then((data) => {
-            // Only update the translations if some came back
-            // from the server. If the server sent no translations,
-            // english strings will be served.
-            if (data) {
-              this.translations = data;
-            }
-          }, () => {
-            // allow for 404's. `.get` will use the key for the translation
-            // if a value is not found in the translations table. This means
-            // English will be the fallback.
-            this.translations = {};
-          });
+    set (translations) {
+      this.__translations__ = translations;
     },
 
     /**
@@ -51,7 +40,7 @@ define(function (require, exports, module) {
      * @returns {String}
      */
     get (key, context) {
-      var translation = this.translations[key];
+      var translation = this.__translations__[key];
       /**
        * See http://www.lehman.cuny.edu/cgi-bin/man-cgi?msgfmt+1
        * and

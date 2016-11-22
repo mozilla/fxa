@@ -177,7 +177,6 @@ define(function (require, exports, module) {
 
     initializeL10n () {
       this._translator = this._window.translator = new Translator();
-      return this._translator.fetch();
     },
 
     initializeMetrics () {

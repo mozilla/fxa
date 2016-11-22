@@ -7,10 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const Translator = require('lib/translator');
-
-  var assert = chai.assert;
 
   // translations taken from Persona's db_LB translations.
   var TRANSLATIONS = {
@@ -37,29 +35,6 @@ define(function (require, exports, module) {
 
     afterEach(function () {
       translator = null;
-    });
-
-    describe('fetch', function () {
-      it('fetches translations from the server', function () {
-        return translator.fetch()
-          .then(function () {
-            // Check that an expected key is empty
-            assert.isDefined(translator.translations['Show']);
-          });
-      });
-
-      it('fails gracefully when receiving a 404', function () {
-        // Monkey patch jQuery ajax to to request an invalid URL
-        $(document).one('ajaxSend', function (event, jqXHR, ajaxOptions) {
-          ajaxOptions.url = '/i18n/client-not-here.json';
-        });
-
-        return translator.fetch()
-          .then(function () {
-            // Check that an expected key is undefined
-            assert.isUndefined(translator.translations['Show']);
-          });
-      });
     });
 
     describe('get', function () {

@@ -27,6 +27,11 @@ module.exports = function (grunt) {
     // Copy ES5 files to prepare for requirejs
     'copy:requirejs',
 
+    // Replace the require('text!/i18n/client.json') so requirejs can run,
+    // the translations will be bundled on a per-locale basis once
+    // the bundle is made.
+    'replace:fetch_translations',
+
     // Runs r.js optimizer on the application files
     'requirejs',
 
@@ -55,6 +60,12 @@ module.exports = function (grunt) {
 
     'uglify',
 
+    // generate localized js bundles. Done after the uglification step
+    // to drastically shorten the build time. If translations are inserted
+    // and then uglify is run, uglify has to run 40+ times, whereas this way
+    // uglify only runs once.
+    'l10n-localize-js',
+
     // rev leaf nodes in the dependency tree. Leaf nodes are revved first
     // so the URLs to leaf nodes in internal nodes can be updated. Internal
     // nodes are revved after the URLs have been updated.
@@ -74,6 +85,9 @@ module.exports = function (grunt) {
     // and SRI hashes added to the main JS bundle. These files
     // are in their final state and can now be revved.
     'rev:with_children',
+
+    // update the HTML pages to request localized JavaScript
+    'l10n-use-localized-js',
 
     // replaces blocks in the HTML by the final rev of the inodes.
     'usemin:html',

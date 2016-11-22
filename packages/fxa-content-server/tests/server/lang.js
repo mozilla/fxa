@@ -29,13 +29,26 @@ define([
       }
     };
 
+    function normalizeLanguage(lang) {
+      // A quirk of i18n normalization. Whatever.
+      if (lang === 'sr-LATN') {
+        lang = 'sr-Latn';
+      }
+      return lang;
+    }
+
     suite['#https get ' + httpsUrl + '/ -> ' + lang] = function () {
       var dfd = this.async(intern.config.asyncTimeout);
       got(httpsUrl + '/', options)
         .then(function (res) {
           assert.equal(res.statusCode, 200);
-          var re = new RegExp(util.format('lang="%s"', lang));
-          assert.ok(res.body.match(re), 'html has correct lang attribute');
+          var langRegExp = new RegExp(util.format('lang="%s"', lang));
+          assert.ok(langRegExp.test(res.body), 'html has correct lang attribute');
+          if (intern.config.fxaProduction) {
+            var locale = normalizeLanguage(lang).replace('-', '_');
+            var scriptRegExp = new RegExp(util.format('[0-9a-f]{8,8}\.main\.%s\.js', locale));
+            assert.ok(scriptRegExp.test(res.body), 'html has localized JavaScript');
+          }
         })
         .then(dfd.resolve, dfd.reject);
     };
@@ -49,13 +62,7 @@ define([
             // using the empty string '' as the key below is intentional
             var language = JSON.parse(res.body)[''].language;
             language = language.replace('_', '-'); // e.g., pt_BR -> pt-BR
-
-            // A quirk of i18n normalization. Whatever.
-            if (lang === 'sr-LATN') {
-              lang = 'sr-Latn';
-            }
-
-            assert.equal(lang, language);
+            assert.equal(normalizeLanguage(lang), language);
           }
         })
         .then(dfd.resolve, dfd.reject);
