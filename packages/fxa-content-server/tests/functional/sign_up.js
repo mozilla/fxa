@@ -10,6 +10,7 @@ define([
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, require, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
+  var fxaProduction = intern.config.fxaProduction;
   var PAGE_URL = config.fxaContentRoot + 'signup';
 
   var email;
@@ -457,6 +458,18 @@ define([
     'data-flow-begin attribute is set': function () {
       return openPage(this, PAGE_URL, '#fxa-signup-header')
         .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/));
+    },
+
+    'integrity attribute is set on scripts and css': function () {
+      return openPage(this, PAGE_URL, '#fxa-signup-header')
+        .then(testAttributeMatches('script', 'integrity', /^sha512-/))
+        .then(testAttributeMatches('link', 'integrity', /^sha512-/))
+        .catch(function (err) {
+          // this tests only in production
+          if (fxaProduction || err.name !== 'AssertionError') {
+            throw err;
+          }
+        });
     }
   });
 
