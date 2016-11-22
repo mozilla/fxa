@@ -5,8 +5,5 @@
   "csp": {
     "enabled": true,
     "reportOnly": true
-  },
-  "babel": {
-    "enabled": false
   }
 }
