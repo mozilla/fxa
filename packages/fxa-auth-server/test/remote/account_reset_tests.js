@@ -15,7 +15,6 @@ describe('remote account reset', function() {
   this.timeout(15000)
   let server
   before(() => {
-    process.env.SIGNIN_CONFIRMATION_ENABLED = false
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -227,7 +226,6 @@ describe('remote account reset', function() {
   )
 
   after(() => {
-    delete process.env.SIGNIN_CONFIRMATION_ENABLE
     return TestServer.stop(server)
   })
 

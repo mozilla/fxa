@@ -60,7 +60,6 @@ module.exports = function (
   })
   const features = require('../features')(config)
 
-  const securityHistoryEnabled = config.securityHistory && config.securityHistory.enabled
   const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
   const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 0
 
@@ -239,12 +238,8 @@ module.exports = function (
         }
 
         function createSessionToken () {
-          const enableTokenVerification =
-            features.isSigninConfirmationEnabledForUser(account.uid, account.email, request)
-
-          // Verified sessions should only be created for preverified tokens
-          // and when sign-in confirmation is disabled or not needed.
-          if (preVerified || ! enableTokenVerification) {
+          // Verified sessions should only be created for preverified accounts.
+          if (preVerified) {
             tokenVerificationId = undefined
           }
 
@@ -255,7 +250,7 @@ module.exports = function (
             emailVerified: account.emailVerified,
             verifierSetAt: account.verifierSetAt,
             createdAt: parseInt(query._createdAt),
-            mustVerify: enableTokenVerification && requestHelper.wantsKeys(request),
+            mustVerify: requestHelper.wantsKeys(request),
             tokenVerificationId: tokenVerificationId
           }, userAgentString)
             .then(
@@ -341,7 +336,7 @@ module.exports = function (
         }
 
         function recordSecurityEvent() {
-          if (securityHistoryEnabled) {
+          if (features.isSecurityHistoryTrackingEnabled()) {
             // don't block response recording db event
             db.securityEvent({
               name: 'account.create',
@@ -522,7 +517,7 @@ module.exports = function (
         }
 
         function checkSecurityHistory () {
-          if (!securityHistoryEnabled) {
+          if (!features.isSecurityHistoryTrackingEnabled()) {
             return
           }
           return db.securityEvents({
@@ -581,40 +576,35 @@ module.exports = function (
         }
 
         function checkEmailAndPassword () {
-          // Session token verification is only enabled for certain users during phased rollout.
-          //
-          // If the user went through the sigin-unblock flow, they have already verified their email.
-          // No need to also require confirmation afterwards.
-          //
-          // Even when it is enabled, we only do the email challenge if:
-          //  * the request wants keys, since unverified sessions are fine to use for e.g. oauth login.
-          //  * the email is verified, since content-server triggers a resend of the verification
-          //    email on unverified accounts, which doubles as sign-in confirmation.
-          //  * the login is flagged that it can be bypassed
+          // All sessions are considered unverified by default.
+          needsVerificationId = true
 
-          // Check to see if this login can bypass sign-in confirmation. Current scenarios include
-          //  * User has already logged in from this ip address and verified the sign-in
-          let bypassSiginConfirmation = features.canBypassSiginConfirmation(emailRecord.email, securityEventVerified, securityEventRecency)
-          if (bypassSiginConfirmation) {
-            log.info({
-              op: 'Account.ipprofiling.seenAddress',
-              uid: emailRecord.uid.toString('hex')
-            })
+          // However! To help simplify the login flow, we can use some heuristics to
+          // decide whether to consider the session pre-verified.  Some accounts
+          // get excluded from this process, e.g. testing accounts where we want
+          // to know for sure what flow they're going to see.
+          if (! forceTokenVerification(request, emailRecord)) {
+            if (skipTokenVerification(request, emailRecord)) {
+              needsVerificationId = false
+            }
           }
 
-          if (didSigninUnblock || !features.isSigninConfirmationEnabledForUser(emailRecord.uid, emailRecord.email, request)
-            || bypassSiginConfirmation) {
+          // If they just went through the sigin-unblock flow, they have already verified their email.
+          // We don't need to force them to do that again, just make a verified session.
+          if (didSigninUnblock) {
             needsVerificationId = false
-            mustVerifySession = false
-            doSigninConfirmation = false
-          } else {
-            // The user doesn't *have* to verify their session if they're not requesting keys,
-            // but we still create it with a non-null tokenVerificationId, so it will still
-            // be considered unverified.  This prevents the session from being used for sync
-            // unless the user explicitly requests us to resend the confirmation email, and completes it.
-            mustVerifySession = requestHelper.wantsKeys(request)
-            doSigninConfirmation = mustVerifySession && emailRecord.emailVerified
           }
+
+          // If the request wants keys, the user *must* confirm their login session before they
+          // can actually use it.  If they dont want keys, they don't *have* to verify their
+          // their session, but we still create it with a non-null tokenVerificationId, so it will
+          // still be considered unverified.  This prevents the session from being used for sync
+          // unless the user explicitly requests us to resend the confirmation email, and completes it.
+          mustVerifySession = needsVerificationId && requestHelper.wantsKeys(request)
+
+          // If the email itself is unverified, we'll re-send the "verify your account email" and
+          // that will suffice to confirm the sign-in.  No need for a separate confirmation email.
+          doSigninConfirmation = mustVerifySession && emailRecord.emailVerified
 
           let flowCompleteSignal
           if (service === 'sync') {
@@ -646,6 +636,40 @@ module.exports = function (
                 })
               }
             )
+        }
+
+        function forceTokenVerification (request, account) {
+          // If there was anything suspicious about the request,
+          // we should force token verification.
+          if (request.app.isSuspiciousRequest) {
+            return true
+          }
+          // If it's an email address used for testing etc,
+          // we should force token verification.
+          if (config.signinConfirmation) {
+            if (config.signinConfirmation.forcedEmailAddresses) {
+              if (config.signinConfirmation.forcedEmailAddresses.test(account.email)) {
+                return true
+              }
+            }
+          }
+          return false
+        }
+
+        function skipTokenVerification (request, account) {
+          // If they're logging in from an IP address on which they recently did
+          // another, successfully-verified login, then we can consider this one
+          // verified as well without going through the loop again.
+          if (features.isSecurityHistoryProfilingEnabled()) {
+            if (securityEventVerified && securityEventRecency === 'day') {
+              log.info({
+                op: 'Account.ipprofiling.seenAddress',
+                uid: account.uid.toString('hex')
+              })
+              return true
+            }
+          }
+          return false
         }
 
         function checkNumberOfActiveSessions () {
@@ -836,7 +860,7 @@ module.exports = function (
         }
 
         function recordSecurityEvent() {
-          if (securityHistoryEnabled) {
+          if (features.isSecurityHistoryTrackingEnabled()) {
             // don't block response recording db event
             db.securityEvent({
               name: 'account.login',
@@ -1920,7 +1944,7 @@ module.exports = function (
         }
 
         function recordSecurityEvent() {
-          if (securityHistoryEnabled) {
+          if (features.isSecurityHistoryTrackingEnabled()) {
              // don't block response recording db event
             db.securityEvent({
               name: 'account.reset',

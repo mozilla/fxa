@@ -36,9 +36,9 @@ describe('features', () => {
       assert.equal(Object.keys(features).length, 5, 'object should have four properties')
       assert.equal(typeof features.isSampledUser, 'function', 'isSampledUser should be function')
       assert.equal(typeof features.isLastAccessTimeEnabledForUser, 'function', 'isLastAccessTimeEnabledForUser should be function')
-      assert.equal(typeof features.isSigninConfirmationEnabledForUser, 'function', 'isSigninConfirmationEnabledForUser should be function')
       assert.equal(typeof features.isSigninUnblockEnabledForUser, 'function', 'isSigninUnblockEnabledForUser should be function')
-      assert.equal(typeof features.canBypassSiginConfirmation, 'function', 'canBypassSiginConfirmation should be function')
+      assert.equal(typeof features.isSecurityHistoryTrackingEnabled, 'function', 'isSecurityHistoryTrackingEnabled should be function')
+      assert.equal(typeof features.isSecurityHistoryProfilingEnabled, 'function', 'isSecurityHistoryProfilingEnabled should be function')
 
       assert.equal(crypto.createHash.callCount, 1, 'crypto.createHash should have been called once on require')
       let args = crypto.createHash.args[0]
@@ -183,50 +183,6 @@ describe('features', () => {
   )
 
   it(
-    'isSigninConfirmationEnabledForUser',
-    () => {
-      const uid = 'wibble'
-      const email = 'blee@mozilla.com'
-      const request = {
-        app: {
-          isSuspiciousRequest: true
-        },
-        payload: {
-          metricsContext: {
-            context: 'iframe'
-          }
-        }
-      }
-      // First 27 characters are ignored, last 13 are 0.02 * 0xfffffffffffff
-      hashResult = '000000000000000000000000000051eb851eb852'
-
-      config.signinConfirmation.enabled = true
-      config.signinConfirmation.sample_rate = 0.03
-      config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.com$/
-      config.signinConfirmation.supportedClients = [ 'wibble', 'iframe' ]
-      assert.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), true, 'should return true when request is suspicious')
-
-      config.signinConfirmation.sample_rate = 0.02
-      request.app.isSuspiciousRequest = false
-      assert.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), true, 'should return true when email address matches')
-
-      config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.org$/
-      request.payload.metricsContext.context = 'iframe'
-      assert.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), false, 'should return false when email address and sample rate do not match')
-
-      config.signinConfirmation.sample_rate = 0.03
-      assert.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), true, 'should return true when sample rate and context match')
-
-      request.payload.metricsContext.context = ''
-      assert.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), false, 'should return false when context does not match')
-
-      config.signinConfirmation.enabled = false
-      request.payload.metricsContext.context = 'iframe'
-      assert.equal(features.isSigninConfirmationEnabledForUser(uid, email, request), false, 'should return false when feature is disabled')
-    }
-  )
-
-  it(
     'isSigninUnblockEnabledForUser',
     () => {
       const uid = 'wibble'
@@ -272,39 +228,36 @@ describe('features', () => {
   )
 
   it(
-    'canBypassSiginConfirmation',
+    'isSecurityHistoryTrackingEnabled',
     () => {
-      const request = {}
-      const securityEvents = []
-      const forceEmail = 'test@force.com'
-      const email = 'test@notforce.com'
+      config.securityHistory.enabled = true
+      assert.equal(features.isSecurityHistoryTrackingEnabled(), true, 'should return true when enabled in config')
 
+      config.securityHistory.enabled = false
+      assert.equal(features.isSecurityHistoryTrackingEnabled(), false, 'should return false when disabled in config')
+    }
+  )
+
+  it(
+    'isSecurityHistoryProfilingEnabled',
+    () => {
       config.securityHistory.enabled = true
       config.securityHistory.ipProfiling = {
         enabled: true
       }
-      assert.equal(features.canBypassSiginConfirmation(email, true, 'day', securityEvents, request), true, 'should return true if verified and recency within day')
+      assert.equal(features.isSecurityHistoryProfilingEnabled(), true, 'should return true when everything is enabled in config')
 
       config.securityHistory.enabled = true
       config.securityHistory.ipProfiling = {
         enabled: false
       }
-      assert.equal(features.canBypassSiginConfirmation(email, true, 'day', securityEvents, request), false, 'should return false if profiling disabled')
+      assert.equal(features.isSecurityHistoryProfilingEnabled(), false, 'should return false when profiling is disabled in config')
 
-      config.securityHistory.enabled = true
+      config.securityHistory.enabled = false
       config.securityHistory.ipProfiling = {
         enabled: true
       }
-      assert.equal(features.canBypassSiginConfirmation(email, true, 'week', securityEvents, request), false, 'should return false if verified but not within day')
-
-      config.securityHistory.enabled = false
-      assert.equal(features.canBypassSiginConfirmation(email, true, 'day', securityEvents, request), false, 'should return false if security events disabled')
-
-      config.signinConfirmation.enabled = true
-      config.signinConfirmation.sample_rate = 1
-      config.signinConfirmation.forcedEmailAddresses = /.+@force\.com$/
-      config.securityHistory.enabled = true
-      assert.equal(features.canBypassSiginConfirmation(forceEmail, true, 'day', securityEvents, request), false, 'should return false if sign-in confirmation forced email')
+      assert.equal(features.isSecurityHistoryProfilingEnabled(), false, 'should return false when tracking is disabled in config')
     }
   )
 })

@@ -83,9 +83,7 @@ function runTest (route, request, assertions) {
 }
 
 describe('/recovery_email/status', function () {
-  var config = {
-    signinConfirmation: {}
-  }
+  var config = {}
   var mockDB = mocks.mockDB()
   var pushCalled
   var mockLog = mocks.mockLog({
@@ -102,65 +100,42 @@ describe('/recovery_email/status', function () {
   })
   var route = getRoute(accountRoutes, '/recovery_email/status')
 
-  describe('sign-in confirmation disabled', function () {
-    config.signinConfirmation.enabled = false
+  var mockRequest = mocks.mockRequest({
+    credentials: {
+      uid: uuid.v4('binary').toString('hex'),
+      email: TEST_EMAIL
+    }
+  })
 
-    describe('invalid email', function () {
-      var mockRequest = mocks.mockRequest({
-        credentials: {
-          email: TEST_EMAIL_INVALID
-        }
+  describe('invalid email', function () {
+    var mockRequest = mocks.mockRequest({
+      credentials: {
+        email: TEST_EMAIL_INVALID
+      }
+    })
+
+    it('unverified account', function () {
+      mockRequest.auth.credentials.emailVerified = false
+
+      return runTest(route, mockRequest).then(() => assert.ok(false), function (response) {
+        assert.equal(mockDB.deleteAccount.callCount, 1)
+        assert.equal(mockDB.deleteAccount.firstCall.args[0].email, TEST_EMAIL_INVALID)
+        assert.equal(response.errno, error.ERRNO.INVALID_TOKEN)
       })
-
-      it('unverified account', function () {
-        mockRequest.auth.credentials.emailVerified = false
-
-        return runTest(route, mockRequest).then(() => assert.ok(false), function (response) {
-          assert.equal(mockDB.deleteAccount.callCount, 1)
-          assert.equal(mockDB.deleteAccount.firstCall.args[0].email, TEST_EMAIL_INVALID)
-          assert.equal(response.errno, error.ERRNO.INVALID_TOKEN)
-        })
-        .then(function () {
-          mockDB.deleteAccount.reset()
-        })
-      })
-
-      it('verified account', function () {
-        mockRequest.auth.credentials.uid = uuid.v4('binary').toString('hex')
-        mockRequest.auth.credentials.emailVerified = true
-        mockRequest.auth.credentials.tokenVerified = true
-
-        return runTest(route, mockRequest, function (response) {
-          assert.equal(mockDB.deleteAccount.callCount, 0)
-          assert.deepEqual(response, {
-            email: TEST_EMAIL_INVALID,
-            verified: true,
-            emailVerified: true,
-            sessionVerified: true
-          })
-        })
+      .then(function () {
+        mockDB.deleteAccount.reset()
       })
     })
 
-    it('valid email, verified account', function () {
-      pushCalled = false
-      var mockRequest = mocks.mockRequest({
-        credentials: {
-          uid: uuid.v4('binary').toString('hex'),
-          email: TEST_EMAIL,
-          emailVerified: true,
-          tokenVerified: true
-        },
-        query: {
-          reason: 'push'
-        }
-      })
+    it('verified account', function () {
+      mockRequest.auth.credentials.uid = uuid.v4('binary').toString('hex')
+      mockRequest.auth.credentials.emailVerified = true
+      mockRequest.auth.credentials.tokenVerified = true
 
       return runTest(route, mockRequest, function (response) {
-        assert.equal(pushCalled, true)
-
+        assert.equal(mockDB.deleteAccount.callCount, 0)
         assert.deepEqual(response, {
-          email: TEST_EMAIL,
+          email: TEST_EMAIL_INVALID,
           verified: true,
           emailVerified: true,
           sessionVerified: true
@@ -169,66 +144,80 @@ describe('/recovery_email/status', function () {
     })
   })
 
-  describe('sign-in confirmation enabled', function () {
-    config.signinConfirmation.enabled = true
-    config.signinConfirmation.sample_rate = 1
+
+  it('valid email, verified account', function () {
+    pushCalled = false
     var mockRequest = mocks.mockRequest({
       credentials: {
         uid: uuid.v4('binary').toString('hex'),
-        email: TEST_EMAIL
+        email: TEST_EMAIL,
+        emailVerified: true,
+        tokenVerified: true
+      },
+      query: {
+        reason: 'push'
       }
     })
 
-    it('verified account, verified session', function () {
-      mockRequest.auth.credentials.emailVerified = true
-      mockRequest.auth.credentials.tokenVerified = true
+    return runTest(route, mockRequest, function (response) {
+      assert.equal(pushCalled, true)
 
-      return runTest(route, mockRequest, function (response) {
-        assert.deepEqual(response, {
-          email: TEST_EMAIL,
-          verified: true,
-          sessionVerified: true,
-          emailVerified: true
-        })
+      assert.deepEqual(response, {
+        email: TEST_EMAIL,
+        verified: true,
+        emailVerified: true,
+        sessionVerified: true
       })
     })
+  })
 
-    it('verified account, unverified session, must verify session', function () {
-      mockRequest.auth.credentials.emailVerified = true
-      mockRequest.auth.credentials.tokenVerified = false
-      mockRequest.auth.credentials.mustVerify = true
+  it('verified account, verified session', function () {
+    mockRequest.auth.credentials.emailVerified = true
+    mockRequest.auth.credentials.tokenVerified = true
 
-      return runTest(route, mockRequest, function (response) {
-        assert.deepEqual(response, {
-          email: TEST_EMAIL,
-          verified: false,
-          sessionVerified: false,
-          emailVerified: true
-        })
+    return runTest(route, mockRequest, function (response) {
+      assert.deepEqual(response, {
+        email: TEST_EMAIL,
+        verified: true,
+        sessionVerified: true,
+        emailVerified: true
       })
     })
+  })
 
-    it('verified account, unverified session, neednt verify session', function () {
-      mockRequest.auth.credentials.emailVerified = true
-      mockRequest.auth.credentials.tokenVerified = false
-      mockRequest.auth.credentials.mustVerify = false
+  it('verified account, unverified session, must verify session', function () {
+    mockRequest.auth.credentials.emailVerified = true
+    mockRequest.auth.credentials.tokenVerified = false
+    mockRequest.auth.credentials.mustVerify = true
 
-      return runTest(route, mockRequest, function (response) {
-        assert.deepEqual(response, {
-          email: TEST_EMAIL,
-          verified: true,
-          sessionVerified: false,
-          emailVerified: true
-        })
+    return runTest(route, mockRequest, function (response) {
+      assert.deepEqual(response, {
+        email: TEST_EMAIL,
+        verified: false,
+        sessionVerified: false,
+        emailVerified: true
+      })
+    })
+  })
+
+  it('verified account, unverified session, neednt verify session', function () {
+    mockRequest.auth.credentials.emailVerified = true
+    mockRequest.auth.credentials.tokenVerified = false
+    mockRequest.auth.credentials.mustVerify = false
+
+    return runTest(route, mockRequest, function (response) {
+      assert.deepEqual(response, {
+        email: TEST_EMAIL,
+        verified: true,
+        sessionVerified: false,
+        emailVerified: true
       })
     })
   })
 })
 
 describe('/recovery_email/resend_code', () => {
-  const config = {
-    signinConfirmation: {}
-  }
+  const config = {}
   const mockDB = mocks.mockDB()
   const mockLog = mocks.mockLog()
   mockLog.flowEvent = sinon.spy(() => {
@@ -887,7 +876,7 @@ describe('/account/login', function () {
     query: {},
     payload: {
       authPW: crypto.randomBytes(32).toString('hex'),
-      email: 'test@mozilla.com',
+      email: TEST_EMAIL,
       unblockCode: 'ABCD1234',
       service: 'dcdb5ae7add825d2',
       reason: 'signin',
@@ -929,141 +918,129 @@ describe('/account/login', function () {
 
   const defaultEmailRecord = mockDB.emailRecord
 
-  beforeEach(() => {
+  afterEach(() => {
     mockLog.activityEvent.reset()
     mockLog.flowEvent.reset()
     mockLog.stdout.write.reset()
     mockMailer.sendNewDeviceLoginNotification.reset()
+    mockMailer.sendVerifyLoginEmail.reset()
+    mockMailer.sendVerifyCode.reset()
     mockDB.createSessionToken.reset()
     mockDB.sessions.reset()
     mockMetricsContext.stash.reset()
     mockMetricsContext.validate.reset()
     mockMetricsContext.setFlowCompleteSignal.reset()
+    mockDB.emailRecord = defaultEmailRecord
+    mockDB.emailRecord.reset()
+    mockRequest.payload.email = TEST_EMAIL
   })
 
-  describe('sign-in confirmation disabled', function () {
+  it('emits the correct series of calls and events', function () {
+    return runTest(route, mockRequest, function (response) {
+      assert.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called')
+      assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
 
-    beforeEach(() => {
-      mockDB.emailRecord = defaultEmailRecord
-      mockDB.emailRecord.reset()
+      assert.equal(mockLog.stdout.write.callCount, 1, 'an sqs event was logged')
+      var eventData = JSON.parse(mockLog.stdout.write.getCall(0).args[0])
+      assert.equal(eventData.event, 'login', 'it was a login event')
+      assert.equal(eventData.data.service, 'sync', 'it was for sync')
+      assert.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
+      assert.deepEqual(eventData.data.metricsContext, mockRequest.payload.metricsContext, 'it contained the metrics context')
+
+      assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+      let args = mockLog.activityEvent.args[0]
+      assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
+      assert.equal(args[0], 'account.login', 'first argument was event name')
+      assert.equal(args[1], mockRequest, 'second argument was request object')
+      assert.deepEqual(args[2], {uid: uid.toString('hex')}, 'third argument contained uid')
+
+      assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
+      args = mockLog.flowEvent.args[0]
+      assert.equal(args.length, 2, 'first log.flowEvent was passed two arguments')
+      assert.equal(args[0], 'account.login', 'first argument was event name')
+      assert.equal(args[1], mockRequest, 'second argument was request object')
+      args = mockLog.flowEvent.args[1]
+      assert.equal(args[0], 'email.confirmation.sent', 'second log.flowEvent was passed correct event name')
+
+      assert.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
+      assert.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
+
+      assert.equal(mockMetricsContext.stash.callCount, 3, 'metricsContext.stash was called three times')
+
+      args = mockMetricsContext.stash.args[0]
+      assert.equal(args.length, 1, 'metricsContext.stash was passed one argument first time')
+      assert.deepEqual(args[0].tokenId, sessionTokenId, 'argument was session token')
+      assert.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
+      assert.equal(mockMetricsContext.stash.thisValues[0], mockRequest, 'this was request')
+
+      args = mockMetricsContext.stash.args[1]
+      assert.equal(args.length, 1, 'metricsContext.stash was passed one argument second time')
+      assert.ok(/^[0-9a-f]{32}$/.test(args[0].id), 'argument was synthesized token verification id')
+      assert.deepEqual(args[0].uid, uid, 'tokenVerificationId uid was correct')
+      assert.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
+
+      args = mockMetricsContext.stash.args[2]
+      assert.equal(args.length, 1, 'metricsContext.stash was passed one argument third time')
+      assert.deepEqual(args[0].tokenId, keyFetchTokenId, 'argument was key fetch token')
+      assert.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
+      assert.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
+
+      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1, 'metricsContext.setFlowCompleteSignal was called once')
+      args = mockMetricsContext.setFlowCompleteSignal.args[0]
+      assert.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
+      assert.deepEqual(args[0], 'account.signed', 'argument was event name')
+
+      assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+      assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city, 'Mountain View')
+      assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.country, 'United States')
+      assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].timeZone, 'America/Los_Angeles')
+      assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+      assert.ok(!response.verified, 'response indicates account is not verified')
+      assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+      assert.equal(response.verificationReason, 'login', 'verificationReason is login')
     })
-    it('sign-in does not require verification', function () {
-      return runTest(route, mockRequest, function (response) {
-        assert.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called')
-        assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
-        var tokenData = mockDB.createSessionToken.getCall(0).args[0]
-        assert.ok(!tokenData.mustVerify, 'sessionToken was created verified')
-        assert.ok(!tokenData.tokenVerificationId, 'sessionToken was created verified')
-        assert.equal(mockDB.sessions.callCount, 1, 'db.sessions was called')
+  })
 
-        assert.equal(mockLog.stdout.write.callCount, 1, 'an sqs event was logged')
-        var eventData = JSON.parse(mockLog.stdout.write.getCall(0).args[0])
-        assert.equal(eventData.event, 'login', 'it was a login event')
-        assert.equal(eventData.data.service, 'sync', 'it was for sync')
-        assert.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
-        assert.deepEqual(eventData.data.metricsContext, mockRequest.payload.metricsContext, 'it contained the metrics context')
-
-        assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        let args = mockLog.activityEvent.args[0]
-        assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-        assert.equal(args[0], 'account.login', 'first argument was event name')
-        assert.equal(args[1], mockRequest, 'second argument was request object')
-        assert.deepEqual(args[2], {uid: uid.toString('hex')}, 'third argument contained uid')
-
-        assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent was called once')
-        args = mockLog.flowEvent.args[0]
-        assert.equal(args.length, 2, 'log.flowEvent was passed two arguments')
-        assert.equal(args[0], 'account.login', 'first argument was event name')
-        assert.equal(args[1], mockRequest, 'second argument was request object')
-
-        assert.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
-        assert.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
-
-        assert.equal(mockMetricsContext.stash.callCount, 2, 'metricsContext.stash was called twice')
-
-        args = mockMetricsContext.stash.args[0]
-        assert.equal(args.length, 1, 'metricsContext.stash was passed one argument first time')
-        assert.deepEqual(args[0].tokenId, sessionTokenId, 'argument was session token')
-        assert.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
-        assert.equal(mockMetricsContext.stash.thisValues[0], mockRequest, 'this was request')
-
-        args = mockMetricsContext.stash.args[1]
-        assert.equal(args.length, 1, 'metricsContext.stash was passed one argument second time')
-        assert.deepEqual(args[0].tokenId, keyFetchTokenId, 'argument was key fetch token')
-        assert.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
-        assert.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
-
-        assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1, 'metricsContext.setFlowCompleteSignal was called once')
-        args = mockMetricsContext.setFlowCompleteSignal.args[0]
-        assert.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
-        assert.deepEqual(args[0], 'account.signed', 'argument was event name')
-
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.city, 'Mountain View')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].location.country, 'United States')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.getCall(0).args[1].timeZone, 'America/Los_Angeles')
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
-        assert.ok(response.verified, 'response indicates account is verified')
-        assert.ok(!response.verificationMethod, 'verificationMethod doesn\'t exist')
-        assert.ok(!response.verificationReason, 'verificationReason doesn\'t exist')
-      }).then(function () {
-        mockLog.activityEvent.reset()
-        mockLog.flowEvent.reset()
-        mockMailer.sendNewDeviceLoginNotification.reset()
-        mockDB.createSessionToken.reset()
-        mockMetricsContext.stash.reset()
-        mockMetricsContext.setFlowCompleteSignal.reset()
-      })
-    })
-
-    describe('sign-in unverified account', function () {
-      it('sends email code', function () {
-        var emailCode = crypto.randomBytes(16)
-        mockDB.emailRecord = function () {
-          return P.resolve({
-            authSalt: crypto.randomBytes(32),
-            data: crypto.randomBytes(32),
-            email: TEST_EMAIL,
-            emailVerified: false,
-            emailCode: emailCode,
-            kA: crypto.randomBytes(32),
-            lastAuthAt: function () {
-              return Date.now()
-            },
-            uid: uid,
-            wrapWrapKb: crypto.randomBytes(32)
-          })
-        }
-
-        return runTest(route, mockRequest, function (response) {
-          assert.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
-
-          // Verify that the email code was sent
-          var verifyCallArgs = mockMailer.sendVerifyCode.getCall(0).args
-          assert.equal(verifyCallArgs[1], emailCode, 'mailer.sendVerifyCode was called with emailCode')
-          assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
-          assert.equal(mockLog.flowEvent.args[0][0], 'account.login', 'first event was login')
-          assert.equal(mockLog.flowEvent.args[1][0], 'email.verification.sent', 'second event was sent')
-          assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
-          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-          assert.equal(response.verified, false, 'response indicates account is unverified')
-          assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
-          assert.equal(response.verificationReason, 'signup', 'verificationReason is signup')
-          assert.equal(response.emailSent, true, 'email sent')
-        }).then(function () {
-          mockLog.flowEvent.reset()
-          mockMailer.sendVerifyCode.reset()
-          mockDB.createSessionToken.reset()
-          mockMetricsContext.stash.reset()
+  describe('sign-in unverified account', function () {
+    it('sends email code', function () {
+      var emailCode = crypto.randomBytes(16)
+      mockDB.emailRecord = function () {
+        return P.resolve({
+          authSalt: crypto.randomBytes(32),
+          data: crypto.randomBytes(32),
+          email: TEST_EMAIL,
+          emailVerified: false,
+          emailCode: emailCode,
+          kA: crypto.randomBytes(32),
+          lastAuthAt: function () {
+            return Date.now()
+          },
+          uid: uid,
+          wrapWrapKb: crypto.randomBytes(32)
         })
+      }
+
+      return runTest(route, mockRequest, function (response) {
+        assert.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
+
+        // Verify that the email code was sent
+        var verifyCallArgs = mockMailer.sendVerifyCode.getCall(0).args
+        assert.notEqual(verifyCallArgs[1], emailCode, 'mailer.sendVerifyCode was called with a fresh verification code')
+        assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
+        assert.equal(mockLog.flowEvent.args[0][0], 'account.login', 'first event was login')
+        assert.equal(mockLog.flowEvent.args[1][0], 'email.verification.sent', 'second event was sent')
+        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+        assert.equal(response.verified, false, 'response indicates account is unverified')
+        assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+        assert.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+        assert.equal(response.emailSent, true, 'email sent')
       })
     })
   })
 
-  describe('sign-in confirmation enabled', function () {
+  describe('sign-in confirmation', function () {
     before(() => {
-      config.signinConfirmation.enabled = true
-      config.signinConfirmation.supportedClients = [ 'fx_desktop_v3' ]
       config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.com$/
 
       mockDB.emailRecord = function () {
@@ -1082,9 +1059,7 @@ describe('/account/login', function () {
       }
     })
 
-    it('always on', function () {
-      config.signinConfirmation.sample_rate = 1
-
+    it('is enabled by default', function () {
       return runTest(route, mockRequest, function (response) {
         assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
         var tokenData = mockDB.createSessionToken.getCall(0).args[0]
@@ -1096,64 +1071,14 @@ describe('/account/login', function () {
         assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
         assert.equal(response.verificationReason, 'login', 'verificationReason is login')
 
-        assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
-        assert.equal(mockLog.flowEvent.args[0][0], 'account.login', 'first event was login')
-        assert.equal(mockLog.flowEvent.args[1][0], 'email.confirmation.sent', 'second event was sent')
-
-        assert.equal(mockMetricsContext.stash.callCount, 3, 'metricsContext.stash was called three times')
-        var args = mockMetricsContext.stash.args[1]
-        assert.equal(args.length, 1, 'metricsContext.stash was passed one argument second time')
-        assert.ok(/^[0-9a-f]{32}$/.test(args[0].id), 'argument was synthesized token')
-        assert.deepEqual(args[0].uid, uid, 'token.uid was correct')
-        assert.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
-
         assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
         assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city, 'Mountain View')
         assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.country, 'United States')
         assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].timeZone, 'America/Los_Angeles')
-      }).then(function () {
-        mockLog.flowEvent.reset()
-        mockMailer.sendVerifyLoginEmail.reset()
-        mockDB.createSessionToken.reset()
-        mockMetricsContext.stash.reset()
       })
     })
 
-    it('on for email regex match, keys requested', function () {
-      mockRequest.payload.email = 'test@mozilla.com'
-      mockDB.emailRecord = function () {
-        return P.resolve({
-          authSalt: crypto.randomBytes(32),
-          data: crypto.randomBytes(32),
-          email: 'test@mozilla.com',
-          emailVerified: true,
-          kA: crypto.randomBytes(32),
-          lastAuthAt: function () {
-            return Date.now()
-          },
-          uid: uid,
-          wrapWrapKb: crypto.randomBytes(32)
-        })
-      }
-
-      return runTest(route, mockRequest, function (response) {
-        assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
-        var tokenData = mockDB.createSessionToken.getCall(0).args[0]
-        assert.ok(tokenData.mustVerify, 'sessionToken must be verified before use')
-        assert.ok(tokenData.tokenVerificationId, 'sessionToken was created unverified')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
-        assert.ok(!response.verified, 'response indicates account is not verified')
-        assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
-        assert.equal(response.verificationReason, 'login', 'verificationReason is login')
-      }).then(function () {
-        mockMailer.sendVerifyLoginEmail.reset()
-        mockDB.createSessionToken.reset()
-        mockMetricsContext.setFlowCompleteSignal.reset()
-      })
-    })
-
-    it('off for email regex match, keys not requested', function () {
+    it('does not require verification when keys are not requested', function () {
       mockDB.emailRecord = function () {
         return P.resolve({
           authSalt: crypto.randomBytes(32),
@@ -1185,101 +1110,10 @@ describe('/account/login', function () {
         assert.ok(response.verified, 'response indicates account is verified')
         assert.ok(!response.verificationMethod, 'verificationMethod doesn\'t exist')
         assert.ok(!response.verificationReason, 'verificationReason doesn\'t exist')
-      }).then(function () {
-        mockDB.createSessionToken.reset()
-        mockMetricsContext.setFlowCompleteSignal.reset()
-      })
-    })
-
-    it('off for email regex mismatch', function () {
-      config.signinConfirmation.sample_rate = 0
-      mockRequest.payload.email = 'moz@fire.fox'
-      mockDB.emailRecord = function () {
-        return P.resolve({
-          authSalt: crypto.randomBytes(32),
-          data: crypto.randomBytes(32),
-          email: 'moz@fire.fox',
-          emailVerified: true,
-          kA: crypto.randomBytes(32),
-          lastAuthAt: function () {
-            return Date.now()
-          },
-          uid: uid,
-          wrapWrapKb: crypto.randomBytes(32)
-        })
-      }
-      return runTest(route, mockRequest, function (response) {
-        assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
-        var tokenData = mockDB.createSessionToken.getCall(0).args[0]
-        assert.ok(!tokenData.mustVerify, 'sessionToken was created verified')
-        assert.ok(!tokenData.tokenVerificationId, 'sessionToken was created verified')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
-        assert.ok(response.verified, 'response indicates account is verified')
-        assert.ok(!response.verificationMethod, 'verificationMethod doesn\'t exist')
-        assert.ok(!response.verificationReason, 'verificationReason doesn\'t exist')
-      }).then(function () {
-        mockMailer.sendNewDeviceLoginNotification.reset()
-        mockDB.createSessionToken.reset()
-      })
-    })
-
-    it('off for unsupported client', function () {
-      config.signinConfirmation.supportedClients = [ 'fx_desktop_v999' ]
-
-      return runTest(route, mockRequest, function (response) {
-        assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
-        var tokenData = mockDB.createSessionToken.getCall(0).args[0]
-        assert.ok(!tokenData.mustVerify, 'sessionToken was created verified')
-        assert.ok(!tokenData.tokenVerificationId, 'sessionToken was created verified')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
-        assert.ok(response.verified, 'response indicates account is verified')
-        assert.ok(!response.verificationMethod, 'verificationMethod doesn\'t exist')
-        assert.ok(!response.verificationReason, 'verificationReason doesn\'t exist')
-      }).then(function () {
-        mockMailer.sendNewDeviceLoginNotification.reset()
-        mockDB.createSessionToken.reset()
-      })
-    })
-
-    it('on for suspicious requests', function () {
-      mockRequest.payload.email = 'dodgy@mcdodgeface.com'
-      mockRequest.app.isSuspiciousRequest = true
-      mockDB.emailRecord = function () {
-        return P.resolve({
-          authSalt: crypto.randomBytes(32),
-          data: crypto.randomBytes(32),
-          email: 'dodgy@mcdodgeface.com',
-          emailVerified: true,
-          kA: crypto.randomBytes(32),
-          lastAuthAt: function () {
-            return Date.now()
-          },
-          uid: uid,
-          wrapWrapKb: crypto.randomBytes(32)
-        })
-      }
-
-      return runTest(route, mockRequest, function (response) {
-        assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
-        var tokenData = mockDB.createSessionToken.getCall(0).args[0]
-        assert.ok(tokenData.mustVerify, 'sessionToken must be verified before use')
-        assert.ok(tokenData.tokenVerificationId, 'sessionToken was created unverified')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
-        assert.ok(!response.verified, 'response indicates account is not verified')
-        assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
-        assert.equal(response.verificationReason, 'login', 'verificationReason is login')
-      }).then(function () {
-        mockMailer.sendVerifyLoginEmail.reset()
-        mockDB.createSessionToken.reset()
-        delete mockRequest.app.isSuspiciousRequest
       })
     })
 
     it('unverified account gets account confirmation email', function () {
-      config.signinConfirmation.supportedClients = [ 'fx_desktop_v3' ]
       mockRequest.payload.email = 'test@mozilla.com'
       mockDB.emailRecord = function () {
         return P.resolve({
@@ -1307,49 +1141,12 @@ describe('/account/login', function () {
         assert.ok(!response.verified, 'response indicates account is not verified')
         assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
         assert.equal(response.verificationReason, 'signup', 'verificationReason is signup')
-      }).then(function () {
-        mockMailer.sendVerifyCode.reset()
-        mockDB.createSessionToken.reset()
-      })
-    })
-
-    describe('sign-in with unverified account', function () {
-      before(() => {
-        mockDB.emailRecord = function () {
-          return P.resolve({
-            authSalt: crypto.randomBytes(32),
-            data: crypto.randomBytes(32),
-            email: 'test@mozilla.com',
-            emailVerified: false,
-            kA: crypto.randomBytes(32),
-            lastAuthAt: function () {
-              return Date.now()
-            },
-            uid: uid,
-            wrapWrapKb: crypto.randomBytes(32)
-          })
-        }
-      })
-
-      it('sends verify account email', function () {
-        return runTest(route, mockRequest, function (response) {
-          assert.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
-          assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
-          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-          assert.equal(response.verified, false, 'response indicates account is unverified')
-          assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
-          assert.equal(response.verificationReason, 'signup', 'verificationReason is signup')
-          assert.equal(response.emailSent, true, 'email not sent')
-        }).then(function () {
-          mockMailer.sendVerifyCode.reset()
-        })
+        assert.equal(response.emailSent, true, 'response indicates an email was sent')
       })
     })
   })
 
   it('creating too many sessions causes an error to be logged', function () {
-    mockDB.emailRecord = defaultEmailRecord
-    mockDB.emailRecord.reset()
     const oldSessions = mockDB.sessions
     mockDB.sessions = sinon.spy(function () {
       return P.resolve(new Array(200))
@@ -1519,16 +1316,6 @@ describe('/account/login', function () {
         })
 
         describe('with unblock code', () => {
-          mockLog.flowEvent.reset()
-
-          let previousEmailRecord
-          before(() => {
-            previousEmailRecord = mockDB.emailRecord
-          })
-
-          afterEach(() => {
-            mockDB.emailRecord = previousEmailRecord
-          })
 
           it('invalid code', () => {
             mockDB.consumeUnblockCode = () => P.reject(error.invalidUnblockCode())
@@ -1567,7 +1354,7 @@ describe('/account/login', function () {
           it('valid code', () => {
             mockDB.consumeUnblockCode = () => P.resolve({ createdAt: Date.now() })
             return runTest(route, mockRequestWithUnblockCode, (res) => {
-              assert.equal(mockLog.flowEvent.callCount, 4)
+              assert.equal(mockLog.flowEvent.callCount, 3)
               assert.equal(mockLog.flowEvent.args[0][0], 'account.login.blocked', 'first event was account.login.blocked')
               assert.equal(mockLog.flowEvent.args[1][0], 'account.login.confirmedUnblockCode', 'second event was account.login.confirmedUnblockCode')
               assert.equal(mockLog.flowEvent.args[2][0], 'account.login', 'third event was account.login')

@@ -17,7 +17,6 @@ describe('remote password forgot', function() {
   this.timeout(15000)
   let server
   before(() => {
-    process.env.SIGNIN_CONFIRMATION_ENABLED = false
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -423,7 +422,6 @@ describe('remote password forgot', function() {
   )
 
   after(() => {
-    delete process.env.SIGNIN_CONFIRMATION_ENABLED
     return TestServer.stop(server)
   })
 

@@ -168,9 +168,8 @@ module.exports = function (
                 }
               )
           } else {
-            // To keep backwards compatibility, default to creating a verified
-            // session if no sessionToken is passed
-            verifiedStatus = true
+            // Don't create a verified session unless they already had one.
+            verifiedStatus = false
             return P.resolve()
           }
         }

@@ -29,7 +29,6 @@ describe('remote verifier upgrade', function() {
 
   before(() => {
     process.env.VERIFIER_VERSION = '0'
-    process.env.SIGNIN_CONFIRMATION_ENABLED = false
   })
 
   it(
@@ -84,7 +83,7 @@ describe('remote verifier upgrade', function() {
         .then(
           function (server) {
             var client
-            return Client.login(config.publicUrl, email, password, server.mailbox)
+            return Client.loginAndVerify(config.publicUrl, email, password, server.mailbox)
               .then(
                 function (x) {
                   client = x
@@ -139,6 +138,5 @@ describe('remote verifier upgrade', function() {
 
   after(() => {
     delete process.env.VERIFIER_VERSION
-    delete process.env.SIGNIN_CONFIRMATION_ENABLED
   })
 })
