@@ -1,9 +1,7 @@
 language: cpp
 
-services:
-  - redis-server
-
-sudo: false
+dist: trusty
+sudo: required
 
 os:
   - linux
