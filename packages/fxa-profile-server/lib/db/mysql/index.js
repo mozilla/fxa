@@ -107,9 +107,6 @@ const Q_AVATAR_GET = 'SELECT * FROM avatars WHERE id=?';
 const Q_SELECTED_AVATAR = 'SELECT avatars.* FROM avatars LEFT JOIN '
   + 'avatar_selected ON (avatars.id = avatar_selected.avatarId) WHERE '
   + 'avatars.userId=? AND avatar_selected.avatarId IS NOT NULL';
-const Q_AVATAR_LIST = 'SELECT avatars.id, url, avatar_selected.avatarId '
-  + 'IS NOT NULL AS selected FROM avatars LEFT JOIN avatar_selected ON '
-  + '(avatars.id = avatar_selected.avatarId) WHERE avatars.userId=?';
 const Q_AVATAR_DELETE = 'DELETE FROM avatars WHERE id=?';
 
 const Q_PROVIDER_INSERT = 'INSERT INTO avatar_providers (name) VALUES (?)';
@@ -151,7 +148,7 @@ MysqlStore.prototype = {
     });
   },
 
-  addAvatar: function addAvatar(id, uid, url, provider, selected) {
+  addAvatar: function addAvatar(id, uid, url, provider) {
     id = buf(id);
     uid = buf(uid);
     var store = this;
@@ -159,14 +156,12 @@ MysqlStore.prototype = {
       if (!prov) {
         throw AppError.unsupportedProvider(url);
       }
-      var p = store._write(Q_AVATAR_INSERT, [id, url, uid, prov.id]);
-      if (selected) {
-        p = p.then(function() {
+
+      return store._write(Q_AVATAR_INSERT, [id, url, uid, prov.id])
+        .then(function() {
+          // always select the newly uploaded avatar
           return store._write(Q_AVATAR_UPDATE, [uid, id]);
         });
-      }
-
-      return p;
     });
   },
 
@@ -176,10 +171,6 @@ MysqlStore.prototype = {
 
   getSelectedAvatar: function getSelectedAvatar(uid) {
     return this._readOne(Q_SELECTED_AVATAR, [buf(uid)]);
-  },
-
-  getAvatars: function getAvatars(uid) {
-    return this._read(Q_AVATAR_LIST, [buf(uid)]);
   },
 
   deleteAvatar: function deleteAvatar(id) {

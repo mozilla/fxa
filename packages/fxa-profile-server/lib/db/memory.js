@@ -8,10 +8,6 @@ const hex = buf.to.hex;
 const config = require('../config');
 const P = require('../promise');
 
-function clone(obj) {
-  return JSON.parse(JSON.stringify(obj));
-}
-
 /*
  * MemoryStore structure:
  * MemoryStore = {
@@ -62,7 +58,7 @@ MemoryStore.prototype = {
     return P.resolve();
   },
 
-  addAvatar: function addAvatar(id, uid, url, provider, selected) {
+  addAvatar: function addAvatar(id, uid, url, provider) {
     var avatar = {
       id: id,
       url: url,
@@ -70,12 +66,10 @@ MemoryStore.prototype = {
       userId: uid
     };
     this.avatars[hex(id)] = avatar;
-    if (selected) {
-      this.selected[hex(uid)] = {
-        userId: uid,
-        avatarId: id
-      };
-    }
+    this.selected[hex(uid)] = {
+      userId: uid,
+      avatarId: id
+    };
     return P.fulfilled();
   },
 
@@ -90,23 +84,6 @@ MemoryStore.prototype = {
       return P.resolve(avatar);
     }
     return P.resolve();
-  },
-
-  getAvatars: function getAvatars(uid) {
-    uid = hex(uid);
-    var ids = Object.keys(this.avatars);
-    var selected = this.selected[uid];
-    var avatars = [];
-    for (var i = 0; i < ids.length; i++) {
-      if (hex(this.avatars[ids[i]].userId) === uid) {
-        var av = clone(this.avatars[ids[i]]);
-        if (selected && hex(selected.avatarId) === ids[i]) {
-          av.selected = true;
-        }
-        avatars.push(av);
-      }
-    }
-    return P.resolve(avatars);
   },
 
   deleteAvatar: function deleteAvatar(id) {

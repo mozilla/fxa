@@ -2,22 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const hex = require('buf').to.hex;
+const AppError = require('../../error');
 const Joi = require('joi');
-
-const db = require('../../db');
-
-function avatars(list) {
-  return {
-    avatars: list.map(function(row) {
-      return {
-        id: hex(row.id),
-        url: row.url,
-        selected: !!row.selected
-      };
-    })
-  };
-}
 
 module.exports = {
   auth: {
@@ -34,6 +20,6 @@ module.exports = {
     }
   },
   handler: function avatarList(req, reply) {
-    db.getAvatars(req.auth.credentials.user).then(avatars).done(reply, reply);
+    reply(new AppError.deprecated());
   }
 };

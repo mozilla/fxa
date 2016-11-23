@@ -59,7 +59,6 @@ The currently-defined error responses are:
 - [GET /v1/email][email]
 - [GET /v1/uid][uid]
 - [GET /v1/avatar][avatar]
-- [GET /v1/avatars][avatars]
 - [POST /v1/avatar][avatar-post]
 - [POST /v1/avatar/upload][upload]
 - [DELETE /v1/avatar/:id][delete]
@@ -177,34 +176,6 @@ curl -v \
 }
 ```
 
-### GET /v1/avatars
-
-- scope: `profile:avatar:write`
-
-Get a list of uploaded avatars for a user.
-
-#### Request
-
-```sh
-curl -v \
--H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
-"https://profile.accounts.firefox.com/v1/avatars"
-```
-
-#### Response
-
-```json
-{
-  "avatars": [
-    {
-      "id": "81625c14128d46c2b600e74a017fa4a8",
-      "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96",
-      "selected": true
-    }
-  ]
-}
-```
-
 ### POST /v1/avatar
 
 - scope: `profile:avatar:write`
@@ -214,7 +185,7 @@ Add a URL for an avatar to the user's profile.
 #### Request
 
 - `url` - The URL of the image. Must be from a supported provider.
-- `selected` - Boolean, whether it should be the selected avatar.
+- `selected` - (DEPRECATED) Boolean, whether it should be the selected avatar.
 
 Supported Providers:
 
@@ -228,8 +199,7 @@ curl -v \
 -H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
 "https://profile.accounts.firefox.com/v1/avatar" \
 -d '{
-  "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96",
-  "selected": true
+  "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96"
 }'
 ```
 
@@ -275,8 +245,7 @@ Delete an avatar from the user's profile.
 
 #### Request
 
-The `id` of an avatar can be received from [GET /v1/avatar][avatar] or
-[GET /v1/avatars][avatars].
+The `id` of an avatar can be received from [GET /v1/avatar][avatar].
 
 ```sh
 curl -v \
@@ -342,7 +311,6 @@ curl -v \
 [uid]: #get-v1uid
 [avatar]: #get-v1avatar
 [avatar-post]: #post-v1avatar
-[avatars]: #get-v1avatars
 [upload]: #post-v1avatarupload
 [delete]: #delete-v1avatarid
 [display_name]: #get-v1display_name

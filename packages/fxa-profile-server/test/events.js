@@ -86,8 +86,8 @@ describe('events', function() {
       it('should delete avatars', function(done) {
         mock.deleteImage();
         events.onData(new Message(function() {
-          db.getAvatars(UID).then(function(avatars) {
-            assert.equal(avatars.length, 0);
+          db.getSelectedAvatar(UID).then(function(avatar) {
+            assert.equal(avatar, undefined);
           }).done(done, done);
         }));
       });

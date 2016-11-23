@@ -22,12 +22,10 @@ exports.onData = function onData(message) {
       return logger.warn('badDelete', { userId: userId });
     }
     P.all([
-      db.getAvatars(userId).then(function(avatars) {
-        return P.all(avatars.map(function(avatar) {
-          return workers.delete(avatar.id).then(function() {
-            return db.deleteAvatar(avatar.id);
-          });
-        }));
+      db.getSelectedAvatar(userId).then(function(avatar) {
+        return workers.delete(avatar.id).then(function() {
+          return db.deleteAvatar(avatar.id);
+        });
       }),
       db.removeProfile(userId)
     ]).done(

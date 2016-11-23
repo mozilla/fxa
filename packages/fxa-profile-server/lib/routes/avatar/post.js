@@ -29,7 +29,7 @@ module.exports = {
   validate: {
     payload: {
       url: Joi.string().required(),
-      selected: Joi.boolean()
+      selected: Joi.boolean().optional() // this field is deprecated
     }
   },
   response: {
@@ -61,7 +61,7 @@ module.exports = {
 
     customs.checkAuthenticated(action, ip, uid)
       .then(function (){
-        return db.addAvatar(id, uid, payload.url, provider, payload.selected);
+        return db.addAvatar(id, uid, payload.url, provider);
       })
       .done(function() {
         var info = {

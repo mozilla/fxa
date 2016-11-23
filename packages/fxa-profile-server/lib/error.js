@@ -94,6 +94,14 @@ AppError.unauthorized = function unauthorized(msg) {
   });
 };
 
+AppError.deprecated = function unauthorized(msg) {
+  return new AppError({
+    code: 410,
+    error: 'Gone',
+    message: 'This endpoint is no longer supported'
+  });
+};
+
 AppError.invalidRequestParameter = function invalidRequestParameter(val) {
   return new AppError({
     code: 400,
