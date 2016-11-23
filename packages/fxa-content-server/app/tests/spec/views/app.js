@@ -157,8 +157,8 @@ define(function (require, exports, module) {
           assert.isNull(displayedView);
         });
 
-        it('logs the view', function () {
-          assert.isTrue(isLogged);
+        it('does not log the view', function () {
+          assert.isFalse(isLogged);
         });
 
         it('destroys the view', function () {

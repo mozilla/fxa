@@ -24,7 +24,7 @@ const HOSTNAME = os.hostname();
 const MAX_DATA_LENGTH = 100;
 const VERSION = 1;
 
-const FLOW_BEGIN_EVENT_TYPES = /^flow\.[a-z_-]+\.begin$/;
+const FLOW_BEGIN_EVENT = 'flow.begin';
 const FLOW_ID_KEY = config.get('flow_id_key');
 const FLOW_ID_EXPIRY = config.get('flow_id_expiry');
 
@@ -48,12 +48,23 @@ module.exports = (req, metrics, requestReceivedTime) => {
   }
 
   const events = metrics.events || [];
-  const flowEvents = _.filter(events, event => {
-    return event.type.indexOf('flow.') === 0;
-  });
+  const flowEvents = _.filter(
+    _.map(events, event => {
+      if (event.type.indexOf('screen.') !== 0) {
+        return event;
+      }
+
+      return _.assign({}, event, {
+        type: `flow.${event.type.substr(7)}.view`
+      });
+    }),
+    event => {
+      return event.type.indexOf('flow.') === 0;
+    }
+  );
 
   flowEvents.forEach(event => {
-    if (FLOW_BEGIN_EVENT_TYPES.test(event.type)) {
+    if (event.type === FLOW_BEGIN_EVENT) {
       event.time = metrics.flowBeginTime;
       event.flowTime = 0;
     } else {

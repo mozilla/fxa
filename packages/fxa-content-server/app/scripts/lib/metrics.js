@@ -473,12 +473,12 @@ define(function (require, exports, module) {
       return this._isSampledUser;
     },
 
-    logFlowBegin (flowId, flowBeginTime, viewName) {
+    logFlowBegin (flowId, flowBeginTime) {
       // Don't emit a new flow.begin event unless flowId has changed.
       if (flowId !== this._flowId) {
         this._flowId = flowId;
         this._flowBeginTime = flowBeginTime;
-        this.logFlowEvent('begin', viewName);
+        this.logFlowEvent('begin');
       }
     },
 

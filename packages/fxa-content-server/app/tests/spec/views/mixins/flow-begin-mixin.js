@@ -31,10 +31,9 @@ define((require, exports, module) => {
       it('called metrics.logFlowBegin correctly', () => {
         assert.strictEqual(flowBeginMixin.metrics.logFlowBegin.callCount, 1);
         const args = flowBeginMixin.metrics.logFlowBegin.args[0];
-        assert.lengthOf(args, 3);
+        assert.lengthOf(args, 2);
         assert.strictEqual(args[0], 'mock flowId');
         assert.strictEqual(args[1], 'mock flowBegin');
-        assert.strictEqual(args[2], 'wibble');
       });
     });
   });

@@ -569,7 +569,7 @@ define(function (require, exports, module) {
       });
 
       it('logs the begin event', () => {
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.begin'));
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.begin'));
       });
 
       it('logs the engage event (click)', () => {

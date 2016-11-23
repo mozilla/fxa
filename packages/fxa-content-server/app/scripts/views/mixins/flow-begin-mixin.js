@@ -13,7 +13,7 @@ define(function (require, exports, module) {
       const flowId = this.flow.get('flowId');
       const flowBegin = this.flow.get('flowBegin');
 
-      this.metrics.logFlowBegin(flowId, flowBegin, this.viewName);
+      this.metrics.logFlowBegin(flowId, flowBegin);
     }
   };
 });
