@@ -92,6 +92,11 @@ define(function (require, exports, module) {
         var viewToShow = this._createView(View, options);
         this._currentView = viewToShow;
 
+        // logView is done outside of the view itself because the settings
+        // page renders many child views at once. If the view took care of
+        // logging itself, each child view would be logged at the same time.
+        // We only want to log the screen being displayed, child views will
+        // be logged when they are opened.
         viewToShow.logView();
         return viewToShow.render()
           .then((isShown) => {
@@ -180,4 +185,3 @@ define(function (require, exports, module) {
 
   module.exports = AppView;
 });
-
