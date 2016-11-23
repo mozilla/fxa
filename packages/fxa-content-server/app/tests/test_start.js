@@ -35,7 +35,6 @@ function (Translator, Session) {
     '../tests/spec/lib/experiment',
     '../tests/spec/lib/experiments/base',
     '../tests/spec/lib/experiments/mailcheck',
-    '../tests/spec/lib/experiments/show-password',
     '../tests/spec/lib/fxa-client',
     '../tests/spec/lib/height-observer',
     '../tests/spec/lib/image-loader',
@@ -260,4 +259,3 @@ function (Translator, Session) {
     }).join('\n');
   }
 });
-

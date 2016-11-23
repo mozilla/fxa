@@ -8,7 +8,6 @@ define([
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, FunctionalHelpers) {
   var EXP_MAILCHECK_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=mailcheck&automatedBrowser=true';
-  var EXP_SHOWPASSWORD_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=showPassword';
   var EXP_CONTROL = '&forceExperimentGroup=control';
   var EXP_TREATMENT = '&forceExperimentGroup=treatment';
 
@@ -16,9 +15,7 @@ define([
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
-  var testElementExists = FunctionalHelpers.testElementExists;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var type = FunctionalHelpers.type;
 
@@ -55,40 +52,6 @@ define([
         .then(type('.email', BAD_EMAIL))
         .then(click('.password'))
         .then(FunctionalHelpers.noSuchElement(this, '.tooltip-suggest'));
-    }
-  });
-
-  registerSuite({
-    name: 'verification_experiments - showPassword',
-
-    beforeEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
-    'treatment works': function () {
-      return this.remote
-        .then(openPage(this, EXP_SHOWPASSWORD_URL + EXP_TREATMENT, '#fxa-signup-header'))
-        .then(type('#password', 'p'))
-        .then(noSuchElement(this, '.show-password-label'))
-        .then(click('.sign-in'))
-        .then(testElementExists('#fxa-signin-header'))
-        .then(type('#password', 'p'))
-        .then(noSuchElement(this, '.show-password-label'));
-    },
-
-    'control works': function () {
-      return this.remote
-        .then(openPage(this, EXP_SHOWPASSWORD_URL + EXP_CONTROL, '#fxa-signup-header'))
-        .then(type('.password', 'asdf'))
-        .then(testElementExists('.show-password-label'))
-        .then(click('.sign-in'))
-        .then(testElementExists('#fxa-signin-header'))
-        // because of form prefill, label should already be there.
-        .then(testElementExists('.show-password-label'));
     }
   });
 });

@@ -28,10 +28,6 @@ define(function (require, exports, module) {
     },
 
     afterRender () {
-      if (this._isInShowPasswordExperiment()) {
-        this.notifier.trigger('showPassword.triggered');
-      }
-
       this._addShowPasswordLabel(this.$('input[type=password]'));
     },
 
@@ -69,16 +65,6 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Is the user eligible to see the `show password` label?
-     *
-     * @returns {Boolean}
-     */
-    _isEligibleToSeeShowPasswordLabel () {
-      return (! this._isInShowPasswordExperiment() ||
-                this.isInExperimentGroup('showPassword', 'control'));
-    },
-
-    /**
      * Should a show password label be created for the given password field?
      * Only create if eligible and a label does not already exist.
      *
@@ -86,10 +72,9 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      */
     _shouldCreateShowPasswordLabel ($passwordEl) {
-      return this._isEligibleToSeeShowPasswordLabel() &&
-            // only add the label if a password has been entered and one
-            // has not already been added.
-             $passwordEl.val().length &&
+      // only add the label if a password has been entered and one
+      // has not already been added.
+      return $passwordEl.val().length &&
              ! this.$(`#show-${$passwordEl.attr('id')}`).length;
     },
 
@@ -113,15 +98,6 @@ define(function (require, exports, module) {
       $passwordEl.after(showPasswordLabelEl);
     },
 
-    /**
-     * Check if the user is in the show password experiment
-     *
-     * @returns {Boolean}
-     */
-    _isInShowPasswordExperiment () {
-      return this.isInExperiment && this.isInExperiment('showPassword');
-    },
-
     onShowPasswordMouseDown (event) {
       const $buttonEl = this.$(event.target).siblings('.show-password');
       const $passwordEl = this.getAffectedPasswordInputs($buttonEl);
@@ -139,11 +115,6 @@ define(function (require, exports, module) {
 
       $(this.window).one('mouseup', hideVisiblePasswords);
       $(this.window).one('touchend', hideVisiblePasswords);
-
-
-      if (this._isInShowPasswordExperiment()) {
-        this.notifier.trigger('showPassword.clicked');
-      }
     },
 
     getAffectedPasswordInputs (button) {

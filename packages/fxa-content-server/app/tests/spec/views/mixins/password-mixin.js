@@ -10,9 +10,7 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
-  const ExperimentMixin = require('views/mixins/experiment-mixin');
   const Metrics = require('lib/metrics');
-  const Notifier = require('lib/channels/notifier');
   const PasswordMixin = require('views/mixins/password-mixin');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
@@ -25,8 +23,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     PasswordView,
-    PasswordMixin,
-    ExperimentMixin
+    PasswordMixin
   );
 
   describe('views/mixins/password-mixin', function () {
@@ -40,7 +37,6 @@ define(function (require, exports, module) {
 
       view = new PasswordView({
         metrics: metrics,
-        notifier: new Notifier(),
         viewName: 'password-view',
         window: windowMock
       });
@@ -49,21 +45,7 @@ define(function (require, exports, module) {
     });
 
     describe('afterRender', function () {
-      it('notifier not called by default', function () {
-        sinon.spy(view.notifier, 'trigger');
-        view.afterRender();
-        assert.isFalse(view.notifier.trigger.called);
-      });
-
-      it('notifier called if part of an experiment', function () {
-        sinon.spy(view.notifier, 'trigger');
-        sinon.stub(view, 'isInExperiment', () => true );
-        view.afterRender();
-        assert.isTrue(view.notifier.trigger.called);
-      });
-
       it('checks whether `show` should be added to each password element', () => {
-        sinon.stub(view, 'isInExperiment', () => true );
         sinon.spy(view, '_shouldCreateShowPasswordLabel');
 
         view.afterRender();
@@ -75,18 +57,15 @@ define(function (require, exports, module) {
     });
 
     describe('onShowPasswordMouseDown', function () {
-      it('tracks the experiment click ', function () {
-        sinon.stub(view, 'isInExperiment', function () {
-          return true;
-        });
+      it('shows the password', () => {
+        sinon.spy(view, 'showPassword');
 
-        sinon.stub(view, 'isInExperimentGroup', function () {
-          return true;
-        });
-        sinon.spy(view.notifier, 'trigger');
+        const e = $.Event('keyup');
+        e.target = view.$('#password');
 
-        view.onShowPasswordMouseDown({ target: view.$('.show-password-label').get(0) });
-        assert.isTrue(view.notifier.trigger.calledWith('showPassword.clicked'));
+        view.onShowPasswordMouseDown(e);
+
+        assert.isTrue(view.showPassword.calledOnce);
       });
     });
 

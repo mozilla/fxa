@@ -7,7 +7,6 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const MailcheckExperiment = require('lib/experiments/mailcheck');
-  const ShowPasswordExperiment = require('lib/experiments/show-password');
   const Url = require('lib/url');
 
   var CHOOSE_ABLE_EXPERIMENT = 'chooseAbExperiment';
@@ -17,8 +16,7 @@ define(function (require, exports, module) {
   // all available experiments that must be independent for
   // A/B testing purposes.
   var DEFAULT_EXPERIMENTS = {
-    'mailcheck': MailcheckExperiment,
-    'showPassword': ShowPasswordExperiment
+    'mailcheck': MailcheckExperiment
   };
 
   function ExperimentInterface (options) {
