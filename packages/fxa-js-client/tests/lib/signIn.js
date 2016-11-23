@@ -101,7 +101,7 @@ define([
       });
 
       test('#with Sync/redirectTo', function () {
-        var user = 'test' + new Date().getTime();
+        var user = 'confirm' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var opts = {
@@ -136,7 +136,7 @@ define([
       });
 
       test('#with Sync/resume', function () {
-        var user = 'test' + new Date().getTime();
+        var user = 'confirm' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var opts = {
