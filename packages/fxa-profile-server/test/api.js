@@ -173,7 +173,7 @@ describe('/profile', function() {
     });
   });
 
-  it('should error our on unexpected 400s from auth server', function() {
+  it('should error out on unexpected 400s from auth server', function() {
     mock.token({
       user: USERID,
       scope: ['profile:write']
@@ -831,7 +831,9 @@ describe('/avatars', function() {
         authorization: 'Bearer ' + tok
       }
     }).then(function(res) {
-      assert.equal(res.statusCode, 500); // TODO: 410...
+      assert.equal(res.statusCode, 410);
+      assert.equal(res.result.error, 'Gone');
+      assert.equal(res.result.message, 'This endpoint is no longer supported');
     });
   });
 });
