@@ -359,7 +359,7 @@ Acceptance criteria:
       along with placeholders for iOS and Android,
       each with a "Get app" button
       linking to the relevant app store.
-* [ ] (Moved to Phase 3) When viewing my device list
+* [ ] - Moved to Phase 3: When viewing my device list
       in a recent Desktop Firefox
       that is not connected to Sync,
       it appears in my device list
@@ -370,6 +370,7 @@ Acceptance criteria:
       installs generated on each app store.
 * [ ] - Moved to Phase 3: Graph available showing click rate
       on the "Connect..." button.
+* [ ] Measure how many users get an empty device list with no items
 
 Open questions:
 
@@ -409,6 +410,8 @@ Acceptance criteria:
       by accessing the devices view on a desktop browser,
       and then go to the sync preferences on the mobile device,
       I immediately see that the device is disconnected.
+* [ ] - Moved from Phase 1: All devices should have a plausible
+      last-active timestamp in the view
 * [ ] - Moved from Phase 2: When viewing my device list
       in a recent Desktop Firefox
       that is not connected to Sync,
@@ -416,8 +419,6 @@ Acceptance criteria:
       as "not connected to Firefox Sync"
       and has a "Connect..." button that takes me
       to a login form where I can connect that device.
-* [ ] - Moved from Phase 1: All devices should have a plausible
-      last-active timestamp in the view
 * [ ] - Moved from Phase 2: Graph available showing click rate
       on the "Connect..." button.
 
