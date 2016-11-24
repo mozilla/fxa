@@ -67,7 +67,7 @@ define([
           events: [
             { offset: 5, type: 'wibble' },
             { offset: 5, type: 'flow.begin' },
-            { offset: 5, type: 'screen.signup' },
+            { offset: 5.9, type: 'screen.signup' },
             { offset: timeSinceFlowBegin, type: 'flow.signup.good-offset-now' },
             { offset: timeSinceFlowBegin + 1, type: 'flow.signup.bad-offset-future' },
             { offset: timeSinceFlowBegin - config.flow_id_expiry - 1, type: 'flow.signup.bad-offset-expired' },
@@ -112,6 +112,7 @@ define([
         const arg = JSON.parse(process.stderr.write.args[1][0]);
         assert.lengthOf(Object.keys(arg), 18);
         assert.equal(arg.event, 'flow.signup.view');
+        assert.equal(arg.flow_time, 5);
         assert.equal(arg.time, new Date(mocks.time - 995).toISOString());
       },
 

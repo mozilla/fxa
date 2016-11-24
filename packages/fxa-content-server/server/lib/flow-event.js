@@ -135,7 +135,7 @@ function logFlowEvent (event, data, request) {
   var eventData = _.assign({
     event: event.type,
     flow_id: data.flowId, //eslint-disable-line camelcase
-    flow_time: event.flowTime, //eslint-disable-line camelcase
+    flow_time: Math.floor(event.flowTime), //eslint-disable-line camelcase
     hostname: HOSTNAME,
     op: 'flowEvent',
     pid: process.pid,
