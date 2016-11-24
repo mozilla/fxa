@@ -286,51 +286,49 @@ building on the existing devices view code.
 
 Acceptance criteria:
 
-* [ ] When I am connected to Sync on Desktop Firefox,
+* [x] When I am connected to Sync on Desktop Firefox,
       my device list shows that device
       with a desktop icon,
-      a plausible last-active timestamp,
       and a "Disconnect..." button.
-* [ ] When I am connected to Sync from Fennec or iOS on a phone,
+* [ ] - Moved to Phase 3: All devices should have a plausible last-active timestamp in the view
+* [x] When I am connected to Sync from Fennec or iOS on a phone,
       my device list shows that device
       with a phone icon,
-      a plausible last-active timestamp,
       and a "Disconnect..." button.
-* [ ] When I am connected to Sync from Fennec or iOS on a tablet,
+* [x] When I am connected to Sync from Fennec or iOS on a tablet,
       my device list shows that device
       with a tablet icon,
-      a plausible last-active timestamp,
       and a "Disconnect..." button.
-* [ ] When I sign in to Firefox Accounts on the web
+* [x] When I sign in to Firefox Accounts on the web
       without connecting to sync,
       this does not appear as an item
       in the device list.
-* [ ] The devices view does not show
+* [x] The devices view does not show
       any messaging about connecting new devices.
-* [ ] Clicking the "Disconnect..." button for a device
+* [x] Clicking the "Disconnect..." button for a device
       causes a modal confirmation dialog to be displayed
       with the specified messaging.
-* [ ] Successfully submitting the dialog
+* [x] Successfully submitting the dialog
       destroys the device record and session
       token for that device.
-* [ ] When I disconnect my current Desktop device
+* [x] When I disconnect my current Desktop device
       through the devices view,
       and then go to about:preferences#sync,
       I immediately see that the device is disconnected.
-* [ ] When I disconnect a different Desktop device
+* [x] When I disconnect a different Desktop device
       through the devices view,
       and then go to about:preferences#sync on that device,
       I immediately see that the device is disconnected.
-* [ ] Front-end metrics events are emitted
+* [x] Front-end metrics events are emitted
       when users view the devices list,
       click the "Disconnect..." button,
       submit or cancel the disconnect dialog,
       click the "refresh" button,
       and click the "missing or duplicate devices" link.
-* [ ] Metrics events are emitted
+* [x] Metrics events are emitted
       when a device is disconnected,
       and include the reason for its disconnection.
-* [ ] Graphs are available to view
+* [x] Graphs are available to view
       the number of views of this screen,
       the number of device disconnections
       broken down by reason,
@@ -356,22 +354,23 @@ according to the latest designs.
 
 Acceptance criteria:
 
-* [ ] When I connect a single desktop Firefox to Sync,
+* [x] When I connect a single desktop Firefox to Sync,
       my device list shows that device
       along with placeholders for iOS and Android,
       each with a "Get app" button
       linking to the relevant app store.
-* [ ] When viewing my device list
+* [ ] - Moved to Phase 3: When viewing my device list
       in a recent Desktop Firefox
       that is not connected to Sync,
       it appears in my device list
       as "not connected to Firefox Sync"
       and has a "Connect..." button that takes me
       to a login form where I can connect that device.
-* [ ] Graphs viewable for the number of mobile
+* [x] Graphs viewable for the number of mobile
       installs generated on each app store.
-* [ ] Graph available showing click rate
+* [ ] - Moved to Phase 3: Graph available showing click rate
       on the "Connect..." button.
+* [ ] Measure how many users get an empty device list with no items
 
 Open questions:
 
@@ -411,6 +410,17 @@ Acceptance criteria:
       by accessing the devices view on a desktop browser,
       and then go to the sync preferences on the mobile device,
       I immediately see that the device is disconnected.
+* [ ] - Moved from Phase 1: All devices should have a plausible
+      last-active timestamp in the view
+* [ ] - Moved from Phase 2: When viewing my device list
+      in a recent Desktop Firefox
+      that is not connected to Sync,
+      it appears in my device list
+      as "not connected to Firefox Sync"
+      and has a "Connect..." button that takes me
+      to a login form where I can connect that device.
+* [ ] - Moved from Phase 2: Graph available showing click rate
+      on the "Connect..." button.
 
 ****
 
@@ -429,5 +439,5 @@ Here are some results from Phase 1 of devices view:
   * ~6% - suspicious
   * ~30% - would rather not say
   * ~60% - old device
-* From all who saw the "Devices" screen, ~20% users tried to disconnect something. 
+* From all who saw the "Devices" screen, ~20% users tried to disconnect something.
 * ~65% of users confirmed disconnection after seeing the modal
