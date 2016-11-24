@@ -98,11 +98,10 @@ define([
           service: '1234567890abcdef',
           time: new Date(mocks.time - 1000).toISOString(),
           userAgent: mocks.request.headers['user-agent'],
-          utm_campaign: 'mock utm_campaign',
-          utm_content: 'mock utm_content',
-          utm_medium: 'mock utm_medium',
-          utm_source: 'mock utm_source',
-          utm_term: 'mock utm_term',
+          utm_campaign: '.-Mock%20utm_campaign',
+          utm_content: '.-Mock%20utm_content',
+          utm_medium: '.-Mock%20utm_medium',
+          utm_source: '.-Mock%20utm_source',
           v: 1
           /*eslint-enable camelcase*/
         });
@@ -110,7 +109,7 @@ define([
 
       'second call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[1][0]);
-        assert.lengthOf(Object.keys(arg), 18);
+        assert.lengthOf(Object.keys(arg), 17);
         assert.equal(arg.event, 'flow.signup.view');
         assert.equal(arg.flow_time, 5);
         assert.equal(arg.time, new Date(mocks.time - 995).toISOString());
@@ -118,14 +117,14 @@ define([
 
       'third call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[2][0]);
-        assert.lengthOf(Object.keys(arg), 18);
+        assert.lengthOf(Object.keys(arg), 17);
         assert.equal(arg.event, 'flow.signup.good-offset-now');
         assert.equal(arg.time, new Date(mocks.time).toISOString());
       },
 
       'fourth call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[3][0]);
-        assert.lengthOf(Object.keys(arg), 18);
+        assert.lengthOf(Object.keys(arg), 17);
         assert.equal(arg.event, 'flow.signup.good-offset-oldest');
         assert.equal(arg.time, new Date(mocks.time - config.flow_id_expiry).toISOString());
       }
@@ -598,6 +597,70 @@ define([
         assert.isUndefined(arg.utm_source);
         assert.isUndefined(arg.utm_term);
       }
+    },
+
+    'call flowEvent with invalid utm_campaign': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          utm_campaign: '!' //eslint-disable-line camelcase
+        }, 1000);
+      },
+
+      'process.stderr.write was called correctly': () => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.lengthOf(Object.keys(arg), 16);
+        assert.isUndefined(arg.utm_campaign); //eslint-disable-line camelcase
+      }
+    },
+
+    'call flowEvent with invalid utm_content': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          utm_content: '"' //eslint-disable-line camelcase
+        }, 1000);
+      },
+
+      'process.stderr.write was called correctly': () => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.lengthOf(Object.keys(arg), 16);
+        assert.isUndefined(arg.utm_content); //eslint-disable-line camelcase
+      }
+    },
+
+    'call flowEvent with invalid utm_medium': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          utm_medium: ';' //eslint-disable-line camelcase
+        }, 1000);
+      },
+
+      'process.stderr.write was called correctly': () => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.lengthOf(Object.keys(arg), 16);
+        assert.isUndefined(arg.utm_medium); //eslint-disable-line camelcase
+      }
+    },
+
+    'call flowEvent with invalid utm_source': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          utm_source: '>' //eslint-disable-line camelcase
+        }, 1000);
+      },
+
+      'process.stderr.write was called correctly': () => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.lengthOf(Object.keys(arg), 16);
+        assert.isUndefined(arg.utm_source); //eslint-disable-line camelcase
+      }
     }
   });
 
@@ -617,11 +680,11 @@ define([
         service: data.service || '1234567890abcdef',
         startTime: flowBeginTime - timeSinceFlowBegin,
         /*eslint-disable camelcase*/
-        utm_campaign: data.utm_campaign || 'mock utm_campaign',
-        utm_content: data.utm_content || 'mock utm_content',
-        utm_medium: data.utm_medium || 'mock utm_medium',
-        utm_source: data.utm_source || 'mock utm_source',
-        utm_term: data.utm_term || 'mock utm_term',
+        utm_campaign: data.utm_campaign || '.-Mock%20utm_campaign',
+        utm_content: data.utm_content || '.-Mock%20utm_content',
+        utm_medium: data.utm_medium || '.-Mock%20utm_medium',
+        utm_source: data.utm_source || '.-Mock%20utm_source',
+        utm_term: data.utm_term || '.-Mock%20utm_term',
         /*eslint-enable camelcase*/
         zignore: 'ignore me'
       }, mocks.time);
