@@ -63,23 +63,6 @@ define([
           );
       });
 
-      test('#with sendEmailIfUnverified', function () {
-        var email = 'test' + new Date().getTime() + '@restmail.net';
-        var password = 'iliketurtles';
-
-        return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (res) {
-            return respond(client.signIn(email, password, {sendEmailIfUnverified: true}), RequestMocks.signInEmailSent);
-          })
-          .then(
-            function (res) {
-              assert.ok(res.sessionToken);
-              assert.equal(res.emailSent, true);
-            },
-            assert.notOk
-          );
-      });
-
       test('#with service', function () {
         var email = 'test' + new Date().getTime() + '@restmail.net';
         var password = 'iliketurtles';
