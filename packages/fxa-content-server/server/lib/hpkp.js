@@ -12,7 +12,7 @@ var helmet = require('helmet');
 module.exports = function (config) {
   var hpkpMiddleware = helmet.hpkp({
     includeSubdomains: config.get('hpkp.includeSubDomains'),
-    maxAge: config.get('hpkp.maxAge') * 1000, // Convert to milli-seconds
+    maxAge: config.get('hpkp.maxAge'), // param is now seconds since Helmet 3
     reportOnly: config.get('hpkp.reportOnly'),
     reportUri: config.get('hpkp.reportUri'),
     sha256s: config.get('hpkp.sha256s')

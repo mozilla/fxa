@@ -50,7 +50,7 @@ define([
     var res = new ResMock();
     var req = new ReqMock();
     middleware(req, res, dfd.callback(function () {
-      assert.equal(res.headers['public-key-pins'], 'pin-sha256="sha1="; pin-sha256="sha2="; max-age=100; includeSubdomains');
+      assert.equal(res.headers['public-key-pins'], 'pin-sha256="sha1="; pin-sha256="sha2="; max-age=100; includeSubDomains');
     }, dfd.reject.bind(dfd)));
   };
 
@@ -77,7 +77,7 @@ define([
     var res = new ResMock();
     var req = new ReqMock();
     middleware(req, res, dfd.callback(function () {
-      var expectedValue = 'pin-sha256="sha1="; pin-sha256="sha2="; max-age=100; includeSubdomains; report-uri="http://report.com"';
+      var expectedValue = 'pin-sha256="sha1="; pin-sha256="sha2="; max-age=100; includeSubDomains; report-uri="http://report.com"';
       assert.equal(res.headers['public-key-pins-report-only'], expectedValue);
       assert.notProperty(res.headers, 'public-key-pins');
     }, dfd.reject.bind(dfd)));
