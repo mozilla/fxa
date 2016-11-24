@@ -10,13 +10,12 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const chai = require('chai');
   const Constants = require('lib/constants');
-  const Duration = require('duration');
   const FormView = require('views/form');
   const HaltBehavior = require('views/behaviors/halt');
   const Metrics = require('lib/metrics');
   const p = require('lib/promise');
   const sinon = require('sinon');
-  const Template = require('stache!templates/test_template');
+  const Template = require('stache!templates/test_form_template');
   const TestHelpers = require('../../lib/helpers');
 
   var assert = chai.assert;
@@ -101,10 +100,7 @@ define(function (require, exports, module) {
         model: model
       });
 
-      return view.render()
-        .then(function () {
-          $('#container').html(view.el);
-        });
+      return view.render();
     });
 
     afterEach(function () {
@@ -115,76 +111,60 @@ define(function (require, exports, module) {
       }
     });
 
-    describe('enableSubmitIfValid', function () {
-      it('enables submit button if isValid returns true', function () {
-        view.formIsValid = true;
-        view.enableSubmitIfValid();
-        assert.isFalse(view.$('button').hasClass('disabled'));
+    describe('render', () => {
+      it('does not hide already visible error messages', () => {
+        assert.lengthOf(view.$('.error.visible'), 1);
       });
 
-      it('hides errors if isValid returns true', function () {
-        view.displayError('this is an error');
-        view.formIsValid = true;
-        view.enableSubmitIfValid();
-        assert.isFalse(view.isErrorVisible());
+      it('does not hide already visible success messages', () => {
+        assert.lengthOf(view.$('.success.visible'), 1);
       });
+    });
 
-      it('hides messages when input value is changed', function () {
-        view.displayError('this is an error');
-        assert.isTrue(view.isErrorVisible());
-        view.$('#email').val('some@email.com');
-        view.enableSubmitIfValid();
-        assert.isFalse(view.isErrorVisible());
+    describe('onFormChange', () => {
+      it('hides messages, calls enableSubmitIfValid', () => {
+        sinon.stub(view, 'isHalted', () => false);
+        sinon.stub(view, 'isSubmitting', () => false);
+        sinon.spy(view, 'hideError');
+        sinon.spy(view, 'hideSuccess');
+        sinon.spy(view, 'enableSubmitIfValid');
 
-        view.displaySuccess('the success message');
-        assert.isTrue(view.isSuccessVisible());
-        view.$('#email').val('some@email.com');
-        view.enableSubmitIfValid();
-        assert.isFalse(view.isSuccessVisible());
-      });
-
-      it('disabled submit button if isValid returns false', function () {
-        view.formIsValid = false;
-        view.enableSubmitIfValid();
-        assert.isTrue(view.$('button').hasClass('disabled'));
+        view.onFormChange();
+        assert.isTrue(view.hideError.calledOnce);
+        assert.isTrue(view.hideSuccess.calledOnce);
+        assert.isTrue(view.enableSubmitIfValid.calledOnce);
       });
 
       it('does nothing if submitting', function () {
-        sinon.stub(view, 'isValid', function () {
-          return true;
-        });
+        sinon.stub(view, 'isHalted', () => false);
+        sinon.stub(view, 'isSubmitting', () => true);
+        sinon.spy(view, 'enableSubmitIfValid');
 
-        sinon.stub(view, 'isHalted', function () {
-          return false;
-        });
-
-        sinon.stub(view, 'isSubmitting', function () {
-          return true;
-        });
-
-        view.disableForm();
-        view.enableSubmitIfValid();
-        assert.isFalse(view.isFormEnabled());
-        assert.isTrue(view.$('button').hasClass('disabled'));
+        view.onFormChange();
+        assert.isFalse(view.enableSubmitIfValid.called);
       });
 
       it('does nothing if halted', function () {
-        sinon.stub(view, 'isValid', function () {
-          return true;
-        });
+        sinon.stub(view, 'isHalted', () => true);
+        sinon.stub(view, 'isSubmitting', () => false);
+        sinon.spy(view, 'enableSubmitIfValid');
 
-        sinon.stub(view, 'isHalted', function () {
-          return true;
-        });
+        view.onFormChange();
+        assert.isFalse(view.enableSubmitIfValid.called);
+      });
+    });
 
-        sinon.stub(view, 'isSubmitting', function () {
-          return false;
-        });
-
-        view.disableForm();
+    describe('enableSubmitIfValid', function () {
+      it('disables submit button if `isValid` returns false', function () {
+        sinon.stub(view, 'isValid', () => false);
         view.enableSubmitIfValid();
-        assert.isFalse(view.isFormEnabled());
         assert.isTrue(view.$('button').hasClass('disabled'));
+      });
+
+      it('enables submit button if `isValid` returns true', function () {
+        sinon.stub(view, 'isValid', () => true);
+        view.enableSubmitIfValid();
+        assert.isFalse(view.$('button').hasClass('disabled'));
       });
     });
 
@@ -375,8 +355,10 @@ define(function (require, exports, module) {
       });
 
       it('focuses the invalid element', function (done) {
+        $('#container').html(view.el);
+
         // wekbit fails unless focusing another element first.
-        $('#otherElement').focus();
+        view.$('#otherElement').focus();
 
         TestHelpers.requiresFocus(function () {
           view.$('#focusMe').on('focus', function () {
@@ -401,7 +383,7 @@ define(function (require, exports, module) {
         setTimeout(function () {
           assert.isTrue(view.$('#focusMe').hasClass('invalid'));
           done();
-        }, 50);
+        }, 20);
       });
 
       it('invalid class is removed as soon as element is valid again', function (done) {
@@ -409,7 +391,7 @@ define(function (require, exports, module) {
           assert.isTrue(view.$('#focusMe').hasClass('invalid'));
 
           // add a value, causing the validation error to be removed.
-          $('#focusMe').val('heyya!');
+          view.$('#focusMe').val('heyya!');
           view.$('#focusMe').trigger('keyup');
         });
 
@@ -591,7 +573,7 @@ define(function (require, exports, module) {
     describe('notifyDelayedRequest', function () {
       it('shows a notification when the response takes too long then hides it', function () {
         // override expectation
-        view.LONGER_THAN_EXPECTED = new Duration('200ms').milliseconds();
+        view.LONGER_THAN_EXPECTED = 10;
         view.formIsValid = true;
         view.enableSubmitIfValid();
 
@@ -605,7 +587,7 @@ define(function (require, exports, module) {
             } catch (e) {
               defer.reject(e);
             }
-          }, 500);
+          }, 20);
 
           return defer.promise;
         };
@@ -618,7 +600,7 @@ define(function (require, exports, module) {
 
       it('shows a notification when the response takes too long, switches when an error is thrown', function () {
         // override expectation
-        view.LONGER_THAN_EXPECTED = new Duration('200ms').milliseconds();
+        view.LONGER_THAN_EXPECTED = 10;
         view.formIsValid = true;
         view.enableSubmitIfValid();
 
@@ -632,7 +614,7 @@ define(function (require, exports, module) {
             } catch (e) {
               defer.reject(e);
             }
-          }, 500);
+          }, 20);
 
           return defer.promise;
         };
@@ -666,19 +648,19 @@ define(function (require, exports, module) {
     describe('getElementValue', function () {
       it('gets an element\'s value, does not trim by default', function () {
         var elementVal = 'this is the value of an element ';
-        $('#required').val(elementVal);
+        view.$('#required').val(elementVal);
         assert.equal(view.getElementValue('#required'), elementVal);
       });
 
       it('trims the value of an email element', function () {
         var elementVal = '   testuser@testuser.com ';
-        $('#email').val(elementVal);
+        view.$('#email').val(elementVal);
         assert.equal(view.getElementValue('#email'), $.trim(elementVal));
       });
 
       it('does not trim the value of a password element', function () {
         var elementVal = '  password  ';
-        $('#password').val(elementVal);
+        view.$('#password').val(elementVal);
         assert.equal(view.getElementValue('#password'), elementVal);
       });
     });

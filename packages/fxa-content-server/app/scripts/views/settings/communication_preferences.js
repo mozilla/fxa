@@ -23,12 +23,6 @@ define(function (require, exports, module) {
     className: 'communication-preferences',
     viewName: 'settings.communication-preferences',
 
-    enableSubmitIfValid () {
-      // overwrite this to prevent the default FormView method from hiding errors
-      // after render
-      this.enableForm();
-    },
-
     getMarketingEmailPrefs () {
       if (! this._marketingEmailPrefs) {
         this._marketingEmailPrefs =
