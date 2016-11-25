@@ -151,7 +151,21 @@ define(function (require, exports, module) {
       return this._attachedClients.fetchClients({
         devices: true,
         oAuthApps: true
-      }, this.user);
+      }, this.user).then(() => {
+        // log the number of items
+        const numOfClients = this._attachedClients.length;
+        const itemsLog = 'settings.clients.items';
+
+        if (numOfClients === 0) {
+          this.logEventOnce(itemsLog + '.zero');
+        } else if (numOfClients === 1) {
+          this.logEventOnce(itemsLog + '.one');
+        } else if (numOfClients === 2) {
+          this.logEventOnce(itemsLog + '.two');
+        } else {
+          this.logEventOnce(itemsLog + '.many');
+        }
+      });
     },
 
     submit () {

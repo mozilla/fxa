@@ -436,6 +436,41 @@ define(function (require, exports, module) {
       it('delegates to the user to fetch the device list', function () {
         var account = view.getSignedInAccount();
         assert.isTrue(user.fetchAccountDevices.calledWith(account));
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.clients.items.zero'));
+      });
+
+      it('logs the number of clients', function () {
+        function createAttachedClientView(numOfClients) {
+          return initView()
+            .then(() => {
+              if (view._attachedClients.fetchClients.restore) {
+                view._attachedClients.fetchClients.restore();
+              }
+              sinon.stub(view._attachedClients, 'fetchClients', function () {
+                view._attachedClients.length = numOfClients;
+                return p();
+              });
+
+              return view._fetchAttachedClients();
+            });
+        }
+
+        return createAttachedClientView(1).then(() => {
+          assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.clients.items.one'), 'one client');
+        }).then(() => {
+          return createAttachedClientView(2);
+        }).then(() => {
+          assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.clients.items.two'), 'two clients');
+        }).then(() => {
+          return createAttachedClientView(3);
+        }).then(() => {
+          assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.clients.items.many'), 'many clients');
+        }).then(() => {
+          return createAttachedClientView(70);
+        }).then(() => {
+          assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.clients.items.many'), 'many many clients');
+        });
+
       });
     });
   });
