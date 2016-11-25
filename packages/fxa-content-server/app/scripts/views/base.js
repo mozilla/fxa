@@ -137,6 +137,12 @@ define(function (require, exports, module) {
       this.navigator = options.navigator || this.window.navigator || navigator;
       this.translator = options.translator || this.window.translator;
 
+      // `events` are defined on child views without extending
+      // BaseView's events. Defining events on BaseView (or any
+      // of its mixins) results in a clobbered events hash.
+      // Just mix the ExternalLinksMixin's events in.
+      _.extend(this.events, ExternalLinksMixin.events);
+
       /**
        * Prefer the `viewName` set on the object prototype. ChildViews
        * define their viewName on the prototype to avoid taking the
