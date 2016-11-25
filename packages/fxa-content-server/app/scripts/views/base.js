@@ -206,6 +206,10 @@ define(function (require, exports, module) {
             // be returned.
             this._context = null;
             this.$el.html(this.renderTemplate(this.template.bind(this)));
+
+            // Track whether status messages were made visible via the template.
+            this._isErrorVisible = this.$('.error').hasClass('visible');
+            this._isSuccessVisible = this.$('.success').hasClass('visible');
           })
           .then(_.bind(this.afterRender, this))
           .then(() => {
@@ -538,7 +542,7 @@ define(function (require, exports, module) {
     unsafeDisplaySuccess: _.partial(displaySuccess, 'html'),
 
     hideSuccess () {
-      this.$('.success').slideUp(STATUS_MESSAGE_ANIMATION_MS);
+      this.$('.success').slideUp(STATUS_MESSAGE_ANIMATION_MS).removeClass('visible');
       this._isSuccessVisible = false;
     },
 
@@ -720,7 +724,7 @@ define(function (require, exports, module) {
     },
 
     hideError () {
-      this.$('.error').slideUp(STATUS_MESSAGE_ANIMATION_MS);
+      this.$('.error').slideUp(STATUS_MESSAGE_ANIMATION_MS).removeClass('visible');
       this._isErrorVisible = false;
     },
 

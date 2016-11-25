@@ -44,7 +44,13 @@ define(function (require, exports, module) {
 
     var View = BaseView.extend({
       layoutClassName: 'layout',
-      template: Template
+      template: Template,
+      context: function () {
+        return {
+          error: this.model.get('templateWrittenError'),
+          success: this.model.get('templateWrittenSuccess')
+        };
+      }
     });
 
     const HTML_MESSAGE = '<span>html</span>';
@@ -82,10 +88,7 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
-      return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
+      return view.render();
     });
 
     afterEach(function () {
@@ -331,6 +334,28 @@ define(function (require, exports, module) {
             assert.isTrue(result);
           });
       });
+
+      describe('with an error message written from the template', () => {
+        beforeEach(() => {
+          model.set('templateWrittenError', 'error written from the template');
+          return view.render();
+        });
+
+        it('displays the message, `isErrorVisible` returns `true`', () => {
+          assert.isTrue(view.isErrorVisible());
+        });
+      });
+
+      describe('with a success message written from the template', () => {
+        beforeEach(() => {
+          model.set('templateWrittenSuccess', 'success written from the template');
+          return view.render();
+        });
+
+        it('displays the message, `isSuccessVisible` returns `true`', () => {
+          assert.isTrue(view.isSuccessVisible());
+        });
+      });
     });
 
     describe('afterVisible', function () {
@@ -353,6 +378,7 @@ define(function (require, exports, module) {
       it('adds `centered` class to `.links` if any child has width >= half of `.links` width', function () {
         var link1 = '<a href="/reset_password" class="left reset-password">Forgot password?</a>';
         var link2 = '<a href="/signup" class="right sign-up">Create an account with really really looooooooooooooong text</a>';
+        $('#container').html(view.el);
         $('.links').html(link1 + link2);
         // force the width to be 50%
         $('.links > .right').css({'display': 'inline-block', 'width': '50%'});
@@ -363,6 +389,7 @@ define(function (require, exports, module) {
       it('does not add `centered` class to `.links` if all children have width < half of `.links` width', function () {
         var link1 = '<a href="/reset_password" class="left reset-password">Forgot password?</a>';
         var link2 = '<a href="/signup" class="right sign-up">Create an account</a>';
+        $('#container').html(view.el);
         $('.links').html(link1 + link2);
         // force the widths of all children to be less than 50%
         $('.links').children().css({'display': 'inline-block', 'width': '49%'});
@@ -372,21 +399,12 @@ define(function (require, exports, module) {
 
       it('focuses descendent element containing `autofocus` if html has `no-touch` class', function (done) {
         requiresFocus(function () {
+          $('#container').html(view.el);
           $('html').addClass('no-touch');
           // webkit fails unless focusing another element first.
           $('#otherElement').focus();
 
-          var handlerCalled = false;
-          $('#focusMe').on('focus', function () {
-            handlerCalled = true;
-          });
-
-          // IE focuses the elements asynchronously.
-          // Add a bit of delay to give the browser time to do its thing.
-          setTimeout(function () {
-            assert.isTrue(handlerCalled);
-            done();
-          }, 200);
+          $('#focusMe').on('focus', () => done());
 
           view.afterVisible();
         }, done);
@@ -588,6 +606,12 @@ define(function (require, exports, module) {
 
         assert.equal(view.$('.error').html(), '');
       });
+
+      it('`hideError` removes `.visible` from displayed messages', () => {
+        view.$('.error').addClass('.visible').html('synthesized error written via template');
+        view.hideError();
+        assert.isFalse(view.$('.error').hasClass('visible'));
+      });
     });
 
     describe('unsafeDisplayError', function () {
@@ -616,10 +640,13 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('displaySuccess', function () {
+    describe('displaySuccess/isSuccessVisible/hideSuccess', function () {
       it('translates and display an success in the .success element', function () {
         view.displaySuccess('the success message');
         assert.equal(view.$('.success').html(), 'a translated success message');
+
+        view.hideSuccess();
+        assert.isFalse(view.isSuccessVisible());
       });
 
       it('hides any previously displayed error messages', function () {
@@ -627,6 +654,12 @@ define(function (require, exports, module) {
         view.displaySuccess('the success message');
         assert.isTrue(view.isSuccessVisible());
         assert.isFalse(view.isErrorVisible());
+      });
+
+      it('`hideSuccess` removes `.visible` from displayed messages', () => {
+        view.$('.success').addClass('.visible').html('synthesized success written via template');
+        view.hideSuccess();
+        assert.isFalse(view.$('.success').hasClass('visible'));
       });
     });
 
@@ -667,6 +700,10 @@ define(function (require, exports, module) {
     });
 
     describe('focus', () => {
+      beforeEach(() => {
+        $('#container').html(view.el);
+      });
+
       it('focuses an element, sets the cursor position', (done) => {
         $('html').addClass('no-touch');
         requiresFocus(() => {
@@ -696,6 +733,7 @@ define(function (require, exports, module) {
       let focusEl;
 
       beforeEach(() => {
+        $('#container').html(view.el);
         $focusEl = view.$('#focusMe').val(elText);
         focusEl = $focusEl.get(0);
       });

@@ -19,8 +19,8 @@
 
 <div id="main-content" class="card">
   <form>
-    <div class="error"></div>
-    <div class="success"></div>
+    <div class="error {{#error}}visible{{/error}}">{{error}}</div>
+    <div class="success {{#success}}visible{{/success}}">{{success}}</div>
     <input type="text" id="otherElement"/>
     <div class="input-row">
       <input type="text" id="focusMe" autofocus required />

@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   const Metrics = require('lib/metrics');
   const p = require('lib/promise');
   const sinon = require('sinon');
-  const Template = require('stache!templates/test_form_template');
+  const Template = require('stache!templates/test_template');
   const TestHelpers = require('../../lib/helpers');
 
   var assert = chai.assert;
@@ -37,6 +37,13 @@ define(function (require, exports, module) {
 
     submit () {
       this.isFormSubmitted = true;
+    },
+
+    context: function () {
+      return {
+        error: this.model.get('templateWrittenError'),
+        success: this.model.get('templateWrittenSuccess')
+      };
     }
   });
 
@@ -112,12 +119,20 @@ define(function (require, exports, module) {
     });
 
     describe('render', () => {
-      it('does not hide already visible error messages', () => {
-        assert.lengthOf(view.$('.error.visible'), 1);
+      beforeEach(() => {
+        model.set({
+          templateWrittenError: 'template written error',
+          templateWrittenSuccess: 'template written success'
+        });
+
+        return view.render();
       });
 
-      it('does not hide already visible success messages', () => {
+      it('does not hide already visible status messages', () => {
+        assert.lengthOf(view.$('.error.visible'), 1);
+        assert.isTrue(view.isErrorVisible());
         assert.lengthOf(view.$('.success.visible'), 1);
+        assert.isTrue(view.isSuccessVisible());
       });
     });
 
