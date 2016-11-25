@@ -20,7 +20,6 @@ define(function (require, exports, module) {
   const SentryMetrics = require('lib/sentry');
   const sinon = require('sinon');
   const User = require('models/user');
-  const VerificationReasons = require('lib/verification-reasons');
 
   var assert = chai.assert;
 
@@ -671,72 +670,6 @@ define(function (require, exports, module) {
 
         it('did not call account.retrySignUp', function () {
           assert.strictEqual(account.retrySignUp.callCount, 0);
-        });
-      });
-
-      // Ensure that content-server can correctly handle any auth-server emailSent response
-      const emailSentTestCases = [{
-        emailSent: undefined,
-        expectedRetryCallCount: 1
-      }, {
-        emailSent: false,
-        expectedRetryCallCount: 1
-      }, {
-        emailSent: true,
-        expectedRetryCallCount: 0
-      }];
-      emailSentTestCases.forEach(function (testCase) {
-        describe('with an unverified account, emailSent = ' + testCase.emailSent, function () {
-          beforeEach(function () {
-            account = user.initAccount({
-              emailSent: testCase.emailSent,
-              verificationReason: VerificationReasons.SIGN_UP,
-              verified: false
-            });
-
-            sinon.stub(account, 'signIn', function () {
-              return p();
-            });
-
-            sinon.stub(account, 'retrySignUp', function () {
-              return p();
-            });
-
-            sinon.spy(user, 'setSignedInAccount');
-
-            sinon.spy(notifier, 'triggerRemote');
-
-            return user.signInAccount(
-              account, 'password', relierMock, {resume: 'resume token'});
-          });
-
-          it('delegates to the account', function () {
-            assert.isTrue(account.signIn.calledWith(
-              'password',
-              relierMock,
-              {
-                resume: 'resume token'
-              }
-            ));
-          });
-
-          it('called account.retrySignUp correctly', function () {
-            assert.strictEqual(account.retrySignUp.callCount, testCase.expectedRetryCallCount);
-            if (testCase.expectedRetryCallCount !== 0) {
-              var args = account.retrySignUp.args[0];
-              assert.lengthOf(args, 2);
-              assert.equal(args[0], relierMock);
-              assert.deepEqual(args[1], {resume: 'resume token'});
-            }
-          });
-
-          it('saves the account', function () {
-            assert.isTrue(user.setSignedInAccount.calledWith(account));
-          });
-
-          it('notifies remote listeners of the signin', function () {
-            testRemoteSignInMessageSent(account);
-          });
         });
       });
     });

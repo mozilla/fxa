@@ -531,7 +531,6 @@ define(function (require, exports, module) {
               reason: SignInReasons.SIGN_IN,
               redirectTo: REDIRECT_TO,
               resume: resumeToken,
-              sendEmailIfUnverified: true,
               service: SYNC_SERVICE
             }));
 
@@ -559,7 +558,6 @@ define(function (require, exports, module) {
               keys: false,
               reason: SignInReasons.SIGN_IN,
               redirectTo: REDIRECT_TO,
-              sendEmailIfUnverified: true,
               service: NON_SYNC_SERVICE
             }));
 
@@ -588,7 +586,6 @@ define(function (require, exports, module) {
               keys: true,
               reason: SignInReasons.SIGN_IN,
               redirectTo: REDIRECT_TO,
-              sendEmailIfUnverified: true,
               service: NON_SYNC_SERVICE
             }));
 
@@ -618,7 +615,6 @@ define(function (require, exports, module) {
               keys: true,
               reason: SignInReasons.SIGN_IN,
               redirectTo: REDIRECT_TO,
-              sendEmailIfUnverified: true,
               service: SYNC_SERVICE
             }));
 
@@ -641,7 +637,6 @@ define(function (require, exports, module) {
               keys: true,
               reason: SignInReasons.PASSWORD_CHANGE,
               redirectTo: REDIRECT_TO,
-              sendEmailIfUnverified: true,
               service: SYNC_SERVICE
             }));
           });
@@ -660,7 +655,6 @@ define(function (require, exports, module) {
               reason: SignInReasons.SIGN_IN,
               redirectTo: REDIRECT_TO,
               resume: 'resume token',
-              sendEmailIfUnverified: true,
               service: SYNC_SERVICE
             }));
           });
@@ -681,7 +675,6 @@ define(function (require, exports, module) {
             keys: false,
             metricsContext: { foo: 'bar' },
             reason: SignInReasons.SIGN_IN,
-            sendEmailIfUnverified: true,
             service: NON_SYNC_SERVICE
           });
         });

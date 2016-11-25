@@ -22,7 +22,6 @@ define(function (require, exports, module) {
   const SearchParamMixin = require('models/mixins/search-param');
   const Storage = require('lib/storage');
   const vat = require('lib/vat');
-  const VerificationReasons = require('lib/verification-reasons');
 
   var User = Backbone.Model.extend({
     initialize (options = {}) {
@@ -343,19 +342,6 @@ define(function (require, exports, module) {
      */
     signInAccount (account, password, relier, options) {
       return account.signIn(password, relier, options)
-        .then(() => {
-          const isSignUp =
-            account.get('verificationReason') === VerificationReasons.SIGN_UP;
-          const emailSent = !! account.get('emailSent');
-
-          // Only send a verification email if one was not sent by
-          // auth-server (emailSent = false). Once we are reasonably sure that
-          // all our clients delegate to auth-server for sending emails, this
-          // can be removed.
-          if (! account.get('verified') && isSignUp && ! emailSent) {
-            return account.retrySignUp(relier, options);
-          }
-        })
         .then(() => {
           // If there's an account with the same uid in localStorage we merge
           // its attributes with the new account instance to retain state

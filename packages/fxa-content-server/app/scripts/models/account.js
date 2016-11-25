@@ -56,7 +56,6 @@ define(function (require, exports, module) {
     accessToken: undefined,
     customizeSync: undefined,
     declinedSyncEngines: undefined,
-    emailSent: undefined,
     keyFetchToken: undefined,
     // password field intentionally omitted to avoid unintentional leaks
     unwrapBKey: undefined,
