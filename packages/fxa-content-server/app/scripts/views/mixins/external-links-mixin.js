@@ -3,14 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A View Mixin to convert external links to visible text for
- * environments that cannot open external links.
+ * A View Mixin to:
+ *
+ * 1) convert external links to visible text for
+ *  environments that cannot open external links.
+ * 2) When external links are clicked, flush metrics
+ *  then redirect.
  */
 
 define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
+  const p = require('lib/promise');
 
   function shouldConvertExternalLinksToText(broker) {
     // not all views have a broker, e.g., the CoppaAgeInput
@@ -32,14 +37,91 @@ define(function (require, exports, module) {
 
   module.exports = {
     afterRender () {
-      this.$('a[href^=http]').each(function (index, el) {
-        var $el = $(el);
-        $el.attr('rel','noopener noreferrer');
+      const $externalLinks = this.$('a[href^=http]');
+      $externalLinks.each(function (index, el) {
+        $(el).attr('rel','noopener noreferrer');
       });
 
       if (shouldConvertExternalLinksToText(this.broker)) {
-        this.$('a[href^=http]').each((index, el) => convertToVisibleLink(el));
+        $externalLinks.each((index, el) => convertToVisibleLink(el));
       }
+    },
+
+    events: {
+      'click a[href^=http]': '_onExternalLinkClick'
+    },
+
+    /**
+     * Interceptor function. Flushes metrics before redirecting.
+     *
+     * @param {Event} event - click event
+     * @returns {Promise}
+     */
+    _onExternalLinkClick (event) {
+      if (this._shouldIgnoreClick(event)) {
+        return p();
+      }
+
+      event.preventDefault();
+      // Let the current view handle this, otherwise
+      // the `app` view will also flush.
+      event.stopImmediatePropagation();
+
+      return this._flushMetricsThenRedirect(event.currentTarget.href);
+    },
+
+    /**
+     * Should the click be ignored?
+     *
+     * @param {Event} event
+     * @returns {Boolean}
+     */
+    _shouldIgnoreClick (event) {
+      return this._isEventModifiedOrPrevented(event) ||
+             this._doesLinkOpenInAnotherTab($(event.currentTarget));
+    },
+
+    /**
+     * Check if a modifier key is depressed, or if
+     * the event's default has already been prevented
+     *
+     * @param {Event} event
+     * @returns {Boolean}
+     * @private
+     */
+    _isEventModifiedOrPrevented (event) {
+      return !! (event.isDefaultPrevented() ||
+                 event.altKey ||
+                 event.ctrlKey ||
+                 event.metaKey ||
+                 event.shiftKey);
+    },
+
+    /**
+     * Check if a link opens in another tab
+     *
+     * @param {Element} $targetEl
+     * @returns {Boolean}
+     * @private
+     */
+    _doesLinkOpenInAnotherTab ($targetEl) {
+      return !! $targetEl.attr('target');
+    },
+
+    /**
+     * Flush metrics, then redirect to `url`.
+     *
+     * @param {String} url
+     * @returns {Promise}
+     * @private
+     */
+    _flushMetricsThenRedirect (url) {
+      // Safari for iOS will not flush the metrics in an `unload`
+      // handler, so do it manually before redirecting.
+      return this.metrics.flush()
+        .then(() => {
+          this.window.location = url;
+        });
     }
   };
 });

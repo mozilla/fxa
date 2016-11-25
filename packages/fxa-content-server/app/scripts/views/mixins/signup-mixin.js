@@ -90,19 +90,8 @@ define(function (require, exports, module) {
         });
     },
 
-    /**
-     * interceptor function. Flushes metrics before redirecting
-     * @param {Event} event - click event
-     */
-    onSuggestSyncClick (event) {
-      event.preventDefault();
-
+    onSuggestSyncClick () {
       this.logViewEvent('sync-suggest.clicked');
-
-      this.metrics.flush()
-        .then(() => {
-          this.window.location = event.target.href;
-        });
     }
   };
 });
