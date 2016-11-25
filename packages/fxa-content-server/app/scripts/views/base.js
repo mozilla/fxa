@@ -53,7 +53,7 @@ define(function (require, exports, module) {
   }
 
   function displayError(displayStrategy, err) {
-    // Errors are disabled on page unload to supress errors
+    // Errors are disabled on page unload to suppress errors
     // caused by aborted XHR requests.
     if (! this._areErrorsEnabled) {
       this.logger.error('Error ignored: %s', JSON.stringify(err));
