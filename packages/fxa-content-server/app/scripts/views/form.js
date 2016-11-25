@@ -32,6 +32,7 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
   const showButtonProgressIndicator = require('views/decorators/progress_indicator');
   const Tooltip = require('views/tooltip');
+  const { cancelEventThen, preventDefaultThen } = BaseView;
 
 
   /**
@@ -65,10 +66,24 @@ define(function (require, exports, module) {
     },
 
     events: {
-      'change form': ifFormValuesChanged(BaseView.cancelEventThen('enableSubmitIfValid')),
-      'input form': ifFormValuesChanged(BaseView.cancelEventThen('enableSubmitIfValid')),
-      'keyup form': ifFormValuesChanged(BaseView.cancelEventThen('enableSubmitIfValid')),
-      'submit form': BaseView.preventDefaultThen('validateAndSubmit')
+      'change form': ifFormValuesChanged(cancelEventThen('onFormChange')),
+      'input form': ifFormValuesChanged(cancelEventThen('onFormChange')),
+      'keyup form': ifFormValuesChanged(cancelEventThen('onFormChange')),
+      'submit form': preventDefaultThen('validateAndSubmit')
+    },
+
+    onFormChange () {
+      // the change event can be called after the form is already
+      // submitted if the user presses "enter" in the form. If the
+      // form is in the midst of being submitted, bail out now.
+      if (this.isSubmitting() || this.isHalted()) {
+        return;
+      }
+
+      // hide success and error messages after user changes the form
+      this.hideError();
+      this.hideSuccess();
+      this.enableSubmitIfValid();
     },
 
     afterRender () {
@@ -113,17 +128,12 @@ define(function (require, exports, module) {
       return values;
     },
 
+    /**
+     * Enable the submit button if the form is valid.
+     *
+     * @method enableSubmitIfValid
+     */
     enableSubmitIfValid () {
-      // the change event can be called after the form is already
-      // submitted if the user presses "enter" in the form. If the
-      // form is in the midst of being submitted, bail out now.
-      if (this.isSubmitting() || this.isHalted()) {
-        return;
-      }
-
-      // hide success and error messages after user changes the form
-      this.hideError();
-      this.hideSuccess();
       if (this.isValid()) {
         this.enableForm();
       } else {
