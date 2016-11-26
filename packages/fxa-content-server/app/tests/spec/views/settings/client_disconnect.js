@@ -229,6 +229,25 @@ define(function (require, exports, module) {
         });
       });
 
+      it('duplicate option', () => {
+        model.set({
+          clientId: 'device-1',
+          clients: attachedClients
+        });
+
+        return view.render().then(() => {
+          $(view.el).find('.disconnect-reasons').val('duplicate').change();
+          return view.submit().then(() => {
+            assert.ok(view.hasDisconnected);
+            assert.notOk(view.render.calledTwice);
+            assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.duplicate'));
+            assert.notOk(view.navigateToSignIn.called);
+            assert.ok(view.closeDisconnectModal.called);
+            assert.notOk(view.reasonHelp);
+          });
+        });
+      });
+
       it('no option', () => {
         model.set({
           clientId: 'device-1',
