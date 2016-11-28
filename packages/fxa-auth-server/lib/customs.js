@@ -54,6 +54,9 @@ module.exports = function (log, error) {
     )
     .then(
       function (result) {
+        if (result.suspect) {
+          request.app.isSuspiciousRequest = true
+        }
         if (result.block) {
           // log a flow event that user got blocked.
           request.emitMetricsEvent('customs.blocked')
@@ -68,9 +71,6 @@ module.exports = function (log, error) {
           } else {
             throw error.requestBlocked(unblock)
           }
-        }
-        if (result.suspect) {
-          request.app.isSuspiciousRequest = true
         }
       },
       function (err) {
