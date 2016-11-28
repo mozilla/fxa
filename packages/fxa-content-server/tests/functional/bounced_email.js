@@ -12,6 +12,7 @@ define([
 ], function (intern, registerSuite, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
+  var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
   var bouncedEmail;
   var deliveredEmail;
@@ -19,6 +20,7 @@ define([
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  var openPage = FunctionalHelpers.openPage;
 
   registerSuite({
     name: 'sign_up with an email that bounces',
@@ -26,7 +28,13 @@ define([
     beforeEach: function () {
       bouncedEmail = TestHelpers.createEmail();
       deliveredEmail = TestHelpers.createEmail();
-      return this.remote.then(clearBrowserState());
+      return this.remote
+        .then(clearBrowserState())
+        // ensure a fresh signup page is loaded. If this suite is
+        // run after a Sync suite, these tests try to use a Sync broker
+        // which results in a channel timeout.
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'));
+
     },
 
     afterEach: function () {

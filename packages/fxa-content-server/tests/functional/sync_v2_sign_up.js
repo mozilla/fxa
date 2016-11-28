@@ -6,14 +6,11 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync&forceAboutAccounts=true';
-
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
   var email;
   var PASSWORD = '12345678';
@@ -36,20 +33,7 @@ define([
     },
 
     afterEach: function () {
-      var self = this;
-
-      return this.remote.then(clearBrowserState())
-        .then(function () {
-          // ensure the next test suite (bounced_email) loads a fresh
-          // signup page. If a fresh signup page is not forced, the
-          // bounced_email tests try to signup using the Sync broker,
-          // resulting in a channel timeout.
-          return self.remote
-            .get(require.toUrl(SIGNIN_URL))
-
-            .findByCssSelector('#fxa-signin-header')
-            .end();
-        });
+      return this.remote.then(clearBrowserState());
     },
 
     'signup, verify same browser': function () {

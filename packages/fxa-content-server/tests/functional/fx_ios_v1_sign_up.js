@@ -12,7 +12,6 @@ define([
 ], function (intern, assert, registerSuite, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_ios_v1&service=sync';
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
   var email;
   var PASSWORD = '12345678';
@@ -35,12 +34,7 @@ define([
 
     afterEach: function () {
       return this.remote
-        .then(clearBrowserState())
-        // ensure the next test suite (bounced_email) loads a fresh
-        // signup page. If a fresh signup page is not forced, the
-        // bounced_email tests try to sign up using the Sync broker,
-        // resulting in a channel timeout.
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'));
+        .then(clearBrowserState());
     },
 
     'sign up, verify same browser': function () {

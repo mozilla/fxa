@@ -57,8 +57,7 @@ define([
 
     'visit verify page with localStorage disabled': function () {
       return this.remote
-        .then(openPage(VERIFY_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header'))
-        .end();
+        .then(openPage(VERIFY_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header'));
     }
   });
 });

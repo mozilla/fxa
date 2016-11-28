@@ -18,8 +18,6 @@ define([
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
   var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=sync11';
 
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
-
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
   var client;
@@ -48,18 +46,7 @@ define([
     },
 
     afterEach: function () {
-      return this.remote.then(clearBrowserState())
-        .then(function () {
-          // ensure the next test suite (bounced_email) loads a fresh
-          // signup page. If a fresh signup page is not forced, the
-          // bounced_email tests try to sign up using the Sync broker,
-          // resulting in a channel timeout.
-          return this.parent
-            .get(require.toUrl(SIGNIN_URL))
-
-            .findByCssSelector('#fxa-signin-header')
-            .end();
-        });
+      return this.remote.then(clearBrowserState());
     },
 
     'sign up, verify same browser': function () {
