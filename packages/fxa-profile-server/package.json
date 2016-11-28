@@ -4,10 +4,11 @@
   "private": true,
   "description": "Firefox Accounts Profile service.",
   "scripts": {
-    "start": "scripts/run_dev.js",
-    "test": "grunt test --node-env=test",
+    "outdated": "npm outdated --depth 0",
     "preinstall": "./scripts/check_gm.sh",
-    "outdated": "npm outdated --depth 0"
+    "shrinkwrap": "npmshrink",
+    "start": "scripts/run_dev.js",
+    "test": "grunt test --node-env=test"
   },
   "dependencies": {
     "aws-sdk": "2.4.7",
@@ -50,6 +51,7 @@
     "mkdirp": "0.5.1",
     "mocha-text-cov": "0.1.1",
     "nock": "8.0.0",
+    "npmshrink": "1.0.1",
     "pngparse": "2.0.1",
     "rimraf": "2.5.3",
     "through": "2.3.8",
