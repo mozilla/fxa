@@ -17,14 +17,7 @@ define(function (require, exports, module) {
         sentryMetrics: this.sentryMetrics,
         window: this.window
       });
-
-      const flowId = this.flow.get('flowId');
-      const flowBegin = this.flow.get('flowBegin');
-
-      this.metrics.setFlowEventMetadata({
-        flowBeginTime: flowBegin,
-        flowId: flowId
-      });
+      this.metrics.setFlowModel(this.flow);
     },
 
     events: {

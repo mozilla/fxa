@@ -80,7 +80,6 @@ function (Translator, Session) {
     '../tests/spec/models/device',
     '../tests/spec/models/email-resend',
     '../tests/spec/models/flow',
-    '../tests/spec/models/flow-event-metadata',
     '../tests/spec/models/form-prefill',
     '../tests/spec/models/marketing-email-prefs',
     '../tests/spec/models/mixins/resume-token',

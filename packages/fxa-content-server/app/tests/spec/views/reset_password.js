@@ -103,17 +103,16 @@ define(function (require, exports, module) {
       beforeEach(function () {
         $('body').data('flowId', FLOW_ID);
         $('body').data('flowBegin', -1);
-        sinon.spy(metrics, 'setFlowEventMetadata');
+        sinon.spy(metrics, 'setFlowModel');
         return view.afterRender();
       });
 
-      it('called metrics.setFlowEventMetadata correctly', function () {
-        assert.equal(metrics.setFlowEventMetadata.callCount, 1);
-        var args = metrics.setFlowEventMetadata.args[0];
+      it('called metrics.setFlowModel correctly', function () {
+        assert.equal(metrics.setFlowModel.callCount, 1);
+        var args = metrics.setFlowModel.args[0];
         assert.lengthOf(args, 1);
-        assert.lengthOf(Object.keys(args[0]), 2);
-        assert.equal(args[0].flowId, FLOW_ID);
-        assert.equal(args[0].flowBeginTime, -1);
+        assert.equal(args[0].get('flowId'), FLOW_ID);
+        assert.equal(args[0].get('flowBegin'), -1);
       });
     });
 

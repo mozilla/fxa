@@ -611,5 +611,27 @@ define(function (require, exports, module) {
       assert.equal(events[0].type, 'flow.signin.foo');
       assert.equal(events[1].type, 'flow.signup.foo');
     });
+
+    it('getFlowEventMetadata', () => {
+      const result = metrics.getFlowEventMetadata();
+      assert.deepEqual(result, {
+        flowBeginTime: undefined,
+        flowId: undefined
+      });
+      assert.deepEqual(Object.keys(result), ['flowBeginTime','flowId']);
+    });
+
+    it('setFlowModel', () => {
+      metrics.setFlowModel({
+        attributes: {
+          flowBegin: 'foo',
+          flowId: 'bar'
+        }
+      });
+      assert.deepEqual(metrics.getFlowEventMetadata(), {
+        flowBeginTime: 'foo',
+        flowId: 'bar'
+      });
+    });
   });
 });

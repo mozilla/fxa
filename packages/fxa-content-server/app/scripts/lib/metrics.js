@@ -20,7 +20,6 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const _ = require('underscore');
   const Constants = require('lib/constants');
-  const FlowEventMetadata = require('models/flow-event-metadata');
   const Backbone = require('backbone');
   const Duration = require('duration');
   const Environment = require('lib/environment');
@@ -124,7 +123,6 @@ define(function (require, exports, module) {
     this._utmMedium = options.utmMedium || NOT_REPORTED_VALUE;
     this._utmSource = options.utmSource || NOT_REPORTED_VALUE;
     this._utmTerm = options.utmTerm || NOT_REPORTED_VALUE;
-    this._flowEventMetadata = new FlowEventMetadata(options);
 
     this._inactivityFlushMs = options.inactivityFlushMs || DEFAULT_INACTIVITY_TIMEOUT_MS;
 
@@ -491,11 +489,15 @@ define(function (require, exports, module) {
     },
 
     getFlowEventMetadata () {
-      return this._flowEventMetadata.attributes;
+      const metadata = (this._flowModel && this._flowModel.attributes) || {};
+      return {
+        flowBeginTime: metadata.flowBegin,
+        flowId: metadata.flowId
+      };
     },
 
-    setFlowEventMetadata () {
-      this._flowEventMetadata.set.apply(this._flowEventMetadata, arguments);
+    setFlowModel (flowModel) {
+      this._flowModel = flowModel;
     }
   });
 

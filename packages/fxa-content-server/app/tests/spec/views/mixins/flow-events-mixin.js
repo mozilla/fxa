@@ -37,7 +37,7 @@ define((require, exports, module) => {
       beforeEach(() => {
         flowEventsMixin.metrics = {
           logFlowBegin: sinon.spy(),
-          setFlowEventMetadata: sinon.spy()
+          setFlowModel: sinon.spy()
         };
         flowEventsMixin.isFormEnabled = () => isFormEnabled;
         flowEventsMixin.logEvent = sinon.spy();
@@ -60,13 +60,11 @@ define((require, exports, module) => {
           assert.strictEqual(flowEventsMixin.flow.get('flowBegin'), 42);
         });
 
-        it('called metrics.setFlowEventMetadata correctly', () => {
-          assert.strictEqual(flowEventsMixin.metrics.setFlowEventMetadata.callCount, 1);
-          const args = flowEventsMixin.metrics.setFlowEventMetadata.args[0];
+        it('called metrics.setFlowModel correctly', () => {
+          assert.strictEqual(flowEventsMixin.metrics.setFlowModel.callCount, 1);
+          const args = flowEventsMixin.metrics.setFlowModel.args[0];
           assert.lengthOf(args, 1);
-          assert.lengthOf(Object.keys(args[0]), 2);
-          assert.strictEqual(args[0].flowId, FLOW_ID);
-          assert.strictEqual(args[0].flowBeginTime, 42);
+          assert.equal(args[0], flowEventsMixin.flow);
         });
 
         it('did not call metrics.logFlowBegin', () => {
