@@ -64,6 +64,7 @@ const PAYLOAD_SCHEMA = Joi.object({
     .optional(),
 
   ttl: Joi.number()
+    .positive()
     .max(MAX_TTL_S)
     .default(MAX_TTL_S)
     .optional(),
