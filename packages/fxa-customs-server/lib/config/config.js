@@ -211,6 +211,44 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'IP_BLOCKLIST_POLL_INTERVAL_SECONDS'
       }
+    },
+    reputationService: {
+      enable: {
+        doc: 'Flag to enable using the IP Reputation Service',
+        format: Boolean,
+        default: false,
+        env: 'REPUTATION_SERVICE_ENABLE'
+      },
+      host: {
+        doc: 'The reputation service IP address',
+        default: '127.0.0.1',
+        format: 'ipaddress',
+        env: 'REPUTATION_SERVICE_IP_ADDRESS'
+      },
+      port: {
+        doc: 'The reputation service port',
+        default: 8080,
+        format: 'port',
+        env: 'REPUTATION_SERVICE_PORT'
+      },
+      hawkId: {
+        doc: 'HAWK ID for sending blocked IPs to the IP Reputation Service',
+        default: 'root',
+        format: String,
+        env: 'REPUTATION_SERVICE_HAWK_ID'
+      },
+      hawkKey: {
+        doc: 'HAWK key for sending blocked IPs to the IP Reputation Service',
+        default: 'toor',
+        format: String,
+        env: 'REPUTATION_SERVICE_HAWK_KEY'
+      },
+      timeout: {
+        doc: 'timeout in ms to wait for requests sent to the IP Reputation Service',
+        default: 50,
+        format: 'int',
+        env: 'REPUTATION_SERVICE_TIMEOUT'
+      }
     }
   })
 

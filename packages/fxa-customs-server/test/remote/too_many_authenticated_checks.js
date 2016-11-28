@@ -56,6 +56,54 @@ test(
 )
 
 test(
+  '/checkAuthenticated requires action',
+  function (t) {
+    return client.postAsync('/checkAuthenticated', { ip: TEST_IP, uid: TEST_UID})
+      .spread(function(req, res, obj){
+        t.fail('Success response from request missing param.')
+        t.end()
+      })
+      .catch(function(err){
+        t.equal(err.statusCode, 400, 'returns a 400')
+        t.equal(err.body.code, 'MissingParameters')
+        t.end()
+      })
+  }
+)
+
+test(
+  '/checkAuthenticated requires ip',
+  function (t) {
+    return client.postAsync('/checkAuthenticated', { action: ACTION_ONE, uid: TEST_UID})
+      .spread(function(req, res, obj){
+        t.fail('Success response from request missing param.')
+        t.end()
+      })
+      .catch(function(err){
+        t.equal(err.statusCode, 400, 'returns a 400')
+        t.equal(err.body.code, 'MissingParameters')
+        t.end()
+      })
+  }
+)
+
+test(
+  '/checkAuthenticated requires uid',
+  function (t) {
+    return client.postAsync('/checkAuthenticated', { action: ACTION_ONE, ip: TEST_IP})
+      .spread(function(req, res, obj){
+        t.fail('Success response from request missing param.')
+        t.end()
+      })
+      .catch(function(err){
+        t.equal(err.statusCode, 400, 'returns a 400')
+        t.equal(err.body.code, 'MissingParameters')
+        t.end()
+      })
+  }
+)
+
+test(
   '/checkAuthenticated with same action',
   function (t) {
     // Send requests until it blocks

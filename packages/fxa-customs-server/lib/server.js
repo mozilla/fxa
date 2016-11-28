@@ -37,6 +37,16 @@ module.exports = function createServer(config, log) {
     }
   )
 
+  if (config.reputationService.enable) {
+    var IPReputationClient = require('ip-reputation-js-client')
+    var ipClient = new IPReputationClient({
+      host: config.reputationService.host,
+      port: config.reputationService.port,
+      id: config.reputationService.hawkId,
+      key: config.reputationService.hawkKey,
+      timeout: config.reputationService.timeout
+    })
+  }
   var limits = require('./limits')(config, mc, log)
   var allowedIPs = require('./allowed_ips')(config, mc, log)
   var allowedEmailDomains = require('./allowed_email_domains')(config, mc, log)
@@ -215,6 +225,13 @@ module.exports = function createServer(config, log) {
               suspect: result.suspect
             })
             res.send(result)
+
+            if (config.reputationService.enable && result.block) {
+              ipClient.sendViolation(ip, 'fxa:request.check.block.' + action)
+                .catch(function (err) {
+                  log.error({ op: 'request.check.sendViolation.block.' + action, ip: ip, err: err })
+                })
+            }
           },
           function (err) {
             log.error({ op: 'request.check', email: email, ip: ip, action: action, err: err })
@@ -266,6 +283,13 @@ module.exports = function createServer(config, log) {
           function (result) {
             log.info({ op: 'request.checkAuthenticated', block: result.block })
             res.send(result)
+
+            if (config.reputationService.enable && result.block) {
+              ipClient.sendViolation(ip, 'fxa:request.checkAuthenticated.block.' + action)
+                .catch(function (err) {
+                  log.error({ op: 'request.checkAuthenticated.sendViolation.block.' + action, ip: ip, err: err })
+                })
+            }
           },
           function (err) {
             log.error({ op: 'request.checkAuthenticated', err: err })
@@ -274,6 +298,13 @@ module.exports = function createServer(config, log) {
               block: true,
               retryAfter: limits.blockIntervalSeconds
             })
+
+            if (config.reputationService.enable) {
+              ipClient.sendViolation(ip, 'fxa:request.checkAuthenticated.block.' + action)
+                .catch(function (err) {
+                  log.error({ op: 'request.checkAuthenticated.sendViolation.block.' + action, ip: ip, err: err })
+                })
+            }
           }
         )
         .done(next, next)
@@ -299,6 +330,14 @@ module.exports = function createServer(config, log) {
           function (emailRecord, ipRecord, ipEmailRecord) {
             ipRecord.addBadLogin({ email: email, errno: errno })
             ipEmailRecord.addBadLogin()
+
+            if (config.reputationService.enable && ipRecord.isOverBadLogins()) {
+              ipClient.sendViolation(ip, 'fxa:request.failedLoginAttempt.isOverBadLogins')
+                .catch(function (err) {
+                  log.error({ op: 'request.failedLoginAttempt.sendViolation.rateLimited', ip: ip, err: err })
+                })
+            }
+
             return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
               .then(
                 function () {
@@ -406,6 +445,16 @@ module.exports = function createServer(config, log) {
           function (err) {
             log.error({ op: 'request.blockIp', ip: ip, err: err })
             res.send(500, err)
+          }
+        )
+        .then(
+          function () {
+            if (config.reputationService.enable) {
+              ipClient.sendViolation(ip, 'fxa:request.blockIp')
+                .catch(function (err) {
+                  log.error({ op: 'request.blockIp.sendViolation', ip: ip, err: err })
+                })
+            }
           }
         )
         .done(next, next)

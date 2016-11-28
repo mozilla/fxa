@@ -216,13 +216,10 @@ curl -v \
 
 ### Response
 
-Successful requests will produce a "200 OK" response with the lockout
-advice in the JSON body:
+Successful requests will produce a "200 OK" response:
 
 ```json
-{
-  "lockout": false
-}
+{}
 ```
 
 `lockout` indicates whether or not the account should be locked out.
