@@ -25,7 +25,7 @@ define([
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -43,7 +43,7 @@ define([
 
     return this.parent
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-      .then(openPage(this.parent, PAGE_URL, '#fxa-signin-header'))
+      .then(openPage(PAGE_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
       .then(fillOutSignIn(email, PASSWORD))
       .then(testIsBrowserNotified(this.parent, 'can_link_account'))
@@ -107,13 +107,13 @@ define([
 
     'signup link is enabled': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(testElementExists('a[href="/signup"]'));
     },
 
     'signin with an unknown account does not allow the user to sign up': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .execute(listenForFxaCommands)
 
         .then(fillOutSignIn(email, PASSWORD))

@@ -23,7 +23,7 @@ define([
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var focus = FunctionalHelpers.focus;
   var getFxaClient = FunctionalHelpers.getFxaClient;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openSettingsInNewTab = thenify(FunctionalHelpers.openSettingsInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
@@ -51,31 +51,36 @@ define([
     },
 
     'with an invalid email': function () {
-      return FunctionalHelpers.openPage(this, SETTINGS_URL + '?email=invalid', '#fxa-400-header')
+      return this.remote
+        .then(openPage(SETTINGS_URL + '?email=invalid', '#fxa-400-header'))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
     'with an empty email': function () {
-      return FunctionalHelpers.openPage(this, SETTINGS_URL + '?email=', '#fxa-400-header')
+      return this.remote
+        .then(openPage(SETTINGS_URL + '?email=', '#fxa-400-header'))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
     'with an invalid uid': function () {
-      return FunctionalHelpers.openPage(this, SETTINGS_URL + '?uid=invalid', '#fxa-400-header')
+      return this.remote
+        .then(openPage(SETTINGS_URL + '?uid=invalid', '#fxa-400-header'))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('uid'));
     },
 
     'with an empty uid': function () {
-      return FunctionalHelpers.openPage(this, SETTINGS_URL + '?uid=', '#fxa-400-header')
+      return this.remote
+        .then(openPage(SETTINGS_URL + '?uid=', '#fxa-400-header'))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('uid'));
     },
 
     'sign in, go to settings, sign out': function () {
-      return FunctionalHelpers.openPage(this, SIGNIN_URL, '#fxa-signin-header')
+      return this.remote
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .findByCssSelector('#fxa-settings-header')
@@ -92,16 +97,13 @@ define([
     },
 
     'sign in, go to settings with setting param set to avatar redirects to avatar change page ': function () {
-      var self = this;
       return this.remote
         .then(fillOutSignIn(email, FIRST_PASSWORD, true))
 
         .findById('fxa-settings-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.openPage(self, SETTINGS_URL + '?setting=avatar', '#avatar-options');
-        })
+        .then(openPage(SETTINGS_URL + '?setting=avatar', '#avatar-options'))
 
         .findByCssSelector('.modal-panel button.cancel')
           .click()
@@ -113,16 +115,13 @@ define([
     },
 
     'sign in, go to settings with setting param and additional params redirects to avatar change page ': function () {
-      var self = this;
       return this.remote
         .then(fillOutSignIn(email, FIRST_PASSWORD, true))
 
         .findById('fxa-settings-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.openPage(self, SETTINGS_URL + '?setting=avatar&uid=' + accountData.uid, '#avatar-options');
-        })
+        .then(openPage(SETTINGS_URL + '?setting=avatar&uid=' + accountData.uid, '#avatar-options'))
 
         .findByCssSelector('.modal-panel button.cancel')
           .click()
@@ -134,16 +133,16 @@ define([
     },
 
     'sign in with setting param set to avatar redirects to avatar change page ': function () {
-      var self = this;
-      return FunctionalHelpers.openPage(self, SIGNIN_URL + '?setting=avatar', '#fxa-signin-header')
+      return this.remote
+        .then(openPage(SIGNIN_URL + '?setting=avatar', '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
         .findById('avatar-options')
         .end();
     },
 
     'sign in with setting param and additional params redirects to avatar change page ': function () {
-      var self = this;
-      return FunctionalHelpers.openPage(self, SIGNIN_URL + '?setting=avatar&uid=' + accountData.uid, '#fxa-signin-header')
+      return this.remote
+        .then(openPage(SIGNIN_URL + '?setting=avatar&uid=' + accountData.uid, '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
         .findById('avatar-options')
         .end();
@@ -204,7 +203,7 @@ define([
     'visit settings page with an unverified account redirects to confirm': function () {
       return this.remote
         // Expect to get redirected to confirm since the account is unverified
-        .then(openPage(this, SETTINGS_URL, '#fxa-confirm-header'));
+        .then(openPage(SETTINGS_URL, '#fxa-confirm-header'));
     }
   });
 

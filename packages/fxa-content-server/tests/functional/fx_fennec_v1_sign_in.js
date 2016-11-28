@@ -21,7 +21,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
@@ -35,7 +35,7 @@ define([
     return this.parent
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-      .then(openPage(this.parent, PAGE_URL, '#fxa-signin-header'))
+      .then(openPage(PAGE_URL, '#fxa-signin-header'))
       .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutSignIn(email, PASSWORD))
       .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'))

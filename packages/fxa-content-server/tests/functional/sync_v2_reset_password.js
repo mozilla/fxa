@@ -25,7 +25,7 @@ define([
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
@@ -50,7 +50,7 @@ define([
 
     'reset password, verify same browser': function () {
       return this.remote
-        .then(openPage(this, RESET_PASSWORD_URL, '#fxa-reset-password-header'))
+        .then(openPage(RESET_PASSWORD_URL, '#fxa-reset-password-header'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(fillOutResetPassword(email))
 
@@ -81,7 +81,7 @@ define([
       this.timeout = 90000;
 
       return this.remote
-        .then(openPage(this, RESET_PASSWORD_URL, '#fxa-reset-password-header'))
+        .then(openPage(RESET_PASSWORD_URL, '#fxa-reset-password-header'))
         .then(createUser(email, PASSWORD, { preVerified: true } ))
         .then(fillOutResetPassword(email))
 

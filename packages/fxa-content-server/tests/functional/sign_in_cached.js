@@ -34,7 +34,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -58,14 +58,14 @@ define([
 
     'sign in twice, on second attempt email will be cached': function () {
       return this.remote
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
         // reset prefill and context
         .then(clearSessionStorage(this))
 
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         .then(type('input[type=password]', PASSWORD))
         .then(click('button[type="submit"]'))
 
@@ -74,7 +74,7 @@ define([
 
     'sign in first in sync context, on second attempt credentials will be cached': function () {
       return this.remote
-        .then(openPage(this, PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -82,7 +82,7 @@ define([
         .then(testElementExists('#fxa-confirm-signin-header'))
         .then(openVerificationLinkDifferentBrowser(email))
 
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
 
         .then(click('.use-logged-in'))
         .then(testElementExists('#fxa-settings-header'));
@@ -90,12 +90,12 @@ define([
 
     'sign in once, use a different account': function () {
       return this.remote
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
 
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         // testing to make sure "Use different account" button works
         .then(click('.use-different'))
 
@@ -107,18 +107,18 @@ define([
         .then(testElementExists('#fxa-settings-header'))
 
         // testing to make sure cached signin comes back after a refresh
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
 
         .then(click('.use-different'))
         .then(testElementExists('input[type=email]'))
 
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         .then(testElementValueEquals('input[type=email]', ''));
     },
 
     'sign in with cached credentials but with an expired session': function () {
       return this.remote
-        .then(openPage(this, PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
@@ -131,7 +131,7 @@ define([
           return true;
         })
 
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         .then(click('.use-logged-in'))
 
         // Session expired error should show.
@@ -146,7 +146,7 @@ define([
     'unverified cached signin with sync context redirects to confirm email': function () {
       var email = TestHelpers.createEmail();
       return this.remote
-        .then(openPage(this, PAGE_SIGNUP_DESKTOP, '#fxa-signup-header'))
+        .then(openPage(PAGE_SIGNUP_DESKTOP, '#fxa-signup-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
 
@@ -157,7 +157,7 @@ define([
         // reset prefill and context
         .then(clearSessionStorage(this))
 
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         // cached login should still go to email confirmation screen for unverified accounts
         .then(click('.use-logged-in'))
 
@@ -168,12 +168,12 @@ define([
       var email = TestHelpers.createEmail();
 
       return this.remote
-        .then(openPage(this, PAGE_SIGNUP, '#fxa-signup-header'))
+        .then(openPage(PAGE_SIGNUP, '#fxa-signup-header'))
         .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-confirm-header'))
 
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         .then(type('input[type=password]', PASSWORD))
         .then(click('button[type="submit"]'))
 
@@ -183,13 +183,13 @@ define([
 
     'sign in on desktop then sign in with prefill does not show picker': function () {
       return this.remote
-        .then(openPage(this, PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
         .then(testElementExists('#fxa-confirm-signin-header'))
 
-        .then(openPage(this, PAGE_SIGNIN + '?email=' + email2, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN + '?email=' + email2, '#fxa-signin-header'))
         /*.then(testElementValueEquals('input.email.prefilled', email2))*/
         .then(type('input[type=password]', PASSWORD))
         .then(click('button[type="submit"]'))
@@ -200,7 +200,7 @@ define([
         .then(clearSessionStorage(this))
 
         // testing to make sure cached signin comes back after a refresh
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         .then(testElementTextEquals('.prefillEmail', email))
         .then(click('.use-different'))
 
@@ -209,7 +209,7 @@ define([
 
     'sign in with desktop context then no context, desktop credentials should not persist': function () {
       return this.remote
-        .then(openPage(this, PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
@@ -217,7 +217,7 @@ define([
 
         // ensure signin page is visible otherwise credentials might
         // not be cleared by clicking .use-different
-        .then(openPage(this, PAGE_SIGNIN, '.use-different'))
+        .then(openPage(PAGE_SIGNIN, '.use-different'))
         .then(visibleByQSA('#fxa-signin-header'))
         // This will clear the desktop credentials
         .then(click('.use-different'))
@@ -232,7 +232,7 @@ define([
         .then(clearSessionStorage(this))
 
         // testing to make sure cached signin comes back after a refresh
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         .then(testElementTextEquals('.prefillEmail', email2))
 
         .refresh()
@@ -243,14 +243,14 @@ define([
 
     'overrule cached credentials': function () {
       return this.remote
-        .then(openPage(this, PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
         // reset prefill and context
         .then(clearSessionStorage(this))
 
-        .then(openPage(this, PAGE_SIGNIN_NO_CACHED_CREDS, '#fxa-signin-header'))
+        .then(openPage(PAGE_SIGNIN_NO_CACHED_CREDS, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'));

@@ -110,7 +110,8 @@ define([
         .then(getVerificationLink(user, 1))
         .then(function (verifyUrl) {
           // user verifies in the same tab, so they are logged in to the RP.
-          return openPage(this, verifyUrl, '#loggedin');
+          return this.parent
+            .then(openPage(verifyUrl, '#loggedin'));
         });
     },
 
@@ -153,7 +154,8 @@ define([
       var SIGNUP_URL = UNTRUSTED_OAUTH_APP + 'api/preverified-signup?' +
                         'email=' + encodeURIComponent(email);
 
-      return openPage(this, SIGNUP_URL, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
 
         .then(type('input[type=password]', PASSWORD))
         .then(type('#age', 24))

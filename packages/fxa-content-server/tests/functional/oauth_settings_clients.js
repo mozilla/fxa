@@ -52,12 +52,14 @@ define([
         .then(testElementExists('#fxa-confirm-header'))
         .then(getVerificationLink(email, 0))
         .then(function (verificationLink) {
-          return openPage(self, verificationLink, '#loggedin');
+          return this.parent
+            .then(openPage(verificationLink, '#loggedin'));
         })
 
         // lists the first client
         .then(function () {
-          return openPage(self, APPS_SETTINGS_URL, '.client-disconnect');
+          return this.parent
+            .then(openPage(APPS_SETTINGS_URL, '.client-disconnect'));
         })
 
         // sign in into another app

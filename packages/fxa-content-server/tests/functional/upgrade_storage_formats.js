@@ -11,11 +11,9 @@ define([
   var config = intern.config;
   var SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
 
   var email;
@@ -44,7 +42,7 @@ define([
           localStorage.setItem(namespace, JSON.stringify(userData));
 
         }, [ email ])
-        .then(openPage(this, SIGNIN_PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_PAGE_URL, '#fxa-signin-header'))
 
         // sessionToken was invalid, email should be cleared
         .then(testElementValueEquals('input[type=email]', ''));
@@ -65,7 +63,7 @@ define([
           }, [email, accountInfo.sessionToken]);
         })
 
-        .then(openPage(this, SIGNIN_PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_PAGE_URL, '#fxa-signin-header'))
 
         // sessionToken was valid, email should be pre-filled
         .then(testElementValueEquals('input[type=email]', email));
@@ -90,7 +88,7 @@ define([
             localStorage.setItem('__fxa_session', JSON.stringify(userData));
           }, [ email, accountInfo.sessionToken ]);
         })
-        .then(openPage(this, SIGNIN_PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_PAGE_URL, '#fxa-signin-header'))
 
         // Sync creds take precedence
         .then(testElementValueEquals('input[type=email]', email));
@@ -156,7 +154,7 @@ define([
 
         }, [ email ])
         // success is not going to the 500 page.
-        .then(openPage(this, SIGNIN_PAGE_URL, '#fxa-signin-header'));
+        .then(openPage(SIGNIN_PAGE_URL, '#fxa-signin-header'));
     }
   });
 });

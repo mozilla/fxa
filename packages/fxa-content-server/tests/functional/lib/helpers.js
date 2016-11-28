@@ -573,7 +573,8 @@ define([
       options = options || {};
 
       var urlToOpen = FORCE_AUTH_URL + '?' + Querystring.stringify(options.query || {});
-      return openPage(this, urlToOpen, options.header || '#fxa-force-auth-header');
+      return this.parent
+        .then(openPage(urlToOpen, options.header || '#fxa-force-auth-header'));
     };
   }
 
@@ -587,7 +588,8 @@ define([
         var updatedQueryParams = lang.mixin({}, currentQueryParams, additionalQueryParams);
         var urlToOpen = url + '?' + Querystring.stringify(updatedQueryParams);
 
-        return openPage(context, urlToOpen, waitForSelector);
+        return this.parent
+          .then(openPage(urlToOpen, waitForSelector));
       });
   }
 
@@ -633,7 +635,8 @@ define([
     if (page === 'force_auth') {
       var emailSearchString = '?' + Querystring.stringify({ email: queryParams.email });
       var endpoint = app + 'api/force_auth' + emailSearchString;
-      return openPage(context, endpoint, expectedHeader)
+      return getRemote(context)
+        .then(openPage(endpoint, expectedHeader))
         .then(function () {
           if (Object.keys(queryParams).length > 1) {
             return reOpenWithAdditionalQueryParams(context, queryParams, expectedHeader);
@@ -641,7 +644,8 @@ define([
         });
     }
 
-    return openPage(context, app, '.ready #splash .' + page)
+    return getRemote(context)
+      .then(openPage(app, '.ready #splash .' + page))
       .then(click('.ready #splash .' + page))
 
       // wait until the page fully loads or else the re-load with
@@ -975,30 +979,31 @@ define([
     };
   }
 
-  function openPage(context, url, readySelector) {
-    var remote = getRemote(context);
-    return remote
-      .get(require.toUrl(url))
-      .setFindTimeout(config.pageLoadTimeout)
+  function openPage(url, readySelector) {
+    return function () {
+      return this.parent
+        .get(require.toUrl(url))
+        .setFindTimeout(config.pageLoadTimeout)
 
-      // Wait until the `readySelector` element is found to return.
-      .findByCssSelector(readySelector)
-      .end()
+        // Wait until the `readySelector` element is found to return.
+        .findByCssSelector(readySelector)
+        .end()
 
-      .then(null, function (err) {
-        return remote
-          .getCurrentUrl()
-            .then(function (resultUrl) {
-              console.log('Error fetching %s, now at %s', url, resultUrl);
-            })
-          .end()
+        .then(null, function (err) {
+          return this.parent
+            .getCurrentUrl()
+              .then(function (resultUrl) {
+                console.log('Error fetching %s, now at %s', url, resultUrl);
+              })
+            .end()
 
-          .then(takeScreenshot())
+            .then(takeScreenshot())
 
-          .then(function () {
-            throw err;
-          });
-      });
+            .then(function () {
+              throw err;
+            });
+        });
+    };
   }
 
   /**

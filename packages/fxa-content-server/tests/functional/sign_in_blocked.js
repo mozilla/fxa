@@ -13,8 +13,6 @@ define([
   var PASSWORD = 'password';
   var email;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
@@ -22,7 +20,7 @@ define([
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var getUnblockInfo = FunctionalHelpers.getUnblockInfo;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openTab = FunctionalHelpers.openTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
@@ -49,7 +47,7 @@ define([
 
     'valid code entered': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -61,7 +59,7 @@ define([
 
     'valid code with whitespace at the beginning entered': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -78,7 +76,7 @@ define([
 
     'valid code with whitespace at the end entered': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -95,7 +93,7 @@ define([
 
     'invalid code entered': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -109,7 +107,7 @@ define([
 
     'incorrect code entered': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -130,7 +128,7 @@ define([
 
     'incorrect password entered': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, 'incorrect'))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -157,7 +155,7 @@ define([
 
     'resend': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -173,7 +171,7 @@ define([
     'report signin success': function () {
       var unblockCode;
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -205,7 +203,7 @@ define([
     'report signin link unblockCode broken': function () {
       var unblockCode;
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -234,7 +232,7 @@ define([
     'report signin link uid broken': function () {
       var unblockCode;
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -263,7 +261,7 @@ define([
     'report link opened after code used': function () {
       var reportSignInLink;
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -279,7 +277,7 @@ define([
 
         .then(function () {
           return this.parent
-            .then(openPage(this, reportSignInLink, '#fxa-report-sign-in-header'));
+            .then(openPage(reportSignInLink, '#fxa-report-sign-in-header'));
         })
         // report link is expired and can no longer be used.
         .then(click('button[type=submit]'))
@@ -292,7 +290,7 @@ define([
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: false }))
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))

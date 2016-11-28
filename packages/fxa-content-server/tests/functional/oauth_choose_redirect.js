@@ -42,24 +42,19 @@ define([
     },
 
     'oauth endpoint redirects to signup with an unregistered email': function () {
-      var self = this;
-
       var invalidAccountUrl = oAuthUrl + '&email=' + email;
 
-      return openPage(self, invalidAccountUrl, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(invalidAccountUrl, '#fxa-signup-header'))
         .then(testElementValueEquals('input[type=email]', email));
     },
 
     'oauth endpoint redirects to signin with a registered email': function () {
-      var self = this;
-
       var validAccountUrl = oAuthUrl + '&email=' + email;
 
-      return self.remote
+      return this.remote
         .then(FunctionalHelpers.createUser(email, PASSWORD, { preVerified: true}))
-        .then(function () {
-          return openPage(self, validAccountUrl, '#fxa-signin-header');
-        })
+        .then(openPage(validAccountUrl, '#fxa-signin-header'))
         .then(testElementValueEquals('input[type=email]', email));
     }
   });

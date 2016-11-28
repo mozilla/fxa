@@ -149,7 +149,8 @@ define([
 
         .then(getVerificationLink(email, 0))
         .then(function (verificationLink) {
-          return openPage(self, verificationLink, '#loggedin');
+          return this.parent
+            .then(openPage(verificationLink, '#loggedin'));
         });
     },
 
@@ -189,8 +190,8 @@ define([
         .then(getVerificationLink(email, 0))
         .then(function (verificationLink) {
           // new browser dead ends at the 'account verified' screen.
-          return openPage(self, verificationLink,
-            '#fxa-sign-up-complete-header');
+          return this.parent
+            .then(openPage(verificationLink, '#fxa-sign-up-complete-header'));
         })
 
         .findByCssSelector('.account-ready-service')

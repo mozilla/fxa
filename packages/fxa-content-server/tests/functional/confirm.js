@@ -15,14 +15,12 @@ define([
 
   var email;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
@@ -42,14 +40,14 @@ define([
         // user is immediately redirected to /signup if they have no
         // sessionToken.
         // Success is showing the screen
-        .then(openPage(this, CONFIRM_URL, '#fxa-signup-header'));
+        .then(openPage(CONFIRM_URL, '#fxa-signup-header'));
     },
 
     'sign up, wait for confirmation screen, click resend': function () {
       var email = 'test_signin' + Math.random() + '@mailinator.com';
 
       return this.remote
-        .then(openPage(this, SIGNUP_URL, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
         .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-confirm-header'))
@@ -69,7 +67,7 @@ define([
       this.timeout = 90000;
 
       return this.remote
-        .then(openPage(this, SIGNUP_URL, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
 
         .then(fillOutSignUp(email, PASSWORD))

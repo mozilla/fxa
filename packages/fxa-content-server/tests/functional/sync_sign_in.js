@@ -28,7 +28,7 @@ define([
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -45,7 +45,7 @@ define([
 
     return this.parent
       .then(createUser(email, PASSWORD, { preVerified: !! options.preVerified }))
-      .then(openPage(this.parent, options.pageUrl || PAGE_URL, '#fxa-signin-header'))
+      .then(openPage(options.pageUrl || PAGE_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
       .then(fillOutSignIn(email, PASSWORD))
       .then(testIsBrowserNotified(this.parent, 'can_link_account'))
@@ -111,7 +111,7 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(openPage(this, ROOT_URL, '#fxa-confirm-signin-header'));
+        .then(openPage(ROOT_URL, '#fxa-confirm-signin-header'));
     },
 
     'unverified': function () {
@@ -123,12 +123,12 @@ define([
       return this.remote
         .then(setupTest({ preVerified: false }))
 
-        .then(openPage(this, ROOT_URL, '#fxa-confirm-header'));
+        .then(openPage(ROOT_URL, '#fxa-confirm-header'));
     },
 
     'as a migrating user': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL_WITH_MIGRATION, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL_WITH_MIGRATION, '#fxa-signin-header'))
         .then(visibleByQSA('.info.nudge'));
     },
 

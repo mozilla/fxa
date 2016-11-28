@@ -13,13 +13,11 @@ define([
   var PASSWORD = 'password';
   var email;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
@@ -47,7 +45,7 @@ define([
 
     'valid code entered': function () {
       return this.remote
-        .then(openPage(this, forceAuthPageUrl, '#fxa-force-auth-header'))
+        .then(openPage(forceAuthPageUrl, '#fxa-force-auth-header'))
         .then(fillOutForceAuth(PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
@@ -59,7 +57,7 @@ define([
 
     'incorrect password entered': function () {
       return this.remote
-        .then(openPage(this, forceAuthPageUrl, '#fxa-force-auth-header'))
+        .then(openPage(forceAuthPageUrl, '#fxa-force-auth-header'))
         .then(fillOutForceAuth('incorrect'))
 
         .then(testElementExists('#fxa-signin-unblock-header'))

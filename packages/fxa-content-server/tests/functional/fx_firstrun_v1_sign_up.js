@@ -6,10 +6,9 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=iframe&service=sync';
 
@@ -21,6 +20,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  var openPage = FunctionalHelpers.openPage;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
@@ -32,27 +32,20 @@ define([
     },
 
     afterEach: function () {
-      var self = this;
-
       return this.remote
         .then(clearBrowserState())
-        .then(function () {
-          // ensure the next test suite (bounced_email) loads a fresh
-          // signup page. If a fresh signup page is not forced, the
-          // bounced_email tests try to sign up using the Sync broker,
-          // resulting in a channel timeout.
-          return self.remote
-            .get(require.toUrl(SIGNIN_URL))
-
-            .findByCssSelector('#fxa-signin-header')
-            .end();
-        });
+        // ensure the next test suite (bounced_email) loads a fresh
+        // signup page. If a fresh signup page is not forced, the
+        // bounced_email tests try to sign up using the Sync broker,
+        // resulting in a channel timeout.
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'));
     },
 
     'sign up, verify same browser in a different tab': function () {
       var self = this;
 
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
 
@@ -96,7 +89,8 @@ define([
 
     'sign up, cancel merge warning': function () {
       var self = this;
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: false } ))
         .then(fillOutSignUp(email, PASSWORD))
 

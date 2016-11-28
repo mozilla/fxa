@@ -18,7 +18,7 @@ define([
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -44,7 +44,7 @@ define([
       return this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
-        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
@@ -59,7 +59,7 @@ define([
           return accounts.length === 1 ? true : null;
         }, [], 10000))
 
-        .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'));
+        .then(openPage(SETTINGS_URL, '#fxa-settings-header'));
     },
 
     'sign in, change the password': function () {
@@ -73,7 +73,7 @@ define([
 
     'sign in, change the password by browsing directly to settings': function () {
       return this.remote
-        .then(openPage(this, SETTINGS_NOCONTEXT_URL, '#fxa-settings-header'))
+        .then(openPage(SETTINGS_NOCONTEXT_URL, '#fxa-settings-header'))
         .then(click('#change-password .settings-unit-toggle'))
         .then(visibleByQSA('#change-password .settings-unit-details'))
         .then(noSuchBrowserNotification(this, 'fxaccounts:change_password'))

@@ -66,19 +66,22 @@ define([
     },
 
     'with an invalid email': function () {
-      return FunctionalHelpers.openPage(this, PAGE_URL + '?email=invalid', '#fxa-400-header')
+      return this.remote
+        .then(openPage(PAGE_URL + '?email=invalid', '#fxa-400-header'))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
     'with an empty email': function () {
-      return FunctionalHelpers.openPage(this, PAGE_URL + '?email=', '#fxa-400-header')
+      return this.remote
+        .then(openPage(PAGE_URL + '?email=', '#fxa-400-header'))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
     'signup, verify same browser': function () {
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .then(visibleByQSA('#suggest-sync'))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
@@ -456,12 +459,14 @@ define([
     },
 
     'data-flow-begin attribute is set': function () {
-      return openPage(this, PAGE_URL, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/));
     },
 
     'integrity attribute is set on scripts and css': function () {
-      return openPage(this, PAGE_URL, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .then(testAttributeMatches('script', 'integrity', /^sha512-/))
         .then(testAttributeMatches('link', 'integrity', /^sha512-/))
         .catch(function (err) {
@@ -474,7 +479,8 @@ define([
   });
 
   function testRepopulateFields(dest, header) {
-    return openPage(this, PAGE_URL, '#fxa-signup-header')
+    return this.remote
+      .then(openPage(PAGE_URL, '#fxa-signup-header'))
 
       .then(fillOutSignUp(email, PASSWORD, { submit: false }))
 

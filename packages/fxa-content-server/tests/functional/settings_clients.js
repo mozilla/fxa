@@ -23,14 +23,12 @@ define([
   var client;
   var accountData;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var pollUntil = FunctionalHelpers.pollUntil;
   var pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -56,7 +54,7 @@ define([
 
     'device panel is not visible without query param': function () {
       return this.remote
-        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
@@ -68,7 +66,7 @@ define([
       var testDeviceId;
 
       return this.remote
-        .then(openPage(this, SIGNIN_URL_DEVICE_LIST, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL_DEVICE_LIST, '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))

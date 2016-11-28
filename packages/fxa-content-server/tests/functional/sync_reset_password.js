@@ -30,7 +30,7 @@ define([
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var openExternalSite = FunctionalHelpers.openExternalSite;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openPasswordResetLinkDifferentBrowser = thenify(FunctionalHelpers.openPasswordResetLinkDifferentBrowser);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -58,7 +58,7 @@ define([
     'reset password, verify same browser': function () {
       // verify account
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-reset-password-header'))
+        .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
         .execute(listenForFxaCommands)
         .then(fillOutResetPassword(email))
 
@@ -80,7 +80,7 @@ define([
 
     'reset password, verify same browser with original tab closed': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-reset-password-header'))
+        .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
         .execute(listenForFxaCommands)
         .then(fillOutResetPassword(email))
 
@@ -100,7 +100,7 @@ define([
     'reset password, verify same browser by replacing the original tab': function () {
       var self = this;
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-reset-password-header'))
+        .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
         .execute(listenForFxaCommands)
         .then(fillOutResetPassword(email))
 
@@ -118,7 +118,7 @@ define([
     'reset password, verify different browser - from original tab\'s P.O.V.': function () {
       // verify account
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-reset-password-header'))
+        .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
         .execute(listenForFxaCommands)
         .then(fillOutResetPassword(email))
         .then(testElementExists('#fxa-confirm-reset-password-header'))
@@ -145,7 +145,7 @@ define([
 
       // verify account
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-reset-password-header'))
+        .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
         .execute(listenForFxaCommands)
         .then(fillOutResetPassword(email))
         .then(testElementExists('#fxa-confirm-reset-password-header'))

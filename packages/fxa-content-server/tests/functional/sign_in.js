@@ -21,7 +21,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openSignInInNewTab = thenify(FunctionalHelpers.openSignInInNewTab);
   var openSignUpInNewTab = thenify(FunctionalHelpers.openSignUpInNewTab);
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
@@ -47,7 +47,7 @@ define([
 
     'with an invalid email': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL + '?email=invalid', '#fxa-400-header'))
+        .then(openPage(PAGE_URL + '?email=invalid', '#fxa-400-header'))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
@@ -55,7 +55,7 @@ define([
     'sign in unverified': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: false }))
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementTextInclude('.verification-email-message', email));
     },
@@ -63,7 +63,7 @@ define([
     'redirect to requested page after sign in verified with correct password': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(this, AVATAR_URL, '#fxa-signin-header'))
+        .then(openPage(AVATAR_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists('#avatar-change'));
     },
@@ -149,7 +149,7 @@ define([
       var windowName = 'sign-in inter-tab functional test';
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(openSignInInNewTab(this, windowName))
         .switchToWindow(windowName)
 
@@ -183,7 +183,7 @@ define([
 
     'data-flow-begin attribute is set': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/));
     }
   });
@@ -193,7 +193,7 @@ define([
     var password = '12345678';
 
     return this.remote
-      .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+      .then(openPage(PAGE_URL, '#fxa-signin-header'))
       .then(type('input[type=email]', email))
       .then(type('input[type=password]', password))
 

@@ -28,7 +28,7 @@ define([
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noSuchElement = thenify(FunctionalHelpers.noSuchElement);
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
   var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
@@ -38,7 +38,7 @@ define([
   var setupTest = thenify(function (context) {
     return this.parent
       .then(createUser(email, PASSWORD, {preVerified: true}))
-      .then(openPage(context, PAGE_SIGNIN_URL, '#fxa-signin-header'))
+      .then(openPage(PAGE_SIGNIN_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
       .then(fillOutSignIn(email, PASSWORD))
       .then(testIsBrowserNotified(context, 'can_link_account'))
@@ -68,7 +68,7 @@ define([
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .then(openPage(this, url, '#fxa-verification-link-damaged-header'))
+        .then(openPage(url, '#fxa-verification-link-damaged-header'))
 
         // a successful user is immediately redirected to the
         // sign-in-complete page.
@@ -81,7 +81,7 @@ define([
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .then(openPage(this, url, '#fxa-verification-link-reused-header'))
+        .then(openPage(url, '#fxa-verification-link-reused-header'))
 
         // Ensure that a link expired error message is displayed
         // rather than a damaged link error
@@ -94,7 +94,7 @@ define([
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .then(openPage(this, url, '#fxa-verification-link-damaged-header'))
+        .then(openPage(url, '#fxa-verification-link-damaged-header'))
 
         // a successful user is immediately redirected to the
         // sign-in-complete page.
@@ -107,7 +107,7 @@ define([
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .then(openPage(this, url, '#fxa-verification-link-expired-header'))
+        .then(openPage(url, '#fxa-verification-link-expired-header'))
 
         // Ensure that a link expired error message is displayed
         // rather than a damaged link error
@@ -119,7 +119,7 @@ define([
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .then(openPage(this, url, '#fxa-settings-profile-header'))
+        .then(openPage(url, '#fxa-settings-profile-header'))
 
         // a successful user is immediately redirected to the
         // sign-in-complete page.

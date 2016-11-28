@@ -25,7 +25,7 @@ define([
   var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var testElementDisplayed = FunctionalHelpers.testElementDisplayed;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
@@ -83,7 +83,7 @@ define([
         .then(testElementExists('#fxa-settings-header'))
         .then(testSuccessWasShown(this))
 
-        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(click('.use-different'))
         .then(fillOutSignIn(email, SECOND_PASSWORD))
 

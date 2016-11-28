@@ -24,7 +24,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -76,7 +76,7 @@ define([
       // passed to basket. See a43061d3
       email = TestHelpers.createEmail('signup{id}+extra');
       return this.remote
-        .then(openPage(this, SIGNUP_PAGE_URL, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_PAGE_URL, '#fxa-signup-header'))
         .then(fillOutSignUp(email, PASSWORD, { optInToMarketingEmail: true }))
 
         .then(testElementExists('#fxa-confirm-header'))
@@ -116,8 +116,9 @@ define([
 
     'do not opt-in on signup': function () {
       return this.remote
-        .then(openPage(this, SIGNUP_PAGE_URL, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_PAGE_URL, '#fxa-signup-header'))
         .then(fillOutSignUp(email, PASSWORD, { optInToMarketingEmail: false }))
+
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInSameTab(email, 0))
 
@@ -132,7 +133,7 @@ define([
     'opt in from settings after sign-in': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(this, SIGNIN_PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#communication-preferences.basket-ready'))

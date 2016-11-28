@@ -22,12 +22,10 @@ define([
   var client;
   var accountData;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var testElementExists = FunctionalHelpers.testElementExists;
 
   var SETTINGS_PAGES = {
@@ -65,7 +63,7 @@ define([
         .then(testElementExists('#fxa-confirm-header'))
 
         // Expect to get redirected to confirm since the account is unverified
-        .then(openPage(this, url, '#fxa-confirm-header'));
+        .then(openPage(url, '#fxa-confirm-header'));
     };
   }
 
@@ -99,29 +97,29 @@ define([
         })
         // Expect to get redirected to sign in since the
         // sessionToken is invalid
-        .then(openPage(this, url, '#fxa-signin-header'));
+        .then(openPage(url, '#fxa-signin-header'));
     };
 
     suite['visit settings' + page + ' with an unknown uid parameter redirects to signin'] = function () {
       return this.remote
-        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
 
         // Expect to get redirected to sign in since the uid is unknown
-        .then(openPage(this, url + '?uid=' + TestHelpers.createUID(), '#fxa-signin-header'));
+        .then(openPage(url + '?uid=' + TestHelpers.createUID(), '#fxa-signin-header'));
     };
 
     suite['visit settings' + page + ' with a known uid does not redirect'] = function () {
       return this.remote
-        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
 
         // Expect to get redirected to sign in since the uid is unknown
-        .then(openPage(this, url + '?uid=' + accountData.uid + AUTOMATED, '#' + pageHeader));
+        .then(openPage(url + '?uid=' + accountData.uid + AUTOMATED, '#' + pageHeader));
     };
   }
 

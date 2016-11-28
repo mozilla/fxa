@@ -12,6 +12,8 @@ define([
   var config = intern.config;
   var OAUTH_APP = config.fxaOauthApp;
 
+  var openPage = FunctionalHelpers.openPage;
+
   var PASSWORD = 'password';
   var email;
 
@@ -31,12 +33,11 @@ define([
     },
 
     'preverified sign up': function () {
-      var self = this;
-
       var SIGNUP_URL = OAUTH_APP + 'api/preverified-signup?' +
                         'email=' + encodeURIComponent(email);
 
-      return FunctionalHelpers.openPage(self, SIGNUP_URL, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
 
         .findByCssSelector('form input.password')
           .click()

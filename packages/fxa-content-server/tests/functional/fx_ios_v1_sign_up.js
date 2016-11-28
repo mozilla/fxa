@@ -21,6 +21,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  var openPage = FunctionalHelpers.openPage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
@@ -33,23 +34,20 @@ define([
     },
 
     afterEach: function () {
-      var self = this;
-
       return this.remote
         .then(clearBrowserState())
-        .then(function () {
-          // ensure the next test suite (bounced_email) loads a fresh
-          // signup page. If a fresh signup page is not forced, the
-          // bounced_email tests try to sign up using the Sync broker,
-          // resulting in a channel timeout.
-          return FunctionalHelpers.openPage(self, SIGNIN_URL, '#fxa-signin-header');
-        });
+        // ensure the next test suite (bounced_email) loads a fresh
+        // signup page. If a fresh signup page is not forced, the
+        // bounced_email tests try to sign up using the Sync broker,
+        // resulting in a channel timeout.
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'));
     },
 
     'sign up, verify same browser': function () {
       var self = this;
 
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .execute(listenForFxaCommands)
         .then(FunctionalHelpers.noSuchElement(self, '#customize-sync'))
         .then(fillOutSignUp(email, PASSWORD))

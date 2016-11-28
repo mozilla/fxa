@@ -26,7 +26,7 @@ define([
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
   var type = FunctionalHelpers.type;
@@ -60,17 +60,17 @@ define([
 
     'with missing client_id': function () {
       return this.remote
-        .then(openPage(this, SIGNIN_ROOT + '?scope=profile', '#fxa-400-header'));
+        .then(openPage(SIGNIN_ROOT + '?scope=profile', '#fxa-400-header'));
     },
 
     'with missing scope': function () {
       return this.remote
-        .then(openPage(this, SIGNIN_ROOT + '?client_id=client_id', '#fxa-400-header'));
+        .then(openPage(SIGNIN_ROOT + '?client_id=client_id', '#fxa-400-header'));
     },
 
     'with invalid client_id': function () {
       return this.remote
-        .then(openPage(this, SIGNIN_ROOT + '?client_id=invalid_client_id&scope=profile', '#fxa-400-header'));
+        .then(openPage(SIGNIN_ROOT + '?client_id=invalid_client_id&scope=profile', '#fxa-400-header'));
     },
 
     'verified': function () {
@@ -124,7 +124,7 @@ define([
         .then(function (verifyUrl) {
           return this.parent
             // user verifies in the same tab, so they are logged in to the RP.
-            .then(openPage(this.parent, verifyUrl, '#loggedin'));
+            .then(openPage(verifyUrl, '#loggedin'));
         });
 
     },
@@ -153,7 +153,7 @@ define([
 
     'oauth endpoint chooses the right auth flows': function () {
       return this.remote
-        .then(openPage(this, OAUTH_APP, '.ready #splash'))
+        .then(openPage(OAUTH_APP, '.ready #splash'))
 
         // use the 'Choose my sign-in flow for me' button
         .then(click('.ready #splash .sign-choose'))

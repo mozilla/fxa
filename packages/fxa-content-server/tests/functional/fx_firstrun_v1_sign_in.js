@@ -24,7 +24,7 @@ define([
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
@@ -37,7 +37,7 @@ define([
 
     return this.parent
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-      .then(openPage(this.parent, options.pageUrl || PAGE_URL, '.email'))
+      .then(openPage(options.pageUrl || PAGE_URL, '.email'))
       .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
       // delay for the webchannel message
       .sleep(500)

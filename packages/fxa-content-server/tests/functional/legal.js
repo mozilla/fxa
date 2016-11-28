@@ -10,12 +10,15 @@ define([
 ], function (intern, registerSuite, assert, FunctionalHelpers) {
   var url = intern.config.fxaContentRoot + 'legal';
 
+  var openPage = FunctionalHelpers.openPage;
+
   registerSuite({
     name: 'legal',
 
     'start at legal page': function () {
 
-      return FunctionalHelpers.openPage(this, url, '#fxa-legal-header')
+      return this.remote
+        .then(openPage(url, '#fxa-legal-header'))
 
         .findByCssSelector('a[href="/legal/terms"]')
           .click()
@@ -41,7 +44,8 @@ define([
 
     'start at terms page': function () {
 
-      return FunctionalHelpers.openPage(this, url + '/terms', '#fxa-tos-header')
+      return this.remote
+        .then(openPage(url + '/terms', '#fxa-tos-header'))
 
         .then(FunctionalHelpers.visibleByQSA('#legal-copy[data-shown]'))
         .findByCssSelector('#legal-copy[data-shown]')
@@ -56,7 +60,8 @@ define([
 
     'start at privacy page': function () {
 
-      return FunctionalHelpers.openPage(this, url + '/privacy', '#fxa-pp-header')
+      return this.remote
+        .then(openPage(url + '/privacy', '#fxa-pp-header'))
 
         .then(FunctionalHelpers.visibleByQSA('#legal-copy[data-shown]'))
         .findByCssSelector('#legal-copy[data-shown]')

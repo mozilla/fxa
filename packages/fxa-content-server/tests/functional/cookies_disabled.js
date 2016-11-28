@@ -19,13 +19,15 @@ define([
 
   var COOKIES_DISABLED_URL = config.fxaContentRoot + 'cookies_disabled';
 
+  var openPage = FunctionalHelpers.openPage;
+
   registerSuite({
     name: 'cookies_disabled',
 
     'visit signup page with localStorage disabled': function () {
       var self = this;
-      return FunctionalHelpers.openPage(
-            this, SIGNUP_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header')
+      return this.remote
+        .then(openPage(SIGNUP_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header'))
         // try again, cookies are still disabled.
         .findById('submit-btn')
           .click()
@@ -36,16 +38,12 @@ define([
     },
 
     'synthesize enabling cookies by visiting the sign up page, then cookies_disabled, then clicking "try again"': function () {
-      var self = this;
       // wd has no way of disabling/enabling cookies, so we have to
       // manually seed history.
-      return FunctionalHelpers.openPage(
-            self, SIGNUP_COOKIES_ENABLED_URL, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(SIGNUP_COOKIES_ENABLED_URL, '#fxa-signup-header'))
 
-        .then(function () {
-          return FunctionalHelpers.openPage(
-              self, COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header');
-        })
+        .then(openPage(COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header'))
 
         // try again, cookies are enabled.
         .findById('submit-btn')
@@ -58,8 +56,8 @@ define([
     },
 
     'visit verify page with localStorage disabled': function () {
-      return FunctionalHelpers.openPage(
-            this, VERIFY_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header')
+      return this.remote
+        .then(openPage(VERIFY_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header'))
         .end();
     }
   });

@@ -28,7 +28,7 @@ define([
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
@@ -42,7 +42,7 @@ define([
       .then(createUser(email, PASSWORD, { preVerified: true }))
       .then(clearBrowserState())
 
-      .then(openPage(context, SIGNIN_URL, '#fxa-signin-header'))
+      .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
       .then(fillOutSignIn(email, PASSWORD))
       .then(testElementExists('#fxa-settings-header'));
   }
@@ -62,7 +62,7 @@ define([
 
     'go to settings then avatar change': function () {
       return this.remote
-        .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'))
+        .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
 
         // go to change avatar
         .then(click(CHANGE_AVATAR_BUTTON_SELECTOR))
@@ -73,7 +73,7 @@ define([
 
     'go to settings with an email selected to see change link then click on avatar to change': function () {
       return this.remote
-        .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'))
+        .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
 
         // go to change avatar
         .then(click('a.change-avatar'))
@@ -84,7 +84,7 @@ define([
 
     'go to settings with an email selected to see change link then click on text link to change': function () {
       return this.remote
-        .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'))
+        .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
 
         // go to change avatar
         .then(click(CHANGE_AVATAR_BUTTON_SELECTOR))
@@ -95,7 +95,7 @@ define([
 
     'visit gravatar with gravatar set': function () {
       return this.remote
-        .then(openPage(this, AVATAR_CHANGE_URL_AUTOMATED, '#gravatar'))
+        .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#gravatar'))
 
         // go to gravatar change
         .then(click('#gravatar'))
@@ -129,7 +129,7 @@ define([
 
     'visit gravatar with gravatar set then cancel': function () {
       return this.remote
-        .then(openPage(this, AVATAR_CHANGE_URL_AUTOMATED, '#gravatar'))
+        .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#gravatar'))
         // go to change avatar
         .then(click('#gravatar'))
 
@@ -159,7 +159,7 @@ define([
 
     'visit gravatar with no gravatar set': function () {
       return this.remote
-        .then(openPage(this, AVATAR_CHANGE_URL, '#gravatar'))
+        .then(openPage(AVATAR_CHANGE_URL, '#gravatar'))
 
         // go to change avatar
         .then(click('#gravatar'))
@@ -182,7 +182,7 @@ define([
 
     'attempt to use webcam for avatar': function () {
       return this.remote
-        .then(openPage(this, AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
+        .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
         .then(click('#camera'))
 
         .then(click('.modal-panel #submit-btn'))
@@ -195,7 +195,7 @@ define([
 
     'attempt to use webcam for avatar, then cancel': function () {
       return this.remote
-        .then(openPage(this, AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
+        .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
 
         // go to change avatar
         .then(click('#camera'))
@@ -209,7 +209,7 @@ define([
 
     'upload a profile image': function () {
       return this.remote
-        .then(openPage(this, AVATAR_CHANGE_URL, '#imageLoader'))
+        .then(openPage(AVATAR_CHANGE_URL, '#imageLoader'))
 
         // Selenium's way of interacting with a file picker
         .findByCssSelector('#imageLoader')
@@ -232,7 +232,7 @@ define([
 
     'cancel uploading a profile image': function () {
       return this.remote
-        .then(openPage(this, AVATAR_CHANGE_URL, '#imageLoader'))
+        .then(openPage(AVATAR_CHANGE_URL, '#imageLoader'))
 
         // Selenium's way of interacting with a file picker
         .findByCssSelector('#imageLoader')

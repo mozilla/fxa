@@ -22,6 +22,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noPageTransition = FunctionalHelpers.noPageTransition;
+  var openPage = FunctionalHelpers.openPage;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testAttributeExists = FunctionalHelpers.testAttributeExists;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
@@ -54,7 +55,8 @@ define([
     'signup, verify same browser': function () {
       var self = this;
 
-      return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
+      return this.remote
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
 

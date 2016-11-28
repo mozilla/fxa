@@ -11,11 +11,10 @@ define([
   var EXP_CONTROL = '&forceExperimentGroup=control';
   var EXP_TREATMENT = '&forceExperimentGroup=treatment';
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var noSuchElement = FunctionalHelpers.noSuchElement;
+  var openPage = FunctionalHelpers.openPage;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var type = FunctionalHelpers.type;
 
@@ -35,7 +34,7 @@ define([
       var CORRECTED_EMAIL = 'something@gmail.com';
 
       return this.remote
-        .then(openPage(this, EXP_MAILCHECK_URL + EXP_TREATMENT, '#fxa-signup-header'))
+        .then(openPage(EXP_MAILCHECK_URL + EXP_TREATMENT, '#fxa-signup-header'))
         .then(type('.email', BAD_EMAIL))
         .then(click('.password'))
         .then(click('.tooltip-suggest > span:nth-child(1)'))
@@ -47,11 +46,10 @@ define([
       var BAD_EMAIL = 'something@gnail.com';
 
       return this.remote
-        .then(openPage(this, EXP_MAILCHECK_URL + EXP_CONTROL, '#fxa-signup-header'))
-
+        .then(openPage(EXP_MAILCHECK_URL + EXP_CONTROL, '#fxa-signup-header'))
         .then(type('.email', BAD_EMAIL))
         .then(click('.password'))
-        .then(FunctionalHelpers.noSuchElement(this, '.tooltip-suggest'));
+        .then(noSuchElement(this, '.tooltip-suggest'));
     }
   });
 });

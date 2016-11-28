@@ -10,14 +10,12 @@ define([
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var mousedown = FunctionalHelpers.mousedown;
   var mouseup = FunctionalHelpers.mouseup;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
   var testElementExists = FunctionalHelpers.testElementExists;
   var type = FunctionalHelpers.type;
@@ -32,7 +30,7 @@ define([
 
     'show password ended with mouseup': function () {
       return this.remote
-        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         // show-password button only appears once user types in a character.
         .then(noSuchElement(this, '.show-password-label'))
         .then(type('#password', 'p'))

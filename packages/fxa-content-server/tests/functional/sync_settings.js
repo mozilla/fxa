@@ -20,7 +20,7 @@ define([
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
@@ -40,7 +40,7 @@ define([
     return this.parent
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
       .then(clearBrowserState())
-      .then(openPage(this.parent, SIGNIN_URL, '#fxa-signin-header'))
+      .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
       .then(fillOutSignIn(email, FIRST_PASSWORD))
       .then(testIsBrowserNotifiedOfLogin(this.parent, email, { checkVerified: false }))
@@ -50,7 +50,7 @@ define([
           return this.parent
             .then(openVerificationLinkDifferentBrowser(email))
 
-            .then(openPage(this.parent, SETTINGS_URL, '#fxa-settings-header'))
+            .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
             .execute(listenForFxaCommands);
         }
       });
@@ -96,7 +96,7 @@ define([
       return this.remote
         .then(setupTest(false))
         // the user did not confirm signin and must do so
-        .then(openPage(this, SETTINGS_URL, '#fxa-confirm-signin-header'));
+        .then(openPage(SETTINGS_URL, '#fxa-confirm-signin-header'));
     }
   });
 });

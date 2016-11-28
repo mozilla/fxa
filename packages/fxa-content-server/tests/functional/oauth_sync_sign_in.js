@@ -26,7 +26,7 @@ define([
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
-  var openPage = thenify(FunctionalHelpers.openPage);
+  var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
@@ -59,7 +59,7 @@ define([
     'sign in to OAuth with Sync creds': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .execute(listenForFxaCommands)
 
         .then(fillOutSignIn(email, PASSWORD))
