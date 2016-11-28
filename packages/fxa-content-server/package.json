@@ -3,19 +3,20 @@
   "version": "0.74.0",
   "description": "Firefox Accounts Content Server",
   "scripts": {
+    "postinstall": "bower update --config.interactive=false -s",
+    "prepush": "grunt quicklint",
+    "shrinkwrap": "npmshrink:prod",
     "start": "node scripts/check-local-config && grunt server",
     "start-production": "grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
     "start-remote": "node scripts/check-local-config && CONFIG_FILES=server/config/local.json,server/config/content.json grunt server",
-    "postinstall": "bower update --config.interactive=false -s",
     "test": "intern-runner config=tests/intern",
     "test-circle": "intern-runner config=tests/intern_functional_circle fxaAuthRoot=https://fxa-ci.dev.lcip.org/auth fxaEmailRoot=http://restmail.net fxaOauthApp=https://oauth-fxa-ci.dev.lcip.org fxaUntrustedOauthApp=https://321done-fxa-ci.dev.lcip.org fxaProduction=true",
     "test-functional": "intern-runner config=tests/intern_functional",
     "test-functional-oauth": "intern-runner config=tests/intern_functional_oauth",
-    "test-sauce": "intern-runner config=tests/intern_sauce",
-    "test-travis": "intern-runner config=tests/intern_travis",
-    "test-server": "intern-client config=tests/intern_server",
     "test-latest": "intern-runner config=tests/intern_functional_full fxaAuthRoot=https://latest.dev.lcip.org/auth/v1 fxaContentRoot=https://latest.dev.lcip.org/ fxaEmailRoot=http://restmail.net fxaOauthApp=https://123done-latest.dev.lcip.org/ fxaUntrustedOauthApp=https://321done-latest.dev.lcip.org/ fxaProduction=true fxaToken=https://token.dev.lcip.org/1.0/sync/1.5",
-    "prepush": "grunt quicklint"
+    "test-sauce": "intern-runner config=tests/intern_sauce",
+    "test-server": "intern-client config=tests/intern_server",
+    "test-travis": "intern-runner config=tests/intern_travis"
   },
   "repository": {
     "type": "git",
@@ -102,6 +103,7 @@
     "htmlparser2": "3.9.0",
     "husky": "0.11.4",
     "intern": "3.3.1",
+    "npmshrink": "1.0.1",
     "proxyquire": "1.7.4",
     "sinon": "1.17.3",
     "sync-exec": "0.6.2",
