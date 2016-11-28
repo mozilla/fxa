@@ -20,6 +20,9 @@ module.exports = function (log, error) {
     if (clonePayload.authPW) {
       delete clonePayload.authPW
     }
+    if (clonePayload.oldAuthPW) {
+      delete clonePayload.oldAuthPW
+    }
 
     return clonePayload
   }
