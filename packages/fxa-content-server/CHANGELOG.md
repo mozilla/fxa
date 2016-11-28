@@ -1,3 +1,59 @@
+<a name="0.75.0"></a>
+# 0.75.0 (2016-11-28)
+
+
+### Bug Fixes
+
+* **client:** `is*Visible` fixes for template written messages. ([b58cfb4](https://github.com/mozilla/fxa-content-server/commit/b58cfb4))
+* **client:** Babel is only available during development. (#4433) r=vladikoff ([6da1956](https://github.com/mozilla/fxa-content-server/commit/6da1956))
+* **client:** delete the redundant flow-event-metadata model (#4456) ([01e06a5](https://github.com/mozilla/fxa-content-server/commit/01e06a5))
+* **client:** Fix the startup l10n/everything-else race condition. (#4438) ([24e9932](https://github.com/mozilla/fxa-content-server/commit/24e9932)), closes [(#4438](https://github.com/(/issues/4438)
+* **client:** Flush metrics before redirecting to an external link. ([5bcf94f](https://github.com/mozilla/fxa-content-server/commit/5bcf94f)), closes [#4458](https://github.com/mozilla/fxa-content-server/issues/4458)
+* **client:** pass correct OAuth client id to certificateSign ([0c89b9a](https://github.com/mozilla/fxa-content-server/commit/0c89b9a))
+* **client:** Visible success/error messages stay visible on view render ([7fa9c00](https://github.com/mozilla/fxa-content-server/commit/7fa9c00))
+* **clients:** add refresh progress state (#4382) r=vbudhram,shane-tomlinson ([b42102e](https://github.com/mozilla/fxa-content-server/commit/b42102e)), closes [#4165](https://github.com/mozilla/fxa-content-server/issues/4165)
+* **clients:** add tablet support to app placeholders (#4414) r=vbudhram ([3f97df4](https://github.com/mozilla/fxa-content-server/commit/3f97df4)), closes [#4412](https://github.com/mozilla/fxa-content-server/issues/4412)
+* **clients:** Always sort the current device first. (#4430) r=vladikoff ([7ce2bf9](https://github.com/mozilla/fxa-content-server/commit/7ce2bf9))
+* **csp:** update helmet to version 3 (#4444) r=vbudhram ([517a287](https://github.com/mozilla/fxa-content-server/commit/517a287))
+* **l10n:** fix string extraction in server syntax (#4443) ([819f098](https://github.com/mozilla/fxa-content-server/commit/819f098)), closes [(#4443](https://github.com/(/issues/4443) [#4406](https://github.com/mozilla/fxa-content-server/issues/4406)
+* **metrics:** drop invalid utm_ params from flow data ([3a3a7b1](https://github.com/mozilla/fxa-content-server/commit/3a3a7b1))
+* **metrics:** log some metrics about the number of clients (#4454) r=vbudhram ([c5075a8](https://github.com/mozilla/fxa-content-server/commit/c5075a8)), closes [#4229](https://github.com/mozilla/fxa-content-server/issues/4229)
+* **metrics:** round flow time down before emitting ([f1f87cc](https://github.com/mozilla/fxa-content-server/commit/f1f87cc))
+* **metrics:** separate the begin and view flow events ([33b2f00](https://github.com/mozilla/fxa-content-server/commit/33b2f00))
+* **test:** Fix failing oauth-reset-password functional test (#4465) ([9428b8e](https://github.com/mozilla/fxa-content-server/commit/9428b8e)), closes [(#4465](https://github.com/(/issues/4465)
+* **tests:** add SRI testing to functional tests (#4432) r=vbudhram,shane-tomlinson ([d99d598](https://github.com/mozilla/fxa-content-server/commit/d99d598)), closes [#4364](https://github.com/mozilla/fxa-content-server/issues/4364)
+* **webchannel:** handle errors from Firefox WebChannels (#4457) r=shane-tomlinson ([8fa56e6](https://github.com/mozilla/fxa-content-server/commit/8fa56e6)), closes [#3668](https://github.com/mozilla/fxa-content-server/issues/3668)
+
+### chore
+
+* **docs:** Add a comment about why `view.logView` is done in app.js ([44304c2](https://github.com/mozilla/fxa-content-server/commit/44304c2))
+* **git:** Update .gitignore to support nested .eslintrc files (#4409) r=vladikoff ([10ecdfb](https://github.com/mozilla/fxa-content-server/commit/10ecdfb))
+* **nsp:** remove exceptions (#4416) r=pdehaan ([a4728ca](https://github.com/mozilla/fxa-content-server/commit/a4728ca)), closes [#4410](https://github.com/mozilla/fxa-content-server/issues/4410)
+* **shrinkwrap:** add npm script for shrinkwrap (#4445) ([fce4016](https://github.com/mozilla/fxa-content-server/commit/fce4016)), closes [#4439](https://github.com/mozilla/fxa-content-server/issues/4439)
+* **typo:** fix 'suppress' type in base.js ([6c1a3e5](https://github.com/mozilla/fxa-content-server/commit/6c1a3e5))
+
+### Features
+
+* **client:** Enable "show" password button for everyone! (#4435) r=vladikoff ([830f666](https://github.com/mozilla/fxa-content-server/commit/830f666))
+* **client:** Pass the email address in the resume token. ([898b7cf](https://github.com/mozilla/fxa-content-server/commit/898b7cf))
+* **devices:** add duplicate reason for disconnecting ([69bd338](https://github.com/mozilla/fxa-content-server/commit/69bd338))
+* **l10n:** Include translations in JS bundle. (#4348) r=vladikoff ([eb79afc](https://github.com/mozilla/fxa-content-server/commit/eb79afc))
+* **server:** Babel can be disabled via config. (#4418) r=vladikoff ([e08231d](https://github.com/mozilla/fxa-content-server/commit/e08231d))
+
+### Refactor
+
+* **client:** Cleanup marketing-mixin & marketing_snippet responsibilities r=vladikoff ([ffcbbfe](https://github.com/mozilla/fxa-content-server/commit/ffcbbfe))
+* **client:** skip rendering if `navigate` is called in beforeRender ([f58b1a5](https://github.com/mozilla/fxa-content-server/commit/f58b1a5))
+* **email:** Remove sendEmailIfVerified logic r=vladikoff ([886f394](https://github.com/mozilla/fxa-content-server/commit/886f394))
+* **metrics:** extract flow event logic from POST /metrics handler ([3e69724](https://github.com/mozilla/fxa-content-server/commit/3e69724))
+* **test:** bounced email takes care of its own prerequisites. (#4466) r=vladikoff ([1f27ff5](https://github.com/mozilla/fxa-content-server/commit/1f27ff5))
+* **test:** fillOutResetPassword no longer takes a context. (#4405)  r=seanmonstar,vladikoff ([d082a40](https://github.com/mozilla/fxa-content-server/commit/d082a40))
+* **test:** fillOutSignIn no longer takes a context ([395b958](https://github.com/mozilla/fxa-content-server/commit/395b958))
+* **test:** fillOutSignUp no longer takes a context. (#4404) r=seanmonstar,vladikoff ([20ea0fe](https://github.com/mozilla/fxa-content-server/commit/20ea0fe))
+* **test:** openPage no longer takes a context. (#4434) ([2de72cd](https://github.com/mozilla/fxa-content-server/commit/2de72cd))
+
+
+
 <a name="0.74.0"></a>
 # 0.74.0 (2016-11-14)
 
