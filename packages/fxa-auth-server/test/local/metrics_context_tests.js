@@ -108,6 +108,9 @@ describe('metricsConext', () => {
         assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
         assert.equal(log.error.args[0][0].op, 'metricsContext.stash', 'argument op property was correct')
         assert.equal(log.error.args[0][0].err, 'wibble', 'argument err property was correct')
+        assert.strictEqual(log.error.args[0][0].hasToken, true, 'hasToken property was correct')
+        assert.strictEqual(log.error.args[0][0].hasId, true, 'hasId property was correct')
+        assert.strictEqual(log.error.args[0][0].hasUid, true, 'hasUid property was correct')
 
         Memcached.prototype.setAsync.restore()
         log.error.reset()
@@ -135,7 +138,9 @@ describe('metricsConext', () => {
         assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
         assert.equal(log.error.args[0][0].op, 'metricsContext.stash', 'op property was correct')
         assert.equal(log.error.args[0][0].err.message, 'Invalid token', 'err.message property was correct')
-        assert.deepEqual(log.error.args[0][0].token, { id: 'foo' }, 'token property was correct')
+        assert.strictEqual(log.error.args[0][0].hasToken, true, 'hasToken property was correct')
+        assert.strictEqual(log.error.args[0][0].hasId, true, 'hasId property was correct')
+        assert.strictEqual(log.error.args[0][0].hasUid, false, 'hasUid property was correct')
 
         assert.equal(Memcached.prototype.setAsync.callCount, 0, 'memcached.setAsync was not called')
 
@@ -413,7 +418,9 @@ describe('metricsConext', () => {
         assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
         assert.equal(log.error.args[0][0].op, 'metricsContext.gather', 'op property was correct')
         assert.equal(log.error.args[0][0].err.message, 'Invalid token', 'err.message property was correct')
-        assert.deepEqual(log.error.args[0][0].token, { uid: Buffer.alloc(32, 'cd') }, 'token property was correct')
+        assert.strictEqual(log.error.args[0][0].hasToken, true, 'hasToken property was correct')
+        assert.strictEqual(log.error.args[0][0].hasId, false, 'hasId property was correct')
+        assert.strictEqual(log.error.args[0][0].hasUid, true, 'hasUid property was correct')
 
         Memcached.prototype.getAsync.restore()
         log.error.reset()

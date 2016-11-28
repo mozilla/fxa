@@ -76,7 +76,13 @@ module.exports = function (log, config) {
 
     return P.resolve()
       .then(() => getMemcached().setAsync(getKey(token), metadata, config.memcached.lifetime))
-      .catch(err => log.error({ op: 'metricsContext.stash', err: err, token: token }))
+      .catch(err => log.error({
+        op: 'metricsContext.stash',
+        err: err,
+        hasToken: !! token,
+        hasId: !! (token && token.id),
+        hasUid: !! (token && token.uid)
+      }))
   }
 
   function getMemcached () {
@@ -149,7 +155,13 @@ module.exports = function (log, config) {
           }
         }
       })
-      .catch(err => log.error({ op: 'metricsContext.gather', err: err, token: token }))
+      .catch(err => log.error({
+        op: 'metricsContext.gather',
+        err: err,
+        hasToken: !! token,
+        hasId: !! (token && token.id),
+        hasUid: !! (token && token.uid)
+      }))
       .then(() => data)
   }
 
