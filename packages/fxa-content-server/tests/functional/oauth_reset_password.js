@@ -5,19 +5,30 @@
 define([
   'intern!object',
   'intern/chai!assert',
-  'require',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (registerSuite, assert, require,
-      TestHelpers, FunctionalHelpers) {
+], function (registerSuite, assert, TestHelpers, FunctionalHelpers) {
   var PASSWORD = 'password';
   var TIMEOUT = 90 * 1000;
   var email;
 
+  var thenify = FunctionalHelpers.thenify;
+
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
+  var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
+  var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
+  var openExternalSite = FunctionalHelpers.openExternalSite;
+  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var openPasswordResetLinkDifferentBrowser = thenify(FunctionalHelpers.openPasswordResetLinkDifferentBrowser);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+  var type = FunctionalHelpers.type;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'oauth reset password',
@@ -36,10 +47,10 @@ define([
     },
 
     'reset password, verify same browser': function () {
-      var self = this;
-      self.timeout = TIMEOUT;
+      this.timeout = TIMEOUT;
 
-      return FunctionalHelpers.openFxaFromRp(self, 'signin')
+      return this.remote
+        .then(openFxaFromRp(this, 'signin'))
         .getCurrentUrl()
         .then(function (url) {
           assert.ok(url.indexOf('oauth/signin?') > -1);
@@ -49,211 +60,112 @@ define([
         })
         .end()
 
-        .findByCssSelector('#fxa-signin-header .service')
-        .end()
+        .then(testElementExists('#fxa-signin-header .service'))
+        .then(click('a[href="/reset_password"]'))
 
-        .findByCssSelector('a[href="/reset_password"]')
-          .click()
-        .end()
-
-        .findById('fxa-reset-password-header')
-        .end()
-
+        .then(testElementExists('#fxa-reset-password-header'))
         .then(fillOutResetPassword(email))
 
-        .findById('fxa-confirm-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
         // Complete the reset password in the new tab
         .switchToWindow('newwindow')
-
-        .findById('fxa-complete-reset-password-header')
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD);
-        })
+        .then(testElementExists('#fxa-complete-reset-password-header'))
+        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
 
         // this tab's success is seeing the reset password complete header.
-        .findByCssSelector('#fxa-reset-password-complete-header')
-        .end()
-
-        .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          // user sees the name of the rp,
-          // but cannot redirect
-          assert.isTrue(/123done/i.test(text));
-        })
-        .end()
-
+        .then(testElementExists('#fxa-reset-password-complete-header'))
+        // user sees the name of the rp, but cannot redirect
+        .then(testElementTextInclude('.account-ready-service', '123done'))
         .then(closeCurrentWindow())
 
         // the original tab should automatically sign in
-        .findByCssSelector('#loggedin')
-        .end();
+        .then(testElementExists('#loggedin'));
     },
 
     'reset password, verify same browser with original tab closed': function () {
-      var self = this;
-
-      return FunctionalHelpers.openFxaFromRp(self, 'signin')
-
-        .findByCssSelector('.reset-password')
-          .click()
-        .end()
+      return this.remote
+        .then(openFxaFromRp(this, 'signin'))
+        .then(click('.reset-password'))
 
         .then(fillOutResetPassword(email))
-
-        .findByCssSelector('#fxa-confirm-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         // user browses to another site.
-        .then(FunctionalHelpers.openExternalSite(self))
-
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openExternalSite(this))
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')
 
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(
-              self, PASSWORD, PASSWORD);
-        })
-
-        .findByCssSelector('#fxa-reset-password-complete-header')
-        .end()
+        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
+        .then(testElementExists('#fxa-reset-password-complete-header'))
 
         // switch to the original window
         .then(closeCurrentWindow());
     },
 
     'reset password, verify same browser by replacing the original tab': function () {
-      var self = this;
-
-      return FunctionalHelpers.openFxaFromRp(self, 'signin')
-        .findByCssSelector('.reset-password')
-          .click()
-        .end()
+      return this.remote
+        .then(openFxaFromRp(this, 'signin'))
+        .then(click('.reset-password'))
 
         .then(fillOutResetPassword(email))
 
-        .findByCssSelector('#fxa-confirm-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(
-              self, PASSWORD, PASSWORD);
-        })
-
-        .findByCssSelector('#loggedin')
-        .end();
+        .then(testElementExists('#loggedin'));
     },
 
     'reset password, verify in a different browser, from the original tab\'s P.O.V.': function () {
-      var self = this;
+      return this.remote
+        .then(openFxaFromRp(this, 'signin'))
+        .then(click('.reset-password'))
 
-      return FunctionalHelpers.openFxaFromRp(self, 'signin')
-        .findByCssSelector('a[href="/reset_password"]')
-          .click()
-        .end()
-
-        .findById('fxa-reset-password-header')
-        .end()
-
+        .then(testElementExists('#fxa-reset-password-header'))
         .then(fillOutResetPassword(email))
 
-        .findById('fxa-confirm-reset-password-header')
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.openPasswordResetLinkDifferentBrowser(
-                      email, PASSWORD);
-        })
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
+        .then(openPasswordResetLinkDifferentBrowser(email, PASSWORD))
 
         // user verified in a new browser, they have to enter
         // their updated credentials in the original tab.
-        .findByCssSelector('#fxa-signin-header')
-        .end()
-
-        .then(FunctionalHelpers.visibleByQSA('.success'))
-        .end()
-
-        .findByCssSelector('#password')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(testElementExists('#fxa-signin-header'))
+        .then(visibleByQSA('.success'))
+        .then(type('#password', PASSWORD))
+        .then(click('button[type=submit]'))
 
         // user is redirected to RP
-        .findByCssSelector('#loggedin')
-        .end();
+        .then(testElementExists('#loggedin'));
     },
 
     'reset password, verify in a different browser, from the new browser\'s P.O.V.': function () {
-      var self = this;
+      return this.remote
+        .then(openFxaFromRp(this, 'signin'))
+        .then(click('.reset-password'))
 
-      return FunctionalHelpers.openFxaFromRp(self, 'signin')
-        .findByCssSelector('a[href="/reset_password"]')
-          .click()
-        .end()
-
-        .findById('fxa-reset-password-header')
-        .end()
-
+        .then(testElementExists('#fxa-reset-password-header'))
         .then(fillOutResetPassword(email))
 
-        .findById('fxa-confirm-reset-password-header')
-        // clear all browser state, simulate opening in a new
-        // browser
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
+
+        // clear all browser state, simulate opening in a new browser
         .then(clearBrowserState({
           '123done': true,
           contentServer: true
         }))
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
-        .end()
+        .then(openVerificationLinkInSameTab(email, 0))
 
-        .findById('fxa-complete-reset-password-header')
-        .end()
+        .then(testElementExists('#fxa-complete-reset-password-header'))
+        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD);
-        })
-
-        .findById('fxa-reset-password-complete-header')
-        .end()
-
-        .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          // user sees the name of the rp,
-          // but cannot redirect
-          assert.isTrue(/123done/i.test(text));
-        })
-        .end();
+        .then(testElementExists('#fxa-reset-password-complete-header'))
+        // user sees the name of the rp, but cannot redirect
+        .then(testElementTextInclude('.account-ready-service', '123done'));
     }
-
   });
-
 });
