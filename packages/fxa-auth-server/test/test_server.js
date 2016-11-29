@@ -55,7 +55,7 @@ function waitLoop(testServer, url, cb) {
         }
         return setTimeout(waitLoop.bind(null, testServer, url, cb), 100)
       } else if (res.statusCode !== 200) {
-        cb(body)
+        cb(new Error(body))
       }
       cb()
     }

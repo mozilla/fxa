@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var EventEmitter = require('events').EventEmitter
 var util = require('util')
 var mozlog = require('mozlog')
@@ -114,6 +116,7 @@ Lug.prototype.histogram = function(name, value, tags) {
 
 Lug.prototype.summary = function (request, response) {
   if (request.method === 'options') { return }
+  logRouteFlowEvent(this, request, response)
   var payload = request.payload || {}
   var query = request.query || {}
   var line = {
@@ -244,6 +247,32 @@ function optionallySetService (data, request) {
   } catch (err) {
     // request.payload and request.query are not always set in the unit tests
   }
+}
+
+const FLOW_EVENT_ROUTES = new Set([
+  '/account/create',
+  '/account/destroy',
+  '/account/keys',
+  '/account/login',
+  '/account/login/send_unblock_code',
+  '/account/reset',
+  '/recovery_email/resend_code',
+  '/recovery_email/verify_code'
+])
+
+function logRouteFlowEvent(log, request, response) {
+  const path = request.path
+  if (!FLOW_EVENT_ROUTES.has(path)) {
+    return
+  }
+  const code = response.statusCode || response.output.statusCode
+  let status = code
+  if (code >= 400) {
+    status = `${code}.${response.errno || 999}`
+  }
+
+  const event = `route.${path}.${status}`
+  return log.flowEvent(event, request)
 }
 
 module.exports = function (level, name, options) {

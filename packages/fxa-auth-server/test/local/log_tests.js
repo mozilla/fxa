@@ -545,4 +545,70 @@ describe('log', () => {
       logger.error.reset()
     }
   )
+
+  describe('.summary', () => {
+
+    beforeEach(() => {
+      logger.info.reset()
+      logger.error.reset()
+    })
+
+    it('should log an info message', () => {
+      log.summary({
+        app: {},
+        gatherMetricsContext: metricsContext.gather,
+        headers: {},
+        info: {
+          received: Date.now()
+        },
+        payload: {
+          metricsContext: {},
+          service: 'blee'
+        },
+        path: '/frobnicate'
+      }, {
+        statusCode: 200
+      })
+
+      assert.equal(logger.error.callCount, 0)
+      assert.equal(logger.info.callCount, 1)
+      assert.equal(logger.info.args[0][1].op, 'request.summary')
+    })
+
+    it('should call flowEvent on whitelisted routes', (done) => {
+      log.summary({
+        app: {},
+        clearMetricsContext: metricsContext.clear,
+        gatherMetricsContext: metricsContext.gather,
+        headers: {
+          'user-agent': 'foo'
+        },
+        info: {
+          received: Date.now()
+        },
+        path: '/account/login',
+        payload: {
+          metricsContext: {
+            flowId: 'bar',
+            service: 'baz'
+          },
+          service: 'baz'
+        }
+      }, {
+        statusCode: 200
+      })
+
+      // cannot wait on internal promises in log.flowEvent, so timeout instead
+      setTimeout(() => {
+        assert.equal(logger.error.callCount, 0)
+        assert.equal(logger.info.callCount, 2)
+        const args = logger.info.args[1]
+        assert.equal(args[0], 'flowEvent', 'correct event name')
+        assert.equal(args[1].event, 'route./account/login.200', 'correct event name')
+        assert.equal(args[1].flow_id, 'bar', 'correct flow id')
+        assert.equal(args[1].service, 'baz', 'correct metrics data')
+        done()
+      }, 50)
+    })
+  })
 })
