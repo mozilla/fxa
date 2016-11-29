@@ -329,6 +329,7 @@ define(function (require, exports, module) {
               },
               reason: SignInReasons.SIGN_IN,
               resume: 'resume token',
+              skipCaseError: true,
               unblockCode: 'unblock code'
             }));
           });
@@ -397,6 +398,7 @@ define(function (require, exports, module) {
               },
               reason: SignInReasons.SIGN_IN,
               resume: 'resume token',
+              skipCaseError: true,
               unblockCode: 'unblock code'
             }));
           });
@@ -404,6 +406,51 @@ define(function (require, exports, module) {
           it('updates the account with the returned data', function () {
             assert.isTrue(account.get('verified'));
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+          });
+        });
+
+        describe('INCORRECT_EMAIL_CASE', () => {
+          let upperCaseEmail;
+
+          beforeEach(function () {
+            upperCaseEmail = EMAIL.toUpperCase();
+
+            sinon.stub(fxaClient, 'signIn', () => {
+              if (fxaClient.signIn.callCount === 1) {
+                let err = AuthErrors.toError('INCORRECT_EMAIL_CASE');
+                err.email = EMAIL;
+                return p.reject(err);
+              } else {
+                return p({});
+              }
+            });
+
+            account.set('email', upperCaseEmail);
+            return account.signIn(PASSWORD, relier, {
+              resume: 'resume token',
+              unblockCode: 'unblock code'
+            });
+          });
+
+          it('re-tries with the normalized email, updates model with normalized email', function () {
+            const expectedOptions = {
+              metricsContext: {
+                baz: 'qux',
+                foo: 'bar'
+              },
+              reason: SignInReasons.SIGN_IN,
+              resume: 'resume token',
+              skipCaseError: true,
+              unblockCode: 'unblock code'
+            };
+
+            assert.equal(fxaClient.signIn.callCount, 2);
+            assert.isTrue(
+              fxaClient.signIn.calledWith(upperCaseEmail, PASSWORD, relier, expectedOptions));
+            assert.isTrue(
+                fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier, expectedOptions));
+
+            assert.equal(account.get('email'), EMAIL);
           });
         });
 

@@ -647,7 +647,6 @@ define(function (require, exports, module) {
           return p({});
         });
 
-
         return client.signIn(email, password, relier, { resume: 'resume token' })
           .then(function () {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
@@ -677,6 +676,23 @@ define(function (require, exports, module) {
             reason: SignInReasons.SIGN_IN,
             service: NON_SYNC_SERVICE
           });
+        });
+      });
+
+      it('passes along an optional `skipCaseError`', () => {
+        sinon.stub(realClient, 'signIn', () => p({}));
+
+        return client.signIn(email, password, relier, {
+          skipCaseError: true
+        })
+        .then(() => {
+          assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+            keys: false,
+            reason: SignInReasons.SIGN_IN,
+            redirectTo: REDIRECT_TO,
+            service: SYNC_SERVICE,
+            skipCaseError: true
+          }));
         });
       });
     });
@@ -1298,4 +1314,3 @@ define(function (require, exports, module) {
     });
   });
 });
-

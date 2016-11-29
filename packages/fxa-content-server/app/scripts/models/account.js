@@ -381,6 +381,9 @@ define(function (require, exports, module) {
             metricsContext: this._metrics.getFlowEventMetadata(),
             reason: options.reason || SignInReasons.SIGN_IN,
             resume: options.resume,
+            // if the email case is incorrect, handle it locally so the model
+            // can be updated with the correct case.
+            skipCaseError: true,
             unblockCode: options.unblockCode
           });
         } else if (sessionToken) {
@@ -394,6 +397,16 @@ define(function (require, exports, module) {
       .then((updatedSessionData) => {
         this.set(updatedSessionData);
         return updatedSessionData;
+      })
+      .fail((err) => {
+        if (AuthErrors.is(err, 'INCORRECT_EMAIL_CASE')) {
+          // The server will respond with the canonical email
+          // for this account. Use it hereafter.
+          this.set('email', err.email);
+          return this.signIn(password, relier, options);
+        }
+
+        throw err;
       });
     },
 

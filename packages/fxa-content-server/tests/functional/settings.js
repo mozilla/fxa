@@ -26,6 +26,7 @@ define([
   var openPage = FunctionalHelpers.openPage;
   var openSettingsInNewTab = thenify(FunctionalHelpers.openSettingsInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
 
   var FIRST_PASSWORD = 'password';
@@ -94,6 +95,15 @@ define([
         // success is going to the signin page
         .findById('fxa-signin-header')
         .end();
+    },
+
+    'sign in with incorrect email case, go to settings, canonical email form is used': function () {
+      return this.remote
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(email.toUpperCase(), FIRST_PASSWORD))
+
+        .then(testElementExists('#fxa-settings-header'))
+        .then(testElementTextEquals('.card-header', email));
     },
 
     'sign in, go to settings with setting param set to avatar redirects to avatar change page ': function () {
