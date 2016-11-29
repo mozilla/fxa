@@ -115,9 +115,7 @@ define(function (require, exports, module) {
 
       // upgrade the credentials with verified state
       return this.sessionStatus()
-        .then((sessionStatus) => {
-          this.set('verified', sessionStatus.verified);
-        }, (err) => {
+        .fail((err) => {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
             this._invalidateSession();
           }
@@ -223,6 +221,7 @@ define(function (require, exports, module) {
      *
      * Session information:
      * {
+     *   email: <canonicalized email>,
      *   verified: <boolean>
      *   verificationMethod: <see lib/verification-methods.js>
      *   verificationReason: <see lib/verification-reasons.js>
@@ -234,7 +233,21 @@ define(function (require, exports, module) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
-      return this._fxaClient.recoveryEmailStatus(sessionToken);
+      return this._fxaClient.recoveryEmailStatus(sessionToken)
+        .then((resp) => {
+          // The session info may have changed since when it was last stored.
+          // Store the server's view of the world. This will update the model
+          // with the canonicalized email.
+          this.set(resp);
+          return resp;
+        }, (err) => {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            // sessionToken is no longer valid, kill it.
+            this.unset('sessionToken');
+          }
+
+          throw err;
+        });
     },
 
     /**
@@ -247,7 +260,6 @@ define(function (require, exports, module) {
       return this.sessionStatus()
         .then((result) => {
           if (result.verified) {
-            this.set('verified', true);
             return;
           }
 

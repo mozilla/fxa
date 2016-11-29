@@ -13,6 +13,7 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Account = require('models/account');
+  const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
@@ -128,6 +129,33 @@ define(function (require, exports, module) {
 
     isSyncAccount (account) {
       return this.initAccount(account).isFromSync();
+    },
+
+    /**
+     * Check the session status of the currently signed in user.
+     *
+     * @param {Object} [account] - account to check session status. If not provided,
+     *  the currently signed in account is used.
+     * @returns {Promise} resolves to signed in Account.
+     *  If no user is signed in, rejects with an `INVALID_TOKEN` error.
+     */
+    sessionStatus (account = this.getSignedInAccount()) {
+      return account.sessionStatus()
+        .then(() => {
+          // The session info may have changed since when it was last stored.
+          // The Account model has already updated itself, now store the server's
+          // view of the world. This will store the canonicalized email for everyone
+          // that fetches the account afterwards.
+          this.setAccount(account);
+          return account;
+        }, (err) => {
+          // an account that was previously signed in is no longer considered signed in,
+          // it's sessionToken field will have been updated. Store the account.
+          if (AuthErrors.is(err, 'INVALID_TOKEN') && ! account.isDefault()) {
+            this.setAccount(account);
+          }
+          throw err;
+        });
     },
 
     getSignedInAccount () {

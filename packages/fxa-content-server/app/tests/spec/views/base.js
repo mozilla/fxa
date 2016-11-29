@@ -190,17 +190,7 @@ define(function (require, exports, module) {
       });
 
       it('redirects to `/signin` if the user is not authenticated', function () {
-        var account = user.initAccount({
-          email: 'a@a.com',
-          sessionToken: 'abc123',
-          uid: 'uid'
-        });
-        sinon.stub(account, 'sessionStatus', function () {
-          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
-        });
-        sinon.stub(view, 'getSignedInAccount', function () {
-          return account;
-        });
+        sinon.stub(user, 'sessionStatus', () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
         sinon.spy(view, 'navigate');
 
         view.mustAuth = true;
@@ -217,17 +207,7 @@ define(function (require, exports, module) {
       it('redirects to `/force_auth` if the user is not authenticated and the relier specifies an email', function () {
         relier.set('email', 'a@a.com');
 
-        var account = user.initAccount({
-          email: 'a@a.com',
-          sessionToken: 'abc123',
-          uid: 'uid'
-        });
-        sinon.stub(account, 'sessionStatus', function () {
-          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
-        });
-        sinon.stub(view, 'getSignedInAccount', function () {
-          return account;
-        });
+        sinon.stub(user, 'sessionStatus', () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
         sinon.spy(view, 'navigate');
 
         view.mustAuth = true;
@@ -243,21 +223,16 @@ define(function (require, exports, module) {
 
       it('redirects to `/confirm` if mustVerify flag is set and account is unverified', function () {
         view.mustVerify = true;
-        var account = user.initAccount({
+        const account = user.initAccount({
           email: 'a@a.com',
           sessionToken: 'abc123',
-          uid: 'uid'
+          uid: 'uid',
+          verificationMethod: VerificationMethods.EMAIL,
+          verificationReason: VerificationReasons.SIGN_UP,
+          verified: false
         });
-        sinon.stub(account, 'sessionStatus', function () {
-          return p({
-            verificationMethod: VerificationMethods.EMAIL,
-            verificationReason: VerificationReasons.SIGN_UP,
-            verified: false,
-          });
-        });
-        sinon.stub(view, 'getSignedInAccount', function () {
-          return account;
-        });
+        sinon.stub(user, 'sessionStatus', () => p(account));
+
         sinon.spy(view, 'navigate');
         return view.render()
           .then(function () {
@@ -267,21 +242,16 @@ define(function (require, exports, module) {
 
       it('redirects to `/confirm_signin` if mustVerify flag is set and session is unverified', function () {
         view.mustVerify = true;
-        var account = user.initAccount({
+        const account = user.initAccount({
           email: 'a@a.com',
           sessionToken: 'abc123',
-          uid: 'uid'
+          uid: 'uid',
+          verificationMethod: VerificationMethods.EMAIL,
+          verificationReason: VerificationReasons.SIGN_IN,
+          verified: false
         });
-        sinon.stub(account, 'sessionStatus', function () {
-          return p({
-            verificationMethod: VerificationMethods.EMAIL,
-            verificationReason: VerificationReasons.SIGN_IN,
-            verified: false
-          });
-        });
-        sinon.stub(view, 'getSignedInAccount', function () {
-          return account;
-        });
+        sinon.stub(user, 'sessionStatus', () => p(account));
+
         sinon.spy(view, 'navigate');
         return view.render()
           .then(function () {
@@ -291,22 +261,16 @@ define(function (require, exports, module) {
 
       it('succeeds if mustVerify flag is set and account has verified since being stored', function () {
         view.mustVerify = true;
-        var account = user.initAccount({
+        const account = user.initAccount({
           email: 'a@a.com',
           sessionToken: 'abc123',
           uid: 'uid'
         });
-        sinon.stub(account, 'sessionStatus', function () {
-          return p({
-            verified: true
-          });
+        sinon.stub(user, 'sessionStatus', () => {
+          account.set('verified', true);
+          return p(account);
         });
-        sinon.stub(view, 'getSignedInAccount', function () {
-          return account;
-        });
-        sinon.stub(user, 'setAccount', function () {
-          return account;
-        });
+
         return view.render()
           .then(function (result) {
             assert.isTrue(result);
@@ -321,14 +285,8 @@ define(function (require, exports, module) {
           uid: 'uid',
           verified: true
         });
-        sinon.stub(account, 'sessionStatus', function () {
-          return p({
-            verified: true
-          });
-        });
-        sinon.stub(view, 'getSignedInAccount', function () {
-          return account;
-        });
+        sinon.stub(user, 'sessionStatus', () => p(account));
+
         return view.render()
           .then(function (result) {
             assert.isTrue(result);

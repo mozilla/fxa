@@ -156,31 +156,18 @@ define(function (require, exports, module) {
       it('clears session information if uid is not found', function () {
         var account = user.initAccount({});
 
-        sinon.stub(account, 'sessionStatus', function () {
-          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
-        });
-
-        sinon.stub(user, 'getAccountByUid', function () {
-          return account;
-        });
-
+        sinon.stub(user, 'sessionStatus', () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
+        sinon.stub(user, 'getAccountByUid', () => account);
         sinon.spy(user, 'clearSignedInAccount');
 
         relier.set('uid', UID);
 
         createSettingsView();
 
-        sinon.stub(view, 'getSignedInAccount', function () {
-          return account;
-        });
-
         return view.render()
           .then(function () {
-            $('#container').append(view.el);
-          })
-          .then(function () {
             assert.isTrue(user.getAccountByUid.calledWith(UID));
-            assert.isTrue(user.clearSignedInAccount.called);
+            assert.isTrue(user.clearSignedInAccount.calledOnce);
             assert.isTrue(view.navigate.calledWith('signin'));
           });
       });

@@ -20,6 +20,7 @@ define([
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
+  var denormalizeStoredEmail = FunctionalHelpers.denormalizeStoredEmail;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var focus = FunctionalHelpers.focus;
   var getFxaClient = FunctionalHelpers.getFxaClient;
@@ -101,6 +102,23 @@ define([
       return this.remote
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email.toUpperCase(), FIRST_PASSWORD))
+
+        .then(testElementExists('#fxa-settings-header'))
+        .then(testElementTextEquals('.card-header', email));
+    },
+
+    'sign in with incorrect email case before normalization fix, go to settings, canonical email form is used': function () {
+      return this.remote
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(email, FIRST_PASSWORD))
+
+        .then(testElementExists('#fxa-settings-header'))
+
+        // synthesize signin pre-#4470 with incorrect email case
+        .then(denormalizeStoredEmail(email))
+
+        // now, refresh to ensure the email is normalized
+        .refresh()
 
         .then(testElementExists('#fxa-settings-header'))
         .then(testElementTextEquals('.card-header', email));

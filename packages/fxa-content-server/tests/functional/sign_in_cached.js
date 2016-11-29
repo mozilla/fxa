@@ -32,6 +32,7 @@ define([
   var clearSessionStorage = thenify(FunctionalHelpers.clearSessionStorage);
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
+  var denormalizeStoredEmail = FunctionalHelpers.denormalizeStoredEmail;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openPage = FunctionalHelpers.openPage;
@@ -70,6 +71,31 @@ define([
         .then(click('button[type="submit"]'))
 
         .then(testElementExists('#fxa-settings-header'));
+    },
+
+    'sign in with incorrect email case before normalization fix, on second attempt canonical form is used': function () {
+      return this.remote
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        .then(testElementExists('#fxa-settings-header'))
+
+        // synthesize signin pre-#4470 with incorrect email case
+        .then(denormalizeStoredEmail(email))
+
+        // reset prefill and context
+        .then(clearSessionStorage(this))
+
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
+
+        // email is not yet denormalized :(
+        .then(testElementValueEquals('.email', email.toUpperCase()))
+        .then(type('input[type=password]', PASSWORD))
+        .then(click('button[type="submit"]'))
+
+        .then(testElementExists('#fxa-settings-header'))
+        // email is normalized!
+        .then(testElementTextEquals('.card-header', email));
     },
 
     'sign in first in sync context, on second attempt credentials will be cached': function () {

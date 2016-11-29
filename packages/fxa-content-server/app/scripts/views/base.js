@@ -259,15 +259,14 @@ define(function (require, exports, module) {
      */
     checkAuthorization () {
       if (this.mustAuth || this.mustVerify) {
-        var account = this.getSignedInAccount();
-        return account.sessionStatus()
-          .then((resp) => {
-            if (this.mustVerify && ! resp.verified) {
+        return this.user.sessionStatus()
+          .then((account) => {
+            if (this.mustVerify && ! account.get('verified')) {
               var targetScreen;
 
-              if (resp.verificationReason === VerificationReasons.SIGN_UP) {
+              if (account.get('verificationReason') === VerificationReasons.SIGN_UP) {
                 targetScreen = 'confirm';
-              } else if (resp.verificationReason === VerificationReasons.SIGN_IN) {
+              } else if (account.get('verificationReason') === VerificationReasons.SIGN_IN) {
                 targetScreen = 'confirm_signin';
               }
 

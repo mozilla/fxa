@@ -22,28 +22,36 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
+  var denormalizeStoredEmail = FunctionalHelpers.denormalizeStoredEmail;
   var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
   var openPage = FunctionalHelpers.openPage;
   var testElementDisplayed = FunctionalHelpers.testElementDisplayed;
   var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
   var type = FunctionalHelpers.type;
 
+  var setupTest = thenify(function (options) {
+    options = options || {};
+    var signUpEmail = options.signUpEmail || email;
+    var signInEmail = options.signInEmail || email;
+
+    return this.parent
+      .then(createUser(signUpEmail, FIRST_PASSWORD, { preVerified: true }))
+      .then(clearBrowserState())
+      .then(fillOutSignIn(signInEmail, FIRST_PASSWORD))
+
+      .then(testElementExists('#fxa-settings-header'))
+      .then(testElementTextEquals('.card-header', signUpEmail));
+  });
 
   registerSuite({
-    name: 'change password',
+    name: 'change_password',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-
-      return this.remote
-        .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-        .then(clearBrowserState())
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
-
-        .then(testElementExists('#fxa-settings-header'));
     },
 
     afterEach: function () {
@@ -52,6 +60,7 @@ define([
 
     'sign in, try to change password with an incorrect old password': function () {
       return this.remote
+        .then(setupTest())
 
         // Go to change password screen
         .then(click('#change-password .settings-unit-toggle'))
@@ -75,6 +84,7 @@ define([
 
     'sign in, change password, sign in with new password': function () {
       return this.remote
+        .then(setupTest())
 
         // Go to change password screen
         .then(click('#change-password .settings-unit-toggle'))
@@ -90,8 +100,53 @@ define([
         .then(testElementExists('#fxa-settings-header'));
     },
 
+    'sign in with an unnormalized email, change password, sign in with new password': function () {
+      return this.remote
+        .then(setupTest({ signInEmail: email.toUpperCase(), signUpEmail: email }))
+
+        // Go to change password screen
+        .then(click('#change-password .settings-unit-toggle'))
+
+        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
+        .then(testElementExists('#fxa-settings-header'))
+        .then(testSuccessWasShown(this))
+
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+        .then(click('.use-different'))
+        .then(fillOutSignIn(email, SECOND_PASSWORD))
+
+        .then(testElementExists('#fxa-settings-header'));
+    },
+
+    'cached unnormalized email, change password, sign in with new password': function () {
+      return this.remote
+        .then(setupTest())
+
+        // synthesize a user who signed in pre #4470 with an unnormalized email
+        .then(denormalizeStoredEmail(email))
+        // refresh to load denormalized email from localStorage
+        .refresh()
+        // email should be normalized on refresh!
+        .then(testElementTextEquals('.card-header', email))
+
+        .then(click('#change-password .settings-unit-toggle'))
+
+        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
+        .then(testElementExists('#fxa-settings-header'))
+        .then(testSuccessWasShown(this))
+
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+        .then(click('.use-different'))
+        .then(fillOutSignIn(email, SECOND_PASSWORD))
+
+        .then(testElementExists('#fxa-settings-header'));
+    },
+
+
     'sign in, reset password via settings works': function () {
       return this.remote
+        .then(setupTest())
+
         // Go to change password screen
         .then(click('#change-password .settings-unit-toggle'))
         .then(click('.reset-password'))

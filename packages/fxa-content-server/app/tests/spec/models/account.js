@@ -199,26 +199,31 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('account has a sessionToken', function () {
-        var resp;
+      describe('account has a sessionToken', () => {
+        let resp;
+        const CANONICAL_EMAIL = 'testuser@testuser.com';
 
-        beforeEach(function () {
-          account.set('sessionToken', 'session token');
-
-          sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-            return p({
-              verified: true
-            });
+        beforeEach(() => {
+          account.set({
+            email: CANONICAL_EMAIL.toUpperCase(),
+            sessionToken: 'session token'
           });
 
+          sinon.stub(fxaClient, 'recoveryEmailStatus', () => p({
+            email: CANONICAL_EMAIL,
+            verified: true
+          }));
+
           return account.sessionStatus()
-            .then(function (_resp) {
+            .then((_resp) => {
               resp = _resp;
             });
         });
 
-        it('resolves with the session information', function () {
-          assert.isTrue(resp.verified);
+        it('resolves with the session information, updates the model', () => {
+          assert.deepEqual(resp, { email: CANONICAL_EMAIL, verified: true });
+          assert.equal(account.get('email'), CANONICAL_EMAIL);
+          assert.isTrue(account.get('verified'));
         });
       });
     });
@@ -237,7 +242,6 @@ define(function (require, exports, module) {
 
         it('polls until /recovery_email/status returns `verified: true`', () => {
           assert.equal(account.sessionStatus.callCount, 3);
-          assert.isTrue(account.get('verified'));
         });
       });
 

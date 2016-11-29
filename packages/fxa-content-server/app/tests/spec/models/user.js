@@ -119,6 +119,48 @@ define(function (require, exports, module) {
         });
     });
 
+    describe('sessionStatus', () => {
+      it('checks and updates passed in account', () => {
+        const account = user.initAccount({ email: 'TESTUSER@testuser.com', uid: 'uid' });
+        sinon.spy(user, 'getSignedInAccount');
+        sinon.spy(user, 'setAccount');
+        sinon.stub(account, 'sessionStatus', () => p({ email: 'testuser@testuser.com' }));
+
+        return user.sessionStatus(account)
+          .then((signedInAccount) => {
+            assert.isFalse(user.getSignedInAccount.called);
+            assert.isTrue(user.setAccount.calledOnce);
+            assert.isTrue(user.setAccount.calledWith(account));
+            assert.strictEqual(signedInAccount, account);
+          });
+      });
+
+      it('checks and updates the currently signed in account if no account given', () => {
+        const account = user.initAccount({ email: 'TESTUSER@testuser.com', uid: 'uid' });
+        sinon.stub(user, 'getSignedInAccount', () => account);
+        sinon.spy(user, 'setAccount');
+        sinon.stub(account, 'sessionStatus', () => p({ email: 'testuser@testuser.com' }));
+
+        return user.sessionStatus()
+          .then((signedInAccount) => {
+            assert.isTrue(user.setAccount.calledOnce);
+            assert.isTrue(user.setAccount.calledWith(account));
+            assert.strictEqual(signedInAccount, account);
+          });
+      });
+
+      it('propagates errors from the Account', () => {
+        const account = user.initAccount({ email: 'email', uid: 'uid' });
+        sinon.stub(user, 'getSignedInAccount', () => account);
+        sinon.stub(account, 'sessionStatus', () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
+
+        return user.sessionStatus()
+          .then(assert.fail, (err) => {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+      });
+    });
+
     it('getSignedInAccount', function () {
       var account = user.initAccount({
         email: 'email',
