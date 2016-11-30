@@ -1,3 +1,18 @@
+<a name="0.75.0"></a>
+# [0.75.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.74.0...v0.75.0) (2016-11-30)
+
+
+### Bug Fixes
+
+* **bufferize:** Only bufferize params we explicitly want as buffers. (#182); r=philbooth ([a461769](https://github.com/mozilla/fxa-auth-db-mysql/commit/a461769))
+* **bufferize:** Only bufferize params we explicitly want as buffers. (#187) r=vladikoff ([aad12bb](https://github.com/mozilla/fxa-auth-db-mysql/commit/aad12bb))
+
+### Reverts
+
+* **bufferize:** revert the extra bufferize logic ([e913a66](https://github.com/mozilla/fxa-auth-db-mysql/commit/e913a66))
+
+
+
 <a name="0.74.0"></a>
 # [0.74.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.72.0...v0.74.0) (2016-11-15)
 
