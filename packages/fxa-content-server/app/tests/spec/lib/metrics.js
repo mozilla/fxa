@@ -288,8 +288,12 @@ define(function (require, exports, module) {
               assert.isFalse(result);
             });
 
-            it('does not clear the event stream', function () {
-              assert.equal(metrics.getFilteredData().events.length, 3);
+            it('clears the event stream', () => {
+              assert.equal(metrics.getFilteredData().events.length, 0);
+            });
+
+            it('calls navigator.sendBeacon twice', () => {
+              assert.equal(windowMock.navigator.sendBeacon.callCount, 2);
             });
           });
         });
@@ -383,8 +387,12 @@ define(function (require, exports, module) {
               assert.isFalse(result);
             });
 
-            it('does not clear the event stream', function () {
-              assert.equal(metrics.getFilteredData().events.length, 3);
+            it('clears the event stream', () => {
+              assert.equal(metrics.getFilteredData().events.length, 0);
+            });
+
+            it('calls xhr.ajax twice', () => {
+              assert.equal(xhr.ajax.callCount, 2);
             });
           });
         });
@@ -477,7 +485,7 @@ define(function (require, exports, module) {
           sandbox.stub(environment, 'hasSendBeacon', function () {
             return true;
           });
-          sandbox.stub(windowMock.navigator, 'sendBeacon', function () {});
+          sandbox.stub(windowMock.navigator, 'sendBeacon', () => true);
           metrics.startTimer('foo');
           setTimeout(function () {
             metrics.stopTimer('foo');
@@ -499,6 +507,34 @@ define(function (require, exports, module) {
           assert.isObject(data.timers.foo[0]);
           assert.isTrue(data.timers.foo[0].elapsed >= 4);
         });
+      });
+
+      it('flush is safely re-entrant', () => {
+        let sendCount = 0;
+        const events = [];
+
+        sandbox.stub(metrics, '_send', data => {
+          events[sendCount++] = data.events;
+          if (sendCount < 3) {
+            // Trigger re-entrant flushes the first couple of times
+            metrics.logEvent(`reentrant-${sendCount}`);
+            metrics.flush();
+          } else if (sendCount === 3) {
+            assert.lengthOf(events[0], 1);
+            assert.equal(events[0][0].type, 'wibble');
+            assert.lengthOf(events[1], 1);
+            assert.equal(events[1][0].type, 'reentrant-1');
+            assert.lengthOf(events[2], 1);
+            assert.equal(events[2][0].type, 'reentrant-2');
+          } else {
+            assert.notOk(sendCount);
+          }
+
+          return p(true);
+        });
+
+        metrics.logEvent('wibble');
+        metrics.flush();
       });
     });
 

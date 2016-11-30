@@ -178,15 +178,12 @@ define(function (require, exports, module) {
         return p();
       }
 
-      return this._send(filteredData, isPageUnloading)
-        .then((sent) => {
-          if (sent) {
-            this._speedTrap.events.clear();
-            this._speedTrap.timers.clear();
-          }
-
-          return sent;
-        });
+      this._speedTrap.events.clear();
+      this._speedTrap.timers.clear();
+      const send = () => this._send(filteredData, isPageUnloading);
+      return send()
+        // Retry once in case of failure, then give up
+        .then(sent => sent || send());
     },
 
     _isFlushRequired (data) {
