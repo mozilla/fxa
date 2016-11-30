@@ -7,7 +7,7 @@
     "start": "NODE_ENV=dev node bin/server.js",
     "test": "grunt lint && ./scripts/tap-coverage.js test/local",
     "prepush": "grunt templates && git status -s | (! grep 'M templates/')",
-    "shrinkwrap": "/bin/rm -rf ./node_modules ./npm-shrinkwrap.json && npm install && npm prune && npm shrinkwrap --dev"
+    "shrinkwrap": "npmshrink"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "repository": {
@@ -50,6 +50,7 @@
     "jsxgettext-recursive": "0.0.5",
     "load-grunt-tasks": "3.5.0",
     "mkdirp": "0.5.1",
+    "npmshrink": "1.0.1",
     "proxyquire": "1.7.10",
     "simplesmtp": "0.3.35",
     "sinon": "1.17.4",
