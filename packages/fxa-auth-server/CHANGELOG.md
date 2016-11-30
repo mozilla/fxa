@@ -1,3 +1,24 @@
+<a name="1.75.0"></a>
+# [1.75.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.72.0...v1.75.0) (2016-11-30)
+
+
+### Bug Fixes
+
+* **config:** add extra validation for supported locales ([0e12808](https://github.com/mozilla/fxa-auth-mailer/commit/0e12808))
+* **config:** disable polling if pollTime === 0 (#236) ([9ea56a3](https://github.com/mozilla/fxa-auth-mailer/commit/9ea56a3))
+* **tests:** increase testing coverage ([5d7cf07](https://github.com/mozilla/fxa-auth-mailer/commit/5d7cf07)), closes [#230](https://github.com/mozilla/fxa-auth-mailer/issues/230)
+
+### chore
+
+* **docs:** add coverage badge ([e831bce](https://github.com/mozilla/fxa-auth-mailer/commit/e831bce))
+* **docs:** update node version in readme ([f805d09](https://github.com/mozilla/fxa-auth-mailer/commit/f805d09))
+
+### Refactor
+
+* **mailer:** Increase comprehensibility of device description (#227) r=vladikoff ([013f136](https://github.com/mozilla/fxa-auth-mailer/commit/013f136)), closes [#193](https://github.com/mozilla/fxa-auth-mailer/issues/193)
+
+
+
 <a name="1.72.0"></a>
 # [1.72.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.71.0...v1.72.0) (2016-10-19)
 
