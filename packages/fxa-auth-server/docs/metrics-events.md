@@ -40,7 +40,8 @@ in a sign-in or sign-up flow:
 
 |Name|Description|
 |----|-----------|
-|`flow.${viewName}.begin`|A user has landed on a page that allows them to sign in/up.|
+|`flow.begin`|A user has requested a page that allows them to sign in/up.|
+|`flow.${viewName}.view`|A view has rendered.|
 |`flow.${viewName}.engage`|A user has interacted with the the form on a page that allows them to sign in/up`.|
 |`flow.${viewName}.submit`|A user has submitted the signup form on a page that allows them to sign in/up.|
 |`flow.${viewName}.have-account`|A user has clicked on the 'Already have an account?' link.|
@@ -67,7 +68,7 @@ in a sign-in or sign-up flow:
 |`password.forgot.resend_code.completed`|A password reset email has been re-sent to the user.|
 |`password.forgot.verify_code.start`|A user has clicked on the link in a password reset email.|
 |`password.forgot.verify_code.completed`|A password reset has been successfully completed on the server.|
-|`flow.completed`|A user has successfully completed a sign-in or sign-up flow.|
+|`flow.complete`|A user has successfully completed a sign-in or sign-up flow.|
 
 The following flow events
 represent error conditions,
@@ -202,6 +203,15 @@ in the preceding five days.
   stopping those requests from
   being identified as originating from
   the content server.
+
+* The `flow.${viewName}.view` event
+  was implemented.
+
+* Validation of the `utm_*` parameters
+  was implemented.
+
+* Duplicate flow events
+  were fixed in the content server.
 
 ### Train 74
 
