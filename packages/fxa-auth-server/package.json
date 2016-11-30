@@ -7,7 +7,8 @@
     "start": "grunt server --node-env=dev",
     "test": "grunt test --node-env=test",
     "outdated": "npm outdated --depth 0",
-    "postinstall": "node scripts/gen_keys"
+    "postinstall": "node scripts/gen_keys",
+    "shrinkwrap": "npmshrink"
   },
   "repository": {
     "type": "git",
@@ -20,19 +21,19 @@
     "url": "https://github.com/mozilla/fxa-oauth-server/issues"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4.5.0"
   },
   "dependencies": {
     "bluebird": "^2.9.14",
     "buf": "0.1.0",
     "commander": "^2.9.0",
-    "convict": "1.4",
+    "convict": "1.5",
     "fxa-jwtool": "^0.7.1",
     "fxa-notifier-aws": "1.0.0",
-    "fxa-shared": "1.0.3",
-    "hapi": "14.2.0",
+    "fxa-shared": "1.0.4",
+    "hapi": "16.0.0",
     "hapi-hpkp": "1.0.0",
-    "joi": "^9.2.0",
+    "joi": "^10.0.1",
     "mozlog": "^2.0.3",
     "mysql": "^2.5.5",
     "mysql-patcher": "^0.7.0",
@@ -56,6 +57,7 @@
     "load-grunt-tasks": "^3.1.0",
     "mocha-text-cov": "^0.1.0",
     "nock": "^8.0.0",
+    "npmshrink": "^1.0.1",
     "proxyquire": "^1.6.0",
     "read": "^1.0.5",
     "sinon": "^1.15.4",
