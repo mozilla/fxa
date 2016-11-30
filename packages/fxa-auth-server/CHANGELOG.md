@@ -1,3 +1,17 @@
+<a name"0.74.0"></a>
+## 0.74.0 (2016-11-30)
+
+
+#### Bug Fixes
+
+* **tokens:** ttl parameter must be positive (#429) r=vladikoff ([1764d73a](https://github.com/mozilla/fxa-oauth-server/commit/1764d73a))
+
+
+#### Features
+
+* **hpkp:** Add the hpkp headers to all requests (#416) r=vladikoff ([6b8a8c86](https://github.com/mozilla/fxa-oauth-server/commit/6b8a8c86))
+
+
 <a name"0.73.0"></a>
 ## 0.73.0 (2016-11-02)
 
