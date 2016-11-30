@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.74.1",
+  "version": "1.75.0",
   "dependencies": {
     "ajv": {
       "version": "4.1.7",
@@ -291,9 +291,9 @@
       "resolved": "git+https://github.com/mozilla/eslint-plugin-fxa.git#c632749a96528712e6c2036f193d0410a33d8d95"
     },
     "fxa-auth-db-mysql": {
-      "version": "0.74.0",
-      "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#aad12bbe9a1b61ba035c6e7b25b3138bbb03d456",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#aad12bbe9a1b61ba035c6e7b25b3138bbb03d456",
+      "version": "0.75.0",
+      "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#3f86baabdf951374c8f356a07196ee8f90896755",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#3f86baabdf951374c8f356a07196ee8f90896755",
       "dependencies": {
         "base64url": {
           "version": "2.0.0",
@@ -881,9 +881,9 @@
       }
     },
     "fxa-auth-mailer": {
-      "version": "1.72.0",
-      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#ca1909b431a54d197558a849fbf3023164eda1f4",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#ca1909b431a54d197558a849fbf3023164eda1f4",
+      "version": "1.75.0",
+      "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#170508f0556a5dd5f6fadff66b06e5e473035be2",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#170508f0556a5dd5f6fadff66b06e5e473035be2",
       "dependencies": {
         "bluebird": {
           "version": "2.9.34",
