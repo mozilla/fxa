@@ -1,3 +1,13 @@
+<a name="1.75.1"></a>
+## [1.75.1](https://github.com/mozilla/fxa-auth-mailer/compare/v1.75.0...v1.75.1) (2016-11-30)
+
+
+### chore
+
+* **deps:** pick up latest l10n, update shrinkwrap script ([85664b8](https://github.com/mozilla/fxa-auth-mailer/commit/85664b8))
+
+
+
 <a name="1.75.0"></a>
 # [1.75.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.72.0...v1.75.0) (2016-11-30)
 
