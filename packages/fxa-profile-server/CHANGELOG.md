@@ -1,3 +1,27 @@
+<a name="0.75.0"></a>
+# [0.75.0](https://github.com/mozilla/fxa-profile-server/compare/v0.74.0...v0.75.0) (2016-11-30)
+
+
+### Bug Fixes
+
+* **docs:** remove old docs ([b4194f0](https://github.com/mozilla/fxa-profile-server/commit/b4194f0))
+* **tests:** add 410 gone tests ([3848d8b](https://github.com/mozilla/fxa-profile-server/commit/3848d8b))
+
+### chore
+
+* **shrinkwrap:** add npm script for shrinkwrap (#224) r=vladikoff ([4546e4e](https://github.com/mozilla/fxa-profile-server/commit/4546e4e)), closes [#223](https://github.com/mozilla/fxa-profile-server/issues/223)
+
+### Features
+
+* **hpkp:** Add hpkp headers to all requests (#207) r=vladikoff ([9bbdf88](https://github.com/mozilla/fxa-profile-server/commit/9bbdf88))
+* **newrelic:** add optional newrelic integration (#222) r=vladikoff ([d78c64c](https://github.com/mozilla/fxa-profile-server/commit/d78c64c))
+
+### Refactor
+
+* **avatars:** remove avatar list and some selected avatar logic ([2bac088](https://github.com/mozilla/fxa-profile-server/commit/2bac088))
+
+
+
 <a name="0.74.0"></a>
 # [0.74.0](https://github.com/mozilla/fxa-profile-server/compare/v0.73.1...v0.74.0) (2016-11-15)
 
