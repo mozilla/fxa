@@ -1171,6 +1171,7 @@ define([
    *
    * @param {string} selector
    * @param {string} expected
+   * @param {object} [options]
    * @returns {promise} rejects if test fails.
    */
   function testElementTextInclude(selector, expected) {
@@ -1474,6 +1475,32 @@ define([
     };
   }
 
+  /**
+   * Denormalize the email stored in an account. Sets the email to be all uppercase.
+   *
+   * @param   {string} email - email address to denormalize
+   * @returns {promise}
+   */
+  function denormalizeStoredEmail (email) {
+    return function () {
+      return this.parent
+        .execute((email) => {
+          // synthesize the user signing in before the email normalization fix went in (#4470)
+          var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts'));
+          console.log('looking for email', email);
+
+          for (var uid in accounts) {
+            var account = accounts[uid];
+            if (account.email === email) {
+              console.log('will change email', email);
+              account.email = email.toUpperCase();
+            }
+          }
+          localStorage.setItem('__fxa_storage.accounts', JSON.stringify(accounts));
+        }, [ email ]);
+    };
+  }
+
   return {
     clearBrowserNotifications: clearBrowserNotifications,
     clearBrowserState: clearBrowserState,
@@ -1481,6 +1508,7 @@ define([
     click: click,
     closeCurrentWindow: closeCurrentWindow,
     createUser: createUser,
+    denormalizeStoredEmail: denormalizeStoredEmail,
     fetchAllMetrics: fetchAllMetrics,
     fillOutChangePassword: fillOutChangePassword,
     fillOutCompleteResetPassword: fillOutCompleteResetPassword,

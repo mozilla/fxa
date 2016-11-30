@@ -31,6 +31,8 @@ define([
 
   var setupTest = thenify(function (options) {
     options = options || {};
+    const signInEmail = options.signInEmail || email;
+    const signUpEmail = options.signUpEmail || email;
 
     const successSelector = options.blocked ? '#fxa-signin-unblock-header' :
                             options.preVerified ? '#fxa-confirm-signin-header' :
@@ -38,10 +40,10 @@ define([
 
     return this.parent
       .then(clearBrowserState({ force: true }))
-      .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
+      .then(createUser(signUpEmail, PASSWORD, { preVerified: options.preVerified }))
       .then(openPage(PAGE_URL, '#fxa-signin-header'))
       .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
-      .then(fillOutSignIn(email, PASSWORD))
+      .then(fillOutSignIn(signInEmail, PASSWORD))
 
       .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'))
 
@@ -97,6 +99,30 @@ define([
         .then(setupTest({ blocked: true, preVerified: true }))
 
         .then(fillOutSignInUnblock(email, 0))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-signin-unblock-header'));
+    },
+
+    'verified, blocked, incorrect email case': function () {
+      const signUpEmail = TestHelpers.createEmail('blocked{id}');
+      const signInEmail = signUpEmail.toUpperCase();
+      return this.remote
+        .then(setupTest({
+          blocked: true,
+          preVerified: true,
+          signInEmail: signInEmail,
+          signUpEmail: signUpEmail
+        }))
+
+        // a second `can_link_account` request is sent to the browser after the
+        // unblock code is filled in, this time with the canonicalized email address.
+        // If a different user was signed in to the browser, two "merge" dialogs
+        // are presented, the first for the non-canonicalized email, the 2nd for
+        // the canonicalized email. Ugly UX, but at least the user can proceed.
+        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(fillOutSignInUnblock(signUpEmail, 0))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
 
         // about:accounts will take over post-verification, no transition

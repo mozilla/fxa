@@ -1,3 +1,14 @@
+<a name="0.75.1"></a>
+## 0.75.1 (2016-11-29)
+
+
+### Bug Fixes
+
+* **client:** Canonicalize emails when going to /settings (#4473) r=vladikoff ([5901b2a](https://github.com/mozilla/fxa-content-server/commit/5901b2a)), closes [#4463](https://github.com/mozilla/fxa-content-server/issues/4463)
+* **client:** Use the server returned email when signing in. (#4472) r=vladikoff ([668be9e](https://github.com/mozilla/fxa-content-server/commit/668be9e)), closes [#4467](https://github.com/mozilla/fxa-content-server/issues/4467)
+
+
+
 <a name="0.75.0"></a>
 # 0.75.0 (2016-11-28)
 
