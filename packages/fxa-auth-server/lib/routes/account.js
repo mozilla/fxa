@@ -1806,7 +1806,8 @@ module.exports = function (
         validate: {
           payload: {
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            sessionToken: isA.boolean().optional()
+            sessionToken: isA.boolean().optional(),
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         }
       },
@@ -1897,6 +1898,14 @@ module.exports = function (
             .then(
               function (wrapKbData) {
                 wrapKb = wrapKbData
+
+                let flowCompleteSignal
+                if (requestHelper.wantsKeys(request)) {
+                  flowCompleteSignal = 'account.signed'
+                } else {
+                  flowCompleteSignal = 'account.login'
+                }
+                request.setMetricsFlowCompleteSignal(flowCompleteSignal)
               }
             )
         }
@@ -1917,6 +1926,7 @@ module.exports = function (
               .then(
                 function (result) {
                   sessionToken = result
+                  return request.stashMetricsContext(sessionToken)
                 }
               )
           }
@@ -1938,6 +1948,7 @@ module.exports = function (
             .then(
               function (result) {
                 keyFetchToken = result
+                return request.stashMetricsContext(keyFetchToken)
               }
             )
           }

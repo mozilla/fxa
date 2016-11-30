@@ -299,18 +299,32 @@ describe('/account/reset', function () {
   it('should do things', () => {
     var uid = uuid.v4('binary')
     const mockLog = mocks.spyLog()
+    const mockMetricsContext = mocks.mockMetricsContext()
     const mockRequest = mocks.mockRequest({
       credentials: {
         uid: uid.toString('hex')
       },
       log: mockLog,
+      metricsContext: mockMetricsContext,
       payload: {
-        authPW: crypto.randomBytes(32).toString('hex')
+        authPW: crypto.randomBytes(32).toString('hex'),
+        sessionToken: true,
+        metricsContext: {
+          flowBeginTime: Date.now(),
+          flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+        }
+      },
+      query: {
+        keys: 'true'
       }
     })
-    var mockDB = mocks.mockDB({
+    const keyFetchTokenId = crypto.randomBytes(16)
+    const sessionTokenId = crypto.randomBytes(16)
+    const mockDB = mocks.mockDB({
       uid: uid,
       email: TEST_EMAIL,
+      keyFetchTokenId: keyFetchTokenId,
+      sessionTokenId: sessionTokenId,
       wrapWrapKb: crypto.randomBytes(32)
     })
     var mockCustoms = mocks.mockCustoms()
@@ -350,6 +364,25 @@ describe('/account/reset', function () {
       assert.equal(securityEvent.uid, uid)
       assert.equal(securityEvent.ipAddr, clientAddress)
       assert.equal(securityEvent.name, 'account.reset')
+
+      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1, 'metricsContext.setFlowCompleteSignal was called once')
+      args = mockMetricsContext.setFlowCompleteSignal.args[0]
+      assert.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
+      assert.deepEqual(args[0], 'account.signed', 'argument was event name')
+
+      assert.equal(mockMetricsContext.stash.callCount, 2, 'metricsContext.stash was called twice')
+
+      args = mockMetricsContext.stash.args[0]
+      assert.equal(args.length, 1, 'metricsContext.stash was passed one argument first time')
+      assert.deepEqual(args[0].tokenId, sessionTokenId, 'argument was session token')
+      assert.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
+      assert.equal(mockMetricsContext.stash.thisValues[0], mockRequest, 'this was request')
+
+      args = mockMetricsContext.stash.args[1]
+      assert.equal(args.length, 1, 'metricsContext.stash was passed one argument second time')
+      assert.deepEqual(args[0].tokenId, keyFetchTokenId, 'argument was key fetch token')
+      assert.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
+      assert.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
     })
   })
 })
