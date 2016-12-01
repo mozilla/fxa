@@ -64,6 +64,7 @@ define(function (require, exports, module) {
   const UniqueUserId = require('models/unique-user-id');
   const Url = require('lib/url');
   const User = require('models/user');
+  const UserAgent = require('lib/user-agent');
   const WebChannel = require('lib/channels/web');
 
   function Start(options = {}) {
@@ -744,7 +745,9 @@ define(function (require, exports, module) {
 
     _selectStartPage () {
       if (! this._isAtCookiesDisabled() &&
-        ! this._storage.isLocalStorageEnabled(this._window)) {
+        ! this._storage.isLocalStorageEnabled(this._window) &&
+        ! this._isVerificationInMobileSafari()
+        ) {
         return 'cookies_disabled';
       }
     },
@@ -755,6 +758,26 @@ define(function (require, exports, module) {
       }
 
       return new Metrics(options);
+    },
+
+    /**
+     * This function addresses the special scenario for Safari iOS
+     * where users using Private Browsing cannot verify their email
+     * (during sign up or sign-in confirmation) due to the
+     * 'window.localStorage' block.
+     *
+     * Returns `true` if the current browser is Safari iOS and the
+     * route is a verification email route.
+     *
+     * @returns {boolean}
+     * @private
+     */
+    _isVerificationInMobileSafari () {
+      const path = this._window.location.pathname;
+      const isVerificationPath = path === '/complete_signin' || path === '/verify_email';
+      const uap = new UserAgent(this._window.navigator.userAgent);
+
+      return isVerificationPath && uap.isMobileSafari();
     },
 
     _isAutomatedBrowser () {

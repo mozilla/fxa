@@ -31,6 +31,15 @@ define(function (require, exports, module) {
       },
 
       /**
+       * Check if the browser is Mobile Safari.
+       *
+       * @returns {Boolean}
+       */
+      isMobileSafari () {
+        return this.browser.name === 'Mobile Safari';
+      },
+
+      /**
        * Check if the browser is Firefox
        *
        * @returns {Boolean}

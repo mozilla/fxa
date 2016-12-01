@@ -141,6 +141,46 @@ define(function (require, exports, module) {
           assert.isFalse(uap.isFirefox());
         });
       });
+
+    });
+
+    describe('isMobileSafari', () => {
+      it('returns `true` if it detects Mobile Safari', () => {
+        const mobileSafariUserAgents = [
+          // iPhone, iOS 10.1.1
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
+          'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1',
+          // iPad, iOS 10.1.1
+          'Mozilla/5.0 (iPad; CPU OS 10_1_1 like Mac OS X) AppleWebKit/602.2.14 (KHTML, like Gecko) ' +
+          'Version/10.0 Mobile/14B100 Safari/602.1'
+        ];
+
+        mobileSafariUserAgents.forEach((userAgentString) => {
+          let uap = new UserAgent(userAgentString);
+          assert.isTrue(uap.isMobileSafari());
+        });
+      });
+
+      it('returns `false` if not Mobile Safari', () => {
+        const notMobileSafari = [
+          // Chrome desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
+          '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
+          // Edge
+          'Mozilla/5.0 (Windows Phone 10.0; Android 4.2.1; Microsoft; Lumia ' +
+          '640 XL LTE) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+          'Chrome/42.0.2311.135 Mobile Safari/537.36 Edge/12.10166',
+          // Chrome Android
+          'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) ' +
+          'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+        ];
+
+        notMobileSafari.forEach((userAgentString) => {
+          let uap = new UserAgent(userAgentString);
+          assert.isFalse(uap.isMobileSafari());
+        });
+      });
+
     });
   });
 });

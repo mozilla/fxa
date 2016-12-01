@@ -221,6 +221,40 @@ define(function (require, exports, module) {
               assert.isFalse(routerMock.navigate.called);
             });
         });
+
+        it('does not redirect if Mobile Safari and /complete_signin', function () {
+          windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
+            'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
+          windowMock.location.pathname = '/complete_signin';
+
+          return appStart.startApp()
+            .then(function () {
+              assert.isFalse(routerMock.navigate.called);
+            });
+        });
+
+        it('does not redirect if Mobile Safari and /verify_email', function () {
+          windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
+            'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
+          windowMock.location.pathname = '/verify_email';
+
+          return appStart.startApp()
+            .then(function () {
+              assert.isFalse(routerMock.navigate.called);
+            });
+        });
+
+        it('redirects if Mobile Safari and root path', function () {
+          windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
+            'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
+          windowMock.location.pathname = '/';
+
+          return appStart.startApp()
+            .then(function () {
+              assert.isTrue(routerMock.navigate.called);
+            });
+        });
+
       });
     });
 
