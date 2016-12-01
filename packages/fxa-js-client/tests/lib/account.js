@@ -154,7 +154,14 @@ define([
             var newPassword = 'newturles';
             assert.ok(accountResetToken, 'accountResetToken is returned');
 
-            return respond(client.accountReset(email, newPassword, accountResetToken, { keys: true, sessionToken: true }), RequestMocks.accountReset);
+            return respond(client.accountReset(email, newPassword, accountResetToken, {
+              keys: true,
+              metricsContext: {
+                flowBeginTime: 1480615985437,
+                flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+              },
+              sessionToken: true
+            }), RequestMocks.accountReset);
           })
           .then(
             function (result) {
