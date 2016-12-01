@@ -412,16 +412,27 @@ describe('remote account create', function() {
   )
 
   it(
-    'account creation works with minimal metricsContext metadata',
+    'account creation fails with old metricsContext fields',
     () => {
       var email = server.uniqueEmail()
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
           flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
-          flowBeginTime: 1
+          flowBeginTime: 1,
+          context: 'foo',
+          entrypoint: 'bar',
+          migration: 'baz',
+          service: 'qux',
+          utmCampaign: 'wibble',
+          utmContent: 'blurgh',
+          utmMedium: 'blee',
+          utmSource: 'fnarr',
+          utmTerm: 'frang'
         }
-      }).then(function (client) {
-        assert.ok(client, 'created account')
+      }).then(function () {
+        assert(false, 'account creation should have failed')
+      }, function (err) {
+        assert.ok(err, 'account creation failed')
       })
     }
   )
@@ -467,16 +478,7 @@ describe('remote account create', function() {
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
           flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
-          flowBeginTime: 1,
-          context: 'foo',
-          entrypoint: 'bar',
-          migration: 'baz',
-          service: 'qux',
-          utmCampaign: 'wibble',
-          utmContent: 'blurgh',
-          utmMedium: 'blee',
-          utmSource: 'fnarr',
-          utmTerm: 'frang'
+          flowBeginTime: 1
         }
       }).then(function (client) {
         assert.ok(client, 'created account')

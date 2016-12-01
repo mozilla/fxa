@@ -251,9 +251,7 @@ describe('/recovery_email/resend_code', () => {
       payload: {
         metricsContext: {
           flowBeginTime: Date.now(),
-          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-          entrypoint: 'preferences',
-          utmContent: 'some-content-string'
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
         }
       }
     })
@@ -279,9 +277,7 @@ describe('/recovery_email/resend_code', () => {
       payload: {
         metricsContext: {
           flowBeginTime: Date.now(),
-          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-          entrypoint: 'preferences',
-          utmContent: 'some-content-string'
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
         }
       }
     })
@@ -730,9 +726,7 @@ describe('/account/create', function () {
         service: 'sync',
         metricsContext: {
           flowBeginTime: Date.now(),
-          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-          entrypoint: 'preferences',
-          utmContent: 'some-content-string'
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
         }
       },
       query: {
@@ -880,11 +874,8 @@ describe('/account/login', function () {
       service: 'sync',
       reason: 'signin',
       metricsContext: {
-        context: 'fx_desktop_v3',
         flowBeginTime: Date.now(),
-        flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-        entrypoint: 'preferences',
-        utmContent: 'some-content-string'
+        flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
       }
     },
     query: {
@@ -1774,11 +1765,8 @@ describe('/account/login/send_unblock_code', function () {
     payload: {
       email: TEST_EMAIL,
       metricsContext: {
-        context: 'fx_desktop_v3',
         flowBeginTime: Date.now(),
-        flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-        entrypoint: 'preferences',
-        utmContent: 'some-content-string'
+        flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
       }
     }
   })

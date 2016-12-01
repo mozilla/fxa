@@ -85,10 +85,7 @@ There are also further flow events
 that do not correspond to an activity event.
 In addition to the data that is present on activity events,
 these events also have a metrics context
-that includes the `utm_*` parameters and a `flowId`.
-The flow events respect the `dnt` "Do not track"
-header and do not send `utm_*` parameters
-if that header is set to `1`.
+that includes `flowId` and  `flowBeginTime` properties.
 
 #### Flow event structure
 
@@ -100,15 +97,6 @@ containg the following fields:
 * `flow_time`
 * `time`
 * `userAgent`
-* `context` (optional)
-* `entrypoint` (optional)
-* `migration` (optional)
-* `service` (optional)
-* `utm_campaign` (optional)
-* `utm_content` (optional)
-* `utm_medium` (optional)
-* `utm_source` (optional)
-* `utm_term` (optional)
 
 ##### Example event
 
@@ -118,11 +106,7 @@ containg the following fields:
   "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:50.0) Gecko/20100101 Firefox/50.0",
   "time": 1471258615891,
   "flow_id": "1386176a76f4359d30aea806400ebbf8af1fb0040891ff32cd0d5cc5038f6d58",
-  "flow_time": 11948,
-  "uid": "d03249d2af7d4447be3debc674110978",
-  "context": "fx_desktop_v3",
-  "entrypoint": "menupanel",
-  "service": "sync"
+  "flow_time": 11948
 }
 ```
 

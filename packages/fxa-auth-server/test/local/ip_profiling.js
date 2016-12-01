@@ -116,11 +116,8 @@ const mockRequest = mocks.mockRequest({
     service: 'sync',
     reason: 'signin',
     metricsContext: {
-      context: 'fx_desktop_v3',
       flowBeginTime: Date.now(),
-      flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-      entrypoint: 'preferences',
-      utmContent: 'some-content-string'
+      flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
     }
   },
   query: {
