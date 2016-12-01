@@ -197,83 +197,107 @@ in the preceding five days.
 
 ## Significant changes
 
+### Train 76
+
+* [Duplicate flow events
+  were fixed in the content server]
+  (https://github.com/mozilla/fxa-content-server/pull/4478).
+
 ### Train 75
 
-* The correct `service` parameter
+* [The correct `service` parameter
   was passed to `/certificate/sign`
   for OAuth reliers,
   stopping those requests from
   being identified as originating from
-  the content server.
+  the content server]
+  (https://github.com/mozilla/fxa-content-server/pull/4419).
 
-* The `flow.${viewName}.view` event
-  was implemented.
+* [The `flow.${viewName}.view` event
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4440).
 
-* Validation of the `utm_*` parameters
-  was implemented.
+* [The `flow.${viewName}.begin` event
+  was changed back to `flow.begin`]
+  (https://github.com/mozilla/fxa-content-server/pull/4440).
 
-* Duplicate flow events
-  were fixed in the content server.
+* [Validation of the `utm_*` parameters
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4446).
 
-* The `route.*` events were implemented.
+* [The `route.*` events were implemented]
+  (https://github.com/mozilla/fxa-auth-server/pull/1576).
 
 ### Train 74
 
-* Flow event data validation
-  was implemented.
+* [Flow event data validation
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4383).
 
-* The `${viewName}` part of
+* [The `${viewName}` part of
   `flow.${viewName}.begin`,
   `flow.${viewName}.engage` and
   `flow.${viewName}.submit`
-  was fixed,
-  rendering earlier data incorrect.
+  was fixed]
+  (https://github.com/mozilla/fxa-content-server/pull/4317).
 
-* The `flow.have-account` event
-  was changed to `flow.${viewName}.have-account`.
+* [The `flow.have-account` event
+  was changed to `flow.${viewName}.have-account`]
+  (https://github.com/mozilla/fxa-content-server/pull/4317).
 
-* The `flow.${viewName}.create-account` event
-  was implemented.
+* [The `flow.${viewName}.create-account` event
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4317).
 
-* The `flow.${viewName}.forgot-password` event
-  was implemented.
+* [The `flow.${viewName}.forgot-password` event
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4317).
 
-* The `flow.${action}.attempt` event
-  was implemented.
+* [The `flow.${action}.attempt` event
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4317).
 
 ### Train 73
 
-* Expiry time
+* [Expiry time
   for metrics context data in memcached
   was increased from 30 minutes
-  to 2 hours.
+  to 2 hours]
+  (https://github.com/mozilla/fxa-auth-server/pull/1519).
 
-* The `flow.complete` event
-  was implemented.
+* [The `flow.complete` event
+  was implemented]
+  (https://github.com/mozilla/fxa-auth-server/pull/1515).
 
 ### Train 72
 
-* A change to the memcached key
+* [A change to the memcached key
   used when stashing metrics context data
   introduced a 30-minute partial blip
-  in flow event data.
+  in flow event data]
+  (https://github.com/mozilla/fxa-auth-server/pull/1500).
 
 ### Train 71
 
-* The `flow.begin` event
-  was changed to `flow.${viewName}.begin`.
+* [The `flow.begin` event
+  was changed to `flow.${viewName}.begin`]
+  (https://github.com/mozilla/fxa-content-server/pull/4224).
 
-* Timestamps were fixed
-  on the begin, engage and submit events.
+* [Timestamps were fixed
+  on the begin, engage and submit events]
+  (https://github.com/mozilla/fxa-content-server/pull/4351).
 
-* Metrics context data was added
-  to the `flow.${viewName}.begin` event.
+* [Metrics context data was added
+  to the begin, engage and submit events]
+  (https://github.com/mozilla/fxa-content-server/pull/4234).
 
-* Erroneous `"none"` values were removed
+* [Erroneous `"none"` values were removed
   from empty metrics context properties
-  in the content server.
+  in the content server]
+  (https://github.com/mozilla/fxa-content-server/pull/4234).
 
-* Expiry time for flow ids
+* [Expiry time for flow ids
   was increased from 30 minutes
-  to two hours.
+  to two hours]
+  (https://github.com/mozilla/fxa-auth-server/pull/1487).
 
