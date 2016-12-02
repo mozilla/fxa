@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /* global require */
 
-const config = require('../lib/config').root();
+const config = require('../lib/config').getProperties();
 const server = require('../lib/server');
 var log = require('mozlog')('server');
 
