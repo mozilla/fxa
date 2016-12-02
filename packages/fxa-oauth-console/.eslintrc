@@ -6,5 +6,8 @@
   "rules": {
     "semi": 0,
     "strict": [2, "never"]
+  },
+  "parserOptions": {
+    "sourceType": "module"
   }
 }
