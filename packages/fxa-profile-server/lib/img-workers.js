@@ -40,7 +40,7 @@ exports.upload = function upload(id, payload, headers) {
         return;
       }
 
-      if (res.statusCode >= 400 || body.error || nestedError) {
+      if (res.statusCode >= 400 || (body && body.error) || nestedError) {
         logger.error('upload.worker.error', body);
         reject(AppError.processingError(body));
         return;
@@ -66,7 +66,7 @@ exports.delete = function deleteAvatar(id) {
         logger.error('delete.network.error', err);
         return reject(AppError.processingError(err));
       }
-      if (res.statusCode >= 400 || body.error) {
+      if (res.statusCode >= 400 || (body && body.error)) {
         logger.error('delete.worker.error', body);
         reject(AppError.processingError(body));
         return;

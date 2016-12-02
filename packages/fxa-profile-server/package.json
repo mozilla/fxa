@@ -29,7 +29,7 @@
     "mysql-patcher": "0.7.0",
     "newrelic": "1.34.0",
     "poolee": "1.0.0",
-    "request": "2.73.0",
+    "request": "2.79.0",
     "stream-to-array": "2.3.0"
   },
   "devDependencies": {
