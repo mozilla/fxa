@@ -62,7 +62,7 @@
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
   "engines": {
-    "node": ">=0.10.0",
+    "node": ">=4.5.0",
     "npm": ">=2.4"
   },
   "readmeFilename": "README.md"
