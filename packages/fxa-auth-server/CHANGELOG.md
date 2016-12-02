@@ -1,3 +1,9 @@
+<a name="1.75.1"></a>
+## [1.75.1](https://github.com/mozilla/fxa-auth-server/compare/v1.75.0...v1.75.1) (2016-12-02)
+
+
+
+
 <a name="1.75.0"></a>
 # [1.75.0](https://github.com/mozilla/fxa-auth-server/compare/v1.74.1...v1.75.0) (2016-11-30)
 
