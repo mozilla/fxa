@@ -8,7 +8,7 @@ const cp = require('child_process');
 const path = require('path');
 
 var config = require('../lib/config').get('server');
-console.log(config); //eslint-disable-line no-console
+console.log(config); // eslint-disable-line no-console
 
 var emberBuild = cp.spawn(path.join(__dirname, '..', 'node_modules', '.bin', 'ember'), ['build', '--watch'], { stdio: 'inherit' });
 emberBuild.on('exit', process.exit);
@@ -17,4 +17,4 @@ var server = cp.spawn(path.join(__dirname, '..', 'node_modules', '.bin', 'nodemo
 server.on('exit', process.exit);
 
 var port = config.port === '80' ? '' : ':' + config.port;
-console.log('Console is available at:', 'http://' + config.host + port);
+console.log('Console is available at:', 'http://' + config.host + port); // eslint-disable-line no-console
