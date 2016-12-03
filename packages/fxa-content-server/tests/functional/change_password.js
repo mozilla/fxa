@@ -91,7 +91,7 @@ define([
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
 
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(click('.use-different'))
@@ -109,7 +109,7 @@ define([
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
 
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(click('.use-different'))
@@ -133,7 +133,7 @@ define([
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
 
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(click('.use-different'))

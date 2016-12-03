@@ -59,7 +59,7 @@ define([
         // the test below depends on the speed of the email resent XHR
         // we have to wait until the resent request completes and the
         // success notification is visible
-        .then(testSuccessWasShown(this));
+        .then(testSuccessWasShown());
     },
 
     'sign up with a restmail address, get the open restmail button': function () {

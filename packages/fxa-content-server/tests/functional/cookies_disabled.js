@@ -20,12 +20,12 @@ define([
   var COOKIES_DISABLED_URL = config.fxaContentRoot + 'cookies_disabled';
 
   var openPage = FunctionalHelpers.openPage;
+  var testErrorWasShown = FunctionalHelpers.testErrorWasShown;
 
   registerSuite({
     name: 'cookies_disabled',
 
     'visit signup page with localStorage disabled': function () {
-      var self = this;
       return this.remote
         .then(openPage(SIGNUP_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header'))
         // try again, cookies are still disabled.
@@ -34,7 +34,7 @@ define([
         .end()
 
         // show an error message after second try
-        .then(FunctionalHelpers.testErrorWasShown(self));
+        .then(testErrorWasShown());
     },
 
     'synthesize enabling cookies by visiting the sign up page, then cookies_disabled, then clicking "try again"': function () {

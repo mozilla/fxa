@@ -42,6 +42,7 @@ define([
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
   var type = FunctionalHelpers.type;
 
   var createRandomHexString = TestHelpers.createRandomHexString;
@@ -115,7 +116,7 @@ define([
       })
       .end()
 
-      .then(FunctionalHelpers.testSuccessWasShown(context));
+      .then(testSuccessWasShown());
   }
 
   registerSuite({
@@ -183,7 +184,7 @@ define([
         .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2))
 
         // Success is showing the success message
-        .then(FunctionalHelpers.testSuccessWasShown(this))
+        .then(testSuccessWasShown())
 
         .then(click('#resend'))
         .then(click('#resend'))
@@ -378,11 +379,8 @@ define([
         // user verified in a new browser, they have to enter
         // their updated credentials in the original tab.
         .then(testElementExists('#fxa-signin-header'))
-
-        .then(FunctionalHelpers.testSuccessWasShown(self))
-
+        .then(testSuccessWasShown())
         .then(type('input[type=password]', PASSWORD))
-
         .then(click('button[type="submit"]'))
 
         // no success message, the user should have seen that above.

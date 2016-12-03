@@ -1139,14 +1139,26 @@ define([
       });
   }
 
-  function testSuccessWasShown(context, selector) {
+  /**
+   * Test whether the success message was shown.
+   *
+   * @param {string} [selector] defaults to `.success[data-shown]`
+   * @returns {promise} rejects if error element was not shown.
+   */
+  function testSuccessWasShown(selector) {
     selector = selector || '.success[data-shown]';
-    return testElementWasShown(context, selector);
+    return testElementWasShown(selector);
   }
 
-  function testErrorWasShown(context, selector) {
+  /**
+   * Test whether the error message was shown.
+   *
+   * @param {string} [selector] defaults to `.error[data-shown]`
+   * @returns {promise} rejects if error element was not shown.
+   */
+  function testErrorWasShown(selector) {
     selector = selector || '.error[data-shown]';
-    return testElementWasShown(context, selector);
+    return testElementWasShown(selector);
   }
 
   /**
@@ -1304,12 +1316,17 @@ define([
     };
   }
 
-  function testElementWasShown(context, selector) {
+  /**
+   * Test whether a status element (success or error) was shown.
+   * Done by looking for the `data-shown` attribute.
+   *
+   * @param {string} selector
+   * @returns {promise} rejects if fails
+   */
+  function testElementWasShown(selector) {
     return function () {
-      return getRemote(context)
-        .findByCssSelector(selector)
-        .end()
-
+      return this.parent
+        .then(testElementExists(selector))
         .executeAsync(function (selector, done) {
           // remove the attribute so subsequent checks can be made
           // against the same element. displaySuccess and displayError
