@@ -28,7 +28,6 @@ const ACTIVITY_EVENTS = new Set([
 const NOT_FLOW_EVENTS = new Set([
   'account.changedPassword',
   'account.deleted',
-  'account.reset',
   'device.created',
   'device.deleted',
   'device.updated'

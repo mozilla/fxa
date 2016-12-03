@@ -17,6 +17,7 @@ var StatsDCollector = require('./metrics/statsd')
 // Don't log the error for those events.
 const OPTIONAL_FLOW_EVENTS = {
   'account.keyfetch': true,
+  'account.reset': true,
   'account.signed': true
 }
 

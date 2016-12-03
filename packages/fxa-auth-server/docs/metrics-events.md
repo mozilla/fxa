@@ -60,6 +60,7 @@ in a sign-in or sign-up flow:
 |`account.verified`|A new account has been verified via email.|
 |`account.keyfetch`|Sync encryption keys have been fetched.|
 |`account.signed`|A certificate has been signed.|
+|`account.reset`|An account has been reset.|
 |`account.login.confirmedUnblockCode`|A user has successfully unblocked their account.|
 |`account.login.sentUnblockCode`|A sign-in unblock email has been sent to the user.|
 |`password.forgot.send_code.start`|A user has initiated the password reset flow.|
@@ -202,6 +203,10 @@ in the preceding five days.
 * [Duplicate flow events
   were fixed in the content server]
   (https://github.com/mozilla/fxa-content-server/pull/4478).
+
+* [The `account.reset` event
+  was made a flow event]
+  (https://github.com/mozilla/fxa-auth-server/pull/1584).
 
 ### Train 75
 

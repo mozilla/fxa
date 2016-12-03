@@ -1808,6 +1808,16 @@ module.exports = function (
         var account, sessionToken, keyFetchToken, verifyHash, wrapKb, devicesToNotify
         var hasSessionToken = request.payload.sessionToken
 
+        request.validateMetricsContext()
+
+        let flowCompleteSignal
+        if (requestHelper.wantsKeys(request)) {
+          flowCompleteSignal = 'account.signed'
+        } else {
+          flowCompleteSignal = 'account.reset'
+        }
+        request.setMetricsFlowCompleteSignal(flowCompleteSignal)
+
         return fetchDevicesToNotify()
           .then(resetAccountData)
           .then(createSessionToken)
@@ -1888,14 +1898,6 @@ module.exports = function (
             .then(
               function (wrapKbData) {
                 wrapKb = wrapKbData
-
-                let flowCompleteSignal
-                if (requestHelper.wantsKeys(request)) {
-                  flowCompleteSignal = 'account.signed'
-                } else {
-                  flowCompleteSignal = 'account.login'
-                }
-                request.setMetricsFlowCompleteSignal(flowCompleteSignal)
               }
             )
         }
