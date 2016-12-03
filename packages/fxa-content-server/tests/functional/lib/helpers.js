@@ -834,19 +834,21 @@ define([
     };
   }
 
-  function fillOutDeleteAccount(context, password) {
-    return getRemote(context)
-      .setFindTimeout(intern.config.pageLoadTimeout)
+  /**
+   * Fill out and submit the delete account form.
+   *
+   * @param   {string} password user's password
+   * @returns {promise} resolves when complete
+   */
+  function fillOutDeleteAccount(password) {
+    return function () {
+      return this.parent
+        .setFindTimeout(intern.config.pageLoadTimeout)
 
-      .findByCssSelector('#delete-account form input.password')
-        .click()
-        .type(password)
-      .end()
-
-      // delete account
-      .findByCssSelector('#delete-account button[type="submit"]')
-        .click()
-      .end();
+        .then(type('#delete-account form input.password', password))
+        // delete account
+        .then(click('#delete-account button[type="submit"]'));
+    };
   }
 
   function mouseevent(eventType) {

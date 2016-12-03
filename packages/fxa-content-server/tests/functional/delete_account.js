@@ -12,7 +12,7 @@ define([
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
-
+  var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
 
   registerSuite({
@@ -45,9 +45,7 @@ define([
         // success is going to the delete account page
         .then(FunctionalHelpers.visibleByQSA('#delete-account'))
 
-        .then(function () {
-          return FunctionalHelpers.fillOutDeleteAccount(self, PASSWORD);
-        })
+        .then(fillOutDeleteAccount(PASSWORD))
 
         // success is going to the signup page
         .findById('fxa-signup-header')

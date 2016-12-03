@@ -14,7 +14,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
   var fillOutChangePassword = FunctionalHelpers.fillOutChangePassword;
-  var fillOutDeleteAccount = thenify(FunctionalHelpers.fillOutDeleteAccount);
+  var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var noSuchElement = FunctionalHelpers.noSuchElement;
@@ -90,7 +90,7 @@ define([
         .then(click('#delete-account .settings-unit-toggle'))
         .then(visibleByQSA('#delete-account .settings-unit-details'))
 
-        .then(fillOutDeleteAccount(this, FIRST_PASSWORD))
+        .then(fillOutDeleteAccount(FIRST_PASSWORD))
         // Fx desktop requires fxaccounts:delete, Fennec requires
         // fxaccounts:delete_account
         .then(testIsBrowserNotified(this, 'fxaccounts:delete_account'))
