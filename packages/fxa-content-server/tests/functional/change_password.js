@@ -23,7 +23,7 @@ define([
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var denormalizeStoredEmail = FunctionalHelpers.denormalizeStoredEmail;
-  var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
+  var fillOutChangePassword = FunctionalHelpers.fillOutChangePassword;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
   var openPage = FunctionalHelpers.openPage;
@@ -64,7 +64,7 @@ define([
 
         // Go to change password screen
         .then(click('#change-password .settings-unit-toggle'))
-        .then(fillOutChangePassword(this, 'INCORRECT', SECOND_PASSWORD))
+        .then(fillOutChangePassword('INCORRECT', SECOND_PASSWORD))
         .then(testElementDisplayed('#change-password .error'))
 
         // click the show button, the error should not be hidden.
@@ -89,7 +89,7 @@ define([
         // Go to change password screen
         .then(click('#change-password .settings-unit-toggle'))
 
-        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
         .then(testElementExists('#fxa-settings-header'))
         .then(testSuccessWasShown(this))
 
@@ -107,7 +107,7 @@ define([
         // Go to change password screen
         .then(click('#change-password .settings-unit-toggle'))
 
-        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
         .then(testElementExists('#fxa-settings-header'))
         .then(testSuccessWasShown(this))
 
@@ -131,7 +131,7 @@ define([
 
         .then(click('#change-password .settings-unit-toggle'))
 
-        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
         .then(testElementExists('#fxa-settings-header'))
         .then(testSuccessWasShown(this))
 

@@ -13,7 +13,7 @@ define([
   var click = FunctionalHelpers.click;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutChangePassword = thenify(FunctionalHelpers.fillOutChangePassword);
+  var fillOutChangePassword = FunctionalHelpers.fillOutChangePassword;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
@@ -64,7 +64,7 @@ define([
         .then(click('#change-password .settings-unit-toggle'))
         .then(visibleByQSA('#change-password .settings-unit-details'))
 
-        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:change_password'));
     },
 
@@ -74,7 +74,7 @@ define([
         .then(click('#change-password .settings-unit-toggle'))
         .then(visibleByQSA('#change-password .settings-unit-details'))
 
-        .then(fillOutChangePassword(this, FIRST_PASSWORD, SECOND_PASSWORD))
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
         .then(testIsBrowserNotified(this, 'fxaccounts:change_password'));
     }
   });

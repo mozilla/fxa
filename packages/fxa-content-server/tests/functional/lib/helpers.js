@@ -812,23 +812,22 @@ define([
       .end();
   }
 
-  function fillOutChangePassword(context, oldPassword, newPassword) {
-    return getRemote(context)
-      .setFindTimeout(intern.config.pageLoadTimeout)
+  /**
+   * Fill out and submit the change password form.
+   *
+   * @param   {string} oldPassword user's old password
+   * @param   {string} newPassword user's new password
+   * @returns {promise} resolves when complete
+   */
+  function fillOutChangePassword(oldPassword, newPassword) {
+    return function () {
+      return this.parent
+        .setFindTimeout(intern.config.pageLoadTimeout)
 
-      .findByCssSelector('#old_password')
-        .click()
-        .type(oldPassword)
-      .end()
-
-      .findByCssSelector('#new_password')
-        .click()
-        .type(newPassword)
-      .end()
-
-      .findByCssSelector('#change-password button[type="submit"]')
-        .click()
-      .end();
+        .then(type('#old_password', oldPassword))
+        .then(type('#new_password', newPassword))
+        .then(click('#change-password button[type="submit"]'));
+    };
   }
 
   function fillOutDeleteAccount(context, password) {
