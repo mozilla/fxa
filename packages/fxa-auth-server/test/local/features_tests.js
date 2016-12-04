@@ -189,9 +189,6 @@ describe('features', () => {
       const email = 'blee@mozilla.com'
       const request = {
         payload: {
-          metricsContext: {
-            context: 'iframe'
-          }
         }
       }
       // First 27 characters are ignored, last 13 are 0.02 * 0xfffffffffffff
@@ -202,7 +199,6 @@ describe('features', () => {
       unblock.enabled = true
       unblock.sampleRate = 0.02
       unblock.allowedEmailAddresses = /.+@notmozilla.com$/
-      unblock.supportedClients = [ 'wibble', 'iframe' ]
       assert.equal(features.isSigninUnblockEnabledForUser(uid, email, request), false, 'should return false when email is not allowed and uid is not sampled')
 
       unblock.forcedEmailAddresses = /.+/
@@ -215,15 +211,6 @@ describe('features', () => {
       unblock.allowedEmailAddresses = /.+@notmozilla.com$/
       unblock.sampleRate = 0.03
       assert.equal(features.isSigninUnblockEnabledForUser(uid, email, request), true, 'should return when uid is sampled')
-
-
-      request.payload.metricsContext.context = ''
-      assert.equal(features.isSigninUnblockEnabledForUser(uid, email, request), false, 'should return false when context is not supported')
-
-
-      request.payload.metricsContext.context = 'iframe'
-      unblock.enabled = false
-      assert.equal(features.isSigninUnblockEnabledForUser(uid, email, request), false, 'should return false when feature is disabled')
     }
   )
 
