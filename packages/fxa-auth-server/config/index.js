@@ -509,24 +509,6 @@ var conf = convict({
       doc: 'signin unblock sample rate, between 0.0 and 1.0',
       default: 1.0,
       env: 'SIGNIN_UNBLOCK_RATE'
-    },
-    supportedClients: {
-      doc: 'support sign-in unblock for only these clients',
-      format: Array,
-      default: [
-        'web',
-        'oauth',
-        'iframe',
-        'fx_firstrun_v1',
-        'fx_firstrun_v2',
-        'fx_desktop_v1',
-        'fx_desktop_v2',
-        'fx_desktop_v3',
-        'fx_ios_v1',
-        'fx_ios_v2',
-        'fx_fennec_v1'
-      ],
-      env: 'SIGNIN_UNBLOCK_SUPPORTED_CLIENTS'
     }
   },
   hpkpConfig: {

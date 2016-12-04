@@ -47,17 +47,6 @@ module.exports = config => {
         return true
       }
 
-      // While we're testing this feature, there may be some funky
-      // edge-cases in device login flows that haven't been fully tested.
-      // Temporarily avoid them for regular users by checking the `context` flag,
-      const context = request.payload &&
-        request.payload.metricsContext &&
-        request.payload.metricsContext.context
-
-      if (signinUnblock.supportedClients.indexOf(context) === -1) {
-        return false
-      }
-
       // Check to see if user in roll-out cohort.
       return isSampledUser(signinUnblock.sampleRate, uid, 'signinUnblock')
     },
