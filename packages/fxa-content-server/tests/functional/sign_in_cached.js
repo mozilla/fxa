@@ -29,7 +29,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var clearSessionStorage = thenify(FunctionalHelpers.clearSessionStorage);
+  var clearSessionStorage = FunctionalHelpers.clearSessionStorage;
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var denormalizeStoredEmail = FunctionalHelpers.denormalizeStoredEmail;
@@ -64,7 +64,7 @@ define([
 
         .then(testElementExists('#fxa-settings-header'))
         // reset prefill and context
-        .then(clearSessionStorage(this))
+        .then(clearSessionStorage())
 
         .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         .then(type('input[type=password]', PASSWORD))
@@ -84,7 +84,7 @@ define([
         .then(denormalizeStoredEmail(email))
 
         // reset prefill and context
-        .then(clearSessionStorage(this))
+        .then(clearSessionStorage())
 
         .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
 
@@ -181,7 +181,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-header'))
         // reset prefill and context
-        .then(clearSessionStorage(this))
+        .then(clearSessionStorage())
 
         .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         // cached login should still go to email confirmation screen for unverified accounts
@@ -223,7 +223,7 @@ define([
         .then(testElementExists('#fxa-settings-header'))
 
         // reset prefill and context
-        .then(clearSessionStorage(this))
+        .then(clearSessionStorage())
 
         // testing to make sure cached signin comes back after a refresh
         .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
@@ -255,7 +255,7 @@ define([
         .then(testElementExists('#fxa-settings-header'))
 
         // reset prefill and context
-        .then(clearSessionStorage(this))
+        .then(clearSessionStorage())
 
         // testing to make sure cached signin comes back after a refresh
         .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
@@ -274,7 +274,7 @@ define([
 
         .then(testElementExists('#fxa-settings-header'))
         // reset prefill and context
-        .then(clearSessionStorage(this))
+        .then(clearSessionStorage())
 
         .then(openPage(PAGE_SIGNIN_NO_CACHED_CREDS, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))

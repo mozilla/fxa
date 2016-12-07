@@ -53,103 +53,113 @@ define([
       return this.parent
         .then(function () {
           if (options.contentServer) {
-            return clearContentServerState(this.parent, options);
+            return this.parent
+              .then(clearContentServerState(options));
           }
         })
         .then(function () {
           if (options['123done']) {
-            return clear123DoneState(this.parent);
+            return this.parent
+              .then(clear123DoneState());
           }
         })
         .then(function () {
           if (options['321done']) {
-            return clear123DoneState(this.parent, true);
+            return this.parent
+              .then(clear123DoneState( { untrusted: true }));
           }
         });
     };
   }
 
-  function clearContentServerState(context, options) {
+  function clearContentServerState(options) {
     options = options || {};
-    // clear localStorage to avoid polluting other tests.
-    var remote = getRemote(context);
-    return remote
-      // always go to the content server so the browser state is cleared,
-      // switch to the top level frame, if we aren't already. This fixes the
-      // iframe flow.
-      .switchToFrame(null)
-      .setFindTimeout(config.pageLoadTimeout)
-      .getCurrentUrl()
-      .then(function (url) {
-        // only load up the content server if we aren't
-        // already at the content server.
-        if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
-          return remote.get(require.toUrl(CONTENT_SERVER + 'clear'))
-                    .setFindTimeout(config.pageLoadTimeout)
-                    .findById('fxa-clear-storage-header');
-        }
-      })
+    return function () {
+      // clear localStorage to avoid polluting other tests.
+      return this.parent
+        // always go to the content server so the browser state is cleared,
+        // switch to the top level frame, if we aren't already. This fixes the
+        // iframe flow.
+        .switchToFrame(null)
+        .setFindTimeout(config.pageLoadTimeout)
+        .getCurrentUrl()
+        .then(function (url) {
+          // only load up the content server if we aren't
+          // already at the content server.
+          if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
+            return this.parent.get(require.toUrl(CONTENT_SERVER + 'clear'))
+                      .setFindTimeout(config.pageLoadTimeout)
+                      .findById('fxa-clear-storage-header');
+          }
+        })
 
-      .clearCookies()
-      .execute(function () {
-        try {
-          localStorage.clear();
-          sessionStorage.clear();
-        } catch (e) {
-          console.log('Failed to clearBrowserState');
-          // if cookies are disabled, this will blow up some browsers.
-        }
-        return true;
-      }, []);
+        .clearCookies()
+        .execute(function () {
+          try {
+            localStorage.clear();
+            sessionStorage.clear();
+          } catch (e) {
+            console.log('Failed to clearBrowserState');
+            // if cookies are disabled, this will blow up some browsers.
+          }
+          return true;
+        }, []);
+    };
   }
 
-  function clear123DoneState(context, untrusted) {
-    var app = untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
-    /**
-     * Clearing state for 123done is a bit of a hack.
-     * When the user clicks "Sign out", the buttons to signup/signin
-     * are shown without waiting for the XHR request to complete.
-     * If Selenium moves too quickly and loads another page before the XHR
-     * request completes, the request is aborted and the user never signs out,
-     * causing state to hang around and problems later on.
-     *
-     * To get around this, manually sign the user out by calling the
-     * logout endpoint on the server, then notify Selenium when that request
-     * completes by adding an element to the DOM. Selenium will look for
-     * the added element.
-     */
-    return getRemote(context)
-      // switch to the top level frame, if we aren't already. This fixes the
-      // iframe flow.
-      .switchToFrame(null)
-      .setFindTimeout(config.pageLoadTimeout)
-      .get(require.toUrl(app))
+  function clear123DoneState(options) {
+    options = options || {};
 
-      .findByCssSelector('#footer-main')
-      .end()
+    return function () {
+      var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
+      /**
+       * Clearing state for 123done is a bit of a hack.
+       * When the user clicks "Sign out", the buttons to signup/signin
+       * are shown without waiting for the XHR request to complete.
+       * If Selenium moves too quickly and loads another page before the XHR
+       * request completes, the request is aborted and the user never signs out,
+       * causing state to hang around and problems later on.
+       *
+       * To get around this, manually sign the user out by calling the
+       * logout endpoint on the server, then notify Selenium when that request
+       * completes by adding an element to the DOM. Selenium will look for
+       * the added element.
+       */
+      return this.parent
+        // switch to the top level frame, if we aren't already. This fixes the
+        // iframe flow.
+        .switchToFrame(null)
+        .setFindTimeout(config.pageLoadTimeout)
+        .get(require.toUrl(app))
 
-      .execute(function () {
-        /* global $ */
-        $.post('/api/logout/')
-            .always(function () {
-              $('body').append('<div id="loggedout">Logged out</div>');
-            });
-      })
-      .findByCssSelector('#loggedout')
-      .end();
+        .findByCssSelector('#footer-main')
+        .end()
+
+        .execute(function () {
+          /* global $ */
+          $.post('/api/logout/')
+              .always(function () {
+                $('body').append('<div id="loggedout">Logged out</div>');
+              });
+        })
+        .findByCssSelector('#loggedout')
+        .end();
+    };
   }
 
-  function clearSessionStorage(context) {
-    // clear localStorage to avoid polluting other tests.
-    return getRemote(context)
-      .execute(function () {
-        try {
-          sessionStorage.clear();
-        } catch (e) {
-          console.log('Failed to clearSessionStorage');
-        }
-        return true;
-      }, []);
+  function clearSessionStorage() {
+    return function () {
+      // clear sessionStorage to avoid polluting other tests.
+      return this.parent
+        .execute(function () {
+          try {
+            sessionStorage.clear();
+          } catch (e) {
+            console.log('Failed to clearSessionStorage');
+          }
+          return true;
+        }, []);
+    };
   }
 
   /**
