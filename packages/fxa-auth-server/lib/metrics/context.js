@@ -18,16 +18,7 @@ const FLOW_ID_LENGTH = 64
 
 const SCHEMA = isA.object({
   flowId: isA.string().length(64).regex(HEX).optional(),
-  flowBeginTime: isA.number().integer().positive().optional(),
-  context: isA.string().optional(),
-  entrypoint: isA.string().optional(),
-  migration: isA.string().optional(),
-  service: isA.string().optional(),
-  utmCampaign: isA.string().optional(),
-  utmContent: isA.string().optional(),
-  utmMedium: isA.string().optional(),
-  utmSource: isA.string().optional(),
-  utmTerm: isA.string().optional()
+  flowBeginTime: isA.number().integer().positive().optional()
 }).and('flowId', 'flowBeginTime').optional()
 
 const NOP = function () {
@@ -39,14 +30,6 @@ const NULL_MEMCACHED = {
   getAsync: NOP,
   setAsync: NOP
 }
-
-const VALID_PROPERTIES = [
-  { key: 'context', pattern: /^[0-9a-z_-]+$/ },
-  { key: 'entrypoint', pattern: /^[\w\.-]+$/ },
-  { key: 'flowId', pattern: /^[0-9a-f]{64}$/ },
-  { key: 'migration', pattern: /^(sync11|amo)$/ },
-  { key: 'service', pattern: /^(sync|content-server|[0-9a-f]{16})$/ }
-]
 
 module.exports = function (log, config) {
   let _memcached
@@ -122,7 +105,6 @@ module.exports = function (log, config) {
    */
   function gather (data) {
     const metadata = this.payload && this.payload.metricsContext
-    const doNotTrack = this.headers && this.headers.dnt === '1'
     let token
 
     return P.resolve()
@@ -141,18 +123,6 @@ module.exports = function (log, config) {
           data.flow_id = metadata.flowId
           data.flow_time = calculateFlowTime(data.time, metadata.flowBeginTime)
           data.flowCompleteSignal = metadata.flowCompleteSignal
-          data.context = metadata.context
-          data.entrypoint = metadata.entrypoint
-          data.migration = metadata.migration
-          data.service = metadata.service
-
-          if (! doNotTrack) {
-            data.utm_campaign = metadata.utmCampaign
-            data.utm_content = metadata.utmContent
-            data.utm_medium = metadata.utmMedium
-            data.utm_source = metadata.utmSource
-            data.utm_term = metadata.utmTerm
-          }
         }
       })
       .catch(err => log.error({
@@ -223,10 +193,6 @@ module.exports = function (log, config) {
     const age = Date.now() - metadata.flowBeginTime
     if (age > config.metrics.flow_id_expiry || age <= 0) {
       return logInvalidContext(this, 'expired flowBeginTime')
-    }
-
-    if (! isValidData(metadata)) {
-      return logInvalidContext(this, 'invalid data')
     }
 
     // The first half of the id is random bytes, the second half is a HMAC of
@@ -312,17 +278,6 @@ function calculateFlowTime (time, flowBeginTime) {
   }
 
   return time - flowBeginTime
-}
-
-function isValidData (data) {
-  return VALID_PROPERTIES.every(p => {
-    const property = data[p.key]
-    if (property) {
-      return p.pattern.test(property)
-    }
-
-    return true
-  })
 }
 
 module.exports.schema = SCHEMA

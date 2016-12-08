@@ -102,13 +102,6 @@ module.exports = config => {
   ClientApi.prototype.accountCreate = function (email, authPW, options) {
     options = options || {}
 
-    // Default to desktop client context
-    if (!options.metricsContext) {
-      options.metricsContext = {
-        context: 'fx_desktop_v3'
-      }
-    }
-
     var url = this.baseURL + '/account/create' + getQueryString(options)
     return this.doRequest(
       'POST',
@@ -134,13 +127,6 @@ module.exports = config => {
   ClientApi.prototype.accountLogin = function (email, authPW, opts) {
     if (!opts) {
       opts = { keys: true }
-    }
-
-    // Default to desktop client context
-    if (!opts.metricsContext) {
-      opts.metricsContext = {
-        context: 'fx_desktop_v3'
-      }
     }
 
     return this.doRequest(
