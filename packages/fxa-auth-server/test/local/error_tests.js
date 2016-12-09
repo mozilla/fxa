@@ -76,6 +76,22 @@ describe('AppErrors', () => {
   )
 
   it(
+    'should translate with missing payload',
+    () => {
+      var result = AppError.translate({
+        output: {}
+      })
+      assert.ok(result instanceof AppError, 'instanceof AppError')
+      assert.equal(result.errno, 999)
+      assert.equal(result.message, 'Unspecified error')
+      assert.equal(result.output.statusCode, 500)
+      assert.equal(result.output.payload.error, 'Internal Server Error')
+      assert.equal(result.output.payload.errno, result.errno)
+      assert.equal(result.output.payload.message, result.message)
+    }
+  )
+
+  it(
     'tooManyRequests',
     () => {
       var result = AppError.tooManyRequests(900, 'in 15 minutes')
