@@ -18,7 +18,7 @@ dependencies:
     - tightvncserver :1
   post:
     - curl 127.0.0.1:3030
-    - firefox --version
+    - /home/ubuntu/fxa-content-server/firefox/firefox --version
 
 machine:
   node:
@@ -26,5 +26,5 @@ machine:
 
 test:
   override:
-    - npm run test-circle:
+    - npm run test-circle firefoxBinary=/home/ubuntu/fxa-content-server/firefox/firefox:
         parallel: true
