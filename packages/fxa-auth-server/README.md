@@ -13,7 +13,7 @@ The auth-mailer also includes a restify API to send emails, but the auth server 
 ## Prerequisites
 
 * node 4
-* npm
+* npm 2
 * postfix
 
 ## Changing Templates
@@ -27,3 +27,7 @@ This saves the HTML template into `/templates`. Then make changes to the `.txt` 
 After updating a string in one of the templates in `./templates` you'll need to extract the strings using [this script](https://raw.githubusercontent.com/mozilla/fxa-content-server-l10n/master/scripts/extract_strings.sh):
 
 ``extract_strings.sh [--mailer-repo ./fxa-auth-mailer] [--content-repo ./fxa-content-server] [--l10n-repo ./fxa-content-server-l10n] train_number``
+
+### Production
+
+Use the `FXA_L10N_SHA` to pin L10N files to certain SHA. If not set then the `master` SHA will be used.
