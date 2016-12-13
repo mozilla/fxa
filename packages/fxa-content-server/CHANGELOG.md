@@ -1,3 +1,25 @@
+<a name="0.76.0"></a>
+# 0.76.0 (2016-12-13)
+
+
+### Bug Fixes
+
+* **deps:** update to latest prod dependencies (#4484) ([e8beb84](https://github.com/mozilla/fxa-content-server/commit/e8beb84))
+* **metrics:** make metrics.flush safely re-entrant (#4478) ([c06bd31](https://github.com/mozilla/fxa-content-server/commit/c06bd31))
+* **metrics:** propagate metrics context data to /account/reset (#4489), r=@vbudhram ([00a30f8](https://github.com/mozilla/fxa-content-server/commit/00a30f8))
+* **test:** Hard code location of Firefox for circle tests. (#4495) r=vladikoff ([5c8b11e](https://github.com/mozilla/fxa-content-server/commit/5c8b11e))
+
+### Features
+
+* **deps:** update to fxa-js-client 0.1.50 ([0bd4a68](https://github.com/mozilla/fxa-content-server/commit/0bd4a68))
+* **verify:** Allow iOS Private Browsing to verify emails (#4476) r=shane-tomlinson ([1af3c2a](https://github.com/mozilla/fxa-content-server/commit/1af3c2a)), closes [#4481](https://github.com/mozilla/fxa-content-server/issues/4481)
+
+### Refactor
+
+* **tests:** Remove `context` from several functional test helpers. (#4490) ([ef06852](https://github.com/mozilla/fxa-content-server/commit/ef06852))
+
+
+
 <a name="0.75.1"></a>
 ## 0.75.1 (2016-11-29)
 
