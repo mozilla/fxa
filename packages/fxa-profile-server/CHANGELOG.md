@@ -1,3 +1,14 @@
+<a name="0.76.0"></a>
+# [0.76.0](https://github.com/mozilla/fxa-profile-server/compare/v0.75.0...v0.76.0) (2016-12-13)
+
+
+### chore
+
+* **deps:** Update requests depdendency (#225) r=vladikoff ([39fe21a](https://github.com/mozilla/fxa-profile-server/commit/39fe21a))
+* **nodejs:** Upgrade to Node.js v4.7.0 ([39adfb8](https://github.com/mozilla/fxa-profile-server/commit/39adfb8))
+
+
+
 <a name="0.75.0"></a>
 # [0.75.0](https://github.com/mozilla/fxa-profile-server/compare/v0.74.0...v0.75.0) (2016-11-30)
 
