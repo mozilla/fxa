@@ -1,3 +1,17 @@
+<a name="0.76.0"></a>
+# [0.76.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.75.0...v0.76.0) (2016-12-13)
+
+
+### Bug Fixes
+
+* **schema:** Complete final phase of several previous migrations ([7eddbc9](https://github.com/mozilla/fxa-auth-db-mysql/commit/7eddbc9))
+
+### chore
+
+* **deps:** add new shrinkwrap command (#193) ([b33c750](https://github.com/mozilla/fxa-auth-db-mysql/commit/b33c750)), closes [#189](https://github.com/mozilla/fxa-auth-db-mysql/issues/189)
+
+
+
 <a name="0.75.0"></a>
 # [0.75.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.74.0...v0.75.0) (2016-11-30)
 
