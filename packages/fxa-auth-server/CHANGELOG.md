@@ -1,3 +1,13 @@
+<a name="1.76.0"></a>
+# [1.76.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.75.1...v1.76.0) (2016-12-13)
+
+
+### Bug Fixes
+
+* **deps:** update prod dependencies ([d62080d](https://github.com/mozilla/fxa-auth-mailer/commit/d62080d))
+
+
+
 <a name="1.75.1"></a>
 ## [1.75.1](https://github.com/mozilla/fxa-auth-mailer/compare/v1.75.0...v1.75.1) (2016-11-30)
 
