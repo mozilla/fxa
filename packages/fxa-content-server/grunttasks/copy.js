@@ -40,7 +40,7 @@ module.exports = function (grunt) {
             '*.{ico,png,txt}',
             '.htaccess',
             'images/{,*/}*.{webp,gif,svg,jpg,jpeg,png}',
-            'fonts/**/*.{woff,woff2,eot,ttf,svg,ofl}',
+            'fonts/**/*.{woff,woff2,eot,ttf,svg}',
             'i18n/{,*/}{,*/}*.*'
           ]
         },

@@ -129,7 +129,7 @@ function makeApp() {
       origin: config.get('public_url')
     };
 
-    app.route(/\.(js|css|woff|woff2|ttf)$/)
+    app.route(/\.(js|css|woff|woff2|eot|ttf)$/)
       .get(cors(corsOptions));
   }
 
