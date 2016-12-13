@@ -1,3 +1,17 @@
+<a name"0.76.0"></a>
+## 0.76.0 (2016-12-13)
+
+
+#### Bug Fixes
+
+* **deps:** update to hapi 16, add srinkwrap scripts, update other prod deps ([c102046e](https://github.com/mozilla/fxa-oauth-server/commit/c102046e))
+
+
+#### Features
+
+* **authorization:** add uri validation on the authorization endpoint (#428) r=jrgm,seanmonstar ([fcc0b52a](https://github.com/mozilla/fxa-oauth-server/commit/fcc0b52a), closes [#387](https://github.com/mozilla/fxa-oauth-server/issues/387), [#388](https://github.com/mozilla/fxa-oauth-server/issues/388))
+
+
 <a name"0.74.0"></a>
 ## 0.75.0 (2016-11-30)
 
