@@ -63,7 +63,7 @@ The subject contains succinct description of the change:
 * don't capitalize first letter
 * no dot (.) at the end
 
-###Body
+### Body
 In order to maintain a reference to the context of the commit, add
 `fixes #<issue_number>` if it closes a related issue or `issue #<issue_number>`
 if it's a partial fix.
@@ -101,12 +101,6 @@ reference GitHub issues that this commit **Closes**.
 | `npm run test-server` | Run server tests. |
 | `npm run test-latest` | Run full functional tests (OAuth, Firefox Sync UI) against http://latest.dev.lcip.org. |
 
-## Intern Runner custom arguments
-
-
-
-
-
 ## Servers
 
 - **latest development** - https://accounts-latest.dev.lcip.org/
@@ -121,9 +115,11 @@ reference GitHub issues that this commit **Closes**.
 We use [Bower](http://bower.io/) to manage front-end packages. These components are [automatically
 installed](https://github.com/mozilla/fxa-content-server/blob/master/package.json#L7) when you install this project and are placed into the `app` directory.
 
-### Freight
-We use [Freight](https://github.com/vladikoff/freight) to package our npm and Bower dependencies.
-Check Freight status at [freight.dev.lcip.org](https://freight.dev.lcip.org/).
+### L10N
+
+To contribute translations visit [mozilla/fxa-content-server-l10n](https://github.com/mozilla/fxa-content-server-l10n). 
+Use the `FXA_L10N_SHA` to pin L10N files to certain Git SHA. If not set then the `master` branch SHA will be used.
+
 
 ## License
 

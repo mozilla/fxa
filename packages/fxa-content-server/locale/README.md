@@ -4,18 +4,18 @@ This directory contains translated strings for all supported locales. Strings ar
 
 ## How to use
 
-This folder can be used locally, but the default behavior is to update through `bower.json`.  If you do not follow those steps you might lose your work without understanding.
+This folder can be used locally, but the default behavior is to update through `npm install` (see the postinstall `download_l10n.sh` step).  If you do not follow those steps you might lose your work without understanding.
 
 Here are a few things to know:
 
 * Do `git add` the file you are working on as often as possible. Otherwise you might just run `grunt` and it’ll overwrite all your work.
-* The files that the default behavior uses to generate the content is from `app/bower_components/fxa-content-server-l10n`, that is handled by bower.
+* The files that the default behavior uses to generate the content is from `node_modules/fxa-content-server-l10n`, that is handled by npm.
 * To work locally —and not get your work overwritten by bower— use those two commands:
 
         grunt po2json
         grunt serverproc:test
 
-* Once you are done with the content you worked on, you can copy the files over to a separate repository (i.e. [fxa-content-server-i10n](https://github.com/mozilla/fxa-content-server-l10n)) and make a pull-request from your own fork. See **Updating the l10n repo** below.
+* Once you are done with the content you worked on, you can copy the files over to a separate repository (i.e. [fxa-content-server-l10n](https://github.com/mozilla/fxa-content-server-l10n)) and make a pull-request from your own fork. See **Updating the l10n repo** below.
 
         cp -r locale/templates/ ../fxa-content-server-l10n/locale/templates/
 

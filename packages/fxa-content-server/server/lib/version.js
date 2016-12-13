@@ -84,9 +84,9 @@ function getSourceRepo () {
 
 function getL10nVersion () {
   try {
-    var bowerPath = '../../app/bower_components/fxa-content-server-l10n/.bower.json';
-    var bowerInfo = require(bowerPath);
-    return bowerInfo && bowerInfo._release;
+    var packagePath = '../../node_modules/fxa-content-server-l10n/package.json';
+    var packageData = require(packagePath);
+    return packageData && packageData.gitHead;
   } catch (e) {
     /* ignore */
   }
