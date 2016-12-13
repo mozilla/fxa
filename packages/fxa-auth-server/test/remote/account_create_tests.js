@@ -289,6 +289,7 @@ describe('remote account create', function() {
           function (err) {
             assert.equal(err.code, 400)
             assert.equal(err.errno, 101, 'Account already exists')
+            assert.equal(err.email, email, 'The existing email address is returned')
           }
         )
     }

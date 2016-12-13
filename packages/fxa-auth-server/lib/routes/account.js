@@ -105,7 +105,7 @@ module.exports = function (
 
         customs.check(request, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
-          .then(deleteAccount, ignoreUnknownAccountError)
+          .then(deleteAccountIfUnverified, ignoreUnknownAccountError)
           .then(checkPreVerified)
           .then(generateRandomValues)
           .then(createPassword)
@@ -117,9 +117,9 @@ module.exports = function (
           .then(createResponse)
           .done(reply, reply)
 
-        function deleteAccount (emailRecord) {
+        function deleteAccountIfUnverified (emailRecord) {
           if (emailRecord.emailVerified) {
-            throw error.accountExists(email)
+            throw error.accountExists(emailRecord.email)
           }
 
           request.app.accountRecreated = true
