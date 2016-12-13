@@ -95,5 +95,6 @@
   "openid": {
     "keyFile": "../config/key.json",
     "key": {}
-  }
+  },
+  "allowHttpRedirects": true
 }

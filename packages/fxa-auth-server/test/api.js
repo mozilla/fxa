@@ -435,6 +435,20 @@ describe('/v1', function() {
           });
         });
 
+        it('validates http and https scheme', function() {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              redirect_uri: 'ftp://localhost:8080/derp'
+            })
+          }).then(function(res) {
+            assert.equal(res.statusCode, 400);
+            assert.equal(res.result.errno, 109);
+            assert.equal(res.result.message, 'Invalid request parameter');
+          });
+        });
+
         it('can be 127.0.0.1 with config set', function() {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api.post({

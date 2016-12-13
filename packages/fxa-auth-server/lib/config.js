@@ -22,6 +22,13 @@ const conf = convict({
       default: 1
     }
   },
+  allowHttpRedirects: {
+    arg: 'allowHttpRedirects',
+    doc: 'If true, then it allows http OAuth redirect uris',
+    env: 'ALLOW_HTTP_REDIRECTS',
+    format: Boolean,
+    default: false
+  },
   browserid: {
     issuer: {
       doc: 'We only accept assertions from this issuer',

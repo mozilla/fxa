@@ -30,6 +30,17 @@ const UNTRUSTED_CLIENT_ALLOWED_SCOPES = [
   'profile:display_name'
 ];
 
+const allowHttpRedirects = config.get('allowHttpRedirects');
+
+var ALLOWED_SCHEMES = [
+  'https'
+];
+
+if (allowHttpRedirects === true) {
+  // http scheme used when developing OAuth clients
+  ALLOWED_SCHEMES.push('http');
+}
+
 function isLocalHost(url) {
   var host = new URI(url).hostname();
   return host === 'localhost' || host === '127.0.0.1';
@@ -102,7 +113,11 @@ module.exports = {
       assertion: validators.assertion
         .required(),
       redirect_uri: Joi.string()
-        .max(256),
+        .max(256)
+        // uri validation ref: https://github.com/hapijs/joi/blob/master/API.md#stringurioptions
+        .uri({
+          scheme: ALLOWED_SCHEMES
+        }),
       scope: validators.scope,
       response_type: Joi.string()
         .valid(CODE, TOKEN)

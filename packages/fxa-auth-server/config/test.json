@@ -64,5 +64,6 @@
       "scope": "profile",
       "jku": "http://127.0.0.1:9019/.well-known/public-keys"
     }
-  ]
+  ],
+  "allowHttpRedirects": true
 }
