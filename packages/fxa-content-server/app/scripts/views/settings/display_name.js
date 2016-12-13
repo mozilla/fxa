@@ -30,6 +30,14 @@ define(function (require, exports, module) {
       };
     },
 
+    events: {
+      'focus input.display-name': 'onDisplayNameFocus',
+    },
+
+    onDisplayNameFocus () {
+      this.isValidStart();
+    },
+
     beforeRender () {
       var account = this.getSignedInAccount();
       return account.fetchProfile()
@@ -37,6 +45,14 @@ define(function (require, exports, module) {
           this.user.setAccount(account);
           this._displayName = account.get('displayName');
         });
+    },
+
+    isValidStart () {
+      // if no display name set then we still do not want to activate the change button
+      var accountDisplayName = this.getSignedInAccount().get('displayName') || '';
+      var displayName = this.getElementValue('input.display-name').trim();
+
+      return accountDisplayName !== displayName;
     },
 
     submit () {

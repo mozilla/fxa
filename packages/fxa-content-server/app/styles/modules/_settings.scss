@@ -212,6 +212,13 @@ body.settings #main-content.card {
   &.primary {
     background: $button-background-color;
     color: $message-text-color;
+
+    &:disabled,
+    &.disabled {
+      background: $button-background-default-color;
+      border: solid 1px $button-border-disabled-color;
+      color: $button-disabled-color;
+    }
   }
 
   &.secondary {

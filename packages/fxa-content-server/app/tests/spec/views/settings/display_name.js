@@ -117,6 +117,32 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('isValidStart', function () {
+      it('validates the display name field for changes', function () {
+        account.set('displayName', 'joe');
+        return initView()
+          .then(function () {
+            view.$('.display-name').val('joe');
+            assert.equal(view.isValidStart(), false, 'name did not change');
+
+            view.$('.display-name').val('joe change');
+            assert.equal(view.isValidStart(), true, 'name changed');
+          });
+      });
+
+      it('validates the display name field when it is not set', function () {
+        account.set('displayName', null);
+        return initView()
+          .then(function () {
+            view.$('.display-name').val('');
+            assert.equal(view.isValidStart(), false, 'name did not change');
+
+            view.$('.display-name').val('changed');
+            assert.equal(view.isValidStart(), true, 'name changed');
+          });
+      });
+    });
+
     describe('submit', function () {
       it('submits correctly', function () {
         var name = '  joe cool  ';
