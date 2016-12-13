@@ -424,6 +424,7 @@ define(function (require, exports, module) {
         keys: wantsKeys(relier),
         sessionToken: true
       };
+      setMetricsContext(accountResetOptions, options);
 
       var passwordVerifyCodeOptions = {};
       setMetricsContext(passwordVerifyCodeOptions, options);

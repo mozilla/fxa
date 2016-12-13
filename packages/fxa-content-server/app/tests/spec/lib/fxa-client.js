@@ -855,17 +855,17 @@ define(function (require, exports, module) {
       });
 
       it('passes along an optional `metricsContext`', function () {
-        var options = {
-          metricsContext: {}
+        const metricsContext = {
+          flowBeginTime: 'foo',
+          flowId: 'bar'
         };
 
-        return client.completePasswordReset(email, password, token, code, relier, options)
+        return client.completePasswordReset(email, password, token, code, relier, { metricsContext })
           .then(function () {
-            var params = {
-              metricsContext: options.metricsContext
-            };
             assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
-              code, token, params));
+              code, token, { metricsContext }));
+            assert.isTrue(realClient.accountReset.calledWith(
+                trim(email), password, 'reset_token', { keys: true, metricsContext, sessionToken: true }));
           });
       });
     });
