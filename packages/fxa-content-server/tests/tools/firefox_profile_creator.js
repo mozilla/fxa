@@ -41,9 +41,6 @@ if (profile) {
   // add a string to the Firefox UA to signal that this is a test runner
   myProfile.setPreference('general.useragent.override', UA_OVERRIDE);
 
-  // disable signed extensions
-  // the WebDriver extension will not work where signed extensions are forced
-  myProfile.setPreference('xpinstall.signatures.required', false);
   // disable WebDriver extension compat check
   myProfile.setPreference('extensions.checkCompatibility.47.0', false);
   myProfile.setPreference('extensions.checkCompatibility.48.0', false);
@@ -53,6 +50,12 @@ if (profile) {
   myProfile.setPreference('browser.tabs.remote.autostart.1', false);
   myProfile.setPreference('browser.tabs.remote.autostart.2', false);
   myProfile.setPreference('browser.tabs.remote.force-enable', false);
+
+  // disable signed extensions
+  myProfile.setPreference('xpinstall.signatures.required', false);
+  myProfile.setPreference('xpinstall.whitelist.required', false);
+  myProfile.setPreference('services.sync.prefs.sync.xpinstall.whitelist.required', false);
+  myProfile.setPreference('extensions.checkCompatibility.nightly', false);
 
   myProfile.updatePreferences();
 
