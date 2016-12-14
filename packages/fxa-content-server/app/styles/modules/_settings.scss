@@ -565,6 +565,14 @@ section.modal-panel {
     padding-top: 8px;
   }
 
+  &.client-current {
+    background-position: 0 5px;
+
+    .client-name {
+      padding-top: 5px;
+    }
+  }
+
   .last-connected {
     display: none;
   }
