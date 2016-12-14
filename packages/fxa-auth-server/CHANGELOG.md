@@ -1,3 +1,15 @@
+<a name="1.76.0"></a>
+# [1.76.0](https://github.com/mozilla/fxa-auth-server/compare/v1.75.2...v1.76.0) (2016-12-14)
+
+
+### Bug Fixes
+
+* **server:** remove redundant metrics context fields ([f027f0b](https://github.com/mozilla/fxa-auth-server/commit/f027f0b))
+* **server:** tolerate missing payload in AppError.translate ([a19ff6d](https://github.com/mozilla/fxa-auth-server/commit/a19ff6d))
+* **signup:** Return canonical email address in 'account exists' error. (#1589), r=@vbudhram ([ddd4fdb](https://github.com/mozilla/fxa-auth-server/commit/ddd4fdb))
+
+
+
 <a name="1.75.2"></a>
 ## [1.75.2](https://github.com/mozilla/fxa-auth-server/compare/v1.75.1...v1.75.2) (2016-12-05)
 
