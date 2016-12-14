@@ -26,8 +26,6 @@ Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to stop and sta
 
    - `./pm2 start servers.json` **- start all servers.**
 
-     - WARNING: does not stop running servers, running multiple times spawns more of the same.
-
    - `./pm2 kill` **- stop all servers.**
 
    - `./pm2 status` - display running servers.
