@@ -32,11 +32,6 @@ define(function (require, exports, module) {
         return p(null);
       }
 
-      // Destroy any previous modal view
-      if (this._currentChildView && this._currentChildView.isModal) {
-        this._currentChildView.closePanel();
-      }
-
       return this._createChildViewIfNeeded(ChildView, options)
         .then((childView) => {
           if (childView) {

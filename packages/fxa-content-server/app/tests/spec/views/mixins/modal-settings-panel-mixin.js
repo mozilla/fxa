@@ -5,93 +5,90 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const { assert } = require('chai');
   const BaseView = require('views/base');
-  const chai = require('chai');
   const Cocktail = require('cocktail');
-  const Metrics = require('lib/metrics');
   const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
 
-  var assert = chai.assert;
-
-  var ModalSettingsPanelView = BaseView.extend({
+  const ModalSettingsPanelView = BaseView.extend({
     template: TestTemplate
   });
 
-  Cocktail.mixin(ModalSettingsPanelView, ModalSettingsPanelMixin);
+  Cocktail.mixin(
+    ModalSettingsPanelView,
+    ModalSettingsPanelMixin
+  );
 
   describe('views/mixins/modal-settings-panel-mixin', function () {
-    var view;
-    var metrics;
+    let view;
 
     beforeEach(function () {
-      metrics = new Metrics();
-
       view = new ModalSettingsPanelView({
-        metrics: metrics,
         parentView: {
           displaySuccess: sinon.spy()
-        }
+        },
       });
 
-      return view.render()
-        .then(function () {
-          $('#container').html(view.el);
-        });
+      return view.render();
     });
 
     afterEach(function () {
-      metrics.destroy();
-
       view.remove();
       view.destroy();
 
-      view = metrics = null;
+      view = null;
     });
 
-    describe('events', function () {
-      it('toggles open and closed', function () {
-        sinon.stub(view, 'closePanel', function () {});
-        sinon.stub(view, 'navigate', function () { });
+    describe('events', () => {
+      beforeEach(() => {
+        $('#container').html(view.$el);
+      });
+
+      it('cancel button click navigates to settings', function () {
+        sinon.stub(view, 'navigate', () => {});
         $('button.cancel').click();
-        assert.isTrue(view.closePanel.called);
         assert.isTrue(view.navigate.calledWith('settings'));
       });
 
-      it('back', function () {
+      it('back button click navigates to settings/avatar/change', function () {
         sinon.stub(view, 'navigate', function () { });
         $('.modal-panel #back').click();
         assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
       });
     });
 
-    describe('methods', function () {
-      it('open and close', function () {
-        view.openPanel();
-        assert.isTrue($.modal.isActive());
-
-        sinon.stub(view, 'closePanel', function () {});
-        sinon.stub(view, 'navigate', function () { });
-        $.modal.close();
-        assert.isTrue(view.closePanel.called);
-        assert.isTrue(view.navigate.calledWith('settings'));
-        assert.isFalse($.modal.isActive());
-      });
-
-      it('closePanel', function () {
-        sinon.stub(view, 'destroy', function () { });
-        view.closePanel();
-        assert.isTrue(view.destroy.calledWith(true));
-      });
-
-      it('displaySuccess', function () {
-        sinon.stub(view, 'closePanel', function () {});
-        view.displaySuccess('hi');
-        assert.isTrue(view.parentView.displaySuccess.calledWith('hi'));
-      });
+    it('displaySuccess delegates to the parent view', function () {
+      view.displaySuccess('hi');
+      assert.isTrue(view.parentView.displaySuccess.calledWith('hi'));
     });
 
+    describe('modal-cancel event', () => {
+      beforeEach(() => {
+        sinon.stub(view, 'navigate', function () {
+          this._hasNavigated = true;
+        });
+      });
+
+      describe('`navigate` has already been called', () => {
+        it('does not navigate to settings', () => {
+          view.navigate('signin');
+
+          view.trigger('modal-cancel');
+
+          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.navigate.calledWith('signin'));
+        });
+      });
+
+      describe('`navigate` has not been called', () => {
+        it('navigates to settings', () => {
+          view.trigger('modal-cancel');
+          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.navigate.calledWith('settings'));
+        });
+      });
+    });
   });
 });
-

@@ -41,7 +41,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(SettingsPanelView2, SettingsPanelMixin);
   Cocktail.mixin(ModalSettingsPanelView, ModalSettingsPanelMixin);
 
-  describe('views/sub-panels', function () {
+  describe('views/sub_panels', function () {
     var metrics;
     var notifier;
     var panelViews;
@@ -159,25 +159,6 @@ define(function (require, exports, module) {
             assert.isTrue(
                 view._createChildViewIfNeeded.calledWith(SettingsPanelView, options));
             assert.isTrue(childView.openPanel.called);
-          });
-      });
-
-      it('showChildView destroys previous modal view', function () {
-        sinon.stub(view, '_createChildViewIfNeeded', function (View) {
-          var childView = new View();
-          sinon.stub(childView, 'openPanel', function () { });
-          return p(childView);
-        });
-
-        var modalChildView;
-        return view.showChildView(ModalSettingsPanelView)
-          .then(function (childView) {
-            modalChildView = childView;
-            sinon.stub(childView, 'closePanel', function () { });
-            return view.showChildView(SettingsPanelView);
-          })
-          .then(function (childView) {
-            assert.isTrue(modalChildView.closePanel.called);
           });
       });
     });

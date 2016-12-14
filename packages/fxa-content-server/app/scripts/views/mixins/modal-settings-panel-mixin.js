@@ -9,53 +9,41 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const $ = require('jquery');
+  const _ = require('underscore');
   const BaseView = require('views/base');
-  var preventDefaultThen = BaseView.preventDefaultThen;
+  const ModalPanelMixin = require('views/mixins/modal-panel-mixin');
+  const preventDefaultThen = BaseView.preventDefaultThen;
 
-  module.exports = {
-    isModal: true,
-
-    initialize (options) {
+  const Mixin = _.extend({}, ModalPanelMixin, {
+    initialize (options = {}) {
       this.parentView = options.parentView;
+      this.on('modal-cancel', () => this.onModalCancel());
     },
 
     events: {
-      'click .cancel': preventDefaultThen('_closePanelReturnToSettings'),
+      'click .cancel': preventDefaultThen('_returnToSettings'),
       'click .modal-panel #back': preventDefaultThen('_returnToAvatarChange')
-    },
-
-    openPanel (event) {
-      $(this.el).modal({
-        opacity: 0.75,
-        showClose: false,
-        zIndex: 999
-      });
-      $(this.el).on($.modal.CLOSE, () => {
-        this._closePanelReturnToSettings();
-      });
     },
 
     _returnToAvatarChange () {
       this.navigate('settings/avatar/change');
     },
 
-    _closePanelReturnToSettings () {
+    _returnToSettings () {
       this.navigate('settings');
-      this.closePanel();
     },
 
-    closePanel () {
-      this.destroy(true);
-    },
-
-    closeModalPanel () {
-      this.closePanel();
-      $.modal.close();
+    onModalCancel () {
+      // A view could have already navigated. If so, do not
+      // attempt to navigate a second time.
+      if (! this._hasNavigated) {
+        this._returnToSettings();
+      }
     },
 
     displaySuccess (msg) {
       this.parentView.displaySuccess(msg);
     }
-  };
+  });
+  module.exports = Mixin;
 });

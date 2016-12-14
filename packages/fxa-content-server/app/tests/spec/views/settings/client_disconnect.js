@@ -150,18 +150,19 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('closePanelAfterDisconnect event', () => {
-      it('does not close panel if not disconnected', () => {
-        sinon.spy(view, 'closeDisconnectModal');
-        view.closePanelAfterDisconnect();
-        assert.notOk(view.closeDisconnectModal.calledOnce, 'does not close panel');
+    describe('_returnToClientListAfterDisconnect event', () => {
+      it('does not navigate if not disconnected', () => {
+        sinon.spy(view, 'navigate');
+        view._returnToClientListAfterDisconnect();
+        assert.isFalse(view.navigate.calledOnce, 'does not close panel');
       });
 
-      it('close panel if disconnected device', () => {
+      it('navigates if disconnected device', () => {
         view.hasDisconnected = true;
-        sinon.spy(view, 'closeDisconnectModal');
-        view.closePanelAfterDisconnect();
-        assert.ok(view.closeDisconnectModal.calledOnce);
+        sinon.spy(view, 'navigate');
+        view._returnToClientListAfterDisconnect();
+        assert.isTrue(view.navigate.calledOnce);
+        assert.isTrue(view.navigate.calledWith('settings/clients'));
       });
     });
 
@@ -172,8 +173,6 @@ define(function (require, exports, module) {
         });
         sinon.spy(view, 'render');
         sinon.spy(view, 'navigateToSignIn');
-        sinon.spy(view, 'closeModalPanel');
-        sinon.spy(view, 'closeDisconnectModal');
       });
 
       it('suspicious option with current device', () => {
@@ -184,8 +183,6 @@ define(function (require, exports, module) {
             assert.ok(view.render.calledOnce, 'not rendered, current device');
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.suspicious'));
             assert.ok(view.navigateToSignIn.called, 'navigates away');
-            assert.ok(view.closeModalPanel.called, 'close modal called');
-            assert.notOk(view.closeDisconnectModal.called);
             assert.ok(view.reasonHelp);
           });
         });
@@ -204,7 +201,6 @@ define(function (require, exports, module) {
             assert.ok(view.render.calledTwice);
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.lost'));
             assert.notOk(view.navigateToSignIn.called, 'does not navigate');
-            assert.notOk(view.closeDisconnectModal.called);
             assert.ok(view.reasonHelp);
           });
         });
@@ -223,7 +219,6 @@ define(function (require, exports, module) {
             assert.notOk(view.render.calledTwice);
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.old'));
             assert.notOk(view.navigateToSignIn.called);
-            assert.ok(view.closeDisconnectModal.called);
             assert.notOk(view.reasonHelp);
           });
         });
@@ -242,7 +237,6 @@ define(function (require, exports, module) {
             assert.notOk(view.render.calledTwice);
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.duplicate'));
             assert.notOk(view.navigateToSignIn.called);
-            assert.ok(view.closeDisconnectModal.called);
             assert.notOk(view.reasonHelp);
           });
         });
@@ -261,13 +255,10 @@ define(function (require, exports, module) {
             assert.notOk(view.render.calledTwice);
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.no'));
             assert.notOk(view.navigateToSignIn.called);
-            assert.ok(view.closeDisconnectModal.called);
             assert.notOk(view.reasonHelp);
           });
         });
       });
-
     });
-
   });
 });

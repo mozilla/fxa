@@ -27,13 +27,14 @@ define(function (require, exports, module) {
     viewName: 'settings.clients.disconnect',
 
     events: {
-      'click': 'closePanelAfterDisconnect',
-      'click .cancel-disconnect': FormView.preventDefaultThen('closeDisconnectModal'),
+      'click': '_returnToClientListAfterDisconnect',
+      'click .cancel-disconnect': FormView.preventDefaultThen('_returnToClientList'),
     },
 
     initialize () {
       // user is presented with an option to disconnect device
       this.hasDisconnected = false;
+      this.on('modal-cancel', () => this._returnToClientList());
     },
 
     beforeRender () {
@@ -42,7 +43,7 @@ define(function (require, exports, module) {
       let clients = this.model.get('clients');
       let clientId = this.model.get('clientId');
       if (! clients || ! clientId) {
-        return this.navigate('settings/clients');
+        return this._returnToClientList();
       }
 
       this.client = clients.get(clientId);
@@ -83,32 +84,29 @@ define(function (require, exports, module) {
           this.reasonHelp = REASON_HELP[selectedValue];
           if (client.get('isCurrentDevice')) {
             // if disconnected the current device, the user is automatically signed out
-            this.closeModalPanel();
             this.navigateToSignIn();
           } else if (this.reasonHelp) {
             // if we can provide help for this disconnect reason
             this.render();
           } else {
             // close the modal if no reason help
-            this.closePanelAfterDisconnect();
+            this._returnToClientListAfterDisconnect();
           }
         });
     },
 
     /**
-     * Closes the panel if device was disconnected.
+     * Navigates to the client list if device was disconnected.
      */
-    closePanelAfterDisconnect () {
+    _returnToClientListAfterDisconnect () {
       if (this.hasDisconnected) {
-        this.closeDisconnectModal();
+        this._returnToClientList();
       }
     },
 
-    closeDisconnectModal () {
-      this.closeModalPanel();
+    _returnToClientList () {
       this.navigate('settings/clients');
     }
-
   });
 
   Cocktail.mixin(
