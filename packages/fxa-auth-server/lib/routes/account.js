@@ -659,6 +659,22 @@ module.exports = function (
               return true
             }
           }
+
+          // If the account was recently created, don't make the user
+          // confirm sign-in for a configurable amount of time. This will reduce
+          // the friction of a user adding a second device.
+          const skipForNewAccounts = config.signinConfirmation.skipForNewAccounts
+          if (skipForNewAccounts && skipForNewAccounts.enabled) {
+            const accountAge = Date.now() - account.createdAt
+            if (accountAge <= skipForNewAccounts.maxAge) {
+              log.info({
+                op: 'account.signin.confirm.bypass.age',
+                uid: account.uid.toString('hex')
+              })
+              return true
+            }
+          }
+
           return false
         }
 

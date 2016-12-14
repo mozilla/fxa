@@ -442,6 +442,19 @@ var conf = convict({
       format: RegExp,
       default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX'
+    },
+    skipForNewAccounts: {
+      enabled :{
+        doc: 'Skip sign-in confirmation for newly-created accounts.',
+        default: false,
+        env: 'SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS'
+      },
+      maxAge: {
+        doc: 'Maximum age at which an account is considered "new".',
+        format: 'duration',
+        default: '4 hours',
+        env: 'SIGNIN_CONFIRMATION_MAX_AGE_OF_NEW_ACCOUNTS'
+      }
     }
   },
   securityHistory: {

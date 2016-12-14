@@ -1171,6 +1171,94 @@ describe('/account/login', function () {
         assert.equal(response.emailSent, true, 'response indicates an email was sent')
       })
     })
+
+    describe('skip for new accounts', function () {
+      function setup(enabled, accountCreatedSince) {
+        config.signinConfirmation.skipForNewAccounts = {
+          enabled: enabled,
+          maxAge: 5
+        }
+
+        mockDB.emailRecord = function () {
+          return P.resolve({
+            authSalt: crypto.randomBytes(32),
+            createdAt: Date.now() - accountCreatedSince,
+            data: crypto.randomBytes(32),
+            email: mockRequest.payload.email,
+            emailVerified: true,
+            kA: crypto.randomBytes(32),
+            lastAuthAt: function () {
+              return Date.now()
+            },
+            uid: uid,
+            wrapWrapKb: crypto.randomBytes(32)
+          })
+        }
+
+        var accountRoutes = makeRoutes({
+          checkPassword: function () {
+            return P.resolve(true)
+          },
+          config: config,
+          customs: mockCustoms,
+          db: mockDB,
+          log: mockLog,
+          mailer: mockMailer,
+          push: mockPush
+        })
+
+        route = getRoute(accountRoutes, '/account/login')
+      }
+
+      it('is disabled', function () {
+        setup(false)
+
+        return runTest(route, mockRequest, function (response) {
+          assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
+          var tokenData = mockDB.createSessionToken.getCall(0).args[0]
+          assert.ok(tokenData.mustVerify, 'sessionToken must be verified before use')
+          assert.ok(tokenData.tokenVerificationId, 'sessionToken was created unverified')
+          assert.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyCode was not called')
+          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+          assert.ok(!response.verified, 'response indicates account is not verified')
+          assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
+          assert.equal(response.verificationReason, 'login', 'verificationReason is login')
+
+          assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+          assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city, 'Mountain View')
+          assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.country, 'United States')
+          assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].timeZone, 'America/Los_Angeles')
+        })
+      })
+
+
+      it('skip sign-in confirmation on recently created account', function () {
+        setup(true, 0)
+
+        return runTest(route, mockRequest, function (response) {
+          assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
+          var tokenData = mockDB.createSessionToken.getCall(0).args[0]
+          assert.equal(tokenData.tokenVerificationId, null, 'sessionToken was created verified')
+          assert.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was not called')
+          assert.ok(response.verified, 'response indicates account is verified')
+        })
+      })
+
+
+      it('don\'t skip sign-in confirmation on older account', function () {
+        setup(true, 10)
+
+        return runTest(route, mockRequest, function (response) {
+          assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
+          var tokenData = mockDB.createSessionToken.getCall(0).args[0]
+          assert.ok(tokenData.tokenVerificationId, 'sessionToken was created unverified')
+          assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
+          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
+          assert.ok(!response.verified, 'response indicates account is unverified')
+        })
+      })
+    })
   })
 
   it('creating too many sessions causes an error to be logged', function () {
