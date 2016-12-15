@@ -88,7 +88,7 @@ define(function (require, exports, module) {
 
       // Fx 18 (& FxOS 1.*) do not support anchor.origin. Build the origin
       // out of the protocol and host.
-      // Use setAttibute instead of a direct set or else Fx18 does not
+      // Use setAttribute instead of a direct set or else Fx18 does not
       // update anchor.protocol & anchor.host.
       anchor.setAttribute('href', url);
 
