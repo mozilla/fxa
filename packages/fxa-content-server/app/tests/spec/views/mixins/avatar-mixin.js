@@ -201,7 +201,6 @@ define(function (require, exports, module) {
           assert.isTrue(account.fetchCurrentProfileImage.called);
           assert.isTrue(user.setAccount.calledWith(account));
           assert.isTrue(account.setProfileImage.calledWith(image));
-          assert.isTrue(view.hasDisplayedAccountProfileImage());
         });
     });
 

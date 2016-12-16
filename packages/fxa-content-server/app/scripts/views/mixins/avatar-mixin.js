@@ -70,7 +70,6 @@ define(function (require, exports, module) {
           return this._completeLoadingSpinner(spinnerEl);
         })
         .then((profileImage) => {
-          this._displayedProfileImage = profileImage;
           avatarWrapperEl.find(':not(.avatar-spinner)').remove();
 
           if (profileImage.isDefault()) {
@@ -85,10 +84,6 @@ define(function (require, exports, module) {
             this.logViewEvent('profile_image_shown');
           }
         });
-    },
-
-    hasDisplayedAccountProfileImage () {
-      return this._displayedProfileImage && ! this._displayedProfileImage.isDefault();
     },
 
     setDefaultPlaceholderAvatar (avatarWrapperEl) {
@@ -163,7 +158,21 @@ define(function (require, exports, module) {
     },
 
     deleteDisplayedAccountProfileImage (account) {
-      return account.deleteAvatar(this._displayedProfileImage.get('id'))
+      return p()
+        .then(() => {
+          if (! account.get('profileImageId')) {
+            return account.fetchCurrentProfileImage()
+              .then((profileImage) => {
+                // Cache the result to make sure we don't flash the default
+                // image while fetching the latest profile image
+                this._updateCachedProfileImage(profileImage, account);
+                return profileImage;
+              });
+          }
+          // if we reach here, the account has a profile image ID already.
+        })
+        // if we reach here, the account will have an avatar and a profileImageId
+        .then((profileImage) => account.deleteAvatar(account.get('profileImageId')))
         .then(() => {
           // A blank image will clear the cache
           this.updateProfileImage(new ProfileImage(), account);
