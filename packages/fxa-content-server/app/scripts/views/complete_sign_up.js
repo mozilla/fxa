@@ -23,26 +23,23 @@ define(function (require, exports, module) {
   const CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const p = require('lib/promise');
   const ResendMixin = require('views/mixins/resend-mixin');
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  const Url = require('lib/url');
   const VerificationInfo = require('models/verification/sign-up');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
-  var t = BaseView.t;
+  const t = BaseView.t;
 
-  var CompleteSignUpView = BaseView.extend({
+  const CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
 
-    initialize (options) {
-      options = options || {};
+    initialize (options = {}) {
+      this._verificationInfo = new VerificationInfo(this.getSearchParams());
+      const uid = this._verificationInfo.get('uid');
 
-      var searchParams = Url.searchParams(this.window.location.search);
-      this._verificationInfo = new VerificationInfo(searchParams);
-      var uid = this._verificationInfo.get('uid');
-
-      var account = options.account || this.user.getAccountByUid(uid);
+      const account = options.account || this.user.getAccountByUid(uid);
       // the account will not exist if verifying in a second browser, and the
       // default account will be returned. Add the uid to the account so
       // verification can still occur.
@@ -61,16 +58,8 @@ define(function (require, exports, module) {
       return this._account;
     },
 
-    _navigateToVerifiedScreen () {
-      if (this.isSignUp()) {
-        this.navigate('signup_verified');
-      } else {
-        this.navigate('signin_verified');
-      }
-    },
-
     beforeRender () {
-      var verificationInfo = this._verificationInfo;
+      const verificationInfo = this._verificationInfo;
       if (! verificationInfo.isValid()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
@@ -78,85 +67,21 @@ define(function (require, exports, module) {
         return true;
       }
 
-      var code = verificationInfo.get('code');
-      var options = {
-        reminder: this._verificationInfo.get('reminder'),
+      const code = verificationInfo.get('code');
+      const options = {
+        reminder: verificationInfo.get('reminder'),
         service: this.relier.get('service')
       };
-      return this.user.completeAccountSignUp(this.getAccount(), code, options)
-          .fail((err) => {
-            if (MarketingEmailErrors.created(err)) {
-              // A basket error should not prevent the
-              // sign up verification from completing, nor
-              // should an error be displayed to the user.
-              // Log the error and nothing else.
-              this.logError(err);
-            } else {
-              throw err;
-            }
-          })
-          .then(() => {
-            this.logViewEvent('verification.success');
-            this.notifier.trigger('verification.success');
 
-            // Update the stored account data in case it was
-            // updated by verifySignUp.
-            var account = this.getAccount();
-            this.user.setAccount(account);
-            return this.invokeBrokerMethod('afterCompleteSignUp', account);
-          })
-          .then(() => {
-            var account = this.getAccount();
-
-            if (! this.relier.isDirectAccess()) {
-              this._navigateToVerifiedScreen();
-              return;
-            }
-
-            return account.isSignedIn()
-              .then((isSignedIn) => {
-                if (isSignedIn) {
-                  this.navigate('settings', {
-                    success: t('Account verified successfully')
-                  });
-                } else {
-                  this._navigateToVerifiedScreen();
-                }
-              });
-          })
-          .fail((err) => {
-            if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-              verificationInfo.markExpired();
-              err = AuthErrors.toError('UNKNOWN_ACCOUNT_VERIFICATION');
-            } else if (
-                AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
-                AuthErrors.is(err, 'INVALID_PARAMETER')) {
-
-              // When coming from sign-in confirmation verification, show a
-              // verification link expired error instead of damaged verification link.
-              // This error is generated because the link has already been used.
-              if (this.isSignIn()) {
-                // Disable resending verification, can only be triggered from new sign-in
-                verificationInfo.markUsed();
-                err = AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE');
-              } else {
-                // These server says the verification code or any parameter is
-                // invalid. The entire link is damaged.
-                verificationInfo.markDamaged();
-                err = AuthErrors.toError('DAMAGED_VERIFICATION_LINK');
-              }
-            } else {
-              // all other errors show the standard error box.
-              this.model.set('error', err);
-            }
-
-            this.logError(err);
-            return true;
-          });
+      const account = this.getAccount();
+      return this.user.completeAccountSignUp(account, code, options)
+        .fail((err) => this._logAndAbsorbMarketingClientErrors(err))
+        .then(() => this._notifyBrokerAndComplete(account))
+        .fail((err) => this._handleVerificationErrors(err));
     },
 
     context () {
-      var verificationInfo = this._verificationInfo;
+      const verificationInfo = this._verificationInfo;
       return {
         canResend: this._canResend(),
         error: this.model.get('error'),
@@ -167,24 +92,158 @@ define(function (require, exports, module) {
       };
     },
 
+    /**
+     * Log and swallow any errors that are generated from attempting to
+     * sign up the user to marketing email.
+     *
+     * @param {Error} err
+     * @private
+     */
+    _logAndAbsorbMarketingClientErrors (err) {
+      if (MarketingEmailErrors.created(err)) {
+        // A basket error should not prevent the
+        // sign up verification from completing, nor
+        // should an error be displayed to the user.
+        // Log the error and nothing else.
+        this.logError(err);
+      } else {
+        throw err;
+      }
+    },
+
+    /**
+     * Notify the broker that signup is complete. If the broker does not halt,
+     * navigate to the next screen.
+     *
+     * @param {Object} account
+     * @returns {Promise}
+     * @private
+     */
+    _notifyBrokerAndComplete (account) {
+      this.logViewEvent('verification.success');
+      this.notifier.trigger('verification.success');
+
+      // Update the stored account data in case it was
+      // updated by completeAccountSignUp.
+      this.user.setAccount(account);
+      return this.invokeBrokerMethod('afterCompleteSignUp', account)
+        .then(() => this._navigateToNextScreen());
+    },
+
+    /**
+     * Navigate to the next screen after verification has completed.
+     *
+     * @returns {Promise}
+     * @private
+     */
+    _navigateToNextScreen () {
+      const account = this.getAccount();
+      const relier = this.relier;
+
+      // If an OAuth user makes it here, they are either not signed in
+      // or are verifying in a different tab. Show the "Account
+      // verified!" screen to the user, the correct tab will have
+      // already transitioned back to the relier.
+      if (relier.isSync() || relier.isOAuth()) {
+        return p(this._navigateToVerifiedScreen());
+      } else {
+        return account.isSignedIn()
+          .then((isSignedIn) => {
+            if (isSignedIn) {
+              this.navigate('settings', {
+                success: t('Account verified successfully')
+              });
+            } else {
+              this._navigateToVerifiedScreen();
+            }
+          });
+      }
+    },
+
+    /**
+     * Navigate to the correct *_verified screen.
+     *
+     * @private
+     */
+    _navigateToVerifiedScreen () {
+      if (this.isSignUp()) {
+        this.navigate('signup_verified');
+      } else {
+        this.navigate('signin_verified');
+      }
+    },
+
+    /**
+     * Handle any verification errors.
+     *
+     * @param {Error} err
+     * @private
+     */
+    _handleVerificationErrors (err) {
+      const verificationInfo = this._verificationInfo;
+
+      if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+        verificationInfo.markExpired();
+        err = AuthErrors.toError('UNKNOWN_ACCOUNT_VERIFICATION');
+      } else if (
+          AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
+          AuthErrors.is(err, 'INVALID_PARAMETER')) {
+
+        // When coming from sign-in confirmation verification, show a
+        // verification link expired error instead of damaged verification link.
+        // This error is generated because the link has already been used.
+        if (this.isSignIn()) {
+          // Disable resending verification, can only be triggered from new sign-in
+          verificationInfo.markUsed();
+          err = AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE');
+        } else {
+          // These server says the verification code or any parameter is
+          // invalid. The entire link is damaged.
+          verificationInfo.markDamaged();
+          err = AuthErrors.toError('DAMAGED_VERIFICATION_LINK');
+        }
+      } else {
+        // all other errors show the standard error box.
+        this.model.set('error', err);
+      }
+
+      this.logError(err);
+    },
+
+    /**
+     * Check whether the user can resend a signup verification email to allow
+     * users to recover from expired verification links.
+     *
+     * @returns {Boolean}
+     * @private
+     */
     _canResend () {
-      // _getResendSessionToken is only returned if the user signed up in the
+      // _hasResendSessionToken only returns `true` if the user signed up in the
       // same browser in which they opened the verification link.
-      return !! this._getResendSessionToken() && this.isSignUp();
+      return !! this._hasResendSessionToken() && this.isSignUp();
     },
 
-    // This returns the latest sessionToken associated with the user's email
-    // address. We intentionally don't cache it during view initialization so that
-    // we can capture sessionTokens from accounts created (in this browser)
-    // since the view was loaded.
-    _getResendSessionToken () {
-      return this.user.getAccountByEmail(this._email).get('sessionToken');
+    /**
+     * Returns whether a sessionToken exists for the user's email.
+     * The sessionToken is not cached during view initialization so that
+     * we can capture sessionTokens from accounts created (in this browser)
+     * since the view was loaded.
+     *
+     * @returns {Boolean}
+     * @private
+     */
+    _hasResendSessionToken () {
+      return !! this.user.getAccountByEmail(this._email).get('sessionToken');
     },
 
-    // This is called when a user follows an expired verification link
-    // and clicks the "Resend" link.
+    /**
+     * Resend a signup verification link to the user. Called when a
+     * user follows an expired verification link and clicks "resend"
+     *
+     * @returns {Promise}
+     */
     resend () {
-      var account = this.user.getAccountByEmail(this._email);
+      const account = this.user.getAccountByEmail(this._email);
       return account.retrySignUp(this.relier, {
         resume: this.getStringifiedResumeToken(account)
       })

@@ -23,20 +23,21 @@ define(function (require, exports, module) {
   const WindowMock = require('../../mocks/window');
 
   describe('views/complete_sign_up', function () {
-    var account;
-    var broker;
-    var metrics;
-    var notifier;
-    var relier;
-    var user;
-    var verificationError;
-    var view;
-    var windowMock;
+    let account;
+    let broker;
+    let isSignedIn;
+    let metrics;
+    let notifier;
+    let relier;
+    let user;
+    let verificationError;
+    let view;
+    let windowMock;
 
-    var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
-    var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
-    var validService = 'someValidService';
-    var validReminder = 'validReminder';
+    const validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
+    const validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
+    const validService = 'someValidService';
+    const validReminder = 'validReminder';
 
     function testShowsExpiredScreen(search) {
       windowMock.location.search = search || '?code=' + validCode + '&uid=' + validUid;
@@ -82,6 +83,8 @@ define(function (require, exports, module) {
       user = new User({
         notifier: notifier
       });
+      sinon.stub(user, 'setAccount', () => {});
+
       verificationError = null;
       windowMock = new WindowMock();
 
@@ -90,6 +93,7 @@ define(function (require, exports, module) {
         sessionToken: 'foo',
         uid: validUid
       });
+
       sinon.stub(account, 'verifySignUp', function () {
         if (verificationError) {
           return p.reject(verificationError);
@@ -97,6 +101,9 @@ define(function (require, exports, module) {
           return p();
         }
       });
+
+      isSignedIn = true;
+      sinon.stub(account, 'isSignedIn', () => p(isSignedIn));
 
       windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
       initView(account);
@@ -114,9 +121,7 @@ define(function (require, exports, module) {
     describe('getAccount', function () {
       describe('if verifying in the same browser', function () {
         beforeEach(function () {
-          sinon.stub(user, 'getAccountByUid', function () {
-            return account;
-          });
+          sinon.stub(user, 'getAccountByUid', () => account);
 
           // do not pass in an account, to simulate how the module
           // is initialized in the app. The account should be
@@ -157,11 +162,8 @@ define(function (require, exports, module) {
           return testShowsDamagedScreen('?code=' + validCode);
         });
 
-        it('logs an error', function () {
+        it('logs an error, does not attempt to verify the account', function () {
           testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
-        });
-
-        it('does not attempt to verify the account', function () {
           assert.isFalse(account.verifySignUp.called);
         });
       });
@@ -171,11 +173,8 @@ define(function (require, exports, module) {
           return testShowsDamagedScreen('?uid=' + validUid);
         });
 
-        it ('logs an error', function () {
+        it ('logs an error, does not attempt to verify the account', function () {
           testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
-        });
-
-        it('does not attempt to verify the account', function () {
           assert.isFalse(account.verifySignUp.called);
         });
       });
@@ -238,23 +237,36 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('email opt-in failures', function () {
+        beforeEach(function () {
+          verificationError = MarketingEmailErrors.toError('USAGE_ERROR');
+
+          sinon.spy(view, 'logError');
+          sinon.stub(view, '_notifyBrokerAndComplete', () => p());
+
+          return view.render();
+        });
+
+        it('logs error, completes verification', function () {
+          assert.isTrue(view.logError.calledWith(verificationError));
+          assert.isTrue(view._notifyBrokerAndComplete.calledWith(account));
+        });
+      });
+
       describe('INVALID_PARAMETER error', function () {
         beforeEach(function () {
           verificationError = AuthErrors.toError('INVALID_PARAMETER', 'code');
           return testShowsDamagedScreen();
         });
 
-        it('attempts to verify the account', function () {
-          assert.isTrue(account.verifySignUp.calledWith(validCode));
-        });
-
-        it('logs the error', function () {
+        it('logs the error, attempts to verify the account', function () {
           testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+          assert.isTrue(account.verifySignUp.calledWith(validCode));
         });
       });
 
       describe('UNKNOWN_ACCOUNT error', function () {
-        describe('with sessionToken available', function () {
+        describe('with sessionToken available (user verifies in same browser)', function () {
           beforeEach(function () {
             verificationError = AuthErrors.toError('UNKNOWN_ACCOUNT', 'who are you?');
             sinon.stub(user, 'getAccountByEmail', function () {
@@ -265,20 +277,14 @@ define(function (require, exports, module) {
             return testShowsExpiredScreen();
           });
 
-          it('attempts to verify the account', function () {
+          it('attempts to verify the account, displays link expired, resend link', function () {
             assert.isTrue(account.verifySignUp.calledWith(validCode));
-          });
-
-          it('displays the verification link expired screen', function () {
             testErrorLogged(AuthErrors.toError('UNKNOWN_ACCOUNT_VERIFICATION'));
-          });
-
-          it('displays a resend link', function () {
             assert.equal(view.$('#resend').length, 1);
           });
         });
 
-        describe('without a sessionToken', function () {
+        describe('without a sessionToken (user verifies in a different browser)', function () {
           beforeEach(function () {
             verificationError = AuthErrors.toError('UNKNOWN_ACCOUNT', 'who are you?');
             sinon.stub(user, 'getAccountByEmail', function () {
@@ -287,15 +293,9 @@ define(function (require, exports, module) {
             return testShowsExpiredScreen();
           });
 
-          it('attempts to verify the account', function () {
+          it('attempts to verify the account, displays link expired, no resend link', function () {
             assert.isTrue(account.verifySignUp.calledWith(validCode));
-          });
-
-          it('displays the link expired screen', function () {
             testErrorLogged(AuthErrors.toError('UNKNOWN_ACCOUNT_VERIFICATION'));
-          });
-
-          it('does not display a resend link', function () {
             assert.equal(view.$('#resend').length, 0);
           });
         });
@@ -307,11 +307,8 @@ define(function (require, exports, module) {
           return testShowsDamagedScreen();
         });
 
-        it('attempts to verify the account', function () {
+        it('attempts to verify the account, displays link damaged screen', function () {
           assert.isTrue(account.verifySignUp.calledWith(validCode));
-        });
-
-        it('displays the verification link damaged screen', function () {
           testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         });
       });
@@ -335,13 +332,11 @@ define(function (require, exports, module) {
             window: windowMock
           });
 
-          return view.render()
-            .then(function () {
-              assert.ok(view.$('#fxa-verification-link-reused-header').length);
-            });
+          return view.render();
         });
 
         it('displays the verification link expired screen', function () {
+          assert.ok(view.$('#fxa-verification-link-reused-header').length);
           testErrorLogged(AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE'));
         });
       });
@@ -352,169 +347,128 @@ define(function (require, exports, module) {
           return view.render().then(() => view.afterVisible());
         });
 
-        it('attempts to verify the account', function () {
+        it('attempts to verify the account, errors are logged and displayed', function () {
           assert.isTrue(account.verifySignUp.calledWith(validCode));
-        });
-
-        it('are logged', function () {
           testErrorLogged(verificationError);
-        });
-
-        it('are displayed', function () {
           assert.ok(view.$('#fxa-verification-error-header').length);
           assert.equal(view.$('.error').text(), 'Unexpected error');
         });
       });
 
-      describe('successful verification', function () {
-        describe('non-direct-access', function () {
-          describe('broker does not halt', function () {
-            beforeEach(function () {
-              sinon.stub(relier, 'isDirectAccess', function () {
-                return false;
-              });
+      describe('success', () => {
+        beforeEach(() => {
+          sinon.stub(user, 'completeAccountSignUp', () => p());
 
-              sinon.stub(user, 'setAccount', function () {
-                return p();
-              });
+          sinon.stub(view, 'invokeBrokerMethod', () => p());
+          sinon.stub(view, '_navigateToNextScreen', () => {});
+          sinon.spy(view, 'logViewEvent');
 
-              sinon.stub(account, 'isSignedIn', function () {
-                return p(true);
-              });
+          sinon.spy(notifier, 'trigger');
 
-              sinon.stub(view, 'invokeBrokerMethod', function () {
-                return p();
-              });
-
-              sinon.spy(view, 'navigate');
-            });
-
-            describe('for signup', function () {
-              beforeEach(function () {
-                view.model.set('type', VerificationReasons.SIGN_UP);
-                return view.render();
-              });
-
-              it('verifies the code', function () {
-                assert.isTrue(account.verifySignUp.calledWith(validCode));
-              });
-
-              it('notifies the broker', function () {
-                assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignUp'));
-              });
-
-              it('redirects to /signup_verified', function () {
-                assert.isTrue(view.navigate.calledWith('signup_verified'));
-              });
-
-              it('logs success', function () {
-                assert.isTrue(TestHelpers.isEventLogged(
-                        metrics, 'complete_sign_up.verification.success'));
-              });
-            });
-
-            describe('for signin', function () {
-              beforeEach(function () {
-                view.model.set('type', VerificationReasons.SIGN_IN);
-                return view.render();
-              });
-
-              it('redirects to /signin_verified', function () {
-                assert.isTrue(view.navigate.calledWith('signin_verified'));
-              });
-            });
-          });
+          return view.render();
         });
 
-        describe('direct access', function () {
-          describe('sessionToken is valid', function () {
-            describe('broker does not halt', function () {
-              beforeEach(function () {
-                sinon.stub(relier, 'isDirectAccess', function () {
-                  return true;
-                });
+        it('completes verification', () => {
+          assert.isTrue(user.completeAccountSignUp.calledOnce);
+          assert.isTrue(user.completeAccountSignUp.calledWith(account, validCode));
 
-                sinon.stub(account, 'isSignedIn', function () {
-                  return p(true);
-                });
+          assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignUp'));
+          assert.isTrue(view._navigateToNextScreen.calledOnce);
+          assert.isTrue(view.logViewEvent.calledWith('verification.success'));
 
-                sinon.stub(user, 'setAccount', function () {
-                  return p();
-                });
+          assert.isTrue(notifier.trigger.calledWith('verification.success'));
+        });
+      });
+    });
 
-                sinon.spy(view, 'navigate');
+    describe('_navigateToVerifiedScreen', () => {
+      beforeEach(() => {
+        sinon.spy(view, 'navigate');
+      });
 
-                return view.render();
-              });
-
-              it('redirects to /settings', function () {
-                assert.isTrue(view.navigate.calledWith('settings'));
-              });
-            });
-          });
-
-          describe('sessionToken is invalid', function () {
-            describe('broker does not halt', function () {
-              beforeEach(function () {
-                sinon.stub(relier, 'isDirectAccess', function () {
-                  return true;
-                });
-
-                sinon.stub(account, 'isSignedIn', function () {
-                  return p(false);
-                });
-
-                sinon.stub(user, 'setAccount', function () {
-                  return p();
-                });
-
-                sinon.spy(view, 'navigate');
-
-                return view.render();
-              });
-
-              it('redirects to /signup_verified', function () {
-                assert.isTrue(view.navigate.calledWith('signup_verified'));
-              });
-            });
-          });
+      describe('for sign-up', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'isSignUp', () => true);
+          return view._navigateToVerifiedScreen();
         });
 
-        describe('email opt-in failures', function () {
-          beforeEach(function () {
-            verificationError = MarketingEmailErrors.toError('USAGE_ERROR');
-
-            sinon.stub(account, 'isSignedIn', function () {
-              return p(true);
-            });
-
-            sinon.stub(user, 'setAccount', function () {
-              // do nothing
-            });
-
-            sinon.spy(view, 'logError');
-
-            sinon.stub(view, 'invokeBrokerMethod', function () {
-              return p();
-            });
-
-            sinon.stub(view, 'navigate', function () {
-              return p();
-            });
-
-            return view.render();
-          });
-
-          it('do not prevent user verification from finishing', function () {
-            assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignUp', account));
-          });
-
-          it('are logged', function () {
-            assert.isTrue(view.logError.calledWith(verificationError));
-          });
+        it('redirects to `signup_verified`', () => {
+          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.navigate.calledWith('signup_verified'));
         });
       });
 
+      describe('for sign-in', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'isSignUp', () => false);
+          return view._navigateToVerifiedScreen();
+        });
+
+        it('redirects to `signin_verified`', () => {
+          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.navigate.calledWith('signin_verified'));
+        });
+      });
+    });
+
+    describe('_navigateToNextScreen', () => {
+      beforeEach(() => {
+        sinon.spy(view, 'navigate');
+      });
+
+      describe('sync relier', () => {
+        beforeEach(() => {
+          sinon.stub(relier, 'isSync', () => true);
+          sinon.stub(relier, 'isOAuth', () => false);
+          sinon.spy(view, '_navigateToVerifiedScreen');
+
+          return view._navigateToNextScreen();
+        });
+
+        it('delegates to `_navigateToVerifiedScreen`', () => {
+          assert.isTrue(view._navigateToVerifiedScreen.calledOnce);
+        });
+      });
+
+      describe('oauth relier', () => {
+        beforeEach(() => {
+          sinon.stub(relier, 'isSync', () => false);
+          sinon.stub(relier, 'isOAuth', () => true);
+          sinon.spy(view, '_navigateToVerifiedScreen');
+
+          return view._navigateToNextScreen();
+        });
+
+        it('delegates to _navigateToVerifiedScreen', () => {
+          assert.isTrue(view._navigateToVerifiedScreen.calledOnce);
+        });
+      });
+
+      describe('direct-access', () => {
+        describe('user is signed in', () => {
+          beforeEach(function () {
+            isSignedIn = true;
+            return view._navigateToNextScreen();
+          });
+
+          it('redirects to `/settings`', () => {
+            assert.isTrue(view.navigate.calledWith('settings'));
+          });
+        });
+
+        describe('user is not signed in', () => {
+          beforeEach(function () {
+            sinon.spy(view, '_navigateToVerifiedScreen');
+            isSignedIn = false;
+
+            return view._navigateToNextScreen();
+          });
+
+          it('delegates to _navigateToVerifiedScreen', () => {
+            assert.isTrue(view._navigateToVerifiedScreen.calledOnce);
+          });
+        });
+      });
     });
 
     describe('resend', function () {
