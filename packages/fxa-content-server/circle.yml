@@ -8,6 +8,7 @@ dependencies:
     - mkdir -p $HOME/.vnc
     - bash tests/ci/setvncpass.sh
   override:
+    - npm install --global retry-cli
     - cp server/config/local.json-dist server/config/local.json
     - npm i --production
     - CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build
@@ -26,5 +27,6 @@ machine:
 
 test:
   override:
-    - npm run test-circle firefoxBinary=/home/ubuntu/fxa-content-server/firefox/firefox:
+    # retry the build if the attempt failed
+    - retry -n 1 -- npm run test-circle firefoxBinary=/home/ubuntu/fxa-content-server/firefox/firefox:
         parallel: true
