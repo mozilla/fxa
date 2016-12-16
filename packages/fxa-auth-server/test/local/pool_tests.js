@@ -120,8 +120,7 @@ describe('Pool', () => {
         .then(function () {
           assert(false, 'request should have failed')
         }, function (error) {
-          assert.equal(error instanceof Error, false, 'error is not Error instance')
-          assert.equal(typeof error, 'object', 'error is object')
+          assert.equal(error instanceof Error, true, 'error is an Error instance')
           assert.equal(Object.keys(error).length, 2, 'error has two properties')
           assert.equal(error.statusCode, 418, 'error.statusCode is 418')
           assert.equal(error.foo, 'bar', 'other error data is correct')
