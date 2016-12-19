@@ -49,7 +49,7 @@ define([
         .then(openPage(EXP_MAILCHECK_URL + EXP_CONTROL, '#fxa-signup-header'))
         .then(type('.email', BAD_EMAIL))
         .then(click('.password'))
-        .then(noSuchElement(this, '.tooltip-suggest'));
+        .then(noSuchElement('.tooltip-suggest'));
     }
   });
 });

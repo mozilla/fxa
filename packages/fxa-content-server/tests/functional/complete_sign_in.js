@@ -27,7 +27,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var noSuchElement = thenify(FunctionalHelpers.noSuchElement);
+  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
@@ -73,7 +73,7 @@ define([
         // a successful user is immediately redirected to the
         // sign-in-complete page.
         .then(testElementExists('#fxa-verification-link-damaged-header'))
-        .then(noSuchElement(this, '#resend'));
+        .then(noSuchElement('#resend'));
     },
 
     'open verification link with server reported bad code': function () {
@@ -86,7 +86,7 @@ define([
         // Ensure that a link expired error message is displayed
         // rather than a damaged link error
         .then(testElementExists('#fxa-verification-link-reused-header'))
-        .then(noSuchElement(this, '#resend'));
+        .then(noSuchElement('#resend'));
     },
 
     'open verification link with malformed uid': function () {
@@ -99,7 +99,7 @@ define([
         // a successful user is immediately redirected to the
         // sign-in-complete page.
         .then(testElementExists('#fxa-verification-link-damaged-header'))
-        .then(noSuchElement(this, '#resend'));
+        .then(noSuchElement('#resend'));
     },
 
     'open verification link with server reported bad uid': function () {
@@ -112,7 +112,7 @@ define([
         // Ensure that a link expired error message is displayed
         // rather than a damaged link error
         .then(testElementExists('#fxa-verification-link-expired-header'))
-        .then(noSuchElement(this, '#resend'));
+        .then(noSuchElement('#resend'));
     },
 
     'open valid email verification link': function () {

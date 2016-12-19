@@ -32,7 +32,7 @@ define([
       return this.remote
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         // show-password button only appears once user types in a character.
-        .then(noSuchElement(this, '.show-password-label'))
+        .then(noSuchElement('.show-password-label'))
         .then(type('#password', 'p'))
         .then(testElementExists('.show-password-label'))
         .then(visibleByQSA('.show-password-label'))

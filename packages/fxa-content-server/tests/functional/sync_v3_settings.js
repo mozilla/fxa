@@ -96,7 +96,7 @@ define([
     'sign in, no way to sign out': function () {
       return this.remote
         // make sure the sign out element doesn't exist
-        .then(noSuchElement(this, '#signout'));
+        .then(noSuchElement('#signout'));
     }
   });
 });

@@ -27,6 +27,7 @@ define([
 
   var createRandomHexString = TestHelpers.createRandomHexString;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
 
   registerSuite({
     name: 'complete_sign_up',
@@ -64,7 +65,7 @@ define([
         .findById('fxa-verification-link-damaged-header')
         .end()
 
-        .then(FunctionalHelpers.noSuchElement(this, '#fxa-verification-link-expired-header'));
+        .then(noSuchElement('#fxa-verification-link-expired-header'));
 
     },
 
@@ -155,11 +156,11 @@ define([
         .findById('fxa-verification-link-expired-header')
         .end()
 
-        .then(FunctionalHelpers.noSuchElement(self, '#fxa-verification-link-damaged-header'))
+        .then(noSuchElement('#fxa-verification-link-damaged-header'))
 
         // Give resend time to show up
         .setFindTimeout(200)
-        .then(FunctionalHelpers.noSuchElement(self, '#resend'));
+        .then(noSuchElement('#resend'));
     }
   });
 

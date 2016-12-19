@@ -17,6 +17,7 @@ define([
 
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
@@ -42,7 +43,7 @@ define([
         .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
 
-        .then(FunctionalHelpers.noSuchElement(self, '#customize-sync'))
+        .then(noSuchElement('#customize-sync'))
 
         .then(fillOutSignUp(email, PASSWORD))
 

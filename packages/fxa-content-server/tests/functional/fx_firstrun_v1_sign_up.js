@@ -18,6 +18,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
@@ -90,8 +91,7 @@ define([
         .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
 
         // user should not transition to the next screen
-        .then(FunctionalHelpers.noSuchElement(self, '#fxa-confirm-header'))
-        .end();
+        .then(noSuchElement('#fxa-confirm-header'));
     }
   });
 });

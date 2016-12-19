@@ -58,7 +58,7 @@ define([
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
-        .then(noSuchElement(this, '#devices'));
+        .then(noSuchElement('#devices'));
     },
 
     'device and apps panel works with query param, same device': function () {
@@ -174,7 +174,7 @@ define([
 
         .then(click('.clients-refresh'))
         // second device is still gone.
-        .then(noSuchElement(this, '.client-device:nth-child(2)'))
+        .then(noSuchElement('.client-device:nth-child(2)'))
         // clicking disconnect on the current device should sign you out
         .then(click('.client-device:nth-child(1) .client-disconnect'))
         .then(click('select.disconnect-reasons > option[value="lost"]'))

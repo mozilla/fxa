@@ -480,7 +480,7 @@ define([
         .then(testElementValueEquals('input[type=email]', ''))
 
         // ensure there is no back button when browsing directly to page
-        .then(noSuchElement(this, '#fxa-tos-back'))
+        .then(noSuchElement('#fxa-tos-back'))
 
         // fill in email
         .then(type('input[type=email]', email))

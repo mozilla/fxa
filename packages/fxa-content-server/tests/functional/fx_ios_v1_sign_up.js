@@ -20,6 +20,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
@@ -43,7 +44,7 @@ define([
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .execute(listenForFxaCommands)
-        .then(FunctionalHelpers.noSuchElement(self, '#customize-sync'))
+        .then(noSuchElement('#customize-sync'))
         .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')

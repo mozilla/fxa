@@ -89,7 +89,7 @@ define([
       return this.remote
         .then(setupTest(true))
         // make sure the sign out element doesn't exist
-        .then(noSuchElement(this, '#signout'));
+        .then(noSuchElement('#signout'));
     },
 
     'sign in, do not confirm signin, load settings': function () {

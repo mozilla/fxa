@@ -247,9 +247,15 @@ define([
     }, [ selector, options ], timeout);
   }
 
-  function noSuchElement(context, selector) {
+  /**
+   * Ensure no such element exists.
+   *
+   * @param   {string} selector of element to ensure does not exist.
+   * @returns {promise} resolves when complete, fails if element exists.
+   */
+  function noSuchElement(selector) {
     return function () {
-      return getRemote(context)
+      return this.parent
         .setFindTimeout(0)
 
         .findByCssSelector(selector)

@@ -238,7 +238,7 @@ define([
 
         .then(testElementExists('#fxa-permissions-header'))
         // display name is not available because user has not set their name
-        .then(noSuchElement(this, 'input[name="profile:display_name"]'))
+        .then(noSuchElement('input[name="profile:display_name"]'))
         .then(click('#accept'))
 
         .then(testElementExists('#loggedin'))
@@ -288,7 +288,7 @@ define([
 
         .then(testElementExists('#fxa-permissions-header'))
         // display name is not available because it's not requested
-        .then(noSuchElement(this, 'input[name="profile:display_name"]'))
+        .then(noSuchElement('input[name="profile:display_name"]'))
         .then(click('#accept'))
 
         .then(testElementExists('#loggedin'))
