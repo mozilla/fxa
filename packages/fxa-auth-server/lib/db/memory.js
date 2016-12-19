@@ -217,8 +217,8 @@ MemoryStore.prototype = {
   getCode: function getCode(code) {
     return P.resolve(clone(this.codes[unbuf(encrypt.hash(code))]));
   },
-  removeCode: function removeCode(id) {
-    delete this.codes[unbuf(id)];
+  removeCode: function removeCode(code) {
+    delete this.codes[unbuf(encrypt.hash(code))];
     return P.resolve();
   },
   generateAccessToken: function generateAccessToken(vals) {

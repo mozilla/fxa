@@ -365,7 +365,6 @@ MysqlStore.prototype = {
     });
   },
   getCode: function getCode(code) {
-    logger.debug('getCode');
     var hash = encrypt.hash(code);
     return this._readOne(QUERY_CODE_FIND, [hash]).then(function(code) {
       if (code) {
@@ -374,8 +373,9 @@ MysqlStore.prototype = {
       return code;
     });
   },
-  removeCode: function removeCode(id) {
-    return this._write(QUERY_CODE_DELETE, [id]);
+  removeCode: function removeCode(code) {
+    var hash = encrypt.hash(code);
+    return this._write(QUERY_CODE_DELETE, [hash]);
   },
   generateAccessToken: function generateAccessToken(vals) {
     var t = {
