@@ -6,7 +6,6 @@
 
 const bufferEqualConstantTime = require('buffer-equal-constant-time')
 const crypto = require('crypto')
-const error = require('../error')
 const HEX = require('../routes/validators').HEX_STRING
 const isA = require('joi')
 const Memcached = require('memcached')
@@ -104,18 +103,20 @@ module.exports = function (log, config) {
    * @param data target object
    */
   function gather (data) {
-    const metadata = this.payload && this.payload.metricsContext
     let token
 
     return P.resolve()
       .then(() => {
+        const metadata = this.payload && this.payload.metricsContext
+
         if (metadata) {
           return metadata
         }
 
         token = getToken(this)
-
-        return getMemcached().getAsync(getKey(token))
+        if (token) {
+          return getMemcached().getAsync(getKey(token))
+        }
       })
       .then(metadata => {
         if (metadata) {
@@ -146,8 +147,6 @@ module.exports = function (log, config) {
         id: request.payload.code
       }
     }
-
-    throw error.missingToken()
   }
 
   /**
@@ -158,13 +157,10 @@ module.exports = function (log, config) {
    */
   function clear () {
     return P.resolve()
-      .then(() => getMemcached().delAsync(getKey(getToken(this))))
-      .catch(err => {
-        // Swallow errors from getToken on this method because we expect
-        // them to occur when the flow complete signal is `account.login`
-        // or `account.created`.
-        if (err.errno !== error.ERRNO.MISSING_TOKEN) {
-          throw err
+      .then(() => {
+        const token = getToken(this)
+        if (token) {
+          return getMemcached().delAsync(getKey(token))
         }
       })
   }

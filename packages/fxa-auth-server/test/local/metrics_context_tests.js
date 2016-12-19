@@ -378,11 +378,7 @@ describe('metricsConext', () => {
         assert.notEqual(result, null, 'result is not null')
         assert.equal(Object.keys(result).length, 0, 'result is empty')
 
-        assert.equal(log.error.callCount, 1, 'log.error was called once')
-        assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
-        assert.equal(log.error.args[0][0].op, 'metricsContext.gather', 'op property was correct')
-        assert.equal(log.error.args[0][0].err.message, 'Missing token', 'err.message property was correct')
-        assert.equal(log.error.args[0][0].token, undefined, 'token property was correct')
+        assert.equal(log.error.callCount, 0, 'log.error was not called')
 
         Memcached.prototype.getAsync.restore()
         log.error.reset()
@@ -578,6 +574,7 @@ describe('metricsConext', () => {
       sinon.stub(Memcached.prototype, 'delAsync', () => P.resolve())
       return metricsContext.clear.call({}).then(() => {
         assert.equal(Memcached.prototype.delAsync.callCount, 0, 'memcached.delAsync was not called')
+        assert.equal(log.error.callCount, 0, 'log.error was not called')
 
         Memcached.prototype.delAsync.restore()
       }).catch(err => assert.fail(err))

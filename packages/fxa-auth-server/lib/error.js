@@ -31,7 +31,7 @@ var ERRNO = {
   REQUEST_BLOCKED: 125,
   ACCOUNT_RESET: 126,
   INVALID_UNBLOCK_CODE: 127,
-  MISSING_TOKEN: 128,
+  // MISSING_TOKEN: 128,
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   UNEXPECTED_ERROR: 999
@@ -475,13 +475,6 @@ AppError.invalidUnblockCode = function () {
     message: 'Invalid unblock code'
   })
 }
-
-AppError.missingToken = () => new AppError({
-  code: 400,
-  error: 'Bad Request',
-  errno: ERRNO.MISSING_TOKEN,
-  message: 'Missing token'
-})
 
 module.exports = AppError
 module.exports.ERRNO = ERRNO
