@@ -77,7 +77,7 @@ define(function (require, exports, module) {
         view.$('#new_password').val('12345678');
         const e = $.Event('keyup');
         e.target = view.$('#password');
-        view.onPasswordKeyUp(e);
+        view.onPasswordChanged(e);
         assert.equal(view.$('.input-help').css('opacity'), '1');
         assert.equal(view.$('.input-help-forgot-pw').css('opacity'), '1');
       });
@@ -91,30 +91,44 @@ define(function (require, exports, module) {
         view.$('#new_password').val('123456789');
         const e = $.Event('keyup');
         e.target = view.$('#password');
-        view.onPasswordKeyUp(e);
+        view.onPasswordChanged(e);
         assert.equal(view.$('.input-help').css('opacity'), '0');
         assert.equal(view.$('.input-help-forgot-pw').css('opacity'), '1');
       });
     });
 
     describe('show password visibility', () => {
-      it('no `show password` if password field is empty', () => {
-        const $passwordField = view.$('#password');
-        $passwordField.val('');
-        view.onPasswordKeyUp({ target: $passwordField.get(0) });
+      function testPasswordEntered (eventName) {
+        it(`${eventName} with password adds show password label`, () => {
+          const $passwordField = view.$('#password');
+          $passwordField.val('asdf');
 
-        const $showPasswordLabel = view.$('#password ~ .show-password-label');
-        assert.lengthOf($showPasswordLabel, 0);
-      });
+          let $showPasswordLabel = view.$('#password ~ .show-password-label');
+          // label not added until event is triggered.
+          assert.lengthOf($showPasswordLabel, 0);
 
-      it('adds `show password` if password field contains entry', () => {
-        const $passwordField = view.$('#password');
-        $passwordField.val('asdf');
-        view.onPasswordKeyUp({ target: $passwordField.get(0) });
+          view.$('#password').trigger(eventName);
 
-        const $showPasswordLabel = view.$('#password ~ .show-password-label');
-        assert.isFalse($showPasswordLabel.hasClass('hidden'));
-      });
+          $showPasswordLabel = view.$('#password ~ .show-password-label');
+          assert.lengthOf($showPasswordLabel, 1);
+        });
+      }
+
+      function testNoPasswordEntered (eventName) {
+        it(`${eventName} without password does not show label`, () => {
+          const $passwordField = view.$('#password');
+          $passwordField.val('');
+          view.$('#password').trigger(eventName);
+
+          const $showPasswordLabel = view.$('#password ~ .show-password-label');
+          assert.lengthOf($showPasswordLabel, 0);
+        });
+      }
+
+      testNoPasswordEntered('change');
+      testPasswordEntered('change');
+      testNoPasswordEntered('keyup');
+      testPasswordEntered('keyup');
     });
 
     describe('show/hide button behavior', () => {
@@ -126,14 +140,14 @@ define(function (require, exports, module) {
           // user types first character
           const $passwordField = view.$('#password');
           $passwordField.val('a');
-          view.onPasswordKeyUp({ target: $passwordField.get(0) });
+          view.onPasswordChanged({ target: $passwordField.get(0) });
 
           assert.lengthOf(view.$('.show-password-label'), 1);
           assert.isFalse($passwordField.hasClass('empty'));
 
           // user deletes password
           $passwordField.val('');
-          view.onPasswordKeyUp({ target: $passwordField.get(0) });
+          view.onPasswordChanged({ target: $passwordField.get(0) });
 
           // label not taken away, just hidden.
           assert.lengthOf(view.$('.show-password-label'), 1);
@@ -142,7 +156,7 @@ define(function (require, exports, module) {
 
           // user re-enters first character
           $passwordField.val('b');
-          view.onPasswordKeyUp({ target: $passwordField.get(0) });
+          view.onPasswordChanged({ target: $passwordField.get(0) });
 
           // label not re-added, just visible
           assert.lengthOf(view.$('.show-password-label'), 1);
@@ -155,7 +169,7 @@ define(function (require, exports, module) {
           // ensure the password field contains text
           const $passwordField = view.$('#password');
           $passwordField.val('asdf');
-          view.onPasswordKeyUp({ target: $passwordField.get(0) });
+          view.onPasswordChanged({ target: $passwordField.get(0) });
         });
 
         it('works with mouse events', () => {

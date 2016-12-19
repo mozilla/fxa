@@ -14,7 +14,8 @@ define(function (require, exports, module) {
 
   module.exports = {
     events: {
-      'keyup input.password': 'onPasswordKeyUp',
+      'change input.password': 'onPasswordChanged',
+      'keyup input.password': 'onPasswordChanged',
       'mousedown .show-password-label': 'onShowPasswordMouseDown',
       'touchstart .show-password-label': 'onShowPasswordMouseDown'
     },
@@ -193,7 +194,7 @@ define(function (require, exports, module) {
       });
     },
 
-    onPasswordKeyUp (event) {
+    onPasswordChanged (event) {
       this._updateShowPasswordLabel(event.target);
 
       var values = [];
