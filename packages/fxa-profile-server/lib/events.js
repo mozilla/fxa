@@ -23,9 +23,12 @@ exports.onData = function onData(message) {
     }
     P.all([
       db.getSelectedAvatar(userId).then(function(avatar) {
-        return workers.delete(avatar.id).then(function() {
-          return db.deleteAvatar(avatar.id);
-        });
+        if (avatar) {
+          // if there is an avatar set then also delete it
+          return workers.delete(avatar.id).then(function() {
+            return db.deleteAvatar(avatar.id);
+          });
+        }
       }),
       db.removeProfile(userId)
     ]).done(
