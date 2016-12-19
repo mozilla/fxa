@@ -25,7 +25,7 @@ define([
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
+  var fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
@@ -68,7 +68,7 @@ define([
         .switchToWindow('newwindow')
 
         .then(testElementExists('#fxa-complete-reset-password-header'))
-        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         .then(testElementExists('#fxa-reset-password-complete-header'))
         .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
@@ -91,7 +91,7 @@ define([
         .then(openVerificationLinkInNewTab(this, email, 0))
         .switchToWindow('newwindow')
 
-        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
         .then(testElementExists('#fxa-reset-password-complete-header'))
 
         .then(closeCurrentWindow());
@@ -111,7 +111,7 @@ define([
           return self.remote.get(require.toUrl(verificationLink));
         })
 
-        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
         .then(testElementExists('#fxa-reset-password-complete-header'));
     },
 
@@ -158,7 +158,7 @@ define([
           return self.remote.get(require.toUrl(url));
         })
         .then(testElementExists('#fxa-complete-reset-password-header'))
-        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         .then(testElementExists('#fxa-reset-password-complete-header'))
         .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'));

@@ -34,7 +34,7 @@ define([
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
+  var fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
@@ -299,7 +299,7 @@ define([
 
         .then(testElementExists('#fxa-complete-reset-password-header'))
 
-        .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         // this tab's success is seeing the reset password complete header.
         .then(function () {
@@ -331,7 +331,7 @@ define([
 
         .switchToWindow('newwindow')
 
-        .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         // this tab's success is seeing the reset password complete header.
         .then(function () {
@@ -359,7 +359,7 @@ define([
             .then(openPage(verificationLink, '#fxa-complete-reset-password-header'));
         })
 
-        .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         // this tab's success is seeing the reset password complete header.
         .then(function () {
@@ -416,7 +416,7 @@ define([
             .then(openPage(verificationLink, '#fxa-complete-reset-password-header'));
         })
 
-        .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         .then(function () {
           return testAtSettingsWithVerifiedMessage(self);
@@ -441,12 +441,11 @@ define([
     'complete reset, then re-open verification link, click resend': function () {
       this.timeout = TIMEOUT;
 
-      var self = this;
       return this.remote
         .then(openCompleteResetPassword(
           email, token, code, '#fxa-complete-reset-password-header'
         ))
-        .then(fillOutCompleteResetPassword(self, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
 

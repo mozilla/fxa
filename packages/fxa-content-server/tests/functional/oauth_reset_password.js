@@ -18,7 +18,7 @@ define([
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
-  var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
+  var fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
@@ -73,7 +73,7 @@ define([
         // Complete the reset password in the new tab
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-complete-reset-password-header'))
-        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         // this tab's success is seeing the reset password complete header.
         .then(testElementExists('#fxa-reset-password-complete-header'))
@@ -99,7 +99,7 @@ define([
 
         .switchToWindow('newwindow')
 
-        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
         .then(testElementExists('#fxa-reset-password-complete-header'))
 
         // switch to the original window
@@ -116,7 +116,7 @@ define([
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         .then(openVerificationLinkInSameTab(email, 0))
-        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         .then(testElementExists('#loggedin'));
     },
@@ -161,7 +161,7 @@ define([
         .then(openVerificationLinkInSameTab(email, 0))
 
         .then(testElementExists('#fxa-complete-reset-password-header'))
-        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         .then(testElementExists('#fxa-reset-password-complete-header'))
         // user sees the name of the rp, but cannot redirect

@@ -798,24 +798,22 @@ define([
     };
   }
 
-  function fillOutCompleteResetPassword(context, password, vpassword) {
-    return getRemote(context)
+  /**
+   * Fill out and submit the complete reset password form
+   * @param {String} password - new password
+   * @param {String} vpassword - new verification password
+   * @returns {promise}
+   */
+  function fillOutCompleteResetPassword(password, vpassword) {
+    return function () {
+      return this.parent
       .setFindTimeout(intern.config.pageLoadTimeout)
 
-      .findByCssSelector('#fxa-complete-reset-password-header')
-      .end()
-
-      .findByCssSelector('#password')
-        .type(password)
-      .end()
-
-      .findByCssSelector('#vpassword')
-        .type(vpassword)
-      .end()
-
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
+      .then(testElementExists('#fxa-complete-reset-password-header'))
+      .then(type('#password', password))
+      .then(type('#vpassword', vpassword))
+      .then(click('button[type="submit"]'));
+    };
   }
 
   /**

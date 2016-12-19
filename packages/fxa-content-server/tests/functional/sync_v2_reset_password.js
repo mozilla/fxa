@@ -23,7 +23,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
-  var fillOutCompleteResetPassword = thenify(FunctionalHelpers.fillOutCompleteResetPassword);
+  var fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
@@ -60,7 +60,7 @@ define([
         .switchToWindow('newwindow')
 
         .then(testElementExists('#fxa-complete-reset-password-header'))
-        .then(fillOutCompleteResetPassword(this, PASSWORD, PASSWORD))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         .then(testElementExists('#fxa-reset-password-complete-header'))
         .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
