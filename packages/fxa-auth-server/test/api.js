@@ -193,8 +193,8 @@ describe('/v1', function() {
   describe('/authorization', function() {
 
     describe('GET', function() {
-      it('redirects with all query params', function(done) {
-        Server.api
+      it('redirects with all query params', function() {
+        return Server.api
         .get('/authorization?client_id=123&state=321&scope=1&action=signup&a=b')
         .then(function(res) {
           assert.equal(res.statusCode, 302);
@@ -208,11 +208,11 @@ describe('/v1', function() {
           var target = url.parse(config.get('contentUrl'), true);
           assert.equal(redirect.pathname, target.pathname + 'signup');
           assert.equal(redirect.host, target.host);
-        }).done(done, done);
+        });
       });
 
-      it('redirects `action=signin` to signin', function(done) {
-        Server.api
+      it('redirects `action=signin` to signin', function() {
+        return Server.api
         .get('/authorization?client_id=123&state=321&scope=1&action=signin&a=b')
         .then(function(res) {
           assert.equal(res.statusCode, 302);
@@ -226,11 +226,11 @@ describe('/v1', function() {
           var target = url.parse(config.get('contentUrl'), true);
           assert.equal(redirect.pathname, target.pathname + 'signin');
           assert.equal(redirect.host, target.host);
-        }).done(done, done);
+        });
       });
 
-      it('redirects no action to contentUrl root', function(done) {
-        Server.api.get('/authorization?client_id=123&state=321&scope=1')
+      it('redirects no action to contentUrl root', function() {
+        return Server.api.get('/authorization?client_id=123&state=321&scope=1')
         .then(function(res) {
           assert.equal(res.statusCode, 302);
           var redirect = url.parse(res.headers.location, true);
@@ -238,13 +238,13 @@ describe('/v1', function() {
           var target = url.parse(config.get('contentUrl'), true);
           assert.equal(redirect.pathname, target.pathname);
           assert.equal(redirect.host, target.host);
-        }).done(done, done);
+        });
       });
 
-      it('redirects `action=force_auth` to force_auth', function(done) {
+      it('redirects `action=force_auth` to force_auth', function() {
         var endpoint = '/authorization?action=force_auth&email=' +
           encodeURIComponent(VEMAIL);
-        Server.api.get(endpoint)
+        return Server.api.get(endpoint)
         .then(function(res) {
           assert.equal(res.statusCode, 302);
           var redirect = url.parse(res.headers.location, true);
@@ -253,13 +253,13 @@ describe('/v1', function() {
           assert.equal(redirect.pathname, target.pathname + 'force_auth');
           assert.equal(redirect.host, target.host);
           assert.equal(redirect.query.email, VEMAIL);
-        }).done(done, done);
+        });
       });
 
-      it('rewrites `login_hint=foo` to `email=foo`', function(done) {
+      it('rewrites `login_hint=foo` to `email=foo`', function() {
         var endpoint = '/authorization?action=signin&login_hint=' +
           encodeURIComponent(VEMAIL);
-        Server.api.get(endpoint)
+        return Server.api.get(endpoint)
         .then(function(res) {
           assert.equal(res.statusCode, 302);
           var redirect = url.parse(res.headers.location, true);
@@ -268,17 +268,17 @@ describe('/v1', function() {
           assert.equal(redirect.pathname, target.pathname + 'signin');
           assert.equal(redirect.host, target.host);
           assert.equal(redirect.query.email, VEMAIL);
-        }).done(done, done);
+        });
       });
 
-      it('should fail for invalid action', function(done) {
-        Server.api
+      it('should fail for invalid action', function() {
+        return Server.api
         .get('/authorization?client_id=123&state=321&scope=1&action=something_invalid&a=b')
         .then(function(res) {
           assert.equal(res.statusCode, 400);
           assert.equal(res.result.errno, 109);
           assert.equal(res.result.validation, 'action');
-        }).done(done, done);
+        });
       });
     });
 
@@ -333,50 +333,50 @@ describe('/v1', function() {
 
     describe('?client_id', function() {
 
-      it('is required', function(done) {
+      it('is required', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             client_id: undefined
           })
         }).then(function(res) {
           assertInvalidRequestParam(res.result, 'client_id');
-        }).done(done, done);
+        });
       });
 
     });
 
     describe('?assertion', function() {
 
-      it('is required', function(done) {
-        Server.api.post({
+      it('is required', function() {
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             assertion: undefined
           })
         }).then(function(res) {
           assertInvalidRequestParam(res.result, 'assertion');
-        }).done(done, done);
+        });
       });
 
-      it('errors correctly if invalid', function(done) {
+      it('errors correctly if invalid', function() {
         mockAssertion().reply(400, '{"status":"failure"}');
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams()
         }).then(function(res) {
           assert.equal(res.result.code, 401);
           assert.equal(res.result.message, 'Invalid assertion');
-        }).done(done, done);
+        });
       });
 
     });
 
     describe('?redirect_uri', function() {
-      it('is optional', function(done) {
+      it('is optional', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             redirect_uri: client.redirectUri
@@ -384,7 +384,7 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
           assert(res.result.redirect);
-        }).done(done, done);
+        });
       });
 
       it('must be same as registered redirect', function() {
@@ -481,20 +481,21 @@ describe('/v1', function() {
     });
 
     describe('?state', function() {
-      it('is required', function(done) {
+      it('is required', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             state: undefined
           })
         }).then(function(res) {
           assertInvalidRequestParam(res.result, 'state');
-        }).done(done, done);
+        });
       });
-      it('is returned', function(done) {
+
+      it('is returned', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             state: 'aa'
@@ -502,14 +503,14 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
           assert.equal(url.parse(res.result.redirect, true).query.state, 'aa');
-        }).done(done, done);
+        });
       });
     });
 
     describe('?scope', function() {
-      it('is optional', function(done) {
+      it('is optional', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             scope: undefined
@@ -517,25 +518,26 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
           assert(res.result.redirect);
-        }).done(done, done);
+        });
       });
-      it('is restricted to expected characters', function(done) {
+
+      it('is restricted to expected characters', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             scope: 'profile:\u2603'
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
-        }).done(done, done);
+        });
       });
     });
 
     describe('?response_type', function() {
-      it('is optional', function(done) {
+      it('is optional', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             response_type: undefined
@@ -543,11 +545,12 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
           assert(res.result.redirect);
-        }).done(done, done);
+        });
       });
-      it('can be code', function(done) {
+
+      it('can be code', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             response_type: 'code'
@@ -555,22 +558,24 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
           assert(res.result.redirect);
-        }).done(done, done);
+        });
       });
-      it('must not be something besides code or token', function(done) {
+
+      it('must not be something besides code or token', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             response_type: 'foo'
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
-        }).done(done, done);
+        });
       });
-      it('fails if ttl is specified with code', function(done) {
+
+      it('fails if ttl is specified with code', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             response_type: 'code',
@@ -578,7 +583,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
-        }).done(done, done);
+        });
       });
 
       describe('token', function() {
@@ -626,9 +631,10 @@ describe('/v1', function() {
             assert.equal(res.result.errno, 110);
           });
         });
-        it('returns an implicit token', function(done) {
+
+        it('returns an implicit token', function() {
           mockAssertion().reply(200, VERIFY_GOOD);
-          Server.api.post({
+          return Server.api.post({
             url: '/authorization',
             payload: authParams({
               client_id: client2.id,
@@ -643,12 +649,13 @@ describe('/v1', function() {
             assert(res.result.expires_in <= defaultExpiresIn);
             assert(res.result.expires_in > defaultExpiresIn - 10);
             assert(res.result.auth_at);
-          }).done(done, done);
+          });
         });
-        it('honours the ttl parameter', function(done) {
+
+        it('honours the ttl parameter', function() {
           var ttl = 42;
           mockAssertion().reply(200, VERIFY_GOOD);
-          Server.api.post({
+          return Server.api.post({
             url: '/authorization',
             payload: authParams({
               client_id: client2.id,
@@ -659,16 +666,16 @@ describe('/v1', function() {
             assert.equal(res.statusCode, 200);
             assert(res.result.expires_in <= ttl);
             assert(res.result.expires_in > ttl - 10);
-          }).done(done, done);
+          });
         });
       });
     });
 
     describe('response', function() {
       describe('with a trusted client', function() {
-        it('should redirect to the redirect_uri', function(done) {
+        it('should redirect to the redirect_uri', function() {
           mockAssertion().reply(200, VERIFY_GOOD);
-          Server.api.post({
+          return Server.api.post({
             url: '/authorization',
             payload: authParams()
           }).then(function(res) {
@@ -680,7 +687,7 @@ describe('/v1', function() {
             assert.equal(loc.pathname, expected.pathname);
             assert.equal(loc.query.foo, expected.query.foo);
             assert(loc.query.code);
-          }).done(done, done);
+          });
         });
       });
     });
@@ -689,15 +696,15 @@ describe('/v1', function() {
 
   describe('/token', function() {
 
-    it('disallows GET', function(done) {
-      Server.api.get('/token').then(function(res) {
+    it('disallows GET', function() {
+      return Server.api.get('/token').then(function(res) {
         assert.equal(res.statusCode, 404);
-      }).done(done, done);
+      });
     });
 
     describe('?client_id', function() {
-      it('is required', function(done) {
-        Server.api.post({
+      it('is required', function() {
+        return Server.api.post({
           url: '/token',
           payload: {
             client_secret: secret,
@@ -705,13 +712,13 @@ describe('/v1', function() {
           }
         }).then(function(res) {
           assertInvalidRequestParam(res.result, 'client_id');
-        }).done(done, done);
+        });
       });
     });
 
     describe('?client_secret', function() {
-      it('is required', function(done) {
-        Server.api.post({
+      it('is required', function() {
+        return Server.api.post({
           url: '/token',
           payload: {
             client_id: clientId,
@@ -719,11 +726,11 @@ describe('/v1', function() {
           }
         }).then(function(res) {
           assertInvalidRequestParam(res.result, 'client_secret');
-        }).done(done, done);
+        });
       });
 
-      it('must match server-stored secret', function(done) {
-        Server.api.post({
+      it('must match server-stored secret', function() {
+        return Server.api.post({
           url: '/token',
           payload: {
             client_id: clientId,
@@ -733,7 +740,7 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
           assert.equal(res.result.message, 'Incorrect secret');
-        }).done(done, done);
+        });
       });
 
       describe('previous secret', function() {
@@ -750,7 +757,7 @@ describe('/v1', function() {
           });
         }
 
-        it('should get auth token with secret', function(done){
+        it('should get auth token with secret', function(){
           return getCode(clientId).then(function(code) {
             return Server.api.post({
               url: '/token',
@@ -763,10 +770,10 @@ describe('/v1', function() {
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
             assert.ok(res.result.access_token);
-          }).done(done, done);
+          });
         });
 
-        it('should get auth token with previous secret', function(done){
+        it('should get auth token with previous secret', function(){
           return getCode(clientId).then(function(code) {
             return Server.api.post({
               url: '/token',
@@ -779,15 +786,15 @@ describe('/v1', function() {
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
             assert.ok(res.result.access_token);
-          }).done(done, done);
+          });
         });
       });
     });
 
     describe('?grant_type=authorization_code', function() {
       describe('?code', function() {
-        it('is required', function(done) {
-          Server.api.post({
+        it('is required', function() {
+          return Server.api.post({
             url: '/token',
             payload: {
               client_id: clientId,
@@ -795,11 +802,11 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assertInvalidRequestParam(res.result, 'code');
-          }).done(done, done);
+          });
         });
 
-        it('must match an existing code', function(done) {
-          Server.api.post({
+        it('must match an existing code', function() {
+          return Server.api.post({
             url: '/token',
             payload: {
               client_id: clientId,
@@ -809,10 +816,10 @@ describe('/v1', function() {
           }).then(function(res) {
             assert.equal(res.result.code, 400);
             assert.equal(res.result.message, 'Unknown code');
-          }).done(done, done);
+          });
         });
 
-        it('must be a code owned by this client', function(done) {
+        it('must be a code owned by this client', function() {
           var secret2 = unique.secret();
           var client2 = {
             name: 'client2',
@@ -821,7 +828,7 @@ describe('/v1', function() {
             imageUri: 'https://example.foo.domain/logo.png',
             trusted: true
           };
-          db.registerClient(client2).then(function() {
+          return db.registerClient(client2).then(function() {
             mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api.post({
               url: '/authorization',
@@ -845,20 +852,16 @@ describe('/v1', function() {
           }).then(function(res) {
             assert.equal(res.result.code, 400);
             assert.equal(res.result.message, 'Incorrect code');
-          }).done(done, done);
+          });
 
         });
 
-        it('must not have expired', function(_done) {
+        it('must not have expired', function() {
           this.slow(200);
           var exp = config.get('expiration.code');
           config.set('expiration.code', 50);
-          function done() {
-            config.set('expiration.code', exp);
-            _done.apply(this, arguments);
-          }
           mockAssertion().reply(200, VERIFY_GOOD);
-          Server.api.post({
+          return Server.api.post({
             url: '/authorization',
             payload: authParams()
           }).then(function(res) {
@@ -875,15 +878,17 @@ describe('/v1', function() {
           }).then(function(res) {
             assert.equal(res.result.code, 400);
             assert.equal(res.result.message, 'Expired code');
-          }).done(done, done);
+          }).finally(function() {
+            config.set('expiration.code', exp);
+          });
         });
       });
 
       describe('response', function() {
         describe('access_type=online', function() {
-          it('should return a correct response', function(done) {
+          it('should return a correct response', function() {
             mockAssertion().reply(200, VERIFY_GOOD);
-            Server.api.post({
+            return Server.api.post({
               url: '/authorization',
               payload: authParams({
                 scope: 'foo bar bar'
@@ -908,13 +913,14 @@ describe('/v1', function() {
                 config.get('unique.token') * 2);
               assert.equal(res.result.scope, 'foo bar');
               assert.equal(res.result.auth_at, 123456);
-            }).done(done, done);
+            });
           });
         });
+
         describe('access_type=offline', function() {
-          it('should return a correct response', function(done) {
+          it('should return a correct response', function() {
             mockAssertion().reply(200, VERIFY_GOOD);
-            Server.api.post({
+            return Server.api.post({
               url: '/authorization',
               payload: authParams({
                 scope: 'foo bar bar',
@@ -941,14 +947,14 @@ describe('/v1', function() {
                 config.get('unique.token') * 2);
               assert.equal(res.result.scope, 'foo bar');
               assert.equal(res.result.auth_at, 123456);
-            }).done(done, done);
+            });
           });
         });
       });
 
-      it('with a blank scope', function(done) {
+      it('with a blank scope', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
             scope: undefined
@@ -970,7 +976,7 @@ describe('/v1', function() {
           assert.equal(res.result.access_token.length,
             config.get('unique.token') * 2);
           assert.equal(res.result.scope, '');
-        }).done(done, done);
+        });
       });
 
     });
@@ -1359,8 +1365,8 @@ describe('/v1', function() {
 
     describe('GET /:id', function() {
       describe('response', function() {
-        it('should return the correct response', function(done) {
-          Server.api.get('/client/' + clientId)
+        it('should return the correct response', function() {
+          return Server.api.get('/client/' + clientId)
           .then(function(res) {
             assert.equal(res.statusCode, 200);
             var body = res.result;
@@ -1368,19 +1374,19 @@ describe('/v1', function() {
             assert(body.image_uri);
             assert(body.redirect_uri);
             assert(body.trusted);
-          }).done(done, done);
+          });
         });
       });
 
-      it('should allow for clients with no redirect_uri', function(done) {
-        Server.api.get('/client/ea3ca969f8c6bb0d')
+      it('should allow for clients with no redirect_uri', function() {
+        return Server.api.get('/client/ea3ca969f8c6bb0d')
           .then(function(res) {
             assert.equal(res.statusCode, 200);
             var body = res.result;
             assert(body.name);
             assert.equal(body.image_uri, '');
             assert.equal(body.redirect_uri, '');
-          }).done(done, done);
+          });
       });
     });
 
@@ -1398,15 +1404,15 @@ describe('/v1', function() {
 
       describe('GET /client/:id', function() {
         describe('response', function() {
-          it('should support the client id path', function(done) {
-            Server.internal.api.get('/client/' + clientId)
+          it('should support the client id path', function() {
+            return Server.internal.api.get('/client/' + clientId)
               .then(function(res) {
                 assert.equal(res.statusCode, 200);
                 var body = res.result;
                 assert.equal(body.name, client.name);
                 assert(body.image_uri);
                 assert(body.redirect_uri);
-              }).done(done, done);
+              });
           });
         });
       });
@@ -1824,7 +1830,7 @@ describe('/v1', function() {
 
   describe('/developer', function() {
     describe('POST /developer/activate', function() {
-      it('should create a developer', function(done) {
+      it('should create a developer', function() {
         var vemail, tok;
 
         return getUniqueUserAndToken(clientId)
@@ -1853,16 +1859,16 @@ describe('/v1', function() {
           }).then(function(developer) {
 
             assert.equal(developer.email, vemail);
-          }).done(done, done);
+          });
       });
     });
 
     describe('GET /developer', function() {
-      it('should not exist', function(done) {
-        Server.internal.api.get('/developer')
+      it('should not exist', function() {
+        return Server.internal.api.get('/developer')
           .then(function(res) {
             assert.equal(res.statusCode, 404);
-          }).done(done, done);
+          });
       });
     });
 
@@ -1903,8 +1909,8 @@ describe('/v1', function() {
     });
 
     describe('response', function() {
-      it('should return the correct response', function(done) {
-        newToken({
+      it('should return the correct response', function() {
+        return newToken({
           scope: 'profile'
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
@@ -1920,12 +1926,12 @@ describe('/v1', function() {
           assert.equal(res.result.client_id, clientId);
           assert.equal(res.result.scope[0], 'profile');
           assert.equal(res.result.email, VEMAIL);
-        }).done(done, done);
+        });
       });
     });
 
-    it('should return the email with profile:email scope', function(done) {
-      newToken({ scope: 'profile:email' }).then(function(res) {
+    it('should return the email with profile:email scope', function() {
+      return newToken({ scope: 'profile:email' }).then(function(res) {
         assert.equal(res.statusCode, 200);
         return Server.api.post({
           url: '/verify',
@@ -1936,7 +1942,7 @@ describe('/v1', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.email, VEMAIL);
-      }).done(done, done);
+      });
     });
 
     it('should not return the email if opted out', function() {
