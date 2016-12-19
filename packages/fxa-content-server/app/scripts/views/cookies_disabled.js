@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/cookies_disabled');
 
   var View = BaseView.extend({
-    constructor (options) {
+    constructor: function (options) {
       BaseView.call(this, options);
 
       this._Storage = options.Storage || Storage;
