@@ -1,4 +1,5 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
@@ -1287,11 +1288,14 @@ define(function (require, exports, module) {
           });
       });
 
-      it('suggests emails via a tooltip', function (done) {
+      it('suggests emails via a tooltip', function () {
+        sinon.stub(view, 'isInExperiment', () => true);
+        sinon.stub(view, 'isInExperimentGroup', () => true);
+
         view.$('.email').val('testuser@gnail.com');
         view.onEmailBlur();
         // wait for tooltip
-        setTimeout(function () {
+        return p().delay(50).then(() => {
           assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
           // there are exactly 2 elements with tabindex in the page (show
           // password button has not been added to the page).
@@ -1300,8 +1304,7 @@ define(function (require, exports, module) {
           assert.equal($('.tooltip-suggest span:first').get(0), $('[tabindex="1"]').get(0));
           // the second element with tabindex is the span containing the dismiss button
           assert.equal($('.tooltip-suggest .dismiss').get(0), $('[tabindex="2"]').get(0));
-          done();
-        }, 50);
+        });
       });
 
       it('suggests emails via a tooltip in the automated browser', function (done) {
@@ -1310,13 +1313,14 @@ define(function (require, exports, module) {
         var autoBrowser = sinon.stub(view.broker, 'isAutomatedBrowser', function () {
           return true;
         });
+
         var suggestEmail = sinon.stub(view, 'onEmailBlur', function () {
           autoBrowser.restore();
           suggestEmail.restore();
           done();
         });
 
-        return view.render()
+        view.render()
           .then(function () {
             view.afterVisible();
             container.html(view.el);
@@ -1406,4 +1410,3 @@ define(function (require, exports, module) {
     });
   });
 });
-
