@@ -877,6 +877,38 @@ describe('/v1', function() {
             assert.equal(res.result.message, 'Expired code');
           }).done(done, done);
         });
+
+        it('cannot use the same code multiple times', function() {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api.post({
+            url: '/authorization',
+            payload: authParams()
+          }).then(function(res) {
+            return url.parse(res.result.redirect, true).query.code;
+          }).then(function(code) {
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                code: code
+              }
+            }).then(function(res) {
+              assert.equal(res.statusCode, 200);
+              return Server.api.post({
+                url: '/token',
+                payload: {
+                  client_id: clientId,
+                  client_secret: secret,
+                  code: code
+                }
+              });
+            });
+          }).then(function(res) {
+            assert.equal(res.result.code, 400);
+            assert.equal(res.result.message, 'Unknown code');
+          });
+        });
       });
 
       describe('response', function() {

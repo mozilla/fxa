@@ -228,7 +228,9 @@ function confirmCode(id, code) {
         throw AppError.expiredCode(code, expiresAt);
       }
     }
-    return codeObj;
+    return db.removeCode(buf(code)).then(function() {
+      return codeObj;
+    });
   });
 }
 
