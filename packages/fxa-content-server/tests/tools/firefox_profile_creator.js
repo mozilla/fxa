@@ -57,6 +57,14 @@ if (profile) {
   myProfile.setPreference('services.sync.prefs.sync.xpinstall.whitelist.required', false);
   myProfile.setPreference('extensions.checkCompatibility.nightly', false);
 
+  // disable firefox a/b test experiments
+  myProfile.setPreference('experiments.activeExperiment', false);
+  myProfile.setPreference('experiments.enabled', false);
+  myProfile.setPreference('experiments.supported', false);
+  myProfile.setPreference('experiments.manifest.uri', '');
+  myProfile.setPreference('network.allow-experiments', false);
+
+
   myProfile.updatePreferences();
 
   myProfile.encoded(function (encodedProfile) {
