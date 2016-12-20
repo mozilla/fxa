@@ -365,7 +365,7 @@ No page specific events
 
 ## Experiment Metrics
 
-mailcheck
+### mailcheck
 
 * experiment.mailcheck.treatment.enrolled
 * experiment.mailcheck.treatment.triggered
@@ -381,31 +381,3 @@ mailcheck
 * experiment.mailcheck.control.verified
 * experiment.mailcheck.control.triggered.verified
 * experiment.mailcheck.control.corrected.verified
-
-openGmail
-
-* experiment.openGmail.treatment.enrolled
-* experiment.openGmail.treatment.triggered
-* experiment.openGmail.treatment.clicked
-* experiment.openGmail.control.enrolled
-* experiment.openGmail.control.triggered
-* experiment.openGmail.treatment.verified
-* experiment.openGmail.treatment.triggered.verified
-* experiment.openGmail.treatment.clicked.verified
-* experiment.openGmail.control.verified
-* experiment.openGmail.control.triggered.verified
-
-syncCheckbox
-
-* experiment.syncCheckbox.treatment.enrolled
-* experiment.syncCheckbox.treatment.triggered
-* experiment.syncCheckbox.treatment.clicked
-* experiment.syncCheckbox.control.enrolled
-* experiment.syncCheckbox.control.triggered
-* experiment.syncCheckbox.control.clicked
-* experiment.syncCheckbox.treatment.verified
-* experiment.syncCheckbox.treatment.triggered.verified
-* experiment.syncCheckbox.treatment.clicked.verified
-* experiment.syncCheckbox.control.verified
-* experiment.syncCheckbox.control.triggered.verified
-* experiment.syncCheckbox.control.clicked.verified
