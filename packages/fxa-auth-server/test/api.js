@@ -1921,8 +1921,10 @@ describe('/v1', function() {
       });
     });
 
-    it.skip('should reject expired tokens', function() {
+    it('should reject expired tokens from after the epoch', function() {
       this.slow(2200);
+      var epoch = config.get('expiration.accessTokenExpiryEpoch');
+      config.set('expiration.accessTokenExpiryEpoch', Date.now());
       return newToken({
         ttl: 1
       }).delay(1500).then(function(res) {
@@ -1937,6 +1939,30 @@ describe('/v1', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 400);
         assert.equal(res.result.errno, 115);
+      }).finally(function() {
+        config.set('expiration.accessTokenExpiryEpoch', epoch);
+      });
+    });
+
+    it('should accept expired tokens from before the epoch', function() {
+      this.slow(2200);
+      var epoch = config.get('expiration.accessTokenExpiryEpoch');
+      config.set('expiration.accessTokenExpiryEpoch', Date.now() + 2000);
+      return newToken({
+        ttl: 1
+      }).delay(1500).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.expires_in, 1);
+        return Server.api.post({
+          url: '/verify',
+          payload: {
+            token: res.result.access_token
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+      }).finally(function() {
+        config.set('expiration.accessTokenExpiryEpoch', epoch);
       });
     });
 

@@ -101,11 +101,15 @@ const conf = convict({
     }
   },
   expiration: {
-    // in JavaScript, we live in milliseconds
     accessToken: {
       doc: 'Access Tokens maximum expiration (can live shorter)',
       format: 'duration',
       default: '2 weeks'
+    },
+    accessTokenExpiryEpoch: {
+      doc: 'Timestamp after which access token expiry is actively enforced',
+      format: 'timestamp',
+      default: '2017-01-01'
     },
     code: {
       doc: 'Clients must trade codes for tokens before they expire',
