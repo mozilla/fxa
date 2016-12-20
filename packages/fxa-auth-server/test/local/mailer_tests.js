@@ -113,7 +113,9 @@ P.all(
           locations: [],
           service: 'service',
           uid: 'uid',
-          unblockCode: 'AS6334PK'
+          unblockCode: 'AS6334PK',
+          flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+          flowBeginTime: Date.now()
         }
 
         test(
@@ -131,6 +133,24 @@ P.all(
               t.end()
             }
             mailer[type](message)
+          }
+        )
+
+        test(
+          'Contains flow headers for ' + type,
+          function (t) {
+            if (type !== 'verificationReminderEmail') {
+              mailer.mailer.sendMail = function (emailConfig) {
+                var flowIdHeader = emailConfig.headers['X-Flow-Id']
+                t.equal(flowIdHeader, message.flowId)
+
+                var flowBeginHeader = emailConfig.headers['X-Flow-Begin-Time']
+                t.equal(flowBeginHeader, message.flowBeginTime)
+              }
+              mailer[type](message)
+            }
+
+            t.end()
           }
         )
 

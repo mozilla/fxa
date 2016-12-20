@@ -268,15 +268,22 @@ module.exports = function (log) {
 
     var links = this._generateLinks(this.verificationUrl, message.email, query, templateName)
 
+    var headers = {
+      'X-Link': links.link,
+      'X-Service-ID': message.service,
+      'X-Uid': message.uid,
+      'X-Verify-Code': message.code
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
-      headers: {
-        'X-Link': links.link,
-        'X-Service-ID': message.service,
-        'X-Uid': message.uid,
-        'X-Verify-Code': message.code
-      },
+      headers: headers,
       subject: gettext('Verify your Firefox Account'),
       template: templateName,
       templateValues: {
@@ -303,14 +310,21 @@ module.exports = function (log) {
 
     var links = this._generateLinks(null, message.email, query, templateName)
 
+    var headers = {
+      'X-Uid': message.uid,
+      'X-Unblock-Code': message.unblockCode,
+      'X-Report-SignIn-Link': links.reportSignInLink
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
-      headers: {
-        'X-Uid': message.uid,
-        'X-Unblock-Code': message.unblockCode,
-        'X-Report-SignIn-Link': links.reportSignInLink
-      },
+      headers: headers,
       subject: gettext('Firefox Account authorization code'),
       template: templateName,
       templateValues: {
@@ -343,15 +357,22 @@ module.exports = function (log) {
 
     var links = this._generateLinks(this.verifyLoginUrl, message.email, query, templateName)
 
+    var headers = {
+      'X-Link': links.link,
+      'X-Service-ID': message.service,
+      'X-Uid': message.uid,
+      'X-Verify-Code': message.code
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
-      headers: {
-        'X-Link': links.link,
-        'X-Service-ID': message.service,
-        'X-Uid': message.uid,
-        'X-Verify-Code': message.code
-      },
+      headers: headers,
       subject: gettext('Confirm new sign-in to Firefox'),
       template: templateName,
       templateValues: {
@@ -385,13 +406,20 @@ module.exports = function (log) {
 
     var links = this._generateLinks(this.passwordResetUrl, message.email, query, templateName)
 
+    var headers = {
+      'X-Link': links.link,
+      'X-Recovery-Code': message.code
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
-      headers: {
-        'X-Link': links.link,
-        'X-Recovery-Code': message.code
-      },
+      headers: headers,
       subject: gettext('Reset your Firefox Account password'),
       template: templateName,
       templateValues: {
@@ -411,12 +439,19 @@ module.exports = function (log) {
 
     var links = this._generateLinks(this.initiatePasswordResetUrl, message.email, {}, templateName)
 
+    var headers = {
+      'X-Link': links.resetLink
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
-      headers: {
-        'X-Link': links.resetLink
-      },
+      headers: headers,
       subject: gettext('Your Firefox Account password has been changed'),
       template: templateName,
       templateValues: {
@@ -434,12 +469,19 @@ module.exports = function (log) {
     var templateName = 'passwordResetEmail'
     var links = this._generateLinks(this.initiatePasswordResetUrl, message.email, {}, templateName)
 
+    var headers = {
+      'X-Link': links.resetLink
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
-      headers: {
-        'X-Link': links.resetLink
-      },
+      headers: headers,
       subject: gettext('Your Firefox Account password has been reset'),
       template: templateName,
       templateValues: {
@@ -457,12 +499,19 @@ module.exports = function (log) {
     var templateName = 'passwordResetRequiredEmail'
     var links = this._generateLinks(this.initiatePasswordResetUrl, message.email, {}, templateName)
 
+    var headers = {
+      'X-Link': links.resetLink
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
-      headers: {
-        'X-Link': links.resetLink
-      },
+      headers: headers,
       subject: gettext('Firefox Account password reset required'),
       template: templateName,
       templateValues: {
@@ -479,12 +528,19 @@ module.exports = function (log) {
     var templateName = 'newDeviceLoginEmail'
     var links = this._generateLinks(this.initiatePasswordChangeUrl, message.email, {}, templateName)
 
+    var headers = {
+      'X-Link': links.passwordChangeLink
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
-      headers: {
-        'X-Link': links.passwordChangeLink
-      },
+      headers: headers,
       subject: gettext('New sign-in to Firefox'),
       template: templateName,
       templateValues: {
@@ -508,12 +564,19 @@ module.exports = function (log) {
     var templateName = 'postVerifyEmail'
     var links = this._generateLinks(this.syncUrl, message.email, {}, templateName)
 
+    var headers = {
+      'X-Link': links.link
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
-      headers: {
-        'X-Link': links.link
-      },
+      headers: headers,
       subject: gettext('Firefox Account verified'),
       template: templateName,
       templateValues: {
@@ -546,12 +609,19 @@ module.exports = function (log) {
       entry.translator = translator
     })
 
+    var headers = {
+      'X-Link': links.resetLink
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
-      headers: {
-        'X-Link': links.resetLink
-      },
+      headers: headers,
       subject: gettext('Suspicious activity with your Firefox Account'),
       template: templateName,
       templateValues: {
