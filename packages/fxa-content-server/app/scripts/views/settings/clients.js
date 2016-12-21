@@ -14,18 +14,22 @@ define(function (require, exports, module) {
   const preventDefaultThen = require('views/base').preventDefaultThen;
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
-  const t = require('views/base').t;
+  const Strings = require('lib/strings');
+  const { t } = require('views/base');
   const Template = require('stache!templates/settings/clients');
   const Url = require('lib/url');
 
   const DEVICE_REMOVED_ANIMATION_MS = 150;
   const UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
   const DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
-  const FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc' +
-    '?campaign=fxa-devices-page&adgroup=android&creative=button';
-  const FIREFOX_IOS_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc?' +
-    'campaign=fxa-devices-page&adgroup=ios&creative=button' +
-    '&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8';
+  const FIREFOX_ANDROID_DOWNLOAD_LINK = Strings.interpolate(Constants.DOWNLOAD_LINK_TEMPLATE_ANDROID, {
+    campaign: 'fxa-devices-page',
+    creative: 'button'
+  });
+  const FIREFOX_IOS_DOWNLOAD_LINK = Strings.interpolate(Constants.DOWNLOAD_LINK_TEMPLATE_IOS, {
+    campaign: 'fxa-devices-page',
+    creative: 'button'
+  });
   const FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
 
   var View = FormView.extend({
@@ -188,4 +192,3 @@ define(function (require, exports, module) {
 
   module.exports = View;
 });
-

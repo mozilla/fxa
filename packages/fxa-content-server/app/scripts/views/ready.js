@@ -134,7 +134,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    MarketingMixin,
+    MarketingMixin({ marketingId: Constants.MARKETING_ID_SPRING_2015 }),
     ServiceMixin,
     VerificationReasonMixin
   );

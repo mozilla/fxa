@@ -46,6 +46,33 @@ define(function (require, exports, module) {
        */
       isFirefox () {
         return this.browser.name === 'Firefox';
+      },
+
+      /**
+       * Check if the browser is Firefox for Android
+       *
+       * @returns {Boolean}
+       */
+      isFirefoxAndroid () {
+        return this.isFirefox() && this.isAndroid();
+      },
+
+      /**
+       * Check if the browser is Firefox for iOS
+       *
+       * @returns {Boolean}
+       */
+      isFirefoxIos () {
+        return this.isFirefox() && this.isIos();
+      },
+
+      /**
+       * Check if the browser is Firefox desktop
+       *
+       * @returns {Boolean}
+       */
+      isFirefoxDesktop () {
+        return this.isFirefox() && ! this.isFirefoxIos() && ! this.isFirefoxAndroid();
       }
     });
 

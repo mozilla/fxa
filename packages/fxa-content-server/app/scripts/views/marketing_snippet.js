@@ -7,6 +7,9 @@
  * iOS iTunes logo if user completes on iOS, shows a Google Play store logo
  * if completing on Android, shows both logos if completing on
  * neither.
+ *
+ * Create snippet with `which` option to force a particular
+ * logo to be displayed. See View.WHICH for acceptable values.
  */
 
 define(function (require, exports, module) {
@@ -17,6 +20,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
+  const Strings = require('lib/strings');
   const Template = require('stache!templates/marketing_snippet');
   const UserAgent = require('lib/user-agent');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
@@ -60,8 +64,20 @@ define(function (require, exports, module) {
   const View = BaseView.extend({
     template: Template,
 
+    /**
+     * Initialize.
+     *
+     * @param {Object} [options={}]
+     *  @param {String} [options.marketingId] - marketing ID to use for logging.
+     *   Defaults to Constants.MARKETING_ID_SPRING_2015.
+     *  @param {String} [options.service] - the service being signed in to.
+     *  @param {String} [options.which] - force a logo to be displayed.
+     *   Defaults to `undefined`
+     */
     initialize (options = {}) {
+      this._marketingId = options.marketingId || Constants.MARKETING_ID_SPRING_2015;
       this._service = options.service;
+      this._which = options.which;
     },
 
     events: {
@@ -72,15 +88,24 @@ define(function (require, exports, module) {
       const showSignUpMarketing = this._shouldShowSignUpMarketing();
       const isIos = this._isIos();
       const isAndroid = this._isAndroid();
-      const isOther = (! isIos && ! isAndroid);
+      const isOther = this._isOther();
+      const downloadLinkAndroid = this._storeLink(Constants.DOWNLOAD_LINK_TEMPLATE_ANDROID);
       const playStoreImage = this._storeImage(PLAY_STORE_BUTTON, FORMAT_PNG);
+      const downloadLinkIos = this._storeLink(Constants.DOWNLOAD_LINK_TEMPLATE_IOS);
       const appStoreImage = this._storeImage(APP_STORE_BUTTON, FORMAT_SVG);
+
+      const marketingId = this._marketingId;
+      const isSpring2015 = marketingId === Constants.MARKETING_ID_SPRING_2015;
 
       return {
         appStoreImage,
+        downloadLinkAndroid,
+        downloadLinkIos,
         isAndroid,
         isIos,
         isOther,
+        isSpring2015,
+        marketingId,
         playStoreImage,
         showSignUpMarketing
       };
@@ -88,46 +113,63 @@ define(function (require, exports, module) {
 
     afterRender () {
       this.$('.marketing-link').each((index, element) => {
-        const $element = $(element);
-
-        const id = $element.attr('data-marketing-id');
-        const url = $element.attr('href');
-
-        this.metrics.logMarketingImpression(id, url);
+        this._logMarketingImpression(element);
       });
+    },
+
+    _getUserAgentString () {
+      return this.getSearchParam('forceUA') || this.window.navigator.userAgent;
     },
 
     _getUap () {
       if (! this._uap) {
-        this._uap = new UserAgent(this.window.navigator.userAgent);
+        const userAgent = this._getUserAgentString();
+        this._uap = new UserAgent(userAgent);
       }
       return this._uap;
     },
 
     _shouldShowSignUpMarketing () {
+      const hasBrokerSupport = this.broker.hasCapability('emailVerificationMarketingSnippet');
       const isFirefoxMobile = this._isFirefoxMobile();
-      const isSignUp = this.isSignUp();
       const isSignIn = this.isSignIn();
+      const isSignUp = this.isSignUp();
       const isSync = this._service === Constants.SYNC_SERVICE;
 
-      // If the user is completing a signup or signin for sync, ALWAYS
-      // show the marketing snippet.
-      return (isSignUp || isSignIn) && isSync && ! isFirefoxMobile;
+      return !! this._which || // if _which is set, display is considered forced.
+             (hasBrokerSupport && (isSignUp || isSignIn) && isSync && ! isFirefoxMobile);
     },
 
     _isFirefoxMobile () {
       const uap = this._getUap();
-
-      return uap.isFirefox() &&
-             (uap.isIos() || uap.isAndroid());
+      return uap.isFirefoxIos() || uap.isFirefoxAndroid();
     },
 
     _isIos () {
-      return this._getUap().isIos();
+      // if _which is set, ignore the userAgent
+      return (! this._which && this._getUap().isIos()) || this._which === View.WHICH.IOS;
     },
 
     _isAndroid () {
-      return this._getUap().isAndroid();
+      return (! this._which && this._getUap().isAndroid()) || this._which === View.WHICH.ANDROID;
+    },
+
+    _isOther () {
+      return (! this._isIos() && ! this._isAndroid()) || this._which === View.WHICH.BOTH;
+    },
+
+    /**
+     * Add the appropriate metrics related query params to
+     * the Firefox app's app store link.
+     *
+     * @param {String} base
+     * @returns {String}
+     */
+    _storeLink (base) {
+      return Strings.interpolate(base, {
+        campaign: 'fxa-conf-page',
+        creative: View.BUTTON_IDS[this._marketingId],
+      });
     },
 
     _storeImage (buttonDir, imageFormat) {
@@ -147,16 +189,43 @@ define(function (require, exports, module) {
       return !! (win.matchMedia && win.matchMedia('(-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx), (min-resolution: 144dpi)'));
     },
 
+    _logMarketingImpression (element) {
+      const { id, type, url } = this._getMarketingLinkInfo(element);
+      this.metrics.logMarketingImpression(id, url);
+      this.notifier.trigger('marketing.impression', {
+        id, type, url
+      });
+    },
+
     _onMarketingClick (event) {
-      var element = $(event.currentTarget);
-      this._logMarketingClick(element);
+      this._logMarketingClick(event.currentTarget);
     },
 
     _logMarketingClick (element) {
-      var id = element.attr('data-marketing-id');
-      var url = element.attr('href');
-
+      const { id, type, url } = this._getMarketingLinkInfo(element);
       this.metrics.logMarketingClick(id, url);
+      this.notifier.trigger('marketing.clicked', {
+        id, type, url
+      });
+    },
+
+    _getMarketingLinkInfo (element) {
+      const $element = $(element);
+
+      const id = $element.data('marketing-id');
+      const type = $element.data('marketing-type');
+      const url = $element.attr('href');
+
+      return { id, type, url };
+    }
+  }, {
+    BUTTON_IDS: {
+      [Constants.MARKETING_ID_SPRING_2015]: 'button'
+    },
+    WHICH: {
+      ANDROID: 'android',
+      BOTH: 'both',
+      IOS: 'ios'
     }
   });
 
@@ -167,5 +236,3 @@ define(function (require, exports, module) {
 
   module.exports = View;
 });
-
-

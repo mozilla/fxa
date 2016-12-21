@@ -1026,13 +1026,27 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('getSearchParam', () => {
+      it('fetches a search parameter', () => {
+        windowMock.location.search = '?search=1&another=2';
+
+        assert.equal(view.getSearchParam('search'), '1');
+        assert.equal(view.getSearchParam('another'), '2');
+        assert.isUndefined(view.getSearchParam('non-existent'));
+      });
+    });
+
     describe('getSearchParams', () => {
       it('returns an object representation of window.location.search', () => {
-        const searchString = '?search=1';
+        windowMock.location.search = '?search=1&another=2';
 
-        windowMock.location.search = searchString;
         const searchParams = view.getSearchParams();
         assert.equal(searchParams.search, '1');
+        assert.equal(searchParams.another, '2');
+
+        const filteredSearchParams = view.getSearchParams('another');
+        assert.notProperty(filteredSearchParams, 'search');
+        assert.equal(filteredSearchParams.another, '2');
       });
     });
   });

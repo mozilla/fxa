@@ -14,53 +14,79 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/test_template');
   const MarketingMixin = require('views/mixins/marketing-mixin');
 
-  const View = BaseView.extend({
+  const AutoCreateView = BaseView.extend({
     template: Template
   });
 
   Cocktail.mixin(
-    View,
-    MarketingMixin
+    AutoCreateView,
+    MarketingMixin({ marketingId: 'test-marketing-campaign' })
+  );
+
+  const NonAutoCreateView = BaseView.extend({
+    template: Template
+  });
+
+  Cocktail.mixin(
+    NonAutoCreateView,
+    MarketingMixin({ autocreate: false, marketingId: 'test-marketing-campaign' })
   );
 
   describe('views/mixins/marketing-mixin', () => {
     let broker;
-    let view;
 
-    beforeEach(() => {
-      broker = new BaseBroker({});
-
-      view = new View({
+    function createView(View) {
+      return new View({
         broker,
         lang: 'de',
         model: new Backbone.Model({}),
         relier: new Backbone.Model({})
       });
-      sinon.spy(view, 'trackChildView');
+    }
+
+    beforeEach(() => {
+      broker = new BaseBroker({});
     });
 
-    describe('broker does not support emailVerificationMarketingSnippet', () => {
-      it('does not create the marketing snippet', () => {
-        broker.setCapability('emailVerificationMarketingSnippet', false);
+    describe('view render', () => {
+      describe('w/ autocreate:true (default)', () => {
+        it('creates the marketing snippet', () => {
+          let view = createView(AutoCreateView);
+          sinon.stub(view, 'createMarketingSnippet', () => {});
 
-        return view.render()
-          .then(() => {
-            assert.isFalse(view.trackChildView.called);
-          });
+          return view.render()
+            .then(() => {
+              assert.isTrue(view.createMarketingSnippet.calledOnce);
+            });
+        });
+      });
+
+      describe('w/ autocreate: false', () => {
+        it('does not create the marketing snippet', () => {
+          let view = createView(NonAutoCreateView);
+          sinon.stub(view, 'createMarketingSnippet', () => {});
+
+          return view.render()
+            .then(() => {
+              assert.isFalse(view.createMarketingSnippet.called);
+            });
+        });
       });
     });
 
-    describe('broker supports emailVerificationMarketingSnippet', () => {
+    describe('createMarketingSnippet', () => {
       it('creates and tracks the marketing snippet', () => {
-        broker.setCapability('emailVerificationMarketingSnippet', true);
+        let view = createView(NonAutoCreateView);
+        sinon.spy(view, 'trackChildView');
 
-        return view.render()
+        return view.createMarketingSnippet()
           .then(() => {
             assert.isTrue(view.trackChildView.calledOnce);
 
             // the correct language is passed through.
             const marketingSnippet = view.trackChildView.args[0][0];
             assert.equal(marketingSnippet.lang, 'de');
+            assert.equal(marketingSnippet._marketingId, 'test-marketing-campaign');
           });
       });
     });

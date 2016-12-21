@@ -112,8 +112,12 @@ define(function (require, exports, module) {
     // Login delay for iOS broker
     IOS_V1_LOGIN_MESSAGE_DELAY_MS: 10000,
 
-    UNBLOCK_CODE_LENGTH: 8
+    UNBLOCK_CODE_LENGTH: 8,
+
+    MARKETING_ID_SPRING_2015: 'spring-2015-android-ios-sync',
+
+    DOWNLOAD_LINK_TEMPLATE_ANDROID: 'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=android',
+    DOWNLOAD_LINK_TEMPLATE_IOS: 'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=ios&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8' //eslint-disable-line max-len
   };
   /*eslint-enable sorting/sort-object-props*/
 });
-

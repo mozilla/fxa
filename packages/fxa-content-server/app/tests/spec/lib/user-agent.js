@@ -141,7 +141,130 @@ define(function (require, exports, module) {
           assert.isFalse(uap.isFirefox());
         });
       });
+    });
 
+    describe('isFirefoxAndroid', () => {
+      it('returns `true` if it detects Fennec', () => {
+        const fennecUserAgents = [
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/46.0',
+          'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/46.0'
+        ];
+
+        fennecUserAgents.forEach((userAgentString) => {
+          let uap = new UserAgent(userAgentString);
+          assert.isTrue(uap.isFirefoxAndroid(), userAgentString);
+        });
+      });
+
+      it('returns `false` if not Fennec', () => {
+        const notFennecUserAgents = [
+          // fx desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+          // Chrome desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
+              '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
+          // Edge
+          'Mozilla/5.0 (Windows Phone 10.0; Android 4.2.1; Microsoft; Lumia ' +
+              '640 XL LTE) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+              'Chrome/42.0.2311.135 Mobile Safari/537.36 Edge/12.10166',
+          // Chrome Android
+          'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) ' +
+              'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+        ];
+
+        notFennecUserAgents.forEach((userAgentString) => {
+          let uap = new UserAgent(userAgentString);
+          assert.isFalse(uap.isFirefoxAndroid(), userAgentString);
+        });
+      });
+    });
+
+    describe('isFirefoxIos', () => {
+      it('returns `true` if it detects Fx on iOS', () => {
+        const fxIosUserAgents = [
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) ' +
+              'AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4'
+        ];
+
+        fxIosUserAgents.forEach((userAgentString) => {
+          let uap = new UserAgent(userAgentString);
+          assert.isTrue(uap.isFirefoxIos(), userAgentString);
+        });
+      });
+
+      it('returns `false` if not Fx on iOS', () => {
+        const notFxIosUserAgents = [
+          // fx desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+          // fennec
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/46.0',
+          'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/46.0',
+          // Chrome desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
+              '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
+          // Edge
+          'Mozilla/5.0 (Windows Phone 10.0; Android 4.2.1; Microsoft; Lumia ' +
+              '640 XL LTE) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+              'Chrome/42.0.2311.135 Mobile Safari/537.36 Edge/12.10166',
+          // Chrome Android
+          'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) ' +
+              'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+        ];
+
+        notFxIosUserAgents.forEach((userAgentString) => {
+          let uap = new UserAgent(userAgentString);
+          assert.isFalse(uap.isFirefoxIos(), userAgentString);
+        });
+      });
+    });
+
+    describe('isFirefoxDesktop', () => {
+      it('returns `true` if it detects Fx Desktop', () => {
+        const fxDesktopUserAgents = [
+          // windows
+          'Mozilla/5.0 (Windows NT x.y; rv:10.0) Gecko/20100101 Firefox/10.0',
+          'Mozilla/5.0 (Windows NT x.y; Win64; x64; rv:10.0) Gecko/20100101 Firefox/10.0',
+          'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+          // mac
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0',
+          'Mozilla/5.0 (Macintosh; PPC Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0',
+          // linux
+          'Mozilla/5.0 (X11; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0',
+          'Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0',
+          'Mozilla/5.0 (X11; Linux i686 on x86_64; rv:10.0) Gecko/20100101 Firefox/10.0'
+        ];
+
+        fxDesktopUserAgents.forEach((userAgentString) => {
+          let uap = new UserAgent(userAgentString);
+          assert.isTrue(uap.isFirefoxDesktop(), userAgentString);
+        });
+      });
+
+      it('returns `false` if not Fx Desktop', () => {
+        const notFxDesktopUserAgents = [
+          // fx ios
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) ' +
+              'AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
+          // fennec
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/46.0',
+          'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/46.0',
+          // Chrome desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
+              '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
+          // Edge
+          'Mozilla/5.0 (Windows Phone 10.0; Android 4.2.1; Microsoft; Lumia ' +
+              '640 XL LTE) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+              'Chrome/42.0.2311.135 Mobile Safari/537.36 Edge/12.10166',
+          // Chrome Android
+          'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) ' +
+              'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+        ];
+
+        notFxDesktopUserAgents.forEach((userAgentString) => {
+          let uap = new UserAgent(userAgentString);
+          assert.isFalse(uap.isFirefoxDesktop(), userAgentString);
+        });
+      });
     });
 
     describe('isMobileSafari', () => {
@@ -180,7 +303,6 @@ define(function (require, exports, module) {
           assert.isFalse(uap.isMobileSafari());
         });
       });
-
     });
   });
 });

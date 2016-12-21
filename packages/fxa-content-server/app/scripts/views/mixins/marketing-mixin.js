@@ -4,36 +4,71 @@
 
 /**
  * A view mixin that takes care of creating the marketing snippet, if needed.
+ *
+ * Unlike most other mixins, this module returns a function which must be called
+ * to get the mixin, e.g.:
+ *
+ * ```js
+ *  Coctail.mixin(
+ *    View,
+ *    MarketingMixin({ autocreate: false, marketingId: 'spring-2017' })
+ *  );
+ * ```
  */
 
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const MarketingSnippet = require('views/marketing_snippet');
-  const p = require('lib/promise');
 
-  const MarketingMixin = {
-    afterRender () {
-      if (! this.broker.hasCapability('emailVerificationMarketingSnippet')) {
-        return p();
+  /**
+   * Function that must be called to return the mixin.
+   *
+   * @param {Object} [options={}] options
+   *  @param {String} [options.marketingId] - marketing ID to use for logging.
+   *  @param {Boolean} [options.autocreate] - automatically create the marketing snippet
+   *   in afterRender. Defaults to `true`. If set to `false`, `createMarketingSnippet`
+   *   must be called.
+   *  @param {Boolean} [options.which] - Which marketing link to show. See MarketingSnippet.WHICH.
+   * @returns {Object}
+   */
+  const MarketingMixin = (options = {}) => {
+    return {
+      /**
+       * Create the marketing snippet
+       *
+       * @param {Object} [createOptions={}] options
+       *  @param {String} [createOptions.marketingId] - marketing ID to use for logging.
+       *  @param {Boolean} [createOptions.which] - Which marketing link to show. See
+       *   MarketingSnippet.WHICH.
+       * @returns {Object}
+       */
+      createMarketingSnippet (createOptions = {}) {
+        const marketingSnippetOpts = _.extend({
+          broker: this.broker,
+          el: this.$('.marketing-area'),
+          lang: this.lang,
+          metrics: this.metrics,
+          notifier: this.notifier,
+          service: this.relier.get('service'),
+          type: this.model.get('type'),
+          window: this.window
+        }, options, createOptions);
+
+        const marketingSnippet = new MarketingSnippet(marketingSnippetOpts);
+        this.trackChildView(marketingSnippet);
+
+        return marketingSnippet.render();
+      },
+
+      afterRender () {
+        if (options.autocreate !== false) {
+          return this.createMarketingSnippet();
+        }
       }
-
-      const marketingSnippetOpts = {
-        el: this.$('.marketing-area'),
-        lang: this.lang,
-        metrics: this.metrics,
-        service: this.relier.get('service'),
-        type: this.model.get('type')
-      };
-
-      const marketingSnippet = new MarketingSnippet(marketingSnippetOpts);
-
-      this.trackChildView(marketingSnippet);
-
-      return marketingSnippet.render();
-    }
+    };
   };
 
   module.exports = MarketingMixin;
 });
-

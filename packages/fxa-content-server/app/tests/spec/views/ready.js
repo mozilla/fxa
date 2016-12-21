@@ -6,9 +6,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const Able = require('lib/able');
-  const chai = require('chai');
+  const { assert } = require('chai');
   const VerificationReasons = require('lib/verification-reasons');
   const FxaClient = require('lib/fxa-client');
+  const Notifier = require('lib/channels/notifier');
   const OAuthBroker = require('models/auth_brokers/oauth');
   const p = require('lib/promise');
   const Session = require('lib/session');
@@ -17,19 +18,22 @@ define(function (require, exports, module) {
   const View = require('views/ready');
   const WindowMock = require('../../mocks/window');
 
-  var assert = chai.assert;
-
   describe('views/ready', function () {
-    var view;
-    var windowMock;
-    var fxaClient;
-    var relier;
-    var broker;
-    var able;
-    var metrics;
+    let able;
+    let broker;
+    let fxaClient;
+    let metrics;
+    let notifier;
+    let relier;
+    let view;
+    let windowMock;
 
     function createDeps() {
       windowMock = new WindowMock();
+      // set a known userAgent that will display both buttons to begin with.
+      windowMock.navigator.userAgent =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0';
+
       relier = new SyncRelier({
         window: windowMock
       });
@@ -39,6 +43,7 @@ define(function (require, exports, module) {
         window: windowMock
       });
       fxaClient = new FxaClient();
+      notifier = new Notifier();
 
       able = new Able();
       metrics = {
@@ -54,6 +59,7 @@ define(function (require, exports, module) {
         fxaClient: fxaClient,
         lang: lang,
         metrics: metrics,
+        notifier: notifier,
         relier: relier,
         type: type,
         window: windowMock
@@ -115,11 +121,7 @@ define(function (require, exports, module) {
 
       it('shows the marketing campaign if supported by broker', function () {
         sinon.stub(able, 'choose', () => true);
-        sinon.stub(broker, 'hasCapability', (type) => {
-          if (type === 'emailVerificationMarketingSnippet') {
-            return true;
-          }
-        });
+        broker.setCapability('emailVerificationMarketingSnippet', true);
 
         relier.set('service', 'sync');
         createView(VerificationReasons.SIGN_UP);
@@ -131,11 +133,7 @@ define(function (require, exports, module) {
       });
 
       it('does not show marketing if the broker does not support it', function () {
-        sinon.stub(broker, 'hasCapability', function (type) {
-          if (type === 'emailVerificationMarketingSnippet') {
-            return false;
-          }
-        });
+        broker.setCapability('emailVerificationMarketingSnippet', false);
 
         createView(VerificationReasons.SIGN_UP);
 
