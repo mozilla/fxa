@@ -411,8 +411,9 @@ module.exports = function (
 
         checkIsBlockForced()
           .then(() => customs.check(request, email, 'accountLogin'))
-          .catch(checkUnblockCode)
+          .catch(extractUnblockCode)
           .then(readEmailRecord)
+          .then(checkUnblockCode)
           .then(checkSecurityHistory)
           .then(checkEmailAndPassword)
           .then(checkNumberOfActiveSessions)
@@ -428,6 +429,8 @@ module.exports = function (
           .done(reply, reply)
 
         function checkIsBlockForced () {
+          // For testing purposes, some email addresses are forced
+          // to go through signin unblock on every login attempt.
           let forced = config.signinUnblock && config.signinUnblock.enabled && config.signinUnblock.forcedEmailAddresses
 
           if (forced && forced.test(email)) {
@@ -437,18 +440,24 @@ module.exports = function (
           return P.resolve()
         }
 
-        function checkUnblockCode (e) {
-          request.emitMetricsEvent('account.login.blocked')
-          var method = e.output.payload.verificationMethod
-          if (method === 'email-captcha') {
-            // only set `unblockCode` if it is required from customs
-            unblockCode = request.payload.unblockCode
-            if (unblockCode) {
-              unblockCode = unblockCode.toUpperCase()
+        function extractUnblockCode (e) {
+          // If it's a customs-related error...
+          if (e.errno === error.ERRNO.REQUEST_BLOCKED || e.errno === error.ERRNO.THROTTLED) {
+            request.emitMetricsEvent('account.login.blocked')
+            var verificationMethod = e.output.payload.verificationMethod
+            // ...and if they can verify their way around it,
+            // then extract any unblockCode from the request.
+            // We'll re-throw the error later if the code is invalid.
+            if (verificationMethod === 'email-captcha') {
+              unblockCode = request.payload.unblockCode
+              if (unblockCode) {
+                unblockCode = unblockCode.toUpperCase()
+              }
+              customsErr = e
+              return
             }
-            customsErr = e
-            return
           }
+          // Any other errors are propagated back to the user.
           throw e
         }
 
@@ -457,39 +466,7 @@ module.exports = function (
             .then(
               function (result) {
                 emailRecord = result
-
-                allowSigninUnblock = features.isSigninUnblockEnabledForUser(emailRecord.uid, email, request)
-                if (allowSigninUnblock && unblockCode) {
-                  return db.consumeUnblockCode(emailRecord.uid, unblockCode)
-                    .then(
-                      (code) => {
-                        if (Date.now() - code.createdAt > unblockCodeLifetime) {
-                          log.info({
-                            op: 'Account.login.unblockCode.expired',
-                            uid: emailRecord.uid.toString('hex')
-                          })
-                          throw error.invalidUnblockCode()
-                        }
-                        didSigninUnblock = true
-                        return request.emitMetricsEvent('account.login.confirmedUnblockCode')
-                      }
-                    )
-                    .catch(
-                      (err) => {
-                        if (err.errno === error.ERRNO.INVALID_UNBLOCK_CODE) {
-                          request.emitMetricsEvent('account.login.invalidUnblockCode')
-                          customs.flag(request.app.clientAddress, {
-                            email: email,
-                            errno: err.errno
-                          })
-                        }
-                        throw err
-                      }
-                    )
-                }
-                if (!didSigninUnblock && customsErr) {
-                  throw customsErr
-                }
+                allowSigninUnblock = features.isSigninUnblockEnabledForUser(emailRecord.uid, emailRecord.email, request)
               },
               function (err) {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
@@ -497,13 +474,54 @@ module.exports = function (
                     email: email,
                     errno: err.errno
                   })
+                  // We rate-limit attempts to check whether an account exists, so
+                  // we have to be careful to re-throw any customs-server errors here.
+                  // We also have to be careful not to leak info about whether the account
+                  // existed, for example by saying sign-in unblock is unavailable on
+                  // accounts that don't exist. We pass a fake uid into the feature-flag
+                  // test to mask whether the account existed.
                   if (customsErr) {
+                    allowSigninUnblock = features.isSigninUnblockEnabledForUser('00', email, request)
                     throw customsErr
                   }
                 }
                 throw err
               }
             )
+        }
+
+        function checkUnblockCode() {
+          if (allowSigninUnblock && unblockCode) {
+            return db.consumeUnblockCode(emailRecord.uid, unblockCode)
+              .then(
+                (code) => {
+                  if (Date.now() - code.createdAt > unblockCodeLifetime) {
+                    log.info({
+                      op: 'Account.login.unblockCode.expired',
+                      uid: emailRecord.uid.toString('hex')
+                    })
+                    throw error.invalidUnblockCode()
+                  }
+                  didSigninUnblock = true
+                  return request.emitMetricsEvent('account.login.confirmedUnblockCode')
+                }
+              )
+              .catch(
+                (err) => {
+                  if (err.errno === error.ERRNO.INVALID_UNBLOCK_CODE) {
+                    request.emitMetricsEvent('account.login.invalidUnblockCode')
+                    customs.flag(request.app.clientAddress, {
+                      email: email,
+                      errno: err.errno
+                    })
+                  }
+                  throw err
+                }
+              )
+          }
+          if (!didSigninUnblock && customsErr) {
+            throw customsErr
+          }
         }
 
         function checkSecurityHistory () {
@@ -1752,7 +1770,7 @@ module.exports = function (
 
         function createUnblockCode(uid) {
 
-          if (features.isSigninUnblockEnabledForUser(uid, email, request)) {
+          if (features.isSigninUnblockEnabledForUser(uid, emailRecord.email, request)) {
             return db.createUnblockCode(uid)
           } else {
             throw error.featureNotEnabled()

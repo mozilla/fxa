@@ -1847,11 +1847,12 @@ describe('/account/devices', function () {
 
 describe('/account/login/send_unblock_code', function () {
   var uid = uuid.v4('binary').toString('hex')
+  var email = 'unblock@example.com'
   const mockLog = mocks.spyLog()
   var mockRequest = mocks.mockRequest({
     log: mockLog,
     payload: {
-      email: TEST_EMAIL,
+      email: email,
       metricsContext: {
         flowBeginTime: Date.now(),
         flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
@@ -1861,11 +1862,11 @@ describe('/account/login/send_unblock_code', function () {
   var mockMailer = mocks.mockMailer()
   var mockDb = mocks.mockDB({
     uid: uid,
-    email: TEST_EMAIL
+    email: email
   })
   var config = {
     signinUnblock: {
-      allowedEmailAddresses: /^.*$/
+      allowedEmailAddresses: /unblock.*$/
     }
   }
   var accountRoutes = makeRoutes({
@@ -1876,6 +1877,12 @@ describe('/account/login/send_unblock_code', function () {
   })
   var route = getRoute(accountRoutes, '/account/login/send_unblock_code')
 
+  afterEach(function () {
+    mockDb.emailRecord.reset()
+    mockDb.createUnblockCode.reset()
+    mockMailer.sendUnblockCode.reset()
+  })
+
   it('signin unblock enabled', function () {
     config.signinUnblock.enabled = true
     return runTest(route, mockRequest, function (response) {
@@ -1883,7 +1890,7 @@ describe('/account/login/send_unblock_code', function () {
       assert.deepEqual(response, {}, 'response has no keys')
 
       assert.equal(mockDb.emailRecord.callCount, 1, 'db.emailRecord called')
-      assert.equal(mockDb.emailRecord.args[0][0], TEST_EMAIL)
+      assert.equal(mockDb.emailRecord.args[0][0], email)
 
       assert.equal(mockDb.createUnblockCode.callCount, 1, 'db.createUnblockCode called')
       var dbArgs = mockDb.createUnblockCode.args[0]
@@ -1910,6 +1917,21 @@ describe('/account/login/send_unblock_code', function () {
       assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
 
       assert.equal(mockLog.flowEvent.callCount, 0, 'log.flowEvent was not called')
+    })
+  })
+
+  it('uses normalized email address for feature flag', function () {
+    config.signinUnblock.enabled = true
+    mockRequest.payload.email = 'UNBLOCK@example.com'
+
+    return runTest(route, mockRequest, function(response) {
+      assert.ok(!(response instanceof Error), response.stack)
+      assert.deepEqual(response, {}, 'response has no keys')
+
+      assert.equal(mockDb.emailRecord.callCount, 1, 'db.emailRecord called')
+      assert.equal(mockDb.emailRecord.args[0][0], mockRequest.payload.email)
+      assert.equal(mockDb.createUnblockCode.callCount, 1, 'db.createUnblockCode called')
+      assert.equal(mockMailer.sendUnblockCode.callCount, 1, 'called mailer.sendUnblockCode')
     })
   })
 })
