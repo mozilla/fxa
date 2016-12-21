@@ -21,11 +21,11 @@ module.exports = function (grunt) {
     }
 
     var clientWalker = extract({
-      'input-dir': path.join(__dirname, '..', '.es5', 'scripts'),
-      'join-existing': false,
+      'input-dir': path.join(__dirname, '..', 'app', 'scripts'),
+      joinExisting: true,
       'keyword': ['t', 'unsafeTranslate'],
       'output': 'client.pot',
-      'output-dir': messagesOutputPath,
+      'outputDir': messagesOutputPath,
       parsers: {
         '.js': 'javascript',
         '.mustache': 'handlebars'
@@ -36,10 +36,10 @@ module.exports = function (grunt) {
       var authWalker = extract({
         exclude: /pages\/dist/,
         'input-dir': path.join(__dirname, '..', 'server'),
-        'join-existing': true,
+        'joinExisting': true,
         'keyword': ['t', 'unsafeTranslate'],
         'output': 'server.pot',
-        'output-dir': messagesOutputPath,
+        'outputDir': messagesOutputPath,
         parsers: {
           '.html': 'handlebars',
           '.js': 'javascript',

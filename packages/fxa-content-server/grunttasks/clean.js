@@ -14,7 +14,9 @@ module.exports = function (grunt) {
           '!<%= yeoman.app %>/styles/fontello.css',
           // fonts are copied over every server run.
           '<%= yeoman.app %>/fonts/default',
-          '<%= yeoman.app %>/fonts/latin'
+          '<%= yeoman.app %>/fonts/latin',
+          // local template files
+          'locale/templates/LC_MESSAGES/*.pot'
         ]
       }]
     },
