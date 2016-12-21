@@ -1,13 +1,14 @@
-{{t "Forgot your password?"}}
+{{t "Ready, set sync"}}
 
-{{{t "Click the button within the next hour to set a new password for your Firefox Account. The request came from the following device:" }}}
+{{{t "Confirm you’ve received this email and we’ll help you install and sync Firefox on all your devices starting with:" }}}
 
 {{ device }}
 {{#if location}}{{ location }}{{/if}}
 {{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
-{{#if timestamp}}{{ timestamp }}{{/if}}
 
-{{t "Reset password"}} {{{link}}}
+{{t "Verify email "}} &rarr; {{{link}}}
+
+{{t "Once confirmed, we will help you install and connect Firefox on at least one other device."}}
 
 {{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
 

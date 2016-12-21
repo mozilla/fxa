@@ -24,8 +24,16 @@
 <!--Header Area-->
 <tr style="page-break-before: always">
   <td valign="top">
-    <h1 style="font-family: sans-serif; font-weight: normal; margin: 0 0 24px 0; text-align: center;">{{t "Still there?"}}</h1>
-    <p class="primary" style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0 0 24px 0; text-align: center;">{{{t "A week ago you created a Firefox Account, but never verified it. We’re worried about you. Confirm this email address to activate your account and let us know you're okay."}}}</p>
+    <h1 style="font-family: sans-serif; font-weight: normal; margin: 0 0 24px 0; text-align: center;">{{t "Ready, set sync"}}</h1>
+    <p class="primary" style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0 0 24px 0; text-align: center;">{{t "Confirm you’ve received this email and we’ll help you install and sync Firefox on all your devices starting with:"}}<br/><br/>
+      <span style="display:block;margin:2px 0;">{{{ device }}}</span>
+{{#if location }}<span style="display:block;margin:2px 0;">{{ location }}</span>{{/if}}
+{{#if ip }}<span style="display:block;margin:2px 0;">{{t "IP address: %(ip)s" }}</span>{{/if}}
+{{#if timestamp }}<span style="display:block;margin:2px 0;">{{ timestamp }}</span>{{/if}}
+
+
+      
+    </p>
   </td>
 </tr>
 
@@ -40,7 +48,7 @@
             <w:anchorlock/>
             <center>
           <![endif]-->
-          <a href="{{{link}}}" id="button-link" style="font-family:sans-serif; color: #fff; display: block; padding: 15px; text-decoration: none; width: 280px;">{{t "Activate now"}}</a>
+          <a href="{{{link}}}" id="button-link" style="font-family:sans-serif; color: #fff; display: block; padding: 15px; text-decoration: none; width: 280px;">{{t "Verify email "}}&rarr;</a>
           <!--[if mso]>
           </center>
           </v:roundrect>
@@ -50,6 +58,15 @@
     </table>
   </td>
 </tr>
+
+<!--Caption Area-->
+<tr style="page-break-before: always">
+  <td border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
+    <br/>
+    <p class="primary" style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0 0 24px 0; text-align: center;">{{t "Once confirmed, we will help you install and connect Firefox on at least one other device."}}
+  </td>
+</tr>
+
 <!--Button Area-->
 <tr style="page-break-before: always">
   <td border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">

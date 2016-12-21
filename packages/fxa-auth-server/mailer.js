@@ -26,6 +26,7 @@ module.exports = function (log) {
     'unblockCode': 'new-unblock',
     'verifyEmail': 'welcome',
     'verifyLoginEmail': 'new-signin',
+    'verifySyncEmail': 'welcome-sync',
     'verificationReminderFirstEmail': 'hello-again-first',
     'verificationReminderSecondEmail': 'still-there-second',
     'verificationReminderEmail': 'hello-again-first'
@@ -46,7 +47,8 @@ module.exports = function (log) {
     'verificationReminderSecondEmail': 'activate',
     'verificationReminderEmail': 'activate',
     'verifyEmail': 'activate',
-    'verifyLoginEmail': 'confirm-signin'
+    'verifyLoginEmail': 'confirm-signin',
+    'verifySyncEmail': 'activate-sync',
   }
 
   function extend(target, source) {
@@ -257,6 +259,7 @@ module.exports = function (log) {
     log.trace({ op: 'mailer.verifyEmail', email: message.email, uid: message.uid })
 
     var templateName = 'verifyEmail'
+    var subject = 'Verify your Firefox Account'
     var query = {
       uid: message.uid,
       code: message.code
@@ -280,17 +283,26 @@ module.exports = function (log) {
       headers['X-Flow-Begin-Time'] = message.flowBeginTime
     }
 
+    if (message.service === 'sync') {
+      subject = 'Confirm your email and start to sync!'
+      templateName = 'verifySyncEmail'
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
       headers: headers,
-      subject: gettext('Verify your Firefox Account'),
+      subject: gettext(subject),
       template: templateName,
       templateValues: {
+        device: this._formatUserAgentInfo(message),
         email: message.email,
+        ip: message.ip,
         link: links.link,
+        location: this._constructLocationString(message),
         oneClickLink: links.oneClickLink,
         privacyUrl: links.privacyUrl,
+        sync: message.service,
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes
       },
@@ -424,11 +436,15 @@ module.exports = function (log) {
       template: templateName,
       templateValues: {
         code: message.code,
+        device: this._formatUserAgentInfo(message),
         email: message.email,
+        ip: message.ip,
         link: links.link,
+        location: this._constructLocationString(message),
         privacyUrl: links.privacyUrl,
         supportUrl: links.supportUrl,
-        supportLinkAttributes: links.supportLinkAttributes
+        supportLinkAttributes: links.supportLinkAttributes,
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
       },
       uid: message.uid
     })
@@ -455,11 +471,15 @@ module.exports = function (log) {
       subject: gettext('Your Firefox Account password has been changed'),
       template: templateName,
       templateValues: {
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
         supportLinkAttributes: links.supportLinkAttributes,
-        supportUrl: links.supportUrl
+        supportUrl: links.supportUrl,
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
       },
       uid: message.uid
     })

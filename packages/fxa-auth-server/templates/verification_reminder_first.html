@@ -11,7 +11,12 @@
 <!--Logo-->
 <tr style="page-break-before: always">
   <td align="center" id="firefox-logo" style="padding: 20px 0;">
-    <img src="http://image.e.mozilla.org/lib/fe9915707361037e75/m/2/fxlogojg.gif" height="95" width="88" alt="" style="-ms-interpolation-mode: bicubic;" />
+    {{^if sync}}
+      <img src="http://image.e.mozilla.org/lib/fe9915707361037e75/m/2/fxlogojg.gif" height="95" width="88" alt="" style="-ms-interpolation-mode: bicubic;" />
+    {{/if}}
+    {{#if sync}}
+      <img src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/3/fxa_dec2016.jpeg" height="152" width="310" alt="" style="-ms-interpolation-mode: bicubic;" />
+    {{/if}}
   </td>
 </tr>
 

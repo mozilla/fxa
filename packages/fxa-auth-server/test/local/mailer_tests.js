@@ -71,7 +71,10 @@ var typesContainIOSStoreLinks = [
 
 var typesContainLocationData = [
   'newDeviceLoginEmail',
+  'passwordChangedEmail',
   'unblockCodeEmail',
+  'recoveryEmail',
+  'verifyEmail',
   'verifyLoginEmail'
 ]
 
@@ -90,6 +93,7 @@ function getLocationMessage (location) {
     email: 'a@b.com',
     ip: '219.129.234.194',
     location: location,
+    service: 'sync',
     timeZone: 'America/Los_Angeles'
   }
 }
@@ -111,7 +115,7 @@ P.all(
           code: 'abc123',
           email: 'a@b.com',
           locations: [],
-          service: 'service',
+          service: 'sync',
           uid: 'uid',
           unblockCode: 'AS6334PK',
           flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
@@ -127,6 +131,9 @@ P.all(
               if (type === 'verificationReminderEmail') {
                 // Handle special case for verification reminders
                 t.equal(templateName, 'verificationReminderFirstEmail' || 'verificationReminderSecondEmail')
+              } else if (type === 'verifyEmail') {
+                // Handle special case for verify email
+                t.equal(templateName, 'verifySyncEmail')
               } else {
                 t.equal(templateName, type)
               }
