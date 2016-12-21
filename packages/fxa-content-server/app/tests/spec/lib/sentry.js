@@ -220,8 +220,8 @@ define(function (require, exports, module) {
       });
 
       it('properly erases sensitive information, keeps allowed fields', function () {
-        var fixtureUrl2 = 'https://accounts.firefox.com/signup?client_id=foo&preVerifyToken=bar&service=sync';
-        var expectedUrl2 = 'https://accounts.firefox.com/signup?client_id=foo&preVerifyToken=VALUE&service=sync';
+        var fixtureUrl2 = 'https://accounts.firefox.com/signup?client_id=foo&service=sync';
+        var expectedUrl2 = 'https://accounts.firefox.com/signup?client_id=foo&service=sync';
         var sentry = new SentryMetrics(host);
         var resultUrl2 = sentry.__cleanUpQueryParam(fixtureUrl2);
 
@@ -304,4 +304,3 @@ define(function (require, exports, module) {
   });
 
 });
-

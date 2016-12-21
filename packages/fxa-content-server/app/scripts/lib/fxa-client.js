@@ -304,10 +304,6 @@ define(function (require, exports, module) {
         signUpOptions.redirectTo = relier.get('redirectTo');
       }
 
-      if (relier.has('preVerifyToken')) {
-        signUpOptions.preVerifyToken = relier.get('preVerifyToken');
-      }
-
       if (options.preVerified) {
         signUpOptions.preVerified = true;
       }
@@ -319,21 +315,7 @@ define(function (require, exports, module) {
       setMetricsContext(signUpOptions, options);
 
       return client.signUp(email, password, signUpOptions)
-        .then((accountData) => {
-          return getUpdatedSessionData(email, relier, accountData, options);
-        }, (err) => {
-          if (relier.has('preVerifyToken') &&
-              AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
-            // The token was invalid and the auth server could
-            // not pre-verify the user. Now, just create a new
-            // user and force them to verify their email.
-            relier.unset('preVerifyToken');
-
-            return this.signUp(email, password, relier, options);
-          }
-
-          throw err;
-        });
+        .then((accountData) => getUpdatedSessionData(email, relier, accountData, options));
     }),
 
     signUpResend: withClient((client, relier, sessionToken, options = {}) => {

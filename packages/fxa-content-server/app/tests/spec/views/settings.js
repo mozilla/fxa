@@ -347,16 +347,13 @@ define(function (require, exports, module) {
             .then(function () {
               assert.isTrue(user.clearSignedInAccount.called);
 
-              assert.equal(relier.unset.callCount, 3);
+              assert.equal(relier.unset.callCount, 2);
               var args = relier.unset.args[0];
               assert.lengthOf(args, 1);
               assert.equal(args[0], 'uid');
               args = relier.unset.args[1];
               assert.lengthOf(args, 1);
               assert.equal(args[0], 'email');
-              args = relier.unset.args[2];
-              assert.lengthOf(args, 1);
-              assert.equal(args[0], 'preVerifyToken');
 
               assert.equal(view.navigate.callCount, 1);
               args = view.navigate.args[0];

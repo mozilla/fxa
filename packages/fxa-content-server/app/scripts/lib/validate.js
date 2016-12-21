@@ -40,9 +40,6 @@ define(function (require, exports, module) {
   // the same minimized form in node 4.x and node 0.10.
   const emailRegex = /^[\w.!#$%&’*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
 
-  // A Base64 encoded JWT
-  const BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/;
-
   var Validate = {
     /**
      * Check if an email address is valid
@@ -260,16 +257,6 @@ define(function (require, exports, module) {
       ];
 
       return _.contains(valid, value);
-    },
-
-    /**
-     * Check if a JSON Web Token (JWT) is valid.
-     *
-     * @param {String} value
-     * @returns {Boolean}
-     */
-    isBase64JwtValid: function isJwtValid(value) {
-      return BASE64_JWT.test(value);
     },
 
     /**

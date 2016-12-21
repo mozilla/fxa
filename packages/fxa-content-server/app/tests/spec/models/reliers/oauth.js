@@ -33,7 +33,6 @@ define(function (require, exports, module) {
     var ACTION = 'signup';
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var CLIENT_IMAGE_URI = 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.pngx';
-    var PREVERIFY_TOKEN = 'a=.big==.token==';
     var PROMPT = Constants.OAUTH_PROMPT_CONSENT;
     var REDIRECT_URI = 'http://redirect.here';
     var SCOPE = 'profile:email profile:uid';
@@ -76,7 +75,6 @@ define(function (require, exports, module) {
           access_type: ACCESS_TYPE,
           action: ACTION,
           client_id: CLIENT_ID,
-          preVerifyToken: PREVERIFY_TOKEN,
           prompt: PROMPT,
           redirect_uri: REDIRECT_URI,
           scope: SCOPE,
@@ -89,7 +87,6 @@ define(function (require, exports, module) {
             // context is not imported from query params
             assert.equal(relier.get('context'), Constants.OAUTH_CONTEXT);
 
-            assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
             assert.equal(relier.get('prompt'), PROMPT);
             assert.equal(relier.get('service'), SERVICE);
             assert.equal(relier.get('state'), STATE);
@@ -113,7 +110,6 @@ define(function (require, exports, module) {
         windowMock.location.search = TestHelpers.toSearchString({
           action: ACTION,
           client_id: CLIENT_ID,
-          preVerifyToken: PREVERIFY_TOKEN,
           redirect_uri: REDIRECT_URI,
           scope: SCOPE,
           service: SERVICE,
@@ -791,4 +787,3 @@ define(function (require, exports, module) {
     }
   });
 });
-

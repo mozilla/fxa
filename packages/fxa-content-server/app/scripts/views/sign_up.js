@@ -353,10 +353,6 @@ define(function (require, exports, module) {
         needsOptedInToMarketingEmail: this.$('.marketing-email-optin').is(':checked')
       });
 
-      if (this.relier.has('preVerifyToken')) {
-        this.logViewEvent('preverified');
-      }
-
       if (this.relier.isSync()) {
         var customizeSync = account.get('customizeSync');
         this.logViewEvent('customizeSync.' + String(customizeSync));

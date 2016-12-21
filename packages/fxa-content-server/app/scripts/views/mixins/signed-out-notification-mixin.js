@@ -21,7 +21,6 @@ define(function (require, exports, module) {
       // to sign in to different accounts inside this tab.
       this.relier.unset('uid');
       this.relier.unset('email');
-      this.relier.unset('preVerifyToken');
       this.user.clearSignedInAccountUid();
       if (this._formPrefill) {
         // The user has manually signed out, a pretty strong indicator

@@ -367,26 +367,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isBase64JwtValid', function () {
-      it('is defined', function () {
-        assert.isFunction(Validate.isBase64JwtValid);
-      });
-
-      var invalidTypes = ['', 'word.asdf=', 'crazyType'];
-      invalidTypes.forEach( function (item) {
-        it('returns false for ' + item, function () {
-          assert.isFalse(Validate.isBase64JwtValid(item));
-        });
-      });
-
-      var validTypes = ['abcd-=.asdfbc==.asdf90154-_=='];
-      validTypes.forEach( function (item) {
-        it('returns true for ' + item, function () {
-          assert.isTrue(Validate.isBase64JwtValid(item));
-        });
-      });
-    });
-
     describe('isUnblockCodeValid', () => {
       const validUnblockCode =
         createRandomBase36String(Constants.UNBLOCK_CODE_LENGTH);

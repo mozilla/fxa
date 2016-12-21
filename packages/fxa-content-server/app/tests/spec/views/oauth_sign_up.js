@@ -144,7 +144,7 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('submit without a preVerifyToken', function () {
+    describe('submit', function () {
       it('redirects to /confirm on success', function () {
         fillOutSignUp(email, 'password', { context: view });
 
@@ -165,62 +165,6 @@ define(function (require, exports, module) {
             assert.isTrue(view.navigate.calledWith('confirm'));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signup.success'));
-          });
-      });
-    });
-
-    describe('submit with a preVerifyToken', function () {
-      beforeEach(function () {
-        relier.set('preVerifyToken', 'preverifytoken');
-      });
-
-      it('notifies the broker when a pre-verified user signs up', function () {
-        sinon.stub(user, 'signUpAccount', function (account) {
-          account.set('sessionToken', 'asessiontoken');
-          account.set('verified', true);
-          return p(account);
-        });
-
-        sinon.stub(broker, 'afterSignIn', function () {
-          return p();
-        });
-        sinon.stub(relier, 'accountNeedsPermissions', function () {
-          return false;
-        });
-
-        fillOutSignUp(email, 'password', { context: view });
-
-        return view.submit()
-          .then(function () {
-            assert.isTrue(broker.afterSignIn.called);
-            assert.equal(broker.afterSignIn.args[0][0].get('email'), email);
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'oauth.signup.preverified'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'oauth.signup.preverified.success'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'oauth.signup.success'));
-          });
-      });
-
-      it('redirects to /confirm if pre-verification is not successful', function () {
-        sinon.stub(user, 'signUpAccount', function (account) {
-          account.set('sessionToken', 'asessiontoken');
-          account.set('verified', false);
-          return p(account);
-        });
-        sinon.stub(relier, 'accountNeedsPermissions', function () {
-          return false;
-        });
-        sinon.spy(view, 'navigate');
-
-        var password = 'password';
-        fillOutSignUp(email, password, { context: view });
-        return view.submit()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('confirm'));
-            assert.equal(user.signUpAccount.args[0][0].get('email'), email);
-            assert.equal(user.signUpAccount.args[0][1], password);
           });
       });
     });

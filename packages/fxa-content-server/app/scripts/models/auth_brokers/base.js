@@ -118,7 +118,7 @@ define(function (require, exports, module) {
 
     /**
      * Called after sign in. Can be used to notify the RP that the user
-     * has signed in or signed up with a valid preVerifyToken.
+     * has signed in.
      *
      * @param {Object} account
      * @return {Promise}

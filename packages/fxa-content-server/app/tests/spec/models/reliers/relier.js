@@ -22,7 +22,6 @@ define(function (require, exports, module) {
 
     var EMAIL = 'email@moz.org';
     var ENTRYPOINT = 'preferences';
-    var PREVERIFY_TOKEN = 'a=.big==.token==';
     var SERVICE = 'sync';
     var SETTING = 'avatar';
     var UID = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
@@ -57,7 +56,6 @@ define(function (require, exports, module) {
         email: EMAIL,
         entrypoint: ENTRYPOINT,
         ignored: 'ignored',
-        preVerifyToken: PREVERIFY_TOKEN,
         service: SERVICE,
         setting: SETTING,
         uid: UID,
@@ -75,7 +73,6 @@ define(function (require, exports, module) {
           assert.equal(relier.get('context'), Constants.CONTENT_SERVER_CONTEXT);
 
           // The rest are imported from search parameters
-          assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
           assert.equal(relier.get('service'), SERVICE);
           assert.equal(relier.get('email'), EMAIL);
 
@@ -114,14 +111,6 @@ define(function (require, exports, module) {
         .then(function () {
           assert.equal(relier.get('entrypoint'), ENTRYPOINT);
         });
-    });
-
-    ['', ' ', 'invalid token'].forEach(function (value) {
-      testInvalidQueryParam('preVerifyToken', value);
-    });
-
-    [undefined, PREVERIFY_TOKEN].forEach(function (value) {
-      testValidQueryParam('preVerifyToken', value, 'preVerifyToken', value);
     });
 
     ['', ' ', 'invalid migration'].forEach(function (token) {
@@ -342,4 +331,3 @@ define(function (require, exports, module) {
     }
   });
 });
-

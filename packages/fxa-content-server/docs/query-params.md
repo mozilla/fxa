@@ -222,13 +222,6 @@ If the user's email address is already known.
 * /force_auth
 * /oauth/force_auth
 
-### `preVerifyToken`
-A preVerifyToken is accepted from certain trusted reliers.
-
-#### When to specify
-* /signup or /oauth/signup
-
-
 ### `utm_campaign`
 The Google Analytics `utm_campaign` field. Will be passed back to the relier
 when authentication completes.
@@ -349,4 +342,3 @@ Used to skip the confirmation form to reset a password
 #### When to use
 Should not be used by reliers.
 Should only be used for accounts that must be reset.
-

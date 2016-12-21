@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const Validate = require('lib/validate');
   const Vat = require('vat');
 
-  Vat.register('base64jwt', Vat.string().test(Validate.isBase64JwtValid));
   Vat.register('email', Vat.string().test(Validate.isEmailValid));
   Vat.register('hex', Vat.string().test(Validate.isHexValid));
   Vat.register('uid', Vat.string().test(Validate.isUidValid));
@@ -20,4 +19,3 @@ define(function (require, exports, module) {
 
   return Vat;
 });
-

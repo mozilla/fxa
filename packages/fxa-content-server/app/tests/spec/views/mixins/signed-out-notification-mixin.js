@@ -65,16 +65,13 @@ define(function (require, exports, module) {
         });
 
         it('calls relier.unset correctly', function () {
-          assert.equal(view.relier.unset.callCount, 3);
+          assert.equal(view.relier.unset.callCount, 2);
 
           assert.lengthOf(view.relier.unset.args[0], 1);
           assert.equal(view.relier.unset.args[0][0], 'uid');
 
           assert.lengthOf(view.relier.unset.args[1], 1);
           assert.equal(view.relier.unset.args[1][0], 'email');
-
-          assert.lengthOf(view.relier.unset.args[2], 1);
-          assert.equal(view.relier.unset.args[2][0], 'preVerifyToken');
         });
 
         it('calls user.clearSignedInAccountUid correctly', function () {
@@ -120,4 +117,3 @@ define(function (require, exports, module) {
     });
   });
 });
-
