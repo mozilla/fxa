@@ -2282,6 +2282,7 @@ describe('/v1', function() {
       });
 
       it('should only list one client for multiple tokens', function() {
+        var tok;
         return getUniqueUserAndToken(client1Id.toString('hex'), {
           uid: user1.uid,
           email: user1.email,
@@ -2301,7 +2302,11 @@ describe('/v1', function() {
               scopes: ['profile']
             });
           })
-          .then(function () {
+          .then(function (client) {
+            return db.getAccessToken(encrypt.hash(client.token));
+          })
+          .then(function (token) {
+            tok = token;
             return Server.api.get({
               url: '/client-tokens',
               headers: {
@@ -2313,6 +2318,7 @@ describe('/v1', function() {
             var result = res.result;
             assert.equal(result.length, 1);
             assert.equal(result[0].id, client1Id.toString('hex'));
+            assert.equal(result[0].lastAccessTime, tok.createdAt.getTime(), 'lastAccessTime should be equal to the latest Token createdAt time');
           });
       });
 

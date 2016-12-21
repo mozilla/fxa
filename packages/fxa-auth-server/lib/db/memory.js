@@ -103,16 +103,6 @@ function clone(obj) {
   return clone;
 }
 
-function findByBufProp(arrayOfObjects, prop, value) {
-  for (var i = 0; i < arrayOfObjects.length; i++) {
-    var id = arrayOfObjects[i];
-    if (id[prop].toString('hex') === value) {
-      return id;
-    }
-  }
-  return null;
-}
-
 function deleteByUserId(object, userId) {
   var ids = Object.keys(object);
   for (var i = 0; i < ids.length; i++) {
@@ -260,27 +250,38 @@ MemoryStore.prototype = {
     }
 
     var activeClientIds = [];
-    var activeClients = [];
+    var activeClients = {};
     var ids = Object.keys(this.tokens);
     for (var i = 0; i < ids.length; i++) {
       var id = ids[i];
       if (this.tokens[id].userId.toString('hex') === uid) {
-        activeClientIds.push(this.tokens[id].clientId);
+        activeClientIds.push({
+          clientId: this.tokens[id].clientId,
+          clientTokenTime: this.tokens[id].createdAt
+        });
       }
     }
 
     // unique clients
-    activeClientIds.forEach(function (clientIdBuf) {
-      var clientIdHex = unbuf(clientIdBuf);
-      if (! findByBufProp(activeClients, 'id', clientIdHex)) {
-        var c = self.clients[clientIdHex];
-        if (c.canGrant === false) {
-          activeClients.push(c);
+    activeClientIds.forEach(function (clientTokenObj) {
+      var clientIdHex = unbuf(clientTokenObj.clientId);
+      var client = self.clients[clientIdHex];
+      if (client.canGrant === false) {
+        if (! activeClients[clientIdHex]) {
+          activeClients[clientIdHex] = client;
+        }
+        var clientTokenTime = clientTokenObj.clientTokenTime;
+        if (clientTokenTime > activeClients[clientIdHex].createdAt) {
+          activeClients[clientIdHex].createdAt = clientTokenTime;
         }
       }
     });
 
-    var customSort = activeClients.slice(0);
+    var activeClientsArray = Object.keys(activeClients).map(function (key) {
+        return activeClients[key];
+      });
+
+    var customSort = activeClientsArray.slice(0);
     customSort.sort(function(a, b) {
       if (b.createdAt > a.createdAt) {
         return 1;
