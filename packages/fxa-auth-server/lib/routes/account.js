@@ -466,7 +466,7 @@ module.exports = function (
             .then(
               function (result) {
                 emailRecord = result
-                allowSigninUnblock = features.isSigninUnblockEnabledForUser(emailRecord.uid, email, request)
+                allowSigninUnblock = features.isSigninUnblockEnabledForUser(emailRecord.uid, emailRecord.email, request)
               },
               function (err) {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
@@ -1770,7 +1770,7 @@ module.exports = function (
 
         function createUnblockCode(uid) {
 
-          if (features.isSigninUnblockEnabledForUser(uid, email, request)) {
+          if (features.isSigninUnblockEnabledForUser(uid, emailRecord.email, request)) {
             return db.createUnblockCode(uid)
           } else {
             throw error.featureNotEnabled()
