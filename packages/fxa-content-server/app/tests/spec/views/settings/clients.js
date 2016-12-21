@@ -6,32 +6,34 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  var _ = require ('underscore');
+  const _ = require ('underscore');
   const Able = require('lib/able');
   const assert = require('chai').assert;
+  const AttachedClients = require('models/attached-clients');
   const BaseBroker = require('models/auth_brokers/base');
   const BaseView = require('views/base');
-  const AttachedClients = require('models/attached-clients');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const sinon = require('sinon');
+  const TestHelpers = require('../../../lib/helpers');
+  const Translator = require('lib/translator');
   const User = require('models/user');
   const View = require('views/settings/clients');
-  const TestHelpers = require('../../../lib/helpers');
 
   describe('views/settings/clients', function () {
-    var UID = '123';
-    var attachedClients;
-    var notifier;
-    var parentView;
-    var user;
-    var view;
     var able;
     var account;
+    var attachedClients;
     var broker;
     var email;
     var metrics;
+    var notifier;
+    var parentView;
+    var translator;
+    var UID = '123';
+    var user;
+    var view;
 
     function initView () {
       view = new View({
@@ -41,6 +43,7 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         parentView: parentView,
+        translator: translator,
         user: user
       });
 
@@ -68,11 +71,12 @@ define(function (require, exports, module) {
         return true;
       });
       broker = new BaseBroker();
+      email = TestHelpers.createEmail();
       metrics = new Metrics();
       notifier = new Notifier();
       parentView = new BaseView();
+      translator = new Translator('en-US', ['en-US']);
       user = new User();
-      email = TestHelpers.createEmail();
 
       account = user.initAccount({
         email: email,
@@ -473,5 +477,33 @@ define(function (require, exports, module) {
 
       });
     });
+
+    describe('_formatAccessTime', function () {
+      it('translates the last active string', function () {
+        return initView()
+          .then(() => {
+            view.translator = {
+              get: (untranslatedText) => {
+                if (untranslatedText === 'Last active %(translatedTimeAgo)s') {
+                  return 'Translated %(translatedTimeAgo)s';
+                }
+
+                return untranslatedText;
+              }
+            };
+
+            const formatted = view._formatAccessTime([
+              {
+                lastAccessTimeFormatted: 'a few seconds ago',
+                name: 'client-1'
+              }
+            ]);
+
+            assert.equal(formatted[0].lastAccessTimeFormatted, 'Translated %(translatedTimeAgo)s');
+            assert.equal(formatted[0].name, 'client-1');
+          });
+      });
+    });
+
   });
 });

@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const preventDefaultThen = require('views/base').preventDefaultThen;
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
-  const Strings = require('lib/strings');
   const t = require('views/base').t;
   const Template = require('stache!templates/settings/clients');
   const Url = require('lib/url');
@@ -49,9 +48,9 @@ define(function (require, exports, module) {
     },
 
     _formatAccessTime (items) {
-      return _.map(items, function (item) {
+      return _.map(items, (item) => {
         if (item.lastAccessTimeFormatted) {
-          item.lastAccessTimeFormatted = Strings.interpolate(
+          item.lastAccessTimeFormatted = this.translate(
             t('Last active %(translatedTimeAgo)s'), { translatedTimeAgo: item.lastAccessTimeFormatted });
         } else {
           // unknown lastAccessTimeFormatted or not possible to format.
