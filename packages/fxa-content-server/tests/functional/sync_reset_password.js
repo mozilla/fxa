@@ -34,7 +34,6 @@ define([
   var openPasswordResetLinkDifferentBrowser = thenify(FunctionalHelpers.openPasswordResetLinkDifferentBrowser);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
   var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
   var type = FunctionalHelpers.type;
@@ -71,7 +70,7 @@ define([
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         .then(testElementExists('#fxa-reset-password-complete-header'))
-        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
+        .then(testElementExists('.account-ready-service'))
         .then(closeCurrentWindow())
 
         .then(testSuccessWasShown(this))
@@ -161,7 +160,7 @@ define([
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         .then(testElementExists('#fxa-reset-password-complete-header'))
-        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'));
+        .then(testElementExists('.account-ready-service'));
     }
   });
 

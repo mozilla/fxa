@@ -28,7 +28,6 @@ define([
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
@@ -63,7 +62,7 @@ define([
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         .then(testElementExists('#fxa-reset-password-complete-header'))
-        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
+        .then(testElementExists('.account-ready-service'))
 
         // the verification tab sends the WebChannel message. This fixes
         // two problems: 1) initiating tab is closed, 2) The initiating
