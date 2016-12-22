@@ -22,9 +22,6 @@ define(function (require, exports, module) {
 
   /*eslint-disable camelcase*/
 
-  const FX_SYNC_WILL_BEGIN_MOMENTARILY =
-          t('Firefox Sync will begin momentarily');
-
   /**
    * Some template strings are fetched from JS to keep
    * the template marginally cleaner and easier to read.
@@ -38,7 +35,7 @@ define(function (require, exports, module) {
     PASSWORD_RESET: {
       headerId: 'fxa-reset-password-complete-header',
       headerTitle: t('Password reset'),
-      readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
+      readyToSyncText: t('Complete set-up by entering the new password on your other Firefox devices.')
     },
     // signin_confirmed and signin_verified are only shown to Sync for now.
     SIGN_IN: {
