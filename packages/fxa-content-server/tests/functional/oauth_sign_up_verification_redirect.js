@@ -5,17 +5,23 @@
 define([
   'intern!object',
   'intern/chai!assert',
-  'require',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
+], function (registerSuite, assert, TestHelpers, FunctionalHelpers) {
   var PASSWORD = 'password';
   var email;
 
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
+  var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openExternalSite = FunctionalHelpers.openExternalSite;
+  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+  var testElementExists = FunctionalHelpers.testElementExists;
 
   registerSuite({
     name: 'oauth sign up verification_redirect',
@@ -26,127 +32,66 @@ define([
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
       return this.remote
-        .then(FunctionalHelpers.clearBrowserState({
+        .then(clearBrowserState({
           '123done': true,
           contentServer: true
-        }));
+        }))
+        .then(openFxaFromRp(this.parent, 'signup', {
+          query: {
+            verification_redirect: 'always ' //eslint-disable-line camelcase
+          }
+        }))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'));
     },
 
     'signup, same browser same window, verification_redirect=always': function () {
-      var self = this;
-
-      return FunctionalHelpers.openFxaFromRp(self, 'signup')
-        // upgrade the content server oauth to include 'verification_redirect'
-        .getCurrentUrl()
-        .then(function (url) {
-          return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
-        })
-        .then(fillOutSignUp(email, PASSWORD))
-
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
+      return this.remote
+        .then(openVerificationLinkInSameTab(email, 0))
 
         // should redirect back to 123done
-        .findByCssSelector('#loggedin')
-        .end();
+        .then(testElementExists('#loggedin'));
     },
 
     'signup, same browser, original tab closed, verification_redirect=always': function () {
-      var self = this;
-
-      return FunctionalHelpers.openFxaFromRp(self, 'signup')
-        // upgrade the content server oauth to include 'verification_redirect'
-        .getCurrentUrl()
-        .then(function (url) {
-          return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
-        })
-        .then(fillOutSignUp(email, PASSWORD))
-
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
+      return this.remote
         // closes the original tab
         .then(openExternalSite())
 
         .then(openVerificationLinkInNewTab(email, 0))
-
         .switchToWindow('newwindow')
 
         // should redirect back to 123done
-        .findByCssSelector('#loggedin')
-        .end()
-
+        .then(testElementExists('#loggedin'))
         .then(closeCurrentWindow());
     },
 
     'signup, same browser different window, verification_redirect=always': function () {
-      var self = this;
-      self.timeout = 90 * 1000;
+      this.timeout = 90 * 1000;
 
-      return FunctionalHelpers.openFxaFromRp(self, 'signup')
-        // upgrade the content server oauth to include 'verification_redirect'
-        .getCurrentUrl()
-        .then(function (url) {
-          return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
-        })
-        .then(fillOutSignUp(email, PASSWORD))
-
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
+      return this.remote
         .then(openVerificationLinkInNewTab(email, 0))
 
         // wait for the original tab to login
-        .findByCssSelector('#loggedin')
-        .end()
+        .then(testElementExists('#loggedin'))
 
         .switchToWindow('newwindow')
-
-        // this is an verification_redirect flow, both windows should login
-        .findByCssSelector('#loggedin')
-        .end()
-
+        // this is an verification-redirect flow, both windows should login
+        .then(testElementExists('#loggedin'))
         .then(closeCurrentWindow());
     },
 
     'signup, verify different browser, verification_redirect=always': function () {
-      var self = this;
-
-      return FunctionalHelpers.openFxaFromRp(self, 'signup')
-        // upgrade the content server oauth to include 'verification_redirect'
-        .getCurrentUrl()
-        .then(function (url) {
-          return self.remote.get(require.toUrl(url + '&verification_redirect=always'));
-        })
-        .then(fillOutSignUp(email, PASSWORD))
-
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
+      return this.remote
         // clear browser state to simulate opening link in a new browser
-        .then(FunctionalHelpers.clearBrowserState({
+        .then(clearBrowserState({
           '123done': true,
           contentServer: true
         }))
 
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
-
+        .then(openVerificationLinkInSameTab(email, 0))
         // new browser provides a proceed link to the relier
-        .findByCssSelector('#proceed')
-          .click()
-        .end()
+        .then(click('#proceed'))
 
         // Note: success is 123done giving a bad request because this is a different browser
         .findByCssSelector('body')
