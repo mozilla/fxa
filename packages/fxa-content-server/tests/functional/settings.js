@@ -14,8 +14,6 @@ define([
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
@@ -25,7 +23,7 @@ define([
   var focus = FunctionalHelpers.focus;
   var getFxaClient = FunctionalHelpers.getFxaClient;
   var openPage = FunctionalHelpers.openPage;
-  var openSettingsInNewTab = thenify(FunctionalHelpers.openSettingsInNewTab);
+  var openSettingsInNewTab = FunctionalHelpers.openSettingsInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
@@ -202,7 +200,7 @@ define([
         // the user is asked to sign in.
         .then(testElementExists('#fxa-settings-header'))
 
-        .then(openSettingsInNewTab(this, windowName))
+        .then(openSettingsInNewTab(windowName))
         .switchToWindow(windowName)
         .then(testElementExists('#fxa-settings-header'))
         .then(click('#signout'))

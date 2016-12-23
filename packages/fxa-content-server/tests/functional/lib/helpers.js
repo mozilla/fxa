@@ -584,12 +584,22 @@ define([
       });
   }
 
-  function openSettingsInNewTab(context, windowName, panel) {
+  /**
+   * Open the settings page in a new tab.
+   *
+   * @param   {string} windowName name of new tab
+   * @param   {string} [panel] pathname of panel to open. Open `/settings` if not given.
+   * @returns {promise} resolves when complete
+   */
+  function openSettingsInNewTab(windowName, panel) {
     var url = SETTINGS_URL;
     if (panel) {
       url += '/' + panel;
     }
-    return getRemote(context).execute(openWindow, [ url, windowName ]);
+    return function () {
+      return this.parent
+        .execute(openWindow, [ url, windowName ]);
+    };
   }
 
   function openSignInInNewTab(context, windowName) {

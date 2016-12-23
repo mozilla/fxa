@@ -31,7 +31,7 @@ define([
   var openFxaFromTrustedRp = thenify(FunctionalHelpers.openFxaFromRp);
   var openFxaFromUntrustedRp = thenify(FunctionalHelpers.openFxaFromUntrustedRp);
   var openPage = FunctionalHelpers.openPage;
-  var openSettingsInNewTab = thenify(FunctionalHelpers.openSettingsInNewTab);
+  var openSettingsInNewTab = FunctionalHelpers.openSettingsInNewTab;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
@@ -220,7 +220,7 @@ define([
 
         .then(click('#logout'))
 
-        .then(openSettingsInNewTab(this, 'settings', 'display_name'))
+        .then(openSettingsInNewTab('settings', 'display_name'))
         .switchToWindow('settings')
 
         .then(type('#display-name input[type=text]', 'test user'))
