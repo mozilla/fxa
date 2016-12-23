@@ -26,19 +26,19 @@ define([
   registerSuite({
     name: 'oauth choose redirect',
 
-    before: function () {
+    beforeEach: function () {
+      email = TestHelpers.createEmail();
+
+      return this.remote.then(clearBrowserState());
+    },
+
+    'get client_id for other tests': function () {
       return this.remote
         .then(openFxaFromRp(this, 'signup'))
         .then(getQueryParamValue('client_id'))
         .then(function (clientId) {
           oAuthUrl += clientId;
         });
-    },
-
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-
-      return this.remote.then(clearBrowserState());
     },
 
     'oauth endpoint redirects to signup with an unregistered email': function () {

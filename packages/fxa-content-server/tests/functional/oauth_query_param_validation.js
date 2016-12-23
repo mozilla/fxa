@@ -53,7 +53,14 @@ define([
   registerSuite({
     name: 'oauth query parameter validation',
 
-    before: function () {
+    beforeEach: function () {
+      return this.remote
+        .then(clearBrowserState({
+          contentServer: true
+        }));
+    },
+
+    'get client_id for other tests': function () {
       // get the trusted and untrusted client IDs by opening
       // FxA from the reliers. This is done instead of hard coding
       // the values because the client_ids change depending on
@@ -69,13 +76,6 @@ define([
         .then(function (clientId) {
           UNTRUSTED_CLIENT_ID = clientId;
         });
-    },
-
-    beforeEach: function () {
-      return this.remote
-        .then(clearBrowserState({
-          contentServer: true
-        }));
     },
 
     'invalid access_type': function () {
