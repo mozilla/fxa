@@ -259,7 +259,7 @@ module.exports = function (log) {
     log.trace({ op: 'mailer.verifyEmail', email: message.email, uid: message.uid })
 
     var templateName = 'verifyEmail'
-    var subject = 'Verify your Firefox Account'
+    var subject = gettext('Verify your Firefox Account')
     var query = {
       uid: message.uid,
       code: message.code
@@ -284,7 +284,7 @@ module.exports = function (log) {
     }
 
     if (message.service === 'sync') {
-      subject = 'Confirm your email and start to sync!'
+      subject = gettext('Confirm your email and start to sync!')
       templateName = 'verifySyncEmail'
     }
 
@@ -292,7 +292,7 @@ module.exports = function (log) {
       acceptLanguage: message.acceptLanguage,
       email: message.email,
       headers: headers,
-      subject: gettext(subject),
+      subject: subject,
       template: templateName,
       templateValues: {
         device: this._formatUserAgentInfo(message),
