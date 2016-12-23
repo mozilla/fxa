@@ -57,6 +57,7 @@ define(function (require, exports, module) {
     });
 
     testMarketingCampaign(Constants.MARKETING_ID_SPRING_2015);
+    testMarketingCampaign(Constants.MARKETING_ID_AUTUMN_2016);
 
     function testMarketingCampaign (marketingId) {
       function assertLinkHasExpectedIdAndType(view, expectedId, expectedType) {

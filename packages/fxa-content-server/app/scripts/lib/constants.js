@@ -115,6 +115,7 @@ define(function (require, exports, module) {
     UNBLOCK_CODE_LENGTH: 8,
 
     MARKETING_ID_SPRING_2015: 'spring-2015-android-ios-sync',
+    MARKETING_ID_AUTUMN_2016: 'autumn-2016-connect-another-device',
 
     DOWNLOAD_LINK_TEMPLATE_ANDROID: 'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=android',
     DOWNLOAD_LINK_TEMPLATE_IOS: 'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=ios&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8' //eslint-disable-line max-len

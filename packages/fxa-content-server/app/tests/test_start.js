@@ -34,6 +34,7 @@ function (Translator, Session) {
     '../tests/spec/lib/error-utils',
     '../tests/spec/lib/experiment',
     '../tests/spec/lib/experiments/base',
+    '../tests/spec/lib/experiments/connect-another-device',
     '../tests/spec/lib/experiments/mailcheck',
     '../tests/spec/lib/fxa-client',
     '../tests/spec/lib/height-observer',
@@ -112,6 +113,7 @@ function (Translator, Session) {
     '../tests/spec/views/complete_sign_up',
     '../tests/spec/views/confirm',
     '../tests/spec/views/confirm_reset_password',
+    '../tests/spec/views/connect_another_device',
     '../tests/spec/views/cookies_disabled',
     '../tests/spec/views/coppa/coppa-age-input',
     '../tests/spec/views/decorators/progress_indicator',
@@ -175,7 +177,8 @@ function (Translator, Session) {
     '../tests/spec/views/sign_up',
     '../tests/spec/views/sub_panels',
     '../tests/spec/views/tooltip',
-    '../tests/spec/views/tos'
+    '../tests/spec/views/tos',
+    '../tests/spec/views/why_connect_another_device'
   ];
 
   // The translator is expected to be on the window object.

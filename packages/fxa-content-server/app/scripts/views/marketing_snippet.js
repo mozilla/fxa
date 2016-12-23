@@ -95,6 +95,7 @@ define(function (require, exports, module) {
       const appStoreImage = this._storeImage(APP_STORE_BUTTON, FORMAT_SVG);
 
       const marketingId = this._marketingId;
+      const isAutumn2016 = marketingId === Constants.MARKETING_ID_AUTUMN_2016;
       const isSpring2015 = marketingId === Constants.MARKETING_ID_SPRING_2015;
 
       return {
@@ -102,6 +103,7 @@ define(function (require, exports, module) {
         downloadLinkAndroid,
         downloadLinkIos,
         isAndroid,
+        isAutumn2016,
         isIos,
         isOther,
         isSpring2015,
@@ -220,6 +222,7 @@ define(function (require, exports, module) {
     }
   }, {
     BUTTON_IDS: {
+      [Constants.MARKETING_ID_AUTUMN_2016]: 'button-autumn-2016-connect-another-device',
       [Constants.MARKETING_ID_SPRING_2015]: 'button'
     },
     WHICH: {

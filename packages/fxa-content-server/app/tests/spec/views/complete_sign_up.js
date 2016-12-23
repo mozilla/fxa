@@ -420,13 +420,29 @@ define(function (require, exports, module) {
         beforeEach(() => {
           sinon.stub(relier, 'isSync', () => true);
           sinon.stub(relier, 'isOAuth', () => false);
-          sinon.spy(view, '_navigateToVerifiedScreen');
-
-          return view._navigateToNextScreen();
         });
 
-        it('delegates to `_navigateToVerifiedScreen`', () => {
-          assert.isTrue(view._navigateToVerifiedScreen.calledOnce);
+        describe('user is eligible to connect another device', () => {
+          beforeEach(() => {
+            sinon.stub(view, '_isEligibleToConnectAnotherDevice', () => true);
+            return view._navigateToNextScreen();
+          });
+
+          it('redirects user to `/connect_another_device`', () => {
+            assert.isTrue(view.navigate.calledWith('connect_another_device'));
+          });
+        });
+
+        describe('user is not eligible to connect another device', () => {
+          beforeEach(() => {
+            sinon.stub(view, '_isEligibleToConnectAnotherDevice', () => false);
+            sinon.spy(view, '_navigateToVerifiedScreen');
+            return view._navigateToNextScreen();
+          });
+
+          it('delegates to `_navigateToVerifiedScreen`', () => {
+            assert.isTrue(view._navigateToVerifiedScreen.calledOnce);
+          });
         });
       });
 
@@ -467,6 +483,81 @@ define(function (require, exports, module) {
           it('delegates to _navigateToVerifiedScreen', () => {
             assert.isTrue(view._navigateToVerifiedScreen.calledOnce);
           });
+        });
+      });
+    });
+
+    describe('_isEligibleToConnectAnotherDevice', () => {
+      beforeEach(() => {
+        account = user.initAccount({
+          email: 'a@a.com',
+          sessionToken: 'foo',
+          uid: validUid
+        });
+
+        sinon.spy(notifier, 'trigger');
+      });
+
+      describe('user is part of treatment group', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'isInExperimentGroup', () => true);
+        });
+
+        describe('no user signed in', () => {
+          beforeEach(() => {
+            sinon.stub(user, 'getSignedInAccount', () => {
+              return {
+                isDefault: () => true
+              };
+            });
+          });
+
+          it('returns `true`', () => {
+            assert.isTrue(view._isEligibleToConnectAnotherDevice(account));
+            assert.isFalse(notifier.trigger.called);
+          });
+        });
+
+        describe('different user signed in', () => {
+          beforeEach(() => {
+            sinon.stub(user, 'getSignedInAccount', () => {
+              return {
+                isDefault: () => false
+              };
+            });
+            sinon.stub(user, 'isSignedInAccount', () => false);
+          });
+
+          it('returns `false`, notifies', () => {
+            assert.isFalse(view._isEligibleToConnectAnotherDevice(account));
+            assert.isTrue(notifier.trigger.calledWith('connectAnotherDevice.other_user_signed_in'));
+          });
+        });
+
+        describe('same user signed in', () => {
+          beforeEach(() => {
+            sinon.stub(user, 'getSignedInAccount', () => {
+              return {
+                isDefault: () => false
+              };
+            });
+            sinon.stub(user, 'isSignedInAccount', () => true);
+          });
+
+          it('returns `true`', () => {
+            assert.isTrue(view._isEligibleToConnectAnotherDevice(account));
+          });
+        });
+      });
+
+      describe('user is not part of treatment group', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'isInExperimentGroup', () => false);
+        });
+
+        it('returns `false`', () => {
+          assert.isFalse(view._isEligibleToConnectAnotherDevice(account));
+          assert.isFalse(notifier.trigger.called);
         });
       });
     });

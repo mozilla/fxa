@@ -11,6 +11,7 @@ define([
   './functional/sign_up',
   './functional/complete_sign_in',
   './functional/complete_sign_up',
+  './functional/connect_another_device',
   './functional/sync_sign_up',
   './functional/sync_v2_sign_up',
   './functional/sync_v2_sign_in',

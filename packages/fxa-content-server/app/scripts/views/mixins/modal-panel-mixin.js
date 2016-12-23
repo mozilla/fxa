@@ -73,6 +73,14 @@ define(function (require, exports, module) {
      */
     navigate () {
       this.closePanel();
+    },
+
+    /**
+     * Wrap the destroy function to close the panel, if it has not
+     * already been done.
+     */
+    destroy () {
+      this.closePanel();
     }
   };
 });

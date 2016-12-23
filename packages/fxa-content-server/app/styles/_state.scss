@@ -52,6 +52,11 @@
 .success {
   background: $success-background-color;
   display: none;
+
+  &.visible {
+    display: block;
+    top: 10px;
+  }
 }
 
 .info {

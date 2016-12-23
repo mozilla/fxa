@@ -457,29 +457,7 @@ body.settings #main-content.card {
   z-index: 6;
 }
 
-.modal {
-  border-radius: $big-border-radius;
-  box-shadow: 0 1px 5px $modal-border-color;
-
-
-  @include respond-to('big') {
-    padding: 30px;
-    width: 420px;
-  }
-
-  @include respond-to('small') {
-    padding: 10px;
-    width: 100%;
-  }
-}
-
 section.modal-panel {
-  text-align: center;
-
-  h2 {
-    font-weight: normal;
-  }
-
   .button-row {
     margin-bottom: 0;
 

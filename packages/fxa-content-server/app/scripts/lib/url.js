@@ -61,7 +61,7 @@ define(function (require, exports, module) {
       const params = [];
       for (let paramName in obj) {
         const paramValue = obj[paramName];
-        if (typeof paramValue !== 'undefined') {
+        if (typeof paramValue !== 'undefined' && paramValue !== null) {
           params.push(paramName + '=' + encodeURIComponent(paramValue));
         }
       }
@@ -149,4 +149,3 @@ define(function (require, exports, module) {
     }
   };
 });
-

@@ -8,14 +8,13 @@ define(function (require, exports, module) {
   const ExperimentInterface = require('lib/experiment');
 
   module.exports = {
-    initialize (options) {
-      options = options || {};
-
+    initialize (options = {}) {
       this.experiments = new ExperimentInterface({
         able: options.able,
         account: this._account,
         metrics: this.metrics,
         notifier: options.notifier,
+        translator: this.translator,
         user: options.user,
         window: this.window
       });

@@ -120,6 +120,8 @@ module.exports = function (config, i18n) {
       '/confirm',
       '/confirm_reset_password',
       '/confirm_signin',
+      '/connect_another_device',
+      '/connect_another_device/why',
       '/cookies_disabled',
       '/force_auth',
       '/legal',

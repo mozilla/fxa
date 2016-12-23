@@ -330,6 +330,22 @@ If the "mailcheck" feature should be used.
 * /signup
 * /oauth/signup
 
+### `forceExperiment`
+Force a particular AB test.
+
+#### Options
+* `connectAnotherDevice` - the "connect another device" experiment that
+    encourages users to set up multiple devices.
+* `mailcheck` - provide a tooltip to correct common domain name errors in the
+    email.
+
+### `forceExperimentGroup`
+Force the user into a particular AB test experiment group.
+
+#### Options
+* `control` - default behavior.
+* `treatment` - new behavior.
+
 ## Reset Password parameters
 
 ### `reset_password_confirm`

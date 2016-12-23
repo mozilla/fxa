@@ -67,7 +67,7 @@ define(function (require, exports, module) {
 
         assert.isTrue(view.trigger.called);
         assert.isTrue(view.trigger.calledWith('modal-cancel'));
-        assert.isTrue(view.closePanel.calledOnce);
+        assert.isTrue(view.closePanel.calledTwice); // called in onBlockerClick then in destroy
       });
 
       it('click on a child of the blocker has no effect', () => {

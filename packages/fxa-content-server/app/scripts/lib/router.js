@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const AvatarCropView = require('../views/settings/avatar_crop');
   const AvatarGravatarView = require('../views/settings/avatar_gravatar');
   const Backbone = require('backbone');
+  const ConnectAnotherDeviceView = require('../views/connect_another_device');
   const CannotCreateAccountView = require('../views/cannot_create_account');
   const VerificationReasons = require('lib/verification-reasons');
   const ChangePasswordView = require('../views/settings/change_password');
@@ -42,6 +43,7 @@ define(function (require, exports, module) {
   const SignUpView = require('../views/sign_up');
   const Storage = require('./storage');
   const TosView = require('../views/tos');
+  const WhyConnectAnotherDeviceView = require('../views/why_connect_another_device');
 
   function createViewHandler(View, options) {
     return function () {
@@ -70,6 +72,8 @@ define(function (require, exports, module) {
       'confirm(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_UP }),
       'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
       'confirm_signin(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_IN }),
+      'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
+      'connect_another_device/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, ConnectAnotherDeviceView),
       'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
       'force_auth(/)': createViewHandler(ForceAuthView),
       'legal(/)': createViewHandler(LegalView),

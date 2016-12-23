@@ -453,8 +453,10 @@ define([
       });
   }
 
-  function openVerificationLinkInSameTab(email, index) {
+  function openVerificationLinkInSameTab(email, index, options) {
     var user = TestHelpers.emailToUser(email);
+
+    options = options || {};
 
     return function () {
       return this.parent
@@ -462,7 +464,12 @@ define([
           return getVerificationLink(user, index);
         })
         .then(function (verificationLink) {
-          return this.parent.get(require.toUrl(verificationLink));
+          const parsedVerificationLink = Url.parse(verificationLink, true);
+          for (var paramName in options.query) {
+            parsedVerificationLink.query[paramName] = options.query[paramName];
+          }
+          parsedVerificationLink.search = undefined;
+          return this.parent.get(require.toUrl(Url.format(parsedVerificationLink)));
         });
     };
   }
@@ -994,15 +1001,32 @@ define([
     };
   }
 
-  function openPage(url, readySelector) {
+  /**
+   * Open `url` in the current tab, wait for `readySelector`
+   *
+   * @param {String} url - url to open
+   * @param {String} readySelector - selector that indicates page is loaded
+   * @param {Object} [options]
+   *  @param {Object} [options.query] - extra query parameters to add
+   * @returns {Promise} - resolves when complete
+   */
+  function openPage(url, readySelector, options) {
+    options = options || {};
+
+    const parsedUrl = Url.parse(url, true);
+    for (var paramName in options.query) {
+      parsedUrl.query[paramName] = options.query[paramName];
+    }
+    parsedUrl.search = undefined;
+    url = Url.format(parsedUrl);
+
     return function () {
       return this.parent
         .get(require.toUrl(url))
         .setFindTimeout(config.pageLoadTimeout)
 
         // Wait until the `readySelector` element is found to return.
-        .findByCssSelector(readySelector)
-        .end()
+        .then(testElementExists(readySelector))
 
         .then(null, function (err) {
           return this.parent
@@ -1231,6 +1255,20 @@ define([
     };
   }
 
+  /**
+   * Check whether an anchor has a href that equals to the expected url
+   *
+   * @param {string} selector
+   * @param {string} expected
+   * @returns {promise} rejects if test fails.
+   */
+  function testHrefEquals(selector, expected) {
+    return function () {
+      return this.parent
+        .then(testAttributeEquals(selector, 'href', expected));
+    };
+  }
+
   function testElementWasShown(context, selector) {
     return function () {
       return getRemote(context)
@@ -1277,6 +1315,23 @@ define([
           .then(function (url) {
             assert.equal(Url.parse(url).pathname, expected);
           })
+        .end();
+    };
+  }
+
+  /**
+   * Ensure the current URL includes `expected`
+   *
+   * @param   {string} expected
+   * @returns {promise} fails if url does not include expected value
+   */
+  function testUrlInclude(expected) {
+    return function () {
+      return this.parent
+        .getCurrentUrl()
+        .then(function (url) {
+          assert.include(url, expected);
+        })
         .end();
     };
   }
@@ -1580,10 +1635,12 @@ define([
     testEmailExpected: testEmailExpected,
     testErrorTextInclude: testErrorTextInclude,
     testErrorWasShown: testErrorWasShown,
+    testHrefEquals: testHrefEquals,
     testIsBrowserNotified: testIsBrowserNotified,
     testIsEventLogged: testIsEventLogged,
     testSuccessWasShown: testSuccessWasShown,
     testUrlEquals: testUrlEquals,
+    testUrlInclude: testUrlInclude,
     testUrlPathnameEquals: testUrlPathnameEquals,
     thenify: thenify,
     type: type,

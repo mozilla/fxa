@@ -12,6 +12,7 @@ define(function (require, exports, module) {
 
   const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
   const FormView = require('views/form');
   const MarketingMixin = require('views/mixins/marketing-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
@@ -57,11 +58,7 @@ define(function (require, exports, module) {
     template: Template,
     className: 'ready',
 
-    initialize (options) {
-      options = options || {};
-
-      this._able = options.able;
-
+    initialize (options = {}) {
       this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
     },
 
@@ -131,6 +128,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
+    ExperimentMixin,
     MarketingMixin({ marketingId: Constants.MARKETING_ID_SPRING_2015 }),
     ServiceMixin,
     VerificationReasonMixin

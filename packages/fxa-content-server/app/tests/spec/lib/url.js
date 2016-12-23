@@ -63,7 +63,8 @@ define(function (require, exports, module) {
       it('includes all keys with values', function () {
         var params = {
           hasValue: 'value',
-          notIncluded: undefined
+          nullNotIncluded: null,
+          undefinedNotIncluded: undefined
         };
 
         assert.equal(Url.objToSearchString(params), '?hasValue=value');
@@ -185,5 +186,3 @@ define(function (require, exports, module) {
     });
   });
 });
-
-

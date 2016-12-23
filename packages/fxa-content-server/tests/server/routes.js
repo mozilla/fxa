@@ -41,6 +41,8 @@ define([
     '/confirm': { statusCode: 200 },
     '/confirm_reset_password': { statusCode: 200 },
     '/confirm_signin': { statusCode: 200 },
+    '/connect_another_device': { statusCode: 200 },
+    '/connect_another_device/why': { statusCode: 200 },
     '/cookies_disabled': { statusCode: 200 },
     '/force_auth': { statusCode: 200 },
     '/legal': { statusCode: 200 },

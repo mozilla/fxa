@@ -4,6 +4,7 @@
 }
 
 .links {
+  clear: both;
   overflow: auto;
   // the 1px of padding allows the :focus outline on anchors to show.
   padding: 1px;

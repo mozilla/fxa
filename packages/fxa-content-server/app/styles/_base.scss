@@ -217,3 +217,21 @@ a[data-visible-url^='http']::after {
   content: ' (' attr(href) ') ';
   word-break: break-all;
 }
+
+// Add the clearfix class to an element that contains
+// floated elements to give the element the height
+// of the tallest floated element. This fixes layout
+// problems such as text appearing under or between
+// two floated buttons.
+.clearfix::after {
+  clear: both;
+  content: ('.');
+  display: block;
+  height: 0;
+  line-height: 0;
+  visibility: hidden;
+}
+
+* html .clearfix {
+  height: 1%;
+}

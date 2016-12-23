@@ -42,7 +42,8 @@ define([
     'tests/functional/force_auth',
     'tests/functional/back_button_after_start',
     'tests/functional/cookies_disabled',
-    'tests/functional/password_visibility'
+    'tests/functional/password_visibility',
+    'tests/functional/connect_another_device'
   ]);
 
   return intern;

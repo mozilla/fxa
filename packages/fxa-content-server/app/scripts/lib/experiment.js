@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const ConnectAnotherDeviceExperiment = require('lib/experiments/connect-another-device');
   const MailcheckExperiment = require('lib/experiments/mailcheck');
   const Url = require('lib/url');
 
@@ -16,6 +17,7 @@ define(function (require, exports, module) {
   // all available experiments that must be independent for
   // A/B testing purposes.
   var DEFAULT_EXPERIMENTS = {
+    'connectAnotherDevice': ConnectAnotherDeviceExperiment,
     'mailcheck': MailcheckExperiment
   };
 
