@@ -21,7 +21,7 @@ define([
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openForceAuth = FunctionalHelpers.openForceAuth;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -72,7 +72,7 @@ define([
       return this.remote
         .then(setupTest({ forceAboutAccounts: true, preVerified: true }))
 
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-in-complete-header'))
           .then(closeCurrentWindow())

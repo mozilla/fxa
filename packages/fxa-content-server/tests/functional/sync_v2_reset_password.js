@@ -16,8 +16,6 @@ define([
 
   var email;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var click = FunctionalHelpers.click;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
@@ -26,7 +24,7 @@ define([
   var fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
@@ -54,7 +52,7 @@ define([
         .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
 

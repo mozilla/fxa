@@ -32,7 +32,7 @@ define([
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openPage = FunctionalHelpers.openPage;
   var openPasswordResetLinkDifferentBrowser = thenify(FunctionalHelpers.openPasswordResetLinkDifferentBrowser);
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
   var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
@@ -63,7 +63,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
         .then(testElementExists('#fxa-complete-reset-password-header'))
@@ -87,7 +87,7 @@ define([
 
         // user browses to another site.
         .then(openExternalSite())
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))

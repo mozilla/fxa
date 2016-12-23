@@ -14,6 +14,8 @@ define([
 
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  var openExternalSite = FunctionalHelpers.openExternalSite;
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
 
   registerSuite({
     name: 'oauth sign up verification_redirect',
@@ -71,11 +73,9 @@ define([
         .end()
 
         // closes the original tab
-        .then(FunctionalHelpers.openExternalSite())
+        .then(openExternalSite())
 
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
 
@@ -101,10 +101,7 @@ define([
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-            self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(email, 0))
 
         // wait for the original tab to login
         .findByCssSelector('#loggedin')

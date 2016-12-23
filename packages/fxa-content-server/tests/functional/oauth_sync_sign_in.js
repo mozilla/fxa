@@ -27,7 +27,7 @@ define([
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
   var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
   var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
@@ -66,7 +66,7 @@ define([
         .then(testIsBrowserNotifiedOfLogin(this, email))
 
         // Sync sign ins must be verified.
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-sign-in-complete-header'))
@@ -77,7 +77,7 @@ define([
         .then(fillOutSignUp(email2, PASSWORD))
 
         .then(testElementExists('#fxa-confirm-header'))
-        .then(openVerificationLinkInNewTab(this, email2, 0))
+        .then(openVerificationLinkInNewTab(email2, 0))
         .switchToWindow('newwindow')
 
         // wait for the verified window in the new tab

@@ -20,6 +20,7 @@ define([
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = FunctionalHelpers.openPage;
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testAttributeExists = FunctionalHelpers.testAttributeExists;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
@@ -87,10 +88,7 @@ define([
           assert.isTrue(data.verifiedCanLinkAccount);
         }))
         // verify the user
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
         // user should be redirected to "Success!" screen.

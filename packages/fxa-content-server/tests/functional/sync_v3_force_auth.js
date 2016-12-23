@@ -10,8 +10,6 @@ define([
   var email;
   var PASSWORD = '12345678';
 
-  var thenify = FunctionalHelpers.thenify;
-
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
@@ -21,7 +19,7 @@ define([
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openForceAuth = FunctionalHelpers.openForceAuth;
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementDisabled = FunctionalHelpers.testElementDisabled;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -58,7 +56,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-signin-header'))
 
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-in-complete-header'))
           .then(closeCurrentWindow())
@@ -89,7 +87,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-signin-header'))
 
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-in-complete-header'))
           .then(closeCurrentWindow())
@@ -119,7 +117,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-signin-header'))
 
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-in-complete-header'))
           .then(closeCurrentWindow())

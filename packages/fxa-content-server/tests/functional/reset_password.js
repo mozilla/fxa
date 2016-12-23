@@ -37,7 +37,9 @@ define([
   var fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   var noSuchElement = FunctionalHelpers.noSuchElement;
+  var openExternalSite = FunctionalHelpers.openExternalSite;
   var openPage = FunctionalHelpers.openPage;
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var type = FunctionalHelpers.type;
@@ -288,11 +290,7 @@ define([
         .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
-
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(email, 0))
 
         // Complete the reset password in the new tab
         .switchToWindow('newwindow')
@@ -322,12 +320,8 @@ define([
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         // user browses to another site.
-        .then(FunctionalHelpers.openExternalSite())
-
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openExternalSite())
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
 

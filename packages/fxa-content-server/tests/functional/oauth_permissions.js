@@ -32,7 +32,7 @@ define([
   var openFxaFromUntrustedRp = thenify(FunctionalHelpers.openFxaFromUntrustedRp);
   var openPage = FunctionalHelpers.openPage;
   var openSettingsInNewTab = thenify(FunctionalHelpers.openSettingsInNewTab);
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testUrlEquals = FunctionalHelpers.testUrlEquals;
@@ -134,7 +134,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-header'))
 
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab
         .then(testElementExists('#fxa-sign-up-complete-header'))
@@ -186,7 +186,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-header'))
 
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab
         .then(testElementExists('#fxa-sign-up-complete-header'))

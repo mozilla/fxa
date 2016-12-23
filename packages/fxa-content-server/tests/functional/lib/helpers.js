@@ -449,13 +449,25 @@ define([
     };
   }
 
-  function openVerificationLinkInNewTab(context, email, index, windowName) {
-    var user = TestHelpers.emailToUser(email);
+  /**
+   * Open a verification link in a new tab of the same browser.
+   * @param {string} email user's email
+   * @param {number} index verification email index
+   * @returns {promise} resolves when complete
+   */
+  function openVerificationLinkInNewTab(email, index, windowName) {
+    return function () {
+      var user = TestHelpers.emailToUser(email);
 
-    return getVerificationLink(user, index)
-      .then(function (verificationLink) {
-        return getRemote(context).execute(openWindow, [ verificationLink, windowName ]);
-      });
+      return this.parent
+        .then(function () {
+          return getVerificationLink(user, index);
+        })
+        .then(function (verificationLink) {
+          return this.parent
+            .execute(openWindow, [ verificationLink, windowName ]);
+        });
+    };
   }
 
   function openVerificationLinkInSameTab(email, index, options) {

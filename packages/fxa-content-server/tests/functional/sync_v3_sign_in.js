@@ -26,7 +26,7 @@ define([
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
@@ -75,7 +75,7 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-in-complete-header'))
           .then(closeCurrentWindow())
@@ -92,7 +92,7 @@ define([
         .then(visibleByQSA('.success'))
 
         // email 0 is the original signin email, open the resent email instead
-        .then(openVerificationLinkInNewTab(this, email, 1))
+        .then(openVerificationLinkInNewTab(email, 1))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-in-complete-header'))
           .then(closeCurrentWindow())
@@ -131,7 +131,7 @@ define([
         // the verification reminder emails. 5 attempts occur in 5 seconds,
         // the first verification reminder is set after 10 seconds.
         .then(noEmailExpected(email, 2, { maxAttempts: 5 }))
-        .then(openVerificationLinkInNewTab(this, email, 1))
+        .then(openVerificationLinkInNewTab(email, 1))
         .then(testEmailExpected(email, 2))
 
         .switchToWindow('newwindow')

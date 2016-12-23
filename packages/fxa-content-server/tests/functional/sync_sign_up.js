@@ -29,6 +29,7 @@ define([
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
@@ -71,10 +72,7 @@ define([
         .end()
 
         // verify the user
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
         // user should be redirected to "Success!" screen.
@@ -103,8 +101,6 @@ define([
     },
 
     'signup, verify same browser with original tab closed': function () {
-      var self = this;
-
       return this.remote
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
@@ -119,10 +115,7 @@ define([
 
         .then(FunctionalHelpers.openExternalSite())
 
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                      self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
 

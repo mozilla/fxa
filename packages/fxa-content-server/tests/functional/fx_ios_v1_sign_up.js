@@ -22,6 +22,7 @@ define([
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
@@ -54,10 +55,7 @@ define([
         .end()
 
         // verify the user
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
         .findByCssSelector('#fxa-sign-up-complete-header')

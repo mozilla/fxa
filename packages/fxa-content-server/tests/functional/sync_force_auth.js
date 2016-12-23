@@ -19,7 +19,7 @@ define([
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openForceAuth = FunctionalHelpers.openForceAuth;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
   var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
@@ -66,7 +66,7 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-in-complete-header'))
           .then(closeCurrentWindow())

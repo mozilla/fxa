@@ -23,7 +23,7 @@ define([
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
   var openPasswordResetLinkDifferentBrowser = thenify(FunctionalHelpers.openPasswordResetLinkDifferentBrowser);
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
@@ -68,7 +68,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         // Complete the reset password in the new tab
         .switchToWindow('newwindow')
@@ -95,7 +95,7 @@ define([
 
         // user browses to another site.
         .then(openExternalSite())
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
 

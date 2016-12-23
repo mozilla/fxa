@@ -27,7 +27,7 @@ define([
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
@@ -70,7 +70,7 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-in-complete-header'))
           .then(closeCurrentWindow())
@@ -96,7 +96,7 @@ define([
         // email 0 - initial sign up email
         // email 1 - sign in w/ unverified address email
         // email 2 - "You have verified your Firefox Account"
-        .then(openVerificationLinkInNewTab(this, email, 1))
+        .then(openVerificationLinkInNewTab(email, 1))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-up-complete-header'))
           .then(closeCurrentWindow())

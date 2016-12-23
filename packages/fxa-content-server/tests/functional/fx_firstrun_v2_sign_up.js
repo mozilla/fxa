@@ -18,6 +18,7 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openPage = FunctionalHelpers.openPage;
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
 
@@ -78,10 +79,7 @@ define([
         .end()
 
         // verify the user
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkInNewTab(
-                self, email, 0);
-        })
+        .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
         // user should be redirected to "Success!" screen.

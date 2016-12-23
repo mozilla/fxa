@@ -28,7 +28,7 @@ define([
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -85,7 +85,7 @@ define([
         .then(visibleByQSA('#suggest-sync'))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
@@ -102,7 +102,7 @@ define([
         .then(testAtConfirmScreen(email))
 
         .then(FunctionalHelpers.openExternalSite())
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
@@ -396,7 +396,7 @@ define([
         .switchToWindow(windowName)
 
         .then(testElementExists('#fxa-signin-header'))
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
@@ -439,7 +439,7 @@ define([
       return this.remote
         .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
@@ -447,7 +447,7 @@ define([
         .then(closeCurrentWindow())
 
         // open verification link again, no error should occur.
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))

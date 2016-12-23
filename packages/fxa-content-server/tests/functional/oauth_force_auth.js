@@ -20,7 +20,7 @@ define([
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementDisabled = FunctionalHelpers.testElementDisabled;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
@@ -68,7 +68,7 @@ define([
         .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
 
         .then(testElementExists('#fxa-confirm-header'))
-        .then(openVerificationLinkInNewTab(this, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab

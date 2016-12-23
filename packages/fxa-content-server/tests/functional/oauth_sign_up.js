@@ -32,7 +32,7 @@ define([
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
   var type = FunctionalHelpers.type;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
@@ -85,7 +85,7 @@ define([
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(openVerificationLinkInNewTab(self, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab
@@ -126,7 +126,7 @@ define([
 
         .then(FunctionalHelpers.openExternalSite())
 
-        .then(openVerificationLinkInNewTab(self, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
 
@@ -299,7 +299,7 @@ define([
         .findById('fxa-confirm-header')
         .end()
 
-        .then(openVerificationLinkInNewTab(self, email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab
