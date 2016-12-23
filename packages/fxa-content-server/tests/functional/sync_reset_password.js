@@ -86,7 +86,7 @@ define([
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         // user browses to another site.
-        .then(openExternalSite(this))
+        .then(openExternalSite())
         .then(openVerificationLinkInNewTab(this, email, 0))
         .switchToWindow('newwindow')
 

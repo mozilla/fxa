@@ -322,7 +322,7 @@ define([
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         // user browses to another site.
-        .then(FunctionalHelpers.openExternalSite(self))
+        .then(FunctionalHelpers.openExternalSite())
 
         .then(function () {
           return FunctionalHelpers.openVerificationLinkInNewTab(

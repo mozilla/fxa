@@ -435,9 +435,14 @@ define([
     };
   }
 
-  function openExternalSite(context) {
+  /**
+   * Open an external site.
+   *
+   * @returns {promise} resolves when complete
+   */
+  function openExternalSite() {
     return function () {
-      return getRemote(context)
+      return this.parent
         .get(require.toUrl(EXTERNAL_SITE_URL))
           .findByPartialLinkText(EXTERNAL_SITE_LINK_TEXT)
         .end();

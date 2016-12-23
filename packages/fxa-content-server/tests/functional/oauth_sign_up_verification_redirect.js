@@ -71,7 +71,7 @@ define([
         .end()
 
         // closes the original tab
-        .then(FunctionalHelpers.openExternalSite(self))
+        .then(FunctionalHelpers.openExternalSite())
 
         .then(function () {
           return FunctionalHelpers.openVerificationLinkInNewTab(self, email, 0);

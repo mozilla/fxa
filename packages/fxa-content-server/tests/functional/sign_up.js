@@ -101,7 +101,7 @@ define([
         .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
 
-        .then(FunctionalHelpers.openExternalSite(this))
+        .then(FunctionalHelpers.openExternalSite())
         .then(openVerificationLinkInNewTab(this, email, 0))
 
         .switchToWindow('newwindow')

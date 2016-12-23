@@ -117,7 +117,7 @@ define([
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(FunctionalHelpers.openExternalSite(self))
+        .then(FunctionalHelpers.openExternalSite())
 
         .then(function () {
           return FunctionalHelpers.openVerificationLinkInNewTab(

@@ -124,7 +124,7 @@ define([
         // user browses to another site.
         .switchToFrame(null)
 
-        .then(FunctionalHelpers.openExternalSite(self))
+        .then(FunctionalHelpers.openExternalSite())
 
         .then(openVerificationLinkInNewTab(self, email, 0))
 
