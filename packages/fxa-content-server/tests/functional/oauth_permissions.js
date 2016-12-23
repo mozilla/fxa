@@ -150,32 +150,6 @@ define([
         .then(testElementExists('#loggedin'));
     },
 
-    'preverified signup': function () {
-      var SIGNUP_URL = UNTRUSTED_OAUTH_APP + 'api/preverified-signup?' +
-                        'email=' + encodeURIComponent(email);
-
-      return this.remote
-        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
-
-        .then(type('input[type=password]', PASSWORD))
-        .then(type('#age', 24))
-        .then(click('button[type="submit"]'))
-
-        .then(testElementExists('#fxa-permissions-header'))
-        .then(click('#accept'))
-
-        // user is redirected to 123done, wait for the footer first,
-        // and then for the loggedin user to be visible. If we go
-        // straight for the loggedin user, visibleByQSA blows up
-        // because 123done isn't loaded yet and it complains about
-        // the unload event of the content server.
-        .then(testElementExists('#footer-main'))
-
-        // user is pre-verified and sent directly to the RP.
-        .then(visibleByQSA('#loggedin'))
-        .then(testElementTextInclude('#loggedin', email));
-    },
-
     'signup, then signin with no additional permissions': function () {
       return this.remote
         .then(openFxaFromUntrustedRp(this, 'signup'))
