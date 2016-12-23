@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const $ = require('jquery');
-  const chai = require('chai');
+  const { assert } = require('chai');
+  const AuthErrors = require('lib/auth-errors');
   const FormPrefill = require('models/form-prefill');
   const FxaClient = require('lib/fxa-client');
   const Metrics = require('lib/metrics');
@@ -21,28 +21,25 @@ define(function (require, exports, module) {
   const View = require('views/sign_in');
   const WindowMock = require('../../mocks/window');
 
-  var assert = chai.assert;
-
   describe('views/sign_in for /oauth/signin', function () {
-    var view;
-    var email;
-    var windowMock;
-    var fxaClient;
-    var relier;
-    var metrics;
-    var broker;
-    var profileClientMock;
-    var user;
-    var formPrefill;
-    var notifier;
+    let broker;
+    let email;
+    let formPrefill;
+    let fxaClient;
+    let metrics;
+    let notifier;
+    let profileClientMock;
+    let relier;
+    let user;
+    let view;
+    let windowMock;
 
-    var CLIENT_ID = 'dcdb5ae7add825d2';
-    var STATE = '123';
-    var SCOPE = 'profile:email';
-    var CLIENT_NAME = '123Done';
+    const CLIENT_ID = 'dcdb5ae7add825d2';
+    const CLIENT_NAME = '123Done';
+    const SCOPE = 'profile:email';
+    const STATE = '123';
 
     beforeEach(function () {
-      Session.clear();
       email = TestHelpers.createEmail();
       windowMock = new WindowMock();
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
@@ -65,15 +62,10 @@ define(function (require, exports, module) {
       notifier = new Notifier();
 
       initView();
-      return view.render()
-        .then(function () {
-          $('#container').html(view.el);
-        });
     });
 
     afterEach(function () {
       Session.clear();
-      view.remove();
       view.destroy();
     });
 
@@ -93,16 +85,19 @@ define(function (require, exports, module) {
     }
 
     describe('render', function () {
-      it('displays oAuth client name', function () {
+      it('displays oAuth client name, does not display AMO help text by default', function () {
+        sinon.stub(view, 'isAmoMigration', () => false);
+
         return view.render()
           .then(function () {
-            assert.include($('#fxa-signin-header').text(), CLIENT_NAME);
+            assert.include(view.$('#fxa-signin-header').text(), CLIENT_NAME);
             // also make sure link is correct
-            assert.equal($('.sign-up').attr('href'), '/oauth/signup');
+            assert.equal(view.$('.sign-up').attr('href'), '/oauth/signup');
+            assert.lengthOf(view.$('#amo-migration'), 0);
           });
       });
 
-      it('is enabled if prefills are valid', function () {
+      it('button is enabled if prefills are valid', function () {
         formPrefill.set('email', 'testuser@testuser.com');
         formPrefill.set('password', 'prefilled password');
 
@@ -112,9 +107,21 @@ define(function (require, exports, module) {
             assert.isFalse(view.$('button').hasClass('disabled'));
           });
       });
+
+      describe('AMO migration', () => {
+        it('displays AMO help text', () => {
+          sinon.stub(view, 'isAmoMigration', () => true);
+          return view.render()
+            .then(() => {
+              assert.lengthOf(view.$('#amo-migration'), 1);
+            });
+        });
+      });
     });
 
     describe('submit', function () {
+      beforeEach(() => view.render());
+
       it('notifies the broker when a verified user signs in', function () {
         sinon.spy(user, 'initAccount');
         sinon.stub(user, 'signInAccount', function (account) {
@@ -129,13 +136,13 @@ define(function (require, exports, module) {
         });
         sinon.spy(view, 'navigate');
 
-        var password = 'password';
-        $('.email').val(email);
-        $('[type=password]').val(password);
+        const password = 'password';
+        view.$('.email').val(email);
+        view.$('[type=password]').val(password);
 
         return view.submit()
           .then(function () {
-            var account = user.initAccount.returnValues[0];
+            const account = user.initAccount.returnValues[0];
 
             assert.isTrue(user.signInAccount.calledWith(account));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
@@ -143,6 +150,55 @@ define(function (require, exports, module) {
             assert.isTrue(broker.afterSignIn.calledWith(account));
             assert.isTrue(view.navigate.calledWith('settings'));
           });
+      });
+
+      describe('with an unknown account', function () {
+        beforeEach(() => {
+          broker.setCapability('signup', true);
+          sinon.stub(view, 'signIn', () => p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT')));
+          sinon.spy(view, 'unsafeDisplayError');
+        });
+
+        describe('AMO migration', () => {
+          let $amoMigrationElement;
+          beforeEach(() => {
+            $amoMigrationElement = {
+              hide: sinon.spy()
+            };
+            sinon.stub(view, 'isAmoMigration', () => true);
+            const orig$ = view.$;
+            sinon.stub(view, '$', (selector) => {
+              if (selector === '#amo-migration') {
+                return $amoMigrationElement;
+              } else {
+                return orig$.call(view, selector);
+              }
+            });
+            return view.submit();
+          });
+
+          it('shows addons help text with link to the signup page, hides AMO migration text', () => {
+            var err = view.unsafeDisplayError.args[0][0];
+            assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+            assert.include(err.forceMessage, '/signup');
+            assert.include(err.forceMessage, 'Add-ons');
+            assert.isTrue($amoMigrationElement.hide.calledOnce);
+          });
+        });
+
+        describe('not AMO migration', () => {
+          beforeEach(() => {
+            sinon.stub(view, 'isAmoMigration', () => false);
+            return view.submit();
+          });
+
+          it('shows a link to the signup page', () => {
+            var err = view.unsafeDisplayError.args[0][0];
+            assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+            assert.include(err.forceMessage, '/signup');
+            assert.notInclude(err.forceMessage, 'Add-ons');
+          });
+        });
       });
     });
   });

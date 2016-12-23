@@ -264,57 +264,46 @@ define(function (require, exports, module) {
     describe('migration', function () {
       it('does not display migration message if no migration', function () {
         return view.render()
-          .then(function () {
+          .then(() => {
+            assert.lengthOf(view.$('#amo-migration'), 0);
             assert.lengthOf(view.$('#sync-migration'), 0);
             assert.lengthOf(view.$('#suggest-sync'), 1);
           });
       });
 
       it('displays migration message if isSyncMigration returns true', function () {
-        sinon.stub(view, 'isSyncMigration', function () {
-          return true;
-        });
+        sinon.stub(view, 'isSyncMigration', () => true);
 
         return view.render()
-          .then(function () {
-            assert.equal(view.$('#sync-migration').html(), 'Migrate your sync data by creating a new Firefox&nbsp;Account.');
-            view.isSyncMigration.restore();
+          .then(() => {
+            assert.lengthOf(view.$('#sync-migration'), 1);
           });
       });
 
       it('does not display migration message if isSyncMigration returns false', function () {
-        sinon.stub(view, 'isSyncMigration', function () {
-          return false;
-        });
+        sinon.stub(view, 'isSyncMigration', () => false);
 
         return view.render()
-          .then(function () {
+          .then(() => {
             assert.lengthOf(view.$('#sync-migration'), 0);
-            view.isSyncMigration.restore();
           });
       });
 
       it('displays migration message if isAmoMigration returns true', function () {
-        sinon.stub(view, 'isAmoMigration', function () {
-          return true;
-        });
+        sinon.stub(view, 'isAmoMigration', () => true);
 
         return view.render()
-          .then(function () {
-            assert.equal(view.$('#amo-migration').html(), 'Have an account with a different email? <a href="/signin">Sign in</a>');
-            view.isAmoMigration.restore();
+          .then(() => {
+            assert.lengthOf(view.$('#amo-migration'), 1);
           });
       });
 
       it('does not display migration message if isAmoMigration returns false', function () {
-        sinon.stub(view, 'isAmoMigration', function () {
-          return false;
-        });
+        sinon.stub(view, 'isAmoMigration', () => false);
 
         return view.render()
-          .then(function () {
+          .then(() => {
             assert.lengthOf(view.$('#amo-migration'), 0);
-            view.isAmoMigration.restore();
           });
       });
     });

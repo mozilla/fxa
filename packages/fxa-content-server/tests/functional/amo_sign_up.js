@@ -4,11 +4,11 @@
 
 define([
   'intern!object',
+  'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (registerSuite, FunctionalHelpers) {
+], function (registerSuite, TestHelpers, FunctionalHelpers) {
 
   var QUERY_PARAMS = {
-    email: 'fakeemail@restmail.com',
     migration: 'amo',
     scope: 'profile',
     state: 'state'
@@ -18,26 +18,46 @@ define([
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
-    name: 'oauth amo sign up',
+    name: 'oauth amo authentication',
 
     beforeEach: function () {
       return this.remote.then(clearBrowserState());
     },
 
-    'as a migrating user': function () {
+    'sign up as a migrating user': function () {
       return this.remote
         .then(openFxaFromRp(this, 'signup', { query: QUERY_PARAMS }))
-        .then(visibleByQSA('.info.nudge'))
-        .then(click('.info.nudge a'))
+        .then(visibleByQSA('#amo-migration'));
+    },
 
-        .then(testElementExists('#fxa-signin-header'))
-        .then(testElementValueEquals('input[type="email"]', ''));
+    'open sign in as a migrating user, click `/signup` from help text': function () {
+      return this.remote
+        .then(openFxaFromRp(this, 'signin', { query: QUERY_PARAMS }))
+        .then(visibleByQSA('#amo-migration'))
+        .then(click('#amo-migration a'))
+
+        .then(testElementExists('#fxa-signup-header'));
+    },
+
+    'open sign in as a migrating user, click `/signup` from error text': function () {
+      var email = TestHelpers.createEmail();
+
+      return this.remote
+        .then(openFxaFromRp(this, 'signin', { query: QUERY_PARAMS }))
+        .then(visibleByQSA('#amo-migration'))
+
+        .then(fillOutSignIn(email, 'password'))
+
+        .then(visibleByQSA('.error'))
+        .then(click('.error a'))
+
+        .then(testElementExists('#fxa-signup-header'));
     }
   });
 });

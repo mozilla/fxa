@@ -21,7 +21,7 @@
     <div class="success"></div>
 
     {{#showSyncSuggestion}}
-    <div class="info nudge" id="suggest-sync">{{#unsafeTranslate}}Looking for Firefox Sync? <a href="%(escapedSyncSuggestionUrl)s">Get started here</a>{{/unsafeTranslate}}</div>
+      <div class="info nudge" id="suggest-sync">{{#unsafeTranslate}}Looking for Firefox Sync? <a href="%(escapedSyncSuggestionUrl)s">Get started here</a>{{/unsafeTranslate}}</div>
     {{/showSyncSuggestion}}
 
     {{#isSyncMigration}}
@@ -29,7 +29,7 @@
     {{/isSyncMigration}}
 
     {{#isAmoMigration}}
-        <div class="info nudge pad" id="amo-migration">{{#unsafeTranslate}}Have an account with a different email? <a href="%(escapedSignInUri)s">Sign in</a>{{/unsafeTranslate}}</div>
+        <div class="info nudge pad" id="amo-migration">{{#t}}Looking for your Add-ons data? Sign up for a Firefox Account with your old Add-ons account email address.{{/t}}</div>
     {{/isAmoMigration}}
 
     <form novalidate>

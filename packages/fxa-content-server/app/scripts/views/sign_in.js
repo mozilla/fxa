@@ -81,6 +81,7 @@ define(function (require, exports, module) {
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         email: email,
         error: this.error,
+        isAmoMigration: this.isAmoMigration(),
         isSyncMigration: this.isSyncMigration(),
         password: this._formPrefill.get('password'),
         serviceName: this.relier.get('serviceName'),
@@ -149,7 +150,14 @@ define(function (require, exports, module) {
     },
 
     _suggestSignUp (err) {
-      err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
+      if (this.isAmoMigration()) {
+        err.forceMessage =
+          t('Unknown Firefox Account. <a href="/signup">Sign up</a> using your previous Add-ons account email address to access your Add-ons data.');
+        this.$('#amo-migration').hide();
+      } else {
+        err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
+      }
+
       return this.unsafeDisplayError(err);
     },
 
