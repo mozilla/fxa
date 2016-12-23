@@ -8,15 +8,15 @@ dependencies:
     - mkdir -p $HOME/.vnc
     - bash tests/ci/setvncpass.sh
   override:
+    - tightvncserver :1
     - npm install --global retry-cli
+    - wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar
+    - DISPLAY=:1 nohup bash -c "java -jar selenium-server-standalone-2.53.0.jar &"
     - cp server/config/local.json-dist server/config/local.json
     - npm i --production
     - CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build
     - nohup bash -c "CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt serverproc:dist &"
-    - npm install intern@3.1.1 bower zaach/node-XMLHttpRequest.git#onerror firefox-profile@0.3.12 request@2.74.0 sync-exec@0.6.2 convict@1.4.0
-    - wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar
-    - DISPLAY=:1 nohup bash -c "java -jar selenium-server-standalone-2.53.0.jar &"
-    - tightvncserver :1
+    - npm install intern@3.3.1 bower zaach/node-XMLHttpRequest.git#onerror firefox-profile@0.3.12 request@2.74.0 sync-exec@0.6.2 convict@1.4.0
   post:
     - curl 127.0.0.1:3030
     - /home/ubuntu/fxa-content-server/firefox/firefox --version
