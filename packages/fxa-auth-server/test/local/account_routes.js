@@ -825,6 +825,10 @@ describe('/account/create', function () {
       assert.equal(securityEvent.name, 'account.create')
       assert.equal(securityEvent.uid, uid)
       assert.equal(securityEvent.ipAddr, clientAddress)
+
+      assert.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
+      assert.equal(mockMailer.sendVerifyCode.getCall(0).args[2].location.city, 'Mountain View')
+      assert.equal(mockMailer.sendVerifyCode.getCall(0).args[2].location.country, 'United States')
     })
   })
 })

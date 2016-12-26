@@ -9,6 +9,7 @@ const HEX_STRING = validators.HEX_STRING
 
 const butil = require('../crypto/butil')
 const P = require('../promise')
+const userAgent = require('../userAgent')
 const random = require('../crypto/random')
 const requestHelper = require('../routes/utils/request_helper')
 
@@ -27,6 +28,8 @@ module.exports = function (
   checkPassword,
   push
   ) {
+
+  const getGeoData = require('../geodb')(log)
 
   function failVerifyAttempt(passwordForgotToken) {
     return (passwordForgotToken.failAttempt()) ?
@@ -146,6 +149,7 @@ module.exports = function (
         var wrapKb = Buffer(request.payload.wrapKb, 'hex')
         var sessionTokenId = request.payload.sessionToken
         var wantsKeys = requestHelper.wantsKeys(request)
+        const ip = request.app.clientAddress
         var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
           devicesToNotify
 
@@ -242,12 +246,24 @@ module.exports = function (
             .then(
               function (accountData) {
                 account = accountData
-                return mailer.sendPasswordChangedNotification(
-                  account.email,
-                  {
-                    acceptLanguage: request.app.acceptLanguage
-                  }
-                )
+              }
+            )
+            .then(
+              function () {
+                return getGeoData(ip)
+                  .then(
+                    function (geoData) {
+                      return mailer.sendPasswordChangedNotification(
+                        account.email,
+                        userAgent.call({
+                          acceptLanguage: request.app.acceptLanguage,
+                          ip: ip,
+                          location: geoData.location,
+                          timeZone: geoData.timeZone
+                        }, request.headers['user-agent'], log)
+                      )
+                    }
+                  )
               }
             )
         }
@@ -346,6 +362,7 @@ module.exports = function (
         log.begin('Password.forgotSend', request)
         var email = request.payload.email
         var service = request.payload.service || request.query.service
+        const ip = request.app.clientAddress
 
         request.validateMetricsContext()
 
@@ -368,26 +385,34 @@ module.exports = function (
           )
           .then(
             function (passwordForgotToken) {
-              return mailer.sendRecoveryCode(
-                passwordForgotToken,
-                passwordForgotToken.passCode,
-                {
-                  service: service,
-                  redirectTo: request.payload.redirectTo,
-                  resume: request.payload.resume,
-                  acceptLanguage: request.app.acceptLanguage
-                }
-              )
-              .then(
-                function() {
-                  return request.emitMetricsEvent('password.forgot.send_code.completed')
-                }
-              )
-              .then(
-                function() {
-                  return passwordForgotToken
-                }
-              )
+              return getGeoData(ip)
+                .then(
+                  function (geoData) {
+                    return mailer.sendRecoveryCode(
+                      passwordForgotToken,
+                      passwordForgotToken.passCode,
+                      userAgent.call({
+                        service: service,
+                        redirectTo: request.payload.redirectTo,
+                        resume: request.payload.resume,
+                        acceptLanguage: request.app.acceptLanguage,
+                        ip: ip,
+                        location: geoData.location,
+                        timeZone: geoData.timeZone
+                      }, request.headers['user-agent'], log)
+                    )
+                  }
+                )
+                .then(
+                  function () {
+                    return request.emitMetricsEvent('password.forgot.send_code.completed')
+                  }
+                )
+                .then(
+                  function () {
+                    return passwordForgotToken
+                  }
+                )
             }
           )
           .done(
@@ -434,6 +459,7 @@ module.exports = function (
         log.begin('Password.forgotResend', request)
         var passwordForgotToken = request.auth.credentials
         var service = request.payload.service || request.query.service
+        const ip = request.app.clientAddress
 
         request.validateMetricsContext()
 
@@ -446,17 +472,26 @@ module.exports = function (
               'passwordForgotResendCode')
           )
           .then(
-            mailer.sendRecoveryCode.bind(
-              mailer,
-              passwordForgotToken,
-              passwordForgotToken.passCode,
-              {
-                service: service,
-                redirectTo: request.payload.redirectTo,
-                resume: request.payload.resume,
-                acceptLanguage: request.app.acceptLanguage
-              }
-            )
+            function () {
+              return getGeoData(ip)
+                .then(
+                  function (geoData) {
+                    return mailer.sendRecoveryCode(
+                      passwordForgotToken,
+                      passwordForgotToken.passCode,
+                      userAgent.call({
+                        service: service,
+                        redirectTo: request.payload.redirectTo,
+                        resume: request.payload.resume,
+                        acceptLanguage: request.app.acceptLanguage,
+                        ip: ip,
+                        location: geoData.location,
+                        timeZone: geoData.timeZone
+                      }, request.headers['user-agent'], log)
+                    )
+                  }
+                )
+            }
           )
           .then(
             function(){

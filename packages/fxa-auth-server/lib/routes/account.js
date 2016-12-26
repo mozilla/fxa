@@ -99,6 +99,7 @@ module.exports = function (
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
         var service = form.service || query.service
+        const ip = request.app.clientAddress
         var preVerified, password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, authSalt
 
         request.validateMetricsContext()
@@ -273,42 +274,47 @@ module.exports = function (
 
         function sendVerifyCode () {
           if (! account.emailVerified) {
-            mailer.sendVerifyCode(account, account.emailCode, {
-              service: form.service || query.service,
-              redirectTo: form.redirectTo,
-              resume: form.resume,
-              acceptLanguage: request.app.acceptLanguage
-            })
-            .then(function () {
-              // only create reminder if sendVerifyCode succeeds
-              verificationReminder.create({
-                uid: account.uid.toString('hex')
-              }).catch(function (err) {
-                log.error({ op: 'Account.verificationReminder.create', err: err })
+            return getGeoData(ip)
+              .then(function (geoData) {
+                mailer.sendVerifyCode(account, account.emailCode, userAgent.call({
+                  service: form.service || query.service,
+                  redirectTo: form.redirectTo,
+                  resume: form.resume,
+                  acceptLanguage: request.app.acceptLanguage,
+                  ip: ip,
+                  location: geoData.location
+                }, request.headers['user-agent'], log))
+                  .then(function () {
+                    // only create reminder if sendVerifyCode succeeds
+                    verificationReminder.create({
+                      uid: account.uid.toString('hex')
+                    }).catch(function (err) {
+                      log.error({op: 'Account.verificationReminder.create', err: err})
+                    })
+
+                    if (tokenVerificationId) {
+                      // Log server-side metrics for confirming verification rates
+                      log.info({
+                        op: 'account.create.confirm.start',
+                        uid: account.uid.toString('hex'),
+                        tokenVerificationId: tokenVerificationId
+                      })
+                    }
+                  })
+                  .catch(function (err) {
+                    log.error({op: 'mailer.sendVerifyCode.1', err: err})
+
+                    if (tokenVerificationId) {
+                      // Log possible email bounce, used for confirming verification rates
+                      log.error({
+                        op: 'account.create.confirm.error',
+                        uid: account.uid.toString('hex'),
+                        err: err,
+                        tokenVerificationId: tokenVerificationId
+                      })
+                    }
+                  })
               })
-
-              if (tokenVerificationId) {
-                // Log server-side metrics for confirming verification rates
-                log.info({
-                  op: 'account.create.confirm.start',
-                  uid: account.uid.toString('hex'),
-                  tokenVerificationId: tokenVerificationId
-                })
-              }
-            })
-            .catch(function (err) {
-              log.error({ op: 'mailer.sendVerifyCode.1', err: err })
-
-              if (tokenVerificationId) {
-                // Log possible email bounce, used for confirming verification rates
-                log.error({
-                  op: 'account.create.confirm.error',
-                  uid: account.uid.toString('hex'),
-                  err: err,
-                  tokenVerificationId: tokenVerificationId
-                })
-              }
-            })
           }
         }
 
@@ -816,12 +822,20 @@ module.exports = function (
             var emailCode = tokenVerificationId ? tokenVerificationId : emailRecord.emailCode
             emailSent = true
 
-            return mailer.sendVerifyCode(emailRecord, emailCode, {
-              service: service,
-              redirectTo: redirectTo,
-              resume: resume,
-              acceptLanguage: request.app.acceptLanguage
-            }).then(() => request.emitMetricsEvent('email.verification.sent'))
+            return getGeoData(ip)
+              .then(
+                function (geoData) {
+                  return mailer.sendVerifyCode(emailRecord, emailCode, userAgent.call({
+                    service: service,
+                    redirectTo: redirectTo,
+                    resume: resume,
+                    acceptLanguage: request.app.acceptLanguage,
+                    ip: ip,
+                    location: geoData.location
+                  }, request.headers['user-agent'], log))
+                }
+              )
+              .then(() => request.emitMetricsEvent('email.verification.sent'))
           }
         }
 

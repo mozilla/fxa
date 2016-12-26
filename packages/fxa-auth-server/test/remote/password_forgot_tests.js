@@ -48,7 +48,13 @@ describe('remote password forgot', function() {
         )
         .then(
           function () {
-            return server.mailbox.waitForCode(email)
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            assert.equal(emailData.html.indexOf('IP address') > -1, true, 'contains ip location data')
+            return emailData.headers['x-recovery-code']
           }
         )
         .then(

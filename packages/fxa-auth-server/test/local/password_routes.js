@@ -105,6 +105,11 @@ describe('/password', () => {
         assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
         assert.equal(mockLog.flowEvent.args[0][0], 'password.forgot.send_code.start', 'password.forgot.send_code.start event was logged')
         assert.equal(mockLog.flowEvent.args[1][0], 'password.forgot.send_code.completed', 'password.forgot.send_code.completed event was logged')
+
+        assert.equal(mockMailer.sendRecoveryCode.callCount, 1, 'mailer.sendRecoveryCode was called once')
+        assert.equal(mockMailer.sendRecoveryCode.getCall(0).args[2].location.city, 'Mountain View')
+        assert.equal(mockMailer.sendRecoveryCode.getCall(0).args[2].location.country, 'United States')
+        assert.equal(mockMailer.sendRecoveryCode.getCall(0).args[2].timeZone, 'America/Los_Angeles')
       })
     }
   )
@@ -289,6 +294,9 @@ describe('/password', () => {
         assert.equal(mockDB.account.callCount, 1)
         assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1)
         assert.equal(mockMailer.sendPasswordChangedNotification.firstCall.args[0], TEST_EMAIL)
+        assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].location.city, 'Mountain View')
+        assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].location.country, 'United States')
+        assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].timeZone, 'America/Los_Angeles')
 
         assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
         var args = mockLog.activityEvent.args[0]

@@ -27,7 +27,13 @@ module.exports = function (config, log) {
             service: opts.service,
             redirectTo: opts.redirectTo,
             resume: opts.resume,
-            acceptLanguage: opts.acceptLanguage || defaultLanguage
+            acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            ip: opts.ip,
+            location: opts.location,
+            uaBrowser: opts.uaBrowser,
+            uaBrowserVersion: opts.uaBrowserVersion,
+            uaOS: opts.uaOS,
+            uaOSVersion: opts.uaOSVersion
           }
         ))
       }
@@ -60,7 +66,14 @@ module.exports = function (config, log) {
             service: opts.service,
             redirectTo: opts.redirectTo,
             resume: opts.resume,
-            acceptLanguage: opts.acceptLanguage || defaultLanguage
+            acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            ip: opts.ip,
+            location: opts.location,
+            timeZone: opts.timeZone,
+            uaBrowser: opts.uaBrowser,
+            uaBrowserVersion: opts.uaBrowserVersion,
+            uaOS: opts.uaOS,
+            uaOSVersion: opts.uaOSVersion
           }
         ))
       }
@@ -68,7 +81,13 @@ module.exports = function (config, log) {
         return P.resolve(mailer.passwordChangedEmail(
           {
             email: email,
-            acceptLanguage: opts.acceptLanguage || defaultLanguage
+            acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            ip: opts.ip,
+            location: opts.location,
+            uaBrowser: opts.uaBrowser,
+            uaBrowserVersion: opts.uaBrowserVersion,
+            uaOS: opts.uaOS,
+            uaOSVersion: opts.uaOSVersion
           }
         ))
       }
