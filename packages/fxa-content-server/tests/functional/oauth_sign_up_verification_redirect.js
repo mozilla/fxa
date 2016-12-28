@@ -17,6 +17,7 @@ define([
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  var pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
@@ -69,16 +70,59 @@ define([
     'signup, same browser different window, verification_redirect=always': function () {
       this.timeout = 90 * 1000;
 
+      var badRequestCount = 0;
+      var signedInCount = 0;
+
+      function countSignInAndInvalidState() {
+        return function () {
+          return this.parent
+            .findByCssSelector('body')
+              .getVisibleText()
+              .then(function (text) {
+                var isBadRequest = text === 'Bad request - missing code - missing state';
+                if (isBadRequest) {
+                  badRequestCount++;
+                }
+              })
+            .end()
+
+            .setFindTimeout(0)
+            .findByCssSelector('#loggedin')
+              .then(function () {
+                signedInCount++;
+              }, function (err) {
+                if (/NoSuchElement/.test(String(err))) {
+                  // swallow the error
+                  return;
+                }
+
+                throw err;
+              })
+            .end();
+        };
+      }
+
       return this.remote
         .then(openVerificationLinkInNewTab(email, 0))
+        .then(pollUntilGoneByQSA('#fxa-confirm-header'))
 
-        // wait for the original tab to login
-        .then(testElementExists('#loggedin'))
+        .then(countSignInAndInvalidState())
 
         .switchToWindow('newwindow')
-        // this is an verification-redirect flow, both windows should login
-        .then(testElementExists('#loggedin'))
-        .then(closeCurrentWindow());
+        .then(countSignInAndInvalidState())
+        .then(closeCurrentWindow())
+        .then(function () {
+          // at least one window will sign in, possibly two.
+          if (! signedInCount) {
+            assert.fail('at least one sign in expected');
+          } else if (badRequestCount === 0 && signedInCount === 2) {
+            assert.ok('this is expected');
+          } else if (badRequestCount === 1 && signedInCount === 1) {
+            assert.ok('this is expected');
+          } else if (badRequestCount === 2) {
+            assert.fail('2 bad requests are unexpected');
+          }
+        });
     },
 
     'signup, verify different browser, verification_redirect=always': function () {
