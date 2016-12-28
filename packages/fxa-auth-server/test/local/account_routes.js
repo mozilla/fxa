@@ -245,7 +245,11 @@ describe('/recovery_email/resend_code', () => {
         uid: uuid.v4('binary').toString('hex'),
         email: TEST_EMAIL,
         emailVerified: false,
-        tokenVerified: false
+        tokenVerified: false,
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: 52,
+        uaOS: 'Mac OS X',
+        uaOSVersion: '10.10'
       },
       query: {},
       payload: {
@@ -260,6 +264,14 @@ describe('/recovery_email/resend_code', () => {
     return runTest(route, mockRequest, response => {
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
       assert.equal(mockLog.flowEvent.args[0][0], 'email.verification.resent')
+
+      assert.equal(mockMailer.sendVerifyCode.callCount, 1)
+      const args = mockMailer.sendVerifyCode.args[0]
+      assert.equal(args[2].uaBrowser, 'Firefox')
+      assert.equal(args[2].uaBrowserVersion, '52')
+      assert.equal(args[2].uaOS, 'Mac OS X')
+      assert.equal(args[2].uaOSVersion, '10.10')
+      assert.strictEqual(args[2].uaDeviceType, undefined)
     })
   })
 
@@ -271,7 +283,12 @@ describe('/recovery_email/resend_code', () => {
         uid: uuid.v4('binary').toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
-        tokenVerified: false
+        tokenVerified: false,
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '50',
+        uaOS: 'Android',
+        uaOSVersion: '6',
+        uaDeviceType: 'tablet'
       },
       query: {},
       payload: {
@@ -286,6 +303,14 @@ describe('/recovery_email/resend_code', () => {
     return runTest(route, mockRequest, response => {
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
       assert.equal(mockLog.flowEvent.args[0][0], 'email.confirmation.resent')
+
+      assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1)
+      const args = mockMailer.sendVerifyLoginEmail.args[0]
+      assert.equal(args[2].uaBrowser, 'Firefox')
+      assert.equal(args[2].uaBrowserVersion, '50')
+      assert.equal(args[2].uaOS, 'Android')
+      assert.equal(args[2].uaOSVersion, '6')
+      assert.strictEqual(args[2].uaDeviceType, 'tablet')
     })
   })
 
@@ -744,6 +769,10 @@ describe('/account/create', function () {
       emailVerified: false,
       keyFetchTokenId: keyFetchTokenId,
       sessionTokenId: sessionTokenId,
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: 52,
+      uaOS: 'Mac OS X',
+      uaOSVersion: '10.10',
       uid: uid,
       wrapWrapKb: 'wibble'
     }, {
@@ -827,8 +856,14 @@ describe('/account/create', function () {
       assert.equal(securityEvent.ipAddr, clientAddress)
 
       assert.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
-      assert.equal(mockMailer.sendVerifyCode.getCall(0).args[2].location.city, 'Mountain View')
-      assert.equal(mockMailer.sendVerifyCode.getCall(0).args[2].location.country, 'United States')
+      args = mockMailer.sendVerifyCode.args[0]
+      assert.equal(args[2].location.city, 'Mountain View')
+      assert.equal(args[2].location.country, 'United States')
+      assert.equal(args[2].uaBrowser, 'Firefox')
+      assert.equal(args[2].uaBrowserVersion, '52')
+      assert.equal(args[2].uaOS, 'Mac OS X')
+      assert.equal(args[2].uaOSVersion, '10.10')
+      assert.strictEqual(args[2].uaDeviceType, undefined)
     })
   })
 })
@@ -926,6 +961,11 @@ describe('/account/login', function () {
     emailVerified: true,
     keyFetchTokenId: keyFetchTokenId,
     sessionTokenId: sessionTokenId,
+    uaBrowser: 'Firefox',
+    uaBrowserVersion: 50,
+    uaOS: 'Android',
+    uaOSVersion: '6',
+    uaDeviceType: 'mobile',
     uid: uid
   })
   var mockMailer = mocks.mockMailer()
@@ -1022,9 +1062,16 @@ describe('/account/login', function () {
       assert.deepEqual(args[0], 'account.signed', 'argument was event name')
 
       assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
-      assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city, 'Mountain View')
-      assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.country, 'United States')
-      assert.equal(mockMailer.sendVerifyLoginEmail.getCall(0).args[2].timeZone, 'America/Los_Angeles')
+      args = mockMailer.sendVerifyLoginEmail.args[0]
+      assert.equal(args[2].location.city, 'Mountain View')
+      assert.equal(args[2].location.country, 'United States')
+      assert.equal(args[2].timeZone, 'America/Los_Angeles')
+      assert.equal(args[2].uaBrowser, 'Firefox')
+      assert.equal(args[2].uaBrowserVersion, '50')
+      assert.equal(args[2].uaOS, 'Android')
+      assert.equal(args[2].uaOSVersion, '6')
+      assert.equal(args[2].uaDeviceType, 'mobile')
+
       assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
       assert.ok(!response.verified, 'response indicates account is not verified')
       assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
