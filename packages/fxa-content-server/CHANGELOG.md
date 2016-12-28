@@ -1,3 +1,64 @@
+<a name="0.77.0"></a>
+# 0.77.0 (2016-12-28)
+
+
+### Bug Fixes
+
+* **client:** Add `show pw` if pw autofilled from pw manager (#4526) r=@vbudhram ([43b4672](https://github.com/mozilla/fxa-content-server/commit/43b4672))
+* **client:** cookies_disabled.js's constructor is a function. (#4528) r=vladikoff ([7331d17](https://github.com/mozilla/fxa-content-server/commit/7331d17))
+* **clients:** fix translation issues with ‘none connected’ and ‘last active’ (#4533) r=@shane- ([d7d0fe3](https://github.com/mozilla/fxa-content-server/commit/d7d0fe3)), closes [(#4533](https://github.com/(/issues/4533)
+* **fonts:** clean up font request rules (#4462) r=shane-tomlinson  ([863793e](https://github.com/mozilla/fxa-content-server/commit/863793e)), closes [#4116](https://github.com/mozilla/fxa-content-server/issues/4116)
+* **l10n:** do not delete translation files during extraction (#4560) ([b815bf3](https://github.com/mozilla/fxa-content-server/commit/b815bf3))
+* **l10n:** fix string extraction with latest jsxgettext (#4534) r=shane-tomlinson ([75f4f0d](https://github.com/mozilla/fxa-content-server/commit/75f4f0d)), closes [(#4534](https://github.com/(/issues/4534) [#4406](https://github.com/mozilla/fxa-content-server/issues/4406)
+* **l10n:** make 'why sync' string extractable (#4559) ([0e16324](https://github.com/mozilla/fxa-content-server/commit/0e16324))
+* **l10n:** move l10n install into postinstall (#4498) r=vbudhram ([4c4e8da](https://github.com/mozilla/fxa-content-server/commit/4c4e8da))
+* **reset:** update text on the password reset page (#4540), r=@vbudhram ([57a8a68](https://github.com/mozilla/fxa-content-server/commit/57a8a68)), closes [#4255](https://github.com/mozilla/fxa-content-server/issues/4255)
+* **settings:** keep Change button disabled until content is different (#4500) ([6c62417](https://github.com/mozilla/fxa-content-server/commit/6c62417)), closes [#4201](https://github.com/mozilla/fxa-content-server/issues/4201)
+* **style:** Fix the modal vertical position on mobile devices. (#4509) r=vladikoff,vbudhram ([dcc4346](https://github.com/mozilla/fxa-content-server/commit/dcc4346)), closes [(#4509](https://github.com/(/issues/4509) [#4491](https://github.com/mozilla/fxa-content-server/issues/4491)
+* **styles:** adjust icon height for current device (#4501) r=vbudhram ([d681f5e](https://github.com/mozilla/fxa-content-server/commit/d681f5e)), closes [#4488](https://github.com/mozilla/fxa-content-server/issues/4488)
+* **test:** Ensure elements are visible and not animating before click. (#4546) r=vladikoff ([9469acc](https://github.com/mozilla/fxa-content-server/commit/9469acc))
+* **test:** Fix `suggests emails via a tooltip` tests. (#4525) r=vladikoff ([67edb5c](https://github.com/mozilla/fxa-content-server/commit/67edb5c)), closes [(#4525](https://github.com/(/issues/4525)
+* **test:** Fix the reset password functional tests. (#4543) r=@vbudhram ([d4984df](https://github.com/mozilla/fxa-content-server/commit/d4984df)), closes [(#4543](https://github.com/(/issues/4543) [#4540](https://github.com/mozilla/fxa-content-server/issues/4540)
+* **test:** Remove `before` in the OAuth functional tests. (#4555) r=vladikoff ([44c6b09](https://github.com/mozilla/fxa-content-server/commit/44c6b09))
+* **test:** Remove functional tests dealing with preVerifyToken. (#4552) r=@shane-tomlinson ([17f3348](https://github.com/mozilla/fxa-content-server/commit/17f3348))
+* **tests:** Fix verification_redirect=always functional test. (#4554) r=vladikoff ([5918a80](https://github.com/mozilla/fxa-content-server/commit/5918a80)), closes [(#4554](https://github.com/(/issues/4554) [#4000](https://github.com/mozilla/fxa-content-server/issues/4000)
+* **typo:** fix ‘redundantly’ typo in validate.js (#4516) ([43a0690](https://github.com/mozilla/fxa-content-server/commit/43a0690)), closes [(#4516](https://github.com/(/issues/4516)
+* **typo:** fixes url.js setAttribute typo (#4514) ([3dc1603](https://github.com/mozilla/fxa-content-server/commit/3dc1603)), closes [(#4514](https://github.com/(/issues/4514)
+
+### chore
+
+* **ci:** add retry command to Circle (#4517) ([b4e2ec1](https://github.com/mozilla/fxa-content-server/commit/b4e2ec1))
+* **ci:** disable Firefox A/B experiments in CI browser (#4536) ([a24f9b5](https://github.com/mozilla/fxa-content-server/commit/a24f9b5))
+* **ci:** reorder CI scripts  ([e04dec4](https://github.com/mozilla/fxa-content-server/commit/e04dec4))
+* **ci:** try to disable signed extensions in Firefox 46 on Circle Ci (#4511) ([4a8a7ef](https://github.com/mozilla/fxa-content-server/commit/4a8a7ef))
+* **docs:** Remove openGmail and syncCheckbox experiment docs. (#4530) ([e63b256](https://github.com/mozilla/fxa-content-server/commit/e63b256))
+* **tests:** force disable e10s while we are on Firefox 46 (#4505) r=shane-tomlinson ([6fa0ea2](https://github.com/mozilla/fxa-content-server/commit/6fa0ea2))
+* **travis:** disable Node 6 builds until fixed (#4508) ([bf70aed](https://github.com/mozilla/fxa-content-server/commit/bf70aed)), closes [(#4508](https://github.com/(/issues/4508)
+
+### Features
+
+* **client:** Add AMO specific help text on signin/signup. (#4550) r=vladikoff ([9c595b9](https://github.com/mozilla/fxa-content-server/commit/9c595b9)), closes [#4302](https://github.com/mozilla/fxa-content-server/issues/4302)
+* **client:** complete on fennec (#4370) r=vladikoff ([c80d1aa](https://github.com/mozilla/fxa-content-server/commit/c80d1aa))
+* **experiments:** update to train-77 experiments (#4556) ([c21711e](https://github.com/mozilla/fxa-content-server/commit/c21711e))
+
+### Refactor
+
+* **avatar:** this._displayedProfileImage removed (#4502) r=shane-tomlinson,vladikoff ([3f4ec6f](https://github.com/mozilla/fxa-content-server/commit/3f4ec6f)), closes [#4386](https://github.com/mozilla/fxa-content-server/issues/4386)
+* **client:** Clean up complete_sign_up a bit. (#4518) r=vladikoff ([2d3123b](https://github.com/mozilla/fxa-content-server/commit/2d3123b))
+* **client:** Configurable marketing-snippet and marketing-mixin. (#4519) r=@vladikoff ([8abf49d](https://github.com/mozilla/fxa-content-server/commit/8abf49d))
+* **client:** Extract a modal-panel-mixin from modal-settings-panel-mixin. (#4506) r=vladikoff ([a54eac0](https://github.com/mozilla/fxa-content-server/commit/a54eac0))
+* **client:** Remove `preVerifyToken` support. (#4539); r=vladikoff,rfk ([9cbf5d9](https://github.com/mozilla/fxa-content-server/commit/9cbf5d9)), closes [#4152](https://github.com/mozilla/fxa-content-server/issues/4152)
+* **test:** Modernize the oauth_sign_up_verification_redirect tests. (#4557) ([f7755e7](https://github.com/mozilla/fxa-content-server/commit/f7755e7))
+* **test:** Remove `context` from `fillOutChangePassword` ([04298c6](https://github.com/mozilla/fxa-content-server/commit/04298c6))
+* **test:** Remove `context` from `fillOutCompleteResetPassword` (#4522) r=@vladikoff ([a0a357e](https://github.com/mozilla/fxa-content-server/commit/a0a357e))
+* **test:** Remove `context` from `fillOutDeleteAccount` ([9c7a1a7](https://github.com/mozilla/fxa-content-server/commit/9c7a1a7))
+* **test:** Remove `context` from `noSuchElement` (#4523) r=vladikoff ([b95fd7b](https://github.com/mozilla/fxa-content-server/commit/b95fd7b))
+* **test:** Remove `context` from `openExternalSite` (#4545), r=@vbudhram ([736a063](https://github.com/mozilla/fxa-content-server/commit/736a063))
+* **test:** remove `context` from `openSettingsInNewTab` ([28d746a](https://github.com/mozilla/fxa-content-server/commit/28d746a))
+* **test:** Remove `context` from `openVerificationLinkInNewTab` ([face514](https://github.com/mozilla/fxa-content-server/commit/face514))
+
+
+
 <a name="0.76.0"></a>
 # 0.76.0 (2016-12-13)
 
