@@ -162,6 +162,11 @@ function mockDB (data, errors) {
         tokenId: data.sessionTokenId,
         tokenVerificationId: data.tokenVerificationId,
         tokenVerified: ! data.tokenVerificationId,
+        uaBrowser: data.uaBrowser,
+        uaBrowserVersion: data.uaBrowserVersion,
+        uaOS: data.uaOS,
+        uaOSVersion: data.uaOSVersion,
+        uaDeviceType: data.uaDeviceType,
         uid: data.uid
       })
     }),
@@ -200,7 +205,12 @@ function mockDB (data, errors) {
     }),
     sessionTokenWithVerificationStatus: sinon.spy(() => {
       return P.resolve({
-        tokenVerified: true
+        tokenVerified: true,
+        uaBrowser: data.uaBrowser,
+        uaBrowserVersion: data.uaBrowserVersion,
+        uaOS: data.uaOS,
+        uaOSVersion: data.uaOSVersion,
+        uaDeviceType: data.uaDeviceType
       })
     }),
     verifyTokens: sinon.spy(() => {

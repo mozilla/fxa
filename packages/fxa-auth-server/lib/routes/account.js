@@ -276,14 +276,19 @@ module.exports = function (
           if (! account.emailVerified) {
             return getGeoData(ip)
               .then(function (geoData) {
-                mailer.sendVerifyCode(account, account.emailCode, userAgent.call({
+                mailer.sendVerifyCode(account, account.emailCode, {
                   service: form.service || query.service,
                   redirectTo: form.redirectTo,
                   resume: form.resume,
                   acceptLanguage: request.app.acceptLanguage,
                   ip: ip,
-                  location: geoData.location
-                }, request.headers['user-agent'], log))
+                  location: geoData.location,
+                  uaBrowser: sessionToken.uaBrowser,
+                  uaBrowserVersion: sessionToken.uaBrowserVersion,
+                  uaOS: sessionToken.uaOS,
+                  uaOSVersion: sessionToken.uaOSVersion,
+                  uaDeviceType: sessionToken.uaDeviceType
+                })
                   .then(function () {
                     // only create reminder if sendVerifyCode succeeds
                     verificationReminder.create({
@@ -825,14 +830,19 @@ module.exports = function (
             return getGeoData(ip)
               .then(
                 function (geoData) {
-                  return mailer.sendVerifyCode(emailRecord, emailCode, userAgent.call({
+                  return mailer.sendVerifyCode(emailRecord, emailCode, {
                     service: service,
                     redirectTo: redirectTo,
                     resume: resume,
                     acceptLanguage: request.app.acceptLanguage,
                     ip: ip,
-                    location: geoData.location
-                  }, request.headers['user-agent'], log))
+                    location: geoData.location,
+                    uaBrowser: sessionToken.uaBrowser,
+                    uaBrowserVersion: sessionToken.uaBrowserVersion,
+                    uaOS: sessionToken.uaOS,
+                    uaOSVersion: sessionToken.uaOSVersion,
+                    uaDeviceType: sessionToken.uaDeviceType
+                  })
                 }
               )
               .then(() => request.emitMetricsEvent('email.verification.sent'))
@@ -855,12 +865,17 @@ module.exports = function (
                 function (geoData) {
                   mailer.sendNewDeviceLoginNotification(
                     emailRecord.email,
-                    userAgent.call({
+                    {
                       acceptLanguage: request.app.acceptLanguage,
                       ip: ip,
                       location: geoData.location,
-                      timeZone: geoData.timeZone
-                    }, request.headers['user-agent'], log)
+                      timeZone: geoData.timeZone,
+                      uaBrowser: sessionToken.uaBrowser,
+                      uaBrowserVersion: sessionToken.uaBrowserVersion,
+                      uaOS: sessionToken.uaOS,
+                      uaOSVersion: sessionToken.uaOSVersion,
+                      uaDeviceType: sessionToken.uaDeviceType
+                    }
                   )
                 }
               )
@@ -881,15 +896,20 @@ module.exports = function (
                   return mailer.sendVerifyLoginEmail(
                     emailRecord,
                     tokenVerificationId,
-                    userAgent.call({
+                    {
                       acceptLanguage: request.app.acceptLanguage,
                       ip: ip,
                       location: geoData.location,
                       redirectTo: redirectTo,
                       resume: resume,
                       service: service,
-                      timeZone: geoData.timeZone
-                    }, request.headers['user-agent'], log)
+                      timeZone: geoData.timeZone,
+                      uaBrowser: sessionToken.uaBrowser,
+                      uaBrowserVersion: sessionToken.uaBrowserVersion,
+                      uaOS: sessionToken.uaOS,
+                      uaOSVersion: sessionToken.uaOSVersion,
+                      uaDeviceType: sessionToken.uaDeviceType
+                    }
                   )
                 }
               )
@@ -1557,13 +1577,18 @@ module.exports = function (
             mailer,
             sessionToken,
             code,
-            userAgent.call({
+            {
               service: service,
               timestamp: Date.now(),
               redirectTo: request.payload.redirectTo,
               resume: request.payload.resume,
-              acceptLanguage: request.app.acceptLanguage
-            }, request.headers['user-agent'], log)
+              acceptLanguage: request.app.acceptLanguage,
+              uaBrowser: sessionToken.uaBrowser,
+              uaBrowserVersion: sessionToken.uaBrowserVersion,
+              uaOS: sessionToken.uaOS,
+              uaOSVersion: sessionToken.uaOSVersion,
+              uaDeviceType: sessionToken.uaDeviceType
+            }
           ))
           .then(() => request.emitMetricsEvent(`email.${event}.resent`))
           .done(
