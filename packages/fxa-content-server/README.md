@@ -31,17 +31,8 @@ Any changes made to the scripts or the template files will automatically be refl
 
 #### Prerequisites:
   * Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-  * Selenium Server 2.53.0 ([Download](http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar))
 
 ### Setup
-
-* Run Selenium Server
-
-e.g. in shell form:
-
-```sh
-java -jar selenium-server-standalone-2.53.0.jar 
-```
 
 To run tests locally with Selenium:
 

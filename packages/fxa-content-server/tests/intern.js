@@ -41,7 +41,10 @@ function (intern, topic, firefoxProfile) {
   var config = {
     asyncTimeout: asyncTimeout,
     capabilities: {},
-    environments: [{ browserName: 'firefox' }],
+    environments: [{
+      browserName: 'firefox',
+      marionette: true
+    }],
     excludeInstrumentation: true,
     fixSessionCapabilities: false,
     functionalSuites: [
@@ -62,7 +65,12 @@ function (intern, topic, firefoxProfile) {
     maxConcurrency: 3,
     pageLoadTimeout: 28000,
     proxyPort: 9090,
-    proxyUrl: 'http://127.0.0.1:9090/'
+    proxyUrl: 'http://127.0.0.1:9090/',
+    tunnel: 'SeleniumTunnel',
+    tunnelOptions: {
+      // this tells SeleniumTunnel to download geckodriver
+      drivers: [ 'firefox' ]
+    }
   };
 
   // to create a profile, give it the `config` option.

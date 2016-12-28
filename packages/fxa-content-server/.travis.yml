@@ -4,7 +4,7 @@ node_js:
   - "4"
 
 addons:
-  firefox: "46.0"
+  firefox: "50.1.0"
   apt:
     sources:
       - ubuntu-toolchain-r-test
@@ -18,7 +18,10 @@ env:
     - DISABLE_CLIENT_METRICS_STDERR=true
     - CXX=g++-4.8
 
-sudo: false
+# Need to use "trusty" for Java 1.8
+# Ref: https://blog.travis-ci.com/2015-10-14-opening-up-ubuntu-trusty-beta/
+sudo: required
+dist: trusty
 
 cache:
   directories:
@@ -39,8 +42,6 @@ before_install:
   # Setup the xvfb environment. Read more at http://docs.travis-ci.com/user/gui-and-headless-browsers/
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-  - wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar
-  - java -jar selenium-server-standalone-2.53.0.jar &> /dev/null &
 
 install:
   # install everything for full dev in the fxa-content-server.
@@ -60,6 +61,7 @@ script:
   - grunt selectconfig:dist l10n-generate-pages &> /dev/null
   - grunt htmllint:dist
   - which firefox
+  - java -version
   - firefox --version
   # even though Firefox <version> is install in `addons`,
   # the default firefox-bin is used by Selenium, which is Firefox 31.

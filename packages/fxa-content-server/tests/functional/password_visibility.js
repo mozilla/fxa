@@ -14,7 +14,6 @@ define([
   var mousedown = FunctionalHelpers.mousedown;
   var mouseup = FunctionalHelpers.mouseup;
   var noSuchElement = FunctionalHelpers.noSuchElement;
-  var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
   var openPage = FunctionalHelpers.openPage;
   var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -52,9 +51,10 @@ define([
         // \u0008 is unicode for backspace char. By default `type` clears the
         // element value before typing, we want the character to do so.
         .then(type('#password', '\u0008'), { clearValue: true })
-        // element still exists, though it's hidden.
-        .then(testElementExists('.show-password-label'))
-        .then(noSuchElementDisplayed('.show-password-label'));
+        // give a short pause to clear the input
+        .sleep(1000)
+        // element still exists
+        .then(testElementExists('.show-password-label'));
 
     }
   });
