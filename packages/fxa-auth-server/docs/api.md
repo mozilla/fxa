@@ -121,6 +121,8 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 
 * Authentication
     * [POST /v1/account/login](#post-v1accountlogin)
+    * [POST /v1/account/send_unblock_code](#post-v1accountloginsend_unblock_code)
+    * [POST /v1/account/reject_unblock_code](#post-v1accountloginreject_unblock_code)
 
 * Session
     * [GET /v1/session/status (:lock: sessionToken)](#get-v1sessionstatus)
@@ -366,6 +368,67 @@ Failing requests may be due to the following errors:
 * status code 400, errno 120:  incorrect email case
 * status code 400, errno 126:  account must be reset
 * status code 400, errno 127:  invalid unblock code
+
+
+## POST /v1/account/login/send_unblock_code
+
+Send an unblock code to a provided email to reset rate-limiting.
+
+___Parameters___
+
+* email - the primary email for this account
+
+### Request
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+https://api-accounts.dev.lcip.org/v1/account/login/send_unblock_code \
+-d '{
+  "email": "me@example.com"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" and an empty json body.
+
+```json
+{}
+```
+
+
+## POST /v1/account/login/reject_unblock_code
+
+Used to reject and report an unblock code that was sent to a user
+
+___Parameters___
+
+* uid - the user id
+* unblockCode - the unblock code
+
+### Request
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+https://api-accounts.dev.lcip.org/v1/account/login/reject_unblock_code \
+-d '{
+  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
+  "unblockCode": "A1B2C3D4"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" and an empty json body.
+
+```json
+{}
+```
+
 
 ## GET /v1/account/keys
 
