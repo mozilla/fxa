@@ -9,6 +9,5 @@
   "content_uri": "https://accounts.dev.lcip.org",
   "profile_uri": "https://profile.dev.lcip.org/v1",
   "scopes": "profile",
-  "preverify_email_audience": "accounts.dev.lcip.org",
   "preverify_email_jku": "https://123done.dev.lcip.org/.well-known/public-keys"
 }
