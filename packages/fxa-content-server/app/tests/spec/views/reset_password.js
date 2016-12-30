@@ -84,6 +84,18 @@ define(function (require, exports, module) {
           });
       });
 
+      it('shows serviceName from the relier', function () {
+        var serviceName = 'another awesome service by Mozilla';
+        relier.set('serviceName', serviceName);
+
+        // initialize a new view to set the service name
+        view = createView();
+        return view.render()
+          .then(function () {
+            assert.include(view.$('#fxa-reset-password-header').text(), serviceName);
+          });
+      });
+
       describe('with broker that supports `convertExternalLinksToText`', function () {
         beforeEach(function () {
           broker.setCapability('convertExternalLinksToText', true);

@@ -29,7 +29,8 @@ define(function (require, exports, module) {
 
     context () {
       return {
-        forceEmail: this.model.get('forceEmail')
+        forceEmail: this.model.get('forceEmail'),
+        serviceName: this.relier.get('serviceName')
       };
     },
 
