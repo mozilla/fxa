@@ -224,7 +224,7 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('sync suggestion - signup-mixin', function () {
+    describe('sync suggestion', function () {
 
       it('displays sync suggestion message if no migration', function () {
         createView();
@@ -248,6 +248,19 @@ define(function (require, exports, module) {
               'utm_campaign=fx-signup&utm_content=fx-sync-get-started');
 
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'signup.sync-suggest.visible'), 'enrolled');
+          });
+      });
+
+      it('can be dismissed', function () {
+        createView();
+        relier.set('service', null);
+
+        return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+            assert.isTrue(view.$('#suggest-sync').is(':visible'), 'visible');
+            view.onSuggestSyncDismiss();
+            assert.isFalse(view.$('#suggest-sync').is(':visible'), 'hidden');
           });
       });
 
@@ -1286,9 +1299,9 @@ define(function (require, exports, module) {
         // wait for tooltip
         return p().delay(50).then(() => {
           assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
-          // there are exactly 2 elements with tabindex in the page (show
+          // there are exactly 3 elements with tabindex in the page (show
           // password button has not been added to the page).
-          assert.equal($('[tabindex]').length, 2);
+          assert.equal($('[tabindex]').length, 3);
           // the first element with tabindex is the span containing the website name
           assert.equal($('.tooltip-suggest span:first').get(0), $('[tabindex="1"]').get(0));
           // the second element with tabindex is the span containing the dismiss button
@@ -1298,7 +1311,7 @@ define(function (require, exports, module) {
 
       it('suggests emails via a tooltip in the automated browser', function (done) {
         createView();
-        var container =  $('#container');
+        var container = $('#container');
         var autoBrowser = sinon.stub(view.broker, 'isAutomatedBrowser', function () {
           return true;
         });

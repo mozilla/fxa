@@ -236,3 +236,32 @@ div + .error {
     transform: translateX(4px);
   }
 }
+
+// custom state indicators
+#suggest-sync {
+  .dismiss {
+    position: absolute;
+    top: 6px;
+    cursor: pointer;
+  }
+
+  html[dir='ltr'] & {
+    text-align: left;
+    padding-left: 10px;
+    padding-right: 25px;
+
+    .dismiss {
+      right: 10px;
+    }
+  }
+
+  html[dir='rtl'] & {
+    text-align: right;
+    padding-left: 25px;
+    padding-right: 10px;
+
+    .dismiss {
+      left: 10px;
+    }
+  }
+}

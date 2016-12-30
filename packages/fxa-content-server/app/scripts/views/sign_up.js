@@ -130,7 +130,8 @@ define(function (require, exports, module) {
 
     events: {
       'blur input.email': 'onEmailBlur',
-      'click #amo-migration a': 'onAmoSignIn'
+      'click #amo-migration a': 'onAmoSignIn',
+      'click #suggest-sync .dismiss': 'onSuggestSyncDismiss'
     },
 
     getPrefillEmail () {
@@ -306,6 +307,10 @@ define(function (require, exports, module) {
       if (this.isInExperiment('mailcheck')) {
         mailcheck(this.$el.find('.email'), this);
       }
+    },
+
+    onSuggestSyncDismiss () {
+      this.$('#suggest-sync').hide();
     },
 
     onAmoSignIn () {
