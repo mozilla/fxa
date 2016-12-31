@@ -637,14 +637,16 @@ module.exports = function (log) {
 
     var links = this._generateLinks(this.verificationUrl, message.email, query, templateName)
 
+    var headers = {
+      'X-Link': links.link,
+      'X-Uid': message.uid,
+      'X-Verify-Code': message.code
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage || 'en',
       email: message.email,
-      headers: {
-        'X-Link': links.link,
-        'X-Uid': message.uid,
-        'X-Verify-Code': message.code
-      },
+      headers: headers,
       subject: subject,
       template: templateName,
       templateValues: {
