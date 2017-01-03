@@ -8,7 +8,7 @@
     "cjs": "https://github.com/guybedford/cjs.git#69c7f33059"
   },
   "dependencies": {
-    "p": "https://github.com/rkatic/p.git#5e9520f364789db476aad434e3da3b36e4ecc535",
+    "p": "rkatic/p#0.5.0",
     "sjcl": "1.0.0"
   }
 }
