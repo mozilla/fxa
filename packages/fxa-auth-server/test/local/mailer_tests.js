@@ -24,7 +24,6 @@ var messageTypes = [
   'passwordResetRequiredEmail',
   'postVerifyEmail',
   'recoveryEmail',
-  'suspiciousLocationEmail',
   'unblockCodeEmail',
   'verificationReminderEmail',
   'verifyEmail',
@@ -45,7 +44,6 @@ var typesContainPasswordResetLinks = [
   'passwordChangedEmail',
   'passwordResetEmail',
   'passwordResetRequiredEmail',
-  'suspiciousLocationEmail'
 ]
 
 var typesContainPasswordChangeLinks = [
@@ -80,7 +78,6 @@ var typesContainLocationData = [
 
 var typesContainPasswordManagerInfoLinks = [
   'passwordResetRequiredEmail',
-  'suspiciousLocationEmail'
 ]
 
 function includes(haystack, needle) {
@@ -424,44 +421,6 @@ P.all(
               mailer[type](message)
             }
           )
-        } else if (type === 'suspiciousLocationEmail') {
-          var locations = [
-            {
-              device: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:48.0) Gecko/20100101 Firefox/48.0',
-              location: 'Mountain View, CA',
-              timestamp: (new Date()).toString()
-            },
-            {
-              device: 'MSIE 10',
-              location: 'London, United Kingdom',
-              timestamp: (new Date()).toString()
-            }
-          ]
-
-          message = {
-            email: 'a@b.com',
-            locations: locations
-          }
-
-          test(
-            'test suspicious location entries are added for ' + type,
-            function (t) {
-              mailer.mailer.sendMail = function (emailConfig) {
-                locations.forEach(function (location) {
-                  t.ok(includes(emailConfig.html, location.device))
-                  t.ok(includes(emailConfig.html, location.location))
-                  t.ok(includes(emailConfig.html, location.timestamp))
-
-                  t.ok(includes(emailConfig.text, location.device))
-                  t.ok(includes(emailConfig.text, location.location))
-                  t.ok(includes(emailConfig.text, location.timestamp))
-                })
-
-                t.end()
-              }
-              mailer[type](message)
-            }
-          )
         } else if (type === 'verificationReminderEmail') {
           var reminderMessage = extend(message, {
             type: 'customType'
@@ -565,7 +524,7 @@ P.all(
         var message = {
           email: 'test@restmail.net',
           subject: 'subject',
-          template: 'suspiciousLocationEmail',
+          template: 'verifyLoginEmail',
           uid: 'foo'
         }
 
@@ -588,7 +547,7 @@ P.all(
         var message = {
           email: 'test@restmail.net',
           subject: 'subject',
-          template: 'suspiciousLocationEmail',
+          template: 'verifyLoginEmail',
           uid: 'foo'
         }
 

@@ -22,7 +22,6 @@ module.exports = function (log) {
     'passwordResetEmail': 'password-reset-success',
     'postVerifyEmail': 'account-verified',
     'recoveryEmail': 'forgot-password',
-    'suspiciousLocationEmail': 'suspicious-location',
     'unblockCode': 'new-unblock',
     'verifyEmail': 'welcome',
     'verifyLoginEmail': 'new-signin',
@@ -41,7 +40,6 @@ module.exports = function (log) {
     'passwordResetRequiredEmail': 'password-reset',
     'postVerifyEmail': 'connect-device',
     'recoveryEmail': 'reset-password',
-    'suspiciousLocationEmail': 'password-reset',
     'unblockCode': 'unblock-code',
     'verificationReminderFirstEmail': 'activate',
     'verificationReminderSecondEmail': 'activate',
@@ -610,46 +608,6 @@ module.exports = function (log) {
         supportLinkAttributes: links.supportLinkAttributes
       },
       uid: message.uid
-    })
-  }
-
-  Mailer.prototype.suspiciousLocationEmail = function (message) {
-    log.trace({ op: 'mailer.suspiciousLocationEmail', email: message.email, uid: message.uid })
-
-    var templateName = 'suspiciousLocationEmail'
-    var links = this._generateLinks(this.initiatePasswordResetUrl, message.email, {}, templateName)
-
-    // the helper function `t` references `this.translator`. Because of
-    // the way Handlebars `each` loops work, a translator instance must be
-    // added to each entry or else no translator is available when translating
-    // the entry.
-    var translator = this.translator(message.acceptLanguage)
-
-    message.locations.forEach(function (entry) {
-      entry.translator = translator
-    })
-
-    var headers = {
-      'X-Link': links.resetLink
-    }
-
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      email: message.email,
-      headers: headers,
-      subject: gettext('Suspicious activity with your Firefox Account'),
-      template: templateName,
-      templateValues: {
-        passwordManagerInfoUrl: links.passwordManagerInfoUrl,
-        privacyUrl: links.privacyUrl,
-        locations: message.locations,
-        resetLink: links.resetLink
-      }
     })
   }
 
