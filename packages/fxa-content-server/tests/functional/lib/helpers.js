@@ -628,19 +628,27 @@ define([
     };
   }
 
-  function reOpenWithAdditionalQueryParams(context, additionalQueryParams, waitForSelector) {
-    var remote = getRemote(context);
-    return remote
-      .getCurrentUrl()
-      .then(function (url) {
-        var parsedUrl = Url.parse(url);
-        var currentQueryParams = Querystring.parse(parsedUrl.search);
-        var updatedQueryParams = lang.mixin({}, currentQueryParams, additionalQueryParams);
-        var urlToOpen = url + '?' + Querystring.stringify(updatedQueryParams);
+  /**
+   * Re-open the same page with additional query parameters.
+   *
+   * @param   {object} additionalQueryParams key/value pairs of query parameters
+   * @param   {string} waitForSelector query selector that indicates load is complete
+   * @returns {promise} resolves when complete.
+   */
+  function reOpenWithAdditionalQueryParams(additionalQueryParams, waitForSelector) {
+    return function () {
+      return this.parent
+        .getCurrentUrl()
+        .then(function (url) {
+          var parsedUrl = Url.parse(url);
+          var currentQueryParams = Querystring.parse(parsedUrl.search);
+          var updatedQueryParams = lang.mixin({}, currentQueryParams, additionalQueryParams);
+          var urlToOpen = url + '?' + Querystring.stringify(updatedQueryParams);
 
-        return this.parent
-          .then(openPage(urlToOpen, waitForSelector));
-      });
+          return this.parent
+            .then(openPage(urlToOpen, waitForSelector));
+        });
+    };
   }
 
   /**
@@ -689,7 +697,8 @@ define([
         .then(openPage(endpoint, expectedHeader))
         .then(function () {
           if (Object.keys(queryParams).length > 1) {
-            return reOpenWithAdditionalQueryParams(context, queryParams, expectedHeader);
+            return this.parent
+              .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
           }
         });
     }
@@ -704,7 +713,8 @@ define([
 
       .then(function () {
         if (Object.keys(queryParams).length) {
-          return reOpenWithAdditionalQueryParams(context, queryParams, expectedHeader);
+          return this.parent
+            .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
         }
       });
   }
