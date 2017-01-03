@@ -123,7 +123,8 @@ define(function (require, exports, module) {
         metrics: this._metrics,
         oAuthClient: this._oAuthClient,
         oAuthClientId: this._oAuthClientId,
-        profileClient: this._profileClient
+        profileClient: this._profileClient,
+        sentryMetrics: this.sentryMetrics
       });
     },
 

@@ -86,6 +86,7 @@ define(function (require, exports, module) {
       this._fxaClient = options.fxaClient;
       this._marketingEmailClient = options.marketingEmailClient;
       this._metrics = options.metrics;
+      this._sentryMetrics = options.sentryMetrics;
 
       /**
        * Keeps track of outstanding assertion generation requests, keyed
@@ -116,10 +117,16 @@ define(function (require, exports, module) {
       // upgrade the credentials with verified state
       return this.sessionStatus()
         .fail((err) => {
+          // if invalid token then invalidate session
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-            this._invalidateSession();
+            return this._invalidateSession();
           }
-          // Ignore other errors; we'll just fetch again when needed
+
+          // Ignore UNAUTHORIZED errors; we'll just fetch again when needed
+          // Otherwise report the error
+          if (! AuthErrors.is(err, 'UNAUTHORIZED') && this._sentryMetrics) {
+            this._sentryMetrics.captureException(err);
+          }
         });
     },
 

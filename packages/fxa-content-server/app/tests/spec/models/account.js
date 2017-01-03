@@ -32,6 +32,7 @@ define(function (require, exports, module) {
     var fxaClient;
     var marketingEmailClient;
     var metrics;
+    var sentryMetrics;
     var oAuthClient;
     var profileClient;
     var relier;
@@ -63,6 +64,11 @@ define(function (require, exports, module) {
           };
         }
       };
+      sentryMetrics = {
+        captureException (e) {
+          return e;
+        }
+      };
       oAuthClient = new OAuthClient();
       profileClient = new ProfileClient();
       relier = new Relier();
@@ -77,7 +83,8 @@ define(function (require, exports, module) {
         metrics: metrics,
         oAuthClient: oAuthClient,
         oAuthClientId: CLIENT_ID,
-        profileClient: profileClient
+        profileClient: profileClient,
+        sentryMetrics: sentryMetrics
       });
     });
 
@@ -156,6 +163,41 @@ define(function (require, exports, module) {
         return account.fetch()
           .then(function () {
             assert.isUndefined(account.get('verified'));
+          });
+      });
+
+      it('reports uncaught errors', () => {
+        const errorMsg = 'Something went wrong!';
+        account.set({
+          accessToken: 'access token',
+          sessionToken: SESSION_TOKEN
+        });
+        sinon.spy(account._sentryMetrics, 'captureException');
+        sinon.stub(account, 'sessionStatus', () => {
+          return p.reject(new Error(errorMsg));
+        });
+
+        return account.fetch()
+          .then(() => {
+            assert.isTrue(account._sentryMetrics.captureException.called);
+            assert.equal(account._sentryMetrics.captureException.args[0][0].message, errorMsg);
+          });
+      });
+
+      it('does not report report UNAUTHORIZED errors', () => {
+        account.set({
+          accessToken: 'access token',
+          sessionToken: SESSION_TOKEN
+        });
+
+        sinon.spy(account._sentryMetrics, 'captureException');
+        sinon.stub(account, 'sessionStatus', () => {
+          return p.reject(AuthErrors.toError('UNAUTHORIZED'));
+        });
+
+        return account.fetch()
+          .then(() => {
+            assert.isFalse(account._sentryMetrics.captureException.called);
           });
       });
 
