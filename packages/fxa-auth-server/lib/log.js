@@ -261,8 +261,10 @@ const FLOW_EVENT_ROUTES = new Set([
   '/recovery_email/verify_code'
 ])
 
+const PATH_PREFIX = /^\/v1/
+
 function logRouteFlowEvent(log, request, response) {
-  const path = request.path
+  const path = request.path.replace(PATH_PREFIX, '')
   if (!FLOW_EVENT_ROUTES.has(path)) {
     return
   }

@@ -586,7 +586,7 @@ describe('log', () => {
         info: {
           received: Date.now()
         },
-        path: '/account/login',
+        path: '/v1/account/login',
         payload: {
           metricsContext: {
             flowId: 'bar',
