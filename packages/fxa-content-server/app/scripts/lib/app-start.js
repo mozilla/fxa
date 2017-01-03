@@ -21,22 +21,15 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const Able = require('lib/able');
   const AppView = require('views/app');
+  const authBrokers = require('models/auth_brokers/index');
   const Assertion = require('lib/assertion');
   const Backbone = require('backbone');
-  const BaseAuthenticationBroker = require('models/auth_brokers/base');
   const ConfigLoader = require('lib/config-loader');
   const Constants = require('lib/constants');
   const Environment = require('lib/environment');
   const ErrorUtils = require('lib/error-utils');
   const FormPrefill = require('models/form-prefill');
   const FxaClient = require('lib/fxa-client');
-  const FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
-  const FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
-  const FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3');
-  const FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1');
-  const FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
-  const FxFirstrunV2AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v2');
-  const FxiOSV1AuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
   const HeightObserver = require('lib/height-observer');
   const IframeChannel = require('lib/channels/iframe');
   const InterTabChannel = require('lib/channels/inter-tab');
@@ -48,7 +41,6 @@ define(function (require, exports, module) {
   const OAuthRelier = require('models/reliers/oauth');
   const p = require('lib/promise');
   const ProfileClient = require('lib/profile-client');
-  const RedirectAuthenticationBroker = require('models/auth_brokers/redirect');
   const RefreshObserver = require('models/refresh-observer');
   const Relier = require('models/reliers/relier');
   const requireOnDemand = require('lib/require-on-demand');
@@ -304,65 +296,29 @@ define(function (require, exports, module) {
 
     initializeAuthenticationBroker () {
       if (! this._authenticationBroker) {
-        let assertionLibrary = this._assertionLibrary;
-        let iframeChannel = this._iframeChannel;
-        let metrics = this._metrics;
-        let oAuthClient = this._oAuthClient;
-        let relier = this._relier;
-        let session = Session;
-        let win = this._window;
-
-        if (this._isFxFirstrunV2()) {
-          this._authenticationBroker = new FxFirstrunV2AuthenticationBroker({
-            iframeChannel,
-            relier,
-            window: win
-          });
-        } else if (this._isFxFirstrunV1()) {
-          this._authenticationBroker = new FxFirstrunV1AuthenticationBroker({
-            iframeChannel,
-            relier,
-            window: win
-          });
-        } else if (this._isFxFennecV1()) {
-          this._authenticationBroker = new FxFennecV1AuthenticationBroker({
-            relier,
-            window: win
-          });
-        } else if (this._isFxDesktopV3()) {
-          this._authenticationBroker = new FxDesktopV3AuthenticationBroker({
-            relier,
-            window: win
-          });
-        } else if (this._isFxDesktopV2()) {
-          this._authenticationBroker = new FxDesktopV2AuthenticationBroker({
-            relier,
-            window: win
-          });
-        } else if (this._isFxDesktopV1()) {
-          this._authenticationBroker = new FxDesktopV1AuthenticationBroker({
-            relier,
-            window: win
-          });
-        } else if (this._isFxiOSV1()) {
-          this._authenticationBroker = new FxiOSV1AuthenticationBroker({
-            relier,
-            window: win
-          });
+        let context;
+        if (this._isFxDesktopV2()) {
+          if (this._isIframeContext()) {
+            context = Constants.FX_FIRSTRUN_V1_CONTEXT;
+          } else {
+            context = Constants.FX_DESKTOP_V2_CONTEXT;
+          }
         } else if (this._isOAuth()) {
-          this._authenticationBroker = new RedirectAuthenticationBroker({
-            assertionLibrary,
-            metrics,
-            oAuthClient,
-            relier,
-            session,
-            window: win
-          });
+          context = Constants.OAUTH_CONTEXT;
         } else {
-          this._authenticationBroker = new BaseAuthenticationBroker({
-            relier
-          });
+          context = this._getContext();
         }
+
+        const Constructor = authBrokers.get(context);
+        this._authenticationBroker = new Constructor({
+          assertionLibrary: this._assertionLibrary,
+          iframeChannel: this._iframeChannel,
+          metrics: this._metrics,
+          oAuthClient: this._oAuthClient,
+          relier: this._relier,
+          session: Session,
+          window: this._window
+        });
 
         this._authenticationBroker.on('error', this.captureError.bind(this));
 
@@ -616,18 +572,6 @@ define(function (require, exports, module) {
       return !! (service && compareToService && service === compareToService);
     },
 
-    _isFxFennecV1 () {
-      return this._isContext(Constants.FX_FENNEC_V1_CONTEXT);
-    },
-
-    _isFxDesktopV1 () {
-      return this._isContext(Constants.FX_DESKTOP_V1_CONTEXT);
-    },
-
-    _isFxDesktopV3 () {
-      return this._isContext(Constants.FX_DESKTOP_V3_CONTEXT);
-    },
-
     _isFxDesktopV2 () {
       // A user is signing into sync from within an iframe on a trusted
       // web page. Automatically speak version 2 using WebChannels.
@@ -636,10 +580,6 @@ define(function (require, exports, module) {
       // is converted to use WebChannels.
       return (this._isServiceSync() && this._isIframeContext()) ||
              (this._isContext(Constants.FX_DESKTOP_V2_CONTEXT));
-    },
-
-    _isFxiOSV1 () {
-      return this._isContext(Constants.FX_IOS_V1_CONTEXT);
     },
 
     _isContext (contextName) {
@@ -694,14 +634,6 @@ define(function (require, exports, module) {
       return this._isSignUpVerification() ||
              this._isPasswordResetVerification() ||
              this._isReportSignIn();
-    },
-
-    _isFxFirstrunV1 () {
-      return this._isFxDesktopV2() && this._isIframeContext();
-    },
-
-    _isFxFirstrunV2 () {
-      return this._isContext(Constants.FX_FIRSTRUN_V2_CONTEXT);
     },
 
     _isInAnIframe () {
