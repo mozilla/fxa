@@ -17,7 +17,6 @@ define([
       var client;
       var RequestMocks;
       var ErrorMocks;
-      var setupEnv = new Environment();
       var xhr;
       var xhrOpen;
       var xhrSend;
@@ -218,29 +217,6 @@ define([
             assert.equal(res.verified, true, '== account is verified');
           });
       });
-
-      // Only run this tests when using mocks
-      if (! setupEnv.useRemoteServer) {
-
-        test('#preVerifyToken', function () {
-          var email = 'test' + new Date().getTime() + '@restmail.net';
-          var password = 'iliketurtles';
-          var opts = {
-            preVerifyToken: 'somebiglongtoken'
-          };
-
-          return respond(client.signUp(email, password, opts), RequestMocks.signUp)
-            .then(function (res) {
-              assert.ok(res.uid);
-
-              return respond(client.signIn(email, password), RequestMocks.signIn);
-            })
-            .then(function(res) {
-              assert.equal(res.verified, true, '== account is verified');
-            });
-        });
-
-      }
 
       test('#accountExists', function () {
         return accountHelper.newVerifiedAccount()

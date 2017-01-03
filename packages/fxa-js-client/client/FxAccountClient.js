@@ -68,8 +68,6 @@ define([
    *   a URL that the client should be redirected to after handling the request
    *   @param {String} [options.preVerified]
    *   set email to be verified if possible
-   *   @param {String} [options.preVerifyToken]
-   *   Opaque alphanumeric token that can be used to pre-verify a user.
    *   @param {String} [options.resume]
    *   Opaque url-encoded string that will be included in the verification link
    *   as a querystring parameter, useful for continuing an OAuth flow for
@@ -107,17 +105,9 @@ define([
               data.redirectTo = options.redirectTo;
             }
 
-            // preVerified and preVerifyToken exist for two different use
-            // cases. preVerified is used for unit/functional testing, while
-            // preVerifyToken is used by trusted RPs to indicate a user is
-            // already verified. The plan is to eventually drop preVerified and
-            // use preVerifyToken universally.
+            // preVerified is used for unit/functional testing
             if (options.preVerified) {
               data.preVerified = options.preVerified;
-            }
-
-            if (options.preVerifyToken) {
-              data.preVerifyToken = options.preVerifyToken;
             }
 
             if (options.resume) {
