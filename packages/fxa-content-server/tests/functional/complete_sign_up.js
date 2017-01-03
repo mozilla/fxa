@@ -28,6 +28,7 @@ define([
   var createRandomHexString = TestHelpers.createRandomHexString;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noSuchElement = FunctionalHelpers.noSuchElement;
+  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
   registerSuite({
     name: 'complete_sign_up',
@@ -209,7 +210,7 @@ define([
               .click()
             .end()
 
-            .then(FunctionalHelpers.testSuccessWasShown(self))
+            .then(testSuccessWasShown())
 
             .findById('resend')
               .click()

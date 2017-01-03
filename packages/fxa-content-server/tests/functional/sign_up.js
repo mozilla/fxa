@@ -89,11 +89,11 @@ define([
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
         .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this));
+        .then(testSuccessWasShown());
     },
 
     'signup, verify same browser with original tab closed, sign out': function () {
@@ -107,7 +107,7 @@ define([
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
 
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
 
         // Ref https://github.com/mozilla/fxa-content-server/issues/3187
         // Ensure the signin screen shows if the user signs out after
@@ -134,7 +134,7 @@ define([
         .then(openVerificationLinkInSameTab(email, 0))
 
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
         .then(click('#signout'))
 
         .then(testElementExists('#fxa-signin-header'))
@@ -144,7 +144,7 @@ define([
         .then(openVerificationLinkInSameTab(secondEmail, 0))
 
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
         .then(click('#signout'))
 
         .then(testElementExists('#fxa-signin-header'))
@@ -159,7 +159,7 @@ define([
         .then(openVerificationLinkInSameTab(email, 0))
 
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this));
+        .then(testSuccessWasShown());
     },
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
@@ -172,7 +172,7 @@ define([
         // The original tab should transition to the settings page w/ success
         // message.
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this));
+        .then(testSuccessWasShown());
     },
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
@@ -419,7 +419,7 @@ define([
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
         .then(closeCurrentWindow())
 
         // open verification link again, no error should occur.
@@ -427,11 +427,11 @@ define([
 
         .switchToWindow('newwindow')
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
         .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-settings-header'))
-        .then(testSuccessWasShown(this));
+        .then(testSuccessWasShown());
     },
 
     'data-flow-begin attribute is set': function () {

@@ -14,6 +14,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
   registerSuite({
     name: 'delete_account',
@@ -31,7 +32,6 @@ define([
     },
 
     'sign in, delete account': function () {
-      var self = this;
       return this.remote
         .then(fillOutSignIn(email, PASSWORD))
         .findById('fxa-settings-header')
@@ -51,7 +51,7 @@ define([
         .findById('fxa-signup-header')
         .end()
 
-        .then(FunctionalHelpers.testSuccessWasShown(self));
+        .then(testSuccessWasShown());
     },
 
     'sign in, cancel delete account': function () {

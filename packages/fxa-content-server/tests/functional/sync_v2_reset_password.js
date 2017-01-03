@@ -70,7 +70,7 @@ define([
 
         .then(closeCurrentWindow())
 
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
         .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
     },
 

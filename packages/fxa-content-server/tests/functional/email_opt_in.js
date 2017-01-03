@@ -102,7 +102,7 @@ define([
         .then(testAttributeEquals('#preferences-url', 'target', '_blank'))
 
         .then(click('#marketing-email-optin'))
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
 
         // ensure the opt-out sticks across refreshes
         .refresh()
@@ -148,7 +148,7 @@ define([
 
         .then(Test.noElementByCssSelector(this, '#preferences-url'))
         .then(click('#marketing-email-optin'))
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
         .then(waitForBasket(email))
 
         // ensure the opt-in sticks across refreshes

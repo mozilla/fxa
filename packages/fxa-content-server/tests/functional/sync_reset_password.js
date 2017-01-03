@@ -73,7 +73,7 @@ define([
         .then(testElementExists('.account-ready-service'))
         .then(closeCurrentWindow())
 
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
         .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: true }));
     },
 
@@ -125,7 +125,7 @@ define([
         .then(openPasswordResetLinkDifferentBrowser(email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-header'))
-        .then(testSuccessWasShown(this))
+        .then(testSuccessWasShown())
 
         .then(type('#password', PASSWORD))
         .then(click('button[type=submit]'))
