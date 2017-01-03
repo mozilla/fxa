@@ -14,12 +14,10 @@ define([
     state: 'state'
   };
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var testElementExists = FunctionalHelpers.testElementExists;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
@@ -32,13 +30,13 @@ define([
 
     'sign up as a migrating user': function () {
       return this.remote
-        .then(openFxaFromRp(this, 'signup', { query: QUERY_PARAMS }))
+        .then(openFxaFromRp('signup', { query: QUERY_PARAMS }))
         .then(visibleByQSA('#amo-migration'));
     },
 
     'open sign in as a migrating user, click `/signup` from help text': function () {
       return this.remote
-        .then(openFxaFromRp(this, 'signin', { query: QUERY_PARAMS }))
+        .then(openFxaFromRp('signin', { query: QUERY_PARAMS }))
         .then(visibleByQSA('#amo-migration'))
         .then(click('#amo-migration a'))
 
@@ -49,7 +47,7 @@ define([
       var email = TestHelpers.createEmail();
 
       return this.remote
-        .then(openFxaFromRp(this, 'signin', { query: QUERY_PARAMS }))
+        .then(openFxaFromRp('signin', { query: QUERY_PARAMS }))
         .then(visibleByQSA('#amo-migration'))
 
         .then(fillOutSignIn(email, 'password'))

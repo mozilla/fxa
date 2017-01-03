@@ -25,7 +25,7 @@ define([
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openPage = FunctionalHelpers.openPage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
@@ -75,7 +75,7 @@ define([
 
     'verified': function () {
       return this.remote
-        .then(openFxaFromRp(this, 'signin'))
+        .then(openFxaFromRp('signin'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
         .then(fillOutSignIn(email, PASSWORD))
@@ -86,7 +86,7 @@ define([
     'verified using a cached login': function () {
       // verify account
       return this.remote
-        .then(openFxaFromRp(this, 'signin'))
+        .then(openFxaFromRp('signin'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
         // sign in with a verified account to cache credentials
@@ -108,7 +108,7 @@ define([
 
     'unverified, acts like signup': function () {
       return this.remote
-        .then(openFxaFromRp(this, 'signin'))
+        .then(openFxaFromRp('signin'))
         .then(createUser(email, PASSWORD, { preVerified: false }))
 
         .then(fillOutSignIn(email, PASSWORD))
@@ -131,7 +131,7 @@ define([
 
     'unverified with a cached login': function () {
       return this.remote
-        .then(openFxaFromRp(this, 'signup'))
+        .then(openFxaFromRp('signup'))
         .then(testElementExists('#fxa-signup-header'))
 
         // first, sign the user up to cache the login
@@ -140,7 +140,7 @@ define([
         .then(testElementExists('#fxa-confirm-header'))
 
         // round 2 - try to sign in with the unverified user.
-        .then(openFxaFromRp(this, 'signin'))
+        .then(openFxaFromRp('signin'))
 
         .then(testElementExists('#fxa-signin-header .service'))
         .then(type('input[type=password]', PASSWORD))
@@ -176,7 +176,7 @@ define([
       email = TestHelpers.createEmail('blocked{id}');
 
       return this.remote
-        .then(openFxaFromRp(this, 'signin'))
+        .then(openFxaFromRp('signin'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
         .then(fillOutSignIn(email, PASSWORD))
@@ -191,7 +191,7 @@ define([
       email = TestHelpers.createEmail('blocked{id}');
 
       return this.remote
-        .then(openFxaFromRp(this, 'signin'))
+        .then(openFxaFromRp('signin'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
         .then(fillOutSignIn(email, 'bad' + PASSWORD))

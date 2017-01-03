@@ -41,7 +41,8 @@ define([
     return context.remote
       .then(createUser(email, firstPassword, { preVerified: true }))
       .then(function () {
-        return openFxaFromRp(context, 'signup');
+        return this.parent
+          .then(openFxaFromRp('signup'));
       })
       .then(fillOutSignUp(email, secondPassword, options));
   }
@@ -67,8 +68,8 @@ define([
     },
 
     'signup, verify same browser': function () {
-      var self = this;
-      return openFxaFromRp(self, 'signup')
+      return this.remote
+        .then(openFxaFromRp('signup'))
         .findByCssSelector('#fxa-signup-header .service')
         .end()
 
@@ -112,9 +113,8 @@ define([
     },
 
     'signup, verify same browser with original tab closed': function () {
-      var self = this;
-
-      return openFxaFromRp(self, 'signup')
+      return this.remote
+        .then(openFxaFromRp('signup'))
 
         .then(fillOutSignUp(email, PASSWORD))
 
@@ -138,9 +138,8 @@ define([
     },
 
     'signup, verify same browser by replacing the original tab': function () {
-      var self = this;
-
-      return openFxaFromRp(self, 'signup')
+      return this.remote
+        .then(openFxaFromRp('signup'))
 
         .then(fillOutSignUp(email, PASSWORD))
 
@@ -155,9 +154,8 @@ define([
     },
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
-      var self = this;
-
-      return openFxaFromRp(self, 'signup')
+      return this.remote
+        .then(openFxaFromRp('signup'))
         .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
@@ -175,7 +173,8 @@ define([
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
       var self = this;
 
-      return openFxaFromRp(self, 'signup')
+      return this.remote
+        .then(openFxaFromRp('signup'))
         .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
@@ -268,12 +267,12 @@ define([
     },
 
     'signup, bounce email, allow user to restart flow but force a different email': function () {
-      var self = this;
       var client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      return openFxaFromRp(self, 'signup')
+      return this.remote
+        .then(openFxaFromRp('signup'))
         .then(fillOutSignUp(bouncedEmail, PASSWORD))
 
         .findById('fxa-confirm-header')

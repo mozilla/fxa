@@ -11,15 +11,13 @@ define([
   var config = intern.config;
   var OAUTH_APP = config.fxaOauthApp;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementDisabled = FunctionalHelpers.testElementDisabled;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -46,7 +44,7 @@ define([
     'with a registered email': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openFxaFromRp(this, 'force_auth', { query: { email: email }}))
+        .then(openFxaFromRp('force_auth', { query: { email: email }}))
         .then(fillOutForceAuth(PASSWORD))
 
         .then(testElementExists('#loggedin'))
@@ -56,7 +54,7 @@ define([
 
     'with an unregistered email': function () {
       return this.remote
-        .then(openFxaFromRp(this, 'force_auth', {
+        .then(openFxaFromRp('force_auth', {
           header: '#fxa-signup-header',
           query: { email: email }
         }))
@@ -90,7 +88,7 @@ define([
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openFxaFromRp(this, 'force_auth', { query: { email: email }}))
+        .then(openFxaFromRp('force_auth', { query: { email: email }}))
         .then(fillOutForceAuth(PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))

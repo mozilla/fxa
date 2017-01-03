@@ -21,7 +21,7 @@ define([
   var fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   var openExternalSite = FunctionalHelpers.openExternalSite;
-  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openPasswordResetLinkDifferentBrowser = thenify(FunctionalHelpers.openPasswordResetLinkDifferentBrowser);
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
@@ -50,7 +50,7 @@ define([
       this.timeout = TIMEOUT;
 
       return this.remote
-        .then(openFxaFromRp(this, 'signin'))
+        .then(openFxaFromRp('signin'))
         .getCurrentUrl()
         .then(function (url) {
           assert.ok(url.indexOf('oauth/signin?') > -1);
@@ -87,7 +87,7 @@ define([
 
     'reset password, verify same browser with original tab closed': function () {
       return this.remote
-        .then(openFxaFromRp(this, 'signin'))
+        .then(openFxaFromRp('signin'))
         .then(click('.reset-password'))
 
         .then(fillOutResetPassword(email))
@@ -108,7 +108,7 @@ define([
 
     'reset password, verify same browser by replacing the original tab': function () {
       return this.remote
-        .then(openFxaFromRp(this, 'signin'))
+        .then(openFxaFromRp('signin'))
         .then(click('.reset-password'))
 
         .then(fillOutResetPassword(email))
@@ -123,7 +123,7 @@ define([
 
     'reset password, verify in a different browser, from the original tab\'s P.O.V.': function () {
       return this.remote
-        .then(openFxaFromRp(this, 'signin'))
+        .then(openFxaFromRp('signin'))
         .then(click('.reset-password'))
 
         .then(testElementExists('#fxa-reset-password-header'))
@@ -145,7 +145,7 @@ define([
 
     'reset password, verify in a different browser, from the new browser\'s P.O.V.': function () {
       return this.remote
-        .then(openFxaFromRp(this, 'signin'))
+        .then(openFxaFromRp('signin'))
         .then(click('.reset-password'))
 
         .then(testElementExists('#fxa-reset-password-header'))

@@ -23,8 +23,8 @@ define([
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var getQueryParamValue = FunctionalHelpers.getQueryParamValue;
-  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
-  var openFxaFromUntrustedRp = thenify(FunctionalHelpers.openFxaFromUntrustedRp);
+  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
+  var openFxaFromUntrustedRp = FunctionalHelpers.openFxaFromUntrustedRp;
   var openPage = FunctionalHelpers.openPage;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
 
@@ -66,12 +66,12 @@ define([
       // the values because the client_ids change depending on
       // the environment.
       return this.remote
-        .then(openFxaFromRp(this, 'signup'))
+        .then(openFxaFromRp('signup'))
         .then(getQueryParamValue('client_id'))
         .then(function (clientId) {
           TRUSTED_CLIENT_ID = clientId;
         })
-        .then(openFxaFromUntrustedRp(this, 'signup'))
+        .then(openFxaFromUntrustedRp('signup'))
         .then(getQueryParamValue('client_id'))
         .then(function (clientId) {
           UNTRUSTED_CLIENT_ID = clientId;

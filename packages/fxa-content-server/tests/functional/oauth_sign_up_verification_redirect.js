@@ -11,15 +11,13 @@ define([
   var PASSWORD = 'password';
   var email;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
   var openExternalSite = FunctionalHelpers.openExternalSite;
-  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -37,7 +35,7 @@ define([
           '123done': true,
           contentServer: true
         }))
-        .then(openFxaFromRp(this.parent, 'signup', {
+        .then(openFxaFromRp('signup', {
           query: {
             verification_redirect: 'always ' //eslint-disable-line camelcase
           }

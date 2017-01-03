@@ -28,8 +28,8 @@ define([
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openFxaFromTrustedRp = thenify(FunctionalHelpers.openFxaFromRp);
-  var openFxaFromUntrustedRp = thenify(FunctionalHelpers.openFxaFromUntrustedRp);
+  var openFxaFromTrustedRp = FunctionalHelpers.openFxaFromRp;
+  var openFxaFromUntrustedRp = FunctionalHelpers.openFxaFromUntrustedRp;
   var openPage = FunctionalHelpers.openPage;
   var openSettingsInNewTab = FunctionalHelpers.openSettingsInNewTab;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
@@ -56,7 +56,7 @@ define([
     'signin verified': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openFxaFromUntrustedRp(this, 'signin'))
+        .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-permissions-header'))
@@ -69,7 +69,7 @@ define([
     're-signin verified, no additional permissions': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openFxaFromUntrustedRp(this, 'signin'))
+        .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-permissions-header'))
@@ -96,7 +96,7 @@ define([
     'signin unverified, acts like signup': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: false }))
-        .then(openFxaFromUntrustedRp(this, 'signin'))
+        .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-permissions-header'))
@@ -117,7 +117,7 @@ define([
 
     'signup, verify same browser': function () {
       return this.remote
-        .then(openFxaFromUntrustedRp(this, 'signup'))
+        .then(openFxaFromUntrustedRp('signup'))
         .then(testElementExists('#fxa-signup-header .service'))
         .getCurrentUrl()
           .then(function (url) {
@@ -152,7 +152,7 @@ define([
 
     'signup, then signin with no additional permissions': function () {
       return this.remote
-        .then(openFxaFromUntrustedRp(this, 'signup'))
+        .then(openFxaFromUntrustedRp('signup'))
         .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-permissions-header'))
@@ -189,7 +189,7 @@ define([
 
     'signin from signup page': function () {
       return this.remote
-        .then(openFxaFromUntrustedRp(this, 'signup'))
+        .then(openFxaFromUntrustedRp('signup'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
         .then(type('input[type=email]', email))
@@ -207,7 +207,7 @@ define([
     'signin with new permission available b/c of new account information': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openFxaFromUntrustedRp(this, 'signin'))
+        .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-permissions-header'))
@@ -253,7 +253,7 @@ define([
         .then(visibleByQSA('.settings-success'))
 
         // the first time through, only request email and uid
-        .then(openFxaFromUntrustedRp(this, 'signin', { query: {
+        .then(openFxaFromUntrustedRp('signin', { query: {
           scope: 'profile:email profile:uid'
         }}))
 
@@ -294,7 +294,7 @@ define([
         .then(click('#display-name button[type=submit]'))
         .then(visibleByQSA('.settings-success'))
 
-        .then(openFxaFromUntrustedRp(this, 'signin'))
+        .then(openFxaFromUntrustedRp('signin'))
 
         .then(type('input[type=password', PASSWORD))
         .then(click('button[type=submit]'))
@@ -334,7 +334,7 @@ define([
 
     'signup without `prompt=consent`': function () {
       return this.remote
-        .then(openFxaFromTrustedRp(this, 'signup'))
+        .then(openFxaFromTrustedRp('signup'))
         .then(fillOutSignUp(email, PASSWORD))
 
         // no permissions asked for, straight to confirm
@@ -343,7 +343,7 @@ define([
 
     'signup with `prompt=consent`': function () {
       return this.remote
-        .then(openFxaFromTrustedRp(this, 'signup', { query: { prompt: 'consent' }}))
+        .then(openFxaFromTrustedRp('signup', { query: { prompt: 'consent' }}))
         .then(fillOutSignUp(email, PASSWORD))
 
         // permissions are asked for with `prompt=consent`
@@ -355,7 +355,7 @@ define([
 
     'signin without `prompt=consent`': function () {
       return this.remote
-        .then(openFxaFromTrustedRp(this, 'signin'))
+        .then(openFxaFromTrustedRp('signin'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -365,7 +365,7 @@ define([
 
     'signin with `prompt=consent`': function () {
       return this.remote
-        .then(openFxaFromTrustedRp(this, 'signin', { query: { prompt: 'consent' }}))
+        .then(openFxaFromTrustedRp('signin', { query: { prompt: 'consent' }}))
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -379,7 +379,7 @@ define([
     'signin without `prompt=consent`, then re-signin with `prompt=consent`': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openFxaFromTrustedRp(this, 'signin'))
+        .then(openFxaFromTrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
         // no permissions asked for, straight to relier
@@ -392,7 +392,7 @@ define([
         .then(visibleByQSA('#splash .signup'))
 
         // relier changes to request consent
-        .then(openFxaFromTrustedRp(this, 'signin', { query: { prompt: 'consent' }}))
+        .then(openFxaFromTrustedRp('signin', { query: { prompt: 'consent' }}))
 
         .then(type('input[type=password', PASSWORD))
         .then(click('button[type=submit]'))
@@ -408,7 +408,7 @@ define([
     'force_auth without `prompt=consent`': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openFxaFromTrustedRp(this, 'force_auth', { query: { email: email }}))
+        .then(openFxaFromTrustedRp('force_auth', { query: { email: email }}))
         .then(fillOutForceAuth(PASSWORD))
 
         // no permissions asked for, straight to relier
@@ -418,7 +418,7 @@ define([
     'force_auth with `prompt=consent`': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openFxaFromTrustedRp(this, 'force_auth', { query: {
+        .then(openFxaFromTrustedRp('force_auth', { query: {
           email: email,
           prompt: 'consent'
         }}))

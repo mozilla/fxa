@@ -12,11 +12,9 @@ define([
   var CONTENT_SERVER_ROOT = config.fxaContentRoot;
   var PASSWORD = 'password';
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var getQueryParamValue = FunctionalHelpers.getQueryParamValue;
-  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openPage = FunctionalHelpers.openPage;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
 
@@ -34,7 +32,7 @@ define([
 
     'get client_id for other tests': function () {
       return this.remote
-        .then(openFxaFromRp(this, 'signup'))
+        .then(openFxaFromRp('signup'))
         .then(getQueryParamValue('client_id'))
         .then(function (clientId) {
           oAuthUrl += clientId;

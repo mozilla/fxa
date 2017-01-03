@@ -25,7 +25,7 @@ define([
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -73,7 +73,7 @@ define([
         .then(closeCurrentWindow())
 
         // Sign up for a new account via OAuth
-        .then(openFxaFromRp(this, 'signup'))
+        .then(openFxaFromRp('signup'))
         .then(fillOutSignUp(email2, PASSWORD))
 
         .then(testElementExists('#fxa-confirm-header'))

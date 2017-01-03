@@ -654,23 +654,21 @@ define([
   /**
    * Open FxA from the untrusted OAuth relier.
    *
-   * @param {object} context
    * @param {string} page - page to open
    * @param {object} [options]
    * @param {string} [options.header] - element selector that indicates
    *  "page is loaded". Defaults to `#fxa-force-auth-header`
    * @param {object} [options.query] - query strings to open page with
    */
-  function openFxaFromUntrustedRp(context, page, options) {
+  function openFxaFromUntrustedRp(page, options) {
     options = options || {};
     options.untrusted = true;
-    return openFxaFromRp(context, page, options);
+    return openFxaFromRp(page, options);
   }
 
   /**
    * Open FxA from an OAuth relier.
    *
-   * @param {object} context
    * @param {string} page - page to open
    * @param {object} [options]
    * @param {string} [options.header] - element selector that indicates
@@ -679,44 +677,45 @@ define([
    * @param {boolean} [options.untrusted] - if `true`, opens the Untrusted
    * relier. Defaults to `true`
    */
-  function openFxaFromRp(context, page, options) {
+  function openFxaFromRp(page, options) {
     options = options || {};
     var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
     var expectedHeader = options.header || '#fxa-' + page.replace('_', '-') + '-header';
     var queryParams = options.query || {};
 
-    // force_auth does not have a button on 123done, instead this is
-    // only available programatically. Load the force_auth page
-    // with only the email initially, then reload with the full passed
-    // in urlSuffix so things like the webChannelId are correctly passed.
+    return function () {
+      // force_auth does not have a button on 123done, instead this is
+      // only available programatically. Load the force_auth page
+      // with only the email initially, then reload with the full passed
+      // in urlSuffix so things like the webChannelId are correctly passed.
+      if (page === 'force_auth') {
+        var emailSearchString = '?' + Querystring.stringify({ email: queryParams.email });
+        var endpoint = app + 'api/force_auth' + emailSearchString;
+        return this.parent
+          .then(openPage(endpoint, expectedHeader))
+          .then(function () {
+            if (Object.keys(queryParams).length > 1) {
+              return this.parent
+                .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
+            }
+          });
+      }
 
-    if (page === 'force_auth') {
-      var emailSearchString = '?' + Querystring.stringify({ email: queryParams.email });
-      var endpoint = app + 'api/force_auth' + emailSearchString;
-      return getRemote(context)
-        .then(openPage(endpoint, expectedHeader))
+      return this.parent
+        .then(openPage(app, '.ready #splash .' + page))
+        .then(click('.ready #splash .' + page))
+
+        // wait until the page fully loads or else the re-load with
+        // the suffix will blow its lid when run against latest.
+        .then(testElementExists(expectedHeader))
+
         .then(function () {
           if (Object.keys(queryParams).length > 1) {
             return this.parent
               .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
           }
         });
-    }
-
-    return getRemote(context)
-      .then(openPage(app, '.ready #splash .' + page))
-      .then(click('.ready #splash .' + page))
-
-      // wait until the page fully loads or else the re-load with
-      // the suffix will blow its lid when run against latest.
-      .then(testElementExists(expectedHeader))
-
-      .then(function () {
-        if (Object.keys(queryParams).length) {
-          return this.parent
-            .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
-        }
-      });
+    };
   }
 
   function fillOutSignIn(email, password, alwaysLoad) {
