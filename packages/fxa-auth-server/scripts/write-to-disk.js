@@ -16,7 +16,6 @@
  *   passwordResetRequiredEmail
  *   postVerifyEmail
  *   recoveryEmail
- *   suspiciousLocationEmail
  *   unblockCodeEmail
  *   verificationReminderEmail:first
  *   verificationReminderEmail:second
