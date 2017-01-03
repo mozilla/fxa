@@ -87,6 +87,28 @@ define(function (require, exports, module) {
         );
         });
       });
+
+      it('uses opens external links in new tabs with about:accounts', () => {
+        sinon.stub(broker.environment, 'isAboutAccounts', function () {
+          return true;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('#external-link').attr('target'), '_blank');
+          });
+      });
+
+      it('has no target attr if not about:accounts', () => {
+        sinon.stub(broker.environment, 'isAboutAccounts', function () {
+          return false;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.notOk(view.$('#external-link').attr('target'));
+          });
+      });
     });
 
     describe('_onExternalLinkClick', () => {
