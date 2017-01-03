@@ -56,14 +56,15 @@ describe('/certificate/sign', () => {
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       args = mockLog.activityEvent.args[0]
-      assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-      assert.equal(args[0], 'account.signed', 'first argument was event name')
-      assert.equal(args[1], mockRequest, 'second argument was request object')
-      assert.deepEqual(args[2], {
-        uid: mockRequest.auth.credentials.uid.toString('hex'),
+      assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+      assert.deepEqual(args[0], {
         account_created_at: mockRequest.auth.credentials.accountCreatedAt,
-        device_id: deviceId.toString('hex')
-      }, 'third argument was event data')
+        device_id: deviceId.toString('hex'),
+        event: 'account.signed',
+        service: undefined,
+        uid: mockRequest.auth.credentials.uid.toString('hex'),
+        userAgent: 'test user-agent'
+      }, 'argument was event data')
     })
     .then(function () {
       mockLog.activityEvent.reset()
@@ -96,7 +97,7 @@ describe('/certificate/sign', () => {
     }, mockRequest, function () {
       assert.equal(mockDevices.upsert.callCount, 0, 'devices.upsert was not called')
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-      assert.equal(mockLog.activityEvent.args[0][2].device_id, undefined, 'device_id was undefined')
+      assert.equal(mockLog.activityEvent.args[0][0].device_id, undefined, 'device_id was undefined')
     })
     .then(function () {
       mockLog.activityEvent.reset()
@@ -114,7 +115,7 @@ describe('/certificate/sign', () => {
     }, mockRequest, function () {
       assert.equal(mockDevices.upsert.callCount, 0, 'devices.upsert was not called')
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-      assert.equal(mockLog.activityEvent.args[0][2].device_id, mockRequest.auth.credentials.deviceId.toString('hex'), 'device_id was correct')
+      assert.equal(mockLog.activityEvent.args[0][0].device_id, mockRequest.auth.credentials.deviceId.toString('hex'), 'device_id was correct')
     })
     .then(function () {
       mockLog.activityEvent.reset()

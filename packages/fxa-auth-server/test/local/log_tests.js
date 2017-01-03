@@ -7,7 +7,6 @@
 const assert = require('insist')
 var sinon = require('sinon')
 var proxyquire = require('proxyquire')
-var P = require('../../lib/promise')
 
 var logger = {
   debug: sinon.spy(),
@@ -20,16 +19,6 @@ var statsd = {
   init: sinon.spy(),
   write: sinon.spy()
 }
-const metricsContext = {
-  gather: sinon.spy(function (data) {
-    return P.resolve(this.payload && {
-      flow_id: this.payload.metricsContext.flowId,
-      flowCompleteSignal: this.payload.metricsContext.flowCompleteSignal,
-      service: this.payload.metricsContext.service
-    })
-  }),
-  clear: sinon.spy()
-}
 var mocks = {
   mozlog: sinon.spy(function () {
     return logger
@@ -40,6 +29,8 @@ mocks['./metrics/statsd'] = function () {
   return statsd
 }
 var log = proxyquire('../../lib/log', mocks)('foo', 'bar')
+
+const emitRouteFlowEvent = sinon.spy()
 
 describe('log', () => {
   it(
@@ -61,8 +52,6 @@ describe('log', () => {
       assert.equal(statsd.init.args[0].length, 0, 'statsd.init was passed no arguments')
 
       assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
-      assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-      assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.error.callCount, 0, 'logger.error was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
@@ -87,29 +76,19 @@ describe('log', () => {
   it(
     '.activityEvent',
     () => {
-      var request = {
-        gatherMetricsContext: metricsContext.gather,
-        headers: {
-          'user-agent': 'foo'
-        },
-        payload: {
-          metricsContext: {}
-        }
-      }
-      log.activityEvent('bar', request, {
-        uid: 'baz'
+      log.activityEvent({
+        event: 'foo',
+        uid: 'bar'
       })
-
-      assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
 
       assert.equal(logger.info.callCount, 1, 'logger.info was called once')
       let args = logger.info.args[0]
       assert.equal(args.length, 2, 'logger.info was passed two arguments')
       assert.equal(args[0], 'activityEvent', 'first argument was correct')
-      assert.equal(typeof args[1], 'object', 'second argument was object')
-      assert.notEqual(args[1], null, 'second argument was not null')
-      assert.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
-      assert.equal(args[1].uid, 'baz', 'uid property was correct')
+      assert.deepEqual(args[1], {
+        event: 'foo',
+        uid: 'bar'
+      }, 'second argument was event data')
 
       assert.equal(statsd.write.callCount, 1, 'statsd.write was called once')
       args = statsd.write.args[0]
@@ -127,404 +106,265 @@ describe('log', () => {
   )
 
   it(
-    '.activityEvent with service payload parameter',
+    '.activityEvent with missing data',
     () => {
-      log.activityEvent('wibble', {
-        gatherMetricsContext: metricsContext.gather,
-        headers: {},
-        payload: {
-          metricsContext: {},
-          service: 'blee'
-        }
-      }, {
-        uid: 'ugg'
-      })
-
-      assert.equal(logger.info.callCount, 1, 'logger.info was called once')
-      const args = logger.info.args[0]
-      assert.equal(Object.keys(args[1]).length, 3, 'second argument had three properties')
-      assert.equal(args[1].service, 'blee', 'service property was correct')
-      assert.equal(args[1].uid, 'ugg', 'service property was correct')
-      assert.equal(args[1].event, 'wibble', 'service property was correct')
-
-      assert.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-      assert.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
-
-      assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-      assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      assert.equal(logger.error.callCount, 0, 'logger.error was not called')
-      assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.info.reset()
-      statsd.write.reset()
-    }
-  )
-
-  it(
-    '.activityEvent with service query parameter',
-    () => {
-      log.activityEvent('foo', {
-        gatherMetricsContext: metricsContext.gather,
-        headers: {},
-        payload: {
-          metricsContext: {}
-        },
-        query: {
-          service: 'bar'
-        }
-      }, {
-        uid: 'baz'
-      })
-
-      assert.equal(logger.info.callCount, 1, 'logger.info was called once')
-      assert.equal(logger.info.args[0][1].service, 'bar', 'service property was correct')
-
-      assert.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-      assert.equal(statsd.write.args[0][0], logger.info.args[0][1], 'statsd.write argument was correct')
-
-      assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-      assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      assert.equal(logger.error.callCount, 0, 'logger.error was not called')
-      assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.info.reset()
-      statsd.write.reset()
-    }
-  )
-
-  it(
-    '.activityEvent with extra data',
-    () => {
-      log.activityEvent('foo', {
-        gatherMetricsContext: metricsContext.gather,
-        headers: {
-          'user-agent': 'bar'
-        },
-        payload: {
-          metricsContext: {}
-        }
-      }, {
-        baz: 'qux',
-        uid: 42,
-        wibble: 'blee'
-      })
-
-      assert.equal(logger.info.callCount, 1, 'logger.info was called once')
-      const args = logger.info.args[0]
-      assert.equal(Object.keys(args[1]).length, 5, 'second argument had 5 properties')
-      assert.equal(args[1].baz, 'qux', 'first extra data property was correct')
-      assert.equal(args[1].wibble, 'blee', 'second extra data property was correct')
-
-      assert.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-      assert.equal(statsd.write.args[0][0], args[1], 'statsd.write argument was correct')
-
-      assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-      assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-      assert.equal(logger.error.callCount, 0, 'logger.error was not called')
-      assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-      assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.info.reset()
-      statsd.write.reset()
-    }
-  )
-
-  it(
-    '.activityEvent with no data',
-    () => {
-      log.activityEvent('foo', {
-        gatherMetricsContext: metricsContext.gather,
-        headers: {},
-        payload: {
-          metricsContext: {}
-        }
-      })
+      log.activityEvent()
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-      const args = logger.error.args[0]
+      let args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
-      assert.equal(args[0], 'log.activityEvent', 'first argument was correct')
-      assert.equal(Object.keys(args[1]).length, 2, 'second argument had two properties')
-      assert.equal(args[1].data, undefined, 'data property was undefined')
+      assert.equal(args[0], 'log.activityEvent', 'first argument was function name')
+      assert.deepEqual(args[1], {
+        op: 'log.activityEvent',
+        data: undefined
+      }, 'argument was correct')
 
-      assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+      assert.equal(logger.info.callCount, 0, 'logger.info was not called')
       assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-      assert.equal(logger.info.callCount, 0, 'logger.info was not called')
 
       logger.error.reset()
     }
   )
 
   it(
-    '.activityEvent with no uid',
+    '.activityEvent with missing uid',
     () => {
-      log.activityEvent('foo', {
-        gatherMetricsContext: metricsContext.gather,
-        headers: {},
-        payload: {
-          metricsContext: {}
-        }
-      }, {
-        foo: 'bar'
+      log.activityEvent({
+        event: 'wibble'
       })
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-      const args = logger.error.args[0]
-      assert.equal(Object.keys(args[1].data).length, 1, 'data property had one property')
-      assert.equal(args[1].data.foo, 'bar', 'data property had correct property')
+      let args = logger.error.args[0]
+      assert.equal(args.length, 2, 'logger.error was passed two arguments')
+      assert.equal(args[0], 'log.activityEvent', 'first argument was function name')
+      assert.deepEqual(args[1], {
+        op: 'log.activityEvent',
+        data: {
+          event: 'wibble'
+        }
+      }, 'argument was correct')
 
-      assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+      assert.equal(logger.info.callCount, 0, 'logger.info was not called')
       assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-      assert.equal(logger.info.callCount, 0, 'logger.info was not called')
 
       logger.error.reset()
     }
   )
 
   it(
-    '.flowEvent with bad event name',
+    '.activityEvent with missing event',
     () => {
-      return log.flowEvent(undefined, {
-        clearMetricsContext: metricsContext.clear,
-        gatherMetricsContext: metricsContext.gather,
-        headers: {
-          'user-agent': 'foo'
-        },
-        payload: {
-          metricsContext: {
-            flowId: 'bar',
-            service: 'baz'
-          }
-        }
-      }).then(() => {
-        assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-        const args = logger.error.args[0]
-        assert.equal(args[0], 'log.flowEvent', 'correct op')
-        assert.equal(args[1].missingEvent, true, 'correct flag')
-
-        assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-        assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-        assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-        assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-
-        logger.error.reset()
+      log.activityEvent({
+        uid: 'wibble'
       })
+
+      assert.equal(logger.error.callCount, 1, 'logger.error was called once')
+      let args = logger.error.args[0]
+      assert.equal(args.length, 2, 'logger.error was passed two arguments')
+      assert.equal(args[0], 'log.activityEvent', 'first argument was function name')
+      assert.deepEqual(args[1], {
+        op: 'log.activityEvent',
+        data: {
+          uid: 'wibble'
+        }
+      }, 'argument was correct')
+
+      assert.equal(logger.info.callCount, 0, 'logger.info was not called')
+      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
+      assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+      logger.error.reset()
     }
   )
 
   it(
-    '.flowEvent with a bad request',
+    '.flowEvent',
     () => {
-      return log.flowEvent('account.signed', {
-        clearMetricsContext: metricsContext.clear,
-        gatherMetricsContext: metricsContext.gather,
-        payload: {
-          metricsContext: {
-            flowId: 'foo',
-            service: 'bar'
-          }
-        }
-      }).then(() => {
-        assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-        const args = logger.error.args[0]
-        assert.equal(args[0], 'log.flowEvent', 'correct op')
-        assert.equal(args[1].event, 'account.signed', 'correct event name')
-        assert.equal(args[1].badRequest, true, 'correct flag')
-
-        assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-        assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-        assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-        assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-
-        logger.error.reset()
+      log.flowEvent({
+        event: 'wibble',
+        flow_id: 'blee',
+        flow_time: 1000,
+        time: 1483557217331
       })
+
+      assert.equal(logger.info.callCount, 1, 'logger.info was called once')
+      const args = logger.info.args[0]
+      assert.equal(args.length, 2, 'logger.info was passed two arguments')
+      assert.equal(args[0], 'flowEvent', 'first argument was correct')
+      assert.deepEqual(args[1], {
+        event: 'wibble',
+        flow_id: 'blee',
+        flow_time: 1000,
+        time: 1483557217331
+      }, 'second argument was event data')
+
+      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
+      assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+      assert.equal(logger.error.callCount, 0, 'logger.error was not called')
+
+      logger.info.reset()
     }
   )
 
   it(
-    '.flowEvent properly logs with no errors',
+    '.flowEvent with missing data',
     () => {
-      return log.flowEvent('account.signed', {
-        clearMetricsContext: metricsContext.clear,
-        gatherMetricsContext: metricsContext.gather,
-        headers: {
-          'user-agent': 'foo'
-        },
-        payload: {
-          metricsContext: {
-            flowId: 'bar',
-            service: 'baz'
-          },
-          service: 'qux'
-        }
-      }).then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+      log.flowEvent()
 
-        assert.equal(logger.info.callCount, 1, 'logger.info was called once')
-        const args = logger.info.args[0]
-        assert.equal(args[0], 'flowEvent', 'correct event name')
-        assert.equal(args[1].event, 'account.signed', 'correct event name')
-        assert.equal(args[1].flow_id, 'bar', 'correct flow id')
-        assert.equal(args[1].service, 'baz', 'correct metrics data')
+      assert.equal(logger.error.callCount, 1, 'logger.error was called once')
+      let args = logger.error.args[0]
+      assert.equal(args.length, 2, 'logger.error was passed two arguments')
+      assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
+      assert.deepEqual(args[1], {
+        op: 'log.flowEvent',
+        data: undefined
+      }, 'argument was correct')
 
-        assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-        assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-        assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-        assert.equal(logger.error.callCount, 0, 'logger.error was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
+      assert.equal(logger.info.callCount, 0, 'logger.info was not called')
+      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
+      assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
 
-        metricsContext.gather.reset()
-        logger.info.reset()
-      })
+      logger.error.reset()
     }
   )
 
   it(
-    '.flowEvent with matching flowCompleteSignal',
+    '.flowEvent with missing event',
     () => {
-      return log.flowEvent('account.login', {
-        clearMetricsContext: metricsContext.clear,
-        gatherMetricsContext: metricsContext.gather,
-        headers: {
-          'user-agent': 'foo'
-        },
-        payload: {
-          metricsContext: {
-            flowId: 'bar',
-            service: 'baz',
-            flowCompleteSignal: 'account.login'
-          },
-          service: 'qux'
-        }
-      }).then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
-
-        assert.equal(metricsContext.clear.callCount, 1, 'metricsContext.clear was called once')
-        assert.equal(metricsContext.clear.args[0].length, 0, 'metricsContext.clear was passed no arguments')
-
-        assert.equal(logger.info.callCount, 2, 'logger.info was called twice')
-        let args = logger.info.args[0]
-        assert.equal(args[0], 'flowEvent', 'correct event type first time')
-        assert.equal(args[1].event, 'account.login', 'correct event name first time')
-        assert.equal(args[1].flow_id, 'bar', 'correct flow id first time')
-        assert.equal(args[1].service, 'baz', 'correct metrics data first time')
-        args = logger.info.args[1]
-        assert.equal(args[0], 'flowEvent', 'correct event type second time')
-        assert.equal(args[1].event, 'flow.complete', 'correct event name second time')
-        assert.equal(args[1].flow_id, 'bar', 'correct flow id second time')
-        assert.equal(args[1].service, 'baz', 'correct metrics data second time')
-
-        assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-        assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-        assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-        assert.equal(logger.error.callCount, 0, 'logger.error was not called')
-
-        metricsContext.gather.reset()
-        metricsContext.clear.reset()
-        logger.info.reset()
+      log.flowEvent({
+        flow_id: 'wibble',
+        flow_time: 1000,
+        time: 1483557217331
       })
+
+      assert.equal(logger.error.callCount, 1, 'logger.error was called once')
+      let args = logger.error.args[0]
+      assert.equal(args.length, 2, 'logger.error was passed two arguments')
+      assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
+      assert.deepEqual(args[1], {
+        op: 'log.flowEvent',
+        data: {
+          flow_id: 'wibble',
+          flow_time: 1000,
+          time: 1483557217331
+        }
+      }, 'argument was correct')
+
+      assert.equal(logger.info.callCount, 0, 'logger.info was not called')
+      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
+      assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+      logger.error.reset()
     }
   )
 
   it(
-    '.flowEvent with non-matching flowCompleteSignal',
+    '.flowEvent with missing flow_id',
     () => {
-      return log.flowEvent('account.login', {
-        clearMetricsContext: metricsContext.clear,
-        gatherMetricsContext: metricsContext.gather,
-        headers: {
-          'user-agent': 'foo'
-        },
-        payload: {
-          metricsContext: {
-            flowId: 'bar',
-            service: 'baz',
-            flowCompleteSignal: 'account.signed'
-          },
-          service: 'qux'
-        }
-      }).then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
-        assert.equal(logger.info.callCount, 1, 'logger.info was called once')
-
-        assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
-        assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
-        assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-        assert.equal(logger.error.callCount, 0, 'logger.error was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-
-        metricsContext.gather.reset()
-        logger.info.reset()
+      log.flowEvent({
+        event: 'wibble',
+        flow_time: 1000,
+        time: 1483557217331
       })
+
+      assert.equal(logger.error.callCount, 1, 'logger.error was called once')
+      let args = logger.error.args[0]
+      assert.equal(args.length, 2, 'logger.error was passed two arguments')
+      assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
+      assert.deepEqual(args[1], {
+        op: 'log.flowEvent',
+        data: {
+          event: 'wibble',
+          flow_time: 1000,
+          time: 1483557217331
+        }
+      }, 'argument was correct')
+
+      assert.equal(logger.info.callCount, 0, 'logger.info was not called')
+      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
+      assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+      logger.error.reset()
     }
   )
 
   it(
-    '.flowEvent with flow event and missing flowId',
+    '.flowEvent with missing flow_time',
     () => {
-      return log.flowEvent('account.login', {
-        clearMetricsContext: metricsContext.clear,
-        gatherMetricsContext: metricsContext.gather,
-        headers: {
-          'user-agent': 'foo'
-        },
-        payload: {
-          metricsContext: {}
-        }
-      }).then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
-
-        assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-
-        assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-        const args = logger.error.args[0]
-        assert.equal(args.length, 2, 'logger.error was passed two arguments')
-        assert.equal(args[0], 'log.flowEvent')
-        assert.deepEqual(args[1], {
-          op: 'log.flowEvent',
-          event: 'account.login',
-          missingFlowId: true
-        }, 'error data was correct')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-
-        metricsContext.gather.reset()
-        logger.error.reset()
+      log.flowEvent({
+        event: 'wibble',
+        flow_id: 'blee',
+        time: 1483557217331
       })
+
+      assert.equal(logger.error.callCount, 1, 'logger.error was called once')
+      let args = logger.error.args[0]
+      assert.equal(args.length, 2, 'logger.error was passed two arguments')
+      assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
+      assert.deepEqual(args[1], {
+        op: 'log.flowEvent',
+        data: {
+          event: 'wibble',
+          flow_id: 'blee',
+          time: 1483557217331
+        }
+      }, 'argument was correct')
+
+      assert.equal(logger.info.callCount, 0, 'logger.info was not called')
+      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
+      assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+      logger.error.reset()
     }
   )
 
   it(
-    '.flowEvent with optional flow event and missing flowId',
+    '.flowEvent with missing time',
     () => {
-      return log.flowEvent('account.keyfetch', {
-        clearMetricsContext: metricsContext.clear,
-        gatherMetricsContext: metricsContext.gather,
-        headers: {
-          'user-agent': 'foo'
-        },
-        payload: {
-          metricsContext: {}
-        }
-      }).then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-        assert.equal(logger.error.callCount, 0, 'logger.error was not called')
-
-        metricsContext.gather.reset()
+      log.flowEvent({
+        event: 'wibble',
+        flow_id: 'blee',
+        flow_time: 1000
       })
+
+      assert.equal(logger.error.callCount, 1, 'logger.error was called once')
+      let args = logger.error.args[0]
+      assert.equal(args.length, 2, 'logger.error was passed two arguments')
+      assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
+      assert.deepEqual(args[1], {
+        op: 'log.flowEvent',
+        data: {
+          event: 'wibble',
+          flow_id: 'blee',
+          flow_time: 1000
+        }
+      }, 'argument was correct')
+
+      assert.equal(logger.info.callCount, 0, 'logger.info was not called')
+      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
+      assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+      assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+      assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+      logger.error.reset()
     }
   )
 
@@ -553,62 +393,26 @@ describe('log', () => {
       logger.error.reset()
     })
 
-    it('should log an info message', () => {
+    it('should log an info message and call request.emitRouteFlowEvent', () => {
       log.summary({
         app: {},
-        gatherMetricsContext: metricsContext.gather,
+        emitRouteFlowEvent: emitRouteFlowEvent,
         headers: {},
         info: {
           received: Date.now()
         },
-        payload: {
-          metricsContext: {},
-          service: 'blee'
-        },
-        path: '/frobnicate'
+        path: '/v1/frobnicate',
+        payload: {}
       }, {
-        statusCode: 200
+        code: 200
       })
 
-      assert.equal(logger.error.callCount, 0)
       assert.equal(logger.info.callCount, 1)
       assert.equal(logger.info.args[0][1].op, 'request.summary')
-    })
-
-    it('should call flowEvent on whitelisted routes', (done) => {
-      log.summary({
-        app: {},
-        clearMetricsContext: metricsContext.clear,
-        gatherMetricsContext: metricsContext.gather,
-        headers: {
-          'user-agent': 'foo'
-        },
-        info: {
-          received: Date.now()
-        },
-        path: '/v1/account/login',
-        payload: {
-          metricsContext: {
-            flowId: 'bar',
-            service: 'baz'
-          },
-          service: 'baz'
-        }
-      }, {
-        statusCode: 200
-      })
-
-      // cannot wait on internal promises in log.flowEvent, so timeout instead
-      setTimeout(() => {
-        assert.equal(logger.error.callCount, 0)
-        assert.equal(logger.info.callCount, 2)
-        const args = logger.info.args[1]
-        assert.equal(args[0], 'flowEvent', 'correct event name')
-        assert.equal(args[1].event, 'route./account/login.200', 'correct event name')
-        assert.equal(args[1].flow_id, 'bar', 'correct flow id')
-        assert.equal(args[1].service, 'baz', 'correct metrics data')
-        done()
-      }, 50)
+      assert.equal(emitRouteFlowEvent.callCount, 1)
+      assert.equal(emitRouteFlowEvent.args[0].length, 1)
+      assert.deepEqual(emitRouteFlowEvent.args[0][0], { code: 200 })
+      assert.equal(logger.error.callCount, 0)
     })
   })
 })

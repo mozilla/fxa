@@ -9,17 +9,7 @@ var util = require('util')
 var mozlog = require('mozlog')
 var config = require('../config')
 var logConfig = config.get('log')
-var P = require('./promise')
 var StatsDCollector = require('./metrics/statsd')
-
-// It's an error if a flow event doesn't have a flow_id,
-// but some events are also emitted outside of user flows.
-// Don't log the error for those events.
-const OPTIONAL_FLOW_EVENTS = {
-  'account.keyfetch': true,
-  'account.reset': true,
-  'account.signed': true
-}
 
 function unbuffer(object) {
   var keys = Object.keys(object)
@@ -116,8 +106,12 @@ Lug.prototype.histogram = function(name, value, tags) {
 // for a discussion of this format and why it's used.
 
 Lug.prototype.summary = function (request, response) {
-  if (request.method === 'options') { return }
-  logRouteFlowEvent(this, request, response)
+  if (request.method === 'options') {
+    return
+  }
+
+  request.emitRouteFlowEvent(response)
+
   var payload = request.payload || {}
   var query = request.query || {}
   var line = {
@@ -175,107 +169,26 @@ Lug.prototype.notifyAttachedServices = function (name, request, data) {
 // These events indicate key points at which a particular
 // user has interacted with the service.
 
-Lug.prototype.activityEvent = function (event, request, data) {
-  if (! data || ! data.uid) {
+Lug.prototype.activityEvent = function (data) {
+  if (! data || ! data.event || ! data.uid) {
     this.error({ op: 'log.activityEvent', data: data })
     return
   }
 
-  var info = {
-    event: event
-  }
-
-  if (request.headers['user-agent']) {
-    info.userAgent = request.headers['user-agent']
-  }
-
-  optionallySetService(info, request)
-
-  Object.keys(data).forEach(function (key) {
-    info[key] = data[key]
-  })
-
-  this.logger.info('activityEvent', info)
-  this.statsd.write(info)
+  this.logger.info('activityEvent', data)
+  this.statsd.write(data)
 }
 
 // Log a flow metrics event.
 // These events help understand the user's sign-in or sign-up journey.
 
-Lug.prototype.flowEvent = function (event, request) {
-  if (! event) {
-    this.error({ op: 'log.flowEvent', missingEvent: true })
-    return P.resolve()
-  }
-
-  if (! request || ! request.headers) {
-    this.error({ op: 'log.flowEvent', event: event, badRequest: true })
-    return P.resolve()
-  }
-
-  return request.gatherMetricsContext({
-    event: event,
-    userAgent: request.headers['user-agent']
-  }).then(
-    info => {
-      if (info.flow_id) {
-        info.event = event
-        optionallySetService(info, request)
-
-        this.logger.info('flowEvent', info)
-
-        if (event === info.flowCompleteSignal) {
-          this.logger.info('flowEvent', Object.assign({}, info, {
-            event: 'flow.complete'
-          }))
-          request.clearMetricsContext()
-        }
-      } else if (! OPTIONAL_FLOW_EVENTS[event]) {
-        this.error({ op: 'log.flowEvent', event: event, missingFlowId: true })
-      }
-    }
-  )
-}
-
-function optionallySetService (data, request) {
-  // don't overwrite service if it is already set
-  if (data.service) {
+Lug.prototype.flowEvent = function (data) {
+  if (! data || ! data.event || ! data.flow_id || ! data.flow_time || ! data.time) {
+    this.error({ op: 'log.flowEvent', data: data })
     return
   }
 
-  try {
-    data.service = request.payload.service || request.query.service
-  } catch (err) {
-    // request.payload and request.query are not always set in the unit tests
-  }
-}
-
-const FLOW_EVENT_ROUTES = new Set([
-  '/account/create',
-  '/account/destroy',
-  '/account/keys',
-  '/account/login',
-  '/account/login/send_unblock_code',
-  '/account/reset',
-  '/recovery_email/resend_code',
-  '/recovery_email/verify_code'
-])
-
-const PATH_PREFIX = /^\/v1/
-
-function logRouteFlowEvent(log, request, response) {
-  const path = request.path.replace(PATH_PREFIX, '')
-  if (!FLOW_EVENT_ROUTES.has(path)) {
-    return
-  }
-  const code = response.statusCode || response.output.statusCode
-  let status = code
-  if (code >= 400) {
-    status = `${code}.${response.errno || 999}`
-  }
-
-  const event = `route.${path}.${status}`
-  return log.flowEvent(event, request)
+  this.logger.info('flowEvent', data)
 }
 
 module.exports = function (level, name, options) {

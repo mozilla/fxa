@@ -73,6 +73,7 @@ const MAILER_METHOD_NAMES = [
 ]
 
 const METRICS_CONTEXT_METHOD_NAMES = [
+  'clear',
   'gather',
   'setFlowCompleteSignal',
   'stash',
@@ -97,7 +98,7 @@ module.exports = {
   mockLog: mockLog,
   spyLog: spyLog,
   mockMailer: mockObject(MAILER_METHOD_NAMES),
-  mockMetricsContext: mockObject(METRICS_CONTEXT_METHOD_NAMES),
+  mockMetricsContext: mockMetricsContext,
   mockPush: mockObject(PUSH_METHOD_NAMES),
   mockRequest: mockRequest
 }
@@ -283,6 +284,34 @@ function spyLog (methods) {
   return mockLog(methods)
 }
 
+function mockMetricsContext (methods) {
+  methods = methods || {}
+  return mockObject(METRICS_CONTEXT_METHOD_NAMES)({
+    gather: methods.gather || sinon.spy(function (data) {
+      const time = Date.now()
+      return P.resolve()
+        .then(() => {
+          if (this.payload && this.payload.metricsContext) {
+            return Object.assign(data, {
+              time: time,
+              flow_id: this.payload.metricsContext.flowId,
+              flow_time: time - this.payload.metricsContext.flowBeginTime,
+              flowCompleteSignal: this.payload.metricsContext.flowCompleteSignal
+            })
+          }
+
+          return data
+        })
+    }),
+
+    setFlowCompleteSignal: sinon.spy(function (flowCompleteSignal) {
+      if (this.payload && this.payload.metricsContext) {
+        this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal
+      }
+    })
+  })
+}
+
 function generateMetricsContext(){
   const randomBytes = crypto.randomBytes(16).toString('hex')
   const flowBeginTime = Date.now()
@@ -315,6 +344,7 @@ function mockRequest (data) {
     },
     clearMetricsContext: metricsContext.clear,
     emitMetricsEvent: events.emit,
+    emitRouteFlowEvent: events.emitRouteFlowEvent,
     gatherMetricsContext: metricsContext.gather,
     headers: data.headers || {
       'user-agent': 'test user-agent'
