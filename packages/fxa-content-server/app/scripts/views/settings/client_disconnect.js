@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const t = require('views/base').t;
   const Template = require('stache!templates/settings/client_disconnect');
 
-  const REASON_SELECTOR = '.disconnect-reasons';
   const REASON_HELP = {
     'lost': t('We\'re sorry to hear about this. You should change your Firefox Account password, and look for ' +
       'information from your device manufacturer about erasing your data remotely.'),
@@ -27,6 +26,7 @@ define(function (require, exports, module) {
     viewName: 'settings.clients.disconnect',
 
     events: {
+      'change .disconnect-reasons': 'onChangeRadioButton',
       'click': '_returnToClientListAfterDisconnect',
       'click .cancel-disconnect': FormView.preventDefaultThen('_returnToClientList'),
     },
@@ -62,6 +62,10 @@ define(function (require, exports, module) {
       return context;
     },
 
+    onChangeRadioButton() {
+      this.enableSubmitIfValid();
+    },
+
     /**
      * Called on option select.
      * If first option is selected then form is disabled using the logic in FormView.
@@ -69,12 +73,12 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      */
     isValidStart () {
-      return this.$(':selected').index() > 0;
+      return (this.$('input[name=disconnect-reasons]:checked').length > 0);
     },
 
     submit () {
       const client = this.client;
-      let selectedValue = this.$el.find(REASON_SELECTOR).find(':selected').val();
+      let selectedValue = this.$('input[name=disconnect-reasons]:checked').val();
       this.logViewEvent('submit.' + selectedValue);
 
       return this.user.destroyAccountClient(this.user.getSignedInAccount(), client)

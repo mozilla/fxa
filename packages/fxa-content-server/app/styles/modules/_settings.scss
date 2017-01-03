@@ -588,3 +588,18 @@ section.modal-panel {
     margin-bottom: 30px;
   }
 }
+
+.fxa-radio {
+
+  html[dir='ltr'] & {
+    text-align: left;
+  }
+
+  html[dir='rtl'] & {
+    text-align: right;
+  }
+
+  label {
+    display: block;
+  }
+}

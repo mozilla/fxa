@@ -162,7 +162,7 @@ define([
         .end()
 
         .then(click('.client-device:nth-child(2) .client-disconnect'))
-        .then(click('select.disconnect-reasons > option[value="lost"]'))
+        .then(click('.disconnect-reasons > label > input[value="lost"]'))
         // wait until button is enabled (disabled class has gone away)
         .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
         .then(click('#client-disconnect .primary'))
@@ -177,7 +177,7 @@ define([
         .then(noSuchElement('.client-device:nth-child(2)'))
         // clicking disconnect on the current device should sign you out
         .then(click('.client-device:nth-child(1) .client-disconnect'))
-        .then(click('select.disconnect-reasons > option[value="lost"]'))
+        .then(click('.disconnect-reasons > label > input[value="lost"]'))
         // wait until button is enabled
         .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
         .then(click('#client-disconnect .primary'))

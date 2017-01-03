@@ -102,7 +102,7 @@ define(function (require, exports, module) {
       it('renders initial view', () => {
         return view.render().then(() => {
           assert.ok($(view.el).find('.intro').length, 'intro text');
-          assert.ok($(view.el).find('.select-row-wrapper').length, 'dropdown');
+          assert.ok($(view.el).find('.disconnect-reasons').length, 'radio');
           assert.notOk($(view.el).find('.reason-help').length, 'help');
         });
       });
@@ -111,7 +111,7 @@ define(function (require, exports, module) {
         view.hasDisconnected = true;
         return view.render().then(() => {
           assert.notOk($(view.el).find('.intro').length, 'intro text');
-          assert.notOk($(view.el).find('.select-row-wrapper').length, 'dropdown');
+          assert.notOk($(view.el).find('.disconnect-reasons').length, 'radio');
           assert.ok($(view.el).find('.reason-help').length, 'help');
         });
       });
@@ -138,14 +138,10 @@ define(function (require, exports, module) {
           assert.ok($(view.el).find('.primary.disabled').length, 'has disabled class');
 
           // choose an option
-          $(view.el).find('.disconnect-reasons').val('no').change();
+          $(view.el).find('input[name=disconnect-reasons][value=no]').prop('checked', true).change();
           assert.notOk($(view.el).find('.primary.disabled').length, 'no disabled button');
           assert.ok(view.disableForm.calledOnce);
           assert.ok(view.enableForm.calledOnce);
-
-          // choose first option again
-          $(view.el).find('.disconnect-reasons').val('reason').change();
-          assert.ok($(view.el).find('.primary.disabled').length, 'disabled button at first');
         });
       });
     });
@@ -177,7 +173,7 @@ define(function (require, exports, module) {
 
       it('suspicious option with current device', () => {
         return view.render().then(() => {
-          $(view.el).find('.disconnect-reasons').val('suspicious').change();
+          $(view.el).find('input[name=disconnect-reasons][value=suspicious]').prop('checked', true).change();
           return view.submit().then(() => {
             assert.ok(view.hasDisconnected);
             assert.ok(view.render.calledOnce, 'not rendered, current device');
@@ -195,7 +191,7 @@ define(function (require, exports, module) {
         });
 
         return view.render().then(() => {
-          $(view.el).find('.disconnect-reasons').val('lost').change();
+          $(view.el).find('input[name=disconnect-reasons][value=lost]').prop('checked', true).change();
           return view.submit().then(() => {
             assert.ok(view.hasDisconnected);
             assert.ok(view.render.calledTwice);
@@ -213,7 +209,7 @@ define(function (require, exports, module) {
         });
 
         return view.render().then(() => {
-          $(view.el).find('.disconnect-reasons').val('old').change();
+          $(view.el).find('input[name=disconnect-reasons][value=old]').prop('checked', true).change();
           return view.submit().then(() => {
             assert.ok(view.hasDisconnected);
             assert.notOk(view.render.calledTwice);
@@ -231,7 +227,7 @@ define(function (require, exports, module) {
         });
 
         return view.render().then(() => {
-          $(view.el).find('.disconnect-reasons').val('duplicate').change();
+          $(view.el).find('input[name=disconnect-reasons][value=duplicate]').prop('checked', true).change();
           return view.submit().then(() => {
             assert.ok(view.hasDisconnected);
             assert.notOk(view.render.calledTwice);
@@ -249,7 +245,7 @@ define(function (require, exports, module) {
         });
 
         return view.render().then(() => {
-          $(view.el).find('.disconnect-reasons').val('no').change();
+          $(view.el).find('input[name=disconnect-reasons][value=no]').prop('checked', true).change();
           return view.submit().then(() => {
             assert.ok(view.hasDisconnected);
             assert.notOk(view.render.calledTwice);

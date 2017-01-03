@@ -150,6 +150,42 @@ input {
   font-weight: inherit;
 }
 
+input[type='radio'] {
+    @include font();
+    // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background: $color-white;
+    border: 1px solid $radio-border-default-color;
+    vertical-align: middle;
+    font-size: $medium-font;
+    height: $radio-height;
+    width: $radio-width;
+    margin: $radio-margin;
+    outline: none;
+    padding: $radio-padding;
+    box-sizing: content-box;
+
+    @include respond-to('small') {
+      font-size: $base-font + $media-adjustment;
+    }
+
+    &:active {
+      box-shadow: 0px 0px 0px 2px $radio-box-shadow-color;
+    }
+
+    &:checked {
+      background: $radio-border-dot-color;
+      background-clip: content-box;
+    }
+
+    &:hover {
+      border: 1px solid $radio-border-dot-color;
+    }
+}
+
 section p {
 
   @include respond-to('big') {
