@@ -1,3 +1,22 @@
+<a name="1.77.0"></a>
+# [1.77.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.76.0...v1.77.0) (2017-01-04)
+
+
+### Bug Fixes
+
+* **l10n:** update l10n SHA handling (#238) r=jrgm ([ebce13a](https://github.com/mozilla/fxa-auth-mailer/commit/ebce13a)), closes [#112](https://github.com/mozilla/fxa-auth-mailer/issues/112)
+* **mailer:** prepare subject for string extraction ([d3c3968](https://github.com/mozilla/fxa-auth-mailer/commit/d3c3968))
+* **metrics:** Add flowId and flowBeginTime to headers if avalible (#241), r=@seanmonstar ([4525f9c](https://github.com/mozilla/fxa-auth-mailer/commit/4525f9c))
+* **strings:** add comma to ready, set, sync (#244) r=vbudhram ([f430684](https://github.com/mozilla/fxa-auth-mailer/commit/f430684))
+* **template:** remove extra line break in templates ([1aa0464](https://github.com/mozilla/fxa-auth-mailer/commit/1aa0464))
+* **templates:** remove suspicious_location template ([1d87721](https://github.com/mozilla/fxa-auth-mailer/commit/1d87721)), closes [#183](https://github.com/mozilla/fxa-auth-mailer/issues/183)
+
+### Refactor
+
+* **templates:** Add new sync template, add location data to password change, password reset ([98aaf76](https://github.com/mozilla/fxa-auth-mailer/commit/98aaf76))
+
+
+
 <a name="1.76.0"></a>
 # [1.76.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.75.1...v1.76.0) (2016-12-13)
 
