@@ -30,6 +30,7 @@ define([
     'tests/server/raven',
     'tests/server/routes/get-config',
     'tests/server/routes/get-fxa-client-configuration',
+    'tests/server/routes/get-openid-configuration',
     'tests/server/routes/get-index',
     'tests/server/routes/post-csp',
     'tests/server/routes/post-metrics'
