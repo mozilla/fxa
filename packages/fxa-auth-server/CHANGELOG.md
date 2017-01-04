@@ -1,3 +1,23 @@
+<a name="1.77.0"></a>
+# [1.77.0](https://github.com/mozilla/fxa-auth-server/compare/v1.76.1...v1.77.0) (2017-01-04)
+
+
+### Bug Fixes
+
+* **customs:** Mark suspicious requests, even if they were rate-limited. ([02e8f19](https://github.com/mozilla/fxa-auth-server/commit/02e8f19))
+* **docs:** add unblock code API docs ([3655cfd](https://github.com/mozilla/fxa-auth-server/commit/3655cfd)), closes [#1577](https://github.com/mozilla/fxa-auth-server/issues/1577)
+* **emails:** remove /v1/ api prefix (#1605); r=rfk ([5e99cf3](https://github.com/mozilla/fxa-auth-server/commit/5e99cf3)), closes [#1605](https://github.com/mozilla/fxa-auth-server/issues/1605) [#1059](https://github.com/mozilla/fxa-auth-server/issues/1059)
+* **unblock:** Use normalized email address for feature-flag calculation. ([83ef76a](https://github.com/mozilla/fxa-auth-server/commit/83ef76a))
+
+### Refactor
+
+* **server:** eliminate duplicate calls to user-agent parser ([4ac625c](https://github.com/mozilla/fxa-auth-server/commit/4ac625c))
+* **signin:** Add support for sending flow metrics in email (#1593); r=pb,vladikoff ([6955261](https://github.com/mozilla/fxa-auth-server/commit/6955261))
+* **signin:** Extract unblock-code-checking into a separate helper function. ([0c4beb7](https://github.com/mozilla/fxa-auth-server/commit/0c4beb7))
+* **signin:** Use new verify account sync template and add location data to others (#1600), r= ([6fc0c50](https://github.com/mozilla/fxa-auth-server/commit/6fc0c50))
+
+
+
 <a name="1.76.1"></a>
 ## [1.76.1](https://github.com/mozilla/fxa-auth-server/compare/v1.76.0...v1.76.1) (2016-12-21)
 
