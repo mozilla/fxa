@@ -1,3 +1,14 @@
+<a name"0.77.0"></a>
+## 0.77.0 (2017-01-04)
+
+
+#### Bug Fixes
+
+* **codes:** Remove authorization codes after use. ([e0f8961d](https://github.com/mozilla/fxa-oauth-server/commit/e0f8961d))
+* **memorydb:** token createdAt used instead of client createdAt (#436) r=vladikoff,seanmonstar ([02dec664](https://github.com/mozilla/fxa-oauth-server/commit/02dec664), closes [#421](https://github.com/mozilla/fxa-oauth-server/issues/421))
+* **tokens:** Begin expiring access tokens beyond a configurable epoch. ([b3463264](https://github.com/mozilla/fxa-oauth-server/commit/b3463264))
+
+
 <a name"0.76.0"></a>
 ## 0.76.0 (2016-12-13)
 
