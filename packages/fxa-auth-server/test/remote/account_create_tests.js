@@ -9,6 +9,7 @@ var TestServer = require('../test_server')
 var crypto = require('crypto')
 const Client = require('../client')()
 var config = require('../../config').getProperties()
+const mocks = require('../mocks')
 
 describe('remote account create', function() {
   this.timeout(15000)
@@ -483,13 +484,16 @@ describe('remote account create', function() {
     'account creation works with maximal metricsContext metadata',
     () => {
       var email = server.uniqueEmail()
-      return Client.create(config.publicUrl, email, 'foo', {
-        metricsContext: {
-          flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
-          flowBeginTime: 1
-        }
-      }).then(function (client) {
+      var opts = {
+        metricsContext: mocks.generateMetricsContext()
+      }
+      return Client.create(config.publicUrl, email, 'foo', opts).then(function (client) {
         assert.ok(client, 'created account')
+        return server.mailbox.waitForEmail(email)
+      })
+      .then(function (emailData) {
+        assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set')
+        assert.equal(emailData.headers['x-flow-id'], opts.metricsContext.flowId, 'flow id set')
       })
     }
   )

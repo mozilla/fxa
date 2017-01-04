@@ -104,6 +104,13 @@ module.exports = function (
 
         request.validateMetricsContext()
 
+        // Store flowId and flowBeginTime to send in email
+        let flowId, flowBeginTime
+        if (request.payload.metricsContext) {
+          flowId = request.payload.metricsContext.flowId
+          flowBeginTime = request.payload.metricsContext.flowBeginTime
+        }
+
         customs.check(request, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
           .then(deleteAccountIfUnverified, ignoreUnknownAccountError)
@@ -281,6 +288,8 @@ module.exports = function (
                   redirectTo: form.redirectTo,
                   resume: form.resume,
                   acceptLanguage: request.app.acceptLanguage,
+                  flowId: flowId,
+                  flowBeginTime: flowBeginTime,
                   ip: ip,
                   location: geoData.location,
                   uaBrowser: sessionToken.uaBrowser,
@@ -419,6 +428,13 @@ module.exports = function (
         let securityEventRecency, securityEventVerified = false
 
         request.validateMetricsContext()
+
+        // Store flowId and flowBeginTime to send in email
+        let flowId, flowBeginTime
+        if (request.payload.metricsContext) {
+          flowId = request.payload.metricsContext.flowId
+          flowBeginTime = request.payload.metricsContext.flowBeginTime
+        }
 
         checkIsBlockForced()
           .then(() => customs.check(request, email, 'accountLogin'))
@@ -835,6 +851,8 @@ module.exports = function (
                     redirectTo: redirectTo,
                     resume: resume,
                     acceptLanguage: request.app.acceptLanguage,
+                    flowId: flowId,
+                    flowBeginTime: flowBeginTime,
                     ip: ip,
                     location: geoData.location,
                     uaBrowser: sessionToken.uaBrowser,
@@ -867,6 +885,8 @@ module.exports = function (
                     emailRecord.email,
                     {
                       acceptLanguage: request.app.acceptLanguage,
+                      flowId: flowId,
+                      flowBeginTime: flowBeginTime,
                       ip: ip,
                       location: geoData.location,
                       timeZone: geoData.timeZone,
@@ -898,6 +918,8 @@ module.exports = function (
                     tokenVerificationId,
                     {
                       acceptLanguage: request.app.acceptLanguage,
+                      flowId: flowId,
+                      flowBeginTime: flowBeginTime,
                       ip: ip,
                       location: geoData.location,
                       redirectTo: redirectTo,
@@ -1790,6 +1812,15 @@ module.exports = function (
         var ip = request.app.clientAddress
         var emailRecord
 
+        request.validateMetricsContext()
+
+        // Store flowId and flowBeginTime to send in email
+        let flowId, flowBeginTime
+        if (request.payload.metricsContext) {
+          flowId = request.payload.metricsContext.flowId
+          flowBeginTime = request.payload.metricsContext.flowBeginTime
+        }
+
         return customs.check(request, email, 'sendUnblockCode')
           .then(lookupAccount)
           .then(createUnblockCode)
@@ -1821,6 +1852,8 @@ module.exports = function (
             .then((geoData) => {
               return mailer.sendUnblockCode(emailRecord, code, userAgent.call({
                 acceptLanguage: request.app.acceptLanguage,
+                flowId: flowId,
+                flowBeginTime: flowBeginTime,
                 ip: ip,
                 location: geoData.location,
                 timeZone: geoData.timeZone

@@ -393,8 +393,8 @@ module.exports = config => {
     return this.api.passwordForgotResendCode(this.passwordForgotToken, this.email)
   }
 
-  Client.prototype.verifyPasswordResetCode = function (code, headers) {
-    return this.api.passwordForgotVerifyCode(this.passwordForgotToken, code, headers)
+  Client.prototype.verifyPasswordResetCode = function (code, headers, options) {
+    return this.api.passwordForgotVerifyCode(this.passwordForgotToken, code, headers, options)
       .then(
         function (result) {
           this.accountResetToken = result.accountResetToken

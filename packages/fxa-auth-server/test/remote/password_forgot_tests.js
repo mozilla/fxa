@@ -12,6 +12,7 @@ var crypto = require('crypto')
 var base64url = require('base64url')
 
 var config = require('../../config').getProperties()
+const mocks = require('../mocks')
 
 describe('remote password forgot', function() {
   this.timeout(15000)
@@ -32,7 +33,11 @@ describe('remote password forgot', function() {
       var wrapKb = null
       var kA = null
       var client = null
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
+      var opts = {
+        keys: true,
+        metricsContext: mocks.generateMetricsContext()
+      }
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, opts)
         .then(
           function (x) {
             client = x
@@ -54,13 +59,15 @@ describe('remote password forgot', function() {
         .then(
           function (emailData) {
             assert.equal(emailData.html.indexOf('IP address') > -1, true, 'contains ip location data')
+            assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set')
+            assert.equal(emailData.headers['x-flow-id'], opts.metricsContext.flowId, 'flow id set')
             return emailData.headers['x-recovery-code']
           }
         )
         .then(
           function (code) {
             assert.throws(function() { client.resetPassword(newPassword) })
-            return resetPassword(client, code, newPassword)
+            return resetPassword(client, code, newPassword, undefined, opts)
           }
         )
         .then(
@@ -73,6 +80,9 @@ describe('remote password forgot', function() {
             var link = emailData.headers['x-link']
             var query = url.parse(link, true).query
             assert.ok(query.email, 'email is in the link')
+
+            assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set')
+            assert.equal(emailData.headers['x-flow-id'], opts.metricsContext.flowId, 'flow id set')
           }
         )
         .then(
@@ -431,8 +441,8 @@ describe('remote password forgot', function() {
     return TestServer.stop(server)
   })
 
-  function resetPassword(client, code, newPassword, options) {
-    return client.verifyPasswordResetCode(code)
+  function resetPassword(client, code, newPassword, headers, options) {
+    return client.verifyPasswordResetCode(code, headers, options)
       .then(function() {
         return client.resetPassword(newPassword, {}, options)
       })

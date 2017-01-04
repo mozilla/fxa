@@ -67,6 +67,8 @@ module.exports = function (log, error) {
 
 
     function handleBounce(message) {
+      const currentTime = Date.now()
+
       var recipients = []
       if (message.bounce && message.bounce.bounceType === 'Permanent') {
         recipients = message.bounce.bouncedRecipients
@@ -106,6 +108,26 @@ module.exports = function (log, error) {
           if (message.bounce && message.bounce.bounceSubType) {
             logData.bounceSubType = message.bounce.bounceSubType
           }
+        }
+
+        // Log flow metrics if `flowId` and `flowBeginTime` specified in headers
+        const flowId = getHeaderValue('X-Flow-Id', message)
+        const flowBeginTime = getHeaderValue('X-Flow-Begin-Time', message)
+        const elapsedTime = currentTime - flowBeginTime
+
+        if (flowId && flowBeginTime && (elapsedTime > 0)) {
+          const eventName = `email.${templateName}.bounced`
+
+          // Flow events have a specific event and structure that must be emitted.
+          // Ref `gather` in https://github.com/mozilla/fxa-auth-server/blob/master/lib/metrics/context.js
+          const flowEventInfo = {
+            event: eventName,
+            time: currentTime,
+            flow_id: flowId,
+            flow_time: elapsedTime
+          }
+
+          log.info('flowEvent', flowEventInfo)
         }
 
         log.info(logData)

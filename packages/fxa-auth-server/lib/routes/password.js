@@ -366,6 +366,13 @@ module.exports = function (
 
         request.validateMetricsContext()
 
+        // Store flowId and flowBeginTime to send in email
+        let flowId, flowBeginTime
+        if (request.payload.metricsContext) {
+          flowId = request.payload.metricsContext.flowId
+          flowBeginTime = request.payload.metricsContext.flowBeginTime
+        }
+
         request.emitMetricsEvent('password.forgot.send_code.start')
           .then(
             customs.check.bind(
@@ -396,6 +403,8 @@ module.exports = function (
                         redirectTo: request.payload.redirectTo,
                         resume: request.payload.resume,
                         acceptLanguage: request.app.acceptLanguage,
+                        flowId: flowId,
+                        flowBeginTime: flowBeginTime,
                         ip: ip,
                         location: geoData.location,
                         timeZone: geoData.timeZone
@@ -463,6 +472,13 @@ module.exports = function (
 
         request.validateMetricsContext()
 
+        // Store flowId and flowBeginTime to send in email
+        let flowId, flowBeginTime
+        if (request.payload.metricsContext) {
+          flowId = request.payload.metricsContext.flowId
+          flowBeginTime = request.payload.metricsContext.flowBeginTime
+        }
+
         request.emitMetricsEvent('password.forgot.resend_code.start')
           .then(
             customs.check.bind(
@@ -484,6 +500,8 @@ module.exports = function (
                         redirectTo: request.payload.redirectTo,
                         resume: request.payload.resume,
                         acceptLanguage: request.app.acceptLanguage,
+                        flowId: flowId,
+                        flowBeginTime: flowBeginTime,
                         ip: ip,
                         location: geoData.location,
                         timeZone: geoData.timeZone
@@ -539,6 +557,13 @@ module.exports = function (
 
         request.validateMetricsContext()
 
+        // Store flowId and flowBeginTime to send in email
+        let flowId, flowBeginTime
+        if (request.payload.metricsContext) {
+          flowId = request.payload.metricsContext.flowId
+          flowBeginTime = request.payload.metricsContext.flowBeginTime
+        }
+
         request.emitMetricsEvent('password.forgot.verify_code.start')
           .then(
             customs.check.bind(
@@ -557,7 +582,9 @@ module.exports = function (
                       return mailer.sendPasswordResetNotification(
                         passwordForgotToken.email,
                         {
-                          acceptLanguage: request.app.acceptLanguage
+                          acceptLanguage: request.app.acceptLanguage,
+                          flowId: flowId,
+                          flowBeginTime: flowBeginTime
                         }
                       )
                       .then(

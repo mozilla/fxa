@@ -10,6 +10,7 @@ const sinon = require('sinon')
 const extend = require('util')._extend
 const P = require('../lib/promise')
 const crypto = require('crypto')
+const config = require('../config').getProperties()
 
 const CUSTOMS_METHOD_NAMES = [
   'check',
@@ -89,6 +90,7 @@ const PUSH_METHOD_NAMES = [
 ]
 
 module.exports = {
+  generateMetricsContext: generateMetricsContext,
   mockCustoms: mockObject(CUSTOMS_METHOD_NAMES),
   mockDB: mockDB,
   mockDevices: mockDevices,
@@ -279,6 +281,24 @@ function spyLog (methods) {
     methods[name] = sinon.spy(methods[name])
   })
   return mockLog(methods)
+}
+
+function generateMetricsContext(){
+  const randomBytes = crypto.randomBytes(16).toString('hex')
+  const flowBeginTime = Date.now()
+  const flowSignature = crypto.createHmac('sha256', config.metrics.flow_id_key)
+    .update([
+      randomBytes,
+      flowBeginTime.toString(16),
+      undefined
+    ].join('\n'))
+    .digest('hex')
+    .substr(0, 32)
+
+  return {
+    flowBeginTime: flowBeginTime,
+    flowId: randomBytes + flowSignature
+  }
 }
 
 function mockRequest (data) {
