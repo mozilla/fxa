@@ -83,13 +83,23 @@ we call them "apps" in the settings view.
 
 ### Phase 1
 
-* [ ] Ability to list the logged in OAuth apps.
-* [ ] Ability to revoke tokens ('Disconnect') for logged in OAuth apps.
-* [ ] Feature is behind a feature flag.
+* [x] Ability to list the logged in OAuth apps.
+* [x] Ability to revoke tokens ('Disconnect') for logged in OAuth apps.
+* [x] Feature is behind a feature flag.
 
 ### Phase 2
 
-* [ ] Remove the feature flag.
+* [x] Remove the feature flag.
+
+## Results
+
+* The OAuth apps are now listed with the user devices in the
+Devices & Apps section
+* From the metrics results around ~1% of views of the Devices & apps section
+result in an OAuth application disconnect.
+
+Dashboard can be found [on DataDog](https://app.datadoghq.com/dash/208965/fxa-content---apps--devices).
+
 
 ## Possible future improvements
 
