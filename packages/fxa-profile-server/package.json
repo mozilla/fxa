@@ -54,6 +54,7 @@
     "npmshrink": "1.0.1",
     "pngparse": "2.0.1",
     "rimraf": "2.5.3",
+    "sinon": "1.17.5",
     "through": "2.3.8",
     "time-grunt": "1.3.0"
   },

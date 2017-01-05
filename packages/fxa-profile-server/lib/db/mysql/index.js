@@ -13,12 +13,19 @@ const logger = require('../../logging')('db.mysql');
 const P = require('../../promise');
 const patch = require('./patch');
 
+const REQUIRED_SQL_MODES = [
+  'STRICT_ALL_TABLES',
+  'NO_ENGINE_SUBSTITUTION',
+];
+const REQUIRED_CHARSET = 'UTF8MB4_UNICODE_CI';
+
 
 function MysqlStore(options) {
-  if (options.charset && options.charset !== 'UTF8_UNICODE_CI') {
-    logger.warn('createDatabase', { charset: options.charset });
+  if (options.charset && options.charset !== REQUIRED_CHARSET) {
+    logger.error('createDatabase.invalidCharset', { charset: options.charset });
+    throw new Error('You cannot use any charset besides ' + REQUIRED_CHARSET);
   } else {
-    options.charset = 'UTF8_UNICODE_CI';
+    options.charset = REQUIRED_CHARSET;
   }
   options.typeCast = function(field, next) {
     if (field.type === 'TINY' && field.length === 1) {
@@ -202,11 +209,11 @@ MysqlStore.prototype = {
   },
 
   _write: function _write(sql, params) {
-    return this._query(this._pool, sql, params);
+    return this._query(sql, params);
   },
 
   _read: function _read(sql, params) {
-    return this._query(this._pool, sql, params);
+    return this._query(sql, params);
   },
 
   _readOne: function _readOne(sql, params) {
@@ -224,22 +231,53 @@ MysqlStore.prototype = {
     return new P(function(resolve, reject) {
       pool.getConnection(function(err, conn) {
         if (err) {
-          reject(err);
-        } else {
-          resolve(conn);
+          return reject(err);
         }
+        if (conn._fxa_initialized) {
+          return resolve(conn);
+        }
+        // Enforce sane defaults on every new connection.
+        // These *should* be set by the database by default, but it's nice
+        // to have an additional layer of protection here.
+        conn.query('SELECT @@sql_mode AS mode', function(err, rows) {
+          if (err) {
+            return reject(err);
+          }
+          var modes = rows[0]['mode'].split(',');
+          var needToSetMode = false;
+          REQUIRED_SQL_MODES.forEach(function(requiredMode) {
+            if (modes.indexOf(requiredMode) === -1) {
+              modes.push(requiredMode);
+              needToSetMode = true;
+            }
+          });
+          if (!needToSetMode) {
+            conn._fxa_initialized = true;
+            return resolve(conn);
+          }
+          var mode = modes.join(',');
+          conn.query('SET SESSION sql_mode = \'' + mode + '\'', function(err) {
+            if (err) {
+              return reject(err);
+            }
+            conn._fxa_initialized = true;
+            return resolve(conn);
+          });
+        });
       });
     }).disposer(releaseConn);
   },
 
-  _query: function _query(connection, sql, params) {
-    return new P(function(resolve, reject) {
-      connection.query(sql, params || [], function(err, results) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(results);
-        }
+  _query: function _query(sql, params) {
+    return P.using(this._getConnection(), function(conn) {
+      return new P(function(resolve, reject) {
+        conn.query(sql, params || [], function(err, results) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(results);
+          }
+        });
       });
     });
   }
