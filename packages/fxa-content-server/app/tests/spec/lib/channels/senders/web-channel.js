@@ -29,8 +29,37 @@ define(function (require, exports, module) {
       sender.teardown();
     });
 
-    describe('send', function () {
-      it('dispatches a CustomEvent to the window', function () {
+    function testStringifiedDetail(userAgent) {
+      it('dispatches a CustomEvent with a stringified `detail` to the window', function () {
+        windowMock.navigator.userAgent = userAgent;
+
+        sinon.spy(windowMock, 'dispatchEvent');
+        sinon.spy(windowMock, 'CustomEvent');
+
+        var messageId = Date.now();
+        return sender.send('ping', { key: 'value' }, messageId)
+          .then(function () {
+            assert.isTrue(windowMock.dispatchEvent.called);
+
+            var eventType = windowMock.CustomEvent.args[0][0];
+            assert.equal(eventType, 'WebChannelMessageToChrome');
+
+            var detail = windowMock.CustomEvent.args[0][1].detail;
+            assert.isString(detail);
+
+            var eventData = JSON.parse(detail);
+            assert.equal(eventData.id, 'channel_id');
+            assert.equal(eventData.message.messageId, messageId);
+            assert.equal(eventData.message.command, 'ping');
+            assert.equal(eventData.message.data.key, 'value');
+          });
+      });
+    }
+
+    function testNonStringifiedDetail(userAgent) {
+      it('dispatches a CustomEvent with a non-stringified `detail` to the window', function () {
+        windowMock.navigator.userAgent = userAgent;
+
         sinon.spy(windowMock, 'dispatchEvent');
         sinon.spy(windowMock, 'CustomEvent');
 
@@ -48,6 +77,28 @@ define(function (require, exports, module) {
             assert.equal(eventData.message.command, 'ping');
             assert.equal(eventData.message.data.key, 'value');
           });
+      });
+    }
+
+    describe('send', function () {
+      describe('Fx Desktop >= 50', () => {
+        testStringifiedDetail(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0');
+      });
+
+      describe('Fx Desktop < 50', () => {
+        testNonStringifiedDetail(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:49.0) Gecko/20100101 Firefox/49.0');
+      });
+
+      describe('Fx Android >= 50', () => {
+        testStringifiedDetail(
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:50.0) Gecko/50.0 Firefox/50.0');
+      });
+
+      describe('Fx Android < 50', () => {
+        testNonStringifiedDetail(
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:49.0) Gecko/49.0 Firefox/49.0');
       });
     });
 

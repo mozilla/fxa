@@ -11,26 +11,32 @@ define(function (require, exports, module) {
   'use strict';
 
   const p = require('lib/promise');
+  const UserAgent = require('lib/user-agent');
 
   function WebChannelSender() {
     // nothing to do here.
   }
 
   WebChannelSender.prototype = {
-    initialize (options) {
-      options = options || {};
-
+    initialize (options = {}) {
       this._window = options.window;
       this._webChannelId = options.webChannelId;
     },
 
+    /**
+     * Send a WebChannel message.
+     *
+     * @param {String} command command name
+     * @param {Object} data payload
+     * @param {String} messageId messageId browser will respond with.
+     * @returns {Promise}
+     */
     send (command, data, messageId) {
       return p().then(() => {
         // save command name for testing purposes
         this._saveEventName(command);
-
-        var event = createEvent(
-          this._window, this._webChannelId, command, data, messageId);
+        const eventDetail = createEventDetail(this._webChannelId, command, data, messageId);
+        const event = createEvent(this._window, eventDetail);
         this._window.dispatchEvent(event);
       });
     },
@@ -38,8 +44,14 @@ define(function (require, exports, module) {
     teardown () {
     },
 
+    /**
+     * Save the name of the event into sessionStorage, used for testing.
+     *
+     * @param {String} command
+     * @private
+     */
     _saveEventName (command) {
-      var storedEvents;
+      let storedEvents;
       try {
         storedEvents = JSON.parse(this._window.sessionStorage.getItem('webChannelEvents')) || [];
       } catch (e) {
@@ -54,20 +66,59 @@ define(function (require, exports, module) {
     }
   };
 
-  function createEvent(win, webChannelId, command, data, messageId) {
+  /**
+   * Create a WebChannelMessageToChrome event with the given `eventDetail`
+   *
+   * @param {Object} win recipient of the WebChannel event.
+   * @param {Object} eventDetail `detail` property of the event.
+   * @returns {Event} WebChannelMessageToChrome event.
+   */
+  function createEvent(win, eventDetail) {
     return new win.CustomEvent('WebChannelMessageToChrome', {
-      detail: {
-        id: webChannelId,
-        message: {
-          command: command,
-          data: data,
-          messageId: messageId
-        }
-      }
+      detail: formatEventDetail(win, eventDetail)
     });
+  }
+
+  /**
+   * Create an object for the `detail` field of a WebChannelMessageToChrome event.
+   *
+   * @param {String} webChannelId ID of the receiving WebChannel
+   * @param {String} command command name
+   * @param {Object} data payload
+   * @param {String} messageId messageId browser will respond with.
+   * @returns {Object}
+   */
+  function createEventDetail(webChannelId, command, data, messageId) {
+    return {
+      id: webChannelId,
+      message: {
+        command,
+        data,
+        messageId
+      }
+    };
+  }
+
+  /**
+   * Format the `detail` payload for the current browser.
+   *
+   * @param {Object} win receiving window
+   * @param {Object} eventDetail `detail` payload
+   * @returns {String|Object}
+   */
+  function formatEventDetail(win, eventDetail) {
+    const userAgent = new UserAgent(win.navigator.userAgent);
+    // Firefox Desktop and Fennec >= 50 expect the detail to be
+    // sent as a string.
+    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1275616 and
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1238128
+    if ((userAgent.isFirefoxDesktop() || userAgent.isFirefoxAndroid()) &&
+        userAgent.browser.version >= 50) {
+      return JSON.stringify(eventDetail);
+    } else {
+      return eventDetail;
+    }
   }
 
   module.exports = WebChannelSender;
 });
-
-

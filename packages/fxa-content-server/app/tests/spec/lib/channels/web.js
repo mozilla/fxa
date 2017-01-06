@@ -18,6 +18,8 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       windowMock = new WindowMock();
+      windowMock.navigator.userAgent =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:49.0) Gecko/20100101 Firefox/49.0';
     });
 
 
@@ -69,9 +71,7 @@ define(function (require, exports, module) {
         channel.initialize({
           window: windowMock
         });
-
         sinon.stub(windowMock, 'dispatchEvent', function (dispatched) {
-          console.log('dispatched: %s', JSON.stringify(dispatched));
           channel._receiver.trigger('message', {
             command: 'can_link_account',
             data: { ok: true },
