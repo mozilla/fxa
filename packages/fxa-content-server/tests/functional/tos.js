@@ -6,11 +6,12 @@ define([
   'intern',
   'intern!object',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/test',
   'require'
-], function (intern, registerSuite, FunctionalHelpers, Test, require) {
+], function (intern, registerSuite, FunctionalHelpers, require) {
   var PAGE_URL = intern.config.fxaContentRoot + 'legal/terms';
   var SIGNUP_URL = intern.config.fxaContentRoot + 'signup';
+
+  var noSuchElement = FunctionalHelpers.noSuchElement;
 
   registerSuite({
     name: 'tos',
@@ -38,7 +39,6 @@ define([
     },
 
     'browse directly to page - no back button': function () {
-      var self = this;
       return this.remote
 
         .get(require.toUrl(PAGE_URL))
@@ -47,7 +47,7 @@ define([
         .findById('fxa-tos-header')
         .end()
 
-        .then(Test.noElementById(self, 'fxa-tos-back'));
+        .then(noSuchElement('#fxa-tos-back'));
     },
 
     'refresh, back button is available': function () {

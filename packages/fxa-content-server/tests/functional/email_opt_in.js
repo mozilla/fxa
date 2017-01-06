@@ -7,9 +7,8 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/lib/basket',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/test'
-], function (intern, registerSuite, TestHelpers, _waitForBasket, FunctionalHelpers, Test) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, TestHelpers, _waitForBasket, FunctionalHelpers) {
   var SIGNIN_PAGE_URL = intern.config.fxaContentRoot + 'signin';
   var SIGNUP_PAGE_URL = intern.config.fxaContentRoot + 'signup';
   var fxaProduction = intern.config.fxaProduction;
@@ -24,6 +23,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
@@ -146,7 +146,7 @@ define([
         // user does not have a basket account, so the
         // manage link does not exist.
 
-        .then(Test.noElementByCssSelector(this, '#preferences-url'))
+        .then(noSuchElement('#preferences-url'))
         .then(click('#marketing-email-optin'))
         .then(testSuccessWasShown())
         .then(waitForBasket(email))

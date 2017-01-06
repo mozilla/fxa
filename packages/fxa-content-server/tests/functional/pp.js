@@ -6,11 +6,12 @@ define([
   'intern',
   'intern!object',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/test',
   'require'
-], function (intern, registerSuite, FunctionalHelpers, Test, require) {
+], function (intern, registerSuite, FunctionalHelpers, require) {
   var PAGE_URL = intern.config.fxaContentRoot + 'legal/privacy';
   var SIGNUP_URL = intern.config.fxaContentRoot + 'signup';
+
+  var noSuchElement = FunctionalHelpers.noSuchElement;
 
   registerSuite({
     name: 'pp',
@@ -43,7 +44,6 @@ define([
     },
 
     'browse directly to page - no back button': function () {
-      var self = this;
       return this.remote
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
@@ -51,7 +51,7 @@ define([
         .findById('fxa-pp-header')
         .end()
 
-        .then(Test.noElementById(self, 'fxa-pp-back'));
+        .then(noSuchElement('#fxa-pp-back'));
     },
 
     'refresh, back button is available': function () {

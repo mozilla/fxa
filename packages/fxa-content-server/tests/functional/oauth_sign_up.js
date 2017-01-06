@@ -9,9 +9,8 @@ define([
   'intern/browser_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
-  'tests/functional/lib/test',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, TestHelpers, Test, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, TestHelpers,  FunctionalHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
@@ -29,6 +28,7 @@ define([
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var noEmailExpected = FunctionalHelpers.noEmailExpected;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openPage = FunctionalHelpers.openPage;
@@ -171,8 +171,6 @@ define([
     },
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
-      var self = this;
-
       return this.remote
         .then(openFxaFromRp('signup'))
         .then(fillOutSignUp(email, PASSWORD))
@@ -203,7 +201,7 @@ define([
         .end()
 
         // make sure the relier name is not a link
-        .then(Test.noElementById(self, 'redirectTo'));
+        .then(noSuchElement('#redirectTo'));
     },
 
     'signup with existing account, coppa is valid': function () {

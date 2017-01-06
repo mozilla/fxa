@@ -6,11 +6,12 @@ define([
   'intern',
   'intern!object',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/test',
   'require'
-], function (intern, registerSuite, FunctionalHelpers, Test, require) {
+], function (intern, registerSuite, FunctionalHelpers, require) {
   var INVALID_CHROMELESS_URL = intern.config.fxaContentRoot + 'signup?style=chromeless';
   var CHROMELESS_IFRAME_SYNC_URL = intern.config.fxaContentRoot + 'signup?service=sync&context=iframe&style=chromeless';
+
+  var noSuchElement = FunctionalHelpers.noSuchElement;
 
   registerSuite({
     name: 'alternate styles',
@@ -27,7 +28,7 @@ define([
         .findByCssSelector('#fxa-signup-header')
         .end()
 
-        .then(Test.noElementByCssSelector(this, '.chromeless'))
+        .then(noSuchElement('.chromeless'))
 
         .end();
     },
