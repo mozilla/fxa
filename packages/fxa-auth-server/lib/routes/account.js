@@ -470,19 +470,22 @@ module.exports = function (
         function extractUnblockCode (e) {
           // If it's a customs-related error...
           if (e.errno === error.ERRNO.REQUEST_BLOCKED || e.errno === error.ERRNO.THROTTLED) {
-            request.emitMetricsEvent('account.login.blocked')
-            var verificationMethod = e.output.payload.verificationMethod
-            // ...and if they can verify their way around it,
-            // then extract any unblockCode from the request.
-            // We'll re-throw the error later if the code is invalid.
-            if (verificationMethod === 'email-captcha') {
-              unblockCode = request.payload.unblockCode
-              if (unblockCode) {
-                unblockCode = unblockCode.toUpperCase()
-              }
-              customsErr = e
-              return
-            }
+            return request.emitMetricsEvent('account.login.blocked')
+              .then(() => {
+                var verificationMethod = e.output.payload.verificationMethod
+                // ...and if they can verify their way around it,
+                // then extract any unblockCode from the request.
+                // We'll re-throw the error later if the code is invalid.
+                if (verificationMethod === 'email-captcha') {
+                  unblockCode = request.payload.unblockCode
+                  if (unblockCode) {
+                    unblockCode = unblockCode.toUpperCase()
+                  }
+                  customsErr = e
+                  return
+                }
+                throw e
+              })
           }
           // Any other errors are propagated back to the user.
           throw e
@@ -536,11 +539,14 @@ module.exports = function (
               .catch(
                 (err) => {
                   if (err.errno === error.ERRNO.INVALID_UNBLOCK_CODE) {
-                    request.emitMetricsEvent('account.login.invalidUnblockCode')
-                    customs.flag(request.app.clientAddress, {
-                      email: email,
-                      errno: err.errno
-                    })
+                    return request.emitMetricsEvent('account.login.invalidUnblockCode')
+                      .then(() => {
+                        customs.flag(request.app.clientAddress, {
+                          email: email,
+                          errno: err.errno
+                        })
+                        throw err
+                      })
                   }
                   throw err
                 }

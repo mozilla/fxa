@@ -305,6 +305,7 @@ function create(log, error, config, routes, db) {
 
   const metricsEvents = require('./metrics/events')(log)
   server.decorate('request', 'emitMetricsEvent', metricsEvents.emit)
+  server.decorate('request', 'emitRouteFlowEvent', metricsEvents.emitRouteFlowEvent)
 
   server.stat = function() {
     return {

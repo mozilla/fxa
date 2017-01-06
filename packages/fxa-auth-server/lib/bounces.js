@@ -127,7 +127,7 @@ module.exports = function (log, error) {
             flow_time: elapsedTime
           }
 
-          log.info('flowEvent', flowEventInfo)
+          log.flowEvent(flowEventInfo)
         }
 
         log.info(logData)

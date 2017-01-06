@@ -224,11 +224,7 @@ describe('/recovery_email/resend_code', () => {
     return P.resolve()
   })
   const mockMailer = mocks.mockMailer()
-  const mockMetricsContext = mocks.mockMetricsContext({
-    gather: sinon.spy(function (data) {
-      return P.resolve(this.payload && this.payload.metricsContext)
-    })
-  })
+  const mockMetricsContext = mocks.mockMetricsContext()
   const accountRoutes = makeRoutes({
     config: config,
     db: mockDB,
@@ -263,7 +259,7 @@ describe('/recovery_email/resend_code', () => {
 
     return runTest(route, mockRequest, response => {
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
-      assert.equal(mockLog.flowEvent.args[0][0], 'email.verification.resent')
+      assert.equal(mockLog.flowEvent.args[0][0].event, 'email.verification.resent')
 
       assert.equal(mockMailer.sendVerifyCode.callCount, 1)
       const args = mockMailer.sendVerifyCode.args[0]
@@ -302,7 +298,7 @@ describe('/recovery_email/resend_code', () => {
 
     return runTest(route, mockRequest, response => {
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
-      assert.equal(mockLog.flowEvent.args[0][0], 'email.confirmation.resent')
+      assert.equal(mockLog.flowEvent.args[0][0].event, 'email.confirmation.resent')
 
       assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1)
       const args = mockMailer.sendVerifyLoginEmail.args[0]
@@ -375,10 +371,13 @@ describe('/account/reset', function () {
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       var args = mockLog.activityEvent.args[0]
-      assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-      assert.equal(args[0], 'account.reset', 'first argument was event name')
-      assert.equal(args[1], mockRequest, 'second argument was request object')
-      assert.deepEqual(args[2], { uid: uid.toString('hex') }, 'third argument contained uid')
+      assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+      assert.deepEqual(args[0], {
+        event: 'account.reset',
+        service: undefined,
+        userAgent: 'test user-agent',
+        uid: uid.toString('hex')
+      }, 'event data was correct')
 
       assert.equal(mockDB.securityEvent.callCount, 1, 'db.securityEvent was called')
       var securityEvent = mockDB.securityEvent.args[0][0]
@@ -703,10 +702,14 @@ describe('/account/device/destroy', function () {
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       var args = mockLog.activityEvent.args[0]
-      assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-      assert.equal(args[0], 'device.deleted', 'first argument was event name')
-      assert.equal(args[1], mockRequest, 'second argument was request object')
-      assert.deepEqual(args[2], { uid: uid.toString('hex'), device_id: deviceId }, 'third argument contained uid and deviceId')
+      assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+      assert.deepEqual(args[0], {
+        event: 'device.deleted',
+        service: undefined,
+        userAgent: 'test user-agent',
+        uid: uid.toString('hex'),
+        device_id: deviceId
+      }, 'event data was correct')
 
       assert.equal(mockLog.notifyAttachedServices.callCount, 1)
       args = mockLog.notifyAttachedServices.args[0]
@@ -737,11 +740,10 @@ describe('/account/create', function () {
     mockLog.activityEvent = sinon.spy(() => {
       return P.resolve()
     })
-    const mockMetricsContext = mocks.mockMetricsContext({
-      gather: sinon.spy(function (data) {
-        return P.resolve(this.payload && this.payload.metricsContext)
-      })
+    mockLog.flowEvent = sinon.spy(() => {
+      return P.resolve()
     })
+    const mockMetricsContext = mocks.mockMetricsContext()
     const mockRequest = mocks.mockRequest({
       log: mockLog,
       metricsContext: mockMetricsContext,
@@ -803,6 +805,9 @@ describe('/account/create', function () {
     })
     var route = getRoute(accountRoutes, '/account/create')
 
+    const now = Date.now()
+    sinon.stub(Date, 'now', () => now)
+
     return runTest(route, mockRequest, function () {
       assert.equal(mockDB.createAccount.callCount, 1, 'createAccount was called')
 
@@ -811,14 +816,35 @@ describe('/account/create', function () {
       assert.equal(eventData.event, 'login', 'it was a login event')
       assert.equal(eventData.data.service, 'sync', 'it was for sync')
       assert.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
-      assert.deepEqual(eventData.data.metricsContext, mockRequest.payload.metricsContext, 'it contained the correct metrics context metadata')
+      assert.deepEqual(eventData.data.metricsContext, {
+        flowCompleteSignal: 'account.signed',
+        flow_id: mockRequest.payload.metricsContext.flowId,
+        flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
+        time: now
+      }, 'it contained the correct metrics context metadata')
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       var args = mockLog.activityEvent.args[0]
-      assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-      assert.equal(args[0], 'account.created', 'first argument was event name')
-      assert.equal(args[1], mockRequest, 'second argument was request object')
-      assert.deepEqual(args[2], { uid: uid.toString('hex') }, 'third argument contained uid')
+      assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+      assert.deepEqual(args[0], {
+        event: 'account.created',
+        service: 'sync',
+        userAgent: 'test user-agent',
+        uid: uid.toString('hex')
+      }, 'event data was correct')
+
+      assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent was called once')
+      args = mockLog.flowEvent.args[0]
+      assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
+      assert.deepEqual(args[0], {
+        event: 'account.created',
+        flowCompleteSignal: 'account.signed',
+        flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
+        flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+        service: 'sync',
+        time: now,
+        userAgent: 'test user-agent'
+      }, 'flow event data was correct')
 
       assert.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
       assert.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
@@ -864,7 +890,7 @@ describe('/account/create', function () {
       assert.equal(args[2].uaOS, 'Mac OS X')
       assert.equal(args[2].uaOSVersion, '10.10')
       assert.strictEqual(args[2].uaDeviceType, undefined)
-    })
+    }).finally(() => Date.now.restore())
   })
 })
 
@@ -898,11 +924,7 @@ describe('/account/login', function () {
   mockLog.flowEvent = sinon.spy(() => {
     return P.resolve()
   })
-  const mockMetricsContext = mocks.mockMetricsContext({
-    gather: sinon.spy(function (data) {
-      return P.resolve(this.payload && this.payload.metricsContext)
-    })
-  })
+  const mockMetricsContext = mocks.mockMetricsContext()
 
   const mockRequest = mocks.mockRequest({
     log: mockLog,
@@ -1007,6 +1029,9 @@ describe('/account/login', function () {
   })
 
   it('emits the correct series of calls and events', function () {
+    const now = Date.now()
+    sinon.stub(Date, 'now', () => now)
+
     return runTest(route, mockRequest, function (response) {
       assert.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called')
       assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
@@ -1016,22 +1041,46 @@ describe('/account/login', function () {
       assert.equal(eventData.event, 'login', 'it was a login event')
       assert.equal(eventData.data.service, 'sync', 'it was for sync')
       assert.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
-      assert.deepEqual(eventData.data.metricsContext, mockRequest.payload.metricsContext, 'it contained the metrics context')
+      assert.deepEqual(eventData.data.metricsContext, {
+        time: now,
+        flow_id: mockRequest.payload.metricsContext.flowId,
+        flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
+        flowCompleteSignal: 'account.signed'
+      }, 'metrics context was correct')
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       let args = mockLog.activityEvent.args[0]
-      assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-      assert.equal(args[0], 'account.login', 'first argument was event name')
-      assert.equal(args[1], mockRequest, 'second argument was request object')
-      assert.deepEqual(args[2], {uid: uid.toString('hex')}, 'third argument contained uid')
+      assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+      assert.deepEqual(args[0], {
+        event: 'account.login',
+        service: 'sync',
+        userAgent: 'test user-agent',
+        uid: uid.toString('hex')
+      }, 'event data was correct')
 
       assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
       args = mockLog.flowEvent.args[0]
-      assert.equal(args.length, 2, 'first log.flowEvent was passed two arguments')
-      assert.equal(args[0], 'account.login', 'first argument was event name')
-      assert.equal(args[1], mockRequest, 'second argument was request object')
+      assert.equal(args.length, 1, 'log.flowEvent was passed one argument first time')
+      assert.deepEqual(args[0], {
+        event: 'account.login',
+        flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
+        flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+        flowCompleteSignal: 'account.signed',
+        service: 'sync',
+        time: now,
+        userAgent: 'test user-agent'
+      }, 'first flow event was correct')
       args = mockLog.flowEvent.args[1]
-      assert.equal(args[0], 'email.confirmation.sent', 'second log.flowEvent was passed correct event name')
+      assert.equal(args.length, 1, 'log.flowEvent was passed one argument second time')
+      assert.deepEqual(args[0], {
+        event: 'email.confirmation.sent',
+        flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
+        flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+        flowCompleteSignal: 'account.signed',
+        service: 'sync',
+        time: now,
+        userAgent: 'test user-agent'
+      }, 'second flow event was correct')
 
       assert.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
       assert.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
@@ -1076,7 +1125,7 @@ describe('/account/login', function () {
       assert.ok(!response.verified, 'response indicates account is not verified')
       assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
       assert.equal(response.verificationReason, 'login', 'verificationReason is login')
-    })
+    }).finally(() => Date.now.restore())
   })
 
   describe('sign-in unverified account', function () {
@@ -1105,8 +1154,8 @@ describe('/account/login', function () {
         var verifyCallArgs = mockMailer.sendVerifyCode.getCall(0).args
         assert.notEqual(verifyCallArgs[1], emailCode, 'mailer.sendVerifyCode was called with a fresh verification code')
         assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
-        assert.equal(mockLog.flowEvent.args[0][0], 'account.login', 'first event was login')
-        assert.equal(mockLog.flowEvent.args[1][0], 'email.verification.sent', 'second event was sent')
+        assert.equal(mockLog.flowEvent.args[0][0].event, 'account.login', 'first event was login')
+        assert.equal(mockLog.flowEvent.args[1][0].event, 'email.verification.sent', 'second event was sent')
         assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
         assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
         assert.equal(response.verified, false, 'response indicates account is unverified')
@@ -1456,8 +1505,8 @@ describe('/account/login', function () {
           assert.equal(err.output.statusCode, 400, 'correct status code is returned')
           assert.equal(err.output.payload.verificationMethod, undefined, 'no verificationMethod')
           assert.equal(err.output.payload.verificationReason, undefined, 'no verificationReason')
-          assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
-          assert.equal(mockLog.flowEvent.args[0][0], 'account.login.blocked', 'first event is blocked')
+          assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called twice')
+          assert.equal(mockLog.flowEvent.args[0][0].event, 'account.login.blocked', 'first event is blocked')
 
           mockLog.flowEvent.reset()
         })
@@ -1476,7 +1525,7 @@ describe('/account/login', function () {
             assert.equal(err.output.payload.verificationMethod, 'email-captcha')
             assert.equal(err.output.payload.verificationReason, 'login')
             assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
-            assert.equal(mockLog.flowEvent.args[0][0], 'account.login.blocked', 'first event is blocked')
+            assert.equal(mockLog.flowEvent.args[0][0].event, 'account.login.blocked', 'first event is blocked')
             mockLog.flowEvent.reset()
           })
         })
@@ -1489,7 +1538,7 @@ describe('/account/login', function () {
               assert.equal(err.errno, error.ERRNO.INVALID_UNBLOCK_CODE, 'correct errno is returned')
               assert.equal(err.output.statusCode, 400, 'correct status code is returned')
               assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent called twice')
-              assert.equal(mockLog.flowEvent.args[1][0], 'account.login.invalidUnblockCode', 'second event is invalid')
+              assert.equal(mockLog.flowEvent.args[1][0].event, 'account.login.invalidUnblockCode', 'second event is invalid')
 
               mockLog.flowEvent.reset()
             })
@@ -1502,7 +1551,7 @@ describe('/account/login', function () {
               assert.equal(err.output.statusCode, 400, 'correct status code is returned')
 
               assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent called twice')
-              assert.equal(mockLog.flowEvent.args[1][0], 'account.login.invalidUnblockCode', 'second event is invalid')
+              assert.equal(mockLog.flowEvent.args[1][0].event, 'account.login.invalidUnblockCode', 'second event is invalid')
 
               mockLog.activityEvent.reset()
               mockLog.flowEvent.reset()
@@ -1520,10 +1569,11 @@ describe('/account/login', function () {
           it('valid code', () => {
             mockDB.consumeUnblockCode = () => P.resolve({ createdAt: Date.now() })
             return runTest(route, mockRequestWithUnblockCode, (res) => {
-              assert.equal(mockLog.flowEvent.callCount, 3)
-              assert.equal(mockLog.flowEvent.args[0][0], 'account.login.blocked', 'first event was account.login.blocked')
-              assert.equal(mockLog.flowEvent.args[1][0], 'account.login.confirmedUnblockCode', 'second event was account.login.confirmedUnblockCode')
-              assert.equal(mockLog.flowEvent.args[2][0], 'account.login', 'third event was account.login')
+              assert.equal(mockLog.flowEvent.callCount, 4)
+              assert.equal(mockLog.flowEvent.args[0][0].event, 'account.login.blocked', 'first event was account.login.blocked')
+              assert.equal(mockLog.flowEvent.args[1][0].event, 'account.login.confirmedUnblockCode', 'second event was account.login.confirmedUnblockCode')
+              assert.equal(mockLog.flowEvent.args[2][0].event, 'account.login', 'third event was account.login')
+              assert.equal(mockLog.flowEvent.args[3][0].event, 'flow.complete', 'fourth event was flow.complete')
             })
           })
         })
@@ -1567,6 +1617,16 @@ describe('/recovery_email/verify_code', function () {
   const mockLog = mocks.spyLog()
   const mockRequest = mocks.mockRequest({
     log: mockLog,
+    metricsContext: mocks.mockMetricsContext({
+      gather (data) {
+        return Promise.resolve(Object.assign(data, {
+          flowCompleteSignal: 'account.signed',
+          flow_time: 10000,
+          flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          time: Date.now() - 10000
+        }))
+      }
+    }),
     query: {},
     payload: {
       uid: uid,
@@ -1612,17 +1672,17 @@ describe('/recovery_email/verify_code', function () {
 
         assert.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once')
         let args = mockLog.activityEvent.args[0]
-        assert.equal(args.length, 3, 'activityEvent was passed three arguments')
-        assert.equal(args[0], 'account.verified', 'first argument was event name')
-        assert.equal(args[1], mockRequest, 'second argument was request object')
-        assert.deepEqual(args[2], { uid: uid }, 'third argument contained uid')
+        assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+        assert.deepEqual(args[0], {
+          event: 'account.verified',
+          service: 'sync',
+          userAgent: 'test user-agent',
+          uid: uid.toString('hex')
+        }, 'event data was correct')
 
         assert.equal(mockLog.flowEvent.callCount, 2, 'flowEvent was called twice')
-        assert.equal(mockLog.flowEvent.args[0][0], 'email.verify_code.clicked', 'first event was clicked')
-        args = mockLog.flowEvent.args[1]
-        assert.equal(args.length, 2, 'flowEvent was passed two arguments')
-        assert.equal(args[0], 'account.verified', 'first argument was event name')
-        assert.equal(args[1], mockRequest, 'second argument was request object')
+        assert.equal(mockLog.flowEvent.args[0][0].event, 'email.verify_code.clicked', 'first event was email.verify_code.clicked')
+        assert.equal(mockLog.flowEvent.args[1][0].event, 'account.verified', 'second event was event account.verified')
 
         assert.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')
         args = mockPush.notifyUpdate.args[0]
@@ -1650,12 +1710,9 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once')
 
         assert.equal(mockLog.flowEvent.callCount, 3, 'flowEvent was called thrice')
-        assert.equal(mockLog.flowEvent.args[0][0], 'email.verify_code.clicked', 'first event was clicked')
-        assert.equal(mockLog.flowEvent.args[1][0], 'account.verified', 'second event was account.verified')
-        const args = mockLog.flowEvent.args[2]
-        assert.equal(args.length, 2, 'flowEvent was passed two arguments')
-        assert.equal(args[0], 'account.reminder', 'third event was account.reminder')
-        assert.equal(args[1], mockRequest, 'second argument was request object')
+        assert.equal(mockLog.flowEvent.args[0][0].event, 'email.verify_code.clicked', 'first event was email.verify_code.clicked')
+        assert.equal(mockLog.flowEvent.args[1][0].event, 'account.verified', 'second event was account.verified')
+        assert.equal(mockLog.flowEvent.args[2][0].event, 'account.reminder', 'third event was account.reminder')
 
         assert.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
         assert.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')
@@ -1704,10 +1761,13 @@ describe('/recovery_email/verify_code', function () {
 
         assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
         var args = mockLog.activityEvent.args[0]
-        assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-        assert.equal(args[0], 'account.confirmed', 'first argument was event name')
-        assert.equal(args[1], mockRequest, 'second argument was request object')
-        assert.deepEqual(args[2], { uid: uid }, 'third argument contained uid')
+        assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+        assert.deepEqual(args[0], {
+          event: 'account.confirmed',
+          service: 'sync',
+          userAgent: 'test user-agent',
+          uid: uid.toString('hex')
+        }, 'event data was correct')
 
         assert.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')
         args = mockPush.notifyUpdate.args[0]
@@ -1758,10 +1818,13 @@ describe('/account/keys', function () {
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       args = mockLog.activityEvent.args[0]
-      assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-      assert.equal(args[0], 'account.keyfetch', 'first argument was event name')
-      assert.equal(args[1], mockRequest, 'second argument was request object')
-      assert.deepEqual(args[2], {uid: uid.toString('hex')}, 'third argument contained uid')
+      assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+      assert.deepEqual(args[0], {
+        event: 'account.keyfetch',
+        service: undefined,
+        userAgent: 'test user-agent',
+        uid: uid.toString('hex')
+      }, 'event data was correct')
     })
       .then(function () {
         mockLog.activityEvent.reset()
@@ -1832,10 +1895,13 @@ describe('/account/destroy', function () {
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       args = mockLog.activityEvent.args[0]
-      assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-      assert.equal(args[0], 'account.deleted', 'first argument was event name')
-      assert.equal(args[1], mockRequest, 'second argument was request object')
-      assert.equal(args[2].uid, uid.toString('hex'), 'third argument was event data')
+      assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+      assert.deepEqual(args[0], {
+        event: 'account.deleted',
+        service: undefined,
+        userAgent: 'test user-agent',
+        uid: uid.toString('hex')
+      }, 'event data was correct')
     })
   })
 })
@@ -1953,9 +2019,7 @@ describe('/account/login/send_unblock_code', function () {
       assert.equal(args.length, 3, 'mailer.sendUnblockCode called with 3 args')
 
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent was called once')
-      args = mockLog.flowEvent.args[0]
-      assert.equal(args.length, 2, 'log.flowEvent was passed two arguments')
-      assert.equal(args[0], 'account.login.sentUnblockCode', 'first argument was event name')
+      assert.equal(mockLog.flowEvent.args[0][0].event, 'account.login.sentUnblockCode', 'event was account.login.sentUnblockCode')
       mockLog.flowEvent.reset()
     })
   })
