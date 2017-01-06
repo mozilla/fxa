@@ -59,11 +59,6 @@ else
 fi
 echo "GIT_COMMIT          $GIT_COMMIT"
 
-echo ""
-echo "Selenium version:"
-curl -s http://127.0.0.1:4444/wd/hub/status | python -mjson.tool
-echo ""
-
 rm -rf fxa-content-server-"$FXA_TEST_NAME"
 git clone https://github.com/mozilla/fxa-content-server.git -b master fxa-content-server-"$FXA_TEST_NAME"
 cd fxa-content-server-"$FXA_TEST_NAME"
@@ -89,6 +84,9 @@ node ./tests/teamcity/install-npm-deps.js \
 node_modules/.bin/bower install --config.interactive=false
 
 $FXA_FIREFOX_BINARY --version 2>/dev/null # squelch annoying 'GLib-CRITICAL **' message
+
+# Tell the test where the X Server is located
+export DISPLAY=":99"
 
 ./node_modules/.bin/intern-runner \
     config="tests/intern_functional_full" \
