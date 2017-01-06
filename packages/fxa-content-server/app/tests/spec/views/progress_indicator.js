@@ -67,6 +67,7 @@ define(function (require, exports, module) {
     describe('showIndicator', function () {
       it('replaces the button text with a spinner', function () {
         progressIndicator.showIndicator('#indicate');
+        assert.isTrue($('#indicate').prop('disabled'));
         assert.notEqual($('#indicate').text(), 'Button');
       });
     });
@@ -75,6 +76,7 @@ define(function (require, exports, module) {
       it('replaces the spinner with the original button text', function () {
         progressIndicator.showIndicator('#indicate');
         progressIndicator.removeIndicator();
+        assert.isFalse($('#indicate').prop('disabled'));
         assert.equal($('#indicate').text(), 'Button');
       });
 

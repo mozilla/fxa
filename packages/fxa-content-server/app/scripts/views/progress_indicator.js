@@ -122,7 +122,10 @@ define(function (require, exports, module) {
       if (progressEl.length) {
         this._progressEl = progressEl;
         this._progressHTML = progressEl.html();
-        progressEl.html(this.$el);
+        // progress indicator should disable the element and show the indicator
+        progressEl
+          .prop('disabled', true)
+          .html(this.$el);
       }
     },
 
@@ -135,7 +138,9 @@ define(function (require, exports, module) {
     removeIndicator (progressEl) {
       progressEl = this._progressEl;
       if (progressEl && progressEl.length) {
-        progressEl.html(this._progressHTML);
+        progressEl
+          .prop('disabled', false)
+          .html(this._progressHTML);
       }
     },
 
