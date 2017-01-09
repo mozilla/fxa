@@ -1,3 +1,40 @@
+<a name="0.78.0"></a>
+# 0.78.0 (2017-01-09)
+
+
+### Bug Fixes
+
+* **account:** capture uncaught sessionStatus errors ([9a429ae](https://github.com/mozilla/fxa-content-server/commit/9a429ae))
+* **client:** Stop using able to get the account blocked SUMO link. (#4597) r=vladikoff ([59cba43](https://github.com/mozilla/fxa-content-server/commit/59cba43)), closes [#4588](https://github.com/mozilla/fxa-content-server/issues/4588)
+* **clients:** change Get-App button to Download (#4571) r=philbooth ([37fd2c3](https://github.com/mozilla/fxa-content-server/commit/37fd2c3)), closes [#4413](https://github.com/mozilla/fxa-content-server/issues/4413)
+* **deps:** update to latest p-promise and fxa-js-client (#4580) ([5c85df4](https://github.com/mozilla/fxa-content-server/commit/5c85df4)), closes [#2160](https://github.com/mozilla/fxa-content-server/issues/2160)
+* **docs:** Bring back the accidentally deleted client-metrics.md content. (#4593) r=vladiko ([1114db8](https://github.com/mozilla/fxa-content-server/commit/1114db8))
+* **email:** adjust text of email resend link (#4599) r=vbudhram ([2472054](https://github.com/mozilla/fxa-content-server/commit/2472054))
+* **links:** open external links on about:accounts in new tabs ([f40d5d7](https://github.com/mozilla/fxa-content-server/commit/f40d5d7))
+* **progress_indicator:** disable element while the progress indicator is active (#4582) r=@shane-tomlinso ([1f5499c](https://github.com/mozilla/fxa-content-server/commit/1f5499c)), closes [#4167](https://github.com/mozilla/fxa-content-server/issues/4167)
+* **reset:** add relier name into reset ([bffc19c](https://github.com/mozilla/fxa-content-server/commit/bffc19c))
+* **reset:** change button and header on the reset page (#4564) ([f15e2d7](https://github.com/mozilla/fxa-content-server/commit/f15e2d7)), closes [#4538](https://github.com/mozilla/fxa-content-server/issues/4538)
+* **rtl:** fix rtl in the devices & apps view ([ade305a](https://github.com/mozilla/fxa-content-server/commit/ade305a))
+* **server:** advertise OAuth scopes in OIDC (#4587); r=rfk ([5099f51](https://github.com/mozilla/fxa-content-server/commit/5099f51)), closes [#3433](https://github.com/mozilla/fxa-content-server/issues/3433)
+* **tests:** marionette fixes: remove selenium check; export X DISPLAY (#4596) r=vladikoff ([ed11ab7](https://github.com/mozilla/fxa-content-server/commit/ed11ab7))
+* **tests:** update to support latest Firefox driver (#4442) ([ea575bb](https://github.com/mozilla/fxa-content-server/commit/ea575bb)), closes [#3995](https://github.com/mozilla/fxa-content-server/issues/3995)
+
+### Features
+
+* **client:** Stringify WebChannel payloads in Fx Desktop >= 50. (#4579) r=@mhammond, @rfk ([4888e28](https://github.com/mozilla/fxa-content-server/commit/4888e28)), closes [#4577](https://github.com/mozilla/fxa-content-server/issues/4577)
+* **server:** Remove `unsafe-eval` and reportOnly CSP rules! (#4595) r=vladikoff,jrgm ([76b2014](https://github.com/mozilla/fxa-content-server/commit/76b2014)), closes [#4594](https://github.com/mozilla/fxa-content-server/issues/4594)
+* **signup:** allow users to dismiss suggest-sync ([240c30a](https://github.com/mozilla/fxa-content-server/commit/240c30a))
+
+### Refactor
+
+* **client:** reduce duplicated auth broker initialisation logic (#4568) r=@shane-tomlinson ([4505f2e](https://github.com/mozilla/fxa-content-server/commit/4505f2e))
+* **test:** Remove `context` from `openFxaFromRp`, `openFxaFromUntrustedRp` (#4576) r=@philb ([232e2f5](https://github.com/mozilla/fxa-content-server/commit/232e2f5))
+* **test:** Remove `context` from `reOpenWithAdditionalQueryParams` ([d4f4ca3](https://github.com/mozilla/fxa-content-server/commit/d4f4ca3))
+* **test:** Remove `context` from `test*WasShown` ([8b27f6e](https://github.com/mozilla/fxa-content-server/commit/8b27f6e))
+* **test:** Remove tests/functional/lib/test.js (#4592) r=@philbooth ([0578596](https://github.com/mozilla/fxa-content-server/commit/0578596))
+
+
+
 <a name="0.77.0"></a>
 # 0.77.0 (2016-12-28)
 
