@@ -15,7 +15,7 @@ module.exports = {
           includeSubdomains: true
         },
         xframe: false,
-        xss: false,
+        xss: true,
         noOpen: false,
         noSniff: true
       }
