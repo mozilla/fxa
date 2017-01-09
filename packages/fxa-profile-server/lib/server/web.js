@@ -51,7 +51,7 @@ exports.create = function createServer() {
             includeSubdomains: true
           },
           xframe: false,
-          xss: false,
+          xss: true,
           noOpen: false,
           noSniff: true
         }
