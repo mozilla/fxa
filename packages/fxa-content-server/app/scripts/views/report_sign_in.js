@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const AuthErrors = require('lib/auth-errors');
+  const Constants = require('lib/constants');
   const FormView = require('views/form');
   const Template = require('stache!templates/report_sign_in');
   const SignInToReport = require('models/verification/report-sign-in');
@@ -18,7 +19,6 @@ define(function (require, exports, module) {
     template: Template,
 
     initialize (options = {}) {
-      this._able = options.able;
       this._signInToReport = new SignInToReport(this.getSearchParams());
     },
 
@@ -59,10 +59,9 @@ define(function (require, exports, module) {
      * @returns {String}
      */
     _getSupportLink () {
-      return this._able.choose('blockedSigninSupportUrl');
+      return Constants.BLOCKED_SIGNIN_SUPPORT_URL;
     }
   });
 
   module.exports = View;
 });
-

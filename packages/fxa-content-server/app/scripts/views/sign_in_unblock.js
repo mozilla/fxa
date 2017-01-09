@@ -18,17 +18,9 @@ define(function (require, exports, module) {
   const SignInMixin = require('views/mixins/signin-mixin');
   const Template = require('stache!templates/sign_in_unblock');
 
-  const proto = FormView.prototype;
-
   const View = FormView.extend({
     template: Template,
     className: 'sign-in-unblock',
-
-    initialize(options = {}) {
-      this._able = options.able;
-
-      return proto.initialize.call(this, options);
-    },
 
     getAccount () {
       return this.model.get('account');
@@ -103,7 +95,7 @@ define(function (require, exports, module) {
      * @returns {String}
      */
     _getSupportLink () {
-      return this._able.choose('blockedSigninSupportUrl');
+      return Constants.BLOCKED_SIGNIN_SUPPORT_URL;
     }
   });
 

@@ -20,12 +20,10 @@ define(function (require, exports, module) {
   const View = require('views/sign_in_unblock');
   const WindowMock = require('../../mocks/window');
 
-  // trailing " is intentional to ensure rendered link is properly escaped
-  const UNSAFE_SUMO_LINK = 'https://support.mozilla.org/why-am-i-blocked"';
+  const BLOCKED_SIGNIN_SUPPORT_URL = Constants.BLOCKED_SIGNIN_SUPPORT_URL;
   const UNBLOCK_CODE = createRandomHexString(Constants.UNBLOCK_CODE_LENGTH);
 
   describe('views/sign_in_unblock', () => {
-    let able;
     let account;
     let broker;
     let metrics;
@@ -36,9 +34,6 @@ define(function (require, exports, module) {
     let windowMock;
 
     beforeEach(() => {
-      able = {
-        choose () { }
-      };
       metrics = new Metrics();
       windowMock = new WindowMock();
 
@@ -65,7 +60,6 @@ define(function (require, exports, module) {
       notifier = _.extend({}, Backbone.Events);
 
       view = new View({
-        able,
         broker,
         canGoBack: true,
         metrics,
@@ -92,6 +86,10 @@ define(function (require, exports, module) {
       it('renders the view', () => {
         assert.lengthOf(view.$('#fxa-signin-unblock-header'), 1);
         assert.include(view.$('.verification-email-message').text(), 'a@a.com');
+
+        const $supportLinkEl = view.$('#support-link');
+        assert.lengthOf($supportLinkEl, 1);
+        assert.equal($supportLinkEl.attr('href'), encodeURI(BLOCKED_SIGNIN_SUPPORT_URL));
       });
 
       describe('without an account', () => {
@@ -104,34 +102,6 @@ define(function (require, exports, module) {
 
         it('redirects to the signin page', () => {
           assert.isTrue(view.navigate.calledWith('signin'));
-        });
-      });
-
-      describe('without a support link', () => {
-        beforeEach(() => {
-          return view.render();
-        });
-
-        it('does not render the support link', () => {
-          assert.lengthOf(view.$('#support-link'), 0);
-        });
-      });
-
-      describe('with a support link', () => {
-        beforeEach(() => {
-          sinon.stub(able, 'choose', (experimentName) => {
-            if (experimentName === 'blockedSigninSupportUrl') {
-              return UNSAFE_SUMO_LINK;
-            }
-          });
-
-          return view.render();
-        });
-
-        it('renders the support link using a safe URL', () => {
-          const $supportLinkEl = view.$('#support-link');
-          assert.lengthOf($supportLinkEl, 1);
-          assert.equal($supportLinkEl.attr('href'), encodeURI(UNSAFE_SUMO_LINK));
         });
       });
     });
@@ -301,20 +271,6 @@ define(function (require, exports, module) {
         it('returns URL the broker returns', () => {
           assert.equal(view._getAuthPage(), '/oauth/signin');
         });
-      });
-    });
-
-    describe('_getSupportLink', () => {
-      beforeEach(() => {
-        sinon.stub(able, 'choose', (experimentName) => {
-          if (experimentName === 'blockedSigninSupportUrl') {
-            return UNSAFE_SUMO_LINK;
-          }
-        });
-      });
-
-      it('returns the value returned by able', () => {
-        assert.equal(view._getSupportLink(), UNSAFE_SUMO_LINK);
       });
     });
   });

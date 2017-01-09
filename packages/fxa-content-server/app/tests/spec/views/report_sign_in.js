@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const { createRandomHexString } = require('../../lib/helpers');
   const p = require('lib/promise');
   const sinon = require('sinon');
-  const { UID_LENGTH, UNBLOCK_CODE_LENGTH } = require('lib/constants');
+  const { BLOCKED_SIGNIN_SUPPORT_URL, UID_LENGTH, UNBLOCK_CODE_LENGTH } = require('lib/constants');
   const User = require('models/user');
   const View = require('views/report_sign_in');
   const WindowMock = require('../../mocks/window');
@@ -21,26 +21,18 @@ define(function (require, exports, module) {
   const VALID_UNBLOCK_CODE = createRandomHexString(UNBLOCK_CODE_LENGTH);
   const INCORRECT_UNBLOCK_CODE = createRandomHexString(UNBLOCK_CODE_LENGTH + 1);
 
-  // trailing " is intentional to ensure rendered link is properly escaped
-  const UNSAFE_SUMO_LINK = 'https://support.mozilla.org/why-am-i-blocked"';
-
   describe('views/report_sign_in', () => {
-    let able;
     let user;
     let view;
     let windowMock;
 
     function createAndRender(uid, unblockCode) {
-      able = {
-        choose () { }
-      };
       user = new User();
 
       windowMock = new WindowMock();
       windowMock.location.search = `?uid=${uid}&unblockCode=${unblockCode}`;
 
       view = new View({
-        able,
         user,
         window: windowMock
       });
@@ -62,34 +54,10 @@ define(function (require, exports, module) {
     describe('render', () => {
       it('renders correctly', () => {
         assert.lengthOf(view.$('#fxa-report-sign-in-header'), 1);
-      });
 
-      describe('without a support link', () => {
-        beforeEach(() => {
-          return view.render();
-        });
-
-        it('does not render the support link', () => {
-          assert.lengthOf(view.$('#support-link'), 0);
-        });
-      });
-
-      describe('with a support link', () => {
-        beforeEach(() => {
-          sinon.stub(able, 'choose', (experimentName) => {
-            if (experimentName === 'blockedSigninSupportUrl') {
-              return UNSAFE_SUMO_LINK;
-            }
-          });
-
-          return view.render();
-        });
-
-        it('renders the support link using a safe URL', () => {
-          const $supportLinkEl = view.$('#support-link');
-          assert.lengthOf($supportLinkEl, 1);
-          assert.equal($supportLinkEl.attr('href'), encodeURI(UNSAFE_SUMO_LINK));
-        });
+        const $supportLinkEl = view.$('#support-link');
+        assert.lengthOf($supportLinkEl, 1);
+        assert.equal($supportLinkEl.attr('href'), encodeURI(BLOCKED_SIGNIN_SUPPORT_URL));
       });
 
       describe('with an invalid uid', () => {
@@ -138,20 +106,6 @@ define(function (require, exports, module) {
         assert.equal(args[1], VALID_UNBLOCK_CODE);
 
         assert.isTrue(view.navigate.calledWith('signin_reported'));
-      });
-    });
-
-    describe('_getSupportLink', () => {
-      beforeEach(() => {
-        sinon.stub(able, 'choose', (experimentName) => {
-          if (experimentName === 'blockedSigninSupportUrl') {
-            return UNSAFE_SUMO_LINK;
-          }
-        });
-      });
-
-      it('returns the value returned by able', () => {
-        assert.equal(view._getSupportLink(), UNSAFE_SUMO_LINK);
       });
     });
   });

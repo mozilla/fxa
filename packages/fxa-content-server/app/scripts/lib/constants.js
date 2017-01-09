@@ -113,6 +113,7 @@ define(function (require, exports, module) {
     // Login delay for iOS broker
     IOS_V1_LOGIN_MESSAGE_DELAY_MS: 10000,
 
+    BLOCKED_SIGNIN_SUPPORT_URL: 'https://support.mozilla.org/kb/accounts-blocked',
     UNBLOCK_CODE_LENGTH: 8,
 
     MARKETING_ID_SPRING_2015: 'spring-2015-android-ios-sync',
