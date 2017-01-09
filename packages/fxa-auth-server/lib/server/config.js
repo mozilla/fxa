@@ -14,7 +14,7 @@ module.exports = {
           maxAge: 15552000,
           includeSubdomains: true
         },
-        xframe: false,
+        xframe: true,
         xss: true,
         noOpen: false,
         noSniff: true
