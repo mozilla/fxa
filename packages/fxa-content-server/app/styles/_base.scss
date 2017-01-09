@@ -159,21 +159,22 @@ input[type='radio'] {
     appearance: none;
     background: $color-white;
     border: 1px solid $radio-border-default-color;
-    vertical-align: middle;
+    border-radius: $radio-width;
+    box-sizing: content-box;
     font-size: $medium-font;
     height: $radio-height;
-    width: $radio-width;
     margin: $radio-margin;
     outline: none;
     padding: $radio-padding;
-    box-sizing: content-box;
+    vertical-align: middle;
+    width: $radio-width;
 
     @include respond-to('small') {
       font-size: $base-font + $media-adjustment;
     }
 
     &:active {
-      box-shadow: 0px 0px 0px 2px $radio-box-shadow-color;
+      box-shadow: 0 0 0 2px $radio-box-shadow-color;
     }
 
     &:checked {
