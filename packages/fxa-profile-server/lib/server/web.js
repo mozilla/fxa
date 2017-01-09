@@ -53,7 +53,7 @@ exports.create = function createServer() {
           xframe: false,
           xss: false,
           noOpen: false,
-          noSniff: false
+          noSniff: true
         }
       }
     }

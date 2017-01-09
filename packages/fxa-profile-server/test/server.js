@@ -20,9 +20,12 @@ describe('server', function() {
         var stsHeader = res.headers['strict-transport-security'];
         assert.equal(stsHeader, 'max-age=15552000; includeSubDomains');
 
+        // content type options header
+        var contentTypeHeader = res.headers['x-content-type-options'];
+        assert.equal(contentTypeHeader, 'nosniff');
+
         // but the other security builtin headers from hapi are not set
         var other = {
-          'x-content-type-options': 1,
           'x-download-options': 1,
           'x-frame-options': 1,
           'x-xss-protection': 1
