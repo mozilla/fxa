@@ -50,10 +50,10 @@ exports.create = function createServer() {
             maxAge: 15552000,
             includeSubdomains: true
           },
-          xframe: false,
-          xss: false,
+          xframe: true,
+          xss: true,
           noOpen: false,
-          noSniff: false
+          noSniff: true
         }
       }
     }
