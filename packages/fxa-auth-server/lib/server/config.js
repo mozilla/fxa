@@ -17,7 +17,7 @@ module.exports = {
         xframe: false,
         xss: false,
         noOpen: false,
-        noSniff: false
+        noSniff: true
       }
     }
   }
