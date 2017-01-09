@@ -87,7 +87,11 @@ function makeApp() {
     app.use(csp({ rules: cspRulesBlocking }));
   }
   if (config.get('csp.reportOnlyEnabled')) {
-    app.use(csp({ rules: cspRulesReportOnly }));
+    // There has to be more than a `reportUri`
+    // to enable reportOnly CSP.
+    if (Object.keys(cspRulesReportOnly.directives).length > 1) {
+      app.use(csp({ rules: cspRulesReportOnly }));
+    }
   }
   if (config.get('hpkp.enabled')) {
     app.use(hpkp(config));

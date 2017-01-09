@@ -77,9 +77,8 @@ define([
     assert.include(objectSrc, Sources.NONE);
 
     const scriptSrc = directives.scriptSrc;
-    assert.lengthOf(scriptSrc, 3);
+    assert.lengthOf(scriptSrc, 2);
     assert.include(scriptSrc, Sources.SELF);
-    assert.include(scriptSrc, Sources.UNSAFE_EVAL);
     assert.include(scriptSrc, CDN_SERVER);
 
     const styleSrc = directives.styleSrc;
@@ -91,4 +90,3 @@ define([
 
   registerSuite(suite);
 });
-

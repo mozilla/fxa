@@ -5,28 +5,16 @@
 
 /**
  * reportOnlyCspMiddleware is where to declare experimental rules that
- * will not cause a resource to be blocked if it runs afowl of a rule, but will
- * cause the resource to be reported.
+ * will not cause a resource to be blocked if it runs afowl of a rule, but
+ * will cause the resource to be reported.
+ *
+ * If no directives other than `reportUri` are declared, the CSP reportOnly
+ * middleware will not be added.
  */
 module.exports = function (config) {
-  var CDN_URL = config.get('static_resource_url');
-  var PUBLIC_URL = config.get('public_url');
-  var SELF = "'self'";
-
-  function addCdnRuleIfRequired(target) {
-    if (CDN_URL !== PUBLIC_URL) {
-      target.push(CDN_URL);
-    }
-
-    return target;
-  }
-
   return {
     directives: {
-      reportUri: config.get('csp.reportOnlyUri'),
-      scriptSrc: addCdnRuleIfRequired([
-        SELF
-      ])
+      reportUri: config.get('csp.reportOnlyUri')
     },
     reportOnly: true
   };

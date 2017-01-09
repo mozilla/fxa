@@ -37,10 +37,8 @@ module.exports = function (config) {
   // The sha of the embedded <style> tag in default-profile.svg.
   const EMBEDDED_STYLE_SHA = "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='";
   // keyword sources - https://www.w3.org/TR/CSP2/#keyword_source
-  // Note: "'unsafe-inline'" is not yet used in this module.
+  // Note: "'unsafe-inline'" and "'unsafe-eval'" are not used in this module.
   const SELF = "'self'";
-  const UNSAFE_EVAL = "'unsafe-eval'";
-
 
   function addCdnRuleIfRequired(target) {
     if (CDN_URL !== PUBLIC_URL) {
@@ -75,11 +73,7 @@ module.exports = function (config) {
       objectSrc: [NONE],
       reportUri: config.get('csp.reportUri'),
       scriptSrc: addCdnRuleIfRequired([
-        SELF,
-        // allow unsafe-eval for functional tests. A report-only middleware
-        // is also added that does not allow 'unsafe-eval' so that we can see
-        // if other scripts are being added.
-        UNSAFE_EVAL
+        SELF
       ]),
       styleSrc: addCdnRuleIfRequired([
         SELF,
@@ -101,8 +95,7 @@ module.exports = function (config) {
       PROFILE_IMAGES_SERVER,
       PROFILE_SERVER,
       PUBLIC_URL,
-      SELF,
-      UNSAFE_EVAL
+      SELF
     }
   };
 
