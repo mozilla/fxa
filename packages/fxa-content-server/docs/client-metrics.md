@@ -79,6 +79,9 @@ Contains:
 
 See https://developer.mozilla.org/docs/Navigation_timing for more information.
 
+### numStoredAccounts
+The number of accounts the user has stored in localStorage. Only sent once from the /signin page.
+
 ### referrer
 Where the user came from. Not set if the `referrer` header cannot be read.
 

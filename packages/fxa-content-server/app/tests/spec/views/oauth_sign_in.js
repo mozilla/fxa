@@ -52,11 +52,12 @@ define(function (require, exports, module) {
         window: windowMock
       });
       fxaClient = new FxaClient();
-      user = new User({
-        fxaClient: fxaClient,
-        notifier: notifier
-      });
       metrics = new Metrics();
+      user = new User({
+        fxaClient,
+        metrics,
+        notifier
+      });
       profileClientMock = TestHelpers.stubbedProfileClient();
       formPrefill = new FormPrefill();
       notifier = new Notifier();

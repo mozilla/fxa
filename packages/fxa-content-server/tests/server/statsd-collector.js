@@ -58,6 +58,7 @@ define([
     var MESSAGES_TO_TEST = {
       'fxa.content.loaded.time': 'statsd_timer_body_login.txt',
       'fxa.content.marketing.impression': 'statsd_impression_body_marketing.txt',
+      'fxa.content.num_stored_accounts': 'statsd_count_body_numStoredAccounts.txt',
       'fxa.content.signup.success': 'statsd_event_body_signup_success.txt',
       'fxa.content.signup.success.time': 'statsd_timer_body_signup_success.txt'
     };

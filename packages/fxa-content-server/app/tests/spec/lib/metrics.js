@@ -193,6 +193,7 @@ define(function (require, exports, module) {
               sandbox.stub(windowMock.navigator, 'sendBeacon', function () {
                 return true;
               });
+              metrics.logNumStoredAccounts(2);
               return metrics.flush().then(function (r) {
                 result = r;
               });
@@ -208,7 +209,7 @@ define(function (require, exports, module) {
               assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
               var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-              assert.lengthOf(Object.keys(data), 25);
+              assert.lengthOf(Object.keys(data), 26);
               assert.equal(data.broker, 'none');
               assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
               assert.isNumber(data.duration);
@@ -226,6 +227,7 @@ define(function (require, exports, module) {
               assert.isArray(data.experiments);
               assert.equal(data.migration, 'none');
               assert.isObject(data.navigationTiming);
+              assert.equal(data.numStoredAccounts, 2);
               assert.equal(data.referrer, 'https://marketplace.firefox.com');
               assert.isObject(data.screen);
               assert.equal(data.service, 'none');
@@ -667,6 +669,38 @@ define(function (require, exports, module) {
       assert.deepEqual(metrics.getFlowEventMetadata(), {
         flowBeginTime: 'foo',
         flowId: 'bar'
+      });
+    });
+
+    describe('logNumStoredAccounts', () => {
+      it('correctly stores count', () => {
+        assert.equal(metrics.getAllData().numStoredAccounts, '');
+        metrics.logNumStoredAccounts(4);
+        assert.equal(metrics.getAllData().numStoredAccounts, 4);
+      });
+
+      it('correctly reports count', () => {
+        sinon.stub(metrics, '_send', () => p(true));
+        sinon.stub(metrics, '_isFlushRequired', () => true);
+
+        return metrics.flush()
+          .then(() => {
+            // not sent if logNumStoredAccounts has not been called
+            assert.notProperty(metrics._send.args[0][0], 'numStoredAccounts');
+
+            metrics.logNumStoredAccounts(2);
+
+            return metrics.flush();
+          })
+          .then(() => {
+            // a second flush!
+            assert.equal(metrics._send.args[1][0].numStoredAccounts, 2);
+
+            return metrics.flush();
+          })
+          .then(() => {
+            assert.notProperty(metrics._send.args[0][0], 'numStoredAccounts');
+          });
       });
     });
   });

@@ -48,6 +48,7 @@ define(function (require, exports, module) {
     'marketing',
     'migration',
     'navigationTiming',
+    'numStoredAccounts',
     'referrer',
     'screen',
     'service',
@@ -85,11 +86,6 @@ define(function (require, exports, module) {
   }
 
   function Metrics (options = {}) {
-    // by default, send the metrics to the content server.
-    this._collector = options.collector || '';
-
-    this._xhr = options.xhr || xhr;
-
     this._speedTrap = new SpeedTrap();
     this._speedTrap.init();
 
@@ -99,43 +95,40 @@ define(function (require, exports, module) {
 
     this._window = options.window || window;
 
-    this._lang = options.lang || 'unknown';
-    this._context = options.context || Constants.CONTENT_SERVER_CONTEXT;
-    this._entrypoint = options.entrypoint || NOT_REPORTED_VALUE;
-    this._migration = options.migration || NOT_REPORTED_VALUE;
-    this._service = options.service || NOT_REPORTED_VALUE;
+    this._able = options.able;
+    this._activeExperiments = {};
     this._brokerType = options.brokerType || NOT_REPORTED_VALUE;
-
     this._clientHeight = options.clientHeight || NOT_REPORTED_VALUE;
     this._clientWidth = options.clientWidth || NOT_REPORTED_VALUE;
+    // by default, send the metrics to the content server.
+    this._collector = options.collector || '';
+    this._context = options.context || Constants.CONTENT_SERVER_CONTEXT;
     this._devicePixelRatio = options.devicePixelRatio || NOT_REPORTED_VALUE;
-    this._screenHeight = options.screenHeight || NOT_REPORTED_VALUE;
-    this._screenWidth = options.screenWidth || NOT_REPORTED_VALUE;
-
+    this._entrypoint = options.entrypoint || NOT_REPORTED_VALUE;
+    this._env = options.environment || new Environment(this._window);
+    this._eventMemory = {};
+    this._inactivityFlushMs = options.inactivityFlushMs || DEFAULT_INACTIVITY_TIMEOUT_MS;
     // All user metrics are sent to the backend. Data is only
     // reported to Heka and Datadog if `isSampledUser===true`.
     this._isSampledUser = options.isSampledUser || false;
-
+    this._lang = options.lang || 'unknown';
+    this._marketingImpressions = {};
+    this._migration = options.migration || NOT_REPORTED_VALUE;
+    this._numStoredAccounts = options.numStoredAccounts || '';
     this._referrer = this._window.document.referrer || NOT_REPORTED_VALUE;
+    this._screenHeight = options.screenHeight || NOT_REPORTED_VALUE;
+    this._screenWidth = options.screenWidth || NOT_REPORTED_VALUE;
+    this._service = options.service || NOT_REPORTED_VALUE;
+    // if navigationTiming is supported, the baseTime will be from
+    // navigationTiming.navigationStart, otherwise Date.now().
+    this._startTime = options.startTime || this._speedTrap.baseTime;
     this._uniqueUserId = options.uniqueUserId || NOT_REPORTED_VALUE;
     this._utmCampaign = options.utmCampaign || NOT_REPORTED_VALUE;
     this._utmContent = options.utmContent || NOT_REPORTED_VALUE;
     this._utmMedium = options.utmMedium || NOT_REPORTED_VALUE;
     this._utmSource = options.utmSource || NOT_REPORTED_VALUE;
     this._utmTerm = options.utmTerm || NOT_REPORTED_VALUE;
-
-    this._inactivityFlushMs = options.inactivityFlushMs || DEFAULT_INACTIVITY_TIMEOUT_MS;
-
-    this._marketingImpressions = {};
-    this._activeExperiments = {};
-    this._eventMemory = {};
-
-    this._able = options.able;
-    this._env = options.environment || new Environment(this._window);
-
-    // if navigationTiming is supported, the baseTime will be from
-    // navigationTiming.navigationStart, otherwise Date.now().
-    this._startTime = options.startTime || this._speedTrap.baseTime;
+    this._xhr = options.xhr || xhr;
   }
 
   _.extend(Metrics.prototype, Backbone.Events, {
@@ -180,6 +173,12 @@ define(function (require, exports, module) {
 
       this._speedTrap.events.clear();
       this._speedTrap.timers.clear();
+
+      // numStoredAccounts should only be counted once by the backend
+      // for this user. After a flush, unset the value so it is not
+      // reported again.
+      this._numStoredAccounts = '';
+
       const send = () => this._send(filteredData, isPageUnloading);
       return send()
         // Retry once in case of failure, then give up
@@ -227,6 +226,7 @@ define(function (require, exports, module) {
         lang: this._lang,
         marketing: flattenHashIntoArrayOfObjects(this._marketingImpressions),
         migration: this._migration,
+        numStoredAccounts: this._numStoredAccounts,
         referrer: this._referrer,
         screen: {
           clientHeight: this._clientHeight,
@@ -495,10 +495,17 @@ define(function (require, exports, module) {
 
     setFlowModel (flowModel) {
       this._flowModel = flowModel;
+    },
+
+    /**
+     * Log the number of stored accounts
+     *
+     * @param {Number} numStoredAccounts
+     */
+    logNumStoredAccounts (numStoredAccounts) {
+      this._numStoredAccounts = numStoredAccounts;
     }
   });
 
   module.exports = Metrics;
 });
-
-

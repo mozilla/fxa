@@ -43,6 +43,7 @@
         "loadEventStart": 689,
         "loadEventEnd": 689
     },
+    "numStoredAccounts": 4,
     "screen": {
         "devicePixelRatio": 2,
         "clientWidth": 819,

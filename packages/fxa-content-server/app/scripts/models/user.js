@@ -69,6 +69,14 @@ define(function (require, exports, module) {
       });
     },
 
+    /**
+     * Log the number of stored accounts
+     */
+    logNumStoredAccounts () {
+      const numAccounts = Object.keys(this._accounts()).length;
+      this._metrics.logNumStoredAccounts(numAccounts);
+    },
+
     _accounts () {
       return this._storage.get('accounts') || {};
     },

@@ -53,7 +53,8 @@ define(function (require, exports, module) {
       });
 
       user = new User({
-        notifier: notifier
+        metrics,
+        notifier
       });
 
       Session.clear();
@@ -820,13 +821,12 @@ define(function (require, exports, module) {
       });
     });
 
+    it('logs the number of stored accounts on creation', () => {
+      sinon.stub(user, 'logNumStoredAccounts', () => {});
 
-    it('logs the submit event', () => {
-      view.$('#submit-btn').click();
-      assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signin.submit'));
-      view.enableForm();
-      view.$('#submit-btn').click();
-      assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signin.submit'));
+      initView();
+
+      assert.isTrue(user.logNumStoredAccounts.calledOnce);
     });
   });
 });

@@ -36,6 +36,15 @@ define(function (require, exports, module) {
       options = options || {};
 
       this._formPrefill = options.formPrefill;
+
+      // The number of stored accounts is logged to see if we can simplify
+      // the User model. User grew a lot of complexity to support a user
+      // being able to sign in using more than one email address, and we
+      // want to see if this is being used in reality. If not, the model
+      // can probably be vastly simplified. # of users is only logged from
+      // the sign_in view because these are the users that are most likely
+      // to have stored accounts, users that visit /signup probably not.
+      this.user.logNumStoredAccounts();
     },
 
     beforeRender () {

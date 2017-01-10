@@ -51,6 +51,7 @@ define(function (require, exports, module) {
     beforeEach(function () {
       fxaClientMock = new FxaClient();
       metrics = {
+        logNumStoredAccounts: sinon.spy(),
         setFlowModel: sinon.spy()
       };
       notifier = new Notifier();
@@ -1157,6 +1158,30 @@ define(function (require, exports, module) {
       it('delegates to the account', () => {
         assert.isTrue(account.rejectUnblockCode.calledOnce);
         assert.isTrue(account.rejectUnblockCode.calledWith(UNBLOCK_CODE));
+      });
+    });
+
+    describe('logNumStoredAccounts', () => {
+      let account;
+
+      beforeEach(() => {
+        account = user.initAccount({
+          email: 'testuser@testuser.com',
+          uid: 'uid'
+        });
+      });
+
+      it('logs the number of stored accounts', () => {
+        // no accounts to begin with.
+        user.logNumStoredAccounts();
+        assert.equal(metrics.logNumStoredAccounts.callCount, 1);
+        assert.isTrue(metrics.logNumStoredAccounts.calledWith(0));
+
+        // add an account to storage.
+        user._persistAccount(account);
+        user.logNumStoredAccounts();
+        assert.equal(metrics.logNumStoredAccounts.callCount, 2);
+        assert.isTrue(metrics.logNumStoredAccounts.calledWith(1));
       });
     });
   });

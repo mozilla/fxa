@@ -12,6 +12,12 @@ var uaParser = require('node-uap');
 var NAVIGATION_TIMING_MAX_OFFSET = 2 * 60 * 1000;
 var USER_ACTION_MAX_OFFSET = Infinity;
 
+const STORED_ACCOUNTS_MAX_COUNT = Infinity;
+// To avoid outliers, place an artificial upper limit on the
+// stored accounts count. If the reported count is higher,
+// use this instead.
+const STORED_ACCOUNTS_MAX_REPORTED_COUNT = 2;
+
 var STATSD_PREFIX = 'fxa.content.';
 var TIMING_POSTFIX = '.time';
 var TIMED_EVENTS = [
@@ -99,15 +105,18 @@ function isEventOffsetValid(value) {
   return typeof value === 'number';
 }
 
-function isEventOffsetInRange(value, min, max) {
+function isInRange(value, min, max) {
   return value >= min && value <= max;
 }
 
-function logOutOfRangeOffset(type, offset, min, max) {
+function logOutOfRange(type, offset, min, max) {
   logger.error('Out of range (%s): %s [%s, %s]',
       type, offset, min, max);
 }
 
+function isCountValid(value) {
+  return typeof value === 'number';
+}
 
 function getImpressionTags(impression) {
   return [
@@ -126,10 +135,10 @@ function sendEvents(context, events, tags) {
 
         var offset = event.offset;
         if (isTimedEvent(type) && isEventOffsetValid(offset)) {
-          if (isEventOffsetInRange(offset, 0, USER_ACTION_MAX_OFFSET)) {
+          if (isInRange(offset, 0, USER_ACTION_MAX_OFFSET)) {
             context.timing(type, offset, tags);
           } else {
-            logOutOfRangeOffset(type, offset, 0, USER_ACTION_MAX_OFFSET);
+            logOutOfRange(type, offset, 0, USER_ACTION_MAX_OFFSET);
           }
         }
       }
@@ -157,12 +166,29 @@ function sendNavigationTiming(context, navigationTiming, tags) {
       if (isEventOffsetValid(offset)) {
         var type = 'navigationTiming.' + key;
 
-        if (isEventOffsetInRange(offset, 0, NAVIGATION_TIMING_MAX_OFFSET)) {
+        if (isInRange(offset, 0, NAVIGATION_TIMING_MAX_OFFSET)) {
           context.timing(type, offset, tags);
         } else {
-          logOutOfRangeOffset(type, offset, 0, NAVIGATION_TIMING_MAX_OFFSET);
+          logOutOfRange(type, offset, 0, NAVIGATION_TIMING_MAX_OFFSET);
         }
       }
+    }
+  }
+}
+
+function sendNumStoredAccounts(context, numStoredAccounts, tags) {
+  if (isCountValid(numStoredAccounts)) {
+    const type = 'num_stored_accounts';
+    if (isInRange(numStoredAccounts, 0, STORED_ACCOUNTS_MAX_COUNT)) {
+      const reportedNumStoredAccounts =
+        Math.min(numStoredAccounts, STORED_ACCOUNTS_MAX_REPORTED_COUNT);
+      // DataDog distribution graphs allow a particular event to be segmented
+      // by tag. Convert the count to a tag so we can see which tag has
+      // the most values.
+      context.increment(
+        type, ['num_stored_accounts:' + reportedNumStoredAccounts].concat(tags));
+    } else {
+      logOutOfRange(type, numStoredAccounts, 0, STORED_ACCOUNTS_MAX_COUNT);
     }
   }
 }
@@ -212,6 +238,7 @@ StatsDCollector.prototype = {
       sendEvents(this, body.events, tags);
       sendMarketingImpressions(this, body.marketing, tags);
       sendNavigationTiming(this, body.navigationTiming, tags);
+      sendNumStoredAccounts(this, body.numStoredAccounts, tags);
     }
   },
 

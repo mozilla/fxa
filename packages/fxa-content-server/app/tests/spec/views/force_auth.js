@@ -46,7 +46,8 @@ define(function (require, exports, module) {
       notifier = new Notifier();
       relier = new Relier();
       user = new User({
-        notifier: notifier
+        metrics,
+        notifier
       });
       user.getSignedInAccount().set('uid', 'foo');
 
