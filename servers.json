@@ -87,7 +87,7 @@
       "cwd": "fxa-profile-server",
       "max_restarts": "1",
       "env": {
-        "NODE_ENV": "dev",
+        "NODE_ENV": "development",
         "HOST": "0.0.0.0"
       },
       "min_uptime": "2m"
@@ -98,7 +98,7 @@
       "cwd": "fxa-profile-server",
       "max_restarts": "1",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "development"
       },
       "min_uptime": "2m"
     },
@@ -108,7 +108,7 @@
       "cwd": "fxa-profile-server",
       "max_restarts": "1",
       "env": {
-        "NODE_ENV": "dev",
+        "NODE_ENV": "development",
         "WORKER_HOST": "0.0.0.0"
       },
       "min_uptime": "2m"
