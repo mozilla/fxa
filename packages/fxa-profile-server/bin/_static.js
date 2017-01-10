@@ -6,7 +6,7 @@ const config = require('../lib/config').getProperties();
 const logger = require('../lib/logging')('bin._static');
 const server = require('../lib/server/_static').create();
 
-if (config.env !== 'dev') {
+if (config.env !== 'development') {
   logger.warn('sanity-check', 'static bin should only be used for local dev!');
 }
 

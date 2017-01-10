@@ -39,8 +39,8 @@ const conf = convict({
     arg: 'node-env',
     doc: 'The current node.js environment',
     env: 'NODE_ENV',
-    format: ['dev', 'test', 'stage', 'prod'],
-    default: 'dev'
+    format: ['development', 'test', 'stage', 'production'],
+    default: 'production'
   },
   events: {
     region: {

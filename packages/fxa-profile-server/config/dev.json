@@ -1,4 +1,5 @@
 {
+  "env": "development",
   "logging": {
     "fmt": "pretty",
     "level": "all",

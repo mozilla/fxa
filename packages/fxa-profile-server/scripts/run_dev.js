@@ -10,7 +10,7 @@ const path = require('path');
 const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
 
-process.env.NODE_ENV = 'dev';
+process.env.NODE_ENV = 'development';
 
 var childServer = cp.fork(path.join(__dirname, '..', 'bin', 'server.js'));
 childServer.on('exit', process.exit);

@@ -39,7 +39,7 @@ function trimLocale(header) {
 // This is the webserver. It's what the outside always talks to. It
 // handles the whole Profile API.
 exports.create = function createServer() {
-  var isProd = config.env === 'prod';
+  var isProd = config.env === 'production';
   var server = new Hapi.Server({
     debug: false,
     connections: {
@@ -129,7 +129,7 @@ exports.create = function createServer() {
 
   var routes = require('../routing');
   if (isProd) {
-    logger.info('prod', 'Disabling response schema validation');
+    logger.info('production', 'Disabling response schema validation');
     routes.forEach(function(route) {
       delete route.config.response;
     });
