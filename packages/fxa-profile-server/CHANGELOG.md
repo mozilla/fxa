@@ -1,3 +1,20 @@
+<a name="0.78.0"></a>
+# [0.78.0](https://github.com/mozilla/fxa-profile-server/compare/v0.76.1...v0.78.0) (2017-01-10)
+
+
+### Bug Fixes
+
+* **config:** make NODE_ENV consistent across servers (#227) ([a7a822e](https://github.com/mozilla/fxa-profile-server/commit/a7a822e))
+* **security:** enable x-content-type-options nosniff ([fb5a05d](https://github.com/mozilla/fxa-profile-server/commit/fb5a05d))
+* **security:** enable X-XSS-Protection with 1; mode=block ([219fe99](https://github.com/mozilla/fxa-profile-server/commit/219fe99))
+* **security:** set x-frame-options deny ([b033f93](https://github.com/mozilla/fxa-profile-server/commit/b033f93))
+
+### Features
+
+* **mysql:** Ensure db connections always run in strict mode. (#221); r=seanmonstar ([b10b88c](https://github.com/mozilla/fxa-profile-server/commit/b10b88c))
+
+
+
 <a name="0.76.1"></a>
 ## [0.76.1](https://github.com/mozilla/fxa-profile-server/compare/v0.76.0...v0.76.1) (2016-12-19)
 
