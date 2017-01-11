@@ -24,6 +24,7 @@ define(function (require, exports, module) {
   const Session = require('lib/session');
   const sinon = require('sinon');
   const TestHelpers = require('../../lib/helpers');
+  const Translator = require('lib/translator');
   const User = require('models/user');
   const View = require('views/sign_up');
   const WindowMock = require('../../mocks/window');
@@ -39,6 +40,7 @@ define(function (require, exports, module) {
     var model;
     var notifier;
     var relier;
+    var translator;
     var user;
     var view;
 
@@ -62,6 +64,7 @@ define(function (require, exports, module) {
         model: model,
         notifier: notifier,
         relier: relier,
+        translator: translator,
         user: user,
         viewName: 'signup'
       };
@@ -84,6 +87,7 @@ define(function (require, exports, module) {
       model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
+      translator = new Translator({forceEnglish: true});
 
       broker = new Broker({
         relier: relier

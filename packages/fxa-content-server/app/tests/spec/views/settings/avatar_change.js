@@ -16,6 +16,7 @@ define(function (require, exports, module) {
   const ProfileMock = require('../../../mocks/profile');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
+  const Translator = require('lib/translator');
   const TestHelpers = require('../../../lib/helpers');
   const User = require('models/user');
   const View = require('views/settings/avatar_change');
@@ -32,6 +33,7 @@ define(function (require, exports, module) {
     var notifier;
     var profileClientMock;
     var relier;
+    var translator;
     var user;
     var view;
     var windowMock;
@@ -41,6 +43,7 @@ define(function (require, exports, module) {
       notifier = new Notifier();
       profileClientMock = new ProfileMock();
       relier = new Relier();
+      translator = new Translator({forceEnglish: true});
       user = new User();
       windowMock = new WindowMock();
 
@@ -48,6 +51,7 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
+        translator: translator,
         user: user,
         window: windowMock
       });
@@ -67,6 +71,7 @@ define(function (require, exports, module) {
           metrics: metrics,
           notifier: notifier,
           relier: relier,
+          translator: translator,
           user: user,
           window: windowMock
         });

@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
+  const Translator = require('lib/translator');
   const TestHelpers = require('../../../lib/helpers');
   const User = require('models/user');
   const View = require('views/settings/communication_preferences');
@@ -30,6 +31,7 @@ define(function (require, exports, module) {
     var relier;
     var user;
     var view;
+    var translator;
 
     function render() {
       return view.render()
@@ -44,6 +46,7 @@ define(function (require, exports, module) {
       relier = new Relier();
       account = new Account();
       metrics = new Metrics();
+      translator = new Translator({forceEnglish: true});
 
       emailPrefsModel = new MarketingEmailPrefs({
         newsletters: [ NEWSLETTER_ID ],
@@ -71,6 +74,7 @@ define(function (require, exports, module) {
       view = new View({
         metrics: metrics,
         relier: relier,
+        translator: translator,
         user: user
       });
 

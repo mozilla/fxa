@@ -75,7 +75,7 @@ define(function (require, exports, module) {
       metrics = new Metrics();
       notifier = new Notifier();
       parentView = new BaseView();
-      translator = new Translator('en-US', ['en-US']);
+      translator = new Translator({forceEnglish: true});
       user = new User();
 
       account = user.initAccount({

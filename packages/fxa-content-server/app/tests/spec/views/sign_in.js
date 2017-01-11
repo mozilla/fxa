@@ -19,6 +19,7 @@ define(function (require, exports, module) {
   const Relier = require('models/reliers/relier');
   const Session = require('lib/session');
   const sinon = require('sinon');
+  const Translator = require('lib/translator');
   const TestHelpers = require('../../lib/helpers');
   const User = require('models/user');
   const View = require('views/sign_in');
@@ -37,6 +38,7 @@ define(function (require, exports, module) {
     var relier;
     var user;
     var view;
+    var translator;
     var windowMock;
 
     beforeEach(function () {
@@ -47,6 +49,7 @@ define(function (require, exports, module) {
       notifier = new Notifier();
       relier = new Relier();
       windowMock = new WindowMock();
+      translator = new Translator({forceEnglish: true});
 
       broker = new Broker({
         relier: relier
@@ -85,6 +88,7 @@ define(function (require, exports, module) {
         model: model,
         notifier: notifier,
         relier: relier,
+        translator: translator,
         user: user,
         viewName: 'signin',
         window: windowMock

@@ -15,10 +15,15 @@ define(function (require, exports, module) {
 
   const FormView = require('views/form');
   const Template = require('stache!templates/test_template');
+  const Translator = require('lib/translator');
 
   const TestView = FormView.extend({
     template: Template
   });
+
+  const viewOpts = {
+    translator: new Translator({forceEnglish: true})
+  };
 
   Cocktail.mixin(
     TestView,
@@ -34,7 +39,7 @@ define(function (require, exports, module) {
 
     describe('showPasswordPrompt displays different prompts', function () {
       beforeEach(function () {
-        view = new TestView();
+        view = new TestView(viewOpts);
         return view.render();
       });
 

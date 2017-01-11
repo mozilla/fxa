@@ -26,7 +26,7 @@ define(function (require, exports, module) {
     let translator;
 
     beforeEach(function () {
-      translator = new Translator();
+      translator = new Translator({forceEnglish: true});
 
       mockView = {
         isInExperimentGroup () {

@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const TestHelpers = require('../../lib/helpers');
+  const Translator = require('lib/translator');
   const User = require('models/user');
   const View = require('views/complete_sign_up');
   const WindowMock = require('../../mocks/window');
@@ -29,6 +30,7 @@ define(function (require, exports, module) {
     let metrics;
     let notifier;
     let relier;
+    let translator;
     let user;
     let verificationError;
     let view;
@@ -69,6 +71,7 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
+        translator: translator,
         user: user,
         viewName: 'complete_sign_up',
         window: windowMock
@@ -87,6 +90,7 @@ define(function (require, exports, module) {
 
       verificationError = null;
       windowMock = new WindowMock();
+      translator = new Translator({forceEnglish: true});
 
       account = user.initAccount({
         email: 'a@a.com',

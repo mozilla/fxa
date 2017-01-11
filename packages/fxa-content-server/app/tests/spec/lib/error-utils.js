@@ -41,7 +41,7 @@ define(function (require, exports, module) {
         captureException: sinon.spy()
       };
 
-      translator = new Translator();
+      translator = new Translator({forceEnglish: true});
 
       windowMock = new WindowMock();
       sandbox.spy(windowMock.console, 'error');

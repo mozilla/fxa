@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   const SignInView = require('views/sign_in');
   const sinon = require('sinon');
   const TestHelpers = require('../../lib/helpers');
+  const Translator = require('lib/translator');
   const User = require('models/user');
   const View = require('views/force_auth');
   const WindowMock = require('../../mocks/window');
@@ -31,6 +32,7 @@ define(function (require, exports, module) {
     var notifier;
     var relier;
     var user;
+    var translator;
     var view;
     var windowMock;
 
@@ -44,6 +46,7 @@ define(function (require, exports, module) {
       metrics = new Metrics();
       model = new Backbone.Model();
       notifier = new Notifier();
+      translator = new Translator({forceEnglish: true});
       relier = new Relier();
       user = new User({
         metrics,
@@ -70,6 +73,7 @@ define(function (require, exports, module) {
         model: model,
         notifier: notifier,
         relier: relier,
+        translator: translator,
         user: user,
         viewName: 'force-auth',
         window: windowMock

@@ -14,7 +14,16 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const Strings = require('lib/strings');
 
-  const Translator = function () {
+  /**
+   *
+   * @param {Object} options - translator options
+   * @param {Boolean} [options.forceEnglish] - force English translations, used in tests.
+   * @constructor
+   */
+  const Translator = function (options = {}) {
+    if (options.forceEnglish) {
+      this.__translations__ = {};
+    }
   };
 
   Translator.prototype = {
