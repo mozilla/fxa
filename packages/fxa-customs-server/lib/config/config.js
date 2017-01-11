@@ -174,7 +174,7 @@ module.exports = function (fs, path, url, convict) {
       // These are emails frequently used for testing purposes
       default: [
         'restmail.net',
-        'mockmyid.com'
+        'restmail.dev.lcip.org'
       ]
     },
     requestChecks: {
