@@ -1,4 +1,11 @@
 
+v0.78.0
+
+  * fix(config): remove mockmyid rate limit, add second restmail (#156); r=rfk
+  * fix(docs): Add note about commit messages (#155); r=rfk
+  * chore(shrinkwrap): add npm script for shrinkwrap (#150) r=vladikoff
+  * Send violations to ip service (#148), r=@vbudhram
+
 v0.72.1
 
   * fix(ip_record): Correctly total bad logins by unique email address.
