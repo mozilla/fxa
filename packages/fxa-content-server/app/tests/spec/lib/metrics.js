@@ -19,6 +19,9 @@ define(function (require, exports, module) {
   const TestHelpers = require('../../lib/helpers');
   const WindowMock = require('../../mocks/window');
 
+  const MARKETING_CAMPAIGN = 'campaign1';
+  const MARKETING_CAMPAIGN_URL = 'https://accounts.firefox.com';
+
   describe('lib/metrics', function () {
     var metrics;
     var windowMock;
@@ -468,17 +471,37 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('flush, no events or timers', function () {
+      describe('flush, no data has changed, flush again', () => {
         beforeEach(function () {
-          sandbox.stub(environment, 'hasSendBeacon', function () {
-            return true;
-          });
-          sandbox.stub(windowMock.navigator, 'sendBeacon', function () {});
-          return metrics.flush();
+          sandbox.stub(environment, 'hasSendBeacon', () => true);
+          sandbox.stub(windowMock.navigator, 'sendBeacon', () => true);
+
+          metrics.logEvent('event');
+          metrics.startTimer('timer1');
+          metrics.stopTimer('timer1');
+          return metrics.flush()
+            .then(() => metrics.flush());
         });
 
-        it('does not send data', function () {
-          assert.equal(windowMock.navigator.sendBeacon.callCount, 0);
+        it('sends data once', function () {
+          assert.equal(windowMock.navigator.sendBeacon.callCount, 1);
+        });
+      });
+
+      describe('flush, data has changed, flush again', () => {
+        beforeEach(function () {
+          sandbox.stub(environment, 'hasSendBeacon', () => true);
+          sandbox.stub(windowMock.navigator, 'sendBeacon', () => true);
+          metrics.logMarketingImpression(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL);
+          return metrics.flush()
+            .then(() => {
+              metrics.logMarketingClick(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL);
+              return metrics.flush();
+            });
+        });
+
+        it('sends data both times', function () {
+          assert.equal(windowMock.navigator.sendBeacon.callCount, 2);
         });
       });
 
@@ -599,14 +622,11 @@ define(function (require, exports, module) {
 
     describe('logMarketingImpression & logMarketingClick', function () {
       it('logs the marketing impression and click', function () {
-        var campaign = 'campaign1';
-        var url = 'https://accounts.firefox.com';
-
-        assert.isUndefined(metrics.getMarketingImpression(campaign, url));
-        metrics.logMarketingImpression(campaign, url);
-        assert.isFalse(metrics.getMarketingImpression(campaign, url).clicked);
-        metrics.logMarketingClick(campaign, url);
-        assert.isTrue(metrics.getMarketingImpression(campaign, url).clicked);
+        assert.isUndefined(metrics.getMarketingImpression(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL));
+        metrics.logMarketingImpression(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL);
+        assert.isFalse(metrics.getMarketingImpression(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL).clicked);
+        metrics.logMarketingClick(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL);
+        assert.isTrue(metrics.getMarketingImpression(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL).clicked);
       });
     });
 

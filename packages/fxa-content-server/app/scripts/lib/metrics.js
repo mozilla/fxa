@@ -167,9 +167,11 @@ define(function (require, exports, module) {
 
       var filteredData = this.getFilteredData();
 
-      if (! this._isFlushRequired(filteredData)) {
+      if (! this._isFlushRequired(filteredData, this._lastFlushedData)) {
         return p();
       }
+
+      this._lastFlushedData = filteredData;
 
       this._speedTrap.events.clear();
       this._speedTrap.timers.clear();
@@ -185,9 +187,36 @@ define(function (require, exports, module) {
         .then(sent => sent || send());
     },
 
-    _isFlushRequired (data) {
-      return data.events.length !== 0 ||
-        Object.keys(data.timers).length !== 0;
+    /**
+     * Check if a flush is required for the given `data`. A flush is
+     * required if any data has changed since the last flush.
+     *
+     * @param {Object} data - potential data to flush
+     * @param {Object} lastFlushedData - last data that was flushed.
+     * @returns {Boolean}
+     * @private
+     */
+    _isFlushRequired (data, lastFlushedData) {
+      if (! lastFlushedData) {
+        return true;
+      }
+      // Only check fields that are in the new payload. `data` could be
+      // a subset of `_lastFlushedData`, in which case no flush should occur.
+      return _.any(data, (value, key) => {
+        // these keys are distinct every flush attempt, ignore.
+        if (key === 'duration' || key === 'flushTime') {
+          return false;
+        // events should only cause a flush if there are events to send.
+        } else if (key === 'events' && ! value.length) {
+          return false;
+        // timers should only cause a flush if there are timers to send.
+        } else if (key === 'timers' && ! value.length) {
+          return false;
+        }
+
+        // _.isEqual does a deep comparision of objects and arrays.
+        return ! _.isEqual(lastFlushedData[key], value);
+      });
     },
 
     _clearInactivityFlushTimeout () {
@@ -245,7 +274,9 @@ define(function (require, exports, module) {
         utm_term: this._utmTerm, //eslint-disable-line camelcase
       });
 
-      return allData;
+      // Create a deep copy of the data so that any modifications to contained
+      // objects or arrays do not affect the returned copy of the data.
+      return JSON.parse(JSON.stringify(allData));
     },
 
     /**
