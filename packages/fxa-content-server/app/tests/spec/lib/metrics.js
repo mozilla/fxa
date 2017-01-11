@@ -500,8 +500,13 @@ define(function (require, exports, module) {
             });
         });
 
-        it('sends data both times', function () {
+        it('sends data both times, navigationTiming data only sent on first flush', () => {
           assert.equal(windowMock.navigator.sendBeacon.callCount, 2);
+
+          const firstPayload = JSON.parse(windowMock.navigator.sendBeacon.args[0][1]);
+          assert.isObject(firstPayload.navigationTiming);
+          const secondPayload = JSON.parse(windowMock.navigator.sendBeacon.args[1][1]);
+          assert.notProperty(secondPayload, 'navigationTiming');
         });
       });
 

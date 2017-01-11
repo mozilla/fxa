@@ -289,7 +289,11 @@ define(function (require, exports, module) {
     getFilteredData () {
       var allowedData = _.pick(this.getAllData(), ALLOWED_FIELDS);
 
-      return _.pick(allowedData, function (value, key) {
+      return _.pick(allowedData, (value, key) => {
+        // navigationTiming is sent in the first flush, no need to re-send it.
+        if (this._lastFlushedData && key === 'navigationTiming') {
+          return false;
+        }
         return ! _.isUndefined(value) && value !== '';
       });
     },
