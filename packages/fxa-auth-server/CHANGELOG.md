@@ -1,3 +1,15 @@
+<a name"0.78.0"></a>
+## 0.78.0 (2017-01-11)
+
+
+#### Bug Fixes
+
+* **security:**
+  * set x-frame-options deny ([21ea05dd](https://github.com/mozilla/fxa-oauth-server/commit/21ea05dd))
+  * enable X-XSS-Protection 1; mode=block ([52ca1e56](https://github.com/mozilla/fxa-oauth-server/commit/52ca1e56))
+  * enable x-content-type-options nosniff ([5ea5001c](https://github.com/mozilla/fxa-oauth-server/commit/5ea5001c))
+
+
 <a name"0.77.0"></a>
 ## 0.77.0 (2017-01-04)
 
