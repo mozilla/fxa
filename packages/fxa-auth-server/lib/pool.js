@@ -54,7 +54,12 @@ Pool.prototype.request = function (method, path, data) {
     }
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
-      var error = parsedBody || new Error(body)
+      var error = new Error()
+      if (! parsedBody) {
+        error.message = body
+      } else {
+        Object.assign(error, parsedBody)
+      }
       error.statusCode = res.statusCode
       return d.reject(error)
     }

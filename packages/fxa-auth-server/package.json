@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.74.0",
+  "version": "1.78.0",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -9,14 +9,15 @@
     "test": "test"
   },
   "scripts": {
-    "test": "NODE_ENV=dev CORS_ORIGIN=http://foo,http://bar scripts/test-local.sh",
+    "prepush": "grunt quicklint",
+    "shrinkwrap": "npmshrink",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",
     "start-mysql": "NODE_ENV=dev scripts/start-local-mysql.sh 2>&1",
-    "test-quick": "npm run tq",
+    "test": "NODE_ENV=dev CORS_ORIGIN=http://foo,http://bar scripts/test-local.sh",
     "test-e2e": "NODE_ENV=dev mocha test/e2e",
-    "tq": "NODE_ENV=dev mocha test/local 2>/dev/null && NODE_ENV=dev CORS_ORIGIN=https://bar scripts/test-remote-quick.js",
+    "test-quick": "npm run tq",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 CORS_ORIGIN=http://baz mocha --timeout=300000 test/remote",
-    "prepush": "grunt quicklint"
+    "tq": "NODE_ENV=dev mocha test/local 2>/dev/null && NODE_ENV=dev CORS_ORIGIN=https://bar scripts/test-remote-quick.js"
   },
   "repository": {
     "type": "git",
@@ -84,6 +85,7 @@
     "mailparser": "0.6.1",
     "mocha": "3.1.2",
     "nock": "8.0.0",
+    "npmshrink": "1.0.1",
     "nyc": "8.4.0",
     "proxyquire": "1.7.10",
     "simplesmtp": "0.3.35",

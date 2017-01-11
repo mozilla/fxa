@@ -40,7 +40,8 @@ in a sign-in or sign-up flow:
 
 |Name|Description|
 |----|-----------|
-|`flow.${viewName}.begin`|A user has landed on a page that allows them to sign in/up.|
+|`flow.begin`|A user has requested a page that allows them to sign in/up.|
+|`flow.${viewName}.view`|A view has rendered.|
 |`flow.${viewName}.engage`|A user has interacted with the the form on a page that allows them to sign in/up`.|
 |`flow.${viewName}.submit`|A user has submitted the signup form on a page that allows them to sign in/up.|
 |`flow.${viewName}.have-account`|A user has clicked on the 'Already have an account?' link.|
@@ -59,6 +60,7 @@ in a sign-in or sign-up flow:
 |`account.verified`|A new account has been verified via email.|
 |`account.keyfetch`|Sync encryption keys have been fetched.|
 |`account.signed`|A certificate has been signed.|
+|`account.reset`|An account has been reset.|
 |`account.login.confirmedUnblockCode`|A user has successfully unblocked their account.|
 |`account.login.sentUnblockCode`|A sign-in unblock email has been sent to the user.|
 |`password.forgot.send_code.start`|A user has initiated the password reset flow.|
@@ -67,7 +69,8 @@ in a sign-in or sign-up flow:
 |`password.forgot.resend_code.completed`|A password reset email has been re-sent to the user.|
 |`password.forgot.verify_code.start`|A user has clicked on the link in a password reset email.|
 |`password.forgot.verify_code.completed`|A password reset has been successfully completed on the server.|
-|`flow.completed`|A user has successfully completed a sign-in or sign-up flow.|
+|`route.${path}.200`| A route responded with a 200 status code. Example: `route./account/login.200`|
+|`flow.complete`|A user has successfully completed a sign-in or sign-up flow.|
 
 The following flow events
 represent error conditions,
@@ -77,6 +80,7 @@ to a flow:
 |Name|Description|
 |----|-----------|
 |`customs.blocked`|A request was blocked by the customs server.|
+|`route.${path}.${statusCode}.${errno}`| A route responded with a >=400 status code. Includes `errno`. Example: `route./account/login.400.103`|
 
 In redshift,
 these events are stored
@@ -194,63 +198,111 @@ in the preceding five days.
 
 ## Significant changes
 
+### Train 76
+
+* [Duplicate flow events
+  were fixed in the content server]
+  (https://github.com/mozilla/fxa-content-server/pull/4478).
+
+* [The `account.reset` event
+  was made a flow event]
+  (https://github.com/mozilla/fxa-auth-server/pull/1584).
+
+### Train 75
+
+* [The correct `service` parameter
+  was passed to `/certificate/sign`
+  for OAuth reliers,
+  stopping those requests from
+  being identified as originating from
+  the content server]
+  (https://github.com/mozilla/fxa-content-server/pull/4419).
+
+* [The `flow.${viewName}.view` event
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4440).
+
+* [The `flow.${viewName}.begin` event
+  was changed back to `flow.begin`]
+  (https://github.com/mozilla/fxa-content-server/pull/4440).
+
+* [Validation of the `utm_*` parameters
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4446).
+
+* [The `route.*` events were implemented]
+  (https://github.com/mozilla/fxa-auth-server/pull/1576).
+
 ### Train 74
 
-* Flow event data validation
-  was implemented.
+* [Flow event data validation
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4383).
 
-* The `${viewName}` part of
+* [The `${viewName}` part of
   `flow.${viewName}.begin`,
   `flow.${viewName}.engage` and
   `flow.${viewName}.submit`
-  was fixed,
-  rendering earlier data incorrect.
+  was fixed]
+  (https://github.com/mozilla/fxa-content-server/pull/4317).
 
-* The `flow.have-account` event
-  was changed to `flow.${viewName}.have-account`.
+* [The `flow.have-account` event
+  was changed to `flow.${viewName}.have-account`]
+  (https://github.com/mozilla/fxa-content-server/pull/4317).
 
-* The `flow.${viewName}.create-account` event
-  was implemented.
+* [The `flow.${viewName}.create-account` event
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4317).
 
-* The `flow.${viewName}.forgot-password` event
-  was implemented.
+* [The `flow.${viewName}.forgot-password` event
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4317).
 
-* The `flow.${action}.attempt` event
-  was implemented.
+* [The `flow.${action}.attempt` event
+  was implemented]
+  (https://github.com/mozilla/fxa-content-server/pull/4317).
 
 ### Train 73
 
-* Expiry time
+* [Expiry time
   for metrics context data in memcached
   was increased from 30 minutes
-  to 2 hours.
+  to 2 hours]
+  (https://github.com/mozilla/fxa-auth-server/pull/1519).
 
-* The `flow.complete` event
-  was implemented.
+* [The `flow.complete` event
+  was implemented]
+  (https://github.com/mozilla/fxa-auth-server/pull/1515).
 
 ### Train 72
 
-* A change to the memcached key
+* [A change to the memcached key
   used when stashing metrics context data
   introduced a 30-minute partial blip
-  in flow event data.
+  in flow event data]
+  (https://github.com/mozilla/fxa-auth-server/pull/1500).
 
 ### Train 71
 
-* The `flow.begin` event
-  was changed to `flow.${viewName}.begin`.
+* [The `flow.begin` event
+  was changed to `flow.${viewName}.begin`]
+  (https://github.com/mozilla/fxa-content-server/pull/4224).
 
-* Timestamps were fixed
-  on the begin, engage and submit events.
+* [Timestamps were fixed
+  on the begin, engage and submit events]
+  (https://github.com/mozilla/fxa-content-server/pull/4351).
 
-* Metrics context data was added
-  to the `flow.${viewName}.begin` event.
+* [Metrics context data was added
+  to the begin, engage and submit events]
+  (https://github.com/mozilla/fxa-content-server/pull/4234).
 
-* Erroneous `"none"` values were removed
+* [Erroneous `"none"` values were removed
   from empty metrics context properties
-  in the content server.
+  in the content server]
+  (https://github.com/mozilla/fxa-content-server/pull/4234).
 
-* Expiry time for flow ids
+* [Expiry time for flow ids
   was increased from 30 minutes
-  to two hours.
+  to two hours]
+  (https://github.com/mozilla/fxa-auth-server/pull/1487).
 

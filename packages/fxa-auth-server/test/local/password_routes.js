@@ -83,7 +83,11 @@ describe('/password', () => {
       var mockRequest = mocks.mockRequest({
         log: mockLog,
         payload: {
-          email: TEST_EMAIL
+          email: TEST_EMAIL,
+          metricsContext: {
+            flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+            flowBeginTime: Date.now() - 1
+          }
         },
         query: {},
         metricsContext: mockMetricsContext
@@ -103,8 +107,13 @@ describe('/password', () => {
 
         assert.equal(mockRequest.validateMetricsContext.callCount, 1, 'validateMetricsContext was called')
         assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
-        assert.equal(mockLog.flowEvent.args[0][0], 'password.forgot.send_code.start', 'password.forgot.send_code.start event was logged')
-        assert.equal(mockLog.flowEvent.args[1][0], 'password.forgot.send_code.completed', 'password.forgot.send_code.completed event was logged')
+        assert.equal(mockLog.flowEvent.args[0][0].event, 'password.forgot.send_code.start', 'password.forgot.send_code.start event was logged')
+        assert.equal(mockLog.flowEvent.args[1][0].event, 'password.forgot.send_code.completed', 'password.forgot.send_code.completed event was logged')
+
+        assert.equal(mockMailer.sendRecoveryCode.callCount, 1, 'mailer.sendRecoveryCode was called once')
+        assert.equal(mockMailer.sendRecoveryCode.getCall(0).args[2].location.city, 'Mountain View')
+        assert.equal(mockMailer.sendRecoveryCode.getCall(0).args[2].location.country, 'United States')
+        assert.equal(mockMailer.sendRecoveryCode.getCall(0).args[2].timeZone, 'America/Los_Angeles')
       })
     }
   )
@@ -148,7 +157,11 @@ describe('/password', () => {
         },
         log: mockLog,
         payload: {
-          email: TEST_EMAIL
+          email: TEST_EMAIL,
+          metricsContext: {
+            flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+            flowBeginTime: Date.now() - 1
+          }
         },
         query: {},
         metricsContext: mockMetricsContext
@@ -162,8 +175,8 @@ describe('/password', () => {
 
           assert.equal(mockRequest.validateMetricsContext.callCount, 1, 'validateMetricsContext was called')
           assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
-          assert.equal(mockLog.flowEvent.args[0][0], 'password.forgot.resend_code.start', 'password.forgot.resend_code.start event was logged')
-          assert.equal(mockLog.flowEvent.args[1][0], 'password.forgot.resend_code.completed', 'password.forgot.resend_code.completed event was logged')
+          assert.equal(mockLog.flowEvent.args[0][0].event, 'password.forgot.resend_code.start', 'password.forgot.resend_code.start event was logged')
+          assert.equal(mockLog.flowEvent.args[1][0].event, 'password.forgot.resend_code.completed', 'password.forgot.resend_code.completed event was logged')
         })
     }
   )
@@ -214,7 +227,11 @@ describe('/password', () => {
           uid: uid
         },
         payload: {
-          code: 'abcdef'
+          code: 'abcdef',
+          metricsContext: {
+            flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+            flowBeginTime: Date.now() - 1
+          }
         },
         query: {}
       })
@@ -235,8 +252,8 @@ describe('/password', () => {
 
         assert.equal(mockRequest.validateMetricsContext.callCount, 1, 'validateMetricsContext was called')
         assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
-        assert.equal(mockLog.flowEvent.args[0][0], 'password.forgot.verify_code.start', 'password.forgot.verify_code.start event was logged')
-        assert.equal(mockLog.flowEvent.args[1][0], 'password.forgot.verify_code.completed', 'password.forgot.verify_code.completed event was logged')
+        assert.equal(mockLog.flowEvent.args[0][0].event, 'password.forgot.verify_code.start', 'password.forgot.verify_code.start event was logged')
+        assert.equal(mockLog.flowEvent.args[1][0].event, 'password.forgot.verify_code.completed', 'password.forgot.verify_code.completed event was logged')
       })
     }
   )
@@ -289,13 +306,19 @@ describe('/password', () => {
         assert.equal(mockDB.account.callCount, 1)
         assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1)
         assert.equal(mockMailer.sendPasswordChangedNotification.firstCall.args[0], TEST_EMAIL)
+        assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].location.city, 'Mountain View')
+        assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].location.country, 'United States')
+        assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].timeZone, 'America/Los_Angeles')
 
         assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
         var args = mockLog.activityEvent.args[0]
-        assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-        assert.equal(args[0], 'account.changedPassword', 'first argument was event name')
-        assert.equal(args[1], mockRequest, 'second argument was request object')
-        assert.deepEqual(args[2], { uid: uid.toString('hex') }, 'third argument contained uid')
+        assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+        assert.deepEqual(args[0], {
+          event: 'account.changedPassword',
+          service: undefined,
+          uid: uid.toString('hex'),
+          userAgent: 'test user-agent'
+        }, 'argument was event data')
       })
     }
   )

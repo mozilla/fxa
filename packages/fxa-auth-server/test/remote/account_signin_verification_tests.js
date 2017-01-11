@@ -18,12 +18,12 @@ var publicKey = {
   'e': '65537'
 }
 
+const mocks = require('../mocks')
+
 describe('remote account signin verification', function() {
   this.timeout(30000)
   let server
   before(() => {
-    process.env.SIGNIN_CONFIRMATION_ENABLED = true
-    process.env.SIGNIN_CONFIRMATION_RATE = 1.0
     process.env.IP_PROFILING_ENABLED = false
 
     return TestServer.start(config)
@@ -116,6 +116,10 @@ describe('remote account signin verification', function() {
       var client = null
       var uid
       var code
+      var loginOpts = {
+        keys: true,
+        metricsContext: mocks.generateMetricsContext()
+      }
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (x) {
@@ -135,7 +139,7 @@ describe('remote account signin verification', function() {
         )
         .then(
           function () {
-            return client.login({keys:true})
+            return client.login(loginOpts)
           }
         )
         .then(
@@ -157,6 +161,9 @@ describe('remote account signin verification', function() {
             assert.equal(emailData.subject, 'Confirm new sign-in to Firefox')
             assert.ok(uid, 'sent uid')
             assert.ok(code, 'sent verify code')
+
+            assert.equal(emailData.headers['x-flow-begin-time'], loginOpts.metricsContext.flowBeginTime, 'flow begin time set')
+            assert.equal(emailData.headers['x-flow-id'], loginOpts.metricsContext.flowId, 'flow id set')
           }
         )
         .then(

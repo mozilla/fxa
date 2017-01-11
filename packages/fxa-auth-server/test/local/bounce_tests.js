@@ -323,4 +323,60 @@ describe('bounce messages', () => {
       })
     }
   )
+
+  it(
+    'should emit flow metrics',
+    () => {
+      var mockLog = spyLog()
+      var mockDB = {
+        emailRecord: sinon.spy(function (email) {
+          return P.resolve({
+            uid: '123456',
+            email: email,
+            emailVerified: false
+          })
+        }),
+        deleteAccount: sinon.spy(function () {
+          return P.resolve({ })
+        })
+      }
+      var mockMsg = mockMessage({
+        bounce: {
+          bounceType: 'Permanent',
+          bounceSubType: 'General',
+          bouncedRecipients: [
+            {emailAddress: 'test@example.com'}
+          ]
+        },
+        mail: {
+          headers: [
+            {
+              name: 'X-Template-Name',
+              value: 'verifyLoginEmail'
+            },
+            {
+              name: 'X-Flow-Id',
+              value: 'someFlowId'
+            },
+            {
+              name: 'X-Flow-Begin-Time',
+              value: 1234
+            }
+          ]
+        }
+      })
+
+      return mockedBounces(mockLog, mockDB).handleBounce(mockMsg).then(function () {
+        assert.equal(mockDB.emailRecord.callCount, 1)
+        assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
+        assert.equal(mockDB.deleteAccount.callCount, 1)
+        assert.equal(mockDB.deleteAccount.args[0][0].email, 'test@example.com')
+        assert.equal(mockLog.messages.length, 4)
+        assert.equal(mockLog.messages[0].args[0]['event'], 'email.verifyLoginEmail.bounced')
+        assert.equal(mockLog.messages[0].args[0]['flow_id'], 'someFlowId')
+        assert.equal(mockLog.messages[0].args[0]['flow_time'] > 0, true)
+        assert.equal(mockLog.messages[0].args[0]['time'] > 0, true)
+      })
+    }
+  )
 })

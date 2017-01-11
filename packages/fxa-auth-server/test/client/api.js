@@ -102,13 +102,6 @@ module.exports = config => {
   ClientApi.prototype.accountCreate = function (email, authPW, options) {
     options = options || {}
 
-    // Default to desktop client context
-    if (!options.metricsContext) {
-      options.metricsContext = {
-        context: 'fx_desktop_v3'
-      }
-    }
-
     var url = this.baseURL + '/account/create' + getQueryString(options)
     return this.doRequest(
       'POST',
@@ -134,13 +127,6 @@ module.exports = config => {
   ClientApi.prototype.accountLogin = function (email, authPW, opts) {
     if (!opts) {
       opts = { keys: true }
-    }
-
-    // Default to desktop client context
-    if (!opts.metricsContext) {
-      opts.metricsContext = {
-        context: 'fx_desktop_v3'
-      }
     }
 
     return this.doRequest(
@@ -433,7 +419,8 @@ module.exports = config => {
         email: email,
         service: options.service || undefined,
         redirectTo: options.redirectTo || undefined,
-        resume: options.resume || undefined
+        resume: options.resume || undefined,
+        metricsContext: options.metricsContext || undefined
       },
       headers
     )
@@ -459,7 +446,11 @@ module.exports = config => {
       )
   }
 
-  ClientApi.prototype.passwordForgotVerifyCode = function (passwordForgotTokenHex, code, headers) {
+  ClientApi.prototype.passwordForgotVerifyCode = function (passwordForgotTokenHex, code, headers, options) {
+    if (!options) {
+      options = {}
+    }
+
     return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex)
       .then(
         function (token) {
@@ -468,7 +459,8 @@ module.exports = config => {
             this.baseURL + '/password/forgot/verify_code',
             token,
             {
-              code: code
+              code: code,
+              metricsContext: options.metricsContext || undefined
             },
             headers
           )

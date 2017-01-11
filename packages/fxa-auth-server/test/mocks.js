@@ -10,6 +10,7 @@ const sinon = require('sinon')
 const extend = require('util')._extend
 const P = require('../lib/promise')
 const crypto = require('crypto')
+const config = require('../config').getProperties()
 
 const CUSTOMS_METHOD_NAMES = [
   'check',
@@ -72,6 +73,7 @@ const MAILER_METHOD_NAMES = [
 ]
 
 const METRICS_CONTEXT_METHOD_NAMES = [
+  'clear',
   'gather',
   'setFlowCompleteSignal',
   'stash',
@@ -89,13 +91,14 @@ const PUSH_METHOD_NAMES = [
 ]
 
 module.exports = {
+  generateMetricsContext: generateMetricsContext,
   mockCustoms: mockObject(CUSTOMS_METHOD_NAMES),
   mockDB: mockDB,
   mockDevices: mockDevices,
   mockLog: mockLog,
   spyLog: spyLog,
   mockMailer: mockObject(MAILER_METHOD_NAMES),
-  mockMetricsContext: mockObject(METRICS_CONTEXT_METHOD_NAMES),
+  mockMetricsContext: mockMetricsContext,
   mockPush: mockObject(PUSH_METHOD_NAMES),
   mockRequest: mockRequest
 }
@@ -162,6 +165,11 @@ function mockDB (data, errors) {
         tokenId: data.sessionTokenId,
         tokenVerificationId: data.tokenVerificationId,
         tokenVerified: ! data.tokenVerificationId,
+        uaBrowser: data.uaBrowser,
+        uaBrowserVersion: data.uaBrowserVersion,
+        uaOS: data.uaOS,
+        uaOSVersion: data.uaOSVersion,
+        uaDeviceType: data.uaDeviceType,
         uid: data.uid
       })
     }),
@@ -200,7 +208,12 @@ function mockDB (data, errors) {
     }),
     sessionTokenWithVerificationStatus: sinon.spy(() => {
       return P.resolve({
-        tokenVerified: true
+        tokenVerified: true,
+        uaBrowser: data.uaBrowser,
+        uaBrowserVersion: data.uaBrowserVersion,
+        uaOS: data.uaOS,
+        uaOSVersion: data.uaOSVersion,
+        uaDeviceType: data.uaDeviceType
       })
     }),
     verifyTokens: sinon.spy(() => {
@@ -271,6 +284,52 @@ function spyLog (methods) {
   return mockLog(methods)
 }
 
+function mockMetricsContext (methods) {
+  methods = methods || {}
+  return mockObject(METRICS_CONTEXT_METHOD_NAMES)({
+    gather: methods.gather || sinon.spy(function (data) {
+      const time = Date.now()
+      return P.resolve()
+        .then(() => {
+          if (this.payload && this.payload.metricsContext) {
+            return Object.assign(data, {
+              time: time,
+              flow_id: this.payload.metricsContext.flowId,
+              flow_time: time - this.payload.metricsContext.flowBeginTime,
+              flowCompleteSignal: this.payload.metricsContext.flowCompleteSignal
+            })
+          }
+
+          return data
+        })
+    }),
+
+    setFlowCompleteSignal: sinon.spy(function (flowCompleteSignal) {
+      if (this.payload && this.payload.metricsContext) {
+        this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal
+      }
+    })
+  })
+}
+
+function generateMetricsContext(){
+  const randomBytes = crypto.randomBytes(16).toString('hex')
+  const flowBeginTime = Date.now()
+  const flowSignature = crypto.createHmac('sha256', config.metrics.flow_id_key)
+    .update([
+      randomBytes,
+      flowBeginTime.toString(16),
+      undefined
+    ].join('\n'))
+    .digest('hex')
+    .substr(0, 32)
+
+  return {
+    flowBeginTime: flowBeginTime,
+    flowId: randomBytes + flowSignature
+  }
+}
+
 function mockRequest (data) {
   const events = require('../lib/metrics/events')(data.log || module.exports.mockLog())
   const metricsContext = data.metricsContext || module.exports.mockMetricsContext()
@@ -285,6 +344,7 @@ function mockRequest (data) {
     },
     clearMetricsContext: metricsContext.clear,
     emitMetricsEvent: events.emit,
+    emitRouteFlowEvent: events.emitRouteFlowEvent,
     gatherMetricsContext: metricsContext.gather,
     headers: data.headers || {
       'user-agent': 'test user-agent'

@@ -24,8 +24,6 @@ describe('remote password change', function() {
   this.timeout(15000)
   let server
   before(() => {
-    process.env.SIGNIN_CONFIRMATION_ENABLED = true
-    process.env.SIGNIN_CONFIRMATION_RATE = 1.0
     process.env.IP_PROFILING_ENABLED = false
 
     return TestServer.start(config)
@@ -224,6 +222,7 @@ describe('remote password change', function() {
             var link = emailData.headers['x-link']
             var query = url.parse(link, true).query
             assert.ok(query.email, 'email is in the link')
+            assert.equal(emailData.html.indexOf('IP address') > -1, true, 'contains ip location data')
           }
         )
         .then(
@@ -292,7 +291,7 @@ describe('remote password change', function() {
           },
           function (err) {
             assert.equal(err.errno, 110, 'Invalid token error')
-            assert.equal(err.message, 'Invalid authentication token in request signature')
+            assert.equal(err.message, 'The authentication token could not be found')
           }
         )
     }
@@ -395,8 +394,6 @@ describe('remote password change', function() {
   )
 
   after(() => {
-    delete process.env.SIGNIN_CONFIRMATION_ENABLED
-    delete process.env.SIGNIN_CONFIRMATION_RATE
     delete process.env.IP_PROFILING_ENABLED
     return TestServer.stop(server)
   })

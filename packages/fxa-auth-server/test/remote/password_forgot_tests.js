@@ -12,12 +12,12 @@ var crypto = require('crypto')
 var base64url = require('base64url')
 
 var config = require('../../config').getProperties()
+const mocks = require('../mocks')
 
 describe('remote password forgot', function() {
   this.timeout(15000)
   let server
   before(() => {
-    process.env.SIGNIN_CONFIRMATION_ENABLED = false
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -33,7 +33,11 @@ describe('remote password forgot', function() {
       var wrapKb = null
       var kA = null
       var client = null
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
+      var opts = {
+        keys: true,
+        metricsContext: mocks.generateMetricsContext()
+      }
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, opts)
         .then(
           function (x) {
             client = x
@@ -49,13 +53,21 @@ describe('remote password forgot', function() {
         )
         .then(
           function () {
-            return server.mailbox.waitForCode(email)
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            assert.equal(emailData.html.indexOf('IP address') > -1, true, 'contains ip location data')
+            assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set')
+            assert.equal(emailData.headers['x-flow-id'], opts.metricsContext.flowId, 'flow id set')
+            return emailData.headers['x-recovery-code']
           }
         )
         .then(
           function (code) {
             assert.throws(function() { client.resetPassword(newPassword) })
-            return resetPassword(client, code, newPassword)
+            return resetPassword(client, code, newPassword, undefined, opts)
           }
         )
         .then(
@@ -68,6 +80,9 @@ describe('remote password forgot', function() {
             var link = emailData.headers['x-link']
             var query = url.parse(link, true).query
             assert.ok(query.email, 'email is in the link')
+
+            assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set')
+            assert.equal(emailData.headers['x-flow-id'], opts.metricsContext.flowId, 'flow id set')
           }
         )
         .then(
@@ -189,7 +204,7 @@ describe('remote password forgot', function() {
             assert(false, 'reset password with invalid token')
           },
           function (err) {
-            assert.equal(err.message, 'Invalid authentication token in request signature', 'token is now invalid')
+            assert.equal(err.message, 'The authentication token could not be found', 'token is now invalid')
           }
         )
     }
@@ -423,12 +438,11 @@ describe('remote password forgot', function() {
   )
 
   after(() => {
-    delete process.env.SIGNIN_CONFIRMATION_ENABLED
     return TestServer.stop(server)
   })
 
-  function resetPassword(client, code, newPassword, options) {
-    return client.verifyPasswordResetCode(code)
+  function resetPassword(client, code, newPassword, headers, options) {
+    return client.verifyPasswordResetCode(code, headers, options)
       .then(function() {
         return client.resetPassword(newPassword, {}, options)
       })

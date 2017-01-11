@@ -22,12 +22,20 @@ module.exports = function (config, log) {
         return P.resolve(mailer.verifyEmail(
           {
             email: account.email,
+            flowId: opts.flowId,
+            flowBeginTime: opts.flowBeginTime,
             uid: account.uid.toString('hex'),
             code: code.toString('hex'),
             service: opts.service,
             redirectTo: opts.redirectTo,
             resume: opts.resume,
-            acceptLanguage: opts.acceptLanguage || defaultLanguage
+            acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            ip: opts.ip,
+            location: opts.location,
+            uaBrowser: opts.uaBrowser,
+            uaBrowserVersion: opts.uaBrowserVersion,
+            uaOS: opts.uaOS,
+            uaOSVersion: opts.uaOSVersion
           }
         ))
       }
@@ -38,6 +46,8 @@ module.exports = function (config, log) {
             code: code.toString('hex'),
             email: account.email,
             ip: opts.ip,
+            flowId: opts.flowId,
+            flowBeginTime: opts.flowBeginTime,
             location: opts.location,
             redirectTo: opts.redirectTo,
             resume: opts.resume,
@@ -55,12 +65,21 @@ module.exports = function (config, log) {
         return P.resolve(mailer.recoveryEmail(
           {
             email: token.email,
+            flowId: opts.flowId,
+            flowBeginTime: opts.flowBeginTime,
             token: token.data.toString('hex'),
             code: code.toString('hex'),
             service: opts.service,
             redirectTo: opts.redirectTo,
             resume: opts.resume,
-            acceptLanguage: opts.acceptLanguage || defaultLanguage
+            acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            ip: opts.ip,
+            location: opts.location,
+            timeZone: opts.timeZone,
+            uaBrowser: opts.uaBrowser,
+            uaBrowserVersion: opts.uaBrowserVersion,
+            uaOS: opts.uaOS,
+            uaOSVersion: opts.uaOSVersion
           }
         ))
       }
@@ -68,7 +87,13 @@ module.exports = function (config, log) {
         return P.resolve(mailer.passwordChangedEmail(
           {
             email: email,
-            acceptLanguage: opts.acceptLanguage || defaultLanguage
+            acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            ip: opts.ip,
+            location: opts.location,
+            uaBrowser: opts.uaBrowser,
+            uaBrowserVersion: opts.uaBrowserVersion,
+            uaOS: opts.uaOS,
+            uaOSVersion: opts.uaOSVersion
           }
         ))
       }
@@ -76,7 +101,9 @@ module.exports = function (config, log) {
         return P.resolve(mailer.passwordResetEmail(
           {
             email: email,
-            acceptLanguage: opts.acceptLanguage || defaultLanguage
+            acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            flowId: opts.flowId,
+            flowBeginTime: opts.flowBeginTime,
           }
         ))
       }
@@ -84,6 +111,8 @@ module.exports = function (config, log) {
         return P.resolve(mailer.newDeviceLoginEmail(
           {
             acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            flowId: opts.flowId,
+            flowBeginTime: opts.flowBeginTime,
             email: email,
             ip: opts.ip,
             location: opts.location,
@@ -107,6 +136,8 @@ module.exports = function (config, log) {
         return P.resolve(mailer.unblockCodeEmail(
           {
             acceptLanguage: opts.acceptLanguage || defaultLanguage,
+            flowId: opts.flowId,
+            flowBeginTime: opts.flowBeginTime,
             email: account.email,
             ip: opts.ip,
             location: opts.location,

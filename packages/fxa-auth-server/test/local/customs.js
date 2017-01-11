@@ -366,6 +366,8 @@ describe('Customs', () => {
 
       var request = newRequest()
       request.payload.authPW = 'asdfasdfadsf'
+      request.payload.oldAuthPW = '012301230123'
+      request.payload.notThePW = 'plaintext'
       var ip = request.app.clientAddress
       var email = newEmail()
       var action = newAction()
@@ -377,8 +379,10 @@ describe('Customs', () => {
           action: action,
           headers: request.headers,
           query: request.query,
-          payload: {}
-        }, 'should not have authPW in payload')
+          payload: {
+            notThePW: 'plaintext'
+          }
+        }, 'should not have password fields in payload')
         return true
       }).reply(200, {
         block: false,

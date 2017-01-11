@@ -8,7 +8,6 @@ const crypto = require('crypto')
 
 module.exports = config => {
   const lastAccessTimeUpdates = config.lastAccessTimeUpdates
-  const signinConfirmation = config.signinConfirmation
   const signinUnblock = config.signinUnblock
   const securityHistory = config.securityHistory
 
@@ -28,49 +27,10 @@ module.exports = config => {
     },
 
     /**
-     * Predicate that indicates whether sign-in confirmation is enabled
-     * for a given user, based on their uid and email address.
+     * Returns whether or not to use signin unblock feature on a request.
      *
      * @param uid   Buffer or String
      * @param email String
-     */
-    isSigninConfirmationEnabledForUser (uid, email, request) {
-      if (! signinConfirmation.enabled) {
-        return false
-      }
-
-      // Always create unverified tokens if customs-server
-      // has said the request is suspicious.
-      if (request.app.isSuspiciousRequest) {
-        return true
-      }
-
-      // Or if the email address matches the regex.
-      if (signinConfirmation.enabledEmailAddresses.test(email)) {
-        return true
-      }
-
-      // While we're testing this feature, there may be some funky
-      // edge-cases in device login flows that haven't been fully tested.
-      // Temporarily avoid them for regular users by checking the `context` flag,
-      // and create pre-verified sessions for unsupported clients.
-      const context = request.payload &&
-        request.payload.metricsContext &&
-        request.payload.metricsContext.context
-      if (signinConfirmation.supportedClients.indexOf(context) === -1) {
-        return false
-      }
-
-      // Check to see if user in roll-out cohort.
-      return isSampledUser(signinConfirmation.sample_rate, uid, 'signinConfirmation')
-    },
-
-
-    /**
-     * Returns whether or not to use signin unblock feature on a request.
-     *
-     * @param account
-     * @param config
      * @param request
      * @returns {boolean}
      */
@@ -87,41 +47,33 @@ module.exports = config => {
         return true
       }
 
-      // While we're testing this feature, there may be some funky
-      // edge-cases in device login flows that haven't been fully tested.
-      // Temporarily avoid them for regular users by checking the `context` flag,
-      const context = request.payload &&
-        request.payload.metricsContext &&
-        request.payload.metricsContext.context
-
-      if (signinUnblock.supportedClients.indexOf(context) === -1) {
-        return false
-      }
-
       // Check to see if user in roll-out cohort.
       return isSampledUser(signinUnblock.sampleRate, uid, 'signinUnblock')
     },
 
     /**
-     * Return whether or not this request should bypass sign-in confirmation. Currently,
-     * just checks if user has had a verified security event in the past day.
+     * Return whether tracking of security history events is enabled.
      *
-     * @param verified
-     * @param recency
      * @returns {boolean}
      */
-    canBypassSiginConfirmation(verified, recency) {
-      let bypass = false
+    isSecurityHistoryTrackingEnabled() {
+      return securityHistory.enabled
+    },
 
-      // IP Profiling sets bypass to true if this user has verified a session
-      // within the past day from this ip address.
-      let ipProfilingEnabled = securityHistory.enabled && securityHistory.ipProfiling &&
-        securityHistory.ipProfiling.enabled
-      if (ipProfilingEnabled && verified && recency === 'day') {
-        bypass = true
+    /**
+     * Return whether or not we can bypass sign-in confirmation based
+     * on previously seen security event history.
+     *
+     * @returns {boolean}
+     */
+    isSecurityHistoryProfilingEnabled() {
+      if (! securityHistory.enabled) {
+        return false
       }
-
-      return bypass
+      if (! securityHistory.ipProfiling || ! securityHistory.ipProfiling.enabled) {
+        return false
+      }
+      return true
     },
 
     /**

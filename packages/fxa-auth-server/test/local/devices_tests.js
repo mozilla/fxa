@@ -76,14 +76,15 @@ describe('devices', () => {
 
             assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
             args = log.activityEvent.args[0]
-            assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-            assert.equal(args[0], 'device.created', 'first argument was event name')
-            assert.equal(args[1], request, 'second argument was request object')
-            assert.deepEqual(args[2], {
+            assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+            assert.deepEqual(args[0], {
+              event: 'device.created',
+              service: undefined,
+              userAgent: 'test user-agent',
               uid: sessionToken.uid.toString('hex'),
               device_id: deviceId.toString('hex'),
               is_placeholder: false
-            }, 'third argument contained uid, device_id and is_placeholder')
+            }, 'event data was correct')
 
             assert.equal(log.info.callCount, 0, 'log.info was not called')
 
@@ -122,7 +123,7 @@ describe('devices', () => {
             assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once')
 
             assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
-            assert.equal(log.activityEvent.args[0][2].is_placeholder, true, 'is_placeholder was correct')
+            assert.equal(log.activityEvent.args[0][0].is_placeholder, true, 'is_placeholder was correct')
 
             assert.equal(log.info.callCount, 1, 'log.info was called once')
             assert.equal(log.info.args[0].length, 1, 'log.info was passed one argument')
@@ -171,14 +172,15 @@ describe('devices', () => {
 
             assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
             args = log.activityEvent.args[0]
-            assert.equal(args.length, 3, 'log.activityEvent was passed three arguments')
-            assert.equal(args[0], 'device.updated', 'first argument was event name')
-            assert.equal(args[1], request, 'second argument was request object')
-            assert.deepEqual(args[2], {
+            assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+            assert.deepEqual(args[0], {
+              event: 'device.updated',
+              service: undefined,
+              userAgent: 'test user-agent',
               uid: sessionToken.uid.toString('hex'),
               device_id: deviceId.toString('hex'),
               is_placeholder: false
-            }, 'third argument contained uid and device_id')
+            }, 'event data was correct')
 
             assert.equal(log.info.callCount, 0, 'log.info was not called')
 

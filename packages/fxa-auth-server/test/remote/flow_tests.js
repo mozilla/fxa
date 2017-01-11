@@ -18,7 +18,6 @@ describe('remote flow', function() {
   let server
   let email1
   before(() => {
-    process.env.SIGNIN_CONFIRMATION_ENABLED = false
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -81,7 +80,7 @@ describe('remote flow', function() {
         'e': '65537'
       }
       var duration = 1000 * 60 * 60 * 24 // 24 hours
-      return Client.login(config.publicUrl, email, password, server.mailbox, {keys:true})
+      return Client.loginAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
           function (x) {
             client = x
@@ -112,7 +111,6 @@ describe('remote flow', function() {
   )
 
   after(() => {
-    delete process.env.SIGNIN_CONFIRMATION_ENABLED
     return TestServer.stop(server)
   })
 })

@@ -17,6 +17,13 @@ let currentServer
 function TestServer(config, printLogs) {
   currentServer = this
   if (printLogs === undefined) {
+
+    // Issue where debugger does not attach if
+    // child process output is not piped to console
+    if (isDebug()) {
+      process.env.REMOTE_TEST_LOGS = 'true'
+    }
+
     printLogs = (process.env.REMOTE_TEST_LOGS === 'true')
   }
   this.printLogs = printLogs
@@ -48,7 +55,7 @@ function waitLoop(testServer, url, cb) {
         }
         return setTimeout(waitLoop.bind(null, testServer, url, cb), 100)
       } else if (res.statusCode !== 200) {
-        cb(body)
+        cb(new Error(body))
       }
       cb()
     }
@@ -84,10 +91,21 @@ TestServer.start = function (config, printLogs) {
   return d.promise
 }
 
+function isDebug(){
+  return global.v8debug ? true : false
+}
+
 TestServer.prototype.start = function () {
+  var spawnOptions = ['./key_server_stub.js']
+
+  var nextDebugPort = process.debugPort + 2
+  if (isDebug()) {
+    spawnOptions.unshift('--debug-brk=' + nextDebugPort)
+  }
+
   this.server = cp.spawn(
     'node',
-    ['./key_server_stub.js'],
+    spawnOptions,
     {
       cwd: __dirname,
       stdio: this.printLogs ? 'pipe' : 'ignore'

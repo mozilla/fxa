@@ -499,5 +499,92 @@ describe('userAgent', () => {
       log.info.reset()
     }
   )
+
+  it(
+    'recognises Firefox-iOS user agents',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'Other'
+        },
+        os: {
+          family: 'iOS'
+        },
+        device: {
+          family: 'Other'
+        }
+      }
+      const context = {}
+      const userAgentString = 'Firefox-iOS-FxA/5.3 (Firefox)'
+      const result = userAgent.call(context, userAgentString, log)
+
+      assert.equal(result.uaBrowser, 'Firefox')
+      assert.equal(result.uaBrowserVersion, '5.3')
+      assert.equal(result.uaOS, 'iOS')
+      assert.equal(result.uaDeviceType, 'mobile')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
+    }
+  )
+
+  it(
+    'preserves device type on Firefox-iOS user agents',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'Other'
+        },
+        os: {
+          family: 'Other'
+        },
+        device: {
+          family: 'iPad'
+        }
+      }
+      const context = {}
+      const userAgentString = 'Firefox-iOS-FxA/6.0 (Firefox)'
+      const result = userAgent.call(context, userAgentString, log)
+
+      assert.equal(result.uaBrowser, 'Firefox')
+      assert.equal(result.uaBrowserVersion, '6.0')
+      assert.equal(result.uaOS, 'iOS')
+      assert.equal(result.uaDeviceType, 'tablet')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
+    }
+  )
+
+  it(
+    'recognises Firefox-Android user agents',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'Other'
+        },
+        os: {
+          family: 'Android'
+        },
+        device: {
+          family: 'Other'
+        }
+      }
+      const context = {}
+      const userAgentString = 'Firefox-Android-FxAccounts/49.0.2 (Firefox)'
+      const result = userAgent.call(context, userAgentString, log)
+
+      assert.equal(result.uaBrowser, 'Firefox')
+      assert.equal(result.uaBrowserVersion, '49.0.2')
+      assert.equal(result.uaOS, 'Android')
+      assert.equal(result.uaDeviceType, 'mobile')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
+    }
+  )
 })
 

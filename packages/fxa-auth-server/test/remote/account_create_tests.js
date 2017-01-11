@@ -9,6 +9,7 @@ var TestServer = require('../test_server')
 var crypto = require('crypto')
 const Client = require('../client')()
 var config = require('../../config').getProperties()
+const mocks = require('../mocks')
 
 describe('remote account create', function() {
   this.timeout(15000)
@@ -53,12 +54,12 @@ describe('remote account create', function() {
   )
 
   it(
-    'create and verify account',
+    'create and verify sync account',
     () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
-      return Client.create(config.publicUrl, email, password)
+      return Client.create(config.publicUrl, email, password, {service: 'sync'})
         .then(
           function (x) {
             client = x
@@ -77,7 +78,14 @@ describe('remote account create', function() {
         )
         .then(
           function () {
-            return server.mailbox.waitForCode(email)
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            assert.equal(emailData.headers['x-template-name'], 'verifySyncEmail')
+            assert.equal(emailData.html.indexOf('IP address') > -1, true) // Ensure some location data is present
+            return emailData.headers['x-verify-code']
           }
         )
         .then(
@@ -289,6 +297,7 @@ describe('remote account create', function() {
           function (err) {
             assert.equal(err.code, 400)
             assert.equal(err.errno, 101, 'Account already exists')
+            assert.equal(err.email, email, 'The existing email address is returned')
           }
         )
     }
@@ -412,16 +421,27 @@ describe('remote account create', function() {
   )
 
   it(
-    'account creation works with minimal metricsContext metadata',
+    'account creation fails with old metricsContext fields',
     () => {
       var email = server.uniqueEmail()
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
           flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
-          flowBeginTime: 1
+          flowBeginTime: 1,
+          context: 'foo',
+          entrypoint: 'bar',
+          migration: 'baz',
+          service: 'qux',
+          utmCampaign: 'wibble',
+          utmContent: 'blurgh',
+          utmMedium: 'blee',
+          utmSource: 'fnarr',
+          utmTerm: 'frang'
         }
-      }).then(function (client) {
-        assert.ok(client, 'created account')
+      }).then(function () {
+        assert(false, 'account creation should have failed')
+      }, function (err) {
+        assert.ok(err, 'account creation failed')
       })
     }
   )
@@ -464,22 +484,16 @@ describe('remote account create', function() {
     'account creation works with maximal metricsContext metadata',
     () => {
       var email = server.uniqueEmail()
-      return Client.create(config.publicUrl, email, 'foo', {
-        metricsContext: {
-          flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
-          flowBeginTime: 1,
-          context: 'foo',
-          entrypoint: 'bar',
-          migration: 'baz',
-          service: 'qux',
-          utmCampaign: 'wibble',
-          utmContent: 'blurgh',
-          utmMedium: 'blee',
-          utmSource: 'fnarr',
-          utmTerm: 'frang'
-        }
-      }).then(function (client) {
+      var opts = {
+        metricsContext: mocks.generateMetricsContext()
+      }
+      return Client.create(config.publicUrl, email, 'foo', opts).then(function (client) {
         assert.ok(client, 'created account')
+        return server.mailbox.waitForEmail(email)
+      })
+      .then(function (emailData) {
+        assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set')
+        assert.equal(emailData.headers['x-flow-id'], opts.metricsContext.flowId, 'flow id set')
       })
     }
   )
@@ -529,7 +543,7 @@ describe('remote account create', function() {
   )
 
   it(
-    'create account for non-sync service does not get post-verify email',
+    'create account for non-sync service, gets generic sign-up email and does not get post-verify email',
     () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
@@ -543,7 +557,13 @@ describe('remote account create', function() {
         )
         .then(
           function () {
-            return server.mailbox.waitForCode(email)
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            assert.equal(emailData.headers['x-template-name'], 'verifyEmail')
+            return emailData.headers['x-verify-code']
           }
         )
         .then(
@@ -583,7 +603,7 @@ describe('remote account create', function() {
   )
 
   it(
-    'create account for unspecified service does not get post-verify email',
+    'create account for unspecified service does not get create sync email and no post-verify email',
     () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
@@ -597,7 +617,14 @@ describe('remote account create', function() {
         )
         .then(
           function () {
-            return server.mailbox.waitForCode(email)
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            assert.equal(emailData.headers['x-template-name'], 'verifyEmail')
+            assert.equal(emailData.html.indexOf('IP address') === -1, true) // Does not contain location data
+            return emailData.headers['x-verify-code']
           }
         )
         .then(

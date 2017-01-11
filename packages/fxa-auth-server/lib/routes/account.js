@@ -60,7 +60,6 @@ module.exports = function (
   })
   const features = require('../features')(config)
 
-  const securityHistoryEnabled = config.securityHistory && config.securityHistory.enabled
   const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
   const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 0
 
@@ -100,13 +99,21 @@ module.exports = function (
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
         var service = form.service || query.service
+        const ip = request.app.clientAddress
         var preVerified, password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, authSalt
 
         request.validateMetricsContext()
 
+        // Store flowId and flowBeginTime to send in email
+        let flowId, flowBeginTime
+        if (request.payload.metricsContext) {
+          flowId = request.payload.metricsContext.flowId
+          flowBeginTime = request.payload.metricsContext.flowBeginTime
+        }
+
         customs.check(request, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
-          .then(deleteAccount, ignoreUnknownAccountError)
+          .then(deleteAccountIfUnverified, ignoreUnknownAccountError)
           .then(checkPreVerified)
           .then(generateRandomValues)
           .then(createPassword)
@@ -118,9 +125,9 @@ module.exports = function (
           .then(createResponse)
           .done(reply, reply)
 
-        function deleteAccount (emailRecord) {
+        function deleteAccountIfUnverified (emailRecord) {
           if (emailRecord.emailVerified) {
-            throw error.accountExists(email)
+            throw error.accountExists(emailRecord.email)
           }
 
           request.app.accountRecreated = true
@@ -239,12 +246,8 @@ module.exports = function (
         }
 
         function createSessionToken () {
-          const enableTokenVerification =
-            features.isSigninConfirmationEnabledForUser(account.uid, account.email, request)
-
-          // Verified sessions should only be created for preverified tokens
-          // and when sign-in confirmation is disabled or not needed.
-          if (preVerified || ! enableTokenVerification) {
+          // Verified sessions should only be created for preverified accounts.
+          if (preVerified) {
             tokenVerificationId = undefined
           }
 
@@ -255,7 +258,7 @@ module.exports = function (
             emailVerified: account.emailVerified,
             verifierSetAt: account.verifierSetAt,
             createdAt: parseInt(query._createdAt),
-            mustVerify: enableTokenVerification && requestHelper.wantsKeys(request),
+            mustVerify: requestHelper.wantsKeys(request),
             tokenVerificationId: tokenVerificationId
           }, userAgentString)
             .then(
@@ -278,42 +281,54 @@ module.exports = function (
 
         function sendVerifyCode () {
           if (! account.emailVerified) {
-            mailer.sendVerifyCode(account, account.emailCode, {
-              service: form.service || query.service,
-              redirectTo: form.redirectTo,
-              resume: form.resume,
-              acceptLanguage: request.app.acceptLanguage
-            })
-            .then(function () {
-              // only create reminder if sendVerifyCode succeeds
-              verificationReminder.create({
-                uid: account.uid.toString('hex')
-              }).catch(function (err) {
-                log.error({ op: 'Account.verificationReminder.create', err: err })
+            return getGeoData(ip)
+              .then(function (geoData) {
+                mailer.sendVerifyCode(account, account.emailCode, {
+                  service: form.service || query.service,
+                  redirectTo: form.redirectTo,
+                  resume: form.resume,
+                  acceptLanguage: request.app.acceptLanguage,
+                  flowId: flowId,
+                  flowBeginTime: flowBeginTime,
+                  ip: ip,
+                  location: geoData.location,
+                  uaBrowser: sessionToken.uaBrowser,
+                  uaBrowserVersion: sessionToken.uaBrowserVersion,
+                  uaOS: sessionToken.uaOS,
+                  uaOSVersion: sessionToken.uaOSVersion,
+                  uaDeviceType: sessionToken.uaDeviceType
+                })
+                  .then(function () {
+                    // only create reminder if sendVerifyCode succeeds
+                    verificationReminder.create({
+                      uid: account.uid.toString('hex')
+                    }).catch(function (err) {
+                      log.error({op: 'Account.verificationReminder.create', err: err})
+                    })
+
+                    if (tokenVerificationId) {
+                      // Log server-side metrics for confirming verification rates
+                      log.info({
+                        op: 'account.create.confirm.start',
+                        uid: account.uid.toString('hex'),
+                        tokenVerificationId: tokenVerificationId
+                      })
+                    }
+                  })
+                  .catch(function (err) {
+                    log.error({op: 'mailer.sendVerifyCode.1', err: err})
+
+                    if (tokenVerificationId) {
+                      // Log possible email bounce, used for confirming verification rates
+                      log.error({
+                        op: 'account.create.confirm.error',
+                        uid: account.uid.toString('hex'),
+                        err: err,
+                        tokenVerificationId: tokenVerificationId
+                      })
+                    }
+                  })
               })
-
-              if (tokenVerificationId) {
-                // Log server-side metrics for confirming verification rates
-                log.info({
-                  op: 'account.create.confirm.start',
-                  uid: account.uid.toString('hex'),
-                  tokenVerificationId: tokenVerificationId
-                })
-              }
-            })
-            .catch(function (err) {
-              log.error({ op: 'mailer.sendVerifyCode.1', err: err })
-
-              if (tokenVerificationId) {
-                // Log possible email bounce, used for confirming verification rates
-                log.error({
-                  op: 'account.create.confirm.error',
-                  uid: account.uid.toString('hex'),
-                  err: err,
-                  tokenVerificationId: tokenVerificationId
-                })
-              }
-            })
           }
         }
 
@@ -341,7 +356,7 @@ module.exports = function (
         }
 
         function recordSecurityEvent() {
-          if (securityHistoryEnabled) {
+          if (features.isSecurityHistoryTrackingEnabled()) {
             // don't block response recording db event
             db.securityEvent({
               name: 'account.create',
@@ -375,8 +390,6 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            // Obsolete contentToken param, here for backwards compat.
-            contentToken: isA.string().optional(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: isA.string().uri().optional(),
             resume: isA.string().optional(),
@@ -416,18 +429,18 @@ module.exports = function (
 
         request.validateMetricsContext()
 
-        // Monitor for any clients still sending obsolete 'contentToken' param.
-        if (request.payload.contentToken) {
-          log.info({
-            op: 'Account.login.contentToken',
-            agent: request.headers['user-agent']
-          })
+        // Store flowId and flowBeginTime to send in email
+        let flowId, flowBeginTime
+        if (request.payload.metricsContext) {
+          flowId = request.payload.metricsContext.flowId
+          flowBeginTime = request.payload.metricsContext.flowBeginTime
         }
 
         checkIsBlockForced()
           .then(() => customs.check(request, email, 'accountLogin'))
-          .catch(checkUnblockCode)
+          .catch(extractUnblockCode)
           .then(readEmailRecord)
+          .then(checkUnblockCode)
           .then(checkSecurityHistory)
           .then(checkEmailAndPassword)
           .then(checkNumberOfActiveSessions)
@@ -443,6 +456,8 @@ module.exports = function (
           .done(reply, reply)
 
         function checkIsBlockForced () {
+          // For testing purposes, some email addresses are forced
+          // to go through signin unblock on every login attempt.
           let forced = config.signinUnblock && config.signinUnblock.enabled && config.signinUnblock.forcedEmailAddresses
 
           if (forced && forced.test(email)) {
@@ -452,18 +467,27 @@ module.exports = function (
           return P.resolve()
         }
 
-        function checkUnblockCode (e) {
-          request.emitMetricsEvent('account.login.blocked')
-          var method = e.output.payload.verificationMethod
-          if (method === 'email-captcha') {
-            // only set `unblockCode` if it is required from customs
-            unblockCode = request.payload.unblockCode
-            if (unblockCode) {
-              unblockCode = unblockCode.toUpperCase()
-            }
-            customsErr = e
-            return
+        function extractUnblockCode (e) {
+          // If it's a customs-related error...
+          if (e.errno === error.ERRNO.REQUEST_BLOCKED || e.errno === error.ERRNO.THROTTLED) {
+            return request.emitMetricsEvent('account.login.blocked')
+              .then(() => {
+                var verificationMethod = e.output.payload.verificationMethod
+                // ...and if they can verify their way around it,
+                // then extract any unblockCode from the request.
+                // We'll re-throw the error later if the code is invalid.
+                if (verificationMethod === 'email-captcha') {
+                  unblockCode = request.payload.unblockCode
+                  if (unblockCode) {
+                    unblockCode = unblockCode.toUpperCase()
+                  }
+                  customsErr = e
+                  return
+                }
+                throw e
+              })
           }
+          // Any other errors are propagated back to the user.
           throw e
         }
 
@@ -472,39 +496,7 @@ module.exports = function (
             .then(
               function (result) {
                 emailRecord = result
-
-                allowSigninUnblock = features.isSigninUnblockEnabledForUser(emailRecord.uid, email, request)
-                if (allowSigninUnblock && unblockCode) {
-                  return db.consumeUnblockCode(emailRecord.uid, unblockCode)
-                    .then(
-                      (code) => {
-                        if (Date.now() - code.createdAt > unblockCodeLifetime) {
-                          log.info({
-                            op: 'Account.login.unblockCode.expired',
-                            uid: emailRecord.uid.toString('hex')
-                          })
-                          throw error.invalidUnblockCode()
-                        }
-                        didSigninUnblock = true
-                        return request.emitMetricsEvent('account.login.confirmedUnblockCode')
-                      }
-                    )
-                    .catch(
-                      (err) => {
-                        if (err.errno === error.ERRNO.INVALID_UNBLOCK_CODE) {
-                          request.emitMetricsEvent('account.login.invalidUnblockCode')
-                          customs.flag(request.app.clientAddress, {
-                            email: email,
-                            errno: err.errno
-                          })
-                        }
-                        throw err
-                      }
-                    )
-                }
-                if (!didSigninUnblock && customsErr) {
-                  throw customsErr
-                }
+                allowSigninUnblock = features.isSigninUnblockEnabledForUser(emailRecord.uid, emailRecord.email, request)
               },
               function (err) {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
@@ -512,14 +504,61 @@ module.exports = function (
                     email: email,
                     errno: err.errno
                   })
+                  // We rate-limit attempts to check whether an account exists, so
+                  // we have to be careful to re-throw any customs-server errors here.
+                  // We also have to be careful not to leak info about whether the account
+                  // existed, for example by saying sign-in unblock is unavailable on
+                  // accounts that don't exist. We pass a fake uid into the feature-flag
+                  // test to mask whether the account existed.
+                  if (customsErr) {
+                    allowSigninUnblock = features.isSigninUnblockEnabledForUser('00', email, request)
+                    throw customsErr
+                  }
                 }
                 throw err
               }
             )
         }
 
+        function checkUnblockCode() {
+          if (allowSigninUnblock && unblockCode) {
+            return db.consumeUnblockCode(emailRecord.uid, unblockCode)
+              .then(
+                (code) => {
+                  if (Date.now() - code.createdAt > unblockCodeLifetime) {
+                    log.info({
+                      op: 'Account.login.unblockCode.expired',
+                      uid: emailRecord.uid.toString('hex')
+                    })
+                    throw error.invalidUnblockCode()
+                  }
+                  didSigninUnblock = true
+                  return request.emitMetricsEvent('account.login.confirmedUnblockCode')
+                }
+              )
+              .catch(
+                (err) => {
+                  if (err.errno === error.ERRNO.INVALID_UNBLOCK_CODE) {
+                    return request.emitMetricsEvent('account.login.invalidUnblockCode')
+                      .then(() => {
+                        customs.flag(request.app.clientAddress, {
+                          email: email,
+                          errno: err.errno
+                        })
+                        throw err
+                      })
+                  }
+                  throw err
+                }
+              )
+          }
+          if (!didSigninUnblock && customsErr) {
+            throw customsErr
+          }
+        }
+
         function checkSecurityHistory () {
-          if (!securityHistoryEnabled) {
+          if (!features.isSecurityHistoryTrackingEnabled()) {
             return
           }
           return db.securityEvents({
@@ -578,40 +617,35 @@ module.exports = function (
         }
 
         function checkEmailAndPassword () {
-          // Session token verification is only enabled for certain users during phased rollout.
-          //
-          // If the user went through the sigin-unblock flow, they have already verified their email.
-          // No need to also require confirmation afterwards.
-          //
-          // Even when it is enabled, we only do the email challenge if:
-          //  * the request wants keys, since unverified sessions are fine to use for e.g. oauth login.
-          //  * the email is verified, since content-server triggers a resend of the verification
-          //    email on unverified accounts, which doubles as sign-in confirmation.
-          //  * the login is flagged that it can be bypassed
+          // All sessions are considered unverified by default.
+          needsVerificationId = true
 
-          // Check to see if this login can bypass sign-in confirmation. Current scenarios include
-          //  * User has already logged in from this ip address and verified the sign-in
-          let bypassSiginConfirmation = features.canBypassSiginConfirmation(securityEventVerified, securityEventRecency)
-          if (bypassSiginConfirmation) {
-            log.info({
-              op: 'Account.ipprofiling.seenAddress',
-              uid: emailRecord.uid.toString('hex')
-            })
+          // However! To help simplify the login flow, we can use some heuristics to
+          // decide whether to consider the session pre-verified.  Some accounts
+          // get excluded from this process, e.g. testing accounts where we want
+          // to know for sure what flow they're going to see.
+          if (! forceTokenVerification(request, emailRecord)) {
+            if (skipTokenVerification(request, emailRecord)) {
+              needsVerificationId = false
+            }
           }
 
-          if (didSigninUnblock || !features.isSigninConfirmationEnabledForUser(emailRecord.uid, emailRecord.email, request)
-            || bypassSiginConfirmation) {
+          // If they just went through the sigin-unblock flow, they have already verified their email.
+          // We don't need to force them to do that again, just make a verified session.
+          if (didSigninUnblock) {
             needsVerificationId = false
-            mustVerifySession = false
-            doSigninConfirmation = false
-          } else {
-            // The user doesn't *have* to verify their session if they're not requesting keys,
-            // but we still create it with a non-null tokenVerificationId, so it will still
-            // be considered unverified.  This prevents the session from being used for sync
-            // unless the user explicitly requests us to resend the confirmation email, and completes it.
-            mustVerifySession = requestHelper.wantsKeys(request)
-            doSigninConfirmation = mustVerifySession && emailRecord.emailVerified
           }
+
+          // If the request wants keys, the user *must* confirm their login session before they
+          // can actually use it.  If they dont want keys, they don't *have* to verify their
+          // their session, but we still create it with a non-null tokenVerificationId, so it will
+          // still be considered unverified.  This prevents the session from being used for sync
+          // unless the user explicitly requests us to resend the confirmation email, and completes it.
+          mustVerifySession = needsVerificationId && requestHelper.wantsKeys(request)
+
+          // If the email itself is unverified, we'll re-send the "verify your account email" and
+          // that will suffice to confirm the sign-in.  No need for a separate confirmation email.
+          doSigninConfirmation = mustVerifySession && emailRecord.emailVerified
 
           let flowCompleteSignal
           if (service === 'sync') {
@@ -643,6 +677,56 @@ module.exports = function (
                 })
               }
             )
+        }
+
+        function forceTokenVerification (request, account) {
+          // If there was anything suspicious about the request,
+          // we should force token verification.
+          if (request.app.isSuspiciousRequest) {
+            return true
+          }
+          // If it's an email address used for testing etc,
+          // we should force token verification.
+          if (config.signinConfirmation) {
+            if (config.signinConfirmation.forcedEmailAddresses) {
+              if (config.signinConfirmation.forcedEmailAddresses.test(account.email)) {
+                return true
+              }
+            }
+          }
+          return false
+        }
+
+        function skipTokenVerification (request, account) {
+          // If they're logging in from an IP address on which they recently did
+          // another, successfully-verified login, then we can consider this one
+          // verified as well without going through the loop again.
+          if (features.isSecurityHistoryProfilingEnabled()) {
+            if (securityEventVerified && securityEventRecency === 'day') {
+              log.info({
+                op: 'Account.ipprofiling.seenAddress',
+                uid: account.uid.toString('hex')
+              })
+              return true
+            }
+          }
+
+          // If the account was recently created, don't make the user
+          // confirm sign-in for a configurable amount of time. This will reduce
+          // the friction of a user adding a second device.
+          const skipForNewAccounts = config.signinConfirmation.skipForNewAccounts
+          if (skipForNewAccounts && skipForNewAccounts.enabled) {
+            const accountAge = Date.now() - account.createdAt
+            if (accountAge <= skipForNewAccounts.maxAge) {
+              log.info({
+                op: 'account.signin.confirm.bypass.age',
+                uid: account.uid.toString('hex')
+              })
+              return true
+            }
+          }
+
+          return false
         }
 
         function checkNumberOfActiveSessions () {
@@ -765,12 +849,27 @@ module.exports = function (
             var emailCode = tokenVerificationId ? tokenVerificationId : emailRecord.emailCode
             emailSent = true
 
-            return mailer.sendVerifyCode(emailRecord, emailCode, {
-              service: service,
-              redirectTo: redirectTo,
-              resume: resume,
-              acceptLanguage: request.app.acceptLanguage
-            }).then(() => request.emitMetricsEvent('email.verification.sent'))
+            return getGeoData(ip)
+              .then(
+                function (geoData) {
+                  return mailer.sendVerifyCode(emailRecord, emailCode, {
+                    service: service,
+                    redirectTo: redirectTo,
+                    resume: resume,
+                    acceptLanguage: request.app.acceptLanguage,
+                    flowId: flowId,
+                    flowBeginTime: flowBeginTime,
+                    ip: ip,
+                    location: geoData.location,
+                    uaBrowser: sessionToken.uaBrowser,
+                    uaBrowserVersion: sessionToken.uaBrowserVersion,
+                    uaOS: sessionToken.uaOS,
+                    uaOSVersion: sessionToken.uaOSVersion,
+                    uaDeviceType: sessionToken.uaDeviceType
+                  })
+                }
+              )
+              .then(() => request.emitMetricsEvent('email.verification.sent'))
           }
         }
 
@@ -790,12 +889,19 @@ module.exports = function (
                 function (geoData) {
                   mailer.sendNewDeviceLoginNotification(
                     emailRecord.email,
-                    userAgent.call({
+                    {
                       acceptLanguage: request.app.acceptLanguage,
+                      flowId: flowId,
+                      flowBeginTime: flowBeginTime,
                       ip: ip,
                       location: geoData.location,
-                      timeZone: geoData.timeZone
-                    }, request.headers['user-agent'], log)
+                      timeZone: geoData.timeZone,
+                      uaBrowser: sessionToken.uaBrowser,
+                      uaBrowserVersion: sessionToken.uaBrowserVersion,
+                      uaOS: sessionToken.uaOS,
+                      uaOSVersion: sessionToken.uaOSVersion,
+                      uaDeviceType: sessionToken.uaDeviceType
+                    }
                   )
                 }
               )
@@ -816,15 +922,22 @@ module.exports = function (
                   return mailer.sendVerifyLoginEmail(
                     emailRecord,
                     tokenVerificationId,
-                    userAgent.call({
+                    {
                       acceptLanguage: request.app.acceptLanguage,
+                      flowId: flowId,
+                      flowBeginTime: flowBeginTime,
                       ip: ip,
                       location: geoData.location,
                       redirectTo: redirectTo,
                       resume: resume,
                       service: service,
-                      timeZone: geoData.timeZone
-                    }, request.headers['user-agent'], log)
+                      timeZone: geoData.timeZone,
+                      uaBrowser: sessionToken.uaBrowser,
+                      uaBrowserVersion: sessionToken.uaBrowserVersion,
+                      uaOS: sessionToken.uaOS,
+                      uaOSVersion: sessionToken.uaOSVersion,
+                      uaDeviceType: sessionToken.uaDeviceType
+                    }
                   )
                 }
               )
@@ -833,7 +946,7 @@ module.exports = function (
         }
 
         function recordSecurityEvent() {
-          if (securityHistoryEnabled) {
+          if (features.isSecurityHistoryTrackingEnabled()) {
             // don't block response recording db event
             db.securityEvent({
               name: 'account.login',
@@ -1410,7 +1523,7 @@ module.exports = function (
                   function () {
                     // Act as though we deleted the account asynchronously
                     // and caused the sessionToken to become invalid.
-                    throw error.invalidToken()
+                    throw error.invalidToken('This account was invalid and has been deleted')
                   }
                 )
             }
@@ -1492,13 +1605,18 @@ module.exports = function (
             mailer,
             sessionToken,
             code,
-            userAgent.call({
+            {
               service: service,
               timestamp: Date.now(),
               redirectTo: request.payload.redirectTo,
               resume: request.payload.resume,
-              acceptLanguage: request.app.acceptLanguage
-            }, request.headers['user-agent'], log)
+              acceptLanguage: request.app.acceptLanguage,
+              uaBrowser: sessionToken.uaBrowser,
+              uaBrowserVersion: sessionToken.uaBrowserVersion,
+              uaOS: sessionToken.uaOS,
+              uaOSVersion: sessionToken.uaOSVersion,
+              uaDeviceType: sessionToken.uaDeviceType
+            }
           ))
           .then(() => request.emitMetricsEvent(`email.${event}.resent`))
           .done(
@@ -1700,6 +1818,15 @@ module.exports = function (
         var ip = request.app.clientAddress
         var emailRecord
 
+        request.validateMetricsContext()
+
+        // Store flowId and flowBeginTime to send in email
+        let flowId, flowBeginTime
+        if (request.payload.metricsContext) {
+          flowId = request.payload.metricsContext.flowId
+          flowBeginTime = request.payload.metricsContext.flowBeginTime
+        }
+
         return customs.check(request, email, 'sendUnblockCode')
           .then(lookupAccount)
           .then(createUnblockCode)
@@ -1719,7 +1846,7 @@ module.exports = function (
 
         function createUnblockCode(uid) {
 
-          if (features.isSigninUnblockEnabledForUser(uid, email, request)) {
+          if (features.isSigninUnblockEnabledForUser(uid, emailRecord.email, request)) {
             return db.createUnblockCode(uid)
           } else {
             throw error.featureNotEnabled()
@@ -1731,6 +1858,8 @@ module.exports = function (
             .then((geoData) => {
               return mailer.sendUnblockCode(emailRecord, code, userAgent.call({
                 acceptLanguage: request.app.acceptLanguage,
+                flowId: flowId,
+                flowBeginTime: flowBeginTime,
                 ip: ip,
                 location: geoData.location,
                 timeZone: geoData.timeZone
@@ -1779,7 +1908,8 @@ module.exports = function (
         validate: {
           payload: {
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            sessionToken: isA.boolean().optional()
+            sessionToken: isA.boolean().optional(),
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         }
       },
@@ -1789,6 +1919,16 @@ module.exports = function (
         var authPW = Buffer(request.payload.authPW, 'hex')
         var account, sessionToken, keyFetchToken, verifyHash, wrapKb, devicesToNotify
         var hasSessionToken = request.payload.sessionToken
+
+        request.validateMetricsContext()
+
+        let flowCompleteSignal
+        if (requestHelper.wantsKeys(request)) {
+          flowCompleteSignal = 'account.signed'
+        } else {
+          flowCompleteSignal = 'account.reset'
+        }
+        request.setMetricsFlowCompleteSignal(flowCompleteSignal)
 
         return fetchDevicesToNotify()
           .then(resetAccountData)
@@ -1890,6 +2030,7 @@ module.exports = function (
               .then(
                 function (result) {
                   sessionToken = result
+                  return request.stashMetricsContext(sessionToken)
                 }
               )
           }
@@ -1911,13 +2052,14 @@ module.exports = function (
             .then(
               function (result) {
                 keyFetchToken = result
+                return request.stashMetricsContext(keyFetchToken)
               }
             )
           }
         }
 
         function recordSecurityEvent() {
-          if (securityHistoryEnabled) {
+          if (features.isSecurityHistoryTrackingEnabled()) {
              // don't block response recording db event
             db.securityEvent({
               name: 'account.reset',
