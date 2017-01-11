@@ -1,3 +1,17 @@
+<a name="1.78.0"></a>
+# [1.78.0](https://github.com/mozilla/fxa-auth-server/compare/v1.77.0...v1.78.0) (2017-01-11)
+
+
+### Bug Fixes
+
+* **logging:** handle /v1 path prefix in route summary flow events ([686306e](https://github.com/mozilla/fxa-auth-server/commit/686306e))
+
+### Refactor
+
+* **logging:** remove request argument from log methods ([a8f8c4a](https://github.com/mozilla/fxa-auth-server/commit/a8f8c4a))
+
+
+
 <a name="1.77.0"></a>
 # [1.77.0](https://github.com/mozilla/fxa-auth-server/compare/v1.76.1...v1.77.0) (2017-01-04)
 
