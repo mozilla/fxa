@@ -25,7 +25,7 @@ var config = {
     port: 7000
   },
   limits: {
-    rateLimitIntervalSeconds: 1
+    rateLimitIntervalSeconds: 10
   },
   reputationService: {
     enable: true,
@@ -299,7 +299,7 @@ test(
 )
 
 test(
-  'teardown test reptuation server',
+  'teardown test reputation server',
   function (t) {
     reputationServer.stop()
     t.equal(reputationServer.server.killed, true, 'test reputation server killed')
