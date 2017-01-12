@@ -12,6 +12,9 @@ var DEFAULT_LOCALE = 'en'
 var DEFAULT_TIMEZONE = 'Etc/UTC'
 var UTM_PREFIX = 'fx-'
 
+var X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET'
+var X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS'
+
 module.exports = function (log) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
@@ -82,6 +85,10 @@ module.exports = function (log) {
     return time.format('LTS (z) dddd, ll')
   }
 
+  function sesMessageTagsHeaderValue(templateName) {
+    return 'messageType=fxa-' + templateName + ', app=fxa'
+  }
+
   function Mailer(translator, templates, config, sender) {
     var options = {
       host: config.host,
@@ -106,6 +113,7 @@ module.exports = function (log) {
     this.privacyUrl = config.privacyUrl
     this.reportSignInUrl = config.reportSignInUrl
     this.sender = config.sender
+    this.sesConfigurationSet = config.sesConfigurationSet
     this.supportUrl = config.supportUrl
     this.syncUrl = config.syncUrl
     this.templates = templates
@@ -219,6 +227,13 @@ module.exports = function (log) {
       }, message.headers)
     }
 
+    if (this.sesConfigurationSet) {
+      // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
+      // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
+      // actual outgoing email messages.
+      emailConfig.headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet
+    }
+
     log.info({
       email: message.email,
       op: 'mailer.send',
@@ -276,6 +291,10 @@ module.exports = function (log) {
       'X-Verify-Code': message.code
     }
 
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
     if (message.flowBeginTime && message.flowId) {
       headers['X-Flow-Id'] = message.flowId
       headers['X-Flow-Begin-Time'] = message.flowBeginTime
@@ -326,6 +345,10 @@ module.exports = function (log) {
       'X-Report-SignIn-Link': links.reportSignInLink
     }
 
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
     if (message.flowBeginTime && message.flowId) {
       headers['X-Flow-Id'] = message.flowId
       headers['X-Flow-Begin-Time'] = message.flowBeginTime
@@ -372,6 +395,10 @@ module.exports = function (log) {
       'X-Service-ID': message.service,
       'X-Uid': message.uid,
       'X-Verify-Code': message.code
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     if (message.flowBeginTime && message.flowId) {
@@ -421,6 +448,10 @@ module.exports = function (log) {
       'X-Recovery-Code': message.code
     }
 
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
     if (message.flowBeginTime && message.flowId) {
       headers['X-Flow-Id'] = message.flowId
       headers['X-Flow-Begin-Time'] = message.flowBeginTime
@@ -457,6 +488,10 @@ module.exports = function (log) {
       'X-Link': links.resetLink
     }
 
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
     if (message.flowBeginTime && message.flowId) {
       headers['X-Flow-Id'] = message.flowId
       headers['X-Flow-Begin-Time'] = message.flowBeginTime
@@ -491,6 +526,10 @@ module.exports = function (log) {
       'X-Link': links.resetLink
     }
 
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
     if (message.flowBeginTime && message.flowId) {
       headers['X-Flow-Id'] = message.flowId
       headers['X-Flow-Begin-Time'] = message.flowBeginTime
@@ -521,6 +560,10 @@ module.exports = function (log) {
       'X-Link': links.resetLink
     }
 
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
     if (message.flowBeginTime && message.flowId) {
       headers['X-Flow-Id'] = message.flowId
       headers['X-Flow-Begin-Time'] = message.flowBeginTime
@@ -548,6 +591,10 @@ module.exports = function (log) {
 
     var headers = {
       'X-Link': links.passwordChangeLink
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     if (message.flowBeginTime && message.flowId) {
@@ -584,6 +631,10 @@ module.exports = function (log) {
 
     var headers = {
       'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     if (message.flowBeginTime && message.flowId) {
@@ -637,14 +688,20 @@ module.exports = function (log) {
 
     var links = this._generateLinks(this.verificationUrl, message.email, query, templateName)
 
+    var headers = {
+      'X-Link': links.link,
+      'X-Uid': message.uid,
+      'X-Verify-Code': message.code
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
     return this.send({
       acceptLanguage: message.acceptLanguage || 'en',
       email: message.email,
-      headers: {
-        'X-Link': links.link,
-        'X-Uid': message.uid,
-        'X-Verify-Code': message.code
-      },
+      headers: headers,
       subject: subject,
       template: templateName,
       templateValues: {

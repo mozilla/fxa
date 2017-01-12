@@ -95,6 +95,10 @@ function getLocationMessage (location) {
   }
 }
 
+function sesMessageTagsHeaderValue(templateName) {
+  return 'messageType=fxa-' + templateName + ', app=fxa'
+}
+
 P.all(
   [
     require('../../translator')(['en'], 'en'),
@@ -169,6 +173,49 @@ P.all(
               t.end()
             }
             mailer[type](message)
+          }
+        )
+
+        test(
+          'If sesConfigurationSet is not defined, then outgoing email does not contain X-SES* headers, for type ' + type,
+          function (t) {
+            mailer.mailer.sendMail = function (emailConfig) {
+              var sesConfigurationSetHeader = emailConfig.headers['X-SES-CONFIGURATION-SET']
+              t.ok(!sesConfigurationSetHeader)
+              var sesMessageTags = emailConfig.headers['X-SES-MESSAGE-TAGS']
+              t.ok(!sesMessageTags)
+              t.end()
+            }
+
+            mailer[type](message) // invoke
+          }
+        )
+
+        test(
+          'If sesConfigurationSet is defined, then outgoing email will contain X-SES* headers, for type ' + type,
+          function (t) {
+            var savedSesConfigurationSet = mailer.sesConfigurationSet
+            mailer.sesConfigurationSet = 'some-defined-value'
+
+            mailer.mailer.sendMail = function (emailConfig) {
+              var sesConfigurationSetHeader = emailConfig.headers['X-SES-CONFIGURATION-SET']
+              t.equal(sesConfigurationSetHeader, 'some-defined-value')
+
+              var sesMessageTags = emailConfig.headers['X-SES-MESSAGE-TAGS']
+              var expectedSesMessageTags = sesMessageTagsHeaderValue(type)
+              if (type === 'verificationReminderEmail') {
+                expectedSesMessageTags = sesMessageTagsHeaderValue('verificationReminderFirstEmail')
+                if (message.type === 'second') {
+                  expectedSesMessageTags = sesMessageTagsHeaderValue('verificationReminderSecondEmail')
+                }
+              }
+              t.equal(sesMessageTags, expectedSesMessageTags)
+
+              mailer.sesConfigurationSet = savedSesConfigurationSet
+              t.end()
+            }
+
+            mailer[type](message) // invoke
           }
         )
 
