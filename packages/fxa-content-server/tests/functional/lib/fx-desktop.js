@@ -7,10 +7,6 @@ define([
   'intern/chai!assert'
 ], function (assert) {
 
-  function getRemote(context) {
-    return context.remote || context.parent || context;
-  }
-
   /**
    * Listens for FirefoxAccountsCommand events coming from FxA and
    * automatically responds so that no error messages are displayed
@@ -64,29 +60,50 @@ define([
     return true;
   }
 
-  function testIsBrowserNotifiedOfLogin(context, email, options) {
-    return getRemote(context)
-      .findByCssSelector('#message-login')
-        .getProperty('innerText')
-        .then(function (innerText) {
-          options = options || {};
-          var data = JSON.parse(innerText);
-          assert.equal(data.email, email);
-          assert.ok(data.unwrapBKey);
-          assert.ok(data.keyFetchToken);
-          if (options.checkVerified) {
-            assert.isTrue(data.verified);
-          } else {
-            assert.isFalse(data.verified);
-          }
-        })
-      .end();
+  /**
+   * Test if the browser has been notified of a CustomEvent login message.
+   *
+   * @param {string} email
+   * @param {object} [options]
+   *  @param {boolean} [options.expectVerified] - expected user verification status.
+   *   Defaults to `false`
+   * @returns {promise}
+   */
+  function testIsBrowserNotifiedOfLogin(email, options) {
+    return function () {
+      options = options || {};
+
+      return this.parent
+        .findByCssSelector('#message-login')
+          .getProperty('innerText')
+          .then((innerText) => {
+            options = options || {};
+            var data = JSON.parse(innerText);
+            assert.equal(data.email, email);
+            assert.ok(data.unwrapBKey);
+            assert.ok(data.keyFetchToken);
+            if (options.expectVerified) {
+              assert.isTrue(data.verified);
+            } else {
+              assert.isFalse(data.verified);
+            }
+          })
+        .end();
+    };
   }
 
-  function testIsBrowserNotifiedOfMessage(context, message) {
-    return getRemote(context)
-      .findByCssSelector('#message-' + message)
-      .end();
+  /**
+   * Test if the browser has been notified of a CustomEvent message
+   *
+   * @param {string} message message to expect
+   * @returns {promise} rejects if message has not been sent.
+   */
+  function testIsBrowserNotifiedOfMessage(message) {
+    return function () {
+      return this.parent
+        .findByCssSelector('#message-' + message)
+        .end();
+    };
   }
 
   return {
@@ -95,5 +112,3 @@ define([
     testIsBrowserNotifiedOfMessage: testIsBrowserNotifiedOfMessage
   };
 });
-
-

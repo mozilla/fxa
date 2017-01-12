@@ -35,7 +35,7 @@ define([
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
-  var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
+  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
   var type = FunctionalHelpers.type;
 
 
@@ -74,7 +74,7 @@ define([
         .then(closeCurrentWindow())
 
         .then(testSuccessWasShown())
-        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: true }));
+        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
     },
 
     'reset password, verify same browser with original tab closed': function () {
@@ -130,7 +130,7 @@ define([
         .then(type('#password', PASSWORD))
         .then(click('button[type=submit]'))
 
-        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: false }))
+        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
 
         // user verified the reset password in another browser, they must
         // re-verify they want to sign in on this device to avoid

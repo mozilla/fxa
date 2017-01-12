@@ -17,8 +17,6 @@ define([
   var email2;
   var PASSWORD = '12345678';
 
-  var thenify = FunctionalHelpers.thenify;
-
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
@@ -30,7 +28,7 @@ define([
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
+  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
@@ -63,7 +61,7 @@ define([
         .execute(listenForFxaCommands)
 
         .then(fillOutSignIn(email, PASSWORD))
-        .then(testIsBrowserNotifiedOfLogin(this, email))
+        .then(testIsBrowserNotifiedOfLogin(email))
 
         // Sync sign ins must be verified.
         .then(openVerificationLinkInNewTab(email, 0))

@@ -23,8 +23,8 @@ define([
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
-  var testIsBrowserNotifiedOfMessage = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
+  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
+  var testIsBrowserNotifiedOfMessage = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var config = intern.config;
@@ -43,7 +43,7 @@ define([
       .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
       .then(fillOutSignIn(email, FIRST_PASSWORD))
-      .then(testIsBrowserNotifiedOfLogin(this.parent, email, { checkVerified: false }))
+      .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
 
       .then(function () {
         if (shouldVerifySignin) {
@@ -70,7 +70,7 @@ define([
         .then(visibleByQSA('#change-password .settings-unit-details'))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testIsBrowserNotifiedOfMessage(this, 'change_password'));
+        .then(testIsBrowserNotifiedOfMessage('change_password'));
     },
 
     'sign in, delete the account': function () {
@@ -80,7 +80,7 @@ define([
         .then(visibleByQSA('#delete-account .settings-unit-details'))
 
         .then(fillOutDeleteAccount(FIRST_PASSWORD))
-        .then(testIsBrowserNotifiedOfMessage(this, 'delete_account'))
+        .then(testIsBrowserNotifiedOfMessage('delete_account'))
 
         .then(testElementExists('#fxa-signup-header'));
     },

@@ -21,8 +21,6 @@ define([
   var code;
   var uid;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
@@ -30,27 +28,10 @@ define([
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
-  var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
+  var testIsBrowserNotified = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
+  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
   var createRandomHexString = TestHelpers.createRandomHexString;
-
-  var setupTest = thenify(function (context) {
-    return this.parent
-      .then(createUser(email, PASSWORD, {preVerified: true}))
-      .then(openPage(PAGE_SIGNIN_URL, '#fxa-signin-header'))
-      .execute(listenForFxaCommands)
-      .then(fillOutSignIn(email, PASSWORD))
-      .then(testIsBrowserNotified(context, 'can_link_account'))
-      .then(testIsBrowserNotifiedOfLogin(context, email, {checkVerified: false}))
-      .then(testElementExists('#fxa-confirm-signin-header'))
-      .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user))
-      .then(function (emails) {
-        code = emails[0].headers['x-verify-code'];
-        uid = emails[0].headers['x-uid'];
-      });
-  });
-
 
   registerSuite({
     name: 'complete_sign_in',
@@ -60,7 +41,18 @@ define([
       user = TestHelpers.emailToUser(email);
       return this.remote
         .then(clearBrowserState())
-        .then(setupTest(this, true));
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(PAGE_SIGNIN_URL, '#fxa-signin-header'))
+        .execute(listenForFxaCommands)
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testIsBrowserNotified('can_link_account'))
+        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
+        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user))
+        .then((emails) => {
+          code = emails[0].headers['x-verify-code'];
+          uid = emails[0].headers['x-uid'];
+        });
     },
 
     'open verification link with malformed code': function () {

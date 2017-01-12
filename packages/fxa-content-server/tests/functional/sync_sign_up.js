@@ -5,43 +5,40 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
-  'require',
-  'intern/browser_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
-        FxaClient, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
   var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=sync11';
 
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-
-  var client;
   var email;
   var PASSWORD = '12345678';
+
+  var thenify = FunctionalHelpers.thenify;
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
+  var openPage = FunctionalHelpers.openPage;
+  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+  var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'Firefox Desktop Sync sign_up',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
       return this.remote.then(clearBrowserState());
     },
@@ -51,25 +48,14 @@ define([
     },
 
     'sign up, verify same browser': function () {
-
-      var self = this;
-
       return this.remote
-        .get(require.toUrl(PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .execute(listenForFxaCommands)
-
-        .findByCssSelector('#fxa-signup-header')
-        .end()
         .then(fillOutSignUp(email, PASSWORD))
 
-        .findByCssSelector('#fxa-confirm-header')
+        .then(testElementExists('#fxa-confirm-header'))
 
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email);
-        })
-
-        .end()
+        .then(testIsBrowserNotifiedOfLogin(email))
 
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
@@ -79,16 +65,8 @@ define([
         // In real life, the original browser window would show
         // a "welcome to sync!" screen that has a manage button
         // on it, and this screen should show the FxA success screen.
-        .findById('fxa-sign-up-complete-header')
-        .end()
-
-        .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          assert.ok(text.indexOf('Firefox Sync') > -1);
-        })
-
-        .end()
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
         .then(closeCurrentWindow())
 
         // We do not expect the verification poll to occur. The poll
@@ -102,181 +80,97 @@ define([
 
     'signup, verify same browser with original tab closed': function () {
       return this.remote
-        .get(require.toUrl(PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .execute(listenForFxaCommands)
-
-        .findByCssSelector('#fxa-signup-header')
-        .end()
         .then(fillOutSignUp(email, PASSWORD))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
+        .then(testElementExists('#fxa-confirm-header'))
         .then(FunctionalHelpers.openExternalSite())
 
         .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
 
-        .findByCssSelector('#fxa-sign-up-complete-header')
-        .end()
-
-        .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          assert.ok(text.indexOf('Firefox Sync') > -1);
-        })
-
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
         .then(closeCurrentWindow());
     },
 
     'signup, verify same browser by replacing the original tab': function () {
-      var self = this;
-
       return this.remote
-        .get(require.toUrl(PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .execute(listenForFxaCommands)
-
-        .findByCssSelector('#fxa-signup-header')
-        .end()
         .then(fillOutSignUp(email, PASSWORD))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-header'))
 
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
-
-        .findByCssSelector('#fxa-sign-up-complete-header')
-        .end();
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists('#fxa-sign-up-complete-header'));
     },
 
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
-      var self = this;
-
       return this.remote
-        .get(require.toUrl(PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .execute(listenForFxaCommands)
-
-        .findByCssSelector('#fxa-signup-header')
-        .end()
         .then(fillOutSignUp(email, PASSWORD))
 
-        .findByCssSelector('#fxa-confirm-header')
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(testIsBrowserNotifiedOfLogin(email))
 
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email);
-        })
-
-        .end()
-
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
-        })
+        .then(openVerificationLinkDifferentBrowser(email, 0))
 
         // The original tab should not transition
-        .findByCssSelector('#fxa-confirm-header')
-        .end();
+        .then(noPageTransition('#fxa-confirm-header', 5000));
     },
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
-      var self = this;
-
       return this.remote
-        .get(require.toUrl(PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .execute(listenForFxaCommands)
-
-        .findByCssSelector('#fxa-signup-header')
-        .end()
         .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
 
-        .findByCssSelector('#fxa-confirm-header')
-
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email);
-        })
-        .end()
+        .then(testIsBrowserNotifiedOfLogin(email))
 
         // clear local/sessionStorage to synthesize continuing in
         // a separate browser.
         .then(clearBrowserState())
 
         // verify the user
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (link) {
-          return self.remote.get(link);
-        })
+        .then(openVerificationLinkInSameTab(email, 0))
 
         // user should be redirected to "Success!" screen
-        .findById('fxa-sign-up-complete-header')
-        .end()
-
-        .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          assert.ok(text.indexOf('Firefox Sync') > -1);
-        })
-
-        .end();
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'));
     },
 
     'choose option to customize sync': function () {
-      var self = this;
       return this.remote
-        .get(require.toUrl(PAGE_URL))
+        .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .execute(listenForFxaCommands)
 
-        .findByCssSelector('#fxa-signup-header')
-        .end()
-
-        .findByCssSelector('#customize-sync')
-          .getAttribute('checked')
-          .then(function (checkedAttribute) {
-            assert.isNull(checkedAttribute);
-          })
-        .end()
+        .then(testAttributeEquals('#customize-sync', 'checked', null))
         .then(fillOutSignUp(email, PASSWORD, { customizeSync: true }))
 
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email);
-        })
+        .then(testIsBrowserNotifiedOfLogin(email))
 
         // Being pushed to the confirmation screen is success.
-        .findById('fxa-confirm-header')
-        .end();
+        .then(testElementExists('#fxa-confirm-header'));
     },
 
     'force customize sync checkbox to be checked': function () {
       var url = (PAGE_URL += '&customizeSync=true');
       return this.remote
-        .get(require.toUrl(url))
+        .then(openPage(url, '#fxa-signup-header'))
 
-        .findByCssSelector('#customize-sync')
-          .getAttribute('checked')
-          .then(function (checkedAttribute) {
-            assert.equal(checkedAttribute, 'checked');
-          })
-        .end();
+        .then(testAttributeEquals('#customize-sync', 'checked', 'checked'));
     },
 
     'as a migrating user': function () {
       return this.remote
-        .get(require.toUrl(PAGE_URL_WITH_MIGRATION))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .execute(listenForFxaCommands)
-        .then(FunctionalHelpers.visibleByQSA('.info.nudge'))
-        .end();
+        .then(openPage(PAGE_URL_WITH_MIGRATION, '#fxa-signup-header'))
+        .then(visibleByQSA('.info.nudge'));
     }
   });
 });

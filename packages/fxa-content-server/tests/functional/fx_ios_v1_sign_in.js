@@ -30,8 +30,8 @@ define([
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
-  var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
+  var testIsBrowserNotified = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
+  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var setupTest = thenify(function (options) {
@@ -46,11 +46,11 @@ define([
       .then(openPage(PAGE_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
       .then(fillOutSignIn(email, PASSWORD))
-      .then(testIsBrowserNotified(this.parent, 'can_link_account'))
+      .then(testIsBrowserNotified('can_link_account'))
       .then(() => {
         if (! options.blocked) {
           return this.parent
-            .then(testIsBrowserNotifiedOfLogin(this.parent, email, { checkVerified: false }));
+            .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }));
         }
       })
       .then(testElementExists(successSelector));
@@ -131,7 +131,7 @@ define([
         .then(testElementTextInclude('.verification-email-message', email))
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testIsBrowserNotifiedOfLogin(this.remote, email, { checkVerified: true }))
+        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }))
         // about:accounts will take over post-unblock, no transition
         .then(noPageTransition('#fxa-signin-unblock-header'));
     }
