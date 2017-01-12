@@ -44,7 +44,7 @@ define([
     },
 
     'sign up, wait for confirmation screen, click resend': function () {
-      var email = 'test_signin' + Math.random() + '@mailinator.com';
+      var email = 'test_signin' + Math.random() + '@restmail.dev.lcip.org';
 
       return this.remote
         .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
