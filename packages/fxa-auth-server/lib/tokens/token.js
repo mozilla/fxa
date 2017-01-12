@@ -40,16 +40,22 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
     this.algorithm = 'sha256'
     this.uid = details.uid || null
     this.lifetime = details.lifetime || Infinity
-    this.createdAt = optionallyOverrideCreatedAt(details.createdAt)
+    this.createdAt = details.createdAt || 0
   }
 
   function optionallyOverrideCreatedAt (timestamp) {
     var now = Date.now()
 
-    if (! config.isProduction && timestamp >= 0 && timestamp < now) {
-      // In the wild, all tokens should have a fresh createdAt timestamp.
-      // For testing purposes only, allow createdAt to be overridden.
-      return timestamp
+    // In the wild, all tokens should have a fresh createdAt timestamp.
+    // For testing purposes only, allow createdAt to be overridden.
+    if (timestamp !== undefined) {
+      if (config.isProduction) {
+        throw new Error('unexpected value for createdAt')
+      }
+
+      if (timestamp >= 0 && timestamp <= now) {
+        return timestamp
+      }
     }
 
     return now
@@ -61,7 +67,11 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
   Token.createNewToken = function(TokenType, details) {
     return random(32)
       .then(bytes => Token.deriveTokenKeys(TokenType, bytes))
-      .then(keys => new TokenType(keys, details || {}))
+      .then(keys => {
+        details = details || {}
+        details.createdAt = optionallyOverrideCreatedAt(details.createdAt)
+        return new TokenType(keys, details)
+      })
   }
 
 
@@ -69,20 +79,9 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
   // This uses known seed data to derive the keys.
   //
   Token.createTokenFromHexData = function(TokenType, hexData, details) {
-    var d = P.defer()
     var data = Buffer(hexData, 'hex')
-    Token.deriveTokenKeys(TokenType, data)
-      .then(
-        function (keys) {
-          d.resolve(new TokenType(keys, details || {}))
-        }
-      )
-      .catch(
-        function (err) {
-          d.reject(err)
-        }
-      )
-    return d.promise
+    return Token.deriveTokenKeys(TokenType, data)
+      .then(keys => new TokenType(keys, details || {}))
   }
 
 

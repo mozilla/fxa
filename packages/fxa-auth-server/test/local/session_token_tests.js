@@ -17,8 +17,9 @@ var SessionToken = tokens.SessionToken
 
 var TOKEN_FRESHNESS_THRESHOLD = require('../../lib/tokens/session_token').TOKEN_FRESHNESS_THREADHOLD
 
-var ACCOUNT = {
+var TOKEN = {
   createdAt: Date.now(),
+  accountCreatedAt: Date.now(),
   uid: 'xxx',
   email: Buffer('test@example.com').toString('hex'),
   emailCode: '123456',
@@ -26,11 +27,12 @@ var ACCOUNT = {
   tokenVerificationId: crypto.randomBytes(16)
 }
 
+
 describe('SessionToken', () => {
   it(
     'interface is correct',
     () => {
-      return SessionToken.create(ACCOUNT)
+      return SessionToken.create(TOKEN)
         .then(function (token) {
           assert.equal(typeof token.lastAuthAt, 'function', 'lastAuthAt method is defined')
           assert.equal(typeof token.update, 'function', 'update method is defined')
@@ -44,16 +46,16 @@ describe('SessionToken', () => {
     're-creation from tokenData works',
     () => {
       var token = null
-      return SessionToken.create(ACCOUNT)
+      return SessionToken.create(TOKEN)
         .then(
           function (x) {
             token = x
-            assert.equal(token.accountCreatedAt, ACCOUNT.createdAt)
+            assert.equal(token.accountCreatedAt, TOKEN.accountCreatedAt)
           }
         )
         .then(
           function () {
-            return SessionToken.fromHex(token.data, ACCOUNT)
+            return SessionToken.fromHex(token.data, TOKEN)
           }
         )
         .then(
@@ -96,7 +98,7 @@ describe('SessionToken', () => {
     () => {
       var token = null
       var tokenData = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf'
-      return SessionToken.fromHex(tokenData, ACCOUNT)
+      return SessionToken.fromHex(tokenData, TOKEN)
         .then(
           function (x) {
             token = x
@@ -111,7 +113,7 @@ describe('SessionToken', () => {
   it(
     'SessionToken.setUserAgentInfo',
     () => {
-      return SessionToken.create(ACCOUNT)
+      return SessionToken.create(TOKEN)
         .then(function (token) {
           token.setUserAgentInfo({
             data: 'foo',
