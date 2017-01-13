@@ -22,7 +22,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var openPage = FunctionalHelpers.openPage;
-  var openSignInInNewTab = thenify(FunctionalHelpers.openSignInInNewTab);
+  var openSignInInNewTab = FunctionalHelpers.openSignInInNewTab;
   var openSignUpInNewTab = thenify(FunctionalHelpers.openSignUpInNewTab);
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
@@ -150,7 +150,7 @@ define([
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
-        .then(openSignInInNewTab(this, windowName))
+        .then(openSignInInNewTab(windowName))
         .switchToWindow(windowName)
 
         .then(testElementExists('#fxa-signin-header'))
