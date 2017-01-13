@@ -38,7 +38,7 @@ define([
     return this.parent
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openPage(options.pageUrl || PAGE_URL, '.email'))
-      .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
+      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
       // delay for the webchannel message
       .sleep(500)
       .then(fillOutSignIn(email, PASSWORD))

@@ -40,7 +40,7 @@ define([
         email: email,
         service: 'sync'
       }}))
-      .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
+      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutForceAuth(PASSWORD))
 
       .then(testElementExists(successSelector))

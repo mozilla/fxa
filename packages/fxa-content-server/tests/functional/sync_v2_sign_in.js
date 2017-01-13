@@ -42,7 +42,7 @@ define([
       .then(clearBrowserState({ force: true }))
       .then(createUser(signUpEmail, PASSWORD, { preVerified: options.preVerified }))
       .then(openPage(PAGE_URL, '#fxa-signin-header'))
-      .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
+      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutSignIn(signInEmail, PASSWORD))
 
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -121,7 +121,7 @@ define([
         // If a different user was signed in to the browser, two "merge" dialogs
         // are presented, the first for the non-canonicalized email, the 2nd for
         // the canonicalized email. Ugly UX, but at least the user can proceed.
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignInUnblock(signUpEmail, 0))
         .then(testIsBrowserNotified('fxaccounts:login'))
 

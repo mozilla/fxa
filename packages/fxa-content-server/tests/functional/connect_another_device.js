@@ -91,7 +91,7 @@ define([
         .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
         .then(click('button[type=submit]'))
@@ -118,7 +118,7 @@ define([
         .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         // this tests needs to sign up so that we can check if the email gets prefilled
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
@@ -159,7 +159,7 @@ define([
         .then(openPage(SIGNIN_DESKTOP_URL, '#fxa-signin-header', {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
         .then(openVerificationLinkInSameTab(email, 0, {
@@ -186,7 +186,7 @@ define([
         .then(openPage(SIGNIN_DESKTOP_URL, '#fxa-signin-header', {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(signInEmail, PASSWORD))
         .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
         .then(openVerificationLinkInSameTab(signInEmail, 0, {
@@ -216,7 +216,7 @@ define([
         .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         // this tests needs to sign up so that we can check if the email gets prefilled
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
@@ -258,7 +258,7 @@ define([
         .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
         .then(click('button[type=submit]'))
@@ -295,7 +295,7 @@ define([
         .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
         .then(click('button[type=submit]'))
@@ -332,7 +332,7 @@ define([
         .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
         .then(click('button[type=submit]'))
@@ -367,7 +367,7 @@ define([
         .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
         .then(click('button[type=submit]'))
@@ -406,7 +406,7 @@ define([
             forceUA: UA_STRINGS['android_firefox']
           }
         }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
         .then(click('button[type=submit]'))

@@ -68,7 +68,7 @@ define([
 
       return this.remote
         .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
 
         .then(fillOutSignUp(email, PASSWORD))
 

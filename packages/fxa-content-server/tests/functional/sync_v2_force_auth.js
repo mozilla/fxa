@@ -47,7 +47,7 @@ define([
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openForceAuth(forceAuthOptions))
       .then(noSuchBrowserNotification('fxaccounts:logout'))
-      .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutForceAuth(PASSWORD))
 
       .then(testElementExists(successSelector))

@@ -923,10 +923,17 @@ define([
   var mouseout = mouseevent('mouseout');
   var mouseup = mouseevent('mouseup');
 
-  function respondToWebChannelMessage(context, expectedCommand, response) {
+  /**
+   * Respond to a web channel message.
+   *
+   * @param   {string} expectedCommand command to respond to
+   * @param   {object} response response
+   * @returns {promise} resolves when complete
+   */
+  function respondToWebChannelMessage(expectedCommand, response) {
     var attachedId = Math.floor(Math.random() * 10000);
     return function () {
-      return getRemote(context)
+      return this.parent
         .execute(function (expectedCommand, response, attachedId) {
           function startListening() {
             try {

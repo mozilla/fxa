@@ -40,11 +40,9 @@ define([
     },
 
     'signup, verify same browser': function () {
-      var self = this;
-
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signup-header'))
-        .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))

@@ -38,11 +38,9 @@ define([
     },
 
     'sign up, verify same browser in a different tab': function () {
-      var self = this;
-
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signup-header'))
-        .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
@@ -81,10 +79,9 @@ define([
     },
 
     'sign up, cancel merge warning': function () {
-      var self = this;
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signup-header'))
-        .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: false } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: false } ))
         .then(fillOutSignUp(email, PASSWORD))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))

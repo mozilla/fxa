@@ -48,7 +48,7 @@ define([
             }
           }).call(this);
         })
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -79,7 +79,7 @@ define([
             }
           }).call(this);
         })
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -109,7 +109,7 @@ define([
           }
         }))
         .then(noSuchBrowserNotification('fxaccounts:logout'))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
         // user is able to sign in, browser notified of new uid
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -140,7 +140,7 @@ define([
             service: 'sync'
           }
         }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(visibleByQSA('.error'))
         .then(testElementTextInclude('.error', 'recreate'))
         // ensure the email is filled in, and not editible.
@@ -222,7 +222,7 @@ define([
           }
         }))
         .then(noSuchBrowserNotification('fxaccounts:logout'))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
         // user is able to sign in, browser notified of new uid
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))

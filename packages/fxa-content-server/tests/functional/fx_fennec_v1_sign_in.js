@@ -36,7 +36,7 @@ define([
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openPage(PAGE_URL, '#fxa-signin-header'))
-      .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
+      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutSignIn(email, PASSWORD))
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
       .then(() => {

@@ -101,7 +101,7 @@ define([
     'sign in first in sync context, on second attempt credentials will be cached': function () {
       return this.remote
         .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testIsBrowserNotified('fxaccounts:login'))
@@ -145,7 +145,7 @@ define([
     'sign in with cached credentials but with an expired session': function () {
       return this.remote
         .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
@@ -173,7 +173,7 @@ define([
       var email = TestHelpers.createEmail();
       return this.remote
         .then(openPage(PAGE_SIGNUP_DESKTOP, '#fxa-signup-header'))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
@@ -210,7 +210,7 @@ define([
     'sign in on desktop then sign in with prefill does not show picker': function () {
       return this.remote
         .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(testElementExists('#fxa-confirm-signin-header'))
@@ -236,7 +236,7 @@ define([
     'sign in with desktop context then no context, desktop credentials should not persist': function () {
       return this.remote
         .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(testElementExists('#fxa-confirm-signin-header'))
