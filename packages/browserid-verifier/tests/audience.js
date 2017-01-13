@@ -9,6 +9,7 @@ IdP = require('browserid-local-verify/testing').IdP,
 Client = require('browserid-local-verify/testing').Client,
 Verifier = require('./lib/verifier.js'),
 should = require('should'),
+shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
 request = require('request');
 
 describe('audience tests', function() {
@@ -50,6 +51,7 @@ describe('audience tests', function() {
     submitWithAudience('http://example.com', function(err, r) {
       should.not.exist(err);
       ('okay').should.equal(r.body.status);
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -59,6 +61,7 @@ describe('audience tests', function() {
       should.not.exist(err);
       (r.body.status).should.equal('failure');
       (r.body.reason).should.equal('audience mismatch: domain mismatch');
+      shouldReturnSecurityHeaders(r);
       done(err);
     });
   });
@@ -68,6 +71,7 @@ describe('audience tests', function() {
       should.not.exist(err);
       (r.body.status).should.equal('failure');
       (r.body.reason).should.equal('audience mismatch: port mismatch');
+      shouldReturnSecurityHeaders(r);
       done(err);
     });
   });
@@ -77,6 +81,7 @@ describe('audience tests', function() {
       should.not.exist(err);
       (r.body.status).should.equal('failure');
       (r.body.reason).should.equal('audience mismatch: scheme mismatch');
+      shouldReturnSecurityHeaders(r);
       done(err);
     });
   });
@@ -86,6 +91,7 @@ describe('audience tests', function() {
       should.not.exist(err);
       (r.body.status).should.equal('failure');
       (r.body.reason).should.equal('missing audience parameter');
+      shouldReturnSecurityHeaders(r);
       done(err);
     });
   });

@@ -8,6 +8,7 @@ require('should');
 
 var
 Verifier = require('./lib/verifier.js'),
+shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
 request = require('request');
 
 describe('health check', function() {
@@ -23,6 +24,7 @@ describe('health check', function() {
     }, function(err, r) {
       (r.statusCode).should.equal(200);
       (r.body).should.equal('OK');
+      shouldReturnSecurityHeaders(r);
       done(err);
     });
   });

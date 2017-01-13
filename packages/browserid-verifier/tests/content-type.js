@@ -9,6 +9,7 @@ IdP = require('browserid-local-verify/testing').IdP,
 Client = require('browserid-local-verify/testing').Client,
 Verifier = require('./lib/verifier.js'),
 should = require('should'),
+shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
 request = require('request');
 
 describe('content-type tests', function() {
@@ -49,6 +50,7 @@ describe('content-type tests', function() {
       }).should.not.throw();
       (r.body.status).should.equal('failure');
       (r.body.reason).should.startWith('Unsupported Content-Type: text/plain');
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -66,6 +68,7 @@ describe('content-type tests', function() {
       }).should.not.throw();
       (r.body.status).should.equal('failure');
       (r.body.reason).should.startWith('Unsupported Content-Type: none');
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -85,6 +88,7 @@ describe('content-type tests', function() {
       }).should.not.throw();
       (r.body.status).should.equal('failure');
       (r.body.reason).should.startWith('Unsupported Content-Type: text/plain');
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -102,6 +106,7 @@ describe('content-type tests', function() {
       }).should.not.throw();
       (r.body.status).should.equal('failure');
       (r.body.reason).should.startWith('Unsupported Content-Type: none');
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -123,6 +128,7 @@ describe('content-type tests', function() {
         r.body = JSON.parse(r.body);
       }).should.not.throw();
       (r.body.status).should.equal('failure');
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -144,6 +150,7 @@ describe('content-type tests', function() {
         r.body = JSON.parse(r.body);
       }).should.not.throw();
       (r.body.status).should.equal('failure');
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -166,6 +173,7 @@ describe('content-type tests', function() {
       }).should.not.throw();
       (r.body.status).should.equal('failure');
       r.body.reason.should.startWith('Unsupported Content-Type');
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -188,6 +196,7 @@ describe('content-type tests', function() {
       }).should.not.throw();
       (r.body.status).should.equal('failure');
       r.body.reason.should.startWith('missing audience');
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });

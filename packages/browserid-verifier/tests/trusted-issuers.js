@@ -9,6 +9,7 @@ IdP = require('browserid-local-verify/testing').IdP,
 Client = require('browserid-local-verify/testing').Client,
 Verifier = require('./lib/verifier.js'),
 should = require('should'),
+shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
 request = require('request');
 
 describe('audience tests', function() {
@@ -56,6 +57,7 @@ describe('audience tests', function() {
     submitWithTrustedIssuers([ idp.domain() ], function(err, r) {
       should.not.exist(err);
       ('okay').should.equal(r.body.status);
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -64,6 +66,7 @@ describe('audience tests', function() {
     submitWithTrustedIssuers(undefined, function(err, r) {
       should.not.exist(err);
       ('failure').should.equal(r.body.status);
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -73,6 +76,7 @@ describe('audience tests', function() {
       should.not.exist(err);
       ('failure').should.equal(r.body.status);
       ('trusted issuers must be an array').should.equal(r.body.reason);
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -82,6 +86,7 @@ describe('audience tests', function() {
       should.not.exist(err);
       ('failure').should.equal(r.body.status);
       ('trusted issuers must be an array of strings').should.equal(r.body.reason);
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });

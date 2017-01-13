@@ -9,6 +9,7 @@ IdP = require('browserid-local-verify/testing').IdP,
 Client = require('browserid-local-verify/testing').Client,
 Verifier = require('./lib/verifier.js'),
 should = require('should'),
+shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
 request = require('request');
 
 describe('force issuer', function() {
@@ -50,6 +51,7 @@ describe('force issuer', function() {
         (r.statusCode).should.equal(200);
         (r.body.status).should.equal('failure');
         (r.body.reason).should.startWith("untrusted issuer");
+        shouldReturnSecurityHeaders(r);
         done();
       });
     });
@@ -76,6 +78,7 @@ describe('force issuer', function() {
         should.not.exist(err);
         (r.statusCode).should.equal(200);
         (r.body.status).should.equal('okay');
+        shouldReturnSecurityHeaders(r);
         done();
       });
     });
@@ -102,6 +105,7 @@ describe('force issuer', function() {
         should.not.exist(err);
         (r.statusCode).should.equal(200);
         (r.body.status).should.equal('okay');
+        shouldReturnSecurityHeaders(r);
         done();
       });
     });

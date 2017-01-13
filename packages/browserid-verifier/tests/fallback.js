@@ -9,6 +9,7 @@ IdP = require('browserid-local-verify/testing').IdP,
 Client = require('browserid-local-verify/testing').Client,
 Verifier = require('./lib/verifier.js'),
 should = require('should'),
+shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
 request = require('request');
 
 describe('fallback configuration test', function() {
@@ -49,6 +50,7 @@ describe('fallback configuration test', function() {
         (r.body.issuer).should.equal(idp.domain());
         (r.body.audience).should.equal('http://rp.example.com');
         (r.statusCode).should.equal(200);
+        shouldReturnSecurityHeaders(r);
         done();
       });
     });
@@ -87,6 +89,7 @@ describe('fallback configuration test', function() {
         (r.body.status).should.equal('failure');
         // XXX: better error message
         (r.body.reason).should.startWith("untrusted issuer");
+        shouldReturnSecurityHeaders(r);
         done();
       });
     });

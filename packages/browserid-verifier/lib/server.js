@@ -41,6 +41,22 @@ function shutdown(signal) {
   process.on(signal, shutdown(signal.substr(3)));
 });
 
+// header manipulation
+app.use(function(req, res, next) {
+  // no caching allowed, this is an API server.
+  res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate, max-age=0');
+
+  // security headers
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Strict-Transport-Security', 'max-age=15552000');
+
+  // shave some needless bytes
+  res.removeHeader('X-Powered-By');
+  res.setHeader('Connection', "close");
+  next();
+});
 
 // health check - registered before all other middleware.
 app.use(function(req, res, next) {
@@ -76,16 +92,6 @@ app.use(morgan('common', {
     }
   }
 }));
-
-// header manipulation
-app.use(function(req, res, next) {
-  // no caching allowed, this is an API server.
-  res.setHeader('Cache-Control', 'no-cache, max-age=0');
-  // shave some needless bytes
-  res.removeHeader('X-Powered-By');
-  res.setHeader('Connection', "close");
-  next();
-});
 
 // log summary - GH24
 app.use(summary());
