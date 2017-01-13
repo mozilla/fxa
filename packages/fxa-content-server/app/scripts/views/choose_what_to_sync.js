@@ -12,6 +12,8 @@ define(function (require, exports, module) {
   const FormView = require('views/form');
   const Template = require('stache!templates/choose_what_to_sync');
 
+  const SCREEN_CLASS = 'screen-choose-what-to-sync';
+
   var View = FormView.extend({
     template: Template,
     className: 'choose-what-to-sync',
@@ -35,6 +37,17 @@ define(function (require, exports, module) {
       if (! this.getAccount().get('sessionToken')) {
         this.navigate('signup');
       }
+    },
+
+    afterRender () {
+      // the 'choose-what-to-sync' view is a special case view
+      // where we want to hide the logo and not animate it
+      // it uses `!important` to avoid the fade-in effect and inline styles.
+      $('body').addClass(SCREEN_CLASS);
+    },
+
+    destroy () {
+      $('body').removeClass(SCREEN_CLASS);
     },
 
     context () {

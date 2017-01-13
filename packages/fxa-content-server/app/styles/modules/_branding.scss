@@ -38,6 +38,13 @@
   .chromeless & {
     display: none;
   }
+
+  .screen-choose-what-to-sync & {
+    // the 'choose-what-to-sync' view is a special case view
+    // where we want to hide the logo and not animate it
+    // it uses `!important` to avoid the fade-in effect and inline styles.
+    opacity: 0 !important;
+  }
 }
 
 #about-mozilla {
@@ -74,18 +81,26 @@
   }
 }
 
-#choose-what-to-sync-graphic {
-  @include hidpi-background-image('choose_what_to_sync_devices', 200px 91px, 'jpg');
-  background-position: center top;
-  background-repeat: no-repeat;
-  height: 100px;
-  margin: 10px auto 0 auto;
-  width: 200px;
 
-  @include respond-to('big') {
-    background-size: 300px 138px;
-    height: 155px;
-    margin: 20px auto 0 auto;
-    width: 300px;
+.choose-what-to-sync {
+  #choose-what-to-sync-graphic {
+    @include hidpi-background-image('choose_what_to_sync_devices', 200px 91px, 'jpg');
+    background-position: center top;
+    background-repeat: no-repeat;
+    height: 100px;
+    margin: 10px auto 0 auto;
+    width: 200px;
+
+    @include respond-to('big') {
+      background-size: 300px 138px;
+      height: 155px;
+      margin: 20px auto 0 auto;
+      width: 300px;
+    }
   }
+
+  .success-email-created {
+    margin: -35px 0 40px 0;
+  }
+
 }

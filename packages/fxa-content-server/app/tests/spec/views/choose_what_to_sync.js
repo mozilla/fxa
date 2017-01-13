@@ -89,7 +89,7 @@ define(function (require, exports, module) {
       it('renders email info', function () {
         return initView()
           .then(function () {
-            assert.include(view.$('#fxa-choose-what-to-sync-header .email').text(), email,
+            assert.include(view.$('.success-email-created').text(), email,
               'email is in the view');
           });
       });
