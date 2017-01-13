@@ -38,11 +38,11 @@ define([
       .then(openPage(PAGE_URL, '#fxa-signin-header'))
       .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutSignIn(email, PASSWORD))
-      .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'))
+      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
       .then(() => {
         if (! options.blocked) {
           return this.parent
-            .then(testIsBrowserNotified(this.parent, 'fxaccounts:login'));
+            .then(testIsBrowserNotified('fxaccounts:login'));
         }
       });
   });
@@ -82,8 +82,8 @@ define([
         .then(setupTest({ preVerified: false }))
 
         .then(testElementExists('#fxa-confirm-header'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         // email 0 - initial sign up email
         // email 1 - sign in w/ unverified address email
@@ -106,7 +106,7 @@ define([
         .then(testElementTextInclude('.verification-email-message', email))
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
         .then(testElementExists('#fxa-sign-in-complete-header'));
     }
   });

@@ -47,8 +47,8 @@ define([
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         // User must confirm their Sync signin
         .then(testElementExists('#fxa-confirm-signin-header'))
@@ -71,7 +71,7 @@ define([
         .then(visibleByQSA('#change-password .settings-unit-details'))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testIsBrowserNotified(this, 'fxaccounts:change_password'));
+        .then(testIsBrowserNotified('fxaccounts:change_password'));
     },
 
     'sign in, change the password by browsing directly to settings': function () {
@@ -79,10 +79,10 @@ define([
         .then(openPage(SETTINGS_NOCONTEXT_URL, '#fxa-settings-header'))
         .then(click('#change-password .settings-unit-toggle'))
         .then(visibleByQSA('#change-password .settings-unit-details'))
-        .then(noSuchBrowserNotification(this, 'fxaccounts:change_password'))
+        .then(noSuchBrowserNotification('fxaccounts:change_password'))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testIsBrowserNotified(this, 'fxaccounts:change_password'));
+        .then(testIsBrowserNotified('fxaccounts:change_password'));
     },
 
     'sign in, delete the account': function () {
@@ -93,7 +93,7 @@ define([
         .then(fillOutDeleteAccount(FIRST_PASSWORD))
         // Fx desktop requires fxaccounts:delete, Fennec requires
         // fxaccounts:delete_account
-        .then(testIsBrowserNotified(this, 'fxaccounts:delete_account'))
+        .then(testIsBrowserNotified('fxaccounts:delete_account'))
 
         .then(testElementExists('#fxa-signup-header'));
     },

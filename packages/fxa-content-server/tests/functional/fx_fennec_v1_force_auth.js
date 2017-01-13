@@ -44,11 +44,11 @@ define([
       .then(fillOutForceAuth(PASSWORD))
 
       .then(testElementExists(successSelector))
-      .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'))
+      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
       .then(() => {
         if (! options.blocked) {
           return this.parent
-            .then(testIsBrowserNotified(this.parent, 'fxaccounts:login'));
+            .then(testIsBrowserNotified('fxaccounts:login'));
         }
       });
   });
@@ -93,7 +93,7 @@ define([
         .then(setupTest({ blocked: true, preVerified: true }))
 
         .then(fillOutSignInUnblock(email, 0))
-        .then(testIsBrowserNotified(this.parent, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(testElementExists('#fxa-sign-in-complete-header'));
     }

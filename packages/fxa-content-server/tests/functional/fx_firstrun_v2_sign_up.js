@@ -21,6 +21,7 @@ define([
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
+  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
   registerSuite({
     name: 'Firstrun Sync v2 sign_up',
@@ -45,7 +46,7 @@ define([
 
         .then(fillOutSignUp(email, PASSWORD))
 
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         .findByCssSelector('#fxa-choose-what-to-sync-header')
         .end()
@@ -69,10 +70,7 @@ define([
 
         // the login message is only sent after the sync preferences screen
         // has been cleared.
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login', function (data) {
-          assert.isTrue(data.customizeSync);
-          assert.deepEqual(data.declinedSyncEngines, ['addons', 'passwords']);
-        }))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         // user should be transitioned to the "go confirm your address" page
         .findByCssSelector('#fxa-confirm-header')

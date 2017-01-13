@@ -965,9 +965,15 @@ define([
     };
   }
 
-  function testIsBrowserNotified(context, command, cb) {
+  /**
+   * Test to ensure the browser has received a web channel notification.
+   *
+   * @param {string} command to ensure was received
+   * @returns {promise} rejects if message has not been received.
+   */
+  function testIsBrowserNotified(command) {
     return function () {
-      return getRemote(context)
+      return this.parent
         // Allow 5 seconds for the event to come through.
         .setExecuteAsyncTimeout(5000)
         .executeAsync(function (command, done) {
@@ -1000,9 +1006,16 @@ define([
     };
   }
 
-  function noSuchBrowserNotification(context, command) {
+  /**
+   * Test to ensure the browser has not received a web channel notification.
+   *
+   * @param   {string} command command that should not be received.
+   * @returns {promise} rejects if command has been received
+   */
+  function noSuchBrowserNotification(command) {
     return function () {
-      return testIsBrowserNotified(context, command)()
+      return this.parent
+        .then(testIsBrowserNotified(command))
         .then(function () {
           var unexpectedNotificationError = new Error('UnexpectedBrowserNotification');
           unexpectedNotificationError.command = command;

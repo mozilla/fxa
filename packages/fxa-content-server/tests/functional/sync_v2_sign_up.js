@@ -19,11 +19,13 @@ define([
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noPageTransition = FunctionalHelpers.noPageTransition;
+  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testAttributeExists = FunctionalHelpers.testAttributeExists;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
+  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
   registerSuite({
     name: 'Firefox Desktop Sync v2 sign_up',
@@ -45,9 +47,8 @@ define([
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
 
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-
-        .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(noSuchBrowserNotification('fxaccounts:login'))
 
         // user should be transitioned to the choose what to Sync page
         .findByCssSelector('#fxa-choose-what-to-sync-header')
@@ -76,17 +77,7 @@ define([
 
         // the login message is only sent after the sync preferences screen
         // has been cleared.
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login', function (data) {
-          assert.isTrue(data.customizeSync);
-          assert.deepEqual(data.declinedSyncEngines, ['addons', 'passwords']);
-          assert.equal(data.email, email);
-          assert.ok(data.keyFetchToken);
-          assert.ok(data.sessionToken);
-          assert.ok(data.uid);
-          assert.ok(data.unwrapBKey);
-          assert.isFalse(data.verified);
-          assert.isTrue(data.verifiedCanLinkAccount);
-        }))
+        .then(testIsBrowserNotified('fxaccounts:login'))
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')

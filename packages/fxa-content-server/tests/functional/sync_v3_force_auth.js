@@ -51,8 +51,8 @@ define([
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(testElementExists('#fxa-confirm-signin-header'))
 
@@ -82,8 +82,8 @@ define([
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(testElementExists('#fxa-confirm-signin-header'))
 
@@ -108,12 +108,12 @@ define([
             uid: TestHelpers.createUID()
           }
         }))
-        .then(noSuchBrowserNotification(this, 'fxaccounts:logout'))
+        .then(noSuchBrowserNotification('fxaccounts:logout'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
         // user is able to sign in, browser notified of new uid
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(testElementExists('#fxa-confirm-signin-header'))
 
@@ -155,8 +155,8 @@ define([
         // screen is overridden because the user is signing up outside
         // of about:accounts.
         .then(testElementExists('#fxa-confirm-header'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
     'with an unregistered email, registered uid': function () {
@@ -221,16 +221,16 @@ define([
             uid: TestHelpers.createUID()
           }
         }))
-        .then(noSuchBrowserNotification(this, 'fxaccounts:logout'))
+        .then(noSuchBrowserNotification('fxaccounts:logout'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
         // user is able to sign in, browser notified of new uid
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition('#fxa-signin-unblock-header'));
     }

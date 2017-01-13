@@ -42,7 +42,7 @@ define([
       // delay for the webchannel message
       .sleep(500)
       .then(fillOutSignIn(email, PASSWORD))
-      .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'));
+      .then(testIsBrowserNotified('fxaccounts:can_link_account'));
   });
 
   registerSuite({
@@ -61,7 +61,7 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
         .then(testElementExists('#fxa-confirm-signin-header'))
 
@@ -71,21 +71,21 @@ define([
           .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-sign-in-complete-header'))
-        .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
+        .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
         .then(testElementExists('#fxa-confirm-signin-header'))
 
         .then(openVerificationLinkDifferentBrowser(email))
 
         .then(testElementExists('#fxa-sign-in-complete-header'))
-        .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
+        .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 
     'unverified': function () {
@@ -93,7 +93,7 @@ define([
       return this.remote
         .then(setupTest({ preVerified: false }))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
 
         .then(testElementExists('#fxa-confirm-header'))
@@ -107,14 +107,14 @@ define([
           .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-sign-up-complete-header'))
-        .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
+        .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 
     'signin, cancel merge warning': function () {
       return this.remote
         .then(setupTest({ canLinkAccountResponse: false, preVerified: true }))
 
-        .then(noSuchBrowserNotification(this, 'fxaccounts:login'))
+        .then(noSuchBrowserNotification('fxaccounts:login'))
 
         // user should not transition to the next screen
         .then(noPageTransition('#fxa-signin-header'));
@@ -130,7 +130,7 @@ define([
         .then(testElementTextInclude('.verification-email-message', email))
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         // Only users that go through signin confirmation see
         // `/signin_complete`, and users that go through signin unblock see

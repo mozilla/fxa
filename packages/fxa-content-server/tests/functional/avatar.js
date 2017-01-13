@@ -35,7 +35,7 @@ define([
 
   var testIsBrowserNotifiedOfAvatarChange = thenify(function () {
     return this.parent
-      .then(testIsBrowserNotified(this.parent, 'profile:change'));
+      .then(testIsBrowserNotified('profile:change'));
   });
 
   function signUp(context, email) {

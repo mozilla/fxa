@@ -66,12 +66,12 @@ define([
         // two problems: 1) initiating tab is closed, 2) The initiating
         // tab when running in E10s does not have all the necessary data
         // because localStorage is not shared.
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(closeCurrentWindow())
 
         .then(testSuccessWasShown())
-        .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
+        .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 
     'reset password with a restmail address, get the open webmail button': function () {

@@ -23,6 +23,7 @@ define([
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
+  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
   registerSuite({
     name: 'Firstrun Sync v1 sign_up',
@@ -47,8 +48,8 @@ define([
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
 
         // verify the user
@@ -86,7 +87,7 @@ define([
         .then(respondToWebChannelMessage(self, 'fxaccounts:can_link_account', { ok: false } ))
         .then(fillOutSignUp(email, PASSWORD))
 
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         // user should not transition to the next screen
         .then(noSuchElement('#fxa-confirm-header'));

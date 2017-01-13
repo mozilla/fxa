@@ -46,17 +46,17 @@ define([
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openForceAuth(forceAuthOptions))
-      .then(noSuchBrowserNotification(this.parent, 'fxaccounts:logout'))
-      .then(respondToWebChannelMessage(this.parent, 'fxaccounts:can_link_account', { ok: true } ))
+      .then(noSuchBrowserNotification('fxaccounts:logout'))
+      .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutForceAuth(PASSWORD))
 
       .then(testElementExists(successSelector))
-      .then(testIsBrowserNotified(this.parent, 'fxaccounts:can_link_account'))
+      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
       .then(() => {
         if (! options.blocked) {
           return this.parent
-            .then(testIsBrowserNotified(this.parent, 'fxaccounts:login'));
+            .then(testIsBrowserNotified('fxaccounts:login'));
         }
       });
   });
@@ -94,15 +94,15 @@ define([
       return this.remote
         .then(setupTest({ forceAboutAccounts: true, preVerified: false }))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
     'verified - web flow, verify, from original tab\'s P.O.V.': function () {
       return this.remote
         .then(setupTest({ preVerified: true }))
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkDifferentBrowser(email))
         .then(testElementExists('#fxa-sign-in-complete-header'));
@@ -111,8 +111,8 @@ define([
     'unverified - web flow, verify, from original tab\'s P.O.V.': function () {
       return this.remote
         .then(setupTest({ preVerified: false }))
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkDifferentBrowser(email, 1))
         .then(testElementExists('#fxa-sign-up-complete-header'));
@@ -126,7 +126,7 @@ define([
         .then(fillOutSignInUnblock(email, 0))
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition('#fxa-signin-unblock-header'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+        .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });
 });

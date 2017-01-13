@@ -44,8 +44,8 @@ define([
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(testElementExists('#fxa-confirm-signin-header'))
         .then(openVerificationLinkDifferentBrowser(email))
@@ -65,7 +65,7 @@ define([
         .then(visibleByQSA('#change-password .settings-unit-details'))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testIsBrowserNotified(this, 'fxaccounts:change_password'));
+        .then(testIsBrowserNotified('fxaccounts:change_password'));
     },
 
     'sign in, change the password by browsing directly to settings': function () {
@@ -75,7 +75,7 @@ define([
         .then(visibleByQSA('#change-password .settings-unit-details'))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testIsBrowserNotified(this, 'fxaccounts:change_password'));
+        .then(testIsBrowserNotified('fxaccounts:change_password'));
     }
   });
 });

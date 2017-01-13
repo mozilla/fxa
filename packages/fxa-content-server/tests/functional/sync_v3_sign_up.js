@@ -5,10 +5,9 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
 
@@ -16,14 +15,19 @@ define([
   var PASSWORD = '12345678';
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
+  var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchElement = FunctionalHelpers.noSuchElement;
+  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
+  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
   registerSuite({
     name: 'Firefox Desktop Sync v3 sign_up',
@@ -46,34 +50,20 @@ define([
         .then(noSuchElement('#suggest-sync'))
         .then(fillOutSignUp(email, PASSWORD))
 
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:can_link_account'))
-
-        .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(noSuchBrowserNotification('fxaccounts:login'))
 
         // user should be transitioned to the choose what to Sync page
-        .findByCssSelector('#fxa-choose-what-to-sync-header')
-        .end()
+        .then(testElementExists('#fxa-choose-what-to-sync-header'))
 
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(click('button[type=submit]'))
 
         // user should be transitioned to the "go confirm your address" page
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-header'))
 
         // the login message is only sent after the sync preferences screen
         // has been cleared.
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:login', function (data) {
-          assert.isTrue(data.customizeSync);
-          assert.equal(data.email, email);
-          assert.ok(data.keyFetchToken);
-          assert.ok(data.sessionToken);
-          assert.ok(data.uid);
-          assert.ok(data.unwrapBKey);
-          assert.isFalse(data.verified);
-          assert.isTrue(data.verifiedCanLinkAccount);
-        }))
+        .then(testIsBrowserNotified('fxaccounts:login'))
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
@@ -82,15 +72,8 @@ define([
         // In real life, the original browser window would show
         // a "welcome to sync!" screen that has a manage button
         // on it, and this screen should show the FxA success screen.
-        .findById('fxa-sign-up-complete-header')
-        .end()
-
-        .findByCssSelector('.account-ready-service')
-          .getVisibleText()
-          .then(function (text) {
-            assert.ok(text.indexOf('Firefox Sync') > -1);
-          })
-        .end()
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
 
         .then(closeCurrentWindow())
 
