@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const assert = require('insist');
+const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
 const Server = require('./lib/server');
 
@@ -16,25 +17,7 @@ describe('server', function() {
         assert.equal(res.result.version, require('../package.json').version);
         assert(res.result.commit);
 
-        // and must return an STS header
-        var stsHeader = res.headers['strict-transport-security'];
-        assert.equal(stsHeader, 'max-age=15552000; includeSubDomains');
-
-        // content type options header
-        var contentTypeHeader = res.headers['x-content-type-options'];
-        assert.equal(contentTypeHeader, 'nosniff');
-
-        // xss protection header
-        var xssHeader = res.headers['x-xss-protection'];
-        assert.equal(xssHeader, '1; mode=block');
-
-        // frame options header
-        var frameHeader = res.headers['x-frame-options'];
-        assert.equal(frameHeader, 'DENY');
-
-        // cache control header
-        var cacheControlHeader = res.headers['cache-control'];
-        assert.equal(cacheControlHeader, 'private, no-cache, no-store, must-revalidate');
+        assertSecurityHeaders(res);
 
         // but the other security builtin headers from hapi are not set
         var other = {
