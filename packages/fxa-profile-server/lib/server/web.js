@@ -152,6 +152,15 @@ exports.create = function createServer() {
     }
     scopes = set(scopes);
   });
+
+  routes.forEach(function(route) {
+    if (route.config.cache === undefined) {
+      route.config.cache = {
+        otherwise: 'private, no-cache, no-store, must-revalidate'
+      };
+    }
+  });
+
   server.route(routes);
 
   server.ext('onPreAuth', function (request, reply) {

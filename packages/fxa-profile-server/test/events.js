@@ -10,6 +10,7 @@ const path = require('path');
 const db = require('../lib/db');
 const events = require('../lib/events');
 const P = require('../lib/promise');
+const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
 const UID = crypto.randomBytes(16).toString('hex');
 const mock = require('./lib/mock')({ userid: UID });
@@ -69,6 +70,7 @@ describe('events', function() {
           assert.equal(res.statusCode, 201);
           assert(res.result.url);
           assert(res.result.id);
+          assertSecurityHeaders(res);
           return res.result.url;
         }).then(function(s3url) {
           return P.all(SIZE_SUFFIXES).map(function(suffix) {

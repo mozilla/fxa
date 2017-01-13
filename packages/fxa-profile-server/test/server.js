@@ -32,6 +32,10 @@ describe('server', function() {
         var frameHeader = res.headers['x-frame-options'];
         assert.equal(frameHeader, 'DENY');
 
+        // cache control header
+        var cacheControlHeader = res.headers['cache-control'];
+        assert.equal(cacheControlHeader, 'private, no-cache, no-store, must-revalidate');
+
         // but the other security builtin headers from hapi are not set
         var other = {
           'x-download-options': 1,

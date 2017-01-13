@@ -11,7 +11,7 @@ const checksum = require('checksum');
 
 const assert = require('insist');
 const P = require('../lib/promise');
-
+const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
 function randomHex(bytes) {
   return crypto.randomBytes(bytes).toString('hex');
@@ -72,6 +72,7 @@ describe('/profile', function() {
       assert.equal(res.result.uid, USERID);
       assert.equal(res.result.email, 'user@example.domain');
       assert.equal(res.result.avatar, null);
+      assertSecurityHeaders(res);
     });
   });
 
@@ -112,6 +113,7 @@ describe('/profile', function() {
     }).then(function(res) {
       assert.equal(res.statusCode, 503);
       assert.equal(res.result.errno, 105);
+      assertSecurityHeaders(res);
     });
   });
 
@@ -141,6 +143,7 @@ describe('/profile', function() {
     }).then(function(res) {
       assert.equal(res.statusCode, 401);
       assert.equal(res.result.errno, 100);
+      assertSecurityHeaders(res);
     });
   });
 
@@ -170,6 +173,7 @@ describe('/profile', function() {
     }).then(function(res) {
       assert.equal(res.statusCode, 401);
       assert.equal(res.result.errno, 100);
+      assertSecurityHeaders(res);
     });
   });
 
@@ -199,6 +203,7 @@ describe('/profile', function() {
     }).then(function(res) {
       assert.equal(res.statusCode, 500);
       assert.equal(res.result.errno, 999);
+      assertSecurityHeaders(res);
     });
   });
 
@@ -219,6 +224,7 @@ describe('/profile', function() {
     }).then(function(res) {
       assert.equal(res.statusCode, 503);
       assert.equal(res.result.errno, 104);
+      assertSecurityHeaders(res);
     });
   });
 
@@ -240,6 +246,7 @@ describe('/profile', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.avatar, GRAVATAR);
+        assertSecurityHeaders(res);
       });
     });
   });
@@ -260,6 +267,7 @@ describe('/profile', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.displayName, 'Spock');
+        assertSecurityHeaders(res);
       });
     });
   });
@@ -279,6 +287,7 @@ describe('/profile', function() {
       assert.equal(res.statusCode, 200);
       assert.equal(res.result.email, 'user@example.domain');
       assert.equal(Object.keys(res.result).length, 1);
+      assertSecurityHeaders(res);
     });
   });
 
@@ -294,6 +303,7 @@ describe('/profile', function() {
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 403);
+      assertSecurityHeaders(res);
     });
   });
 
@@ -315,6 +325,7 @@ describe('/profile', function() {
         var etag = res.headers.etag.substr(1, 40);
         var expectedEtag = checksum(JSON.stringify(res.result));
         assert.equal(etag, expectedEtag);
+        assertSecurityHeaders(res);
       });
     });
   });
@@ -335,6 +346,7 @@ describe('/profile', function() {
       assert.equal(res.result.email, 'user@example.domain');
       assert.equal(res.result.sub, USERID);
       assert.equal(Object.keys(res.result).length, 2);
+      assertSecurityHeaders(res);
     });
 
   });
@@ -355,6 +367,7 @@ describe('/email', function() {
     }).then(function(res) {
       assert.equal(res.statusCode, 200);
       assert.equal(JSON.parse(res.payload).email, 'user@example.domain');
+      assertSecurityHeaders(res);
     });
   });
 
@@ -370,6 +383,7 @@ describe('/email', function() {
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 403);
+      assertSecurityHeaders(res);
     });
   });
 });
@@ -387,6 +401,7 @@ describe('/uid', function() {
     }).then(function(res) {
       assert.equal(res.statusCode, 200);
       assert.equal(JSON.parse(res.payload).uid, USERID);
+      assertSecurityHeaders(res);
     });
   });
 
@@ -402,6 +417,7 @@ describe('/uid', function() {
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 403);
+      assertSecurityHeaders(res);
     });
   });
 });
@@ -436,6 +452,7 @@ describe('/avatar', function() {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.avatar, GRAVATAR);
         assert.equal(res.result.id, id2);
+        assertSecurityHeaders(res);
       });
     });
     it('should include an etag in the http response', function() {
@@ -455,6 +472,7 @@ describe('/avatar', function() {
 
         var etag = res.headers.etag.substr(1, 32);
         assert.equal(etag, id2);
+        assertSecurityHeaders(res);
       });
     });
 
@@ -500,6 +518,7 @@ describe('/avatar', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 201);
         assert(res.result.id);
+        assertSecurityHeaders(res);
       });
     });
 
@@ -547,6 +566,7 @@ describe('/avatar', function() {
         assert.equal(res.statusCode, 400);
         assert.equal(res.result.errno, 102);
         assert.equal(res.result.message, 'Unsupported image provider');
+        assertSecurityHeaders(res);
       });
     });
 
@@ -565,6 +585,7 @@ describe('/avatar', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 403);
+        assertSecurityHeaders(res);
       });
     });
   });
@@ -590,6 +611,7 @@ describe('/avatar', function() {
         assert.equal(res.statusCode, 201);
         assert(res.result.url);
         assert(res.result.id);
+        assertSecurityHeaders(res);
         return res.result.url;
       }).then(function(s3url) {
         return P.all(SIZE_SUFFIXES).map(function(suffix) {
@@ -634,6 +656,7 @@ describe('/avatar', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 500);
         assert.equal(res.result.message, 'Image processing error');
+        assertSecurityHeaders(res);
       });
     });
 
@@ -668,6 +691,7 @@ describe('/avatar', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 500);
+        assertSecurityHeaders(res);
       });
     });
 
@@ -686,6 +710,7 @@ describe('/avatar', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 403);
+        assertSecurityHeaders(res);
       });
     });
   });
@@ -707,6 +732,7 @@ describe('/avatar', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 403);
+        assertSecurityHeaders(res);
       });
     });
 
@@ -728,6 +754,7 @@ describe('/avatar', function() {
           }
         }).then(function(res) {
           assert.equal(res.statusCode, 401);
+          assertSecurityHeaders(res);
         });
       });
 
@@ -743,6 +770,7 @@ describe('/avatar', function() {
           }
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           return db.getAvatar(id);
         }).then(function(avatar) {
           assert.equal(avatar, undefined);
@@ -768,6 +796,7 @@ describe('/avatar', function() {
           }
         }).then(function(res) {
           assert.equal(res.statusCode, 201);
+          assertSecurityHeaders(res);
           s3url = res.result.url;
           id = res.result.id;
         });
@@ -786,6 +815,7 @@ describe('/avatar', function() {
           }
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           return db.getAvatar(id);
         }).then(function(avatar) {
           assert.equal(avatar, undefined);
@@ -834,6 +864,7 @@ describe('/avatars', function() {
       assert.equal(res.statusCode, 410);
       assert.equal(res.result.error, 'Gone');
       assert.equal(res.result.message, 'This endpoint is no longer supported');
+      assertSecurityHeaders(res);
     });
   });
 });
@@ -858,6 +889,7 @@ describe('/display_name', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
           assert.equal(JSON.parse(res.payload).displayName, 'Spock');
+          assertSecurityHeaders(res);
         });
       });
     });
@@ -877,6 +909,7 @@ describe('/display_name', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 204);
         assert(!res.payload);
+        assertSecurityHeaders(res);
       });
     });
 
@@ -892,6 +925,7 @@ describe('/display_name', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 403);
+        assertSecurityHeaders(res);
       });
     });
   });
@@ -913,6 +947,7 @@ describe('/display_name', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         return db.getDisplayName(USERID);
       }).then(function(res) {
         assert.equal(res.displayName, NAME);
@@ -935,6 +970,7 @@ describe('/display_name', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 403);
+        assertSecurityHeaders(res);
         return db.getDisplayName(USERID);
       }).then(function(res) {
         assert.equal(res.displayName, NAME);
@@ -957,6 +993,7 @@ describe('/display_name', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         mock.token({
           user: USERID,
           scope: ['profile:display_name:write']
@@ -972,6 +1009,7 @@ describe('/display_name', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         mock.token({
           user: USERID,
           scope: ['profile:display_name']
@@ -984,6 +1022,7 @@ describe('/display_name', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 204);
+        assertSecurityHeaders(res);
       });
     });
 
@@ -1008,6 +1047,7 @@ describe('/display_name', function() {
           }
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           mock.token({
             user: USERID,
             scope: ['profile:display_name']
@@ -1023,6 +1063,7 @@ describe('/display_name', function() {
           // Using JSON.parse() on the payload seems to break the utf8 here..?
           //assert.equal(JSON.parse(res.payload).displayName, NAME);
           assert.equal(res.result.displayName, NAME);
+          assertSecurityHeaders(res);
         });
       });
     });
@@ -1055,6 +1096,7 @@ describe('/display_name', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
           assert.equal(res.result.errno, 101);
+          assertSecurityHeaders(res);
         });
       });
     });
