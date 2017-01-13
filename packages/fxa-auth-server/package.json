@@ -34,6 +34,7 @@
     "hapi": "16.0.0",
     "hapi-hpkp": "1.0.0",
     "joi": "^10.0.1",
+    "keypair": "^1.0.1",
     "mozlog": "^2.0.3",
     "mysql": "^2.5.5",
     "mysql-patcher": "^0.7.0",
@@ -43,7 +44,6 @@
   "devDependencies": {
     "blanket": "1.1.6",
     "eslint-config-fxa": "^1.8.0",
-    "generate-rsa-keypair": "0.1.1",
     "grunt": "^1.0.1",
     "grunt-bump": "0.8.0",
     "grunt-conventional-changelog": "^1.1.0",

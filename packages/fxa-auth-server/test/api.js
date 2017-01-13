@@ -6,7 +6,7 @@ const url = require('url');
 const assert = require('insist');
 const nock = require('nock');
 const buf = require('buf').hex;
-const generateRSAKeypair = require('generate-rsa-keypair');
+const generateRSAKeypair = require('keypair');
 const JWTool = require('fxa-jwtool');
 
 const auth = require('../lib/auth');

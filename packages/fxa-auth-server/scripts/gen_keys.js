@@ -21,7 +21,7 @@
 
 const fs = require('fs');
 const assert = require('assert');
-const generateRSAKeypair = require('generate-rsa-keypair');
+const generateRSAKeypair = require('keypair');
 const JwTool = require('fxa-jwtool');
 
 const keyPath = './config/key.json';
