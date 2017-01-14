@@ -7,6 +7,8 @@ const util = require('util');
 
 const Server = require('./lib/server');
 
+const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
+
 /*global describe,it*/
 
 function checkVersionAndHeaders(path) {
@@ -18,22 +20,7 @@ function checkVersionAndHeaders(path) {
       assert(res.result.source);
       assert(res.result.commit);
       assert.ok(res.result.commit.match(/^[0-9a-f]{40}$/));
-
-      // and must return an STS header
-      var stsHeader = res.headers['strict-transport-security'];
-      assert.equal(stsHeader, 'max-age=15552000; includeSubDomains');
-
-      // content type options header
-      var contentTypeHeader = res.headers['x-content-type-options'];
-      assert.equal(contentTypeHeader, 'nosniff');
-
-      // xss protection header
-      var xssHeader = res.headers['x-xss-protection'];
-      assert.equal(xssHeader, '1; mode=block');
-
-      // frame options header
-      var frameHeader = res.headers['x-frame-options'];
-      assert.equal(frameHeader, 'DENY');
+      assertSecurityHeaders(res);
 
       // but the other security builtin headers from hapi are not set
       var other = {
@@ -60,6 +47,7 @@ describe('server', function() {
     it('should succeed', function(done) {
       Server.get('/__heartbeat__').then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
       }).done(done, done);
     });
   });
@@ -68,6 +56,7 @@ describe('server', function() {
     it('should succeed', function(done) {
       Server.get('/config').then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         assert(res.result.browserid.issuer);
         assert(res.result.browserid.verificationUrl);
         assert(res.result.contentUrl);
@@ -94,6 +83,7 @@ describe('server', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 400);
+        assertSecurityHeaders(res);
         assert.equal(res.result.errno, 109);
         assert.equal(res.result.error, 'Bad Request');
         assert.equal(res.result.message, 'Invalid request parameter');
@@ -114,6 +104,7 @@ describe('server', function() {
       }).then(function(res) {
         var result = res.result;
         assert.equal(res.statusCode, 400);
+        assertSecurityHeaders(res);
         assert.equal(result.errno, 999);
         assert.equal(result.error, 'Bad Request');
         var message = result.message;

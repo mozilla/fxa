@@ -17,6 +17,8 @@ const P = require('../lib/promise');
 const Server = require('./lib/server');
 const unique = require('../lib/unique');
 
+const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
+
 const USERID = unique(16).toString('hex');
 const VEMAIL = unique(4).toString('hex') + '@mozilla.com';
 const VERIFY_GOOD = JSON.stringify({
@@ -109,6 +111,7 @@ function newToken(payload) {
     payload: authParams(payload)
   }).then(function(res) {
     assert.equal(res.statusCode, 200);
+    assertSecurityHeaders(res);
     return Server.api.post({
       url: '/token',
       payload: {
@@ -198,6 +201,7 @@ describe('/v1', function() {
         .get('/authorization?client_id=123&state=321&scope=1&action=signup&a=b')
         .then(function(res) {
           assert.equal(res.statusCode, 302);
+          assertSecurityHeaders(res);
           var redirect = url.parse(res.headers.location, true);
 
           assert.equal(redirect.query.client_id, '123');
@@ -216,6 +220,7 @@ describe('/v1', function() {
         .get('/authorization?client_id=123&state=321&scope=1&action=signin&a=b')
         .then(function(res) {
           assert.equal(res.statusCode, 302);
+          assertSecurityHeaders(res);
           var redirect = url.parse(res.headers.location, true);
 
           assert.equal(redirect.query.client_id, '123');
@@ -233,6 +238,7 @@ describe('/v1', function() {
         return Server.api.get('/authorization?client_id=123&state=321&scope=1')
         .then(function(res) {
           assert.equal(res.statusCode, 302);
+          assertSecurityHeaders(res);
           var redirect = url.parse(res.headers.location, true);
 
           var target = url.parse(config.get('contentUrl'), true);
@@ -247,6 +253,7 @@ describe('/v1', function() {
         return Server.api.get(endpoint)
         .then(function(res) {
           assert.equal(res.statusCode, 302);
+          assertSecurityHeaders(res);
           var redirect = url.parse(res.headers.location, true);
 
           var target = url.parse(config.get('contentUrl'), true);
@@ -262,6 +269,7 @@ describe('/v1', function() {
         return Server.api.get(endpoint)
         .then(function(res) {
           assert.equal(res.statusCode, 302);
+          assertSecurityHeaders(res);
           var redirect = url.parse(res.headers.location, true);
 
           var target = url.parse(config.get('contentUrl'), true);
@@ -276,6 +284,7 @@ describe('/v1', function() {
         .get('/authorization?client_id=123&state=321&scope=1&action=something_invalid&a=b')
         .then(function(res) {
           assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
           assert.equal(res.result.errno, 109);
           assert.equal(res.result.validation, 'action');
         });
@@ -292,6 +301,7 @@ describe('/v1', function() {
           payload: authParams()
         }).then(function(res) {
           assert.equal(res.statusCode, 415);
+          assertSecurityHeaders(res);
           assert.equal(res.result.errno, 113);
         });
       });
@@ -309,6 +319,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
           assert.equal(res.result.errno, 114);
           assert.ok(res.result.invalidScopes.indexOf('profile') !== -1);
           assert.ok(res.result.invalidScopes.indexOf('profile:write') !== -1);
@@ -327,6 +338,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
         });
       });
     });
@@ -342,6 +354,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assertInvalidRequestParam(res.result, 'client_id');
+          assertSecurityHeaders(res);
         });
       });
 
@@ -357,6 +370,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assertInvalidRequestParam(res.result, 'assertion');
+          assertSecurityHeaders(res);
         });
       });
 
@@ -368,6 +382,7 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.result.code, 401);
           assert.equal(res.result.message, 'Invalid assertion');
+          assertSecurityHeaders(res);
         });
       });
 
@@ -383,6 +398,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           assert(res.result.redirect);
         });
       });
@@ -397,6 +413,7 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.result.code, 400);
           assert.equal(res.result.message, 'Incorrect redirect_uri');
+          assertSecurityHeaders(res);
         });
       });
 
@@ -419,6 +436,7 @@ describe('/v1', function() {
           }).then(function(res) {
             assert.equal(res.result.code, 400);
             assert.equal(res.result.message, 'Incorrect redirect_uri');
+            assertSecurityHeaders(res);
           });
         });
 
@@ -431,6 +449,7 @@ describe('/v1', function() {
             })
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert(res.result.redirect);
           });
         });
@@ -444,6 +463,7 @@ describe('/v1', function() {
             })
           }).then(function(res) {
             assert.equal(res.statusCode, 400);
+            assertSecurityHeaders(res);
             assert.equal(res.result.errno, 109);
             assert.equal(res.result.message, 'Invalid request parameter');
           });
@@ -458,6 +478,7 @@ describe('/v1', function() {
             })
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert(res.result.redirect);
           });
         });
@@ -473,6 +494,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           var expected = 'urn:ietf:wg:oauth:2.0:fx:webchannel';
           var actual = res.result.redirect.substr(0, expected.length);
           assert.equal(actual, expected);
@@ -490,6 +512,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assertInvalidRequestParam(res.result, 'state');
+          assertSecurityHeaders(res);
         });
       });
 
@@ -502,6 +525,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           assert.equal(url.parse(res.result.redirect, true).query.state, 'aa');
         });
       });
@@ -517,6 +541,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           assert(res.result.redirect);
         });
       });
@@ -530,6 +555,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
         });
       });
     });
@@ -544,6 +570,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           assert(res.result.redirect);
         });
       });
@@ -557,6 +584,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           assert(res.result.redirect);
         });
       });
@@ -570,6 +598,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
         });
       });
 
@@ -583,6 +612,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
         });
       });
 
@@ -601,6 +631,7 @@ describe('/v1', function() {
             })
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
           });
         });
 
@@ -615,6 +646,7 @@ describe('/v1', function() {
             })
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
           });
         });
 
@@ -628,6 +660,7 @@ describe('/v1', function() {
             })
           }).then(function(res) {
             assert.equal(res.statusCode, 400);
+            assertSecurityHeaders(res);
             assert.equal(res.result.errno, 110);
           });
         });
@@ -643,6 +676,7 @@ describe('/v1', function() {
           }).then(function(res) {
             var defaultExpiresIn = config.get('expiration.accessToken') / 1000;
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert(res.result.access_token);
             assert.equal(res.result.token_type, 'bearer');
             assert(res.result.scope);
@@ -664,6 +698,7 @@ describe('/v1', function() {
             })
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert(res.result.expires_in <= ttl);
             assert(res.result.expires_in > ttl - 10);
           });
@@ -680,6 +715,7 @@ describe('/v1', function() {
             payload: authParams()
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             var loc = url.parse(res.result.redirect, true);
             var expected = url.parse(client.redirectUri, true);
             assert.equal(loc.protocol, expected.protocol);
@@ -699,6 +735,7 @@ describe('/v1', function() {
     it('disallows GET', function() {
       return Server.api.get('/token').then(function(res) {
         assert.equal(res.statusCode, 404);
+        assertSecurityHeaders(res);
       });
     });
 
@@ -712,6 +749,7 @@ describe('/v1', function() {
           }
         }).then(function(res) {
           assertInvalidRequestParam(res.result, 'client_id');
+          assertSecurityHeaders(res);
         });
       });
     });
@@ -726,6 +764,7 @@ describe('/v1', function() {
           }
         }).then(function(res) {
           assertInvalidRequestParam(res.result, 'client_secret');
+          assertSecurityHeaders(res);
         });
       });
 
@@ -739,6 +778,7 @@ describe('/v1', function() {
           }
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
           assert.equal(res.result.message, 'Incorrect secret');
         });
       });
@@ -753,6 +793,7 @@ describe('/v1', function() {
             })
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             return url.parse(res.result.redirect, true).query.code;
           });
         }
@@ -769,6 +810,7 @@ describe('/v1', function() {
             });
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert.ok(res.result.access_token);
           });
         });
@@ -785,6 +827,7 @@ describe('/v1', function() {
             });
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert.ok(res.result.access_token);
           });
         });
@@ -802,6 +845,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assertInvalidRequestParam(res.result, 'code');
+            assertSecurityHeaders(res);
           });
         });
 
@@ -816,6 +860,7 @@ describe('/v1', function() {
           }).then(function(res) {
             assert.equal(res.result.code, 400);
             assert.equal(res.result.message, 'Unknown code');
+            assertSecurityHeaders(res);
           });
         });
 
@@ -837,6 +882,7 @@ describe('/v1', function() {
               })
             }).then(function(res) {
               assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
               return url.parse(res.result.redirect, true).query.code;
             });
           }).then(function(code) {
@@ -852,6 +898,7 @@ describe('/v1', function() {
           }).then(function(res) {
             assert.equal(res.result.code, 400);
             assert.equal(res.result.message, 'Incorrect code');
+            assertSecurityHeaders(res);
           });
 
         });
@@ -878,6 +925,7 @@ describe('/v1', function() {
           }).then(function(res) {
             assert.equal(res.result.code, 400);
             assert.equal(res.result.message, 'Expired code');
+            assertSecurityHeaders(res);
           }).finally(function() {
             config.set('expiration.code', exp);
           });
@@ -900,6 +948,7 @@ describe('/v1', function() {
               }
             }).then(function(res) {
               assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
               return Server.api.post({
                 url: '/token',
                 payload: {
@@ -912,6 +961,7 @@ describe('/v1', function() {
           }).then(function(res) {
             assert.equal(res.result.code, 400);
             assert.equal(res.result.message, 'Unknown code');
+            assertSecurityHeaders(res);
           });
         });
       });
@@ -927,6 +977,7 @@ describe('/v1', function() {
               })
             }).then(function(res) {
               assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
               return Server.api.post({
                 url: '/token',
                 payload: {
@@ -938,6 +989,7 @@ describe('/v1', function() {
               });
             }).then(function(res) {
               assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
               assert.equal(res.result.token_type, 'bearer');
               assert(res.result.access_token);
               assert(!res.result.refresh_token);
@@ -960,6 +1012,7 @@ describe('/v1', function() {
               })
             }).then(function(res) {
               assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
               return Server.api.post({
                 url: '/token',
                 payload: {
@@ -970,6 +1023,7 @@ describe('/v1', function() {
               });
             }).then(function(res) {
               assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
               assert.equal(res.result.token_type, 'bearer');
               assert(res.result.access_token);
               assert(res.result.refresh_token);
@@ -993,6 +1047,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           return Server.api.post({
             url: '/token',
             payload: {
@@ -1003,6 +1058,7 @@ describe('/v1', function() {
           });
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           assert.equal(res.result.token_type, 'bearer');
           assert(res.result.access_token);
           assert.equal(res.result.access_token.length,
@@ -1027,6 +1083,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assertInvalidRequestParam(res.result, 'refresh_token');
+            assertSecurityHeaders(res);
           });
         });
 
@@ -1041,6 +1098,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 400);
+            assertSecurityHeaders(res);
             assert.equal(res.result.errno, 108);
           });
         });
@@ -1060,6 +1118,7 @@ describe('/v1', function() {
             return newToken({ access_type: 'offline' }); //for main client
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             var refresh = res.result.refresh_token;
             assert(refresh);
             return Server.api.post({
@@ -1073,6 +1132,7 @@ describe('/v1', function() {
             });
           }).then(function(res) {
             assert.equal(res.statusCode, 400);
+            assertSecurityHeaders(res);
             assert.equal(res.result.errno, 108, 'invalid token');
           });
         });
@@ -1080,6 +1140,7 @@ describe('/v1', function() {
         it('should not create a new refresh token', function() {
           return newToken({ access_type: 'offline' }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             return Server.api.post({
               url: '/token',
               payload: {
@@ -1091,6 +1152,7 @@ describe('/v1', function() {
             });
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert.equal(res.result.refresh_token, undefined);
           });
         });
@@ -1105,6 +1167,7 @@ describe('/v1', function() {
             scope: 'foo bar:baz'
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert.equal(res.result.scope, 'foo bar:baz');
             return Server.api.post({
               url: '/token',
@@ -1118,6 +1181,7 @@ describe('/v1', function() {
             });
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert.equal(res.result.scope, 'foo');
           });
         });
@@ -1128,6 +1192,7 @@ describe('/v1', function() {
             scope: 'foo bar:baz'
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert.equal(res.result.scope, 'foo bar:baz');
             return Server.api.post({
               url: '/token',
@@ -1141,6 +1206,7 @@ describe('/v1', function() {
             });
           }).then(function(res) {
             assert.equal(res.statusCode, 400);
+            assertSecurityHeaders(res);
             assert.equal(res.result.errno, 114);
           });
         });
@@ -1151,6 +1217,7 @@ describe('/v1', function() {
             scope: 'foo'
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert.equal(res.result.scope, 'foo');
             return Server.api.post({
               url: '/token',
@@ -1164,6 +1231,7 @@ describe('/v1', function() {
             });
           }).then(function(res) {
             assert.equal(res.statusCode, 400);
+            assertSecurityHeaders(res);
             assert.equal(res.result.errno, 114);
           });
         });
@@ -1175,6 +1243,7 @@ describe('/v1', function() {
         it('should reduce the expires_in of the access_token', function() {
           return newToken({ access_type: 'offline' }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             return Server.api.post({
               url: '/token',
               payload: {
@@ -1187,6 +1256,7 @@ describe('/v1', function() {
             });
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert(res.result.expires_in <= 60);
           });
         });
@@ -1194,6 +1264,7 @@ describe('/v1', function() {
         it('should not exceed the maximum', function() {
           return newToken({ access_type: 'offline' }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             return Server.api.post({
               url: '/token',
               payload: {
@@ -1206,6 +1277,7 @@ describe('/v1', function() {
             });
           }).then(function(res) {
             assertInvalidRequestParam(res.result, 'ttl');
+            assertSecurityHeaders(res);
           });
         });
 
@@ -1265,6 +1337,7 @@ describe('/v1', function() {
           return request({
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
           });
         });
       });
@@ -1275,6 +1348,7 @@ describe('/v1', function() {
             sub: 'definitely not an fxa uid',
           }).then(function(res) {
             assert.equal(res.statusCode, 401);
+            assertSecurityHeaders(res);
             assert.equal(res.result.errno, 104);
           });
         });
@@ -1286,6 +1360,7 @@ describe('/v1', function() {
             aud: 'https://not.the.right.aud/ience',
           }).then(function(res) {
             assert.equal(res.statusCode, 401);
+            assertSecurityHeaders(res);
             assert.equal(res.result.errno, 104);
           });
         });
@@ -1297,6 +1372,7 @@ describe('/v1', function() {
             iat: 60 + Math.floor(Date.now() / 1000)
           }).then(function(res) {
             assert.equal(res.statusCode, 401);
+            assertSecurityHeaders(res);
             assert.equal(res.result.errno, 104);
           });
         });
@@ -1308,6 +1384,7 @@ describe('/v1', function() {
             exp: Math.floor(Date.now() / 1000) - 100
           }).then(function(res) {
             assert.equal(res.statusCode, 401);
+            assertSecurityHeaders(res);
             assert.equal(res.result.errno, 104);
           });
         });
@@ -1319,6 +1396,7 @@ describe('/v1', function() {
             scope: 'profile:email'
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert.equal(res.result.scope, 'profile:email');
           });
         });
@@ -1328,6 +1406,7 @@ describe('/v1', function() {
             scope: 'nuclear:codes'
           }).then(function(res) {
             assert.equal(res.statusCode, 400);
+            assertSecurityHeaders(res);
             assert.equal(res.result.errno, 114);
           });
         });
@@ -1347,6 +1426,7 @@ describe('/v1', function() {
       it('should return an id_token', function() {
         return newToken({ scope: 'openid' }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           assert(res.result.access_token);
           assert(res.result.id_token);
           var jwt = decodeJWT(res.result.id_token);
@@ -1401,6 +1481,7 @@ describe('/v1', function() {
           return Server.api.get('/client/' + clientId)
           .then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             var body = res.result;
             assert.equal(body.name, client.name);
             assert(body.image_uri);
@@ -1414,6 +1495,7 @@ describe('/v1', function() {
         return Server.api.get('/client/ea3ca969f8c6bb0d')
           .then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             var body = res.result;
             assert(body.name);
             assert.equal(body.image_uri, '');
@@ -1431,6 +1513,7 @@ describe('/v1', function() {
           Server.api.delete('/client/' + clientId)
         ]).map(function(res) {
           assert.equal(res.statusCode, 404);
+          assertSecurityHeaders(res);
         });
       });
 
@@ -1440,6 +1523,7 @@ describe('/v1', function() {
             return Server.internal.api.get('/client/' + clientId)
               .then(function(res) {
                 assert.equal(res.statusCode, 200);
+                assertSecurityHeaders(res);
                 var body = res.result;
                 assert.equal(body.name, client.name);
                 assert(body.image_uri);
@@ -1455,6 +1539,7 @@ describe('/v1', function() {
             url: '/clients'
           }).then(function(res) {
             assert.equal(res.statusCode, 401);
+            assertSecurityHeaders(res);
           });
         });
 
@@ -1466,6 +1551,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 403);
+            assertSecurityHeaders(res);
           });
         });
 
@@ -1480,6 +1566,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
 
             return db.getClients(VEMAIL).then(function(clients) {
               assert.equal(res.result.clients.length, clients.length);
@@ -1511,6 +1598,7 @@ describe('/v1', function() {
               });
             }).then(function(res) {
               assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
               return db.getClients(vemail).then(function(clients) {
                 assert.equal(res.result.clients.length, clients.length);
                 assert.equal(res.result.clients.length, 1);
@@ -1545,6 +1633,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 201);
+            assertSecurityHeaders(res);
             var client = res.result;
             assert(client.id);
             return db.getClient(client.id).then(function(klient) {
@@ -1568,6 +1657,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 401);
+            assertSecurityHeaders(res);
           });
         });
 
@@ -1579,6 +1669,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 403);
+            assertSecurityHeaders(res);
           });
         });
 
@@ -1594,6 +1685,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 201);
+            assertSecurityHeaders(res);
             var client = res.result;
             assert(client.id);
             assert(client.image_uri === '');
@@ -1650,6 +1742,7 @@ describe('/v1', function() {
               });
             }).then(function (res) {
               assert.equal(res.statusCode, 401);
+              assertSecurityHeaders(res);
             });
         });
 
@@ -1696,6 +1789,7 @@ describe('/v1', function() {
               });
             }).then(function (res) {
               assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
               assert.equal(res.payload, '{}');
               return db.getClient(client.id);
             }).then(function (klient) {
@@ -1718,6 +1812,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 400);
+            assertSecurityHeaders(res);
           });
         });
 
@@ -1729,6 +1824,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 401);
+            assertSecurityHeaders(res);
           });
         });
 
@@ -1740,6 +1836,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 403);
+            assertSecurityHeaders(res);
           });
         });
       });
@@ -1785,6 +1882,7 @@ describe('/v1', function() {
               });
             }).then(function(res) {
               assert.equal(res.statusCode, 204);
+              assertSecurityHeaders(res);
               return db.getClient(id);
             }).then(function(client) {
               assert.equal(client, undefined);
@@ -1824,6 +1922,7 @@ describe('/v1', function() {
               });
             }).then(function(res) {
               assert.equal(res.statusCode, 401);
+              assertSecurityHeaders(res);
               return db.getClient(id);
             }).then(function(klient) {
               assert.equal(klient.id.toString('hex'), id.toString('hex'));
@@ -1840,6 +1939,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 401);
+            assertSecurityHeaders(res);
           });
         });
 
@@ -1853,6 +1953,7 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 403);
+            assertSecurityHeaders(res);
           });
         });
       });
@@ -1883,6 +1984,7 @@ describe('/v1', function() {
 
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
             assert.equal(res.result.email, vemail);
             assert(res.result.developerId);
             assert(res.result.createdAt);
@@ -1900,6 +2002,7 @@ describe('/v1', function() {
         return Server.internal.api.get('/developer')
           .then(function(res) {
             assert.equal(res.statusCode, 404);
+            assertSecurityHeaders(res);
           });
       });
     });
@@ -1917,6 +2020,7 @@ describe('/v1', function() {
           }
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
         });
       });
     });
@@ -1929,6 +2033,7 @@ describe('/v1', function() {
         ttl: 1
       }).delay(1500).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         assert.equal(res.result.expires_in, 1);
         return Server.api.post({
           url: '/verify',
@@ -1938,6 +2043,7 @@ describe('/v1', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 400);
+        assertSecurityHeaders(res);
         assert.equal(res.result.errno, 115);
       }).finally(function() {
         config.set('expiration.accessTokenExpiryEpoch', epoch);
@@ -1952,6 +2058,7 @@ describe('/v1', function() {
         ttl: 1
       }).delay(1500).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         assert.equal(res.result.expires_in, 1);
         return Server.api.post({
           url: '/verify',
@@ -1961,6 +2068,7 @@ describe('/v1', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
       }).finally(function() {
         config.set('expiration.accessTokenExpiryEpoch', epoch);
       });
@@ -1972,6 +2080,7 @@ describe('/v1', function() {
           scope: 'profile'
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           return Server.api.post({
             url: '/verify',
             payload: {
@@ -1980,6 +2089,7 @@ describe('/v1', function() {
           });
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
           assert.equal(res.result.user, USERID);
           assert.equal(res.result.client_id, clientId);
           assert.equal(res.result.scope[0], 'profile');
@@ -1991,6 +2101,7 @@ describe('/v1', function() {
     it('should return the email with profile:email scope', function() {
       return newToken({ scope: 'profile:email' }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         return Server.api.post({
           url: '/verify',
           payload: {
@@ -1999,6 +2110,7 @@ describe('/v1', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         assert.equal(res.result.email, VEMAIL);
       });
     });
@@ -2006,6 +2118,7 @@ describe('/v1', function() {
     it('should not return the email if opted out', function() {
       return newToken({ scope: 'profile:email' }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         return Server.api.post({
           url: '/verify',
           payload: {
@@ -2015,6 +2128,7 @@ describe('/v1', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         assert.equal(res.result.email, undefined);
       });
     });
@@ -2034,6 +2148,7 @@ describe('/v1', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         assert.deepEqual(res.result, {});
         return db.getAccessToken(encrypt.hash(token)).then(function(tok) {
           assert.equal(tok, undefined);
@@ -2053,6 +2168,7 @@ describe('/v1', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
         assert.deepEqual(res.result, {});
         return db.getRefreshToken(encrypt.hash(token)).then(function(tok) {
           assert.equal(tok, undefined);
@@ -2070,6 +2186,7 @@ describe('/v1', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
       });
     });
     it('should accept empty client_secret', function() {
@@ -2083,6 +2200,7 @@ describe('/v1', function() {
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
       });
     });
   });
@@ -2093,6 +2211,7 @@ describe('/v1', function() {
         url: '/jwks'
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
 
         var key = res.result.keys[0];
         assert(key.n);
@@ -2106,6 +2225,7 @@ describe('/v1', function() {
         url: '/jwks'
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
 
         var keys = res.result.keys;
         assert.equal(keys.length, 2);
@@ -2197,6 +2317,7 @@ describe('/v1', function() {
             var result = res.result;
             assert.equal(result.code, 403, 'list does not fetch without a proper token');
             assert.equal(result.error, 'Forbidden');
+            assertSecurityHeaders(res);
 
             return Server.api.get({
               url: '/client-tokens',
@@ -2220,6 +2341,7 @@ describe('/v1', function() {
             assert.ok(result[1].lastAccessTime);
             assert.equal(result[1].lastAccessTimeFormatted, 'a few seconds ago');
             assert.equal(result[1].name, 'test/api/client-tokens/list-b');
+            assertSecurityHeaders(res);
           });
       });
 
@@ -2246,6 +2368,7 @@ describe('/v1', function() {
             assert.equal(result[0].id, client1Id.toString('hex'));
             assert.equal(result[0].lastAccessTimeFormatted, 'a few seconds ago');
             assert.equal(result[0].name, 'test/api/client-tokens/list-b');
+            assertSecurityHeaders(res);
           });
       });
 
@@ -2278,6 +2401,7 @@ describe('/v1', function() {
             var result = res.result;
             assert.equal(result.length, 1);
             assert.equal(result[0].id, client1Id.toString('hex'));
+            assertSecurityHeaders(res);
           });
       });
 
@@ -2319,6 +2443,7 @@ describe('/v1', function() {
             assert.equal(result.length, 1);
             assert.equal(result[0].id, client1Id.toString('hex'));
             assert.equal(result[0].lastAccessTime, tok.createdAt.getTime(), 'lastAccessTime should be equal to the latest Token createdAt time');
+            assertSecurityHeaders(res);
           });
       });
 
@@ -2332,6 +2457,7 @@ describe('/v1', function() {
           var result = res.result;
           assert.equal(result.code, 401);
           assert.equal(result.detail, 'Bearer token invalid');
+          assertSecurityHeaders(res);
         });
       });
 
@@ -2361,6 +2487,7 @@ describe('/v1', function() {
           assert.equal(result[1].statusCode, 403);
           assert.equal(result[2].statusCode, 403);
           assert.equal(result[3].statusCode, 403);
+          result.forEach(assertSecurityHeaders);
         });
       });
 
@@ -2373,6 +2500,7 @@ describe('/v1', function() {
           var result = res.result;
           assert.equal(result.code, 401);
           assert.equal(result.detail, 'Bearer token not provided');
+          assertSecurityHeaders(res);
         });
       });
     });
@@ -2408,6 +2536,7 @@ describe('/v1', function() {
           })
           .then(function (res) {
             assert.equal(res.result.length, 2);
+            assertSecurityHeaders(res);
             return Server.api.delete({
               url: '/client-tokens/' + client2Id.toString('hex'),
               headers: {
@@ -2425,6 +2554,7 @@ describe('/v1', function() {
           })
           .then(function (res) {
             assert.equal(res.result.length, 1);
+            assertSecurityHeaders(res);
 
             return Server.api.delete({
               url: '/client-tokens/' + client1Id.toString('hex'),
@@ -2444,6 +2574,7 @@ describe('/v1', function() {
           .then(function (res) {
             assert.equal(res.result.code, 401, 'client:write token was deleted');
             assert.equal(res.result.detail, 'Bearer token invalid');
+            assertSecurityHeaders(res);
           })
           .then(function () {
             return Server.api.get({
@@ -2455,6 +2586,7 @@ describe('/v1', function() {
           })
           .then(function (res) {
             assert.equal(res.statusCode, 200, 'user2 tokens not deleted');
+            assertSecurityHeaders(res);
             assert.equal(res.result.length, 1);
           });
       });
@@ -2469,6 +2601,7 @@ describe('/v1', function() {
           var result = res.result;
           assert.equal(result.code, 401);
           assert.equal(result.detail, 'Bearer token invalid');
+          assertSecurityHeaders(res);
         });
       });
 
@@ -2481,6 +2614,7 @@ describe('/v1', function() {
           var result = res.result;
           assert.equal(result.code, 401);
           assert.equal(result.detail, 'Bearer token not provided');
+          assertSecurityHeaders(res);
         });
       });
 
@@ -2508,6 +2642,7 @@ describe('/v1', function() {
           assert.equal(result[1].statusCode, 403);
           assert.equal(result[2].statusCode, 403);
           assert.equal(result[3].statusCode, 403);
+          result.forEach(assertSecurityHeaders);
         });
       });
 

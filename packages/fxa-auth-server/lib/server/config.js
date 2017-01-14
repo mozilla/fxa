@@ -5,6 +5,9 @@
 module.exports = {
   connections: {
     routes: {
+      cache: {
+        otherwise: 'private, no-cache, no-store, must-revalidate'
+      },
       cors: true,
       payload: {
         maxBytes: 16384
