@@ -243,6 +243,14 @@ var conf = convict({
       doc: 'url to Firefox password manager information',
       format: String,
       default: 'https://support.mozilla.org/kb/password-manager-remember-delete-change-and-import#w_viewing-and-deleting-passwords'
+    },
+    sesConfigurationSet: {
+      doc: ('AWS SES Configuration Set for SES Event Publishing. If defined, ' +
+            'X-SES-MESSAGE-TAGS headers will be added to emails. Only ' +
+            'intended for Production/Stage use.'),
+      format: String,
+      default: undefined,
+      env: 'SES_CONFIGURATION_SET'
     }
   },
   maxEventLoopDelay: {
