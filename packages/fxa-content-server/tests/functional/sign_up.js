@@ -27,6 +27,7 @@ define([
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = FunctionalHelpers.openPage;
+  var openSignUpInNewTab = FunctionalHelpers.openSignUpInNewTab;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
@@ -390,9 +391,7 @@ define([
       return this.remote
         .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
-        .then(function () {
-          return FunctionalHelpers.openSignUpInNewTab(this.parent, windowName);
-        })
+        .then(openSignUpInNewTab(windowName))
         .switchToWindow(windowName)
 
         .then(testElementExists('#fxa-signup-header'))

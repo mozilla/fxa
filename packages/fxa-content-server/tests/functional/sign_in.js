@@ -14,8 +14,6 @@ define([
   var PASSWORD = 'password';
   var email;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
@@ -23,7 +21,7 @@ define([
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var openPage = FunctionalHelpers.openPage;
   var openSignInInNewTab = FunctionalHelpers.openSignInInNewTab;
-  var openSignUpInNewTab = thenify(FunctionalHelpers.openSignUpInNewTab);
+  var openSignUpInNewTab = FunctionalHelpers.openSignUpInNewTab;
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -166,7 +164,7 @@ define([
       var windowName = 'sign-in inter-tab functional test';
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openSignUpInNewTab(this, windowName))
+        .then(openSignUpInNewTab(windowName))
         .switchToWindow(windowName)
 
         .then(testElementExists('#fxa-signup-header'))

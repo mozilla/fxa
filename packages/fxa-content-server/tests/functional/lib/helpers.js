@@ -615,8 +615,17 @@ define([
     };
   }
 
-  function openSignUpInNewTab(context, windowName) {
-    return getRemote(context).execute(openWindow, [ SIGNUP_URL, windowName ]);
+  /**
+   * Open the signup page in a new tab.
+   *
+   * @param   {string} windowName name of tab
+   * @returns {promise} resolves when complete
+   */
+  function openSignUpInNewTab(windowName) {
+    return function () {
+      return this.parent
+        .execute(openWindow, [ SIGNUP_URL, windowName ]);
+    };
   }
 
   /**
