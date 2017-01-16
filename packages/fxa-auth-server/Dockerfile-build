@@ -1,20 +1,20 @@
-FROM node:4.5.0
+FROM mhart/alpine-node:4.7.2
 
-RUN groupadd --gid 10001 app && \
-    useradd --uid 10001 --gid 10001 --home /app --create-home app
+RUN addgroup -g 10001 app && \
+    adduser -D -G app -h /app -u 10001 app
+WORKDIR /app
+
+# S3 bucket in Cloud Services prod IAM
+ADD https://s3.amazonaws.com/dumb-init-dist/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
 USER app
 
-WORKDIR /app
-
-COPY scripts/gen_keys.js scripts/gen_keys.js
+COPY npm-shrinkwrap.json npm-shrinkwrap.json
 COPY package.json package.json
+COPY scripts/gen_keys.js scripts/gen_keys.js
 
-RUN npm install && \
-    npm cache clear && \
-    rm -rf ~app/.node-gyp ~app/.npm
+RUN npm install --production && rm -rf ~app/.npm /tmp/*
 
 COPY . /app
-
-ENTRYPOINT ["/app/scripts/docker-exec.sh"]
-CMD ["test"]
