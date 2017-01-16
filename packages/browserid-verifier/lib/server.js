@@ -54,7 +54,7 @@ app.use(function(req, res, next) {
 
   // shave some needless bytes
   res.removeHeader('X-Powered-By');
-  res.setHeader('Connection', "close");
+  res.setHeader('Connection', 'close');
   next();
 });
 
