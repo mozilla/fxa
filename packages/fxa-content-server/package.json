@@ -3,7 +3,8 @@
   "version": "0.78.0",
   "description": "Firefox Accounts Content Server",
   "scripts": {
-    "postinstall": "bower update --config.interactive=false -s && scripts/download_l10n.sh",
+    "build-production": "grunt build",
+    "postinstall": "bower update --allow-root && scripts/download_l10n.sh",
     "prepush": "grunt quicklint",
     "shrinkwrap": "npmshrink:prod",
     "start": "node scripts/check-local-config && grunt server",
