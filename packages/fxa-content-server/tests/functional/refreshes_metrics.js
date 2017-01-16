@@ -5,14 +5,16 @@
 define([
   'intern',
   'intern!object',
-  'require',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, require, FunctionalHelpers) {
+], function (intern, registerSuite, FunctionalHelpers) {
   var AUTOMATED = '?automatedBrowser=true';
   var url = intern.config.fxaContentRoot + 'signup' + AUTOMATED;
   var signin = intern.config.fxaContentRoot + 'signin' + AUTOMATED;
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
+  var openPage = FunctionalHelpers.openPage;
+  var testAreEventsLogged = FunctionalHelpers.testAreEventsLogged;
+  var testElementExists = FunctionalHelpers.testElementExists;
 
   registerSuite({
     name: 'refreshing a screen logs a refresh event',
@@ -23,28 +25,14 @@ define([
     },
 
     'refreshing the signup screen': function () {
-      var self = this;
-
       return this.remote
-        .get(require.toUrl(url))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-
-        .findById('fxa-signup-header')
-        .end()
+        .get(openPage(url, '#fxa-signup-header'))
 
         .refresh()
-        .findById('fxa-signup-header')
-        .end()
-
+        .then(testElementExists('#fxa-signup-header'))
         // Unload the page to flush the metrics
-        .get(require.toUrl(signin))
-        .findById('fxa-signin-header')
-
-        .then(function () {
-          return FunctionalHelpers.testAreEventsLogged(self, ['screen.signup',
-          'screen.signup', 'signup.refresh']);
-        })
-        .end();
+        .then(openPage(signin, '#fxa-signin-header'))
+        .then(testAreEventsLogged(['screen.signup', 'screen.signup', 'signup.refresh']));
     }
   });
 });

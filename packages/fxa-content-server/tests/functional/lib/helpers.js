@@ -31,10 +31,6 @@ define([
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
   var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 
-  function getRemote(context) {
-    return context.remote || context.parent || context;
-  }
-
   function clearBrowserState(options) {
     return function () {
       options = options || {};
@@ -1131,25 +1127,35 @@ define([
     };
   }
 
-  function fetchAllMetrics(context) {
-    return getRemote(context)
-      .execute(function () {
-        var key = '__fxa_storage.metrics_all';
-        var item;
-        try {
-          item = JSON.parse(localStorage.getItem(key));
-        } catch (e) {
-        }
-        return item;
-      });
+  /**
+   * Fetch all the metrics that have been logged by the front end.
+   *
+   * @returns {promise} resolves with the logged metrics.
+   */
+  function fetchAllMetrics() {
+    return function () {
+      return this.parent
+        .execute(function () {
+          var key = '__fxa_storage.metrics_all';
+          var item;
+          try {
+            item = JSON.parse(localStorage.getItem(key));
+          } catch (e) {
+          }
+          return item;
+        });
+    };
   }
 
-  function testIsEventLogged(context, eventName) {
-    return testAreEventsLogged(context, [eventName]);
-  }
-
-  function testAreEventsLogged(context, eventsNames) {
-    return fetchAllMetrics(context)
+  /**
+   * Test to ensure all events in the list have been logged.
+   *
+   * @param   {string[]} eventsNames
+   * @returns {promise} rejects if all events are not logged
+   */
+  function testAreEventsLogged(eventsNames) {
+    return this.parent
+      .then(fetchAllMetrics())
       .then(function (metrics) {
         var events = metrics.reduce(function (evts, metrics) {
           var evtsNames = metrics.events.map(function (evt) {
@@ -1158,7 +1164,7 @@ define([
           return evts.concat(evtsNames);
         }, []);
 
-        return getRemote(context)
+        return this.parent
           .execute(function (eventsNames, events) {
             var toFindAll = eventsNames.slice().reverse();
             var toFind = toFindAll.pop();
@@ -1730,7 +1736,6 @@ define([
     testErrorWasShown: testErrorWasShown,
     testHrefEquals: testHrefEquals,
     testIsBrowserNotified: testIsBrowserNotified,
-    testIsEventLogged: testIsEventLogged,
     testSuccessWasShown: testSuccessWasShown,
     testUrlEquals: testUrlEquals,
     testUrlInclude: testUrlInclude,
