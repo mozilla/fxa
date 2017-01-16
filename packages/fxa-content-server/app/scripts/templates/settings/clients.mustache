@@ -18,7 +18,7 @@
         {{#clients}}
           <li class="client {{type}} client-{{clientType}} {{#isCurrentDevice}}client-current{{/isCurrentDevice}}"
             data-name="{{name}}" id="{{id}}">
-            <div class="client-name" title="{{name}}">{{name}}</div>
+            <div class="client-name" title="{{title}}">{{name}}</div>
             {{#isCurrentDevice}}
             <div class="device-current">{{#t}}current device{{/t}}</div>
             {{/isCurrentDevice}}

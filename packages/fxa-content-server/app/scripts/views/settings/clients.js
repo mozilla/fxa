@@ -51,8 +51,12 @@ define(function (require, exports, module) {
       this.listenTo(this._attachedClients, 'remove', this._onItemRemoved);
     },
 
-    _formatAccessTime (items) {
+    _formatAccessTimeAndScope (items) {
       return _.map(items, (item) => {
+        item.title = item.name;
+        if (item.scope) {
+          item.title += ' - ' + item.scope;
+        }
         if (item.lastAccessTimeFormatted) {
           item.lastAccessTimeFormatted = this.translate(
             t('Last active %(translatedTimeAgo)s'), { translatedTimeAgo: item.lastAccessTimeFormatted });
@@ -68,7 +72,7 @@ define(function (require, exports, module) {
       let clients = this._attachedClients.toJSON();
 
       return {
-        clients: this._formatAccessTime(clients),
+        clients: this._formatAccessTimeAndScope(clients),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelEnabled: this._isPanelEnabled(),
         isPanelOpen: this.isPanelOpen(),

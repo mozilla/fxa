@@ -17,7 +17,8 @@ define(function (require, exports, module) {
       id: null,
       lastAccessTime: null,
       lastAccessTimeFormatted: null,
-      name: null
+      name: null,
+      scope: null
     },
 
     destroy () {
