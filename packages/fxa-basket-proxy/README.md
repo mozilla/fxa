@@ -27,7 +27,7 @@ server:
   node ./bin/fake-basket-server.js
 
 ## Prerequisites
-* node 0.10.x
+* node 4
 * npm
 * Grunt
 
