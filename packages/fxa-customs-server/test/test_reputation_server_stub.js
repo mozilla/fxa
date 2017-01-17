@@ -14,6 +14,9 @@ server.use(restify.bodyParser())
 // hashmap of ip -> list of violations
 var mostRecentViolationByIp = {}
 
+// hashmap of ip -> reputation
+var reputationsByIp = {}
+
 server.put('/violations/:ip', function (req, res, next) {
   var ip = req.params.ip
   mostRecentViolationByIp[ip] = req.body.Violation
@@ -38,8 +41,38 @@ server.del('/mostRecentViolation/:ip', function (req, res, next) {
 
   next()
 })
-server.get('/', function (req, res, next) {
+server.get('/heartbeat', function (req, res, next) {
   res.send(200)
+  next()
+})
+
+server.get('/:ip', function (req, res, next) {
+  var ip = req.params.ip
+  if (ip === '9.9.9.9') {
+    res.send(500)
+  } else if (reputationsByIp.hasOwnProperty(ip)) {
+    res.send(200, {Reputation: reputationsByIp[ip]})
+  } else {
+    res.send(404)
+  }
+  next()
+})
+server.del('/:ip', function (req, res, next) {
+  var ip = req.params.ip
+  if (reputationsByIp.hasOwnProperty(ip)) {
+    delete reputationsByIp[ip]
+  }
+  res.send(200)
+  next()
+})
+server.post('/', function (req, res, next) {
+  var ip = req.params.ip
+  if (reputationsByIp.hasOwnProperty(ip)) {
+    res.send(405)
+  } else {
+    reputationsByIp[ip] = req.params.reputation
+    res.send(201)
+  }
   next()
 })
 

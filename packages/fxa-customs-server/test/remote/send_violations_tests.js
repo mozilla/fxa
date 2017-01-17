@@ -18,14 +18,14 @@ var TEST_CHECK_ACTION = 'recoveryEmailVerifyCode'
 
 // wait for the violation to be sent for endpoints that respond
 // before sending violation
-var TEST_DELAY_MS = 500
+var TEST_DELAY_MS = 750
 
 var config = {
   listen: {
     port: 7000
   },
   limits: {
-    rateLimitIntervalSeconds: 10
+    rateLimitIntervalSeconds: 15
   },
   reputationService: {
     enable: true,

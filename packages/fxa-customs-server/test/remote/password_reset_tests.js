@@ -4,6 +4,7 @@
 var test = require('tap').test
 var restify = require('restify')
 var TestServer = require('../test_server')
+var mcHelper = require('../memcache-helper')
 
 var TEST_EMAIL = 'test@example.com'
 
@@ -22,6 +23,18 @@ test(
       t.notOk(err, 'no errors were returned')
       t.end()
     })
+  }
+)
+
+test(
+  'clear everything',
+  function (t) {
+    mcHelper.clearEverything(
+      function (err) {
+        t.notOk(err, 'no errors were returned')
+        t.end()
+      }
+    )
   }
 )
 

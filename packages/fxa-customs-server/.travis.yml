@@ -32,4 +32,4 @@ script:
   - npm run outdated
   - node_modules/.bin/grunt lint copyright || exit 1
   # use TAP to send coverage to coveralls
-  - node_modules/.bin/tap test/local test/remote --coverage --cov
+  - node_modules/.bin/tap -R spec test/local test/remote --coverage --cov

@@ -219,6 +219,24 @@ module.exports = function (fs, path, url, convict) {
         default: false,
         env: 'REPUTATION_SERVICE_ENABLE'
       },
+      enableCheck: {
+        doc: 'Flag to enable fetching reputation for IPs on /check route',
+        format: Boolean,
+        default: false,
+        env: 'REPUTATION_SERVICE_ENABLE_CHECK'
+      },
+      suspectBelow: {
+        doc: 'Suspect /check requests from IPs with reputation less than this',
+        format: 'int',
+        default: 0,
+        env: 'REPUTATION_SERVICE_SUSPECT_BELOW'
+      },
+      blockBelow: {
+        doc: 'Block /check requests from IPs with reputation less than this',
+        format: 'int',
+        default: 0,
+        env: 'REPUTATION_SERVICE_BLOCK_BELOW'
+      },
       host: {
         doc: 'The reputation service IP address',
         default: '127.0.0.1',

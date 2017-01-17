@@ -7,6 +7,7 @@
 var Memcached = require('memcached')
 var restify = require('restify')
 var packageJson = require('../package.json')
+var blockReasons = require('./block_reasons')
 var P = require('bluebird')
 P.promisifyAll(Memcached.prototype)
 
@@ -37,16 +38,7 @@ module.exports = function createServer(config, log) {
     }
   )
 
-  if (config.reputationService.enable) {
-    var IPReputationClient = require('ip-reputation-js-client')
-    var ipClient = new IPReputationClient({
-      host: config.reputationService.host,
-      port: config.reputationService.port,
-      id: config.reputationService.hawkId,
-      key: config.reputationService.hawkKey,
-      timeout: config.reputationService.timeout
-    })
-  }
+  var reputationService = require('./reputationService')(config, log)
   var limits = require('./limits')(config, mc, log)
   var allowedIPs = require('./allowed_ips')(config, mc, log)
   var allowedEmailDomains = require('./allowed_email_domains')(config, mc, log)
@@ -86,14 +78,14 @@ module.exports = function createServer(config, log) {
   }
 
   function fetchRecords(email, ip) {
-    return P.all(
-      [
-        // get records and ignore errors by returning a new record
-        mc.getAsync(email).then(EmailRecord.parse, EmailRecord.parse),
-        mc.getAsync(ip).then(IpRecord.parse, IpRecord.parse),
-        mc.getAsync(ip + email).then(IpEmailRecord.parse, IpEmailRecord.parse)
-      ]
-    )
+    var promises = [
+      // get records and ignore errors by returning a new record
+      mc.getAsync(email).then(EmailRecord.parse, EmailRecord.parse),
+      mc.getAsync(ip).then(IpRecord.parse, IpRecord.parse),
+      mc.getAsync(ip + email).then(IpEmailRecord.parse, IpEmailRecord.parse),
+      reputationService.get(ip)
+    ]
+    return P.all(promises)
   }
 
   function setRecord(key, record) {
@@ -138,7 +130,7 @@ module.exports = function createServer(config, log) {
 
       fetchRecords(email, ip)
         .spread(
-          function (emailRecord, ipRecord, ipEmailRecord) {
+          function (emailRecord, ipRecord, ipEmailRecord, reputation) {
             if (ipRecord.isBlocked()) {
               // a blocked ip should just be ignored completely
               // it's malicious, it shouldn't penalize emails or allow
@@ -162,8 +154,13 @@ module.exports = function createServer(config, log) {
             var retryAfter = [blockEmail, blockIpEmail, blockIp].reduce(max)
             var block = retryAfter > 0
             var suspect = false
+            var blockReason = null
 
-            if (requestChecks.treatEveryoneWithSuspicion) {
+            if (block) {
+              blockReason = blockReasons.OTHER
+            }
+
+            if (requestChecks.treatEveryoneWithSuspicion || reputationService.isSuspectBelow(reputation)) {
               suspect = true
             }
             // The private branch puts some additional request checks here.
@@ -178,8 +175,15 @@ module.exports = function createServer(config, log) {
             if (config.ipBlocklist.enable && blockListManager.contains(ip)) {
               if (!config.ipBlocklist.logOnly) {
                 block = true
+                blockReason = blockReasons.IP_IN_BLOCKLIST
                 retryAfter = 0
               }
+            }
+
+            if (reputationService.isBlockBelow(reputation)) {
+              block = true
+              retryAfter = ipRecord.retryAfter()
+              blockReason = blockReasons.IP_BAD_REPUTATION
             }
 
             return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
@@ -187,6 +191,7 @@ module.exports = function createServer(config, log) {
                 function () {
                   return {
                     block: block,
+                    blockReason: blockReason,
                     retryAfter: retryAfter,
                     unblock: canUnblock,
                     suspect: suspect
@@ -224,13 +229,15 @@ module.exports = function createServer(config, log) {
               unblock: result.unblock,
               suspect: result.suspect
             })
-            res.send(result)
+            res.send({
+              block: result.block,
+              retryAfter: result.retryAfter,
+              unblock: result.unblock,
+              suspect: result.suspect
+            })
 
-            if (config.reputationService.enable && result.block) {
-              ipClient.sendViolation(ip, 'fxa:request.check.block.' + action)
-                .catch(function (err) {
-                  log.error({ op: 'request.check.sendViolation.block.' + action, ip: ip, err: err })
-                })
+            if (result.block && result.blockReason !== blockReasons.IP_BAD_REPUTATION) {
+              reputationService.report(ip, 'fxa:request.check.block.' + action)
             }
           },
           function (err) {
@@ -284,11 +291,8 @@ module.exports = function createServer(config, log) {
             log.info({ op: 'request.checkAuthenticated', block: result.block })
             res.send(result)
 
-            if (config.reputationService.enable && result.block) {
-              ipClient.sendViolation(ip, 'fxa:request.checkAuthenticated.block.' + action)
-                .catch(function (err) {
-                  log.error({ op: 'request.checkAuthenticated.sendViolation.block.' + action, ip: ip, err: err })
-                })
+            if (result.block) {
+              reputationService.report(ip, 'fxa:request.checkAuthenticated.block.' + action)
             }
           },
           function (err) {
@@ -299,12 +303,7 @@ module.exports = function createServer(config, log) {
               retryAfter: limits.blockIntervalSeconds
             })
 
-            if (config.reputationService.enable) {
-              ipClient.sendViolation(ip, 'fxa:request.checkAuthenticated.block.' + action)
-                .catch(function (err) {
-                  log.error({ op: 'request.checkAuthenticated.sendViolation.block.' + action, ip: ip, err: err })
-                })
-            }
+            reputationService.report(ip, 'fxa:request.checkAuthenticated.block.' + action)
           }
         )
         .done(next, next)
@@ -331,11 +330,8 @@ module.exports = function createServer(config, log) {
             ipRecord.addBadLogin({ email: email, errno: errno })
             ipEmailRecord.addBadLogin()
 
-            if (config.reputationService.enable && ipRecord.isOverBadLogins()) {
-              ipClient.sendViolation(ip, 'fxa:request.failedLoginAttempt.isOverBadLogins')
-                .catch(function (err) {
-                  log.error({ op: 'request.failedLoginAttempt.sendViolation.rateLimited', ip: ip, err: err })
-                })
+            if (ipRecord.isOverBadLogins()) {
+              reputationService.report(ip, 'fxa:request.failedLoginAttempt.isOverBadLogins')
             }
 
             return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
@@ -449,12 +445,7 @@ module.exports = function createServer(config, log) {
         )
         .then(
           function () {
-            if (config.reputationService.enable) {
-              ipClient.sendViolation(ip, 'fxa:request.blockIp')
-                .catch(function (err) {
-                  log.error({ op: 'request.blockIp.sendViolation', ip: ip, err: err })
-                })
-            }
+            reputationService.report(ip, 'fxa:request.blockIp')
           }
         )
         .done(next, next)

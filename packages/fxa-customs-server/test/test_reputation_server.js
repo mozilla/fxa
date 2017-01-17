@@ -15,7 +15,7 @@ function ReputationServerStub(config) {
 
 function waitLoop(testServer, url, cb) {
   request(
-    url + '/',
+    url + '/heartbeat',
     function (err, res/*, body*/) {
       if (err) {
         if (err.errno !== 'ECONNREFUSED') {
