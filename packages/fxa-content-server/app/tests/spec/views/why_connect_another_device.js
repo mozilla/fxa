@@ -36,8 +36,8 @@ define(function (require, exports, module) {
         return view.render();
       });
 
-      it('a click on the content returns to `connect_another_device`', () => {
-        view.$el.click();
+      it('a click on the button returns to `connect_another_device`', () => {
+        view.$el.find('button[type=submit]').click();
         assert.isTrue(view.navigate.calledOnce);
         assert.isTrue(view.navigate.calledWith('connect_another_device'));
       });

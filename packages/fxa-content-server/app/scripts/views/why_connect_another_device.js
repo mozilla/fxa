@@ -18,7 +18,7 @@ define(function (require, exports, module) {
     template: Template,
 
     events: {
-      'click': '_returnToConnectAnotherDevice'
+      'click button[type=submit]': '_returnToConnectAnotherDevice'
     },
 
     initialize () {

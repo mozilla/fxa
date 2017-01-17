@@ -50,6 +50,7 @@ define([
   var SELECTOR_SUCCESS_DIFFERENT_BROWSER = '.success-not-authenticated';
   var SELECTOR_SUCCESS_SAME_BROWSER = '.success-authenticated';
   var SELECTOR_WHY_CONNECT_ANOTHER_DEVICE = 'a[href="/connect_another_device/why"]';
+  var SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_CLOSE = 'button[type="submit"]';
   var SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-why-connect-another-device-header';
   var SIGNIN_DESKTOP_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
   var SIGNUP_FENNEC_URL = config.fxaContentRoot + 'signup?context=fx_fennec_v1&service=sync';
@@ -141,7 +142,7 @@ define([
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
         // leave the help text
-        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_CLOSE))
 
         .then(click(SELECTOR_CONTINUE_BUTTON))
 
@@ -240,7 +241,7 @@ define([
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
         // leave the help text
-        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_CLOSE))
 
         .then(click(SELECTOR_CONTINUE_BUTTON))
 
@@ -281,7 +282,7 @@ define([
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
         // leave the help text
-        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_CLOSE))
 
         .then(noSuchElement(SELECTOR_CONTINUE_BUTTON))
         .then(testElementExists(SELECTOR_SIGNIN_FXIOS))
@@ -318,7 +319,7 @@ define([
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
         // leave the help text
-        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_CLOSE))
 
         .then(noSuchElement(SELECTOR_CONTINUE_BUTTON))
         .then(testElementExists(SELECTOR_INSTALL_TEXT_ANDROID))
@@ -355,7 +356,7 @@ define([
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
         // leave the help text
-        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_CLOSE))
         .then(noSuchElement(SELECTOR_CONTINUE_BUTTON))
         .then(testElementExists(SELECTOR_INSTALL_TEXT_OTHER))
         .then(testHrefEquals(SELECTOR_MARKETING_LINK_IOS, ADJUST_LINK_IOS))
@@ -390,7 +391,7 @@ define([
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
         // leave the help text
-        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_CLOSE))
 
         .then(noSuchElement(SELECTOR_CONTINUE_BUTTON))
         .then(testElementExists(SELECTOR_INSTALL_TEXT_IOS))
