@@ -708,10 +708,15 @@ define([
         return this.parent
           .then(openPage(endpoint, expectedHeader))
           .then(function () {
-            if (Object.keys(queryParams).length > 1) {
-              return this.parent
-                .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
+            var numQueryParams = Object.keys(queryParams).length;
+            if (! numQueryParams || (numQueryParams === 1 && queryParams.email)) {
+              // email will already have been added, if passed in. email is
+              // not passed in for some functional tests to ensure query parameter
+              // validation is working properly.
+              return;
             }
+            return this.parent
+              .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
           });
       }
 
@@ -724,7 +729,7 @@ define([
         .then(testElementExists(expectedHeader))
 
         .then(function () {
-          if (Object.keys(queryParams).length > 1) {
+          if (Object.keys(queryParams).length) {
             return this.parent
               .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
           }
