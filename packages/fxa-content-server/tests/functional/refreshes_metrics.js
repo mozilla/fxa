@@ -8,8 +8,8 @@ define([
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, FunctionalHelpers) {
   var AUTOMATED = '?automatedBrowser=true';
-  var url = intern.config.fxaContentRoot + 'signup' + AUTOMATED;
-  var signin = intern.config.fxaContentRoot + 'signin' + AUTOMATED;
+  var SIGNUP_URL = intern.config.fxaContentRoot + 'signup' + AUTOMATED;
+  var SIGNIN_URL = intern.config.fxaContentRoot + 'signin' + AUTOMATED;
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var openPage = FunctionalHelpers.openPage;
@@ -26,12 +26,12 @@ define([
 
     'refreshing the signup screen': function () {
       return this.remote
-        .get(openPage(url, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
 
         .refresh()
         .then(testElementExists('#fxa-signup-header'))
         // Unload the page to flush the metrics
-        .then(openPage(signin, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(testAreEventsLogged(['screen.signup', 'screen.signup', 'signup.refresh']));
     }
   });

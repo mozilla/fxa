@@ -1154,33 +1154,35 @@ define([
    * @returns {promise} rejects if all events are not logged
    */
   function testAreEventsLogged(eventsNames) {
-    return this.parent
-      .then(fetchAllMetrics())
-      .then(function (metrics) {
-        var events = metrics.reduce(function (evts, metrics) {
-          var evtsNames = metrics.events.map(function (evt) {
-            return evt.type;
-          });
-          return evts.concat(evtsNames);
-        }, []);
-
-        return this.parent
-          .execute(function (eventsNames, events) {
-            var toFindAll = eventsNames.slice().reverse();
-            var toFind = toFindAll.pop();
-
-            events.forEach(function (event) {
-              if (event === toFind) {
-                toFind = toFindAll.pop();
-              }
+    return function () {
+      return this.parent
+        .then(fetchAllMetrics())
+        .then(function (metrics) {
+          var events = metrics.reduce(function (evts, metrics) {
+            var evtsNames = metrics.events.map(function (evt) {
+              return evt.type;
             });
+            return evts.concat(evtsNames);
+          }, []);
 
-            return toFindAll.length === 0;
-          }, [ eventsNames, events ]);
-      })
-      .then(function (found) {
-        assert.ok(found, 'found the events we were looking for');
-      });
+          return this.parent
+            .execute(function (eventsNames, events) {
+              var toFindAll = eventsNames.slice().reverse();
+              var toFind = toFindAll.pop();
+
+              events.forEach(function (event) {
+                if (event === toFind) {
+                  toFind = toFindAll.pop();
+                }
+              });
+
+              return toFindAll.length === 0;
+            }, [ eventsNames, events ]);
+        })
+        .then(function (found) {
+          assert.ok(found, 'found the events we were looking for');
+        });
+    };
   }
 
   /**
