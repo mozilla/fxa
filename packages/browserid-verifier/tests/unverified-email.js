@@ -9,6 +9,7 @@ IdP = require('browserid-local-verify/testing').IdP,
 Client = require('browserid-local-verify/testing').Client,
 Verifier = require('./lib/verifier.js'),
 should = require('should'),
+shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
 request = require('request');
 
 describe('unverified email', function() {
@@ -46,6 +47,7 @@ describe('unverified email', function() {
         (r.statusCode).should.equal(200);
         (r.body.status).should.equal('failure');
         (r.body.reason).should.startWith("untrusted assertion");
+        shouldReturnSecurityHeaders(r);
         done();
       });
     });
@@ -72,6 +74,7 @@ describe('unverified email', function() {
         (r.body.idpClaims).should.be.type('object');
         (r.body.idpClaims["unverified-email"]).should.equal('bob@example.com');
         (r.body).should.not.have.property("unverified-email");
+        shouldReturnSecurityHeaders(r);
         done();
       });
     });
@@ -100,6 +103,7 @@ describe('unverified email', function() {
         (r.body.idpClaims).should.be.type('object');
         (r.body.idpClaims["unverified-email"]).should.equal('bob@example.com');
         (r.body).should.have.property("unverified-email");
+        shouldReturnSecurityHeaders(r);
         done();
       });
     });

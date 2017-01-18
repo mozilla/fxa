@@ -9,6 +9,7 @@ IdP = require('browserid-local-verify/testing').IdP,
 Client = require('browserid-local-verify/testing').Client,
 Verifier = require('./lib/verifier.js'),
 should = require('should'),
+shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
 request = require('request');
 
 describe('audience tests', function() {
@@ -47,6 +48,7 @@ describe('audience tests', function() {
       should.not.exist(err);
       (503).should.equal(r.statusCode);
       ('failure').should.equal(r.body.status);
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -64,6 +66,7 @@ describe('audience tests', function() {
       should.not.exist(err);
       (503).should.equal(r.statusCode);
       ('failure').should.equal(r.body.status);
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });

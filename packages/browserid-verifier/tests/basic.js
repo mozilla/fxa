@@ -9,7 +9,9 @@ IdP = require('browserid-local-verify/testing').IdP,
 Client = require('browserid-local-verify/testing').Client,
 Verifier = require('./lib/verifier.js'),
 should = require('should'),
+shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
 request = require('request');
+
 
 describe('basic verifier test', function() {
   var idp = new IdP();
@@ -44,6 +46,7 @@ describe('basic verifier test', function() {
         (r.body.status).should.equal('okay');
         (r.body.audience).should.equal('http://example.com');
         (r.statusCode).should.equal(200);
+        shouldReturnSecurityHeaders(r);
         done();
       });
     });
@@ -56,6 +59,7 @@ describe('basic verifier test', function() {
     }, function(err, r) {
       should.not.exist(err);
       (r.statusCode).should.equal(405);
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
@@ -69,6 +73,7 @@ describe('basic verifier test', function() {
     }, function(err, r) {
       should.not.exist(err);
       (r.statusCode).should.equal(400);
+      shouldReturnSecurityHeaders(r);
       done();
     });
   });
