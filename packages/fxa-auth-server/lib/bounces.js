@@ -128,6 +128,8 @@ module.exports = function (log, error) {
           }
 
           log.flowEvent(flowEventInfo)
+        } else {
+          log.error({ op: 'handleBounce.flowEvent', templateName, flowId, flowBeginTime, currentTime })
         }
 
         log.info(logData)
