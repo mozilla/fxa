@@ -1,3 +1,14 @@
+<a name="1.78.2"></a>
+## [1.78.2](https://github.com/mozilla/fxa-auth-server/compare/v1.78.1...v1.78.2) (2017-01-18)
+
+
+### Bug Fixes
+
+* **email:** turn on SES Event Publishing metrics ([9105f87](https://github.com/mozilla/fxa-auth-server/commit/9105f87))
+* **logging:** Log templates that don't have flow event data (#1618), r=@philbooth ([e6a1b87](https://github.com/mozilla/fxa-auth-server/commit/e6a1b87))
+
+
+
 <a name="1.78.1"></a>
 ## [1.78.1](https://github.com/mozilla/fxa-auth-server/compare/v1.64.0...v1.78.1) (2017-01-12)
 
