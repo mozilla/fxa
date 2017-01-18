@@ -16,9 +16,6 @@ define([
   var PASSWORD = 'password';
 
   var email;
-  var user;
-
-  var thenify = FunctionalHelpers.thenify;
 
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
@@ -26,13 +23,12 @@ define([
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openFxaFromTrustedRp = FunctionalHelpers.openFxaFromRp;
   var openFxaFromUntrustedRp = FunctionalHelpers.openFxaFromUntrustedRp;
-  var openPage = FunctionalHelpers.openPage;
   var openSettingsInNewTab = FunctionalHelpers.openSettingsInNewTab;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testUrlEquals = FunctionalHelpers.testUrlEquals;
@@ -44,7 +40,6 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
 
       return this.remote
         .then(FunctionalHelpers.clearBrowserState({
@@ -107,12 +102,9 @@ define([
         // get the second email, the first was sent on client.signUp w/
         // preVerified: false above. The second email has the `service` and
         // `resume` parameters.
-        .then(getVerificationLink(user, 1))
-        .then(function (verifyUrl) {
-          // user verifies in the same tab, so they are logged in to the RP.
-          return this.parent
-            .then(openPage(verifyUrl, '#loggedin'));
-        });
+        .then(openVerificationLinkInSameTab(email, 1))
+        // user verifies in the same tab, so they are logged in to the RP.
+        .then(testElementExists('#loggedin'));
     },
 
     'signup, verify same browser': function () {
@@ -323,7 +315,6 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
 
       return this.remote
         .then(FunctionalHelpers.clearBrowserState({

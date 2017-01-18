@@ -5,19 +5,16 @@
 define([
   'intern',
   'intern!object',
-  'require',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, require,
-        TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
 
   var PAGE_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v1&service=sync';
   var PASSWORD = 'password';
 
   var email;
-  var user;
 
   var thenify = FunctionalHelpers.thenify;
 
@@ -27,12 +24,12 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
-  var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openPage = FunctionalHelpers.openPage;
   var openPasswordResetLinkDifferentBrowser = thenify(FunctionalHelpers.openPasswordResetLinkDifferentBrowser);
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
@@ -47,7 +44,6 @@ define([
       this.timeout = 90000;
 
       email = TestHelpers.createEmail('sync{id}');
-      user = TestHelpers.emailToUser(email);
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -97,7 +93,6 @@ define([
     },
 
     'reset password, verify same browser by replacing the original tab': function () {
-      var self = this;
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
         .execute(listenForFxaCommands)
@@ -105,11 +100,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(getVerificationLink(email, 0))
-        .then(function (verificationLink) {
-          return self.remote.get(require.toUrl(verificationLink));
-        })
-
+        .then(openVerificationLinkInSameTab(email, 0))
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
         .then(testElementExists('#fxa-reset-password-complete-header'));
     },
@@ -140,8 +131,6 @@ define([
 
     'reset password, verify different browser - from new browser\'s P.O.V.': function () {
 
-      var self = this;
-
       // verify account
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
@@ -152,10 +141,7 @@ define([
         // clear all browser state, simulate opening in a new
         // browser
         .then(clearBrowserState())
-        .then(getVerificationLink(user, 0))
-        .then(function (url) {
-          return self.remote.get(require.toUrl(url));
-        })
+        .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists('#fxa-complete-reset-password-header'))
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 

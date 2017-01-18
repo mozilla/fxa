@@ -16,14 +16,13 @@ define([
   var PASSWORD = 'password';
   var UNTRUSTED_OAUTH_WINDOW = 'untrusted';
 
-  var thenify = FunctionalHelpers.thenify;
   var click = FunctionalHelpers.click;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var testElementExists = FunctionalHelpers.testElementExists;
   var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openPage = FunctionalHelpers.openPage;
+  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
   var type = FunctionalHelpers.type;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
@@ -51,17 +50,11 @@ define([
         .then(openFxaFromRp('signup'))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-header'))
-        .then(getVerificationLink(email, 0))
-        .then(function (verificationLink) {
-          return this.parent
-            .then(openPage(verificationLink, '#loggedin'));
-        })
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists('#loggedin'))
 
         // lists the first client
-        .then(function () {
-          return this.parent
-            .then(openPage(APPS_SETTINGS_URL, '.client-disconnect'));
-        })
+        .then(openPage(APPS_SETTINGS_URL, '.client-disconnect'))
 
         // sign in into another app
         .execute(function (UNTRUSTED_OAUTH_APP, UNTRUSTED_OAUTH_WINDOW) {

@@ -19,20 +19,19 @@ define([
   var bouncedEmail;
   var fxaClient;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var click = FunctionalHelpers.click;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var noEmailExpected = FunctionalHelpers.noEmailExpected;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-  var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
   var type = FunctionalHelpers.type;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
@@ -146,11 +145,8 @@ define([
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(getVerificationLink(email, 0))
-        .then(function (verificationLink) {
-          return this.parent
-            .then(openPage(verificationLink, '#loggedin'));
-        });
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists('#loggedin'));
     },
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
@@ -184,21 +180,10 @@ define([
           contentServer: true
         }))
 
-        .then(getVerificationLink(email, 0))
-        .then(function (verificationLink) {
-          // new browser dead ends at the 'account verified' screen.
-          return this.parent
-            .then(openPage(verificationLink, '#fxa-sign-up-complete-header'));
-        })
-
-        .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          // user sees the name of the rp,
-          // but cannot redirect
-          assert.isTrue(/123done/i.test(text));
-        })
-        .end()
+        .then(openVerificationLinkInSameTab(email, 0))
+        // new browser dead ends at the 'account verified' screen.
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementTextInclude('.account-ready-service', '123done'))
 
         // make sure the relier name is not a link
         .then(noSuchElement('#redirectTo'));
@@ -208,8 +193,7 @@ define([
       return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD)
 
         // should have navigated to 123done
-        .findByCssSelector('#loggedin')
-        .end();
+        .then(testElementExists('#loggedin'));
     },
 
     'signup with existing account, coppa is valid, credentials are wrong': function () {
@@ -219,8 +203,7 @@ define([
         .then(click('.error a[href="/oauth/signin"]'))
 
         // should have navigated to sign-in view
-        .findByCssSelector('#fxa-signin-header')
-        .end()
+        .then(testElementExists('#fxa-signin-header'))
 
         // should be /oauth/signin route
         .then(testUrlPathnameEquals('/oauth/signin'))
@@ -234,8 +217,7 @@ define([
       return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: ' ' })
 
         // should have navigated to 123done
-        .findByCssSelector('#loggedin')
-        .end();
+        .then(testElementExists('#loggedin'));
     },
 
     'signup with existing account, coppa is empty, credentials are wrong': function () {
@@ -245,8 +227,7 @@ define([
         .then(click('.error a[href="/oauth/signin"]'))
 
         // should have navigated to sign-in view
-        .findByCssSelector('#fxa-signin-header')
-        .end()
+        .then(testElementExists('#fxa-signin-header'))
 
         // should be /oauth/signin route
         .then(testUrlPathnameEquals('/oauth/signin'))
@@ -260,8 +241,7 @@ define([
       return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: 12 })
 
         // should have navigated to 123done
-        .findByCssSelector('#loggedin')
-        .end();
+        .then(testElementExists('#loggedin'));
     },
 
     'signup, bounce email, allow user to restart flow but force a different email': function () {
@@ -273,50 +253,38 @@ define([
         .then(openFxaFromRp('signup'))
         .then(fillOutSignUp(bouncedEmail, PASSWORD))
 
-        .findById('fxa-confirm-header')
-        .end()
+        .then(testElementExists('fxa-confirm-header'))
 
         .then(function () {
           return client.accountDestroy(bouncedEmail, PASSWORD);
         })
 
-        .findById('fxa-signup-header')
-        .end()
+        .then(testElementExists('fxa-signup-header'))
 
         // expect an error message to already be present on redirect
-        .then(FunctionalHelpers.visibleByQSA('.tooltip'))
+        .then(visibleByQSA('.tooltip'))
 
         // submit button should be disabled.
-        .findByCssSelector('button[type="submit"].disabled')
-        .end()
+        .then(testElementExists('button[type="submit"].disabled'))
 
         .then(type('input[type="email"]', email))
         .then(click('button[type="submit"]'))
 
-        .findById('fxa-confirm-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-header'))
 
         .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
         // wait for the verified window in the new tab
-        .findById('fxa-sign-up-complete-header')
-        .end()
+        .then(testElementExists('fxa-sign-up-complete-header'))
 
-        .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          // user sees the name of the RP,
-          // but cannot redirect
-          assert.ok(/123done/i.test(text));
-        })
-        .end()
-
+        // user sees the name of the RP,
+        // but cannot redirect
+        .then(testElementTextInclude('.account-ready-service', '123done'))
         // switch to the original window
         .then(closeCurrentWindow())
 
-        .findByCssSelector('#loggedin')
-        .end();
+        .then(testElementExists('#loggedin'));
     }
 
   });

@@ -5,10 +5,9 @@
 define([
   'intern',
   'intern!object',
-  'require',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, require, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var fxaProduction = intern.config.fxaProduction;
   var PAGE_URL = config.fxaContentRoot + 'signup';
@@ -397,12 +396,7 @@ define([
         .then(testElementExists('#fxa-signup-header'))
 
         .switchToWindow('')
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return this.parent.get(require.toUrl(verificationLink));
-        })
+        .then(openVerificationLinkInSameTab(email, 0))
         .switchToWindow(windowName)
         .then(testElementExists('#fxa-settings-header'))
         .then(closeCurrentWindow())

@@ -39,7 +39,9 @@ define([
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openPage = FunctionalHelpers.openPage;
+  var openPasswordResetLinkDifferentBrowser = thenify(FunctionalHelpers.openPasswordResetLinkDifferentBrowser);
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
@@ -100,8 +102,8 @@ define([
       .then(openPage(url, header));
   });
 
-  function testAtSettingsWithVerifiedMessage(context) {
-    return context.remote
+  var testAtSettingsWithVerifiedMessage = thenify(function() {
+    return this.parent
       .setFindTimeout(intern.config.pageLoadTimeout)
       .sleep(1000)
 
@@ -117,7 +119,7 @@ define([
       .end()
 
       .then(testSuccessWasShown());
-  }
+  });
 
   registerSuite({
     name: 'reset_password',
@@ -284,8 +286,7 @@ define([
     },
 
     'reset password, verify same browser': function () {
-      var self = this;
-      self.timeout = TIMEOUT;
+      this.timeout = TIMEOUT;
 
       return this.remote
         .then(fillOutResetPassword(email))
@@ -301,20 +302,14 @@ define([
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         // this tab's success is seeing the reset password complete header.
-        .then(function () {
-          return testAtSettingsWithVerifiedMessage(self);
-        })
+        .then(testAtSettingsWithVerifiedMessage())
 
         .then(closeCurrentWindow())
 
-        .then(function () {
-          return testAtSettingsWithVerifiedMessage(self);
-        });
+        .then(testAtSettingsWithVerifiedMessage());
     },
 
     'reset password, verify same browser with original tab closed': function () {
-      var self = this;
-
       return this.remote
         .then(fillOutResetPassword(email))
 
@@ -329,52 +324,38 @@ define([
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         // this tab's success is seeing the reset password complete header.
-        .then(function () {
-          return testAtSettingsWithVerifiedMessage(self);
-        })
+        .then(testAtSettingsWithVerifiedMessage())
 
         // switch to the original window
         .then(closeCurrentWindow());
     },
 
     'reset password, verify same browser by replacing the original tab': function () {
-      var self = this;
-      self.timeout = 90 * 1000;
+      this.timeout = 90 * 1000;
 
       return this.remote
         .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return this.parent
-            .then(openPage(verificationLink, '#fxa-complete-reset-password-header'));
-        })
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists('#fxa-complete-reset-password-header'))
 
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
         // this tab's success is seeing the reset password complete header.
-        .then(function () {
-          return testAtSettingsWithVerifiedMessage(self);
-        });
+        .then(testAtSettingsWithVerifiedMessage());
     },
 
     'reset password, verify in a different browser, from the original tab\'s P.O.V.': function () {
-      var self = this;
-      self.timeout = 90 * 1000;
+      this.timeout = 90 * 1000;
 
       return this.remote
         .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(function () {
-          return FunctionalHelpers.openPasswordResetLinkDifferentBrowser(
-                      email, PASSWORD);
-        })
+        .then(openPasswordResetLinkDifferentBrowser(email, PASSWORD))
 
         // user verified in a new browser, they have to enter
         // their updated credentials in the original tab.
@@ -388,9 +369,7 @@ define([
     },
 
     'reset password, verify in a different browser, from the new browser\'s P.O.V.': function () {
-      var self = this;
-
-      self.timeout = 90 * 1000;
+      this.timeout = 90 * 1000;
       return this.remote
         .then(fillOutResetPassword(email))
 
@@ -400,19 +379,11 @@ define([
         // a new browser
         .then(clearBrowserState({ contentServer: true }))
 
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          return this.parent
-            .then(openPage(verificationLink, '#fxa-complete-reset-password-header'));
-        })
-
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists('#fxa-complete-reset-password-header'))
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
-        .then(function () {
-          return testAtSettingsWithVerifiedMessage(self);
-        });
+        .then(testAtSettingsWithVerifiedMessage());
     }
   });
 

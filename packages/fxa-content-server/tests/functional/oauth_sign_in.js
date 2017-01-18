@@ -15,7 +15,6 @@ define([
   var SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
 
   var PASSWORD = 'password';
-  var user;
   var email;
 
   var thenify = FunctionalHelpers.thenify;
@@ -27,6 +26,7 @@ define([
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
   var openPage = FunctionalHelpers.openPage;
+  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
   var type = FunctionalHelpers.type;
@@ -34,8 +34,7 @@ define([
 
   var testAtOAuthApp = thenify(function () {
     return this.parent
-      .findByCssSelector('#loggedin')
-      .end()
+      .then(testElementExists('#loggedin'))
 
       .getCurrentUrl()
       .then(function (url) {
@@ -49,7 +48,6 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
 
       return this.remote
         .then(FunctionalHelpers.clearBrowserState({
@@ -115,17 +113,12 @@ define([
 
         .then(testElementExists('#fxa-confirm-header'))
 
-        .then(function () {
-          // get the second email, the first was sent on client.signUp w/
-          // preVerified: false above. The second email has the `service` and
-          // `resume` parameters.
-          return FunctionalHelpers.getVerificationLink(user, 1);
-        })
-        .then(function (verifyUrl) {
-          return this.parent
-            // user verifies in the same tab, so they are logged in to the RP.
-            .then(openPage(verifyUrl, '#loggedin'));
-        });
+        // get the second email, the first was sent on client.signUp w/
+        // preVerified: false above. The second email has the `service` and
+        // `resume` parameters.
+        .then(openVerificationLinkInSameTab(email, 1))
+        // user verifies in the same tab, so they are logged in to the RP.
+        .then(testElementExists('#loggedin'));
 
     },
 

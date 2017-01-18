@@ -300,15 +300,24 @@ define([
     };
   }
 
+  /**
+   * Get an email verification link
+   *
+   * @param   {string} user username or email
+   * @param   {number} index email index
+   * @returns {promise} resolves with verification link
+   */
   function getVerificationLink(user, index) {
     if (/@/.test(user)) {
       user = TestHelpers.emailToUser(user);
     }
 
-    return getEmailHeaders(user, index)
-      .then(function (headers) {
-        return require.toUrl(headers['x-link']);
-      });
+    return function () {
+      return getEmailHeaders(user, index)
+        .then(function (headers) {
+          return require.toUrl(headers['x-link']);
+        });
+    };
   }
 
   /**
@@ -456,9 +465,7 @@ define([
       var user = TestHelpers.emailToUser(email);
 
       return this.parent
-        .then(function () {
-          return getVerificationLink(user, index);
-        })
+        .then(getVerificationLink(user, index))
         .then(function (verificationLink) {
           return this.parent
             .execute(openWindow, [ verificationLink, windowName ]);
@@ -473,9 +480,7 @@ define([
 
     return function () {
       return this.parent
-        .then(function () {
-          return getVerificationLink(user, index);
-        })
+        .then(getVerificationLink(user, index))
         .then(function (verificationLink) {
           const parsedVerificationLink = Url.parse(verificationLink, true);
           for (var paramName in options.query) {

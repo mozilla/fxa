@@ -5,50 +5,45 @@
 define([
   'intern',
   'intern!object',
-  'require',
-  'intern/browser_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'app/scripts/lib/constants',
-  'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, require, nodeXMLHttpRequest, FxaClient, Constants, restmail, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, Constants, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var PAGE_URL_ROOT = config.fxaContentRoot + 'verify_email';
   var PASSWORD = 'password';
-  var user;
   var email;
   var accountData;
-  var client;
   var code;
   var uid;
 
+  var click = FunctionalHelpers.click;
   var createRandomHexString = TestHelpers.createRandomHexString;
+  var createUser = FunctionalHelpers.createUser;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  var getVerificationLink = FunctionalHelpers.getVerificationLink;
   var noSuchElement = FunctionalHelpers.noSuchElement;
+  var openPage = FunctionalHelpers.openPage;
+  var testElementExists = FunctionalHelpers.testElementExists;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'complete_sign_up',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-      return client.signUp(email, PASSWORD)
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: false }))
         .then(function (result) {
           accountData = result;
           uid = accountData.uid;
         })
 
-        .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user))
+        .then(getVerificationLink(email, 0))
 
-        .then(function (emails) {
-          code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+        .then(function (link) {
+          code = link.match(/code=([A-Za-z0-9]+)/)[1];
         });
     },
 
@@ -58,16 +53,8 @@ define([
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(url))
-
-        // a successful user is immediately redirected to the
-        // sign-up-complete page.
-        .findById('fxa-verification-link-damaged-header')
-        .end()
-
+        .then(openPage(url, '#fxa-verification-link-damaged-header'))
         .then(noSuchElement('#fxa-verification-link-expired-header'));
-
     },
 
     'open verification link with server reported bad code': function () {
@@ -76,12 +63,7 @@ define([
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .get(require.toUrl(url))
-
-        // a successful user is immediately redirected to the
-        // sign-up-complete page.
-        .findById('fxa-verification-link-damaged-header')
-        .end();
+        .then(openPage(url, '#fxa-verification-link-damaged-header'));
     },
 
     'open verification link with malformed uid': function () {
@@ -89,12 +71,7 @@ define([
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .get(require.toUrl(url))
-
-        // a successful user is immediately redirected to the
-        // sign-up-complete page.
-        .findById('fxa-verification-link-damaged-header')
-        .end();
+        .then(openPage(url, '#fxa-verification-link-damaged-header'));
     },
 
     'open verification link with server reported bad uid': function () {
@@ -102,24 +79,14 @@ define([
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .get(require.toUrl(url))
-
-        // a successful user is immediately redirected to the
-        // sign-up-complete page.
-        .findById('fxa-verification-link-expired-header')
-        .end();
+        .then(openPage(url, '#fxa-verification-link-expired-header'));
     },
 
     'open valid email verification link': function () {
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .get(require.toUrl(url))
-
-        // a successful user is immediately redirected to the
-        // sign-up-complete page.
-        .findById('fxa-sign-up-complete-header')
-        .end();
+        .then(openPage(url, '#fxa-sign-up-complete-header'));
     }
   });
 
@@ -128,35 +95,27 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-      return client.signUp(email, PASSWORD)
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: false }))
         .then(function (result) {
           accountData = result;
           uid = accountData.uid;
         })
 
-        .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user))
-
-        .then(function (emails) {
-          code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
-
-          return client.signUp(email, 'secondpassword');
-        });
+        .then(getVerificationLink(email, 0))
+        .then(function (link) {
+          code = link.match(/code=([A-Za-z0-9]+)/)[1];
+        })
+        // re-sign up the same user with a different password, should expire
+        // the original verification link.
+        .then(createUser(email, 'secondpassword', { preVerified: false }));
     },
 
     'open expired email verification link': function () {
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-      var self = this;
-      return self.remote
-        .get(require.toUrl(url))
-
-        .findById('fxa-verification-link-expired-header')
-        .end()
-
+      return this.remote
+        .then(openPage(url, '#fxa-verification-link-expired-header'))
         .then(noSuchElement('#fxa-verification-link-damaged-header'))
 
         // Give resend time to show up
@@ -170,60 +129,43 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
     },
 
     'open expired email verification link': function () {
-      var self = this;
-      var completeUrl;
+      var verificationLink;
 
-      return self.remote
-        .setFindTimeout(intern.config.pageLoadTimeout)
+      return this.remote
         // Sign up and obtain a verification link
         .then(fillOutSignUp(email, PASSWORD))
-        .findById('fxa-confirm-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-header'))
 
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(email, 0);
-        })
-        .then(function (verificationLink) {
-          completeUrl = verificationLink;
+        .then(getVerificationLink(email, 0))
+        .then((_verificationLink) => {
+          verificationLink = _verificationLink;
         })
 
         // Sign up again to invalidate the old verification link
         .then(fillOutSignUp(email, 'different_password'))
-        .findById('fxa-confirm-header')
-        .end()
+        .then(testElementExists('#fxa-confirm-header'))
 
         .then(function () {
-          return self.remote
-            .get(require.toUrl(completeUrl))
+          return this.parent
+            .then(openPage(verificationLink, '#fxa-verification-link-expired-header'));
+        })
+        .then(click('#resend'))
 
-            .findById('fxa-verification-link-expired-header')
-            .end()
+        .then(testSuccessWasShown())
 
-            .findById('resend')
-              .click()
-            .end()
+        // two extra clicks still shows success message
+        .then(click('#resend'))
+        .then(click('#resend'))
 
-            .then(testSuccessWasShown())
-
-            .findById('resend')
-              .click()
-              .click()
-            .end()
-
-            // Stills shows success message
-            //
-            // this uses .visibleByQSA instead of testSuccessWasShown because
-            // the element is not re-shown, but rather should continue to
-            // be visible.
-            .then(FunctionalHelpers.visibleByQSA('.success'));
-        });
+        // Stills shows success message
+        //
+        // this uses .visibleByQSA instead of testSuccessWasShown because
+        // the element is not re-shown, but rather should continue to
+        // be visible.
+        .then(visibleByQSA('.success'));
     }
   });
 });
