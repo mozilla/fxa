@@ -26,7 +26,7 @@ define([
       return this.remote.then(clearBrowserState());
     },
 
-    after: function () {
+    afterEach: function () {
       return this.remote.then(clearBrowserState());
     },
 
