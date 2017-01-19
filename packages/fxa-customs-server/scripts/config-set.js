@@ -22,6 +22,7 @@
 var Memcached = require('memcached')
 var P = require('bluebird')
 var BL = require('bl')
+var merge = require('lodash.merge')
 
 P.promisifyAll(Memcached.prototype)
 
@@ -33,6 +34,17 @@ if (process.argv.length < 3) {
 if (!/.+:\d+/.test(process.argv[2])) {
   var x = "use a host:port like 'localhost:11211'"
   return console.error(x)
+}
+
+function writeMergedSettings(mc, key, newSettings) {
+  return mc.getAsync(key)
+    .then(
+      function (settings) {
+        settings = settings || {}
+        merge(settings, newSettings)
+        return mc.setAsync(key, settings, 0)
+      }
+    )
 }
 
 var b = process.stdin.pipe(new BL())
@@ -49,19 +61,19 @@ process.stdin.on('end', function () {
 
   var actions = []
   if (input.limits) {
-    actions.push(mc.setAsync('limits', input.limits, 0))
+    actions.push(writeMergedSettings(mc, 'limits', input.limits))
   }
 
   if (input.allowedIPs) {
-    actions.push(mc.setAsync('allowedIPs', input.allowedIPs, 0))
+    actions.push(writeMergedSettings(mc, 'allowedIPs', input.allowedIPs))
   }
 
   if (input.allowedEmailDomains) {
-    actions.push(mc.setAsync('allowedEmailDomains', input.allowedEmailDomains, 0))
+    actions.push(writeMergedSettings(mc, 'allowedEmailDomains', input.allowedEmailDomains))
   }
 
   if (input.requestChecks) {
-    actions.push(mc.setAsync('requestChecks', input.requestChecks, 0))
+    actions.push(writeMergedSettings(mc, 'requestChecks', input.requestChecks))
   }
 
   P.all(actions)
