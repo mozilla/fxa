@@ -1545,7 +1545,8 @@ describe('/account/login', function () {
           })
 
           it('expired code', () => {
-            mockDB.consumeUnblockCode = () => P.resolve({ createdAt: Date.now() - config.signinUnblock.codeLifetime - 1 })
+            // test 5 seconds old, to reduce flakiness of test
+            mockDB.consumeUnblockCode = () => P.resolve({ createdAt: Date.now() - (config.signinUnblock.codeLifetime + 5000) })
             return runTest(route, mockRequestWithUnblockCode).then(() => assert.ok(false), err => {
               assert.equal(err.errno, error.ERRNO.INVALID_UNBLOCK_CODE, 'correct errno is returned')
               assert.equal(err.output.statusCode, 400, 'correct status code is returned')
