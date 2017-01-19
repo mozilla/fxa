@@ -25,7 +25,7 @@ define([
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -82,7 +82,7 @@ define([
         .then(clearBrowserNotifications())
         .then(testElementExists('#fxa-confirm-signin-header'))
 
-        .then(openVerificationLinkDifferentBrowser(email))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
         .then(testElementExists('#fxa-sign-in-complete-header'))
         .then(noSuchBrowserNotification('fxaccounts:login'));

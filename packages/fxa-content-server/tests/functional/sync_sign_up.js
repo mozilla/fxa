@@ -16,15 +16,13 @@ define([
   var email;
   var PASSWORD = '12345678';
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
@@ -118,7 +116,7 @@ define([
         .then(testElementExists('#fxa-confirm-header'))
         .then(testIsBrowserNotifiedOfLogin(email))
 
-        .then(openVerificationLinkDifferentBrowser(email, 0))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
 
         // The original tab should not transition
         .then(noPageTransition('#fxa-confirm-header', 5000));

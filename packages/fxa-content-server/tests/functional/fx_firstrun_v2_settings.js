@@ -8,15 +8,13 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var thenify = FunctionalHelpers.thenify;
-
   var click = FunctionalHelpers.click;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
   var fillOutChangePassword = FunctionalHelpers.fillOutChangePassword;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -48,7 +46,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(testElementExists('#fxa-confirm-signin-header'))
-        .then(openVerificationLinkDifferentBrowser(email))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
         // wait until account data is in localstorage before redirecting
         .then(FunctionalHelpers.pollUntil(function () {

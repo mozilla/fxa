@@ -8,8 +8,6 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var thenify = FunctionalHelpers.thenify;
-
   var click = FunctionalHelpers.click;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
@@ -19,7 +17,7 @@ define([
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -52,7 +50,7 @@ define([
 
         // User must confirm their Sync signin
         .then(testElementExists('#fxa-confirm-signin-header'))
-        .then(openVerificationLinkDifferentBrowser(email))
+        .then(openVerificationLinkInDifferentBrowser(email))
         .then(testElementExists('#fxa-sign-in-complete-header'))
 
         // wait until account data is in localstorage before redirecting

@@ -15,8 +15,6 @@ define([
   var email;
   var PASSWORD = '12345678';
 
-  var thenify = FunctionalHelpers.thenify;
-
   var click = FunctionalHelpers.click;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
@@ -27,7 +25,7 @@ define([
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = FunctionalHelpers.openPage;
   var openSignUpInNewTab = FunctionalHelpers.openSignUpInNewTab;
-  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
@@ -167,7 +165,7 @@ define([
         .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
 
-        .then(openVerificationLinkDifferentBrowser(email))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
         // The original tab should transition to the settings page w/ success
         // message.
@@ -371,7 +369,7 @@ define([
         .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
 
-        .then(openVerificationLinkDifferentBrowser(email))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
         // The original tab should transition to the settings page w/ success
         // message.

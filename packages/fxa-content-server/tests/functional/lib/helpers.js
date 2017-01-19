@@ -541,22 +541,26 @@ define([
     startListening();
   }
 
-  function openVerificationLinkDifferentBrowser(client, email, emailNumber) {
-    if (typeof client === 'string') {
-      emailNumber = email;
-      email = client;
-      client = getFxaClient();
-    }
+  /**
+   * Synthesize opening the verification link in a different browser.
+   *
+   * @param   {string} email - email to verify
+   * @param   {number} [emailNumber] - email number with the verification link. Defaults to `0`.
+   * @returns {promise} resolves when complete
+   */
+  function openVerificationLinkInDifferentBrowser(email, emailNumber) {
+    return function () {
+      var  client = getFxaClient();
+      var user = TestHelpers.emailToUser(email);
 
-    var user = TestHelpers.emailToUser(email);
+      return getEmailHeaders(user, emailNumber || 0)
+        .then(function (headers) {
+          var uid = headers['x-uid'];
+          var code = headers['x-verify-code'];
 
-    return getEmailHeaders(user, emailNumber || 0)
-      .then(function (headers) {
-        var uid = headers['x-uid'];
-        var code = headers['x-verify-code'];
-
-        return client.verifyCode(uid, code);
-      });
+          return client.verifyCode(uid, code);
+        });
+    };
   }
 
   function openPasswordResetLinkDifferentBrowser(client, email, password) {
@@ -1725,7 +1729,7 @@ define([
     openSignInInNewTab: openSignInInNewTab,
     openSignUpInNewTab: openSignUpInNewTab,
     openTab: openTab,
-    openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
+    openVerificationLinkInDifferentBrowser: openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab: openVerificationLinkInNewTab,
     openVerificationLinkInSameTab: openVerificationLinkInSameTab,
     pollUntil: pollUntil,

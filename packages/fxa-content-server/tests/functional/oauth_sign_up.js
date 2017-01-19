@@ -17,7 +17,6 @@ define([
   var PASSWORD = 'password';
   var email;
   var bouncedEmail;
-  var fxaClient;
 
   var click = FunctionalHelpers.click;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
@@ -28,6 +27,7 @@ define([
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
+  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -52,9 +52,6 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
       bouncedEmail = TestHelpers.createEmail();
-      fxaClient = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
@@ -157,9 +154,7 @@ define([
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .then(function () {
-          return FunctionalHelpers.openVerificationLinkDifferentBrowser(fxaClient, email);
-        })
+        .then(openVerificationLinkInDifferentBrowser(email))
 
         // original tab redirects back to 123done
         .findByCssSelector('#loggedin')

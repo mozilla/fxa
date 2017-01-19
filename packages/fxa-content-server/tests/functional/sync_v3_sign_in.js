@@ -25,7 +25,7 @@ define([
   var noEmailExpected = FunctionalHelpers.noEmailExpected;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -105,7 +105,7 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(openVerificationLinkDifferentBrowser(email))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition('#fxa-confirm-signin-header'));

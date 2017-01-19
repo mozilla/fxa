@@ -26,8 +26,6 @@ define([
   var email;
   var email2;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var clearSessionStorage = FunctionalHelpers.clearSessionStorage;
   var click = FunctionalHelpers.click;
@@ -36,7 +34,7 @@ define([
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
@@ -106,7 +104,7 @@ define([
 
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(testElementExists('#fxa-confirm-signin-header'))
-        .then(openVerificationLinkDifferentBrowser(email))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
         .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
 

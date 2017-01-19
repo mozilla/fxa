@@ -21,7 +21,7 @@ define([
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
   var testIsBrowserNotifiedOfMessage = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
@@ -48,7 +48,7 @@ define([
       .then(function () {
         if (shouldVerifySignin) {
           return this.parent
-            .then(openVerificationLinkDifferentBrowser(email))
+            .then(openVerificationLinkInDifferentBrowser(email))
 
             .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
             .execute(listenForFxaCommands);

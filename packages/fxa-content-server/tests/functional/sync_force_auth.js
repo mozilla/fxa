@@ -18,7 +18,7 @@ define([
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openForceAuth = FunctionalHelpers.openForceAuth;
-  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
@@ -79,7 +79,7 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(openVerificationLinkDifferentBrowser(email))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition('#fxa-confirm-signin-header'));
