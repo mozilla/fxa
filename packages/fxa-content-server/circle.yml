@@ -1,23 +1,5 @@
-# These environment variables must be set in CircleCI UI
-#
-# DOCKERHUB_REPO - docker hub repo, format: <username>/<repo>
-# DOCKER_EMAIL   - login info for docker hub
-# DOCKER_USER
-# DOCKER_PASS
-#
 dependencies:
   pre:
-    - docker info
-    - mkdir -p config
-    - >
-        printf '{"version":{"hash":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}}\n'
-        "$CIRCLE_SHA1"
-        "$CIRCLE_TAG"
-        "$CIRCLE_PROJECT_USERNAME"
-        "$CIRCLE_PROJECT_REPONAME"
-        "$CIRCLE_BUILD_URL"
-        | tee config/version.json version.json
-    - docker build -f Dockerfile-build -t fxa-content-server:build .
     - pip install mozdownload mozinstall
     - mozdownload --version 50.1.0 --destination firefox.tar.bz2
     - mozinstall firefox.tar.bz2
@@ -41,32 +23,9 @@ dependencies:
 machine:
   node:
     version: 4
-  services:
-    - docker
 
 test:
   override:
     # retry the build if the attempt failed
     - retry -n 1 -- npm run test-circle firefoxBinary=/home/ubuntu/fxa-content-server/firefox/firefox:
         parallel: true
-
-# appropriately tag and push the container to dockerhub
-deployment:
-  hub_latest:
-    branch: "master"
-    commands:
-      - "[ ! -z $DOCKERHUB_REPO ]"
-      - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
-      - "docker tag fxa-content-server:build ${DOCKERHUB_REPO}:latest"
-      - "docker push ${DOCKERHUB_REPO}:latest"
-
-  hub_releases:
-    # push all tags
-    tag: /.*/
-    commands:
-      - "[ ! -z $DOCKERHUB_REPO ]"
-      - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
-      - "echo ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
-      - "docker tag fxa-content-server:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
-      - "docker images"
-      - "docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
