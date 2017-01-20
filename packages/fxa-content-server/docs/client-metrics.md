@@ -118,6 +118,7 @@ The event stream is a log of events and the time they occurred while the user is
 * loaded - logged after the first screen is rendered.
 * &lt;screen_name&gt;.submit - A submit event has occurred and all of the form's input elements are valid.
 * &lt;screen_name&gt;.refresh - The aforementioned screen was refreshed.
+* signin.success - The user has succesfully completed the signin flow.
 
 #### Authentication namespace
 * error.&lt;screen_name&gt;.auth.114 - account has been throttled ("Attempt limit exceeded")
@@ -295,6 +296,7 @@ The event stream is a log of events and the time they occurred while the user is
 * signin.ask-password.shown.keys-required - asked for password because the relier wanted keys
 * signin.ask-password.shown.session-from-web - asked for password because session was created via web content
 * signin.ask-password.shown.session-expired - asked for password due to expired session token
+* signin.success.skip-confirm - user successfully signed in and did not have to confirm login
 * signin.use-different-account - user clicked link to use different account
 * signin.unlock-email.send - user attempted to send unlock email
 * signin.unlock-email.send.success - unlock email successfully sent
@@ -310,6 +312,7 @@ No page specific events
 
 #### signin_unblock
 * signin-unblock.submit - User has submit the signin unblock code
+* signin-unblock.signin.success - user has successfully signed in from the unblock screen
 * error.signin-unblock.auth.103 - password is incorrect
 * error.signin-unblock.auth.114 - request has been throttled
 * error.signin-unblock.auth.125 - request has been blocked
@@ -353,6 +356,7 @@ No page specific events
 * signup.experiment.pw_strength.too_short - password was &lt; 8 characters
 * signup.password.hidden - password is hidden
 * signup.password.visible - password is shown
+* signup.signin.success - user has signed in from the signup screen
 * tooltip.mailcheck-suggested - an email address correction was suggested
 * tooltip.mailcheck-used - an email address correction was chosen by the user in the tooltip
 * tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.

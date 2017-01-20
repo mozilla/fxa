@@ -130,7 +130,16 @@ define(function (require, exports, module) {
         this.relier.set('uid', account.get('uid'));
       }
 
-      this.logViewEvent('success');
+      // This is the generic signin.success metric. The one
+      // true signin success metric.
+      this.logEvent('signin.success');
+
+      // This event is emitted whenever a user skips login
+      // confirmation, whether it was required or not.
+      this.logEvent('signin.success.skip-confirm');
+
+      // This event ties the signin success to a screen.
+      // Currently, can be oauth, signin, signup, signin-unblock
       this.logViewEvent('signin.success');
 
       var brokerMethod = this.afterSignInBrokerMethod || 'afterSignIn';

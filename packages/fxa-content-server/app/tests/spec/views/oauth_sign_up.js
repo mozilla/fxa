@@ -163,8 +163,7 @@ define(function (require, exports, module) {
             assert.equal(user.signUpAccount.args[0][0].get('email'), email);
             assert.equal(user.signUpAccount.args[0][1], 'password');
             assert.isTrue(view.navigate.calledWith('confirm'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'oauth.signup.success'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'oauth.signup.success'));
           });
       });
     });

@@ -62,6 +62,9 @@ define(function (require, exports, module) {
             baz: 'qux',
             foo: 'bar'
           };
+        },
+        logEvent () {
+          return {};
         }
       };
       sentryMetrics = {
