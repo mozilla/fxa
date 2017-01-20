@@ -4,11 +4,10 @@
 <!--Header Area-->
 <tr style="page-break-before: always">
   <td valign="top">
-    <h1 style="font-family: sans-serif; font-weight: normal; margin: 0 0 24px 0; text-align: center;"><% block verify_title %>{{t "Ready, set, sync"}}<% endblock %></h1>
-    <p class="primary" style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0 0 24px 0; text-align: center;"><% block verify_content %>{{t "Confirm you’ve received this email and we’ll help you install and sync Firefox on all your devices starting with:"}}<br/><br/>
+    <h1 style="font-family: sans-serif; font-size: 21px; line-height: 29px; font-weight: normal; margin: 0 0 11px 0; text-align: center;"><% block verify_title %>{{t "Ready, set, sync"}}<% endblock %></h1>
+    <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;"><% block verify_content %>{{t "Confirm you’ve received this email and we’ll help you install and sync Firefox on all your devices starting with:"}}<p/>
       <% include "./location/location.html" %>
       <% endblock %>
-    </p>
   </td>
 </tr>
 
@@ -23,7 +22,7 @@
             <w:anchorlock/>
             <center>
           <![endif]-->
-          <a href="{{{link}}}" id="button-link" style="font-family:sans-serif; color: #fff; display: block; padding: 15px; text-decoration: none; width: 280px;">{{t "Verify email "}}&rarr;</a>
+          <a href="{{{link}}}" id="button-link" style="font-family:sans-serif; color: #fff; display: block; padding: 15px; text-decoration: none; width: 280px; font-size: 18px; line-height: 26px;">{{t "Verify email "}}&rarr;</a>
           <!--[if mso]>
           </center>
           </v:roundrect>
@@ -38,7 +37,7 @@
 <tr style="page-break-before: always">
   <td border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
     <br/>
-    <p class="primary" style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0 0 24px 0; text-align: center;">{{t "Once confirmed, we will help you install and connect Firefox on at least one other device."}}
+    <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 24px 0; text-align: center;">{{t "Once confirmed, we will help you install and connect Firefox on at least one other device."}}
   </td>
 </tr>
 
@@ -46,7 +45,7 @@
 <tr style="page-break-before: always">
   <td border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
     <br/>
-    <p class="secondary" style="font-family: sans-serif; font-weight: normal; margin: 0 0 12px 0; text-align: center; color: #8A9BA8; font-size: 11px; line-height: 13px; width: 310px !important; word-wrap:break-word">{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit <a %(supportLinkAttributes)s>Mozilla Support</a>."}}}</p>
+    <p class="secondary" style="font-family: sans-serif; font-weight: normal; margin: 0 0 12px 0; text-align: center; color: #8A9BA8; font-size: 11px; line-height: 18px; width: 310px !important; word-wrap:break-word">{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit <a %(supportLinkAttributes)s>Mozilla Support</a>."}}}</p>
   </td>
 </tr>
 <% endblock %>

@@ -1,4 +1,6 @@
-<span style="font-family:sans-serif; color: #424f59; display: block; font-size: 13px; margin: 2px 0;">{{{ device }}}</span>
-{{#if location }}<span style="font-family:sans-serif; color: #424f59; display: block; font-size: 13px; margin: 2px 0;">{{ location }}</span>{{/if}}
-{{#if ip }}<span style="font-family:sans-serif; color: #424f59; display: block; font-size: 13px; margin: 2px 0;">{{t "IP address: %(ip)s" }}</span>{{/if}}
-{{#if timestamp }}<span style="font-family:sans-serif; color: #424f59; display: block; font-size: 13px; margin: 2px 0;">{{ timestamp }}</span>{{/if}}
+<p style="font-family:sans-serif; font-size: 13px; line-height: 20px; font-weight: normal; margin: 0 0 24px 0px; text-align: center; color: #424f59;">
+    {{{ device }}}<br/>
+    {{#if location }}{{ location }}<br/>{{/if}}
+    {{#if ip }}{{t "IP address: %(ip)s" }}<br/>{{/if}}
+    {{#if timestamp }}{{ timestamp }}<br/>{{/if}}
+</p>
