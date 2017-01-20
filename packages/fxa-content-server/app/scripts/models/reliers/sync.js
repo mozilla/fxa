@@ -16,8 +16,11 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const _ = require('underscore');
   const Relier = require('models/reliers/relier');
-  const ServiceNameTranslator = require('lib/service-name');
   const Vat = require('lib/vat');
+
+  function t(str) {
+    return str;
+  }
 
   /*eslint-disable camelcase*/
   var QUERY_PARAMETER_SCHEMA = {
@@ -43,7 +46,9 @@ define(function (require, exports, module) {
         .then(() => {
           this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
 
-          this._setupServiceName();
+          if (this.get('service')) {
+            this.set('serviceName', t('Firefox Sync'));
+          }
         });
     },
 
@@ -58,15 +63,6 @@ define(function (require, exports, module) {
      */
     wantsKeys () {
       return true;
-    },
-
-    _setupServiceName () {
-      var service = this.get('service');
-      if (service) {
-        var serviceNameTranslator = new ServiceNameTranslator(this._translator);
-        var serviceName = serviceNameTranslator.get(service);
-        this.set('serviceName', serviceName);
-      }
     },
 
     /**
