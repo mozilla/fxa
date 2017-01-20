@@ -55,6 +55,7 @@ define([
     },
 
     'sign in to OAuth with Sync creds': function () {
+      this.timeout = 60 * 1000;
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
