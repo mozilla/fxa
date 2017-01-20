@@ -21,12 +21,14 @@ define(function (require, exports, module) {
   const Errors = require('lib/errors');
   const p = require('lib/promise');
 
-  var t = function (msg) {
+  const t = function (msg) {
     return msg;
   };
 
+  const REQUIRE_WAIT_SECONDS = 40;
+
   /*eslint-disable sorting/sort-object-props*/
-  var RODErrors = _.extend({}, Errors, {
+  const RODErrors = _.extend({}, Errors, {
     ERRORS: {
       UNEXPECTED_ERROR: {
         errno: 999,
@@ -34,15 +36,15 @@ define(function (require, exports, module) {
       },
       TIMEOUT: {
         errno: 1000,
-        message: t('Unexpected error')
+        message: t('Resources failed to load')
       },
       NODEFINE: {
         errno: 1001,
-        message: t('Unexpected error')
+        message: t('Unexpected resource error')
       },
       SCRIPTERROR: {
         errno: 1002,
-        message: t('Unexpected error')
+        message: t('Script error')
       }
     },
     NAMESPACE: 'require-on-demand'
@@ -59,7 +61,7 @@ define(function (require, exports, module) {
    */
   function requireOnDemand(resourceToGet, win = window) {
     return p().then(function () {
-      var deferred = p.defer();
+      const deferred = p.defer();
 
       // requirejs takes care of ensuring only one outstanding request
       // per module occurs if multiple requests are concurrently made
@@ -69,15 +71,20 @@ define(function (require, exports, module) {
       // the resource into the main bundle. Instead, the item will
       // be loaded on demand, and the module returned when the promise
       // resolves.
-      var getNow = win.require;
+      const getNow = win.require;
+
+      // give `waitSeconds` seconds to load a requireOnDemand resource
+      getNow.config({
+        waitSeconds: REQUIRE_WAIT_SECONDS
+      });
+
       getNow([resourceToGet], deferred.resolve.bind(deferred),
         function (requireErr) {
           // RequireJS errors described in
           // http://requirejs.org/docs/api.html#errors
-          var errorType = requireErr.requireType || 'UNEXPECTED_ERROR';
-          var normalizedErrorType = errorType.toUpperCase();
-          var err = RODErrors.toError(normalizedErrorType, resourceToGet);
-
+          const errorType = requireErr.requireType || 'UNEXPECTED_ERROR';
+          const normalizedErrorType = errorType.toUpperCase();
+          const err = RODErrors.toError(normalizedErrorType, resourceToGet);
           deferred.reject(err);
         });
 

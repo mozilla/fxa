@@ -28,8 +28,11 @@ define(function (require, exports, module) {
                 callback(MockModule2);
               }
             }, 0);
+
           })
         };
+
+        windowMock.require.config = sinon.spy(() => {});
       });
 
       it('loads a module', function () {
@@ -37,6 +40,7 @@ define(function (require, exports, module) {
           .then(function (LoadedModule) {
             assert.strictEqual(LoadedModule, MockModule1);
             assert.isTrue(windowMock.require.calledOnce);
+            assert.equal(windowMock.require.config.args[0][0].waitSeconds, 40, 'correct require waitSeconds set');
           });
       });
 
@@ -67,6 +71,7 @@ define(function (require, exports, module) {
             }, 0);
           })
         };
+        windowMock.require.config = sinon.spy(() => {});
       });
 
       it('fails if there is a timeout fetching the resource', function () {
