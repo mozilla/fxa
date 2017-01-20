@@ -39,7 +39,7 @@ define([
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openPage = FunctionalHelpers.openPage;
-  var openPasswordResetLinkDifferentBrowser = thenify(FunctionalHelpers.openPasswordResetLinkDifferentBrowser);
+  var openPasswordResetLinkInDifferentBrowser = FunctionalHelpers.openPasswordResetLinkInDifferentBrowser;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -355,7 +355,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(openPasswordResetLinkDifferentBrowser(email, PASSWORD))
+        .then(openPasswordResetLinkInDifferentBrowser(email, PASSWORD))
 
         // user verified in a new browser, they have to enter
         // their updated credentials in the original tab.

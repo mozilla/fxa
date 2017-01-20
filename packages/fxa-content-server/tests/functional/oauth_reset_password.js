@@ -12,8 +12,6 @@ define([
   var TIMEOUT = 90 * 1000;
   var email;
 
-  var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
@@ -22,7 +20,7 @@ define([
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-  var openPasswordResetLinkDifferentBrowser = thenify(FunctionalHelpers.openPasswordResetLinkDifferentBrowser);
+  var openPasswordResetLinkInDifferentBrowser = FunctionalHelpers.openPasswordResetLinkInDifferentBrowser;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -130,7 +128,7 @@ define([
         .then(fillOutResetPassword(email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
-        .then(openPasswordResetLinkDifferentBrowser(email, PASSWORD))
+        .then(openPasswordResetLinkInDifferentBrowser(email, PASSWORD))
 
         // user verified in a new browser, they have to enter
         // their updated credentials in the original tab.

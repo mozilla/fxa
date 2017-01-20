@@ -563,30 +563,35 @@ define([
     };
   }
 
-  function openPasswordResetLinkDifferentBrowser(client, email, password) {
-    if (typeof client === 'string') {
-      password = email;
-      email = client;
-      client = getFxaClient();
-    }
+  /**
+   * Synthesize completing a password reset in a different browser.
+   *
+   * @param {string} email - email to verify
+   * @param {string} password - new password
+   * @returns {promise} - resolves when complete
+   */
+  function openPasswordResetLinkInDifferentBrowser(email, password) {
+    var client = getFxaClient();
 
     var user = TestHelpers.emailToUser(email);
 
-    return getEmailHeaders(user, 0)
-      .then(function (headers) {
-        var code = headers['x-recovery-code'];
-        // there is no x-recovery-token header, so we have to parse it
-        // out of the link.
-        var link = headers['x-link'];
-        var search = Url.parse(link).query;
-        var queryParams = Querystring.parse(search);
-        var token = queryParams.token;
+    return function () {
+      return getEmailHeaders(user, 0)
+        .then(function (headers) {
+          var code = headers['x-recovery-code'];
+          // there is no x-recovery-token header, so we have to parse it
+          // out of the link.
+          var link = headers['x-link'];
+          var search = Url.parse(link).query;
+          var queryParams = Querystring.parse(search);
+          var token = queryParams.token;
 
-        return client.passwordForgotVerifyCode(code, token);
-      })
-      .then(function (result) {
-        return client.accountReset(email, password, result.accountResetToken);
-      });
+          return client.passwordForgotVerifyCode(code, token);
+        })
+        .then(function (result) {
+          return client.accountReset(email, password, result.accountResetToken);
+        });
+    };
   }
 
   /**
@@ -1724,7 +1729,7 @@ define([
     openFxaFromRp: openFxaFromRp,
     openFxaFromUntrustedRp: openFxaFromUntrustedRp,
     openPage: openPage,
-    openPasswordResetLinkDifferentBrowser: openPasswordResetLinkDifferentBrowser,
+    openPasswordResetLinkInDifferentBrowser: openPasswordResetLinkInDifferentBrowser,
     openSettingsInNewTab: openSettingsInNewTab,
     openSignInInNewTab: openSignInInNewTab,
     openSignUpInNewTab: openSignUpInNewTab,
