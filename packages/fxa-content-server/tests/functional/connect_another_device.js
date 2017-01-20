@@ -69,6 +69,7 @@ define([
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var testHrefEquals = FunctionalHelpers.testHrefEquals;
   var testUrlInclude = FunctionalHelpers.testUrlInclude;
@@ -314,6 +315,7 @@ define([
           }
         }))
         .then(testElementExists(SELECTOR_SUCCESS_DIFFERENT_BROWSER))
+        .then(testElementTextInclude(SELECTOR_SUCCESS_DIFFERENT_BROWSER, 'email verified'))
 
         // ask "why must I do this?"
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
@@ -324,7 +326,12 @@ define([
         .then(noSuchElement(SELECTOR_CONTINUE_BUTTON))
         .then(testElementExists(SELECTOR_INSTALL_TEXT_ANDROID))
         .then(noSuchElement(SELECTOR_MARKETING_LINK_IOS))
-        .then(testHrefEquals(SELECTOR_MARKETING_LINK_ANDROID, ADJUST_LINK_ANDROID));
+        .then(testHrefEquals(SELECTOR_MARKETING_LINK_ANDROID, ADJUST_LINK_ANDROID))
+
+        .refresh()
+
+        .then(testElementExists(SELECTOR_SUCCESS_DIFFERENT_BROWSER))
+        .then(testElementTextInclude(SELECTOR_SUCCESS_DIFFERENT_BROWSER, 'email verified'));
     },
 
     'sign up Fx Desktop, verify in Chrome Desktop': function () {

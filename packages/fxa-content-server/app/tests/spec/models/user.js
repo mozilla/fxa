@@ -6,8 +6,8 @@ define(function (require, exports, module) {
   'use strict';
 
   const Account = require('models/account');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
-  const chai = require('chai');
   const Constants = require('lib/constants');
   const Device = require('models/device');
   const AttachedClients = require('models/attached-clients');
@@ -21,12 +21,10 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const User = require('models/user');
 
-  var assert = chai.assert;
-
-  var CODE = 'verification code';
-  var EMAIL = 'a@a.com';
-  var SESSION_TOKEN = 'session token';
-  var UUID = '12345678-1234-1234-1234-1234567890ab';
+  const CODE = 'verification code';
+  const EMAIL = 'a@a.com';
+  const SESSION_TOKEN = 'session token';
+  const UUID = '12345678-1234-1234-1234-1234567890ab';
 
   describe('models/user', function () {
     var fxaClientMock;
@@ -1182,6 +1180,51 @@ define(function (require, exports, module) {
         user.logNumStoredAccounts();
         assert.equal(metrics.logNumStoredAccounts.callCount, 2);
         assert.isTrue(metrics.logNumStoredAccounts.calledWith(1));
+      });
+    });
+
+    describe('isSignedInAccount', () => {
+      let account;
+
+      beforeEach(() => {
+        account = user.initAccount({ email: 'testuser@testuser.com', uid: 'uid' });
+      });
+
+      describe('no signed in user', () => {
+        it('returns false', () => {
+          user.clearSignedInAccount();
+          assert.isFalse(user.isSignedInAccount(account));
+        });
+      });
+
+      describe('no signed in user, pass in a `default` account', () => {
+        it('returns false', () => {
+          user.clearSignedInAccount();
+          assert.isFalse(user.isSignedInAccount(user.initAccount({})));
+        });
+      });
+
+      describe('different signed in user', () => {
+        it('returns false', () => {
+          let signedInAccount = user.initAccount({
+            email: 'testuser2@testuser.com',
+            uid: 'uid2'
+          });
+
+          return user.setSignedInAccount(signedInAccount)
+            .then(() => {
+              assert.isFalse(user.isSignedInAccount(account));
+            });
+        });
+      });
+
+      describe('is the signed in user', () => {
+        it('returns true', () => {
+          return user.setSignedInAccount(account)
+            .then(() => {
+              assert.isTrue(user.isSignedInAccount(account));
+            });
+        });
       });
     });
   });

@@ -175,8 +175,22 @@ define(function (require, exports, module) {
       return this._cachedSignedInAccount;
     },
 
+    /**
+     * Check if the current account is the signed in account
+     *
+     * @param {Object} account
+     * @returns {Boolean}
+     */
     isSignedInAccount (account) {
-      return account.get('uid') === this.getSignedInAccount().get('uid');
+      const accountUid = account.get('uid');
+      const signedInAccountUid = this.getSignedInAccount().get('uid');
+
+      // both accounts must have a UID to be able to compare.
+      if (! signedInAccountUid || ! accountUid) {
+        return false;
+      }
+
+      return accountUid === signedInAccountUid;
     },
 
     setSignedInAccountByUid (uid) {

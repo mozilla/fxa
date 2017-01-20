@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const Constants = require('lib/constants');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const Url = require('lib/url');
@@ -57,7 +56,7 @@ define(function (require, exports, module) {
     describe('render', () => {
       describe('with a desktop user that is signed in', () => {
         beforeEach(() => {
-          sinon.stub(account, 'isSignedIn', () => p(true));
+          sinon.stub(user, 'isSignedInAccount', () => true);
 
           return view.render();
         });
@@ -83,7 +82,7 @@ define(function (require, exports, module) {
             };
           });
 
-          sinon.stub(account, 'isSignedIn', () => p(true));
+          sinon.stub(user, 'isSignedInAccount', () => true);
 
           return view.render();
         });
@@ -110,7 +109,7 @@ define(function (require, exports, module) {
           });
 
           account.set('email', 'testuser@testuser.com');
-          sinon.stub(account, 'isSignedIn', () => p(false));
+          sinon.stub(user, 'isSignedInAccount', () => false);
           sinon.stub(view, '_canSignIn', () => true);
 
           return view.render();
@@ -138,7 +137,7 @@ define(function (require, exports, module) {
           });
 
           account.set('email', 'testuser@testuser.com');
-          sinon.stub(account, 'isSignedIn', () => p(false));
+          sinon.stub(user, 'isSignedInAccount', () => false);
           sinon.stub(view, '_canSignIn', () => true);
 
           return view.render();
@@ -154,7 +153,7 @@ define(function (require, exports, module) {
 
       describe('with a user that cannot sign in', () => {
         beforeEach(() => {
-          sinon.stub(account, 'isSignedIn', () => p(false));
+          sinon.stub(user, 'isSignedInAccount', () => false);
           sinon.stub(view, '_canSignIn', () => false);
         });
 
