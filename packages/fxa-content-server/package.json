@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "0.78.0",
+  "version": "0.79.0",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "postinstall": "bower update --config.interactive=false -s && scripts/download_l10n.sh",

@@ -1,3 +1,57 @@
+<a name="0.79.0"></a>
+# 0.79.0 (2017-01-23)
+
+
+### Bug Fixes
+
+* **client:** Fix status message on /connect_another_device (#4640) r=@philbooth ([651a56b](https://github.com/mozilla/fxa-content-server/commit/651a56b)), closes [(#4640](https://github.com/(/issues/4640) [#4634](https://github.com/mozilla/fxa-content-server/issues/4634)
+* **cwts:** ux changes to make choose-what-to-sync less confusing (#4619), r=@vbudhram ([c279f90](https://github.com/mozilla/fxa-content-server/commit/c279f90)), closes [#4515](https://github.com/mozilla/fxa-content-server/issues/4515)
+* **docker:** Only build docker image on master or tag (#4644) r=vladikoff ([ffddf10](https://github.com/mozilla/fxa-content-server/commit/ffddf10))
+* **metrics:** Only send navigationTiming data on the first flush. (#4603) r=vladikoff ([153292b](https://github.com/mozilla/fxa-content-server/commit/153292b)), closes [#4601](https://github.com/mozilla/fxa-content-server/issues/4601)
+* **metrics:** POST metrics if *any* field has changed since the last send. (#4602) r=vladikoff ([7c468e7](https://github.com/mozilla/fxa-content-server/commit/7c468e7)), closes [#4479](https://github.com/mozilla/fxa-content-server/issues/4479)
+* **require:** extend load time out of requireOnDemand to 40 seconds (#4647) r=@shane-tomlinson ([af6cdd7](https://github.com/mozilla/fxa-content-server/commit/af6cdd7))
+* **signin:** add oauth query strings to sign in and sign up views (#4584) r=@shane-tomlinson ([6bf3da9](https://github.com/mozilla/fxa-content-server/commit/6bf3da9)), closes [#4547](https://github.com/mozilla/fxa-content-server/issues/4547)
+* **strings:** adjust confirm reset password resend string (#4607) ([c8b2468](https://github.com/mozilla/fxa-content-server/commit/c8b2468))
+* **styles:** fix sasslint and add border-radius for webkit / blink browsers ([5baf61d](https://github.com/mozilla/fxa-content-server/commit/5baf61d))
+* **test:** Avoid rate limiting in a `confirm` functional test. (#4613) r=vladikoff ([d78733e](https://github.com/mozilla/fxa-content-server/commit/d78733e)), closes [#4537](https://github.com/mozilla/fxa-content-server/issues/4537)
+* **test:** Change `after` to `afterEach`. (#4642) r=vladikoff ([605293a](https://github.com/mozilla/fxa-content-server/commit/605293a))
+* **test:** Fix `sign in to OAuth with Sync creds` test timeout. (#4650) r=vladikoff ([11c2b5e](https://github.com/mozilla/fxa-content-server/commit/11c2b5e)), closes [(#4650](https://github.com/(/issues/4650) [#4649](https://github.com/mozilla/fxa-content-server/issues/4649)
+* **test:** Fix the broken `refreshes_metrics` functional test. (#4629) r=@vbudhram ([a731bef](https://github.com/mozilla/fxa-content-server/commit/a731bef)), closes [(#4629](https://github.com/(/issues/4629)
+* **test:** Fix the failing OAuth functional tests. (#4630) r=@vbudhram ([a6336a5](https://github.com/mozilla/fxa-content-server/commit/a6336a5)), closes [(#4630](https://github.com/(/issues/4630)
+
+### chore
+
+* **deps:** Update to grunt-sass@2.0.0 for Alpine Linux compatibility (#4621) r=vladikoff ([b4a1c8c](https://github.com/mozilla/fxa-content-server/commit/b4a1c8c))
+* **tests:** make sure unit tests pass with different locales (#4535) r=shane-tomlinson ([878b80c](https://github.com/mozilla/fxa-content-server/commit/878b80c)), closes [#4437](https://github.com/mozilla/fxa-content-server/issues/4437)
+
+### Features
+
+* **connect-another-device:** Add a close button to "why connect another device" (#4626) r=@vbudhram ([6ed0196](https://github.com/mozilla/fxa-content-server/commit/6ed0196)), closes [(#4626](https://github.com/(/issues/4626) [#4604](https://github.com/mozilla/fxa-content-server/issues/4604)
+* **docker:** Add CloudOps Dockerfile & CircleCI build instructions (#4620) r=vladikoff ([dc46ea0](https://github.com/mozilla/fxa-content-server/commit/dc46ea0))
+* **metrics:** Log the number of stored accounts on the /signin page. (#4493) ([f44dcb5](https://github.com/mozilla/fxa-content-server/commit/f44dcb5))
+
+### Refactor
+
+* **client:** Extract all routes into their own modules. (#4615) r=vladikoff ([4d0a211](https://github.com/mozilla/fxa-content-server/commit/4d0a211))
+* **metrics:** Add explicit signin/signup metrics (#4606), r=@shane-tomlinson ([b5aa2d2](https://github.com/mozilla/fxa-content-server/commit/b5aa2d2))
+* **relier:** remove service-name abstraction (#4645) r=@shane-tomlinson ([c9ff9ab](https://github.com/mozilla/fxa-content-server/commit/c9ff9ab)), closes [#4436](https://github.com/mozilla/fxa-content-server/issues/4436)
+* **style:** test page created and radio-button added ([495ba9a](https://github.com/mozilla/fxa-content-server/commit/495ba9a))
+* **test:** `thenify` not needed for `getVerificationLink` (#4623) r=@philbooth ([bf11add](https://github.com/mozilla/fxa-content-server/commit/bf11add))
+* **test:** No `context` for some FxDesktop helpers. (#4611) ([1117934](https://github.com/mozilla/fxa-content-server/commit/1117934))
+* **test:** No more `thenify` for `openVerificationLinkDifferentBrowser` ([772e16a](https://github.com/mozilla/fxa-content-server/commit/772e16a))
+* **test:** Remove `context` from `noSuchBrowserNotification` and `testIsBrowserNotified` (# ([e7f417e](https://github.com/mozilla/fxa-content-server/commit/e7f417e))
+* **test:** remove `context` from `openPasswordResetLinkDifferentBrowser` (#4636) r=@philboo ([ad5a53a](https://github.com/mozilla/fxa-content-server/commit/ad5a53a))
+* **test:** Remove `context` from `openSignInInNewTab` ([31fe201](https://github.com/mozilla/fxa-content-server/commit/31fe201))
+* **test:** remove `context` from `openSignUpInNewTab` (#4617) r=@philbooth ([4447161](https://github.com/mozilla/fxa-content-server/commit/4447161))
+* **test:** Remove `context` from `respondToWebChannelMessage` ([6a36587](https://github.com/mozilla/fxa-content-server/commit/6a36587))
+* **test:** Remove `context` from `testAreEventsLogged`, `fetchAllMetrics` ([d979483](https://github.com/mozilla/fxa-content-server/commit/d979483))
+
+### Reverts
+
+* **docker:** Add CloudOps Dockerfile & CircleCI build instructions" (#4643) ([cbc75cf](https://github.com/mozilla/fxa-content-server/commit/cbc75cf))
+
+
+
 <a name="0.78.0"></a>
 # 0.78.0 (2017-01-09)
 
