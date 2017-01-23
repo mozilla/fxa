@@ -23,6 +23,8 @@ dependencies:
 machine:
   node:
     version: 4
+  services:
+    - docker
 
 test:
   override:
