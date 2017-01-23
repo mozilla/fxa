@@ -103,6 +103,19 @@ define(function (require, exports, module) {
           isCurrentDevice: true,
           name: 'beta',
           type: 'mobile'
+        },
+        {
+          clientType: 'oAuthApp',
+          id: 'app-1',
+          lastAccessTime: Date.now(),
+          name: '123Done'
+        },
+        {
+          clientType: 'oAuthApp',
+          id: 'app-2',
+          lastAccessTime: Date.now(),
+          name: 'Pocket',
+          scope: ['profile', 'profile:write']
         }
       ], {
         notifier: notifier
@@ -149,8 +162,8 @@ define(function (require, exports, module) {
       });
 
       it('title attribute is added', function () {
-        assert.ok(view.$('#device-1 .client-name').attr('title'));
-        assert.ok(view.$('#device-2 .client-name').attr('title'));
+        assert.equal(view.$('#app-1 .client-name').attr('title'), '123Done');
+        assert.equal(view.$('#app-2 .client-name').attr('title'), 'Pocket - profile,profile:write');
       });
 
       it('renders attachedClients and apps', function () {
