@@ -108,7 +108,7 @@ define([
     'signup link is enabled': function () {
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
-        .then(testElementExists('a[href="/signup"]'));
+        .then(testElementExists('a[href^="/signup"]'));
     },
 
     'signin with an unknown account does not allow the user to sign up': function () {

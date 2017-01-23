@@ -9,18 +9,21 @@ define(function (require, exports, module) {
   'use strict';
 
   const BaseView = require('views/base');
+  const $ = require('jquery');
 
   module.exports = {
     transformLinks () {
-      this.$('a[href~="/signin"]').attr('href',
-          this.broker.transformLink('/signin'));
-      this.$('a[href~="/signup"]').attr('href',
-          this.broker.transformLink('/signup'));
+      // need to add /oauth to urls, but also maintain the existing query params
+      const $linkEls = this.$('a[href^="/signin"],a[href^="/signup"],a[href^="/reset_password"]');
+      $linkEls.each((index, el) => {
+        const $linkEl = $(el);
+        $linkEl.attr('href', this.broker.transformLink($linkEl.attr('href')));
+      });
     },
 
     // override this method so we can fix signup/signin links in errors
     unsafeDisplayError (err) {
-      var result = BaseView.prototype.unsafeDisplayError.call(this, err);
+      let result = BaseView.prototype.unsafeDisplayError.call(this, err);
 
       this.transformLinks();
 

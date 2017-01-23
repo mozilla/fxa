@@ -50,19 +50,20 @@ define(function (require, exports, module) {
   var BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
 
   describe('views/sign_up for /oauth/signup', function () {
-    var view;
-    var email;
-    var metrics;
-    var windowMock;
-    var fxaClient;
-    var oAuthClient;
-    var assertionLibrary;
-    var relier;
-    var broker;
-    var user;
-    var formPrefill;
     var able;
+    var assertionLibrary;
+    var broker;
+    var email;
+    var encodedLocationSearch;
+    var formPrefill;
+    var fxaClient;
+    var metrics;
     var notifier;
+    var oAuthClient;
+    var relier;
+    var user;
+    var view;
+    var windowMock;
 
     beforeEach(function () {
       Session.clear();
@@ -70,6 +71,8 @@ define(function (require, exports, module) {
 
 
       windowMock = new WindowMock();
+      windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
+      encodedLocationSearch = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + encodeURIComponent(SCOPE);
       metrics = new Metrics();
       relier = new OAuthRelier({
         window: windowMock
@@ -139,7 +142,14 @@ define(function (require, exports, module) {
           .then(function () {
             assert.include($('#fxa-signup-header').text(), CLIENT_NAME);
             // also make sure link is correct
-            assert.equal($('.sign-in').attr('href'), '/oauth/signin');
+            assert.equal($('.sign-in').attr('href'), '/oauth/signin' + encodedLocationSearch);
+          });
+      });
+
+      it('adds OAuth params to links on the page', function () {
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('#have-account').attr('href'), '/oauth/signin' + encodedLocationSearch);
           });
       });
     });

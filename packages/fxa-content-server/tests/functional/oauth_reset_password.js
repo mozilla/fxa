@@ -59,7 +59,7 @@ define([
         .end()
 
         .then(testElementExists('#fxa-signin-header .service'))
-        .then(click('a[href="/reset_password"]'))
+        .then(click('a[href^="/reset_password"]'))
 
         .then(testElementExists('#fxa-reset-password-header'))
         .then(fillOutResetPassword(email))

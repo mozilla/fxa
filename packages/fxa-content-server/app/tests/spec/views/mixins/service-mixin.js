@@ -64,6 +64,11 @@ define(function (require, exports, module) {
           assert.equal(view.$('#replaceMe').attr('href'), '/oauth/signin');
         });
 
+        it('keeps attributes during the transformation', function () {
+          view.unsafeDisplayError('<a href="/signin?client_id=foo&state=bar" id="replaceMe">error</a>');
+          assert.equal(view.$('#replaceMe').attr('href'), '/oauth/signin?client_id=foo&state=bar');
+        });
+
         it('converts /signup links to /oauth/signup', function () {
           view.unsafeDisplayError('<a href="/signup" id="replaceMe">error</a>');
           assert.equal(view.$('#replaceMe').attr('href'), '/oauth/signup');

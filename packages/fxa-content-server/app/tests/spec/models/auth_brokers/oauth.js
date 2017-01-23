@@ -309,12 +309,12 @@ define(function (require, exports, module) {
     describe('transformLink', function () {
       it('prepends `/oauth` to the link', function () {
         var transformed = broker.transformLink('/signin');
-        assert.equal(transformed, '/oauth/signin');
+        assert.include(transformed, '/oauth/signin');
       });
 
       it('adds necessary separator', function () {
         var transformed = broker.transformLink('signin');
-        assert.equal(transformed, '/oauth/signin');
+        assert.include(transformed, '/oauth/signin');
       });
     });
 

@@ -33,6 +33,7 @@ define(function (require, exports, module) {
     let user;
     let view;
     let windowMock;
+    let encodedLocationSearch;
 
     const CLIENT_ID = 'dcdb5ae7add825d2';
     const CLIENT_NAME = '123Done';
@@ -43,6 +44,7 @@ define(function (require, exports, module) {
       email = TestHelpers.createEmail();
       windowMock = new WindowMock();
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
+      encodedLocationSearch = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + encodeURIComponent(SCOPE);
 
       relier = new OAuthRelier();
       relier.set('serviceName', CLIENT_NAME);
@@ -93,7 +95,7 @@ define(function (require, exports, module) {
           .then(function () {
             assert.include(view.$('#fxa-signin-header').text(), CLIENT_NAME);
             // also make sure link is correct
-            assert.equal(view.$('.sign-up').attr('href'), '/oauth/signup');
+            assert.equal(view.$('.sign-up').attr('href'), '/oauth/signup' + encodedLocationSearch);
             assert.lengthOf(view.$('#amo-migration'), 0);
           });
       });
@@ -109,12 +111,22 @@ define(function (require, exports, module) {
           });
       });
 
+      it('adds OAuth params to links on the page', function () {
+        initView();
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('.reset-password').attr('href'), '/reset_password' + encodedLocationSearch);
+            assert.equal(view.$('.sign-up').attr('href'), '/oauth/signup' + encodedLocationSearch);
+          });
+      });
+
       describe('AMO migration', () => {
         it('displays AMO help text', () => {
           sinon.stub(view, 'isAmoMigration', () => true);
           return view.render()
             .then(() => {
               assert.lengthOf(view.$('#amo-migration'), 1);
+              assert.equal(view.$('#amo-migration a').attr('href'), '/oauth/signup' + encodedLocationSearch);
             });
         });
       });

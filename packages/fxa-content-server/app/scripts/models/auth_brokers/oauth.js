@@ -177,7 +177,12 @@ define(function (require, exports, module) {
         link = '/' + link;
       }
 
-      return '/oauth' + link;
+      if (/^\/(signin|signup)/.test(link)) {
+        link = '/oauth' + link;
+      }
+
+      const windowSearchParams = Url.searchParams(this.window.location.search);
+      return Url.updateSearchString(link, windowSearchParams);
     }
   });
 

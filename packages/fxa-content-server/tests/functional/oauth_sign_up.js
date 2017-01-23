@@ -195,7 +195,7 @@ define([
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD)
 
         .then(visibleByQSA('.error'))
-        .then(click('.error a[href="/oauth/signin"]'))
+        .then(click('.error a[href^="/oauth/signin"]'))
 
         // should have navigated to sign-in view
         .then(testElementExists('#fxa-signin-header'))
@@ -219,7 +219,7 @@ define([
       return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: ' ' })
 
         .then(visibleByQSA('.error'))
-        .then(click('.error a[href="/oauth/signin"]'))
+        .then(click('.error a[href^="/oauth/signin"]'))
 
         // should have navigated to sign-in view
         .then(testElementExists('#fxa-signin-header'))
@@ -240,21 +240,24 @@ define([
     },
 
     'signup, bounce email, allow user to restart flow but force a different email': function () {
+      this.timeout = 60 * 1000;
+
       var client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
       return this.remote
         .then(openFxaFromRp('signup'))
+
         .then(fillOutSignUp(bouncedEmail, PASSWORD))
 
-        .then(testElementExists('fxa-confirm-header'))
+        .then(testElementExists('#fxa-confirm-header'))
 
         .then(function () {
           return client.accountDestroy(bouncedEmail, PASSWORD);
         })
 
-        .then(testElementExists('fxa-signup-header'))
+        .then(testElementExists('#fxa-signup-header'))
 
         // expect an error message to already be present on redirect
         .then(visibleByQSA('.tooltip'))
@@ -270,8 +273,8 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
 
         .switchToWindow('newwindow')
-        // wait for the verified window in the new tab
-        .then(testElementExists('fxa-sign-up-complete-header'))
+        // wait for the verification step to complete
+        .then(testElementExists('.account-ready-service'))
 
         // user sees the name of the RP,
         // but cannot redirect

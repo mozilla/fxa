@@ -162,7 +162,6 @@ define(function (require, exports, module) {
         chooseWhatToSyncCheckbox: this.broker.hasCapability('chooseWhatToSyncCheckbox'),
         email: prefillEmail,
         error: this.error,
-        escapedSignInUri: encodeURI(this.broker.transformLink('/signin')),
         escapedSyncSuggestionUrl: encodeURI('https://mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started'), // eslint-disable-line max-len
         forceEmail: forceEmail,
         isAmoMigration: this.isAmoMigration(),
