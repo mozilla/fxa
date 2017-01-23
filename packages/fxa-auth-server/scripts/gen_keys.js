@@ -21,6 +21,7 @@
 
 const fs = require('fs');
 const assert = require('assert');
+const crypto = require('crypto');
 const generateRSAKeypair = require('keypair');
 const JwTool = require('fxa-jwtool');
 
@@ -34,9 +35,19 @@ try {
   process.exit();
 }
 
+// Generate a unique key id using hash of public key, and timestamp.
+// This comes out like "2017-01-23-ebe69008de771d62cd1cadf9faa6daae".
+function makeKeyId(kp) {
+  return [
+    (new Date()).toISOString().slice(0, 10) + '-' +
+    crypto.createHash('sha256').update(kp.public).digest('hex').slice(0, 32)
+  ].join('-');
+}
+
 function main(cb) {
-  var privKey = JwTool.JWK.fromPEM(generateRSAKeypair().private, {
-    kid: '2015.12.16-1'
+  var kp = generateRSAKeypair();
+  var privKey = JwTool.JWK.fromPEM(kp.private, {
+    kid: makeKeyId(kp)
   });
 
   try {
@@ -51,8 +62,9 @@ function main(cb) {
   // The "old key" is not used to sign anything, so we don't need to store
   // the private component, we just need to serve the public component
   // so that old signatures can be verified correctly.
-  var pubKey = JwTool.JWK.fromPEM(generateRSAKeypair().public, {
-    kid: '2015.12.16-2'
+  kp = generateRSAKeypair();
+  var pubKey = JwTool.JWK.fromPEM(kp.public, {
+    kid: makeKeyId(kp)
   });
   fs.writeFileSync(oldKeyPath, JSON.stringify(pubKey.toJSON(), undefined, 2));
   console.log('OldKey saved:', oldKeyPath); //eslint-disable-line no-console
