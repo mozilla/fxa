@@ -96,7 +96,7 @@ module.exports = function (log, error) {
         }
 
         // Template name corresponds directly with the email template that was used
-        if(templateName) {
+        if (templateName) {
           logData.template = templateName
         }
 
@@ -107,6 +107,19 @@ module.exports = function (log, error) {
 
           if (message.bounce && message.bounce.bounceSubType) {
             logData.bounceSubType = message.bounce.bounceSubType
+          }
+        }
+
+        // Log the type of complaint and userAgent reported
+        if (message.complaint) {
+          logData.complaint = !!message.complaint
+
+          if (message.complaint.userAgent) {
+            logData.complaintUserAgent = message.complaint.userAgent
+          }
+
+          if (message.complaint.complaintFeedbackType) {
+            logData.complaintFeedbackType = message.complaint.complaintFeedbackType
           }
         }
 
