@@ -311,6 +311,11 @@ const conf = convict({
       doc: 'Bytes of generated developer ids',
       default: 16
     }
+  },
+  cacheControl: {
+    doc: 'Hapi: a string with the value of the "Cache-Control" header when caching is disabled',
+    format: String,
+    default: 'private, no-cache, no-store, must-revalidate'
   }
 });
 
