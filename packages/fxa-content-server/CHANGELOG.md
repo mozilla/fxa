@@ -1,3 +1,19 @@
+<a name="0.79.2"></a>
+## 0.79.2 (2017-01-24)
+
+
+### Bug Fixes
+
+* **build:** Add Dockerfile-build which is needed by Circle. (#4662) r=@shane-tomlinson ([f38f15d](https://github.com/mozilla/fxa-content-server/commit/f38f15d))
+* **docker:** add bower instructions and l10n fix (#4663) ([fe1b464](https://github.com/mozilla/fxa-content-server/commit/fe1b464)), closes [(#4663](https://github.com/(/issues/4663)
+* **docker:** add build production script (#4664) ([da729b7](https://github.com/mozilla/fxa-content-server/commit/da729b7))
+
+### Refactor
+
+* **test:** Modernize the fx_firstrun_v1_sign_up tests. (#4661) r=@philbooth ([7e1b034](https://github.com/mozilla/fxa-content-server/commit/7e1b034))
+
+
+
 <a name="0.79.1"></a>
 ## 0.79.1 (2017-01-24)
 
