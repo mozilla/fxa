@@ -201,9 +201,10 @@ var conf = module.exports = convict({
     }
   },
   hsts_max_age: {
-    default: '180 days',
-    doc: 'Max age of the STS directive',
-    format: 'duration'
+    default: 15552000, // 180 days
+    doc: 'Max age of the STS directive in seconds',
+    // Note: This format is a number because the value needs to be in seconds
+    format: Number
   },
   http_port: {
     default: 3080,
