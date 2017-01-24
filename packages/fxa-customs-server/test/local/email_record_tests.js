@@ -216,9 +216,9 @@ test(
     er.addHit()
     er.addHit()
     t.equal(er.shouldBlock(), false, 'account is not blocked')
-    t.equal(er.update('accountCreate'), 0, 'email action above the email limit')
+    t.equal(er.update('accountCreate'), 1, 'email action above the email limit')
     t.equal(er.shouldBlock(), true, 'account is now blocked')
-    t.equal(er.update('accountCreate'), 0, 'email action in a blocked account')
+    t.equal(er.update('accountCreate'), 1, 'email action in a blocked account')
 
     t.equal(er.ub.length, 0, 'no unblock attempts')
     er.update('bogus', true)
@@ -228,15 +228,15 @@ test(
     t.equal(er.shouldBlock(), true, 'account is blocked due to rate limiting')
     t.equal(er.isBlocked(), false, 'account is not outright banned')
     t.equal(er.isRateLimited(), true, 'account is rate limited')
-    t.equal(er.update('accountCreate'), 1, 'email action is blocked')
+    t.equal(er.update('accountCreate'), 2, 'email action is blocked')
     t.equal(er.update('accountLogin'), 0, 'non-email action is not blocked')
     er.rl = 0
     er.bk = 2000
     t.equal(er.shouldBlock(), true, 'account is blocked due to being outright blocked')
     t.equal(er.isBlocked(), true, 'account is outright banned')
     t.equal(er.isRateLimited(), false, 'account is not rate limited')
-    t.equal(er.update('accountCreate'), 1, 'email action is blocked')
-    t.equal(er.update('accountLogin'), 1, 'non-email action is blocked')
+    t.equal(er.update('accountCreate'), 2, 'email action is blocked')
+    t.equal(er.update('accountLogin'), 2, 'non-email action is blocked')
 
     t.end()
   }

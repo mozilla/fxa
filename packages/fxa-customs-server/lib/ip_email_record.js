@@ -73,7 +73,7 @@ module.exports = function (limits, now) {
   }
 
   IpEmailRecord.prototype.retryAfter = function () {
-    return Math.max(0, Math.floor(((this.rl || 0) + limits.rateLimitIntervalMs - now()) / 1000))
+    return Math.max(0, Math.ceil(((this.rl || 0) + limits.rateLimitIntervalMs - now()) / 1000))
   }
 
   IpEmailRecord.prototype.update = function (action) {

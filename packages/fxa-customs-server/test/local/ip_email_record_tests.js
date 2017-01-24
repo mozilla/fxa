@@ -125,7 +125,7 @@ test(
     ier.rl = 500
     t.equal(ier.retryAfter(), 0, 'just expired blocks can be retried immediately')
     ier.rl = 6000
-    t.equal(ier.retryAfter(), 5, 'unexpired blocks can be retried in a bit')
+    t.equal(ier.retryAfter(), 6, 'unexpired blocks can be retried in a bit')
     t.end()
   }
 )
@@ -192,9 +192,9 @@ test(
     ier.addBadLogin()
     ier.addBadLogin()
     t.equal(ier.shouldBlock(), false, 'account is not blocked')
-    t.equal(ier.update('accountLogin'), 0, 'action above the login limit')
+    t.equal(ier.update('accountLogin'), 1, 'action above the login limit')
     t.equal(ier.shouldBlock(), true, 'account is now blocked')
-    t.equal(ier.update('accountLogin'), 0, 'login action in a blocked account')
+    t.equal(ier.update('accountLogin'), 1, 'login action in a blocked account')
     t.end()
   }
 )

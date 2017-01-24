@@ -133,8 +133,8 @@ module.exports = function (limits, now) {
   }
 
   EmailRecord.prototype.retryAfter = function () {
-    var rateLimitAfter = Math.floor(((this.rl || 0) + limits.rateLimitIntervalMs - now()) / 1000)
-    var banAfter = Math.floor(((this.bk || 0) + limits.blockIntervalMs - now()) / 1000)
+    var rateLimitAfter = Math.ceil(((this.rl || 0) + limits.rateLimitIntervalMs - now()) / 1000)
+    var banAfter = Math.ceil(((this.bk || 0) + limits.blockIntervalMs - now()) / 1000)
     return Math.max(0, rateLimitAfter, banAfter)
   }
 
