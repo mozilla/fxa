@@ -5,10 +5,9 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=iframe&service=sync';
 
@@ -22,6 +21,8 @@ define([
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
@@ -43,9 +44,7 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
 
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
+        .then(testElementExists('#fxa-confirm-header'))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
@@ -58,21 +57,12 @@ define([
         // In real life, the original browser window would show
         // a "welcome to sync!" screen that has a manage button
         // on it, and this screen should show the FxA success screen.
-        .findByCssSelector('#fxa-sign-up-complete-header')
-        .end()
-
-        .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          assert.ok(text.indexOf('Firefox Sync') > -1);
-        })
-
-        .end()
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
         // switch back to the original window, it should transition.
         .then(closeCurrentWindow())
 
-        .findByCssSelector('#fxa-sign-up-complete-header')
-        .end()
+        .then(testElementExists('#fxa-sign-up-complete-header'))
 
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
