@@ -1,3 +1,13 @@
+<a name="0.79.1"></a>
+## 0.79.1 (2017-01-24)
+
+
+### Bug Fixes
+
+* **docker:** Start docker service ([c6cd981](https://github.com/mozilla/fxa-content-server/commit/c6cd981))
+
+
+
 <a name="0.79.0"></a>
 # 0.79.0 (2017-01-23)
 
