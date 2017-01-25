@@ -497,6 +497,14 @@ module.exports = function (
           return db.emailRecord(email)
             .then(
               function (result) {
+
+                // If the incorrect email case is used, the password check cannot possibly succeed,
+                // and the client will retry automatically with the correct capitalization.
+                // Don't tell customs-server this was a failed login attempt, to avoid penalizing the user twice.
+                if (email !== result.email) {
+                  throw error.incorrectPassword(result.email, email)
+                }
+
                 emailRecord = result
                 allowSigninUnblock = features.isSigninUnblockEnabledForUser(emailRecord.uid, emailRecord.email, request)
               },
@@ -659,14 +667,6 @@ module.exports = function (
             flowCompleteSignal = 'account.login'
           }
           request.setMetricsFlowCompleteSignal(flowCompleteSignal)
-
-          if(email !== emailRecord.email) {
-            customs.flag(request.app.clientAddress, {
-              email: email,
-              errno: error.ERRNO.INCORRECT_PASSWORD
-            })
-            throw error.incorrectPassword(emailRecord.email, email)
-          }
 
           return checkPassword(emailRecord, authPW, request.app.clientAddress)
             .then(
