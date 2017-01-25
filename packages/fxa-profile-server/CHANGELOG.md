@@ -1,3 +1,19 @@
+<a name="0.79.0"></a>
+# [0.79.0](https://github.com/mozilla/fxa-profile-server/compare/v0.78.0...v0.79.0) (2017-01-25)
+
+
+### Bug Fixes
+
+* **config:** load proper development configuration ([dd7aee0](https://github.com/mozilla/fxa-profile-server/commit/dd7aee0))
+* **docker:** Use shrinkwrap when installing (#232) r=vladikoff ([e797475](https://github.com/mozilla/fxa-profile-server/commit/e797475))
+* **headers:** add cache-control headers to api endpoints ([edc7d5e](https://github.com/mozilla/fxa-profile-server/commit/edc7d5e))
+
+### Refactor
+
+* **headers:** re-use same header checks for all tests ([14e798c](https://github.com/mozilla/fxa-profile-server/commit/14e798c))
+
+
+
 <a name="0.78.0"></a>
 # [0.78.0](https://github.com/mozilla/fxa-profile-server/compare/v0.76.1...v0.78.0) (2017-01-10)
 
