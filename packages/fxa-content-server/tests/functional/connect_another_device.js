@@ -46,6 +46,7 @@ define([
   var SELECTOR_PAGE_LOADED = '.graphic-connect-another-device';
   var SELECTOR_SIGNIN_FXIOS = '#signin-fxios';
   var SELECTOR_SIGNIN_HEADER = '#fxa-signin-header';
+  var SELECTOR_SIGNIN_COMPLETE_HEADER = '#fxa-sign-in-complete-header';
   var SELECTOR_SIGNUP_COMPLETE_HEADER = '#fxa-sign-up-complete-header';
   var SELECTOR_SUCCESS_DIFFERENT_BROWSER = '.success-not-authenticated';
   var SELECTOR_SUCCESS_SAME_BROWSER = '.success-authenticated';
@@ -170,9 +171,8 @@ define([
             forceExperimentGroup: EXPERIMENT_GROUP
           }
         }))
-        // Works for signin confirmation!
-        .then(testElementExists(SELECTOR_INSTALL_TEXT_OTHER))
-        .then(testElementExists(SELECTOR_SUCCESS_SAME_BROWSER));
+        // Does not work for sign in, even if forced.
+        .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER));
     },
 
     'sign up Fx Desktop, verify different Fx Desktop with another user already signed in': function () {
@@ -197,8 +197,8 @@ define([
             forceExperimentGroup: EXPERIMENT_GROUP
           }
         }))
-        // Works for signin confirmation!
-        .then(testElementExists(SELECTOR_INSTALL_TEXT_OTHER))
+        // Does not work for sign in, even if forced.
+        .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER))
 
         // NOW - go back and open the verification link for the sign up user in a
         // browser where another user is already signed in.
@@ -406,7 +406,7 @@ define([
         .then(testHrefEquals(SELECTOR_MARKETING_LINK_IOS, ADJUST_LINK_IOS));
     },
 
-    'signup in Fennec, verify same browser': function () {
+    'sign up in Fennec, verify same browser': function () {
       // should have both links to mobile apps
       return this.remote
         .then(openPage(SIGNUP_FENNEC_URL, '#fxa-signup-header', {

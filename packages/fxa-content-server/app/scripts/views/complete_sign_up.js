@@ -189,6 +189,12 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      */
     _isEligibleToConnectAnotherDevice (verifiedAccount) {
+      // Only show to users who are signing up, until we have better text for
+      // users who are signing in.
+      if (this.isSignIn()) {
+        return false;
+      }
+
       const user = this.user;
       const isInExperimentGroup = this.isInExperimentGroup('connectAnotherDevice', 'treatment');
       const isAnotherUserSignedIn =
