@@ -1,3 +1,21 @@
+<a name"0.79.0"></a>
+## 0.79.0 (2017-01-25)
+
+
+#### Bug Fixes
+
+* **headers:**
+  * make "cache-control" value configurable ([5ba82ea6](https://github.com/mozilla/fxa-oauth-server/commit/5ba82ea6))
+  * add cache-control headers to api endpoints; extend tests ([5a81ef94](https://github.com/mozilla/fxa-oauth-server/commit/5a81ef94))
+* **keys:** Generate unique 'kid' field when regenerating JWK keys ([5b9acae3](https://github.com/mozilla/fxa-oauth-server/commit/5b9acae3))
+* **scripts:** Use pure JS module to generate RSA keypairs (#439) r=vladikoff ([3380e1cc](https://github.com/mozilla/fxa-oauth-server/commit/3380e1cc))
+
+
+#### Features
+
+* **docker:** Shrink Docker image size (#438) r=vladikoff ([13d13b9e](https://github.com/mozilla/fxa-oauth-server/commit/13d13b9e))
+
+
 <a name"0.78.0"></a>
 ## 0.78.0 (2017-01-11)
 
