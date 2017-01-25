@@ -73,10 +73,11 @@ If you get an `error` status for any of the servers please verify that you insta
 *******
 
 ### Dependencies
-> Required dependencies:
+> Required developer dependencies:
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git),
 [node.js **4.5.0+**, with npm 2.4+](http://nodejs.org/),
 [Python 2.6+](https://www.python.org/),
+[Java 1.8+](https://www.java.com/en/download/),
 [Redis](http://redis.io/),
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/).
@@ -124,6 +125,8 @@ apt-get install -y nodejs
 
 #### Installing Java
 
+> Java is used to run Selenium functional tests
+
 ##### OS X:
 
 Download from [java.com/en/download/](https://www.java.com/en/download/)
@@ -133,7 +136,7 @@ Download from [java.com/en/download/](https://www.java.com/en/download/)
 ```
 sudo add-apt-repository ppa:webupd8team/java
 sudo apt-get update
-sudo apt-get install oracle-java7-installer
+sudo apt-get install oracle-java8-installer
 ```
 
 *******
