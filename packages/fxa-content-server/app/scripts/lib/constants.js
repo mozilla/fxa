@@ -111,7 +111,7 @@ define(function (require, exports, module) {
     ],
 
     // Login delay for iOS broker
-    IOS_V1_LOGIN_MESSAGE_DELAY_MS: 10000,
+    IOS_V1_LOGIN_MESSAGE_DELAY_MS: 5000,
 
     BLOCKED_SIGNIN_SUPPORT_URL: 'https://support.mozilla.org/kb/accounts-blocked',
     UNBLOCK_CODE_LENGTH: 8,
