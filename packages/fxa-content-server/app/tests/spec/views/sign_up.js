@@ -865,7 +865,7 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('signin failse with a reset accont', function () {
+        describe('signin fails with a reset account', function () {
           beforeEach(function () {
             sinon.stub(view, 'signIn', function () {
               return p.reject(AuthErrors.toError('ACCOUNT_RESET'));
