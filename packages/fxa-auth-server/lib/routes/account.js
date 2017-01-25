@@ -421,11 +421,13 @@ module.exports = function (
         const redirectTo = request.payload.redirectTo
         const resume = request.payload.resume
         const ip = request.app.clientAddress
+        const requestNow = Date.now()
+
         let needsVerificationId = true
         let emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation,
           emailSent, unblockCode, customsErr, allowSigninUnblock, didSigninUnblock, tokenVerificationId
 
-        let securityEventRecency, securityEventVerified = false
+        let securityEventRecency = Infinity, securityEventVerified = false
 
         request.validateMetricsContext()
 
@@ -495,6 +497,14 @@ module.exports = function (
           return db.emailRecord(email)
             .then(
               function (result) {
+
+                // If the incorrect email case is used, the password check cannot possibly succeed,
+                // and the client will retry automatically with the correct capitalization.
+                // Don't tell customs-server this was a failed login attempt, to avoid penalizing the user twice.
+                if (email !== result.email) {
+                  throw error.incorrectPassword(result.email, email)
+                }
+
                 emailRecord = result
                 allowSigninUnblock = features.isSigninUnblockEnabledForUser(emailRecord.uid, emailRecord.email, request)
               },
@@ -525,7 +535,7 @@ module.exports = function (
             return db.consumeUnblockCode(emailRecord.uid, unblockCode)
               .then(
                 (code) => {
-                  if (Date.now() - code.createdAt > unblockCodeLifetime) {
+                  if (requestNow - code.createdAt > unblockCodeLifetime) {
                     log.info({
                       op: 'Account.login.unblockCode.expired',
                       uid: emailRecord.uid.toString('hex')
@@ -566,9 +576,9 @@ module.exports = function (
             ipAddr: request.app.clientAddress
           })
             .then(
-              function (events) {
+              (events) => {
                 if (events.length > 0) {
-                  var latest = 0
+                  let latest = 0
                   events.forEach(function(ev) {
                     if (ev.verified) {
                       securityEventVerified = true
@@ -578,22 +588,23 @@ module.exports = function (
                     }
                   })
                   if (securityEventVerified) {
-                    var since = Date.now() - latest
-                    if (since < MS_ONE_DAY) {
-                      securityEventRecency = 'day'
-                    } else if (since < MS_ONE_WEEK) {
-                      securityEventRecency = 'week'
-                    } else if (since < MS_ONE_MONTH) {
-                      securityEventRecency = 'month'
+                    securityEventRecency = requestNow - latest
+                    let coarseRecency
+                    if (securityEventRecency < MS_ONE_DAY) {
+                      coarseRecency = 'day'
+                    } else if (securityEventRecency < MS_ONE_WEEK) {
+                      coarseRecency = 'week'
+                    } else if (securityEventRecency < MS_ONE_MONTH) {
+                      coarseRecency = 'month'
                     } else {
-                      securityEventRecency = 'old'
+                      coarseRecency = 'old'
                     }
 
                     log.info({
                       op: 'Account.history.verified',
                       uid: emailRecord.uid.toString('hex'),
                       events: events.length,
-                      recency: securityEventRecency
+                      recency: coarseRecency
                     })
                   } else {
                     log.info({
@@ -657,14 +668,6 @@ module.exports = function (
           }
           request.setMetricsFlowCompleteSignal(flowCompleteSignal)
 
-          if(email !== emailRecord.email) {
-            customs.flag(request.app.clientAddress, {
-              email: email,
-              errno: error.ERRNO.INCORRECT_PASSWORD
-            })
-            throw error.incorrectPassword(emailRecord.email, email)
-          }
-
           return checkPassword(emailRecord, authPW, request.app.clientAddress)
             .then(
               function (match) {
@@ -702,7 +705,8 @@ module.exports = function (
           // another, successfully-verified login, then we can consider this one
           // verified as well without going through the loop again.
           if (features.isSecurityHistoryProfilingEnabled()) {
-            if (securityEventVerified && securityEventRecency === 'day') {
+            const allowedRecency = config.securityHistory.ipProfiling.allowedRecency || 0
+            if (securityEventVerified && securityEventRecency < allowedRecency) {
               log.info({
                 op: 'Account.ipprofiling.seenAddress',
                 uid: account.uid.toString('hex')
@@ -716,7 +720,7 @@ module.exports = function (
           // the friction of a user adding a second device.
           const skipForNewAccounts = config.signinConfirmation.skipForNewAccounts
           if (skipForNewAccounts && skipForNewAccounts.enabled) {
-            const accountAge = Date.now() - account.createdAt
+            const accountAge = requestNow - account.createdAt
             if (accountAge <= skipForNewAccounts.maxAge) {
               log.info({
                 op: 'account.signin.confirm.bypass.age',

@@ -88,7 +88,8 @@ var config = {
   securityHistory: {
     enabled: true,
     ipProfiling: {
-      enabled: true
+      enabled: true,
+      allowedRecency: MS_ONE_DAY
     }
   },
   signinConfirmation: {
@@ -262,7 +263,7 @@ describe('IP Profiling', () => {
             return P.resolve([
               {
                 name: 'account.login',
-                createdAt: (Date.now() - MS_ONE_DAY), // Created one day ago
+                createdAt: (Date.now() - MS_ONE_DAY * 2), // Created two days ago
                 verified: true
               }
             ])

@@ -476,6 +476,12 @@ var conf = convict({
         doc: 'enable ip profiling, bypass sign-in confirmation if login is coming from a previously verified ip address.',
         default: true,
         env: 'IP_PROFILING_ENABLED'
+      },
+      allowedRecency: {
+        doc: 'Length of time since previously verified event to allow skipping confirmation',
+        default: '72 hours',
+        format: 'duration',
+        env: 'IP_PROFILING_RECENCY'
       }
     }
   },
