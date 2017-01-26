@@ -9,6 +9,39 @@ var Hapi = require('hapi')
 
 var HEX_STRING = require('./routes/validators').HEX_STRING
 
+function trimLocale(header) {
+  if (!header) {
+    return header
+  }
+  if (header.length < 256) {
+    return header.trim()
+  }
+  var parts = header.split(',')
+  var str = parts[0]
+  if (str.length >= 255) { return null }
+  for (var i = 1; i < parts.length && str.length + parts[i].length < 255; i++) {
+    str += ',' + parts[i]
+  }
+  return str.trim()
+}
+
+function logEndpointErrors(response, log) {
+  // When requests to DB timeout and fail for unknown reason they are an 'EndpointError'.
+  // The error response hides error information from the user, but we log it here
+  // to better understand the DB timeouts.
+  if (response.__proto__ && response.__proto__.name === 'EndpointError') {
+    var endpointLog = {
+      op: 'server.EndpointError',
+      message: response.message,
+      reason: response.reason
+    }
+    if (response.attempt && response.attempt.method) {
+      // log the DB attempt to understand the action
+      endpointLog.method = response.attempt.method
+    }
+    log.error(endpointLog)
+  }
+}
 
 function create(log, error, config, routes, db) {
 
@@ -230,22 +263,6 @@ function create(log, error, config, routes, db) {
     }
   )
 
-  function trimLocale(header) {
-    if (!header) {
-      return header
-    }
-    if (header.length < 256) {
-      return header.trim()
-    }
-    var parts = header.split(',')
-    var str = parts[0]
-    if (str.length >= 255) { return null }
-    for (var i = 1; i < parts.length && str.length + parts[i].length < 255; i++) {
-      str += ',' + parts[i]
-    }
-    return str.trim()
-  }
-
   server.ext(
     'onPreAuth',
     function (request, reply) {
@@ -285,6 +302,7 @@ function create(log, error, config, routes, db) {
     function (request, reply) {
       var response = request.response
       if (response.isBoom) {
+        logEndpointErrors(response, log)
         response = error.translate(response)
         if (config.env !== 'prod') {
           response.backtrace(request.app.traced)
@@ -319,5 +337,8 @@ function create(log, error, config, routes, db) {
 }
 
 module.exports = {
-  create: create
+  create: create,
+  // Functions below exported for testing
+  _trimLocale: trimLocale,
+  _logEndpointErrors: logEndpointErrors
 }
