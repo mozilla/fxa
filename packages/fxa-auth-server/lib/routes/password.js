@@ -135,6 +135,9 @@ module.exports = function (
           strategy: 'passwordChangeToken'
         },
         validate: {
+          query: {
+            keys: isA.boolean().optional()
+          },
           payload: {
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             wrapKb: isA.string().min(64).max(64).regex(HEX_STRING).required(),
@@ -341,9 +344,13 @@ module.exports = function (
       path: '/password/forgot/send_code',
       config: {
         validate: {
+          query: {
+            service: validators.service,
+            keys: isA.boolean().optional()
+          },
           payload: {
             email: validators.email().required(),
-            service: isA.string().max(16).alphanum().optional(),
+            service: validators.service,
             redirectTo: validators.redirectTo(redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA
@@ -447,9 +454,12 @@ module.exports = function (
           strategy: 'passwordForgotToken'
         },
         validate: {
+          query: {
+            service: validators.service
+          },
           payload: {
             email: validators.email().required(),
-            service: isA.string().max(16).alphanum().optional(),
+            service: validators.service,
             redirectTo: validators.redirectTo(redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA

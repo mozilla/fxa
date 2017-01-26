@@ -78,6 +78,11 @@ function create(log, error, config, routes, db) {
         },
         files: {
           relativeTo: path.dirname(__dirname)
+        },
+        validate: {
+          options: {
+            stripUnknown: true
+          }
         }
       },
       load: {
