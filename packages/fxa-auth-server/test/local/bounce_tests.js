@@ -9,7 +9,7 @@ var sinon = require('sinon')
 var spyLog = require('../mocks').spyLog
 var error = require('../../lib/error')
 var P = require('../../lib/promise')
-var bounces = require('../../lib/bounces')
+var bounces = require('../../lib/email/bounces')
 
 var mockBounceQueue = new EventEmitter()
 mockBounceQueue.start = function start() {}

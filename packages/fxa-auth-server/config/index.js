@@ -306,7 +306,7 @@ var conf = convict({
     env: 'SNS_TOPIC_ARN',
     default: ''
   },
-  bounces: {
+  emailNotifications: {
     region: {
       doc: 'The region where the queues live, most likely the same region we are sending email e.g. us-east-1, us-west-2',
       format: String,
@@ -323,6 +323,12 @@ var conf = convict({
       doc: 'The complaint queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
       format: String,
       env: 'COMPLAINT_QUEUE_URL',
+      default: ''
+    },
+    deliveryQueueUrl: {
+      doc: 'The email delivery queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+      format: String,
+      env: 'DELIVERY_QUEUE_URL',
       default: ''
     }
   },

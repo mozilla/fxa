@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var eaddrs = require('email-addresses')
-var P = require('./promise')
+var P = require('./../promise')
+var utils = require('./utils/helpers')
 
 module.exports = function (log, error) {
 
@@ -49,26 +50,7 @@ module.exports = function (log, error) {
       }
     }
 
-    function getHeaderValue(headerName, message){
-      var value = ''
-      if (message.mail && message.mail.headers) {
-        message.mail.headers.some(function (header) {
-          if (header.name === headerName) {
-            value = header.value
-            return true
-          }
-
-          return false
-        })
-      }
-
-      return value
-    }
-
-
     function handleBounce(message) {
-      const currentTime = Date.now()
-
       var recipients = []
       if (message.bounce && message.bounce.bounceType === 'Permanent') {
         recipients = message.bounce.bouncedRecipients
@@ -81,7 +63,7 @@ module.exports = function (log, error) {
       // Headers are stored as an array of name/value pairs.
       // Log the `X-Template-Name` header to help track the email template that bounced.
       // Ref: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
-      var templateName = getHeaderValue('X-Template-Name', message)
+      var templateName = utils.getHeaderValue('X-Template-Name', message)
 
       return P.each(recipients, function (recipient) {
 
@@ -123,27 +105,8 @@ module.exports = function (log, error) {
           }
         }
 
-        // Log flow metrics if `flowId` and `flowBeginTime` specified in headers
-        const flowId = getHeaderValue('X-Flow-Id', message)
-        const flowBeginTime = getHeaderValue('X-Flow-Begin-Time', message)
-        const elapsedTime = currentTime - flowBeginTime
-
-        if (flowId && flowBeginTime && (elapsedTime > 0)) {
-          const eventName = `email.${templateName}.bounced`
-
-          // Flow events have a specific event and structure that must be emitted.
-          // Ref `gather` in https://github.com/mozilla/fxa-auth-server/blob/master/lib/metrics/context.js
-          const flowEventInfo = {
-            event: eventName,
-            time: currentTime,
-            flow_id: flowId,
-            flow_time: elapsedTime
-          }
-
-          log.flowEvent(flowEventInfo)
-        } else {
-          log.error({ op: 'handleBounce.flowEvent', templateName, flowId, flowBeginTime, currentTime })
-        }
+        // Log the bounced flowEvent metrics if available
+        utils.logFlowEventFromMessage(log, message, 'bounced')
 
         log.info(logData)
         log.increment('account.email_bounced')
