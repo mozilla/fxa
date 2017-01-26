@@ -507,6 +507,22 @@ define(function (require, exports, module) {
           sinon.stub(view, 'isInExperimentGroup', () => true);
         });
 
+        describe('user is completing sign-in', () => {
+          beforeEach(() => {
+            sinon.stub(user, 'getSignedInAccount', () => {
+              return {
+                isDefault: () => true
+              };
+            });
+            sinon.stub(view, 'isSignIn', () => true);
+          });
+
+          it('returns `false`', () => {
+            assert.isFalse(view._isEligibleToConnectAnotherDevice(account));
+          });
+        });
+
+
         describe('no user signed in', () => {
           beforeEach(() => {
             sinon.stub(user, 'getSignedInAccount', () => {

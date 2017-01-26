@@ -6,6 +6,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const $ = require('jquery');
   const Able = require('lib/able');
   const Account = require('models/account');
@@ -1220,21 +1221,13 @@ define(function (require, exports, module) {
         }, 50);
       });
 
-      it('accepts window parameter override', function (done) {
+      it('accepts window parameter override', function () {
         var windowMock = new WindowMock();
-        windowMock.location.search = '?forceVerificationExperiment=mailcheck&forceExperimentGroup=treatment';
+        windowMock.location.search = '?forceExperiment=mailcheck&forceExperimentGroup=treatment';
         windowMock.navigator.userAgent = 'mocha';
-        var mockAble = new Able();
-        sinon.stub(mockAble, 'choose', function (name, data) {
-          if (name === 'chooseAbExperiment') {
-            return 'mailcheck';
-          }
-          assert.equal(name, 'mailcheck');
-          assert.equal(data.forceExperimentGroup, 'treatment');
-          done();
 
-          return 'treatment';
-        });
+        var mockAble = new Able();
+        sinon.stub(mockAble, 'choose', () => true);
 
         view.experiments = new ExperimentInterface({
           able: mockAble,
@@ -1243,9 +1236,15 @@ define(function (require, exports, module) {
           user: user,
           window: windowMock
         });
+
         view.experiments.chooseExperiments();
-        view.$('.email').val('testuser@gnail.com');
-        view.onEmailBlur();
+        // find the first call to mailcheck, then check its arguments
+        const mailcheckArgs = _.find(mockAble.choose.args, (args, index) => {
+          return args[0] === 'mailcheck';
+        });
+        assert.equal(mailcheckArgs[0], 'mailcheck');
+        assert.equal(mailcheckArgs[1].forceExperiment, 'mailcheck');
+        assert.equal(mailcheckArgs[1].forceExperimentGroup, 'treatment');
       });
 
       it('measures how successful our mailcheck suggestion is', function () {
@@ -1253,11 +1252,11 @@ define(function (require, exports, module) {
         windowMock.navigator.userAgent = 'mocha';
         var mockAble = new Able();
         sinon.stub(mockAble, 'choose', function (name) {
-          if (name === 'chooseAbExperiment') {
-            return 'mailcheck';
+          if (name === 'mailcheck') {
+            return 'treatment';
           }
 
-          return 'treatment';
+          return false;
         });
         view.experiments = new ExperimentInterface({
           able: mockAble,

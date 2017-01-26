@@ -1,3 +1,22 @@
+<a name="0.79.3"></a>
+## 0.79.3 (2017-01-26)
+
+
+### Bug Fixes
+
+* **client:** Use a 5 sec timeout to send `login` in Fx for iOS. (#4671) r=@rfk ([e0686ec](https://github.com/mozilla/fxa-content-server/commit/e0686ec))
+* **connect-another-device:** Disable CAD for signin. (#4672) r=vladikoff ([014557e](https://github.com/mozilla/fxa-content-server/commit/014557e)), closes [#4665](https://github.com/mozilla/fxa-content-server/issues/4665)
+
+### chore
+
+* **experiments:** Update content-experiments to train-79 (#4677) ([4edfe87](https://github.com/mozilla/fxa-content-server/commit/4edfe87))
+
+### Features
+
+* **experiments:** Push all knowledge of mutually exclusive tests to able. (#4673) r=@philbooth, vl ([b8cff6e](https://github.com/mozilla/fxa-content-server/commit/b8cff6e))
+
+
+
 <a name="0.79.2"></a>
 ## 0.79.2 (2017-01-24)
 
