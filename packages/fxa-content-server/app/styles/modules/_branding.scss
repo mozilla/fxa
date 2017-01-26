@@ -50,15 +50,15 @@
 #about-mozilla {
 
   @include respond-to('big') {
-    @include hidpi-background-image('mozilla', 69px 19px);
+    background: image-url('mozilla.svg');
     cursor: pointer;
-    height: 19px;
+    height: 30px;
     opacity: 0.5;
     position: absolute;
     right: 12px;
     top: 12px;
     transition: opacity $short-transition;
-    width: 69px;
+    width: 94px;
 
     &:hover {
       opacity: 1;
