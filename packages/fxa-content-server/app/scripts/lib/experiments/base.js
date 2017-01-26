@@ -71,6 +71,7 @@ define(function (require, exports, module) {
       this.window = options.window;
 
       var abData = {
+        able: this.able,
         // the window parameter will override any ab testing features
         forceExperimentGroup: Url.searchParam(FORCE_GROUP_TYPE, this.window.location.search),
         isMetricsEnabledValue: this.metrics.isCollectionEnabled(),

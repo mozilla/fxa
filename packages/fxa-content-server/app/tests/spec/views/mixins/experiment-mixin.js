@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const Metrics = require('lib/metrics');
   const Mixin = require('views/mixins/experiment-mixin');
   const Notifier = require('lib/channels/notifier');
+  const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
   const User = require('models/user');
   const WindowMock = require('../../../mocks/window');
@@ -70,25 +71,21 @@ define(function (require, exports, module) {
     });
 
     describe('isInExperiment', function () {
-      it('returns if user is in experiment', function () {
-        view.experiments._activeExperiments = {
-          'realExperiment': mockExperiment
-        };
+      it('returns `true` if user is in experiment, `false` if not', function () {
+        sinon.stub(view.experiments, 'isInExperiment', (experimentName) => {
+          return experimentName === 'realExperiment';
+        });
 
         assert.isTrue(view.isInExperiment('realExperiment'));
-      });
-
-      it('returns if user is not in experiment', function () {
-        view.experiments._activeExperiments = {
-          'realExperiment': mockExperiment
-        };
-
         assert.isFalse(view.isInExperiment('fakeExperiment'));
       });
     });
 
     describe('isInExperimentGroup', function () {
       it('returns if user is in experiment group', function () {
+        sinon.stub(view.experiments, 'isInExperiment', (experimentName) => {
+          return experimentName === 'realExperiment';
+        });
         view.experiments._activeExperiments = {
           'realExperiment': mockExperiment
         };
