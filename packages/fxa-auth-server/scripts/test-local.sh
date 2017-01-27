@@ -4,7 +4,7 @@ set -euo pipefail
 
 glob=$*
 if [ "$glob" == "" ]; then
-  glob="test/local test/remote"
+  glob="test/local/* test/remote/*"
 fi
 
 ./scripts/gen_keys.js
