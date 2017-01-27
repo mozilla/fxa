@@ -32,6 +32,10 @@ function (intern, topic, firefoxProfile) {
   var fxaToken = args.fxaToken || 'http://';
   var asyncTimeout = parseInt(args.asyncTimeout || 5000, 10);
 
+  // On Circle, we bail after the first failure.
+  // args.bailAfterFirstFailure comes in as a string.
+  var bailAfterFirstFailure = args.bailAfterFirstFailure === 'true';
+
   if (topic) {
     topic.subscribe('/suite/start', function (suite) {
       console.log('Running: ' + suite.name);
@@ -40,7 +44,9 @@ function (intern, topic, firefoxProfile) {
 
   var config = {
     asyncTimeout: asyncTimeout,
+    bail: bailAfterFirstFailure,
     capabilities: {},
+    defaultTimeout: 45000, // 30 seconds just isn't long enough for some tests.
     environments: [{
       browserName: 'firefox',
       marionette: true
