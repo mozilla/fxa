@@ -106,6 +106,45 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('`navigate` notifier message with `server: true`', () => {
+      beforeEach(() => {
+        sinon.spy(router, 'navigate');
+        sinon.spy(router, 'navigateAway');
+
+        notifier.trigger('navigate', {
+          server: true,
+          url: 'wibble'
+        });
+      });
+
+      it('navigated correctly', () => {
+        assert.equal(router.navigate.callCount, 0);
+        assert.equal(router.navigateAway.callCount, 1);
+        const args = router.navigateAway.args[0];
+        assert.lengthOf(args, 1);
+        assert.equal(args[0], 'wibble');
+      });
+    });
+
+    describe('navigateAway', () => {
+      beforeEach(() => {
+        sinon.spy(metrics, 'flush');
+        sinon.spy(router, 'navigate');
+
+        return router.navigateAway('blee');
+      });
+
+      it('called metrics.flush correctly', () => {
+        assert.equal(metrics.flush.callCount, 1);
+        assert.lengthOf(metrics.flush.args[0], 0);
+      });
+
+      it('navigated correctly', function () {
+        assert.equal(router.navigate.callCount, 0);
+        assert.equal(windowMock.location.href, 'blee');
+      });
+    });
+
     describe('`navigate-back` notifier message', function () {
       beforeEach(function () {
         sinon.spy(router, 'navigateBack');

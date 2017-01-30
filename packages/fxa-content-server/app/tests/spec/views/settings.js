@@ -78,6 +78,7 @@ define(function (require, exports, module) {
       });
 
       sinon.spy(view, 'navigate');
+      sinon.stub(view, 'clearSessionAndNavigateToSignIn', () => {});
     }
 
     beforeEach(function () {
@@ -168,7 +169,6 @@ define(function (require, exports, module) {
           .then(function () {
             assert.isTrue(user.getAccountByUid.calledWith(UID));
             assert.isTrue(user.clearSignedInAccount.calledOnce);
-            assert.isTrue(view.navigate.calledWith('signin'));
           });
       });
     });
@@ -332,65 +332,35 @@ define(function (require, exports, module) {
           });
       });
 
-      describe('signOut', function () {
-        it('on success, signs the user out, clears formPrefill info, redirects to the signin page', function () {
-          sinon.stub(fxaClient, 'signOut', function () {
+      describe('signOut', () => {
+        it('on success, logs events and calls clearSessionAndNavigateToSignIn', () => {
+          sinon.stub(fxaClient, 'signOut', () => {
             return p();
           });
-          sinon.spy(user, 'clearSignedInAccount');
-          sinon.spy(relier, 'unset');
-
-          formPrefill.set('email', 'testuser@testuser.com');
-          formPrefill.set('password', 'password');
 
           return view.signOut()
-            .then(function () {
-              assert.isTrue(user.clearSignedInAccount.called);
-
-              assert.equal(relier.unset.callCount, 2);
-              var args = relier.unset.args[0];
-              assert.lengthOf(args, 1);
-              assert.equal(args[0], 'uid');
-              args = relier.unset.args[1];
-              assert.lengthOf(args, 1);
-              assert.equal(args[0], 'email');
-
-              assert.equal(view.navigate.callCount, 1);
-              args = view.navigate.args[0];
-              assert.lengthOf(args, 3);
-              assert.equal(args[0], 'signin');
-              assert.deepEqual(args[1], {
-                success: 'Signed out successfully'
-              });
-              assert.deepEqual(args[2], {
-                clearQueryParams: true,
-              });
-
+            .then(() => {
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.success'));
               assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.signout.error'));
 
-              assert.isFalse(formPrefill.has('email'));
-              assert.isFalse(formPrefill.has('password'));
-
-              assert.isTrue(view.navigate.calledWith('signin'));
+              assert.equal(view.clearSessionAndNavigateToSignIn.callCount, 1);
+              assert.lengthOf(view.clearSessionAndNavigateToSignIn.args[0], 0);
             });
         });
 
-        it('on error, signs the user out, redirects to signin page', function () {
-          sinon.stub(fxaClient, 'signOut', function () {
+        it('on error, logs events and calls clearSessionAndNavigateToSignIn', () => {
+          sinon.stub(fxaClient, 'signOut', () => {
             return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
           });
-          sinon.spy(user, 'clearSignedInAccount');
 
           return view.signOut()
-            .then(function () {
-              assert.isTrue(user.clearSignedInAccount.called);
+            .then(() => {
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));
               // track the error, but success is still finally called
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.error'));
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.success'));
-              assert.isTrue(view.navigate.calledWith('signin'));
+              assert.equal(view.clearSessionAndNavigateToSignIn.callCount, 1);
             });
         });
       });

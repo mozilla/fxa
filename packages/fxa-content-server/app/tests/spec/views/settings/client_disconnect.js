@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
   const User = require('models/user');
@@ -24,14 +25,16 @@ define(function (require, exports, module) {
     let metrics;
     let model = new Backbone.Model();
     let notifier;
+    let relier;
     let user;
     let view;
     let windowMock;
 
     beforeEach(() => {
       metrics = new Metrics();
-      user = new User();
       notifier = new Notifier();
+      relier = new Relier();
+      user = new User();
       windowMock = new WindowMock();
       attachedClients = new AttachedClients([
         {
@@ -61,10 +64,11 @@ define(function (require, exports, module) {
 
     function createView() {
       view = new View({
-        metrics: metrics,
-        model: model,
-        notifier: notifier,
-        user: user,
+        metrics,
+        model,
+        notifier,
+        relier,
+        user,
         window: windowMock
       });
     }

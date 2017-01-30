@@ -657,6 +657,21 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('navigateAway', () => {
+      beforeEach(() => {
+        sinon.spy(notifier, 'trigger');
+      });
+
+      it('navigates to a page, propagates the clearQueryParams options', () => {
+        view.navigateAway('wibble');
+
+        assert.isTrue(notifier.trigger.calledWith('navigate', {
+          server: true,
+          url: 'wibble'
+        }));
+      });
+    });
+
     describe('focus', () => {
       beforeEach(() => {
         $('#container').html(view.el);

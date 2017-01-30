@@ -763,6 +763,18 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Navigate externally to the application.
+     *
+     * @param {String} url
+     */
+    navigateAway (url) {
+      this.notifier.trigger('navigate', {
+        server: true,
+        url
+      });
+    },
+
+    /**
      * Focus the element with the [autofocus] attribute, if not a touch device.
      * Focusing an element on a touch device causes the virtual keyboard to
      * be displayed, which hides part of the screen.

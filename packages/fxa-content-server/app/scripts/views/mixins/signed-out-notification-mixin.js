@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BaseView = require('views/base');
   const Notifier = require('lib/channels/notifier');
   const Session = require('lib/session');
+  const Url = require('lib/url');
 
   var Mixin = {
     notifications: {
@@ -17,28 +17,27 @@ define(function (require, exports, module) {
     },
 
     clearSessionAndNavigateToSignIn () {
-      // Unset uid otherwise it will henceforth be impossible
-      // to sign in to different accounts inside this tab.
-      this.relier.unset('uid');
-      this.relier.unset('email');
       this.user.clearSignedInAccountUid();
-      if (this._formPrefill) {
-        // The user has manually signed out, a pretty strong indicator
-        // the user does not want any of their information pre-filled
-        // on the signin page. Clear any remaining formPrefill info
-        // to ensure their data isn't sticking around in memory.
-        this._formPrefill.clear();
-      }
       Session.clear();
       this.navigateToSignIn();
     },
 
     navigateToSignIn () {
-      this.navigate('signin', {
-        success: BaseView.t('Signed out successfully')
-      }, {
-        clearQueryParams: true
+      const queryString = Url.objToSearchString({
+        context: this.relier.get('context'),
+        entrypoint: this.relier.get('entrypoint'),
+        service: this.relier.get('service'),
+        /* eslint-disable camelcase */
+        utm_campaign: this.relier.get('utmCampaign'),
+        utm_content: this.relier.get('utmContent'),
+        utm_medium: this.relier.get('utmMedium'),
+        utm_source: this.relier.get('utmSource'),
+        utm_term: this.relier.get('utmTerm')
+        /* eslint-enable camelcase */
       });
+      // Navigate via the back-end in order to regenerate
+      // flow id and flow begin time for the next session.
+      this.navigateAway(`/signin${queryString}`);
     }
   };
 

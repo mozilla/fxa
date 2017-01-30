@@ -129,6 +129,10 @@ define(function (require, exports, module) {
     },
 
     onNavigate (event) {
+      if (event.server) {
+        return this.navigateAway(event.url);
+      }
+
       this._nextViewModel = createViewModel(event.nextViewData);
       this.navigate(event.url, event.routerOptions);
     },
@@ -153,6 +157,20 @@ define(function (require, exports, module) {
       }
 
       return Backbone.Router.prototype.navigate.call(this, url, options);
+    },
+
+    /**
+     * Navigate externally to the application, flushing the metrics
+     * before doing so.
+     *
+     * @param {String} url
+     * @returns {Promise}
+     */
+    navigateAway (url) {
+      return this.metrics.flush()
+        .then(() => {
+          this.window.location.href = url;
+        });
     },
 
     navigateBack () {
