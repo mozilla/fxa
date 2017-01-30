@@ -1,3 +1,9 @@
+<a name="1.79.0"></a>
+# [1.79.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.78.0...v1.79.0) (2017-01-30)
+
+
+
+
 <a name="1.78.0"></a>
 # [1.78.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.77.0...v1.78.0) (2017-01-30)
 
