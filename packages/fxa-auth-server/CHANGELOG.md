@@ -1,3 +1,23 @@
+<a name="1.78.0"></a>
+# [1.78.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.77.0...v1.78.0) (2017-01-30)
+
+
+### chore
+
+* **docs:** update AUTHORS file (#252) ([1a96ee3](https://github.com/mozilla/fxa-auth-mailer/commit/1a96ee3))
+
+### Features
+
+* **mailer:** set up "SES Event Publishing" metrics ([56bd661](https://github.com/mozilla/fxa-auth-mailer/commit/56bd661))
+
+### Refactor
+
+* **mailer:** hoist headers, to be symmetric with other code ([a59e1bc](https://github.com/mozilla/fxa-auth-mailer/commit/a59e1bc))
+* **templates:** Update to correct details styling (#248) ([42aafdf](https://github.com/mozilla/fxa-auth-mailer/commit/42aafdf))
+* **templates:** Update to correct font-size and line height (#249) r=vladikoff,ryanfeeley ([d0cf249](https://github.com/mozilla/fxa-auth-mailer/commit/d0cf249)), closes [#246](https://github.com/mozilla/fxa-auth-mailer/issues/246)
+
+
+
 <a name="1.77.0"></a>
 # [1.77.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.76.0...v1.77.0) (2017-01-04)
 
