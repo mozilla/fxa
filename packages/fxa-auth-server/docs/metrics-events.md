@@ -55,6 +55,7 @@ in a sign-in or sign-up flow:
 |`email.confirmation.resent`|A sign-in confirmation email has been re-sent to a user.|
 |`email.verification.resent`|A sign-up verification email has been re-sent to a user.|
 |`email.verify_code.clicked`|A user has clicked on the link in a confirmation/verification email.|
+|`email.${templateName}.delivered`|An email was delivered to a user.|
 |`account.confirmed`|Sign-in to an existing account has been confirmed via email.|
 |`account.reminder`|A new account has been verified via a reminder email.|
 |`account.verified`|A new account has been verified via email.|
@@ -81,6 +82,7 @@ to a flow:
 |----|-----------|
 |`customs.blocked`|A request was blocked by the customs server.|
 |`route.${path}.${statusCode}.${errno}`| A route responded with a >=400 status code. Includes `errno`. Example: `route./account/login.400.103`|
+|`email.${templateName}.bounced`|An email bounced.|
 
 In redshift,
 these events are stored
@@ -110,14 +112,14 @@ contains the following fields:
 |`ua_version`|The user's browser version.|
 |`ua_os`|The user's operating system.|
 |`context`|FxA auth broker context.|
-|`entrypoint`|The entrypoint for the flow.|
+|`entrypoint`|The entrypoint of the first flow in the session.|
 |`migration`|Sync migration.|
 |`service`|The service identifier. For Sync it may be empty or `sync`. For OAuth reliers it is their hex id.|
-|`utm_campaign`|Marketing campaign identifier. Not stored if the `DNT` request header was `1`.|
-|`utm_content`|Marketing campaign content identifier. Not stored if the `DNT` request header was `1`.|
-|`utm_medium`|Marketing campaign medium. Not stored if the `DNT` request header was `1`.|
-|`utm_source`|Marketing campaign source. Not stored if the `DNT` request header was `1`.|
-|`utm_term`|Marketing campaign search term. Not stored if the `DNT` request header was `1`.|
+|`utm_campaign`|Marketing campaign identifier for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_content`|Marketing campaign content identifier for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_medium`|Marketing campaign medium for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_source`|Marketing campaign source for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_term`|Marketing campaign search term for the first flow in the session. Not stored if the `DNT` request header was `1`.|
 
 The `flow_events` table
 contains the following fields:
@@ -197,6 +199,16 @@ on a different device
 in the preceding five days.
 
 ## Significant changes
+
+### Train 78
+
+* [Logging for the `route.*` events
+  was fixed]
+  (https://github.com/mozilla/fxa-auth-server/pull/1606).
+
+* [Logging for the `email.${templateName}.bounced` event
+  was fixed]
+  (https://github.com/mozilla/fxa-auth-server/pull/1609).
 
 ### Train 76
 
