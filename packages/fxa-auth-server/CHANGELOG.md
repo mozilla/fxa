@@ -1,3 +1,31 @@
+<a name="1.79.0"></a>
+# [1.79.0](https://github.com/mozilla/fxa-auth-server/compare/v1.78.0...v1.79.0) (2017-01-30)
+
+
+### Bug Fixes
+
+* **email:** turn on SES Event Publishing metrics ([9105f87](https://github.com/mozilla/fxa-auth-server/commit/9105f87))
+* **logging:** Log bounced complaint ([0fa378e](https://github.com/mozilla/fxa-auth-server/commit/0fa378e))
+* **logging:** Log templates that don't have flow event data (#1618), r=@philbooth ([e6a1b87](https://github.com/mozilla/fxa-auth-server/commit/e6a1b87))
+
+### chore
+
+* **mailer:** update fxa-auth-mailer (and other shrinkwrap) (#1620) ([04aa467](https://github.com/mozilla/fxa-auth-server/commit/04aa467))
+
+### Features
+
+* **ci:** add config for cross-repo testing ([81428f3](https://github.com/mozilla/fxa-auth-server/commit/81428f3))
+* **email:** Add flow events for email delivery notifications (#1626), r=@philbooth ([2e84e07](https://github.com/mozilla/fxa-auth-server/commit/2e84e07))
+* **ip-profiling:** make IP Profiling allowed recency use config (#1615), r=@vbudhram ([ca4419a](https://github.com/mozilla/fxa-auth-server/commit/ca4419a)), closes [#1614](https://github.com/mozilla/fxa-auth-server/issues/1614)
+* **logs:** log endpoint errors for better debugging (#1627) r=vbudhram,philbooth ([3719437](https://github.com/mozilla/fxa-auth-server/commit/3719437))
+
+### Refactor
+
+* **email:** Don't flag logins with incorrect email case (#1623). r=@rfk ([88cd267](https://github.com/mozilla/fxa-auth-server/commit/88cd267))
+* **tests:** Reorganize local tests (#1629) r=vladikoff,philbooth ([38d4957](https://github.com/mozilla/fxa-auth-server/commit/38d4957))
+
+
+
 <a name="1.78.0"></a>
 # [1.78.0](https://github.com/mozilla/fxa-auth-server/compare/v1.77.0...v1.78.0) (2017-01-11)
 
