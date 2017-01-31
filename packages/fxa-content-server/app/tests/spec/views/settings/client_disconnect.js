@@ -188,6 +188,25 @@ define(function (require, exports, module) {
         });
       });
 
+      it('a click on the "Got it" button returns to `settings/clients`', () => {
+        model.set({
+          clientId: 'device-1',
+          clients: attachedClients
+        });
+
+        sinon.stub(view, 'navigate', () => {});
+
+        return view.render().then(() => {
+          $(view.el).find('input[name=disconnect-reasons][value=lost]').prop('checked', true).change();
+          return view.submit().then(() => {
+            assert.ok(view.hasDisconnected);
+            view.$el.find('button[type=submit]').click();
+            assert.isTrue(view.navigate.calledOnce);
+            assert.isTrue(view.navigate.calledWith('settings/clients'));
+          });
+        });
+      });
+
       it('lost option with not a current device', () => {
         model.set({
           clientId: 'device-1',

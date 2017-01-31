@@ -29,6 +29,7 @@ define(function (require, exports, module) {
       'change .disconnect-reasons': 'onChangeRadioButton',
       'click': '_returnToClientListAfterDisconnect',
       'click .cancel-disconnect': FormView.preventDefaultThen('_returnToClientList'),
+      'click button[type=submit]': '_returnToConnectAnotherDevice',
     },
 
     initialize () {
@@ -69,10 +70,14 @@ define(function (require, exports, module) {
     /**
      * Called on option select.
      * If first option is selected then form is disabled using the logic in FormView.
+     * If the client was disconnected then the user can press the 'Got it' button to close the modal.
      *
      * @returns {Boolean}
      */
     isValidStart () {
+      if (this.hasDisconnected) {
+        return true;
+      }
       return (this.$('input[name=disconnect-reasons]:checked').length > 0);
     },
 
