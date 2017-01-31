@@ -52,8 +52,16 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
               if (sessionToken.deviceId) {
                 deviceId = sessionToken.deviceId.toString('hex')
               } else if (! service || service === 'sync') {
-                // Synthesize a device record for Sync sessions that don't already have one
-                return devices.upsert(request, sessionToken, {})
+                // Synthesize a device record for Sync sessions that don't already have one.
+                // Include the UA info so that we can synthesize a device name
+                // for any push notifications.
+                var deviceInfo = {
+                  uaBrowser: sessionToken.uaBrowser,
+                  uaBrowserVersion: sessionToken.uaBrowserVersion,
+                  uaOS: sessionToken.uaOS,
+                  uaOSVersion: sessionToken.uaOSVersion
+                }
+                return devices.upsert(request, sessionToken, deviceInfo)
                   .then(
                     function (result) {
                       deviceId = result.id.toString('hex')

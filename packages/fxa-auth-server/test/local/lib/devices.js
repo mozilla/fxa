@@ -18,20 +18,25 @@ describe('devices', () => {
   })
 
   describe('instance', () => {
-    var log = mocks.spyLog()
-    var deviceCreatedAt = Date.now()
-    var deviceId = crypto.randomBytes(16)
-    var device = {
-      name: 'foo',
-      type: 'bar'
-    }
-    var db = mocks.mockDB({
-      device: device,
-      deviceCreatedAt: deviceCreatedAt,
-      deviceId: deviceId
+
+    var log, deviceCreatedAt, deviceId, device, db, push, devices
+
+    beforeEach(() => {
+      log = mocks.spyLog()
+      deviceCreatedAt = Date.now()
+      deviceId = crypto.randomBytes(16)
+      device = {
+        name: 'foo',
+        type: 'bar'
+      }
+      db = mocks.mockDB({
+        device: device,
+        deviceCreatedAt: deviceCreatedAt,
+        deviceId: deviceId
+      })
+      push = mocks.mockPush()
+      devices = require(modulePath)(log, db, push)
     })
-    var push = mocks.mockPush()
-    var devices = require(modulePath)(log, db, push)
 
     it('should instantiate', () => {
 
@@ -47,13 +52,18 @@ describe('devices', () => {
     })
 
     describe('.upsert', () => {
-      const request = mocks.mockRequest({
-        log: log
+
+      var request, sessionToken
+
+      beforeEach(() => {
+        request = mocks.mockRequest({
+          log: log
+        })
+        sessionToken = {
+          tokenId: crypto.randomBytes(16),
+          uid: uuid.v4('binary')
+        }
       })
-      var sessionToken = {
-        tokenId: crypto.randomBytes(16),
-        uid: uuid.v4('binary')
-      }
 
       it('should create', () => {
         return devices.upsert(request, sessionToken, device)
@@ -108,16 +118,11 @@ describe('devices', () => {
             assert.equal(args[1], device.name, 'second arguent was device name')
             assert.equal(args[2], deviceId.toString('hex'), 'third argument was device id')
           })
-          .then(function () {
-            db.createDevice.reset()
-            push.notifyDeviceConnected.reset()
-            log.activityEvent.reset()
-            log.notifyAttachedServices.reset()
-          })
       })
 
       it('should create placeholders', () => {
-        return devices.upsert(request, sessionToken, {})
+        delete device.name
+        return devices.upsert(request, sessionToken, { uaBrowser: 'Firefox' })
           .then(function (result) {
             assert.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called')
             assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once')
@@ -137,13 +142,9 @@ describe('devices', () => {
             assert.equal(log.notifyAttachedServices.args[0][2].isPlaceholder, true, 'isPlaceholder was correct')
 
             assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once')
-          })
-          .then(function () {
-            db.createDevice.reset()
-            push.notifyDeviceConnected.reset()
-            log.activityEvent.reset()
-            log.info.reset()
-            log.notifyAttachedServices.reset()
+            assert.equal(push.notifyDeviceConnected.args[0][0], sessionToken.uid, 'uid was correct')
+            assert.equal(push.notifyDeviceConnected.args[0][1], 'Firefox', 'device name was included')
+
           })
       })
 
@@ -187,11 +188,6 @@ describe('devices', () => {
             assert.equal(log.notifyAttachedServices.callCount, 0, 'log.notifyAttachedServices was not called')
 
             assert.equal(push.notifyDeviceConnected.callCount, 0, 'push.notifyDeviceConnected was not called')
-          })
-          .then(function () {
-            db.createDevice.reset()
-            log.activityEvent.reset()
-            log.notifyAttachedServices.reset()
           })
       })
     })

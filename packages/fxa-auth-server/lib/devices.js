@@ -19,7 +19,7 @@ module.exports = function (log, db, push) {
       operation = 'createDevice'
       event = 'device.created'
     }
-    var isPlaceholderDevice = Object.keys(deviceInfo).length === 0
+    var isPlaceholderDevice = ! deviceInfo.id && ! deviceInfo.name && ! deviceInfo.type
 
     return db[operation](sessionToken.uid, sessionToken.tokenId, deviceInfo)
       .then(function (device) {
@@ -32,7 +32,13 @@ module.exports = function (log, db, push) {
       })
       .then(function () {
         if (operation === 'createDevice') {
-          push.notifyDeviceConnected(sessionToken.uid, result.name, result.id.toString('hex'))
+          // Clients expect this notification to always include a name,
+          // so try to synthesize one if necessary.
+          var deviceName = result.name
+          if (! deviceName) {
+            deviceName = synthesizeName(deviceInfo)
+          }
+          push.notifyDeviceConnected(sessionToken.uid, deviceName, result.id.toString('hex'))
           if (isPlaceholderDevice) {
             log.info({
               op: 'device:createPlaceholder',

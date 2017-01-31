@@ -28,6 +28,10 @@ describe('/certificate/sign', () => {
       },
       locale: 'en',
       tokenId: crypto.randomBytes(16),
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '55',
+      uaOS: 'Windows',
+      uaOSVersion: '10',
       uid: uuid.v4('binary')
     },
     log: mockLog,
@@ -52,7 +56,12 @@ describe('/certificate/sign', () => {
       assert.equal(args.length, 3, 'devices.upsert was passed one argument')
       assert.equal(args[0], mockRequest, 'first argument was request object')
       assert.equal(args[1], mockRequest.auth.credentials, 'second argument was sessionToken')
-      assert.deepEqual(args[2], {}, 'third argument was empty object')
+      assert.deepEqual(args[2], {
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '55',
+        uaOS: 'Windows',
+        uaOSVersion: '10',
+      }, 'third argument was UA info')
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       args = mockLog.activityEvent.args[0]
@@ -66,7 +75,7 @@ describe('/certificate/sign', () => {
         userAgent: 'test user-agent'
       }, 'argument was event data')
     })
-    .then(function () {
+    .finally(function () {
       mockLog.activityEvent.reset()
       mockDevices.upsert.reset()
     })
@@ -82,7 +91,7 @@ describe('/certificate/sign', () => {
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
     })
-    .then(function () {
+    .finally(function () {
       mockLog.activityEvent.reset()
       mockDevices.upsert.reset()
     })
@@ -99,7 +108,7 @@ describe('/certificate/sign', () => {
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       assert.equal(mockLog.activityEvent.args[0][0].device_id, undefined, 'device_id was undefined')
     })
-    .then(function () {
+    .finally(function () {
       mockLog.activityEvent.reset()
       mockDevices.upsert.reset()
     })
@@ -117,7 +126,7 @@ describe('/certificate/sign', () => {
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       assert.equal(mockLog.activityEvent.args[0][0].device_id, mockRequest.auth.credentials.deviceId.toString('hex'), 'device_id was correct')
     })
-    .then(function () {
+    .finally(function () {
       mockLog.activityEvent.reset()
       mockDevices.upsert.reset()
     })
