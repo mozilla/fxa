@@ -245,7 +245,7 @@ describe('/account/devices/notify', function () {
       assert.equal(args[0], uid.toString('hex'), 'first argument was the device uid')
       assert.equal(args[1], 'devicesNotify', 'second argument was the devicesNotify reason')
       assert.deepEqual(args[2], {
-        data: new Buffer(JSON.stringify(pushPayload)),
+        data: Buffer.from(JSON.stringify(pushPayload)),
         excludedDeviceIds: ['bogusid'],
         TTL: 60
       }, 'third argument was the push options')
@@ -268,7 +268,7 @@ describe('/account/devices/notify', function () {
       assert.deepEqual(args[1], ['bogusid1', 'bogusid2'], 'second argument was the list of device ids')
       assert.equal(args[2], 'devicesNotify', 'third argument was the devicesNotify reason')
       assert.deepEqual(args[3], {
-        data: new Buffer(JSON.stringify(pushPayload)),
+        data: Buffer.from(JSON.stringify(pushPayload)),
         TTL: 60
       }, 'fourth argument was the push options')
     })

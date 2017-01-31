@@ -13,9 +13,9 @@ describe('hkdf', () => {
     'should extract',
     () => {
       let stretchedPw = 'c16d46c31bee242cb31f916e9e38d60b76431d3f5304549cc75ae4bc20c7108c'
-      stretchedPw = new Buffer (stretchedPw, 'hex')
+      stretchedPw = Buffer.from (stretchedPw, 'hex')
       const info = 'mainKDF'
-      const salt =  new Buffer ('00f000000000000000000000000000000000000000000000000000000000034d', 'hex')
+      const salt =  Buffer.from ('00f000000000000000000000000000000000000000000000000000000000034d', 'hex')
       const lengthHkdf = 2 * 32
 
       return hkdf(stretchedPw, info, salt, lengthHkdf)

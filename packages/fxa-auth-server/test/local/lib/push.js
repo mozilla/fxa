@@ -13,7 +13,7 @@ var path = require('path')
 
 var P = require('../../../lib/promise')
 var mockLog = require('../../mocks').mockLog
-var mockUid = new Buffer('foo')
+var mockUid = Buffer.from('foo')
 var mockConfig = {}
 
 var PUSH_PAYLOADS_SCHEMA_PATH = '../../../docs/pushpayloads.schema.json'
@@ -109,7 +109,7 @@ describe('push', () => {
       var push = require(pushModulePath)(mockLog(), mockDbResult, mockConfig)
       sinon.stub(push, 'sendPush')
       var excluded = [mockDevices[0].id]
-      var data = new Buffer('foobar')
+      var data = Buffer.from('foobar')
       var options = { data: data, excludedDeviceIds: excluded, TTL: TTL }
       return push.pushToAllDevices(mockUid, 'deviceConnected', options)
       .then(function() {
@@ -128,7 +128,7 @@ describe('push', () => {
     () => {
       var push = require(pushModulePath)(mockLog(), mockDbResult, mockConfig)
       sinon.stub(push, 'sendPush')
-      var data = new Buffer('foobar')
+      var data = Buffer.from('foobar')
       var options = { data: data, TTL: TTL }
       return push.pushToDevices(mockUid, [mockDevices[0].id], 'deviceConnected', options)
       .then(function() {
@@ -147,7 +147,7 @@ describe('push', () => {
     () => {
       var push = require(pushModulePath)(mockLog(), mockDbResult, mockConfig)
       sinon.stub(push, 'pushToDevices')
-      var data = new Buffer('foobar')
+      var data = Buffer.from('foobar')
       var options = { data: data, TTL: TTL }
       push.pushToDevice(mockUid, mockDevices[0].id, 'deviceConnected', options)
 
@@ -225,7 +225,7 @@ describe('push', () => {
     'sendPush sends data',
     () => {
       var count = 0
-      var data = new Buffer('foobar')
+      var data = Buffer.from('foobar')
       var mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
@@ -268,7 +268,7 @@ describe('push', () => {
       }]
 
       var push = require(pushModulePath)(thisMockLog, mockDbResult, mockConfig)
-      var options = { data: new Buffer('foobar') }
+      var options = { data: Buffer.from('foobar') }
       return push.sendPush(mockUid, devices, 'accountVerify', options)
         .then(() => {
           assert.equal(count, 1)

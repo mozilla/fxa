@@ -196,7 +196,7 @@ module.exports = function (log, config) {
     // to check that the metrics came from the right place, without having to
     // share state between content-server and auth-server.
     const flowSignature = metadata.flowId.substr(FLOW_ID_LENGTH / 2, FLOW_ID_LENGTH)
-    const flowSignatureBytes = new Buffer(flowSignature, 'hex')
+    const flowSignatureBytes = Buffer.from(flowSignature, 'hex')
     const expectedSignatureBytes = calculateFlowSignatureBytes(this, metadata)
     if (! bufferEqualConstantTime(flowSignatureBytes, expectedSignatureBytes)) {
       return logInvalidContext(this, 'invalid signature')
@@ -277,4 +277,3 @@ function calculateFlowTime (time, flowBeginTime) {
 }
 
 module.exports.schema = SCHEMA
-
