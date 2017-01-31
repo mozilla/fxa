@@ -32,6 +32,28 @@ define([
           );
       });
 
+      test('_required', () => {
+        assert.doesNotThrow(() => {
+          client._required(true, 'true_boolean');
+          client._required(false, 'false_boolean');
+          client._required('string', 'string');
+          client._required({ hasValue: true }, 'object_with_value');
+          client._required(1, 'number');
+          client._required(0, 'zero');
+        });
+
+        assert.throws(() => {
+          client._required('', 'empty_string');
+        });
+
+        assert.throws(() => {
+          client._required({}, 'empty_object');
+        });
+
+        assert.throws(() => {
+          client._required(null, 'null');
+        });
+      });
     });
   }
 });

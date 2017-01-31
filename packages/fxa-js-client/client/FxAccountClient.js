@@ -16,8 +16,27 @@ define([
   var uriVersionRegExp = new RegExp('/' + VERSION + '$');
   var HKDF_SIZE = 2 * 32;
 
+  function isUndefined(val) {
+    return typeof val === 'undefined';
+  }
+
+  function isNull(val) {
+    return val === null;
+  }
+
+  function isEmptyObject(val) {
+    return Object.prototype.toString.call(val) === '[object Object]' && ! Object.keys(val).length;
+  }
+
+  function isEmptyString(val) {
+    return val === '';
+  }
+
   function required(val, name) {
-    if (!val || val === {}) {
+    if (isUndefined(val) ||
+        isNull(val) ||
+        isEmptyObject(val) ||
+        isEmptyString(val)) {
       throw new Error('Missing ' + name);
     }
   }
@@ -1113,6 +1132,15 @@ define([
 
     return this.request.send('/account/login/reject_unblock_code', 'POST', null, data);
   };
+
+  /**
+   * Check for a required argument. Exposed for unit testing.
+   *
+   * @param {Value} val - value to check
+   * @param {String} name - name of value
+   * @throws {Error} if argument is falsey, or an empty object
+   */
+  FxAccountClient.prototype._required = required;
 
   return FxAccountClient;
 });
