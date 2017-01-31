@@ -200,6 +200,14 @@ in the preceding five days.
 
 ## Significant changes
 
+### Train 80
+
+* [A known cause
+  of duplicate flow ids
+  being logged
+  was fixed]
+  (https://github.com/mozilla/fxa-content-server/pull/4676).
+
 ### Train 78
 
 * [Logging for the `route.*` events
