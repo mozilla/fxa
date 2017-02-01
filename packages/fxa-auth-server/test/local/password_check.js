@@ -32,12 +32,12 @@ describe('password_check', () => {
   it(
     'should check with correct password',
     () => {
-      var authPW = new Buffer('aaaaaaaaaaaaaaaa')
+      var authPW = Buffer.from('aaaaaaaaaaaaaaaa')
       var emailRecord = {
         uid: 'correct_password',
         verifyHash: null,
         verifierVersion: 0,
-        authSalt: new Buffer('bbbbbbbbbbbbbbbb')
+        authSalt: Buffer.from('bbbbbbbbbbbbbbbb')
       }
       MockCustoms.flag.reset()
 
@@ -64,13 +64,13 @@ describe('password_check', () => {
   it(
     'should return false when check with incorrect password',
     () => {
-      var authPW = new Buffer('aaaaaaaaaaaaaaaa')
+      var authPW = Buffer.from('aaaaaaaaaaaaaaaa')
       var emailRecord = {
         uid: 'uid',
         email: 'test@example.com',
         verifyHash: null,
         verifierVersion: 0,
-        authSalt: new Buffer('bbbbbbbbbbbbbbbb')
+        authSalt: Buffer.from('bbbbbbbbbbbbbbbb')
       }
       MockCustoms.flag.reset()
 
@@ -82,7 +82,7 @@ describe('password_check', () => {
           function (hash) {
             emailRecord.verifyHash = hash
 
-            var incorrectAuthPW = new Buffer('cccccccccccccccc')
+            var incorrectAuthPW = Buffer.from('cccccccccccccccc')
 
             return checkPassword(emailRecord, incorrectAuthPW, CLIENT_ADDRESS)
           }
@@ -113,7 +113,7 @@ describe('password_check', () => {
       }
       MockCustoms.flag.reset()
 
-      var incorrectAuthPW = new Buffer('cccccccccccccccc')
+      var incorrectAuthPW = Buffer.from('cccccccccccccccc')
 
       return checkPassword(emailRecord, incorrectAuthPW, CLIENT_ADDRESS)
         .then(

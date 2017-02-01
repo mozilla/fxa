@@ -77,7 +77,7 @@ describe('remote push db', function() {
         name: 'my push device',
         type: 'mobile',
         pushCallback: 'https://foo/bar',
-        pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
+        pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
         pushAuthKey: base64url(crypto.randomBytes(16))
       }
       // two tests below, first for unknown 400 level error the device push info will stay the same

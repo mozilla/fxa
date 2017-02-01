@@ -1323,7 +1323,7 @@ module.exports = function (
           throw error.invalidRequestParameter('invalid payload')
         }
         var pushOptions = {
-          data: new Buffer(JSON.stringify(payload))
+          data: Buffer.from(JSON.stringify(payload))
         }
         if (body.excluded) {
           pushOptions.excludedDeviceIds = body.excluded

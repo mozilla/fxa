@@ -10,7 +10,7 @@ var proxyquire = require('proxyquire')
 var P = require('../../lib/promise')
 var config = require('../../config').getProperties()
 var spyLog = require('../mocks').spyLog
-var mockUid = new Buffer('foo')
+var mockUid = Buffer.from('foo')
 
 var PushManager = require('../push_helper').PushManager
 
@@ -59,7 +59,7 @@ describe('e2e/push', () => {
 
         var push = proxyquire('../../lib/push', {})(thisSpyLog, mockDbResult, config)
         var options = {
-          data: new Buffer('foodata')
+          data: Buffer.from('foodata')
         }
         return push.pushToAllDevices(mockUid, 'accountVerify', options).then(function() {
           assert.equal(thisSpyLog.error.callCount, 0, 'No errors should have been logged')

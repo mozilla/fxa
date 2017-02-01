@@ -12,7 +12,7 @@ const Client = require('../client')()
 var config = require('../../config').getProperties()
 
 function makeMockOAuthHeader(opts) {
-  var token = new Buffer(JSON.stringify(opts)).toString('hex')
+  var token = Buffer.from(JSON.stringify(opts)).toString('hex')
   return 'Bearer ' + token
 }
 

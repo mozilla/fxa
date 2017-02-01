@@ -389,7 +389,7 @@ describe('remote password forgot', function() {
               name: 'baz',
               type: 'mobile',
               pushCallback: 'https://example.com/qux',
-              pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
+              pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
               pushAuthKey: base64url(crypto.randomBytes(16))
             })
           }

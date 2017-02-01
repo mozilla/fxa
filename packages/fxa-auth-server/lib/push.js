@@ -168,7 +168,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyDeviceConnected: function notifyDeviceConnected(uid, deviceName, currentDeviceId) {
-      var data = new Buffer(JSON.stringify({
+      var data = Buffer.from(JSON.stringify({
         version: PUSH_PAYLOAD_SCHEMA_VERSION,
         command: PUSH_COMMANDS.DEVICE_CONNECTED,
         data: {
@@ -187,7 +187,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyDeviceDisconnected: function notifyDeviceDisconnected(uid, idToDisconnect) {
-      var data = new Buffer(JSON.stringify({
+      var data = Buffer.from(JSON.stringify({
         version: PUSH_PAYLOAD_SCHEMA_VERSION,
         command: PUSH_COMMANDS.DEVICE_DISCONNECTED,
         data: {
@@ -206,7 +206,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyPasswordChanged: function notifyPasswordChanged(uid, devices) {
-      var data = new Buffer(JSON.stringify({
+      var data = Buffer.from(JSON.stringify({
         version: PUSH_PAYLOAD_SCHEMA_VERSION,
         command: PUSH_COMMANDS.PASSWORD_CHANGED
       }))
@@ -222,7 +222,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyPasswordReset: function notifyPasswordReset(uid, devices) {
-      var data = new Buffer(JSON.stringify({
+      var data = Buffer.from(JSON.stringify({
         version: PUSH_PAYLOAD_SCHEMA_VERSION,
         command: PUSH_COMMANDS.PASSWORD_RESET
       }))
