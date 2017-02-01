@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
+const validators = require('./validators')
+
 module.exports = function (log, P, isA, error, signer, db, domain, devices) {
 
   const HOUR = 1000 * 60 * 60
@@ -16,6 +20,9 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
           payload: 'required'
         },
         validate: {
+          query: {
+            service: validators.service
+          },
           payload: {
             publicKey: isA.object({
               algorithm: isA.string().valid('RS', 'DS').required(),

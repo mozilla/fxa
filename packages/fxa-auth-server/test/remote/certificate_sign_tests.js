@@ -108,14 +108,6 @@ describe('remote certificate sign', function() {
           () => assert(false),
           function (err) {
             assert.equal(err.code, 400, 'empty object as publicKey')
-            // invalid publicKey argument
-            return client.sign({ algorithm: 'RS', n: 'x', e: 'y', invalid: true }, 1000)
-          }
-        )
-        .then(
-          () => assert(false),
-          function (err) {
-            assert.equal(err.code, 400, 'invalid publicKey argument')
             // undefined duration
             return client.sign({ algorithm: 'RS', n: 'x', e: 'y' }, undefined)
           }
