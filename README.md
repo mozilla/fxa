@@ -1,8 +1,8 @@
 # Welcome to Firefox Accounts [![Build Status](https://travis-ci.org/mozilla/fxa.svg?branch=master)](https://travis-ci.org/mozilla/fxa) [![Documentation Status](https://readthedocs.org/projects/fxa/badge/?version=latest)](https://readthedocs.org/projects/fxa/?badge=latest)
 
 Firefox Accounts is the authentication and authorization system for Cloud
-Services at Mozilla, providing access to services such as Firefox Sync and
-Firefox Hello.
+Services at Mozilla, providing access to services such as Firefox Sync, Pocket and
+Addons.Mozilla.org.
 
 This repository contains documentation for getting started with Firefox
 Accounts development.  Most of the actual code for the service lives in
