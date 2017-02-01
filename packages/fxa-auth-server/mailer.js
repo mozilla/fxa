@@ -92,7 +92,8 @@ module.exports = function (log) {
   function Mailer(translator, templates, config, sender) {
     var options = {
       host: config.host,
-      secureConnection: config.secure,
+      secure: config.secure,
+      ignoreTLS: !config.secure,
       port: config.port
     }
 
@@ -107,7 +108,7 @@ module.exports = function (log) {
     this.initiatePasswordChangeUrl = config.initiatePasswordChangeUrl
     this.initiatePasswordResetUrl = config.initiatePasswordResetUrl
     this.iosUrl = config.iosUrl
-    this.mailer = sender || nodemailer.createTransport('SMTP', options)
+    this.mailer = sender || nodemailer.createTransport(options)
     this.passwordManagerInfoUrl = config.passwordManagerInfoUrl
     this.passwordResetUrl = config.passwordResetUrl
     this.privacyUrl = config.privacyUrl

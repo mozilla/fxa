@@ -19,6 +19,7 @@ var dbBackend = config.get('db').backend
  */
 module.exports = function () {
   function dbConnect() {
+    var cancelled = false
     function dbConnectPoll() {
       return DB.connect(config.get(dbBackend))
         .then(
@@ -28,7 +29,14 @@ module.exports = function () {
           function (err) {
             if (err && err.message && err.message.indexOf('ECONNREFUSED') > -1) {
               log.warn('db', {message: 'Failed to connect to database, retrying...'})
-              return P.delay(dbConnectionRetry).then(dbConnectPoll)
+              if (!cancelled) {
+                return P.delay(dbConnectionRetry)
+                  .then(function () {
+                    if (!cancelled) {
+                      return dbConnectPoll()
+                    }
+                  })
+              }
             } else {
               log.error('db', {err: err})
             }
@@ -37,10 +45,9 @@ module.exports = function () {
     }
 
     return dbConnectPoll()
-      // 'cancellable' means the Promise chain will stop polling after the timeout below.
-      .cancellable()
       .timeout(dbConnectionTimeout)
       .catch(function (err) {
+        cancelled = true
         // report any errors to the db log and rethrow it to the consumer.
         log.error('db', {err: err})
         throw err
