@@ -32,16 +32,33 @@ function waitLoop(testServer, url, cb) {
   )
 }
 
+function isDebug(){
+  return global.v8debug ? true : false
+}
+
 TestServer.prototype.start = function (cb) {
   if (!this.server) {
+    var spawnOptions = ['./customs_server_stub.js']
+
+    var nextDebugPort = process.debugPort + 2
+    if (isDebug()) {
+      spawnOptions.unshift('--debug-brk=' + nextDebugPort)
+    }
+
     this.server = cp.spawn(
       'node',
-      ['./customs_server_stub.js'],
+      spawnOptions,
       {
         cwd: __dirname,
-        stdio: 'ignore'
+        stdio: isDebug() ? 'pipe' : 'ignore'
       }
     )
+
+    // Always log console when debugging
+    if (isDebug()) {
+      this.server.stdout.on('data', process.stdout.write.bind(process.stdout))
+      this.server.stderr.on('data', process.stderr.write.bind(process.stderr))
+    }
   }
 
   waitLoop(this, this.url, function (err) {
