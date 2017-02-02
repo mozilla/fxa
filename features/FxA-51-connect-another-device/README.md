@@ -97,7 +97,7 @@ Once a user verifies their email address, the updated flow nudges users to conne
 
 ![Proposed Sync onboarding experience](proposed-sync-onboarding.png)
 
-#### Screenshots
+### New flow screenshots
 
 1. User is asked to confirm email address
 
@@ -105,19 +105,8 @@ Once a user verifies their email address, the updated flow nudges users to conne
 2. Email prepares the user for next steps
 
 <img src="ready-set-sync-email.png" alt="Updated sync specific email" width="300" /><br />
-3. Depending on where the user confirms their email address, they will see one of the following screens:
-  1. User confirms on same device or in a non-Firefox browser
+3. Depending on where the user confirms their email address, they will see one of several screens. See [Acceptance criteria/Testing](#acceptance-criteriatesting) for a list of possible screens.
 
-  <img src="setup-firefox-on-smartphone.png" alt="Setup Firefox on your smartphone screen" width="300" /><br />
-  2. User confirms in a second instance of Firefox for Android
-
-  <img src="signin-this-firefox.png" alt="Sign in to this Firefox screen" width="300" /><br />
-  3. User confirms in Firefox for iOS
-
-  <img alt="Sign in to this Firefox for iOS screen" src="signin-this-firefox-ios.png" width="300" /><br />
-  4. User confirms email in Safari for iOS
-
-  <img alt="Install Firefox for iOS screen" src="install-firefox-ios.png" width="300" /><br />
 4. Users who click on the "Why is this required" link are displayed content that explains why Sync depends upon two or more devices
 
 <img alt="Why is this required content" src="why-is-this-required.png" width="300" />
@@ -142,97 +131,68 @@ The UI presented to the user changes depending on where the user verifies their 
 
 The convention used below is section headings indicate where the user signs up, section sub-headings indicate where the user opens the verification link.
 
-#### Signup in Firefox Desktop
 
-##### Verify in the same Firefox Desktop.
-When verification is complete:
-  * A green status message should appear that says "This Firefox is connected".
-  * User should see text that says "Complete set-up by connecting Firefox for your smartphone"
-  * Links to both Apple and Google app stores are available.
-  * Clicking on "Why is this required" should show the help text.
 
-##### Verify in Firefox Desktop on another device.
-When verification is complete:
-  * A green status message should appear that says "Email confirmed"
-  * User should see text that says "Complete set-up by signing in to this Firefox."
-  * Clicking on "Why is this required" should show the help text.
-  * Clicking on the "Sign in" button redirects the user to the /signin screen.
-    * The email should be prefilled.
-    * Signing in should connect Firefox to Sync.
 
-##### Verify in Firefox for Android.
-Same as [Sign up for Sync on Firefox Desktop, verify in Firefox Desktop on another device.](#verify-in-firefox-desktop-on-another-device)
+|Signup → <br/>Verify ↓ | Fx Desktop                | Fx Android                | Fx iOS                    |
+|-----------------------|---------------------------|---------------------------|---------------------------|
+|Same Fx Desktop        | [Behavior 1](#behavior-1) | x                         | x                         |
+|Other Fx Desktop       | [Behavior 2](#behavior-2) | [Behavior 2](#behavior-2) | [Behavior 2](#behavior-2) |
+|Same Fx Android        | x                         | [Behavior 1](#behavior-1) | x                         |
+|Other Fx Android       | [Behavior 2](#behavior-2) | [Behavior 2](#behavior-2) | [Behavior 2](#behavior-2) |
+|Same Fx iOS            | x                         | x                         | [Behavior 1](#behavior-1) |
+|Other Fx iOS           | [Behavior 3](#behavior-3) | [Behavior 3](#behavior-3) | [Behavior 3](#behavior-3) |
+|non Fx desktop         | [Behavior 4](#behavior-4) | [Behavior 4](#behavior-4) | [Behavior 4](#behavior-4) |
+|Other Android          | [Behavior 5](#behavior-5) | [Behavior 5](#behavior-5) | [Behavior 5](#behavior-5) |
+|Other iOS              | [Behavior 6](#behavior-6) | [Behavior 6](#behavior-6) | [Behavior 6](#behavior-6) |
 
-##### Verify in Firefox for iOS.
-When verification is complete:
-  * A green status message should appear that says "Email confirmed"
-  * User should see text that says "Open settings and select Sign in to Firefox to complete set-up".
-  * No "Sign in" button should appear.
-  * Clicking on "Why is this required" should show the help text.
+#### Expected behaviors on verification
 
-##### Verify in a non Firefox for desktop browser.
-Same as [Sign up for Sync on Firefox Desktop, verify in the same Firefox Desktop.](#verify-in-the-same-firefox-desktop)
+#### Behavior 1
+<img src="install-firefox-mobile-already-connected.png" alt="Setup Firefox on your smartphone screen" width="300" />
+  * A green status message should appear that says "This device is connected"
+  * User should see text that says "Sign in to Firefox on another device to complete set-up"
+  * Links to both Apple and Google app stores are available
+  * Clicking on "Why is this required" should show the help text
 
-##### Verify in Chrome for Android.
-When verification is complete:
-  * A green status message should appear that says "Email confirmed"
+
+#### Behavior 2
+<img src="signin-this-firefox.png" alt="Sign in to this Firefox screen" width="300" />
+  * A green status message should appear that says "Email verified"
+  * User should see text that says "Sign in to this Firefox to complete set-up"
+  * Clicking on "Why is this required" should show the help text
+  * Clicking on the "Sign in" button redirects the user to the /signin screen
+    * The email should be prefilled
+    * Signing in should connect Firefox to Sync
+
+#### Behavior 3
+<img alt="Sign in to this Firefox for iOS screen" src="signin-this-firefox-ios.png" width="300" />
+  * A green status message should appear that says "Email verified"
+  * User should see text that says "Open settings and select Sign in to Firefox to complete set-up"
+  * No "Sign in" button should appear
+  * Clicking on "Why is this required" should show the help text
+
+#### Behavior 4
+<img src="install-firefox-mobile.png" alt="Setup Firefox on your smartphone screen" width="300" />
+  * A green status message should appear that says "Email verified"
+  * User should see text that says "Sign in to Firefox on another device to complete set-up"
+  * Links to both Apple and Google app stores are available
+  * Clicking on "Why is this required" should show the help text
+
+#### Behavior 5
+<img src="install-firefox-android.png" alt="Setup Firefox on your smartphone screen" width="300" />
+  * A green status message should appear that says "Email verified"
   * User should see text that says "Sign in to Firefox for Android to complete set-up"
-  * A link is available for the Google app store. Clicking the link allows the user to install or open Firefox.
-  * Clicking on "Why is this required" should show the help text.
+  * A link is available for the Google app store. Clicking the link allows the user to install or open Firefox
+  * Clicking on "Why is this required" should show the help text
 
-##### Verify in Safari for iOS.
-When verification is complete:
-  * A green status message should appear that says "Email confirmed"
+#### Behavior 6
+<img alt="Install Firefox for iOS screen" src="install-firefox-ios.png" width="300" />
+  * A green status message should appear that says "Email verified"
   * User should see text that says "Sign in to Firefox for iOS to complete set-up"
   * A links is available for the Apple app store. Clicking the link allows the user to
-    install or open Firefox.
-  * Clicking on "Why is this required" should show the help text.
-
-#### Signup in Firefox for Android
-
-##### Verify in the same Firefox for Android.
-Same as [Sign up for Sync on Firefox Desktop, verify in the same Firefox Desktop.](#verify-in-the-same-firefox-desktop)
-
-##### Verify in Firefox for Android on another device.
-Same as [Sign up for Sync on Firefox Desktop, verify in Firefox Desktop on another device.](#verify-in-firefox-desktop-on-another-device)
-
-##### Verify in Firefox Desktop.
-Same as [Sign up for Sync on Firefox Desktop, verify in Firefox Desktop on another device.](#verify-in-firefox-desktop-on-another-device)
-
-##### Verify in Firefox for iOS.
-Same as [Sign up for Sync on Firefox Desktop, verify in Firefox for iOS.](#verify-in-firefox-for-ios)
-
-##### Verify in a non Firefox for desktop browser.
-Same as [Sign up for Sync on Firefox Desktop, verify in the same Firefox Desktop.](#verify-in-the-same-firefox-desktop)
-
-##### Verify in Chrome for Android.
-Same as [Same as "Sign up for Sync on Firefox Desktop, verify in Chrome for Android.](#verify-in-chrome-for-android)
-
-##### Verify in Safari for iOS.
-Same as [Same as "Sign up for Sync on Firefox Desktop, verify in Safari for iOS.](#verify-in-safari-for-ios)
-
-#### Signup in Firefox for iOS
-
-##### Verify in the same Firefox for iOS.
-Same as [Sign up for Sync on Firefox Desktop, verify in the same Firefox Desktop.](#verify-in-the-same-firefox-desktop)
-
-##### Verify in Firefox for iOS on another device.
-Same as [Sign up for Sync on Firefox Desktop, verify in Firefox for iOS.](#verify-in-firefox-for-ios)
-
-##### Verify in Firefox Desktop.
-Same as [Sign up for Sync on Firefox Desktop, verify in Firefox Desktop on another device.](#verify-in-firefox-desktop-on-another-device)
-
-##### Verify in Firefox for Android.
-Same as [Sign up for Sync on Firefox Desktop, verify in Firefox Desktop on another device.](#verify-in-firefox-desktop-on-another-device)
-
-##### Verify in a non Firefox for desktop browser.
-Same as [Sign up for Sync on Firefox Desktop, verify in Firefox Desktop on another device.](#verify-in-firefox-desktop-on-another-device)
-
-##### Verify in Chrome for Android.
-Same as [Same as "Sign up for Sync on Firefox Desktop, verify in Chrome for Android.](#verify-in-chrome-for-android)
-
-##### Verify in Safari for iOS.
-Same as [Same as "Sign up for Sync on Firefox Desktop, verify in Safari for iOS.](#verify-in-safari-for-ios)
+    install or open Firefox
+  * Clicking on "Why is this required" should show the help text
 
 ## Results
 * Email confirmation rate: we should not impact this negatively in any way.
