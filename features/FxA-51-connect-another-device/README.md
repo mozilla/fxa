@@ -9,7 +9,7 @@
 * Feature card: https://waffle.io/mozilla/fxa-features/cards/5820a9739ca711d4005a5408
 * Other:
   * This feature document is the result of our work week in Toronto to increase multi-device adoption from firstrun sign-up. The email confirmation we envisioned during the workweek will be divided into 4 phases
-    * Phase 2: https://docs.google.com/document/d/133_Cu0TlWQZIw-ihMH1s-U_80I12MXZcvHQEuFhWbPg/edit#heading=h.qrbb2drvq5dg (WIP)
+  * Phase 2: https://docs.google.com/document/d/133_Cu0TlWQZIw-ihMH1s-U_80I12MXZcvHQEuFhWbPg/edit#heading=h.qrbb2drvq5dg (WIP)
   * Proposed new firstrun user flow in Invision: https://mozilla.invisionapp.com/share/ZX8RK05G7#/screens/191829453
   * Graph of multi-device adoption within 48h and within 7 days: https://sql.telemetry.mozilla.org/queries/1254#2173
   * Single vs multi-device MAU: https://sql.telemetry.mozilla.org/queries/256#486
@@ -97,7 +97,7 @@ Once a user verifies their email address, the updated flow nudges users to conne
 
 ![Proposed Sync onboarding experience](proposed-sync-onboarding.png)
 
-#### Screenshots
+### New flow screenshots
 
 1. User is asked to confirm email address
 
@@ -105,19 +105,8 @@ Once a user verifies their email address, the updated flow nudges users to conne
 2. Email prepares the user for next steps
 
 <img src="ready-set-sync-email.png" alt="Updated sync specific email" width="300" /><br />
-3. Depending on where the user confirms their email address, they will see one of the following screens:
-  1. User confirms on same device or in a non-Firefox browser
+3. Depending on where the user confirms their email address, they will see one of several screens. See [Acceptance criteria/Testing](#acceptance-criteriatesting) for a list of possible screens.
 
-  <img src="setup-firefox-on-smartphone.png" alt="Setup Firefox on your smartphone screen" width="300" /><br />
-  2. User confirms in a second instance of Firefox for Android
-
-  <img src="signin-this-firefox.png" alt="Sign in to this Firefox screen" width="300" /><br />
-  3. User confirms in Firefox for iOS
-
-  <img alt="Sign in to this Firefox for iOS screen" src="signin-this-firefox-ios.png" width="300" /><br />
-  4. User confirms email in Safari for iOS
-
-  <img alt="Install Firefox for iOS screen" src="install-firefox-ios.png" width="300" /><br />
 4. Users who click on the "Why is this required" link are displayed content that explains why Sync depends upon two or more devices
 
 <img alt="Why is this required content" src="why-is-this-required.png" width="300" />
@@ -132,6 +121,78 @@ First, we have we have not yet surfaced A/B test grouping data to redshift and r
 Second, for users that click on one of the two app store icons, we are unable to propagate click source information through Adjust through the app store, back to FxA.
 
 These two limitations force us to use the previously discussed proxy measurements to determine success.
+
+### Acceptance Criteria/Testing
+
+The feature is currently being A/B tested, only members of the "treatment" group see the new UI. For testing purposes, it is possible to force being a member of the "treatment" group by opening the verification link with the following additional query parameters:
+`&forceExperiment=connectAnotherDevice&forceExperimentGroup=treatment`
+
+The UI presented to the user changes depending on where the user verifies their email address. Testing of each of the possible combinations is needed.
+
+The convention used below is section headings indicate where the user signs up, section sub-headings indicate where the user opens the verification link.
+
+
+
+
+|Signup → <br/>Verify ↓ | Fx Desktop                | Fx Android                | Fx iOS                    |
+|-----------------------|---------------------------|---------------------------|---------------------------|
+|Same Fx Desktop        | [Behavior 1](#behavior-1) | x                         | x                         |
+|Other Fx Desktop       | [Behavior 2](#behavior-2) | [Behavior 2](#behavior-2) | [Behavior 2](#behavior-2) |
+|Same Fx Android        | x                         | [Behavior 1](#behavior-1) | x                         |
+|Other Fx Android       | [Behavior 2](#behavior-2) | [Behavior 2](#behavior-2) | [Behavior 2](#behavior-2) |
+|Same Fx iOS            | x                         | x                         | [Behavior 1](#behavior-1) |
+|Other Fx iOS           | [Behavior 3](#behavior-3) | [Behavior 3](#behavior-3) | [Behavior 3](#behavior-3) |
+|non Fx desktop         | [Behavior 4](#behavior-4) | [Behavior 4](#behavior-4) | [Behavior 4](#behavior-4) |
+|Other Android          | [Behavior 5](#behavior-5) | [Behavior 5](#behavior-5) | [Behavior 5](#behavior-5) |
+|Other iOS              | [Behavior 6](#behavior-6) | [Behavior 6](#behavior-6) | [Behavior 6](#behavior-6) |
+
+#### Expected behaviors on verification
+
+#### Behavior 1
+<img src="install-firefox-mobile-already-connected.png" alt="Setup Firefox on your smartphone screen" width="300" />
+  * A green status message should appear that says "This device is connected"
+  * User should see text that says "Sign in to Firefox on another device to complete set-up"
+  * Links to both Apple and Google app stores are available
+  * Clicking on "Why is this required" should show the help text
+
+
+#### Behavior 2
+<img src="signin-this-firefox.png" alt="Sign in to this Firefox screen" width="300" />
+  * A green status message should appear that says "Email verified"
+  * User should see text that says "Sign in to this Firefox to complete set-up"
+  * Clicking on "Why is this required" should show the help text
+  * Clicking on the "Sign in" button redirects the user to the /signin screen
+    * The email should be prefilled
+    * Signing in should connect Firefox to Sync
+
+#### Behavior 3
+<img alt="Sign in to this Firefox for iOS screen" src="signin-this-firefox-ios.png" width="300" />
+  * A green status message should appear that says "Email verified"
+  * User should see text that says "Open settings and select Sign in to Firefox to complete set-up"
+  * No "Sign in" button should appear
+  * Clicking on "Why is this required" should show the help text
+
+#### Behavior 4
+<img src="install-firefox-mobile.png" alt="Setup Firefox on your smartphone screen" width="300" />
+  * A green status message should appear that says "Email verified"
+  * User should see text that says "Sign in to Firefox on another device to complete set-up"
+  * Links to both Apple and Google app stores are available
+  * Clicking on "Why is this required" should show the help text
+
+#### Behavior 5
+<img src="install-firefox-android.png" alt="Setup Firefox on your smartphone screen" width="300" />
+  * A green status message should appear that says "Email verified"
+  * User should see text that says "Sign in to Firefox for Android to complete set-up"
+  * A link is available for the Google app store. Clicking the link allows the user to install or open Firefox
+  * Clicking on "Why is this required" should show the help text
+
+#### Behavior 6
+<img alt="Install Firefox for iOS screen" src="install-firefox-ios.png" width="300" />
+  * A green status message should appear that says "Email verified"
+  * User should see text that says "Sign in to Firefox for iOS to complete set-up"
+  * A links is available for the Apple app store. Clicking the link allows the user to
+    install or open Firefox
+  * Clicking on "Why is this required" should show the help text
 
 ## Results
 * Email confirmation rate: we should not impact this negatively in any way.
