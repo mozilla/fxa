@@ -387,6 +387,8 @@ Open questions:
 
 ### Phase 3
 
+> (old, see phase 2 results)
+
 Before beginning this work,
 we will review metrics
 from the deployment of the feature so far,
@@ -441,3 +443,28 @@ Here are some results from Phase 1 of devices view:
   * ~60% - old device
 * From all who saw the "Devices" screen, ~20% users tried to disconnect something.
 * ~65% of users confirmed disconnection after seeing the modal
+
+
+### Phase 2 Results
+
+Here are some updates to results from Phase 2:
+
+* Item count in the device list:
+  * ~27% have two items
+  * ~35% have one item
+  * ~4% have zero items
+  * ~34% have three or more
+
+* Updated Device Disconnect reason breakdown:
+  * ~3% - lost
+  * ~3% - suspicious
+  * ~34% - old
+  * ~20% - would rather not say
+  * ~40% - duplicated device
+
+After phase 2 these are top priority items:
+  * duplicate device / device name confusion
+  * last active date
+  * time it takes to disconnect on mobile
+
+Using this information we can plan Phase 3
