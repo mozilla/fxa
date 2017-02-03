@@ -13,6 +13,10 @@ define(function (require, exports, module) {
   const GET_CLIENT = '/v1/client/';
   const GET_CODE = '/v1/authorization';
 
+  function normalizeErrors (xhr) {
+    throw OAuthErrors.normalizeXHRError(xhr);
+  }
+
   function OAuthClient(options) {
     options = options || {};
 
@@ -23,10 +27,7 @@ define(function (require, exports, module) {
   OAuthClient.prototype = {
     _request (method, endpoint, params) {
       return this._xhr[method](this._oAuthUrl + endpoint, params || null)
-        .fail(function (xhr) {
-          var err = OAuthErrors.normalizeXHRError(xhr);
-          throw err;
-        });
+        .fail(normalizeErrors);
     },
 
     /**
@@ -60,7 +61,8 @@ define(function (require, exports, module) {
         url: `${this._oAuthUrl}${CLIENT_TOKENS_API}`
       };
 
-      return this._xhr.oauthAjax(request);
+      return this._xhr.oauthAjax(request)
+        .fail(normalizeErrors);
     },
 
     /**
@@ -77,7 +79,8 @@ define(function (require, exports, module) {
         url: `${this._oAuthUrl}${CLIENT_TOKENS_API}/${clientId}`
       };
 
-      return this._xhr.oauthAjax(request);
+      return this._xhr.oauthAjax(request)
+        .fail(normalizeErrors);
     },
 
     /**

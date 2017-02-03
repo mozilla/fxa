@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   const MarketingEmailClient = require('lib/marketing-email-client');
   const OAuthApp = require('models/oauth-app');
   const OAuthClient = require('lib/oauth-client');
+  const OAuthErrors = require('lib/oauth-errors');
   const OAuthToken = require('models/oauth-token');
   const p = require('lib/promise');
   const ProfileClient = require('lib/profile-client');
@@ -1591,7 +1592,9 @@ define(function (require, exports, module) {
     describe('fetchOAuthApps', function () {
       beforeEach(function () {
         account.set('accessToken', ACCESS_TOKEN);
+      });
 
+      it('fetches the OAuth apps list from the back end', function () {
         sinon.stub(account._oAuthClient, 'fetchOAuthApps', function () {
           return p([
             {
@@ -1604,14 +1607,26 @@ define(function (require, exports, module) {
             }
           ]);
         });
-      });
 
-      it('fetches the OAuth apps list from the back end', function () {
         return account.fetchOAuthApps().then((result) => {
           assert.isTrue(account._oAuthClient.fetchOAuthApps.calledWith(ACCESS_TOKEN));
           assert.equal(result.length, 2);
           assert.equal(result[0].clientType, 'oAuthApp');
           assert.equal(result[0].name, 'alpha');
+        });
+      });
+
+      it('will retry if token is expired', function () {
+        sinon.stub(account, '_fetchProfileOAuthToken', function () {
+          return p();
+        });
+        sinon.stub(account._oAuthClient, 'fetchOAuthApps', function () {
+          return p.reject(OAuthErrors.toError('UNAUTHORIZED'));
+        });
+
+        return account.fetchOAuthApps().then(assert.fail, () => {
+          assert.isTrue(account._fetchProfileOAuthToken.called, 'fetch called');
+          assert.isTrue(account._oAuthClient.fetchOAuthApps.calledTwice, 'called twice');
         });
       });
 
@@ -1652,17 +1667,30 @@ define(function (require, exports, module) {
           id: 'oauth-1',
           name: 'alpha'
         });
+      });
 
+      it('tells the backend to destroy the device', function () {
         sinon.stub(account._oAuthClient, 'destroyOAuthApp', function () {
           return p();
         });
 
-        return account.destroyOAuthApp(device);
+        return account.destroyOAuthApp(device).then(() => {
+          assert.isTrue(account._oAuthClient.destroyOAuthApp.calledWith(ACCESS_TOKEN, 'oauth-1'));
+        });
       });
 
-      it('tells the backend to destroy the device', function () {
-        assert.isTrue(
-          account._oAuthClient.destroyOAuthApp.calledWith(ACCESS_TOKEN, 'oauth-1'));
+      it('will retry if token is expired', function () {
+        sinon.stub(account, '_fetchProfileOAuthToken', function () {
+          return p();
+        });
+        sinon.stub(account._oAuthClient, 'destroyOAuthApp', function () {
+          return p.reject(OAuthErrors.toError('UNAUTHORIZED'));
+        });
+
+        return account.destroyOAuthApp(device).then(assert.fail, () => {
+          assert.isTrue(account._fetchProfileOAuthToken.called, 'fetch called');
+          assert.isTrue(account._oAuthClient.destroyOAuthApp.calledTwice, 'called twice');
+        });
       });
     });
 

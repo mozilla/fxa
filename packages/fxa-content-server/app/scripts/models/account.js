@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
   const MarketingEmailPrefs = require('models/marketing-email-prefs');
+  const OAuthErrors = require('lib/oauth-errors');
   const OAuthToken = require('models/oauth-token');
   const p = require('lib/promise');
   const ProfileErrors = require('lib/profile-errors');
@@ -775,6 +776,17 @@ define(function (require, exports, module) {
      */
     fetchOAuthApps () {
       return this._oAuthClient.fetchOAuthApps(this.get('accessToken'))
+        .fail((err) => {
+          if (OAuthErrors.is(err, 'UNAUTHORIZED')) {
+            // the accessToken is short lived.
+            // retry once with a fresh token.
+            return this._fetchProfileOAuthToken().then(() => {
+              return this._oAuthClient.fetchOAuthApps(this.get('accessToken'));
+            });
+          }
+
+          throw err;
+        })
         .then((oAuthApps) => {
           oAuthApps.map((item) => {
             item.clientType = Constants.CLIENT_TYPE_OAUTH_APP;
@@ -812,6 +824,17 @@ define(function (require, exports, module) {
       var accessToken = this.get('accessToken');
 
       return this._oAuthClient.destroyOAuthApp(accessToken, oAuthAppId)
+        .fail((err) => {
+          if (OAuthErrors.is(err, 'UNAUTHORIZED')) {
+            // the accessToken is short lived.
+            // retry once with a fresh token.
+            return this._fetchProfileOAuthToken().then(() => {
+              return this._oAuthClient.destroyOAuthApp(accessToken, oAuthAppId);
+            });
+          }
+
+          throw err;
+        })
         .then(() => {
           oAuthApp.destroy();
         });
