@@ -183,6 +183,9 @@ define(function (require, exports, module) {
 
     _generateAssertion () {
       var sessionToken = this.get('sessionToken');
+      if (! sessionToken) {
+        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+      }
 
       // assertions live for 25 years, they can be cached and reused while
       // this browser tab is open.

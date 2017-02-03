@@ -860,6 +860,15 @@ define(function (require, exports, module) {
               assert.isTrue(AuthErrors.is(err, 'UNAUTHORIZED'));
             });
       });
+
+      it('rejects with INVALID_TOKEN', function () {
+        account.unset('sessionToken');
+        return account.createOAuthToken('scope')
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+      });
+
     });
 
     describe('profileClient', function () {
