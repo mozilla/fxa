@@ -11,7 +11,8 @@ var MailParser = require('mailparser').MailParser
 var users = {}
 
 function emailName(emailAddress) {
-  return emailAddress.split('@')[0]
+  var utf8Address = Buffer.from(emailAddress, 'binary').toString('utf-8')
+  return utf8Address.split('@')[0]
 }
 
 require('simplesmtp').createSimpleServer(
@@ -19,7 +20,7 @@ require('simplesmtp').createSimpleServer(
     SMTPBanner: 'FXATEST'
   },
   function (req) {
-    var mp = new MailParser({ defaultCharset: 'utf8' })
+    var mp = new MailParser({ defaultCharset: 'utf-8' })
     mp.on('end',
       function (mail) {
         var link = mail.headers['x-link']
@@ -79,7 +80,7 @@ api.route(
       path: '/mail/{email}',
       handler: function (request, reply) {
         loop(
-          request.params.email,
+          decodeURIComponent(request.params.email),
           function (emailData) {
             reply(emailData)
           }
@@ -90,7 +91,7 @@ api.route(
       method: 'DELETE',
       path: '/mail/{email}',
       handler: function (request, reply) {
-        delete users[request.params.email]
+        delete users[decodeURIComponent(request.params.email)]
         reply()
       }
     }
