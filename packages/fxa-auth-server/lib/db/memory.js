@@ -7,6 +7,7 @@ const unbuf = require('buf').unbuf.hex;
 
 const config = require('../config');
 const encrypt = require('../encrypt');
+const helpers = require('./helpers');
 const logger = require('../logging')('db.memory');
 const P = require('../promise');
 const unique = require('../unique');
@@ -249,60 +250,25 @@ MemoryStore.prototype = {
       return P.reject(new Error('Uid is required'));
     }
 
-    var activeClientIds = [];
-    var activeClients = {};
+    var activeClientTokens = [];
     var ids = Object.keys(this.tokens);
     for (var i = 0; i < ids.length; i++) {
       var id = ids[i];
       if (this.tokens[id].userId.toString('hex') === uid) {
-        activeClientIds.push({
-          clientId: this.tokens[id].clientId,
-          clientTokenTime: this.tokens[id].createdAt
-        });
+        var clientIdHex = unbuf(this.tokens[id].clientId);
+        var client = self.clients[clientIdHex];
+        if (client.canGrant === false) {
+          activeClientTokens.push({
+            id: this.tokens[id].clientId,
+            createdAt: this.tokens[id].createdAt,
+            name: client.name,
+            scope: String(this.tokens[id].scope)
+          });
+        }
       }
     }
 
-    // unique clients
-    activeClientIds.forEach(function (clientTokenObj) {
-      var clientIdHex = unbuf(clientTokenObj.clientId);
-      var client = self.clients[clientIdHex];
-      if (client.canGrant === false) {
-        if (! activeClients[clientIdHex]) {
-          activeClients[clientIdHex] = client;
-        }
-        var clientTokenTime = clientTokenObj.clientTokenTime;
-        if (clientTokenTime > activeClients[clientIdHex].createdAt) {
-          activeClients[clientIdHex].createdAt = clientTokenTime;
-        }
-      }
-    });
-
-    var activeClientsArray = Object.keys(activeClients).map(function (key) {
-        return activeClients[key];
-      });
-
-    var customSort = activeClientsArray.slice(0);
-    customSort.sort(function(a, b) {
-      if (b.createdAt > a.createdAt) {
-        return 1;
-      }
-
-      if (b.createdAt < a.createdAt) {
-        return -1;
-      }
-
-      if (a.name > b.name) {
-        return 1;
-      }
-
-      if (a.name < b.name) {
-        return -1;
-      }
-
-      return 0;
-    });
-
-    return P.resolve(customSort);
+    return P.resolve(helpers.getActiveClientTokens(activeClientTokens));
   },
 
   /**

@@ -2410,13 +2410,13 @@ describe('/v1', function() {
         return getUniqueUserAndToken(client1Id.toString('hex'), {
           uid: user1.uid,
           email: user1.email,
-          scopes: ['profile']
+          scopes: ['profile', 'profile:write']
         })
           .then(function () {
             return getUniqueUserAndToken(client1Id.toString('hex'), {
               uid: user1.uid,
               email: user1.email,
-              scopes: ['profile']
+              scopes: ['clients:write']
             });
           })
           .then(function () {
@@ -2444,6 +2444,48 @@ describe('/v1', function() {
             assert.equal(result[0].id, client1Id.toString('hex'));
             assert.equal(result[0].lastAccessTime, tok.createdAt.getTime(), 'lastAccessTime should be equal to the latest Token createdAt time');
             assertSecurityHeaders(res);
+            assert.deepEqual(result[0].scope, ['clients:write', 'profile', 'profile:write']);
+          });
+      });
+
+      it('should only return union of scopes for multiple tokens', function() {
+        return getUniqueUserAndToken(client1Id.toString('hex'), {
+          uid: user1.uid,
+          email: user1.email,
+          scopes: ['profile', 'profile:write']
+        })
+          .then(function () {
+            return getUniqueUserAndToken(client1Id.toString('hex'), {
+              uid: user1.uid,
+              email: user1.email,
+              scopes: ['clients:write']
+            });
+          })
+          .then(function () {
+            return getUniqueUserAndToken(client1Id.toString('hex'), {
+              uid: user1.uid,
+              email: user1.email,
+              scopes: ['basket:write', 'profile:email']
+            });
+          })
+          .then(function () {
+            return getUniqueUserAndToken(client1Id.toString('hex'), {
+              uid: user1.uid,
+              email: user1.email,
+              scopes: ['profile:uid', 'profile', 'profile:write']
+            });
+          })
+          .then(function () {
+            return Server.api.get({
+              url: '/client-tokens',
+              headers: {
+                authorization: 'Bearer ' + tokenWithClientWrite
+              }
+            });
+          })
+          .then(function (res) {
+            var result = res.result;
+            assert.deepEqual(result[0].scope, ['basket:write', 'clients:write', 'profile', 'profile:email', 'profile:uid', 'profile:write']);
           });
       });
 

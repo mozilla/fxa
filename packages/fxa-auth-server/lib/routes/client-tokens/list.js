@@ -19,7 +19,8 @@ function serialize(client, acceptLanguage) {
     name: client.name,
     id: hex(client.id),
     lastAccessTime: lastAccessTime,
-    lastAccessTimeFormatted: lastAccessTimeFormatted
+    lastAccessTimeFormatted: lastAccessTimeFormatted,
+    scope: client.scope
   };
 }
 

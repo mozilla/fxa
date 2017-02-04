@@ -11,6 +11,7 @@ const MysqlPatcher = require('mysql-patcher');
 
 const config = require('../../config');
 const encrypt = require('../../encrypt');
+const helpers = require('../helpers');
 const P = require('../../promise');
 const Scope = require('../../scope');
 const unique = require('../../unique');
@@ -181,9 +182,8 @@ const QUERY_PURGE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE clientId NOT IN (?)
 // Returns the most recent token used with a client name and client id.
 // Does not include clients that canGrant.
 const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
-  'SELECT DISTINCT clients.name, clients.id, MAX(tokens.createdAt) as createdAt FROM clients, tokens ' +
+  'SELECT DISTINCT clients.name, clients.id, tokens.createdAt as createdAt, tokens.scope as scope FROM clients, tokens ' +
   'WHERE tokens.expiresAt > NOW() AND clients.canGrant = 0 AND clients.id = tokens.clientId AND tokens.userId=? ' +
-  'GROUP BY id ' +
   'ORDER BY createdAt DESC, clients.name ' +
   'LIMIT 10000;';
 const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
@@ -265,7 +265,6 @@ MysqlStore.prototype = {
     if (! clientId) {
       return P.reject(new Error('Client id is required'));
     }
-
     return this._read(QUERY_CLIENT_DEVELOPER_LIST_BY_CLIENT_ID, [
       buf(clientId)
     ]);
@@ -431,7 +430,9 @@ MysqlStore.prototype = {
   getActiveClientTokensByUid: function getActiveClientTokensByUid(uid) {
     return this._read(QUERY_ACTIVE_CLIENT_TOKENS_BY_UID, [
       buf(uid)
-    ]);
+    ]).then(function(activeClientTokens) {
+      return helpers.getActiveClientTokens(activeClientTokens);
+    });
   },
 
   /**
