@@ -38,6 +38,7 @@ define([
   var SELECTOR_CONFIRM_SIGNIN_HEADER = '#fxa-confirm-signin-header';
   var SELECTOR_CONTINUE_BUTTON = 'form div a';
   var SELECTOR_INSTALL_TEXT_ANDROID = '#install-mobile-firefox-android';
+  var SELECTOR_INSTALL_TEXT_FX_DESKTOP = '#install-mobile-firefox-desktop';
   var SELECTOR_INSTALL_TEXT_IOS = '#install-mobile-firefox-ios';
   var SELECTOR_INSTALL_TEXT_OTHER = '#install-mobile-firefox-other';
   var SELECTOR_INSTALL_TEXT_FROM_ANDROID = '#connect-other-firefox-from-android';
@@ -110,7 +111,7 @@ define([
         .then(testElementExists(SELECTOR_PAGE_LOADED))
         .then(testElementExists(SELECTOR_SUCCESS_SAME_BROWSER))
         .then(noSuchElement(SELECTOR_CONTINUE_BUTTON))
-        .then(testElementExists(SELECTOR_INSTALL_TEXT_OTHER))
+        .then(testElementExists(SELECTOR_INSTALL_TEXT_FX_DESKTOP))
         .then(testHrefEquals(SELECTOR_MARKETING_LINK_IOS, ADJUST_LINK_IOS))
         .then(testHrefEquals(SELECTOR_MARKETING_LINK_ANDROID, ADJUST_LINK_ANDROID));
     },

@@ -49,6 +49,8 @@ define(function (require, exports, module) {
     },
 
     afterRender () {
+      this._logABMetrics();
+
       const options = {
         marketingId: Constants.MARKETING_ID_AUTUMN_2016
       };
@@ -70,20 +72,21 @@ define(function (require, exports, module) {
       return this.model.get('account');
     },
 
-    context () {
-      const isSignedIn = this._isSignedIn();
-      const canSignIn = this._canSignIn();
-      const email = this.getAccount().get('email');
-      const signInContext = this._getSignInContext();
-      const escapedSignInUrl = this._getEscapedSignInUrl(signInContext, email);
-      const uap = this._getUap();
-      const isAndroid = uap.isAndroid();
-      const isFirefoxAndroid = uap.isFirefoxAndroid();
-      const isOtherAndroid = isAndroid && ! isFirefoxAndroid;
-      const isIos = uap.isIos();
-      const isFirefoxIos = uap.isFirefoxIos();
-      const isOtherIos = isIos && ! isFirefoxIos;
-      const isOther = ! isAndroid && ! isIos;
+    /**
+     * Log AB test related metrics. Done so via the notifier.
+     *
+     * @private
+     */
+    _logABMetrics () {
+      const {
+        canSignIn,
+        isFirefoxAndroid,
+        isFirefoxDesktop,
+        isFirefoxIos,
+        isOther,
+        isOtherAndroid,
+        isOtherIos,
+      } = this.getContext();
 
       // connectMethod is used for metrics to log how the current user is
       // being nudged to connect another device.
@@ -92,21 +95,23 @@ define(function (require, exports, module) {
         this.notifier.trigger('connectAnotherDevice.signin.eligible');
 
         if (isFirefoxAndroid) {
-          connectMethod = 'signin_from.fennec';
-        } else {
-          connectMethod = 'signin_from.desktop';
+          connectMethod = 'signin_from.fx_android';
+        } else if (isFirefoxDesktop) {
+          connectMethod = 'signin_from.fx_desktop';
         }
       } else {
         this.notifier.trigger('connectAnotherDevice.signin.ineligible');
 
         if (isFirefoxIos) {
-          connectMethod = 'signin_from.fxios';
-        } else if (isOtherIos) {
-          connectMethod = 'install_from.other_ios';
+          connectMethod = 'signin_from.fx_ios';
         } else if (isFirefoxAndroid) {
-          connectMethod = 'install_from.fennec';
+          connectMethod = 'install_from.fx_android';
+        } else if (isFirefoxDesktop) {
+          connectMethod = 'install_from.fx_desktop';
         } else if (isOtherAndroid) {
           connectMethod = 'install_from.other_android';
+        } else if (isOtherIos) {
+          connectMethod = 'install_from.other_ios';
         } else if (isOther) {
           connectMethod = 'install_from.other';
         }
@@ -115,12 +120,31 @@ define(function (require, exports, module) {
       if (connectMethod) {
         this.notifier.trigger(`connectAnotherDevice.${connectMethod}`);
       }
+    },
+
+    context () {
+      const isSignedIn = this._isSignedIn();
+      const canSignIn = this._canSignIn();
+      const email = this.getAccount().get('email');
+      const signInContext = this._getSignInContext();
+      const escapedSignInUrl = this._getEscapedSignInUrl(signInContext, email);
+
+      const uap = this._getUap();
+      const isAndroid = uap.isAndroid();
+      const isFirefoxAndroid = uap.isFirefoxAndroid();
+      const isFirefoxDesktop = uap.isFirefoxDesktop();
+      const isFirefoxIos = uap.isFirefoxIos();
+      const isIos = uap.isIos();
+      const isOtherAndroid = isAndroid && ! isFirefoxAndroid;
+      const isOtherIos = isIos && ! isFirefoxIos;
+      const isOther = ! isAndroid && ! isIos && ! isFirefoxDesktop;
 
       return {
         canSignIn,
         email,
         escapedSignInUrl,
         isFirefoxAndroid,
+        isFirefoxDesktop,
         isFirefoxIos,
         isOther,
         isOtherAndroid,

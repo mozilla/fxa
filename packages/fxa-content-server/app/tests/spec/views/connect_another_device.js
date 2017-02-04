@@ -53,8 +53,12 @@ define(function (require, exports, module) {
       });
     });
 
+    function testIsNotified(expectedMessage) {
+      assert.isTrue(notifier.trigger.calledWith(expectedMessage));
+    }
+
     describe('render', () => {
-      describe('with a desktop user that is signed in', () => {
+      describe('with a Fx desktop user that is signed in', () => {
         beforeEach(() => {
           sinon.stub(user, 'isSignedInAccount', () => true);
 
@@ -63,9 +67,9 @@ define(function (require, exports, module) {
 
         it('shows the marketing area, logs appropriately', () => {
           assert.lengthOf(view.$('.marketing-area'), 1);
-          notifier.trigger.calledWith('connectAnotherDevice.signedin.true');
-          notifier.trigger.calledWith('connectAnotherDevice.signin.ineligible');
-          notifier.trigger.calledWith('connectAnotherDevice.install_from.other');
+          testIsNotified('connectAnotherDevice.signedin.true');
+          testIsNotified('connectAnotherDevice.signin.ineligible');
+          testIsNotified('connectAnotherDevice.install_from.fx_desktop');
         });
       });
 
@@ -89,13 +93,13 @@ define(function (require, exports, module) {
 
         it('shows the marketing area, logs appropriately', () => {
           assert.lengthOf(view.$('.marketing-area'), 1);
-          notifier.trigger.calledWith('connectAnotherDevice.signedin.true');
-          notifier.trigger.calledWith('connectAnotherDevice.signin.ineligible');
-          notifier.trigger.calledWith('connectAnotherDevice.install_from.fennec');
+          testIsNotified('connectAnotherDevice.signedin.true');
+          testIsNotified('connectAnotherDevice.signin.ineligible');
+          testIsNotified('connectAnotherDevice.install_from.fx_android');
         });
       });
 
-      describe('with a desktop user that can sign in', () => {
+      describe('with a Fx desktop user that can sign in', () => {
         beforeEach(() => {
           sinon.stub(view, '_getUap', () => {
             return {
@@ -117,9 +121,9 @@ define(function (require, exports, module) {
 
         it('shows a sign in button with the appropriate link, logs appropriately', () => {
           assert.lengthOf(view.$('#signin'), 1);
-          notifier.trigger.calledWith('connectAnotherDevice.signedin.false');
-          notifier.trigger.calledWith('connectAnotherDevice.signin.eligible');
-          notifier.trigger.calledWith('connectAnotherDevice.signin_from.desktop');
+          testIsNotified('connectAnotherDevice.signedin.false');
+          testIsNotified('connectAnotherDevice.signin.eligible');
+          testIsNotified('connectAnotherDevice.signin_from.fx_desktop');
         });
       });
 
@@ -145,9 +149,9 @@ define(function (require, exports, module) {
 
         it('shows a sign in button with the appropriate link, logs appropriately', () => {
           assert.lengthOf(view.$('#signin'), 1);
-          notifier.trigger.calledWith('connectAnotherDevice.signedin.false');
-          notifier.trigger.calledWith('connectAnotherDevice.signin.eligible');
-          notifier.trigger.calledWith('connectAnotherDevice.signin_from.fennec');
+          testIsNotified('connectAnotherDevice.signedin.false');
+          testIsNotified('connectAnotherDevice.signin.eligible');
+          testIsNotified('connectAnotherDevice.signin_from.fx_android');
         });
       });
 
@@ -173,7 +177,7 @@ define(function (require, exports, module) {
             .then(() => {
               assert.lengthOf(view.$('#signin-fxios'), 1);
               assert.lengthOf(view.$('.marketing-area'), 0);
-              notifier.trigger.calledWith('connectAnotherDevice.signin_from.fxios');
+              testIsNotified('connectAnotherDevice.signin_from.fx_ios');
             });
         });
 
@@ -193,7 +197,7 @@ define(function (require, exports, module) {
             .then(() => {
               assert.lengthOf(view.$('#install-mobile-firefox-ios'), 1);
               assert.lengthOf(view.$('.marketing-area'), 1);
-              notifier.trigger.calledWith('connectAnotherDevice.install_from.other_ios');
+              testIsNotified('connectAnotherDevice.install_from.other_ios');
             });
         });
 
@@ -213,7 +217,27 @@ define(function (require, exports, module) {
             .then(() => {
               assert.lengthOf(view.$('#install-mobile-firefox-android'), 1);
               assert.lengthOf(view.$('.marketing-area'), 1);
-              notifier.trigger.calledWith('connectAnotherDevice.install_from.other_android');
+              testIsNotified('connectAnotherDevice.install_from.other_android');
+            });
+        });
+
+        it('shows FxDesktop text, marketing area to Fx Desktop users', () => {
+          sinon.stub(view, '_getUap', () => {
+            return {
+              isAndroid: () => false,
+              isFirefox: () => true,
+              isFirefoxAndroid: () => false,
+              isFirefoxDesktop: () => true,
+              isFirefoxIos: () => false,
+              isIos: () => false
+            };
+          });
+
+          return view.render()
+            .then(() => {
+              assert.lengthOf(view.$('#install-mobile-firefox-desktop'), 1);
+              assert.lengthOf(view.$('.marketing-area'), 1);
+              testIsNotified('connectAnotherDevice.install_from.fx_desktop');
             });
         });
 
@@ -233,7 +257,7 @@ define(function (require, exports, module) {
             .then(() => {
               assert.lengthOf(view.$('#install-mobile-firefox-other'), 1);
               assert.lengthOf(view.$('.marketing-area'), 1);
-              notifier.trigger.calledWith('connectAnotherDevice.install_from.other');
+              testIsNotified('connectAnotherDevice.install_from.other');
             });
         });
       });
@@ -457,7 +481,7 @@ define(function (require, exports, module) {
       it('notifies of click', () => {
         view._onSignInClick();
 
-        assert.isTrue(notifier.trigger.calledWith('connectAnotherDevice.signin.clicked'));
+        testIsNotified('connectAnotherDevice.signin.clicked');
       });
     });
   });

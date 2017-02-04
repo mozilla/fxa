@@ -21,18 +21,6 @@
       </form>
     {{/canSignIn}}
     {{^canSignIn}}
-      {{#isFirefoxIos}}
-        <!-- user verifies in Fx for iOS, assume they are not signed in -->
-        <p id="signin-fxios">
-          {{#t}}Open settings and select Sign in to Firefox to complete set-up{{/t}}
-        </p>
-      {{/isFirefoxIos}}
-      {{#isOtherIos}}
-        <!-- Safari or Chrome for iOS, encourage installation of Fx -->
-        <p id="install-mobile-firefox-ios">
-          {{#t}}Sign in to Firefox for iOS to complete set-up{{/t}}
-        </p>
-      {{/isOtherIos}}
       {{#isFirefoxAndroid}}
         <!-- User verified in Fx for Android - they are using an old Fennec
         or are already signed in. Ignore old browsers, assume already signed in.
@@ -41,12 +29,29 @@
           {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
         </p>
       {{/isFirefoxAndroid}}
+      {{#isFirefoxDesktop}}
+        <p id="install-mobile-firefox-desktop">
+          {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
+        </p>
+      {{/isFirefoxDesktop}}
+      {{#isFirefoxIos}}
+        <!-- user verifies in Fx for iOS, assume they are not signed in -->
+        <p id="signin-fxios">
+          {{#t}}Open settings and select Sign in to Firefox to complete set-up{{/t}}
+        </p>
+      {{/isFirefoxIos}}
       {{#isOtherAndroid}}
         <!-- Another android browser, encourage Fx for Android installation -->
         <p id="install-mobile-firefox-android">
           {{#t}}Sign in to Firefox for Android to complete set-up{{/t}}
         </p>
       {{/isOtherAndroid}}
+      {{#isOtherIos}}
+        <!-- Safari or Chrome for iOS, encourage installation of Fx -->
+        <p id="install-mobile-firefox-ios">
+          {{#t}}Sign in to Firefox for iOS to complete set-up{{/t}}
+        </p>
+      {{/isOtherIos}}
       {{#isOther}}
         <!-- probably some desktop browser -->
         <p id="install-mobile-firefox-other">

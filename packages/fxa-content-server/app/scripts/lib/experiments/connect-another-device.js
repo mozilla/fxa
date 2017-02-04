@@ -20,21 +20,20 @@ define(function (require, exports, module) {
 
   module.exports = BaseExperiment.extend({
     notifications: {
-      'connectAnotherDevice.install_from.fennec': createSaveStateDelegate('install_from.fennec'),
+      'connectAnotherDevice.install_from.fx_android': createSaveStateDelegate('install_from.fx_android'),
+      'connectAnotherDevice.install_from.fx_desktop': createSaveStateDelegate('install_from.fx_desktop'),
       'connectAnotherDevice.install_from.other': createSaveStateDelegate('install_from.other'),
-      'connectAnotherDevice.install_from.other_android':
-        createSaveStateDelegate('install_from.other_android'),
-      'connectAnotherDevice.install_from.other_ios':
-        createSaveStateDelegate('install_from.other_ios'),
+      'connectAnotherDevice.install_from.other_android': createSaveStateDelegate('install_from.other_android'),
+      'connectAnotherDevice.install_from.other_ios': createSaveStateDelegate('install_from.other_ios'),
       'connectAnotherDevice.other_user_signed_in': createSaveStateDelegate('other_user_signed_in'),
       'connectAnotherDevice.signedin.false': createSaveStateDelegate('signedin.false'),
       'connectAnotherDevice.signedin.true': createSaveStateDelegate('signedin.true'),
       'connectAnotherDevice.signin.clicked': createSaveStateDelegate('signin.clicked'),
       'connectAnotherDevice.signin.eligible': createSaveStateDelegate('signin.eligible'),
       'connectAnotherDevice.signin.ineligible': createSaveStateDelegate('signin.ineligible'),
-      'connectAnotherDevice.signin_from.desktop': createSaveStateDelegate('signin_from.desktop'),
-      'connectAnotherDevice.signin_from.fennec': createSaveStateDelegate('signin_from.fennec'),
-      'connectAnotherDevice.signin_from.fxios': createSaveStateDelegate('signin_from.fxios'),
+      'connectAnotherDevice.signin_from.fx_android': createSaveStateDelegate('signin_from.fx_android'),
+      'connectAnotherDevice.signin_from.fx_desktop': createSaveStateDelegate('signin_from.fx_desktop'),
+      'connectAnotherDevice.signin_from.fx_ios': createSaveStateDelegate('signin_from.fx_ios'),
       'marketing.clicked': '_onMarketingClick',
       'marketing.impression': '_onMarketingImpression'
     },

@@ -44,27 +44,20 @@ define(function (require, exports, module) {
       });
     }
 
-    testNotificationSavesState(
-      'connectAnotherDevice.install_from.fennec', null, 'install_from.fennec');
-    testNotificationSavesState(
-      'connectAnotherDevice.install_from.other', null, 'install_from.other');
-    testNotificationSavesState(
-      'connectAnotherDevice.install_from.other_android', null, 'install_from.other_android');
-    testNotificationSavesState(
-      'connectAnotherDevice.install_from.other_ios', null, 'install_from.other_ios');
-    testNotificationSavesState(
-      'connectAnotherDevice.other_user_signed_in', null, 'other_user_signed_in');
+    testNotificationSavesState('connectAnotherDevice.install_from.fx_android', null, 'install_from.fx_android');
+    testNotificationSavesState('connectAnotherDevice.install_from.fx_desktop', null, 'install_from.fx_desktop');
+    testNotificationSavesState('connectAnotherDevice.install_from.other', null, 'install_from.other');
+    testNotificationSavesState('connectAnotherDevice.install_from.other_android', null, 'install_from.other_android');
+    testNotificationSavesState('connectAnotherDevice.install_from.other_ios', null, 'install_from.other_ios');
+    testNotificationSavesState('connectAnotherDevice.other_user_signed_in', null, 'other_user_signed_in');
     testNotificationSavesState('connectAnotherDevice.signedin.false', null, 'signedin.false');
     testNotificationSavesState('connectAnotherDevice.signedin.true', null, 'signedin.true');
     testNotificationSavesState('connectAnotherDevice.signin.clicked', null, 'signin.clicked');
     testNotificationSavesState('connectAnotherDevice.signin.eligible', null, 'signin.eligible');
     testNotificationSavesState('connectAnotherDevice.signin.ineligible', null, 'signin.ineligible');
-    testNotificationSavesState(
-      'connectAnotherDevice.signin_from.desktop', null, 'signin_from.desktop');
-    testNotificationSavesState(
-      'connectAnotherDevice.signin_from.fennec', null, 'signin_from.fennec');
-    testNotificationSavesState(
-      'connectAnotherDevice.signin_from.fxios', null, 'signin_from.fxios');
+    testNotificationSavesState('connectAnotherDevice.signin_from.fx_android', null, 'signin_from.fx_android');
+    testNotificationSavesState('connectAnotherDevice.signin_from.fx_desktop', null, 'signin_from.fx_desktop');
+    testNotificationSavesState('connectAnotherDevice.signin_from.fx_ios', null, 'signin_from.fx_ios');
     testNotificationSavesState('marketing.clicked', { type: 'ios' }, 'marketing.click.ios');
     testNotificationSavesState('marketing.impression', { type: 'ios' }, 'marketing.impression.ios');
   });

@@ -372,29 +372,33 @@ No page specific events
 ## Experiment Metrics
 ### connectAnotherDevice
 
-* experiment.control.connectAnotherDevice.enrolled
-* experiment.control.connectAnotherDevice.marketing.click.android
-* experiment.control.connectAnotherDevice.marketing.click.ios
-* experiment.control.connectAnotherDevice.marketing.impression.android
-* experiment.control.connectAnotherDevice.marketing.impression.ios
-* experiment.treatment.connectAnotherDevice.enrolled
-* experiment.treatment.connectAnotherDevice.install_from.fennec
-* experiment.treatment.connectAnotherDevice.install_from.other
-* experiment.treatment.connectAnotherDevice.install_from.other_android
-* experiment.treatment.connectAnotherDevice.install_from.other_ios
-* experiment.treatment.connectAnotherDevice.marketing.click.android
-* experiment.treatment.connectAnotherDevice.marketing.click.ios
-* experiment.treatment.connectAnotherDevice.marketing.impression.android
-* experiment.treatment.connectAnotherDevice.marketing.impression.ios
-* experiment.treatment.connectAnotherDevice.other_user_signed_in
-* experiment.treatment.connectAnotherDevice.signedin.true
-* experiment.treatment.connectAnotherDevice.signedin.false
-* experiment.treatment.connectAnotherDevice.signin.clicked
-* experiment.treatment.connectAnotherDevice.signin.eligible
-* experiment.treatment.connectAnotherDevice.signin.ineligible
-* experiment.treatment.connectAnotherDevice.signin_from.desktop
-* experiment.treatment.connectAnotherDevice.signin_from.fennec
-* experiment.treatment.connectAnotherDevice.signin_from.fxios
+#### Control group metric
+* experiment.control.connectAnotherDevice.enrolled - user is enrolled in connectAnotherDevice experiment in the `control` group.
+* experiment.control.connectAnotherDevice.marketing.click.android - User has clicked on the Install Fx Android link
+* experiment.control.connectAnotherDevice.marketing.click.ios - User has clicked on the Install Fx iOS link
+* experiment.control.connectAnotherDevice.marketing.impression.android - User was displayed the Install Fx Android link
+* experiment.control.connectAnotherDevice.marketing.impression.ios - User was displayed the Install Fx iOS link
+
+#### Treatment group events
+* experiment.treatment.connectAnotherDevice.enrolled - user is enrolled in connectAnotherDevice experiment in the `treatment` group
+* experiment.treatment.connectAnotherDevice.install_from.fx_android - Fx Android user encouraged to install Fx on more devices
+* experiment.treatment.connectAnotherDevice.install_from.fx_desktop - Fx Desktop user encouraged to install Fx on their devices
+* experiment.treatment.connectAnotherDevice.install_from.other_android - Non-Fx Android user encouraged to install Fx Android
+* experiment.treatment.connectAnotherDevice.install_from.other_ios - Non-Fx iOS user encouraged to install Fx iOS
+* experiment.treatment.connectAnotherDevice.install_from.other - User on non-Fx, non-Android, non-iOS device is encouraged to install Fx on their devices
+* experiment.treatment.connectAnotherDevice.marketing.click.android - User has clicked on the Install Fx for Android link
+* experiment.treatment.connectAnotherDevice.marketing.click.ios - User has clicked on the Install Fx for iOS link
+* experiment.treatment.connectAnotherDevice.marketing.impression.android - User was displayed the Install Fx for Android
+* experiment.treatment.connectAnotherDevice.marketing.impression.ios - User was displayed the Install Fx for iOS link
+* experiment.treatment.connectAnotherDevice.other_user_signed_in - Another user is signed in, so user cannot connect another device
+* experiment.treatment.connectAnotherDevice.signedin.true - User is signed in.
+* experiment.treatment.connectAnotherDevice.signedin.false - User is not signed in.
+* experiment.treatment.connectAnotherDevice.signin.clicked - User who can sign in clicked the "Sign in" button.
+* experiment.treatment.connectAnotherDevice.signin.eligible - User verified in a 2nd, disconnected, Firefox and can sign in.
+* experiment.treatment.connectAnotherDevice.signin.ineligible - User is not eligible to see the "Sign in" button.
+* experiment.treatment.connectAnotherDevice.signin_from.fx_android - User who is eligible to sign in is on Fx Android.
+* experiment.treatment.connectAnotherDevice.signin_from.fx_desktop - User who is eligible to sign in is on Fx Desktop.
+* experiment.treatment.connectAnotherDevice.signin_from.fx_ios - User who is eligible to sign in is on Fx iOS.
 
 ### mailcheck
 
