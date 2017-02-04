@@ -16,147 +16,272 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
 ], function (intern, require, restmail, TestHelpers, pollUntil,
   lang, Url, Querystring, nodeXMLHttpRequest, assert, FxaClient) {
-  var config = intern.config;
+  const config = intern.config;
 
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var CONTENT_SERVER = config.fxaContentRoot;
-  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
-  var EXTERNAL_SITE_LINK_TEXT = 'More information';
-  var EXTERNAL_SITE_URL = 'http://example.com';
-  var FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth';
-  var OAUTH_APP = config.fxaOauthApp;
-  var RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password';
-  var SETTINGS_URL = config.fxaContentRoot + 'settings';
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var SIGNUP_URL = config.fxaContentRoot + 'signup';
-  var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
+  const AUTH_SERVER_ROOT = config.fxaAuthRoot;
+  const CONTENT_SERVER = config.fxaContentRoot;
+  const EMAIL_SERVER_ROOT = config.fxaEmailRoot;
+  const EXTERNAL_SITE_LINK_TEXT = 'More information';
+  const EXTERNAL_SITE_URL = 'http://example.com';
+  const FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth';
+  const OAUTH_APP = config.fxaOauthApp;
+  const RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password';
+  const SETTINGS_URL = config.fxaContentRoot + 'settings';
+  const SIGNIN_URL = config.fxaContentRoot + 'signin';
+  const SIGNUP_URL = config.fxaContentRoot + 'signup';
+  const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 
-  function clearBrowserState(options) {
+  /**
+   * Convert a function to a form that can be used as a `then` callback.
+   *
+   * Example usage:
+   *
+   * const fillOutSignUp = thenify(function (email, password) {
+   *  return this.parent
+   *    .then(....
+   * });
+   *
+   * ...
+   * .then(fillOutSignUp(email, password))
+   * ...
+   *
+   * @param {function} callback - Function to convert
+   * @param {object} [context] - in which to call callback
+   * @returns {function} that can be used in a promise
+   */
+  function thenify(callback, context) {
     return function () {
-      options = options || {};
-      if (! ('contentServer' in options)) {
-        options.contentServer = true;
-      }
-
-      if (! ('123done' in options)) {
-        options['123done'] = false;
-      }
-
-      if (! ('321done' in options)) {
-        options['321done'] = false;
-      }
-
-      return this.parent
-        .then(function () {
-          if (options.contentServer) {
-            return this.parent
-              .then(clearContentServerState(options));
-          }
-        })
-        .then(function () {
-          if (options['123done']) {
-            return this.parent
-              .then(clear123DoneState());
-          }
-        })
-        .then(function () {
-          if (options['321done']) {
-            return this.parent
-              .then(clear123DoneState( { untrusted: true }));
-          }
-        });
+      var args = arguments;
+      return function () {
+        return callback.apply(context || this, args);
+      };
     };
   }
 
-  function clearContentServerState(options) {
+  /**
+   * Click an element
+   *
+   * @param {string} selector
+   * @returns {promise}
+   */
+  const click = thenify(function (selector) {
+    return this.parent
+      // Ensure the element is visible and not animating before attempting to click.
+      // Sometimes clicks do not register if the element is in the middle of an animation.
+      .then(visibleByQSA(selector))
+      .findByCssSelector(selector)
+        .click()
+      .end();
+  });
+
+  /**
+   * Force a focus event to fire on an element.
+   *
+   * @param {string} [selector] - selector of element - defaults to the window.
+   * @returns {promise} - resolves when complete
+   */
+  const focus = thenify(function (selector) {
+    return this.parent
+      .execute(function (selector) {
+        // The only way to reliably cause a Focus Event is to manually create
+        // one. Just clicking or focusing the window does not work if the
+        // Selenium window is not in focus. This does however. BAM! See the
+        // conversation in
+        // https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/1671
+        // The hint is: "... a hack to work around synthesized events not behaving properly"
+        var target = selector ? document.querySelector(selector) : window;
+        var event = new FocusEvent('focus');
+        target.dispatchEvent(event);
+      }, [ selector ]);
+  });
+
+  /**
+   * Type text into an input element
+   *
+   * @param {string} selector
+   * @param {string} text
+   * @param {object} [options] options
+   *   @param {boolean [options.clearValue] - clear element value before
+   *   typing. Defaults to true.
+   * @returns {promise}
+   */
+  const type = thenify(function (selector, text, options) {
     options = options || {};
-    return function () {
-      // clear localStorage to avoid polluting other tests.
-      return this.parent
-        // always go to the content server so the browser state is cleared,
-        // switch to the top level frame, if we aren't already. This fixes the
-        // iframe flow.
-        .switchToFrame(null)
-        .setFindTimeout(config.pageLoadTimeout)
-        .getCurrentUrl()
-        .then(function (url) {
-          // only load up the content server if we aren't
-          // already at the content server.
-          if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
-            return this.parent.get(require.toUrl(CONTENT_SERVER + 'clear'))
-                      .setFindTimeout(config.pageLoadTimeout)
-                      .findById('fxa-clear-storage-header');
+
+    // always clear unless explicitly overridden
+    var clearValue = options.clearValue !== false;
+
+    text = String(text);
+
+    return this.parent
+      .findByCssSelector(selector)
+        .click()
+
+        .then(function () {
+          if (clearValue) {
+            return this.parent.clearValue();
           }
         })
 
-        .clearCookies()
-        .execute(function () {
-          try {
-            localStorage.clear();
-            sessionStorage.clear();
-          } catch (e) {
-            console.log('Failed to clearBrowserState');
-            // if cookies are disabled, this will blow up some browsers.
-          }
-          return true;
-        }, []);
-    };
-  }
+        .getAttribute('type')
+        .then(function (type) {
+          // xxx: bug in selenium 2.47.1, if firefox is out of
+          // focus it will just type 1 number, split the type
+          // commands for each character to avoid issues with the
+          // test runner
+          if (type === 'number') {
+            var index = 0;
+            var parent = this.parent;
 
-  function clear123DoneState(options) {
+            var typeNext = function () {
+              if (index >= text.length) {
+                return;
+              }
+              var charToType = text.charAt(index);
+              index++;
+
+              return parent
+                .type(charToType)
+                .then(typeNext);
+            };
+
+            return typeNext.call(this);
+          } else {
+            return this.parent.type(text);
+          }
+        })
+
+      .end();
+  });
+
+  /**
+   * Check to ensure an element exists
+   *
+   * @param {string} selector
+   * @returns {promise} rejects if element does not exist
+   */
+  const testElementExists = thenify(function (selector) {
+    return this.parent
+      .findByCssSelector(selector)
+      .end();
+  });
+
+  const clearContentServerState = thenify(function (options) {
+    options = options || {};
+    // clear localStorage to avoid polluting other tests.
+    return this.parent
+      // always go to the content server so the browser state is cleared,
+      // switch to the top level frame, if we aren't already. This fixes the
+      // iframe flow.
+      .switchToFrame(null)
+      .setFindTimeout(config.pageLoadTimeout)
+      .getCurrentUrl()
+      .then(function (url) {
+        // only load up the content server if we aren't
+        // already at the content server.
+        if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
+          return this.parent.get(require.toUrl(CONTENT_SERVER + 'clear'))
+                    .setFindTimeout(config.pageLoadTimeout)
+                    .findById('fxa-clear-storage-header');
+        }
+      })
+
+      .clearCookies()
+      .execute(function () {
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+        } catch (e) {
+          console.log('Failed to clearBrowserState');
+          // if cookies are disabled, this will blow up some browsers.
+        }
+        return true;
+      }, []);
+  });
+
+  const clear123DoneState = thenify(function (options) {
     options = options || {};
 
-    return function () {
-      var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
-      /**
-       * Clearing state for 123done is a bit of a hack.
-       * When the user clicks "Sign out", the buttons to signup/signin
-       * are shown without waiting for the XHR request to complete.
-       * If Selenium moves too quickly and loads another page before the XHR
-       * request completes, the request is aborted and the user never signs out,
-       * causing state to hang around and problems later on.
-       *
-       * To get around this, manually sign the user out by calling the
-       * logout endpoint on the server, then notify Selenium when that request
-       * completes by adding an element to the DOM. Selenium will look for
-       * the added element.
-       */
-      return this.parent
-        // switch to the top level frame, if we aren't already. This fixes the
-        // iframe flow.
-        .switchToFrame(null)
-        .setFindTimeout(config.pageLoadTimeout)
-        .get(require.toUrl(app))
+    var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
+    /**
+     * Clearing state for 123done is a bit of a hack.
+     * When the user clicks "Sign out", the buttons to signup/signin
+     * are shown without waiting for the XHR request to complete.
+     * If Selenium moves too quickly and loads another page before the XHR
+     * request completes, the request is aborted and the user never signs out,
+     * causing state to hang around and problems later on.
+     *
+     * To get around this, manually sign the user out by calling the
+     * logout endpoint on the server, then notify Selenium when that request
+     * completes by adding an element to the DOM. Selenium will look for
+     * the added element.
+     */
+    return this.parent
+      // switch to the top level frame, if we aren't already. This fixes the
+      // iframe flow.
+      .switchToFrame(null)
+      .setFindTimeout(config.pageLoadTimeout)
+      .get(require.toUrl(app))
 
-        .findByCssSelector('#footer-main')
-        .end()
+      .then(testElementExists('#footer-main'))
 
-        .execute(function () {
-          /* global $ */
-          $.post('/api/logout/')
-              .always(function () {
-                $('body').append('<div id="loggedout">Logged out</div>');
-              });
-        })
-        .findByCssSelector('#loggedout')
-        .end();
-    };
-  }
+      .execute(function () {
+        /* global $ */
+        $.post('/api/logout/')
+            .always(function () {
+              $('body').append('<div id="loggedout">Logged out</div>');
+            });
+      })
+      .then(testElementExists('#loggedout'));
+  });
 
-  function clearSessionStorage() {
-    return function () {
-      // clear sessionStorage to avoid polluting other tests.
-      return this.parent
-        .execute(function () {
-          try {
-            sessionStorage.clear();
-          } catch (e) {
-            console.log('Failed to clearSessionStorage');
-          }
-          return true;
-        }, []);
-    };
-  }
+  const clearBrowserState = thenify(function (options) {
+    options = options || {};
+    if (! ('contentServer' in options)) {
+      options.contentServer = true;
+    }
+
+    if (! ('123done' in options)) {
+      options['123done'] = false;
+    }
+
+    if (! ('321done' in options)) {
+      options['321done'] = false;
+    }
+
+    return this.parent
+      .then(function () {
+        if (options.contentServer) {
+          return this.parent
+            .then(clearContentServerState(options));
+        }
+      })
+      .then(function () {
+        if (options['123done']) {
+          return this.parent
+            .then(clear123DoneState());
+        }
+      })
+      .then(function () {
+        if (options['321done']) {
+          return this.parent
+            .then(clear123DoneState( { untrusted: true }));
+        }
+      });
+  });
+
+  const clearSessionStorage = thenify(function () {
+    // clear sessionStorage to avoid polluting other tests.
+    return this.parent
+      .execute(function () {
+        try {
+          sessionStorage.clear();
+        } catch (e) {
+          console.log('Failed to clearSessionStorage');
+        }
+        return true;
+      }, []);
+  });
 
   /**
    * Use document.querySelectorAll to find loaded images.
@@ -249,27 +374,25 @@ define([
    * @param   {string} selector of element to ensure does not exist.
    * @returns {promise} resolves when complete, fails if element exists.
    */
-  function noSuchElement(selector) {
-    return function () {
-      return this.parent
-        .setFindTimeout(0)
+  const noSuchElement = thenify(function (selector) {
+    return this.parent
+      .setFindTimeout(0)
 
-        .findByCssSelector(selector)
-          .then(function () {
-            throw new Error(selector + ' should not be present');
-          }, function (err) {
-            if (/NoSuchElement/.test(String(err))) {
-              // swallow the error
-              return;
-            }
+      .findByCssSelector(selector)
+        .then(function () {
+          throw new Error(selector + ' should not be present');
+        }, function (err) {
+          if (/NoSuchElement/.test(String(err))) {
+            // swallow the error
+            return;
+          }
 
-            throw err;
-          })
-        .end()
+          throw err;
+        })
+      .end()
 
-        .setFindTimeout(config.pageLoadTimeout);
-    };
-  }
+      .setFindTimeout(config.pageLoadTimeout);
+  });
 
   /**
    * Get an fxa-js-client instance
@@ -285,20 +408,18 @@ define([
   /**
    * Get the value of a query parameter
    *
-   * @param {paramName}
+   * @param {String} paramName
    * @returns {promise} that resolves to the query parameter's value
    */
-  function getQueryParamValue(paramName) {
-    return function () {
-      return this.parent
-        .getCurrentUrl()
-        .then(function (url) {
-          var parsedUrl = Url.parse(url);
-          var parsedQueryString = Querystring.parse(parsedUrl.query);
-          return parsedQueryString[paramName];
-        });
-    };
-  }
+  const getQueryParamValue = thenify(function (paramName) {
+    return this.parent
+      .getCurrentUrl()
+      .then(function (url) {
+        var parsedUrl = Url.parse(url);
+        var parsedQueryString = Querystring.parse(parsedUrl.query);
+        return parsedQueryString[paramName];
+      });
+  });
 
   /**
    * Get an email verification link
@@ -307,18 +428,16 @@ define([
    * @param   {number} index email index
    * @returns {promise} resolves with verification link
    */
-  function getVerificationLink(user, index) {
+  const getVerificationLink = thenify(function(user, index) {
     if (/@/.test(user)) {
       user = TestHelpers.emailToUser(user);
     }
 
-    return function () {
-      return getEmailHeaders(user, index)
-        .then(function (headers) {
-          return require.toUrl(headers['x-link']);
-        });
-    };
-  }
+    return getEmailHeaders(user, index)
+      .then(function (headers) {
+        return require.toUrl(headers['x-link']);
+      });
+  });
 
   /**
    * Get the code, uid and reportSignInLink from the unblock email.
@@ -328,46 +447,20 @@ define([
    * @returns {promise} that resolves with object containing
    * `code`, `uid`, and `reportSignInLink`
    */
-  function getUnblockInfo(user, index) {
-    return function () {
-      if (/@/.test(user)) {
-        user = TestHelpers.emailToUser(user);
-      }
+  const getUnblockInfo = thenify(function (user, index) {
+    if (/@/.test(user)) {
+      user = TestHelpers.emailToUser(user);
+    }
 
-      return getEmailHeaders(user, index)
-        .then(function (headers) {
-          return {
-            reportSignInLink: require.toUrl(headers['x-report-signin-link']),
-            uid: headers['x-uid'],
-            unblockCode: headers['x-unblock-code']
-          };
-        });
-    };
-  }
-
-
-  /**
-   * Force a focus event to fire on an element.
-   *
-   * @param {string} [selector] - selector of element - defaults to the window.
-   * @returns promise - resolves when complete
-   */
-  function focus (selector) {
-    return function () {
-      return this.parent
-        .execute(function (selector) {
-          // The only way to reliably cause a Focus Event is to manually create
-          // one. Just clicking or focusing the window does not work if the
-          // Selenium window is not in focus. This does however. BAM! See the
-          // conversation in
-          // https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/1671
-          // The hint is: "... a hack to work around synthesized events not behaving properly"
-          var target = selector ? document.querySelector(selector) : window;
-          var event = new FocusEvent('focus');
-          target.dispatchEvent(event);
-        }, [ selector ]);
-    };
-  }
+    return getEmailHeaders(user, index)
+      .then(function (headers) {
+        return {
+          reportSignInLink: require.toUrl(headers['x-report-signin-link']),
+          uid: headers['x-uid'],
+          unblockCode: headers['x-unblock-code']
+        };
+      });
+  });
 
   /**
    * Get the email headers
@@ -401,20 +494,18 @@ define([
    *   Defaults to 10.
    * Defaults to 10.
    */
-  function testEmailExpected(user, index, options) {
-    return function () {
-      return getEmailHeaders(user, index, options)
-        .then(function () {
-          return true;
-        }, function (err) {
-          if (/EmailTimeout/.test(String(err))) {
-            throw new Error('EmailExpected');
-          }
+  const testEmailExpected = thenify(function (user, index, options) {
+    return getEmailHeaders(user, index, options)
+      .then(function () {
+        return true;
+      }, function (err) {
+        if (/EmailTimeout/.test(String(err))) {
+          throw new Error('EmailExpected');
+        }
 
-          throw err;
-        });
-    };
-  }
+        throw err;
+      });
+  });
 
   /**
    * Test to ensure an unexpected email does not arrive
@@ -425,34 +516,30 @@ define([
    *   @param {number} [options.maxAttempts] - number of email fetch attempts
    *   to make. Defaults to 10.
    */
-  function noEmailExpected(user, index, options) {
-    return function () {
-      return getEmailHeaders(user, index, options)
-        .then(function () {
-          throw new Error('NoEmailExpected');
-        }, function (err) {
-          if (/EmailTimeout/.test(String(err))) {
-            return true;
-          }
+  const noEmailExpected = thenify(function (user, index, options) {
+    return getEmailHeaders(user, index, options)
+      .then(function () {
+        throw new Error('NoEmailExpected');
+      }, function (err) {
+        if (/EmailTimeout/.test(String(err))) {
+          return true;
+        }
 
-          throw err;
-        });
-    };
-  }
+        throw err;
+      });
+  });
 
   /**
    * Open an external site.
    *
    * @returns {promise} resolves when complete
    */
-  function openExternalSite() {
-    return function () {
-      return this.parent
-        .get(require.toUrl(EXTERNAL_SITE_URL))
-          .findByPartialLinkText(EXTERNAL_SITE_LINK_TEXT)
-        .end();
-    };
-  }
+  const openExternalSite = thenify(function () {
+    return this.parent
+      .get(require.toUrl(EXTERNAL_SITE_URL))
+        .findByPartialLinkText(EXTERNAL_SITE_LINK_TEXT)
+      .end();
+  });
 
   /**
    * Open a verification link in a new tab of the same browser.
@@ -460,43 +547,37 @@ define([
    * @param {number} index verification email index
    * @returns {promise} resolves when complete
    */
-  function openVerificationLinkInNewTab(email, index, windowName) {
-    return function () {
-      var user = TestHelpers.emailToUser(email);
+  const openVerificationLinkInNewTab = thenify(function (email, index, windowName) {
+    var user = TestHelpers.emailToUser(email);
 
-      return this.parent
-        .then(getVerificationLink(user, index))
-        .then(function (verificationLink) {
-          return this.parent
-            .execute(openWindow, [ verificationLink, windowName ]);
-        });
-    };
-  }
+    return this.parent
+      .then(getVerificationLink(user, index))
+      .then(function (verificationLink) {
+        return this.parent
+          .execute(openWindow, [ verificationLink, windowName ]);
+      });
+  });
 
-  function openVerificationLinkInSameTab(email, index, options) {
+  const openVerificationLinkInSameTab = thenify(function (email, index, options) {
     var user = TestHelpers.emailToUser(email);
 
     options = options || {};
 
-    return function () {
-      return this.parent
-        .then(getVerificationLink(user, index))
-        .then(function (verificationLink) {
-          const parsedVerificationLink = Url.parse(verificationLink, true);
-          for (var paramName in options.query) {
-            parsedVerificationLink.query[paramName] = options.query[paramName];
-          }
-          parsedVerificationLink.search = undefined;
-          return this.parent.get(require.toUrl(Url.format(parsedVerificationLink)));
-        });
-    };
-  }
+    return this.parent
+      .then(getVerificationLink(user, index))
+      .then(function (verificationLink) {
+        const parsedVerificationLink = Url.parse(verificationLink, true);
+        for (var paramName in options.query) {
+          parsedVerificationLink.query[paramName] = options.query[paramName];
+        }
+        parsedVerificationLink.search = undefined;
+        return this.parent.get(require.toUrl(Url.format(parsedVerificationLink)));
+      });
+  });
 
-  function openTab (url, name) {
-    return function () {
-      return this.parent.execute(openWindow, [ url, name ]);
-    };
-  }
+  const openTab = thenify(function (url, name) {
+    return this.parent.execute(openWindow, [ url, name ]);
+  });
 
   function openWindow (url, name) {
     var newWindow = window.open(url, name || 'newwindow');
@@ -548,20 +629,18 @@ define([
    * @param   {number} [emailNumber] - email number with the verification link. Defaults to `0`.
    * @returns {promise} resolves when complete
    */
-  function openVerificationLinkInDifferentBrowser(email, emailNumber) {
-    return function () {
-      var  client = getFxaClient();
-      var user = TestHelpers.emailToUser(email);
+  const openVerificationLinkInDifferentBrowser = thenify(function (email, emailNumber) {
+    var client = getFxaClient();
+    var user = TestHelpers.emailToUser(email);
 
-      return getEmailHeaders(user, emailNumber || 0)
-        .then(function (headers) {
-          var uid = headers['x-uid'];
-          var code = headers['x-verify-code'];
+    return getEmailHeaders(user, emailNumber || 0)
+      .then(function (headers) {
+        var uid = headers['x-uid'];
+        var code = headers['x-verify-code'];
 
-          return client.verifyCode(uid, code);
-        });
-    };
-  }
+        return client.verifyCode(uid, code);
+      });
+  });
 
   /**
    * Synthesize completing a password reset in a different browser.
@@ -570,29 +649,27 @@ define([
    * @param {string} password - new password
    * @returns {promise} - resolves when complete
    */
-  function openPasswordResetLinkInDifferentBrowser(email, password) {
+  const openPasswordResetLinkInDifferentBrowser = thenify(function (email, password) {
     var client = getFxaClient();
 
     var user = TestHelpers.emailToUser(email);
 
-    return function () {
-      return getEmailHeaders(user, 0)
-        .then(function (headers) {
-          var code = headers['x-recovery-code'];
-          // there is no x-recovery-token header, so we have to parse it
-          // out of the link.
-          var link = headers['x-link'];
-          var search = Url.parse(link).query;
-          var queryParams = Querystring.parse(search);
-          var token = queryParams.token;
+    return getEmailHeaders(user, 0)
+      .then(function (headers) {
+        var code = headers['x-recovery-code'];
+        // there is no x-recovery-token header, so we have to parse it
+        // out of the link.
+        var link = headers['x-link'];
+        var search = Url.parse(link).query;
+        var queryParams = Querystring.parse(search);
+        var token = queryParams.token;
 
-          return client.passwordForgotVerifyCode(code, token);
-        })
-        .then(function (result) {
-          return client.accountReset(email, password, result.accountResetToken);
-        });
-    };
-  }
+        return client.passwordForgotVerifyCode(code, token);
+      })
+      .then(function (result) {
+        return client.accountReset(email, password, result.accountResetToken);
+      });
+  });
 
   /**
    * Open the settings page in a new tab.
@@ -601,16 +678,14 @@ define([
    * @param   {string} [panel] pathname of panel to open. Open `/settings` if not given.
    * @returns {promise} resolves when complete
    */
-  function openSettingsInNewTab(windowName, panel) {
+  const openSettingsInNewTab = thenify(function (windowName, panel) {
     var url = SETTINGS_URL;
     if (panel) {
       url += '/' + panel;
     }
-    return function () {
-      return this.parent
-        .execute(openWindow, [ url, windowName ]);
-    };
-  }
+    return this.parent
+      .execute(openWindow, [ url, windowName ]);
+  });
 
   /**
    * Open the signin page in a new tab.
@@ -618,12 +693,10 @@ define([
    * @param   {string} windowName name of tab
    * @returns {promise} resolves when complete
    */
-  function openSignInInNewTab(windowName) {
-    return function () {
-      return this.parent
-        .execute(openWindow, [ SIGNIN_URL, windowName ]);
-    };
-  }
+  const openSignInInNewTab = thenify(function (windowName) {
+    return this.parent
+      .execute(openWindow, [ SIGNIN_URL, windowName ]);
+  });
 
   /**
    * Open the signup page in a new tab.
@@ -631,12 +704,63 @@ define([
    * @param   {string} windowName name of tab
    * @returns {promise} resolves when complete
    */
-  function openSignUpInNewTab(windowName) {
-    return function () {
-      return this.parent
-        .execute(openWindow, [ SIGNUP_URL, windowName ]);
-    };
-  }
+  const openSignUpInNewTab = thenify(function (windowName) {
+    return this.parent
+      .execute(openWindow, [ SIGNUP_URL, windowName ]);
+  });
+
+  /**
+   * Take a screen shot, write a base64 encoded image to the console
+   */
+  const takeScreenshot = thenify(function () {
+    return this.parent.takeScreenshot()
+      .then(function (buffer) {
+        console.error('Capturing base64 screenshot:');
+        console.error(buffer.toString('base64'));
+      });
+  });
+
+  /**
+   * Open `url` in the current tab, wait for `readySelector`
+   *
+   * @param {String} url - url to open
+   * @param {String} readySelector - selector that indicates page is loaded
+   * @param {Object} [options]
+   *  @param {Object} [options.query] - extra query parameters to add
+   * @returns {Promise} - resolves when complete
+   */
+  const openPage = thenify(function (url, readySelector, options) {
+    options = options || {};
+
+    const parsedUrl = Url.parse(url, true);
+    for (var paramName in options.query) {
+      parsedUrl.query[paramName] = options.query[paramName];
+    }
+    parsedUrl.search = undefined;
+    url = Url.format(parsedUrl);
+
+    return this.parent
+      .get(require.toUrl(url))
+      .setFindTimeout(config.pageLoadTimeout)
+
+      // Wait until the `readySelector` element is found to return.
+      .then(testElementExists(readySelector))
+
+      .then(null, function (err) {
+        return this.parent
+          .getCurrentUrl()
+            .then(function (resultUrl) {
+              console.log('Error fetching %s, now at %s', url, resultUrl);
+            })
+          .end()
+
+          .then(takeScreenshot())
+
+          .then(function () {
+            throw err;
+          });
+      });
+  });
 
   /**
    * Open the force auth page
@@ -646,15 +770,13 @@ define([
    *  "page is loaded". Defaults to `#fxa-force-auth-header`
    * @param {object} [options.query] - query strings to open page with
    */
-  function openForceAuth(options) {
-    return function () {
-      options = options || {};
+  const openForceAuth = thenify(function (options) {
+    options = options || {};
 
-      var urlToOpen = FORCE_AUTH_URL + '?' + Querystring.stringify(options.query || {});
-      return this.parent
-        .then(openPage(urlToOpen, options.header || '#fxa-force-auth-header'));
-    };
-  }
+    var urlToOpen = FORCE_AUTH_URL + '?' + Querystring.stringify(options.query || {});
+    return this.parent
+      .then(openPage(urlToOpen, options.header || '#fxa-force-auth-header'));
+  });
 
   /**
    * Re-open the same page with additional query parameters.
@@ -663,21 +785,74 @@ define([
    * @param   {string} waitForSelector query selector that indicates load is complete
    * @returns {promise} resolves when complete.
    */
-  function reOpenWithAdditionalQueryParams(additionalQueryParams, waitForSelector) {
-    return function () {
-      return this.parent
-        .getCurrentUrl()
-        .then(function (url) {
-          var parsedUrl = Url.parse(url);
-          var currentQueryParams = Querystring.parse(parsedUrl.search);
-          var updatedQueryParams = lang.mixin({}, currentQueryParams, additionalQueryParams);
-          var urlToOpen = url + '?' + Querystring.stringify(updatedQueryParams);
+  const reOpenWithAdditionalQueryParams = thenify(function (additionalQueryParams, waitForSelector) {
+    return this.parent
+      .getCurrentUrl()
+      .then(function (url) {
+        var parsedUrl = Url.parse(url);
+        var currentQueryParams = Querystring.parse(parsedUrl.search);
+        var updatedQueryParams = lang.mixin({}, currentQueryParams, additionalQueryParams);
+        var urlToOpen = url + '?' + Querystring.stringify(updatedQueryParams);
 
+        return this.parent
+          .then(openPage(urlToOpen, waitForSelector));
+      });
+  });
+
+  /**
+   * Open FxA from an OAuth relier.
+   *
+   * @param {string} page - page to open
+   * @param {object} [options]
+   * @param {string} [options.header] - element selector that indicates
+   *  "page is loaded". Defaults to `#fxa-force-auth-header`
+   * @param {object} [options.query] - query strings to open page with
+   * @param {boolean} [options.untrusted] - if `true`, opens the Untrusted
+   * relier. Defaults to `true`
+   */
+  const openFxaFromRp = thenify(function (page, options) {
+    options = options || {};
+    var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
+    var expectedHeader = options.header || '#fxa-' + page.replace('_', '-') + '-header';
+    var queryParams = options.query || {};
+
+    // force_auth does not have a button on 123done, instead this is
+    // only available programatically. Load the force_auth page
+    // with only the email initially, then reload with the full passed
+    // in urlSuffix so things like the webChannelId are correctly passed.
+    if (page === 'force_auth') {
+      var emailSearchString = '?' + Querystring.stringify({ email: queryParams.email });
+      var endpoint = app + 'api/force_auth' + emailSearchString;
+      return this.parent
+        .then(openPage(endpoint, expectedHeader))
+        .then(function () {
+          var numQueryParams = Object.keys(queryParams).length;
+          if (! numQueryParams || (numQueryParams === 1 && queryParams.email)) {
+            // email will already have been added, if passed in. email is
+            // not passed in for some functional tests to ensure query parameter
+            // validation is working properly.
+            return;
+          }
           return this.parent
-            .then(openPage(urlToOpen, waitForSelector));
+            .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
         });
-    };
-  }
+    }
+
+    return this.parent
+      .then(openPage(app, '.ready #splash .' + page))
+      .then(click('.ready #splash .' + page))
+
+      // wait until the page fully loads or else the re-load with
+      // the suffix will blow its lid when run against latest.
+      .then(testElementExists(expectedHeader))
+
+      .then(function () {
+        if (Object.keys(queryParams).length) {
+          return this.parent
+            .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
+        }
+      });
+  });
 
   /**
    * Open FxA from the untrusted OAuth relier.
@@ -694,97 +869,36 @@ define([
     return openFxaFromRp(page, options);
   }
 
-  /**
-   * Open FxA from an OAuth relier.
-   *
-   * @param {string} page - page to open
-   * @param {object} [options]
-   * @param {string} [options.header] - element selector that indicates
-   *  "page is loaded". Defaults to `#fxa-force-auth-header`
-   * @param {object} [options.query] - query strings to open page with
-   * @param {boolean} [options.untrusted] - if `true`, opens the Untrusted
-   * relier. Defaults to `true`
-   */
-  function openFxaFromRp(page, options) {
-    options = options || {};
-    var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
-    var expectedHeader = options.header || '#fxa-' + page.replace('_', '-') + '-header';
-    var queryParams = options.query || {};
-
-    return function () {
-      // force_auth does not have a button on 123done, instead this is
-      // only available programatically. Load the force_auth page
-      // with only the email initially, then reload with the full passed
-      // in urlSuffix so things like the webChannelId are correctly passed.
-      if (page === 'force_auth') {
-        var emailSearchString = '?' + Querystring.stringify({ email: queryParams.email });
-        var endpoint = app + 'api/force_auth' + emailSearchString;
-        return this.parent
-          .then(openPage(endpoint, expectedHeader))
-          .then(function () {
-            var numQueryParams = Object.keys(queryParams).length;
-            if (! numQueryParams || (numQueryParams === 1 && queryParams.email)) {
-              // email will already have been added, if passed in. email is
-              // not passed in for some functional tests to ensure query parameter
-              // validation is working properly.
-              return;
-            }
-            return this.parent
-              .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
-          });
-      }
-
-      return this.parent
-        .then(openPage(app, '.ready #splash .' + page))
-        .then(click('.ready #splash .' + page))
-
-        // wait until the page fully loads or else the re-load with
-        // the suffix will blow its lid when run against latest.
-        .then(testElementExists(expectedHeader))
-
-        .then(function () {
-          if (Object.keys(queryParams).length) {
-            return this.parent
-              .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
-          }
-        });
-    };
-  }
-
-  function fillOutSignIn(email, password, alwaysLoad) {
-    return function () {
-      return this.parent
-        .getCurrentUrl()
-        .then(function (currentUrl) {
-          // only load the signin page if not already at a signin page.
-          // the leading [\/#] allows for either the standard redirect or iframe
-          // flow. The iframe flow must use the window hash for routing.
-          if (! /[\/#]signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
-            return this.parent
-              .get(require.toUrl(SIGNIN_URL))
-              .setFindTimeout(intern.config.pageLoadTimeout);
-          }
-        })
-
-        .then(type('input[type=email]', email))
-        .then(type('input[type=password]', password))
-        .then(click('button[type="submit"]'));
-    };
-  }
-
-  function fillOutSignInUnblock(email, number) {
-    return function () {
-      return this.parent
-        .then(getUnblockInfo(email, number))
-        .then(function (unblockInfo) {
+  const fillOutSignIn = thenify(function (email, password, alwaysLoad) {
+    return this.parent
+      .getCurrentUrl()
+      .then(function (currentUrl) {
+        // only load the signin page if not already at a signin page.
+        // the leading [\/#] allows for either the standard redirect or iframe
+        // flow. The iframe flow must use the window hash for routing.
+        if (! /[\/#]signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
           return this.parent
-            .then(type('#unblock_code', unblockInfo.unblockCode));
-        })
-        .then(click('button[type=submit]'));
-    };
-  }
+            .get(require.toUrl(SIGNIN_URL))
+            .setFindTimeout(intern.config.pageLoadTimeout);
+        }
+      })
 
-  function fillOutSignUp(email, password, options) {
+      .then(type('input[type=email]', email))
+      .then(type('input[type=password]', password))
+      .then(click('button[type="submit"]'));
+  });
+
+  const fillOutSignInUnblock = thenify(function (email, number) {
+    return this.parent
+      .then(getUnblockInfo(email, number))
+      .then(function (unblockInfo) {
+        return this.parent
+          .then(type('#unblock_code', unblockInfo.unblockCode));
+      })
+      .then(click('button[type=submit]'));
+  });
+
+  const fillOutSignUp = thenify(function (email, password, options) {
     options = options || {};
 
     var customizeSync = options.customizeSync || false;
@@ -793,85 +907,79 @@ define([
     var age = options.age || 24;
     var submit = options.submit !== false;
 
-    return function () {
-      return this.parent
-        .getCurrentUrl()
-        .then(function (currentUrl) {
-          // only load the signup page if not already at a signup page.
-          // the leading [\/#] allows for either the standard redirect or iframe
-          // flow. The iframe flow must use the window hash for routing.
-          if (! /[\/#]signup(?:$|\?)/.test(currentUrl)) {
-            return this.parent
-              .get(require.toUrl(SIGNUP_URL))
-              .setFindTimeout(intern.config.pageLoadTimeout);
-          }
-        })
+    return this.parent
+      .getCurrentUrl()
+      .then(function (currentUrl) {
+        // only load the signup page if not already at a signup page.
+        // the leading [\/#] allows for either the standard redirect or iframe
+        // flow. The iframe flow must use the window hash for routing.
+        if (! /[\/#]signup(?:$|\?)/.test(currentUrl)) {
+          return this.parent
+            .get(require.toUrl(SIGNUP_URL))
+            .setFindTimeout(intern.config.pageLoadTimeout);
+        }
+      })
 
-        .then(function () {
-          if (enterEmail) {
-            return type('input[type=email]', email).call(this);
-          }
-        })
-        .then(type('input[type=password]', password))
-        .then(type('#age', age || '24'))
+      .then(function () {
+        if (enterEmail) {
+          return type('input[type=email]', email).call(this);
+        }
+      })
+      .then(type('input[type=password]', password))
+      .then(type('#age', age || '24'))
 
-        .then(function () {
-          if (customizeSync) {
-            return click('form input.customize-sync').call(this);
-          }
-        })
+      .then(function () {
+        if (customizeSync) {
+          return click('form input.customize-sync').call(this);
+        }
+      })
 
-        .then(function () {
-          if (optInToMarketingEmail) {
-            return click('form input.marketing-email-optin').call(this);
-          }
-        })
-        .then(function () {
-          if (submit) {
-            return click('button[type="submit"]').call(this);
-          }
-        });
-    };
-  }
+      .then(function () {
+        if (optInToMarketingEmail) {
+          return click('form input.marketing-email-optin').call(this);
+        }
+      })
+      .then(function () {
+        if (submit) {
+          return click('button[type="submit"]').call(this);
+        }
+      });
+  });
 
-  function fillOutResetPassword(email, options) {
+  const fillOutResetPassword = thenify(function (email, options) {
     options = options || {};
 
-    return function () {
-      return this.parent
-        .getCurrentUrl()
-        .then(function (currentUrl) {
-          // only load the reset_password page if not already at
-          // the reset_password page.
-          // the leading [\/#] allows for either the standard redirect or iframe
-          // flow. The iframe flow must use the window hash for routing.
-          if (! /[\/#]reset_password(?:$|\?)/.test(currentUrl) && ! options.skipPageRedirect) {
-            return this.parent
-              .get(require.toUrl(RESET_PASSWORD_URL))
-              .setFindTimeout(intern.config.pageLoadTimeout);
-          }
-        })
+    return this.parent
+      .getCurrentUrl()
+      .then(function (currentUrl) {
+        // only load the reset_password page if not already at
+        // the reset_password page.
+        // the leading [\/#] allows for either the standard redirect or iframe
+        // flow. The iframe flow must use the window hash for routing.
+        if (! /[\/#]reset_password(?:$|\?)/.test(currentUrl) && ! options.skipPageRedirect) {
+          return this.parent
+            .get(require.toUrl(RESET_PASSWORD_URL))
+            .setFindTimeout(intern.config.pageLoadTimeout);
+        }
+      })
 
-        .then(testElementExists('#fxa-reset-password-header'))
-        .then(type('form input.email', email))
-        .then(click('button[type="submit"]'));
-    };
-  }
+      .then(testElementExists('#fxa-reset-password-header'))
+      .then(type('form input.email', email))
+      .then(click('button[type="submit"]'));
+  });
 
   /**
    * Fill out and submit the force auth page.
    *
    * @param {string} password
    */
-  function fillOutForceAuth(password) {
-    return function () {
-      return this.parent
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .then(testElementExists('#fxa-force-auth-header'))
-        .then(type('input[type=password]', password))
-        .then(click('button[type=submit]'));
-    };
-  }
+  const fillOutForceAuth = thenify(function (password) {
+    return this.parent
+      .setFindTimeout(intern.config.pageLoadTimeout)
+      .then(testElementExists('#fxa-force-auth-header'))
+      .then(type('input[type=password]', password))
+      .then(click('button[type=submit]'));
+  });
 
   /**
    * Fill out and submit the complete reset password form
@@ -879,17 +987,15 @@ define([
    * @param {String} vpassword - new verification password
    * @returns {promise}
    */
-  function fillOutCompleteResetPassword(password, vpassword) {
-    return function () {
-      return this.parent
-      .setFindTimeout(intern.config.pageLoadTimeout)
+  const fillOutCompleteResetPassword = thenify(function (password, vpassword) {
+    return this.parent
+    .setFindTimeout(intern.config.pageLoadTimeout)
 
-      .then(testElementExists('#fxa-complete-reset-password-header'))
-      .then(type('#password', password))
-      .then(type('#vpassword', vpassword))
-      .then(click('button[type="submit"]'));
-    };
-  }
+    .then(testElementExists('#fxa-complete-reset-password-header'))
+    .then(type('#password', password))
+    .then(type('#vpassword', vpassword))
+    .then(click('button[type="submit"]'));
+  });
 
   /**
    * Fill out and submit the change password form.
@@ -898,16 +1004,14 @@ define([
    * @param   {string} newPassword user's new password
    * @returns {promise} resolves when complete
    */
-  function fillOutChangePassword(oldPassword, newPassword) {
-    return function () {
-      return this.parent
-        .setFindTimeout(intern.config.pageLoadTimeout)
+  const fillOutChangePassword = thenify(function (oldPassword, newPassword) {
+    return this.parent
+      .setFindTimeout(intern.config.pageLoadTimeout)
 
-        .then(type('#old_password', oldPassword))
-        .then(type('#new_password', newPassword))
-        .then(click('#change-password button[type="submit"]'));
-    };
-  }
+      .then(type('#old_password', oldPassword))
+      .then(type('#new_password', newPassword))
+      .then(click('#change-password button[type="submit"]'));
+  });
 
   /**
    * Fill out and submit the delete account form.
@@ -915,32 +1019,28 @@ define([
    * @param   {string} password user's password
    * @returns {promise} resolves when complete
    */
-  function fillOutDeleteAccount(password) {
-    return function () {
-      return this.parent
-        .setFindTimeout(intern.config.pageLoadTimeout)
+  const fillOutDeleteAccount = thenify(function (password) {
+    return this.parent
+      .setFindTimeout(intern.config.pageLoadTimeout)
 
-        .then(type('#delete-account form input.password', password))
-        // delete account
-        .then(click('#delete-account button[type="submit"]'));
-    };
-  }
+      .then(type('#delete-account form input.password', password))
+      // delete account
+      .then(click('#delete-account button[type="submit"]'));
+  });
 
   function mouseevent(eventType) {
-    return function (selector) {
-      return function () {
-        return this.parent
-          .execute(function (selector, eventType) {
-            var target = selector ? document.querySelector(selector) : window;
-            var event = new MouseEvent(eventType, {
-              bubbles: true,
-              cancelable: true,
-              view: window
-            });
-            target.dispatchEvent(event);
-          }, [ selector, eventType ]);
-      };
-    };
+    return thenify(function (selector) {
+      return this.parent
+        .execute(function (selector, eventType) {
+          var target = selector ? document.querySelector(selector) : window;
+          var event = new MouseEvent(eventType, {
+            bubbles: true,
+            cancelable: true,
+            view: window
+          });
+          target.dispatchEvent(event);
+        }, [ selector, eventType ]);
+    });
   }
 
   var mousedown = mouseevent('mousedown');
@@ -954,56 +1054,52 @@ define([
    * @param   {object} response response
    * @returns {promise} resolves when complete
    */
-  function respondToWebChannelMessage(expectedCommand, response) {
+  const respondToWebChannelMessage = thenify(function (expectedCommand, response) {
     var attachedId = Math.floor(Math.random() * 10000);
-    return function () {
-      return this.parent
-        .execute(function (expectedCommand, response, attachedId) {
-          function startListening() {
-            try {
-              addEventListener('WebChannelMessageToChrome', function listener(e) {
-                var command = e.detail.message.command;
-                var messageId = e.detail.message.messageId;
+    return this.parent
+      .execute(function (expectedCommand, response, attachedId) {
+        function startListening() {
+          try {
+            addEventListener('WebChannelMessageToChrome', function listener(e) {
+              var command = e.detail.message.command;
+              var messageId = e.detail.message.messageId;
 
-                if (command === expectedCommand) {
-                  removeEventListener('WebChannelMessageToChrome', listener);
-                  var event = new CustomEvent('WebChannelMessageToContent', {
-                    detail: {
-                      id: 'account_updates',
-                      message: {
-                        command: command,
-                        data: response,
-                        messageId: messageId
-                      }
+              if (command === expectedCommand) {
+                removeEventListener('WebChannelMessageToChrome', listener);
+                var event = new CustomEvent('WebChannelMessageToContent', {
+                  detail: {
+                    id: 'account_updates',
+                    message: {
+                      command: command,
+                      data: response,
+                      messageId: messageId
                     }
-                  });
+                  }
+                });
 
-                  dispatchEvent(event);
-                }
-              });
-              $('body').append('<div>').addClass('attached' + attachedId);
-            } catch (e) {
-              // problem adding the listener, window may not be
-              // ready, try again.
-              setTimeout(startListening, 0);
-            }
+                dispatchEvent(event);
+              }
+            });
+            $('body').append('<div>').addClass('attached' + attachedId);
+          } catch (e) {
+            // problem adding the listener, window may not be
+            // ready, try again.
+            setTimeout(startListening, 0);
           }
+        }
 
-          startListening();
-        }, [ expectedCommand, response, attachedId ])
-        // once the event is attached it adds a div with an attachedId.
-        .then(testElementExists('.attached' + attachedId));
-    };
-  }
+        startListening();
+      }, [ expectedCommand, response, attachedId ])
+      // once the event is attached it adds a div with an attachedId.
+      .then(testElementExists('.attached' + attachedId));
+  });
 
-  function clearBrowserNotifications() {
-    return function () {
-      return this.parent
-        .execute(function (command, done) {
-          sessionStorage.removeItem('webChannelEvents');
-        });
-    };
-  }
+  const clearBrowserNotifications = thenify(function () {
+    return this.parent
+      .execute(function (command, done) {
+        sessionStorage.removeItem('webChannelEvents');
+      });
+  });
 
   /**
    * Test to ensure the browser has received a web channel notification.
@@ -1011,40 +1107,38 @@ define([
    * @param {string} command to ensure was received
    * @returns {promise} rejects if message has not been received.
    */
-  function testIsBrowserNotified(command) {
-    return function () {
-      return this.parent
-        // Allow 5 seconds for the event to come through.
-        .setExecuteAsyncTimeout(5000)
-        .executeAsync(function (command, done) {
-          function check() {
-            var storedEvents;
-            try {
-              storedEvents = JSON.parse(sessionStorage.getItem('webChannelEvents')) || [];
-            } catch (e) {
-              storedEvents = [];
-            }
-
-            if (storedEvents.indexOf(command) > -1) {
-              done();
-            } else {
-              setTimeout(check, 50);
-            }
+  const testIsBrowserNotified = thenify(function (command) {
+    return this.parent
+      // Allow 5 seconds for the event to come through.
+      .setExecuteAsyncTimeout(5000)
+      .executeAsync(function (command, done) {
+        function check() {
+          var storedEvents;
+          try {
+            storedEvents = JSON.parse(sessionStorage.getItem('webChannelEvents')) || [];
+          } catch (e) {
+            storedEvents = [];
           }
 
-          check();
-        }, [command])
-        .then(null, function (err) {
-          if (/ScriptTimeout/.test(String(err))) {
-            var noSuchNotificationError = new Error('NoSuchBrowserNotification');
-            noSuchNotificationError.command = command;
-            throw noSuchNotificationError;
+          if (storedEvents.indexOf(command) > -1) {
+            done();
           } else {
-            throw err;
+            setTimeout(check, 50);
           }
-        });
-    };
-  }
+        }
+
+        check();
+      }, [command])
+      .then(null, function (err) {
+        if (/ScriptTimeout/.test(String(err))) {
+          var noSuchNotificationError = new Error('NoSuchBrowserNotification');
+          noSuchNotificationError.command = command;
+          throw noSuchNotificationError;
+        } else {
+          throw err;
+        }
+      });
+  });
 
   /**
    * Test to ensure the browser has not received a web channel notification.
@@ -1052,21 +1146,19 @@ define([
    * @param   {string} command command that should not be received.
    * @returns {promise} rejects if command has been received
    */
-  function noSuchBrowserNotification(command) {
-    return function () {
-      return this.parent
-        .then(testIsBrowserNotified(command))
-        .then(function () {
-          var unexpectedNotificationError = new Error('UnexpectedBrowserNotification');
-          unexpectedNotificationError.command = command;
-          throw unexpectedNotificationError;
-        }, function (err) {
-          if (! /NoSuchBrowserNotification/.test(String(err))) {
-            throw err;
-          }
-        });
-    };
-  }
+  const noSuchBrowserNotification = thenify(function (command) {
+    return this.parent
+      .then(testIsBrowserNotified(command))
+      .then(function () {
+        var unexpectedNotificationError = new Error('UnexpectedBrowserNotification');
+        unexpectedNotificationError.command = command;
+        throw unexpectedNotificationError;
+      }, function (err) {
+        if (! /NoSuchBrowserNotification/.test(String(err))) {
+          throw err;
+        }
+      });
+  });
 
   /**
    * Check to ensure the page does not transition
@@ -1076,95 +1168,30 @@ define([
    * @returns {promise} that resolves if the selector is found
    * before and after the timeout.
    */
-  function noPageTransition(selector, timeout) {
-    return function () {
-      return this.parent
-        .findByCssSelector(selector)
-        .end()
-
-        .sleep(timeout || 2000)
-
-        .findByCssSelector(selector)
-        .end();
-    };
-  }
-
-  /**
-   * Open `url` in the current tab, wait for `readySelector`
-   *
-   * @param {String} url - url to open
-   * @param {String} readySelector - selector that indicates page is loaded
-   * @param {Object} [options]
-   *  @param {Object} [options.query] - extra query parameters to add
-   * @returns {Promise} - resolves when complete
-   */
-  function openPage(url, readySelector, options) {
-    options = options || {};
-
-    const parsedUrl = Url.parse(url, true);
-    for (var paramName in options.query) {
-      parsedUrl.query[paramName] = options.query[paramName];
-    }
-    parsedUrl.search = undefined;
-    url = Url.format(parsedUrl);
-
-    return function () {
-      return this.parent
-        .get(require.toUrl(url))
-        .setFindTimeout(config.pageLoadTimeout)
-
-        // Wait until the `readySelector` element is found to return.
-        .then(testElementExists(readySelector))
-
-        .then(null, function (err) {
-          return this.parent
-            .getCurrentUrl()
-              .then(function (resultUrl) {
-                console.log('Error fetching %s, now at %s', url, resultUrl);
-              })
-            .end()
-
-            .then(takeScreenshot())
-
-            .then(function () {
-              throw err;
-            });
-        });
-    };
-  }
-
-  /**
-   * Take a screen shot, write a base64 encoded image to the console
-   */
-  function takeScreenshot() {
-    return function () {
-      return this.parent.takeScreenshot()
-        .then(function (buffer) {
-          console.error('Capturing base64 screenshot:');
-          console.error(buffer.toString('base64'));
-        });
-    };
-  }
+  const noPageTransition = thenify(function (selector, timeout) {
+    return this.parent
+      .then(testElementExists(selector))
+      .sleep(timeout || 2000)
+      .then(testElementExists(selector));
+  });
 
   /**
    * Fetch all the metrics that have been logged by the front end.
    *
    * @returns {promise} resolves with the logged metrics.
    */
-  function fetchAllMetrics() {
-    return function () {
-      return this.parent
-        .execute(function () {
-          var key = '__fxa_storage.metrics_all';
-          var item;
-          try {
-            item = JSON.parse(localStorage.getItem(key));
-          } catch (e) {
-          }
-          return item;
-        });
-    };
-  }
+  const fetchAllMetrics = thenify(function () {
+    return this.parent
+      .execute(function () {
+        var key = '__fxa_storage.metrics_all';
+        var item;
+        try {
+          item = JSON.parse(localStorage.getItem(key));
+        } catch (e) {
+        }
+        return item;
+      });
+  });
 
   /**
    * Test to ensure all events in the list have been logged.
@@ -1172,37 +1199,54 @@ define([
    * @param   {string[]} eventsNames
    * @returns {promise} rejects if all events are not logged
    */
-  function testAreEventsLogged(eventsNames) {
-    return function () {
-      return this.parent
-        .then(fetchAllMetrics())
-        .then(function (metrics) {
-          var events = metrics.reduce(function (evts, metrics) {
-            var evtsNames = metrics.events.map(function (evt) {
-              return evt.type;
+  const testAreEventsLogged = thenify(function (eventsNames) {
+    return this.parent
+      .then(fetchAllMetrics())
+      .then(function (metrics) {
+        var events = metrics.reduce(function (evts, metrics) {
+          var evtsNames = metrics.events.map(function (evt) {
+            return evt.type;
+          });
+          return evts.concat(evtsNames);
+        }, []);
+
+        return this.parent
+          .execute(function (eventsNames, events) {
+            var toFindAll = eventsNames.slice().reverse();
+            var toFind = toFindAll.pop();
+
+            events.forEach(function (event) {
+              if (event === toFind) {
+                toFind = toFindAll.pop();
+              }
             });
-            return evts.concat(evtsNames);
-          }, []);
 
-          return this.parent
-            .execute(function (eventsNames, events) {
-              var toFindAll = eventsNames.slice().reverse();
-              var toFind = toFindAll.pop();
+            return toFindAll.length === 0;
+          }, [ eventsNames, events ]);
+      })
+      .then(function (found) {
+        assert.ok(found, 'found the events we were looking for');
+      });
+  });
 
-              events.forEach(function (event) {
-                if (event === toFind) {
-                  toFind = toFindAll.pop();
-                }
-              });
-
-              return toFindAll.length === 0;
-            }, [ eventsNames, events ]);
-        })
-        .then(function (found) {
-          assert.ok(found, 'found the events we were looking for');
-        });
-    };
-  }
+  /**
+   * Test whether a status element (success or error) was shown.
+   * Done by looking for the `data-shown` attribute.
+   *
+   * @param {string} selector
+   * @returns {promise} rejects if fails
+   */
+  const testElementWasShown = thenify(function (selector) {
+    return this.parent
+      .then(testElementExists(selector))
+      .executeAsync(function (selector, done) {
+        // remove the attribute so subsequent checks can be made
+        // against the same element. displaySuccess and displayError
+        // will re-add the 'data-shown' attribute.
+        $(selector).removeAttr('data-shown');
+        done();
+      }, [selector]);
+  });
 
   /**
    * Test whether the success message was shown.
@@ -1232,18 +1276,16 @@ define([
    * @param {string} selector
    * @returns {promise} rejects if test fails
    */
-  function testElementDisabled(selector) {
-    return function () {
-      return this.parent
-        .findByCssSelector(selector)
-          .getAttribute('disabled')
-          .then(function (disabledValue) {
-            // attribute value is null if it does not exist
-            assert.notStrictEqual(disabledValue, null);
-          })
-        .end();
-    };
-  }
+  const testElementDisabled = thenify(function (selector) {
+    return this.parent
+      .findByCssSelector(selector)
+        .getAttribute('disabled')
+        .then(function (disabledValue) {
+          // attribute value is null if it does not exist
+          assert.notStrictEqual(disabledValue, null);
+        })
+      .end();
+  });
 
   /**
    * Check to ensure an element is displayed.
@@ -1251,18 +1293,16 @@ define([
    * @param {string} selector
    * @returns {promise} rejects if test fails
    */
-  function testElementDisplayed(selector) {
-    return function () {
-      return this.parent
-        .then(visibleByQSA(selector))
-        .findByCssSelector(selector)
-          .isDisplayed()
-          .then(function (isDisplayed) {
-            assert.isTrue(isDisplayed);
-          })
-        .end();
-    };
-  }
+  const testElementDisplayed = thenify(function (selector) {
+    return this.parent
+      .then(visibleByQSA(selector))
+      .findByCssSelector(selector)
+        .isDisplayed()
+        .then(function (isDisplayed) {
+          assert.isTrue(isDisplayed);
+        })
+      .end();
+  });
 
   /**
    * Ensure the element is not displayed
@@ -1270,31 +1310,15 @@ define([
    * @param {string} selector
    * @returns {promise} rejects if element is displayed
    */
-  function noSuchElementDisplayed(selector) {
-    return function () {
-      return this.parent
-        .findByCssSelector(selector)
-          .isDisplayed()
-          .then(function (isDisplayed) {
-            assert.isFalse(isDisplayed);
-          })
-        .end();
-    };
-  }
-
-  /**
-   * Check to ensure an element exists
-   *
-   * @param {string} selector
-   * @returns {promise} rejects if element does not exist
-   */
-  function testElementExists(selector) {
-    return function () {
-      return this.parent
-        .findByCssSelector(selector)
-        .end();
-    };
-  }
+  const noSuchElementDisplayed = thenify(function (selector) {
+    return this.parent
+      .findByCssSelector(selector)
+        .isDisplayed()
+        .then(function (isDisplayed) {
+          assert.isFalse(isDisplayed);
+        })
+      .end();
+  });
 
   /**
    * Check whether an input element's text equals the expected value.
@@ -1304,18 +1328,17 @@ define([
    * @param {string} expected
    * @returns {promise} rejects if test fails.
    */
-  function testElementTextEquals(selector, expected) {
-    return function () {
-      return this.parent
-        .findByCssSelector(selector)
-        .then(visibleByQSA(selector))
-        .getVisibleText()
-        .then(function (resultText) {
-          assert.equal(resultText, expected);
-        })
-        .end();
-    };
-  }
+  const testElementTextEquals = thenify(function (selector, expected) {
+    return this.parent
+      .findByCssSelector(selector)
+      .then(visibleByQSA(selector))
+      .getVisibleText()
+      .then(function (resultText) {
+        assert.equal(resultText, expected);
+      })
+      .end();
+  });
+
   /**
    * Check whether an input element's text includes the expected value.
    * Comparison is case insensitive
@@ -1325,18 +1348,16 @@ define([
    * @param {object} [options]
    * @returns {promise} rejects if test fails.
    */
-  function testElementTextInclude(selector, expected) {
-    return function () {
-      return this.parent
-        .findByCssSelector(selector)
-        .then(visibleByQSA(selector))
-        .getVisibleText()
-        .then(function (resultText) {
-          assert.include(resultText.toLowerCase(), expected.toLowerCase());
-        })
-        .end();
-    };
-  }
+  const testElementTextInclude = thenify(function (selector, expected) {
+    return this.parent
+      .findByCssSelector(selector)
+      .then(visibleByQSA(selector))
+      .getVisibleText()
+      .then(function (resultText) {
+        assert.include(resultText.toLowerCase(), expected.toLowerCase());
+      })
+      .end();
+  });
 
   /**
    * Check whether the `.error` element includes the expected text
@@ -1355,17 +1376,15 @@ define([
    * @param {string} expected
    * @returns {promise} rejects if test fails.
    */
-  function testElementValueEquals(selector, expected) {
-    return function () {
-      return this.parent
-        .findByCssSelector(selector)
-        .getProperty('value')
-        .then(function (resultText) {
-          assert.equal(resultText, expected);
-        })
-        .end();
-    };
-  }
+  const testElementValueEquals = thenify(function (selector, expected) {
+    return this.parent
+      .findByCssSelector(selector)
+      .getProperty('value')
+      .then(function (resultText) {
+        assert.equal(resultText, expected);
+      })
+      .end();
+  });
 
   /**
    * Check whether an anchor has a href that equals to the expected url
@@ -1374,33 +1393,10 @@ define([
    * @param {string} expected
    * @returns {promise} rejects if test fails.
    */
-  function testHrefEquals(selector, expected) {
-    return function () {
-      return this.parent
-        .then(testAttributeEquals(selector, 'href', expected));
-    };
-  }
-
-  /**
-   * Test whether a status element (success or error) was shown.
-   * Done by looking for the `data-shown` attribute.
-   *
-   * @param {string} selector
-   * @returns {promise} rejects if fails
-   */
-  function testElementWasShown(selector) {
-    return function () {
-      return this.parent
-        .then(testElementExists(selector))
-        .executeAsync(function (selector, done) {
-          // remove the attribute so subsequent checks can be made
-          // against the same element. displaySuccess and displayError
-          // will re-add the 'data-shown' attribute.
-          $(selector).removeAttr('data-shown');
-          done();
-        }, [selector]);
-    };
-  }
+  const testHrefEquals = thenify(function (selector, expected) {
+    return this.parent
+      .then(testAttributeEquals(selector, 'href', expected));
+  });
 
   /**
    * Check whether the current URL matches the expected value
@@ -1408,16 +1404,14 @@ define([
    * @param {string} expected
    * @returns {promise} fails if url does not equal expected value
    */
-  function testUrlEquals(expected) {
-    return function () {
-      return this.parent
-        .getCurrentUrl()
-          .then(function (url) {
-            assert.equal(url, expected);
-          })
-        .end();
-    };
-  }
+  const testUrlEquals = thenify(function (expected) {
+    return this.parent
+      .getCurrentUrl()
+        .then(function (url) {
+          assert.equal(url, expected);
+        })
+      .end();
+  });
 
   /**
    * Check whether the current URL's pathname matches the expected value
@@ -1425,16 +1419,14 @@ define([
    * @param {string} expected
    * @returns {promise} fails if url pathname does not equal expected value
    */
-  function testUrlPathnameEquals(expected) {
-    return function () {
-      return this.parent
-        .getCurrentUrl()
-          .then(function (url) {
-            assert.equal(Url.parse(url).pathname, expected);
-          })
-        .end();
-    };
-  }
+  const testUrlPathnameEquals = thenify(function (expected) {
+    return this.parent
+      .getCurrentUrl()
+        .then(function (url) {
+          assert.equal(Url.parse(url).pathname, expected);
+        })
+      .end();
+  });
 
   /**
    * Ensure the current URL includes `expected`
@@ -1442,16 +1434,14 @@ define([
    * @param   {string} expected
    * @returns {promise} fails if url does not include expected value
    */
-  function testUrlInclude(expected) {
-    return function () {
-      return this.parent
-        .getCurrentUrl()
-        .then(function (url) {
-          assert.include(url, expected);
-        })
-        .end();
-    };
-  }
+  const testUrlInclude = thenify(function (expected) {
+    return this.parent
+      .getCurrentUrl()
+      .then(function (url) {
+        assert.include(url, expected);
+      })
+      .end();
+  });
 
   /**
    * Create a user on the backend
@@ -1463,120 +1453,15 @@ define([
    *   Defaults to false.
    * @returns {promise} resolves with account info when complete.
    */
-  function createUser (email, password, options) {
+  const createUser = thenify(function (email, password, options) {
     options = options || {};
-    return function () {
-      return this.parent.then(function () {
-        var client = getFxaClient();
+    return this.parent.then(function () {
+      var client = getFxaClient();
 
-        return client.signUp(
-          email, password, { lang: 'en', preVerified: options.preVerified });
-      });
-    };
-  }
-
-  /**
-   * Convert a function to a form that can be used as a `then` callback.
-   *
-   * Example usage:
-   *
-   * var fillOutSignUp = FunctionalHelpers.thenify(FunctionalHelpers.fillOutSignUp)
-   *
-   * ...
-   * .then(fillOutSignUp(this, email, password))
-   * ...
-   *
-   * @param {function} callback - Function to convert
-   * @param {object} [context] - in which to call callback
-   * @returns {function} that can be used in a promise
-   */
-  function thenify(callback, context) {
-    return function () {
-      var args = arguments;
-      return function () {
-        return callback.apply(context || this, args);
-      };
-    };
-  }
-
-  /**
-   * Type text into an input element
-   *
-   * @param {string} selector
-   * @param {string} text
-   * @param {object} [options] options
-   *   @param {boolean [options.clearValue] - clear element value before
-   *   typing. Defaults to true.
-   * @returns {promise}
-   */
-  function type(selector, text, options) {
-    options = options || {};
-
-    // always clear unless explicitly overridden
-    var clearValue = options.clearValue !== false;
-
-    return function () {
-      text = String(text);
-
-      return this.parent
-        .findByCssSelector(selector)
-          .click()
-
-          .then(function () {
-            if (clearValue) {
-              return this.parent.clearValue();
-            }
-          })
-
-          .getAttribute('type')
-          .then(function (type) {
-            // xxx: bug in selenium 2.47.1, if firefox is out of
-            // focus it will just type 1 number, split the type
-            // commands for each character to avoid issues with the
-            // test runner
-            if (type === 'number') {
-              var index = 0;
-              var parent = this.parent;
-
-              var typeNext = function () {
-                if (index >= text.length) {
-                  return;
-                }
-                var charToType = text.charAt(index);
-                index++;
-
-                return parent
-                  .type(charToType)
-                  .then(typeNext);
-              };
-
-              return typeNext.call(this);
-            } else {
-              return this.parent.type(text);
-            }
-          })
-
-        .end();
-    };
-  }
-
-  /**
-   * Click an element
-   *
-   * @param {string} selector
-   * @returns {promise}
-   */
-  function click(selector) {
-    return function () {
-      return this.parent
-        // Ensure the element is visible and not animating before attempting to click.
-        // Sometimes clicks do not register if the element is in the middle of an animation.
-        .then(visibleByQSA(selector))
-        .findByCssSelector(selector)
-          .click()
-        .end();
-    };
-  }
+      return client.signUp(
+        email, password, { lang: 'en', preVerified: options.preVerified });
+    });
+  });
 
   /**
    * Close the current window and switch to the named tab. If
@@ -1585,21 +1470,19 @@ define([
    * @param {string} [tabName] - defaults to ''
    * @returns {promise}
    */
-  function closeCurrentWindow(tabName) {
-    return function () {
-      return this.parent
-        .getAllWindowHandles()
-        .then(function (handles) {
-          if (handles.length <= 1) {
-            throw new Error('LastWindowError');
-          } else {
-            return this.parent
-              .closeCurrentWindow()
-              .switchToWindow(tabName || handles[0]);
-          }
-        });
-    };
-  }
+  const closeCurrentWindow = thenify(function (tabName) {
+    return this.parent
+      .getAllWindowHandles()
+      .then(function (handles) {
+        if (handles.length <= 1) {
+          throw new Error('LastWindowError');
+        } else {
+          return this.parent
+            .closeCurrentWindow()
+            .switchToWindow(tabName || handles[0]);
+        }
+      });
+  });
 
   /**
    * Assert the value of an attribute
@@ -1610,17 +1493,15 @@ define([
    * @param {string} value Expected value of the attribute
    * @returns {promise}
    */
-  function testAttribute (selector, attributeName, assertion, value) {
-    return function () {
-      return this.parent
-        .findByCssSelector(selector)
-          .getAttribute(attributeName)
-          .then(function (attributeValue) {
-            assert[assertion](attributeValue, value);
-          })
-        .end();
-    };
-  }
+  const testAttribute = thenify(function (selector, attributeName, assertion, value) {
+    return this.parent
+      .findByCssSelector(selector)
+        .getAttribute(attributeName)
+        .then(function (attributeValue) {
+          assert[assertion](attributeValue, value);
+        })
+      .end();
+  });
 
   /**
    * Assert that an attribute value === expected value
@@ -1653,17 +1534,15 @@ define([
    * @param {string} attributeName Name of attribute
    * @returns {promise} resolves to true if attribute exists, false otw.
    */
-  function testAttributeExists (selector, attributeName) {
-    return function () {
-      return this.parent
-        .findByCssSelector(selector)
-          .getAttribute(attributeName)
-          .then(function (attributeValue) {
-            assert.notStrictEqual(attributeValue, null);
-          })
-        .end();
-    };
-  }
+  const testAttributeExists = thenify(function (selector, attributeName) {
+    return this.parent
+      .findByCssSelector(selector)
+        .getAttribute(attributeName)
+        .then(function (attributeValue) {
+          assert.notStrictEqual(attributeValue, null);
+        })
+      .end();
+  });
 
   /**
    * Denormalize the email stored in an account. Sets the email to be all uppercase.
@@ -1671,25 +1550,23 @@ define([
    * @param   {string} email - email address to denormalize
    * @returns {promise}
    */
-  function denormalizeStoredEmail (email) {
-    return function () {
-      return this.parent
-        .execute((email) => {
-          // synthesize the user signing in before the email normalization fix went in (#4470)
-          var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts'));
-          console.log('looking for email', email);
+  const denormalizeStoredEmail = thenify(function (email) {
+    return this.parent
+      .execute((email) => {
+        // synthesize the user signing in before the email normalization fix went in (#4470)
+        var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts'));
+        console.log('looking for email', email);
 
-          for (var uid in accounts) {
-            var account = accounts[uid];
-            if (account.email === email) {
-              console.log('will change email', email);
-              account.email = email.toUpperCase();
-            }
+        for (var uid in accounts) {
+          var account = accounts[uid];
+          if (account.email === email) {
+            console.log('will change email', email);
+            account.email = email.toUpperCase();
           }
-          localStorage.setItem('__fxa_storage.accounts', JSON.stringify(accounts));
-        }, [ email ]);
-    };
-  }
+        }
+        localStorage.setItem('__fxa_storage.accounts', JSON.stringify(accounts));
+      }, [ email ]);
+  });
 
   return {
     clearBrowserNotifications: clearBrowserNotifications,
