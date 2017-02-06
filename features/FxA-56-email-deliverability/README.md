@@ -6,7 +6,7 @@ Feature card: https://github.com/mozilla/fxa-features/issues/56
 
 Users regularly report email deliverability issues with Firefox Accounts,
 and we do not have sufficient visibility into
-the common causes of email bounces
+the common causes of email bounces and complaints
 to detect or debug them.
 
 ----
