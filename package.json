@@ -11,7 +11,8 @@
   "license": "MPL-2.0",
   "author": "Mozilla (https://mozilla.org/)",
   "dependencies": {
-    "bluebird": "2.9.25",
-    "github": "0.2.4"
+    "bluebird": "3.4.7",
+    "github": "8.1.1",
+    "got": "6.7.1"
   }
 }

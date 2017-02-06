@@ -8,29 +8,29 @@
 // duplicates them into all the other repos.
 
 
-GH = require('./gh.js')
-P = require('bluebird')
+var ghlib = require('./ghlib.js')
+var P = require('bluebird')
 
 
 module.exports = {
 
   getTopLevelMilestones: function getTopLevelMilestones(gh) {
-    return module.exports.getMilestonesByTitle(gh, GH.TOP_LEVEL_REPO)
+    return module.exports.getMilestonesByTitle(gh, ghlib.TOP_LEVEL_REPO)
   },
 
   // Get the current set of milestones out of a repo, as a hash
   // mapping title to milestone info object.
 
   getMilestonesByTitle: function getTopLevelMilestones(gh, repo) {
-    return gh.issues.getAllMilestones({
-      repo: repo,
+    return gh.issues.getMilestones({
+      repo: repo.name,
       state: 'open'
     }).reduce(function(milestones, item) {
       milestones[item.title] = item
       return milestones
     }, {}).then(function(milestones) {
-      return gh.issues.getAllMilestones({
-        repo: repo,
+      return gh.issues.getMilestones({
+        repo: repo.name,
         state: 'closed'
       }).reduce(function(milestones, item) {
         if (! milestones[item.title]) {
@@ -56,9 +56,9 @@ module.exports = {
         if (!ourMilestone) {
           // It doesn't exist at all, create it.
           if (theirMilestone.state === 'open') {
-            console.log("Creating '" + title + "' in " + repo)
+            console.log("Creating '" + title + "' in " + repo.name)
             return gh.issues.createMilestone({
-              repo: repo,
+              repo: repo.name,
               title: title,
               due_on: theirMilestone.due_on,
               description: theirMilestone.description
@@ -68,13 +68,13 @@ module.exports = {
           // It already exists, see if we need to update it. 
           for (var k in {title: 1, due_on: 1, description: 1, state: 1}) {
             if (theirMilestone[k] !== ourMilestone[k]) {
-              console.log("Updating '" + title + "' in " + repo)
+              console.log("Updating '" + title + "' in " + repo.name)
               if (theirMilestone.title !== ourMilestone.title) {
                 ours[theirMilestone.title] = ourMilestone
                 delete ours[ourMilestone.title]
               }
               return gh.issues.updateMilestone({
-                repo: repo,
+                repo: repo.name,
                 number: ourMilestone.number,
                 title: theirMilestone.title,
                 due_on: theirMilestone.due_on,
@@ -92,11 +92,11 @@ module.exports = {
         if (!module.exports.findMatchingMilestone(title, theirs)) {
           if (ours[title].state !== 'closed') {
             if (ours[title].open_issues > 0) {
-              console.warn("Extra milestone in " + repo + ": '" + title + "'")
+              console.warn("Extra milestone in " + repo.name + ": '" + title + "'")
             } else {
-              console.warn("Closing extra milestone in " + repo + ": '" + title + "'")
+              console.warn("Closing extra milestone in " + repo.name + ": '" + title + "'")
               return gh.issues.updateMilestone({
-                repo: repo,
+                repo: repo.name,
                 title: title,
                 number: ours[title].number,
                 state: 'closed'
@@ -136,8 +136,8 @@ module.exports = {
     if (!now) {
       now = new Date();
     }
-    return gh.issues.getAllMilestones({
-      repo: repo,
+    return gh.issues.getMilestones({
+      repo: repo.name,
       state: 'open'
     }).each(function(milestone) {
       if (!milestone.due_on) {
@@ -146,11 +146,11 @@ module.exports = {
       var due = new Date(milestone.due_on)
       if (due < now) {
         if (milestone.open_issues > 0) {
-          console.warn("Old milestone with open issues in " + repo + ": '" + milestone.title + "'")
+          console.warn("Old milestone with open issues in " + repo.name + ": '" + milestone.title + "'")
         } else {
-          console.warn("Closing old milestone in " + repo + ": '" + milestone.title + "'")
+          console.warn("Closing old milestone in " + repo.name + ": '" + milestone.title + "'")
           return gh.issues.updateMilestone({
-            repo: repo,
+            repo: repo.name,
             number: milestone.number,
             title: milestone.title,
             due_on: milestone.due_on,
@@ -165,11 +165,11 @@ module.exports = {
 }
 
 if (require.main == module) {
-  gh = new GH()
-  return module.exports.closeOldMilestones(gh, GH.TOP_LEVEL_REPO).then(function() {
+  gh = new ghlib.GH()
+  return module.exports.closeOldMilestones(gh, ghlib.TOP_LEVEL_REPO).then(function() {
     return module.exports.getTopLevelMilestones(gh).then(function(milestones) {
-      return P.resolve(GH.ALL_REPOS).each(function(repo) {
-        if (repo !== GH.TOP_LEVEL_REPO)  {
+      return P.resolve(ghlib.REPOS).each(function(repo) {
+        if (repo.name !== ghlib.TOP_LEVEL_REPO.name)  {
           return module.exports.closeOldMilestones(gh, repo).then(function() {
             module.exports.syncMilestones(gh, repo, milestones)
           })

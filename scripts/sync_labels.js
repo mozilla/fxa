@@ -6,7 +6,7 @@
 // Script to apply our standard set of labels to each repo, and
 // do a bit of cleanup on the issues therein.
 
-var GH = require('./gh.js')
+var ghlib = require('./ghlib.js')
 var P = require('bluebird')
 
 var COLORS = {
@@ -78,7 +78,7 @@ module.exports = {
   // with appropriate colorization.
 
   makeStandardLabels: function makeStandardLabels(gh, repo) {
-    return gh.issues.getLabels({ repo: repo }).then(function(labels) {
+    return gh.issues.getLabels({ repo: repo.name }).then(function(labels) {
       var curLabels = {}
       labels.forEach(function(labelInfo) {
         curLabels[labelInfo.name] = labelInfo
@@ -88,18 +88,18 @@ module.exports = {
       Object.keys(STANDARD_LABELS).forEach(function(label) {
         if (! (label in curLabels)) {
           p = p.then(function() {
-            console.log("Creating '" + label + "' on " + repo)
+            console.log("Creating '" + label + "' on " + repo.name)
             return gh.issues.createLabel({
-              repo: repo,
+              repo: repo.name,
               name: label,
               color: STANDARD_LABELS[label].color
             })
           })
         } else if (curLabels[label].color !== STANDARD_LABELS[label].color) {
           p = p.then(function() {
-            console.log("Updating '" + label + "' on " + repo)
+            console.log("Updating '" + label + "' on " + repo.name)
             return gh.issues.updateLabel({
-              repo: repo,
+              repo: repo.name,
               name: label,
               color: STANDARD_LABELS[label].color
             })
@@ -120,10 +120,9 @@ module.exports = {
       var newLabel = OBSOLETE_LABELS[oldLabel];
       if (newLabel) {
         p = p.then(function() {
-          return gh.issues.repoIssues({
-            repo: repo,
+          return gh.issues.getForRepo({
+            repo: repo.name,
             labels: oldLabel,
-            filter: 'all',
             state: 'open'
           }).each(function (issue) {
             var labels = [];
@@ -138,9 +137,9 @@ module.exports = {
             })
             if (!hasNewLabel) {
               labels.push(newLabel);
-              console.log("Updating " + oldLabel + " to " + newLabel + " on " + repo + " #" + issue.number);
+              console.log("Updating " + oldLabel + " to " + newLabel + " on " + repo.name + " #" + issue.number);
               return gh.issues.edit({
-                repo: repo,
+                repo: repo.name,
                 number: issue.number,
                 labels: labels
               })
@@ -154,10 +153,9 @@ module.exports = {
       p = p.then((function(i) {
         var waffleLabel = WAFFLE_LABEL_ORDER[i];
         return function() {
-          return gh.issues.repoIssues({
-            repo: repo,
+          return gh.issues.getForRepo({
+            repo: repo.name,
             labels: waffleLabel,
-            filter: 'all',
             state: 'open'
           }).each(function (issue) {
             var labels = []
@@ -170,9 +168,9 @@ module.exports = {
               }
             })
             if (oldLabelsCount) {
-              console.log("Clearing old waffle labels on " + repo + " #" + issue.number)
+              console.log("Clearing old waffle labels on " + repo.name + " #" + issue.number)
               return gh.issues.edit({
-                repo: repo,
+                repo: repo.name,
                 number: issue.number,
                 labels: labels
               })
@@ -185,7 +183,7 @@ module.exports = {
   },
 
   removeObsoleteLabels: function removeObsoleteLabels(gh, repo) {
-    return gh.issues.getLabels({ repo: repo }).then(function(labels) {
+    return gh.issues.getLabels({ repo: repo.name }).then(function(labels) {
       var curLabels = {}
       labels.forEach(function(labelInfo) {
         curLabels[labelInfo.name] = labelInfo
@@ -209,9 +207,9 @@ module.exports = {
           }
           if (obsolete) {
             p = p.then(function() {
-              console.log("Deleting '" + label + "' on " + repo)
+              console.log("Deleting '" + label + "' on " + repo.name)
               return gh.issues.deleteLabel({
-                repo: repo,
+                repo: repo.name,
                 name: label
               });
             })
@@ -225,9 +223,9 @@ module.exports = {
 }
 
 if (require.main == module) {
-  gh = new GH()
-  P.resolve(GH.ALL_REPOS).each(function(repo) {
-    console.log("Checking labels in " + repo)
+  gh = new ghlib.GH()
+  P.resolve(ghlib.REPOS).each(function(repo) {
+    console.log("Checking labels in " + repo.name)
     return module.exports.makeStandardLabels(gh, repo)
       .then(function() {
         return module.exports.fixupStandardLabels(gh, repo)

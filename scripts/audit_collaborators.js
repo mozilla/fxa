@@ -8,15 +8,15 @@
 // canonical, and prints a warning for collaborators on other repos
 // who do not appear in this list.
 
-var GH = require('./gh.js')
+var ghlib = require('./ghlib.js')
 var P = require('bluebird')
 
 module.exports = {
 
   getTopLevelCollaborators: function getTopLevelCollaborators(gh) {
-    var repo = GH.TOP_LEVEL_REPO
+    var repo = ghlib.TOP_LEVEL_REPO
     var collaborators = {}
-    return gh.repos.getCollaborators({ repo: repo }).then(function(users) {
+    return gh.repos.getCollaborators({ repo: repo.name }).then(function(users) {
       return P.each(users, function(user) {
         collaborators[user.login] = true
       }).then(function() {
@@ -26,10 +26,10 @@ module.exports = {
   },
 
   auditCollaborators: function auditCollaborators(gh, collaborators, repo) {
-    return gh.repos.getCollaborators({ repo: repo }).then(function(users) {
+    return gh.repos.getCollaborators({ repo: repo.name }).then(function(users) {
       return P.each(users, function(user) {
         if (! (user.login in collaborators)) {
-          console.warn("Unexpected collaborator on " + repo + ": " + user.login)
+          console.warn("Unexpected collaborator on " + repo.name + ": " + user.login)
         }
       })
     })
@@ -38,12 +38,14 @@ module.exports = {
 }
 
 if (require.main == module) {
-  var gh = new GH()
+  var gh = new ghlib.GH()
   var repos
   if (process.argv && process.argv.length > 2) {
-    repos = process.argv.slice(2)
+    repos = process.argv.slice(2).map(function(nm) {
+      return { owner: 'mozilla', name: nm }
+    })
   } else {
-    repos = GH.ALL_REPOS
+    repos = ghlib.REPOS
   }
   return module.exports.getTopLevelCollaborators(gh).then(function(collabs) {
     P.resolve(repos).each(function(repo) {

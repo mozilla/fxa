@@ -36,6 +36,5 @@ fxa-retention-metrics
 fxa-bugzilla-mirror
 123done
 grunt-l10n-lint
-fxa-metrics-dashboard
 fxa-activity-metrics
 mozlog
