@@ -149,22 +149,22 @@ The event stream is a log of events and the time they occurred while the user is
 * error.complete_reset_password.auth.1009 - password must be at least 8 characters
 * error.complete_reset_password.auth.1010 - valid password required
 * error.complete_reset_password.auth.1011 - valid email required
-* error.complete_reset_password.auth.1025 - User clicked on an expired verification link.
+* error.complete_reset_password.auth.1025 - user clicked on an expired verification link.
 
 #### verify_email
 * verify_email.verification.success - email successfully verified.
 * verify_email.resend - A verification email was resent after an expired link was opened.
-* error.verify_email.auth.1025 - User clicked on an expired verification link.
-* error.verify_email.auth.1026 - User clicked on a damaged verification link.
-* error.verify_email.auth.1040 - User tried to verify an account that does not exist.
+* error.verify_email.auth.1025 - user clicked on an expired verification link.
+* error.verify_email.auth.1026 - user clicked on a damaged verification link.
+* error.verify_email.auth.1040 - user tried to verify an account that does not exist.
 
 <img src="images/verify_email.png" height="150">
 
 #### complete_signin
 * complete_signin.verification.success - email successfully verified.
-* error.complete_signin.auth.1025 - User clicked on an expired verification link.
-* error.complete_signin.auth.1026 - User clicked on a damaged verification link.
-* error.complete_signin.auth.1041 - User tried to verify a sign-in that has already been verified.
+* error.complete_signin.auth.1025 - user clicked on an expired verification link.
+* error.complete_signin.auth.1026 - user clicked on a damaged verification link.
+* error.complete_signin.auth.1041 - user tried to verify a sign-in that has already been verified.
 
 <img src="images/complete_signin.png" height="150">
 <img src="images/complete_signin_link_expired.png" height="150">
@@ -172,17 +172,17 @@ The event stream is a log of events and the time they occurred while the user is
 #### confirm
 * confirm.resend - attempt to resend verification email
 * error.confirm.auth.1039 - Polling failed.
-* error.confirm.auth.1041 - User tried to verify a sign-in that has already been verified.
+* error.confirm.auth.1041 - user tried to verify a sign-in that has already been verified.
 
 <img src="images/confirm.png" height="150">
 
 #### confirm_signin
 * confirm_signin.verification.success - email successfully verified.
-* confirm_signin.back - User clicked back.
-* confirm_signin.resend - User resent verification email.
+* confirm_signin.back - user clicked back.
+* confirm_signin.resend - user resent verification email.
 * error.confirm_signin.auth.110 - Invalid authentication token used.
 * error.confirm_signin.auth.1039 - Polling failed.
-* error.confirm_signin.auth.1041 - User tried to verify a sign-in that has already been verified.
+* error.confirm_signin.auth.1041 - user tried to verify a sign-in that has already been verified.
 
 <img src="images/confirm_signin.png" height="150">
 
@@ -206,7 +206,7 @@ The event stream is a log of events and the time they occurred while the user is
 #### pp
 #### ready
 #### report-signin
-* report-signin.submit - User has submit the signin report.
+* report-signin.submit - user has submit the signin report.
 * error.report-signin.auth.127 - unblock code does not match one on record
 * error.report-signin.auth.1045 - report sign in link is damaged
 
@@ -311,7 +311,7 @@ The event stream is a log of events and the time they occurred while the user is
 No page specific events
 
 #### signin_unblock
-* signin-unblock.submit - User has submit the signin unblock code
+* signin-unblock.submit - user has submit the signin unblock code
 * signin-unblock.signin.success - user has successfully signed in from the unblock screen
 * error.signin-unblock.auth.103 - password is incorrect
 * error.signin-unblock.auth.114 - request has been throttled
@@ -374,10 +374,10 @@ No page specific events
 
 #### Control group metric
 * experiment.control.connectAnotherDevice.enrolled - user is enrolled in connectAnotherDevice experiment in the `control` group.
-* experiment.control.connectAnotherDevice.marketing.click.android - User has clicked on the Install Fx Android link
-* experiment.control.connectAnotherDevice.marketing.click.ios - User has clicked on the Install Fx iOS link
-* experiment.control.connectAnotherDevice.marketing.impression.android - User was displayed the Install Fx Android link
-* experiment.control.connectAnotherDevice.marketing.impression.ios - User was displayed the Install Fx iOS link
+* experiment.control.connectAnotherDevice.marketing.click.android - user has clicked on the Install Fx Android link
+* experiment.control.connectAnotherDevice.marketing.click.ios - user has clicked on the Install Fx iOS link
+* experiment.control.connectAnotherDevice.marketing.impression.android - user was displayed the Install Fx Android link
+* experiment.control.connectAnotherDevice.marketing.impression.ios - user was displayed the Install Fx iOS link
 
 #### Treatment group events
 * experiment.treatment.connectAnotherDevice.enrolled - user is enrolled in connectAnotherDevice experiment in the `treatment` group
@@ -385,20 +385,20 @@ No page specific events
 * experiment.treatment.connectAnotherDevice.install_from.fx_desktop - Fx Desktop user encouraged to install Fx on their devices
 * experiment.treatment.connectAnotherDevice.install_from.other_android - Non-Fx Android user encouraged to install Fx Android
 * experiment.treatment.connectAnotherDevice.install_from.other_ios - Non-Fx iOS user encouraged to install Fx iOS
-* experiment.treatment.connectAnotherDevice.install_from.other - User on non-Fx, non-Android, non-iOS device is encouraged to install Fx on their devices
-* experiment.treatment.connectAnotherDevice.marketing.click.android - User has clicked on the Install Fx for Android link
-* experiment.treatment.connectAnotherDevice.marketing.click.ios - User has clicked on the Install Fx for iOS link
-* experiment.treatment.connectAnotherDevice.marketing.impression.android - User was displayed the Install Fx for Android
-* experiment.treatment.connectAnotherDevice.marketing.impression.ios - User was displayed the Install Fx for iOS link
+* experiment.treatment.connectAnotherDevice.install_from.other - user on non-Fx, non-Android, non-iOS device is encouraged to install Fx on their devices
+* experiment.treatment.connectAnotherDevice.marketing.click.android - user has clicked on the Install Fx for Android link
+* experiment.treatment.connectAnotherDevice.marketing.click.ios - user has clicked on the Install Fx for iOS link
+* experiment.treatment.connectAnotherDevice.marketing.impression.android - user was displayed the Install Fx for Android
+* experiment.treatment.connectAnotherDevice.marketing.impression.ios - user was displayed the Install Fx for iOS link
 * experiment.treatment.connectAnotherDevice.other_user_signed_in - Another user is signed in, so user cannot connect another device
-* experiment.treatment.connectAnotherDevice.signedin.true - User is signed in.
-* experiment.treatment.connectAnotherDevice.signedin.false - User is not signed in.
-* experiment.treatment.connectAnotherDevice.signin.clicked - User who can sign in clicked the "Sign in" button.
-* experiment.treatment.connectAnotherDevice.signin.eligible - User verified in a 2nd, disconnected, Firefox and can sign in.
-* experiment.treatment.connectAnotherDevice.signin.ineligible - User is not eligible to see the "Sign in" button.
-* experiment.treatment.connectAnotherDevice.signin_from.fx_android - User who is eligible to sign in is on Fx Android.
-* experiment.treatment.connectAnotherDevice.signin_from.fx_desktop - User who is eligible to sign in is on Fx Desktop.
-* experiment.treatment.connectAnotherDevice.signin_from.fx_ios - User who is eligible to sign in is on Fx iOS.
+* experiment.treatment.connectAnotherDevice.signedin.true - user is signed in.
+* experiment.treatment.connectAnotherDevice.signedin.false - user is not signed in.
+* experiment.treatment.connectAnotherDevice.signin.clicked - user who can sign in clicked the "Sign in" button.
+* experiment.treatment.connectAnotherDevice.signin.eligible - user verified in a 2nd, disconnected, Firefox and can sign in.
+* experiment.treatment.connectAnotherDevice.signin.ineligible - user is not eligible to see the "Sign in" button.
+* experiment.treatment.connectAnotherDevice.signin_from.fx_android - user who is eligible to sign in is on Fx Android.
+* experiment.treatment.connectAnotherDevice.signin_from.fx_desktop - user who is eligible to sign in is on Fx Desktop.
+* experiment.treatment.connectAnotherDevice.signin_from.fx_ios - user who is eligible to sign in is on Fx iOS.
 
 ### mailcheck
 
