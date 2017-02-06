@@ -17,7 +17,6 @@ define([
   var PASSWORD = '12345678';
 
   var thenify = FunctionalHelpers.thenify;
-
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
@@ -34,7 +33,14 @@ define([
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-  var setupTest = thenify(function (options) {
+  /*eslint-disable max-len*/
+  const UA_STRINGS = {
+    'ios_firefox_6_0': 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.0 Mobile/12F69 Safari/600.1.4',
+    'ios_firefox_6_1': 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4',
+  };
+  /*eslint-enable max-len*/
+
+  const setupTest = thenify(function (options) {
     options = options || {};
 
     const successSelector = options.blocked ? '#fxa-signin-unblock-header' :
@@ -43,7 +49,11 @@ define([
 
     return this.parent
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-      .then(openPage(PAGE_URL, '#fxa-signin-header'))
+      .then(openPage(PAGE_URL, '#fxa-signin-header', {
+        query: {
+          forceUA: options.userAgent || UA_STRINGS['ios_firefox_6_0']
+        }
+      }))
       .execute(listenForFxaCommands)
       .then(fillOutSignIn(email, PASSWORD))
       .then(testIsBrowserNotified('can_link_account'))
@@ -89,9 +99,9 @@ define([
         .then(noPageTransition('#fxa-confirm-signin-header'));
     },
 
-    'unverified': function () {
+    'Fx iOS <= 6.0 unverified, verify same browser': function () {
       return this.remote
-        .then(setupTest({ preVerified: false }))
+      .then(setupTest({ preVerified: false, userAgent: UA_STRINGS['ios_firefox_6_0'] }))
 
         // email 0 - initial sign up email
         // email 1 - sign in w/ unverified address email
@@ -103,6 +113,23 @@ define([
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition('#fxa-confirm-header'));
+    },
+
+    'Fx iOS >= 6.1 unverified, verify same browser': function () {
+      return this.remote
+        .then(setupTest({ preVerified: false, userAgent: UA_STRINGS['ios_firefox_6_1'] }))
+
+        // email 0 - initial sign up email
+        // email 1 - sign in w/ unverified address email
+        // email 2 - "You have verified your Firefox Account"
+        .then(openVerificationLinkInNewTab(email, 1))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .then(closeCurrentWindow())
+
+          // In Fx for iOS >= 6.1, user should redirect to the signup-complete
+          // page after verification.
+          .then(testElementExists('#fxa-sign-up-complete-header'));
     },
 
     'signup link is enabled': function () {

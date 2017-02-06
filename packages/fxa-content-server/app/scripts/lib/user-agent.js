@@ -73,6 +73,21 @@ define(function (require, exports, module) {
        */
       isFirefoxDesktop () {
         return this.isFirefox() && ! this.isFirefoxIos() && ! this.isFirefoxAndroid();
+      },
+
+      /**
+       * Parse uap.browser.version into an object with
+       * `major`, `minor`, and `patch`
+       *
+       * @returns {Object}
+       */
+      parseVersion () {
+        const browserVersion = this.browser.version.split('.');
+        return {
+          major: parseInt(browserVersion[0] || 0, 10),
+          minor: parseInt(browserVersion[1] || 0, 10),
+          patch: parseInt(browserVersion[2] || 0, 10)
+        };
       }
     });
 

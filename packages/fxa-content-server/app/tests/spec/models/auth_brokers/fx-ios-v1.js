@@ -5,22 +5,29 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const $ = require('jquery');
+  const Account = require('models/account');
+  const { assert } = require('chai');
   const FxiOSAuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
   const NullChannel = require('lib/channels/null');
+  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
 
-  var assert = chai.assert;
+  const NO_IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.0 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
+  const IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
 
-  describe('models/auth_brokers/fx-ios-v1', function () {
-    var channel;
-    var loginMessageDelayMS = 250;
-    var relier;
-    var windowMock;
+  describe('models/auth_brokers/fx-ios-v1', () => {
+    let broker;
+    let channel;
+    let loginMessageDelayMS = 250;
+    let relier;
+    let windowMock;
 
-    function createBroker () {
-      return new FxiOSAuthenticationBroker({
+    function initializeBroker(userAgent) {
+      windowMock.navigator.userAgent = userAgent;
+      broker = new FxiOSAuthenticationBroker({
         channel: channel,
         loginMessageDelayMS: loginMessageDelayMS,
         relier: relier,
@@ -28,54 +35,131 @@ define(function (require, exports, module) {
       });
     }
 
-    before(function () {
+    beforeEach(() => {
       channel = new NullChannel();
       relier = new Relier();
       windowMock = new WindowMock();
+      initializeBroker(NO_IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING);
     });
 
-    describe('broker tests', function () {
-      var broker;
-
-      before(function () {
-        broker = createBroker();
-      });
-
-      it('has the `signup` capability by default', function () {
-        assert.isTrue(broker.hasCapability('signup'));
-      });
-
-      it('has the `handleSignedInNotification` capability by default', function () {
-        assert.isTrue(broker.hasCapability('handleSignedInNotification'));
-      });
-
-      it('has the `emailVerificationMarketingSnippet` capability by default', function () {
-        assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
-      });
-
-      it('broker loginMessageDelayMS delayed is set', function () {
-        assert.equal(broker.attributes.loginMessageDelayMS, loginMessageDelayMS);
-      });
-
-      describe('`broker.fetch` is called', function () {
-        before(function () {
-          return broker.fetch();
-        });
-
-        it('has the `signup` capability', function () {
+    describe('capabilities', () => {
+      describe('does not support immediateUnverifiedLogin', () => {
+        it('has the expected capabilities and behaviors', () => {
           assert.isTrue(broker.hasCapability('signup'));
+          assert.isTrue(broker.hasCapability('handleSignedInNotification'));
+          assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+          assert.isFalse(broker.hasCapability('immediateUnverifiedLogin'));
+
+          assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'halt');
+        });
+      });
+
+      describe('supports immediateUnverifiedLogin', () => {
+        it('has the expected capabilities and behaviors', () => {
+          initializeBroker(IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING);
+
+          assert.isTrue(broker.hasCapability('signup'));
+          assert.isTrue(broker.hasCapability('handleSignedInNotification'));
+          assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+          assert.isTrue(broker.hasCapability('immediateUnverifiedLogin'));
+
+          assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'null');
+        });
+      });
+    });
+
+    describe('`broker.fetch` is called', () => {
+      beforeEach(() => broker.fetch());
+
+      it('has the expected capabilities', () => {
+        assert.isTrue(broker.hasCapability('signup'));
+        assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
+      });
+
+      it('`broker.SIGNUP_DISABLED_REASON` is not set', () => {
+        assert.isUndefined(broker.SIGNUP_DISABLED_REASON);
+      });
+    });
+
+    describe('_notifyRelierOfLogin', () => {
+      let account;
+      let timeoutSpy;
+
+      beforeEach(() => {
+        sinon.stub(broker, 'send', () => p());
+        timeoutSpy = null;
+        sinon.stub(windowMock, 'setTimeout', (callback, timeout) => {
+          // `callback` is only triggered if we trigger it.
+          timeoutSpy = sinon.spy(callback);
+        });
+        sinon.spy(windowMock, 'clearTimeout');
+        account = new Account({});
+      });
+
+      function testLoginSent(triggerLoginCB) {
+        return p.all([
+          broker._notifyRelierOfLogin(account),
+          triggerLoginCB && triggerLoginCB()
+        ])
+        .then(() => {
+          assert.isTrue(broker.send.calledOnce);
+          assert.isTrue(broker.send.calledWith('login'));
+        });
+      }
+
+      describe('verified account', () => {
+        it('sends immediately', () => {
+          account.set('verified', true);
+          broker.setCapability('immediateUnverifiedLogin', false);
+
+          return testLoginSent()
+            .then(() => {
+              assert.isFalse(windowMock.setTimeout.called);
+              assert.isFalse(windowMock.clearTimeout.called);
+            });
+        });
+      });
+
+      describe('broker supports immediate logins', () => {
+        it('sends immediately', () => {
+          account.set('verified', false);
+          broker.setCapability('immediateUnverifiedLogin', true);
+
+          return testLoginSent()
+            .then(() => {
+              assert.isFalse(windowMock.setTimeout.called);
+              assert.isFalse(windowMock.clearTimeout.called);
+            });
+        });
+      });
+
+      describe('unverifiedAccount', () => {
+        beforeEach(() => {
+          account.set('verified', false);
         });
 
-        it('`broker.SIGNUP_DISABLED_REASON` is not set', function () {
-          assert.isUndefined(broker.SIGNUP_DISABLED_REASON);
+        it('notifies after timeout', () => {
+          return testLoginSent(() => {
+            timeoutSpy();
+          })
+          .then(() => {
+            assert.isTrue(windowMock.setTimeout.calledOnce);
+            assert.isTrue(windowMock.clearTimeout.calledOnce);
+            assert.isTrue(timeoutSpy.called);
+          });
         });
 
-        it('does not have the `chooseWhatToSyncCheckbox` capability', function () {
-          assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
+        it('notifies on `blur` event', () => {
+          return testLoginSent(() => {
+            $(windowMock).trigger('blur');
+          })
+          .then(() => {
+            assert.isTrue(windowMock.setTimeout.calledOnce);
+            assert.isTrue(windowMock.clearTimeout.calledOnce);
+            assert.isFalse(timeoutSpy.called);
+          });
         });
       });
     });
   });
 });
-
-
