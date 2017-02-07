@@ -1,3 +1,13 @@
+<a name="1.80.0"></a>
+# [1.80.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.79.0...v1.80.0) (2017-02-07)
+
+
+### Bug Fixes
+
+* **dependencies:** update bluebird, nodemailer, convict, moment-timezone (#251) r=vladikoff ([02fbda3](https://github.com/mozilla/fxa-auth-mailer/commit/02fbda3))
+
+
+
 <a name="1.79.0"></a>
 # [1.79.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.78.0...v1.79.0) (2017-01-30)
 
