@@ -1,3 +1,36 @@
+<a name="0.80.0"></a>
+# 0.80.0 (2017-02-07)
+
+
+### Bug Fixes
+
+* **account:** throw an error when generating assertions with invalid session token (#4666) r=s ([7b867b0](https://github.com/mozilla/fxa-content-server/commit/7b867b0)), closes [#4586](https://github.com/mozilla/fxa-content-server/issues/4586)
+* **client:** generate fresh flow id and begin time on sign-out ([3ea1a9a](https://github.com/mozilla/fxa-content-server/commit/3ea1a9a))
+* **clients:** add a "Got it" button to the client disconnected view (#4687) r=vbudhram ([a73a53b](https://github.com/mozilla/fxa-content-server/commit/a73a53b)), closes [#4633](https://github.com/mozilla/fxa-content-server/issues/4633)
+* **clients:** retry with a fresh token on OAuth requests (#4688) ([1cd050a](https://github.com/mozilla/fxa-content-server/commit/1cd050a)), closes [#4659](https://github.com/mozilla/fxa-content-server/issues/4659)
+* **hsts:** fix HSTS header config value (#4668) r=vbudhram ([dfabff9](https://github.com/mozilla/fxa-content-server/commit/dfabff9)), closes [(#4668](https://github.com/(/issues/4668) [#4657](https://github.com/mozilla/fxa-content-server/issues/4657)
+* **iOS:** Send the `login` message within the `visibilitychange` (#4682) ([5bca42f](https://github.com/mozilla/fxa-content-server/commit/5bca42f))
+* **tests:** add a direct unit test of signOutAccount ([6937fcb](https://github.com/mozilla/fxa-content-server/commit/6937fcb))
+* **tests:** Bail out after the first test failure on Circle to speed test runs. (#4678) ([94acc26](https://github.com/mozilla/fxa-content-server/commit/94acc26))
+* **tests:** fix 2 typos in test title ([6fa4336](https://github.com/mozilla/fxa-content-server/commit/6fa4336))
+* **tests:** make sure OAuth title tests check the value ([a368849](https://github.com/mozilla/fxa-content-server/commit/a368849))
+
+### chore
+
+* **docs:** `User`=>`user` for consistency. (#4699) ([da001bc](https://github.com/mozilla/fxa-content-server/commit/da001bc))
+
+### Features
+
+* **CAD:** `install_from.fx_desktop` A/B metric, use consistent names. (#4696) r=vladikoff ([f41a418](https://github.com/mozilla/fxa-content-server/commit/f41a418)), closes [#4692](https://github.com/mozilla/fxa-content-server/issues/4692)
+* **design:** switch to new mozilla logo (#4674) r=ryanfeeley ([ce8bf92](https://github.com/mozilla/fxa-content-server/commit/ce8bf92)), closes [#4656](https://github.com/mozilla/fxa-content-server/issues/4656)
+
+### Refactor
+
+* **client:** scope added ([6e4b4e2](https://github.com/mozilla/fxa-content-server/commit/6e4b4e2))
+* **test:** Thenify all the helpers. (#4697) r=vladikoff ([30f9b19](https://github.com/mozilla/fxa-content-server/commit/30f9b19))
+
+
+
 <a name="0.79.3"></a>
 ## 0.79.3 (2017-01-26)
 
