@@ -1,3 +1,10 @@
+<a name"0.80.0"></a>
+## 0.80.0 (2017-02-07)
+
+#### Features
+
+* **client:** scope is now returned in client-tokens (#445) r=vladikoff ([4efc383effc80](https://github.com/mozilla/fxa-oauth-server/commit/4efc383effc80))
+
 <a name"0.79.0"></a>
 ## 0.79.0 (2017-01-25)
 
