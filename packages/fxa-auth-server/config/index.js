@@ -458,7 +458,7 @@ var conf = convict({
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX'
     },
     skipForNewAccounts: {
-      enabled :{
+      enabled: {
         doc: 'Skip sign-in confirmation for newly-created accounts.',
         default: false,
         env: 'SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS'
