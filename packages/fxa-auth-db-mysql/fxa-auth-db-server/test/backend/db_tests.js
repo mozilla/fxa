@@ -1780,6 +1780,76 @@ module.exports = function(config, DB) {
         )
 
         test(
+          'reminders - multi fetch',
+          function (t) {
+            t.plan(1)
+            var fetchQuery = {
+              type: 'first',
+              reminderTime: 1,
+              reminderTimeOutdated: 100,
+              limit: 20
+            }
+            var account = createAccount()
+            var account2 = createAccount()
+            return db.createAccount(account.uid, account)
+              .then(
+                function () {
+                  return db.createAccount(account2.uid, account2)
+                }
+              )
+              .then(
+                function () {
+                  // create 'first' reminder for account one.
+                  return db.createVerificationReminder({
+                    uid: account.uid,
+                    type: 'first'
+                  })
+                }
+              )
+              .then(
+                function () {
+                  // create 'first' reminder for account two.
+                  return db.createVerificationReminder({
+                    uid: account2.uid,
+                    type: 'first'
+                  })
+                }
+              )
+              .then(
+                function () {
+                  return P.delay(20).then(function () {
+                    return P.all([
+                      // only one query should give results
+                      db.fetchReminders({}, fetchQuery),
+                      db.fetchReminders({}, fetchQuery),
+                      db.fetchReminders({}, fetchQuery),
+                      db.fetchReminders({}, fetchQuery),
+                      db.fetchReminders({}, fetchQuery),
+                      db.fetchReminders({}, fetchQuery),
+                      db.fetchReminders({}, fetchQuery),
+                      db.fetchReminders({}, fetchQuery),
+                      db.fetchReminders({}, fetchQuery),
+                      db.fetchReminders({}, fetchQuery)
+                    ])
+                  })
+                }
+              )
+              .then(
+                function (results) {
+                  var found = 0
+                  results.forEach((result) => {
+                    if (result.length === 2) {
+                      found++
+                    }
+                  })
+
+                  t.equal(found, 1, 'only one query has the result')
+                }
+              )
+          }
+        )
+
+        test(
           'unblockCodes',
           function (t) {
             t.plan(5)

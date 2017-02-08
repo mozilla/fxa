@@ -573,7 +573,7 @@ module.exports = function (log, error) {
   // VERIFICATION REMINDERS
 
   // INSERT : id, uid, email, emailCode, type, acceptLanguage, createdAt
-  var CREATE_REMINDER = 'CALL createVerificationReminder_1(?, ?, ?, ?)'
+  var CREATE_REMINDER = 'CALL createVerificationReminder_2(?, ?, ?)'
 
   MySql.prototype.createVerificationReminder = function (body) {
     if (! body || ! body.uid || ! body.type) {
@@ -581,14 +581,12 @@ module.exports = function (log, error) {
     }
 
     var reminderData = {
-      id: crypto.createHash('sha256').update(body.uid + body.type).digest(),
       uid: new Buffer(body.uid),
       type: body.type,
       createdAt: Date.now()
     }
 
     return this.write(CREATE_REMINDER, [
-      reminderData.id,
       reminderData.uid,
       reminderData.type,
       reminderData.createdAt
@@ -596,14 +594,17 @@ module.exports = function (log, error) {
   }
 
   // SELECT:
-  var FETCH_REMINDERS = 'CALL fetchVerificationReminders_1(?, ?, ?, ?)'
+  var FETCH_REMINDERS = 'CALL fetchVerificationReminders_2(?, ?, ?, ?, ?)'
 
   MySql.prototype.fetchReminders = function (body, query) {
+    var now = Date.now()
+
     if (! query || ! query.reminderTime || ! query.reminderTimeOutdated || ! query.type || ! query.limit) {
       throw error.wrap(new Error('fetchReminders - reminderTime, reminderTimeOutdated, limit or type missing'))
     }
 
     return this.read(FETCH_REMINDERS, [
+      now,
       query.type,
       query.reminderTime,
       query.reminderTimeOutdated,
