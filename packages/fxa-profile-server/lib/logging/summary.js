@@ -19,6 +19,10 @@ module.exports = function summary(request, response) {
     remoteAddressChain: request.app.remoteAddressChain
   };
 
+  if (request.auth && request.auth.credentials) {
+    line.client_id = request.auth.credentials.client_id;
+  }
+
   if (line.code >= 500) {
     line.stack = response.stack;
     logger.error('summary', line);
