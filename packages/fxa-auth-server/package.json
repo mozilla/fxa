@@ -45,7 +45,7 @@
     "grunt-conventional-changelog": "5.0.0",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",
-    "husky": "0.11.5",
+    "husky": "0.13.1",
     "jsxgettext-recursive": "0.0.5",
     "load-grunt-tasks": "3.5.0",
     "mkdirp": "0.5.1",
