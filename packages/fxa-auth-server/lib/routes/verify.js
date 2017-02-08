@@ -34,6 +34,10 @@ module.exports = {
       } else {
         delete info.email;
       }
+      logger.info('verify.success', {
+        client_id: info.client_id,
+        scope: info.scope
+      });
       return info;
     }).done(reply, reply);
   }
