@@ -164,6 +164,7 @@ module.exports = function (log, config) {
   IPBlocklist.prototype.pollForUpdates = function () {
     this.stopPolling()
     this.pollInterval = setInterval(this.refresh.bind(this), config.ipBlocklist.updatePollInterval * 1000)
+    this.pollInterval.unref()
   }
 
   IPBlocklist.prototype.stopPolling = function () {

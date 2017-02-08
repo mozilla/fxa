@@ -37,6 +37,7 @@ module.exports = function (log) {
             // unacceptable! this aws lib will call the callback
             // more than once with different errors.
             errTimer = setTimeout(this.fetch.bind(this, url), 2000)
+            errTimer.unref()
           }
           return
         }

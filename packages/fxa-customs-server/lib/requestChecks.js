@@ -44,6 +44,7 @@ module.exports = function (config, mc, log) {
   RequestChecks.prototype.pollForUpdates = function () {
     this.stopPolling()
     pollInterval = setInterval(this.refresh.bind(this), config.updatePollIntervalSeconds * 1000)
+    pollInterval.unref()
   }
 
   RequestChecks.prototype.stopPolling = function () {

@@ -60,6 +60,7 @@ module.exports = function (config, mc, log) {
   Limits.prototype.pollForUpdates = function () {
     this.stopPolling()
     pollInterval = setInterval(this.refresh.bind(this), config.updatePollIntervalSeconds * 1000)
+    pollInterval.unref()
   }
 
   Limits.prototype.stopPolling = function () {
