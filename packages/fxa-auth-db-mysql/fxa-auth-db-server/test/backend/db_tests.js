@@ -6,8 +6,8 @@ var crypto = require('crypto')
 var base64url = require('base64url')
 var P = require('bluebird')
 
-var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
-var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+var zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex')
+var zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
 var now = Date.now()
 
 function newUuid() {
@@ -1898,6 +1898,36 @@ module.exports = function(config, DB) {
           }
         )
 
+        test(
+          'emailBounces',
+          t => {
+            t.plan(4)
+            const data = {
+              email: ('' + Math.random()).substr(2) + '@email.bounces',
+              bounceType: 'Permanent',
+              bounceSubType: 'NoEmail'
+            }
+            db.createEmailBounce(data)
+              .then(() => {
+                return db.fetchEmailBounces(data.email)
+              })
+              .then(bounces => {
+                t.equal(bounces.length, 1)
+                t.equal(bounces[0].email, data.email)
+                t.equal(bounces[0].bounceType, 1)
+                t.equal(bounces[0].bounceSubType, 3)
+
+              })
+              .done(
+                () => {
+                  t.end()
+                },
+                (err) => {
+                  t.fail(err)
+                }
+              )
+          }
+        )
 
         test(
           'teardown',

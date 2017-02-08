@@ -45,6 +45,7 @@ There are a number of methods that a DB storage backend should implement:
     * .createVerificationReminder(body)
     * .fetchReminders(body, query)
     * .deleteReminder(body)
+* Email Bounces
 * General
     * .ping()
     * .close()
@@ -493,4 +494,16 @@ Parameters:
   * uid : user id
   * type : type of reminder
 
+## .createEmailBounce(body) ##
+
+Record when an email bounce has occurred.
+
+Parameters:
+
+* body: (object)
+  * email: A string of the email address that bounced
+  * bounceType: The bounce type ([`'Permanent'`, `'Transient'`, `'Complaint'`])
+  * bounceSubType: The bounce sub type string
+
 (Ends)
+

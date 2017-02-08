@@ -2,12 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var crypto = require('crypto')
-var ip = require('ip')
-var mysql = require('mysql')
-var P = require('../promise')
+'use strict'
 
-var patch = require('./patch')
+const crypto = require('crypto')
+const ip = require('ip')
+const mysql = require('mysql')
+const P = require('../promise')
+
+const patch = require('./patch')
+const dbUtil = require('./util')
 
 // http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
 const ER_TOO_MANY_CONNECTIONS = 1040
@@ -1070,6 +1073,23 @@ module.exports = function (log, error) {
           return result[0]
         }
       )
+  }
+
+  const CREATE_EMAIL_BOUNCE = 'CALL createEmailBounce_1(?, ?, ?, ?)'
+  MySql.prototype.createEmailBounce = function (data) {
+    const args = [
+      data.email,
+      dbUtil.mapEmailBounceType(data.bounceType),
+      dbUtil.mapEmailBounceSubType(data.bounceSubType),
+      Date.now()
+    ]
+    return this.write(CREATE_EMAIL_BOUNCE, args)
+  }
+
+  const FETCH_EMAIL_BOUNCES = 'CALL fetchEmailBounces_1(?)'
+  MySql.prototype.fetchEmailBounces = function (email) {
+    return this.read(FETCH_EMAIL_BOUNCES, [email])
+      .then(result => result[0])
   }
 
   return MySql
