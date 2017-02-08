@@ -19,10 +19,10 @@ module.exports = (log, inherits, Token, config) => {
     this.setDeviceInfo(details)
     this.email = details.email || null
     this.emailCode = details.emailCode || null
-    this.emailVerified = !!details.emailVerified
+    this.emailVerified = !! details.emailVerified
     this.verifierSetAt = details.verifierSetAt
     this.locale = details.locale || null
-    this.mustVerify = !!details.mustVerify || false
+    this.mustVerify = !! details.mustVerify || false
 
     if (details.createdAt > 0) {
       this.accountCreatedAt = details.createdAt

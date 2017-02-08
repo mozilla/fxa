@@ -61,7 +61,7 @@ module.exports = function (crypto, P, hkdf, butil, error) {
           var hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey)
           hmac.update(ciphertext)
           var mac = hmac.digest()
-          if (!butil.buffersAreEqual(mac, expectedHmac)) {
+          if (! butil.buffersAreEqual(mac, expectedHmac)) {
             throw error.invalidSignature()
           }
           return butil.xorBuffers(ciphertext, keys.xorKey)

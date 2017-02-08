@@ -65,7 +65,7 @@ describe('remote account status', function() {
         )
         .then(
           function (response) {
-            assert.ok(!response.locale, 'locale is not present')
+            assert.ok(! response.locale, 'locale is not present')
           }
         )
     }
@@ -99,7 +99,7 @@ describe('remote account status', function() {
       return api.accountStatus('0123456789ABCDEF0123456789ABCDEF')
         .then(
           function (response) {
-            assert.ok(!response.exists, 'account does not exist')
+            assert.ok(! response.exists, 'account does not exist')
           }
         )
     }
@@ -136,7 +136,7 @@ describe('remote account status', function() {
         )
         .then(
           function (response) {
-            assert.ok(!response.exists, 'account does not exist')
+            assert.ok(! response.exists, 'account does not exist')
           }
         )
     }

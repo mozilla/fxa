@@ -67,7 +67,7 @@ api.connection({
 
 function loop(email, cb) {
   var mail = users[email]
-  if (!mail) {
+  if (! mail) {
     return setTimeout(loop.bind(null, email, cb), 50)
   }
   cb(mail)

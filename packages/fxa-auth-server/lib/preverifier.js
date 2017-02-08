@@ -20,7 +20,7 @@ module.exports = function (error, config) {
     if (payload.aud !== config.domain) {
       return { aud: payload.aud }
     }
-    if (!payload.sub || payload.sub !== email) {
+    if (! payload.sub || payload.sub !== email) {
       return { sub: payload.sub }
     }
     return false
@@ -43,7 +43,7 @@ module.exports = function (error, config) {
   }
 
   return function isPreVerified(email, token) {
-    if (!token) { return P.resolve(false) }
+    if (! token) { return P.resolve(false) }
     return isValidToken(email, token)
   }
 }

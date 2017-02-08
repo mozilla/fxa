@@ -9,7 +9,7 @@ const localeQuirks = require('./localeQuirks')
 
 var errors = {}
 function reportError(lang, msg) {
-  if (!errors[lang]) {
+  if (! errors[lang]) {
     errors[lang] = []
   }
   errors[lang].push(msg)
@@ -21,7 +21,7 @@ function langFromEmail(email) {
 }
 
 function ensureHeader(headers, key, lang) {
-  if (!headers[key]) {
+  if (! headers[key]) {
     reportError(lang, 'Missing header ' + key)
   }
 }
@@ -73,7 +73,7 @@ function ensureSubjectLang(lang, subject, expectedSubject) {
       // en-GB is almost identical to en, except for... fugly
       var en_sync = 'A new device is now syncing to your Firefox Account'
       var en_gb_sync = 'A new device is now synchronising to your Firefox Account'
-      if (!(lang === 'en-GB' && expectedSubject === en_sync && subject === en_gb_sync)) {
+      if (! (lang === 'en-GB' && expectedSubject === en_sync && subject === en_gb_sync)) {
         reportError(lang, util.format('strings should be equal: "%s" vs. "%s"',
                                       subject, expectedSubject))
       }
@@ -93,7 +93,7 @@ function checkContent(mail, idx) {
 
   var missing = []
   contentChecks.xheaders.forEach(function(xheader) {
-    if (!mail.headers[xheader]) {
+    if (! mail.headers[xheader]) {
       missing.push(xheader)
     }
   })

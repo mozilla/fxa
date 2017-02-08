@@ -69,7 +69,7 @@ module.exports.email = function() {
 
 module.exports.isValidEmailAddress = function(value) {
   // It cant be empty or end with strange chars.
-  if (!value) {
+  if (! value) {
     return false
   }
   if (value[value.length - 1] === '.' || value[value.length - 1] === '-') {
@@ -87,7 +87,7 @@ module.exports.isValidEmailAddress = function(value) {
   domain = punycode.toASCII(domain)
   // The username portion must contain only allowed characters.
   for (var i = 0; i < username.length; i++) {
-    if (!username[i].match(/[a-zA-Z0-9.!#$%&'*+-\/=?^_`{|}~]/)) {
+    if (! username[i].match(/[a-zA-Z0-9.!#$%&'*+-\/=?^_`{|}~]/)) {
       return false
     }
   }
@@ -110,7 +110,7 @@ module.exports.isValidEmailAddress = function(value) {
       if (domain[i - 1] === '.') {
         return false
       }
-    } else if (!domain[i].match(/[a-zA-Z0-9-]/)) {
+    } else if (! domain[i].match(/[a-zA-Z0-9-]/)) {
       // The domain characters must be alphanumeric.
       return false
     }
@@ -122,7 +122,7 @@ module.exports.isValidEmailAddress = function(value) {
 
 module.exports.redirectTo = function (base) {
   var redirectTo = isA.string().max(512)
-  if (!base) { return redirectTo }
+  if (! base) { return redirectTo }
   var regex = new RegExp('(?:\\.|^)' + base.replace('.', '\\.') + '$')
   redirectTo._tests.push(
     {

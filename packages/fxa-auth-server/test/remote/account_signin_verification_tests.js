@@ -62,8 +62,8 @@ describe('remote account signin verification', function() {
         )
         .then(
           function (response) {
-            assert(!response.verificationMethod, 'no challenge method set')
-            assert(!response.verificationReason, 'no challenge reason set')
+            assert(! response.verificationMethod, 'no challenge method set')
+            assert(! response.verificationReason, 'no challenge reason set')
             assert.equal(response.verified, true, 'verified set true')
           }
         )

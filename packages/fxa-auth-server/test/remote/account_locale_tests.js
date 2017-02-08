@@ -41,7 +41,7 @@ describe('remote account locale', function() {
         )
         .then(
           function (response) {
-            assert.ok(!response.locale, 'account has no locale')
+            assert.ok(! response.locale, 'account has no locale')
             return client.login()
           }
         )
@@ -86,7 +86,7 @@ describe('remote account locale', function() {
       )
       .then(
         function (response) {
-          assert.ok(!response.locale, 'account has no locale')
+          assert.ok(! response.locale, 'account has no locale')
         }
       )
     }

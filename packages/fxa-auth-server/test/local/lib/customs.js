@@ -190,8 +190,8 @@ describe('Customs', () => {
           assert.equal(err.message, 'The request was blocked for security reasons', 'Error message is correct')
           assert.ok(err.isBoom, 'The error causes a boom')
           assert.equal(err.output.statusCode, 400, 'Status Code is correct')
-          assert(!err.output.payload.retryAfter, 'retryAfter field is not present')
-          assert(!err.output.headers['retry-after'], 'retryAfter header is not present')
+          assert(! err.output.payload.retryAfter, 'retryAfter field is not present')
+          assert(! err.output.headers['retry-after'], 'retryAfter header is not present')
         })
     }
   )
@@ -431,4 +431,3 @@ function newAction() {
 
   return EMAIL_ACTIONS[Math.floor(Math.random() * EMAIL_ACTIONS.length)]
 }
-

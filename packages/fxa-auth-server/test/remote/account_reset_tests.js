@@ -62,9 +62,9 @@ describe('remote account reset', function() {
         )
         .then(
           function (response) {
-            assert(!response.sessionToken, 'session token is not in response')
-            assert(!response.keyFetchToken, 'keyFetchToken token is not in response')
-            assert(!response.verified, 'verified is not in response')
+            assert(! response.sessionToken, 'session token is not in response')
+            assert(! response.keyFetchToken, 'keyFetchToken token is not in response')
+            assert(! response.verified, 'verified is not in response')
           }
         )
         .then(
@@ -218,7 +218,7 @@ describe('remote account reset', function() {
         .then(
           function (response) {
             assert.ok(response.sessionToken, 'session token is in response')
-            assert(!response.keyFetchToken, 'keyFetchToken token is not in response')
+            assert(! response.keyFetchToken, 'keyFetchToken token is not in response')
             assert.equal(response.verified, true,  'verified is true')
           }
         )

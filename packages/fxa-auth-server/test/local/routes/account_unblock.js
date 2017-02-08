@@ -116,7 +116,7 @@ describe('/account/login/send_unblock_code', function () {
   it('signin unblock enabled', function () {
     config.signinUnblock.enabled = true
     return runTest(route, mockRequest, function (response) {
-      assert.ok(!(response instanceof Error), response.stack)
+      assert.ok(! (response instanceof Error), response.stack)
       assert.deepEqual(response, {}, 'response has no keys')
 
       assert.equal(mockDb.emailRecord.callCount, 1, 'db.emailRecord called')
@@ -153,7 +153,7 @@ describe('/account/login/send_unblock_code', function () {
     mockRequest.payload.email = 'UNBLOCK@example.com'
 
     return runTest(route, mockRequest, function(response) {
-      assert.ok(!(response instanceof Error), response.stack)
+      assert.ok(! (response instanceof Error), response.stack)
       assert.deepEqual(response, {}, 'response has no keys')
 
       assert.equal(mockDb.emailRecord.callCount, 1, 'db.emailRecord called')
@@ -181,7 +181,7 @@ describe('/account/login/reject_unblock_code', function () {
     var route = getRoute(accountRoutes, '/account/login/reject_unblock_code')
 
     return runTest(route, mockRequest, function (response) {
-      assert.ok(!(response instanceof Error), response.stack)
+      assert.ok(! (response instanceof Error), response.stack)
       assert.deepEqual(response, {}, 'response has no keys')
 
       assert.equal(mockDb.consumeUnblockCode.callCount, 1, 'consumeUnblockCode is called')

@@ -44,7 +44,7 @@ function waitLoop(testServer, url, cb) {
           console.log(err)
           return cb(err)
         }
-        if (!testServer.server) {
+        if (! testServer.server) {
           if (testServer.printLogs) {
             console.log('starting...')
           }

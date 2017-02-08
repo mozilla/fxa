@@ -10,7 +10,7 @@ var Hapi = require('hapi')
 var HEX_STRING = require('./routes/validators').HEX_STRING
 
 function trimLocale(header) {
-  if (!header) {
+  if (! header) {
     return header
   }
   if (header.length < 256) {
@@ -74,7 +74,7 @@ function create(log, error, config, routes, db) {
   function makeCredentialFn(dbGetFn) {
     return function (id, cb) {
       log.trace({ op: 'DB.getToken', id: id })
-      if (!HEX_STRING.test(id)) {
+      if (! HEX_STRING.test(id)) {
         return process.nextTick(cb.bind(null, null, null)) // not found
       }
       dbGetFn(Buffer(id, 'hex'))

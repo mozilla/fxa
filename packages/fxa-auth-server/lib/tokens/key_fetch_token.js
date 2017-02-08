@@ -7,7 +7,7 @@ module.exports = function (log, inherits, Token, P, error) {
   function KeyFetchToken(keys, details) {
     Token.call(this, keys, details)
     this.keyBundle = details.keyBundle
-    this.emailVerified = !!details.emailVerified
+    this.emailVerified = !! details.emailVerified
 
     // Tokens are considered verified if no tokenVerificationId exists
     this.tokenVerificationId = details.tokenVerificationId || null

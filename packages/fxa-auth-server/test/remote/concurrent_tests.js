@@ -41,7 +41,7 @@ describe('remote concurrect', function() {
           // Note that P.all fails fast when one of the requests fails,
           // but we have to wait for *both* to complete before tearing
           // down the test infrastructure.  Bleh.
-          if (!r1.isRejected()) {
+          if (! r1.isRejected()) {
             return r1
           } else {
             return r2

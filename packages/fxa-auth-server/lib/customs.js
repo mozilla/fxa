@@ -61,7 +61,7 @@ module.exports = function (log, error) {
           // log a flow event that user got blocked.
           request.emitMetricsEvent('customs.blocked')
 
-          var unblock = !!result.unblock
+          var unblock = !! result.unblock
           if (result.retryAfter) {
             // create a localized retryAfterLocalized value from retryAfter, for example '713' becomes '12 minutes'.
             var retryAfterLocalized = localizeTimestamp.format(Date.now() + (result.retryAfter * 1000),

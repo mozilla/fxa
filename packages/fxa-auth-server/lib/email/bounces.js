@@ -36,7 +36,7 @@ module.exports = function (log, error) {
     }
 
     function deleteAccountIfUnverified(record) {
-      if (!record.emailVerified) {
+      if (! record.emailVerified) {
         return db.deleteAccount(record)
           .then(
             accountDeleted.bind(null, record.uid, record.email),
@@ -72,7 +72,7 @@ module.exports = function (log, error) {
           op: 'handleBounce',
           action: recipient.action,
           email: email,
-          bounce: !!message.bounce,
+          bounce: !! message.bounce,
           diagnosticCode: recipient.diagnosticCode,
           status: recipient.status
         }
@@ -94,7 +94,7 @@ module.exports = function (log, error) {
 
         // Log the type of complaint and userAgent reported
         if (message.complaint) {
-          logData.complaint = !!message.complaint
+          logData.complaint = !! message.complaint
 
           if (message.complaint.userAgent) {
             logData.complaintUserAgent = message.complaint.userAgent

@@ -55,7 +55,7 @@ Lug.prototype.error = function (data) {
   // lift it into top-level fields so that our
   // PII-scrubbing tool is able to find it.
   if (data.err && data.err.email) {
-    if (!data.email) {
+    if (! data.email) {
       data.email = data.err.email
     }
     data.err.email = null

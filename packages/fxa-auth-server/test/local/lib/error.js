@@ -105,7 +105,7 @@ describe('AppErrors', () => {
 
       result = AppError.tooManyRequests(900)
       assert.equal(result.output.payload.retryAfter, 900)
-      assert(!result.output.payload.retryAfterLocalized)
+      assert(! result.output.payload.retryAfterLocalized)
 
     }
   )

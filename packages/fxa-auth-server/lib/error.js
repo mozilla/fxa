@@ -58,7 +58,7 @@ function AppError(options, extra, headers) {
   this.message = options.message || DEFAULTS.message
   this.isBoom = true
   this.stack = options.stack
-  if (!this.stack) {
+  if (! this.stack) {
     Error.captureStackTrace(this, AppError)
   }
   this.errno = options.errno || DEFAULTS.errno
@@ -335,7 +335,7 @@ AppError.requestBodyTooLarge = function () {
 }
 
 AppError.tooManyRequests = function (retryAfter, retryAfterLocalized, canUnblock) {
-  if (!retryAfter) {
+  if (! retryAfter) {
     retryAfter = 30
   }
 
@@ -383,7 +383,7 @@ AppError.requestBlocked = function (canUnblock) {
 }
 
 AppError.serviceUnavailable = function (retryAfter) {
-  if (!retryAfter) {
+  if (! retryAfter) {
     retryAfter = 30
   }
   return new AppError(
@@ -403,7 +403,7 @@ AppError.serviceUnavailable = function (retryAfter) {
 }
 
 AppError.featureNotEnabled = function (retryAfter) {
-  if (!retryAfter) {
+  if (! retryAfter) {
     retryAfter = 30
   }
   return new AppError(

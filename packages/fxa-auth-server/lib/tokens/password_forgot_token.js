@@ -37,7 +37,7 @@ module.exports = function (log, inherits, Token, random, lifetime) {
   }
 
   PasswordForgotToken.prototype.failAttempt = function () {
-    this.tries--
+    this.tries --
     return this.tries < 1
   }
 

@@ -125,4 +125,3 @@ function safeParse (json) {
   catch (e) {
   }
 }
-

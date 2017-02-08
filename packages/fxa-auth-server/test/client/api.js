@@ -43,7 +43,7 @@ module.exports = config => {
     }
     // We do a shallow clone to avoid tainting the caller's copy of `headers`.
     headers = JSON.parse(JSON.stringify(headers))
-    if (token && !headers.Authorization) {
+    if (token && ! headers.Authorization) {
       headers.Authorization = hawkHeader(token, method, url, payload, this.timeOffset)
     }
     var options = {
@@ -125,7 +125,7 @@ module.exports = config => {
   }
 
   ClientApi.prototype.accountLogin = function (email, authPW, opts) {
-    if (!opts) {
+    if (! opts) {
       opts = { keys: true }
     }
 
@@ -447,7 +447,7 @@ module.exports = config => {
   }
 
   ClientApi.prototype.passwordForgotVerifyCode = function (passwordForgotTokenHex, code, headers, options) {
-    if (!options) {
+    if (! options) {
       options = {}
     }
 

@@ -380,7 +380,7 @@ describe('log', () => {
       assert.equal(args[0], 'unexpectedError', 'logger.error received "op" value')
       assert.equal(Object.keys(args[1]).length, 3, 'log info has three fields')
       assert.equal(args[1].email, 'test@example.com', 'email is reported in top-level fields')
-      assert(!args[1].err.email, 'email should not be reported in error object')
+      assert(! args[1].err.email, 'email should not be reported in error object')
 
       logger.error.reset()
     }

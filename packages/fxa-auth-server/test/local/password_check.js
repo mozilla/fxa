@@ -89,7 +89,7 @@ describe('password_check', () => {
         )
         .then(
           function (match) {
-            assert.equal(!!match, false, 'password does not match, checkPassword returns false')
+            assert.equal(!! match, false, 'password does not match, checkPassword returns false')
             assert.equal(MockCustoms.flag.callCount, 1, 'customs.flag was called')
             assert.equal(MockCustoms.flag.getCall(0).args[0], CLIENT_ADDRESS, 'customs.flag was called with client ip')
             assert.deepEqual(MockCustoms.flag.getCall(0).args[1], {

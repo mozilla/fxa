@@ -182,7 +182,7 @@ module.exports = function (
         }
 
         function createAccount () {
-          if (!locale) {
+          if (! locale) {
             // We're seeing a surprising number of accounts created
             // without a proper locale. Log details to help debug this.
             log.info({
@@ -562,13 +562,13 @@ module.exports = function (
                 }
               )
           }
-          if (!didSigninUnblock && customsErr) {
+          if (! didSigninUnblock && customsErr) {
             throw customsErr
           }
         }
 
         function checkSecurityHistory () {
-          if (!features.isSecurityHistoryTrackingEnabled()) {
+          if (! features.isSecurityHistoryTrackingEnabled()) {
             return
           }
           return db.securityEvents({
@@ -840,7 +840,7 @@ module.exports = function (
           // Delegate sending emails for unverified users to auth-server.
           emailSent = false
 
-          if (!emailRecord.emailVerified) {
+          if (! emailRecord.emailVerified) {
             if (didSigninUnblock) {
               log.info({
                 op: 'Account.login.unverified.unblocked',
@@ -994,7 +994,7 @@ module.exports = function (
           // customs server has not rate-limited unblock. Nonetheless,
           // we shouldn't signal to the content-server that it is
           // possible to unblock the user if the feature is not allowed.
-          if (!allowSigninUnblock && err.output && err.output.payload) {
+          if (! allowSigninUnblock && err.output && err.output.payload) {
             delete err.output.payload.verificationMethod
             delete err.output.payload.verificationReason
           }
@@ -1154,7 +1154,7 @@ module.exports = function (
         var keyFetchToken = request.auth.credentials
 
         var verified = keyFetchToken.tokenVerified && keyFetchToken.emailVerified
-        if (!verified) {
+        if (! verified) {
           // don't delete the token on use until the account is verified
           return reply(error.unverifiedAccount())
         }
@@ -1237,7 +1237,7 @@ module.exports = function (
           payload.id = sessionToken.deviceId.toString('hex')
         }
 
-        if (payload.pushCallback && (!payload.pushPublicKey || !payload.pushAuthKey)) {
+        if (payload.pushCallback && (! payload.pushPublicKey || ! payload.pushAuthKey)) {
           payload.pushPublicKey = ''
           payload.pushAuthKey = ''
         }
@@ -1319,7 +1319,7 @@ module.exports = function (
         var ip = request.app.clientAddress
         var payload = body.payload
 
-        if (!validatePushPayload(payload)) {
+        if (! validatePushPayload(payload)) {
           throw error.invalidRequestParameter('invalid payload')
         }
         var pushOptions = {
@@ -1520,8 +1520,8 @@ module.exports = function (
           // of accounts with invalid email addresses. These
           // can never be verified, so the best we can do is
           // to delete them so the browser will stop polling.
-          if (!sessionToken.emailVerified) {
-            if (!validators.isValidEmailAddress(sessionToken.email)) {
+          if (! sessionToken.emailVerified) {
+            if (! validators.isValidEmailAddress(sessionToken.email)) {
               return db.deleteAccount(sessionToken)
                 .then(
                   function () {
@@ -1538,7 +1538,7 @@ module.exports = function (
         function createResponse() {
 
           var sessionVerified = sessionToken.tokenVerified
-          var emailVerified = !!sessionToken.emailVerified
+          var emailVerified = !! sessionToken.emailVerified
 
           // For backwards-compatibility reasons, the reported verification status
           // depends on whether the sessionToken was created with keys=true and
@@ -1593,7 +1593,7 @@ module.exports = function (
           code = sessionToken.emailCode
         }
 
-        if (!sessionToken.emailVerified) {
+        if (! sessionToken.emailVerified) {
           func = mailer.sendVerifyCode
           event = 'verification'
         } else {
@@ -2042,7 +2042,7 @@ module.exports = function (
 
         function createKeyFetchToken () {
           if (requestHelper.wantsKeys(request)) {
-            if (!hasSessionToken) {
+            if (! hasSessionToken) {
               // Sanity-check: any client requesting keys,
               // should also be requesting a sessionToken.
               throw error.missingRequestParameter('sessionToken')
@@ -2077,7 +2077,7 @@ module.exports = function (
         function createResponse () {
           // If no sessionToken, this could be a legacy client
           // attempting to reset an account password, return legacy response.
-          if (!hasSessionToken) {
+          if (! hasSessionToken) {
             return {}
           }
 
@@ -2125,7 +2125,7 @@ module.exports = function (
               return checkPassword(emailRecord, authPW, request.app.clientAddress)
                 .then(
                   function (match) {
-                    if (!match) {
+                    if (! match) {
                       throw error.incorrectPassword(emailRecord.email, form.email)
                     }
                     return db.deleteAccount(emailRecord)

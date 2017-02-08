@@ -64,7 +64,7 @@ module.exports = function (
               return checkPassword(emailRecord, oldAuthPW, request.app.clientAddress)
               .then(
                 function (match) {
-                  if (!match) {
+                  if (! match) {
                     throw error.incorrectPassword(emailRecord.email, form.email)
                   }
                   var password = new Password(
@@ -271,7 +271,7 @@ module.exports = function (
         function createSessionToken() {
           return P.resolve()
             .then(() => {
-              if (!verifiedStatus) {
+              if (! verifiedStatus) {
                 return random(16)
               }
             })
@@ -317,7 +317,7 @@ module.exports = function (
         function createResponse () {
           // If no sessionToken, this could be a legacy client
           // attempting to change password, return legacy response.
-          if (!sessionTokenId) {
+          if (! sessionTokenId) {
             return {}
           }
 

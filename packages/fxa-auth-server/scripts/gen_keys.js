@@ -30,7 +30,7 @@ const secretKeyFile = config.get('secretKeyFile')
 
 try {
   var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile)
-  assert(!keysExist, 'keys already exists')
+  assert(! keysExist, 'keys already exists')
 } catch(e) {
   process.exit()
 }
@@ -57,4 +57,3 @@ cp.exec(
     console.error('Public Key saved:', pubKeyFile)
   }
 )
-

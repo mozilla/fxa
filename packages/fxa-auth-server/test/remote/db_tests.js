@@ -94,7 +94,7 @@ describe('remote db', function() {
           assert.equal(account.emailVerified, ACCOUNT.emailVerified, 'emailVerified')
           assert.deepEqual(account.kA, ACCOUNT.kA, 'kA')
           assert.deepEqual(account.wrapWrapKb, ACCOUNT.wrapWrapKb, 'wrapWrapKb')
-          assert(!account.verifyHash, 'verifyHash')
+          assert(! account.verifyHash, 'verifyHash')
           assert.deepEqual(account.authSalt, ACCOUNT.authSalt, 'authSalt')
           assert.equal(account.verifierVersion, ACCOUNT.verifierVersion, 'verifierVersion')
           assert.ok(account.createdAt, 'createdAt')

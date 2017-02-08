@@ -257,7 +257,7 @@ function mockDevices (data) {
 function mockLog (methods) {
   const log = extend({}, methods)
   LOG_METHOD_NAMES.forEach((name) => {
-    if (!log[name]) {
+    if (! log[name]) {
       log[name] = function() {}
     }
   })
@@ -270,7 +270,7 @@ function spyLog (methods) {
   methods = extend({}, methods)
   methods.messages = methods.messages || []
   LOG_METHOD_NAMES.forEach(name => {
-    if (!methods[name]) {
+    if (! methods[name]) {
       // arrow function would alter `this` inside the method
       methods[name] = function() {
         this.messages.push({
@@ -356,4 +356,3 @@ function mockRequest (data) {
     validateMetricsContext: metricsContext.validate
   }
 }
-

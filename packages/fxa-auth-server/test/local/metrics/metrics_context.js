@@ -707,7 +707,7 @@ describe('metricsConext', () => {
       var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
       var valid = metricsContext.validate.call(mockRequest)
 
-      assert(!valid, 'the data is treated as invalid')
+      assert(! valid, 'the data is treated as invalid')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
       assert.ok(mockLog.warn.calledWithExactly({
@@ -743,8 +743,8 @@ describe('metricsConext', () => {
       var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
       var valid = metricsContext.validate.call(mockRequest)
 
-      assert(!valid, 'the data is treated as invalid')
-      assert(!mockRequest.payload.metricsContext.flowBeginTime, 'the invalid flow data was removed')
+      assert(! valid, 'the data is treated as invalid')
+      assert(! mockRequest.payload.metricsContext.flowBeginTime, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
       assert.ok(mockLog.warn.calledWithExactly({
@@ -780,8 +780,8 @@ describe('metricsConext', () => {
       var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
       var valid = metricsContext.validate.call(mockRequest)
 
-      assert(!valid, 'the data is treated as invalid')
-      assert(!mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
+      assert(! valid, 'the data is treated as invalid')
+      assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
       assert.ok(mockLog.warn.calledWithExactly({
@@ -818,8 +818,8 @@ describe('metricsConext', () => {
       var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
       var valid = metricsContext.validate.call(mockRequest)
 
-      assert(!valid, 'the data is treated as invalid')
-      assert(!mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
+      assert(! valid, 'the data is treated as invalid')
+      assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
       assert.ok(mockLog.warn.calledWithExactly({
@@ -856,8 +856,8 @@ describe('metricsConext', () => {
       var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
       var valid = metricsContext.validate.call(mockRequest)
 
-      assert(!valid, 'the data is treated as invalid')
-      assert(!mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
+      assert(! valid, 'the data is treated as invalid')
+      assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
       assert.ok(mockLog.warn.calledWithExactly({
@@ -904,8 +904,8 @@ describe('metricsConext', () => {
         Date.now.restore()
       }
 
-      assert(!valid, 'the data is treated as invalid')
-      assert(!mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
+      assert(! valid, 'the data is treated as invalid')
+      assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
       assert.ok(mockLog.warn.calledWithExactly({
@@ -952,8 +952,8 @@ describe('metricsConext', () => {
         Date.now.restore()
       }
 
-      assert(!valid, 'the data is treated as invalid')
-      assert(!mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
+      assert(! valid, 'the data is treated as invalid')
+      assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
       assert.ok(mockLog.warn.calledWithExactly({
@@ -1000,8 +1000,8 @@ describe('metricsConext', () => {
         Date.now.restore()
       }
 
-      assert(!valid, 'the data is treated as invalid')
-      assert(!mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
+      assert(! valid, 'the data is treated as invalid')
+      assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
       assert.ok(mockLog.warn.calledWithExactly({

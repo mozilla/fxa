@@ -326,8 +326,8 @@ describe('remote password change', function() {
         )
         .then(
           function (response) {
-            assert(!response.sessionToken, 'no session token returned')
-            assert(!response.keyFetchToken, 'no key fetch token returned')
+            assert(! response.sessionToken, 'no session token returned')
+            assert(! response.keyFetchToken, 'no key fetch token returned')
             assert.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
           }
         )

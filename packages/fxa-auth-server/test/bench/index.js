@@ -42,7 +42,7 @@ server.stderr
           console.log(json)
         }
         if (json.op && json.op === 'request.summary') {
-          if (!start) start = Date.now()
+          if (! start) start = Date.now()
           requests++
           if (json.code === 200) { pass++ } else { fail++ }
           var stat = pathStats[json.path] || {}

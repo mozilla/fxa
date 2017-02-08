@@ -164,7 +164,7 @@ describe('remote account profile', function() {
         .then(
           function (response) {
             assert.ok(response.email, 'email address is returned')
-            assert.ok(!response.locale, 'locale should not be returned')
+            assert.ok(! response.locale, 'locale should not be returned')
           }
         )
         .then(
@@ -179,7 +179,7 @@ describe('remote account profile', function() {
         )
         .then(
           function (response) {
-            assert.ok(!response.email, 'email address should not be returned')
+            assert.ok(! response.email, 'email address should not be returned')
             assert.equal(response.locale, 'en-US', 'locale is returned')
           }
         )
@@ -220,7 +220,7 @@ describe('remote account profile', function() {
         )
         .then(
           function (response) {
-            assert.ok(!response.email, 'email address should not be returned')
+            assert.ok(! response.email, 'email address should not be returned')
             assert.ok(response.locale, 'locale is returned')
           }
         )
@@ -237,7 +237,7 @@ describe('remote account profile', function() {
         .then(
           function (response) {
             assert.ok(response.email, 'email address is returned')
-            assert.ok(!response.locale, 'locale should not be returned')
+            assert.ok(! response.locale, 'locale should not be returned')
           }
         )
     }

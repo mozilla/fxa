@@ -65,7 +65,7 @@ describe('push', () => {
       return push.pushToDevices([mockUid], 'bogusid').then(function () {
         assert(false, 'must throw')
       }, function(err) {
-        assert(!push.sendPush.called)
+        assert(! push.sendPush.called)
       })
     }
   )

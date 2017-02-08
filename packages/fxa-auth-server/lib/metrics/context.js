@@ -176,13 +176,13 @@ module.exports = function (log, config) {
   function validate() {
     const metadata = this.payload.metricsContext
 
-    if (!metadata) {
+    if (! metadata) {
       return logInvalidContext(this, 'missing context')
     }
-    if (!metadata.flowId) {
+    if (! metadata.flowId) {
       return logInvalidContext(this, 'missing flowId')
     }
-    if (!metadata.flowBeginTime) {
+    if (! metadata.flowBeginTime) {
       return logInvalidContext(this, 'missing flowBeginTime')
     }
 

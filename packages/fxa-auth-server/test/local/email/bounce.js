@@ -159,7 +159,7 @@ describe('bounce messages', () => {
         assert.equal(mockLog.messages[5].args[0].op, 'handleBounce')
         assert.equal(mockLog.messages[5].args[0].email, 'verified@example.com')
         assert.equal(mockLog.messages[5].args[0].status, '4.0.0')
-        assert(!mockLog.messages[3].args[0].diagnosticCode)
+        assert(! mockLog.messages[3].args[0].diagnosticCode)
         assert.equal(mockLog.messages[6].args[0], 'account.email_bounced')
         assert.equal(mockLog.messages[7].level, 'increment')
         assert.equal(mockLog.messages[7].args[0], 'account.email_bounced.already_verified')

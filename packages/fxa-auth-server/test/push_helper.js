@@ -20,7 +20,7 @@ var P = require('../lib/promise')
  * @constructor
  */
 function PushManager(options) {
-  if (!options || !options.server) {
+  if (! options || ! options.server) {
     throw new Error('Server is required')
   }
 

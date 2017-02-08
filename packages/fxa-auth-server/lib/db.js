@@ -386,7 +386,7 @@ module.exports = function (
       .then(
         function (body) {
           var data = bufferize(body)
-          data.emailVerified = !!data.emailVerified
+          data.emailVerified = !! data.emailVerified
           return data
         },
         function (err) {
@@ -404,7 +404,7 @@ module.exports = function (
       .then(
         function (body) {
           var data = bufferize(body)
-          data.emailVerified = !!data.emailVerified
+          data.emailVerified = !! data.emailVerified
           return data
         },
         function (err) {

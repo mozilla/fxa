@@ -42,7 +42,7 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
         // No need to wait for a response, update in the background.
         db.updateSessionToken(sessionToken, request.headers['user-agent'])
 
-        if (!sessionToken.emailVerified) {
+        if (! sessionToken.emailVerified) {
           return reply(error.unverifiedAccount())
         }
 
@@ -73,29 +73,29 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
           .then(
             function () {
               if (publicKey.algorithm === 'RS') {
-                if (!publicKey.n) {
+                if (! publicKey.n) {
                   return reply(error.missingRequestParameter('n'))
                 }
-                if (!publicKey.e) {
+                if (! publicKey.e) {
                   return reply(error.missingRequestParameter('e'))
                 }
               }
               else { // DS
-                if (!publicKey.y) {
+                if (! publicKey.y) {
                   return reply(error.missingRequestParameter('y'))
                 }
-                if (!publicKey.p) {
+                if (! publicKey.p) {
                   return reply(error.missingRequestParameter('p'))
                 }
-                if (!publicKey.q) {
+                if (! publicKey.q) {
                   return reply(error.missingRequestParameter('q'))
                 }
-                if (!publicKey.g) {
+                if (! publicKey.g) {
                   return reply(error.missingRequestParameter('g'))
                 }
               }
 
-              if (!sessionToken.locale) {
+              if (! sessionToken.locale) {
                 if (request.app.acceptLanguage) {
                   // Log details to sanity-check locale backfilling.
                   log.info({

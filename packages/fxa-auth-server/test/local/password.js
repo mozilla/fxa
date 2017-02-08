@@ -71,7 +71,7 @@ describe('Password', () => {
       )
       .then(
         function (matched) {
-          assert.ok(!matched, 'passwords should not match')
+          assert.ok(! matched, 'passwords should not match')
         }
       )
     }

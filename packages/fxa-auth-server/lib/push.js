@@ -336,7 +336,7 @@ module.exports = function (log, db, config) {
           var pushPayload = null
           var pushOptions = { 'TTL': options.TTL || '0' }
           if (options.data) {
-            if (!device.pushPublicKey || !device.pushAuthKey) {
+            if (! device.pushPublicKey || ! device.pushAuthKey) {
               reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), uid, deviceId)
               incrementPushAction(events.noKeys)
               return
