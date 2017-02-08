@@ -12,8 +12,8 @@ var server = require('../lib/server')
 var config = require('../lib/config').getProperties()
 var log = require('../lib/log')(config.log.level, 'customs-server')
 
-function shutdown() {
-  process.nextTick(process.exit)
+function shutdown(code) {
+  process.nextTick(process.exit(code))
 }
 
 if (process.env.ASS_CODE_COVERAGE) {
@@ -32,4 +32,5 @@ server(config, log)
   })
   .catch(function (err) {
     log.error({op: 'customs.bin.error', err: err})
+    shutdown(1)
   })
