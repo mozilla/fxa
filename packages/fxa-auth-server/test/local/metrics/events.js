@@ -169,6 +169,14 @@ describe('metrics/events', () => {
     sinon.stub(Date, 'now', () => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = {
+      app: {
+        acceptLanguage: 'en'
+      },
+      auth: {
+        credentials: {
+          uid: Buffer.from('deadbeef', 'hex')
+        }
+      },
       clearMetricsContext: metricsContext.clear,
       gatherMetricsContext: metricsContext.gather,
       headers: {
@@ -195,8 +203,9 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 1000,
           flowCompleteSignal: 'account.signed',
-          service: 'baz',
+          locale: 'en',
           time,
+          uid: 'deadbeef',
           userAgent: 'foo'
         }, 'argument was event data')
 
@@ -225,11 +234,10 @@ describe('metrics/events', () => {
           flowId: 'bar',
           flowBeginTime: time - 2000,
           flowCompleteSignal: 'account.reminder'
-        },
-        service: 'baz'
+        }
       }
     }
-    return events.emit.call(request, 'account.reminder')
+    return events.emit.call(request, 'account.reminder', { locale: 'baz', uid: 'qux' })
       .then(() => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
@@ -239,8 +247,9 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 2000,
           flowCompleteSignal: 'account.reminder',
-          service: 'baz',
+          locale: 'baz',
           time,
+          uid: 'qux',
           userAgent: 'foo'
         }, 'argument was event data first time')
         assert.deepEqual(log.flowEvent.args[1][0], {
@@ -248,8 +257,9 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 2000,
           flowCompleteSignal: 'account.reminder',
-          service: 'baz',
+          locale: 'baz',
           time,
+          uid: 'qux',
           userAgent: 'foo'
         }, 'argument was complete event data second time')
 
@@ -275,8 +285,7 @@ describe('metrics/events', () => {
         metricsContext: {
           flowId: 'foo',
           flowBeginTime: Date.now() - 1
-        },
-        service: 'baz'
+        }
       }
     }
     return events.emit.call(request, 'account.reminder')
@@ -310,8 +319,7 @@ describe('metrics/events', () => {
       payload: {
         metricsContext: {
           flowBeginTime: Date.now() - 1
-        },
-        service: 'baz'
+        }
       }
     }
     return events.emit.call(request, 'account.reminder')
@@ -373,7 +381,8 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 42,
           flowCompleteSignal: undefined,
-          service: undefined,
+          locale: undefined,
+          uid: 'baz',
           userAgent: 'foo'
         }, 'flow event data was correct')
 
@@ -516,8 +525,9 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 1000,
           flowCompleteSignal: undefined,
-          service: undefined,
+          locale: undefined,
           time,
+          uid: undefined,
           userAgent: 'foo'
         }, 'argument was event data')
 
@@ -559,8 +569,9 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 1000,
           flowCompleteSignal: undefined,
-          service: undefined,
+          locale: undefined,
           time,
+          uid: undefined,
           userAgent: 'foo'
         }, 'argument was event data')
 
@@ -602,8 +613,9 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 1000,
           flowCompleteSignal: undefined,
-          service: undefined,
+          locale: undefined,
           time,
+          uid: undefined,
           userAgent: 'foo'
         }, 'argument was event data')
 
@@ -645,8 +657,9 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 1000,
           flowCompleteSignal: undefined,
-          service: undefined,
+          locale: undefined,
           time,
+          uid: undefined,
           userAgent: 'foo'
         }, 'argument was event data')
 
