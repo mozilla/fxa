@@ -2,9 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('bluebird')
-var extend = require('util')._extend
-var ip = require('ip')
+'use strict'
+
+const P = require('bluebird')
+const extend = require('util')._extend
+const ip = require('ip')
+const dbUtil = require('./util')
 
 // our data stores
 var accounts = {}
@@ -18,6 +21,7 @@ var passwordForgotTokens = {}
 var reminders = {}
 var securityEvents = {}
 var unblockCodes = {}
+var emailBounces = {}
 
 var DEVICE_FIELDS = [
   'sessionTokenId',
@@ -889,6 +893,21 @@ module.exports = function (log, error) {
     delete row[code]
 
     return P.resolve({ createdAt: timestamp })
+  }
+
+
+  Memory.prototype.createEmailBounce = function (data) {
+    let row = emailBounces[data.email] || (emailBounces[data.email] = [])
+    let bounce = extend({}, data)
+    bounce.createdAt = Date.now()
+    bounce.bounceType = dbUtil.mapEmailBounceType(bounce.bounceType)
+    bounce.bounceSubType = dbUtil.mapEmailBounceSubType(bounce.bounceSubType)
+    row.push(bounce)
+    return P.resolve({})
+  }
+
+  Memory.prototype.fetchEmailBounces = function(email) {
+    return P.resolve(emailBounces[email] || [])
   }
 
   // UTILITY FUNCTIONS

@@ -1091,6 +1091,33 @@ module.exports = function(cfg, server) {
   )
 
   test(
+    'email bounces',
+    function (t) {
+      t.plan(8)
+      var email = Math.random() + '@email.bounces'
+      return client.postThen('/emailBounces', {
+        email: email,
+        bounceType: 'Permanent',
+        bounceSubType: 'NoEmail'
+      })
+        .then(
+          function (r) {
+            respOkEmpty(t, r)
+            return client.getThen('/emailBounces/' + email)
+          }
+        )
+        .then(
+          function (r) {
+            respOk(t, r)
+            t.equal(r.obj.length, 1)
+            t.equal(r.obj[0].email, email)
+            t.ok(r.obj[0].createdAt <= Date.now(), 'returns { createdAt: Number }')
+          }
+        )
+    }
+  )
+
+  test(
     'GET an unknown path',
     function (t) {
       t.plan(3)
