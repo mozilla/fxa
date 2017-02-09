@@ -59,6 +59,7 @@ module.exports = function createServer(config, log) {
   var EmailRecord = require('./email_record')(limits)
   var IpRecord = require('./ip_record')(limits)
   var UidRecord = require('./uid_record')(limits)
+  var smsRecord = require('./sms_record')(limits)
 
   var handleBan = P.promisify(require('./bans/handler')(config.memcache.recordLifetimeSeconds, mc, EmailRecord, IpRecord, log))
 
@@ -77,7 +78,7 @@ module.exports = function createServer(config, log) {
     throw err
   }
 
-  function fetchRecords(email, ip) {
+  function fetchRecords(email, ip, phoneNumber) {
     var promises = [
       // get records and ignore errors by returning a new record
       mc.getAsync(email).then(EmailRecord.parse, EmailRecord.parse),
@@ -85,6 +86,13 @@ module.exports = function createServer(config, log) {
       mc.getAsync(ip + email).then(IpEmailRecord.parse, IpEmailRecord.parse),
       reputationService.get(ip)
     ]
+
+    // Check against SMS records to make sure that this request
+    // can send to this phone number
+    if (phoneNumber) {
+      promises.push(mc.getAsync(phoneNumber).then(smsRecord.parse, smsRecord.parse))
+    }
+
     return P.all(promises)
   }
 
@@ -93,14 +101,18 @@ module.exports = function createServer(config, log) {
     return mc.setAsync(key, record, lifetime)
   }
 
-  function setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord) {
-    return P.all(
-      [
-        setRecord(email, emailRecord),
-        setRecord(ip, ipRecord),
-        setRecord(ip + email, ipEmailRecord)
-      ]
-    )
+  function setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord, phoneNumber, smsRecord) {
+    var promises =       [
+      setRecord(email, emailRecord),
+      setRecord(ip, ipRecord),
+      setRecord(ip + email, ipEmailRecord)
+    ]
+
+    if (phoneNumber && smsRecord) {
+      promises.push(setRecord(phoneNumber, smsRecord))
+    }
+
+    return P.all(promises)
   }
 
   function max(prev, cur) {
@@ -128,9 +140,16 @@ module.exports = function createServer(config, log) {
       }
       email = normalizedEmail(email)
 
-      fetchRecords(email, ip)
+      // Phone number is optional
+      var phoneNumber
+      if (req.body.payload && req.body.payload.phoneNumber) {
+        phoneNumber = req.body.payload.phoneNumber
+      }
+
+
+      fetchRecords(email, ip, phoneNumber)
         .spread(
-          function (emailRecord, ipRecord, ipEmailRecord, reputation) {
+          function (emailRecord, ipRecord, ipEmailRecord, reputation, smsRecord) {
             if (ipRecord.isBlocked()) {
               // a blocked ip should just be ignored completely
               // it's malicious, it shouldn't penalize emails or allow
@@ -141,17 +160,21 @@ module.exports = function createServer(config, log) {
               }
             }
 
-
             var wantsUnblock = req.body.payload && req.body.payload.unblockCode
             var blockEmail = emailRecord.update(action, !!wantsUnblock)
             var blockIpEmail = ipEmailRecord.update(action)
-            var blockIp = ipRecord.update(action, email)
+            var blockIp = ipRecord.update(action, email, phoneNumber)
+
+            var blockSMS = 0
+            if (smsRecord) {
+              blockSMS = smsRecord.update(action)
+            }
 
             if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
               blockIpEmail = 0
             }
 
-            var retryAfter = [blockEmail, blockIpEmail, blockIp].reduce(max)
+            var retryAfter = [blockEmail, blockIpEmail, blockIp, blockSMS].reduce(max)
             var block = retryAfter > 0
             var suspect = false
             var blockReason = null
@@ -186,7 +209,7 @@ module.exports = function createServer(config, log) {
               blockReason = blockReasons.IP_BAD_REPUTATION
             }
 
-            return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
+            return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord, phoneNumber, smsRecord)
               .then(
                 function () {
                   return {

@@ -4,7 +4,7 @@
 
 // Actions that, if allowed, would allow an attacker
 // to try a candidtate password against an account.
-var PASSWORD_CHECKING_ACTION = {
+const PASSWORD_CHECKING_ACTION = {
   accountLogin: true,
   accountDestroy: true,
   passwordChange: true
@@ -14,7 +14,7 @@ var PASSWORD_CHECKING_ACTION = {
 // to try a guess at a randomly-generated security code.
 // Code are higher entropy so we can allow more of these,
 // but if you're doing it a lot, you're probably a baddie.
-var CODE_VERIFYING_ACTION = {
+const CODE_VERIFYING_ACTION = {
   recoveryEmailVerifyCode: true,
   passwordForgotVerifyCode: true
 }
@@ -23,7 +23,7 @@ var CODE_VERIFYING_ACTION = {
 // to check whether an account exists for a particular user.
 // Basically any unauthenticated endpoint that takes
 // an email address as input.
-var ACCOUNT_STATUS_ACTION = {
+const ACCOUNT_STATUS_ACTION = {
   accountCreate: true,
   accountLogin: true,
   accountDestroy: true,
@@ -35,7 +35,7 @@ var ACCOUNT_STATUS_ACTION = {
 
 // Actions that send an email, and hence might make
 // us look like spammers if abused.
-var EMAIL_SENDING_ACTION = {
+const EMAIL_SENDING_ACTION = {
   accountCreate: true,
   recoveryEmailResendCode: true,
   passwordForgotSendCode: true,
@@ -43,22 +43,31 @@ var EMAIL_SENDING_ACTION = {
   sendUnblockCode: true
 }
 
+// Actions that can send sms, and could make us
+// very annoying to a user if abused.
+const SMS_SENDING_ACTION = {
+  connectDeviceSms: true
+}
+
 module.exports = {
 
-  isPasswordCheckingAction: function isPasswordCheckingAction(action) {
+  isPasswordCheckingAction: function (action) {
     return PASSWORD_CHECKING_ACTION[action]
   },
 
-  isCodeVerifyingAction: function isCodeVerifyingAction(action) {
+  isCodeVerifyingAction: function (action) {
     return CODE_VERIFYING_ACTION[action]
   },
 
-  isAccountStatusAction: function isAccountStatusAction(action) {
+  isAccountStatusAction: function (action) {
     return ACCOUNT_STATUS_ACTION[action]
   },
 
-  isEmailSendingAction: function isEmailSendingAction(action) {
+  isEmailSendingAction: function (action) {
     return EMAIL_SENDING_ACTION[action]
-  }
+  },
 
+  isSmsSendingAction: function (action) {
+    return SMS_SENDING_ACTION[action]
+  }
 }

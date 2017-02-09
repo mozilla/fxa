@@ -20,11 +20,12 @@ module.exports = function (limits, now) {
   IpRecord.parse = function (object) {
     var rec = new IpRecord()
     object = object || {}
-    rec.bk = object.bk // timestamp when the account was blocked
-    rec.lf = object.lf || []  // timestamp+email+errno when failed login attempts occurred
-    rec.vc = object.vc || []  // timestamp+email when code verifications occurred
-    rec.as = object.as || []  // timestamp+email when account status checks occurred
-    rec.rl = object.rl  // timestamp when the account was rate-limited
+    rec.bk = object.bk          // timestamp when the account was blocked
+    rec.lf = object.lf || []    // timestamp+email+errno when failed login attempts occurred
+    rec.vc = object.vc || []    // timestamp+email when code verifications occurred
+    rec.as = object.as || []    // timestamp+email when account status checks occurred
+    rec.sms = object.sms || []  // timestamp+sms when sms sent
+    rec.rl = object.rl          // timestamp when the account was rate-limited
     return rec
   }
 
@@ -123,6 +124,32 @@ module.exports = function (limits, now) {
     this.as = this._trim(now, this.as, limits.maxAccountStatusCheck)
   }
 
+  IpRecord.prototype.isOverSmsLimit = function () {
+    this.trimSmsRequests(now())
+    // Limit based on number of unique sms request sent by this IP
+    var count = 0
+    var seen = {}
+    this.sms.forEach(function(info) {
+      if (!(info.u in seen)) {
+        count += 1
+        seen[info.u] = true
+      }
+    })
+    return count > limits.maxSms
+  }
+
+  IpRecord.prototype.addSmsRequest = function (info) {
+    info = info || {}
+    var t = now()
+    var phoneNumber = info.phoneNumber || ''
+    this.trimSmsRequests(t)
+    this.sms.push({ t: t, u: phoneNumber })
+  }
+
+  IpRecord.prototype.trimSmsRequests = function (now) {
+    this.sms = this._trim(now, this.sms, limits.maxSms)
+  }
+
   IpRecord.prototype._trim = function (now, items, maxUnique) {
     if (items.length === 0) { return items }
     // the list is naturally ordered from oldest to newest,
@@ -163,6 +190,7 @@ module.exports = function (limits, now) {
   IpRecord.prototype.rateLimit = function () {
     this.rl = now()
     this.as = []
+    this.sms = []
   }
 
   IpRecord.prototype.retryAfter = function () {
@@ -171,7 +199,7 @@ module.exports = function (limits, now) {
     return Math.max(0, rateLimitAfter, banAfter)
   }
 
-  IpRecord.prototype.update = function (action, email) {
+  IpRecord.prototype.update = function (action, email, phoneNumber) {
     // ip block is explicit, no escape hatches
     if (this.isBlocked()) {
       return this.retryAfter()
@@ -203,6 +231,15 @@ module.exports = function (limits, now) {
       }
       if (this.isOverBadLogins()) {
         // If you attempt more logins while rate-limited, this can extend the ban.
+        this.rateLimit()
+      }
+    }
+
+    // Increment sms request count and throttle if needed
+    if (actions.isSmsSendingAction(action) && phoneNumber) {
+      this.addSmsRequest({ phoneNumber: phoneNumber })
+      if (this.isOverSmsLimit()){
+        // If you do more than the limit this can extend the ban.
         this.rateLimit()
       }
     }

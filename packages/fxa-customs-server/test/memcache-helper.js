@@ -20,6 +20,10 @@ var config = {
     maxBadLoginsPerIp: Number(process.env.MAX_BAD_LOGINS_PER_IP) || 3,
     ipRateLimitIntervalSeconds: Number(process.env.IP_RATE_LIMIT_INTERVAL_SECONDS) || 60 * 15,
     ipRateLimitBanDurationSeconds: Number(process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS) || 60 * 15,
+    smsRateLimit: {
+      limitIntervalSeconds: Number(process.env.SMS_RATE_LIMIT_INTERVAL_SECONDS) || 60 * 15,
+      maxSms: Number(process.env.MAX_SMS) || 2
+    },
     uidRateLimit: {
       limitIntervalSeconds: Number(process.env.UID_RATE_LIMIT_INTERVAL_SECONDS) || 60 * 15,
       banDurationSeconds: Number(process.env.UID_RATE_LIMIT_BAN_DURATION_SECONDS) || 60 * 15,

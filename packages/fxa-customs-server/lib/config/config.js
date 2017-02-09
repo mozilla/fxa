@@ -107,6 +107,20 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'IP_RATE_LIMIT_BAN_DURATION_SECONDS'
       },
+      smsRateLimit: {
+        limitIntervalSeconds: {
+          doc: 'Duration of automatic throttling for sms',
+          default: 60 * 15,
+          format: 'nat',
+          env: 'SMS_RATE_LIMIT_INTERVAL_SECONDS'
+        },
+        maxSms: {
+          doc: 'Number of sms sent within rateLimitIntervalSeconds before throttling',
+          default: 5,
+          format: 'nat',
+          env: 'MAX_SMS'
+        }
+      },
       uidRateLimit: {
         limitIntervalSeconds: {
           doc: 'Duration of automatic throttling for uids',

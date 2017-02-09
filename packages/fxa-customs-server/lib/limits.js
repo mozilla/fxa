@@ -32,6 +32,11 @@ module.exports = function (config, mc, log) {
     this.maxChecksPerUid = this.uidRateLimit.maxChecks
     this.uidRateLimitBanDurationMs = this.uidRateLimit.banDurationSeconds * 1000
     this.uidRateLimitIntervalMs = this.uidRateLimit.limitIntervalSeconds * 1000
+    this.smsRateLimit = settings.smsRateLimit || {}
+    this.maxSms = settings.smsRateLimit.maxSms
+    this.smsRateLimitIntervalSeconds = this.smsRateLimit.limitIntervalSeconds
+    this.smsRateLimitIntervalMs = this.smsRateLimitIntervalSeconds * 1000
+
     return this
   }
 
