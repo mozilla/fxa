@@ -1672,111 +1672,131 @@ module.exports = function (
           .then(
             (account) => {
               const isAccountVerification = butil.buffersAreEqual(code, account.emailCode)
-
-              /**
-               * Logic for account and token verification
-               *
-               * 1) Attempt to use code as tokenVerificationId to verify session.
-               *
-               * 2) An error is thrown if tokenVerificationId does not exist (check to see if email
-               *    verification code) or the tokenVerificationId does not correlate to the
-               *    account uid (damaged linked/spoofed account)
-               *
-               * 3) Verify account email if not already verified.
-               */
-              return db.verifyTokens(code, account)
-                .then(function () {
-                  if (! isAccountVerification) {
-                    // Don't log sign-in confirmation success for the account verification case
-                    log.info({
-                      op: 'account.signin.confirm.success',
+              let device
+              return db.deviceFromTokenVerificationId(uid, code)
+                .then(function (associatedDevice) {
+                  device = associatedDevice
+                }, function (err) {
+                  if (err.errno !== error.ERRNO.DEVICE_UNKNOWN) {
+                    log.error({
+                      op: 'Account.RecoveryEmailVerify',
+                      err: err,
                       uid: uidHex,
-                      code: request.payload.code
+                      code: code
                     })
-                    request.emitMetricsEvent('account.confirmed', {
-                      uid: uidHex
-                    })
-                    push.notifyUpdate(uid, 'accountConfirm')
                   }
-                })
-                .catch(function (err) {
-                  if (err.errno === error.ERRNO.INVALID_VERIFICATION_CODE && isAccountVerification) {
-                    // The code is just for the account, not for any sessions
-                    return true
-                  }
-                  log.error({
-                    op: 'account.signin.confirm.invalid',
-                    uid: uidHex,
-                    code: request.payload.code,
-                    error: err
-                  })
-                  throw err
                 })
                 .then(function () {
-
-                  // If the account is already verified, the link may have been
-                  // for sign-in confirmation or they may have been clicking a
-                  // stale link. Silently succeed.
-                  if (account.emailVerified) {
-                    if (butil.buffersAreEqual(code, account.emailCode)) {
-                      log.increment('account.already_verified')
-                    }
-                    return true
-                  }
-
-                  // Any matching code verifies the account
-                  return db.verifyEmail(account)
+                  /**
+                   * Logic for account and token verification
+                   *
+                   * 1) Attempt to use code as tokenVerificationId to verify session.
+                   *
+                   * 2) An error is thrown if tokenVerificationId does not exist (check to see if email
+                   *    verification code) or the tokenVerificationId does not correlate to the
+                   *    account uid (damaged linked/spoofed account)
+                   *
+                   * 3) Verify account email if not already verified.
+                   */
+                  return db.verifyTokens(code, account)
                     .then(function () {
-                      log.timing('account.verified', Date.now() - account.createdAt)
-                      log.increment('account.verified')
-                      return log.notifyAttachedServices('verified', request, {
-                        email: account.email,
-                        uid: account.uid,
-                        locale: account.locale
-                      })
-                    })
-                    .then(function () {
-                      return request.emitMetricsEvent('account.verified', {
-                        uid: uidHex
-                      })
-                    })
-                    .then(function () {
-                      if (reminder === 'first' || reminder === 'second') {
-                        // if verified using a known reminder
-                        var reminderOp = 'account.verified_reminder.' + reminder
-
-                        log.increment(reminderOp)
-                        // log to the mailer namespace that account was verified via a reminder
+                      if (! isAccountVerification) {
+                        // Don't log sign-in confirmation success for the account verification case
                         log.info({
-                          op: 'mailer.send',
-                          name: reminderOp
+                          op: 'account.signin.confirm.success',
+                          uid: uidHex,
+                          code: request.payload.code
                         })
-                        return request.emitMetricsEvent('account.reminder', {
+                        request.emitMetricsEvent('account.confirmed', {
                           uid: uidHex
                         })
+                        push.notifyUpdate(uid, 'accountConfirm')
                       }
                     })
-                    .then(function () {
-                      // send a push notification to all devices that the account changed
-                      push.notifyUpdate(uid, 'accountVerify')
-                      // remove verification reminders
-                      verificationReminder.delete({
-                        uid: uidHex
-                      }).catch(function (err) {
-                        log.error({ op: 'Account.RecoveryEmailVerify', err: err })
+                    .catch(function (err) {
+                      if (err.errno === error.ERRNO.INVALID_VERIFICATION_CODE && isAccountVerification) {
+                        // The code is just for the account, not for any sessions
+                        return true
+                      }
+                      log.error({
+                        op: 'account.signin.confirm.invalid',
+                        uid: uidHex,
+                        code: request.payload.code,
+                        error: err
                       })
+                      throw err
                     })
                     .then(function () {
-                      // Our post-verification email is very specific to sync,
-                      // so only send it if we're sure this is for sync.
-                      if (service === 'sync') {
-                        return mailer.sendPostVerifyEmail(
-                          account.email,
-                          {
-                            acceptLanguage: request.app.acceptLanguage
-                          }
-                        )
+                      if (device) {
+                        push.notifyDeviceConnected(uidHex, device.name, device.id.toString('hex'))
                       }
+                    })
+                    .then(function () {
+
+                      // If the account is already verified, the link may have been
+                      // for sign-in confirmation or they may have been clicking a
+                      // stale link. Silently succeed.
+                      if (account.emailVerified) {
+                        if (butil.buffersAreEqual(code, account.emailCode)) {
+                          log.increment('account.already_verified')
+                        }
+                        return true
+                      }
+
+                      // Any matching code verifies the account
+                      return db.verifyEmail(account)
+                        .then(function () {
+                          log.timing('account.verified', Date.now() - account.createdAt)
+                          log.increment('account.verified')
+                          return log.notifyAttachedServices('verified', request, {
+                            email: account.email,
+                            uid: account.uid,
+                            locale: account.locale
+                          })
+                        })
+                        .then(function () {
+                          return request.emitMetricsEvent('account.verified', {
+                            uid: uidHex
+                          })
+                        })
+                        .then(function () {
+                          if (reminder === 'first' || reminder === 'second') {
+                            // if verified using a known reminder
+                            var reminderOp = 'account.verified_reminder.' + reminder
+
+                            log.increment(reminderOp)
+                            // log to the mailer namespace that account was verified via a reminder
+                            log.info({
+                              op: 'mailer.send',
+                              name: reminderOp
+                            })
+                            return request.emitMetricsEvent('account.reminder', {
+                              uid: uidHex
+                            })
+                          }
+                        })
+                        .then(function () {
+                          // send a push notification to all devices that the account changed
+                          push.notifyUpdate(uid, 'accountVerify')
+                          // remove verification reminders
+                          verificationReminder.delete({
+                            uid: uidHex
+                          }).catch(function (err) {
+                            log.error({ op: 'Account.RecoveryEmailVerify', err: err })
+                          })
+                        })
+                        .then(function () {
+                          // Our post-verification email is very specific to sync,
+                          // so only send it if we're sure this is for sync.
+                          if (service === 'sync') {
+                            return mailer.sendPostVerifyEmail(
+                              account.email,
+                              {
+                                acceptLanguage: request.app.acceptLanguage
+                              }
+                            )
+                          }
+                        })
                     })
                 })
             }

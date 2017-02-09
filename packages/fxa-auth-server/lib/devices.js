@@ -38,7 +38,9 @@ module.exports = function (log, db, push) {
           if (! deviceName) {
             deviceName = synthesizeName(deviceInfo)
           }
-          push.notifyDeviceConnected(sessionToken.uid, deviceName, result.id.toString('hex'))
+          if (sessionToken.tokenVerified) {
+            push.notifyDeviceConnected(sessionToken.uid, deviceName, result.id.toString('hex'))
+          }
           if (isPlaceholderDevice) {
             log.info({
               op: 'device:createPlaceholder',

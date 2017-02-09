@@ -61,7 +61,8 @@ describe('devices', () => {
         })
         sessionToken = {
           tokenId: crypto.randomBytes(16),
-          uid: uuid.v4('binary')
+          uid: uuid.v4('binary'),
+          tokenVerified: true
         }
       })
 
@@ -117,6 +118,16 @@ describe('devices', () => {
             assert.equal(args[0], sessionToken.uid, 'first argument was uid')
             assert.equal(args[1], device.name, 'second arguent was device name')
             assert.equal(args[2], deviceId.toString('hex'), 'third argument was device id')
+          })
+      })
+
+      it('should not call notifyDeviceConnected with unverified token', () => {
+        sessionToken.tokenVerified = false
+        device.name = 'device with an unverified sessionToken'
+        return devices.upsert(request, sessionToken, device)
+          .then(function () {
+            assert.equal(push.notifyDeviceConnected.callCount, 0, 'push.notifyDeviceConnected was not called')
+            sessionToken.tokenVerified = true
           })
       })
 

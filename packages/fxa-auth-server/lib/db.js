@@ -666,6 +666,27 @@ module.exports = function (
     )
   }
 
+  DB.prototype.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
+    log.trace(
+      {
+        op: 'DB.deviceFromTokenVerificationId',
+        uid: uid,
+        tokenVerificationId: tokenVerificationId
+      }
+    )
+    return this.pool.get(
+      '/account/' + uid.toString('hex') + '/tokens/' + tokenVerificationId.toString('hex') + '/device'
+    )
+    .catch(
+      function (err) {
+        if (isNotFoundError(err)) {
+          throw error.unknownDevice()
+        }
+        throw err
+      }
+    )
+  }
+
   // BATCH
 
   DB.prototype.resetAccount = function (accountResetToken, data) {

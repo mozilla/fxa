@@ -444,6 +444,28 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(mockLog.notifyAttachedServices.callCount, 0, 'does not call log.notifyAttachedServices')
         assert.equal(mockLog.activityEvent.callCount, 0, 'log.activityEvent was not called')
         assert.equal(mockPush.notifyUpdate.callCount, 0, 'mockPush.notifyUpdate should not have been called')
+        assert.equal(mockPush.notifyDeviceConnected.callCount, 0, 'mockPush.notifyDeviceConnected should not have been called (no devices)')
+      })
+        .then(function () {
+          mockDB.verifyTokens.reset()
+        })
+    })
+
+    it('email verification with associated device', function () {
+      mockDB.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
+        return P.resolve({
+          name: 'my device',
+          id: '123456789',
+          type: 'desktop'
+        })
+      }
+      return runTest(route, mockRequest, function (response) {
+        assert.equal(mockDB.verifyTokens.callCount, 1, 'call db.verifyTokens')
+        assert.equal(mockDB.verifyEmail.callCount, 0, 'does not call db.verifyEmail')
+        assert.equal(mockLog.notifyAttachedServices.callCount, 0, 'does not call log.notifyAttachedServices')
+        assert.equal(mockLog.activityEvent.callCount, 0, 'log.activityEvent was not called')
+        assert.equal(mockPush.notifyUpdate.callCount, 0, 'mockPush.notifyUpdate should not have been called')
+        assert.equal(mockPush.notifyDeviceConnected.callCount, 1, 'mockPush.notifyDeviceConnected should have been called')
       })
         .then(function () {
           mockDB.verifyTokens.reset()

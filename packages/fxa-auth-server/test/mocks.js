@@ -34,6 +34,7 @@ const DB_METHOD_NAMES = [
   'deleteKeyFetchToken',
   'deletePasswordChangeToken',
   'deleteVerificationReminder',
+  'deviceFromTokenVerificationId',
   'devices',
   'emailRecord',
   'forgotPasswordVerified',
