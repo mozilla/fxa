@@ -838,6 +838,15 @@ module.exports = function (
       )
   }
 
+  DB.prototype.createEmailBounce = function (bounceData) {
+    log.trace({
+      op: 'DB.createEmailBounce',
+      bouceData: bounceData
+    })
+
+    return this.pool.post('/emailBounces', bounceData)
+  }
+
   function wrapTokenNotFoundError (err) {
     if (isNotFoundError(err)) {
       err = error.invalidToken('The authentication token could not be found')

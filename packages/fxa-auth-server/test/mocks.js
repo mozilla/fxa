@@ -24,6 +24,7 @@ const DB_METHOD_NAMES = [
   'consumeUnblockCode',
   'createAccount',
   'createDevice',
+  'createEmailBounce',
   'createKeyFetchToken',
   'createPasswordForgotToken',
   'createSessionToken',

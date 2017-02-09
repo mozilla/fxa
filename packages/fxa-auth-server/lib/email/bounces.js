@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var eaddrs = require('email-addresses')
 var P = require('./../promise')
 var utils = require('./utils/helpers')
@@ -20,19 +22,10 @@ module.exports = function (log, error) {
 
     function findEmailRecord(email) {
       return db.emailRecord(email)
-        .catch(function (err) {
-          // The mail agent may have mangled the email address
-          // that's being reported in the bounce notification.
-          // Try looking up by normalized form as well.
-          if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
-            throw err
-          }
-          var normalizedEmail = eaddrs.parseOneAddress(email).address
-          if (normalizedEmail === email) {
-            throw err
-          }
-          return db.emailRecord(normalizedEmail)
-        })
+    }
+
+    function recordBounce(bounce) {
+      return db.createEmailBounce(bounce)
     }
 
     function deleteAccountIfUnverified(record) {
@@ -52,10 +45,12 @@ module.exports = function (log, error) {
 
     function handleBounce(message) {
       var recipients = []
-      if (message.bounce && message.bounce.bounceType === 'Permanent') {
+      // According to the AWS SES docs, a notification will never
+      // include multiple types, so it's fine for us to check for
+      // EITHER bounce OR complaint here.
+      if (message.bounce) {
         recipients = message.bounce.bouncedRecipients
-      }
-      else if (message.complaint && message.complaint.complaintFeedbackType === 'abuse') {
+      } else if (message.complaint) {
         recipients = message.complaint.complainedRecipients
       }
 
@@ -63,12 +58,12 @@ module.exports = function (log, error) {
       // Headers are stored as an array of name/value pairs.
       // Log the `X-Template-Name` header to help track the email template that bounced.
       // Ref: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
-      var templateName = utils.getHeaderValue('X-Template-Name', message)
+      const templateName = utils.getHeaderValue('X-Template-Name', message)
+      const language = utils.getHeaderValue('Content-Language', message)
 
       return P.each(recipients, function (recipient) {
-
-        var email = recipient.emailAddress
-        var logData = {
+        const email = eaddrs.parseOneAddress(recipient.emailAddress).address
+        const logData = {
           op: 'handleBounce',
           action: recipient.action,
           email: email,
@@ -76,32 +71,39 @@ module.exports = function (log, error) {
           diagnosticCode: recipient.diagnosticCode,
           status: recipient.status
         }
+        const bounce = {
+          email: email
+        }
 
         // Template name corresponds directly with the email template that was used
         if (templateName) {
           logData.template = templateName
         }
 
+        if (language) {
+          logData.lang = language
+        }
+
         // Log the type of bounce that occurred
         // Ref: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html#bounce-types
         if (message.bounce && message.bounce.bounceType) {
-          logData.bounceType = message.bounce.bounceType
+          bounce.bounceType = logData.bounceType = message.bounce.bounceType
 
-          if (message.bounce && message.bounce.bounceSubType) {
-            logData.bounceSubType = message.bounce.bounceSubType
+          if (message.bounce.bounceSubType) {
+            bounce.bounceSubType = logData.bounceSubType = message.bounce.bounceSubType
           }
-        }
-
-        // Log the type of complaint and userAgent reported
-        if (message.complaint) {
+        } else if (message.complaint) {
+          // Log the type of complaint and userAgent reported
           logData.complaint = !! message.complaint
+          bounce.bounceType = 'Complaint'
+
 
           if (message.complaint.userAgent) {
             logData.complaintUserAgent = message.complaint.userAgent
           }
 
           if (message.complaint.complaintFeedbackType) {
-            logData.complaintFeedbackType = message.complaint.complaintFeedbackType
+            bounce.bounceSubType = logData.complaintFeedbackType = message.complaint.complaintFeedbackType
           }
         }
 
@@ -111,11 +113,22 @@ module.exports = function (log, error) {
         log.info(logData)
         log.increment('account.email_bounced')
 
-        return findEmailRecord(email)
-          .then(
-            deleteAccountIfUnverified,
-            gotError.bind(null, email)
-          )
+        const shouldDelete = bounce.bounceType === 'Permanent' ||
+          (bounce.bounceType === 'Complaint' && bounce.bounceSubType === 'abuse')
+
+        const work = [
+          recordBounce(bounce)
+            .catch(gotError.bind(null, email))
+        ]
+
+        if (shouldDelete) {
+          work.push(findEmailRecord(email)
+            .then(
+              deleteAccountIfUnverified,
+              gotError.bind(null, email)
+            ))
+        }
+        return P.all(work)
       }).then(
         function () {
           // We always delete the message, even if handling some addrs failed.
