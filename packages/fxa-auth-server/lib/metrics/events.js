@@ -93,7 +93,7 @@ module.exports = log => {
           return
         }
 
-        return emitFlowEvent(event, request)
+        return emitFlowEvent(event, request, data)
       })
     },
 
@@ -133,7 +133,7 @@ module.exports = log => {
     log.activityEvent(data)
   }
 
-  function emitFlowEvent (event, request) {
+  function emitFlowEvent (event, request, optionalData) {
     if (! request || ! request.headers) {
       log.error({ op: 'metricsEvents.emitFlowEvent', event, badRequest: true })
       return P.resolve()
@@ -141,11 +141,11 @@ module.exports = log => {
 
     return request.gatherMetricsContext({
       event: event,
+      locale: coalesceLocale(optionalData, request),
+      uid: coalesceUid(optionalData, request),
       userAgent: request.headers['user-agent']
     }).then(data => {
       if (data.flow_id) {
-        optionallySetService(data, request)
-
         log.flowEvent(data)
 
         if (event === data.flowCompleteSignal) {
@@ -170,5 +170,24 @@ function optionallySetService (data, request) {
   data.service =
     (request.payload && request.payload.service) ||
     (request.query && request.query.service)
+}
+
+function coalesceLocale (data, request) {
+  if (data && data.locale) {
+    return data.locale
+  }
+
+  return request.app && request.app.acceptLanguage
+}
+
+function coalesceUid (data, request) {
+  if (data && data.uid) {
+    return data.uid
+  }
+
+  return request.auth &&
+    request.auth.credentials &&
+    request.auth.credentials.uid &&
+    request.auth.credentials.uid.toString('hex')
 }
 

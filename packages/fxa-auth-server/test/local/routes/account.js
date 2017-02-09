@@ -224,6 +224,7 @@ describe('/account/create', function () {
       email: TEST_EMAIL,
       emailCode: emailCode,
       emailVerified: false,
+      locale: 'en',
       keyFetchTokenId: keyFetchTokenId,
       sessionTokenId: sessionTokenId,
       uaBrowser: 'Firefox',
@@ -283,6 +284,7 @@ describe('/account/create', function () {
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
         event: 'account.created',
+        locale: 'en',
         service: 'sync',
         userAgent: 'test user-agent',
         uid: uid.toString('hex')
@@ -296,8 +298,9 @@ describe('/account/create', function () {
         flowCompleteSignal: 'account.signed',
         flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
         flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-        service: 'sync',
+        locale: 'en',
         time: now,
+        uid: uid.toString('hex'),
         userAgent: 'test user-agent'
       }, 'flow event data was correct')
 
@@ -521,8 +524,9 @@ describe('/account/login', function () {
         flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
         flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
         flowCompleteSignal: 'account.signed',
-        service: 'sync',
+        locale: 'en-US',
         time: now,
+        uid: uid.toString('hex'),
         userAgent: 'test user-agent'
       }, 'first flow event was correct')
       args = mockLog.flowEvent.args[1]
@@ -532,8 +536,9 @@ describe('/account/login', function () {
         flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
         flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
         flowCompleteSignal: 'account.signed',
-        service: 'sync',
+        locale: 'en-US',
         time: now,
+        uid: undefined,
         userAgent: 'test user-agent'
       }, 'second flow event was correct')
 

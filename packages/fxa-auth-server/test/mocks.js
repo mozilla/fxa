@@ -124,6 +124,7 @@ function mockDB (data, errors) {
         email: data.email,
         emailCode: data.emailCode,
         emailVerified: data.emailVerified,
+        locale: data.locale,
         wrapWrapKb: data.wrapWrapKb
       })
     }),
