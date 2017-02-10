@@ -461,7 +461,7 @@ module.exports = function (
         function checkIsBlockForced () {
           // For testing purposes, some email addresses are forced
           // to go through signin unblock on every login attempt.
-          let forced = config.signinUnblock && config.signinUnblock.enabled && config.signinUnblock.forcedEmailAddresses
+          const forced = config.signinUnblock && config.signinUnblock.enabled && config.signinUnblock.forcedEmailAddresses
 
           if (forced && forced.test(email)) {
             return P.reject(error.requestBlocked(true))
@@ -764,7 +764,7 @@ module.exports = function (
               }
             })
             .then(() => {
-              let sessionTokenOptions = {
+              const sessionTokenOptions = {
                 uid: emailRecord.uid,
                 email: emailRecord.email,
                 emailCode: emailRecord.emailCode,
@@ -1671,7 +1671,7 @@ module.exports = function (
           )
           .then(
             (account) => {
-              let isAccountVerification = butil.buffersAreEqual(code, account.emailCode)
+              const isAccountVerification = butil.buffersAreEqual(code, account.emailCode)
 
               /**
                * Logic for account and token verification

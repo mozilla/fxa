@@ -111,7 +111,7 @@ describe('log', () => {
       log.activityEvent()
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-      let args = logger.error.args[0]
+      const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'log.activityEvent', 'first argument was function name')
       assert.deepEqual(args[1], {
@@ -137,7 +137,7 @@ describe('log', () => {
       })
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-      let args = logger.error.args[0]
+      const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'log.activityEvent', 'first argument was function name')
       assert.deepEqual(args[1], {
@@ -165,7 +165,7 @@ describe('log', () => {
       })
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-      let args = logger.error.args[0]
+      const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'log.activityEvent', 'first argument was function name')
       assert.deepEqual(args[1], {
@@ -222,7 +222,7 @@ describe('log', () => {
       log.flowEvent()
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-      let args = logger.error.args[0]
+      const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
       assert.deepEqual(args[1], {
@@ -250,7 +250,7 @@ describe('log', () => {
       })
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-      let args = logger.error.args[0]
+      const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
       assert.deepEqual(args[1], {
@@ -282,7 +282,7 @@ describe('log', () => {
       })
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-      let args = logger.error.args[0]
+      const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
       assert.deepEqual(args[1], {
@@ -314,7 +314,7 @@ describe('log', () => {
       })
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-      let args = logger.error.args[0]
+      const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
       assert.deepEqual(args[1], {
@@ -346,7 +346,7 @@ describe('log', () => {
       })
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
-      let args = logger.error.args[0]
+      const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
       assert.deepEqual(args[1], {

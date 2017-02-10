@@ -277,7 +277,7 @@ module.exports = function (
             })
             .then(maybeToken => {
               // Create a sessionToken with the verification status of the current session
-              let sessionTokenOptions = {
+              const sessionTokenOptions = {
                 uid: account.uid,
                 email: account.email,
                 emailCode: account.emailCode,

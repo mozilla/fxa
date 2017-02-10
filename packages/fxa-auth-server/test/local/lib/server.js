@@ -15,9 +15,9 @@ describe('lib/server', () => {
   })
 
   describe('logEndpointErrors', () => {
-    let msg = 'Timeout'
-    let reason = 'Socket fail'
-    let response = {
+    const msg = 'Timeout'
+    const reason = 'Socket fail'
+    const response = {
       __proto__: {
         name: 'EndpointError'
       },

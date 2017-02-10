@@ -160,7 +160,7 @@ TestServer.prototype.stop = function () {
   currentServer = undefined
   try { this.db.close() } catch (e) {}
   if (this.server) {
-    let doomed = [
+    const doomed = [
       processKill(this.server, 'server', 'SIGINT'),
       processKill(this.mail, 'mail')
     ]

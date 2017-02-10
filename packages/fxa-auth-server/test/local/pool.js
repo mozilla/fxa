@@ -77,7 +77,7 @@ describe('Pool', () => {
     'pool.request callback with error',
     () => {
       var pool = new Pool('http://example.com/')
-      let p = pool.request()
+      const p = pool.request()
         .then(function () {
           assert(false, 'request should have failed')
         }, function (error) {
@@ -96,7 +96,7 @@ describe('Pool', () => {
     'pool.request callback with HTTP error response',
     () => {
       var pool = new Pool('http://example.com/')
-      let p = pool.request()
+      const p = pool.request()
         .then(function () {
           assert(false, 'request should have failed')
         }, function (error) {
@@ -116,7 +116,7 @@ describe('Pool', () => {
     'pool.request callback with HTTP error response and JSON body',
     () => {
       var pool = new Pool('http://example.com/')
-      let p = pool.request()
+      const p = pool.request()
         .then(function () {
           assert(false, 'request should have failed')
         }, function (error) {
@@ -137,7 +137,7 @@ describe('Pool', () => {
     'pool.request callback with HTTP success response and empty body',
     () => {
       var pool = new Pool('http://example.com/')
-      let p = pool.request()
+      const p = pool.request()
         .then(function (result) {
           assert.equal(result, undefined, 'result is undefined')
         })
@@ -153,7 +153,7 @@ describe('Pool', () => {
     'pool.request callback with HTTP success response and valid JSON body',
     () => {
       var pool = new Pool('http://example.com/')
-      let p = pool.request()
+      const p = pool.request()
         .then(function (result) {
           assert.equal(typeof result, 'object', 'result is object')
           assert.equal(Object.keys(result).length, 1, 'result has 1 property')
@@ -171,7 +171,7 @@ describe('Pool', () => {
     'pool.request callback with HTTP success response and invalid JSON body',
     () => {
       var pool = new Pool('http://example.com/')
-      let p = pool.request()
+      const p = pool.request()
         .then(function () {
           assert(false, 'request should have failed')
         }, function (error) {
