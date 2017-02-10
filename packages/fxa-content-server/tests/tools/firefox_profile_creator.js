@@ -45,11 +45,8 @@ if (profile) {
   myProfile.setPreference('extensions.checkCompatibility.47.0', false);
   myProfile.setPreference('extensions.checkCompatibility.48.0', false);
 
-  // disable e10s
-  myProfile.setPreference('browser.tabs.remote.autostart', false);
-  myProfile.setPreference('browser.tabs.remote.autostart.1', false);
-  myProfile.setPreference('browser.tabs.remote.autostart.2', false);
-  myProfile.setPreference('browser.tabs.remote.force-enable', false);
+  // force enable e10s
+  myProfile.setPreference('browser.tabs.remote.force-enable', true);
 
   // disable signed extensions
   myProfile.setPreference('xpinstall.signatures.required', false);
