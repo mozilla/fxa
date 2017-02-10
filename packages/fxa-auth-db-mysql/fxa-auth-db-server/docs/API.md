@@ -58,6 +58,7 @@ The following datatypes are used throughout this document:
     * verifyEmail               : `POST /account/:id/verifyEmail`
     * sessions                  : `GET /account/:id/sessions`
     * devices                   : `GET /account/:id/devices`
+    * deviceFromTokenVerificationId : `GET /account/:id/tokens/:tokenVerificationId/device`
 * Devices:
     * createDevice              : `PUT /account/:id/device/:deviceId`
     * updateDevice              : `POST /account/:id/device/:deviceId/update`
@@ -663,6 +664,54 @@ Content-Type: application/json
     * Body : `[ ... <see example> ...]`
 * Status Code : 404 Not Found
     * Conditions: if this account `uid` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## deviceFromTokenVerificationId : `GET /account/<uid>/tokens/<tokenVerificationId>/device`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/tokens/12c41fac80fd6149f3f695e188b5f846/device
+```
+
+### Request
+
+* Method : GET
+* Path : `/account/<uid>/tokens/<tokenVerificationId>/device`
+    * uid : hex128
+    * tokenVerificationId : hex128
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": "154c86dde08bfbb47415b9a216044916",
+    "name": "My Phone",
+    "type": "mobile"
+    "createdAt": 1437992394186,
+    "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+    "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+    "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong"
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if the `tokenVerificationId` doesn't exist or if there is no device associated with it
     * Content-Type : 'application/json'
     * Body : `{"message":"Not Found"}`
 * Status Code : 500 Internal Server Error

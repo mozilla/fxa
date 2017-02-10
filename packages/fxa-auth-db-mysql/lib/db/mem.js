@@ -434,6 +434,44 @@ module.exports = function (log, error) {
       )
   }
 
+  Memory.prototype.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
+    var tokenIds = Object.keys(unverifiedTokens)
+    var sessionTokenId
+    for (var i = 0; i < tokenIds.length; i++) {
+      var unverifiedToken = unverifiedTokens[tokenIds[i]]
+      if (unverifiedToken.tokenVerificationId.equals(tokenVerificationId) &&
+          unverifiedToken.uid.equals(uid)) {
+        sessionTokenId = tokenIds[i]
+        break
+      }
+    }
+    if (!sessionTokenId) {
+      return P.reject(error.notFound())
+    }
+    return this.accountDevices(uid)
+      .then(
+        function (devices) {
+          var device = devices.filter(
+            function (d) {
+              return d.sessionTokenId.toString('hex') === sessionTokenId
+            }
+          )[0]
+          if (!device) {
+            throw error.notFound()
+          }
+          return P.resolve({
+            id: device.id,
+            name: device.name,
+            type: device.type,
+            createdAt: device.createdAt,
+            callbackURL: device.callbackURL,
+            callbackPublicKey: device.callbackPublicKey,
+            callbackAuthKey: device.callbackAuthKey,
+          })
+        }
+      )
+  }
+
   Memory.prototype.sessionWithDevice = function (id) {
     return this.sessionTokenWithVerificationStatus(id)
       .then(

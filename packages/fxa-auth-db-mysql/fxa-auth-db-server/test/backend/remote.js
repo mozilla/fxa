@@ -508,7 +508,7 @@ module.exports = function(cfg, server) {
   test(
     'device handling',
     function (t) {
-      t.plan(69)
+      t.plan(78)
       var user = fake.newUserDataHex()
       var zombieUser = fake.newUserDataHex()
       return client.getThen('/account/' + user.accountId + '/devices')
@@ -553,6 +553,21 @@ module.exports = function(cfg, server) {
           t.equal(devices[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
           t.equal(devices[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
           t.equal(devices[0].email, user.account.email, 'email is correct')
+        })
+        .then(function() {
+          return client.getThen('/account/' + user.accountId + '/tokens/' + user.sessionToken.tokenVerificationId + '/device')
+        })
+        .then(function(r) {
+          respOk(t, r)
+          var device = r.obj
+          t.equal(device.id, user.deviceId, 'id is correct')
+          t.equal(device.createdAt, user.device.createdAt, 'createdAt is correct')
+          t.equal(device.name, user.device.name, 'name is correct')
+          t.equal(device.type, user.device.type, 'type is correct')
+          t.equal(device.callbackURL, user.device.callbackURL, 'callbackURL is correct')
+          t.equal(device.callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
+          t.equal(device.callbackAuthKey, user.device.callbackAuthKey, 'callbackAuthKey is correct')
+
           return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
             name: 'wibble',
             type: 'mobile',

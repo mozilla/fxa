@@ -1023,6 +1023,57 @@ module.exports = function(config, DB) {
         )
 
         test(
+          'db.deviceFromTokenVerificationId',
+          function (t) {
+            t.plan(8)
+            var sessionTokenId = hex32()
+            var deviceId = newUuid()
+            var createdAt = Date.now()
+            var tokenVerificationId = SESSION_TOKEN.tokenVerificationId
+            var deviceName = 'test device'
+            return db.deviceFromTokenVerificationId(ACCOUNT.uid, hex16())
+              .then(function () {
+                t.fail('trying to retrieve a device from an unknown tokeenVerificationId should have failed')
+              }, function (err) {
+                t.pass('trying to retrieve a device from an unknown tokeenVerificationId failed')
+                t.equal(err.code, 404, 'err.code')
+                t.equal(err.errno, 116, 'err.errno')
+              })
+              .then(function () {
+                return db.createSessionToken(sessionTokenId, SESSION_TOKEN)
+              })
+              .then(function () {
+                return db.deviceFromTokenVerificationId(ACCOUNT.uid, tokenVerificationId)
+              })
+              .then(function () {
+                t.fail('no device should be associated with that session')
+              }, function (err) {
+                t.pass('no device was associated with that session')
+                t.equal(err.code, 404, 'err.code')
+                t.equal(err.errno, 116, 'err.errno')
+              })
+              .then(function () {
+                return db.createDevice(ACCOUNT.uid, deviceId, {
+                  sessionTokenId: sessionTokenId,
+                  createdAt: createdAt,
+                  name: deviceName,
+                  type: 'desktop'
+                })
+              })
+              .then(function () {
+                return db.deviceFromTokenVerificationId(ACCOUNT.uid, tokenVerificationId)
+              })
+              .then(function (deviceInfo) {
+                t.deepEqual(deviceInfo.id, deviceId, 'We found our device id back')
+                t.equal(deviceInfo.name, deviceName, 'We found our device name back')
+              })
+              .then(function () {
+                db.deleteDevice(ACCOUNT.uid, deviceId)
+              })
+          }
+        )
+
+        test(
           'db.accountDevices',
           function (t) {
             t.plan(77)

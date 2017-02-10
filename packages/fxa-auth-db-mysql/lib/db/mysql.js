@@ -346,6 +346,18 @@ module.exports = function (log, error) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
   }
 
+  // Select : devices d, unverifiedTokens u
+  // Fields : d.id AS deviceId, d.name AS deviceName, d.type AS deviceType, d.createdAt
+  //          AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL, d.callbackPublicKey
+  //          AS deviceCallbackPublicKey, d.callbackAuthKey AS deviceCallbackAuthKey
+  // Where  : u.uid = $1 AND u.tokenVerificationId = $2 AND
+  //          u.tokenId = d.sessionTokenId AND u.uid = d.uid
+  var DEVICE_FROM_TOKEN_VERIFICATION_ID = 'CALL deviceFromTokenVerificationId_1(?, ?)'
+
+  MySql.prototype.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
+    return this.readFirstResult(DEVICE_FROM_TOKEN_VERIFICATION_ID, [uid, tokenVerificationId])
+  }
+
   // Select : sessionTokens t, accounts a, devices d, unverifiedTokens ut
   // Fields : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion, t.uaOS,
   //          t.uaOSVersion, t.uaDeviceType, t.lastAccessTime, a.emailVerified, a.email,

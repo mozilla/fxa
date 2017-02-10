@@ -146,6 +146,14 @@ function createServer(db) {
   )
 
 
+  api.get(
+    '/account/:uid/tokens/:tokenVerificationId/device',
+    op(function (req) {
+      return db.deviceFromTokenVerificationId(req.params.uid, req.params.tokenVerificationId)
+    })
+  )
+
+
   api.put(
     '/account/:uid/unblock/:code',
     op(function (req) {
