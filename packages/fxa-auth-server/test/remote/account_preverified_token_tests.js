@@ -29,6 +29,7 @@ describe('remote account preverified token', function() {
   let server
   before(() => {
     process.env.TRUSTED_JKUS = 'http://127.0.0.1:9000/.well-known/public-keys'
+    process.env.IP_PROFILING_ENABLED = true
 
     return TestServer.start(config)
       .then(s => {
