@@ -1,0 +1,6 @@
+plugins:
+  - fxa
+extends: ../.eslintrc
+
+rules:
+  id-blacklist: 0
