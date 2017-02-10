@@ -8,9 +8,7 @@ const P = require('./promise')
 const Pool = require('./pool')
 const userAgent = require('./userAgent')
 
-const butil = require('./crypto/butil')
-const bufferize = butil.bufferize
-const unbuffer = butil.unbuffer
+const bufferize = require('./crypto/butil').bufferize
 const random = require('./crypto/random')
 
 module.exports = function (
@@ -71,7 +69,7 @@ module.exports = function (
     data.normalizedEmail = data.email.toLowerCase()
     return this.pool.put(
       '/account/' + data.uid.toString('hex'),
-      unbuffer(data)
+      data
     )
     .then(
       function () {
@@ -93,22 +91,19 @@ module.exports = function (
         function (sessionToken) {
           return this.pool.put(
             '/sessionToken/' + sessionToken.id,
-            unbuffer(
-              {
-                tokenId: sessionToken.tokenId,
-                data: sessionToken.data,
-                uid: sessionToken.uid,
-                createdAt: sessionToken.createdAt,
-                uaBrowser: sessionToken.uaBrowser,
-                uaBrowserVersion: sessionToken.uaBrowserVersion,
-                uaOS: sessionToken.uaOS,
-                uaOSVersion: sessionToken.uaOSVersion,
-                uaDeviceType: sessionToken.uaDeviceType,
-                mustVerify: sessionToken.mustVerify,
-                tokenVerificationId: sessionToken.tokenVerificationId
-              },
-              'inplace'
-            )
+            {
+              tokenId: sessionToken.tokenId,
+              data: sessionToken.data,
+              uid: sessionToken.uid,
+              createdAt: sessionToken.createdAt,
+              uaBrowser: sessionToken.uaBrowser,
+              uaBrowserVersion: sessionToken.uaBrowserVersion,
+              uaOS: sessionToken.uaOS,
+              uaOSVersion: sessionToken.uaOSVersion,
+              uaDeviceType: sessionToken.uaDeviceType,
+              mustVerify: sessionToken.mustVerify,
+              tokenVerificationId: sessionToken.tokenVerificationId
+            }
           )
           .then(
             function () {
@@ -126,17 +121,14 @@ module.exports = function (
         function (keyFetchToken) {
           return this.pool.put(
             '/keyFetchToken/' + keyFetchToken.id,
-            unbuffer(
-              {
-                tokenId: keyFetchToken.tokenId,
-                authKey: keyFetchToken.authKey,
-                uid: keyFetchToken.uid,
-                keyBundle: keyFetchToken.keyBundle,
-                createdAt: keyFetchToken.createdAt,
-                tokenVerificationId: keyFetchToken.tokenVerificationId
-              },
-              'inplace'
-            )
+            {
+              tokenId: keyFetchToken.tokenId,
+              authKey: keyFetchToken.authKey,
+              uid: keyFetchToken.uid,
+              keyBundle: keyFetchToken.keyBundle,
+              createdAt: keyFetchToken.createdAt,
+              tokenVerificationId: keyFetchToken.tokenVerificationId
+            }
           )
           .then(
             function () {
@@ -154,17 +146,14 @@ module.exports = function (
         function (passwordForgotToken) {
           return this.pool.put(
             '/passwordForgotToken/' + passwordForgotToken.id,
-            unbuffer(
-              {
-                tokenId: passwordForgotToken.tokenId,
-                data: passwordForgotToken.data,
-                uid: passwordForgotToken.uid,
-                passCode: passwordForgotToken.passCode,
-                createdAt: passwordForgotToken.createdAt,
-                tries: passwordForgotToken.tries
-              },
-              'inplace'
-            )
+            {
+              tokenId: passwordForgotToken.tokenId,
+              data: passwordForgotToken.data,
+              uid: passwordForgotToken.uid,
+              passCode: passwordForgotToken.passCode,
+              createdAt: passwordForgotToken.createdAt,
+              tries: passwordForgotToken.tries
+            }
           )
           .then(
             function () {
@@ -182,15 +171,12 @@ module.exports = function (
         function (passwordChangeToken) {
           return this.pool.put(
             '/passwordChangeToken/' + passwordChangeToken.id,
-            unbuffer(
-              {
-                tokenId: passwordChangeToken.tokenId,
-                data: passwordChangeToken.data,
-                uid: passwordChangeToken.uid,
-                createdAt: passwordChangeToken.createdAt
-              },
-              'inplace'
-            )
+            {
+              tokenId: passwordChangeToken.tokenId,
+              data: passwordChangeToken.data,
+              uid: passwordChangeToken.uid,
+              createdAt: passwordChangeToken.createdAt
+            }
           )
           .then(
             function () {
@@ -527,7 +513,7 @@ module.exports = function (
         return this.pool.put(
           '/account/' + uid.toString('hex') +
           '/device/' + deviceInfo.id.toString('hex'),
-          unbuffer({
+          {
             sessionTokenId: sessionTokenId,
             createdAt: deviceInfo.createdAt,
             name: deviceInfo.name,
@@ -535,7 +521,7 @@ module.exports = function (
             callbackURL: deviceInfo.pushCallback,
             callbackPublicKey: deviceInfo.pushPublicKey,
             callbackAuthKey: deviceInfo.pushAuthKey
-          })
+          }
         )
       })
       .then(
@@ -572,14 +558,14 @@ module.exports = function (
     return this.pool.post(
       '/account/' + uid.toString('hex') +
       '/device/' + deviceInfo.id.toString('hex') + '/update',
-      unbuffer({
+      {
         sessionTokenId: sessionTokenId,
         name: deviceInfo.name,
         type: deviceInfo.type,
         callbackURL: deviceInfo.pushCallback,
         callbackPublicKey: deviceInfo.pushPublicKey,
         callbackAuthKey: deviceInfo.pushAuthKey
-      })
+      }
     )
     .then(
       function (result) {
@@ -687,7 +673,7 @@ module.exports = function (
     data.verifierSetAt = Date.now()
     return this.pool.post(
       '/account/' + accountResetToken.uid.toString('hex') + '/reset',
-      unbuffer(data)
+      data
     )
   }
 
@@ -698,13 +684,9 @@ module.exports = function (
 
   DB.prototype.verifyTokens = function (tokenVerificationId, accountData) {
     log.trace({ op: 'DB.verifyTokens', tokenVerificationId: tokenVerificationId })
-    return this.pool.post('/tokens/' + tokenVerificationId.toString('hex') + '/verify',
-        unbuffer(
-          {
-            uid: accountData.uid
-          },
-          'inplace'
-        )
+    return this.pool.post(
+      '/tokens/' + tokenVerificationId.toString('hex') + '/verify',
+      { uid: accountData.uid }
     )
     .then(
       function (body) {
@@ -726,15 +708,12 @@ module.exports = function (
         function (accountResetToken) {
           return this.pool.post(
             '/passwordForgotToken/' + passwordForgotToken.id + '/verified',
-            unbuffer(
-              {
-                tokenId: accountResetToken.tokenId,
-                data: accountResetToken.data,
-                uid: accountResetToken.uid,
-                createdAt: accountResetToken.createdAt
-              },
-              'inplace'
-            )
+            {
+              tokenId: accountResetToken.tokenId,
+              data: accountResetToken.data,
+              uid: accountResetToken.uid,
+              createdAt: accountResetToken.createdAt
+            }
           )
           .then(
             function () {
@@ -779,7 +758,7 @@ module.exports = function (
       securityEvent: event
     })
 
-    return this.pool.post('/securityEvents', unbuffer(event))
+    return this.pool.post('/securityEvents', event)
   }
 
   DB.prototype.securityEvents = function (params) {

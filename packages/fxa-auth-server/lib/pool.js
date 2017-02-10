@@ -16,6 +16,14 @@ function parseUrl(url) {
   throw new Error('url is invalid: ' + url)
 }
 
+function unbuffer (key, value) {
+  if (Buffer.isBuffer(this[key])) {
+    return this[key].toString('hex')
+  }
+
+  return value
+}
+
 function Pool(url, options) {
   options = options || {}
   var parsedUrl = parseUrl(url)
@@ -40,7 +48,7 @@ Pool.prototype.request = function (method, path, data) {
       headers: {
         'Content-Type': 'application/json'
       },
-      data: data ? JSON.stringify(data) : undefined
+      data: data ? JSON.stringify(data, unbuffer) : undefined
     },
     handleResponse
   )
