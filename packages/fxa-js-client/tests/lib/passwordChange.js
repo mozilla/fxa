@@ -40,6 +40,7 @@ define([
         var newUnwrapBKey;
         var oldCreds;
         var uid;
+        var account;
 
         // newUnwrapBKey from email+newpassword. The submitted newWrapKB
         // should equal (kB XOR newUnwrapBKey). This way we don't need to
@@ -67,7 +68,17 @@ define([
             return respond(client.signIn(email, password, {keys: true}), RequestMocks.signInWithKeys);
           })
           .then(function(result) {
-            return respond(client.accountKeys(result.keyFetchToken, result.unwrapBKey), RequestMocks.accountKeys);
+            account = result;
+            // signin confirmation flow
+            return respond(mail.wait(user, 2), RequestMocks.mailUnverifiedSignin);
+          })
+          .then(function (emails) {
+            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
+
+            return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
+          })
+          .then(function () {
+            return respond(client.accountKeys(account.keyFetchToken, account.unwrapBKey), RequestMocks.accountKeys);
           })
           .then(function(keys) {
             kB = keys.kB;
@@ -118,6 +129,7 @@ define([
         var oldCreds;
         var sessionToken;
         var uid;
+        var account;
 
         // newUnwrapBKey from email+newpassword. The submitted newWrapKB
         // should equal (kB XOR newUnwrapBKey). This way we don't need to
@@ -146,8 +158,18 @@ define([
           })
           .then(function(result) {
             sessionToken = result.sessionToken;
+            account = result;
+            // signin confirmation flow
+            return respond(mail.wait(user, 2), RequestMocks.mailUnverifiedSignin);
+          })
+          .then(function (emails) {
+            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
 
-            return respond(client.accountKeys(result.keyFetchToken, result.unwrapBKey), RequestMocks.accountKeys);
+            return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
+          })
+          .then(function () {
+
+            return respond(client.accountKeys(account.keyFetchToken, account.unwrapBKey), RequestMocks.accountKeys);
           })
           .then(function(keys) {
             kB = keys.kB;
