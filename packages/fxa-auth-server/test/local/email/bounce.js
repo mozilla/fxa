@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 const assert = require('insist')
 
 var EventEmitter = require('events').EventEmitter
@@ -42,6 +44,7 @@ describe('bounce messages', () => {
     () => {
       var mockLog = spyLog()
       var mockDB = {
+        createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
           return P.resolve({
             uid: '123456',
@@ -53,9 +56,10 @@ describe('bounce messages', () => {
           return P.resolve({ })
         })
       }
+      const bounceType = 'Permanent'
       var mockMsg = mockMessage({
         bounce: {
-          bounceType: 'Permanent',
+          bounceType: bounceType,
           bouncedRecipients: [
             { emailAddress: 'test@example.com' },
             { emailAddress: 'foobar@example.com'}
@@ -63,6 +67,7 @@ describe('bounce messages', () => {
         }
       })
       return mockedBounces(mockLog, mockDB).handleBounce(mockMsg).then(function () {
+        assert.equal(mockDB.createEmailBounce.callCount, 2)
         assert.equal(mockDB.emailRecord.callCount, 2)
         assert.equal(mockDB.deleteAccount.callCount, 2)
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
@@ -79,10 +84,11 @@ describe('bounce messages', () => {
   )
 
   it(
-    'should treat abuse complaints like bounces',
+    'should treat complaints like bounces',
     () => {
       var mockLog = spyLog()
       var mockDB = {
+        createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
           return P.resolve({
             uid: '123456',
@@ -94,22 +100,27 @@ describe('bounce messages', () => {
           return P.resolve({ })
         })
       }
+      const complaintType = 'abuse'
+
       return mockedBounces(mockLog, mockDB).handleBounce(mockMessage({
         complaint: {
           userAgent: 'AnyCompany Feedback Loop (V0.01)',
-          complaintFeedbackType: 'abuse',
+          complaintFeedbackType: complaintType,
           complainedRecipients: [
             { emailAddress: 'test@example.com' },
             { emailAddress: 'foobar@example.com'}
           ]
         }
       })).then(function () {
+        assert.equal(mockDB.createEmailBounce.callCount, 2)
+        assert.equal(mockDB.createEmailBounce.args[0][0].bounceType, 'Complaint')
+        assert.equal(mockDB.createEmailBounce.args[0][0].bounceSubType, complaintType)
         assert.equal(mockDB.emailRecord.callCount, 2)
         assert.equal(mockDB.deleteAccount.callCount, 2)
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
         assert.equal(mockDB.emailRecord.args[1][0], 'foobar@example.com')
         assert.equal(mockLog.messages.length, 8, 'messages logged')
-        assert.equal(mockLog.messages[1].args[0].complaintFeedbackType, 'abuse')
+        assert.equal(mockLog.messages[1].args[0].complaintFeedbackType, complaintType)
         assert.equal(mockLog.messages[1].args[0].complaint, true)
         assert.equal(mockLog.messages[1].args[0].complaintUserAgent, 'AnyCompany Feedback Loop (V0.01)')
       })
@@ -121,6 +132,7 @@ describe('bounce messages', () => {
     () => {
       var mockLog = spyLog()
       var mockDB = {
+        createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
           return P.resolve({
             uid: '123456',
@@ -172,6 +184,7 @@ describe('bounce messages', () => {
     () => {
       var mockLog = spyLog()
       var mockDB = {
+        createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
           return P.reject(new error({}))
         })
@@ -203,6 +216,7 @@ describe('bounce messages', () => {
     () => {
       var mockLog = spyLog()
       var mockDB = {
+        createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
           return P.resolve({
             uid: '123456',
@@ -244,6 +258,7 @@ describe('bounce messages', () => {
     () => {
       var mockLog = spyLog()
       var mockDB = {
+        createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
           // Lookup only succeeds when using original, unquoted email addr.
           if (email !== 'test.@example.com') {
@@ -269,9 +284,10 @@ describe('bounce messages', () => {
           ]
         }
       })).then(function () {
-        assert.equal(mockDB.emailRecord.callCount, 2)
-        assert.equal(mockDB.emailRecord.args[0][0], '"test."@example.com')
-        assert.equal(mockDB.emailRecord.args[1][0], 'test.@example.com')
+        assert.equal(mockDB.createEmailBounce.callCount, 1)
+        assert.equal(mockDB.createEmailBounce.args[0][0].email, 'test.@example.com')
+        assert.equal(mockDB.emailRecord.callCount, 1)
+        assert.equal(mockDB.emailRecord.args[0][0], 'test.@example.com')
         assert.equal(mockDB.deleteAccount.callCount, 1)
         assert.equal(mockDB.deleteAccount.args[0][0].email, 'test.@example.com')
       })
@@ -279,10 +295,11 @@ describe('bounce messages', () => {
   )
 
   it(
-    'should log email template name and bounceType',
+    'should log email template name, language, and bounceType',
     () => {
       var mockLog = spyLog()
       var mockDB = {
+        createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
           return P.resolve({
             uid: '123456',
@@ -305,6 +322,10 @@ describe('bounce messages', () => {
         mail: {
           headers: [
             {
+              name: 'Content-Language',
+              value: 'db-LB'
+            },
+            {
               name: 'X-Template-Name',
               value: 'verifyLoginEmail'
             }
@@ -323,6 +344,7 @@ describe('bounce messages', () => {
         assert.equal(mockLog.messages[1].args[0].template, 'verifyLoginEmail')
         assert.equal(mockLog.messages[1].args[0].bounceType, 'Permanent')
         assert.equal(mockLog.messages[1].args[0].bounceSubType, 'General')
+        assert.equal(mockLog.messages[1].args[0].lang, 'db-LB')
         assert.equal(mockLog.messages[2].args[0], 'account.email_bounced')
       })
     }
@@ -333,6 +355,7 @@ describe('bounce messages', () => {
     () => {
       var mockLog = spyLog()
       var mockDB = {
+        createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
           return P.resolve({
             uid: '123456',
