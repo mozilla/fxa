@@ -4,23 +4,13 @@
 
 'use strict'
 
-var EventEmitter = require('events').EventEmitter
-var util = require('util')
-var mozlog = require('mozlog')
-var config = require('../config')
-var logConfig = config.get('log')
-var StatsDCollector = require('./metrics/statsd')
-
-function unbuffer(object) {
-  var keys = Object.keys(object)
-  for (var i = 0; i < keys.length; i++) {
-    var x = object[keys[i]]
-    if (Buffer.isBuffer(x)) {
-      object[keys[i]] = x.toString('hex')
-    }
-  }
-  return object
-}
+const EventEmitter = require('events').EventEmitter
+const util = require('util')
+const mozlog = require('mozlog')
+const config = require('../config')
+const logConfig = config.get('log')
+const StatsDCollector = require('./metrics/statsd')
+const unbuffer = require('./crypto/butil').unbuffer
 
 function Lug(options) {
   EventEmitter.call(this)
@@ -139,10 +129,10 @@ Lug.prototype.summary = function (request, response) {
   if (line.code >= 500) {
     line.trace = request.app.traced
     line.stack = response.stack
-    this.error(unbuffer(line), response.message)
+    this.error(unbuffer(line, true), response.message)
   }
   else {
-    this.info(unbuffer(line))
+    this.info(unbuffer(line, true))
   }
 }
 
