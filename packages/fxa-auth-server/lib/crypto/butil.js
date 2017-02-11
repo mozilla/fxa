@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var HEX = /^(?:[a-fA-F0-9]{2})+$/
+'use strict'
+
+const HEX = /^(?:[a-fA-F0-9]{2})+$/
 
 module.exports.ONES = Buffer('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'hex')
 
@@ -32,14 +34,26 @@ module.exports.xorBuffers = function xorBuffers(buffer1, buffer2) {
   return result
 }
 
-module.exports.unbuffer = function unbuffer(object, inplace) {
-  var keys = Object.keys(object)
-  var copy = inplace ? object : {}
-  for (var i = 0; i < keys.length; i++) {
-    var x = object[keys[i]]
-    copy[keys[i]] = Buffer.isBuffer(x) ? x.toString('hex') : x
+module.exports.unbuffer = (object, inplace) => {
+  return Object.keys(object).reduce((unbuffered, key) => {
+    unbuffered[key] = unbufferDatum.call(object, key, object[key])
+    return unbuffered
+  }, inplace ? object : {})
+}
+
+module.exports.unbufferDatum = unbufferDatum
+
+// Invoked as the `replacer` in calls to JSON.stringify.
+// If you're going to call it elsewhere, `this` must be
+// set as it would be then.
+function unbufferDatum (key, value) {
+  const unstringifiedValue = this[key]
+
+  if (Buffer.isBuffer(unstringifiedValue)) {
+    return unstringifiedValue.toString('hex')
   }
-  return copy
+
+  return value
 }
 
 module.exports.bufferize = function bufferize(object, options) {

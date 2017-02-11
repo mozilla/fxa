@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('./promise')
-var Poolee = require('poolee')
+'use strict'
+
+const P = require('./promise')
+const Poolee = require('poolee')
+const unbufferDatum = require('./crypto/butil').unbufferDatum
 
 function parseUrl(url) {
   var match = /([a-zA-Z]+):\/\/(\S+)/.exec(url)
@@ -40,7 +43,7 @@ Pool.prototype.request = function (method, path, data) {
       headers: {
         'Content-Type': 'application/json'
       },
-      data: data ? JSON.stringify(data) : undefined
+      data: data ? JSON.stringify(data, unbufferDatum) : undefined
     },
     handleResponse
   )
