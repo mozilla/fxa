@@ -34,7 +34,6 @@
     "restify": "4.1.1"
   },
   "devDependencies": {
-    "ass": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
     "eslint-config-fxa": "2.1.0",
     "grunt": "1.0.1",
     "grunt-bump": "0.8.0",
@@ -49,6 +48,6 @@
     "walk": "2.3.x"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4.5.0"
   }
 }

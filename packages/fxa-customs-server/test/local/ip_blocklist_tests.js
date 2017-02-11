@@ -1,7 +1,6 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-require('ass')
 var fs = require('fs')
 var Promise = require('bluebird')
 var test = require('tap').test
