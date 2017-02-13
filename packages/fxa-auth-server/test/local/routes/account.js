@@ -179,7 +179,7 @@ describe('/account/reset', function () {
   })
 })
 
-describe('/account/create', function () {
+describe('/account/create', () => {
   it('should create an account', () => {
     // We want to test what's actually written to stdout by the logger.
     const mockLog = log('ERROR', 'test', {
@@ -198,6 +198,7 @@ describe('/account/create', function () {
     mockLog.flowEvent = sinon.spy(() => {
       return P.resolve()
     })
+    mockLog.error = sinon.spy()
     const mockMetricsContext = mocks.mockMetricsContext()
     const mockRequest = mocks.mockRequest({
       log: mockLog,
@@ -264,7 +265,7 @@ describe('/account/create', function () {
     const now = Date.now()
     sinon.stub(Date, 'now', () => now)
 
-    return runTest(route, mockRequest, function () {
+    return runTest(route, mockRequest, () => {
       assert.equal(mockDB.createAccount.callCount, 1, 'createAccount was called')
 
       assert.equal(mockLog.stdout.write.callCount, 1, 'an sqs event was logged')
@@ -348,6 +349,21 @@ describe('/account/create', function () {
       assert.equal(args[2].uaOS, 'Mac OS X')
       assert.equal(args[2].uaOSVersion, '10.10')
       assert.strictEqual(args[2].uaDeviceType, undefined)
+
+      assert.equal(mockLog.error.callCount, 0)
+
+      mockRequest.query._createdAt = Date.now()
+      return runTest(route, mockRequest, () => {
+        assert.equal(mockLog.error.callCount, 1)
+        const args = mockLog.error.args[0]
+        assert.equal(args.length, 1)
+        assert.equal(args[0].op, 'account.create.createSessionToken')
+        assert.ok(args[0].err instanceof Error)
+        assert.equal(args[0].err.message, 'Unexpected _createdAt query parameter')
+        assert.equal(args[0]._createdAt, mockRequest.query._createdAt)
+        assert.equal(args[0].userAgent, 'test user-agent')
+        assert.equal(args[0].service, 'sync')
+      })
     }).finally(() => Date.now.restore())
   })
 })

@@ -29,6 +29,7 @@ const DB_METHOD_NAMES = [
   'createPasswordForgotToken',
   'createSessionToken',
   'createUnblockCode',
+  'createVerificationReminder',
   'deleteAccount',
   'deleteDevice',
   'deleteKeyFetchToken',

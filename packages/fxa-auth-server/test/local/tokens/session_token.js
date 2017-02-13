@@ -5,19 +5,23 @@
 'use strict'
 
 const assert = require('insist')
-var sinon = require('sinon')
-var log = { trace: function() {}, info: function () {} }
-var crypto = require('crypto')
+const sinon = require('sinon')
+const log = {
+  trace () {},
+  info () {},
+  error: sinon.spy()
+}
+const crypto = require('crypto')
 
 const config = {
   lastAccessTimeUpdates: {}
 }
 const tokens = require('../../../lib/tokens/index')(log, config)
-var SessionToken = tokens.SessionToken
+const SessionToken = tokens.SessionToken
 
-var TOKEN_FRESHNESS_THRESHOLD = require('../../../lib/tokens/session_token').TOKEN_FRESHNESS_THREADHOLD
+const TOKEN_FRESHNESS_THRESHOLD = require('../../../lib/tokens/session_token').TOKEN_FRESHNESS_THREADHOLD
 
-var ACCOUNT = {
+const ACCOUNT = {
   createdAt: Date.now(),
   uid: 'xxx',
   email: Buffer('test@example.com').toString('hex'),
@@ -31,12 +35,23 @@ describe('SessionToken', () => {
     'interface is correct',
     () => {
       return SessionToken.create(ACCOUNT)
-        .then(function (token) {
+        .then(token => {
           assert.equal(typeof token.lastAuthAt, 'function', 'lastAuthAt method is defined')
           assert.equal(typeof token.update, 'function', 'update method is defined')
           assert.equal(typeof token.isFresh, 'function', 'isFresh method is defined')
           assert.equal(typeof token.setUserAgentInfo, 'function', 'setUserAgentInfo method is defined')
+
+          assert.equal(log.error.callCount, 1, 'log.error was called once')
+          const args = log.error.args[0]
+          assert.equal(args.length, 1, 'log.error was passed one argument')
+          assert.equal(args[0].op, 'token.constructor', 'log.error was passed correct op')
+          assert.equal(args[0].TokenType, 'SessionToken', 'log.error was passed correct TokenType')
+          assert.equal(args[0].createdAt, ACCOUNT.createdAt, 'log.error was passed correct createdAt')
+          assert.ok(args[0].err instanceof Error, 'log.error was passed valid err')
+          assert.equal(args[0].err.message, 'Unexpected createdAt data', 'log.error was passed correct error message')
+          assert.equal(args[0].stack, args[0].err.stack, 'log.error was passed correct stack')
         })
+        .finally(() => log.error.reset())
     }
   )
 
@@ -71,6 +86,7 @@ describe('SessionToken', () => {
             assert.equal(token.tokenVerificationId, token2.tokenVerificationId)
           }
         )
+        .finally(() => log.error.reset())
     }
   )
 
@@ -86,6 +102,8 @@ describe('SessionToken', () => {
           var now = Date.now()
           assert.ok(token.createdAt > now - 1000 && token.createdAt <= now)
           assert.equal(token.accountCreatedAt, null)
+
+          assert.equal(log.error.callCount, 0, 'log.error was not called')
         }
       )
     }

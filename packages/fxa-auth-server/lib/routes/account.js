@@ -252,6 +252,18 @@ module.exports = function (
             tokenVerificationId = undefined
           }
 
+          if (query._createdAt) {
+            // We don't expect this to be set outside the tests so log an error
+            // if we do encounter it, to help debug what's going on.
+            log.error({
+              op: 'account.create.createSessionToken',
+              err: new Error('Unexpected _createdAt query parameter'),
+              _createdAt: query._createdAt,
+              userAgent: request.headers['user-agent'],
+              service
+            })
+          }
+
           return db.createSessionToken({
             uid: account.uid,
             email: account.email,

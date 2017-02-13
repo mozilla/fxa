@@ -10,7 +10,7 @@ var uuid = require('uuid')
 var crypto = require('crypto')
 var base64url = require('base64url')
 var proxyquire = require('proxyquire')
-var log = { trace() {}, info() {} }
+const log = { trace () {}, info () {}, error () {} }
 
 var config = require('../../config').getProperties()
 var TestServer = require('../test_server')

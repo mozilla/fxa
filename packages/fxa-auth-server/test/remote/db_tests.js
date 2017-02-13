@@ -8,7 +8,7 @@ const assert = require('insist')
 var uuid = require('uuid')
 var crypto = require('crypto')
 var base64url = require('base64url')
-var log = { trace() {}, info() {} }
+const log = { trace () {}, info () {}, error () {} }
 
 var config = require('../../config').getProperties()
 var P = require('../../lib/promise')

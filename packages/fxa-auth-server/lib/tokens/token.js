@@ -59,6 +59,18 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
   // This uses randomly-generated seed data to derive the keys.
   //
   Token.createNewToken = function(TokenType, details) {
+    if (details.createdAt) {
+      // We don't expect this to be set outside the tests so log an error
+      // if we do encounter it, to help debug what's going on.
+      const err = new Error('Unexpected createdAt data')
+      log.error({
+        op: 'token.constructor',
+        TokenType: TokenType.name,
+        createdAt: details.createdAt,
+        err,
+        stack: err.stack
+      })
+    }
     return random(32)
       .then(bytes => Token.deriveTokenKeys(TokenType, bytes))
       .then(keys => new TokenType(keys, details || {}))
