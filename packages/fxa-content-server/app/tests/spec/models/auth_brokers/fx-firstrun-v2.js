@@ -5,32 +5,72 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const Constants = require('lib/constants');
   const FxFirstrunV2AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v2');
+  const Notifier = require('lib/channels/notifier');
+  const NullChannel = require('lib/channels/null');
+  const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
 
-  var assert = chai.assert;
+  describe('models/auth_brokers/fx-firstrun-v2', () => {
+    let broker;
+    let iframeChannel;
+    let notifier;
+    let windowMock;
 
-  describe('models/auth_brokers/fx-firstrun-v2', function () {
-    var broker;
-    var windowMock;
-
-    before(function () {
+    beforeEach(function () {
+      notifier = new Notifier();
+      iframeChannel = new NullChannel();
+      sinon.spy(iframeChannel, 'send');
       windowMock = new WindowMock();
 
       broker = new FxFirstrunV2AuthenticationBroker({
+        iframeChannel,
+        notifier,
         window: windowMock
       });
     });
 
-    it('has all sync content types', function () {
+    it('has all sync content types', () => {
       assert.equal(broker.defaultCapabilities.chooseWhatToSyncWebV1.engines, Constants.DEFAULT_DECLINED_ENGINES);
     });
 
-    describe('capabilities', function () {
+    describe('capabilities', () => {
       it('has the `chooseWhatToSyncWebV1` capability by default', function () {
         assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
+      });
+    });
+
+    describe('notifications', () => {
+      function testNotificationCausesSend(notification, expectedSentMessage) {
+        assert.isFalse(iframeChannel.send.calledWith(expectedSentMessage));
+        notifier.trigger(notification);
+        assert.isTrue(iframeChannel.send.calledWith(expectedSentMessage));
+      }
+
+      it('form.engaged sends a form_engaged message to the iframe parent', () => {
+        testNotificationCausesSend('form.engaged', 'form_engaged');
+      });
+
+      it('form.disabled sends a form_disabled message to the iframe parent', () => {
+        testNotificationCausesSend('form.disabled', 'form_disabled');
+      });
+
+      it('form.disabled sends a form_disabled message to the iframe parent', () => {
+        testNotificationCausesSend('form.enabled', 'form_enabled');
+      });
+
+      it('show-view sends a `navigated` message to the iframe parent', () => {
+        assert.isFalse(iframeChannel.send.calledWith('navigated'));
+        notifier.trigger('show-view', null, { currentPage: 'signin' });
+        assert.isTrue(iframeChannel.send.calledWith('navigated', { url: 'signin' }));
+      });
+
+      it('show-child-view sends a `navigated` message to the iframe parent', () => {
+        assert.isFalse(iframeChannel.send.calledWith('navigated'));
+        notifier.trigger('show-child-view', null, null, { currentPage: 'signup' });
+        assert.isTrue(iframeChannel.send.calledWith('navigated', { url: 'signup' }));
       });
     });
   });

@@ -259,6 +259,7 @@ define(function (require, exports, module) {
       view = new View({
         broker: broker,
         formPrefill: formPrefill,
+        notifier: new Notifier(),
         relier: relier
       });
 
@@ -294,6 +295,7 @@ define(function (require, exports, module) {
         broker: broker,
         formPrefill: formPrefill,
         model: model,
+        notifier: new Notifier(),
         relier: relier
       });
 

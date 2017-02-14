@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const FormView = require('views/form');
   const KeyCodes = require('lib/key-codes');
   const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
@@ -37,6 +38,7 @@ define(function (require, exports, module) {
 
       view = new SettingsPanelView({
         metrics: metrics,
+        notifier: new Notifier(),
         parentView: {
           displaySuccess: sinon.spy()
         }
@@ -148,4 +150,3 @@ define(function (require, exports, module) {
 
   });
 });
-

@@ -269,6 +269,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         appStart = new AppStart({
           history: backboneHistoryMock,
+          notifier,
           router: routerMock,
           user: userMock,
           window: windowMock
@@ -921,5 +922,3 @@ define(function (require, exports, module) {
     });
   });
 });
-
-

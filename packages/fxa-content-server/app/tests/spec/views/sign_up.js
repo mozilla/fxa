@@ -76,6 +76,13 @@ define(function (require, exports, module) {
       view = new View(viewOpts);
     }
 
+    function testExpectTriggered(callIndex, expectedMessage) {
+      assert.equal(notifier.trigger.thisValues[callIndex], notifier);
+      var args = notifier.trigger.args[callIndex];
+      assert.lengthOf(args, 3);
+      assert.equal(args[0], expectedMessage);
+    }
+
     beforeEach(function () {
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
 
@@ -655,12 +662,10 @@ define(function (require, exports, module) {
           });
 
           it('calls notifier.trigger correctly', function () {
-            assert.equal(notifier.trigger.callCount, 1);
+            assert.equal(notifier.trigger.callCount, 2);
 
-            assert.equal(notifier.trigger.thisValues[0], notifier);
-            var args = notifier.trigger.args[0];
-            assert.lengthOf(args, 3);
-            assert.equal(args[0], 'signup.submit');
+            testExpectTriggered(0, 'form.enabled');
+            testExpectTriggered(1, 'signup.submit');
           });
 
           it('does not display any errors', function () {
@@ -700,12 +705,10 @@ define(function (require, exports, module) {
             });
 
             it('calls notifier.trigger correctly', function () {
-              assert.equal(notifier.trigger.callCount, 1);
+              assert.equal(notifier.trigger.callCount, 2);
 
-              assert.equal(notifier.trigger.thisValues[0], notifier);
-              var args = notifier.trigger.args[0];
-              assert.lengthOf(args, 3);
-              assert.equal(args[0], 'signup.submit');
+              testExpectTriggered(0, 'form.enabled');
+              testExpectTriggered(1, 'signup.submit');
             });
 
             it('fails with the correct error', function () {
@@ -735,22 +738,12 @@ define(function (require, exports, module) {
             });
 
             it('calls notifier.trigger correctly', function () {
-              assert.equal(notifier.trigger.callCount, 3);
+              assert.equal(notifier.trigger.callCount, 4);
 
-              assert.equal(notifier.trigger.thisValues[0], notifier);
-              var args = notifier.trigger.args[0];
-              assert.lengthOf(args, 3);
-              assert.equal(args[0], 'signup.submit');
-
-              assert.equal(notifier.trigger.thisValues[1], notifier);
-              args = notifier.trigger.args[1];
-              assert.lengthOf(args, 3);
-              assert.equal(args[0], 'signup.tooyoung');
-
-              assert.equal(notifier.trigger.thisValues[1], notifier);
-              args = notifier.trigger.args[2];
-              assert.lengthOf(args, 3);
-              assert.equal(args[0], 'navigate');
+              testExpectTriggered(0, 'form.enabled');
+              testExpectTriggered(1, 'signup.submit');
+              testExpectTriggered(2, 'signup.tooyoung');
+              testExpectTriggered(3, 'navigate');
             });
 
             it('calls view.navigate correctly', function () {
@@ -813,12 +806,10 @@ define(function (require, exports, module) {
           });
 
           it('calls notifier.trigger correctly', function () {
-            assert.equal(notifier.trigger.callCount, 1);
+            assert.equal(notifier.trigger.callCount, 2);
 
-            assert.equal(notifier.trigger.thisValues[0], notifier);
-            var args = notifier.trigger.args[0];
-            assert.lengthOf(args, 3);
-            assert.equal(args[0], 'signup.submit');
+            testExpectTriggered(0, 'form.enabled');
+            testExpectTriggered(1, 'signup.submit');
           });
 
           it('calls view.unsafeDisplayError correctly', function () {
@@ -922,12 +913,10 @@ define(function (require, exports, module) {
           });
 
           it('calls notifier.trigger correctly', function () {
-            assert.equal(notifier.trigger.callCount, 1);
+            assert.equal(notifier.trigger.callCount, 2);
 
-            assert.equal(notifier.trigger.thisValues[0], notifier);
-            var args = notifier.trigger.args[0];
-            assert.lengthOf(args, 3);
-            assert.equal(args[0], 'signup.submit');
+            testExpectTriggered(0, 'form.enabled');
+            testExpectTriggered(1, 'signup.submit');
           });
 
           it('fails correctly', function () {

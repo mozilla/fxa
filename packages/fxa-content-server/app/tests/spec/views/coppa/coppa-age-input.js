@@ -6,26 +6,26 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
-  const chai = require('chai');
   const FormPrefill = require('models/form-prefill');
   const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
   const View = require('views/coppa/coppa-age-input');
   const KeyCodes = require('lib/key-codes');
 
-  var assert = chai.assert;
-
   describe('views/coppa/coppa-age-input', function () {
-    var view;
     var formPrefill;
     var metrics;
+    var view;
 
     function createView() {
       view = new View({
-        formPrefill: formPrefill,
-        metrics: metrics,
+        formPrefill,
+        metrics,
+        notifier: new Notifier(),
         viewName: 'signup'
       });
     }

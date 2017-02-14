@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const MarketingEmailErrors = require('lib/marketing-email-errors');
   const MarketingEmailPrefs = require('models/marketing-email-prefs');
   const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
@@ -73,6 +74,7 @@ define(function (require, exports, module) {
 
       view = new View({
         metrics: metrics,
+        notifier: new Notifier(),
         relier: relier,
         translator: translator,
         user: user
@@ -228,4 +230,3 @@ define(function (require, exports, module) {
     });
   });
 });
-

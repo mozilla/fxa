@@ -6,19 +6,18 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
-  const chai = require('chai');
   const Constants = require('lib/constants');
   const FormView = require('views/form');
   const HaltBehavior = require('views/behaviors/halt');
   const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const sinon = require('sinon');
   const Template = require('stache!templates/test_template');
   const TestHelpers = require('../../lib/helpers');
-
-  var assert = chai.assert;
 
   var View = FormView.extend({
     template: Template,
@@ -48,9 +47,10 @@ define(function (require, exports, module) {
   });
 
   describe('views/form', function () {
-    var metrics;
-    var model;
-    var view;
+    let metrics;
+    let model;
+    let notifier;
+    let view;
 
     function testErrorDisplayed(expectedMessage) {
       return view.validateAndSubmit()
@@ -102,9 +102,13 @@ define(function (require, exports, module) {
     beforeEach(function () {
       metrics = new Metrics();
       model = new Backbone.Model({});
+      notifier = new Notifier();
+      sinon.spy(notifier, 'trigger');
+
       view = new View({
-        metrics: metrics,
-        model: model
+        metrics,
+        model,
+        notifier
       });
 
       return view.render();
@@ -166,6 +170,18 @@ define(function (require, exports, module) {
 
         view.onFormChange();
         assert.isFalse(view.enableSubmitIfValid.called);
+      });
+
+      it('notifies of `form.engage` for the first change', () => {
+        sinon.stub(view, 'isHalted', () => false);
+        sinon.stub(view, 'isSubmitting', () => false);
+
+        view.onFormChange();
+        assert.isTrue(notifier.trigger.calledOnce);
+        assert.isTrue(notifier.trigger.calledWith('form.engaged'));
+        view.onFormChange();
+        view.onFormChange();
+        assert.isTrue(notifier.trigger.calledOnce);
       });
     });
 
@@ -509,7 +525,9 @@ define(function (require, exports, module) {
           template: Template
         });
 
-        view = new ShowValidationErrorTestView();
+        view = new ShowValidationErrorTestView({
+          notifier: new Notifier()
+        });
 
         return view.render()
           .then(function () {
@@ -688,7 +706,9 @@ define(function (require, exports, module) {
           template: Template
         });
 
-        view = new IsValidTestView();
+        view = new IsValidTestView({
+          notifier: new Notifier()
+        });
 
         return view.render()
           .then(function () {
@@ -736,6 +756,36 @@ define(function (require, exports, module) {
 
       it('does not enable submit', function () {
         assert.isFalse(view.enableSubmitIfValid.called);
+      });
+    });
+
+    describe('disableForm/enableForm', () => {
+      let isEnabled;
+
+      beforeEach(() => {
+        isEnabled = true;
+        sinon.stub(view, 'isFormEnabled', () => {
+          const _isEnabled = isEnabled;
+          isEnabled = ! isEnabled;
+          return _isEnabled;
+        });
+      });
+
+      it('disableForm disables the form, if enabled, notifies', () => {
+        view.disableForm();
+        assert.equal(notifier.trigger.callCount, 1);
+        assert.isTrue(notifier.trigger.calledWith('form.disabled'));
+        view.disableForm();
+        assert.equal(notifier.trigger.callCount, 1);
+      });
+
+      it('enableForm enables the form, if disabled, notifies', () => {
+        isEnabled = false;
+        view.enableForm();
+        assert.equal(notifier.trigger.callCount, 1);
+        assert.isTrue(notifier.trigger.calledWith('form.enabled'));
+        view.enableForm();
+        assert.equal(notifier.trigger.callCount, 1);
       });
     });
   });
