@@ -95,9 +95,7 @@ describe('/account/login/send_unblock_code', function () {
     email: email
   })
   var config = {
-    signinUnblock: {
-      allowedEmailAddresses: /unblock.*$/
-    }
+    signinUnblock: {}
   }
   var accountRoutes = makeRoutes({
     config: config,
@@ -114,7 +112,6 @@ describe('/account/login/send_unblock_code', function () {
   })
 
   it('signin unblock enabled', function () {
-    config.signinUnblock.enabled = true
     return runTest(route, mockRequest, function (response) {
       assert.ok(! (response instanceof Error), response.stack)
       assert.deepEqual(response, {}, 'response has no keys')
@@ -137,19 +134,7 @@ describe('/account/login/send_unblock_code', function () {
     })
   })
 
-  it('signin unblock disabled', function () {
-    config.signinUnblock.enabled = false
-
-    return runTest(route, mockRequest).then(() => assert.ok(false), err => {
-      assert.equal(err.output.statusCode, 503, 'correct status code is returned')
-      assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
-
-      assert.equal(mockLog.flowEvent.callCount, 0, 'log.flowEvent was not called')
-    })
-  })
-
   it('uses normalized email address for feature flag', function () {
-    config.signinUnblock.enabled = true
     mockRequest.payload.email = 'UNBLOCK@example.com'
 
     return runTest(route, mockRequest, function(response) {

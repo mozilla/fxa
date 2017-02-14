@@ -376,9 +376,7 @@ describe('/account/login', function () {
     },
     signinConfirmation: {},
     signinUnblock: {
-      allowedEmailAddresses: /^.*$/,
-      codeLifetime: 1000,
-      enabled: true
+      codeLifetime: 1000
     }
   }
   // We want to test what's actually written to stdout by the logger.
@@ -973,24 +971,8 @@ describe('/account/login', function () {
         mockCustoms.check = oldCheck
       })
 
-      it('signin unblock disabled', () => {
-        config.signinUnblock.enabled = false
-        mockLog.flowEvent.reset()
-        return runTest(route, mockRequest).then(() => assert.ok(false), err => {
-          assert.equal(err.errno, error.ERRNO.REQUEST_BLOCKED, 'correct errno is returned')
-          assert.equal(err.output.statusCode, 400, 'correct status code is returned')
-          assert.equal(err.output.payload.verificationMethod, undefined, 'no verificationMethod')
-          assert.equal(err.output.payload.verificationReason, undefined, 'no verificationReason')
-          assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called twice')
-          assert.equal(mockLog.flowEvent.args[0][0].event, 'account.login.blocked', 'first event is blocked')
-
-          mockLog.flowEvent.reset()
-        })
-      })
-
       describe('signin unblock enabled', () => {
         before(() => {
-          config.signinUnblock.enabled = true
           mockLog.flowEvent.reset()
         })
 
@@ -1061,7 +1043,6 @@ describe('/account/login', function () {
       const oldCheck = mockCustoms.check
       before(() => {
         mockCustoms.check = () => P.reject(error.requestBlocked(false))
-        config.signinUnblock.enabled = true
       })
 
       after(() => {

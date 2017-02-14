@@ -523,25 +523,11 @@ var conf = convict({
       default: '1 hour',
       env: 'SIGNIN_UNBLOCK_CODE_LIFETIME'
     },
-    enabled: {
-      default: true
-    },
-    allowedEmailAddresses: {
-      doc: 'If feature enabled, allow sign-in unblock for email addresses matching this regex.',
-      format: RegExp,
-      default: '.+@mozilla\\.com$',
-      env: 'SIGNIN_UNBLOCK_ALLOWED_EMAILS'
-    },
     forcedEmailAddresses: {
       doc: 'If feature enabled, force sign-in unblock for email addresses matching this regex.',
       format: RegExp,
       default: '^$', // default is no one
       env: 'SIGNIN_UNBLOCK_FORCED_EMAILS'
-    },
-    sampleRate: {
-      doc: 'signin unblock sample rate, between 0.0 and 1.0',
-      default: 1.0,
-      env: 'SIGNIN_UNBLOCK_RATE'
     }
   },
   hpkpConfig: {

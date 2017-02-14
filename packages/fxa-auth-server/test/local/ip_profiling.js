@@ -95,9 +95,7 @@ var config = {
   signinConfirmation: {
     forcedEmailAddresses: /.+@mozilla\.com$/
   },
-  signinUnblock: {
-    enabled: false
-  }
+  signinUnblock: {}
 }
 // We want to test what's actually written to stdout by the logger.
 const mockLog = log('ERROR', 'test', {
