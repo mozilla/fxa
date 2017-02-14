@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const { assert }  = require('chai');
   const Cocktail = require('cocktail');
+  const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const PasswordPromptMixin = require('views/mixins/password-prompt-mixin');
   const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
@@ -22,6 +23,7 @@ define(function (require, exports, module) {
   });
 
   const viewOpts = {
+    notifier: new Notifier(),
     translator: new Translator({forceEnglish: true})
   };
 
@@ -66,7 +68,7 @@ define(function (require, exports, module) {
 
     describe('event triggers call the correct methods', function () {
       beforeEach(function () {
-        view = new TestView();
+        view = new TestView(viewOpts);
         sinon.spy(view, 'showPasswordPrompt');
         return view.render();
       });
@@ -90,7 +92,7 @@ define(function (require, exports, module) {
 
     describe('checks password strength and displays tooltip if required', function () {
       beforeEach(function () {
-        view = new TestView();
+        view = new TestView(viewOpts);
         return view.render();
       });
 

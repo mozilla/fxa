@@ -75,6 +75,7 @@ define(function (require, exports, module) {
         el: this.$('#coppa'),
         formPrefill: this._formPrefill,
         metrics: this.metrics,
+        notifier: this.notifier,
         shouldFocus: autofocusEl === null,
         viewName: this.getViewName()
       };

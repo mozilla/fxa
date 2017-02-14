@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const Broker = require('models/auth_brokers/base');
   const chai = require('chai');
   const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
@@ -47,6 +48,7 @@ define(function (require, exports, module) {
         broker: broker,
         metrics: metrics,
         model: model,
+        notifier: new Notifier(),
         relier: relier,
         user: user
       });

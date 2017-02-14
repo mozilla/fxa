@@ -72,6 +72,7 @@ define(function (require, exports, module) {
       'submit form': preventDefaultThen('validateAndSubmit')
     },
 
+    _notifiedOfEngaged: false,
     onFormChange () {
       // the change event can be called after the form is already
       // submitted if the user presses "enter" in the form. If the
@@ -84,6 +85,11 @@ define(function (require, exports, module) {
       this.hideError();
       this.hideSuccess();
       this.enableSubmitIfValid();
+
+      if (! this._notifiedOfEngaged) {
+        this._notifiedOfEngaged = true;
+        this.notifier.trigger('form.engaged');
+      }
     },
 
     afterRender () {
@@ -142,25 +148,36 @@ define(function (require, exports, module) {
     },
 
     /**
-     * TODO - this should be called disableSubmit
+     * Disable the form
      */
     disableForm () {
       // the disabled class is used instead of the disabled attribute
       // so that the submit handler is still called. With the submit attribute
       // applied, no submit handler is fired, and the form validation does not
       // take place.
-      this.$('button[type=submit]').addClass('disabled');
-      this._isFormEnabled = false;
+      if (this.isFormEnabled()) {
+        this.$('button[type=submit]').addClass('disabled');
+        this.notifier.trigger('form.disabled');
+      }
     },
 
+    /**
+     * Enable the form
+     */
     enableForm () {
-      this.$('button[type=submit]').removeClass('disabled');
-      this._isFormEnabled = true;
+      if (! this.isFormEnabled()) {
+        this.$('button[type=submit]').removeClass('disabled');
+        this.notifier.trigger('form.enabled');
+      }
     },
 
-    _isFormEnabled: true,
+    /**
+     * Check if the form is enabled
+     *
+     * @returns {Boolean}
+     */
     isFormEnabled () {
-      return !! this._isFormEnabled;
+      return ! this.$('button[type=submit]').hasClass('disabled');
     },
 
     /**

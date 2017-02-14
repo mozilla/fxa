@@ -314,6 +314,7 @@ define(function (require, exports, module) {
           assertionLibrary: this._assertionLibrary,
           iframeChannel: this._iframeChannel,
           metrics: this._metrics,
+          notifier: this._notifier,
           oAuthClient: this._oAuthClient,
           relier: this._relier,
           session: Session,

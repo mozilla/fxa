@@ -1,7 +1,6 @@
 <a name="0.80.0"></a>
 # 0.80.0 (2017-02-07)
 
-
 ### Bug Fixes
 
 * **account:** throw an error when generating assertions with invalid session token (#4666) r=s ([7b867b0](https://github.com/mozilla/fxa-content-server/commit/7b867b0)), closes [#4586](https://github.com/mozilla/fxa-content-server/issues/4586)
@@ -29,6 +28,16 @@
 * **client:** scope added ([6e4b4e2](https://github.com/mozilla/fxa-content-server/commit/6e4b4e2))
 * **test:** Thenify all the helpers. (#4697) r=vladikoff ([30f9b19](https://github.com/mozilla/fxa-content-server/commit/30f9b19))
 
+<a name="0.79.4"></a>
+## 0.79.4 (2017-02-13)
+
+### Bug Fixes
+
+* **tests:** adjust to new SUMO urls (#4713) (#4720) ([b50aa81](https://github.com/mozilla/fxa-content-server/commit/b50aa81)), closes [#4712](https://github.com/mozilla/fxa-content-server/issues/4712)
+
+### Features
+
+* **firstrun:** Add fx_firstrun_v2 events to support new firstrun flow. (#4717) ([f1373ed](https://github.com/mozilla/fxa-content-server/commit/f1373ed))
 
 
 <a name="0.79.3"></a>

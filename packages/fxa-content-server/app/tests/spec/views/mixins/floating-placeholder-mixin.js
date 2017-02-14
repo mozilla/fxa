@@ -6,16 +6,15 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const chai = require('chai');
+  const { assert } = require('chai');
   const Cocktail = require('cocktail');
   const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
   const FormView = require('views/form');
   const KeyCodes = require('lib/key-codes');
+  const Notifier = require('lib/channels/notifier');
   const Template = require('stache!templates/test_template');
 
-  var assert = chai.assert;
-
-  var TestView = FormView.extend({
+  const TestView = FormView.extend({
     template: Template
   });
 
@@ -25,10 +24,12 @@ define(function (require, exports, module) {
   );
 
   describe('views/mixins/floating-placeholder-mixin', function () {
-    var view;
+    let view;
 
     beforeEach(function () {
-      view = new TestView();
+      view = new TestView({
+        notifier: new Notifier()
+      });
       return view.render();
     });
 

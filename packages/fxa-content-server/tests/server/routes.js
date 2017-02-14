@@ -282,6 +282,11 @@ define([
 
       var promise = makeRequest(url, requestOptions)
         .then(function (res) {
+          if (/support.mozilla.org/.test(url)) {
+            // Do not check support.mozilla.org URLs. Issue #4712
+            // In February 2017 SUMO links started returning 404s to non-browser redirect requests
+            return;
+          }
           assert.equal(res.statusCode, 200);
 
           var headers = res.headers;

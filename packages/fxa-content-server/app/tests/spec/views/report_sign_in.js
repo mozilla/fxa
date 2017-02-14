@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const { createRandomHexString } = require('../../lib/helpers');
+  const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const sinon = require('sinon');
   const { BLOCKED_SIGNIN_SUPPORT_URL, UID_LENGTH, UNBLOCK_CODE_LENGTH } = require('lib/constants');
@@ -33,6 +34,7 @@ define(function (require, exports, module) {
       windowMock.location.search = `?uid=${uid}&unblockCode=${unblockCode}`;
 
       view = new View({
+        notifier: new Notifier(),
         user,
         window: windowMock
       });
