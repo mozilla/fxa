@@ -8,7 +8,6 @@ const crypto = require('crypto')
 
 module.exports = config => {
   const lastAccessTimeUpdates = config.lastAccessTimeUpdates
-  const signinUnblock = config.signinUnblock
   const securityHistory = config.securityHistory
 
   return {
@@ -24,31 +23,6 @@ module.exports = config => {
         isSampledUser(lastAccessTimeUpdates.sampleRate, uid, 'lastAccessTimeUpdates') ||
         lastAccessTimeUpdates.enabledEmailAddresses.test(email)
       )
-    },
-
-    /**
-     * Returns whether or not to use signin unblock feature on a request.
-     *
-     * @param uid   Buffer or String
-     * @param email String
-     * @param request
-     * @returns {boolean}
-     */
-    isSigninUnblockEnabledForUser(uid, email, request) {
-      if (! signinUnblock.enabled) {
-        return false
-      }
-
-      if (signinUnblock.forcedEmailAddresses && signinUnblock.forcedEmailAddresses.test(email)) {
-        return true
-      }
-
-      if (signinUnblock.allowedEmailAddresses.test(email)) {
-        return true
-      }
-
-      // Check to see if user in roll-out cohort.
-      return isSampledUser(signinUnblock.sampleRate, uid, 'signinUnblock')
     },
 
     /**

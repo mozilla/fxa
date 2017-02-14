@@ -438,7 +438,7 @@ module.exports = function (
 
         let needsVerificationId = true
         let emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation,
-          emailSent, unblockCode, customsErr, allowSigninUnblock, didSigninUnblock, tokenVerificationId
+          emailSent, unblockCode, customsErr, didSigninUnblock, tokenVerificationId
 
         let securityEventRecency = Infinity, securityEventVerified = false
 
@@ -467,13 +467,12 @@ module.exports = function (
           .then(sendVerifyLoginEmail)
           .then(recordSecurityEvent)
           .then(createResponse)
-          .catch(gateSigninUnblock)
           .done(reply, reply)
 
         function checkIsBlockForced () {
           // For testing purposes, some email addresses are forced
           // to go through signin unblock on every login attempt.
-          const forced = config.signinUnblock && config.signinUnblock.enabled && config.signinUnblock.forcedEmailAddresses
+          const forced = config.signinUnblock && config.signinUnblock.forcedEmailAddresses
 
           if (forced && forced.test(email)) {
             return P.reject(error.requestBlocked(true))
@@ -519,7 +518,6 @@ module.exports = function (
                 }
 
                 emailRecord = result
-                allowSigninUnblock = features.isSigninUnblockEnabledForUser(emailRecord.uid, emailRecord.email, request)
               },
               function (err) {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
@@ -534,7 +532,6 @@ module.exports = function (
                   // accounts that don't exist. We pass a fake uid into the feature-flag
                   // test to mask whether the account existed.
                   if (customsErr) {
-                    allowSigninUnblock = features.isSigninUnblockEnabledForUser('00', email, request)
                     throw customsErr
                   }
                 }
@@ -544,7 +541,7 @@ module.exports = function (
         }
 
         function checkUnblockCode() {
-          if (allowSigninUnblock && unblockCode) {
+          if (unblockCode) {
             return db.consumeUnblockCode(emailRecord.uid, unblockCode)
               .then(
                 (code) => {
@@ -1000,18 +997,6 @@ module.exports = function (
             response.verificationReason = 'login'
           }
           return P.resolve(response)
-        }
-
-        function gateSigninUnblock (err) {
-          // customs.check will always add these properties if the
-          // customs server has not rate-limited unblock. Nonetheless,
-          // we shouldn't signal to the content-server that it is
-          // possible to unblock the user if the feature is not allowed.
-          if (! allowSigninUnblock && err.output && err.output.payload) {
-            delete err.output.payload.verificationMethod
-            delete err.output.payload.verificationReason
-          }
-          throw err
         }
       }
     },
@@ -1882,12 +1867,7 @@ module.exports = function (
         }
 
         function createUnblockCode(uid) {
-
-          if (features.isSigninUnblockEnabledForUser(uid, emailRecord.email, request)) {
-            return db.createUnblockCode(uid)
-          } else {
-            throw error.featureNotEnabled()
-          }
+          return db.createUnblockCode(uid)
         }
 
         function mailUnblockCode(code) {

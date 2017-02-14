@@ -33,10 +33,9 @@ describe('features', () => {
     'interface is correct',
     () => {
       assert.equal(typeof features, 'object', 'object type should be exported')
-      assert.equal(Object.keys(features).length, 5, 'object should have four properties')
+      assert.equal(Object.keys(features).length, 4, 'object should have four properties')
       assert.equal(typeof features.isSampledUser, 'function', 'isSampledUser should be function')
       assert.equal(typeof features.isLastAccessTimeEnabledForUser, 'function', 'isLastAccessTimeEnabledForUser should be function')
-      assert.equal(typeof features.isSigninUnblockEnabledForUser, 'function', 'isSigninUnblockEnabledForUser should be function')
       assert.equal(typeof features.isSecurityHistoryTrackingEnabled, 'function', 'isSecurityHistoryTrackingEnabled should be function')
       assert.equal(typeof features.isSecurityHistoryProfilingEnabled, 'function', 'isSecurityHistoryProfilingEnabled should be function')
 
@@ -179,38 +178,6 @@ describe('features', () => {
       config.lastAccessTimeUpdates.sampleRate = 0.03
       config.lastAccessTimeUpdates.enabledEmailAddresses = /.+@mozilla\.com$/
       assert.equal(features.isLastAccessTimeEnabledForUser(uid, email), false, 'should return false when feature is disabled')
-    }
-  )
-
-  it(
-    'isSigninUnblockEnabledForUser',
-    () => {
-      const uid = 'wibble'
-      const email = 'blee@mozilla.com'
-      const request = {
-        payload: {
-        }
-      }
-      // First 27 characters are ignored, last 13 are 0.02 * 0xfffffffffffff
-      hashResult = '000000000000000000000000000051eb851eb852'
-
-      const unblock = config.signinUnblock
-
-      unblock.enabled = true
-      unblock.sampleRate = 0.02
-      unblock.allowedEmailAddresses = /.+@notmozilla.com$/
-      assert.equal(features.isSigninUnblockEnabledForUser(uid, email, request), false, 'should return false when email is not allowed and uid is not sampled')
-
-      unblock.forcedEmailAddresses = /.+/
-      assert.equal(features.isSigninUnblockEnabledForUser(uid, email, request), true, 'should return true when forced on')
-      unblock.forcedEmailAddresses = /^$/
-
-      unblock.allowedEmailAddresses = /.+@mozilla.com$/
-      assert.equal(features.isSigninUnblockEnabledForUser(uid, email, request), true, 'should return true when email is allowed')
-
-      unblock.allowedEmailAddresses = /.+@notmozilla.com$/
-      unblock.sampleRate = 0.03
-      assert.equal(features.isSigninUnblockEnabledForUser(uid, email, request), true, 'should return when uid is sampled')
     }
   )
 
