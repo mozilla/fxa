@@ -1,3 +1,13 @@
+<a name="0.80.2"></a>
+## 0.80.2 (2017-02-14)
+
+
+### Bug Fixes
+
+* **client:** Clear all account data on sign out. (#19) r=@seanmonstar ([f361fd1](https://github.com/mozilla/fxa-content-server/commit/f361fd1))
+
+
+
 <a name="0.80.1"></a>
 ## 0.80.1 (2017-02-14)
 
