@@ -956,17 +956,19 @@ module.exports = function (log, error) {
   // exposed for testing only
   MySql.prototype.retryable_ = retryable
 
-  var PRUNE = 'CALL prune(?, ?)'
+  var PRUNE = 'CALL prune_2(?)'
   MySql.prototype.pruneTokens = function () {
     log.info('MySql.pruneTokens')
 
-    var now = Date.now()
-    var pruneBefore = now - this.options.pruneEvery
+    var pruneTokensMaxAge = this.options.pruneTokensMaxAge
 
-    return this.write(
-      PRUNE,
-      [pruneBefore, now]
-    )
+    if (! pruneTokensMaxAge || pruneTokensMaxAge === 0) {
+      throw new Error('pruneTokensMaxAge is misconfigured')
+    }
+
+    var pruneTokensOlderThanDate = Date.now() - pruneTokensMaxAge
+
+    return this.write(PRUNE, [pruneTokensOlderThanDate])
   }
 
   // Utility method for logging connection config at startup

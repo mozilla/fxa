@@ -1,6 +1,11 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
+
+process.env.PRUNE_TOKENS_MAX_AGE = 24 * 60 * 60 * 1000 // one day setting for tests
+var TOKEN_PRUNE_AGE = 24 * 60 * 60 * 1000 * 2 // two days
+
+var crypto = require('crypto')
 var dbServer = require('../../fxa-auth-db-server')
 var test = require('tap').test
 var log = require('../lib/log')
@@ -8,7 +13,6 @@ var DB = require('../../lib/db/mysql')(log, dbServer.errors)
 var fake = require('../../fxa-auth-db-server/test/fake')
 var config = require('../../config')
 
-var oneDay = 24 * 60 * 60 * 1000
 
 DB.connect(config)
   .then(
@@ -30,8 +34,9 @@ DB.connect(config)
       test(
         'prune tokens',
         function (t) {
-          t.plan(9)
+          t.plan(14)
           var user = fake.newUserDataBuffer()
+          var unblockCode = crypto.randomBytes(4).toString('hex')
           return db.createAccount(user.accountId, user.account)
             .then(function() {
               return db.createPasswordForgotToken(user.passwordForgotTokenId, user.passwordForgotToken)
@@ -39,23 +44,54 @@ DB.connect(config)
             .then(function() {
               return db.forgotPasswordVerified(user.accountResetTokenId, user.accountResetToken)
             })
+            .then(function () {
+              return db.createUnblockCode(user.accountId, unblockCode)
+            })
             .then(function() {
-              // now set it to be a day ago
+              // now set it to be older than prune date
               var sql = 'UPDATE accountResetTokens SET createdAt = createdAt - ? WHERE tokenId = ?'
-              return db.write(sql, [ oneDay, user.accountResetTokenId ])
+              return db.write(sql, [TOKEN_PRUNE_AGE, user.accountResetTokenId])
             })
             .then(function(sdf) {
               return db.createPasswordForgotToken(user.passwordForgotTokenId, user.passwordForgotToken)
             })
             .then(function() {
-              // now set it to be a day ago
+              // now set it to be older than prune date
               var sql = 'UPDATE passwordForgotTokens SET createdAt = createdAt - ? WHERE tokenId = ?'
-              return db.write(sql, [ oneDay, user.passwordForgotTokenId ])
+              return db.write(sql, [TOKEN_PRUNE_AGE, user.passwordForgotTokenId])
             })
             .then(function() {
-              // set pruneLastRun to be zero, so we know it will run
-              var sql = 'UPDATE dbMetadata SET value = \'0\' WHERE name = \'prune-last-ran\''
-              return db.write(sql, [])
+              // now set it to be older than prune date
+              var sql = 'UPDATE unblockCodes SET createdAt = createdAt - ? WHERE uid = ?'
+              return db.write(sql, [TOKEN_PRUNE_AGE, user.accountId])
+            })
+            // check token exist
+            .then(function() {
+              // now check that all tokens for this uid have been deleted
+              return db.accountResetToken(user.accountResetTokenId)
+            })
+            .then(function() {
+              t.ok('accountResetToken exists')
+            }, function(err) {
+              t.fail('accountResetToken should still exist')
+            })
+            .then(function() {
+              return db.passwordForgotToken(user.passwordForgotTokenId)
+            })
+            .then(function() {
+              t.ok('passwordForgotToken exists')
+            }, function(err) {
+              t.fail('passwordForgotToken should still exist')
+            })
+            .then(function() {
+              var sql = 'SELECT * FROM unblockCodes WHERE uid = ?'
+              return db.read(sql, [user.accountId])
+            })
+            .then(function(res) {
+              t.ok('Unblock code exists')
+              t.equal(res[0].uid.toString('hex'), user.accountId.toString('hex'))
+            }, function(err) {
+              t.fail('no errors during the unblock query')
             })
             .then(function() {
               // prune older tokens
@@ -83,6 +119,13 @@ DB.connect(config)
               t.equal(err.errno, 116, 'passwordForgotToken() fails with the correct errno')
               t.equal(err.error, 'Not Found', 'passwordForgotToken() fails with the correct error')
               t.equal(err.message, 'Not Found', 'passwordForgotToken() fails with the correct message')
+            })
+            .then(function() {
+              var sql = 'SELECT * FROM unblockCodes WHERE uid = ?'
+              return db.read(sql, [user.accountId])
+            })
+            .then(function(res) {
+              t.equal(res.length, 0, 'no unblock codes for that user')
             })
             .then(function(token) {
               t.pass('No errors found during tests')
