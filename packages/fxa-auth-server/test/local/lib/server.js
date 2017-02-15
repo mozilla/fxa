@@ -5,6 +5,10 @@
 'use strict'
 
 const assert = require('insist')
+const EndpointError = require('poolee/lib/error')(require('util').inherits)
+const error = require('../../../lib/error')
+const hapi = require('hapi')
+const mocks = require('../../mocks')
 const server = require('../../../lib/server')
 
 describe('lib/server', () => {
@@ -54,4 +58,176 @@ describe('lib/server', () => {
       assert.equal(server._logEndpointErrors(response, mockLog))
     })
   })
+
+  describe('create:', () => {
+    let log, config, routes, db, instance, response
+
+    beforeEach(() => {
+      log = mocks.spyLog()
+      config = getConfig()
+      routes = getRoutes()
+      db = mocks.mockDB()
+      instance = server.create(log, error, config, routes, db)
+    })
+
+    it('returned a hapi Server instance', () => {
+      assert.ok(instance instanceof hapi.Server)
+    })
+
+    describe('server.start:', () => {
+      beforeEach(() => instance.start())
+      afterEach(() => instance.stop())
+
+      it('did not call log.begin', () => {
+        assert.equal(log.begin.callCount, 0)
+      })
+
+      it('did not call log.summary', () => {
+        assert.equal(log.summary.callCount, 0)
+      })
+
+      describe('successful request:', () => {
+        beforeEach(() => {
+          response = 'ok'
+          return instance.inject({
+            method: 'POST',
+            url: '/account/create',
+            payload: {}
+          })
+        })
+
+        it('called log.begin correctly', () => {
+          assert.equal(log.begin.callCount, 1)
+          const args = log.begin.args[0]
+          assert.equal(args.length, 2)
+          assert.equal(args[0], 'server.onRequest')
+          assert.ok(args[1])
+          assert.equal(args[1].path, '/account/create')
+        })
+
+        it('called log.summary correctly', () => {
+          assert.equal(log.summary.callCount, 1)
+          const args = log.summary.args[0]
+          assert.equal(args.length, 2)
+          assert.equal(args[0], log.begin.args[0][1])
+          assert.ok(args[1])
+          assert.equal(args[1].isBoom, undefined)
+          assert.equal(args[1].message, undefined)
+          assert.equal(args[1].errno, undefined)
+          assert.equal(args[1].statusCode, 200)
+          assert.equal(args[1].source, 'ok')
+        })
+
+        it('did not call log.error', () => {
+          assert.equal(log.error.callCount, 0)
+        })
+      })
+
+      describe('unsuccessful request:', () => {
+        beforeEach(() => {
+          response = error.requestBlocked()
+          return instance.inject({
+            method: 'POST',
+            url: '/account/create',
+            payload: {}
+          }).catch(() => {})
+        })
+
+        it('called log.begin', () => {
+          assert.equal(log.begin.callCount, 1)
+        })
+
+        it('called log.summary correctly', () => {
+          assert.equal(log.summary.callCount, 1)
+          const args = log.summary.args[0]
+          assert.equal(args.length, 2)
+          assert.equal(args[0], log.begin.args[0][1])
+          assert.ok(args[1])
+          assert.equal(args[1].statusCode, undefined)
+          assert.equal(args[1].source, undefined)
+          assert.equal(args[1].isBoom, true)
+          assert.equal(args[1].message, 'The request was blocked for security reasons')
+          assert.equal(args[1].errno, 125)
+        })
+
+        it('did not call log.error', () => {
+          assert.equal(log.error.callCount, 0)
+        })
+      })
+
+      describe('unsuccessful request, db error:', () => {
+        beforeEach(() => {
+          response = new EndpointError('request failed', { reason: 'because i said so' })
+          return instance.inject({
+            method: 'POST',
+            url: '/account/create',
+            payload: {}
+          }).catch(() => {})
+        })
+
+        it('called log.begin', () => {
+          assert.equal(log.begin.callCount, 1)
+        })
+
+        it('called log.summary', () => {
+          assert.equal(log.summary.callCount, 1)
+        })
+
+        it('called log.error correctly', () => {
+          assert.equal(log.error.callCount, 1)
+          const args = log.error.args[0]
+          assert.equal(args.length, 1)
+          assert.deepEqual(args[0], {
+            op: 'server.EndpointError',
+            message: 'request failed',
+            reason: 'because i said so'
+          })
+        })
+      })
+    })
+
+    function getRoutes () {
+      return [
+        {
+          path: '/account/create',
+          method: 'POST',
+          handler (request, reply) {
+            return reply(response)
+          }
+        }
+      ]
+    }
+  })
 })
+
+function getConfig () {
+  return {
+    publicUrl: 'http://example.org/',
+    corsOrigin: [ '*' ],
+    maxEventLoopDelay: 0,
+    listen: {
+      host: '127.0.0.1',
+      port: 9000
+    },
+    useHttps: false,
+    hpkpConfig: {
+      enabled: false
+    },
+    oauth: {
+      url: 'http://localhost:9010',
+      keepAlive: false,
+      extra: {
+        email: false
+      }
+    },
+    env: 'prod',
+    memcached: {
+      lifetime: 0,
+      address: 'none'
+    },
+    metrics: {
+      flow_id_expiry: 7200000,
+      flow_id_key: 'wibble'
+    }
+  }
+}

@@ -21,6 +21,7 @@ const CUSTOMS_METHOD_NAMES = [
 
 const DB_METHOD_NAMES = [
   'account',
+  'accountResetToken',
   'consumeUnblockCode',
   'createAccount',
   'createDevice',
@@ -39,11 +40,17 @@ const DB_METHOD_NAMES = [
   'devices',
   'emailRecord',
   'forgotPasswordVerified',
+  'keyFetchToken',
+  'keyFetchTokenWithVerificationStatus',
+  'passwordChangeToken',
+  'passwordForgotToken',
   'resetAccount',
   'securityEvent',
   'securityEvents',
   'sessions',
+  'sessionToken',
   'sessionTokenWithVerificationStatus',
+  'sessionWithDevice',
   'updateDevice',
   'updateLocale',
   'updateSessionToken',
@@ -60,6 +67,7 @@ const LOG_METHOD_NAMES = [
   'info',
   'notifyAttachedServices',
   'warn',
+  'summary',
   'timing',
   'trace'
 ]
