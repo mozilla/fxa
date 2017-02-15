@@ -251,17 +251,11 @@ module.exports = function (fs, path, url, convict) {
         default: 0,
         env: 'REPUTATION_SERVICE_BLOCK_BELOW'
       },
-      host: {
-        doc: 'The reputation service IP address',
-        default: '127.0.0.1',
-        format: 'ipaddress',
-        env: 'REPUTATION_SERVICE_IP_ADDRESS'
-      },
-      port: {
-        doc: 'The reputation service port',
-        default: 8080,
-        format: 'port',
-        env: 'REPUTATION_SERVICE_PORT'
+      baseUrl: {
+        doc: 'The reputation service base url.',
+        default: 'http://127.0.0.1:8080/',
+        format: 'url',
+        env: 'REPUTATION_SERVICE_BASE_URL'
       },
       hawkId: {
         doc: 'HAWK ID for sending blocked IPs to the IP Reputation Service',

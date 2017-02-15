@@ -18,7 +18,7 @@ var TEST_CHECK_ACTION = 'recoveryEmailVerifyCode'
 
 // wait for the violation to be sent for endpoints that respond
 // before sending violation
-var TEST_DELAY_MS = 750
+var TEST_DELAY_MS = 850
 
 var config = {
   listen: {
@@ -29,8 +29,7 @@ var config = {
   },
   reputationService: {
     enable: true,
-    host: '127.0.0.1',
-    port: 9009,
+    baseUrl: 'http://127.0.0.1:9009',
     timeout: 25
   }
 }
@@ -46,8 +45,7 @@ process.env.RATE_LIMIT_INTERVAL_SECONDS = config.limits.rateLimitIntervalSeconds
 
 // Enable reputation test server
 process.env.REPUTATION_SERVICE_ENABLE = config.reputationService.enable
-process.env.REPUTATION_SERVICE_IP_ADDRESS = config.reputationService.host
-process.env.REPUTATION_SERVICE_PORT = config.reputationService.port
+process.env.REPUTATION_SERVICE_BASE_URL = config.reputationService.baseUrl
 process.env.REPUTATION_SERVICE_TIMEOUT = config.reputationService.timeout
 
 var testServer = new TestServer(config)
@@ -57,7 +55,7 @@ var client = restify.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
 var reputationClient = restify.createJsonClient({
-  url: 'http://' + config.reputationService.host + ':' + config.reputationService.port
+  url: config.reputationService.baseUrl
 })
 
 Promise.promisifyAll(client, { multiArgs: true })

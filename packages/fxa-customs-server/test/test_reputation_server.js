@@ -8,7 +8,7 @@ var cp = require('child_process')
 var request = require('request')
 
 function ReputationServerStub(config) {
-  this.url = 'http://' + config.reputationService.host + ':' + config.reputationService.port
+  this.url = config.reputationService.baseUrl
   this.server = null
 }
 

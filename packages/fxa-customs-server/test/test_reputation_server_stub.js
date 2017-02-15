@@ -4,6 +4,7 @@
 
 /* eslint-disable no-console */
 
+var url = require('url')
 var restify = require('restify')
 
 // a dummy reputation server to receive violations
@@ -76,4 +77,4 @@ server.post('/', function (req, res, next) {
   next()
 })
 
-server.listen(process.env.REPUTATION_SERVICE_PORT)
+server.listen(url.parse(process.env.REPUTATION_SERVICE_BASE_URL).port)

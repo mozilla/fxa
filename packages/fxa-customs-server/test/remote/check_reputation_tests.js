@@ -30,8 +30,7 @@ var config = {
     enableCheck: true,
     blockBelow: 50,
     suspectBelow: 60,
-    host: '127.0.0.1',
-    port: 9009,
+    baseUrl: 'http://127.0.0.1:9009',
     timeout: 25
   }
 }
@@ -41,8 +40,7 @@ process.env.ALLOWED_IPS = ALLOWED_IP
 
 // Enable reputation test server
 process.env.REPUTATION_SERVICE_ENABLE = config.reputationService.enable
-process.env.REPUTATION_SERVICE_IP_ADDRESS = config.reputationService.host
-process.env.REPUTATION_SERVICE_PORT = config.reputationService.port
+process.env.REPUTATION_SERVICE_BASE_URL = config.reputationService.baseUrl
 process.env.REPUTATION_SERVICE_TIMEOUT = config.reputationService.timeout
 process.env.REPUTATION_SERVICE_ENABLE_CHECK = config.reputationService.enableCheck
 process.env.REPUTATION_SERVICE_BLOCK_BELOW = config.reputationService.blockBelow
@@ -55,7 +53,7 @@ var client = restify.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
 var reputationClient = restify.createJsonClient({
-  url: 'http://' + config.reputationService.host + ':' + config.reputationService.port
+  url: config.reputationService.baseUrl
 })
 
 Promise.promisifyAll(client, { multiArgs: true })

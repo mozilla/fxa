@@ -49,8 +49,7 @@ module.exports = function (config, log) {
   if (config.reputationService.enable) {
     var IPReputationClient = require('ip-reputation-js-client')
     var ipClient = new IPReputationClient({
-      host: config.reputationService.host,
-      port: config.reputationService.port,
+      serviceUrl: config.reputationService.baseUrl,
       id: config.reputationService.hawkId,
       key: config.reputationService.hawkKey,
       timeout: config.reputationService.timeout

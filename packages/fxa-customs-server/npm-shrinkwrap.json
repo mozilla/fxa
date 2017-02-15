@@ -2138,9 +2138,9 @@
       "resolved": "https://registry.npmjs.org/ip/-/ip-1.1.3.tgz"
     },
     "ip-reputation-js-client": {
-      "version": "1.0.1",
-      "from": "ip-reputation-js-client@1.0.1",
-      "resolved": "https://registry.npmjs.org/ip-reputation-js-client/-/ip-reputation-js-client-1.0.1.tgz",
+      "version": "2.0.1",
+      "from": "ip-reputation-js-client@2.0.1",
+      "resolved": "https://registry.npmjs.org/ip-reputation-js-client/-/ip-reputation-js-client-2.0.1.tgz",
       "dependencies": {
         "bluebird": {
           "version": "3.4.6",
@@ -2148,9 +2148,9 @@
           "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-3.4.6.tgz"
         },
         "joi": {
-          "version": "9.2.0",
-          "from": "joi@9.2.0",
-          "resolved": "https://registry.npmjs.org/joi/-/joi-9.2.0.tgz",
+          "version": "10.2.1",
+          "from": "joi@10.2.1",
+          "resolved": "https://registry.npmjs.org/joi/-/joi-10.2.1.tgz",
           "dependencies": {
             "hoek": {
               "version": "4.1.0",
