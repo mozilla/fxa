@@ -672,4 +672,30 @@ describe('metrics/events', () => {
         Date.now.restore()
       })
   })
+
+  it('.emitRouteFlowEvent with non-matching route', () => {
+    const metricsContext = mocks.mockMetricsContext()
+    const request = {
+      clearMetricsContext: metricsContext.clear,
+      gatherMetricsContext: metricsContext.gather,
+      headers: {
+        'user-agent': 'foo'
+      },
+      path: '/v1/account/devices',
+      payload: {
+        metricsContext: {
+          flowId: 'bar',
+          flowBeginTime: Date.now() - 1000
+        }
+      }
+    }
+    return events.emitRouteFlowEvent.call(request, { statusCode: 200 })
+      .then(() => {
+        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
+        assert.equal(log.error.callCount, 0, 'log.error was not called')
+      })
+  })
 })
