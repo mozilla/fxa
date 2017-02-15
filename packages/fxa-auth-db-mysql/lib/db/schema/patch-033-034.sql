@@ -21,7 +21,7 @@ BEGIN
     s.uaOSVersion,
     s.uaDeviceType,
     s.lastAccessTime,
-	a.email
+    a.email
   FROM devices AS d
   INNER JOIN sessionTokens AS s
     ON d.sessionTokenId = s.tokenId
