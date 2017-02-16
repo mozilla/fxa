@@ -303,6 +303,41 @@ describe('/sms', () => {
       assert.equal(err.message, 'Invalid message id')
     })
   })
+
+  describe('sms.send fails with unknown error', () => {
+    let err
+
+    beforeEach(() => {
+      sms.send = sinon.spy(() => P.reject())
+      request.payload.phoneNumber = '+18885083401'
+      return runTest(route, request)
+        .catch(e => {
+          err = e
+        })
+    })
+
+    it('called log.begin once', () => {
+      assert.equal(log.begin.callCount, 1)
+    })
+
+    it('called request.validateMetricsContext once', () => {
+      assert.equal(request.validateMetricsContext.callCount, 1)
+    })
+
+    it('called sms.send once', () => {
+      assert.equal(sms.send.callCount, 1)
+    })
+
+    it('did not call log.flowEvent', () => {
+      assert.equal(log.flowEvent.callCount, 0)
+    })
+
+    it('threw the correct error data', () => {
+      assert.ok(err instanceof AppError)
+      assert.equal(err.errno, AppError.ERRNO.UNEXPECTED_ERROR)
+      assert.equal(err.message, 'Unspecified error')
+    })
+  })
 })
 
 describe('/sms disabled', () => {

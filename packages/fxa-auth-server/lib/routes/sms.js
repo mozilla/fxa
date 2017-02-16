@@ -76,15 +76,17 @@ module.exports = (log, isA, error, config, customs, sms) => {
         function sendMessage (senderId) {
           return sms.send(phoneNumber, senderId, messageId, acceptLanguage)
             .catch(err => {
-              if (err.status === 500) {
-                throw error.messageRejected(err.reason, err.reasonCode)
+              if (err) {
+                if (err.status === 500) {
+                  throw error.messageRejected(err.reason, err.reasonCode)
+                }
+
+                if (err.status === 400) {
+                  throw error.invalidMessageId()
+                }
               }
 
-              if (err.status === 400) {
-                throw error.invalidMessageId()
-              }
-
-              throw new error.unexpectedError()
+              throw error.unexpectedError()
             })
         }
 
