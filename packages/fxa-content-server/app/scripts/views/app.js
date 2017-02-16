@@ -13,6 +13,7 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
+  const KeyCodes = require('lib/key-codes');
   const LoadingMixin = require('views/mixins/loading-mixin');
   const p = require('lib/promise');
 
@@ -30,7 +31,29 @@ define(function (require, exports, module) {
     },
 
     events: {
-      'click a[href^="/"]': 'onAnchorClick'
+      'click a[href^="/"]': 'onAnchorClick',
+      'keyup': 'onKeyUp'
+    },
+
+    onKeyUp (event) {
+      // Global listener for keyboard events. This is
+      // useful for cases where the view has lost focus
+      // but you still want to perform an action on that view.
+
+      // Handle user pressing `ESC`
+      if (event.which === KeyCodes.ESCAPE) {
+
+        // Pressing ESC when any modal is visible should close the modal.
+        if ($.modal.isActive()) {
+          $.modal.close();
+        } else if (event.currentTarget.className.indexOf('settings') >= 0) {
+
+          // If event came from any settings view, close all panels and
+          // goto base settings view.
+          $('.settings-unit').removeClass('open');
+          this.navigate('settings');
+        }
+      }
     },
 
     onAnchorClick (event) {

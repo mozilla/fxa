@@ -23,6 +23,7 @@ define(function (require, exports, module) {
     openPanel () {
       this.$el.modal({
         clickClose: false, // we take care of closing on the background ourselves.
+        escapeClose: false, // we take care of closing on the escape key ourselves.
         opacity: 0.75,
         showClose: false,
         zIndex: 999
@@ -64,6 +65,7 @@ define(function (require, exports, module) {
 
     onAfterClose () {
       this.destroy(true);
+      this.trigger('modal-cancel');
       $('.blocker').off('click', this._boundBlockerClick);
     },
 

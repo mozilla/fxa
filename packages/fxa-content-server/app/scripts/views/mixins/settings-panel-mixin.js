@@ -10,7 +10,6 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const BaseView = require('views/base');
-  const KeyCodes = require('lib/key-codes');
 
   module.exports = {
     initialize (options) {
@@ -19,8 +18,7 @@ define(function (require, exports, module) {
 
     events: {
       'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings'),
-      'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel'),
-      'keyup .settings-unit': 'onKeyUp'
+      'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel')
     },
 
     afterRender () {
@@ -32,12 +30,6 @@ define(function (require, exports, module) {
         .removeAttr('autofocus');
     },
 
-    onKeyUp (event) {
-      if (event.which === KeyCodes.ESCAPE) {
-        this.hidePanel();
-      }
-    },
-
     _triggerPanel (event) {
       var href = event && $(event.currentTarget).data('href');
       if (href) {
@@ -46,6 +38,8 @@ define(function (require, exports, module) {
     },
 
     openPanel () {
+      this.closeAllPanels();
+
       this.$('.settings-unit').addClass('open');
       this.focus(this.$('[data-autofocus-on-panel-open]'));
     },
@@ -89,6 +83,10 @@ define(function (require, exports, module) {
 
     closePanel () {
       this.$('.settings-unit').removeClass('open');
+    },
+
+    closeAllPanels () {
+      $('.settings-unit').removeClass('open');
     },
 
     displaySuccess (msg) {

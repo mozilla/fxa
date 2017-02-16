@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
   const FormView = require('views/form');
-  const KeyCodes = require('lib/key-codes');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
@@ -83,18 +82,6 @@ define(function (require, exports, module) {
         assert.isTrue(view.closePanel.called);
         assert.isTrue(view.clearInput.called);
         assert.isTrue(view.navigate.calledWith('settings'));
-      });
-
-      it('calls hidePanel when esc key is pressed', function () {
-        sinon.stub(view, 'hidePanel', function () {});
-        view.onKeyUp({ which: KeyCodes.ESCAPE });
-        assert.isTrue(view.hidePanel.called);
-      });
-
-      it('does not call hidePanel when other keys are pressed', function () {
-        sinon.spy(view, 'hidePanel');
-        view.onKeyUp({ which: KeyCodes.ENTER });
-        assert.isFalse(view.hidePanel.called);
       });
     });
 

@@ -71,19 +71,18 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('`navigate` has already been called', () => {
-        it('does not navigate to settings', () => {
-          view.navigate('signin');
-
+      describe('cancel from clients disconnect modal navigates to /settings/clients', () => {
+        it('navigates to /settings/clients', () => {
+          view.currentPage = 'settings/clients/disconnect';
           view.trigger('modal-cancel');
-
           assert.isTrue(view.navigate.calledOnce);
-          assert.isTrue(view.navigate.calledWith('signin'));
+          assert.isTrue(view.navigate.calledWith('settings/clients'));
         });
       });
 
-      describe('`navigate` has not been called', () => {
-        it('navigates to settings', () => {
+      describe('cancel from other modal navigates to /settings', () => {
+        it('does not navigate to settings', () => {
+          view.currentPage = 'settings/avatar/change';
           view.trigger('modal-cancel');
           assert.isTrue(view.navigate.calledOnce);
           assert.isTrue(view.navigate.calledWith('settings'));

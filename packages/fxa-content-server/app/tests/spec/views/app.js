@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const chai = require('chai');
   const Environment = require('lib/environment');
+  const KeyCodes = require('lib/key-codes');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const sinon = require('sinon');
@@ -445,6 +446,20 @@ define(function (require, exports, module) {
 
       it('sets the title', function () {
         assert.isTrue(view.setTitle.calledWith('the title, the second title'));
+      });
+    });
+
+    describe('onKeyUp', function () {
+
+      before(function () {
+        createDeps();
+        sinon.spy(view, 'navigate');
+      });
+
+      it('press escape from settings view', function () {
+        view.onKeyUp({ currentTarget: {className: 'settings'}, which: KeyCodes.ESCAPE });
+        assert.isTrue(view.navigate.calledOnce);
+        assert.isTrue(view.navigate.calledWith('settings'));
       });
     });
   });

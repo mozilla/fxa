@@ -29,14 +29,18 @@ define(function (require, exports, module) {
       this.navigate('settings/avatar/change');
     },
 
+    _returnToClients () {
+      this.navigate('settings/clients');
+    },
+
     _returnToSettings () {
       this.navigate('settings');
     },
 
     onModalCancel () {
-      // A view could have already navigated. If so, do not
-      // attempt to navigate a second time.
-      if (! this._hasNavigated) {
+      if (this.currentPage === 'settings/clients/disconnect') {
+        this._returnToClients();
+      } else {
         this._returnToSettings();
       }
     },
