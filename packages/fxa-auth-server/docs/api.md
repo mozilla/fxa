@@ -87,6 +87,11 @@ The currently-defined error responses are:
 * status code 400, errno 125:  request blocked for security reasons
 * status code 400, errno 126:  account must be reset
 * status code 400, errno 127:  invalid unblock code
+* status code 400, errno 128:  missing token (no longer used)
+* status code 400, errno 129:  invalid phone number
+* status code 400, errno 130:  invalid region
+* status code 400, errno 131:  invalid message id
+* status code 400, errno 132:  message rejected
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * status code 503, errno 202:  feature has been disabled for operational reasons
 * any status code, errno 999:  unknown error
@@ -95,7 +100,10 @@ The follow error responses include additional parameters:
 
 * errno 111:  a `serverTime` parameter giving the current server time in seconds.
 * errno 114:  a `retryAfter` parameter indicating how long the client should wait before re-trying.
-* errno 120:  a `email` parameter indicating the case used to create the account
+* errno 120:  an `email` parameter indicating the case used to create the account.
+* errno 130:  a `region` parameter indicating the region code that was deemed invalid.
+* errno 132:  `reason` and `reasonCode` parameters indicating why the message was rejected
+  (see [nexmo docs](https://docs.nexmo.com/messaging/sms-api/api-reference#status-codes)).
 * errno 201:  a `retryAfter` parameter indicating how long the client should wait before re-trying.
 
 
@@ -149,6 +157,9 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [GET /v1/account/devices (:lock: sessionToken)](#get-v1accountdevices)
     * [POST /v1/account/devices/notify (:lock: sessionToken)](#post-v1accountdevicesnotify)
     * [POST /v1/account/device/destroy (:lock: sessionToken)](#post-v1accountdevicedestroy)
+
+* Send SMS
+    * [POST /v1/sms (:lock: sessionToken)](#post-v1sms)
 
 * Miscellaneous
     * [POST /v1/get_random_bytes](#post-v1get_random_bytes)
@@ -1489,6 +1500,60 @@ with an empty object in the JSON body:
 Failing requests may return the following error:
 
 * status code 400, errno 123: unknown device
+
+## POST /v1/sms
+
+:lock: HAWK-authenticated with the sessionToken.
+
+Sends an SMS message.
+
+### Request
+
+___Headers___
+
+The request must include a Hawk header
+that authenticates the request
+using a `sessionToken`
+received from `/v1/account/create` or `/v1/account/login`.
+
+___Parameters___
+
+* phoneNumber - the phone number to send the message to, in E.164 format
+* messageId - the id of the message to send
+
+___Example___
+
+```sh
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/sms \
+-d '{
+  "phoneNumber": "+15036789977",
+  "messageId": 1
+}'
+```
+
+### Response
+
+Successful requests
+will return a `200 OK` response
+with an empty object
+in the JSON body:
+
+```json
+{}
+```
+
+Failing requests may return the following errors:
+
+* status code 400, errno 129: invalid phone number
+* status code 400, errno 130: invalid region
+* status code 400, errno 131: invalid message id
+* status code 500, errno 132: message rejected
+* status code 500, errno 999: unexpected error
 
 ## POST /v1/get_random_bytes
 

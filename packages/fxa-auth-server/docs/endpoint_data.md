@@ -469,3 +469,9 @@
   * Devices
   * SessionTokens
 
+## /sms
+
+* input
+  * phoneNumber
+  * messageId
+
