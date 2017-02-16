@@ -4,6 +4,7 @@
 
 var P = require('bluebird')
 var createMailer = require('./mailer')
+var createSms = require('./lib/sms')
 
 module.exports = function (log, config, sender) {
   var Mailer = createMailer(log)
@@ -15,7 +16,10 @@ module.exports = function (log, config, sender) {
   )
   .spread(
     function (translator, templates) {
-      return new Mailer(translator, templates, config.mail, sender)
+      return {
+        email: new Mailer(translator, templates, config.mail, sender),
+        sms: createSms(log, translator, templates, config.sms)
+      }
     }
   )
 }

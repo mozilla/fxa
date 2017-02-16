@@ -28,9 +28,9 @@
 
 var P = require('bluebird')
 var config = require('../config')
-var createMailer = require('../index')
+const createSenders = require('../index')
 var fs = require('fs')
-var log = require('../log')('server')
+const log = require('../legacy_log')(require('../log')('server'))
 var mkdirp = require('mkdirp')
 var path = require('path')
 
@@ -53,8 +53,9 @@ var mailSender = {
 }
 
 
-createMailer(log, config.getProperties(), mailSender)
-  .then((mailer) => {
+createSenders(log, config.getProperties(), mailSender)
+  .then((senders) => {
+    const mailer = senders.email
     checkMessageType(mailer, messageToSend)
 
     ensureTargetDirectoryExists()

@@ -28,6 +28,7 @@
     "jed": "0.5.4",
     "moment-timezone": "0.5.11",
     "mozlog": "2.0.6",
+    "nexmo": "1.2.0",
     "nodemailer": "2.7.2",
     "po2json": "0.4.5",
     "poolee": "1.0.1",

@@ -13,12 +13,16 @@ handlebars.registerHelper(
   }
 )
 
-function camelize(str) {
+function generateTemplateName (str) {
+  if (/^sms\.[A-Za-z]+/.test(str)) {
+    return str
+  }
+
   return str.replace(/_(.)/g,
     function(match, c) {
       return c.toUpperCase()
     }
-  )
+  ) + 'Email'
 }
 
 function loadTemplates(name) {
@@ -33,7 +37,7 @@ function loadTemplates(name) {
       var renderText = handlebars.compile(text)
       var renderHtml = handlebars.compile(html)
       return {
-        name: camelize(name) + 'Email',
+        name: generateTemplateName(name),
         fn: function (values) {
           return {
             text: renderText(values),
@@ -54,6 +58,7 @@ module.exports = function () {
       'password_reset_required',
       'post_verify',
       'recovery',
+      'sms.installFirefox',
       'unblock_code',
       'verification_reminder_first',
       'verification_reminder_second',
