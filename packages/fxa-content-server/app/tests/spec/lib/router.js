@@ -40,8 +40,8 @@ define(function (require, exports, module) {
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
 
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       user = new User();
       windowMock = new WindowMock();
 

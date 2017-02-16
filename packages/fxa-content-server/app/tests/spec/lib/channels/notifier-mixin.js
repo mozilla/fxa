@@ -9,12 +9,12 @@ define(function (require, exports, module) {
   const chai = require('chai');
   const Cocktail = require('cocktail');
   const Notifier = require('lib/channels/notifier');
-  const NotifierMixin = require('views/mixins/notifier-mixin');
+  const NotifierMixin = require('lib/channels/notifier-mixin');
   const sinon = require('sinon');
 
   var assert = chai.assert;
 
-  describe('views/mixins/notifier-mixin', function () {
+  describe('lib/channels/notifier-mixin', function () {
     var data = { uid: 'foo' };
     var functionHandlerSpy;
     var notifier;

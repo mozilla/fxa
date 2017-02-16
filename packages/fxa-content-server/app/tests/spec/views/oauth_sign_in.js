@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const OAuthBroker = require('models/auth_brokers/oauth');
   const OAuthRelier = require('models/reliers/oauth');
   const p = require('lib/promise');
+  const SentryMetrics = require('lib/sentry');
   const Session = require('lib/session');
   const sinon = require('sinon');
   const TestHelpers = require('../../lib/helpers');
@@ -30,6 +31,7 @@ define(function (require, exports, module) {
     let notifier;
     let profileClientMock;
     let relier;
+    let sentryMetrics;
     let user;
     let view;
     let windowMock;
@@ -54,7 +56,9 @@ define(function (require, exports, module) {
         window: windowMock
       });
       fxaClient = new FxaClient();
-      metrics = new Metrics();
+      notifier = new Notifier();
+      sentryMetrics = new SentryMetrics();
+      metrics = new Metrics({ notifier, sentryMetrics });
       user = new User({
         fxaClient,
         metrics,
@@ -62,7 +66,6 @@ define(function (require, exports, module) {
       });
       profileClientMock = TestHelpers.stubbedProfileClient();
       formPrefill = new FormPrefill();
-      notifier = new Notifier();
 
       initView();
     });

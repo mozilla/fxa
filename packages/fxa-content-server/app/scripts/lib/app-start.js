@@ -110,15 +110,15 @@ define(function (require, exports, module) {
         // both the metrics and router depend on the language
         // fetched from config.
         .then(_.bind(this.initializeRelier, this))
-        // metrics depends on the relier.
-        .then(_.bind(this.initializeMetrics, this))
-        // iframe channel depends on the relier and metrics
+        // iframe channel depends on the relier.
         .then(_.bind(this.initializeIframeChannel, this))
         // fxaClient depends on the relier and
         // inter tab communication.
         .then(_.bind(this.initializeFxaClient, this))
         // depends on iframeChannel and interTabChannel
         .then(_.bind(this.initializeNotifier, this))
+        // metrics depends on relier and notifier
+        .then(_.bind(this.initializeMetrics, this))
         // assertionLibrary depends on fxaClient
         .then(_.bind(this.initializeAssertionLibrary, this))
         // profileClient depends on fxaClient and assertionLibrary
@@ -195,8 +195,10 @@ define(function (require, exports, module) {
         isSampledUser: isSampledUser,
         lang: this._config.lang,
         migration: relier.get('migration'),
+        notifier: this._notifier,
         screenHeight: screenInfo.screenHeight,
         screenWidth: screenInfo.screenWidth,
+        sentryMetrics: this._sentryMetrics,
         service: relier.get('service'),
         uniqueUserId: this._getUniqueUserId(),
         utmCampaign: relier.get('utmCampaign'),
@@ -205,7 +207,6 @@ define(function (require, exports, module) {
         utmSource: relier.get('utmSource'),
         utmTerm: relier.get('utmTerm')
       });
-      this._metrics.init();
     },
 
     initializeIframeChannel () {
@@ -214,7 +215,6 @@ define(function (require, exports, module) {
         const iframeChannel = new IframeChannel();
 
         iframeChannel.initialize({
-          metrics: this._metrics,
           origin: parentOrigin,
           window: this._window
         });

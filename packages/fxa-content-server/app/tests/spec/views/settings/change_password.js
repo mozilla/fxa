@@ -29,13 +29,15 @@ define(function (require, exports, module) {
     var broker;
     var model;
     var metrics;
+    var notifier;
     var relier;
     var user;
     var view;
 
     beforeEach(function () {
       model = new Backbone.Model();
-      metrics = new Metrics();
+      notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       relier = new Relier();
 
       broker = new Broker({
@@ -48,7 +50,7 @@ define(function (require, exports, module) {
         broker: broker,
         metrics: metrics,
         model: model,
-        notifier: new Notifier(),
+        notifier,
         relier: relier,
         user: user
       });

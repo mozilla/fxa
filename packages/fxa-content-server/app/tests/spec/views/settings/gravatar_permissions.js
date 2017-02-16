@@ -8,8 +8,8 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const chai = require('chai');
   const Metrics = require('lib/metrics');
-  const p = require('lib/promise');
   const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
@@ -22,6 +22,7 @@ define(function (require, exports, module) {
     var account;
     var email;
     var metrics;
+    var notifier;
     var relier;
     var user;
     var view;
@@ -32,7 +33,8 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
-      metrics = new Metrics();
+      notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       relier = new Relier();
       user = new User();
 
@@ -55,10 +57,10 @@ define(function (require, exports, module) {
 
     function initView () {
       view = new View({
-        metrics: metrics,
-        notifier: new Notifier(),
-        relier: relier,
-        user: user
+        metrics,
+        notifier,
+        relier,
+        user
       });
       sinon.stub(view, 'navigate', function () { });
 

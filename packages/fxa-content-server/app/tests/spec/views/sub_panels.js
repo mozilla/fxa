@@ -61,8 +61,8 @@ define(function (require, exports, module) {
     }
 
     beforeEach(function () {
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       parent = {
         model: new Backbone.Model()
       };

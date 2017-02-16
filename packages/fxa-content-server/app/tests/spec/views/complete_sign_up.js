@@ -80,8 +80,8 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       broker = new Broker();
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       relier = new Relier();
       user = new User({
         notifier: notifier

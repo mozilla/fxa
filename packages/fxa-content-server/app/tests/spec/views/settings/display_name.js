@@ -30,10 +30,10 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
-      metrics = new Metrics();
       user = new User();
       relier = new Relier();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       account = user.initAccount({
         email: email,
         sessionToken: 'fake session token',

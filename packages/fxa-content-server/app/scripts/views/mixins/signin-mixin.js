@@ -105,16 +105,10 @@ define(function (require, exports, module) {
 
         if (verificationReason === VerificationReasons.SIGN_IN &&
             verificationMethod === VerificationMethods.EMAIL) {
-          return this.navigate('confirm_signin', {
-            account: account,
-            flow: this.flow
-          });
-        } else {
-          return this.navigate('confirm', {
-            account: account,
-            flow: this.flow
-          });
+          return this.navigate('confirm_signin', { account });
         }
+
+        return this.navigate('confirm', { account });
       }
 
       // If the account's uid changed, update the relier model or else

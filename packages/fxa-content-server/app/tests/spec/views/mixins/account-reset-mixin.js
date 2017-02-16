@@ -46,8 +46,8 @@ define(function (require, exports, module) {
       });
 
       fxaClient = new FxaClient();
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       relier = new Relier();
       session = {
         clear: sinon.spy()

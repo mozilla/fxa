@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const ExternalLinksMixin = require('views/mixins/external-links-mixin');
   const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
@@ -27,12 +28,14 @@ define(function (require, exports, module) {
   describe('views/mixins/external-links-mixin', function () {
     let broker;
     let metrics;
+    let notifier;
     let view;
     let windowMock;
 
     beforeEach(function () {
       broker = new Broker();
-      metrics = new Metrics();
+      notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       windowMock = new WindowMock();
 
       view = new View({

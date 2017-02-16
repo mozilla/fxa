@@ -37,12 +37,12 @@ define(function (require, exports, module) {
       windowMock = new WindowMock();
       windowMock.navigator.userAgent = 'mocha';
       able = new Able();
-      metrics = new Metrics();
       user = new User({
         uniqueUserId: UUID
       });
 
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       expOptions = {
         able: able,
         metrics: metrics,

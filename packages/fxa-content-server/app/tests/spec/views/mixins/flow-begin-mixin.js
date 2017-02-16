@@ -18,22 +18,15 @@ define((require, exports, module) => {
 
     describe('afterRender', () => {
       beforeEach(() => {
-        flowBeginMixin.metrics = {
-          logFlowBegin: sinon.spy()
-        };
-        flowBeginMixin.flow = {
-          get: sinon.spy(property => `mock ${property}`)
-        };
-        flowBeginMixin.viewName = 'wibble';
+        flowBeginMixin.logFlowEventOnce = sinon.spy();
         flowBeginMixin.afterRender();
       });
 
-      it('called metrics.logFlowBegin correctly', () => {
-        assert.strictEqual(flowBeginMixin.metrics.logFlowBegin.callCount, 1);
-        const args = flowBeginMixin.metrics.logFlowBegin.args[0];
-        assert.lengthOf(args, 2);
-        assert.strictEqual(args[0], 'mock flowId');
-        assert.strictEqual(args[1], 'mock flowBegin');
+      it('called metrics.logFlowEventOnce correctly', () => {
+        assert.strictEqual(flowBeginMixin.logFlowEventOnce.callCount, 1);
+        const args = flowBeginMixin.logFlowEventOnce.args[0];
+        assert.lengthOf(args, 1);
+        assert.strictEqual(args[0], 'begin');
       });
     });
   });

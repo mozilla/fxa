@@ -10,10 +10,7 @@ define(function (require, exports, module) {
 
   module.exports = {
     afterRender () {
-      const flowId = this.flow.get('flowId');
-      const flowBegin = this.flow.get('flowBegin');
-
-      this.metrics.logFlowBegin(flowId, flowBegin);
+      this.logFlowEventOnce('begin');
     }
   };
 });

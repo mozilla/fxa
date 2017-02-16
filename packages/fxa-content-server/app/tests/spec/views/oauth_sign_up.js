@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   const OAuthRelier = require('models/reliers/oauth');
   const p = require('lib/promise');
   const Session = require('lib/session');
+  const SentryMetrics = require('lib/sentry');
   const sinon = require('sinon');
   const TestHelpers = require('../../lib/helpers');
   const User = require('models/user');
@@ -61,6 +62,7 @@ define(function (require, exports, module) {
     var notifier;
     var oAuthClient;
     var relier;
+    var sentryMetrics;
     var user;
     var view;
     var windowMock;
@@ -73,7 +75,6 @@ define(function (require, exports, module) {
       windowMock = new WindowMock();
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
       encodedLocationSearch = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + encodeURIComponent(SCOPE);
-      metrics = new Metrics();
       relier = new OAuthRelier({
         window: windowMock
       });
@@ -108,6 +109,8 @@ define(function (require, exports, module) {
       formPrefill = new FormPrefill();
       able = new Able();
       notifier = new Notifier();
+      sentryMetrics = new SentryMetrics();
+      metrics = new Metrics({ notifier, sentryMetrics });
 
       view = new View({
         able: able,

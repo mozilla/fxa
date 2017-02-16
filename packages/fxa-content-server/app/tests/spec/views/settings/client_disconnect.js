@@ -31,8 +31,8 @@ define(function (require, exports, module) {
     let windowMock;
 
     beforeEach(() => {
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       relier = new Relier();
       user = new User();
       windowMock = new WindowMock();

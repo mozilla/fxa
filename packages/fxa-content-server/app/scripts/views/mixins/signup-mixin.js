@@ -83,10 +83,7 @@ define(function (require, exports, module) {
 
       return this.invokeBrokerMethod('afterSignUp', account)
         .then(() => {
-          this.navigate('confirm', {
-            account: account,
-            flow: this.flow
-          });
+          this.navigate('confirm', { account });
         });
     },
 

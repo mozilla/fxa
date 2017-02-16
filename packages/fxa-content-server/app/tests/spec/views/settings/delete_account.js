@@ -37,7 +37,6 @@ define(function (require, exports, module) {
     var view;
 
     beforeEach(function () {
-      metrics = new Metrics();
       relier = new Relier();
       tabChannelMock = new NullChannel();
       user = new User();
@@ -49,6 +48,7 @@ define(function (require, exports, module) {
       notifier = new Notifier({
         tabChannel: tabChannelMock
       });
+      metrics = new Metrics({ notifier });
 
       view = new View({
         broker: broker,

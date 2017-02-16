@@ -21,7 +21,15 @@ define(function (require, exports, module) {
     // do nothing
   }
 
-  _.extend(StorageMetrics.prototype, new Metrics(), {
+  const notifier = {
+    off () {},
+    on () {},
+    trigger () {},
+    triggerAll () {},
+    triggerRemote () {}
+  };
+
+  _.extend(StorageMetrics.prototype, new Metrics({ notifier }), {
     _send (data) {
       var metrics = storage.get('metrics_all');
 

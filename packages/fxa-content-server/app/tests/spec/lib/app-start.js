@@ -274,7 +274,7 @@ define(function (require, exports, module) {
           user: userMock,
           window: windowMock
         });
-        appStart._metrics = new Metrics();
+        appStart._metrics = new Metrics({ notifier });
       });
 
       describe('fx-firstrun-v1', function () {

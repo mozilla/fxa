@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
   const PasswordMixin = require('views/mixins/password-mixin');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
@@ -28,11 +29,13 @@ define(function (require, exports, module) {
 
   describe('views/mixins/password-mixin', function () {
     let metrics;
+    let notifier;
     let view;
     let windowMock;
 
     beforeEach(function () {
-      metrics = new Metrics();
+      notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       windowMock = new WindowMock();
 
       view = new PasswordView({

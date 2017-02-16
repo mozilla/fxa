@@ -17,7 +17,7 @@ define(function (require, exports, module) {
     template: TestTemplate,
 
     initialize (options = {}) {
-      this.flow = options.flow;
+      this.metrics = options.metrics;
       this.relier = options.relier;
       this.user = options.user;
     }
@@ -31,6 +31,7 @@ define(function (require, exports, module) {
   describe('views/mixins/resume-token-mixin', function () {
     let account;
     let flow;
+    let metrics;
     let relier;
     let user;
     let view;
@@ -44,6 +45,12 @@ define(function (require, exports, module) {
         pickResumeTokenInfo: sinon.spy()
       };
 
+      metrics = {
+        getFlowModel () {
+          return flow;
+        }
+      };
+
       relier = {
         pickResumeTokenInfo: sinon.spy()
       };
@@ -53,7 +60,7 @@ define(function (require, exports, module) {
       };
 
       view = new TestView({
-        flow,
+        metrics,
         relier,
         user
       });

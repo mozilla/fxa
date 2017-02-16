@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const domWriter = require('lib/dom-writer');
   const ErrorUtils = require('lib/error-utils');
   const ExternalLinksMixin = require('views/mixins/external-links-mixin');
-  const NotifierMixin = require('views/mixins/notifier-mixin');
+  const NotifierMixin = require('lib/channels/notifier-mixin');
   const NullMetrics = require('lib/null-metrics');
   const Logger = require('lib/logger');
   const p = require('lib/promise');
@@ -713,9 +713,13 @@ define(function (require, exports, module) {
      *
      * @param {String} eventName
      * @param {String} viewName
+     * @param {Object} data
      */
-    logFlowEvent (eventName, viewName) {
-      this.metrics.logFlowEvent(eventName, viewName);
+    logFlowEvent (eventName, viewName, data) {
+      this.notifier.trigger('flow.event', _.assign({}, data, {
+        event: eventName,
+        view: viewName
+      }));
     },
 
     /**
@@ -725,7 +729,7 @@ define(function (require, exports, module) {
      * @param {String} viewName
      */
     logFlowEventOnce (eventName, viewName) {
-      this.metrics.logFlowEventOnce(eventName, viewName);
+      this.logFlowEvent(eventName, viewName, { once: true });
     },
 
     hideError () {

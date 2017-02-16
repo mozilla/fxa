@@ -39,9 +39,9 @@ define(function (require, exports, module) {
     var view;
 
     beforeEach(function () {
-      metrics = new Metrics();
       model = new Backbone.Model();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       relier = new Relier();
       user = new User();
 

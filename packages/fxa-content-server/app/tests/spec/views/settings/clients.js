@@ -72,8 +72,8 @@ define(function (require, exports, module) {
       });
       broker = new BaseBroker();
       email = TestHelpers.createEmail();
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       parentView = new BaseView();
       translator = new Translator({forceEnglish: true});
       user = new User();

@@ -32,13 +32,15 @@ define(function (require, exports, module) {
   describe('views/mixins/settings-panel-mixin', function () {
     var view;
     var metrics;
+    var notifier;
 
     beforeEach(function () {
-      metrics = new Metrics();
+      notifier = new Notifier();
+      metrics = new Metrics({ notifier });
 
       view = new SettingsPanelView({
         metrics: metrics,
-        notifier: new Notifier(),
+        notifier,
         parentView: {
           displaySuccess: sinon.spy()
         }

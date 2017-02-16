@@ -85,8 +85,8 @@ define(function (require, exports, module) {
       able = new Able();
       formPrefill = new FormPrefill();
       fxaClient = new FxaClient();
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       profileClient = new ProfileClient();
       relier = new Relier();
 

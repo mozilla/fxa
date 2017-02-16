@@ -34,7 +34,6 @@ define(function (require, exports, module) {
     let windowMock;
 
     beforeEach(() => {
-      metrics = new Metrics();
       windowMock = new WindowMock();
 
       relier = new Relier({
@@ -58,6 +57,7 @@ define(function (require, exports, module) {
       });
 
       notifier = _.extend({}, Backbone.Events);
+      metrics = new Metrics({ notifier });
 
       view = new View({
         broker,

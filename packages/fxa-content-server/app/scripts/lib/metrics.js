@@ -19,10 +19,13 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const _ = require('underscore');
+  const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
   const Backbone = require('backbone');
   const Duration = require('duration');
   const Environment = require('lib/environment');
+  const Flow = require('models/flow');
+  const NotifierMixin = require('lib/channels/notifier-mixin');
   const p = require('lib/promise');
   const speedTrap = require('speedTrap');
   const Strings = require('lib/strings');
@@ -118,6 +121,7 @@ define(function (require, exports, module) {
     this._referrer = this._window.document.referrer || NOT_REPORTED_VALUE;
     this._screenHeight = options.screenHeight || NOT_REPORTED_VALUE;
     this._screenWidth = options.screenWidth || NOT_REPORTED_VALUE;
+    this._sentryMetrics = options.sentryMetrics;
     this._service = options.service || NOT_REPORTED_VALUE;
     // if navigationTiming is supported, the baseTime will be from
     // navigationTiming.navigationStart, otherwise Date.now().
@@ -129,12 +133,14 @@ define(function (require, exports, module) {
     this._utmSource = options.utmSource || NOT_REPORTED_VALUE;
     this._utmTerm = options.utmTerm || NOT_REPORTED_VALUE;
     this._xhr = options.xhr || xhr;
+
+    this.initialize(options);
   }
 
   _.extend(Metrics.prototype, Backbone.Events, {
     ALLOWED_FIELDS: ALLOWED_FIELDS,
 
-    init () {
+    initialize () {
       this._flush = _.bind(this.flush, this, true);
       $(this._window).on('unload', this._flush);
       // iOS will not send events once the window is in the background,
@@ -151,6 +157,64 @@ define(function (require, exports, module) {
       $(this._window).off('unload', this._flush);
       $(this._window).off('blur', this._flush);
       this._clearInactivityFlushTimeout();
+    },
+
+    notifications: {
+      /* eslint-disable sorting/sort-object-props */
+      'flow.initialize': '_initializeFlowModel',
+      'flow.event': '_logFlowEvent'
+      /* eslint-enable sorting/sort-object-props */
+    },
+
+    /**
+     * @private
+     * Initialize the flow model. If it's already been initalized, do nothing.
+     * Initialization may fail if the required flow properties can't be found,
+     * either in the DOM or the resume token.
+     */
+    _initializeFlowModel () {
+      if (this._flowModel) {
+        return;
+      }
+
+      const flowModel = new Flow({
+        sentryMetrics: this._sentryMetrics,
+        window: this._window
+      });
+
+      if (flowModel.has('flowId')) {
+        this._flowModel = flowModel;
+      }
+    },
+
+    /**
+     * @private
+     * Log a flow event. If there is no flow model, do nothing.
+     *
+     * @param {Object} data
+     *   @param {String} data.event The name of the event.
+     *   @param {String} [data.view] The name of the view, to be
+     *     interpolated in the event name. If unset, the event is
+     *     logged without a view name.
+     *   @param {Boolean} [data.once] If set, emit this event via
+     *     the `logEventOnce` method. Defaults to `false`.
+     */
+    _logFlowEvent (data) {
+      if (! this._flowModel) {
+        // If there is no flow model, we're not in a recognised flow and
+        // we should not emit the event. This would be the case if a user
+        // lands on `/settings`, for instance. Only views that mixin the
+        // `flow-events-mixin` will initialise the flow model.
+        return;
+      }
+
+      const eventName = marshallFlowEvent(data.event, data.view);
+
+      if (data.once) {
+        this.logEventOnce(eventName);
+      } else {
+        this.logEvent(eventName);
+      }
     },
 
     /**
@@ -240,16 +304,17 @@ define(function (require, exports, module) {
      * @returns {Object}
      */
     getAllData () {
-      var loadData = this._speedTrap.getLoad();
-      var unloadData = this._speedTrap.getUnload();
+      const loadData = this._speedTrap.getLoad();
+      const unloadData = this._speedTrap.getUnload();
+      const flowData = this.getFlowEventMetadata();
 
-      var allData = _.extend({}, loadData, unloadData, {
+      const allData = _.extend({}, loadData, unloadData, {
         broker: this._brokerType,
         context: this._context,
         entrypoint: this._entrypoint,
         experiments: flattenHashIntoArrayOfObjects(this._activeExperiments),
-        flowBeginTime: this._flowBeginTime,
-        flowId: this._flowId,
+        flowBeginTime: flowData.flowBeginTime,
+        flowId: flowData.flowId,
         flushTime: Date.now(),
         isSampledUser: this._isSampledUser,
         lang: this._lang,
@@ -503,23 +568,6 @@ define(function (require, exports, module) {
       return this._isSampledUser;
     },
 
-    logFlowBegin (flowId, flowBeginTime) {
-      // Don't emit a new flow.begin event unless flowId has changed.
-      if (flowId !== this._flowId) {
-        this._flowId = flowId;
-        this._flowBeginTime = flowBeginTime;
-        this.logFlowEvent('begin');
-      }
-    },
-
-    logFlowEvent (eventName, viewName) {
-      this.logEvent(marshallFlowEvent(eventName, viewName));
-    },
-
-    logFlowEventOnce (eventName, viewName) {
-      this.logEventOnce(marshallFlowEvent(eventName, viewName));
-    },
-
     getFlowEventMetadata () {
       const metadata = (this._flowModel && this._flowModel.attributes) || {};
       return {
@@ -528,8 +576,8 @@ define(function (require, exports, module) {
       };
     },
 
-    setFlowModel (flowModel) {
-      this._flowModel = flowModel;
+    getFlowModel (flowModel) {
+      return this._flowModel;
     },
 
     /**
@@ -541,6 +589,11 @@ define(function (require, exports, module) {
       this._numStoredAccounts = numStoredAccounts;
     }
   });
+
+  Cocktail.mixin(
+    Metrics,
+    NotifierMixin
+  );
 
   module.exports = Metrics;
 });

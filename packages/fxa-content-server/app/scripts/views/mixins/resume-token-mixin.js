@@ -20,10 +20,14 @@ define(function (require, exports, module) {
      */
     getResumeToken (account) {
       var accountInfo = account.pickResumeTokenInfo();
-      // flow is only available in views that mix in the flow-events-mixin
-      var flowInfo = this.flow && this.flow.pickResumeTokenInfo();
       var relierInfo = this.relier.pickResumeTokenInfo();
       var userInfo = this.user.pickResumeTokenInfo();
+
+      let flowInfo;
+      const flowModel = this.metrics.getFlowModel();
+      if (flowModel) {
+        flowInfo = flowModel.pickResumeTokenInfo();
+      }
 
       var resumeTokenInfo = _.extend(
         {},

@@ -30,11 +30,11 @@ define(function (require, exports, module) {
       options.type = VerificationReasons.SIGN_UP;
       options.window = windowMock;
 
-      metrics = new Metrics();
-      options.metrics = metrics;
-
       notifier = new Notifier();
       options.notifier = notifier;
+
+      metrics = new Metrics({ notifier });
+      options.metrics = metrics;
 
       options.able = new Able();
       view = new View(options);

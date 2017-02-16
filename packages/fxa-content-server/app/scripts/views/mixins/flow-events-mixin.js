@@ -8,16 +8,11 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const Flow = require('models/flow');
   const KEYS = require('lib/key-codes');
 
   module.exports = {
     afterRender () {
-      this.flow = new Flow({
-        sentryMetrics: this.sentryMetrics,
-        window: this.window
-      });
-      this.metrics.setFlowModel(this.flow);
+      this.notifier.trigger('flow.initialize');
     },
 
     events: {

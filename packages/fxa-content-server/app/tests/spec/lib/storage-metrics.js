@@ -37,7 +37,6 @@ define(function (require, exports, module) {
         service: 'sync',
         window: windowMock
       });
-      storageMetrics.init();
     });
 
     afterEach(function () {

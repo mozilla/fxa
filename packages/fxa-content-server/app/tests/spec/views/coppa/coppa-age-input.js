@@ -19,20 +19,22 @@ define(function (require, exports, module) {
   describe('views/coppa/coppa-age-input', function () {
     var formPrefill;
     var metrics;
+    var notifier;
     var view;
 
     function createView() {
       view = new View({
         formPrefill,
         metrics,
-        notifier: new Notifier(),
+        notifier,
         viewName: 'signup'
       });
     }
 
     beforeEach(function () {
       formPrefill = new FormPrefill();
-      metrics = new Metrics();
+      notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       createView();
 
       return view.render()

@@ -23,8 +23,8 @@ define(function (require, exports, module) {
     var ViewMock = function () {};
 
     function createDeps () {
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       windowMock = new WindowMock();
 
       refreshObserver = new RefreshObserver({

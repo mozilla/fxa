@@ -34,9 +34,9 @@ define(function (require, exports, module) {
     beforeEach(function () {
       broker = new Broker();
       email = TestHelpers.createEmail();
-      metrics = new Metrics();
       model = new Backbone.Model();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       onSubmitComplete = sinon.spy();
       user = new User({});
 

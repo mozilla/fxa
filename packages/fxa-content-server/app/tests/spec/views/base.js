@@ -70,8 +70,13 @@ define(function (require, exports, module) {
 
       broker = new BaseBroker();
       model = new Backbone.Model();
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({
+        notifier,
+        sentryMetrics: {
+          captureException () {}
+        }
+      });
       relier = new Relier();
       user = new User();
       windowMock = new WindowMock();
@@ -87,6 +92,10 @@ define(function (require, exports, module) {
         viewName: viewName,
         window: windowMock
       });
+
+      $(windowMock.document.body).attr('data-flow-id', '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef');
+      $(windowMock.document.body).attr('data-flow-begin', Date.now());
+      notifier.trigger('flow.initialize');
 
       return view.render();
     });

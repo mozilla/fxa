@@ -41,8 +41,8 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       able = new Able();
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       user = new User({
         uniqueUserId: UUID
       });

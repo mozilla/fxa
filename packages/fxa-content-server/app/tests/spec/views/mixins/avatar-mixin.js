@@ -41,7 +41,6 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       account = new Account();
-      metrics = new Metrics();
       relier = new Relier();
       tabChannelMock = new NullChannel();
       user = new User();
@@ -49,6 +48,7 @@ define(function (require, exports, module) {
       notifier = new Notifier({
         tabChannel: tabChannelMock
       });
+      metrics = new Metrics({ notifier });
 
       account.set('uid', UID);
 

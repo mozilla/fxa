@@ -39,8 +39,8 @@ define(function (require, exports, module) {
     var windowMock;
 
     beforeEach(function () {
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       profileClientMock = new ProfileMock();
       relier = new Relier();
       translator = new Translator({forceEnglish: true});

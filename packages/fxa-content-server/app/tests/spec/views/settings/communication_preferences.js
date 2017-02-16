@@ -28,6 +28,7 @@ define(function (require, exports, module) {
     var account;
     var emailPrefsModel;
     var metrics;
+    var notifier;
     var preferencesUrl = 'https://marketing.preferences.com/user/user-token';
     var relier;
     var user;
@@ -46,7 +47,8 @@ define(function (require, exports, module) {
       user = new User();
       relier = new Relier();
       account = new Account();
-      metrics = new Metrics();
+      notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       translator = new Translator({forceEnglish: true});
 
       emailPrefsModel = new MarketingEmailPrefs({
@@ -73,11 +75,11 @@ define(function (require, exports, module) {
       });
 
       view = new View({
-        metrics: metrics,
-        notifier: new Notifier(),
-        relier: relier,
-        translator: translator,
-        user: user
+        metrics,
+        notifier,
+        relier,
+        translator,
+        user
       });
 
       sinon.stub(view, 'getSignedInAccount', function () {

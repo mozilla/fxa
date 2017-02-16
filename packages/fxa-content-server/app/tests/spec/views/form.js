@@ -100,9 +100,9 @@ define(function (require, exports, module) {
 
 
     beforeEach(function () {
-      metrics = new Metrics();
-      model = new Backbone.Model({});
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
+      model = new Backbone.Model({});
       sinon.spy(notifier, 'trigger');
 
       view = new View({
@@ -525,9 +525,7 @@ define(function (require, exports, module) {
           template: Template
         });
 
-        view = new ShowValidationErrorTestView({
-          notifier: new Notifier()
-        });
+        view = new ShowValidationErrorTestView({ notifier });
 
         return view.render()
           .then(function () {
@@ -706,9 +704,7 @@ define(function (require, exports, module) {
           template: Template
         });
 
-        view = new IsValidTestView({
-          notifier: new Notifier()
-        });
+        view = new IsValidTestView({ notifier });
 
         return view.render()
           .then(function () {

@@ -41,9 +41,9 @@ define(function (require, exports, module) {
       destroyView();
 
       fxaClient = new FxaClient();
-      metrics = new Metrics();
       model = new Backbone.Model();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       relier = new Relier();
       windowMock = new WindowMock();
 

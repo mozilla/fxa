@@ -32,7 +32,6 @@ define(function (require, exports, module) {
     describe('signIn', function () {
       let account;
       let broker;
-      let flow;
       let model;
       let relier;
       let user;
@@ -44,7 +43,6 @@ define(function (require, exports, module) {
           verified: true
         });
         broker = new AuthBroker();
-        flow = {};
         model = new Backbone.Model();
         user = new User();
         sinon.stub(user, 'signInAccount', (account) => p(account));
@@ -60,7 +58,6 @@ define(function (require, exports, module) {
           broker: broker,
           currentPage: 'force_auth',
           displayError: sinon.spy(),
-          flow: flow,
           getStringifiedResumeToken: sinon.spy(() => RESUME_TOKEN),
           invokeBrokerMethod: sinon.spy(function () {
             return p();
@@ -209,8 +206,7 @@ define(function (require, exports, module) {
           var args = view.navigate.args[0];
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'confirm');
-          assert.strictEqual(args[1].account, account);
-          assert.strictEqual(args[1].flow, flow);
+          assert.deepEqual(args[1], { account });
         });
 
         it('calls logFlowEvent correctly', () => {
@@ -245,8 +241,7 @@ define(function (require, exports, module) {
           var args = view.navigate.args[0];
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'confirm_signin');
-          assert.strictEqual(args[1].account, account);
-          assert.strictEqual(args[1].flow, flow);
+          assert.deepEqual(args[1], { account });
         });
 
         it('calls logFlowEvent correctly', () => {

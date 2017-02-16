@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
+  const SentryMetrics = require('lib/sentry');
   const sinon = require('sinon');
   const TestHelpers = require('../../lib/helpers');
   const User = require('models/user');
@@ -36,6 +37,7 @@ define(function (require, exports, module) {
     var metrics;
     var notifier;
     var relier;
+    var sentryMetrics;
     var user;
     var view;
     var windowMock;
@@ -66,8 +68,9 @@ define(function (require, exports, module) {
       able = new Able();
       broker = new Broker();
       fxaClient = new FxaClient();
-      metrics = new Metrics();
       notifier = new Notifier();
+      sentryMetrics = new SentryMetrics();
+      metrics = new Metrics({ notifier, sentryMetrics });
       relier = new Relier();
       user = new User({
         fxaClient: fxaClient,
@@ -220,22 +223,15 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterRender', function () {
-      var FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
-
-      beforeEach(function () {
-        $('body').data('flowId', FLOW_ID);
-        $('body').data('flowBegin', -1);
-        sinon.spy(metrics, 'setFlowModel');
+    describe('afterRender', () => {
+      beforeEach(() => {
+        sinon.spy(notifier, 'trigger');
         return view.afterRender();
       });
 
-      it('called metrics.setFlowModel correctly', function () {
-        assert.equal(metrics.setFlowModel.callCount, 1);
-        var args = metrics.setFlowModel.args[0];
-        assert.lengthOf(args, 1);
-        assert.equal(args[0].get('flowId'), FLOW_ID);
-        assert.equal(args[0].get('flowBegin'), -1);
+      it('called notifier.trigger correctly', () => {
+        assert.equal(notifier.trigger.callCount, 1);
+        assert.equal(notifier.trigger.args[0][0], 'flow.initialize');
       });
     });
 

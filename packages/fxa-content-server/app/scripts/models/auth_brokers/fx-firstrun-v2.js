@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const Constants = require('lib/constants');
   const FxFirstrunV1AuthenticationBroker = require('./fx-firstrun-v1');
-  const NotifierMixin = require('views/mixins/notifier-mixin');
+  const NotifierMixin = require('lib/channels/notifier-mixin');
 
   var proto = FxFirstrunV1AuthenticationBroker.prototype;
 

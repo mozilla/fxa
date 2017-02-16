@@ -32,8 +32,8 @@ define(function (require, exports, module) {
       sinon.stub(able, 'choose', function () {
         return 'treatment';
       });
-      metrics = new Metrics();
       notifier = new Notifier();
+      metrics = new Metrics({ notifier });
       storage = new Storage();
       user = new User({
         uniqueUserId: UUID
