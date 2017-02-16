@@ -2,17 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var _ = require('lodash');
-var logger = require('mozlog')('server.metrics-errors');
-var got = require('got');
-var querystring = require('querystring');
+'use strict';
+const _ = require('lodash');
+const logger = require('mozlog')('server.metrics-errors');
+const got = require('got');
+const querystring = require('querystring');
 
-var config = require('../configuration');
-var sentryConfig = config.get('sentry');
+const config = require('../configuration');
+const sentryConfig = config.get('sentry');
 
-var API_KEY = sentryConfig.api_key;
-var API_SECRET = sentryConfig.api_secret;
-var STACK_TRACE_LENGTH = 20;
+const API_KEY = sentryConfig.api_key;
+const API_SECRET = sentryConfig.api_secret;
+const STACK_TRACE_LENGTH = 20;
 
 /**
  * Attaches extra tags to sentry data
@@ -21,7 +22,7 @@ var STACK_TRACE_LENGTH = 20;
  * @returns {String} data - stringified Sentry data object with extra tags
  */
 function setExtraSentryData(data) {
-  var sentryData = null;
+  let sentryData = null;
   try {
     sentryData = JSON.parse(data);
   } catch (e) {
@@ -62,7 +63,7 @@ function reportError(query, body) {
     query['sentry_key'] = API_KEY;
     query['sentry_secret'] = API_SECRET;
     body = setExtraSentryData(body);
-    var newQuery = querystring.stringify(query);
+    const newQuery = querystring.stringify(query);
 
     got.post(sentryConfig.endpoint + '?' + newQuery, {
       body: body

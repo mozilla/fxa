@@ -119,7 +119,7 @@ define(function (require, exports, module) {
       });
 
       describe('errors', () => {
-        let err = AuthErrors.toError('UNEXPECTED_ERROR');
+        const err = AuthErrors.toError('UNEXPECTED_ERROR');
 
         beforeEach(() => {
           sinon.stub(account, 'sendUnblockEmail', () => p.reject(err));

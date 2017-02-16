@@ -2,35 +2,35 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
-var config = require('../configuration');
+'use strict';
+const config = require('../configuration');
 const flowEvent = require('../flow-event');
-var MetricsCollector = require('../metrics-collector-stderr');
-var StatsDCollector = require('../statsd-collector');
-var GACollector = require('../ga-collector');
-var logger = require('mozlog')('server.post-metrics');
+const MetricsCollector = require('../metrics-collector-stderr');
+const StatsDCollector = require('../statsd-collector');
+const GACollector = require('../ga-collector');
+const logger = require('mozlog')('server.post-metrics');
 
-var DISABLE_CLIENT_METRICS_STDERR = config.get('client_metrics').stderr_collector_disabled;
+const DISABLE_CLIENT_METRICS_STDERR = config.get('client_metrics').stderr_collector_disabled;
 
 module.exports = function () {
-  var metricsCollector = new MetricsCollector();
-  var statsd = new StatsDCollector();
-  var ga = new GACollector();
+  const metricsCollector = new MetricsCollector();
+  const statsd = new StatsDCollector();
+  const ga = new GACollector();
   statsd.init();
 
   return {
     method: 'post',
     path: '/metrics',
     process: function (req, res) {
-      var requestReceivedTime = Date.now();
+      const requestReceivedTime = Date.now();
 
       // don't wait around to send a response.
       res.json({ success: true });
 
       process.nextTick(function () {
-        var metrics = req.body || {};
+        let metrics = req.body || {};
 
-        var contentType = req.get('content-type') || '';
+        const contentType = req.get('content-type') || '';
         if (contentType.indexOf('text/plain') === 0) {
           try {
             metrics = JSON.parse(req.body);
@@ -56,4 +56,3 @@ module.exports = function () {
     }
   };
 };
-

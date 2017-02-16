@@ -6,8 +6,9 @@
 // in the HTML and this route is no longer needed
 // and a 410 (Gone) is returned.
 
+'use strict';
 module.exports = function () {
-  var route = {};
+  const route = {};
 
   route.method = 'get';
   route.path = '/config';
@@ -18,4 +19,3 @@ module.exports = function () {
 
   return route;
 };
-

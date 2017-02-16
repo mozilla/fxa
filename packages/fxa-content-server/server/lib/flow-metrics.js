@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var crypto = require('crypto');
+const crypto = require('crypto');
 
 const SALT_SIZE = 16;
 const SALT_STRING_LENGTH = SALT_SIZE * 2;
@@ -40,7 +40,7 @@ module.exports = {
 function createFlowEventData(key, salt, flowBeginTime, userAgent) {
   // Incorporate a hash of request metadata into the flow id,
   // so that receiving servers can cross-check the metrics bundle.
-  var flowSignature = crypto.createHmac('sha256', key)
+  const flowSignature = crypto.createHmac('sha256', key)
     .update([
       salt,
       flowBeginTime.toString(16),
@@ -58,4 +58,3 @@ function createFlowEventData(key, salt, flowBeginTime, userAgent) {
 function getFlowSignature (flowId) {
   return flowId.substr(SALT_STRING_LENGTH);
 }
-

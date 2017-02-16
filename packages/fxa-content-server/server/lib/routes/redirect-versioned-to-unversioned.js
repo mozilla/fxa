@@ -5,9 +5,11 @@
 /**
  * Redirects a versioned route to an unversioned route.
  */
+
+'use strict';
 module.exports = function (path) {
-  var VERSION_PREFIX = '/v1';
-  var VERSION_PREFIX_REGEXP = new RegExp('^' + VERSION_PREFIX);
+  const VERSION_PREFIX = '/v1';
+  const VERSION_PREFIX_REGEXP = new RegExp('^' + VERSION_PREFIX);
 
   function removeVersionPrefix(versionedUrl) {
     return versionedUrl.replace(VERSION_PREFIX_REGEXP, '');

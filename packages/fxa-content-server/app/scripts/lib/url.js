@@ -59,7 +59,7 @@ define(function (require, exports, module) {
      */
     objToSearchString (obj) {
       const params = [];
-      for (let paramName in obj) {
+      for (const paramName in obj) {
         const paramValue = obj[paramName];
         if (typeof paramValue !== 'undefined' && paramValue !== null) {
           params.push(paramName + '=' + encodeURIComponent(paramValue));

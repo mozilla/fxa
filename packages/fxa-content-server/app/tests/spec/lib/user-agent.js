@@ -34,7 +34,7 @@ define(function (require, exports, module) {
         ];
 
         androidUserAgentStrings.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isTrue(uap.isAndroid());
         });
       });
@@ -52,7 +52,7 @@ define(function (require, exports, module) {
         ];
 
         notAndroidUserAgentStrings.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isFalse(uap.isAndroid());
         });
       });
@@ -73,7 +73,7 @@ define(function (require, exports, module) {
         ];
 
         iosUserAgentStrings.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isTrue(uap.isIos());
         });
       });
@@ -94,7 +94,7 @@ define(function (require, exports, module) {
         ];
 
         notIosUserAgentStrings.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isFalse(uap.isIos());
         });
       });
@@ -117,7 +117,7 @@ define(function (require, exports, module) {
         ];
 
         firefoxUserAgentStrings.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isTrue(uap.isFirefox());
         });
       });
@@ -137,7 +137,7 @@ define(function (require, exports, module) {
         ];
 
         notFirefoxUserAgentStrings.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isFalse(uap.isFirefox());
         });
       });
@@ -151,7 +151,7 @@ define(function (require, exports, module) {
         ];
 
         fennecUserAgents.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isTrue(uap.isFirefoxAndroid(), userAgentString);
         });
       });
@@ -173,7 +173,7 @@ define(function (require, exports, module) {
         ];
 
         notFennecUserAgents.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isFalse(uap.isFirefoxAndroid(), userAgentString);
         });
       });
@@ -187,7 +187,7 @@ define(function (require, exports, module) {
         ];
 
         fxIosUserAgents.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isTrue(uap.isFirefoxIos(), userAgentString);
         });
       });
@@ -212,7 +212,7 @@ define(function (require, exports, module) {
         ];
 
         notFxIosUserAgents.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isFalse(uap.isFirefoxIos(), userAgentString);
         });
       });
@@ -235,7 +235,7 @@ define(function (require, exports, module) {
         ];
 
         fxDesktopUserAgents.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isTrue(uap.isFirefoxDesktop(), userAgentString);
         });
       });
@@ -261,7 +261,7 @@ define(function (require, exports, module) {
         ];
 
         notFxDesktopUserAgents.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isFalse(uap.isFirefoxDesktop(), userAgentString);
         });
       });
@@ -279,7 +279,7 @@ define(function (require, exports, module) {
         ];
 
         mobileSafariUserAgents.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isTrue(uap.isMobileSafari());
         });
       });
@@ -299,7 +299,7 @@ define(function (require, exports, module) {
         ];
 
         notMobileSafari.forEach((userAgentString) => {
-          let uap = new UserAgent(userAgentString);
+          const uap = new UserAgent(userAgentString);
           assert.isFalse(uap.isMobileSafari());
         });
       });
@@ -327,14 +327,14 @@ define(function (require, exports, module) {
 
           };
 
-          for (let userAgentString in toTest) {
+          for (const userAgentString in toTest) {
             testParseVersion(userAgentString);
           }
 
           function testParseVersion(userAgentString) {
-            let uap = new UserAgent(userAgentString);
-            let version = uap.parseVersion();
-            let expected = toTest[userAgentString];
+            const uap = new UserAgent(userAgentString);
+            const version = uap.parseVersion();
+            const expected = toTest[userAgentString];
             assert.deepEqual(version, expected);
           }
         });

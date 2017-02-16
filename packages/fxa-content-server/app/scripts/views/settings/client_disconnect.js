@@ -41,8 +41,8 @@ define(function (require, exports, module) {
     beforeRender () {
       // receive the device collection and the item to delete
       // if deleted the collection will be automatically updated in the settings panel.
-      let clients = this.model.get('clients');
-      let clientId = this.model.get('clientId');
+      const clients = this.model.get('clients');
+      const clientId = this.model.get('clientId');
       if (! clients || ! clientId) {
         return this._returnToClientList();
       }
@@ -83,7 +83,7 @@ define(function (require, exports, module) {
 
     submit () {
       const client = this.client;
-      let selectedValue = this.$('input[name=disconnect-reasons]:checked').val();
+      const selectedValue = this.$('input[name=disconnect-reasons]:checked').val();
       this.logViewEvent('submit.' + selectedValue);
 
       return this.user.destroyAccountClient(this.user.getSignedInAccount(), client)

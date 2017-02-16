@@ -5,17 +5,17 @@
 // A collector that accepts rum-diary-js-client stats, reformats them,
 // and sends them to stderr. Heka will listen to the events from stderr.
 
+'use strict';
+const os = require('os');
 
-var os = require('os');
-
-var HOSTNAME = os.hostname();
-var METRICS_OP = 'client.metrics';
-var MARKETING_OP = 'client.marketing';
-var VERSION = 1;
+const HOSTNAME = os.hostname();
+const METRICS_OP = 'client.metrics';
+const MARKETING_OP = 'client.marketing';
+const VERSION = 1;
 
 function addTime(loggableEvent) {
   // round the date to the nearest hour.
-  var today = new Date();
+  const today = new Date();
   today.setMinutes(0, 0, 0);
   loggableEvent.time = today.toISOString();
 }
@@ -47,9 +47,9 @@ function isValidNavigationTimingValue(value) {
 }
 
 function addNavigationTiming(loggableEvent, event) {
-  var navigationTiming = event.navigationTiming;
+  const navigationTiming = event.navigationTiming;
 
-  for (var key in navigationTiming) {
+  for (const key in navigationTiming) {
     if (isValidNavigationTimingValue(navigationTiming[key])) {
       loggableEvent['nt.' + key] = navigationTiming[key];
     }
@@ -83,7 +83,7 @@ function addScreenSize(loggableEvent, event) {
 }
 
 function toLoggableEvent(event) {
-  var loggableEvent = {};
+  const loggableEvent = {};
 
   // work off of a whitelist to ensure only data we care about is logged.
 
@@ -156,7 +156,7 @@ function StdErrCollector() {
 
 StdErrCollector.prototype = {
   write: function (event) {
-    var loggableEvent = toLoggableEvent(event);
+    const loggableEvent = toLoggableEvent(event);
     writeEntry(loggableEvent);
 
     processMarketingImpressions(event);

@@ -1218,7 +1218,7 @@ define(function (require, exports, module) {
 
       describe('different signed in user', () => {
         it('returns false', () => {
-          let signedInAccount = user.initAccount({
+          const signedInAccount = user.initAccount({
             email: 'testuser2@testuser.com',
             uid: 'uid2'
           });

@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var logger = require('mozlog')('server.routes');
+'use strict';
+const logger = require('mozlog')('server.routes');
 
 /**
  * Each route has 3 attributes: method, path and process.
@@ -15,9 +16,9 @@ function isValidRoute(route) {
 }
 
 module.exports = function (config, i18n) {
-  var redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
+  const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
 
-  var routes = [
+  const routes = [
     redirectVersionedToUnversioned('complete_reset_password'),
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),

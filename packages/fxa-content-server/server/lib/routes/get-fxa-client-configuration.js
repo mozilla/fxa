@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict';
 function normalizeUrl(url) {
   // Strip any trailing slashes.
   url = url.replace(/\/+$/, '');
@@ -15,11 +16,11 @@ function stripV1Suffix(url) {
 }
 
 module.exports = function (config) {
-  var route = {};
+  const route = {};
   route.method = 'get';
   route.path = '/.well-known/fxa-client-configuration';
 
-  var fxaClientConfig = {
+  const fxaClientConfig = {
     /*eslint-disable camelcase */
     // The content-server can accept fxaccount_url URL with or without
     // a /v1 suffix, but Firefox client code expects it without.
@@ -31,14 +32,14 @@ module.exports = function (config) {
 
   // This response will very rarely change, so enable caching by default.
   // It defaults to one day, and can be disabled by setting max_age to zero.
-  var maxAge = config.get('fxa_client_configuration.max_age');
+  let maxAge = config.get('fxa_client_configuration.max_age');
   if (maxAge) {
     maxAge = Math.floor(maxAge / 1000);  // the config value is in milliseconds
   }  else if (maxAge !== 0) {
     maxAge = 60 * 60 * 24;
   }
 
-  var cacheControlHeader = '';
+  let cacheControlHeader = '';
   if (maxAge) {
     cacheControlHeader = 'public, max-age=' + maxAge;
   }

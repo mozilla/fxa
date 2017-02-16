@@ -8,10 +8,11 @@
  * are redirected to some content that is available.
  */
 
-var url = require('url');
+'use strict';
+const url = require('url');
 
 module.exports = function () {
-  var route = {};
+  const route = {};
 
   route.method = 'get';
   route.path = /(signin|signup|reset_password)_complete/;
@@ -21,9 +22,9 @@ module.exports = function () {
     // as well as the verification tab. To keep life simple, assume everyone
     // who did this action is in the verification tab and send them to the
     // _verified screen.
-    var urlObj = url.parse(req.originalUrl);
+    const urlObj = url.parse(req.originalUrl);
     urlObj.pathname = urlObj.pathname.replace('_complete', '_verified');
-    var redirectTo = url.format(urlObj);
+    const redirectTo = url.format(urlObj);
     // Use a 302 until we are sure this train won't be rolled back to avoid
     // rollback and permanent redirect issues, I'm not sure how it could
     // happen, but it seems feasible the user tries to load a _complete screen,

@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict';
 module.exports = function (config) {
-  var STATIC_RESOURCE_URL = config.get('static_resource_url');
+  const STATIC_RESOURCE_URL = config.get('static_resource_url');
 
   return {
     method: 'get',

@@ -467,7 +467,7 @@ define(function (require, exports, module) {
 
             sinon.stub(fxaClient, 'signIn', () => {
               if (fxaClient.signIn.callCount === 1) {
-                let err = AuthErrors.toError('INCORRECT_EMAIL_CASE');
+                const err = AuthErrors.toError('INCORRECT_EMAIL_CASE');
                 err.email = EMAIL;
                 return p.reject(err);
               } else {
@@ -2043,7 +2043,7 @@ define(function (require, exports, module) {
     describe('populateFromResumeToken', () => {
       describe('ResumeToken contains `email`', () => {
         beforeEach(() => {
-          let resumeToken = new ResumeToken({ email: EMAIL });
+          const resumeToken = new ResumeToken({ email: EMAIL });
 
           account.unset('email');
           account.populateFromResumeToken(resumeToken);
@@ -2056,7 +2056,7 @@ define(function (require, exports, module) {
 
       describe('ResumeToken does not contain `email`', () => {
         beforeEach(() => {
-          let resumeToken = new ResumeToken({});
+          const resumeToken = new ResumeToken({});
 
           account.unset('email');
           account.populateFromResumeToken(resumeToken);

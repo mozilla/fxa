@@ -17,22 +17,23 @@
  * HTML is returned if `Accepts` is `text/html`
  */
 
-var path = require('path');
-var logger = require('mozlog')('route.get-terms-privacy');
-var config = require('../configuration');
+'use strict';
+const path = require('path');
+const logger = require('mozlog')('route.get-terms-privacy');
+const config = require('../configuration');
 
-var PAGE_TEMPLATE_DIRECTORY = path.join(config.get('page_template_root'), 'dist');
+const PAGE_TEMPLATE_DIRECTORY = path.join(config.get('page_template_root'), 'dist');
 
-var templates = require('../legal-templates');
+const templates = require('../legal-templates');
 
 module.exports = function verRoute (i18n) {
-  var DEFAULT_LANG = config.get('i18n.defaultLang');
-  var DEFAULT_LEGAL_LANG = config.get('i18n.defaultLegalLang');
-  var STATIC_RESOURCE_URL = config.get('static_resource_url');
+  const DEFAULT_LANG = config.get('i18n.defaultLang');
+  const DEFAULT_LEGAL_LANG = config.get('i18n.defaultLegalLang');
+  const STATIC_RESOURCE_URL = config.get('static_resource_url');
 
-  var getTemplate = templates(i18n, PAGE_TEMPLATE_DIRECTORY);
+  const getTemplate = templates(i18n, PAGE_TEMPLATE_DIRECTORY);
 
-  var route = {};
+  const route = {};
   route.method = 'get';
 
   // Match (allow for optional trailing slash):
@@ -43,8 +44,8 @@ module.exports = function verRoute (i18n) {
   route.path = /^\/(?:([a-zA-Z-\_]*)\/)?legal\/(terms|privacy)(?:\/)?$/;
 
   route.process = function (req, res, next) {
-    var lang = req.params[0] || req.lang;
-    var page = req.params[1];
+    const lang = req.params[0] || req.lang;
+    const page = req.params[1];
 
 
     if (isUserRefreshingPage(req)) {
@@ -64,7 +65,7 @@ module.exports = function verRoute (i18n) {
 
         res.format({
           'text/html': function () {
-            var context = {
+            const context = {
               // Note that staticResourceUrl is added to templates as a
               // build step
               staticResourceUrl: STATIC_RESOURCE_URL

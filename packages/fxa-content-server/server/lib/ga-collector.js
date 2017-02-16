@@ -2,20 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var extend = require('extend');
-var universalAnalytics = require('universal-analytics');
-var logger = require('mozlog')('server.ga');
-var config = require('./configuration');
+'use strict';
+const extend = require('extend');
+const universalAnalytics = require('universal-analytics');
+const logger = require('mozlog')('server.ga');
+const config = require('./configuration');
 
-var PUBLIC_URL = config.get('public_url');
-var ANALYTICS_ID = config.get('google_analytics_id');
-var SIGNUP_FLOW = 'Firefox Accounts Sign-up Flow';
-var SCREEN_EVENT_PREFIX = 'screen.';
+const PUBLIC_URL = config.get('public_url');
+const ANALYTICS_ID = config.get('google_analytics_id');
+const SIGNUP_FLOW = 'Firefox Accounts Sign-up Flow';
+const SCREEN_EVENT_PREFIX = 'screen.';
 
 // note: if you use labels (el), then a value must be present (ev).
 // See more details at http://event-tracking.com/ and
 // https://developers.google.com/analytics/devguides/collection/gajs/eventTrackerGuide
-var GA_EVENTS = {
+const GA_EVENTS = {
   'oauth.signup.success': {
     ea: 'registered',
     ec: SIGNUP_FLOW,
@@ -68,8 +69,8 @@ GACollector.prototype = {
       return;
     }
 
-    var self = this;
-    var visitor = universalAnalytics(ANALYTICS_ID, { debug: false, https: true });
+    const self = this;
+    const visitor = universalAnalytics(ANALYTICS_ID, { debug: false, https: true });
 
     body.events.forEach(function (event) {
       if (! (event.type && typeof event.type === 'string')) {
@@ -77,10 +78,10 @@ GACollector.prototype = {
         return;
       }
 
-      var extraData = self._getExtraData(body, event);
+      const extraData = self._getExtraData(body, event);
       // if it is a screen event then track it as a page view
       if (event.type.indexOf(SCREEN_EVENT_PREFIX) === 0) {
-        var pageEvent = {
+        const pageEvent = {
           // used to set pageview path
           dp: convertScreenEventToPath(event.type),
           hitType: 'screenview'
@@ -92,7 +93,7 @@ GACollector.prototype = {
       }
 
       if (GA_EVENTS[event.type]) {
-        var gaEvent = GA_EVENTS[event.type];
+        const gaEvent = GA_EVENTS[event.type];
         extraData.hitType = 'event';
 
         extend(gaEvent, extraData);
@@ -121,7 +122,7 @@ GACollector.prototype = {
       return 0;
     }
 
-    var offsetTime = startTime + offset;
+    const offsetTime = startTime + offset;
 
     return Math.max(0, flushTime - offsetTime);
   },
@@ -129,7 +130,7 @@ GACollector.prototype = {
   _getExtraData: function (body, event) {
     // see https://github.com/peaksandpies/universal-analytics/blob/master/AcceptableParams.md
     // for available list of parameters
-    var gaData = {
+    const gaData = {
       anonymizeIp: 1,
       campaignMedium: body.utm_medium,
       campaignName: body.utm_campaign,
@@ -148,7 +149,7 @@ GACollector.prototype = {
     gaData.qt = this._calculateQueueTime(body.startTime, body.flushTime, event.offset);
 
     if (body.screen) {
-      var screen = body.screen;
+      const screen = body.screen;
 
       // screen resolution and viewport parameter
       // https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters?hl=en#sr

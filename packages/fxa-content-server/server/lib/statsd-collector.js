@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
-var logger = require('mozlog')('server.statsd');
-var StatsD = require('node-statsd');
-var uaParser = require('node-uap');
+'use strict';
+const logger = require('mozlog')('server.statsd');
+const StatsD = require('node-statsd');
+const uaParser = require('node-uap');
 
 // An arbitrary choice of 2 minutes. Nothing scientific, it just seems
 // pages can be reasonably expected to load in under 2 minutes.
-var NAVIGATION_TIMING_MAX_OFFSET = 2 * 60 * 1000;
-var USER_ACTION_MAX_OFFSET = Infinity;
+const NAVIGATION_TIMING_MAX_OFFSET = 2 * 60 * 1000;
+const USER_ACTION_MAX_OFFSET = Infinity;
 
 const STORED_ACCOUNTS_MAX_COUNT = Infinity;
 // To avoid outliers, place an artificial upper limit on the
@@ -18,9 +18,9 @@ const STORED_ACCOUNTS_MAX_COUNT = Infinity;
 // use this instead.
 const STORED_ACCOUNTS_MAX_REPORTED_COUNT = 2;
 
-var STATSD_PREFIX = 'fxa.content.';
-var TIMING_POSTFIX = '.time';
-var TIMED_EVENTS = [
+const STATSD_PREFIX = 'fxa.content.';
+const TIMING_POSTFIX = '.time';
+const TIMED_EVENTS = [
   'loaded',
   'oauth.signin.success',
   'oauth.signup.success',
@@ -30,7 +30,7 @@ var TIMED_EVENTS = [
 
 function getGenericTags(body) {
   // see more about tags here: http://docs.datadoghq.com/guides/metrics/
-  var tags = [
+  let tags = [
     'context:' + body.context,
     'broker:' + body.broker,
     'entrypoint:' + body.entrypoint,
@@ -40,7 +40,7 @@ function getGenericTags(body) {
   ];
 
   // Append any utm params
-  var utmParams = [];
+  const utmParams = [];
   if (body.utm_content) {
     utmParams.push('utm_content:' + body.utm_content);
   }
@@ -56,7 +56,7 @@ function getGenericTags(body) {
   tags = tags.concat(utmParams);
 
   if (body.agent) {
-    var agent = uaParser.parse(body.agent);
+    const agent = uaParser.parse(body.agent);
     if (agent) {
       if (agent.ua) {
         tags = tags.concat([
@@ -129,11 +129,11 @@ function getImpressionTags(impression) {
 function sendEvents(context, events, tags) {
   if (events && events.length > 0) {
     events.forEach(function (event) {
-      var type = event.type;
+      const type = event.type;
       if (type) {
         context.increment(type, tags);
 
-        var offset = event.offset;
+        const offset = event.offset;
         if (isTimedEvent(type) && isEventOffsetValid(offset)) {
           if (isInRange(offset, 0, USER_ACTION_MAX_OFFSET)) {
             context.timing(type, offset, tags);
@@ -150,7 +150,7 @@ function sendMarketingImpressions(context, marketing, tags) {
   if (marketing && marketing.length > 0) {
     marketing.forEach(function (impression) {
       if (impression.campaignId && impression.url) {
-        var impressionTags = tags.concat(getImpressionTags(impression));
+        const impressionTags = tags.concat(getImpressionTags(impression));
         context.increment('marketing.impression', impressionTags);
       }
     });
@@ -160,11 +160,11 @@ function sendMarketingImpressions(context, marketing, tags) {
 
 function sendNavigationTiming(context, navigationTiming, tags) {
   if (navigationTiming) {
-    for (var key in navigationTiming) {
-      var offset = navigationTiming[key];
+    for (const key in navigationTiming) {
+      const offset = navigationTiming[key];
 
       if (isEventOffsetValid(offset)) {
-        var type = 'navigationTiming.' + key;
+        const type = 'navigationTiming.' + key;
 
         if (isInRange(offset, 0, NAVIGATION_TIMING_MAX_OFFSET)) {
           context.timing(type, offset, tags);
@@ -194,8 +194,8 @@ function sendNumStoredAccounts(context, numStoredAccounts, tags) {
 }
 
 function StatsDCollector() {
-  var config = require('./configuration');
-  var statsdConfig = config.get('statsd');
+  const config = require('./configuration');
+  const statsdConfig = config.get('statsd');
 
   this.host = statsdConfig.host;
   this.port = statsdConfig.port;
@@ -209,7 +209,7 @@ StatsDCollector.prototype = {
    * Initializes a StatsD socket client
    */
   init: function () {
-    var client = this.client = new StatsD(this.host, this.port);
+    const client = this.client = new StatsD(this.host, this.port);
 
     if (client.socket) {
       this.connected = true;
@@ -233,7 +233,7 @@ StatsDCollector.prototype = {
    */
   write: function (body) {
     if (body && this.connected) {
-      var tags = getGenericTags(body);
+      const tags = getGenericTags(body);
 
       sendEvents(this, body.events, tags);
       sendMarketingImpressions(this, body.marketing, tags);

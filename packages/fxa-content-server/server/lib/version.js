@@ -18,15 +18,16 @@
  *
  */
 
-var cp = require('child_process');
-var util = require('util');
-var path = require('path');
-var Promise = require('bluebird');
-var logger = require('mozlog')('server.version');
+'use strict';
+const cp = require('child_process');
+const util = require('util');
+const path = require('path');
+const Promise = require('bluebird');
+const logger = require('mozlog')('server.version');
 
-var UNKNOWN = 'unknown';
+const UNKNOWN = 'unknown';
 
-var versionJsonPath = '../../config/version.json';
+const versionJsonPath = '../../config/version.json';
 
 function getPkgVersion () {
   return require('../../package.json').version;
@@ -35,16 +36,16 @@ function getPkgVersion () {
 // commitHash and sourceRepo
 function getCommitHash () {
   try {
-    var versionInfo = require(versionJsonPath);
-    var ver = versionInfo.version;
+    const versionInfo = require(versionJsonPath);
+    const ver = versionInfo.version;
     return ver.hash;
   } catch (e) {
     /* ignore, shell out to `git` for hash */
   }
 
   return new Promise(function (resolve) {
-    var gitDir = path.resolve(__dirname, '..', '..', '.git');
-    var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
+    const gitDir = path.resolve(__dirname, '..', '..', '.git');
+    const cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
     cp.exec(cmd, function (err, stdout) {
       if (err) {
         // ignore the error
@@ -60,17 +61,17 @@ function getCommitHash () {
 
 function getSourceRepo () {
   try {
-    var versionInfo = require(versionJsonPath);
-    var ver = versionInfo.version;
+    const versionInfo = require(versionJsonPath);
+    const ver = versionInfo.version;
     return ver.source;
   } catch (e) {
     /* ignore, shell out to `git` for repo */
   }
 
   return new Promise(function (resolve) {
-    var gitDir = path.resolve(__dirname, '..', '..', '.git');
-    var configPath = path.join(gitDir, 'config');
-    var cmd = util.format('git config --file %s --get remote.origin.url', configPath);
+    const gitDir = path.resolve(__dirname, '..', '..', '.git');
+    const configPath = path.join(gitDir, 'config');
+    const cmd = util.format('git config --file %s --get remote.origin.url', configPath);
     cp.exec(cmd, function (err, stdout) {
       if (err) {
         // ignore the error
@@ -84,8 +85,8 @@ function getSourceRepo () {
 
 function getL10nVersion () {
   try {
-    var packagePath = '../../node_modules/fxa-content-server-l10n/package.json';
-    var packageData = require(packagePath);
+    const packagePath = '../../node_modules/fxa-content-server-l10n/package.json';
+    const packageData = require(packagePath);
     return packageData && packageData.gitHead;
   } catch (e) {
     /* ignore */
@@ -94,8 +95,8 @@ function getL10nVersion () {
 
 function getTosPpVersion () {
   try {
-    var bowerPath = '../../app/bower_components/tos-pp/.bower.json';
-    var bowerInfo = require(bowerPath);
+    const bowerPath = '../../app/bower_components/tos-pp/.bower.json';
+    const bowerInfo = require(bowerPath);
     return bowerInfo && bowerInfo._release;
   } catch (e) {
     /* ignore */
@@ -103,7 +104,7 @@ function getTosPpVersion () {
 }
 
 
-var versionPromise;
+let versionPromise;
 function getVersionInfo() {
   if (! versionPromise) {
     // only fetch version info if it has not already been fetched.

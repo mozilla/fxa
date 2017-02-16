@@ -5,15 +5,15 @@
 // Fetch a translated strings bundle. The best match will be found
 // by i18n-abide based on the users `accept-language` headers.
 
-
+'use strict';
 module.exports = function (i18n) {
-  var route = {};
+  const route = {};
   route.method = 'get';
   route.path = '/i18n/client.json';
 
   route.process = function (req, res, next) {
     // req.locale is set by abide in a previous middleware.
-    var locale = i18n.normalizeLocale(req.locale);
+    const locale = i18n.normalizeLocale(req.locale);
 
     req.url = '/i18n/' + locale + '/client.json';
 

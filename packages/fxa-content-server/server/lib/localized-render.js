@@ -13,13 +13,13 @@
  * is rendered.
  */
 
-
-var path = require('path');
-var config = require('./configuration');
-var useLocalizedTemplates = config.get('are_dist_resources');
+'use strict';
+const path = require('path');
+const config = require('./configuration');
+const useLocalizedTemplates = config.get('are_dist_resources');
 
 module.exports = function (config) {
-  var i18n = config.i18n;
+  const i18n = config.i18n;
 
   function getLocalizedTemplatePath(req, templateName) {
     return path.join(i18n.normalizeLocale(req.locale), templateName);
@@ -27,9 +27,9 @@ module.exports = function (config) {
 
   return function (req, res, next) {
     if (useLocalizedTemplates) {
-      var _render = res.render;
+      const _render = res.render;
       res.render = function (_template, args) {
-        var template = getLocalizedTemplatePath(req, _template);
+        const template = getLocalizedTemplatePath(req, _template);
         return _render.call(res, template, args);
       };
     }
@@ -37,4 +37,3 @@ module.exports = function (config) {
     next();
   };
 };
-

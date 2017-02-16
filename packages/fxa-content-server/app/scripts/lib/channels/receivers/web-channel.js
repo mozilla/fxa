@@ -31,7 +31,7 @@ define(function (require, exports, module) {
     },
 
     receiveMessage (event) {
-      let detail = event.detail;
+      const detail = event.detail;
 
       if (! (detail && detail.id)) {
         // malformed message
@@ -49,7 +49,7 @@ define(function (require, exports, module) {
       // https://bugzilla.mozilla.org/show_bug.cgi?id=1173830
       //
       // Ignore events with no `message` field.
-      let message = detail.message;
+      const message = detail.message;
       if (message && ! this._reportCaughtErrors(message)) {
         this.trigger('message', message);
       }
@@ -101,4 +101,3 @@ define(function (require, exports, module) {
 
   module.exports = WebChannelReceiver;
 });
-

@@ -23,7 +23,7 @@ define(function (require, exports, module) {
 
     // override this method so we can fix signup/signin links in errors
     unsafeDisplayError (err) {
-      let result = BaseView.prototype.unsafeDisplayError.call(this, err);
+      const result = BaseView.prototype.unsafeDisplayError.call(this, err);
 
       this.transformLinks();
 

@@ -24,9 +24,10 @@
  * and Fennec frame FxA but ignore the header.
  */
 
-var helmet = require('helmet');
-var uaParser = require('node-uap');
-var utils = require('./utils');
+'use strict';
+const helmet = require('helmet');
+const uaParser = require('node-uap');
+const utils = require('./utils');
 
 function isFrameGuardRequired(req) {
   if (req.method !== 'GET') {
@@ -53,7 +54,7 @@ function isContextAllowedToFrame(context, allowedContexts) {
 }
 
 function isUAAllowedToFrame(uaHeader) {
-  var agent = uaParser.parse(uaHeader);
+  const agent = uaParser.parse(uaHeader);
   // Only the firstrun page is allowed to frame. The firstrun page
   // was first available in Fx 40.
   return agent.ua.family === 'Firefox' &&
@@ -62,14 +63,14 @@ function isUAAllowedToFrame(uaHeader) {
 
 
 module.exports = function (config) {
-  var allowedContexts = config.get('allowed_iframe_contexts');
-  var allowedOrigins = config.get('allowed_parent_origins');
+  const allowedContexts = config.get('allowed_iframe_contexts');
+  const allowedOrigins = config.get('allowed_parent_origins');
 
-  var denyMiddleware = helmet.frameguard({
+  const denyMiddleware = helmet.frameguard({
     action: 'deny'
   });
 
-  var allowFromMiddlewareCache = {};
+  const allowFromMiddlewareCache = {};
   allowedOrigins.forEach(function (origin) {
     allowFromMiddlewareCache[origin] = helmet.frameguard({
       action: 'allow-from',
@@ -88,7 +89,7 @@ module.exports = function (config) {
 
     // If the origin is not specified or is not on the list
     // of acceptable origins, the denyMiddleware is used.
-    var middleware =
+    const middleware =
       allowFromMiddlewareCache[req.query.origin] || denyMiddleware;
 
     middleware(req, res, next);

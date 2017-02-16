@@ -21,7 +21,8 @@
 //
 // [1] https://support.google.com/webmasters/answer/93710
 
-var utils = require('./utils');
+'use strict';
+const utils = require('./utils');
 
 function isRobotsTagRequired(req) {
   // Only HTML pages need the robots control header.

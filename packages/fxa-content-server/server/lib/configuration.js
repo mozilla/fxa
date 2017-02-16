@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*eslint-disable camelcase */
-var convict = require('convict');
-var fs = require('fs');
-var path = require('path');
+'use strict';
+const convict = require('convict');
+const fs = require('fs');
+const path = require('path');
 
-var DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n.supportedLanguages;
+const DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n.supportedLanguages;
 
-var conf = module.exports = convict({
+const conf = module.exports = convict({
   allowed_iframe_contexts: {
     default: ['fx_firstrun_v2', 'iframe'],
     doc: 'context query parameters allowed to embed FxA within an IFRAME',
@@ -501,8 +502,8 @@ if (conf.get('env') === 'development') {
   conf.set('csp.enabled', true);
 }
 
-var DEV_CONFIG_PATH = path.join(__dirname, '..', 'config', 'local.json');
-var files;
+const DEV_CONFIG_PATH = path.join(__dirname, '..', 'config', 'local.json');
+let files;
 
 // handle configuration files.  you can specify a CSV list of configuration
 // files to process, which will be overlayed in order, in the CONFIG_FILES
@@ -532,7 +533,7 @@ if (! conf.has('static_resource_url')) {
 // For ops consistency with Browserid, we support HTTP_PROXY
 // special handling of HTTP_PROXY env var
 if (process.env.HTTP_PROXY) {
-  var p = process.env.HTTP_PROXY.split(':');
+  const p = process.env.HTTP_PROXY.split(':');
   conf.set('http_proxy.host', p[0]);
   conf.set('http_proxy.port', p[1]);
 }
@@ -550,8 +551,8 @@ if (conf.has('http_proxy.port')) {
 }
 
 // Ensure that supportedLanguages includes defaultLang.
-var defaultLang = conf.get('i18n.defaultLang');
-var supportedLanguages = conf.get('i18n.supportedLanguages');
+const defaultLang = conf.get('i18n.defaultLang');
+const supportedLanguages = conf.get('i18n.supportedLanguages');
 
 if (supportedLanguages.indexOf(defaultLang) === -1) {
   throw new Error('Configuration error: defaultLang (' + defaultLang + ') is missing from supportedLanguages');
@@ -559,8 +560,8 @@ if (supportedLanguages.indexOf(defaultLang) === -1) {
 
 // Ensure that static resources have been generated for each languages in the supported language list
 // Static resources are generated for each language in the default supported languages list, at least until issue #1434 is fixed
-var staticallyGeneratedLanguages = conf.default('i18n.supportedLanguages');
-var missingLangs = [];
+const staticallyGeneratedLanguages = conf.default('i18n.supportedLanguages');
+const missingLangs = [];
 supportedLanguages.forEach(function (l) {
   if (staticallyGeneratedLanguages.indexOf(l) === -1) {
     missingLangs.push(l);
@@ -570,9 +571,9 @@ if (missingLangs.length) {
   throw new Error('Configuration error: (' + missingLangs.join(', ') + ') is missing from the default list of supportedLanguages');
 }
 
-var areDistResources = conf.get('static_directory') === 'dist';
+const areDistResources = conf.get('static_directory') === 'dist';
 conf.set('are_dist_resources', areDistResources);
-var options = {
+const options = {
   strict: true
 };
 

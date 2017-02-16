@@ -2,28 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
-var fs = require('fs');
-var path = require('path');
-var Promise = require('bluebird');
-var logger = require('mozlog')('legal-templates');
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const Promise = require('bluebird');
+const logger = require('mozlog')('legal-templates');
 
 module.exports = function (i18n, root) {
 
-  var TOS_ROOT_PATH = path.join(root, 'terms');
-  var PP_ROOT_PATH = path.join(root, 'privacy');
+  const TOS_ROOT_PATH = path.join(root, 'terms');
+  const PP_ROOT_PATH = path.join(root, 'privacy');
 
   function getRoot(type) {
     return type === 'terms' ? TOS_ROOT_PATH : PP_ROOT_PATH;
   }
 
-  var templateCache = {};
+  const templateCache = {};
   function getTemplate(type, lang, defaultLang, defaultLegalLang) {
-    var DEFAULT_LOCALE = i18n.localeFrom(defaultLegalLang);
+    const DEFAULT_LOCALE = i18n.localeFrom(defaultLegalLang);
 
     // Filenames are normalized to locale, not language.
-    var locale = i18n.localeFrom(lang);
-    var templatePath = path.join(getRoot(type), locale + '.html');
+    const locale = i18n.localeFrom(lang);
+    const templatePath = path.join(getRoot(type), locale + '.html');
 
     return new Promise(function (resolve, reject) {
       // cache the promises to avoid multiple concurrent checks for
@@ -34,7 +34,7 @@ module.exports = function (i18n, root) {
 
       fs.exists(templatePath, function (exists) {
         if (! exists) {
-          var bestLang = i18n.bestLanguage(i18n.parseAcceptLanguage(lang));
+          let bestLang = i18n.bestLanguage(i18n.parseAcceptLanguage(lang));
           // If bestLang resolves to the default lang, replace it with
           // the default legal lang since they may differ. E.g. en-US
           // is the legal default while en is the general default.
@@ -43,7 +43,7 @@ module.exports = function (i18n, root) {
           }
 
           if (locale === DEFAULT_LOCALE) {
-            var err = new Error(type + ' missing `' + DEFAULT_LOCALE + '` template: ' + templatePath);
+            const err = new Error(type + ' missing `' + DEFAULT_LOCALE + '` template: ' + templatePath);
             return reject(err);
           } else if (lang !== bestLang) {
             logger.warn('`%s` does not exist, trying next best `%s`', lang, bestLang);

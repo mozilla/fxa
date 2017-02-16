@@ -75,10 +75,10 @@ define(function (require, exports, module) {
 
   function createRandomString(length, base = 36) {
     let str = '';
-    let alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
+    const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
 
     for (let i = 0; i < length; ++i) {
-      let indexToUse = Math.floor(Math.random() * base);
+      const indexToUse = Math.floor(Math.random() * base);
       str += alphabet.charAt(indexToUse);
     }
 

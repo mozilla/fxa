@@ -69,7 +69,7 @@ define(function (require, exports, module) {
     },
 
     context () {
-      let clients = this._attachedClients.toJSON();
+      const clients = this._attachedClients.toJSON();
 
       return {
         clients: this._formatAccessTimeAndScope(clients),

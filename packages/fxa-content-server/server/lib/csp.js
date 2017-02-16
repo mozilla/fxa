@@ -7,15 +7,16 @@
 // exception for the /tests/index.html path, which are the frontend unit
 // tests.
 
-var helmet = require('helmet');
-var utils = require('./utils');
+'use strict';
+const helmet = require('helmet');
+const utils = require('./utils');
 
 function isCspRequired(req) {
   if (req.method !== 'GET') {
     return false;
   }
 
-  var path = req.path;
+  const path = req.path;
   // is the user running tests? No CSP.
   if (path === '/tests/index.html') {
     return false;
@@ -26,7 +27,7 @@ function isCspRequired(req) {
 }
 
 module.exports = function (config) {
-  var cspMiddleware = helmet.contentSecurityPolicy(config.rules);
+  const cspMiddleware = helmet.contentSecurityPolicy(config.rules);
 
   return function (req, res, next) {
     if (! isCspRequired(req)) {

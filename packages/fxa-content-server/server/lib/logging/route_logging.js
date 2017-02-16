@@ -5,22 +5,22 @@
 
 // Middleware to log the requests
 
-var logger = require('mozlog')('server.requests');
-var morgan = require('morgan');
-var config = require('../configuration');
+const logger = require('mozlog')('server.requests');
+const morgan = require('morgan');
+const config = require('../configuration');
 
 /**
  * Enhances connect logger middleware - custom formats.
  * See lib/configuration for usage.
  */
-var formats = {
+const formats = {
   'default_fxa': ':remote-addr - - ":method :url HTTP/:http-version" :status :response-time :res[content-length] ":referrer" ":user-agent"',
 
   'dev_fxa': ':method :url :status :response-time'
 };
 
 // Used when logging is disabled
-var disabled = function (req, res, next) {
+const disabled = function (req, res, next) {
   next();
 };
 

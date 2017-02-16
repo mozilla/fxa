@@ -7,10 +7,11 @@
  * we can add some extra logic checks if needed. This follows similar pattern as CSP.
  */
 
-var helmet = require('helmet');
+'use strict';
+const helmet = require('helmet');
 
 module.exports = function (config) {
-  var hpkpMiddleware = helmet.hpkp({
+  const hpkpMiddleware = helmet.hpkp({
     includeSubdomains: config.get('hpkp.includeSubDomains'),
     maxAge: config.get('hpkp.maxAge'), // param is now seconds since Helmet 3
     reportOnly: config.get('hpkp.reportOnly'),

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict';
 const _ = require('lodash');
 const config = require('./configuration');
 const flowMetrics = require('./flow-metrics');
@@ -127,12 +128,12 @@ function isValidProperty (propertyValue, pattern) {
 }
 
 function estimateTime (times) {
-  var skew = times.received - times.sent;
+  const skew = times.received - times.sent;
   return times.start + times.offset + skew;
 }
 
 function logFlowEvent (event, data, request) {
-  var eventData = _.assign({
+  const eventData = _.assign({
     event: event.type,
     flow_id: data.flowId, //eslint-disable-line camelcase
     flow_time: Math.floor(event.flowTime), //eslint-disable-line camelcase
@@ -193,4 +194,3 @@ function optionallySetFallbackData (eventData, key, fallback) {
     eventData[key] = limitLength(fallback);
   }
 }
-

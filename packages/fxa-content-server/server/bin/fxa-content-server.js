@@ -4,24 +4,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict';
+const bodyParser = require('body-parser');
+const consolidate = require('consolidate');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const express = require('express');
+const fs = require('fs');
+const helmet = require('helmet');
+const https = require('https');
+const mozlog = require('mozlog');
+const path = require('path');
+const serveStatic = require('serve-static');
 
-var bodyParser = require('body-parser');
-var consolidate = require('consolidate');
-var cookieParser = require('cookie-parser');
-var cors = require('cors');
-var express = require('express');
-var fs = require('fs');
-var helmet = require('helmet');
-var https = require('https');
-var mozlog = require('mozlog');
-var path = require('path');
-var serveStatic = require('serve-static');
-
-var config = require('../lib/configuration');
-var raven = require('../lib/raven');
+const config = require('../lib/configuration');
+const raven = require('../lib/raven');
 
 // This can't possibly be best way to librar-ify this module.
-var isMain = process.argv[1] === __filename;
+const isMain = process.argv[1] === __filename;
 if (isMain) {
   // ./server is our current working directory
   process.chdir(path.dirname(__dirname));
@@ -29,36 +29,36 @@ if (isMain) {
 
 mozlog.config(config.get('logging'));
 
-var logger = require('mozlog')('server.main');
+const logger = require('mozlog')('server.main');
 
 
-var i18n = require('../lib/i18n')(config.get('i18n'));
-var routes = require('../lib/routes')(config, i18n);
+const i18n = require('../lib/i18n')(config.get('i18n'));
+const routes = require('../lib/routes')(config, i18n);
 
 // Side effect - Adds default_fxa and dev_fxa to express.logger formats
-var routeLogging = require('../lib/logging/route_logging');
+const routeLogging = require('../lib/logging/route_logging');
 
-var noindex = require('../lib/noindex');
-var fourOhFour = require('../lib/404');
-var serverErrorHandler = require('../lib/500');
-var localizedRender = require('../lib/localized-render');
-var csp = require('../lib/csp');
-var hpkp = require('../lib/hpkp');
-var cspRulesBlocking = require('../lib/csp/blocking')(config);
-var cspRulesReportOnly = require('../lib/csp/report-only')(config);
-var frameGuard = require('../lib/frame-guard')(config);
+const noindex = require('../lib/noindex');
+const fourOhFour = require('../lib/404');
+const serverErrorHandler = require('../lib/500');
+const localizedRender = require('../lib/localized-render');
+const csp = require('../lib/csp');
+const hpkp = require('../lib/hpkp');
+const cspRulesBlocking = require('../lib/csp/blocking')(config);
+const cspRulesReportOnly = require('../lib/csp/report-only')(config);
+const frameGuard = require('../lib/frame-guard')(config);
 
 
-var STATIC_DIRECTORY =
+const STATIC_DIRECTORY =
   path.join(__dirname, '..', '..', config.get('static_directory'));
 
-var PAGE_TEMPLATE_DIRECTORY =
+const PAGE_TEMPLATE_DIRECTORY =
   path.join(config.get('page_template_root'), config.get('page_template_subdirectory'));
 
 logger.info('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY);
 
 function makeApp() {
-  var app = express();
+  const app = express();
 
   app.engine('html', consolidate.handlebars);
   app.set('view engine', 'html');
@@ -117,7 +117,7 @@ function makeApp() {
     type: ['json', '*/json', 'application/csp-report']
   }));
 
-  var ableOptions = {
+  const ableOptions = {
     addRoutes: true,
     dir: config.get('experiments.dir'),
     git: config.get('experiments.git'),
@@ -129,7 +129,7 @@ function makeApp() {
   if (isCorsRequired()) {
     // JS, CSS and web font resources served from a CDN
     // will be ignored unless CORS headers are present.
-    var corsOptions = {
+    const corsOptions = {
       origin: config.get('public_url')
     };
 
@@ -157,8 +157,8 @@ function makeApp() {
   return app;
 }
 
-var app;
-var port;
+let app;
+let port;
 
 function catchStartUpErrors(e) {
   if ('EACCES' === e.code) {
@@ -175,7 +175,7 @@ function listen(theApp) {
   if (config.get('use_https')) {
     // Development only... Ops runs this behind nginx
     port = config.get('port');
-    var tlsoptions = {
+    const tlsoptions = {
       cert: fs.readFileSync(config.get('cert_path')),
       key: fs.readFileSync(config.get('key_path'))
     };
@@ -193,12 +193,12 @@ function listen(theApp) {
 }
 
 function makeHttpRedirectApp () {
-  var redirectProtocol = config.get('use_https') ? 'https://' : 'http://';
-  var redirectPort = port === 443 ? '' : ':' + port;
+  const redirectProtocol = config.get('use_https') ? 'https://' : 'http://';
+  const redirectPort = port === 443 ? '' : ':' + port;
 
-  var httpApp = express();
+  const httpApp = express();
   httpApp.get('*', function (req, res) {
-    var redirectTo = redirectProtocol + req.host + redirectPort + req.url;
+    const redirectTo = redirectProtocol + req.host + redirectPort + req.url;
 
     res.redirect(301, redirectTo);
   });
@@ -207,7 +207,7 @@ function makeHttpRedirectApp () {
 }
 
 function listenHttpRedirectApp(httpApp) {
-  var httpPort = config.get('use_https') ? config.get('redirect_port') : config.get('http_port');
+  const httpPort = config.get('use_https') ? config.get('redirect_port') : config.get('http_port');
 
   httpApp.listen(httpPort, '0.0.0.0');
   if (isMain) {
@@ -223,7 +223,7 @@ if (isMain) {
   app = makeApp();
   listen(app);
 
-  var httpApp = makeHttpRedirectApp();
+  const httpApp = makeHttpRedirectApp();
   listenHttpRedirectApp(httpApp);
 } else {
   module.exports = {

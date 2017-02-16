@@ -9,7 +9,8 @@
  * @see lib/routes/get-version.json.js
  */
 
-var version = require('../version');
+'use strict';
+const version = require('../version');
 
 exports.path = '/ver.json';
 exports.method = 'get';

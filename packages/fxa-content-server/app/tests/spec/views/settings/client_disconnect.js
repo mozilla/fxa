@@ -23,7 +23,7 @@ define(function (require, exports, module) {
     let attachedClients;
     let clientId;
     let metrics;
-    let model = new Backbone.Model();
+    const model = new Backbone.Model();
     let notifier;
     let relier;
     let user;

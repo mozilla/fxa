@@ -6,13 +6,14 @@
  * Route to report CSP Violations to metrics
  */
 
-var _ = require('lodash');
-var url = require('url');
+'use strict';
+const _ = require('lodash');
+const url = require('url');
 
 module.exports = function (options) {
   options = options || {};
 
-  var write = options.write || function (entry) {
+  const write = options.write || function (entry) {
     process.stderr.write(JSON.stringify(entry) + '\n');
   };
 
@@ -26,11 +27,11 @@ module.exports = function (options) {
         return false;
       }
 
-      var today = new Date();
+      const today = new Date();
       today.setMinutes(0, 0, 0);
-      var report = req.body['csp-report'];
+      const report = req.body['csp-report'];
 
-      var entry = {
+      const entry = {
         agent: req.get('User-Agent'),
         blocked: report['blocked-uri'],
         column: report['column-number'],
@@ -61,7 +62,7 @@ function stripPIIFromUrl(urlToScrub) {
     return '';
   }
 
-  var parsedUrl;
+  let parsedUrl;
 
   try {
     parsedUrl = url.parse(urlToScrub, true);

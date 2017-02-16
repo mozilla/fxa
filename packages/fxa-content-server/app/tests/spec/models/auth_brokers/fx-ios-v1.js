@@ -21,7 +21,7 @@ define(function (require, exports, module) {
   describe('models/auth_brokers/fx-ios-v1', () => {
     let broker;
     let channel;
-    let loginMessageDelayMS = 250;
+    const loginMessageDelayMS = 250;
     let relier;
     let windowMock;
 

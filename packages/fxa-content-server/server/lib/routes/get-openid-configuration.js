@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict';
+const config = require('../configuration');
 
-var config = require('../configuration');
+const authorizationEndpoint = config.get('oauth_url') + '/v1/authorization';
+const issuer = config.get('public_url');
+const jwksEndpoint = config.get('oauth_url') + '/v1/jwks';
+const tokenEndpoint = config.get('oauth_url') + '/v1/token';
+const userInfoEndpoint = config.get('profile_url') + '/v1/profile';
 
-var authorizationEndpoint = config.get('oauth_url') + '/v1/authorization';
-var issuer = config.get('public_url');
-var jwksEndpoint = config.get('oauth_url') + '/v1/jwks';
-var tokenEndpoint = config.get('oauth_url') + '/v1/token';
-var userInfoEndpoint = config.get('profile_url') + '/v1/profile';
-
-var openidConfig = {
+const openidConfig = {
   /*eslint-disable camelcase */
   authorization_endpoint: authorizationEndpoint,
   issuer: issuer,
@@ -20,13 +20,13 @@ var openidConfig = {
   userinfo_endpoint: userInfoEndpoint,
 };
 
-var c = config.get('openid_configuration');
-for (var key in c) {
+const c = config.get('openid_configuration');
+for (const key in c) {
   openidConfig[key] = c[key];
 }
 
 module.exports = function (config) {
-  var route = {};
+  const route = {};
   route.method = 'get';
   route.path = '/.well-known/openid-configuration';
 

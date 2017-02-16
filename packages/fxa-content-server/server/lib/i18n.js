@@ -13,12 +13,14 @@
  */
 
 /*eslint-disable camelcase */
+
+'use strict';
 module.exports = function (config) {
 
   // this is perhaps a bit janky. In dev mode, a `t` helper needs to be
   // registered to render text in the static templates. Without the helper,
   // all {{#t}} surrounded text is empty.
-  var handlebars = require('handlebars');
+  const handlebars = require('handlebars');
   // This file is used by both the build system and the server.
   // If part of the build system, `t` is already defined. Do not re-register
   // or else the static templates are not translated.
@@ -33,10 +35,10 @@ module.exports = function (config) {
   }
 
 
-  var abide = require('i18n-abide');
+  const abide = require('i18n-abide');
 
   // Convert the array to an object for faster lookups
-  var fontSupportDisabled = config.fonts.unsupportedLanguages
+  const fontSupportDisabled = config.fonts.unsupportedLanguages
     .reduce(function (prev, val) {
       prev[val] = true;
       return prev;
@@ -50,7 +52,7 @@ module.exports = function (config) {
   // bundled into a function; we're going to hide that fact with a
   // bit of a wrapper API, returning the function as if it were a
   // stateful object with helper methods.
-  var abideMiddleware = abide.abide(
+  const abideMiddleware = abide.abide(
     {
       debug_lang: config.debugLang,
       default_lang: abide.localeFrom(config.defaultLang),
@@ -62,11 +64,11 @@ module.exports = function (config) {
   );
 
   // Wrap the abide middleware so we can set fontSupport
-  var abideObj = function (req, res, next) {
+  const abideObj = function (req, res, next) {
     // Call the abide middleware with our own `next` function
     // so that we can modify the request object afterward.
     abideMiddleware(req, res, function (val) {
-      var lang = abide.normalizeLanguage(req.lang);
+      const lang = abide.normalizeLanguage(req.lang);
       res.locals.fontSupportDisabled = req.fontSupportDisabled = fontSupportDisabled[lang];
       next(val);
     });
@@ -106,19 +108,19 @@ module.exports = function (config) {
   // This gives us the properties that i18n-abide attaches to the request
   // object, without actually having to be an express app.
   abideObj.localizationContext = function (acceptLang) {
-    var fakeReq = {headers: {}, url: ''};
-    var fakeResp = {};
+    const fakeReq = {headers: {}, url: ''};
+    const fakeResp = {};
     if (acceptLang) {
       fakeReq.headers['accept-language'] = acceptLang;
     }
-    var callWasSynchronous = false;
+    let callWasSynchronous = false;
     abideObj(fakeReq, fakeResp, function () {
       callWasSynchronous = true;
     });
     if (! callWasSynchronous) {
       throw new Error('uh-oh, the call to i18n-abide was not synchronous!');
     }
-    var l10n = {};
+    const l10n = {};
     l10n.lang = fakeReq.lang;
     l10n.lang_dir = fakeResp.locals.lang_dir;
     l10n.locale = fakeReq.locale;

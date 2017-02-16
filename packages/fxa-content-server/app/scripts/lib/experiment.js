@@ -114,7 +114,7 @@ define(function (require, exports, module) {
         return;
       }
 
-      for (let experimentName in this._allExperiments) {
+      for (const experimentName in this._allExperiments) {
         if (this.isInExperiment(experimentName)) {
           this.createExperiment(experimentName);
         }
