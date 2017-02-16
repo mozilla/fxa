@@ -32,6 +32,10 @@ var ERRNO = {
   ACCOUNT_RESET: 126,
   INVALID_UNBLOCK_CODE: 127,
   // MISSING_TOKEN: 128,
+  INVALID_PHONE_NUMBER: 129,
+  INVALID_REGION: 130,
+  INVALID_MESSAGE_ID: 131,
+  MESSAGE_REJECTED: 132,
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   UNEXPECTED_ERROR: 999
@@ -474,6 +478,51 @@ AppError.invalidUnblockCode = function () {
     errno: ERRNO.INVALID_UNBLOCK_CODE,
     message: 'Invalid unblock code'
   })
+}
+
+AppError.invalidPhoneNumber = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_PHONE_NUMBER,
+    message: 'Invalid phone number'
+  })
+}
+
+AppError.invalidRegion = region => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_REGION,
+    message: 'Invalid region'
+  }, {
+    region
+  })
+}
+
+AppError.invalidMessageId = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_MESSAGE_ID,
+    message: 'Invalid message id'
+  })
+}
+
+AppError.messageRejected = (reason, reasonCode) => {
+  return new AppError({
+    code: 500,
+    error: 'Bad Request',
+    errno: ERRNO.MESSAGE_REJECTED,
+    message: 'Message rejected'
+  }, {
+    reason,
+    reasonCode
+  })
+}
+
+AppError.unexpectedError = () => {
+  return new AppError({})
 }
 
 module.exports = AppError

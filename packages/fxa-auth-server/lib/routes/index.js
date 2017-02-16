@@ -17,6 +17,7 @@ module.exports = function (
   signer,
   db,
   mailer,
+  smsImpl,
   Password,
   config,
   customs
@@ -59,6 +60,7 @@ module.exports = function (
   )
   const session = require('./session')(log, isA, error, db)
   const sign = require('./sign')(log, P, isA, error, signer, db, config.domain, devices)
+  const smsRoute = require('./sms')(log, isA, error, config, customs, smsImpl)
   const util = require('./util')(
     log,
     random,
@@ -75,6 +77,7 @@ module.exports = function (
     password,
     session,
     sign,
+    smsRoute,
     util
   )
   v1Routes.forEach(r => { r.path = basePath + '/v1' + r.path })

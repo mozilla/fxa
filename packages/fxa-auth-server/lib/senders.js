@@ -2,22 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('./promise')
-var createMailer = require('fxa-auth-mailer')
+'use strict'
 
-module.exports = function (config, log) {
-  var defaultLanguage = config.i18n.defaultLanguage
+const P = require('./promise')
+const createSenders = require('fxa-auth-mailer')
 
-  return createMailer(
+module.exports = (config, log) => {
+  const defaultLanguage = config.i18n.defaultLanguage
+
+  return createSenders(
     log,
     {
       locales: config.i18n.supportedLanguages,
       defaultLanguage: defaultLanguage,
-      mail: config.smtp
+      mail: config.smtp,
+      sms: config.sms
     }
   )
   .then(
-    function (mailer) {
+    senders => {
+      const mailer = senders.email
       mailer.sendVerifyCode = function (account, code, opts) {
         return P.resolve(mailer.verifyEmail(
           {
@@ -151,7 +155,7 @@ module.exports = function (config, log) {
           }
         ))
       }
-      return mailer
+      return senders
     }
   )
 }

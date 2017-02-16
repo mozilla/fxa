@@ -567,6 +567,32 @@ var conf = convict({
       format: Array,
       env: 'HPKP_PIN_SHA256'
     }
+  },
+  sms: {
+    enabled: {
+      doc: 'Indicates whether POST /sms is enabled',
+      default: true,
+      format: Boolean,
+      env: 'SMS_ENABLED'
+    },
+    apiKey: {
+      doc: 'API key for the SMS service',
+      default: 'YOU MUST CHANGE ME',
+      format: String,
+      env: 'SMS_API_KEY'
+    },
+    apiSecret: {
+      doc: 'API secret for the SMS service',
+      default: 'YOU MUST CHANGE ME',
+      format: String,
+      env: 'SMS_API_SECRET'
+    },
+    installFirefoxLink: {
+      doc: 'Link for the installFirefox SMS template',
+      format: 'url',
+      default: 'https://mzl.la/1HOd4ec',
+      env: 'SMS_INSTALL_FIREFOX_LINK'
+    }
   }
 })
 

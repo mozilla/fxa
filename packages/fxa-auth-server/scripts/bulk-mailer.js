@@ -248,7 +248,7 @@ function createMailer () {
     locales: config.i18n.supportedLanguages,
     defaultLanguage: defaultLanguage,
     mail: config.smtp
-  }, sender)
+  }, sender).email
 }
 
 function checkRequiredOption(optionName) {

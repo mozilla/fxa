@@ -12,9 +12,9 @@ describe('mailer locales', () => {
 
   let mailer
   before(() => {
-    return require('../../../lib/mailer')(config, log)
-      .then(m => {
-        mailer = m
+    return require('../../../lib/senders')(config, log)
+      .then(result => {
+        mailer = result.email
       })
   })
 

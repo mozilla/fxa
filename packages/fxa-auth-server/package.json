@@ -45,6 +45,7 @@
     "fxa-geodb": "0.0.7",
     "fxa-jwtool": "0.7.1",
     "fxa-shared": "1.0.3",
+    "google-libphonenumber": "2.0.10",
     "hapi": "14.2.0",
     "hapi-auth-hawk": "3.0.1",
     "hapi-fxa-oauth": "2.2.0",

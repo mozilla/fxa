@@ -64,7 +64,7 @@ function main() {
 
   var Server = require('../lib/server')
   var server = null
-  var mailer = null
+  var senders = null
   var statsInterval = null
   var database = null
   var customs = null
@@ -74,10 +74,10 @@ function main() {
     log.stat(Password.stat())
   }
 
-  require('../lib/mailer')(config, log)
+  require('../lib/senders')(config, log)
     .done(
-      function(m) {
-        mailer = m
+      function(result) {
+        senders = result
 
         var DB = require('../lib/db')(
           config,
@@ -102,7 +102,8 @@ function main() {
                 serverPublicKeys,
                 signer,
                 db,
-                mailer,
+                senders.email,
+                senders.sms,
                 Password,
                 config,
                 customs
@@ -148,7 +149,7 @@ function main() {
       function () {
         customs.close()
         try {
-          mailer.stop()
+          senders.email.stop()
         } catch (e) {
           // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
           log.warn({ op: 'shutdown', message: 'Mailer client already disconnected' })

@@ -56,6 +56,7 @@ in a sign-in or sign-up flow:
 |`email.verification.resent`|A sign-up verification email has been re-sent to a user.|
 |`email.verify_code.clicked`|A user has clicked on the link in a confirmation/verification email.|
 |`email.${templateName}.delivered`|An email was delivered to a user.|
+|`sms.${templateName}.sent`|An SMS message has been sent to a user's phone.|
 |`account.confirmed`|Sign-in to an existing account has been confirmed via email.|
 |`account.reminder`|A new account has been verified via a reminder email.|
 |`account.verified`|A new account has been verified via email.|

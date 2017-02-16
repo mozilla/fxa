@@ -54,7 +54,8 @@ const FLOW_EVENT_ROUTES = new Set([
   '/account/login/send_unblock_code',
   '/account/reset',
   '/recovery_email/resend_code',
-  '/recovery_email/verify_code'
+  '/recovery_email/verify_code',
+  '/sms'
 ])
 
 const PATH_PREFIX = /^\/v1/
