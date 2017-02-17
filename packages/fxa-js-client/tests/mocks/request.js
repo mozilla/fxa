@@ -254,6 +254,10 @@ define([
     rejectUnblockCode: {
       status: 200,
       body: '{}'
+    },
+    sendSmsConnectDevice: {
+      status: 200,
+      body: '{}'
     }
   };
 });
