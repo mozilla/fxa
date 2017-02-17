@@ -62,13 +62,17 @@ define(function (require, exports, module) {
         return false;
       }
 
-      for (var notificationName in notifications) {
-        var method = notifications[notificationName];
-        if (_.isString(method)) {
-          method = consumer[method];
-        }
-
-        if (_.isFunction(method)) {
+      for (let notificationName in notifications) {
+        let method = notifications[notificationName];
+        if (_.isString(method) && _.isFunction(consumer[method])) {
+          this.on(notificationName, (...args) => {
+            // The level of indirection is used to allow for
+            // late-binding when using sinon spies & stubs.
+            // Without indirection, the original function is
+            // always called.
+            consumer[method](...args);
+          });
+        } else if (_.isFunction(method)) {
           this.on(notificationName, method.bind(consumer));
         }
       }
@@ -158,4 +162,3 @@ define(function (require, exports, module) {
 
   module.exports = NotifierMixin;
 });
-

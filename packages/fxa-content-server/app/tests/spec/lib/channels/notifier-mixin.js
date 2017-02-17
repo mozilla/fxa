@@ -5,14 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const { assert } = require('chai');
   const BaseView = require('views/base');
-  const chai = require('chai');
   const Cocktail = require('cocktail');
   const Notifier = require('lib/channels/notifier');
   const NotifierMixin = require('lib/channels/notifier-mixin');
   const sinon = require('sinon');
-
-  var assert = chai.assert;
 
   describe('lib/channels/notifier-mixin', function () {
     var data = { uid: 'foo' };
@@ -24,7 +22,9 @@ define(function (require, exports, module) {
       functionHandlerSpy = sinon.spy();
 
       var ConsumingView = BaseView.extend({
-        notificationHandler: sinon.spy(),
+        notificationHandler () {
+          // intentionally empty, a spy is added later.
+        },
 
         notifications: {
           'function-handler': functionHandlerSpy,
@@ -58,10 +58,11 @@ define(function (require, exports, module) {
     describe('auto-binding of notifier', function () {
       describe('with a string for the handler', function () {
         beforeEach(function () {
+          sinon.spy(view, 'notificationHandler');
           notifier.trigger('string-handler');
         });
 
-        it('calls the correct handler', function () {
+        it('calls the correct handler, even if handler is a spy', function () {
           assert.isTrue(view.notificationHandler.called);
         });
       });
@@ -168,4 +169,3 @@ define(function (require, exports, module) {
     });
   });
 });
-
