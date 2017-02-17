@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>{{t "Firefox Accounts"}}</title>
+</head>
+
+<body style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; margin: 0; padding: 0;">
+<table align="center" border="0" cellpadding="0" cellspacing="0" width="310" style="-webkit-text-size-adjust: 100%; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 310px; margin: 0 auto;">
+
+<!--Logo-->
+<tr style="page-break-before: always">
+  <td align="center" id="firefox-logo" style="padding: 20px 0;">
+    {{^if sync}}
+      <img src="http://image.e.mozilla.org/lib/fe9915707361037e75/m/2/fxlogojg.gif" height="95" width="88" alt="" style="-ms-interpolation-mode: bicubic;" />
+    {{/if}}
+    {{#if sync}}
+      <img src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/3/fxa_dec2016.jpeg" height="152" width="310" alt="" style="-ms-interpolation-mode: bicubic;" />
+    {{/if}}
+  </td>
+</tr>
+
+<% block content %><% endblock %>
+
+<tr style="page-break-before: always">
+  <td valign="top">
+    <p style="font-family: sans-serif; font-weight: normal; margin: 0; text-align: center; color: #8A9BA8; font-size: 11px; line-height: 18px; width: 310px !important; word-wrap:break-word">Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+    <br />
+    <a href="{{{privacyUrl}}}" style="color: #0996f8; text-decoration: none; font-family: sans-serif; font-size: 11px; line-height: 18px;">{{t "Mozilla Privacy Policy" }}</a></p>
+  </td>
+</tr>
+
+</table>
+<% block after_table %><% endblock %>
+</body>
+</html>

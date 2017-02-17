@@ -1,0 +1,41 @@
+<% extends "partials/base/base.html" %>
+
+<% block content %>
+<!--Header Area-->
+<tr style="page-break-before: always">
+  <td valign="top">
+    <h1 style="font-family: sans-serif; font-size: 21px; line-height: 29px; font-weight: normal; margin: 0 0 11px 0; text-align: center;">{{t "Forgot your password?"}}</h1>
+    <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;">{{{t "Click the button within the next hour to set a new password for your Firefox Account. The request came from the following device:" }}}</p>
+    <% include "./location/location.html" %>
+  </td>
+</tr>
+
+<!--Button Area-->
+<tr height="50">
+  <td align="center" valign="top">
+    <table border="0" cellpadding="0" cellspacing="0" height="100%" width="310" id="email-button" style="-webkit-text-size-adjust: 100%; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #0996f8; border-radius: 4px; height: 50px; width: 310px !important;">
+      <tr style="page-break-before: always">
+        <td align="center" valign="middle" id="button-content" style="font-family: sans-serif; font-weight: normal; text-align: center; margin: 0; color: #ffffff; font-size: 20px; line-height: 100%;">
+          <!--[if mso]>
+          <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{{link}}}" style="width:280px;height:40px;v-text-anchor:middle;" arcsize="10%" stroke="f" fillcolor="#0996f8">
+            <w:anchorlock/>
+            <center>
+          <![endif]-->
+          <a href="{{{link}}}" id="button-link" style="font-family:sans-serif; color: #fff; display: block; padding: 15px; text-decoration: none; width: 280px; font-size: 18px; line-height: 26px;">{{t "Reset password"}}</a>
+          <!--[if mso]>
+          </center>
+          </v:roundrect>
+          <![endif]-->
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<!--Button Area-->
+<tr style="page-break-before: always">
+  <td border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
+    <br/>
+    <p class="secondary" style="font-family: sans-serif; font-weight: normal; margin: 0 0 12px 0; text-align: center; color: #8A9BA8; font-size: 11px; line-height: 18px; width: 310px !important; word-wrap:break-word">{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit <a %(supportLinkAttributes)s>Mozilla Support</a>."}}}</p>
+  </td>
+</tr>
+<% endblock %>

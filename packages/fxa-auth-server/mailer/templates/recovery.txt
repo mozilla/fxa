@@ -1,0 +1,15 @@
+{{t "Forgot your password?"}}
+
+{{{t "Click the button within the next hour to set a new password for your Firefox Account. The request came from the following device:" }}}
+
+{{ device }}
+{{#if location}}{{ location }}{{/if}}
+{{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
+{{#if timestamp}}{{ timestamp }}{{/if}}
+
+{{t "Reset password"}} {{{link}}}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+{{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}

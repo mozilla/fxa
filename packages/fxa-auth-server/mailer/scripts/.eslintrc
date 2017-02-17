@@ -1,0 +1,6 @@
+{
+  "rules": {
+    "handle-callback-err": 0,
+    "no-console": 0
+  }
+}

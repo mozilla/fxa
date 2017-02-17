@@ -1,0 +1,9 @@
+{{t "Still there?"}}
+
+{{t "A week ago you created a Firefox Account, but never verified it. We’re worried about you. Confirm this email address to activate your account and let us know you're okay."}}
+{{t "Activate now:"}} {{{link}}}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+{{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}

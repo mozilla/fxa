@@ -1,0 +1,11 @@
+# new string staging area
+
+# second reminder
+{{t "Still there?" }}
+{{t "A while ago you created a Firefox Account, but never verified it. Click the link below to activate your account." }}
+
+# post verify
+{{t "You successfully connected your first device to your Firefox Account. Now you can sign in to Sync from your other devices, including Firefox for <a href='%(androidUrl)s'>Android</a> and <a href='%(iosUrl)s'>iOS</a>." }}
+{{t "You successfully connected your first device to your Firefox Account. To make the most of Sync, connect any <a href='%(androidUrl)s'>Firefox for Android</a> or <a href='%(iosUrl)s'>Firefox for iOS</a>."}}
+{{t "Connect another device"}}
+{{t "Sign in to Sync"}}
