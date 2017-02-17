@@ -579,6 +579,29 @@ define([
     return this.parent.execute(openWindow, [ url, name ]);
   });
 
+  /**
+   * Switch to a new window/tab
+   *
+   * @param {Number} which - tab index to switch to
+   * @returns {Promise}
+   */
+  const switchToWindow = thenify(function (which) {
+    return this.parent
+      .getAllWindowHandles()
+      .then(function (handles) {
+        if (handles[which]) {
+          return this.parent.switchToWindow(handles[which]);
+        } else {
+          // give a little time to open the browser tab, otherwise
+          // geckodriver sometimes attempts to switch to the tab
+          // before it's open. See #4740
+          return this.parent
+            .sleep(1000)
+            .then(switchToWindow(which));
+        }
+      });
+  });
+
   function openWindow (url, name) {
     var newWindow = window.open(url, name || 'newwindow');
 
@@ -1617,6 +1640,7 @@ define([
     pollUntil: pollUntil,
     pollUntilGoneByQSA: pollUntilGoneByQSA,
     respondToWebChannelMessage: respondToWebChannelMessage,
+    switchToWindow: switchToWindow,
     takeScreenshot: takeScreenshot,
     testAreEventsLogged: testAreEventsLogged,
     testAttribute: testAttribute,

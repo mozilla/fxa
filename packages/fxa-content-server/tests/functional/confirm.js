@@ -22,6 +22,7 @@ define([
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  var switchToWindow = FunctionalHelpers.switchToWindow;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
@@ -78,10 +79,7 @@ define([
         .then(testElementExists('#fxa-confirm-header'))
         .then(click('[data-webmail-type="restmail"]'))
 
-        .getAllWindowHandles()
-          .then(function (handles) {
-            return this.parent.switchToWindow(handles[1]);
-          })
+        .then(switchToWindow(1))
 
           // wait until url is correct
         .then(FunctionalHelpers.pollUntil(function (email) {
