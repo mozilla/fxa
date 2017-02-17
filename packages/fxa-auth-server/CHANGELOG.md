@@ -1,3 +1,18 @@
+<a name="1.81.0"></a>
+# [1.81.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.80.0...v1.81.0) (2017-02-17)
+
+
+### Bug Fixes
+
+* **config:** change reminder poll for many servers (#257), r=@vbudhram ([a721920](https://github.com/mozilla/fxa-auth-mailer/commit/a721920))
+* **git:** update husky to unbreak git hooks on ubuntu (#258) r=vladikoff ([83e9458](https://github.com/mozilla/fxa-auth-mailer/commit/83e9458))
+
+### Features
+
+* **mailer:** add support for sending SMS messages ([3bc1027](https://github.com/mozilla/fxa-auth-mailer/commit/3bc1027))
+
+
+
 <a name="1.80.0"></a>
 # [1.80.0](https://github.com/mozilla/fxa-auth-mailer/compare/v1.79.0...v1.80.0) (2017-02-07)
 
