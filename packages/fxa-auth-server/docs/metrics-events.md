@@ -104,18 +104,18 @@ contains the following fields:
 
 |Name|Description|
 |----|-----------|
-|`flow_id`|The flow identifier.|
+|`flow_id`|The flow identifier. A randomly-generated opaque id.|
 |`begin_time`|The time at which the `flow.begin` event occurred.|
 |`duration`|The length of time from the `flow.begin` event until the last event of the flow.|
 |`completed`|Boolean indicating whether the flow was successfully completed.|
 |`new_account`|Boolean indicating whether the flow was a sign-up.|
-|`ua_browser`|The user's web browser.|
+|`ua_browser`|The user's web browser, e.g. 'Firefox' or 'Chrome'.|
 |`ua_version`|The user's browser version.|
-|`ua_os`|The user's operating system.|
-|`context`|FxA auth broker context.|
-|`entrypoint`|The entrypoint of the first flow in the session.|
+|`ua_os`|The user's operating system, e.g. 'Windows 10' or 'Android'.|
+|`context`|FxA auth broker context. This is related to browser platform and version |
+|`entrypoint`|The entrypoint of the first flow in the session. Typically a UI touchpoint like "preferences".|
 |`migration`|Sync migration.|
-|`service`|The service identifier. For Sync it may be empty or `sync`. For OAuth reliers it is their hex id.|
+|`service`|The service identifier. For Sync it may be empty or `sync`. For OAuth reliers it is their hex client id.|
 |`utm_campaign`|Marketing campaign identifier for the first flow in the session. Not stored if the `DNT` request header was `1`.|
 |`utm_content`|Marketing campaign content identifier for the first flow in the session. Not stored if the `DNT` request header was `1`.|
 |`utm_medium`|Marketing campaign medium for the first flow in the session. Not stored if the `DNT` request header was `1`.|
@@ -160,8 +160,8 @@ with the following fields:
 |----|-----------|
 |`timestamp`|The time at which the event occurred.|
 |`type`|The name of the event.|
-|`uid`|The user id, HMACed so as not to leak PII.|
-|`device_id`|Optional. The id of the device record.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db.|
+|`device_id`|Optional. The id of the device record.  This *does* correlate back to a record the FxA user db.|
 |`service`|Optional. The id of the requesting service. For Sync this may be `'sync'` or the empty string.|
 |`ua_browser`|The user's web browser.|
 |`ua_version`|The user's browser version.|
