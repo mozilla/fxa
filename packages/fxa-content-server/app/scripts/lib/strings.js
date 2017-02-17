@@ -39,6 +39,9 @@ define(function (require, exports, module) {
   t('IP address: %(ip)s');
   t('For added security, please confirm this sign-in to begin syncing with this device:');
 
+  // The words "Web Session" are coming soon to the device & apps view, see #4585.
+  t('Web Session');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
