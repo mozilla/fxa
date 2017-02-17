@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const FormView = require('views/form');
   const MarketingMixin = require('views/mixins/marketing-mixin');
+  const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/ready');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
@@ -53,7 +54,6 @@ define(function (require, exports, module) {
 
   /*eslint-enable camelcase*/
 
-  const proto = FormView.prototype;
   const View = FormView.extend({
     template: Template,
     className: 'ready',
@@ -116,13 +116,6 @@ define(function (require, exports, module) {
       return !! (this.isSignUp() &&
                  redirectUri &&
                  verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS);
-    },
-
-    afterRender () {
-      var graphic = this.$el.find('.graphic');
-      graphic.addClass('pulse');
-
-      return proto.afterRender.call(this);
     }
   });
 
@@ -130,6 +123,7 @@ define(function (require, exports, module) {
     View,
     ExperimentMixin,
     MarketingMixin({ marketingId: Constants.MARKETING_ID_SPRING_2015 }),
+    PulseGraphicMixin,
     ServiceMixin,
     VerificationReasonMixin
   );

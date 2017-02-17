@@ -140,6 +140,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/password-prompt-mixin',
     '../tests/spec/views/mixins/password-reset-mixin',
     '../tests/spec/views/mixins/password-strength-mixin',
+    '../tests/spec/views/mixins/pulse-graphic-mixin',
     '../tests/spec/views/mixins/resend-mixin',
     '../tests/spec/views/mixins/resume-token-mixin',
     '../tests/spec/views/mixins/service-mixin',

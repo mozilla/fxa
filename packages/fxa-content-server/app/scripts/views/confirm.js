@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
   const p = require('lib/promise');
+  const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
   const ResendMixin = require('views/mixins/resend-mixin');
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
@@ -88,9 +89,6 @@ define(function (require, exports, module) {
     },
 
     afterRender () {
-      var graphic = this.$el.find('.graphic');
-      graphic.addClass('pulse');
-
       this.transformLinks();
       return proto.afterRender.call(this);
     },
@@ -187,6 +185,7 @@ define(function (require, exports, module) {
     BackMixin,
     ExperimentMixin,
     OpenConfirmationEmailMixin,
+    PulseGraphicMixin,
     ResendMixin,
     ResumeTokenMixin,
     ServiceMixin,
