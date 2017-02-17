@@ -14,11 +14,9 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const KeyCodes = require('lib/key-codes');
 
-  var BackMixin = {
+  module.exports = {
     _canGoBack: false,
-    initialize (options) {
-      options = options || {};
-
+    initialize (options = {}) {
       this._canGoBack = options.canGoBack;
     },
 
@@ -52,11 +50,14 @@ define(function (require, exports, module) {
      * @param {Object} [nextViewData] - data to send to the next(last) view.
      */
     back (nextViewData) {
-      this.logViewEvent('back');
+      if (this.canGoBack()) {
+        this._canGoBack = false;
+        this.logViewEvent('back');
 
-      this.notifier.trigger('navigate-back', {
-        nextViewData: nextViewData
-      });
+        this.notifier.trigger('navigate-back', {
+          nextViewData
+        });
+      }
     },
 
     /**
@@ -81,6 +82,4 @@ define(function (require, exports, module) {
       return !! this._canGoBack;
     }
   };
-
-  module.exports = BackMixin;
 });

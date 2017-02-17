@@ -5,21 +5,23 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const { assert } = require('chai');
   const BackMixin = require('views/mixins/back-mixin');
   const BaseView = require('views/base');
-  const Chai = require('chai');
   const Cocktail = require('cocktail');
   const KeyCodes = require('lib/key-codes');
   const Notifier = require('lib/channels/notifier');
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
 
-  var assert = Chai.assert;
-
-  var View = BaseView.extend({
+  const View = BaseView.extend({
     template: TestTemplate
   });
-  Cocktail.mixin(View, BackMixin);
+
+  Cocktail.mixin(
+    View,
+    BackMixin
+  );
 
   describe('views/mixins/back-mixin', function () {
     var notifier;
@@ -29,6 +31,7 @@ define(function (require, exports, module) {
       notifier = new Notifier();
 
       view = new View({
+        canGoBack: true,
         notifier: notifier,
         screenName: 'back-screen'
       });
@@ -37,11 +40,14 @@ define(function (require, exports, module) {
     });
 
     describe('back', function () {
-      it('triggers the `navigate-back` message on the notifier', function () {
+      it('triggers `navigate-back` message on the notifier once', function () {
         sinon.spy(notifier, 'trigger');
 
         view.back({ nextViewField: 'value' });
+        // The second invocation should be ignored.
+        view.back();
 
+        assert.isTrue(notifier.trigger.calledOnce);
         assert.isTrue(
           notifier.trigger.calledWith('navigate-back', {
             nextViewData: {
