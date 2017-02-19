@@ -119,9 +119,7 @@ define(function (require, exports, module) {
      */
     viewName: '',
 
-    constructor: function (options) {
-      options = options || {};
-
+    constructor: function (options = {}) {
       this.broker = options.broker;
       this.currentPage = options.currentPage;
       this.model = options.model || new Backbone.Model();
@@ -142,6 +140,23 @@ define(function (require, exports, module) {
       // of its mixins) results in a clobbered events hash.
       // Just mix the ExternalLinksMixin's events in.
       _.extend(this.events, ExternalLinksMixin.events);
+
+      // Replace any string declarations with a standin
+      // that looks up the function by name when invoked.
+      // The extra level of indirection allows sinon
+      // spies & stubs to be used on DOM event handlers.
+      // Without indirection, the original function is
+      // always called.
+      for (let eventName in this.events) {
+        const method = this.events[eventName];
+        if (_.isString(method) && _.isFunction(this[method])) {
+          // a function must be used instead of a fat arrow
+          // or else Backbone will not add the handler.
+          this.events[eventName] = function (...args) {
+            this[method](...args);
+          };
+        }
+      }
 
       /**
        * Prefer the `viewName` set on the object prototype. ChildViews

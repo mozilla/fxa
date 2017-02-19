@@ -27,22 +27,24 @@ define(function (require, exports, module) {
   const VerificationMethods = require('lib/verification-methods');
   const WindowMock = require('../../mocks/window');
 
-  var requiresFocus = TestHelpers.requiresFocus;
-  var wrapAssertion = TestHelpers.wrapAssertion;
+  const { requiresFocus, wrapAssertion } = TestHelpers;
 
   describe('views/base', function () {
-    var broker;
-    var metrics;
-    var model;
-    var notifier;
-    var relier;
-    var translator;
-    var user;
-    var view;
-    var viewName = 'view';
-    var windowMock;
+    let broker;
+    let metrics;
+    let model;
+    let notifier;
+    let relier;
+    let translator;
+    let user;
+    let view;
+    let viewName = 'view';
+    let windowMock;
 
-    var View = BaseView.extend({
+    const View = BaseView.extend({
+      events: {
+        'click #required': '_onRequiredClick'
+      },
       layoutClassName: 'layout',
       template: Template,
       context: function () {
@@ -50,6 +52,10 @@ define(function (require, exports, module) {
           error: this.model.get('templateWrittenError'),
           success: this.model.get('templateWrittenSuccess')
         };
+      },
+
+      _onRequiredClick () {
+        // intentionally left empty, a spy is attached.
       }
     });
 
@@ -1071,6 +1077,15 @@ define(function (require, exports, module) {
         const filteredSearchParams = view.getSearchParams('another');
         assert.notProperty(filteredSearchParams, 'search');
         assert.equal(filteredSearchParams.another, '2');
+      });
+    });
+
+    describe('events handling', () => {
+      it('calls spys on DOM event handlers', () => {
+        sinon.spy(view, '_onRequiredClick');
+
+        view.$('#required').click();
+        assert.isTrue(view._onRequiredClick.calledOnce);
       });
     });
   });
