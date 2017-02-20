@@ -78,13 +78,18 @@ define([
 
         .then(testElementExists('#fxa-settings-header'))
 
-        // synthesize signin pre-#4470 with incorrect email case
-        .then(denormalizeStoredEmail(email))
-
         // reset prefill and context
         .then(clearSessionStorage())
 
         .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
+        // synthesize signin pre-#4470 with incorrect email case.
+        // to avoid a timing issue where the de-normalized email was
+        // being overwritten in localStorage when denormalization was
+        // done on the settings page, wait for the signin page to load,
+        // denormalize, then refresh. See #4711
+        .then(denormalizeStoredEmail(email))
+        .refresh()
+        .then(testElementExists('#fxa-signin-header'))
 
         // email is not yet denormalized :(
         .then(testElementValueEquals('.email', email.toUpperCase()))
