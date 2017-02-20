@@ -2628,6 +2628,11 @@
         }
       }
     },
+    "lodash.isequal": {
+      "version": "4.5.0",
+      "from": "lodash.isequal@4.5.0",
+      "resolved": "https://registry.npmjs.org/lodash.isequal/-/lodash.isequal-4.5.0.tgz"
+    },
     "lodash.merge": {
       "version": "4.6.0",
       "from": "lodash.merge@4.6.0",
@@ -3970,7 +3975,7 @@
           "dependencies": {
             "argparse": {
               "version": "1.0.9",
-              "from": "argparse@>=1.0.2 <2.0.0",
+              "from": "argparse@>=1.0.7 <2.0.0",
               "resolved": "https://registry.npmjs.org/argparse/-/argparse-1.0.9.tgz",
               "dependencies": {
                 "sprintf-js": {

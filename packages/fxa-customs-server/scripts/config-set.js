@@ -23,6 +23,7 @@ var Memcached = require('memcached')
 var P = require('bluebird')
 var BL = require('bl')
 var merge = require('lodash.merge')
+var isEqual = require('lodash.isequal')
 
 P.promisifyAll(Memcached.prototype)
 
@@ -40,9 +41,29 @@ function writeMergedSettings(mc, key, newSettings) {
   return mc.getAsync(key)
     .then(
       function (settings) {
+        if (typeof newSettings !== 'object' || Array.isArray(newSettings)) {
+          throw new Error('tried to merge non-Object-typed settings value')
+        }
         settings = settings || {}
         merge(settings, newSettings)
         return mc.setAsync(key, settings, 0)
+      }
+    )
+}
+
+function clobberSettings(mc, key, newSettings) {
+  return mc.getAsync(key)
+    .then(
+      function (settings) {
+        if (! Array.isArray(newSettings)) {
+          throw new Error('tried to clobber non-Array-typed settings value')
+        }
+        if (settings && ! isEqual(settings, newSettings)) {
+          console.warn('Clobbering existing settings for "' + key + '":')
+          console.warn('Old:', settings)
+          console.warn('New:', newSettings)
+        }
+        return mc.setAsync(key, newSettings, 0)
       }
     )
 }
@@ -65,11 +86,13 @@ process.stdin.on('end', function () {
   }
 
   if (input.allowedIPs) {
-    actions.push(writeMergedSettings(mc, 'allowedIPs', input.allowedIPs))
+    // It's an array, we can't sensibly merge it.
+    actions.push(clobberSettings(mc, 'allowedIPs', input.allowedIPs))
   }
 
   if (input.allowedEmailDomains) {
-    actions.push(writeMergedSettings(mc, 'allowedEmailDomains', input.allowedEmailDomains))
+    // It's an array, we can't sensibly merge it.
+    actions.push(clobberSettings(mc, 'allowedEmailDomains', input.allowedEmailDomains))
   }
 
   if (input.requestChecks) {
