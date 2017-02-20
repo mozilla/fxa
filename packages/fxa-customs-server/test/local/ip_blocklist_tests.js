@@ -16,7 +16,10 @@ var log = {
 
 var config = {
   ipBlocklist: {
-    updatePollInterval: 1 // 1 Second
+    updatePollInterval: 1, // 1 Second
+    logOnlyLists: [
+      './test/mocks/logOnlyList.netset'
+    ]
   }
 }
 
@@ -207,6 +210,37 @@ test(
       .then(function () {
         ipBlocklist.clear()
         t.equal(ipBlocklist.ipBlocklists.length, 0, 'empty blocklist')
+        t.end()
+      })
+  }
+)
+
+test(
+  'IPBlocklistManager, logOnly',
+  function (t) {
+    var ipBlocklist = new IPBlocklistManager()
+
+    ipBlocklist.load(lists, config.ipBlocklist.logOnlyLists)
+      .then(function () {
+        var result = ipBlocklist.contains('86.75.30.9')
+        t.equal(result, false, 'return false for not found ip')
+        t.end()
+      })
+  }
+)
+
+test(
+  'IPBlocklistManager, load fails on non array',
+  function (t) {
+    var ipBlocklist = new IPBlocklistManager()
+
+    ipBlocklist.load('./somepath')
+      .then(function () {
+        t.fail('Failed to load csv')
+        t.end()
+      })
+      .catch(function (err) {
+        t.assert('lists must be an array', err.message)
         t.end()
       })
   }

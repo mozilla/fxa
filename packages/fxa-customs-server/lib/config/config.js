@@ -207,17 +207,17 @@ module.exports = function (fs, path, url, convict) {
         default: false,
         env: 'IP_BLOCKLIST_ENABLE'
       },
-      logOnly: {
-        doc: 'Flag to only log hits',
-        format: Boolean,
-        default: true,
-        env: 'IP_BLOCKLIST_LOGONLY'
-      },
       lists: {
-        doc: 'A array of ip blocklist file paths',
+        doc: 'An array of ip blocklist file paths that should be blocked',
         format: Array,
         default: [],
         env: 'IP_BLOCKLIST_FILES'
+      },
+      logOnlyLists: {
+        doc: 'An array of ip blocklist file paths that should be logged only',
+        format: Array,
+        default: [],
+        env: 'IP_BLOCKLIST_LOG_ONLY_FILES'
       },
       updatePollInterval: {
         doc: 'Poll interval for checking for updated lists (seconds)',

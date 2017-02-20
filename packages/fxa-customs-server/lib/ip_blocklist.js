@@ -53,14 +53,16 @@ module.exports = function (log, config) {
     this.pollInterval = null
   }
 
-  IPBlocklist.prototype.load = function (filePath) {
+  IPBlocklist.prototype.load = function (listPath) {
     var self = this
 
     var newIpsByPrefixLength = {}
     var newPrefixLengths = []
 
     // Resolve file path to an absolute location
-    filePath = path.resolve(filePath)
+    // Resolve file path to an absolute location
+    var filePath = path.resolve(listPath)
+    self.listPath = listPath
     self.filePath = filePath
     self.fileName = path.basename(filePath)
 

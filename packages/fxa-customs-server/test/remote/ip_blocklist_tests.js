@@ -10,13 +10,17 @@ var mcHelper = require('../memcache-helper')
 var TEST_EMAIL = 'test@example.com'
 var ACTION = 'dummyAction'
 var BLOCK_IP = '1.93.0.224'
+var LOG_ONLY_BOTH_LIST_IP = '1.93.0.225'
+var LOG_ONLY_IP = '86.75.30.9'
 var BLOCK_IP_INRANGE = '0.1.0.0'
 var VALID_IP = '3.0.0.0'
 
 process.env.IP_BLOCKLIST_ENABLE = true
-process.env.IP_BLOCKLIST_LOGONLY = false
 process.env.IP_BLOCKLIST_FILES = [
   './../test/mocks/simple.netset'
+]
+process.env.IP_BLOCKLIST_LOG_ONLY_FILES = [
+  './../test/mocks/logOnlyList.netset'
 ]
 
 var config = {
@@ -85,6 +89,30 @@ test(
     client.postAsync('/check', {ip: VALID_IP, email: TEST_EMAIL, action: ACTION},
       function (err, req, res, obj) {
         t.equal(obj.block, false, 'request is not blocked')
+        t.end()
+      }
+    )
+  }
+)
+
+test(
+  'should log only on hit from logOnly list',
+  function (t) {
+    client.postAsync('/check', {ip: LOG_ONLY_IP, email: TEST_EMAIL, action: ACTION},
+      function (err, req, res, obj) {
+        t.equal(obj.block, false, 'request is not blocked')
+        t.end()
+      }
+    )
+  }
+)
+
+test(
+  'should block request on hit form logOnly and blocklist',
+  function (t) {
+    client.postAsync('/check', {ip: LOG_ONLY_BOTH_LIST_IP, email: TEST_EMAIL, action: ACTION},
+      function (err, req, res, obj) {
+        t.equal(obj.block, true, 'request is blocked')
         t.end()
       }
     )

@@ -22,7 +22,7 @@ module.exports = function createServer(config, log) {
   if (config.ipBlocklist.enable) {
     var IPBlocklistManager = require('./ip_blocklist_manager')(log, config)
     var blockListManager = new IPBlocklistManager()
-    startupDefers.push(blockListManager.load(config.ipBlocklist.lists))
+    startupDefers.push(blockListManager.load(config.ipBlocklist.lists, config.ipBlocklist.logOnlyLists))
     blockListManager.pollForUpdates()
   }
 
@@ -196,11 +196,9 @@ module.exports = function createServer(config, log) {
             // and not return a retryAfter because it is not known
             // when they would be removed from blocklist
             if (config.ipBlocklist.enable && blockListManager.contains(ip)) {
-              if (!config.ipBlocklist.logOnly) {
-                block = true
-                blockReason = blockReasons.IP_IN_BLOCKLIST
-                retryAfter = 0
-              }
+              block = true
+              blockReason = blockReasons.IP_IN_BLOCKLIST
+              retryAfter = 0
             }
 
             if (reputationService.isBlockBelow(reputation)) {

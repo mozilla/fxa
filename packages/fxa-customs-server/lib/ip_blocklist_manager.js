@@ -16,11 +16,11 @@ module.exports = function (log, config) {
     this.ipBlocklists = []
   }
 
-  IPBlocklistManager.prototype.load = function (lists) {
+  IPBlocklistManager.prototype.load = function (lists, logOnlyLists) {
     var self = this
 
-    if (!Array.isArray(lists)) {
-      throw Error('lists must be an array')
+    if (!Array.isArray(lists) || (logOnlyLists && !Array.isArray(logOnlyLists))) {
+      return Promise.reject(Error('lists must be an array'))
     }
 
     // Initialize and load a blocklist for each file path
@@ -29,6 +29,16 @@ module.exports = function (log, config) {
       self.ipBlocklists.push(blocklist)
       return blocklist.load(listPath)
     })
+
+    if (logOnlyLists) {
+      loadedLists = loadedLists.concat(logOnlyLists.map(function (listPath) {
+        var blocklist = new IPBlocklist()
+        blocklist.logOnly = true
+        self.ipBlocklists.push(blocklist)
+        return blocklist.load(listPath)
+      }))
+    }
+
 
     return Promise.all(loadedLists)
   }
@@ -45,13 +55,17 @@ module.exports = function (log, config) {
 
     // Go through all blocklists and check if there is a match on the
     // ipAddress. We explicitly don't exit the loop on a hit because
-    // we want to see all lists that hit for given ip address.
-    var listhits = []
+    // we want to see all lists that hit for given ip address. If there
+    // is a hit on a logOnlyList, it is considered not found.
+    var listhitPaths = []
     self.ipBlocklists.forEach(function (blocklist) {
       var containsIpAddress = blocklist.contains(ipAddress)
-      if (!found && containsIpAddress) {
-        found = true
-        listhits.push(blocklist.fileName)
+      if (containsIpAddress) {
+        if (!found && !blocklist.logOnly) {
+          found = true
+        }
+
+        listhitPaths.push(blocklist.listPath)
       }
     })
 
@@ -60,7 +74,8 @@ module.exports = function (log, config) {
       log.info({
         op: 'fxa.customs.blocklist.contains',
         ip: ipAddress,
-        listhits: listhits.join(','),
+        listhits: listhitPaths.join(','),
+        listhitCount: listhitPaths.length,
         foundIn: (endTime - startTime)
       })
     }
