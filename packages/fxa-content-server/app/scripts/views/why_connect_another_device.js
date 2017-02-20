@@ -9,6 +9,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const BackMixin = require('views/mixins/back-mixin');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const ModalPanelMixin = require('views/mixins/modal-panel-mixin');
@@ -17,25 +18,18 @@ define(function (require, exports, module) {
   const View = BaseView.extend({
     template: Template,
 
-    events: {
-      'click button[type=submit]': '_returnToConnectAnotherDevice'
-    },
-
     initialize () {
-      this.on('modal-cancel', () => this._returnToConnectAnotherDevice());
+      this.once('modal-cancel', () => this.back());
     },
 
     afterRender () {
       this.openPanel();
-    },
-
-    _returnToConnectAnotherDevice () {
-      this.navigate('connect_another_device');
     }
   });
 
   Cocktail.mixin(
     View,
+    BackMixin,
     ModalPanelMixin
   );
 

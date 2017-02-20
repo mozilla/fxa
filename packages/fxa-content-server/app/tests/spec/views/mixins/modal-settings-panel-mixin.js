@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  const Notifier = require('lib/channels/notifier');
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
 
@@ -22,10 +23,14 @@ define(function (require, exports, module) {
   );
 
   describe('views/mixins/modal-settings-panel-mixin', function () {
+    let notifier;
     let view;
 
     beforeEach(function () {
+      notifier = new Notifier();
+
       view = new ModalSettingsPanelView({
+        notifier,
         parentView: {
           displaySuccess: sinon.spy()
         },

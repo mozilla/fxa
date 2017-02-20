@@ -17,6 +17,11 @@ define(function (require, exports, module) {
   module.exports = {
     isModal: true,
 
+    notifications: {
+      'navigate': 'closePanel',
+      'navigate-back': 'closePanel'
+    },
+
     /**
      * Open the panel.
      */
@@ -67,14 +72,6 @@ define(function (require, exports, module) {
       this.destroy(true);
       this.trigger('modal-cancel');
       $('.blocker').off('click', this._boundBlockerClick);
-    },
-
-    /**
-     * Wrap the navigate function to close the panel. If the next view
-     * is also a modal, a new modal will immediately be created.
-     */
-    navigate () {
-      this.closePanel();
     },
 
     /**

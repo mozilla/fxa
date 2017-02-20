@@ -6,11 +6,11 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const ModalPanelMixin = require('views/mixins/modal-panel-mixin');
+  const Notifier = require('lib/channels/notifier');
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
 
   const ModalPanelView = BaseView.extend({
-    navigate: () => {},
     template: TestTemplate
   });
 
@@ -20,10 +20,14 @@ define(function (require, exports, module) {
   );
 
   describe('views/mixins/modal-panel-mixin', function () {
+    let notifier;
     let view;
 
     beforeEach(function () {
-      view = new ModalPanelView();
+      notifier = new Notifier();
+      view = new ModalPanelView({
+        notifier
+      });
 
       return view.render();
     });
@@ -78,11 +82,18 @@ define(function (require, exports, module) {
       });
     });
 
-    it('navigate forces the panel closed', () => {
-      sinon.spy(view, 'closePanel');
-      view.navigate('settings');
+    describe('notifications', () => {
+      function testNotificationClosesPanel(notification) {
+        it(`${notification} closes the panel`, () => {
+          sinon.spy(view, 'closePanel');
+          notifier.trigger(notification);
 
-      assert.isTrue(view.closePanel.calledOnce);
+          assert.isTrue(view.closePanel.calledOnce);
+        });
+      }
+
+      testNotificationClosesPanel('navigate');
+      testNotificationClosesPanel('navigate-back');
     });
   });
 });
