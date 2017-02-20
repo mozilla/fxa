@@ -28,6 +28,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var noSuchElement = FunctionalHelpers.noSuchElement;
+  var noSuchStoredAccountByEmail = FunctionalHelpers.noSuchStoredAccountByEmail;
   var openPage = FunctionalHelpers.openPage;
   var pollUntil = FunctionalHelpers.pollUntil;
   var pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
@@ -175,14 +176,15 @@ define([
         .then(click('.clients-refresh'))
         // second device is still gone.
         .then(noSuchElement('.client-device:nth-child(2)'))
-        // clicking disconnect on the current device should sign you out
         .then(click('.client-device:nth-child(1) .client-disconnect'))
         .then(click('.disconnect-reasons > label > input[value="lost"]'))
         // wait until button is enabled
         .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
+        // clicking disconnect on the current device should sign you out
         .then(click('#client-disconnect .primary'))
 
-        .then(testElementExists('#fxa-signin-header'));
+        .then(testElementExists('#fxa-signin-header'))
+        .then(noSuchStoredAccountByEmail(email));
     }
   });
 });

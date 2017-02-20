@@ -425,14 +425,18 @@ define(function (require, exports, module) {
         .then(() => this.setSignedInAccount(account));
     },
 
+    /**
+     * Sign out the given account clearing any info held about the account.
+     *
+     * @param {Object} account - account to sign out
+     * @returns {Promise} - resolves when complete
+     */
     signOutAccount (account) {
       return account.signOut()
         .fin(() => {
-          // Clear the session, even on failure. Everything is A-OK.
+          // Remove the account, even on failure. Everything is A-OK.
           // See issue #616
-          if (this.isSignedInAccount(account)) {
-            this.clearSignedInAccount();
-          }
+          return this.removeAccount(account);
         });
     },
 
@@ -590,7 +594,7 @@ define(function (require, exports, module) {
       return account.destroyDevice(device)
         .then(() => {
           if (this.isSignedInAccount(account) && device.get('isCurrentDevice')) {
-            this.clearSignedInAccount();
+            this.removeAccount(account);
           }
         });
     },

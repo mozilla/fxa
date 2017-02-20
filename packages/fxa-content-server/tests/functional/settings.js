@@ -22,6 +22,7 @@ define([
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var focus = FunctionalHelpers.focus;
   var getFxaClient = FunctionalHelpers.getFxaClient;
+  var noSuchStoredAccountByEmail = FunctionalHelpers.noSuchStoredAccountByEmail;
   var openPage = FunctionalHelpers.openPage;
   var openSettingsInNewTab = FunctionalHelpers.openSettingsInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -208,7 +209,8 @@ define([
         .then(testElementExists('#fxa-signin-header'))
         .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-signin-header'));
+        .then(testElementExists('#fxa-signin-header'))
+        .then(noSuchStoredAccountByEmail(email));
     }
   });
 

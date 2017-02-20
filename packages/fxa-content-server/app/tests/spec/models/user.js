@@ -759,6 +759,44 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('signOutAccount', () => {
+      let account;
+
+      beforeEach(() => {
+        sinon.stub(user, 'removeAccount', () => {});
+        account = user.initAccount({ email: 'email', uid: 'uid' });
+      });
+
+      describe('request completes as expected', () => {
+        it('delegates to the account, clears account info', () => {
+          sinon.stub(account, 'signOut', () => p());
+
+          return user.signOutAccount(account)
+            .then(() => {
+              assert.isTrue(account.signOut.calledOnce);
+              assert.isTrue(user.removeAccount.calledOnce);
+              assert.isTrue(user.removeAccount.calledWith(account));
+            });
+        });
+      });
+
+      describe('request fails', () => {
+        it('delegates to the account, clears account info anyways', () => {
+          sinon.stub(account, 'signOut', () => {
+            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+          });
+
+          return user.signOutAccount(account)
+            .then(assert.fail, (err) => {
+              assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+              assert.isTrue(account.signOut.calledOnce);
+              assert.isTrue(user.removeAccount.calledOnce);
+              assert.isTrue(user.removeAccount.calledWith(account));
+            });
+        });
+      });
+    });
+
     describe('completeAccountSignUp', function () {
       var account;
 
@@ -1005,23 +1043,16 @@ define(function (require, exports, module) {
       var account;
       var device;
 
-      beforeEach(function () {
+      beforeEach(() => {
         account = user.initAccount({
           email: 'a@a.com',
           sessionToken: 'session token',
           uid: 'the uid'
         });
 
-        sinon.stub(account, 'destroyDevice', function () {
-          return p();
-        });
-
-        sinon.stub(account, 'fetch', function () {
-          return p();
-        });
-
-
-        sinon.spy(user, 'clearSignedInAccount');
+        sinon.stub(account, 'destroyDevice', () => p());
+        sinon.stub(account, 'fetch', () => p());
+        sinon.spy(user, 'removeAccount');
 
         device = new Device({
           id: 'device-1',
@@ -1029,32 +1060,31 @@ define(function (require, exports, module) {
           sessionToken: 'session token'
         });
 
-        return user.destroyAccountDevice(account, device);
+        return user.setSignedInAccount(account);
       });
 
-      it('delegates to the account to destroy the device', function () {
-        assert.isTrue(account.destroyDevice.calledWith(device));
-      });
+      describe('with a remote device', () => {
+        beforeEach(() => {
+          device.set('isCurrentDevice', false);
+          return user.destroyAccountDevice(account, device);
+        });
 
-      describe('with a remote device', function () {
-        it('does not sign out the current user', function () {
-          assert.isFalse(user.clearSignedInAccount.called);
+        it('delegates to the account, does not remove the account', () => {
+          assert.isTrue(account.destroyDevice.calledWith(device));
+          assert.isFalse(user.removeAccount.called);
         });
       });
 
-
-      describe('with the current account\'s current device', function () {
-        beforeEach(function () {
+      describe('with the current account\'s current device', () => {
+        beforeEach(() => {
           device.set('isCurrentDevice', true);
-
-          return user.setSignedInAccount(account)
-            .then(function () {
-              return user.destroyAccountDevice(account, device);
-            });
+          return user.destroyAccountDevice(account, device);
         });
 
-        it('signs out the current account', function () {
-          assert.isTrue(user.clearSignedInAccount.called);
+        it('delegates to the account, removes the account', () => {
+          assert.isTrue(account.destroyDevice.calledWith(device));
+          assert.isTrue(user.removeAccount.calledOnce);
+          assert.isTrue(user.removeAccount.calledWith(account));
         });
       });
     });
