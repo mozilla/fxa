@@ -137,6 +137,19 @@ define(function (require, exports, module) {
     this.initialize(options);
   }
 
+  /**
+   * Log an event once. Use in the `notifications` hash to
+   * log an event whenever a notification is triggered.
+   *
+   * @param  {String} eventName name of event to log
+   * @return {Function} function that does logging.
+   */
+  function logEventOnce(eventName) {
+    return function () {
+      this.logEventOnce(eventName);
+    };
+  }
+
   _.extend(Metrics.prototype, Backbone.Events, {
     ALLOWED_FIELDS: ALLOWED_FIELDS,
 
@@ -162,7 +175,13 @@ define(function (require, exports, module) {
     notifications: {
       /* eslint-disable sorting/sort-object-props */
       'flow.initialize': '_initializeFlowModel',
-      'flow.event': '_logFlowEvent'
+      'flow.event': '_logFlowEvent',
+      /*
+       * `loaded` is used to determine how long until the
+       * first screen is rendered and the user can interact
+       * with FxA. Similar to window.onload, but FxA specific.
+       */
+      'view-shown': logEventOnce('loaded')
       /* eslint-enable sorting/sort-object-props */
     },
 

@@ -76,7 +76,7 @@ define(function (require, exports, module) {
     });
 
     it('calls notifier.on correctly', () => {
-      assert.equal(notifier.on.callCount, 2);
+      assert.equal(notifier.on.callCount, 3);
 
       let args = notifier.on.args[0];
       assert.lengthOf(args, 2);
@@ -87,6 +87,11 @@ define(function (require, exports, module) {
       assert.lengthOf(args, 2);
       assert.equal(args[0], 'flow.event');
       assert.notEqual(args[1], notifier.on.args[0][1]);
+
+      args = notifier.on.args[2];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], 'view-shown');
+      assert.isFunction(args[1]);
     });
 
     it('observable flow state is correct', () => {
@@ -268,6 +273,9 @@ define(function (require, exports, module) {
           metrics.logEvent('foo');
           notifier.trigger('flow.event', { event: 'bar', once: true });
           metrics.logEvent('baz');
+          notifier.trigger('view-shown');
+          // trigger `view-shown` twice, ensure it's only logged once.
+          notifier.trigger('view-shown');
         });
 
         describe('has sendBeacon', function () {
@@ -306,10 +314,11 @@ define(function (require, exports, module) {
               assert.isNumber(data.duration);
               assert.equal(data.entrypoint, 'none');
               assert.isArray(data.events);
-              assert.lengthOf(data.events, 3);
+              assert.lengthOf(data.events, 4);
               assert.equal(data.events[0].type, 'foo');
               assert.equal(data.events[1].type, 'flow.bar');
               assert.equal(data.events[2].type, 'baz');
+              assert.equal(data.events[3].type, 'loaded');
               assert.equal(data.flowId, FLOW_ID);
               assert.equal(data.flowBeginTime, FLOW_BEGIN_TIME);
               assert.equal(data.isSampledUser, false);
@@ -430,11 +439,12 @@ define(function (require, exports, module) {
               var data = JSON.parse(settings.data);
               assert.lengthOf(Object.keys(data), 25);
               assert.isArray(data.events);
-              assert.lengthOf(data.events, 4);
+              assert.lengthOf(data.events, 5);
               assert.equal(data.events[0].type, 'foo');
               assert.equal(data.events[1].type, 'flow.bar');
               assert.equal(data.events[2].type, 'baz');
-              assert.equal(data.events[3].type, 'qux');
+              assert.equal(data.events[3].type, 'loaded');
+              assert.equal(data.events[4].type, 'qux');
             });
 
             it('resolves to true', function () {
@@ -506,11 +516,12 @@ define(function (require, exports, module) {
 
             var data = metrics._send.getCall(0).args[0];
             assert.lengthOf(Object.keys(data), 25);
-            assert.lengthOf(data.events, 4);
+            assert.lengthOf(data.events, 5);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.bar');
             assert.equal(data.events[2].type, 'baz');
-            assert.equal(data.events[3].type, 'wibble');
+            assert.equal(data.events[3].type, 'loaded');
+            assert.equal(data.events[4].type, 'wibble');
           });
         });
 
@@ -530,11 +541,12 @@ define(function (require, exports, module) {
 
             var data = metrics._send.getCall(0).args[0];
             assert.lengthOf(Object.keys(data), 25);
-            assert.lengthOf(data.events, 4);
+            assert.lengthOf(data.events, 5);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.bar');
             assert.equal(data.events[2].type, 'baz');
-            assert.equal(data.events[3].type, 'blee');
+            assert.equal(data.events[3].type, 'loaded');
+            assert.equal(data.events[4].type, 'blee');
           });
         });
 

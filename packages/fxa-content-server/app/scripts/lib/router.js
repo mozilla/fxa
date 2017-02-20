@@ -277,11 +277,6 @@ define(function (require, exports, module) {
       // is attached and the promise is not returned.
       this.broker.afterLoaded();
 
-      // `loaded` is used to determine how long until the
-      // first screen is rendered and the user can interact
-      // with FxA. Similar to window.onload, but FxA specific.
-      this.metrics.logEvent('loaded');
-
       // back is enabled after the first view is rendered or
       // if the user re-starts the app.
       this.storage.set('canGoBack', true);

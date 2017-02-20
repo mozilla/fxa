@@ -6,10 +6,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const Account = require('models/account');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const BaseView = require('views/base');
-  const chai = require('chai');
   const Constants = require('lib/constants');
   const DisplayNameView = require('views/settings/display_name');
   const Metrics = require('lib/metrics');
@@ -20,11 +20,8 @@ define(function (require, exports, module) {
   const Router = require('lib/router');
   const SettingsView = require('views/settings');
   const sinon = require('sinon');
-  const TestHelpers = require('../../lib/helpers');
   const User = require('models/user');
   const WindowMock = require('../../mocks/window');
-
-  var assert = chai.assert;
 
   describe('lib/router', function () {
     var broker;
@@ -314,12 +311,6 @@ define(function (require, exports, module) {
         assert.isTrue(broker.afterLoaded.called);
       });
 
-      it('logs a `loaded` event', function () {
-        router._afterFirstViewHasRendered();
-
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'loaded'));
-      });
-
       it('sets `canGoBack`', function () {
         router._afterFirstViewHasRendered();
 
@@ -460,5 +451,3 @@ define(function (require, exports, module) {
     });
   });
 });
-
-
