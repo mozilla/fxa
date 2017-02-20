@@ -26,6 +26,7 @@ define(function (require, exports, module) {
   const LoadingMixin = require('views/mixins/loading-mixin');
   const modal = require('modal'); //eslint-disable-line no-unused-vars
   const Session = require('lib/session');
+  const SettingsHeaderTemplate = require('stache!templates/partial/settings-header');
   const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
   const SubPanels = require('views/sub_panels');
   const Template = require('stache!templates/settings');
@@ -112,12 +113,11 @@ define(function (require, exports, module) {
     },
 
     context () {
-      var account = this.getSignedInAccount();
+      const account = this.getSignedInAccount();
 
       return {
-        displayName: account.get('displayName'),
         showSignOut: ! account.isFromSync(),
-        userEmail: account.get('email')
+        unsafeHeaderHTML: this._getHeaderHTML(account)
       };
     },
 
@@ -143,17 +143,28 @@ define(function (require, exports, module) {
       this.displayStatusMessages();
 
       this.logView();
-      this._swapDisplayName();
     },
 
     beforeRender () {
-      var account = this.getSignedInAccount();
+      const account = this.getSignedInAccount();
 
       return account.fetchProfile()
         .then(() => this.user.setAccount(account));
     },
 
+    _onAccountUpdate (account) {
+      this.$('#fxa-settings-profile-header').html(this._getHeaderHTML(account));
+    },
+
+    _getHeaderHTML (account) {
+      return SettingsHeaderTemplate(account.pick('displayName', 'email'));
+    },
+
     afterRender () {
+      const account = this.getSignedInAccount();
+      this.listenTo(account, 'change:displayName', this._onAccountUpdate);
+      this.listenTo(account, 'change:email', this._onAccountUpdate);
+
       this._subPanels.setElement(this.$('#sub-panels')[0]);
       return this._subPanels.render()
         .then(proto.afterRender.bind(this));
@@ -169,26 +180,6 @@ define(function (require, exports, module) {
 
       return proto.afterVisible.call(this)
         .then(this._showAvatar.bind(this));
-    },
-
-    // When the user adds, removes or changes a display name
-    // this gets called and swaps out headers to reflect
-    // the updated state of the account
-    _swapDisplayName () {
-      var account = this.getSignedInAccount();
-      var displayName = account.get('displayName');
-      var email = account.get('email');
-
-      var cardHeader = this.$('.card-header');
-      var cardSubheader = this.$('.card-subheader');
-
-      if (displayName) {
-        cardHeader.text(displayName);
-        cardSubheader.text(email);
-      } else {
-        cardHeader.text(email);
-        cardSubheader.text('');
-      }
     },
 
     _setupAvatarChangeLinks () {

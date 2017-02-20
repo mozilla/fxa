@@ -2,7 +2,7 @@
   <header id="fxa-settings-header">
     <h1 id="fxa-manage-account">{{#t}}Firefox Accounts{{/t}}</h1>
     {{#showSignOut}}
-    <button id="signout" class="settings-button secondary">{{#t}}Sign out{{/t}}</button>
+      <button id="signout" class="settings-button secondary">{{#t}}Sign out{{/t}}</button>
     {{/showSignOut}}
   </header>
 
@@ -14,16 +14,7 @@
 <div class="avatar-wrapper avatar-settings-view"></div>
 <div id="fxa-settings-content" class="card">
   <header id="fxa-settings-profile-header">
-
-    {{#displayName}}
-      <h1 class="card-header">{{displayName}}</h1>
-      <h2 class="card-subheader">{{userEmail}}</h2>
-    {{/displayName}}
-    {{^displayName}}
-      <h1 class="card-header">{{userEmail}}</h1>
-      <h2 class="card-subheader"></h2>
-    {{/displayName}}
-
+    {{{ unsafeHeaderHTML }}}
   </header>
   <div id="sub-panels"></div>
 </div>

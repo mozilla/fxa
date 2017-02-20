@@ -8,9 +8,9 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const _ = require('underscore');
   const Able = require('lib/able');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
-  const chai = require('chai');
   const Cocktail = require('cocktail');
   const CommunicationPreferencesView = require('views/settings/communication_preferences');
   const FormPrefill = require('models/form-prefill');
@@ -30,14 +30,15 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const View = require('views/settings');
 
-  var assert = chai.assert;
-
-  var SettingsPanelView = BaseView.extend({
+  const SettingsPanelView = BaseView.extend({
     className: 'panel',
     template: TestTemplate
   });
 
-  Cocktail.mixin(SettingsPanelView, SettingsPanelMixin);
+  Cocktail.mixin(
+    SettingsPanelView,
+    SettingsPanelMixin
+  );
 
   describe('views/settings', function () {
     var able;
@@ -231,6 +232,30 @@ define(function (require, exports, module) {
             sinon.spy(view, 'displayAccountProfileImage');
             view.onProfileUpdate();
             assert.isTrue(view.displayAccountProfileImage.calledWith(account));
+          });
+      });
+
+      it('handles signed in account displayName/email change', () => {
+        const account = user.getSignedInAccount();
+        account.set({
+          displayName: 'testuser',
+          email: 'testuser@testuser.com'
+        });
+
+        return view.render()
+          .then(() => {
+            account.set('displayName', '');
+
+            assert.equal(view.$('.card-header').text(), 'testuser@testuser.com');
+            assert.equal(view.$('.card-subheader').text(), '');
+
+            account.set('displayName', 'testuser');
+            assert.equal(view.$('.card-header').text(), 'testuser');
+            assert.equal(view.$('.card-subheader').text(), 'testuser@testuser.com');
+
+            account.set('email', 'testuser2@testuser.com');
+            assert.equal(view.$('.card-header').text(), 'testuser');
+            assert.equal(view.$('.card-subheader').text(), 'testuser2@testuser.com');
           });
       });
 
@@ -590,131 +615,6 @@ define(function (require, exports, module) {
 
           assert.isFalse(user.setSignedInAccountByUid.called);
           assert.isTrue(user.clearSignedInAccount.called);
-        });
-      });
-    });
-
-    describe('_swapDisplayName', function () {
-      beforeEach(function () {
-        sinon.stub(view, 'checkAuthorization', function () {
-          return p(true);
-        });
-        account.set('accessToken', ACCESS_TOKEN);
-      });
-
-      // the following four tests
-      // confirm that the dom displays correctly
-      // when the _swapDisplayName method is called
-      describe('with no display name', function () {
-        it('should show email address in header', function () {
-          return view.render()
-            .then(function () {
-              view._swapDisplayName();
-
-              assert.equal(view.$('.card-header').text(), 'a@a.com');
-              assert.equal(view.$('.card-subheader').text(), '');
-            });
-        });
-      });
-
-      describe('with display name removed', function () {
-        it('should place the email in the header', function () {
-          account.set('displayName', 'test user');
-
-          return view.render()
-            .then(function () {
-              account.unset('displayName');
-
-              view._swapDisplayName();
-
-              assert.equal(view.$('.card-header').text(), 'a@a.com');
-              assert.equal(view.$('.card-subheader').text(), '');
-            });
-        });
-      });
-
-      describe('with display name changed', function () {
-        it('should place a new display name in the header', function () {
-          account.set('displayName', 'test user one');
-
-          return view.render()
-            .then(function () {
-              account.set('displayName', 'test user two');
-
-              view._swapDisplayName();
-
-              assert.equal(view.$('.card-header').text(), 'test user two');
-              assert.equal(view.$('.card-subheader').text(), 'a@a.com');
-            });
-        });
-      });
-
-      describe('with display name added', function () {
-        it('should show email by default then add display name to header and email to subheader', function () {
-          return view.render()
-            .then(function () {
-              assert.equal(view.$('.card-header').text(), 'a@a.com');
-              assert.equal(view.$('.card-subheader').text(), '');
-
-              account.set('displayName', 'test user');
-
-              view._swapDisplayName();
-
-              assert.equal(view.$('.card-header').text(), 'test user');
-              assert.equal(view.$('.card-subheader').text(), 'a@a.com');
-            });
-        });
-      });
-
-      describe('with a displayName that contains XSS', function () {
-        it('should escape the displayName', function () {
-
-          return view.render()
-            .then(function () {
-              var xssDisplayName = '<script>alert(1)</script>';
-              account.set('displayName', xssDisplayName);
-
-              view._swapDisplayName();
-
-              assert.equal(
-                view.$('.card-header').html(), _.escape(xssDisplayName));
-            });
-        });
-      });
-
-      describe('with an email that contains XSS', function () {
-        it('should escape the email', function () {
-
-          return view.render()
-            .then(function () {
-              var xssEmail = '<script>alert(1)</script>';
-              account.unset('displayName');
-              account.set('email', xssEmail);
-
-              view._swapDisplayName();
-
-              assert.equal(view.$('.card-header').html(), _.escape(xssEmail));
-            });
-        });
-      });
-
-      describe('with both displayName and email that contains XSS', function () {
-        it('should escape the email', function () {
-          return view.render()
-            .then(function () {
-              var xssDisplayName = '<script>alert(1)</script>';
-              account.set('displayName', xssDisplayName);
-
-              var xssEmail = '<script>alert(2)</script>';
-              account.set('email', xssEmail);
-
-              view._swapDisplayName();
-
-              assert.equal(
-                  view.$('.card-header').html(), _.escape(xssDisplayName));
-              assert.equal(
-                  view.$('.card-subheader').html(), _.escape(xssEmail));
-            });
         });
       });
     });
