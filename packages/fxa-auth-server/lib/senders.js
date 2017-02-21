@@ -5,7 +5,7 @@
 'use strict'
 
 const P = require('./promise')
-const createSenders = require('fxa-auth-mailer')
+const createSenders = require('../mailer/index')
 
 module.exports = (config, log) => {
   const defaultLanguage = config.i18n.defaultLanguage
