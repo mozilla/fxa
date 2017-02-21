@@ -873,6 +873,15 @@ Sign a BrowserID public key. The server is given a public key, and returns a sig
 
 This request will fail unless the account's email address has been verified.
 
+Clients should include a query parameter `?service=<service-name>` for metrics and validation
+purposes.  The value of `<service-name>` should be `sync` when connecting to sync, or the
+OAuth client_id when connecting to an OAuth relier.
+
+If you do not specify a `service` parameter, or if you specify `service=sync`,
+this endpoint will assume the request is coming from a legacy Firefox sync client.
+If the sessionToken does not have a corresponding device record,
+one will be created automatically by the server.
+
 ___Parameters___
 
 * publicKey - the key to sign (run `bin/generate-keypair` from [browserid-crypto](https://github.com/mozilla/browserid-crypto))
@@ -1258,6 +1267,10 @@ at least one of `name`, `type`, `pushCallback` or the tuple (`pushCallback`, `pu
 must be present.
 Beware that if you provide `pushCallback` without the couple (`pushPublicKey` and `pushAuthKey`), both of
 the keys will be reset to an empty string.
+
+Devices should register with this endpoint *before* attempting to obtain a signed certificate
+and perform their first sync, so that an appropriate device name can be made available
+to other connected devices.
 
 ### Request
 
