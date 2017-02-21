@@ -57,6 +57,14 @@ function emailToUsername(email, defaultValue) {
   return defaultValue
 }
 
+var REPO_NAME_TO_OWNER = {}
+REPOS.forEach(function (repo) {
+  REPO_NAME_TO_OWNER[repo.name] = repo.owner
+})
+
+function getRepoOwner(name) {
+  return REPO_NAME_TO_OWNER[name] || 'mozilla'
+}
 
 // Make a nicely promisified github API object.
 
@@ -90,7 +98,7 @@ function GH(options) {
   Object.keys(this._gh.issues).forEach(function(methodName) {
     if (typeof self._gh.issues[methodName] === 'function') {
       self.issues[methodName] = function(msg) {
-        msg.owner = msg.owner || 'mozilla'
+        msg.owner = msg.owner || getRepoOwner(msg.repo)
         msg.per_page = msg.per_page || 30
         return new P(function(resolve, reject) {
           self._gh.issues[methodName](msg, function(err, res) {
@@ -108,7 +116,7 @@ function GH(options) {
   Object.keys(this._gh.repos).forEach(function(methodName) {
     if (typeof self._gh.repos[methodName] === 'function') {
       self.repos[methodName] = function(msg) {
-        msg.owner = msg.owner || 'mozilla'
+        msg.owner = msg.owner || getRepoOwner(msg.repo)
         msg.per_page = msg.per_page || 30
         return new P(function(resolve, reject) {
           self._gh.repos[methodName](msg, function(err, res) {
@@ -126,7 +134,7 @@ function GH(options) {
   Object.keys(this._gh.pullRequests).forEach(function(methodName) {
     if (typeof self._gh.pullRequests[methodName] === 'function') {
       self.pullRequests[methodName] = function(msg) {
-        msg.owner = msg.owner || 'mozilla'
+        msg.owner = msg.owner || getRepoOwner(msg.repo)
         msg.per_page = msg.per_page || 30
         return new P(function(resolve, reject) {
           self._gh.pullRequests[methodName](msg, function(err, res) {
@@ -144,7 +152,7 @@ function GH(options) {
   Object.keys(this._gh.gitdata).forEach(function(methodName) {
     if (typeof self._gh.gitdata[methodName] === 'function') {
       self.gitdata[methodName] = function(msg) {
-        msg.owner = msg.owner || 'mozilla'
+        msg.owner = msg.owner || getRepoOwner(msg.repo)
         msg.per_page = msg.per_page || 30
         return new P(function(resolve, reject) {
           self._gh.gitdata[methodName](msg, function(err, res) {
