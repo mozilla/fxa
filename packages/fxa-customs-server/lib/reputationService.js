@@ -17,21 +17,30 @@ var alwaysFalse = function () {
 
 var report = function (log, ipClient, ip, action) {
   return ipClient.sendViolation(ip, action)
-          .catch(function (err) {
-            log.error({ op: action + '.sendViolation', ip: ip, err: err })
-          })
+    .then(function(result) {
+      var statusCode = result && result.statusCode
+      log.info({ op: action + '.sendViolation', ip: ip, statusCode: statusCode })
+    })
+    .catch(function (err) {
+      log.error({ op: action + '.sendViolation', ip: ip, err: err })
+    })
 }
 
 var get = function (log, ipClient, ip) {
   return ipClient.get(ip)
     .then(function (response) {
       if (response && response.body && response.statusCode === 200) {
+        log.info({ op: 'fetchIPReputation', ip: ip, reputation: response.body.Reputation })
         return response.body.Reputation
-      } else if (response.statusCode === 404) {
-        log.debug({ op: 'fetchIPReputation', ip: ip, err: 'Reputation not found for IP.'})
-      } else {
-        log.error({ op: 'fetchIPReputation', ip: ip, err: {status: response.statusCode, body: response.body}})
       }
+
+      if (response.statusCode === 404) {
+        log.info({ op: 'fetchIPReputation', ip: ip, err: 'Reputation not found for IP.'})
+      } else {
+        var err = { status: response.statusCode, body: response.body }
+        log.error({ op: 'fetchIPReputation', ip: ip, err: err })
+      }
+
       return null
     }).catch(function (err) {
       log.error({ op: 'fetchIPReputation', ip: ip, err: err})
