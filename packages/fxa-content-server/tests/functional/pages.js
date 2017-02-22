@@ -70,6 +70,9 @@ define([
     'signup_complete', // redirects to signup_verified
     'signup_permissions',
     'signup_verified',
+    'sms',
+    'sms/sent',
+    'sms/why',
     'verify_email',
     'v1/complete_reset_password',
     'v1/reset_password',

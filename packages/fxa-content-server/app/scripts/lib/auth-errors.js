@@ -116,6 +116,23 @@ define(function (require, exports, module) {
       errno: 127,
       message: t('Invalid authorization code')
     },
+    INVALID_PHONE_NUMBER: {
+      errno: 129,
+      message: t('Invalid phone number')
+    },
+    INVALID_PHONE_REGION: {
+      errno: 130,
+      message: t('Cannot send to this country')
+    },
+    SMS_ID_INVALID: {
+      errno: 131,
+      // should not be user facing, not wrapped in t
+      message: 'SMS ID invalid'
+    },
+    SMS_REJECTED: {
+      errno: 132,
+      message: t('Could not send a message to this number')
+    },
     SERVER_BUSY: {
       errno: 201,
       message: t('Server busy, try again soon')
@@ -339,6 +356,10 @@ define(function (require, exports, module) {
       errno: 1048,
       // not user facing, only used for logging, not wrapped in `t`
       message: 'Cannot change input type: %(type)s'
+    },
+    PHONE_NUMBER_REQUIRED: {
+      errno: 1049,
+      message: t('Phone number required')
     }
   };
   /*eslint-enable sorting/sort-object-props*/

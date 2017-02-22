@@ -1,0 +1,41 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+define(function (require, exports, module) {
+  'use strict';
+
+  const AuthErrors = require('lib/auth-errors');
+  const CountryTelephoneInfo = require('lib/country-telephone-info');
+  const textInput = require('views/elements/text-input');
+
+  const DEFAULT_COUNTRY = 'US';
+
+  const element = Object.create(textInput);
+
+  element.match = function ($el) {
+    return $el.attr('type') === 'tel';
+  };
+
+  element.val = function (val) {
+    if (arguments.length === 1) {
+      return this.__val(val);
+    }
+
+    return this.__val().replace(/[.,-\s]/g, '');
+  };
+
+  element.validate = function () {
+    const value = this.val();
+    const country = this.data('country') || DEFAULT_COUNTRY;
+    const validationPattern = CountryTelephoneInfo[country].pattern;
+
+    if (! value.length) {
+      throw AuthErrors.toError('PHONE_NUMBER_REQUIRED');
+    } else if (! validationPattern.test(value)) {
+      throw AuthErrors.toError('INVALID_PHONE_NUMBER');
+    }
+  };
+
+  module.exports = element;
+});

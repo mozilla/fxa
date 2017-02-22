@@ -49,6 +49,9 @@ module.exports = function () {
     'signup_confirmed',
     'signup_permissions',
     'signup_verified',
+    'sms',
+    'sms/sent',
+    'sms/why',
     'verify_email'
   ].join('|'); // prepare for use in a RegExp
 

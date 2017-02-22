@@ -16,6 +16,7 @@ define(function (require, exports, module) {
   const ResumeToken = require('models/resume-token');
   const sinon = require('sinon');
   const SignInReasons = require('lib/sign-in-reasons');
+  const SmsErrors = require('lib/sms-errors');
   const testHelpers = require('../../lib/helpers');
   const VerificationMethods = require('lib/verification-methods');
   const VerificationReasons = require('lib/verification-reasons');
@@ -1242,6 +1243,76 @@ define(function (require, exports, module) {
 
       it('rejects the authorization code', () => {
         assert.isTrue(realClient.rejectUnblockCode.calledWith('uid', 'code'));
+      });
+    });
+
+    describe('sendSms', () => {
+      it('delegates to the fxa-js-client', () => {
+        sinon.stub(realClient, 'sendSms', () => p());
+
+        return client.sendSms('sessionToken', '+441234567890', 1, {
+          metricsContext: {}
+        })
+        .then(() => {
+          assert.isTrue(realClient.sendSms.calledWith(
+            'sessionToken',
+            '+441234567890',
+            1,
+            { metricsContext: {} }
+          ));
+        });
+      });
+
+      it('converts SMS_REJECTED errors to an SmsError based on reasonCode', () => {
+        const serverError = {
+          code: 400,
+          errno: AuthErrors.toErrno('SMS_REJECTED'),
+          // reasonCodes come back as strings
+          reasonCode: SmsErrors.toErrno('NUMBER_BLOCKED').toString()
+        };
+        sinon.stub(realClient, 'sendSms', () => p.reject(serverError));
+
+        return client.sendSms('sessionToken', '1234567890', 1, {
+          metricsContext: {}
+        })
+        .then(assert.fail, (err) => {
+          assert.isTrue(SmsErrors.is(err, 'NUMBER_BLOCKED'));
+        });
+      });
+
+      it('converts INVALID_PARAMETER w/ phoneNumber to AuthErrors.INVALID_PHONE_NUMBER', () => {
+        const serverError = {
+          code: 400,
+          errno: AuthErrors.toErrno('INVALID_PARAMETER'),
+          validation: {
+            keys: [
+              'phoneNumber'
+            ]
+          }
+        };
+        sinon.stub(realClient, 'sendSms', () => p.reject(serverError));
+
+        return client.sendSms('sessionToken', '1234567890', 1, {
+          metricsContext: {}
+        })
+        .then(assert.fail, (err) => {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_PHONE_NUMBER'));
+        });
+      });
+
+      it('passes back other errors', () => {
+        const serverError = {
+          code: 400,
+          errno: AuthErrors.toErrno('SMS_ID_INVALID')
+        };
+        sinon.stub(realClient, 'sendSms', () => p.reject(serverError));
+
+        return client.sendSms('sessionToken', '1234567890', 1, {
+          metricsContext: {}
+        })
+        .then(assert.fail, (err) => {
+          assert.isTrue(AuthErrors.is(err, 'SMS_ID_INVALID'));
+        });
       });
     });
   });

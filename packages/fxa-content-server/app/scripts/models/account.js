@@ -950,6 +950,24 @@ define(function (require, exports, module) {
         this.get('uid'),
         unblockCode
       );
+    },
+
+    /**
+     * Send an SMS.
+     *
+     * @param {String} phoneNumber - target phone number
+     * @param {Number} messageId - ID of message
+     * @returns {Promise}
+     */
+    sendSms (phoneNumber, messageId) {
+      return this._fxaClient.sendSms(
+        this.get('sessionToken'),
+        phoneNumber,
+        messageId,
+        {
+          metricsContext: this._metrics.getFlowEventMetadata()
+        }
+      );
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,

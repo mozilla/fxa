@@ -41,6 +41,8 @@ define(function (require, exports, module) {
   const SignInReportedView = require('views/sign_in_reported');
   const SignInUnblockView = require('../views/sign_in_unblock');
   const SignUpView = require('../views/sign_up');
+  const SmsSendView = require('../views/sms_send');
+  const SmsSentView = require('../views/sms_sent');
   const Storage = require('./storage');
   const TosView = require('../views/tos');
   const WhyConnectAnotherDeviceView = require('../views/why_connect_another_device');
@@ -109,6 +111,9 @@ define(function (require, exports, module) {
       'signup_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
       'signup_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_UP }),
       'signup_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
+      'sms(/)': createViewHandler(SmsSendView),
+      'sms/sent(/)': createViewHandler(SmsSentView),
+      'sms/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, SmsSendView),
       'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP })
     },
 

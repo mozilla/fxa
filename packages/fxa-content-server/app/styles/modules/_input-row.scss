@@ -40,9 +40,10 @@
     }
 
     &[type='email'],
-    &[type='text'],
     &[type='number'],
-    &[type='password'] {
+    &[type='password'],
+    &[type='tel'],
+    &[type='text'] {
       @include input-element();
 
       &:hover {

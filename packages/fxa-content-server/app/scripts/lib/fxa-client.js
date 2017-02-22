@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   const requireOnDemand = require('lib/require-on-demand');
   const Session = require('lib/session');
   const SignInReasons = require('lib/sign-in-reasons');
+  const SmsErrors = require('lib/sms-errors');
   const VerificationReasons = require('lib/verification-reasons');
   const VerificationMethods = require('lib/verification-methods');
 
@@ -588,6 +589,42 @@ define(function (require, exports, module) {
      */
     rejectUnblockCode: withClient((client, uid, unblockCode) => {
       return client.rejectUnblockCode(uid, unblockCode);
+    }),
+
+    /**
+     * Send an SMS
+     *
+     * @param {String} sessionToken - account session token.
+     * @param {String} phoneNumber - target phone number. Expected to have
+     *   a country code prefix, e.g., +1, +44.
+     * @param {Number} messageId - ID of message to send.
+     * @param {Object} [options]
+     *   @param {String} [options.metricsContext] - context metadata for use in
+     *                   flow events
+     * @returns {Promise}
+     */
+    sendSms: withClient((client, sessionToken, phoneNumber, messageId, options = {}) => {
+      return client.sendSms(sessionToken, phoneNumber, messageId, options)
+        .fail((err) => {
+
+          function isInvalidPhoneNumberError (err) {
+            // If the number fails joi validation, the error
+            // returns in this format.
+            return AuthErrors.is(err, 'INVALID_PARAMETER') &&
+                   err.validation &&
+                   err.validation.keys &&
+                   err.validation.keys[0] === 'phoneNumber';
+          }
+
+          if (AuthErrors.is(err, 'SMS_REJECTED')) {
+            // reasonCode comes back as a string. We need an integer.
+            throw SmsErrors.toError(parseInt(err.reasonCode, 10));
+          } else if (isInvalidPhoneNumberError(err)) {
+            throw AuthErrors.toError('INVALID_PHONE_NUMBER');
+          }
+
+          throw err;
+        });
     })
   };
 

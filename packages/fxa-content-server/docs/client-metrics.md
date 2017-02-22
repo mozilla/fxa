@@ -215,6 +215,34 @@ The event stream is a log of events and the time they occurred while the user is
 * error.reset_password.auth.1011 - user did not enter an email address
 * error.reset_password.auth.1023 - user entered an email address that was invalid
 
+#### sms
+* error.sms.auth.114 - throttled - user has sent too many SMS messages
+* error.sms.auth.129 - entered phone number is invalid
+* error.sms.auth.130 - attempt to send an SMS to an unsupported country
+* error.sms.auth.131 - SMS message ID is invalid
+* error.sms.auth.132 - SMS could not be sent
+* error.sms.auth.1049 - no phone number entered
+* error.sms.sms.1 - (SMS provider) throttled
+* error.sms.sms.2 - (SMS provider) missing parameter
+* error.sms.sms.3 - (SMS provider) invalid parameter
+* error.sms.sms.4 - (SMS provider) invalid credentials
+* error.sms.sms.5 - (SMS provider) internal error
+* error.sms.sms.6 - (SMS provider) unroutable message
+* error.sms.sms.7 - (SMS provider) number blocked
+* error.sms.sms.8 - (SMS provider) account blocked
+* error.sms.sms.9 - (SMS provider) account quota limit exceeded
+* error.sms.sms.11 - (SMS provider) account not enabled for REST
+* error.sms.sms.12 - (SMS provider) message too long
+* error.sms.sms.13 - (SMS provider) communication failed
+* error.sms.sms.14 - (SMS provider) invalid signature
+* error.sms.sms.15 - (SMS provider) invalid sender address
+* error.sms.sms.16 - (SMS provider) invalid ttl
+* error.sms.sms.19 - (SMS provider) facility not allowed
+* error.sms.sms.20 - (SMS provider) invalid message class
+* error.sms.sms.23 - (SMS provider) missing protocol
+* error.sms.sms.29 - (SMS provider) destination not allowed
+* error.sms.sms.35 - (SMS provider) invalid phone number
+
 #### settings
 * settings.signout.submit - user clicked signout
 * settings.signout.success - user successfully signed out

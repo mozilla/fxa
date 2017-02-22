@@ -433,6 +433,18 @@ const conf = module.exports = convict({
       format: String
     }
   },
+  sms: {
+    testPhoneNumber: {
+      default: '',
+      doc: 'Phone number to send SMS messages to in function tests',
+      format: String
+    },
+    testPhoneNumberCountry: {
+      default: 'US',
+      doc: 'The country `testPhoneNumber` is in, see app/scripts/lib/country-telephone-info.js',
+      format: String
+    }
+  },
   static_directory: {
     default: 'app',
     doc: 'Directory that static files are served from.',

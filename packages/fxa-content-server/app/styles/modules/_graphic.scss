@@ -47,3 +47,10 @@
     width: 240px;
   }
 }
+
+.graphic-sms-sent {
+  @include hidpi-background-image('sms-sent', 310px 87px);
+  height: 87px;
+  margin: 35px auto;
+  width: 310px;
+}
