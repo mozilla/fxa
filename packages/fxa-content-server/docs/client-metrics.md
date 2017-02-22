@@ -252,7 +252,7 @@ The event stream is a log of events and the time they occurred while the user is
 #### settings/avatar/gravatar_permissions
 
 * settings.avatar.gravatar-permissions.accepted - user accepted permission prompt
-* settings.avatar.gravatar-permissions.alreadly-accepted - user accepted permission prompt
+* settings.avatar.gravatar-permissions.already-accepted - user accepted permission prompt
 * settings.avatar.gravatar-permissions.submit - user accepted permission prompt
 
 
