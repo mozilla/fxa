@@ -8,6 +8,8 @@ ulimit -S -n 2048 || echo "Setting ulimit failed"
 git clone https://github.com/mozilla/fxa-content-server.git &
 git clone https://github.com/mozilla/fxa-content-server-l10n.git &
 
+git clone https://github.com/mozilla/fxa-js-client.git &
+
 git clone https://github.com/mozilla/fxa-auth-server.git &
 git clone https://github.com/mozilla/fxa-auth-db-mysql.git &
 
