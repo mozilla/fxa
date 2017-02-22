@@ -1355,10 +1355,10 @@ module.exports = function (
         return customs.checkAuthenticated(endpointAction, ip, stringUid)
           .then(function () {
             if (body.to === 'all') {
-              return push.pushToAllDevices(uid, endpointAction, pushOptions)
+              push.pushToAllDevices(uid, endpointAction, pushOptions)
                 .catch(catchPushError)
             } else {
-              return push.pushToDevices(uid, body.to, endpointAction, pushOptions)
+              push.pushToDevices(uid, body.to, endpointAction, pushOptions)
                 .catch(catchPushError)
             }
           })

@@ -237,18 +237,27 @@ describe('/account/devices/notify', function () {
       TTL: 60,
       payload: pushPayload
     }
+    // We don't wait on pushToAllDevices in the request handler, that's why
+    // we have to wait on it manually by spying.
+    var pushToAllDevicesPromise = P.defer()
+    mockPush.pushToAllDevices = sinon.spy(function () {
+      pushToAllDevicesPromise.resolve()
+      return Promise.resolve()
+    })
     return runTest(route, mockRequest, function (response) {
-      assert.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once')
-      assert.equal(mockPush.pushToAllDevices.callCount, 1, 'mockPush.pushToAllDevices was called once')
-      var args = mockPush.pushToAllDevices.args[0]
-      assert.equal(args.length, 3, 'mockPush.pushToAllDevices was passed three arguments')
-      assert.equal(args[0], uid.toString('hex'), 'first argument was the device uid')
-      assert.equal(args[1], 'devicesNotify', 'second argument was the devicesNotify reason')
-      assert.deepEqual(args[2], {
-        data: Buffer.from(JSON.stringify(pushPayload)),
-        excludedDeviceIds: ['bogusid'],
-        TTL: 60
-      }, 'third argument was the push options')
+      return pushToAllDevicesPromise.promise.then(function () {
+        assert.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once')
+        assert.equal(mockPush.pushToAllDevices.callCount, 1, 'mockPush.pushToAllDevices was called once')
+        var args = mockPush.pushToAllDevices.args[0]
+        assert.equal(args.length, 3, 'mockPush.pushToAllDevices was passed three arguments')
+        assert.equal(args[0], uid.toString('hex'), 'first argument was the device uid')
+        assert.equal(args[1], 'devicesNotify', 'second argument was the devicesNotify reason')
+        assert.deepEqual(args[2], {
+          data: Buffer.from(JSON.stringify(pushPayload)),
+          excludedDeviceIds: ['bogusid'],
+          TTL: 60
+        }, 'third argument was the push options')
+      })
     })
   })
 
@@ -259,18 +268,27 @@ describe('/account/devices/notify', function () {
       TTL: 60,
       payload: pushPayload
     }
+    // We don't wait on pushToDevices in the request handler, that's why
+    // we have to wait on it manually by spying.
+    var pushToDevicesPromise = P.defer()
+    mockPush.pushToDevices = sinon.spy(function () {
+      pushToDevicesPromise.resolve()
+      return Promise.resolve()
+    })
     return runTest(route, mockRequest, function (response) {
-      assert.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once')
-      assert.equal(mockPush.pushToDevices.callCount, 1, 'mockPush.pushToDevices was called once')
-      var args = mockPush.pushToDevices.args[0]
-      assert.equal(args.length, 4, 'mockPush.pushToDevices was passed four arguments')
-      assert.equal(args[0], uid.toString('hex'), 'first argument was the device uid')
-      assert.deepEqual(args[1], ['bogusid1', 'bogusid2'], 'second argument was the list of device ids')
-      assert.equal(args[2], 'devicesNotify', 'third argument was the devicesNotify reason')
-      assert.deepEqual(args[3], {
-        data: Buffer.from(JSON.stringify(pushPayload)),
-        TTL: 60
-      }, 'fourth argument was the push options')
+      return pushToDevicesPromise.promise.then(function () {
+        assert.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once')
+        assert.equal(mockPush.pushToDevices.callCount, 1, 'mockPush.pushToDevices was called once')
+        var args = mockPush.pushToDevices.args[0]
+        assert.equal(args.length, 4, 'mockPush.pushToDevices was passed four arguments')
+        assert.equal(args[0], uid.toString('hex'), 'first argument was the device uid')
+        assert.deepEqual(args[1], ['bogusid1', 'bogusid2'], 'second argument was the list of device ids')
+        assert.equal(args[2], 'devicesNotify', 'third argument was the devicesNotify reason')
+        assert.deepEqual(args[3], {
+          data: Buffer.from(JSON.stringify(pushPayload)),
+          TTL: 60
+        }, 'fourth argument was the push options')
+      })
     })
   })
 
