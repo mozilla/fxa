@@ -1,3 +1,40 @@
+<a name="1.81.0"></a>
+# [1.81.0](https://github.com/mozilla/fxa-auth-server/compare/v1.80.0...v1.81.0) (2017-02-22)
+
+
+### Bug Fixes
+
+* **dev:** disable ip profile in dev (#1643) r=vbudhram ([d9b6bd9](https://github.com/mozilla/fxa-auth-server/commit/d9b6bd9))
+* **docs:** Document that devices should reigster before attempting to sync. (#1667); r=phil ([496be0e](https://github.com/mozilla/fxa-auth-server/commit/496be0e))
+* **docs:** document the /sms endpoint ([7226ce0](https://github.com/mozilla/fxa-auth-server/commit/7226ce0))
+* **logging:** log errors when we encounter unexpected createdAt values ([a3d4f56](https://github.com/mozilla/fxa-auth-server/commit/a3d4f56))
+* **push:** notify a device connected only when account verified ([901525b](https://github.com/mozilla/fxa-auth-server/commit/901525b)), closes [#1651](https://github.com/mozilla/fxa-auth-server/issues/1651)
+* **server:** disallow any query or payload params without validation (#1668) r=vladikoff ([0acab56](https://github.com/mozilla/fxa-auth-server/commit/0acab56))
+* **sms:** make the fallback error case work sanely ([3eff2d3](https://github.com/mozilla/fxa-auth-server/commit/3eff2d3))
+* **tests:** add missing tests for log.begin and log.summary calls ([e1265ff](https://github.com/mozilla/fxa-auth-server/commit/e1265ff))
+
+### chore
+
+* **docs:** Add some more details on metrics db column contents. ([06913c6](https://github.com/mozilla/fxa-auth-server/commit/06913c6))
+
+### Features
+
+* **api:** add an endpoint for sending SMS messages ([d35d442](https://github.com/mozilla/fxa-auth-server/commit/d35d442))
+* **email:** record email bounces in database ([b4279c1](https://github.com/mozilla/fxa-auth-server/commit/b4279c1))
+* **logging:** add optional uid and locale to flow event data ([038d457](https://github.com/mozilla/fxa-auth-server/commit/038d457))
+* **server:** auto-unbuffer binary data when crossing API boundaries ([35115f9](https://github.com/mozilla/fxa-auth-server/commit/35115f9))
+
+### Refactor
+
+* **server:** unify the unbuffering functions to one place ([a649b78](https://github.com/mozilla/fxa-auth-server/commit/a649b78))
+* **unblock:** Graduate sign-in unblock ([5f07f22](https://github.com/mozilla/fxa-auth-server/commit/5f07f22))
+
+### style
+
+* **lib:** update let to const when possible ([29c9f39](https://github.com/mozilla/fxa-auth-server/commit/29c9f39))
+
+
+
 <a name="1.80.0"></a>
 # [1.80.0](https://github.com/mozilla/fxa-auth-server/compare/v1.78.0...v1.80.0) (2017-02-07)
 
