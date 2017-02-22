@@ -9,7 +9,8 @@
     "test": "test"
   },
   "scripts": {
-    "prepush": "grunt quicklint",
+    "prepush": "grunt quicklint && cd mailer && npm run prepush",
+    "postinstall": "cd mailer && npm install",
     "shrinkwrap": "npmshrink",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",
     "start-mysql": "NODE_ENV=dev scripts/start-local-mysql.sh 2>&1",
@@ -41,7 +42,6 @@
     "convict": "1.5.0",
     "email-addresses": "2.0.2",
     "envc": "2.4.0",
-    "fxa-auth-mailer": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
     "fxa-geodb": "0.0.7",
     "fxa-jwtool": "0.7.1",
     "fxa-shared": "1.0.3",

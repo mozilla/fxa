@@ -8,6 +8,7 @@
 server.log*
 secret*
 *.gpg
+*.log
 /test/load/bin
 /test/load/lib*
 /test/load/include
@@ -16,3 +17,5 @@ secret*
 /.vagrant
 .nyc_output
 npm-debug.log
+mailer/server.pot
+mailer/.mail_output

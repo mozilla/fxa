@@ -1,0 +1,14 @@
+{{t "Is this you signing in?"}}
+
+{{ device }}
+{{#if location}}{{ location }}{{/if}}
+{{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
+{{#if timestamp}}{{ timestamp }}{{/if}}
+
+{{t "If yes, here is the authorization code you need:"}} {{ unblockCode }}
+
+{{{t "If no, help us fend off intruders and report it to us." }}}
+{{{ reportSignInLink }}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+{{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}

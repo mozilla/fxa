@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>{{t "Firefox Accounts"}}</title>
+</head>
+
+<body style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; margin: 0; padding: 0;">
+<table align="center" border="0" cellpadding="0" cellspacing="0" width="310" style="-webkit-text-size-adjust: 100%; border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 310px; margin: 0 auto;">
+
+<!--Logo-->
+<tr style="page-break-before: always">
+  <td align="center" id="firefox-logo" style="padding: 20px 0;">
+    {{^if sync}}
+      <img src="http://image.e.mozilla.org/lib/fe9915707361037e75/m/2/fxlogojg.gif" height="95" width="88" alt="" style="-ms-interpolation-mode: bicubic;" />
+    {{/if}}
+    {{#if sync}}
+      <img src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/3/fxa_dec2016.jpeg" height="152" width="310" alt="" style="-ms-interpolation-mode: bicubic;" />
+    {{/if}}
+  </td>
+</tr>
+
+
+<!--Header Area-->
+<tr style="page-break-before: always">
+  <td valign="top">
+    <h1 style="font-family: sans-serif; font-size: 21px; line-height: 29px; font-weight: normal; margin: 0 0 11px 0; text-align: center;">{{t "Is this you signing in?" }}</h1>
+    <p style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;">
+    <p style="font-family:sans-serif; font-size: 13px; line-height: 20px; font-weight: normal; margin: 0 0 24px 0px; text-align: center; color: #424f59;">
+    {{{ device }}}<br/>
+    {{#if location }}{{ location }}<br/>{{/if}}
+    {{#if ip }}{{t "IP address: %(ip)s" }}<br/>{{/if}}
+    {{#if timestamp }}{{ timestamp }}<br/>{{/if}}
+</p>
+
+  </td>
+</tr>
+<tr style="page-break-before: always">
+  <td valign="top">
+    <p style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;">
+    {{t "If yes, here is the authorization code you need:" }}
+    </p>
+    <p style="font-family: monospace !important; font-size: 18px; line-height: 26px; font-weight: normal; margin: 0 0 24px 0; text-align: center;">
+    {{ unblockCode }}
+    </p>
+  </td>
+</tr>
+<tr style="page-break-before: always">
+  <td valign="top">
+    <p style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 24px 0; text-align: center;">
+    {{{t "If no, help us fend off intruders and <a %(reportSignInLinkAttributes)s>report it to us.</a>" }}}
+    </p>
+  </td>
+</tr>
+
+
+<tr style="page-break-before: always">
+  <td valign="top">
+    <p style="font-family: sans-serif; font-weight: normal; margin: 0; text-align: center; color: #8A9BA8; font-size: 11px; line-height: 18px; width: 310px !important; word-wrap:break-word">Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+    <br />
+    <a href="{{{privacyUrl}}}" style="color: #0996f8; text-decoration: none; font-family: sans-serif; font-size: 11px; line-height: 18px;">{{t "Mozilla Privacy Policy" }}</a></p>
+  </td>
+</tr>
+
+</table>
+
+</body>
+</html>

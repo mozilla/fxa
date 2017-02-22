@@ -26,9 +26,6 @@ env:
 
 notifications:
   email:
-    - zcarter@mozilla.com
-    - dcoates@mozilla.com
-    - jbonacci@mozilla.com
     - rfkelly@mozilla.com
     - jrgm@mozilla.com
   irc:
@@ -48,4 +45,11 @@ script:
   - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
   - COVERALLS_REPO_TOKEN=vKN3jjhAOwxkv9HG0VBX4EYIlWLPwiJ9d npm test
   - npm run test-e2e
+  # Test fxa-auth-mailer
+  - cd mailer
+  - grunt templates
+  - npm test
+  - grunt l10n-extract
+  - cd ..
+  # NSP check
   - grunt nsp

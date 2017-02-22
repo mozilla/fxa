@@ -1,0 +1,11 @@
+{
+  "logging": {
+    "level": "ALL",
+    "fmt": "pretty"
+  },
+  "verificationReminders": {
+    "reminderTimeFirst": 10000,
+    "reminderTimeSecond": 15000,
+    "pollTime": 5000
+  }
+}
