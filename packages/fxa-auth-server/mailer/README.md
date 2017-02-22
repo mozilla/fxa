@@ -1,8 +1,8 @@
 Firefox Accounts Mailer
 ==========================
 
-[![Build Status](https://travis-ci.org/mozilla/fxa-auth-mailer.svg?branch=master)](https://travis-ci.org/mozilla/fxa-auth-mailer)
-[![Coverage Status](https://coveralls.io/repos/github/mozilla/fxa-auth-mailer/badge.svg?branch=master)](https://coveralls.io/github/mozilla/fxa-auth-mailer?branch=master)
+[![Build Status](https://travis-ci.org/mozilla/fxa-auth-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-auth-server)
+[![Coverage Status](https://coveralls.io/repos/github/mozilla/fxa-auth-server/badge.svg?branch=master)](https://coveralls.io/github/mozilla/fxa-auth-server?branch=master)
 
 Library to send out verification emails in the [fxa-auth-server](https://github.com/mozilla/fxa-auth-server/) which renders emails from a template (and handles localization).
 
@@ -24,9 +24,8 @@ This saves the HTML template into `/templates`. Then make changes to the `.txt` 
 
 ## L10N
 
-After updating a string in one of the templates in `./templates` you'll need to extract the strings using [this script](https://raw.githubusercontent.com/mozilla/fxa-content-server-l10n/master/scripts/extract_strings.sh):
-
-``extract_strings.sh [--mailer-repo ./fxa-auth-mailer] [--content-repo ./fxa-content-server] [--l10n-repo ./fxa-content-server-l10n] train_number``
+After updating a string in one of the templates in `./templates` you'll need to extract the strings.
+Follow the instructions at [mozilla/fxa-content-server-l10n](https://github.com/mozilla/fxa-content-server-l10n#string-extraction).
 
 ### Production
 

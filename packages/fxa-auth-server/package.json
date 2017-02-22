@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "prepush": "grunt quicklint",
+    "prepush": "grunt quicklint && cd mailer && npm run prepush",
     "postinstall": "cd mailer && npm install",
     "shrinkwrap": "npmshrink",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",

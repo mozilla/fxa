@@ -13,8 +13,8 @@ var TEST_EMAIL = 'test@restmail.net'
 var TEST_ACCOUNT_RECORD = {
   emailVerified: false,
   email: TEST_EMAIL,
-  emailCode: new Buffer('foo'),
-  uid: new Buffer('bar'),
+  emailCode: Buffer.from('foo'),
+  uid: Buffer.from('bar'),
   locale: 'da, en-gb;q=0.8, en;q=0.7'
 }
 var REMINDER_TYPE = 'first'
