@@ -181,9 +181,9 @@ P.all(
           function (t) {
             mailer.mailer.sendMail = function (emailConfig) {
               var sesConfigurationSetHeader = emailConfig.headers['X-SES-CONFIGURATION-SET']
-              t.ok(!sesConfigurationSetHeader)
+              t.ok(! sesConfigurationSetHeader)
               var sesMessageTags = emailConfig.headers['X-SES-MESSAGE-TAGS']
-              t.ok(!sesMessageTags)
+              t.ok(! sesMessageTags)
               t.end()
             }
 

@@ -93,7 +93,7 @@ module.exports = function (log) {
     var options = {
       host: config.host,
       secure: config.secure,
-      ignoreTLS: !config.secure,
+      ignoreTLS: ! config.secure,
       port: config.port
     }
 
@@ -730,7 +730,7 @@ module.exports = function (log) {
     parsedQuery['utm_medium'] = 'email'
 
     var campaign = templateNameToCampaignMap[templateName]
-    if (campaign && !parsedQuery['utm_campaign']) {
+    if (campaign && ! parsedQuery['utm_campaign']) {
       parsedQuery['utm_campaign'] = UTM_PREFIX + campaign
     }
 

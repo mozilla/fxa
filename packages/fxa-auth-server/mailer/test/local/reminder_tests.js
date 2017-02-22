@@ -35,7 +35,7 @@ var LOG_METHOD_NAMES = ['trace', 'increment', 'info', 'error', 'begin', 'debug']
 var mockLog = function(methods) {
   var log = extend({}, methods)
   LOG_METHOD_NAMES.forEach(function(name) {
-    if (!log[name]) {
+    if (! log[name]) {
       log[name] = function() {}
     }
   })
