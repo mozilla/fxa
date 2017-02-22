@@ -9,7 +9,7 @@
  * @returns {boolean}
  */
 function wantsKeys (request) {
-  return request.query && request.query.keys === 'true'
+  return !! (request.query && request.query.keys)
 }
 
 module.exports = {

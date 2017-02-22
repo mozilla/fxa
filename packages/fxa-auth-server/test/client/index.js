@@ -29,25 +29,27 @@ module.exports = config => {
   Client.Api = ClientApi
 
   Client.prototype.setupCredentials = function (email, password) {
-    this.email = email
-    return pbkdf2.derive(Buffer(password), hkdf.KWE('quickStretch', email), 1000, 32)
-      .then(
-        function (stretch) {
-          return hkdf(stretch, 'authPW', null, 32)
-            .then(
-              function (authPW) {
-                this.authPW = authPW
-                return hkdf(stretch, 'unwrapBKey', null, 32)
-              }.bind(this)
-            )
-        }.bind(this)
-      )
-      .then(
-        function (unwrapBKey) {
-          this.unwrapBKey = unwrapBKey
-          return this
-        }.bind(this)
-      )
+    return P.resolve().then(() => {
+      this.email = email
+      return pbkdf2.derive(Buffer(password), hkdf.KWE('quickStretch', email), 1000, 32)
+        .then(
+          function (stretch) {
+            return hkdf(stretch, 'authPW', null, 32)
+              .then(
+                function (authPW) {
+                  this.authPW = authPW
+                  return hkdf(stretch, 'unwrapBKey', null, 32)
+                }.bind(this)
+              )
+          }.bind(this)
+        )
+        .then(
+          function (unwrapBKey) {
+            this.unwrapBKey = unwrapBKey
+            return this
+          }.bind(this)
+        )
+    })
   }
 
   Client.create = function (origin, email, password, options) {

@@ -22,8 +22,8 @@ describe('requestHelper', () => {
     () => {
       assert.equal(!! requestHelper.wantsKeys({}), false, 'should return falsey if request.query is not set')
       assert.equal(requestHelper.wantsKeys({ query: {} }), false, 'should return false if query.keys is not set')
-      assert.equal(requestHelper.wantsKeys({ query: { keys: 'wibble' } }), false, 'should return false if keys is not true')
-      assert.equal(requestHelper.wantsKeys({ query: { keys: 'true' } }), true, 'should return true if keys is true')
+      assert.equal(requestHelper.wantsKeys({ query: { keys: false } }), false, 'should return false if query.keys is false')
+      assert.equal(requestHelper.wantsKeys({ query: { keys: true } }), true, 'should return true if keys is true')
     }
   )
 })

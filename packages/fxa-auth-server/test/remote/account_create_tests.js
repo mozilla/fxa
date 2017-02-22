@@ -421,32 +421,6 @@ describe('remote account create', function() {
   )
 
   it(
-    'account creation fails with old metricsContext fields',
-    () => {
-      var email = server.uniqueEmail()
-      return Client.create(config.publicUrl, email, 'foo', {
-        metricsContext: {
-          flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
-          flowBeginTime: 1,
-          context: 'foo',
-          entrypoint: 'bar',
-          migration: 'baz',
-          service: 'qux',
-          utmCampaign: 'wibble',
-          utmContent: 'blurgh',
-          utmMedium: 'blee',
-          utmSource: 'fnarr',
-          utmTerm: 'frang'
-        }
-      }).then(function () {
-        assert(false, 'account creation should have failed')
-      }, function (err) {
-        assert.ok(err, 'account creation failed')
-      })
-    }
-  )
-
-  it(
     'account creation fails with invalid metricsContext flowId',
     () => {
       var email = server.uniqueEmail()

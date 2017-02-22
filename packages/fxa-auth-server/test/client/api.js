@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 module.exports = config => {
   var EventEmitter = require('events').EventEmitter
   var util = require('util')
@@ -573,21 +575,25 @@ module.exports = config => {
   }
 
   function getQueryString (options) {
-    var qs = '?'
+    const qs = []
 
     if (options.keys) {
-      qs += 'keys=true&'
+      qs.push('keys=true')
     }
 
     if (options.serviceQuery) {
-      qs += 'service=' + options.serviceQuery + '&'
+      qs.push('service=' + options.serviceQuery)
     }
 
     if (options.createdAt) {
-      qs += '_createdAt=' + options.createdAt
+      qs.push('_createdAt=' + options.createdAt)
     }
 
-    return qs
+    if (qs) {
+      return '?' + qs.join('&')
+    } else {
+      return ''
+    }
   }
 
   return ClientApi

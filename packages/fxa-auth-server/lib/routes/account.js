@@ -69,11 +69,16 @@ module.exports = function (
       path: '/account/create',
       config: {
         validate: {
+          query: {
+            keys: isA.boolean().optional(),
+            service: validators.service,
+            _createdAt: isA.number().min(0).optional()
+          },
           payload: {
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             preVerified: isA.boolean(),
-            service: isA.string().max(16).alphanum().optional(),
+            service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
             preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional(),
@@ -400,10 +405,14 @@ module.exports = function (
       path: '/account/login',
       config: {
         validate: {
+          query: {
+            keys: isA.boolean().optional(),
+            service: validators.service
+          },
           payload: {
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            service: isA.string().max(16).alphanum().optional(),
+            service: validators.service,
             redirectTo: isA.string().uri().optional(),
             resume: isA.string().optional(),
             reason: isA.string().max(16).optional(),
@@ -1567,8 +1576,11 @@ module.exports = function (
           strategy: 'sessionTokenWithVerificationStatus'
         },
         validate: {
+          query: {
+            service: validators.service
+          },
           payload: {
-            service: isA.string().max(16).alphanum().optional(),
+            service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA
@@ -1632,10 +1644,14 @@ module.exports = function (
       path: '/recovery_email/verify_code',
       config: {
         validate: {
+          query: {
+            service: validators.service,
+            reminder: isA.string().max(32).alphanum().optional()
+          },
           payload: {
             uid: isA.string().max(32).regex(HEX_STRING).required(),
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
-            service: isA.string().max(16).alphanum().optional(),
+            service: validators.service,
             reminder: isA.string().max(32).alphanum().optional()
           }
         }
@@ -1809,6 +1825,11 @@ module.exports = function (
     {
       method: 'POST',
       path: '/account/unlock/resend_code',
+      config: {
+        validate: {
+          payload: true
+        }
+      },
       handler: function (request, reply) {
         log.error({ op: 'Account.UnlockCodeResend', request: request })
         reply(error.gone())
@@ -1817,6 +1838,11 @@ module.exports = function (
     {
       method: 'POST',
       path: '/account/unlock/verify_code',
+      config: {
+        validate: {
+          payload: true
+        }
+      },
       handler: function (request, reply) {
         log.error({ op: 'Account.UnlockCodeVerify', request: request })
         reply(error.gone())
@@ -1923,6 +1949,9 @@ module.exports = function (
           payload: 'required'
         },
         validate: {
+          query: {
+            keys: isA.boolean().optional()
+          },
           payload: {
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             sessionToken: isA.boolean().optional(),
@@ -2180,6 +2209,7 @@ module.exports = function (
   ]
 
   if (config.isProduction) {
+    delete routes[0].config.validate.query._createdAt
     delete routes[0].config.validate.payload.preVerified
   } else {
     // programmatic account lockout was only available in
@@ -2187,6 +2217,11 @@ module.exports = function (
     routes.push({
       method: 'POST',
       path: '/account/lock',
+      config: {
+        validate: {
+          payload: true
+        }
+      },
       handler: function (request, reply) {
         log.error({ op: 'Account.lock', request: request })
         reply(error.gone())

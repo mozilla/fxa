@@ -63,6 +63,8 @@ module.exports.email = function() {
   return email
 }
 
+module.exports.service = isA.string().max(16).regex(/^[a-zA-Z0-9\-]*$/g)
+
 
 // Function to validate an email address.
 // This is a transliteration of the HTML5 email-validation logic

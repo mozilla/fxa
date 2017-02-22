@@ -87,6 +87,12 @@ module.exports = function (log, P, db, error) {
     {
       method: '*',
       path: '/v0/{p*}',
+      config: {
+        validate: {
+          query: true,
+          params: true
+        }
+      },
       handler: function v0(request, reply) {
         log.begin('Defaults.v0', request)
         reply(error.gone())

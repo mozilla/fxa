@@ -376,34 +376,16 @@ describe('remote device', function() {
     () => {
       var email = server.uniqueEmail()
       var password = 'test password'
-      var deviceInfo = {
-        name: 'test device',
-        type: 'mobile'
-      }
       return Client.create(config.publicUrl, email, password, {
         createdAt: '-1'
       })
       .then(
-        function (client) {
-          return client.updateDevice(deviceInfo)
-            .then(
-              function () {
-                return client.devices()
-              }
-            )
-            .then(
-              function (devices) {
-                assert.equal(devices.length, 1, 'devices returned one item')
-                assert.ok(devices[0].lastAccessTime > 0, 'devices returned correct lastAccessTime')
-                assert.strictEqual(devices[0].lastAccessTimeFormatted, 'a few seconds ago',
-                  'devices returned correct lastAccessTimeFormatted')
-                assert.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
-                assert.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
-                return client.destroyDevice(devices[0].id)
-              }
-            )
+        () => assert(false),
+        err => {
+          assert.equal(err.code, 400)
         }
       )
+
     }
   )
 

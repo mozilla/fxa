@@ -18,7 +18,10 @@ const FLOW_ID_LENGTH = 64
 const SCHEMA = isA.object({
   flowId: isA.string().length(64).regex(HEX).optional(),
   flowBeginTime: isA.number().integer().positive().optional()
-}).and('flowId', 'flowBeginTime').optional()
+})
+  .unknown(false)
+  .and('flowId', 'flowBeginTime')
+  .optional()
 
 const NOP = function () {
   return P.resolve()
