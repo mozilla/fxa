@@ -10,6 +10,7 @@
   },
   "scripts": {
     "prepush": "grunt quicklint",
+    "postinstall": "cd mailer && npm install",
     "shrinkwrap": "npmshrink",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",
     "start-mysql": "NODE_ENV=dev scripts/start-local-mysql.sh 2>&1",
