@@ -5,6 +5,16 @@
 module.exports = function (grunt) {
   grunt.config('watch', {
     grunt: { files: ['Gruntfile.js'] },
+    livereload: {
+      files: [
+        '<%= yeoman.app %>/**/*.js',
+        '!<%= yeoman.app %>/bower_components/**',
+        '!<%= yeoman.app %>/scripts/vendor/**'
+      ],
+      options: {
+        livereload: true
+      }
+    },
     sass: {
       files: '<%= yeoman.app %>/styles/**/*.scss',
       tasks: ['sass', 'autoprefixer']

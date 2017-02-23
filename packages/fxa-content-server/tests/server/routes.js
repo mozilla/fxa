@@ -285,9 +285,10 @@ define([
 
       var promise = makeRequest(url, requestOptions)
         .then(function (res) {
-          if (/support.mozilla.org/.test(url)) {
+          if (/support.mozilla.org/.test(url) || /localhost:35729/.test(url)) {
             // Do not check support.mozilla.org URLs. Issue #4712
             // In February 2017 SUMO links started returning 404s to non-browser redirect requests
+            // Also skip the livereload link in the mocha tests
             return;
           }
           assert.equal(res.statusCode, 200);
