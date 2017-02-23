@@ -21,7 +21,6 @@ define(function (require, exports, module) {
   ];
   const TOP_LEVEL_DOMAINS = [];
   const MIN_CHARS = 5; // start suggesting email correction after MIN_CHARS
-  const SUGGEST_DIV_CLASS = 'tooltip-suggest';
 
   const DID_YOU_MEAN_TEXT = t('Did you mean <span tabindex="1">%(escapedDomain)s</span>?');
 
@@ -35,10 +34,9 @@ define(function (require, exports, module) {
     if (! element.length || ! view) {
       return;
     }
-
     // check if the text value was changed before showing the tooltip
     if (element.data('previousValue') !== element.val() && element.val().length > MIN_CHARS) {
-      view.notifier.trigger('mailcheck.triggered');
+      view.logEvent('mailcheck.triggered');
 
       element.mailcheck({
         domains: DOMAINS,
@@ -54,38 +52,35 @@ define(function (require, exports, module) {
           }
 
           // user got a suggestion to check their email input
-          view.notifier.trigger('mailcheck.suggested');
-          if (view.isInExperimentGroup('mailcheck', 'treatment')) {
+          view.logEvent('mailcheck.suggested');
+          const message = view.unsafeTranslate(DID_YOU_MEAN_TEXT, {
+            escapedDomain: _.escape(suggestion.domain)
+          });
 
-            const message = view.unsafeTranslate(DID_YOU_MEAN_TEXT, {
-              escapedDomain: _.escape(suggestion.domain)
-            });
+          let tooltip = new Tooltip({
+            dismissible: true,
+            extraClassNames: 'tooltip-suggest tooltip-error',
+            invalidEl: target,
+            type: 'mailcheck',
+            unsafeMessage: message
+          });
 
-            let tooltip = new Tooltip({
-              dismissible: true,
-              extraClassNames: SUGGEST_DIV_CLASS,
-              invalidEl: target,
-              type: 'mailcheck',
-              unsafeMessage: message
-            });
+          tooltip.render();
+          // set that this value was suggested, user might not click on the tooltip
+          // but still take the suggestion
+          element.data('mailcheckValue', suggestion.full);
 
-            tooltip.render();
-            // set that this value was suggested, user might not click on the tooltip
-            // but still take the suggestion
-            element.data('mailcheckValue', suggestion.full);
-
-            tooltip.$el.on('click keypress', 'span', function (e) {
-              // if a click event is triggered or an enter key is pressed, destroy
-              // the tooltip.
-              if (e.type === 'click' || e.which === KeyCodes.ENTER) {
-                element.val(suggestion.full);
-                // the user has used the suggestion
-                view.notifier.trigger('mailcheck.clicked');
-                tooltip._destroy();
-                tooltip = null;
-              }
-            });
-          }
+          tooltip.$el.on('click keypress', 'span', function (e) {
+            // if a click event is triggered or an enter key is pressed, destroy
+            // the tooltip.
+            if (e.type === 'click' || e.which === KeyCodes.ENTER) {
+              element.val(suggestion.full);
+              // the user has used the suggestion
+              view.logEvent('mailcheck.clicked');
+              tooltip._destroy();
+              tooltip = null;
+            }
+          });
         }
       });
     }

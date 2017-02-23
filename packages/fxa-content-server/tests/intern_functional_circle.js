@@ -19,7 +19,7 @@ define([
     'tests/functional/sync_v2_sign_up',
     'tests/functional/sync_v2_sign_in',
     'tests/functional/sync_v2_force_auth',
-    'tests/functional/verification_experiments',
+    'tests/functional/mailcheck',
     'tests/functional/bounced_email',
     'tests/functional/fx_firstrun_v1_sign_up',
     'tests/functional/fx_firstrun_v1_sign_in',

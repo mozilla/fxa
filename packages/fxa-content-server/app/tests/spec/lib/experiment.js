@@ -161,25 +161,6 @@ define(function (require, exports, module) {
           assert.isTrue(expInt.isInExperiment('experiment3'));
         });
       });
-
-      it('accepts window parameter override', function () {
-        windowMock.location.search = '?forceExperiment=mailcheck&forceExperimentGroup=treatment';
-
-        sinon.stub(able, 'choose', () => true);
-
-        expInt = new ExperimentInterface({
-          able: able,
-          metrics: metrics,
-          notifier: notifier,
-          user: user,
-          window: windowMock
-        });
-
-        expInt.chooseExperiments();
-        const mailcheckArgs = able.choose.args[0];
-        assert.equal(mailcheckArgs[1].forceExperiment, 'mailcheck');
-        assert.equal(mailcheckArgs[1].forceExperimentGroup, 'treatment');
-      });
     });
   });
 });

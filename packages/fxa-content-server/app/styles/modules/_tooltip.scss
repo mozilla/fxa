@@ -67,6 +67,18 @@
     }
   }
 
+  &.tooltip-error {
+    background: $error-background-color;
+
+    &::before {
+      background-color: $error-background-color;
+    }
+
+    a {
+      text-decoration: underline;
+    }
+  }
+
   &.tooltip-warning {
     background: $warning-background-color;
 

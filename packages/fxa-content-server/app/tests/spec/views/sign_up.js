@@ -6,7 +6,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const _ = require('underscore');
   const $ = require('jquery');
   const Able = require('lib/able');
   const Account = require('models/account');
@@ -1157,65 +1156,6 @@ define(function (require, exports, module) {
     });
 
     describe('suggestEmail', function () {
-      it('works when able chooses treatment', function (done) {
-        sinon.stub(view, 'isInExperiment', function () {
-          return true;
-        });
-        sinon.stub(view, 'isInExperimentGroup', function () {
-          return true;
-        });
-        view.$('.email').val('testuser@gnail.com');
-        view.onEmailBlur();
-        setTimeout(function () {
-          assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
-          done();
-        }, 50);
-      });
-
-      it('does not show when able chooses control', function (done) {
-        view.experiments.able = new Able();
-        sinon.stub(view, 'isInExperiment', function () {
-          return true;
-        });
-        sinon.stub(view, 'isInExperimentGroup', function () {
-          return false;
-        });
-
-        view.experiments.chooseExperiments();
-        view.$('.email').val('testuser@gnail.com');
-        view.onEmailBlur();
-        setTimeout(function () {
-          assert.equal($('.tooltip-suggest').length, 0);
-          done();
-        }, 50);
-      });
-
-      it('accepts window parameter override', function () {
-        var windowMock = new WindowMock();
-        windowMock.location.search = '?forceExperiment=mailcheck&forceExperimentGroup=treatment';
-        windowMock.navigator.userAgent = 'mocha';
-
-        var mockAble = new Able();
-        sinon.stub(mockAble, 'choose', () => true);
-
-        view.experiments = new ExperimentInterface({
-          able: mockAble,
-          metrics: metrics,
-          notifier: notifier,
-          user: user,
-          window: windowMock
-        });
-
-        view.experiments.chooseExperiments();
-        // find the first call to mailcheck, then check its arguments
-        const mailcheckArgs = _.find(mockAble.choose.args, (args, index) => {
-          return args[0] === 'mailcheck';
-        });
-        assert.equal(mailcheckArgs[0], 'mailcheck');
-        assert.equal(mailcheckArgs[1].forceExperiment, 'mailcheck');
-        assert.equal(mailcheckArgs[1].forceExperimentGroup, 'treatment');
-      });
-
       it('measures how successful our mailcheck suggestion is', function () {
         var windowMock = new WindowMock();
         windowMock.navigator.userAgent = 'mocha';
@@ -1251,21 +1191,18 @@ define(function (require, exports, module) {
 
         return view.submit()
           .then(function () {
-            assert.isFalse(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.corrected'), 'is not useful');
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'mailcheck.corrected'), 'is not useful');
             // user fixes value manually
             view.$('.email').val('testuser@gmail.com');
 
             return view.submit()
               .then(function () {
-                assert.isTrue(TestHelpers.isEventLogged(metrics, 'experiment.treatment.mailcheck.corrected'), 'is useful');
+                assert.isTrue(TestHelpers.isEventLogged(metrics, 'mailcheck.corrected'), 'is useful');
               });
           });
       });
 
       it('suggests emails via a tooltip', function () {
-        sinon.stub(view, 'isInExperiment', () => true);
-        sinon.stub(view, 'isInExperimentGroup', () => true);
-
         view.$('.email').val('testuser@gnail.com');
         view.onEmailBlur();
         // wait for tooltip

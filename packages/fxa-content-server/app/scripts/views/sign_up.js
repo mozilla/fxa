@@ -257,7 +257,19 @@ define(function (require, exports, module) {
       });
     },
 
+    _checkMailcheckResult () {
+      var emailEl = this.$el.find('.email');
+
+      var emailValue = emailEl.val();
+      var mailcheckValue = emailEl.data('mailcheckValue');
+
+      if (emailValue.length > 0 && mailcheckValue === emailValue) {
+        this.logEvent('mailcheck.corrected');
+      }
+    },
+
     _signUp (account, password) {
+      this._checkMailcheckResult(this);
       return this.signUp(account, password)
         .fail(this.onSignUpError.bind(this, account, password));
     },
@@ -304,9 +316,7 @@ define(function (require, exports, module) {
     },
 
     onEmailBlur () {
-      if (this.isInExperiment('mailcheck')) {
-        mailcheck(this.$el.find('.email'), this);
-      }
+      mailcheck(this.$el.find('.email'), this);
     },
 
     onSuggestSyncDismiss () {

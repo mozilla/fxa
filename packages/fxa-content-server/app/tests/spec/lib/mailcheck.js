@@ -32,9 +32,7 @@ define(function (require, exports, module) {
         isInExperimentGroup () {
           return true;
         },
-        notifier: {
-          trigger: sinon.spy(function () {})
-        },
+        logEvent: sinon.spy(),
         unsafeTranslate(msg, params) {
           return translator.get(msg, params);
         }
@@ -61,7 +59,7 @@ define(function (require, exports, module) {
 
 
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
-      assert.isTrue(mockView.notifier.trigger.calledTwice, 'called trigger twice');
+      assert.equal(mockView.logEvent.callCount, 2, 'called logEvent twice');
 
       return p()
         // wait for tooltip
@@ -71,7 +69,7 @@ define(function (require, exports, module) {
           $(TOOLTIP_SELECTOR).find('span').first().click();
           // email should be corrected
           assert.equal($(MAILCHECK_SELECTOR).val(), CORRECTED_EMAIL);
-          assert.isTrue(mockView.notifier.trigger.calledThrice, 'called trigger thrice');
+          assert.equal(mockView.logEvent.callCount, 3, 'called logEvent thrice');
         });
     });
 
@@ -81,7 +79,7 @@ define(function (require, exports, module) {
       });
 
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
-      assert.isTrue(mockView.notifier.trigger.calledTwice, 'called trigger twice');
+      assert.equal(mockView.logEvent.callCount, 2, 'called logEvent twice');
 
       return p()
         // wait for tooltip
@@ -91,7 +89,7 @@ define(function (require, exports, module) {
           $(TOOLTIP_SELECTOR).find('span').eq(1).click();
           // email should NOT be corrected
           assert.equal($(MAILCHECK_SELECTOR).val(), BAD_EMAIL);
-          assert.isFalse(mockView.notifier.trigger.calledThrice, 'called trigger thrice');
+          assert.notEqual(mockView.logEvent.callCount, 3, 'called logEvent thrice');
         });
     });
 

@@ -34,7 +34,7 @@ define([
   './functional/fx_fennec_v1_force_auth',
   './functional/fx_fennec_v1_sign_up',
   './functional/fx_fennec_v1_settings',
-  './functional/verification_experiments',
+  './functional/mailcheck',
   './functional/bounced_email',
   './functional/legal',
   './functional/tos',

@@ -39,10 +39,10 @@
       <div class="input-row">
         {{#forceEmail}}
           <p class="prefillEmail">{{ forceEmail }}</p>
-          <input type="email" class="email hidden" value="{{ forceEmail }}" disabled />
+          <input type="email" class="email hidden tooltip-below" value="{{ forceEmail }}" disabled />
         {{/forceEmail}}
         {{^forceEmail}}
-          <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" spellcheck="false" {{#shouldFocusEmail}}autofocus{{/shouldFocusEmail}} required />
+          <input type="email" class="email tooltip-below" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" spellcheck="false" {{#shouldFocusEmail}}autofocus{{/shouldFocusEmail}} required />
         {{/forceEmail}}
       </div>
 
