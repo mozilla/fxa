@@ -7,6 +7,11 @@ var DB = require('../../lib/db/mysql')(log, dbServer.errors)
 var config = require('../../config')
 var test = require('tap').test
 var P = require('../../lib/promise')
+var crypto = require('crypto')
+
+var zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex')
+var zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+var now = Date.now()
 
 DB.connect(config)
   .then(
@@ -327,6 +332,46 @@ DB.connect(config)
                 // Not doing a hardcore enumeration (yet) (or utfmb4)
                 t.equal(vars['character_set_client'], 'utf8', 'character_set_connection is utf8')
                 t.equal(vars['character_set_connection'], 'utf8', 'character_set_client is utf8')
+              }
+            )
+        }
+      )
+
+      test(
+        'create account and read email record',
+        function (t) {
+          var uid = crypto.randomBytes(16)
+          var account = {
+            uid: uid,
+            email: ('' + Math.random()).substr(2) + '@bar.com',
+            emailCode: zeroBuffer16,
+            emailVerified: false,
+            verifierVersion: 1,
+            verifyHash: zeroBuffer32,
+            authSalt: zeroBuffer32,
+            kA: zeroBuffer32,
+            wrapWrapKb: zeroBuffer32,
+            verifierSetAt: now,
+            createdAt: now,
+            locale : 'en_US',
+          }
+          account.normalizedEmail = account.email.toLowerCase()
+
+          return db.createAccount(uid, account)
+            .then(
+              function(result) {
+                t.deepEqual(result, {}, 'Returned an empty object on account creation')
+                return db.emailRecord(account.email)
+              }
+            )
+            .then(
+              function(result) {
+                t.equal(result.createdAt, account.createdAt, 'createdAt set')
+                t.equal(result.email, account.email, 'email set')
+                t.equal(result.emailVerified, 0, 'emailVerified set')
+                t.equal(result.normalizedEmail, account.normalizedEmail, 'normalizedEmail set')
+                t.equal(result.verifierSetAt, account.verifierSetAt, 'verifierSetAt set')
+                t.equal(result.verifierVersion, account.verifierVersion, 'verifierVersion set')
               }
             )
         }

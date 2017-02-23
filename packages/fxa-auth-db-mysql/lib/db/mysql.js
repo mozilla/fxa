@@ -454,9 +454,9 @@ module.exports = function (log, error) {
   }
 
   // Select : accounts
-  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, lockedAt
+  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, lockedAt
   // Where  : accounts.normalizedEmail = LOWER($1)
-  var EMAIL_RECORD = 'CALL emailRecord_3(?)'
+  var EMAIL_RECORD = 'CALL emailRecord_4(?)'
 
   MySql.prototype.emailRecord = function (emailBuffer) {
     return this.readFirstResult(EMAIL_RECORD, [emailBuffer.toString('utf8')])
