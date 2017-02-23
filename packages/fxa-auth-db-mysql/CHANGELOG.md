@@ -1,3 +1,21 @@
+<a name="0.81.0"></a>
+# [0.81.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.76.0...v0.81.0) (2017-02-23)
+
+
+### Bug Fixes
+
+* **email:** Return `createdAt` when calling db.emailRecord (#209), r=@rfk ([1a226cc](https://github.com/mozilla/fxa-auth-db-mysql/commit/1a226cc))
+* **reminders:** adjust mysql procedures (#200) r=rfk ([4b6a92d](https://github.com/mozilla/fxa-auth-db-mysql/commit/4b6a92d))
+* **style:** replace tab char with a space (#207) r=rfk ([44470ad](https://github.com/mozilla/fxa-auth-db-mysql/commit/44470ad))
+
+### Features
+
+* **db:** add emailBounces table ([4fe29fa](https://github.com/mozilla/fxa-auth-db-mysql/commit/4fe29fa))
+* **tokens:** add prune token maxAge and update pruning (#206); r=rfk ([699c352](https://github.com/mozilla/fxa-auth-db-mysql/commit/699c352))
+* **tokens:** get the device associated with a tokenVerificationId (#204) r=vladikoff ([7f45075](https://github.com/mozilla/fxa-auth-db-mysql/commit/7f45075))
+
+
+
 <a name="0.76.0"></a>
 # [0.76.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.75.0...v0.76.0) (2016-12-13)
 
