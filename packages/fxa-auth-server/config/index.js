@@ -405,7 +405,7 @@ var conf = convict({
   statsd: {
     enabled: {
       doc: 'enable UDP based statsd reporting',
-      default: true,
+      default: false,
       env: 'STATSD_ENABLE'
     },
     host: {
