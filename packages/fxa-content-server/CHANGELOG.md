@@ -1,3 +1,43 @@
+<a name="1.81.0"></a>
+# 1.81.0 (2017-02-23)
+
+
+### Bug Fixes
+
+* **client:** Only the first call to `back` is processed. (#4734), r=@vbudhram ([41632ac](https://github.com/mozilla/fxa-content-server/commit/41632ac)), closes [#4733](https://github.com/mozilla/fxa-content-server/issues/4733)
+* **events:** Allow a DOM event handler to be spied upon. (#4737) r=@philbooth ([34da48e](https://github.com/mozilla/fxa-content-server/commit/34da48e)), closes [#4736](https://github.com/mozilla/fxa-content-server/issues/4736)
+* **navigation:** Fixes for ESC key pressing in settings view (#4716) r=vladikoff ([25ee5a0](https://github.com/mozilla/fxa-content-server/commit/25ee5a0)), closes [(#4716](https://github.com/(/issues/4716) [#4569](https://github.com/mozilla/fxa-content-server/issues/4569) [#4169](https://github.com/mozilla/fxa-content-server/issues/4169)
+* **notifications:** Allow a notification handler to be spied upon. (#4732) r=@philbooth ([f000b55](https://github.com/mozilla/fxa-content-server/commit/f000b55)), closes [#4731](https://github.com/mozilla/fxa-content-server/issues/4731)
+* **strings:** fix duplicate string (#4705) r=vbudhram  ([49b8206](https://github.com/mozilla/fxa-content-server/commit/49b8206)), closes [(#4705](https://github.com/(/issues/4705)
+* **style:** adjust style of stacked links (#4708), r=@vbudhram ([3e70d50](https://github.com/mozilla/fxa-content-server/commit/3e70d50)), closes [#4655](https://github.com/mozilla/fxa-content-server/issues/4655)
+* **test:** Fix 'get the open restmail button' functional test. (#4741) ([c44cfcc](https://github.com/mozilla/fxa-content-server/commit/c44cfcc)), closes [(#4741](https://github.com/(/issues/4741) [#4740](https://github.com/mozilla/fxa-content-server/issues/4740)
+* **test:** Fix the `on second attempt canonical form is used` test. (#4742) r=@philbooth ([b49023b](https://github.com/mozilla/fxa-content-server/commit/b49023b)), closes [(#4742](https://github.com/(/issues/4742) [#4711](https://github.com/mozilla/fxa-content-server/issues/4711)
+* **tests:** adjust to new SUMO urls (#4713) ([9a6f0f9](https://github.com/mozilla/fxa-content-server/commit/9a6f0f9)), closes [#4712](https://github.com/mozilla/fxa-content-server/issues/4712)
+* **tests:** force enable e10s in tests (#4670) ([3495a24](https://github.com/mozilla/fxa-content-server/commit/3495a24))
+* **typo:** fix metrics event typo ([56dd45d](https://github.com/mozilla/fxa-content-server/commit/56dd45d))
+
+### chore
+
+* **docs:** Explain why 0.80.1 is empty ([cae891c](https://github.com/mozilla/fxa-content-server/commit/cae891c))
+* **l10n:** add Web Session to strings.js (#4743) ([3101617](https://github.com/mozilla/fxa-content-server/commit/3101617))
+* **versions:** update to 1.x version ([a043e45](https://github.com/mozilla/fxa-content-server/commit/a043e45))
+
+### Features
+
+* **eslint-plugin-fxa:** using 1 repository of eslint rules (#4698) ([14301be](https://github.com/mozilla/fxa-content-server/commit/14301be))
+* **prefer-const:** changes acc. to prefer-const eslint rule (#4710) r=vladikoff ([f9006d4](https://github.com/mozilla/fxa-content-server/commit/f9006d4)), closes [#4632](https://github.com/mozilla/fxa-content-server/issues/4632)
+* **sms:** Send SMS view (#4625) r=vladikoff ([36c815f](https://github.com/mozilla/fxa-content-server/commit/36c815f)), closes [#4373](https://github.com/mozilla/fxa-content-server/issues/4373)
+
+### Refactor
+
+* **CAD:** WhyConnectAnotherDeviceView uses the BackMixin (#4738) r=@philbooth ([246a0fe](https://github.com/mozilla/fxa-content-server/commit/246a0fe)), closes [#4735](https://github.com/mozilla/fxa-content-server/issues/4735)
+* **client:** Extract a PulseGraphicsMixin. (#4730) r=@philbooth ([f82517d](https://github.com/mozilla/fxa-content-server/commit/f82517d))
+* **client:** move flow model resposibilities out of the views ([4071291](https://github.com/mozilla/fxa-content-server/commit/4071291))
+* **metrics:** Log the `loaded` event from the metrics module. (#4745) r=@philbooth ([5c1ca7e](https://github.com/mozilla/fxa-content-server/commit/5c1ca7e))
+* **settings:** Simplify settings header rendering. (#4744) r=@philbooth ([2d6499b](https://github.com/mozilla/fxa-content-server/commit/2d6499b))
+
+
+
 <a name="0.80.2"></a>
 ## 0.80.2 (2017-02-14)
 
