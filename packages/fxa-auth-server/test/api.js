@@ -2586,7 +2586,10 @@ describe('/v1', function() {
               }
             });
           })
-          .then(function () {
+          .then(function (res) {
+            assert.equal(res.statusCode, 200);
+            assert.equal(res.payload, '{}');
+
             return Server.api.get({
               url: '/client-tokens',
               headers: {
