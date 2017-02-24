@@ -5,7 +5,12 @@
 module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt)
 
+  grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json')
+  })
+
   grunt.loadTasks('grunttasks')
 
   grunt.registerTask('default', ['eslint', 'copyright'])
+  grunt.registerTask('mailer', ['templates', 'copy:strings', 'l10n-extract'])
 }

@@ -46,10 +46,7 @@ script:
   - COVERALLS_REPO_TOKEN=vKN3jjhAOwxkv9HG0VBX4EYIlWLPwiJ9d npm test
   - npm run test-e2e
   # Test fxa-auth-mailer
-  - cd mailer
   - grunt templates
-  - npm test
   - grunt l10n-extract
-  - cd ..
   # NSP check
   - grunt nsp

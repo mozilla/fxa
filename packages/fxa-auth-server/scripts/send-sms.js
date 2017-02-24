@@ -27,6 +27,8 @@ require('../lib/senders')(config, log)
     let message = error.message
     if (error.reason && error.reasonCode) {
       message = `${message}: ${error.reasonCode} ${error.reason}`
+    } else if (error.stack) {
+      message = error.stack
     }
     fail(message)
   })

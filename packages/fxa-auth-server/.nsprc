@@ -1,4 +1,7 @@
 {
   "exceptions": [
+    // i18n-abide@0.0.25
+    "https://nodesecurity.io/advisories/39",
+    "https://nodesecurity.io/advisories/48"
   ]
 }

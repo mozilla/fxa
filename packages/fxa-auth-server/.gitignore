@@ -17,5 +17,5 @@ secret*
 /.vagrant
 .nyc_output
 npm-debug.log
-mailer/server.pot
-mailer/.mail_output
+server.pot
+.mail_output
