@@ -235,56 +235,101 @@ TODO: @seanmonstar to update to latest design.
 
 ## Results
 
-(This section to be completed once deployed to production)
+Below summarize the results of the security event history and corresponding
+ip profiling features for FxA.
 
 ### Phase 1
 
-When Phase 1 is complete,
-we will include here
-a snapshot of the hit-rate graph.
+Phase 1 of security event history was released on 9-24-2016. Below is
+a graph summarizing the hits of the events that were logged.
 
-We will also calculate,
-but not share publicly,
-the absolute number of hits per day
-at each level of recency.
+<img src="phase1-hits.png" />
 
-If these numbers seem high enough
-to justify further development,
-we will proceed to Phase 2.
+This graph omits the raw numbers, however, it shows that users log in 
+from a previous IP address almost 7 times as much as they do from 
+a new ip address.
+
+Users that login from the same address do so at the recency rates:
+
+* 1 day: 55% of users
+* 1 week: 22% of users
+* 1 month: 23% of users
+
+Detailed dashboard can be found [here](https://kibana-fxa-us-west-2.prod.mozaws.net/#/dashboard/elasticsearch/FxA%20IP%20History%20Matches).
+
+This result was very sunrising and we are still unsure why so many
+users login multiple times from the same address. One possible theory
+is that they are corporate computers that get formatted every day 
+causing the user to login again.
+
+Based on this, we decided to forgo Phase 2 of security events and go 
+directly to Phase 3 to help these users.
 
 ### Phase 2
 
-When Phase 2 is complete,
-we will include here
-a snapshot of the false-positive-rate graph.
 
-We will also calculate,
+~~When Phase 2 is complete,
+we will include here
+a snapshot of the false-positive-rate graph.~~
+
+~~We will also calculate,
 but not share publicly,
 the absolute number of false positives per day
-at each level of recency.
+at each level of recency.~~
 
-If the false-positive rate seems low enough
-then we will proceed to Phase 3.
+~~If the false-positive rate seems low enough
+then we will proceed to Phase 3.~~
 
-### Phase 3
+### Phase 3 (IP Profiling)
 
-When Phase 3 is complete,
+IP Profiling was deploy on 11-24-2016. In this version, users would
+get to skip sign-in confirmation if they met the following security
+requirements:
+
+* Signing into service the requires account keys.
+* Successfully performed a sign-in confirmation from this IP address.
+* Logged in within the past day.
+
+Below is a graph of the before and after IP Profiling for sign-in
+success rate.
+
+<img src="ipprofiling-1day.png" />
+
+Immediately after deployment our sign-in success rate went from ~54% to
+~58%.
+
+After doing additional analysis we found that we could potentially
+help more users by extending the time to 3 days. The graph below shows
+the average time a user takes to login from the same IP address.
+
+<img src="72hrs-drop.png" />
+
+The next version of IP Profiling was released on 2-07-2017, with the
+3 day timeframe.
+
+<img src="ipprofiling-3days.png" />
+
+Interestingly, this graph shows roughly the same sign-in success rate
+before and after deployment. This result is puzzling because we expected
+at least some increase in the sign-in success rate.
+
+~~When Phase 3 is complete,
 we will include here a revised summary
-of the hit-rate and false-positive-rate.
+of the hit-rate and false-positive-rate.~~
 
-We will show a snapshot of
-the sign-in success rate graph
-before and after the deployment,
-and comment on any increase
-that it appears to have caused.
-
-We will show a snapshot of
+~~We will show a snapshot of
 the time-to-successful-signin graph
 before and after the deployment,
 and comment on any decrease
-that it appears to have caused.
+that it appears to have caused.~~
 
-We will show a snapshot of
+~~We will show a snapshot of
 the overall rate of reported fraudulent logins,
 and comment on any change
-that it appears to have caused.
+that it appears to have caused.~~
+
+## Conclusions
+
+Considering the overall results of the features implemented in security
+events, I would consider it to be a success. This feature helped us
+increase of overall sign-in success rate by almost 5%.
