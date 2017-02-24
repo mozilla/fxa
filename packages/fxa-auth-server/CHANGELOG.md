@@ -1,3 +1,14 @@
+<a name"1.81.0"></a>
+## 1.81.0 (2017-02-24)
+
+
+#### Bug Fixes
+
+* **api:** clean up response of client-tokens delete endpoint (#3) (#449); r=rfk ([9c632731](https://github.com/mozilla/fxa-oauth-server/commit/9c632731))
+* **db:** ensure strict mode (#448) r=rfk,seanmonstar ([8d309c5b](https://github.com/mozilla/fxa-oauth-server/commit/8d309c5b), closes [#446](https://github.com/mozilla/fxa-oauth-server/issues/446))
+* **logs:** add scope and client_id logs to verify route (#447) r=seanmonstar ([33eb39ec](https://github.com/mozilla/fxa-oauth-server/commit/33eb39ec), closes [#444](https://github.com/mozilla/fxa-oauth-server/issues/444))
+
+
 <a name"0.80.0"></a>
 ## 0.80.0 (2017-02-07)
 
