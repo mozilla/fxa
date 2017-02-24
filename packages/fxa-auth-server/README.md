@@ -2,6 +2,7 @@ Firefox Accounts Server
 =======================
 
 [![Build Status](https://travis-ci.org/mozilla/fxa-auth-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-auth-server)
+[![Coverage Status](https://coveralls.io/repos/github/mozilla/fxa-auth-server/badge.svg?branch=master)](https://coveralls.io/github/mozilla/fxa-auth-server?branch=master)
 
 This project implements the core server-side API for Firefox Accounts.  It
 provides account, device and encryption-key management for the Mozilla Cloud
