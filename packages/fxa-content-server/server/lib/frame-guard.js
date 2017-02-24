@@ -26,17 +26,8 @@
 
 'use strict';
 const helmet = require('helmet');
+const htmlOnly = require('./html-middleware');
 const uaParser = require('node-uap');
-const utils = require('./utils');
-
-function isFrameGuardRequired(req) {
-  if (req.method !== 'GET') {
-    return false;
-  }
-
-  // Only HTML files need x-frame-options headers.
-  return utils.isHTMLPage(req.path);
-}
 
 function isAllowedToFrame(req, allowedContexts) {
   return isContextAllowedToFrame(req.query.context, allowedContexts) &&
@@ -78,11 +69,7 @@ module.exports = function (config) {
     });
   });
 
-  return function (req, res, next) {
-    if (! isFrameGuardRequired(req)) {
-      return next();
-    }
-
+  return htmlOnly((req, res, next) => {
     if (! isAllowedToFrame(req, allowedContexts)) {
       return denyMiddleware(req, res, next);
     }
@@ -93,7 +80,5 @@ module.exports = function (config) {
       allowFromMiddlewareCache[req.query.origin] || denyMiddleware;
 
     middleware(req, res, next);
-  };
+  });
 };
-
-module.exports.isFrameGuardRequired = isFrameGuardRequired;

@@ -22,18 +22,10 @@
 // [1] https://support.google.com/webmasters/answer/93710
 
 'use strict';
-const utils = require('./utils');
 
-function isRobotsTagRequired(req) {
-  // Only HTML pages need the robots control header.
-  return utils.isHTMLPage(req.path);
-}
+const htmlOnly = require('./html-middleware');
 
-module.exports = function (req, res, next) {
-  if (isRobotsTagRequired(req)) {
-    res.setHeader('X-Robots-Tag', 'noindex,nofollow');
-  }
+module.exports = htmlOnly((req, res, next) => {
+  res.setHeader('X-Robots-Tag', 'noindex,nofollow');
   next();
-};
-
-module.exports.isRobotsTagRequired = isRobotsTagRequired;
+});

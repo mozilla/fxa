@@ -8,22 +8,28 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
-  'intern/dojo/node!../../server/lib/csp',
-  'intern/dojo/node!../../server/lib/csp/blocking'
-], function (registerSuite, assert, config, csp, BlockingRules) {
+  'intern/dojo/node!../../server/lib/csp/blocking',
+  'intern/dojo/node!path',
+  'intern/dojo/node!proxyquire'
+], function (registerSuite, assert, config, BlockingRules, path, proxyquire) {
+
+  const csp = proxyquire(
+    path.join(process.cwd(), 'server', 'lib', 'csp'),
+    {
+      // totally ignore the html-middleware
+      './html-middleware': callback => callback
+    }
+  );
 
   const suite = {
     name: 'csp'
   };
 
   suite['isCspRequired'] = function () {
-    assert.isFalse(csp.isCspRequired({ method: 'POST', path: '/csp_report' }));
     assert.isFalse(csp.isCspRequired({ method: 'GET', path: '/tests/index.html'}));
-    assert.isFalse(csp.isCspRequired({ method: 'GET', path: '/lib/router.js' }));
-    assert.isFalse(csp.isCspRequired({ method: 'GET', path: '/images/firefox.png' }));
-    assert.isFalse(csp.isCspRequired({ method: 'GET', path: '/fonts/clearsans.woff' }));
 
     assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/404.html' }));
+    assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/notfound.css'}));
     assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/' }));
     assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/confirm' }));
   };

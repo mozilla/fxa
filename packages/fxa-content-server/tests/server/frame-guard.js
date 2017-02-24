@@ -11,8 +11,17 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'intern/dojo/node!../../server/lib/frame-guard'
-], function (intern, registerSuite, assert, frameguard) {
+  'intern/dojo/node!path',
+  'intern/dojo/node!proxyquire'
+], function (intern, registerSuite, assert, path, proxyquire) {
+
+  const frameguard = proxyquire(
+    path.join(process.cwd(), 'server', 'lib', 'frame-guard'),
+    {
+      // totally ignore the html-middleware
+      './html-middleware': callback => callback
+    }
+  );
 
   var config = {
     get: function (key) {
@@ -58,17 +67,6 @@ define([
 
   var suite = {
     name: 'frame-guard'
-  };
-
-  suite['isFrameGuardRequired'] = function () {
-    assert.isFalse(frameguard.isFrameGuardRequired({ method: 'POST', path: '/frameguard_report' }));
-    assert.isFalse(frameguard.isFrameGuardRequired({ method: 'GET', path: '/lib/router.js' }));
-    assert.isFalse(frameguard.isFrameGuardRequired({ method: 'GET', path: '/images/firefox.png' }));
-    assert.isFalse(frameguard.isFrameGuardRequired({ method: 'GET', path: '/fonts/clearsans.woff' }));
-
-    assert.isTrue(frameguard.isFrameGuardRequired({ method: 'GET', path: '/404.html' }));
-    assert.isTrue(frameguard.isFrameGuardRequired({ method: 'GET', path: '/' }));
-    assert.isTrue(frameguard.isFrameGuardRequired({ method: 'GET', path: '/confirm' }));
   };
 
   suite['no user-agent header'] = function () {
@@ -179,4 +177,3 @@ define([
 
   registerSuite(suite);
 });
-

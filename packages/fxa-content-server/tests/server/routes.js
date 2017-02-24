@@ -99,10 +99,11 @@ define([
   }
 
   if (! intern.config.fxaProduction) {
-    routes['/tests/index.html'] = { statusCode: 200 };
-    routes['/tests/index.html?coverage'] = { statusCode: 200 };
+    routes['/tests/index.html'] = { csp: false, statusCode: 200 };
+    routes['/tests/index.html?coverage'] = { csp: false, statusCode: 200 };
     routes['/boom'] = { statusCode: 500 };
     routes['/non_existent'] = { statusCode: 404 };
+    routes['/non_existent.js'] = { statusCode: 404 };
     routes['/legal/non_existent'] = { statusCode: 404 };
     routes['/en/legal/non_existent'] = { statusCode: 404 };
   }
@@ -204,27 +205,19 @@ define([
   function checkHeaders(route, res) {
     var headers = res.headers;
 
-    // all HTML pages by default have x-frame-options: DENY
     if (headers['content-type'].indexOf('text/html') > -1) {
+      // all HTML pages by default have x-frame-options: DENY
       assert.equal(headers['x-frame-options'], 'DENY');
-    }
-
-    // fxa-dev boxes currently do not set CSP headers (but should - GH-2155)
-    var routePathname = url.parse(route).pathname;
-    if (csp.isCspRequired(routePathname)) {
-      assert.ok(headers.hasOwnProperty('content-security-policy-report-only'));
-      assert.ok(headers.hasOwnProperty('content-security-policy'));
-    }
-
-    // All non-json routes in this test should have an x-robots-tag header.
-    if (routes[routePathname].headerAccept !== 'application/json') {
       assert.equal(headers['x-robots-tag'], 'noindex,nofollow');
+
+      if (routes[route].csp !== false) {
+        assert.ok(headers.hasOwnProperty('content-security-policy'));
+      }
     }
 
     assert.equal(headers['x-content-type-options'], 'nosniff');
     assert.include(headers['strict-transport-security'], 'max-age=');
   }
-
 
   /**
    * Go through each of the HTML files, look for URLs, check that

@@ -75,6 +75,7 @@ function makeApp() {
   app.use(localizedRender({ i18n: i18n }));
 
   app.use(frameGuard);
+
   app.use(helmet.xssFilter());
   app.use(helmet.hsts({
     force: true,
