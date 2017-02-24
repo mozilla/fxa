@@ -375,10 +375,13 @@ module.exports = function (log, error) {
   }
 
   // Select : sessionTokens
-  // Fields : id, uid, createdAt, uaBrowser, uaBrowserVersion,
-  //          uaOS, uaOSVersion, uaDeviceType, lastAccessTime
-  // Where  : uid = $1
-  var SESSIONS = 'CALL sessions_1(?)'
+  // Fields : tokenId, uid, createdAt, uaBrowser, uaBrowserVersion,
+  //          uaOS, uaOSVersion, uaDeviceType, lastAccessTime,
+  //          deviceId, deviceName, deviceType, deviceCreatedAt, deviceCallbackURL,
+  //          deviceCallbackPublicKey, deviceCallbackAuthKey
+  // Where  : t.uid = $1 AND t.tokenId = d.sessionTokenId AND
+  //          t.uid = d.uid AND t.tokenId = u.tokenId
+  var SESSIONS = 'CALL sessions_2(?)'
 
   MySql.prototype.sessions = function (uid) {
     return this.readOneFromFirstResult(SESSIONS, [uid])
@@ -568,7 +571,7 @@ module.exports = function (log, error) {
   }
 
   // Delete : devices, sessionTokens, unverifiedTokens
-  // Where  : uid = $1
+  // Where  : uid = $1, deviceId = $2
   var DELETE_DEVICE = 'CALL deleteDevice_2(?, ?)'
 
   MySql.prototype.deleteDevice = function (uid, deviceId) {

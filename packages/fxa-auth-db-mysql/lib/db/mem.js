@@ -532,14 +532,22 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.sessions = function (uid) {
-    var hexUid = uid.toString('hex')
-
-    return P.resolve(
-      Object.keys(sessionTokens).filter(function (key) {
+    return this.accountDevices(uid).then(function (devices) {
+      var hexUid = uid.toString('hex')
+      var sessions = Object.keys(sessionTokens).filter(function (key) {
         return sessionTokens[key].uid.toString('hex') === hexUid
       }).map(function (key) {
         var sessionToken = sessionTokens[key]
-        return {
+
+        var deviceInfo = devices.find(function (device) {
+          return device.sessionTokenId.toString('hex') === key
+        })
+
+        if (! deviceInfo) {
+          deviceInfo = {}
+        }
+
+        var session = {
           tokenId: new Buffer(key, 'hex'),
           uid: sessionToken.uid,
           createdAt: sessionToken.createdAt,
@@ -548,10 +556,23 @@ module.exports = function (log, error) {
           uaOS: sessionToken.uaOS || null,
           uaOSVersion: sessionToken.uaOSVersion || null,
           uaDeviceType: sessionToken.uaDeviceType || null,
-          lastAccessTime: sessionToken.lastAccessTime
+          lastAccessTime: sessionToken.lastAccessTime,
+          // device information
+          deviceId: deviceInfo.id || null,
+          deviceName: deviceInfo.name || null,
+          deviceType: deviceInfo.type || null,
+          deviceCreatedAt: deviceInfo.createdAt || null,
+          deviceCallbackURL: deviceInfo.callbackURL || null,
+          deviceCallbackPublicKey: deviceInfo.callbackPublicKey || null,
+          deviceCallbackAuthKey: deviceInfo.callbackAuthKey || null,
         }
+
+        return session
       })
-    )
+
+      return sessions
+    })
+
   }
 
   // sessionToken()
