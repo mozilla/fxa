@@ -257,7 +257,7 @@ Users that login from the same address do so at the recency rates:
 
 Detailed dashboard can be found [here](https://kibana-fxa-us-west-2.prod.mozaws.net/#/dashboard/elasticsearch/FxA%20IP%20History%20Matches).
 
-This result was very sunrising and we are still unsure why so many
+This result was very surprising and we are still unsure why so many
 users login multiple times from the same address. One possible theory
 is that they are corporate computers that get formatted every day 
 causing the user to login again.
