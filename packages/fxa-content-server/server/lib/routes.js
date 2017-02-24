@@ -3,13 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
+const celebrate = require('celebrate');
 const logger = require('mozlog')('server.routes');
 
 /**
- * Each route has 3 attributes: method, path and process.
- * method is one of `GET`, `POST`, etc.
- * path is a string or regular expression that express uses to match a route.
- * process is a function that is called with req and res to handle the route.
+ * Each route has 3 attributes: `method`, `path` and `process`.
+ * `method` is one of `GET`, `POST`, etc.
+ * `path` is a string or regular expression that express uses to match a route.
+ * `process` is a function that is called with req and res to handle the route.
+ *
+ * Each route can have 2 additional attributes: `preProcess` and `validate`.
+ * `preProcess` is a function that is called with `req`, `res`, and `next`.
+ *   Use to do any pre-processing before validation, such as converting from text to JSON.
+ * `validate` is where to declare JOI validation. Follows
+ *   [celebrate](https://www.npmjs.com/package/celebrate) conventions.
  */
 function isValidRoute(route) {
   return !! route.method && route.path && route.process;
@@ -76,7 +83,23 @@ module.exports = function (config, i18n) {
       if (! isValidRoute(route)) {
         return logger.error('route definition invalid: ', route);
       }
-      app[route.method](route.path, route.process);
+
+      // Build a list of route handlers.
+      // `preProcess` and `validate` are optional.
+      const routeHandlers = [];
+      if (route.preProcess) {
+        routeHandlers.push(route.preProcess);
+      }
+
+      if (route.validate) {
+        routeHandlers.push(celebrate(route.validate, {
+          // silently drop any unknown fields on the ground.
+          stripUnknown: true
+        }));
+      }
+
+      routeHandlers.push(route.process);
+      app[route.method].apply(app, [route.path].concat(routeHandlers));
     });
   };
 };

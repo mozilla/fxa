@@ -8,7 +8,43 @@
 
 'use strict';
 const _ = require('lodash');
+const joi = require('joi');
 const url = require('url');
+const validation = require('../validation');
+
+const INTEGER_TYPE = validation.TYPES.INTEGER;
+const STRING_TYPE = validation.TYPES.STRING;
+const URL_TYPE = validation.TYPES.URL;
+
+const BODY_SCHEMA = {
+  'csp-report': joi.object().keys({
+    // CSP 2, 3 required
+    // `eval` and `inline` are specified in CSP 3 and sent by Chrome
+    'blocked-uri': URL_TYPE.allow('eval').allow('inline').allow('self').required(),
+    // CSP 2, 3 optional
+    'column-number': INTEGER_TYPE.min(0).optional(),
+    // CSP 3 required, but not always sent
+    'disposition': STRING_TYPE.optional(),
+    // CSP 2, 3 required
+    'document-uri': URL_TYPE.required(),
+     // CSP 2 required, but not always sent
+    'effective-directive': STRING_TYPE.optional(),
+    // CSP 2 optional
+    'line-number': INTEGER_TYPE.min(0).optional(),
+    // CSP 2, 3 required
+    'original-policy': STRING_TYPE.required(),
+    // CSP 2, 3 required, can be empty
+    'referrer': STRING_TYPE.allow('').required(),
+    // Not in spec but sent by Firefox, can be empty
+    'script-sample': STRING_TYPE.allow('').optional(),
+    // CSP 2, 3 optional, can be empty
+    'source-file': STRING_TYPE.allow('').optional(),
+    // CSP 2, 3 required, but not always sent
+    'status-code': INTEGER_TYPE.min(0).optional(),
+    // CSP 2, 3 required
+    'violated-directive': STRING_TYPE.required()
+  }).required()
+};
 
 module.exports = function (options) {
   options = options || {};
@@ -20,12 +56,11 @@ module.exports = function (options) {
   return {
     method: 'post',
     path: options.path,
+    validate: {
+      body: BODY_SCHEMA
+    },
     process: function (req, res) {
-      res.json({result: 'ok'});
-
-      if (! isValidCspReportRequest(req)) {
-        return false;
-      }
+      res.json({ success: true });
 
       const today = new Date();
       today.setMinutes(0, 0, 0);
@@ -45,17 +80,9 @@ module.exports = function (options) {
       };
 
       write(entry);
-
-      return true;
     }
   };
 };
-
-function isValidCspReportRequest(req) {
-  return req.body &&
-         req.body['csp-report'] &&
-         Object.keys(req.body['csp-report']).length;
-}
 
 function stripPIIFromUrl(urlToScrub) {
   if (! urlToScrub || ! _.isString(urlToScrub)) {
