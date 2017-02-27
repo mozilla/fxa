@@ -124,7 +124,7 @@ describe('remote db', function() {
         })
         .then(function(sessions) {
           assert.equal(sessions.length, 1, 'sessions contains one item')
-          assert.equal(Object.keys(sessions[0]).length, 9, 'session has nine properties')
+          assert.equal(Object.keys(sessions[0]).length, 16, 'session has correct number of properties')
           assert.ok(Buffer.isBuffer(sessions[0].tokenId), 'tokenId property is buffer')
           assert.equal(sessions[0].uid.toString('hex'), ACCOUNT.uid.toString('hex'), 'uid property is correct')
           assert.ok(sessions[0].createdAt >= ACCOUNT.createdAt, 'createdAt property seems correct')
