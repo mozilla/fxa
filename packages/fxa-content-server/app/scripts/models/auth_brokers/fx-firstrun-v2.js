@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const Constants = require('lib/constants');
   const FxFirstrunV1AuthenticationBroker = require('./fx-firstrun-v1');
-  const NotifierMixin = require('lib/channels/notifier-mixin');
 
   var proto = FxFirstrunV1AuthenticationBroker.prototype;
 
@@ -29,19 +28,13 @@ define(function (require, exports, module) {
       }
     }),
 
-    initialize (options = {}) {
-      proto.initialize.call(this, options);
-
-      NotifierMixin.initialize.call(this, options);
-    },
-
-    notifications: {
+    notifications: _.extend({}, proto.notifications, {
       'form.disabled': '_sendFormDisabled',
       'form.enabled': '_sendFormEnabled',
       'form.engaged': '_sendFormEngaged',
       'show-child-view': '_onShowChildView',
       'show-view': '_onShowView'
-    },
+    }),
 
     _iframeCommands: _.extend({}, proto._iframeCommands, {
       FORM_DISABLED: 'form_disabled',

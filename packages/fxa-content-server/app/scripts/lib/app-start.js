@@ -446,10 +446,10 @@ define(function (require, exports, module) {
     initializeRouter () {
       if (! this._router) {
         this._router = new Router({
-          broker: this._authenticationBroker,
           createView: this.createView.bind(this),
           metrics: this._metrics,
           notifier: this._notifier,
+          relier: this._relier,
           user: this._user,
           window: this._window
         });

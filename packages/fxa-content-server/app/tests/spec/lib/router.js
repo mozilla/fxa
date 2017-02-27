@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const DisplayNameView = require('views/settings/display_name');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const NullBroker = require('models/auth_brokers/base');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const Router = require('lib/router');
@@ -24,7 +23,6 @@ define(function (require, exports, module) {
   const WindowMock = require('../../mocks/window');
 
   describe('lib/router', function () {
-    var broker;
     var metrics;
     var navigateOptions;
     var navigateUrl;
@@ -46,14 +44,10 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
-      broker = new NullBroker({
-        relier: relier
-      });
-
       router = new Router({
-        broker: broker,
         metrics: metrics,
         notifier: notifier,
+        relier: relier,
         user: user,
         window: windowMock
       });
@@ -303,14 +297,6 @@ define(function (require, exports, module) {
     });
 
     describe('_afterFirstViewHasRendered', function () {
-      it('notifies the broker', function () {
-        sinon.spy(broker, 'afterLoaded');
-
-        router._afterFirstViewHasRendered();
-
-        assert.isTrue(broker.afterLoaded.called);
-      });
-
       it('sets `canGoBack`', function () {
         router._afterFirstViewHasRendered();
 
@@ -375,9 +361,9 @@ define(function (require, exports, module) {
       it('is `true` if sessionStorage.canGoBack is set', function () {
         windowMock.sessionStorage.setItem('canGoBack', true);
         router = new Router({
-          broker: broker,
           metrics: metrics,
           notifier: notifier,
+          relier: relier,
           user: user,
           window: windowMock
         });

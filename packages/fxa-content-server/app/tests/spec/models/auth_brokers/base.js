@@ -6,28 +6,30 @@ define(function (require, exports, module) {
   'use strict';
 
   const Account = require('models/account');
+  const { assert } = require('chai');
   const BaseAuthenticationBroker = require('models/auth_brokers/base');
-  const chai = require('chai');
+  const Notifier = require('lib/channels/notifier');
   const Relier = require('models/reliers/relier');
   const SameBrowserVerificationModel = require('models/verification/same-browser');
   const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
 
-  var assert = chai.assert;
-
   describe('models/auth_brokers/base', function () {
-    var account;
-    var broker;
-    var relier;
-    var windowMock;
+    let account;
+    let broker;
+    let notifier;
+    let relier;
+    let windowMock;
 
     beforeEach(function () {
       account = new Account({ uid: 'users_uid' });
+      notifier = new Notifier();
       relier = new Relier({ context: 'fx_fennec_v1' });
       windowMock = new WindowMock();
 
       broker = new BaseAuthenticationBroker({
-        relier: relier,
+        notifier,
+        relier,
         window: windowMock
       });
     });
@@ -43,10 +45,19 @@ define(function (require, exports, module) {
         return broker.afterLoaded()
           .then(assert.pass);
       });
+
+      it('is invoked once on the `view-shown` notification', () => {
+        sinon.spy(broker, 'afterLoaded');
+
+        notifier.trigger('view-shown');
+        notifier.trigger('view-shown');
+
+        assert.isTrue(broker.afterLoaded.calledOnce);
+      });
     });
 
     describe('persistVerificationData', function () {
-      var verificationInfo;
+      let verificationInfo;
 
       beforeEach(function () {
         return broker.persistVerificationData(account)
@@ -65,7 +76,7 @@ define(function (require, exports, module) {
     });
 
     describe('unpersistVerificationData', function () {
-      var verificationInfo;
+      let verificationInfo;
 
       beforeEach(function () {
         return broker.persistVerificationData(account)
@@ -255,7 +266,7 @@ define(function (require, exports, module) {
         });
 
         it('returns the capability value if available', function () {
-          var capabilityMetadata = { key: 'value' };
+          const capabilityMetadata = { key: 'value' };
           broker.setCapability('some-capability', capabilityMetadata);
           assert.deepEqual(
             broker.getCapability('some-capability'), capabilityMetadata);
@@ -269,7 +280,7 @@ define(function (require, exports, module) {
 
     describe('getBehavior', function () {
       it('gets a behavior, if defined', function () {
-        var behavior = broker.getBehavior('beforeSignIn');
+        const behavior = broker.getBehavior('beforeSignIn');
         assert.isDefined(behavior);
       });
 
@@ -288,5 +299,3 @@ define(function (require, exports, module) {
     });
   });
 });
-
-

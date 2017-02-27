@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
   const Environment = require('lib/environment');
+  const NotifierMixin = require('lib/channels/notifier-mixin');
   const NullBehavior = require('views/behaviors/null');
   const p = require('lib/promise');
   const SameBrowserVerificationModel = require('models/verification/same-browser');
@@ -27,15 +28,17 @@ define(function (require, exports, module) {
   var BaseAuthenticationBroker = Backbone.Model.extend({
     type: 'base',
 
-    initialize (options) {
-      options = options || {};
-
+    initialize (options = {}) {
       this.relier = options.relier;
       this.window = options.window || window;
       this.environment = new Environment(this.window);
 
       this._behaviors = new Backbone.Model(this.defaultBehaviors);
       this._capabilities = new Backbone.Model(this.defaultCapabilities);
+    },
+
+    notifications: {
+      'once!view-shown': 'afterLoaded'
     },
 
     /**
@@ -104,7 +107,6 @@ define(function (require, exports, module) {
     afterLoaded () {
       return p();
     },
-
 
     /**
      * Called before sign in. Can be used to prevent sign in.
@@ -403,6 +405,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     BaseAuthenticationBroker,
+    NotifierMixin,
     SearchParamMixin
   );
 

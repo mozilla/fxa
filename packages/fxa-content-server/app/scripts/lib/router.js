@@ -117,12 +117,10 @@ define(function (require, exports, module) {
       'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP })
     },
 
-    initialize (options) {
-      options = options || {};
-
-      this.broker = options.broker;
+    initialize (options = {}) {
       this.metrics = options.metrics;
       this.notifier = options.notifier;
+      this.relier = options.relier;
       this.user = options.user;
       this.window = options.window || window;
 
@@ -197,7 +195,7 @@ define(function (require, exports, module) {
      */
     redirectToBestOAuthChoice () {
       // Attempt to get email address from relier
-      var email = this.broker.relier.get('email');
+      var email = this.relier.get('email');
 
       return p().then(() => {
         if (email) {
@@ -277,11 +275,6 @@ define(function (require, exports, module) {
     },
 
     _afterFirstViewHasRendered () {
-      // afterLoaded lets the relier know when the first screen has been
-      // loaded. It does not expect a response, so no error handler
-      // is attached and the promise is not returned.
-      this.broker.afterLoaded();
-
       // back is enabled after the first view is rendered or
       // if the user re-starts the app.
       this.storage.set('canGoBack', true);
