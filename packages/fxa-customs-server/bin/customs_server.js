@@ -13,7 +13,7 @@ var config = require('../lib/config').getProperties()
 var log = require('../lib/log')(config.log.level, 'customs-server')
 
 function shutdown(code) {
-  process.nextTick(process.exit(code))
+  process.nextTick(process.exit.bind(null, code))
 }
 
 if (process.env.ASS_CODE_COVERAGE) {
