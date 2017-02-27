@@ -30,6 +30,7 @@ function Location(locationData, userLocale) {
 
   if (locationData.country) {
     this.country = this.getLocaleSpecificLocationString(locationData.country, userLocale);
+    this.countryCode = locationData.country.iso_code;
   }
 
   if (locationData.subdivisions) {

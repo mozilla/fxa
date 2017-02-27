@@ -71,6 +71,7 @@ describe('fxa-geodb', function () {
     return geoDb(ip)
       .then(function (location) {
         assert.equal(location.country, 'United States', 'Country returned correctly');
+        assert.equal(location.countryCode, 'US', 'Country code returned correctly');
         assert.equal(location.city, 'Mountain View', 'City returned correctly');
         assert.equal(location.continent, 'North America', 'Continent returned correctly');
         assert.deepEqual(location.latLong, latLong, 'LatLong returned correctly');
@@ -96,6 +97,7 @@ describe('fxa-geodb', function () {
     return geoDb(ip)
       .then(function (location) {
         assert.equal(location.country, 'United States', 'Country returned correctly');
+        assert.equal(location.countryCode, 'US', 'Country code returned correctly');
         assert.equal(typeof location.city, 'undefined', 'City undefined');
         assert.equal(location.continent, 'North America', 'Continent returned correctly');
         assert.equal(typeof location.timeZone, 'undefined', 'Timezone undefined');
