@@ -100,9 +100,11 @@ welcome to deal with issues in the **triage** column at any time.
 
 ## Checkin Meetings
 
-The team meets regularly to stay in sync about development status and ensure nothing
-is falling through the cracks. During meetings we take notes in the
-**[public Engineering Coordination etherpad](https://public.etherpad-mozilla.org/p/fxa-engineering-coordination)**.
+The team meets regularly to stay in sync about development status
+and ensure nothing is falling through the cracks.
+During meetings we take notes in the public
+**[fxa-engineering-coordination etherpad](https://public.etherpad-mozilla.org/p/fxa-engineering-coordination)**,
+and afterward we send a summary of each meeting to an appropriate mailing list.
 
 We hold the following meetings over the course of each
 two-week cycle, with meeting times pinned to Mozilla Standard Time (aka Pacific Time).
@@ -125,14 +127,18 @@ Half-way through the cycle, we take a look at the things still outstanding and d
 to scale back on commitments based on actual progress made so far.  Items cut from the train
 at this point are moved back into **next**.
 
-### Mondays at 13:30
+Minutes are emailed to [dev-fxacct@mozilla.org](https://mail.mozilla.org/pipermail/dev-fxacct/)
+
+### Mondays at 12:30
 
 ##### Weekly: Show and Tell and Share
 
 We get together to demonstrate any new features that will be included on the next train,
 or any other interesting work that was completed in the previous cycle.
 
-### Mondays at 14:00
+Minutes are emailed to [dev-fxacct@mozilla.org](https://mail.mozilla.org/pipermail/dev-fxacct/)
+
+### Mondays at 13:00
 
 This is the one time each week where all team members everywhere in the world get together
 in the same (virtual) room at the same time.
@@ -143,10 +149,14 @@ We review any items remaining in **blocked**, **review** or **active** to determ
 should carry over to the upcoming train, or be de-priotitized.  We then work through the issues
 in **next** to decide what to commit to for the upcoming train.
 
+Minutes are not recorded from this meeting.
+
 ##### Second week: Retrospective
 
 We take time every two weeks to explicitly reflect on our development process.
 What worked, what didn't, what new things we'd like to try.
+
+Minutes are private and are emailed to [fxa-staff@mozilla.com](https://groups.google.com/a/mozilla.com/forum/#!forum/fxa-staff)
 
 ### Tuesdays at 14:00
 
@@ -162,6 +172,8 @@ of the relevant repos for the outbound train.
 
 We dedicate some time to discuss backend operational issues.
 
+Minutes are emailed to [dev-fxacct@mozilla.org](https://mail.mozilla.org/pipermail/dev-fxacct/), sans any confidential operational notes.
+
 ### Thursdays at 09:00
 
 This is a 60-minute checkin in a timeslot convenient for Europe and US-East.
@@ -176,6 +188,15 @@ Items in the **blocked** column should receive special attention.
 
 We identify any items that are in danger of not being completed this train, and
 ensure we either have a plan for completing them, or take them off the train.
+
+Minutes are emailed to [dev-fxacct@mozilla.org](https://mail.mozilla.org/pipermail/dev-fxacct/)
+
+### Thursdays at 12:00: 
+
+This is our weekly product meeting, where we review the status of features
+currently being developed, and the metrics from features currently being shipped.
+
+Minutes are private and are emailed to [fxa-staff@mozilla.com](https://groups.google.com/a/mozilla.com/forum/#!forum/fxa-staff)
 
 
 ## Code Review
