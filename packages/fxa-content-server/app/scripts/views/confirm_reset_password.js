@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
-  const ConfirmView = require('views/confirm');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
@@ -17,17 +16,17 @@ define(function (require, exports, module) {
   const ServiceMixin = require('views/mixins/service-mixin');
   const Session = require('lib/session');
   const Template = require('stache!templates/confirm_reset_password');
+  const { VERIFICATION_POLL_IN_MS } = require('lib/constants');
 
-  var t = BaseView.t;
+  const t = BaseView.t;
 
-  var View = ConfirmView.extend({
+  const View = BaseView.extend({
     template: Template,
     className: 'confirm-reset-password',
 
-    initialize (options) {
-      options = options || {};
-      this._verificationPollMS = options.verificationPollMS ||
-              this.VERIFICATION_POLL_IN_MS;
+    initialize (options = {}) {
+      this._verificationPollMS =
+        options.verificationPollMS || VERIFICATION_POLL_IN_MS;
     },
 
     context () {
