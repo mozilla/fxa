@@ -10,14 +10,17 @@ const getRoute = require('../../routes_helpers').getRoute
 const isA = require('joi')
 const mocks = require('../../mocks')
 const P = require('../../../lib/promise')
+const proxyquire = require('proxyquire')
 const sinon = require('sinon')
 
 const sms = {}
 
-function makeRoutes (options) {
+function makeRoutes (options, dependencies) {
   options = options || {}
   const log = options.log || mocks.mockLog()
-  return require('../../../lib/routes/sms')(log, isA, AppError, options.config, mocks.mockCustoms(), sms)
+  return proxyquire('../../../lib/routes/sms', dependencies || {})(
+    log, isA, AppError, options.config, mocks.mockCustoms(), sms
+  )
 }
 
 function runTest (route, request) {
@@ -356,6 +359,206 @@ describe('/sms disabled', () => {
   it('routes was empty array', () => {
     assert.ok(Array.isArray(routes))
     assert.equal(routes.length, 0)
+  })
+})
+
+describe('/sms/status', () => {
+  let log, config, geodb, geodbResult, routes, route, request
+
+  beforeEach(() => {
+    log = mocks.spyLog()
+    config = {
+      sms: {
+        enabled: true,
+        regions: /^US$/
+      }
+    }
+    geodb = sinon.spy(() => geodbResult)
+    routes = makeRoutes({ log, config }, { '../geodb': () => geodb })
+    route = getRoute(routes, '/sms/status')
+    request = mocks.mockRequest({
+      credentials: {
+        email: 'foo@example.org'
+      },
+      log: log
+    })
+  })
+
+  describe('getGeoData returns US and sms.balance returns isOk:true', () => {
+    let response
+
+    beforeEach(() => {
+      geodbResult = Promise.resolve({ location: { countryCode: 'US' } })
+      sms.balance = sinon.spy(() => P.resolve({ isOk: true }))
+      return runTest(route, request)
+        .then(r => response = r)
+    })
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response, { ok: true })
+    })
+
+    it('called log.begin correctly', () => {
+      assert.equal(log.begin.callCount, 1)
+      const args = log.begin.args[0]
+      assert.equal(args.length, 2)
+      assert.equal(args[0], 'sms.status')
+      assert.equal(args[1], request)
+    })
+
+    it('called geodb correctly', () => {
+      assert.equal(geodb.callCount, 1)
+      const args = geodb.args[0]
+      assert.equal(args.length, 1)
+      assert.equal(args[0], request.app.clientAddress)
+    })
+
+    it('called sms.balance correctly', () => {
+      assert.equal(sms.balance.callCount, 1)
+      assert.equal(sms.balance.args[0].length, 0)
+    })
+
+    it('did not call log.error', () => {
+      assert.equal(log.error.callCount, 0)
+    })
+  })
+
+  describe('getGeoData returns US and sms.balance returns isOk:false', () => {
+    let response
+
+    beforeEach(() => {
+      geodbResult = Promise.resolve({ location: { countryCode: 'US' } })
+      sms.balance = sinon.spy(() => P.resolve({ isOk: false }))
+      return runTest(route, request)
+        .then(r => response = r)
+    })
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response, { ok: false })
+    })
+
+    it('called log.begin once', () => {
+      assert.equal(log.begin.callCount, 1)
+    })
+
+    it('called geodb once', () => {
+      assert.equal(geodb.callCount, 1)
+    })
+
+    it('called sms.balance once', () => {
+      assert.equal(sms.balance.callCount, 1)
+    })
+
+    it('did not call log.error', () => {
+      assert.equal(log.error.callCount, 0)
+    })
+  })
+
+  describe('getGeoData returns CA and sms.balance returns isOk:true', () => {
+    let response
+
+    beforeEach(() => {
+      geodbResult = Promise.resolve({ location: { countryCode: 'CA' } })
+      sms.balance = sinon.spy(() => P.resolve({ isOk: true }))
+      return runTest(route, request)
+        .then(r => response = r)
+    })
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response, { ok: false })
+    })
+
+    it('called log.begin once', () => {
+      assert.equal(log.begin.callCount, 1)
+    })
+
+    it('called geodb once', () => {
+      assert.equal(geodb.callCount, 1)
+    })
+
+    it('called sms.balance once', () => {
+      assert.equal(sms.balance.callCount, 1)
+    })
+
+    it('did not call log.error', () => {
+      assert.equal(log.error.callCount, 0)
+    })
+  })
+
+  describe('sms.balance fails', () => {
+    let err
+
+    beforeEach(() => {
+      geodbResult = Promise.resolve({ location: { countryCode: 'US' } })
+      sms.balance = sinon.spy(() => P.reject(new Error('foo')))
+      return runTest(route, request)
+        .catch(e => err = e)
+    })
+
+    it('threw the correct error data', () => {
+      assert.ok(err instanceof AppError)
+      assert.equal(err.errno, AppError.ERRNO.UNEXPECTED_ERROR)
+      assert.equal(err.message, 'Unspecified error')
+    })
+
+    it('called log.begin once', () => {
+      assert.equal(log.begin.callCount, 1)
+    })
+
+    it('called geodb once', () => {
+      assert.equal(geodb.callCount, 1)
+    })
+
+    it('called sms.balance once', () => {
+      assert.equal(sms.balance.callCount, 1)
+    })
+
+    it('called log.error correctly', () => {
+      assert.equal(log.error.callCount, 1)
+      const args = log.error.args[0]
+      assert.equal(args.length, 1)
+      assert.equal(args[0].op, 'sms.balance')
+      assert.ok(args[0].err instanceof Error)
+      assert.equal(args[0].err.message, 'foo')
+    })
+  })
+
+  describe('getGeoData fails', () => {
+    let err
+
+    beforeEach(() => {
+      geodbResult = Promise.reject(new Error('bar'))
+      sms.balance = sinon.spy(() => P.resolve({ isOk: true }))
+      return runTest(route, request)
+        .catch(e => err = e)
+    })
+
+    it('threw the correct error data', () => {
+      assert.ok(err instanceof AppError)
+      assert.equal(err.errno, AppError.ERRNO.UNEXPECTED_ERROR)
+      assert.equal(err.message, 'Unspecified error')
+    })
+
+    it('called log.begin once', () => {
+      assert.equal(log.begin.callCount, 1)
+    })
+
+    it('called geodb once', () => {
+      assert.equal(geodb.callCount, 1)
+    })
+
+    it('called sms.balance once', () => {
+      assert.equal(sms.balance.callCount, 1)
+    })
+
+    it('called log.error correctly', () => {
+      assert.equal(log.error.callCount, 1)
+      const args = log.error.args[0]
+      assert.equal(args.length, 1)
+      assert.equal(args[0].op, 'sms.getGeoData')
+      assert.ok(args[0].err instanceof Error)
+      assert.equal(args[0].err.message, 'bar')
+    })
   })
 })
 

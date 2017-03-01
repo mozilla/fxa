@@ -6,7 +6,7 @@
 
 'use strict'
 
-const config = require('../config').getProperties()
+const config = require('../../config').getProperties()
 const NOT_SET = 'YOU MUST CHANGE ME'
 
 if (config.sms.apiKey === NOT_SET || config.sms.apiSecret === NOT_SET) {
@@ -14,9 +14,9 @@ if (config.sms.apiKey === NOT_SET || config.sms.apiSecret === NOT_SET) {
 }
 
 const args = parseArgs()
-const log = require('../lib/log')(config.log.level, 'send-sms')
+const log = require('../../lib/log')(config.log.level, 'send-sms')
 
-require('../lib/senders')(config, log)
+require('../../lib/senders')(config, log)
   .then(senders => {
     return senders.sms.send.apply(null, args)
   })

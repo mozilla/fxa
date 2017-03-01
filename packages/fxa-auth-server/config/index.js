@@ -587,10 +587,22 @@ var conf = convict({
       format: String,
       env: 'SMS_API_SECRET'
     },
+    balanceThreshold: {
+      doc: 'Minimum balance (in Euros) necessary for status to be deemed "good"',
+      default: 1,
+      format: Number,
+      env: 'SMS_MINIMUM_BALANCE'
+    },
+    regions: {
+      doc: 'Valid ISO 3166-1 alpha-2 country codes for enabled regions',
+      default: /^(?:US|CA)$/,
+      format: RegExp,
+      env: 'SMS_REGIONS'
+    },
     installFirefoxLink: {
       doc: 'Link for the installFirefox SMS template',
-      format: 'url',
       default: 'https://mzl.la/1HOd4ec',
+      format: 'url',
       env: 'SMS_INSTALL_FIREFOX_LINK'
     }
   }

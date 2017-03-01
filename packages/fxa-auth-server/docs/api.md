@@ -160,6 +160,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 
 * Send SMS
     * [POST /v1/sms (:lock: sessionToken)](#post-v1sms)
+    * [GET /v1/sms/status (:lock: sessionToken)](#get-v1smsstatus)
 
 * Miscellaneous
     * [POST /v1/get_random_bytes](#post-v1get_random_bytes)
@@ -1566,6 +1567,48 @@ Failing requests may return the following errors:
 * status code 400, errno 130: invalid region
 * status code 400, errno 131: invalid message id
 * status code 500, errno 132: message rejected
+* status code 500, errno 999: unexpected error
+
+## GET /v1/sms/status
+
+:lock: HAWK-authenticated with the sessionToken.
+
+Returns SMS status for the current user.
+
+### Request
+
+___Headers___
+
+The request must include a Hawk header
+that authenticates the request
+using a `sessionToken`
+received from `/v1/account/create` or `/v1/account/login`.
+
+___Example___
+
+```sh
+curl -v \
+-X GET \
+-H "Host: api-accounts.dev.lcip.org" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/sms/status \
+```
+
+### Response
+
+Successful requests
+will return a `200 OK` response
+with an object
+containing an `ok` property
+indicating the result
+in the JSON body:
+
+```json
+{"ok":true}
+```
+
+Failing requests may return the following errors:
+
 * status code 500, errno 999: unexpected error
 
 ## POST /v1/get_random_bytes

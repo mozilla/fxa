@@ -16,7 +16,8 @@ module.exports = function (log, translator, templates, smsConfig) {
     apiKey: smsConfig.apiKey,
     apiSecret: smsConfig.apiSecret
   })
-  var sendSms = P.promisify(nexmo.message.sendSms, nexmo.message)
+  var sendSms = promisify('sendSms', nexmo.message)
+  var checkBalance = promisify('checkBalance', nexmo.account)
 
   return {
     send: function (phoneNumber, senderId, messageId, acceptLanguage) {
@@ -63,7 +64,25 @@ module.exports = function (log, translator, templates, smsConfig) {
             })
           }
         })
+    },
+
+    balance: function () {
+      log.trace({ op: 'sms.balance' })
+
+      return checkBalance()
+        .then(function (result) {
+          var balance = result.value
+          var isOk = balance >= smsConfig.balanceThreshold
+
+          log.info({ op: 'sms.balance.success', balance: balance, isOk: isOk })
+
+          return { value: balance, isOk: isOk }
+        })
     }
+  }
+
+  function promisify (methodName, object) {
+    return P.promisify(object[methodName], object)
   }
 
   function getMessage (messageId, acceptLanguage) {

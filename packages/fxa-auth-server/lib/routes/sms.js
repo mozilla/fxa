@@ -4,6 +4,7 @@
 
 'use strict'
 
+const P = require('../promise')
 const PhoneNumberUtil = require('google-libphonenumber').PhoneNumberUtil
 const validators = require('./validators')
 
@@ -14,6 +15,9 @@ module.exports = (log, isA, error, config, customs, sms) => {
   if (! config.sms.enabled) {
     return []
   }
+
+  const getGeoData = require('../geodb')(log)
+  const REGIONS = config.sms.regions
 
   return [
     {
@@ -96,6 +100,44 @@ module.exports = (log, isA, error, config, customs, sms) => {
 
         function createResponse () {
           return {}
+        }
+      }
+    },
+    {
+      method: 'GET',
+      path: '/sms/status',
+      config: {
+        auth: {
+          strategy: 'sessionToken'
+        }
+      },
+      handler (request, reply) {
+        log.begin('sms.status', request)
+
+        return P.all([ getLocation(), getBalance() ])
+          .spread(createResponse)
+          .then(reply, reply)
+
+        function getLocation () {
+          return getGeoData(request.app.clientAddress)
+            .then(result => REGIONS.test(result.location.countryCode))
+            .catch(err => {
+              log.error({ op: 'sms.getGeoData', err: err })
+              throw error.unexpectedError()
+            })
+        }
+
+        function getBalance () {
+          return sms.balance()
+            .then(balance => balance.isOk)
+            .catch(err => {
+              log.error({ op: 'sms.balance', err: err })
+              throw error.unexpectedError()
+            })
+        }
+
+        function createResponse (isLocationOk, isBalanceOk) {
+          return { ok: isLocationOk && isBalanceOk }
         }
       }
     }

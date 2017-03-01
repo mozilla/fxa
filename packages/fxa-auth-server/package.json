@@ -42,7 +42,7 @@
     "convict": "2.0.0",
     "email-addresses": "2.0.2",
     "envc": "2.4.0",
-    "fxa-geodb": "0.0.7",
+    "fxa-geodb": "0.0.8",
     "fxa-jwtool": "0.7.1",
     "fxa-shared": "1.0.4",
     "google-libphonenumber": "2.0.10",
