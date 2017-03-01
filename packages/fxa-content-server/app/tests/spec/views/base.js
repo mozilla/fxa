@@ -726,6 +726,23 @@ define(function (require, exports, module) {
         focusEl = $focusEl.get(0);
       });
 
+      it('places the cursor at the end if no position given', () => {
+        view.placeCursorAt('#focusMe');
+
+        assert.equal(focusEl.selectionStart, elText.length);
+        assert.equal(focusEl.selectionEnd, elText.length);
+      });
+
+      it('works correctly with a formatted input[type=tel]', () => {
+        const TELEPHONE_NUMBER = '123-456-7890';
+        $focusEl = view.$('input[type=tel]').val(TELEPHONE_NUMBER);
+        focusEl = $focusEl.get(0);
+
+        view.placeCursorAt('input[type=tel]');
+        assert.equal(focusEl.selectionStart, TELEPHONE_NUMBER.length);
+        assert.equal(focusEl.selectionEnd, TELEPHONE_NUMBER.length);
+      });
+
       it('places the cursor at the specified position if only start given', () => {
         view.placeCursorAt('#focusMe', elText.length);
 

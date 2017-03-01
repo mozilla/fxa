@@ -856,7 +856,7 @@ define(function (require, exports, module) {
      * @param {Number} selectionStart - defaults to after the last character.
      * @param {Number} selectionEnd - defaults to selectionStart.
      */
-    placeCursorAt (which, selectionStart = $(which).val().length, selectionEnd = selectionStart) {
+    placeCursorAt (which, selectionStart = $(which).__val().length, selectionEnd = selectionStart) {
       const el = $(which).get(0);
 
       try {
