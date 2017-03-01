@@ -78,7 +78,28 @@ describe('db', function() {
 
     it('2-byte encoding preserved', makeTest(randomString(8), 'Düsseldorf'));
     it('3-byte encoding preserved', makeTest(randomString(8), '北京')); // Beijing
+    it('4-byte encoding throws', function() {
+      var data = {
+        id: randomString(8),
+        // 'MUSICAL SYMBOL F CLEF' (U+1D122) (JS: '\uD834\uDD22', UTF8: '0xF0 0x9D 0x84 0xA2')
+        // http://www.fileformat.info/info/unicode/char/1d122/index.htm
+        name: '𝄢',
+        hashedSecret: randomString(32),
+        imageUri: 'https://example.domain/logo',
+        redirectUri: 'https://example.domain/return?foo=bar',
+        trusted: true
+      };
 
+      db.registerClient(data)
+        .then(function(c) {
+          assert.fail('This should not have succeeded.');
+        })
+        .catch(function(err) {
+          assert.ok(err);
+          assert.equal(err.code, 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD');
+          assert.equal(err.errno, 1366);
+        });
+    });
   });
 
   describe('getEncodingInfo', function() {
