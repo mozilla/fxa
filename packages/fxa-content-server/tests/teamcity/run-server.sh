@@ -88,6 +88,7 @@ node ./tests/teamcity/install-npm-deps.js \
   mozlog                          \
   node-statsd                     \
   node-uap                        \
+  on-headers                      \
   proxyquire                      \
   raven                           \
   sinon                           \
