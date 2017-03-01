@@ -84,6 +84,7 @@ node ./tests/teamcity/install-npm-deps.js \
   helmet                          \
   htmlparser2                     \
   intern                          \
+  joi                             \
   lodash                          \
   mozlog                          \
   node-statsd                     \
