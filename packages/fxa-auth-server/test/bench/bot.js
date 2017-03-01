@@ -69,7 +69,7 @@ client.setupCredentials(config.email, config.password)
 
       function loop(ms) {
         run(client)
-          .done(
+          .then(
             function () {
               if (Date.now() - begin < ms) {
                 loop(ms)

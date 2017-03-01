@@ -85,7 +85,7 @@ TestServer.start = function (config, printLogs) {
         })
       }
     )
-  }).done(null, err => {
+  }).then(null, err => {
     d.reject(err)
   })
   return d.promise

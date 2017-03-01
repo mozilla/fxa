@@ -5,9 +5,9 @@
 'use strict'
 
 const assert = require('insist')
-var P = require('bluebird')
-var TestServer = require('../test_server')
-var request = P.promisify(require('request'))
+const P = require('../../lib/promise')
+const TestServer = require('../test_server')
+const request = P.promisify(require('request'), { multiArgs: true })
 
 describe('remote hpkp', function() {
   this.timeout(30000)

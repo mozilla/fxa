@@ -113,7 +113,7 @@ module.exports = function (
               throw err
             }
           )
-          .done(
+          .then(
             function (tokens) {
               reply(
                 {
@@ -163,7 +163,7 @@ module.exports = function (
           .then(createSessionToken)
           .then(createKeyFetchToken)
           .then(createResponse)
-          .done(reply, reply)
+          .then(reply, reply)
 
         function getSessionVerificationStatus() {
           if (sessionTokenId) {
@@ -431,7 +431,7 @@ module.exports = function (
                 )
             }
           )
-          .done(
+          .then(
             function (passwordForgotToken) {
               reply(
                 {
@@ -526,7 +526,7 @@ module.exports = function (
               return request.emitMetricsEvent('password.forgot.resend_code.completed')
             }
           )
-          .done(
+          .then(
             function () {
               reply(
                 {
@@ -599,7 +599,7 @@ module.exports = function (
                       )
                       .then(
                         function () {
-                          request.emitMetricsEvent('password.forgot.verify_code.completed')
+                          return request.emitMetricsEvent('password.forgot.verify_code.completed')
                         }
                       )
                       .then(
@@ -609,7 +609,7 @@ module.exports = function (
                       )
                     }
                   )
-                  .done(
+                  .then(
                     function (accountResetToken) {
 
                       reply(
@@ -623,7 +623,7 @@ module.exports = function (
               }
               else {
                 failVerifyAttempt(passwordForgotToken)
-                  .done(
+                  .then(
                     function () {
                       reply(
                         error.invalidVerificationCode({

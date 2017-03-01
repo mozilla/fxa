@@ -128,7 +128,7 @@ module.exports = function (
           .then(createKeyFetchToken)
           .then(recordSecurityEvent)
           .then(createResponse)
-          .done(reply, reply)
+          .then(reply, reply)
 
         function deleteAccountIfUnverified (emailRecord) {
           if (emailRecord.emailVerified) {
@@ -476,7 +476,7 @@ module.exports = function (
           .then(sendVerifyLoginEmail)
           .then(recordSecurityEvent)
           .then(createResponse)
-          .done(reply, reply)
+          .then(reply, reply)
 
         function checkIsBlockForced () {
           // For testing purposes, some email addresses are forced
@@ -1031,7 +1031,7 @@ module.exports = function (
         else if (request.query.uid) {
           var uid = Buffer(request.query.uid, 'hex')
           db.account(uid)
-            .done(
+            .then(
               function (account) {
                 reply({ exists: true })
               },
@@ -1073,7 +1073,7 @@ module.exports = function (
           .then(
             db.accountExists.bind(db, email)
           )
-          .done(
+          .then(
             function (exist) {
               reply({
                 exists: exist
@@ -1130,7 +1130,7 @@ module.exports = function (
           return false
         }
         db.account(uid)
-          .done(
+          .then(
             function (account) {
               reply({
                 email: hasProfileItemScope('email') ? account.email : undefined,
@@ -1180,7 +1180,7 @@ module.exports = function (
               }
             }
           )
-          .done(reply, reply)
+          .then(reply, reply)
       }
     },
     {
@@ -1362,7 +1362,7 @@ module.exports = function (
                 .catch(catchPushError)
             }
           })
-          .done(
+          .then(
             function () {
               reply({})
             },
@@ -1520,7 +1520,7 @@ module.exports = function (
 
         cleanUpIfAccountInvalid()
           .then(createResponse)
-          .done(reply, reply)
+          .then(reply, reply)
 
         function cleanUpIfAccountInvalid() {
           // Some historical bugs mean we've allowed creation
@@ -1633,7 +1633,7 @@ module.exports = function (
             }
           ))
           .then(() => request.emitMetricsEvent(`email.${event}.resent`))
-          .done(
+          .then(
             () => reply({}),
             reply
           )
@@ -1814,7 +1814,7 @@ module.exports = function (
                 })
             }
           )
-          .done(
+          .then(
             function () {
               reply({})
             },
@@ -1880,7 +1880,7 @@ module.exports = function (
           .then(createUnblockCode)
           .then(mailUnblockCode)
           .then(() => request.emitMetricsEvent('account.login.sentUnblockCode'))
-          .done(() => {
+          .then(() => {
             reply({})
           }, reply)
 
@@ -1937,7 +1937,7 @@ module.exports = function (
               })
               return {}
             }
-          ).done(reply, reply)
+          ).then(reply, reply)
       }
     },
     {
@@ -1982,7 +1982,7 @@ module.exports = function (
           .then(createKeyFetchToken)
           .then(recordSecurityEvent)
           .then(createResponse)
-          .done(reply, reply)
+          .then(reply, reply)
 
         function fetchDevicesToNotify() {
           // We fetch the devices to notify before resetAccountData() because
@@ -2203,7 +2203,7 @@ module.exports = function (
               throw err
             }
           )
-          .done(reply, reply)
+          .then(reply, reply)
       }
     }
   ]

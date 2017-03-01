@@ -31,7 +31,7 @@ var deliveryQueue = new SQSReceiver(config.emailNotifications.region, [
 ])
 
 DB.connect(config[config.db.backend])
-  .done(
+  .then(
     function (db) {
       bounces(bounceQueue, db)
       delivery(deliveryQueue)

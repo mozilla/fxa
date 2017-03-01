@@ -78,7 +78,7 @@ function create(log, error, config, routes, db) {
         return process.nextTick(cb.bind(null, null, null)) // not found
       }
       dbGetFn(Buffer(id, 'hex'))
-        .done(
+        .then(
           function (token) {
             if (token.expired(Date.now())) {
               return cb(error.invalidToken('The authentication token has expired'))

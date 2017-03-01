@@ -75,7 +75,7 @@ function main() {
   }
 
   require('../lib/senders')(config, log)
-    .done(
+    .then(
       function(result) {
         senders = result
 
@@ -92,7 +92,7 @@ function main() {
         )
 
         DB.connect(config[config.db.backend])
-          .done(
+          .then(
             function (db) {
               database = db
               customs = new Customs(config.customsUrl)

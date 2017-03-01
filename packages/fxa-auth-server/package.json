@@ -37,7 +37,7 @@
     "aws-sdk": "2.2.10",
     "base64url": "1.0.6",
     "binary-split": "0.1.2",
-    "bluebird": "2.10.2",
+    "bluebird": "3.4.7",
     "buffer-equal-constant-time": "1.0.1",
     "convict": "2.0.0",
     "email-addresses": "2.0.2",

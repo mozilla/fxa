@@ -4,13 +4,11 @@
 
 'use strict'
 
-
 const assert = require('insist')
-var TestServer = require('../test_server')
+const TestServer = require('../test_server')
 const Client = require('../client')()
-var P = require('../../lib/promise')
-var request = P.promisify(require('request'))
-
+const P = require('../../lib/promise')
+const request = P.promisify(require('request'), { multiArgs: true })
 
 describe('remote base path', function() {
   this.timeout(15000)

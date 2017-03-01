@@ -242,7 +242,7 @@ describe('/account/devices/notify', function () {
     var pushToAllDevicesPromise = P.defer()
     mockPush.pushToAllDevices = sinon.spy(function () {
       pushToAllDevicesPromise.resolve()
-      return Promise.resolve()
+      return P.resolve()
     })
     return runTest(route, mockRequest, function (response) {
       return pushToAllDevicesPromise.promise.then(function () {
@@ -273,7 +273,7 @@ describe('/account/devices/notify', function () {
     var pushToDevicesPromise = P.defer()
     mockPush.pushToDevices = sinon.spy(function () {
       pushToDevicesPromise.resolve()
-      return Promise.resolve()
+      return P.resolve()
     })
     return runTest(route, mockRequest, function (response) {
       return pushToDevicesPromise.promise.then(function () {

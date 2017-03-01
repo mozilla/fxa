@@ -82,7 +82,7 @@ module.exports = function (log, translator, templates, smsConfig) {
   }
 
   function promisify (methodName, object) {
-    return P.promisify(object[methodName], object)
+    return P.promisify(object[methodName], { context: object })
   }
 
   function getMessage (messageId, acceptLanguage) {

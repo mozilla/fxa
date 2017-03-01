@@ -14,7 +14,7 @@ module.exports = (log, random, isA, config, redirectDomain) => {
       path: '/get_random_bytes',
       handler: function getRandomBytes(request, reply) {
         random(32)
-          .done(
+          .then(
             bytes => reply({ data: bytes.toString('hex') }),
             err => reply(err)
           )

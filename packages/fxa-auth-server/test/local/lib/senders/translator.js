@@ -5,7 +5,7 @@
 const assert = require('insist')
 
 require('../../../../lib/senders/translator')(['en', 'pt_br', 'DE', 'ES_AR', 'ES_cl'], 'en')
-.done(
+.then(
   function (translator) {
     it(
       'translator works with upper and lowercase languages',

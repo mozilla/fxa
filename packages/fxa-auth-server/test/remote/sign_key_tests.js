@@ -5,10 +5,10 @@
 'use strict'
 
 const assert = require('insist')
-var TestServer = require('../test_server')
-var P = require('../../lib/promise')
-var request = P.promisify(require('request'))
-var path = require('path')
+const P = require('../../lib/promise')
+const TestServer = require('../test_server')
+const request = P.promisify(require('request'), { multiArgs: true })
+const path = require('path')
 
 describe('remote sign key', function() {
   this.timeout(15000)

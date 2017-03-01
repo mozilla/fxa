@@ -73,7 +73,7 @@ module.exports = function (log, P, db, error) {
       handler: function heartbeat(request, reply) {
         log.begin('Defaults.heartbeat', request)
         db.ping()
-          .done(
+          .then(
             function () {
               reply({})
             },
