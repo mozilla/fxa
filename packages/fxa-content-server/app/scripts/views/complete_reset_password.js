@@ -14,7 +14,7 @@ define(function (require, exports, module) {
   const PasswordMixin = require('views/mixins/password-mixin');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
-  const ResendMixin = require('views/mixins/resend-mixin');
+  const ResendMixin = require('views/mixins/resend-mixin')();
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/complete_reset_password');
   const { t } = require('views/base');

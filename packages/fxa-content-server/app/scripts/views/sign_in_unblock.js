@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
   const FormView = require('views/form');
-  const ResendMixin = require('views/mixins/resend-mixin');
+  const ResendMixin = require('views/mixins/resend-mixin')();
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const SignInMixin = require('views/mixins/signin-mixin');
   const Template = require('stache!templates/sign_in_unblock');

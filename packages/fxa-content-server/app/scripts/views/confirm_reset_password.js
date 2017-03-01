@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const OpenResetPasswordEmailMixin = require('views/mixins/open-webmail-mixin');
-  const ResendMixin = require('views/mixins/resend-mixin');
+  const ResendMixin = require('views/mixins/resend-mixin')();
   const ServiceMixin = require('views/mixins/service-mixin');
   const Session = require('lib/session');
   const Template = require('stache!templates/confirm_reset_password');

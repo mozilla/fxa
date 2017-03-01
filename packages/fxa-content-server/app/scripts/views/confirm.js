@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   const OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
   const p = require('lib/promise');
   const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
-  const ResendMixin = require('views/mixins/resend-mixin');
+  const ResendMixin = require('views/mixins/resend-mixin')();
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/confirm');

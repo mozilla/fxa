@@ -24,7 +24,7 @@ define(function (require, exports, module) {
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
   const p = require('lib/promise');
-  const ResendMixin = require('views/mixins/resend-mixin');
+  const ResendMixin = require('views/mixins/resend-mixin')();
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const t = BaseView.t;
   const VerificationInfo = require('models/verification/sign-up');
