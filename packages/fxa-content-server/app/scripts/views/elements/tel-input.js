@@ -26,13 +26,16 @@ define(function (require, exports, module) {
   };
 
   element.validate = function () {
+    const isRequired = typeof this.attr('required') !== 'undefined';
     const value = this.val();
+    const len = value.length;
     const country = this.data('country') || DEFAULT_COUNTRY;
     const validationPattern = CountryTelephoneInfo[country].pattern;
 
-    if (! value.length) {
+    if (! len && isRequired) {
       throw AuthErrors.toError('PHONE_NUMBER_REQUIRED');
-    } else if (! validationPattern.test(value)) {
+    } else if (len && ! validationPattern.test(value)) {
+      // only validate if input available
       throw AuthErrors.toError('INVALID_PHONE_NUMBER');
     }
   };

@@ -12,15 +12,18 @@ define(function (require, exports, module) {
 
   const TEMPLATE =
     '<input type="text"></input>' +
-    '<input type="tel"></input>';
+    '<input type="tel" required id="required-tel"></input>' +
+    '<input type="tel" id="optional-tel"></input>';
 
   describe('views/elements/tel-input', function () {
-    let $telEl;
+    let $optionalTelEl;
+    let $requiredTelEl;
     let $textEl;
 
     before(() => {
       $('#container').html(TEMPLATE);
-      $telEl = $('input[type=tel]');
+      $optionalTelEl = $('#optional-tel');
+      $requiredTelEl = $('#required-tel');
       $textEl = $('input[type=text]');
     });
 
@@ -30,67 +33,71 @@ define(function (require, exports, module) {
 
     describe('match', () => {
       it('returns `true` for input[type=tel]', () => {
-        assert.isTrue(TelEl.match($telEl));
+        assert.isTrue(TelEl.match($optionalTelEl));
+        assert.isTrue(TelEl.match($requiredTelEl));
         assert.isFalse(TelEl.match($textEl));
       });
     });
 
     describe('val', () => {
       it('strips periods, commas, -, spaces', () => {
-        $telEl.val('  123,456.78-90');
-        assert.equal($telEl.val(), '1234567890');
+        $requiredTelEl.val('  123,456.78-90');
+        assert.equal($requiredTelEl.val(), '1234567890');
       });
     });
 
     describe('validate', () => {
-      function validate(text) {
-        $telEl.val(text);
+      function validate($el, text) {
+        $el.val(text);
         try {
-          $telEl.validate();
+          $el.validate();
         } catch (err) {
           return err;
         }
       }
 
-      function testInvalidInput(text, expectedErrorType) {
-        assert.isTrue(AuthErrors.is(validate(text), expectedErrorType));
+      function testInvalidInput($el, text, expectedErrorType) {
+        assert.isTrue(AuthErrors.is(validate($el, text), expectedErrorType));
       }
 
       describe('default country', () => {
-        it('throws a `PHONE_NUMBER_REQUIRED` if empty', () => {
-          testInvalidInput('', 'PHONE_NUMBER_REQUIRED');
+        it('if empty, throws a `PHONE_NUMBER_REQUIRED` with required attribute', () => {
+          testInvalidInput($requiredTelEl, '', 'PHONE_NUMBER_REQUIRED');
+          assert.isUndefined(validate($optionalTelEl, ''));
         });
 
         it('throws a `INVALID_PHONE_NUMBER` if invalid', () => {
-          testInvalidInput('asdf', 'INVALID_PHONE_NUMBER');
-          testInvalidInput('123456789', 'INVALID_PHONE_NUMBER');
-          testInvalidInput('+1123456789', 'INVALID_PHONE_NUMBER');
-          testInvalidInput('+441234567890', 'INVALID_PHONE_NUMBER');
+          testInvalidInput($requiredTelEl, 'asdf', 'INVALID_PHONE_NUMBER');
+          testInvalidInput($requiredTelEl, '123456789', 'INVALID_PHONE_NUMBER');
+          testInvalidInput($requiredTelEl, '+1123456789', 'INVALID_PHONE_NUMBER');
+          testInvalidInput($requiredTelEl, '+441234567890', 'INVALID_PHONE_NUMBER');
         });
 
         it('does not throw if valid', () => {
-          assert.isUndefined(validate('1234567890'));
-          assert.isUndefined(validate('+11234567890'));
+          assert.isUndefined(validate($requiredTelEl, '1234567890'));
+          assert.isUndefined(validate($requiredTelEl, '+11234567890'));
         });
       });
 
       describe('specifying country using `data-country`', () => {
         beforeEach(() => {
-          $telEl.data('country', 'GB');
+          $requiredTelEl.data('country', 'GB');
         });
-        it('throws a `PHONE_NUMBER_REQUIRED` if empty', () => {
-          testInvalidInput('', 'PHONE_NUMBER_REQUIRED');
+
+        it('if empty, throws a `PHONE_NUMBER_REQUIRED` with required attribute', () => {
+          testInvalidInput($requiredTelEl, '', 'PHONE_NUMBER_REQUIRED');
+          assert.isUndefined(validate($optionalTelEl, ''));
         });
 
         it('throws a `INVALID_PHONE_NUMBER` if invalid', () => {
-          testInvalidInput('asdf', 'INVALID_PHONE_NUMBER');
-          testInvalidInput('123456789', 'INVALID_PHONE_NUMBER');
-          testInvalidInput('+11234567890', 'INVALID_PHONE_NUMBER');
+          testInvalidInput($requiredTelEl, 'asdf', 'INVALID_PHONE_NUMBER');
+          testInvalidInput($requiredTelEl, '123456789', 'INVALID_PHONE_NUMBER');
+          testInvalidInput($requiredTelEl, '+11234567890', 'INVALID_PHONE_NUMBER');
         });
 
         it('does not throw if valid', () => {
-          assert.isUndefined(validate('1234567890'));
-          assert.isUndefined(validate('+441234567890'));
+          assert.isUndefined(validate($requiredTelEl, '1234567890'));
+          assert.isUndefined(validate($requiredTelEl, '+441234567890'));
         });
       });
     });
