@@ -36,7 +36,7 @@ define(function (require, exports, module) {
     notifications: {},
 
     /**
-     * The A/B testing group type, see https://en.wikipedia.org/wiki/A/B_testing for details.
+     * The A/B testing group type, usually either `'control'` or `'treatment'`.
      */
     _groupType: null,
 

@@ -521,6 +521,11 @@ define(function (require, exports, module) {
      * @param {String} group - the experiment group (treatment or control)
      */
     logExperiment (choice, group) {
+      this._logFlowEvent({
+        event: `experiment.${choice}.${group}`,
+        once: true
+      });
+
       if (! choice || ! group) {
         return;
       }

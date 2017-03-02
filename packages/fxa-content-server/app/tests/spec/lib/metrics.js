@@ -739,14 +739,25 @@ define(function (require, exports, module) {
       it('logs the experiment name and group', function () {
         var experiment = 'mailcheck';
         var group = 'group';
+        sinon.spy(metrics, 'logEvent');
+        sinon.spy(metrics, 'logEventOnce');
+        notifier.trigger('flow.initialize');
 
         metrics.logExperiment();
         assert.equal(Object.keys(metrics._activeExperiments).length, 0);
+        assert.equal(metrics.logEventOnce.callCount, 1);
+        assert.equal(metrics.logEventOnce.args[0][0], 'flow.experiment.undefined.undefined');
+
         metrics.logExperiment(experiment);
         assert.equal(Object.keys(metrics._activeExperiments).length, 0);
+        assert.equal(metrics.logEventOnce.callCount, 2);
+        assert.equal(metrics.logEventOnce.args[1][0], 'flow.experiment.mailcheck.undefined');
+
         metrics.logExperiment(experiment, group);
         assert.equal(Object.keys(metrics._activeExperiments).length, 1);
         assert.isDefined(metrics._activeExperiments['mailcheck']);
+        assert.equal(metrics.logEventOnce.callCount, 3);
+        assert.equal(metrics.logEventOnce.args[2][0], 'flow.experiment.mailcheck.group');
       });
     });
 
