@@ -22,7 +22,7 @@ define(function (require, exports, module) {
       return this.__val(val);
     }
 
-    return this.__val().replace(/[.,-\s]/g, '');
+    return this.__val().replace(/[.,()\s-]/g, '');
   };
 
   element.validate = function () {

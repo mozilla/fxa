@@ -40,8 +40,8 @@ define(function (require, exports, module) {
     });
 
     describe('val', () => {
-      it('strips periods, commas, -, spaces', () => {
-        $requiredTelEl.val('  123,456.78-90');
+      it('strips periods, commas, -, spaces, ()', () => {
+        $requiredTelEl.val('  (123),456.78-90');
         assert.equal($requiredTelEl.val(), '1234567890');
       });
     });
@@ -75,7 +75,14 @@ define(function (require, exports, module) {
 
         it('does not throw if valid', () => {
           assert.isUndefined(validate($requiredTelEl, '1234567890'));
-          assert.isUndefined(validate($requiredTelEl, '+11234567890'));
+          assert.isUndefined(validate($requiredTelEl, '11234567890'));
+          assert.isUndefined(validate($requiredTelEl, '(123)4567890'));
+          assert.isUndefined(validate($requiredTelEl, '(123)456-7890'));
+          assert.isUndefined(validate($requiredTelEl, '(123) 456-7890'));
+          assert.isUndefined(validate($requiredTelEl, '1(123) 456-7890'));
+          assert.isUndefined(validate($requiredTelEl, '1 (123) 456-7890'));
+          assert.isUndefined(validate($requiredTelEl, '+1(123) 456-7890'));
+          assert.isUndefined(validate($requiredTelEl, '+1 (123) 456-7890'));
         });
       });
 
