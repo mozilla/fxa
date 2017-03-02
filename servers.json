@@ -166,8 +166,8 @@
     },
     {
       "name": "auth-mailer PORT 10136",
-      "script": "bin/server.js",
-      "cwd": "fxa-auth-mailer",
+      "script": "bin/mailer_server.js",
+      "cwd": "fxa-auth-server",
       "env": {
         "NODE_ENV": "dev"
       },
