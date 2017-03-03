@@ -130,6 +130,49 @@ define([
       }
     },
 
+    'call flowEvent with performance data': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          events: [
+            { offset: 2000, type: 'loaded' }
+          ],
+        }, 2000);
+      },
+
+      'process.stderr.write was called four times': () => {
+        assert.equal(process.stderr.write.callCount, 4);
+      },
+
+      'first call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.equal(arg.event, 'flow.performance');
+        assert.equal(arg.time, new Date(mocks.time).toISOString());
+        assert.equal(arg.flow_time, 2000);
+      },
+
+      'second call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[1][0]);
+        assert.equal(arg.event, 'flow.performance.network');
+        assert.equal(arg.time, new Date(mocks.time - 2000 + 300).toISOString());
+        assert.equal(arg.flow_time, 300);
+      },
+
+      'third call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[2][0]);
+        assert.equal(arg.event, 'flow.performance.server');
+        assert.equal(arg.time, new Date(mocks.time - 2000 + 100).toISOString());
+        assert.equal(arg.flow_time, 100);
+      },
+
+      'fourth call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[3][0]);
+        assert.equal(arg.event, 'flow.performance.client');
+        assert.equal(arg.time, new Date(mocks.time - 2000 + 200).toISOString());
+        assert.equal(arg.flow_time, 200);
+      }
+    },
+
     'call flowEvent with invalid flow id': {
       beforeEach () {
         flowMetricsValidateResult = true;
@@ -590,7 +633,6 @@ define([
       'process.stderr.write was called correctly': () => {
         assert.equal(process.stderr.write.callCount, 1);
         const arg = JSON.parse(process.stderr.write.args[0][0]);
-        console.log(process.stderr.write.args[0][0]);
         assert.isUndefined(arg.utm_campaign);
         assert.isUndefined(arg.utm_content);
         assert.isUndefined(arg.utm_medium);
@@ -677,6 +719,19 @@ define([
         flowId: data.flowId || '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
         flushTime: flowBeginTime,
         migration: data.migration || 'sync11',
+        navigationTiming: {
+          /*eslint-disable sorting/sort-object-props*/
+          domainLookupStart: 100,
+          domainLookupEnd: 200,
+          connectStart: 300,
+          connectEnd: 400,
+          requestStart: 500,
+          responseStart: 600,
+          responseEnd: 700,
+          domLoading: 800,
+          domComplete: 1000
+          /*eslint-enable sorting/sort-object-props*/
+        },
         service: data.service || '1234567890abcdef',
         startTime: flowBeginTime - timeSinceFlowBegin,
         /*eslint-disable camelcase*/

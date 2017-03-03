@@ -44,26 +44,63 @@ const UTM_PATTERN = /^[\w.%-]+$/;
 
 const IS_DISABLED = config.get('client_metrics').stderr_collector_disabled;
 
+const PERFORMANCE_TIMINGS = [
+  // These timings are only an approximation, to be used as extra signals
+  // when looking for correlations in the flow data. They're not perfect
+  // representations, for instance:
+  //
+  //   * `network` includes fetching from the browser cache.
+  //   * `server` includes some network time.
+  //   * `client` is only a subset of the client-side processing time.
+  //
+  // Bear this in mind when looking at the data. The main `flow.performance`
+  // event represents our best approximation of overall, user-perceived
+  // performance.
+  {
+    event: 'network',
+    timings: [
+      { from: 'domainLookupStart', until: 'domainLookupEnd' },
+      { from: 'connectStart', until: 'connectEnd' },
+      { from: 'responseStart', until: 'responseEnd' }
+    ]
+  },
+  {
+    event: 'server',
+    timings: [
+      { from: 'requestStart', until: 'responseStart' }
+    ]
+  },
+  {
+    event: 'client',
+    timings: [
+      { from: 'domLoading', until: 'domComplete' }
+    ]
+  }
+];
+
 module.exports = (req, metrics, requestReceivedTime) => {
   if (IS_DISABLED || ! isValidFlowData(metrics, requestReceivedTime)) {
     return;
   }
 
+  let emitPerformanceEvents = false;
   const events = metrics.events || [];
-  const flowEvents = _.filter(
-    _.map(events, event => {
-      if (event.type.indexOf('screen.') !== 0) {
-        return event;
-      }
-
-      return _.assign({}, event, {
-        type: `flow.${event.type.substr(7)}.view`
+  const flowEvents = events.map(event => {
+    if (event.type === 'loaded') {
+      emitPerformanceEvents = true;
+      return Object.assign({}, event, {
+        type: 'flow.performance'
       });
-    }),
-    event => {
-      return event.type.indexOf('flow.') === 0;
     }
-  );
+
+    if (event.type.indexOf('screen.') !== 0) {
+      return event;
+    }
+
+    return Object.assign({}, event, {
+      type: `flow.${event.type.substr(7)}.view`
+    });
+  }).filter(event => event.type.indexOf('flow.') === 0);
 
   flowEvents.forEach(event => {
     if (event.type === FLOW_BEGIN_EVENT) {
@@ -88,6 +125,28 @@ module.exports = (req, metrics, requestReceivedTime) => {
 
     logFlowEvent(event, metrics, req);
   });
+
+  if (emitPerformanceEvents) {
+    const navigationTiming = metrics.navigationTiming;
+    PERFORMANCE_TIMINGS.forEach(item => {
+      const time = item.timings.reduce((sum, timing) => {
+        const from = navigationTiming[timing.from];
+        const until = navigationTiming[timing.until];
+        if (from >= 0 && until > from) {
+          sum += until - from;
+        }
+        return sum;
+      }, 0);
+
+      if (time > 0) {
+        logFlowEvent({
+          flowTime: time,
+          time: metrics.flowBeginTime + time,
+          type: `flow.performance.${item.event}`
+        }, metrics, req);
+      }
+    });
+  }
 };
 
 function isValidFlowData (metrics, requestReceivedTime) {
