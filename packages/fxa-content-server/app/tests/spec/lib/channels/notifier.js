@@ -5,13 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const { assert } = require('chai');
   const Backbone = require('backbone');
-  const chai = require('chai');
   const Notifier = require('lib/channels/notifier');
   const NullChannel = require('lib/channels/null');
   const sinon = require('sinon');
-
-  var assert = chai.assert;
 
   describe('lib/channels/notifier', function () {
     var NOTIFICATION = Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN;
@@ -228,4 +226,3 @@ define(function (require, exports, module) {
     });
   });
 });
-

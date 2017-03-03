@@ -886,16 +886,15 @@ define(function (require, exports, module) {
 
         sinon.spy(userMock, 'upgradeFromUnfilteredAccountData');
         sinon.spy(userMock, 'upgradeFromSession');
+        sinon.spy(userMock, 'removeAccountsWithInvalidUid');
 
         return appStart.upgradeStorageFormats();
       });
 
-      it('upgrades unfiltered account data', function () {
-        assert.isTrue(userMock.upgradeFromUnfilteredAccountData.called);
-      });
-
-      it('upgrades from Session data', function () {
-        assert.isTrue(userMock.upgradeFromSession.called);
+      it('upgrades and fixes account data', function () {
+        assert.isTrue(userMock.upgradeFromUnfilteredAccountData.calledOnce);
+        assert.isTrue(userMock.upgradeFromSession.calledOnce);
+        assert.isTrue(userMock.removeAccountsWithInvalidUid.calledOnce);
       });
     });
 

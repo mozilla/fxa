@@ -19,6 +19,7 @@ define(function (require, exports, module) {
   const Session = require('lib/session');
   const SentryMetrics = require('lib/sentry');
   const sinon = require('sinon');
+  const Storage = require('lib/storage');
   const User = require('models/user');
 
   const CODE = 'verification code';
@@ -27,37 +28,38 @@ define(function (require, exports, module) {
   const UUID = '12345678-1234-1234-1234-1234567890ab';
 
   describe('models/user', function () {
-    var fxaClientMock;
-    var metrics;
-    var notifier;
-    var sentryMetrics;
-    var user;
+    let fxaClientMock;
+    let metrics;
+    let notifier;
+    let sentryMetrics;
+    let storage;
+    let user;
 
     function testRemoteSignInMessageSent(account) {
       assert.equal(notifier.triggerRemote.callCount, 1);
-      var args = notifier.triggerRemote.args[0];
+      const args = notifier.triggerRemote.args[0];
       assert.lengthOf(args, 2);
       assert.equal(args[0], notifier.COMMANDS.SIGNED_IN);
 
-      // unwrapBKey and keyFetchToken are used in password reset
-      // to enable the original tab to send encryption keys
-      // to Firefox Hello.
       assert.deepEqual(
-        args[1], account.pick('uid', 'unwrapBKey', 'keyFetchToken'));
+        args[1], account.pick('keyFetchToken', 'sessionToken', 'sessionTokenContext', 'uid', 'unwrapBKey'));
     }
 
     beforeEach(function () {
       fxaClientMock = new FxaClient();
       metrics = {
+        logError: sinon.spy(),
         logNumStoredAccounts: sinon.spy(),
         setFlowModel: sinon.spy()
       };
       notifier = new Notifier();
       sentryMetrics = new SentryMetrics();
+      storage = new Storage();
       user = new User({
         metrics: metrics,
         notifier: notifier,
         sentryMetrics: sentryMetrics,
+        storage,
         uniqueUserId: UUID
       });
     });
@@ -67,8 +69,8 @@ define(function (require, exports, module) {
     });
 
     describe('initAccount', function () {
-      var account;
-      var email = 'a@a.com';
+      let account;
+      let email = 'a@a.com';
 
       beforeEach(function () {
         account = user.initAccount({
@@ -83,7 +85,7 @@ define(function (require, exports, module) {
     });
 
     it('isSyncAccount', function () {
-      var account = user.initAccount({
+      const account = user.initAccount({
         email: 'email',
         sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC
       });
@@ -161,7 +163,7 @@ define(function (require, exports, module) {
     });
 
     it('getSignedInAccount', function () {
-      var account = user.initAccount({
+      const account = user.initAccount({
         email: 'email',
         uid: 'uid'
       });
@@ -259,6 +261,51 @@ define(function (require, exports, module) {
 
     it('setAccount', function () {
       return user.setAccount({ email: 'email', uid: 'uid' });
+    });
+
+    describe('_persistAccount', () => {
+      let account;
+
+      beforeEach(() => {
+        sinon.spy(storage, 'set');
+
+        account = new Account({
+          keyFetchToken: 'key-fetch-token',
+          sessionToken: 'session-token'
+        });
+      });
+
+      describe('account has uid', () => {
+        it('writes the account to storage', () => {
+          account.set('uid', 'uid');
+          user._persistAccount(account);
+
+          assert.isTrue(storage.set.calledOnce);
+          assert.isTrue(storage.set.calledWith('accounts'));
+
+          const accountData = storage.get('accounts');
+          assert.deepEqual(accountData.uid, {
+            // keyFetchToken does not persistent
+            sessionToken: 'session-token',
+            uid: 'uid'
+          });
+
+          assert.isFalse(metrics.logError.called);
+        });
+      });
+
+      describe('account does not have a uid', () => {
+        it('does not write the account to storage, logs an error', () => {
+          account.unset('uid');
+          user._persistAccount(account);
+
+          assert.isFalse(storage.set.called);
+          assert.isTrue(metrics.logError.calledOnce);
+          const err = metrics.logError.args[0][0];
+          assert.isTrue(AuthErrors.is(err, 'ACCOUNT_HAS_NO_UID'));
+          assert.equal(err.context, 'persistAccount');
+        });
+      });
     });
 
     it('setSignedInAccount', function () {
@@ -599,6 +646,33 @@ define(function (require, exports, module) {
               upgraded[allowedKey], unfilteredAccounts['old-style'][allowedKey]);
           });
         });
+      });
+    });
+
+    describe('removeAccountsWithInvalidUid', () => {
+      const ACCOUNT_DATA = {
+        '': { lastLogin: 1488298413174 },
+        'uid1': { lastLogin: 1488298413174, uid: 'uid1' },
+        'undefined': { lastLogin: 1488298413174 },
+      };
+      beforeEach(() => {
+        storage.set('accounts', ACCOUNT_DATA);
+
+        return user.removeAccountsWithInvalidUid();
+      });
+
+      it('removes accounts w/ empty or undefined uid', () => {
+        /*
+         * Remove accounts with empty or `undefined` uids.
+         * See #4769. w/ e10s enabled, post account reset,
+         * a phantom account with a uid of `undefined` was
+         * being written to localStorage. These accounts
+         * are garbage, get rid of them.
+         */
+        const accounts = user._accounts();
+        assert.lengthOf(Object.keys(accounts), 1);
+        assert.ok(accounts.uid1);
+        assert.deepEqual(accounts.uid1, ACCOUNT_DATA.uid1);
       });
     });
 

@@ -420,7 +420,8 @@ define(function (require, exports, module) {
       // to read and create Accounts for unfiltered data.
       // upgradeFromSession writes the new format, so this is safe.
       return user.upgradeFromUnfilteredAccountData()
-        .then(user.upgradeFromSession.bind(user, Session, this._fxaClient));
+        .then(() => user.upgradeFromSession(Session, this._fxaClient))
+        .then(() => user.removeAccountsWithInvalidUid());
     },
 
     createView (Constructor, options = {}) {

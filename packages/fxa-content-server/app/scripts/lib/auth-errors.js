@@ -360,6 +360,13 @@ define(function (require, exports, module) {
     PHONE_NUMBER_REQUIRED: {
       errno: 1049,
       message: t('Phone number required')
+    },
+    ACCOUNT_HAS_NO_UID: {
+      errno: 1050,
+      // not user facing, only used for logging. Logged whenever
+      // an attempt is made to write an account w/o a uid
+      // to localStorage.
+      message: 'Account has no uid'
     }
   };
   /*eslint-enable sorting/sort-object-props*/

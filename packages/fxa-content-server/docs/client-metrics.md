@@ -115,6 +115,7 @@ The event stream is a log of events and the time they occurred while the user is
 * error.&lt;unexpected_origin&gt;.auth.1027 - a postMessage message was received from an unexpected origin.
 * error.&lt;image_url&gt;.profile.997 - a profile image could not load.
 * error.&lt;screen_name&gt;.&lt;service&gt;.998 - System unavailable.
+* error.persistAccount.auth.1050 - an attempt is being made to write an account with no uid to localStorage.
 * loaded - logged after the first screen is rendered.
 * &lt;screen_name&gt;.submit - A submit event has occurred and all of the form's input elements are valid.
 * &lt;screen_name&gt;.refresh - The aforementioned screen was refreshed.

@@ -43,7 +43,14 @@ define(function (require, exports, module) {
     SIGNED_IN: {
       name: 'internal:signed_in',
       schema: {
+        // A bug in e10s causes localStorage in about:accounts and content tabs to be isolated from
+        // each other. Writes to localStorage from /complete_reset_password are not able to be read
+        // from within about:accounts. Because of this, all account data needed to sign in must
+        // be passed between windows. See https://github.com/mozilla/fxa-content-server/issues/4763
+        // and https://bugzilla.mozilla.org/show_bug.cgi?id=666724
         keyFetchToken: '?String',
+        sessionToken: 'String',
+        sessionTokenContext: 'String',
         uid: 'String',
         unwrapBKey: '?String'
       }

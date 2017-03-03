@@ -394,17 +394,14 @@ define(function (require, exports, module) {
       });
 
       describe('with an unknown account uid', function () {
-        var err;
-
-        beforeEach(function () {
-          return view._finishPasswordResetSameBrowser({ uid: 'unknown uid' })
-            .then(assert.fail, function (_err) {
-              err = _err;
-            });
+        beforeEach(() => {
+          return view._finishPasswordResetSameBrowser({ uid: 'unknown uid' });
         });
 
-        it('throws', function () {
-          assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+        it('sets the account, notifies the broker', function () {
+          assert.isTrue(user.setSignedInAccount.calledOnce);
+          assert.equal(user.setSignedInAccount.args[0][0].get('uid'), 'unknown uid');
+          assert.isTrue(broker.afterResetPasswordConfirmationPoll.calledOnce);
         });
       });
 

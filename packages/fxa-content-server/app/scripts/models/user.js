@@ -106,13 +106,22 @@ define(function (require, exports, module) {
       return this._getAccount(this._storage.get('currentAccountUid'));
     },
 
-    // persists account data
+    /**
+     * Persists account data to localStorage.
+     * The account will only be written if it has a uid.
+     *
+     * @param {Object} accountData
+     */
     _persistAccount (accountData) {
-      var account = this.initAccount(accountData);
+      const account = this.initAccount(accountData);
+      const accounts = this._accounts();
+      const uid = account.get('uid');
+      if (! uid) {
+        this._metrics.logError(AuthErrors.toError('ACCOUNT_HAS_NO_UID', 'persistAccount'));
+        return;
+      }
 
-      var accounts = this._accounts();
-      accounts[account.get('uid')] = account.toPersistentJSON();
-
+      accounts[uid] = account.toPersistentJSON();
       this._storage.set('accounts', accounts);
     },
 
@@ -297,6 +306,7 @@ define(function (require, exports, module) {
     // Hydrate the account then persist it
     setAccount (accountData) {
       var account = this.initAccount(accountData);
+
       return account.fetch()
         .then(() => {
           this._persistAccount(account);
@@ -354,7 +364,7 @@ define(function (require, exports, module) {
 
     // Before a13f05f2 (18 Dec 2014), all kinds of extra
     // data was written to the Account. This extra data hung
-    // arround even if the user signed in again. After d4321990
+    // around even if the user signed in again. After d4321990
     // (12 Jan 2016), only allowed fields are allowed to be
     // set on an account, unexpected fields cause an error.
     // Update any accounts with unexpected data.
@@ -379,6 +389,29 @@ define(function (require, exports, module) {
       return (Session.email && Session.sessionToken &&
         (! Session.cachedCredentials ||
         Session.cachedCredentials.email !== Session.email));
+    },
+
+    /**
+     * Remove accounts with invalid uids.
+     * See #4769. w/ e10s enabled, post account reset,
+     * a phantom account with a uid of the string `undefined`
+     * was being written to localStorage. These accounts
+     * are garbage, get rid of them.
+     *
+     * @returns {Promise}
+     */
+    removeAccountsWithInvalidUid () {
+      return p().then(() => {
+        const accounts = this._accounts();
+        for (const uid in accounts) {
+          // the string `undefined` is correct here. That's the
+          // uid being stored in localStorage.
+          if (! uid || uid === 'undefined') {
+            delete accounts[uid];
+            this._storage.set('accounts', accounts);
+          }
+        }
+      });
     },
 
     /**
@@ -519,10 +552,12 @@ define(function (require, exports, module) {
      * @param {Object} account
      */
     _notifyOfAccountSignIn (account) {
-      // Other tabs only need to know the account `uid` to load any
-      // necessary info from localStorage
-      this._notifier.triggerRemote(
-        this._notifier.COMMANDS.SIGNED_IN, account.pick('uid', 'unwrapBKey', 'keyFetchToken'));
+      const notifier = this._notifier;
+      const signedInCommand = notifier.COMMANDS.SIGNED_IN;
+      notifier.triggerRemote(
+        signedInCommand,
+        account.pick(Object.keys(notifier.SCHEMATA[signedInCommand]))
+      );
     },
 
     /**
