@@ -328,6 +328,13 @@ the overall rate of reported fraudulent logins,
 and comment on any change
 that it appears to have caused.~~
 
+We did not complete the engineering work necessary
+to attribute reports of fraudulent logins back to this specific feature.
+However, we did not observe any significant increase
+in reports of fraudulent login attempts
+after rolling out this feature,
+and we are comfortable that it has not adversely affected this metric.
+
 ## Conclusions
 
 Considering the overall results of the features implemented in security
