@@ -179,26 +179,25 @@ define(function (require, exports, module) {
       });
 
       describe('without an event name and callback', () => {
-        beforeEach(() => {
-          sinon.spy(notifier, 'off');
+        let callback1;
+        let callback2;
 
-          let callback1 = () => {};
-          let callback2 = () => {};
+        beforeEach(() => {
+          callback1 = sinon.spy();
+          callback2 = sinon.spy();
 
           view.notifier.on('message1', callback1);
           view.notifier.on('message2', callback2);
+
+          view.notifier.off();
+
+          notifier.trigger('message1');
+          notifier.trigger('message2');
         });
 
         it('unregisters all of the view\'s handlers from the notifier', () => {
-          view.notifier.off();
-
-          assert.isTrue(notifier.off.calledWith('message1'));
-          // A second argument is passed, but it's opaque to us.
-          assert.ok(notifier.off.args[0][1]);
-
-          assert.isTrue(notifier.off.calledWith('message2'));
-          // A second argument is passed, but it's opaque to us.
-          assert.ok(notifier.off.args[1][1]);
+          assert.isFalse(callback1.called);
+          assert.isFalse(callback2.called);
         });
       });
     });
@@ -233,6 +232,29 @@ define(function (require, exports, module) {
 
       it('delegates to notifier.triggerRemote', () => {
         assert.isTrue(notifier.triggerRemote.calledWith('fxaccounts:logout', data));
+      });
+    });
+
+    describe('destroy', () => {
+      let callback1;
+      let callback2;
+
+      beforeEach(() => {
+        callback1 = sinon.spy();
+        callback2 = sinon.spy();
+
+        view.notifier.on('message1', callback1);
+        view.notifier.on('message2', callback2);
+
+        view.destroy();
+
+        notifier.trigger('message1');
+        notifier.trigger('message2');
+      });
+
+      it('unregisters all of the view\'s handlers from the notifier', () => {
+        assert.isFalse(callback1.called);
+        assert.isFalse(callback2.called);
       });
     });
   });

@@ -75,23 +75,12 @@ define(function (require, exports, module) {
       metrics = null;
     });
 
-    it('calls notifier.on correctly', () => {
-      assert.equal(notifier.on.callCount, 3);
+    it('has the expected notifications', () => {
+      assert.lengthOf(Object.keys(metrics.notifications), 3);
 
-      let args = notifier.on.args[0];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'flow.initialize');
-      assert.isFunction(args[1]);
-
-      args = notifier.on.args[1];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'flow.event');
-      assert.notEqual(args[1], notifier.on.args[0][1]);
-
-      args = notifier.on.args[2];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'view-shown');
-      assert.isFunction(args[1]);
+      assert.isTrue('flow.initialize' in metrics.notifications);
+      assert.isTrue('flow.event' in metrics.notifications);
+      assert.isTrue('view-shown' in metrics.notifications);
     });
 
     it('observable flow state is correct', () => {

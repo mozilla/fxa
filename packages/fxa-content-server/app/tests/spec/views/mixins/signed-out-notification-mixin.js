@@ -51,12 +51,9 @@ define((require, exports, module) => {
         view.destroy();
       });
 
-      it('calls notifier.on correctly', () => {
-        assert.equal(notifier.on.callCount, 1);
-        var args = notifier.on.args[0];
-        assert.lengthOf(args, 2);
-        assert.equal(args[0], Notifier.SIGNED_OUT);
-        assert.isFunction(args[1]);
+      it('has the expected notifications', () => {
+        assert.lengthOf(Object.keys(view.notifications), 1);
+        assert.isTrue(Notifier.SIGNED_OUT in view.notifications);
       });
 
       describe('clearSessionAndNavigateToSignIn', () => {

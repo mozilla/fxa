@@ -41,17 +41,7 @@ define(function (require, exports, module) {
     this._consumer = consumer;
     this._notifier = notifier;
 
-    /**
-     * A list of handlers registered for this view is kept
-     * so all listeners can be unregistered when the view is
-     * destroyed.
-     */
-    this._notifierMessages = [];
-
     this.delegateNotifications();
-
-    // unbind all listeners on destroy
-    consumer.on('destroy', () => this.off());
   }
 
   NotifierProxy.prototype = {
@@ -124,8 +114,7 @@ define(function (require, exports, module) {
      * @param {Function} callback
      */
     on (eventName, callback) {
-      this._notifier.on(eventName, callback);
-      this._trackListener(eventName, callback);
+      this._consumer.listenTo(this._notifier, eventName, callback);
     },
 
     /**
@@ -135,22 +124,7 @@ define(function (require, exports, module) {
      * @param {Function} callback
      */
     once (eventName, callback) {
-      this._notifier.once(eventName, callback);
-      this._trackListener(eventName, callback);
-    },
-
-    /**
-     * Track a listener.
-     *
-     * @param {String} eventName
-     * @param {Function} callback
-     * @private
-     */
-    _trackListener (eventName, callback) {
-      this._notifierMessages.push({
-        callback,
-        eventName
-      });
+      this._consumer.listenToOnce(this._notifier, eventName, callback);
     },
 
     /**
@@ -161,20 +135,7 @@ define(function (require, exports, module) {
      * @param {Function} [callback]
      */
     off (eventName, callback) {
-      if (! eventName) {
-        // unregister all callbacks for consumer.
-        this._notifierMessages.forEach(({ callback, eventName }) => {
-          this._notifier.off(eventName, callback);
-        });
-        this._notifierMessages = [];
-        return;
-      }
-
-      // To simplify the code, the notification is not removed
-      // from this._notifierMessages. _notifierMessages is cleared
-      // when the object is destroyed, there is no negative
-      // side effect to attempting to remove a non-existent handler
-      this._notifier.off(eventName, callback);
+      this._consumer.stopListening(this._notifier, eventName, callback);
     }
   };
 
