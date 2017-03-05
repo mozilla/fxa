@@ -1,6 +1,7 @@
 # Firefox Accounts database service
 
 [![Build Status][ci-status-icon]][ci-status]
+[![CircleCI](https://circleci.com/gh/mozilla/fxa-auth-db-mysql.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-auth-db-mysql)
 
 Node.js-based database service
 for Firefox Accounts.
@@ -170,26 +171,6 @@ mysql -u root -p -e 'DROP DATABASE fxa'
 
 It will be recreated automatically
 next time you run `npm start`.
-
-### Docker-based development
-
-To run the MySQL backend
-inside a container,
-use the following commands:
-
-```sh
-docker build --rm -t mozilla/fxa_auth_db_mysql .
-docker run --rm -v $PWD:/opt/fxa mozilla/fxa_auth_db_mysql npm install
-docker run -it --rm -v $PWD:/opt/fxa --net=host mozilla/fxa_auth_db_mysql
-```
-
-This method shares the codebase
-into a container
-and runs the MySQL backend inside it.
-You can `npm install`
-and edit code
-in your normal desktop environment
-and the changes will be picked up automatically.
 
 ## License
 
