@@ -2,6 +2,8 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var fs = require('fs')
+var os = require('os')
+var path = require('path')
 var Promise = require('bluebird')
 var test = require('tap').test
 
@@ -249,17 +251,14 @@ test(
 test(
   'IPBlocklistManager, reloads file correctly',
   function (t) {
-    var tmpFilename = './test/mocks/temp.netset'
+    var tmpFilename = path.join(
+      os.tmpdir(),
+      'fxa-customs-ipblocklist-' + Date.now() + '.netset'
+    )
     var tmpFileContents = '87.87.87.87'
     var tmpFileContents2 = '87.87.87.86'
 
     var ipBlocklist = new IPBlocklistManager()
-
-    // Delete old tmp to ensure starting from scratch
-    try {
-      fs.unlinkSync(tmpFilename)
-    } catch (err) {
-    }
 
     fs.writeFileSync(tmpFilename, tmpFileContents, {})
 
