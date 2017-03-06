@@ -32,6 +32,9 @@ var makeRoutes = function (options, requireMocks) {
   config.lastAccessTimeUpdates = {}
   config.signinConfirmation = config.signinConfirmation || {}
   config.signinUnblock = config.signinUnblock || {}
+  config.push = {
+    allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
+  }
 
   var log = options.log || mocks.mockLog()
   var Password = options.Password || require('../../../lib/crypto/password')(log, config)

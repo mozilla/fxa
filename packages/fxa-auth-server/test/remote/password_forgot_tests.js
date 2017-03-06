@@ -388,7 +388,7 @@ describe('remote password forgot', function() {
             return client.updateDevice({
               name: 'baz',
               type: 'mobile',
-              pushCallback: 'https://example.com/qux',
+              pushCallback: 'https://updates.push.services.mozilla.com/qux',
               pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
               pushAuthKey: base64url(crypto.randomBytes(16))
             })

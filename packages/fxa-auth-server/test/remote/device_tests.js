@@ -214,6 +214,40 @@ describe('remote device', function() {
   )
 
   it(
+    'update device fails with bad callbackUrl',
+    () => {
+      var badPushCallback = 'https://updates.push.services.mozilla.com.different-push-server.technology'
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      var deviceInfo = {
+        id: crypto.randomBytes(16).toString('hex'),
+        name: 'test device',
+        type: 'desktop',
+        pushCallback: badPushCallback,
+        pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
+        pushAuthKey: base64url(crypto.randomBytes(16))
+      }
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            return client.updateDevice(deviceInfo)
+              .then(
+                function (r) {
+                  assert(false, 'request should have failed')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.equal(err.code, 400, 'err.code was 400')
+                  assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter')
+                  assert.equal(err.validation.keys[0], 'pushCallback', 'bad pushCallback caught in validation')
+                }
+              )
+          })
+    }
+  )
+
+  it(
     'device registration from a different session',
     () => {
       var email = server.uniqueEmail()
@@ -293,7 +327,7 @@ describe('remote device', function() {
       var deviceInfo = {
         name: 'test device',
         type: 'desktop',
-        pushCallback: 'https://foo/bar',
+        pushCallback: 'https://updates.push.services.mozilla.com/qux',
         pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
         pushAuthKey: base64url(crypto.randomBytes(16))
       }
@@ -313,7 +347,7 @@ describe('remote device', function() {
                 assert.equal(devices[0].pushAuthKey, deviceInfo.pushAuthKey, 'devices returned correct pushAuthKey')
                 return client.updateDevice({
                   id: client.device.id,
-                  pushCallback: 'https://bar/foo'
+                  pushCallback: 'https://updates.push.services.mozilla.com/foo'
                 })
               }
             )
@@ -324,7 +358,7 @@ describe('remote device', function() {
             )
             .then(
               function (devices) {
-                assert.equal(devices[0].pushCallback, 'https://bar/foo', 'devices returned correct pushCallback')
+                assert.equal(devices[0].pushCallback, 'https://updates.push.services.mozilla.com/foo', 'devices returned correct pushCallback')
                 assert.equal(devices[0].pushPublicKey, '', 'devices returned newly empty pushPublicKey')
                 assert.equal(devices[0].pushAuthKey, '', 'devices returned newly empty pushAuthKey')
               }

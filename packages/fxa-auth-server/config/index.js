@@ -568,6 +568,13 @@ var conf = convict({
       env: 'HPKP_PIN_SHA256'
     }
   },
+  push: {
+    allowedServerRegex: {
+      doc: 'RegExp that validates the URI format of the Push Server',
+      format: RegExp,
+      default: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
+    }
+  },
   sms: {
     enabled: {
       doc: 'Indicates whether POST /sms is enabled',

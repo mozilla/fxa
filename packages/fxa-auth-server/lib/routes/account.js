@@ -60,6 +60,7 @@ module.exports = function (
   })
   const features = require('../features')(config)
 
+  const PUSH_SERVER_REGEX = config.push && config.push.allowedServerRegex
   const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
   const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 0
 
@@ -1196,14 +1197,14 @@ module.exports = function (
               id: isA.string().length(32).regex(HEX_STRING).required(),
               name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).optional(),
               type: isA.string().max(16).optional(),
-              pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
+              pushCallback: isA.string().uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).optional().allow(''),
               pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
               pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
             }).or('name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey').and('pushPublicKey', 'pushAuthKey'),
             isA.object({
               name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).required(),
               type: isA.string().max(16).required(),
-              pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
+              pushCallback: isA.string().uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).optional().allow(''),
               pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
               pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
             }).and('pushPublicKey', 'pushAuthKey')
