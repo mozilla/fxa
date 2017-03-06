@@ -2,8 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, db) {
+const P = require('../promise')
 
+const validators = require('./validators')
+const HEX_STRING = validators.HEX_STRING
+
+module.exports = function (log, isA, error, db) {
   var routes = [
     {
       method: 'POST',
@@ -11,12 +15,45 @@ module.exports = function (log, isA, error, db) {
       config: {
         auth: {
           strategy: 'sessionToken'
+        },
+        validate: {
+          payload: isA.object({
+            customSessionToken: isA.string().min(64).max(64).regex(HEX_STRING).optional()
+          }).allow(null)
         }
       },
       handler: function (request, reply) {
         log.begin('Session.destroy', request)
         var sessionToken = request.auth.credentials
-        db.deleteSessionToken(sessionToken)
+        var uid = request.auth.credentials.uid
+        var uidHex = uid.toString('hex')
+
+        return P.resolve()
+          .then(() => {
+            if(request.payload && request.payload.customSessionToken) {
+              const customTokenHex = request.payload.customSessionToken
+
+              return db.sessionToken(Buffer.from(customTokenHex))
+                .then(function (tokenData) {
+                  // NOTE: validate that the token belongs to the same user
+                  if (tokenData && uidHex === tokenData.uid.toString('hex')) {
+                    sessionToken = {
+                      id: Buffer.from(customTokenHex),
+                      uid: Buffer.from(uidHex)
+                    }
+
+                    return sessionToken
+                  } else {
+                    throw error.invalidToken('Invalid session token')
+                  }
+                })
+            } else {
+              return sessionToken
+            }
+          })
+          .then((sessionToken) => {
+            return db.deleteSessionToken(sessionToken)
+          })
           .then(
             function () {
               reply({})

@@ -124,6 +124,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [POST /v1/account/status](#post-v1accountstatus)
     * [GET  /v1/account/keys (:lock: keyFetchToken) (verf-required)](#get-v1accountkeys)
     * [GET  /v1/account/profile (:lock: oauthBearerToken)](#get-v1accountprofile)
+    * [GET  /v1/account/sessions (:lock: sessionToken)](#get-v1accountsessions)
     * [POST /v1/account/reset (:lock: accountResetToken)](#post-v1accountreset)
     * [POST /v1/account/destroy](#post-v1accountdestroy)
 
@@ -528,6 +529,70 @@ Successful requests will produce a "200 OK" response with data returned as JSON:
 }
 ```
 
+## GET /v1/account/sessions
+
+:lock: HAWK-authenticated with sessionToken
+
+Get the user's sessions with device information.
+
+### Request
+
+___Headers___
+
+The request must include a Hawk header that authenticates the request
+using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
+
+```sh
+curl -v \
+-X GET \
+-H "Host: api-accounts.dev.lcip.org" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/account/sessions
+```
+
+### Response
+
+Successful requests will return a `200 OK` response
+with an array of device details in the JSON body:
+
+```json
+[
+  {
+    "id": "eff779f59ab974f800625264145306ce53185bb22ee01fe80280964ff2766504",
+    "isCurrentDevice": true,
+    "isDevice": true,
+    "userAgent": "Firefox 50",
+    "lastAccessTime": 1449235471335,
+    "lastAccessTimeFormatted": "a few seconds ago",
+    "deviceId": "0f7aa00356e5416e82b3bef7bc409eef",
+    "deviceName": "My Phone",
+    "deviceType": "mobile",
+    "devicePushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+    "devicePushPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+    "devicePushAuthKey": "w3b14Zjc-Afj2SDOLOyong"
+  },
+  {
+    "id": "321779f59ab974f800625264145306ce53185bb22ee01fe80280964ff2766542",
+    "isCurrentDevice": false,
+    "isDevice": false,
+    "userAgent": "Chrome 50",
+    "lastAccessTime": 1449235471337,
+    "lastAccessTimeFormatted": "a few seconds ago",
+    "deviceId": null,
+    "deviceName": null,
+    "deviceType": "desktop",
+    "devicePushCallback": null,
+    "devicePushPublicKey": null,
+    "devicePushAuthKey": null
+  }
+]
+```
+
+Failing requests may return the following error:
+
+* status code 400, errno 102: unknown account
+
+
 ## POST /v1/account/reset
 
 :lock: HAWK-authenticated with accountResetToken
@@ -693,6 +758,10 @@ Destroys this session, by invalidating the sessionToken. This is used when a dev
 ___Headers___
 
 The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/account/login`.
+
+___Parameters___
+
+* customSessionToken - (optional) custom session token tokenId to destroy.
 
 ### Request
 ```sh

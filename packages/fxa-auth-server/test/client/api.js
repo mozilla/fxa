@@ -529,13 +529,35 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
+  ClientApi.prototype.sessionDestroy = function (sessionTokenHex, options) {
+    var data = null
+
+    if (options && options.customSessionToken) {
+      data = {
+        customSessionToken: options.customSessionToken
+      }
+    }
+
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
         function (token) {
           return this.doRequest(
             'POST',
             this.baseURL + '/session/destroy',
+            token,
+            data
+          )
+        }.bind(this)
+      )
+  }
+
+  ClientApi.prototype.sessions = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(
+        function (token) {
+          return this.doRequest(
+            'GET',
+            this.baseURL + '/account/sessions',
             token
           )
         }.bind(this)

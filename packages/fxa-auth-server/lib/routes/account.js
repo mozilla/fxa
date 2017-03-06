@@ -1430,6 +1430,75 @@ module.exports = function (
       }
     },
     {
+      method: 'GET',
+      path: '/account/sessions',
+      config: {
+        auth: {
+          strategy: 'sessionToken'
+        },
+        response: {
+          schema: isA.array().items(isA.object({
+            id: isA.string().regex(HEX_STRING).required(),
+            lastAccessTime: isA.number().min(0).required().allow(null),
+            lastAccessTimeFormatted: isA.string().optional().allow(''),
+            userAgent: isA.string().max(255).required().allow(''),
+            deviceId: isA.string().regex(HEX_STRING).allow(null),
+            deviceName: isA.string().max(255).required().allow('').allow(null),
+            deviceType: isA.string().max(16).required().allow(null),
+            deviceCallbackURL: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
+            deviceCallbackPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow('').allow(null),
+            deviceCallbackAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('').allow(null),
+            isDevice: isA.boolean().required(),
+            isCurrentDevice: isA.boolean().required()
+          }))
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Account.sessions', request)
+        var sessionToken = request.auth.credentials
+        var uid = sessionToken.uid
+
+        db.sessions(uid).then(
+          function (sessions) {
+            reply(sessions.map(function (session) {
+              session.id = session.tokenId.toString('hex')
+              // if session has a device record
+              session.isDevice = !! session.deviceId
+
+              if (! session.deviceName) {
+                session.deviceName = devices.synthesizeName(session)
+              }
+
+              session.userAgent = (session.uaBrowser + ' ' + session.uaBrowserVersion).trim()
+
+              if (! session.deviceType) {
+                session.deviceType = session.uaDeviceType || 'desktop'
+              }
+
+              session.isCurrentDevice = session.id === sessionToken.tokenId.toString('hex')
+
+              session.lastAccessTimeFormatted = localizeTimestamp.format(session.lastAccessTime,
+                request.headers['accept-language'])
+
+              delete session.tokenId
+              delete session.uid
+              delete session.createdAt
+              delete session.deviceCreatedAt
+              delete session.sessionToken
+              delete session.uaBrowser
+              delete session.uaBrowserVersion
+              delete session.uaOS
+              delete session.uaOSVersion
+              delete session.uaDeviceType
+
+              return butil.unbuffer(session)
+            }))
+          },
+          reply
+        )
+      }
+    },
+    {
       method: 'POST',
       path: '/account/device/destroy',
       config: {
