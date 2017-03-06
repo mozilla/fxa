@@ -1,3 +1,14 @@
+<a name="0.82.0"></a>
+# [0.82.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.81.0...v0.82.0) (2017-03-06)
+
+
+### Features
+
+* **docker:** add docker via Circle CI (#212) r=jbuck,seanmonstar ([8f913be](https://github.com/mozilla/fxa-auth-db-mysql/commit/8f913be)), closes [#208](https://github.com/mozilla/fxa-auth-db-mysql/issues/208)
+* **sessions:** update the sessions query to include device information (#203) r=vbudhram  ([70dcc5b](https://github.com/mozilla/fxa-auth-db-mysql/commit/70dcc5b))
+
+
+
 <a name="0.81.0"></a>
 # [0.81.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.76.0...v0.81.0) (2017-02-23)
 
