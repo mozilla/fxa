@@ -1,3 +1,41 @@
+<a name="1.82.0"></a>
+# [1.82.0](https://github.com/mozilla/fxa-auth-server/compare/v1.81.0...v1.82.0) (2017-03-06)
+
+
+### Bug Fixes
+
+* **config:** change reminder poll for many servers (#257), r=@vbudhram ([a721920](https://github.com/mozilla/fxa-auth-server/commit/a721920))
+* **db:** update to latest db ([3a6101f](https://github.com/mozilla/fxa-auth-server/commit/3a6101f))
+* **dependencies:** update bluebird, nodemailer, convict, moment-timezone (#251) r=vladikoff ([02fbda3](https://github.com/mozilla/fxa-auth-server/commit/02fbda3))
+* **git:** update husky to unbreak git hooks on ubuntu (#258) r=vladikoff ([83e9458](https://github.com/mozilla/fxa-auth-server/commit/83e9458))
+* **merge:** update shrinkwrap and library refs ([f32a867](https://github.com/mozilla/fxa-auth-server/commit/f32a867))
+* **project:** move mailer files into proper directories (#1676) r=vladikoff ([d09759c](https://github.com/mozilla/fxa-auth-server/commit/d09759c))
+* **push:** don't wait on push methods to reply in account/devices/notify r=vladikoff ([09e2e00](https://github.com/mozilla/fxa-auth-server/commit/09e2e00)), closes [#1657](https://github.com/mozilla/fxa-auth-server/issues/1657)
+
+### chore
+
+* **ci:** clean up travis ci files and docs ([4e1bab6](https://github.com/mozilla/fxa-auth-server/commit/4e1bab6))
+* **deps:** update bluebird (#1688) r=vladikoff ([838b602](https://github.com/mozilla/fxa-auth-server/commit/838b602))
+* **deps:** update to latest db-mysql ([31f8d6b](https://github.com/mozilla/fxa-auth-server/commit/31f8d6b))
+* **docs:** add coverage badge ([6f49d99](https://github.com/mozilla/fxa-auth-server/commit/6f49d99))
+* **docs:** remove extra AUTHORS file ([404fdec](https://github.com/mozilla/fxa-auth-server/commit/404fdec))
+* **docs:** update docs, AUTHORS ([c71e577](https://github.com/mozilla/fxa-auth-server/commit/c71e577))
+* **docs:** update mailer docs ([87d97e2](https://github.com/mozilla/fxa-auth-server/commit/87d97e2))
+* **git:** move repo into subdir ([458cc46](https://github.com/mozilla/fxa-auth-server/commit/458cc46))
+* **scripts:** install mailer during install ([8f647a4](https://github.com/mozilla/fxa-auth-server/commit/8f647a4))
+* **style:** update eslint styles and .gitignore ([df8070a](https://github.com/mozilla/fxa-auth-server/commit/df8070a))
+
+### Features
+
+* **logs:** disable statsd reporting in config (#1673), r=@vbudhram ([0c52a7c](https://github.com/mozilla/fxa-auth-server/commit/0c52a7c))
+* **mailer:** add support for sending SMS messages ([3bc1027](https://github.com/mozilla/fxa-auth-server/commit/3bc1027))
+* **server:** implement GET /sms/status ([34f4390](https://github.com/mozilla/fxa-auth-server/commit/34f4390))
+
+### Refactor
+
+* **sms:** swap out ad hoc error structures for lib/error (#1696) r=vladikoff ([388fd50](https://github.com/mozilla/fxa-auth-server/commit/388fd50))
+
+
 <a name="1.81.0"></a>
 # [1.81.0](https://github.com/mozilla/fxa-auth-server/compare/v1.80.0...v1.81.0) (2017-02-22)
 
