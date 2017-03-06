@@ -1,3 +1,34 @@
+<a name="1.82.0"></a>
+# 1.82.0 (2017-03-06)
+
+
+### Bug Fixes
+
+* **reset-password:** Fix the reset password flow w/ e10s enabled! (#4770) r=vladikoff ([179d0b9](https://github.com/mozilla/fxa-content-server/commit/179d0b9)), closes [(#4770](https://github.com/(/issues/4770) [#4769](https://github.com/mozilla/fxa-content-server/issues/4769)
+* **sms:** Allow parens in the phone number (#4773) r=@philbooth ([11ca81d](https://github.com/mozilla/fxa-content-server/commit/11ca81d)), closes [#4764](https://github.com/mozilla/fxa-content-server/issues/4764)
+* **sms:** Fix autofocus cursor position on input[type=tel] (#4760) r=@philbooth ([d16cf4a](https://github.com/mozilla/fxa-content-server/commit/d16cf4a)), closes [(#4760](https://github.com/(/issues/4760)
+* **sms:** input[type=tel] is only required w/ `required` attribute. (#4759) r=@philbooth ([f71e1b7](https://github.com/mozilla/fxa-content-server/commit/f71e1b7))
+* **tests:** add missing teamcity test dependency "joi" (#4772) r=vladikoff ([6530352](https://github.com/mozilla/fxa-content-server/commit/6530352))
+* **tests:** on-headers is required for server tests (#4771) r=vladikoff ([a6ac5ae](https://github.com/mozilla/fxa-content-server/commit/a6ac5ae))
+
+### Features
+
+* **CSP:** Use joi to validate CSP reports. (#4746) ([ef2e28d](https://github.com/mozilla/fxa-content-server/commit/ef2e28d))
+* **mailcheck:** enable mailcheck (#4751) r=vladikoff ([910b319](https://github.com/mozilla/fxa-content-server/commit/910b319))
+* **metrics:** emit a flow event for active experiments ([799b4ab](https://github.com/mozilla/fxa-content-server/commit/799b4ab))
+* **metrics:** emit flow events for key performance metrics ([33f2cf3](https://github.com/mozilla/fxa-content-server/commit/33f2cf3))
+* **server:** Set security headers on all HTML pages.  (#4750) r=@rfk ([878b694](https://github.com/mozilla/fxa-content-server/commit/878b694))
+* **sms:** Add a configurable successMessage to `resend-mixin` (#4761) r=@philbooth ([6d1f906](https://github.com/mozilla/fxa-content-server/commit/6d1f906))
+* **tests:** Reload mocha tests whenever source/js changes. (#4752) r=vladikoff,vbudhram ([56199d1](https://github.com/mozilla/fxa-content-server/commit/56199d1))
+
+### Refactor
+
+* **client:** auth brokers listens for `view-shown` to call afterLoaded. (#4754) r=@philbooth ([0264490](https://github.com/mozilla/fxa-content-server/commit/0264490))
+* **client:** ConfirmResetPassword extends BaseView, not ConfirmView. ([0e90d64](https://github.com/mozilla/fxa-content-server/commit/0e90d64))
+* **notifier-mixin:** Simplify the notifier-mixin using built in object event methods (#4779) r=@philb ([d129a6b](https://github.com/mozilla/fxa-content-server/commit/d129a6b))
+
+
+
 <a name="1.81.0"></a>
 # 1.81.0 (2017-02-23)
 
