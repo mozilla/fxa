@@ -229,15 +229,11 @@ describe('/sms', () => {
     })
   })
 
-  describe('sms.send fails with 500 error', () => {
+  describe('sms.send fails', () => {
     let err
 
     beforeEach(() => {
-      sms.send = sinon.spy(() => P.reject({
-        status: 500,
-        reason: 'wibble',
-        reasonCode: 7
-      }))
+      sms.send = sinon.spy(() => P.reject(AppError.messageRejected('wibble', 7)))
       request.payload.phoneNumber = '+18885083401'
       return runTest(route, request)
         .catch(e => {
@@ -267,78 +263,6 @@ describe('/sms', () => {
       assert.equal(err.message, 'Message rejected')
       assert.equal(err.output.payload.reason, 'wibble')
       assert.equal(err.output.payload.reasonCode, 7)
-    })
-  })
-
-  describe('sms.send fails with 400 error', () => {
-    let err
-
-    beforeEach(() => {
-      sms.send = sinon.spy(() => P.reject({
-        status: 400
-      }))
-      request.payload.phoneNumber = '+18885083401'
-      return runTest(route, request)
-        .catch(e => {
-          err = e
-        })
-    })
-
-    it('called log.begin once', () => {
-      assert.equal(log.begin.callCount, 1)
-    })
-
-    it('called request.validateMetricsContext once', () => {
-      assert.equal(request.validateMetricsContext.callCount, 1)
-    })
-
-    it('called sms.send once', () => {
-      assert.equal(sms.send.callCount, 1)
-    })
-
-    it('did not call log.flowEvent', () => {
-      assert.equal(log.flowEvent.callCount, 0)
-    })
-
-    it('threw the correct error data', () => {
-      assert.ok(err instanceof AppError)
-      assert.equal(err.errno, AppError.ERRNO.INVALID_MESSAGE_ID)
-      assert.equal(err.message, 'Invalid message id')
-    })
-  })
-
-  describe('sms.send fails with unknown error', () => {
-    let err
-
-    beforeEach(() => {
-      sms.send = sinon.spy(() => P.reject())
-      request.payload.phoneNumber = '+18885083401'
-      return runTest(route, request)
-        .catch(e => {
-          err = e
-        })
-    })
-
-    it('called log.begin once', () => {
-      assert.equal(log.begin.callCount, 1)
-    })
-
-    it('called request.validateMetricsContext once', () => {
-      assert.equal(request.validateMetricsContext.callCount, 1)
-    })
-
-    it('called sms.send once', () => {
-      assert.equal(sms.send.callCount, 1)
-    })
-
-    it('did not call log.flowEvent', () => {
-      assert.equal(log.flowEvent.callCount, 0)
-    })
-
-    it('threw the correct error data', () => {
-      assert.ok(err instanceof AppError)
-      assert.equal(err.errno, AppError.ERRNO.UNEXPECTED_ERROR)
-      assert.equal(err.message, 'Unspecified error')
     })
   })
 })

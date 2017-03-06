@@ -118,7 +118,7 @@ describe('lib/senders/sms:', () => {
     return sms.send('+442078553000', 'Firefox', 2, 'en')
       .then(() => assert.fail('sms.send should have rejected'))
       .catch(error => {
-        assert.equal(error.status, 400, 'error.statusCode was set correctly')
+        assert.equal(error.errno, 131, 'error.errno was set correctly')
         assert.equal(error.message, 'Invalid message id', 'error.message was set correctly')
 
         assert.equal(log.trace.callCount, 1, 'log.trace was called once')
@@ -126,23 +126,39 @@ describe('lib/senders/sms:', () => {
 
         assert.equal(log.error.callCount, 1, 'log.error was called once')
         assert.deepEqual(log.error.args[0][0], {
-          op: 'sms.send',
-          err: error.message
+          op: 'sms.getMessage.error',
+          messageId: 2,
+          templateName: undefined
         }, 'log.error was passed the correct data')
 
         assert.equal(sendSms.callCount, 0, 'nexmo.message.sendSms was not called')
       })
   })
 
-  it('fails to send an sms that is rejected by the network provider', () => {
+  it('fails to send an sms that is throttled by the network provider', () => {
     nexmoStatus = '1'
     return sms.send('+442078553000', 'Firefox', 1, 'en')
       .then(() => assert.fail('sms.send should have rejected'))
       .catch(error => {
-        assert.equal(error.status, 500, 'error.statusCode was set correctly')
+        assert.equal(error.errno, 114, 'error.errno was set correctly')
+        assert.equal(error.message, 'Client has sent too many requests', 'error.message was set correctly')
+
+        assert.equal(log.trace.callCount, 1, 'log.trace was called once')
+        assert.equal(log.info.callCount, 0, 'log.info was not called')
+
+        assert.equal(sendSms.callCount, 1, 'nexmo.message.sendSms was called once')
+      })
+  })
+
+  it('fails to send an sms that is rejected by the network provider', () => {
+    nexmoStatus = '2'
+    return sms.send('+442078553000', 'Firefox', 1, 'en')
+      .then(() => assert.fail('sms.send should have rejected'))
+      .catch(error => {
+        assert.equal(error.errno, 132, 'error.errno was set correctly')
         assert.equal(error.message, 'Message rejected', 'error.message was set correctly')
-        assert.equal(error.reason, 'bar', 'error.reason was set correctly')
-        assert.equal(error.reasonCode, '1', 'error.reasonCode was set correctly')
+        assert.equal(error.output.payload.reason, 'bar', 'error.reason was set correctly')
+        assert.equal(error.output.payload.reasonCode, '2', 'error.reasonCode was set correctly')
 
         assert.equal(log.trace.callCount, 1, 'log.trace was called once')
         assert.equal(log.info.callCount, 0, 'log.info was not called')

@@ -6,6 +6,7 @@
 
 var Nexmo = require('nexmo')
 var P = require('bluebird')
+var error = require('../error')
 
 var TEMPLATE_NAMES = new Map([
   [ 1, 'installFirefox' ]
@@ -18,6 +19,9 @@ module.exports = function (log, translator, templates, smsConfig) {
   })
   var sendSms = promisify('sendSms', nexmo.message)
   var checkBalance = promisify('checkBalance', nexmo.account)
+  var NEXMO_ERRORS = new Map([
+    [ '1', error.tooManyRequests(smsConfig.throttleWaitTime) ]
+  ])
 
   return {
     send: function (phoneNumber, senderId, messageId, acceptLanguage) {
@@ -41,7 +45,7 @@ module.exports = function (log, translator, templates, smsConfig) {
             // seen it in testing. But because I'm making an assumption about
             // the result format, I want to log an error if my assumption proves
             // to be wrong in production.
-            log.error({ op: 'sms.send', err: new Error('Unexpected result count'), resultCount: resultCount })
+            log.error({ op: 'sms.send.error', err: new Error('Unexpected result count'), resultCount: resultCount })
           }
 
           result = result.messages[0]
@@ -57,11 +61,8 @@ module.exports = function (log, translator, templates, smsConfig) {
             })
           } else {
             var reason = result['error-text']
-            fail('Message rejected', {
-              status: 500,
-              reason: reason,
-              reasonCode: status
-            })
+            log.error({ op: 'sms.send.error', reason: reason, status: status })
+            throw NEXMO_ERRORS.get(status) || error.messageRejected(reason, status)
           }
         })
     },
@@ -90,28 +91,13 @@ module.exports = function (log, translator, templates, smsConfig) {
     var template = templates['sms.' + templateName]
 
     if (! template) {
-      fail('Invalid message id', { status: 400 })
+      log.error({ op: 'sms.getMessage.error', messageId: messageId, templateName: templateName })
+      throw error.invalidMessageId()
     }
 
     return template({
       link: smsConfig[templateName + 'Link'],
       translator: translator(acceptLanguage)
     }).text
-  }
-
-  // If/when fxa-auth-mailer is moved into the auth server repo,
-  // calls to this function can be replaced with the auth server's
-  // AppError methods directly.
-  function fail (message, properties) {
-    log.error({ op: 'sms.send', err: message })
-
-    var error = new Error(message)
-    if (properties) {
-      Object.keys(properties).forEach(function (key) {
-        error[key] = properties[key]
-      })
-    }
-
-    throw error
   }
 }

@@ -604,6 +604,12 @@ var conf = convict({
       default: 'https://mzl.la/1HOd4ec',
       format: 'url',
       env: 'SMS_INSTALL_FIREFOX_LINK'
+    },
+    throttleWaitTime: {
+      doc: 'The number of seconds to wait if throttled by the SMS service provider',
+      default: 2,
+      format: Number,
+      env: 'SMS_THROTTLE_WAIT_TIME'
     }
   }
 })
