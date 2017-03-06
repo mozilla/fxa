@@ -1,3 +1,13 @@
+<a name="1.82.1"></a>
+## [1.82.1](https://github.com/mozilla/fxa-auth-server/compare/v1.82.0...v1.82.1) (2017-03-06)
+
+
+### Bug Fixes
+
+* **push:** add extra validation to pushCallback payload param (#1698) r=rfk ([9fd2ca3](https://github.com/mozilla/fxa-auth-server/commit/9fd2ca3))
+
+
+
 <a name="1.82.0"></a>
 # [1.82.0](https://github.com/mozilla/fxa-auth-server/compare/v1.81.0...v1.82.0) (2017-03-06)
 
