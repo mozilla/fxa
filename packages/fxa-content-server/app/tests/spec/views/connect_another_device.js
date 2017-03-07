@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const Account = require('models/account');
   const { assert } = require('chai');
   const AuthBroker = require('models/auth_brokers/base');
@@ -51,18 +52,31 @@ define(function (require, exports, module) {
         user,
         window: windowMock
       });
+      sinon.spy(view, 'logFlowEvent');
+    });
+
+    afterEach(() => {
+      view.destroy(true);
+      view = null;
     });
 
     function testIsNotified(expectedMessage) {
-      assert.isTrue(notifier.trigger.calledWith(expectedMessage));
+      assert.isTrue(notifier.trigger.calledWith(expectedMessage), expectedMessage);
     }
 
-    describe('render', () => {
+    function testIsFlowEventLogged(eventName) {
+      assert.isTrue(view.logFlowEvent.calledWith(eventName), eventName);
+    }
+
+    describe('render/afterVisible', () => {
       describe('with a Fx desktop user that is signed in', () => {
         beforeEach(() => {
           sinon.stub(user, 'isSignedInAccount', () => true);
 
-          return view.render();
+          return view.render()
+            .then(() => {
+              view.afterVisible();
+            });
         });
 
         it('shows the marketing area, logs appropriately', () => {
@@ -70,6 +84,9 @@ define(function (require, exports, module) {
           testIsNotified('connectAnotherDevice.signedin.true');
           testIsNotified('connectAnotherDevice.signin.ineligible');
           testIsNotified('connectAnotherDevice.install_from.fx_desktop');
+          testIsFlowEventLogged('signedin.true');
+          testIsFlowEventLogged('signin.ineligible');
+          testIsFlowEventLogged('install_from.fx_desktop');
         });
       });
 
@@ -88,7 +105,10 @@ define(function (require, exports, module) {
 
           sinon.stub(user, 'isSignedInAccount', () => true);
 
-          return view.render();
+          return view.render()
+            .then(() => {
+              view.afterVisible();
+            });
         });
 
         it('shows the marketing area, logs appropriately', () => {
@@ -96,6 +116,9 @@ define(function (require, exports, module) {
           testIsNotified('connectAnotherDevice.signedin.true');
           testIsNotified('connectAnotherDevice.signin.ineligible');
           testIsNotified('connectAnotherDevice.install_from.fx_android');
+          testIsFlowEventLogged('signedin.true');
+          testIsFlowEventLogged('signin.ineligible');
+          testIsFlowEventLogged('install_from.fx_android');
         });
       });
 
@@ -116,7 +139,10 @@ define(function (require, exports, module) {
           sinon.stub(user, 'isSignedInAccount', () => false);
           sinon.stub(view, '_canSignIn', () => true);
 
-          return view.render();
+          return view.render()
+            .then(() => {
+              view.afterVisible();
+            });
         });
 
         it('shows a sign in button with the appropriate link, logs appropriately', () => {
@@ -124,6 +150,9 @@ define(function (require, exports, module) {
           testIsNotified('connectAnotherDevice.signedin.false');
           testIsNotified('connectAnotherDevice.signin.eligible');
           testIsNotified('connectAnotherDevice.signin_from.fx_desktop');
+          testIsFlowEventLogged('signedin.false');
+          testIsFlowEventLogged('signin.eligible');
+          testIsFlowEventLogged('signin_from.fx_desktop');
         });
       });
 
@@ -144,7 +173,10 @@ define(function (require, exports, module) {
           sinon.stub(user, 'isSignedInAccount', () => false);
           sinon.stub(view, '_canSignIn', () => true);
 
-          return view.render();
+          return view.render()
+            .then(() => {
+              view.afterVisible();
+            });
         });
 
         it('shows a sign in button with the appropriate link, logs appropriately', () => {
@@ -152,6 +184,9 @@ define(function (require, exports, module) {
           testIsNotified('connectAnotherDevice.signedin.false');
           testIsNotified('connectAnotherDevice.signin.eligible');
           testIsNotified('connectAnotherDevice.signin_from.fx_android');
+          testIsFlowEventLogged('signedin.false');
+          testIsFlowEventLogged('signin.eligible');
+          testIsFlowEventLogged('signin_from.fx_android');
         });
       });
 
@@ -175,9 +210,12 @@ define(function (require, exports, module) {
 
           return view.render()
             .then(() => {
+              view.afterVisible();
+
               assert.lengthOf(view.$('#signin-fxios'), 1);
               assert.lengthOf(view.$('.marketing-area'), 0);
               testIsNotified('connectAnotherDevice.signin_from.fx_ios');
+              testIsFlowEventLogged('signin_from.fx_ios');
             });
         });
 
@@ -195,9 +233,12 @@ define(function (require, exports, module) {
 
           return view.render()
             .then(() => {
+              view.afterVisible();
+
               assert.lengthOf(view.$('#install-mobile-firefox-ios'), 1);
               assert.lengthOf(view.$('.marketing-area'), 1);
               testIsNotified('connectAnotherDevice.install_from.other_ios');
+              testIsFlowEventLogged('install_from.other_ios');
             });
         });
 
@@ -215,9 +256,12 @@ define(function (require, exports, module) {
 
           return view.render()
             .then(() => {
+              view.afterVisible();
+
               assert.lengthOf(view.$('#install-mobile-firefox-android'), 1);
               assert.lengthOf(view.$('.marketing-area'), 1);
               testIsNotified('connectAnotherDevice.install_from.other_android');
+              testIsFlowEventLogged('install_from.other_android');
             });
         });
 
@@ -235,9 +279,12 @@ define(function (require, exports, module) {
 
           return view.render()
             .then(() => {
+              view.afterVisible();
+
               assert.lengthOf(view.$('#install-mobile-firefox-desktop'), 1);
               assert.lengthOf(view.$('.marketing-area'), 1);
               testIsNotified('connectAnotherDevice.install_from.fx_desktop');
+              testIsFlowEventLogged('install_from.fx_desktop');
             });
         });
 
@@ -255,9 +302,12 @@ define(function (require, exports, module) {
 
           return view.render()
             .then(() => {
+              view.afterVisible();
+
               assert.lengthOf(view.$('#install-mobile-firefox-other'), 1);
               assert.lengthOf(view.$('.marketing-area'), 1);
               testIsNotified('connectAnotherDevice.install_from.other');
+              testIsFlowEventLogged('install_from.other');
             });
         });
       });
@@ -477,11 +527,48 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_onSignInClick', () => {
-      it('notifies of click', () => {
-        view._onSignInClick();
+    describe('clicks', () => {
+      beforeEach(() => {
+        sinon.stub(view, '_getUap', () => {
+          return {
+            isAndroid: () => false,
+            isFirefox: () => true,
+            isFirefoxAndroid: () => false,
+            isFirefoxDesktop: () => true,
+            isFirefoxIos: () => false,
+            isIos: () => false
+          };
+        });
 
-        testIsNotified('connectAnotherDevice.signin.clicked');
+        account.set('email', 'testuser@testuser.com');
+        sinon.stub(user, 'isSignedInAccount', () => false);
+        sinon.stub(view, '_canSignIn', () => true);
+
+        return view.render()
+          .then(() => {
+            $('#container').html(view.el);
+          });
+      });
+
+      describe('click on sign-in', () => {
+        beforeEach(() => {
+          view.$('#signin').click();
+        });
+
+        it('notifies of click', () => {
+          testIsNotified('connectAnotherDevice.signin.clicked');
+          testIsFlowEventLogged('link.signin');
+        });
+      });
+
+      describe('click on `why`', () => {
+        beforeEach(() => {
+          view.$('a[href="/connect_another_device/why"]').click();
+        });
+
+        it('notifies of click', () => {
+          testIsFlowEventLogged('link.why');
+        });
       });
     });
   });

@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FormView = require('views/form');
   const MarketingMixin = require('views/mixins/marketing-mixin');
   const MarketingSnippet = require('views/marketing_snippet');
@@ -21,11 +22,13 @@ define(function (require, exports, module) {
   const Url = require('lib/url');
   const UserAgent = require('lib/user-agent');
 
+  const proto = FormView.prototype;
   const View = FormView.extend({
     template: Template,
 
     initialize (options = {}) {
       this._createView = options.createView;
+      return proto.initialize.call(this, options);
     },
 
     events: {
@@ -43,14 +46,7 @@ define(function (require, exports, module) {
         .then(() => this.trackChildView(childView));
     },
 
-    beforeRender () {
-      const isSignedIn = this._isSignedIn();
-      this.notifier.trigger(`connectAnotherDevice.signedin.${isSignedIn}`);
-    },
-
     afterRender () {
-      this._logABMetrics();
-
       const options = {
         marketingId: Constants.MARKETING_ID_AUTUMN_2016
       };
@@ -64,6 +60,12 @@ define(function (require, exports, module) {
       return this.createMarketingSnippet(options);
     },
 
+    afterVisible () {
+      this._logViewMetrics();
+
+      return proto.afterVisible.call(this);
+    },
+
     getAccount () {
       if (! this.model.get('account')) {
         this.model.set('account', this.user.initAccount({}));
@@ -73,11 +75,15 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Log AB test related metrics. Done so via the notifier.
+     * Log view related metrics.
      *
      * @private
      */
-    _logABMetrics () {
+    _logViewMetrics () {
+      const isSignedIn = this._isSignedIn();
+      this.notifier.trigger(`connectAnotherDevice.signedin.${isSignedIn}`);
+      this.logFlowEvent(`signedin.${isSignedIn}`);
+
       const {
         canSignIn,
         isFirefoxAndroid,
@@ -93,6 +99,7 @@ define(function (require, exports, module) {
       let connectMethod;
       if (canSignIn) {
         this.notifier.trigger('connectAnotherDevice.signin.eligible');
+        this.logFlowEvent('signin.eligible');
 
         if (isFirefoxAndroid) {
           connectMethod = 'signin_from.fx_android';
@@ -101,6 +108,7 @@ define(function (require, exports, module) {
         }
       } else {
         this.notifier.trigger('connectAnotherDevice.signin.ineligible');
+        this.logFlowEvent('signin.ineligible');
 
         if (isFirefoxIos) {
           connectMethod = 'signin_from.fx_ios';
@@ -119,6 +127,7 @@ define(function (require, exports, module) {
 
       if (connectMethod) {
         this.notifier.trigger(`connectAnotherDevice.${connectMethod}`);
+        this.logFlowEvent(connectMethod);
       }
     },
 
@@ -286,6 +295,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     ExperimentMixin,
+    FlowEventsMixin,
     MarketingMixin({
       // The marketing area is manually created to which badges are displayed.
       autocreate: false
