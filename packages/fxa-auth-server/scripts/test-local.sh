@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-set -euo pipefail
+set -eu
 
 glob=$*
-if [ "$glob" == "" ]; then
+if [ -z "$glob" ]; then
   glob="test/local/* test/remote/*"
 fi
 

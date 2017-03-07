@@ -1,6 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-set -e
+if [ -n "$FXA_L10N_SKIP" ]; then
+    echo "Skipping fxa-content-server-l10n update..."
+    exit 0
+fi
 
 if [ -z "$FXA_L10N_SHA" ]; then
     FXA_L10N_SHA="master"

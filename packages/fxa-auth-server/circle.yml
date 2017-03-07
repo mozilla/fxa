@@ -1,6 +1,8 @@
 machine:
   node:
     version: 4
+  services:
+    - docker
 
 dependencies:
   cache_directories:
@@ -12,158 +14,62 @@ dependencies:
     - firefox
 
   pre:
-    - sudo apt-get install graphicsmagick expect tightvncserver
-
     - |
-      if [ -e fxa-js-client ]; then
-        # Update
-        cd fxa-js-client
-        git fetch --depth 1
-        git reset --hard origin/master
-      else
-        # Create
-        git clone --depth 1 https://github.com/mozilla/fxa-js-client
-        cd fxa-js-client
+      if [ "$CIRCLE_PROJET_USERNAME" = "fxa-test" ]; then
+        ./scripts/test-integrations.sh pre-deps
       fi
-
-      # Get the SHA of HEAD
-      SHA=`git log | head -1 | cut -d ' ' -f2`
-      if [ "`cat HEAD.sha`" != "$SHA" ]; then
-        # Rebuild if HEAD has changed since last time
-        npm run setup
-      fi
-      # Save the SHA of HEAD for next time
-      echo "$SHA" > HEAD.sha
-
-    - |
-      if [ -e fxa-content-server ]; then
-        # Update
-        cd fxa-content-server
-        git fetch --depth 1
-        git reset --hard origin/master
-      else
-        # Create
-        git clone --depth 1 https://github.com/mozilla/fxa-content-server
-        cd fxa-content-server
-      fi
-
-      # Get the SHA of HEAD
-      SHA=`git log | head -1 | cut -d ' ' -f2`
-      if [ "`cat HEAD.sha`" != "$SHA" ]; then
-        # Rebuild if HEAD has changed since last time
-        cp server/config/local.json-dist server/config/local.json
-        npm i
-        CONFIG_FILES=server/config/local.json,server/config/production.json node_modules/.bin/grunt build
-      fi
-      # Save the SHA of HEAD for next time
-      echo "$SHA" > HEAD.sha
-
-    - |
-      if [ -e fxa-oauth-server ]; then
-        # Update
-        cd fxa-oauth-server
-        git fetch --depth 1
-        git reset --hard origin/master
-      else
-        # Create
-        git clone --depth 1 https://github.com/mozilla/fxa-oauth-server
-        cd fxa-oauth-server
-      fi
-
-      # Get the SHA of HEAD
-      SHA=`git log | head -1 | cut -d ' ' -f2`
-      if [ "`cat HEAD.sha`" != "$SHA" ]; then
-        # Rebuild if HEAD has changed since last time
-        npm i --production
-      fi
-      # Save the SHA of HEAD for next time
-      echo "$SHA" > HEAD.sha
-
-    - |
-      if [ -e fxa-profile-server ]; then
-        # Update
-        cd fxa-profile-server
-        git fetch --depth 1
-        git reset --hard origin/master
-      else
-        # Create
-        git clone --depth 1 https://github.com/mozilla/fxa-profile-server
-        cd fxa-profile-server
-      fi
-
-      # Get the SHA of HEAD
-      SHA=`git log | head -1 | cut -d ' ' -f2`
-      if [ "`cat HEAD.sha`" != "$SHA" ]; then
-        # Rebuild if HEAD has changed since last time
-        npm i --production
-      fi
-      # Save the SHA of HEAD for next time
-      echo "$SHA" > HEAD.sha
-
-    - |
-      if [ -e browserid-verifier ]; then
-        # Update
-        cd browserid-verifier
-        git fetch --depth 1
-        git reset --hard origin/http
-      else
-        # Create
-        git clone --depth 1 --branch http https://github.com/vladikoff/browserid-verifier
-        cd browserid-verifier
-      fi
-
-      # Get the SHA of HEAD
-      SHA=`git log | head -1 | cut -d ' ' -f2`
-      if [ "`cat HEAD.sha`" != "$SHA" ]; then
-        # Rebuild if HEAD has changed since last time
-        npm i --production
-        npm i vladikoff/browserid-local-verify#http
-      fi
-      # Save the SHA of HEAD for next time
-      echo "$SHA" > HEAD.sha
-
-    - |
-      if [ ! -e firefox ]; then
-        pip install mozdownload mozinstall
-        mozdownload --version 50.1.0 --destination firefox.tar.bz2
-        mozinstall firefox.tar.bz2
-      fi
-
-    - ulimit -S -n 2048
-
-    - mkdir -p $HOME/.vnc
-    - bash fxa-content-server/tests/ci/setvncpass.sh
-    - tightvncserver :1
-    - export DISPLAY=:1
-
-    - npm i -g retry-cli
 
   override:
-    - npm i
+    - |
+      if [ "$CIRCLE_PROJET_USERNAME" = "fxa-test" ]; then
+        ./scripts/test-integrations.sh deps
+      else
+        docker info
 
+        printf '{"version":{"hash":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}}\n' \
+          "$CIRCLE_SHA1" \
+          "$CIRCLE_TAG" \
+          "$CIRCLE_PROJECT_USERNAME" \
+          "$CIRCLE_PROJECT_REPONAME" \
+          "$CIRCLE_BUILD_URL" \
+          | tee config/version.json version.json
+
+        docker build -f Dockerfile-build -t fxa-auth-server:build .
+        docker build -f Dockerfile-test -t fxa-auth-server:test .
+      fi
   post:
-    - SIGNIN_UNBLOCK_ALLOWED_EMAILS="^block.*@restmail\\.net$" SIGNIN_UNBLOCK_FORCED_EMAILS="^block.*@restmail\\.net$" npm start 2>&1 | tee $HOME/fxa-auth-server.log:
-        background: true
-
-    - cd fxa-content-server && CONFIG_FILES=server/config/local.json,server/config/production.json node_modules/.bin/grunt serverproc:dist 2>&1 | tee $HOME/fxa-content-server.log:
-        background: true
-
-    - cd fxa-oauth-server && LOG_LEVEL=error NODE_ENV=dev node ./bin/server 2>&1 | tee $HOME/fxa-oauth-server.log:
-        background: true
-
-    - cd fxa-profile-server && LOG_LEVEL=error NODE_ENV=development npm start 2>&1 | tee $HOME/fxa-profile-server.log:
-        background: true
-
-    - cd browserid-verifier && PORT=5050 CONFIG_FILES=../fxa-content-server/tests/ci/config_verifier.json node server 2>&1 | tee $HOME/browserid-verifier.log:
-        background: true
-
-    - curl 127.0.0.1:3030/ver.json
-    - firefox/firefox --version
+    - |
+      if [ "$CIRCLE_PROJET_USERNAME" = "fxa-test" ]; then
+        ./scripts/test-integrations.sh post-deps
+      fi
 
 test:
   override:
-    - cd fxa-js-client && npm run test-local
+    - |
+      if [ "$CIRCLE_PROJET_USERNAME" = "fxa-test" ]; then
+        ./scripts/test-integrations.sh test
+      else
+        docker run fxa-auth-server:test npm test
+      fi
 
-    - cd fxa-content-server && retry -n 1 -- node_modules/.bin/intern-runner config=tests/intern_functional_circle firefoxBinary=$HOME/fxa-auth-server/firefox/firefox fxaProduction=true:
-        parallel: true
+deployment:
+  hub_latest:
+    owner: mozilla
+    branch: "master"
+    commands:
+      - "[ ! -z $DOCKERHUB_REPO ]"
+      - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
+      - "docker tag fxa-auth-server:build ${DOCKERHUB_REPO}:latest"
+      - "docker push ${DOCKERHUB_REPO}:latest"
 
+  hub_releases:
+    # push all tags
+    owner: mozilla
+    tag: /.*/
+    commands:
+      - "[ ! -z $DOCKERHUB_REPO ]"
+      - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
+      - "echo ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
+      - "docker tag fxa-auth-server:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
+      - "docker images"
+      - "docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
