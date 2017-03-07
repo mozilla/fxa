@@ -12,7 +12,7 @@ var P = require('../promise')
 // up when you do that, they expect config and log in a different order.
 var createSenders = require('./legacy_index')
 
-module.exports = function (config, log) {
+module.exports = function (config, log, sender) {
   var defaultLanguage = config.i18n.defaultLanguage
 
   return createSenders(
@@ -22,7 +22,8 @@ module.exports = function (config, log) {
       defaultLanguage: defaultLanguage,
       mail: config.smtp,
       sms: config.sms
-    }
+    },
+    sender
   )
   .then(
     function (senders) {

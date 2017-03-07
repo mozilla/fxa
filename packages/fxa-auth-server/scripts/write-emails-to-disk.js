@@ -124,7 +124,10 @@ function getMailerMessageTypes(mailer) {
   var messageTypes = []
 
   for (var key in mailer) {
-    if (typeof mailer[key] === 'function' && ! /^_/.test(key) && /Email$/.test(key)) {
+    if (
+      typeof mailer[key] === 'function' &&
+      ! /^_/.test(key) && ! /^send/.test(key) && /Email$/.test(key)
+    ) {
       messageTypes.push(key)
     }
   }
