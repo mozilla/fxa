@@ -123,15 +123,19 @@ const conf = module.exports = convict({
   experiments: {
     dir: {
       default: path.resolve(__dirname, '..', '..', 'experiments'),
-      doc: 'path to where experiments are stored'
+      doc: 'path to where experiments are stored',
+      env: 'EXPERIMENTS_STORAGE_DIR'
     },
     git: {
       default: 'github:mozilla/fxa-content-experiments#dev',
-      doc: 'git url for experiments repo. set to empty to not pull'
+      doc: 'git url for experiments repo. set to empty to not pull',
+      env: 'EXPERIMENTS_GIT_REPO'
     },
     watch: {
       default: false,
-      doc: 'poll the experiments git repo for changes'
+      doc: 'poll the experiments git repo for changes',
+      env: 'EXPERIMENTS_ENABLE_POLLING',
+      format: Boolean
     }
   },
   flow_id_expiry: {
