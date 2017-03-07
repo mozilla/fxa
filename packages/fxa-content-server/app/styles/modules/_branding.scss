@@ -101,8 +101,11 @@
 
   .success-email-created {
     margin: -35px 0 40px 0;
-  }
 
+    @include respond-to('trustedUI') {
+      margin-top: -5px;
+    }
+  }
 }
 
 .sms-row {
