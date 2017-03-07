@@ -572,7 +572,7 @@ var conf = convict({
     allowedServerRegex: {
       doc: 'RegExp that validates the URI format of the Push Server',
       format: RegExp,
-      default: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
+      default: /^https:\/\/[a-zA-Z0-9._-]+\.services\.mozilla\.com(\/.*)?$/
     }
   },
   sms: {
