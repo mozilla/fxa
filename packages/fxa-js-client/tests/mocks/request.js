@@ -172,6 +172,29 @@ define([
       status: 200,
       body: '{}'
     },
+    sessions: {
+      status: 200,
+      body: JSON.stringify([
+        {
+          id: 'device1',
+          userAgent: 'agent1',
+          deviceName: 'name1',
+          deviceType: 'desktop',
+          isDevice: false,
+          lastAccessTime: 100,
+          lastAccessTimeFormatted: 'a few seconds ago'
+        },
+        {
+          id: 'device2',
+          userAgent: 'agent2',
+          deviceName: 'name2',
+          deviceType: 'desktop',
+          isDevice: false,
+          lastAccessTime: 101,
+          lastAccessTimeFormatted: 'a few seconds ago'
+        }
+      ])
+    },
     accountDestroy: {
       status: 200,
       body: '{}'

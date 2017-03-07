@@ -715,16 +715,24 @@ define([
    *
    * @method sessionDestroy
    * @param {String} sessionToken User session token
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.customSessionToken] Override which session token to destroy for this same user
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.sessionDestroy = function(sessionToken) {
+  FxAccountClient.prototype.sessionDestroy = function(sessionToken, options) {
     var self = this;
+    var data = {};
+    options = options || {};
+
+    if (options.customSessionToken) {
+      data.customSessionToken = options.customSessionToken;
+    }
 
     required(sessionToken, 'sessionToken');
 
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
-        return self.request.send('/session/destroy', 'POST', creds);
+        return self.request.send('/session/destroy', 'POST', creds, data);
       });
   };
 
@@ -1084,6 +1092,23 @@ define([
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
         return request.send('/account/devices', 'GET', creds);
+      });
+  };
+
+  /**
+   * Get a list of user's sessions
+   *
+   * @method sessions
+   * @param {String} sessionToken sessionToken obtained from signIn
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.sessions = function (sessionToken) {
+    required(sessionToken, 'sessionToken');
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        return request.send('/account/sessions', 'GET', creds);
       });
   };
 
