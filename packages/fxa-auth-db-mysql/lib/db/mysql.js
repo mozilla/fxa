@@ -1104,8 +1104,8 @@ module.exports = function (log, error) {
   }
 
   const FETCH_EMAIL_BOUNCES = 'CALL fetchEmailBounces_1(?)'
-  MySql.prototype.fetchEmailBounces = function (email) {
-    return this.read(FETCH_EMAIL_BOUNCES, [email])
+  MySql.prototype.fetchEmailBounces = function (emailBuffer) {
+    return this.read(FETCH_EMAIL_BOUNCES, [emailBuffer.toString('utf8')])
       .then(result => result[0])
   }
 
