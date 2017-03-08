@@ -1,3 +1,13 @@
+<a name="1.82.3"></a>
+## [1.82.3](https://github.com/mozilla/fxa-auth-server/compare/v1.82.2...v1.82.3) (2017-03-08)
+
+
+### Bug Fixes
+
+* **push:** fix push payload validation and disallow additional props (#57) r=vladikoff ([32750a2](https://github.com/mozilla/fxa-auth-server/commit/32750a2)), closes [#57](https://github.com/mozilla/fxa-auth-server/issues/57)
+
+
+
 <a name="1.82.2"></a>
 ## [1.82.2](https://github.com/mozilla/fxa-auth-server/compare/v1.82.1...v1.82.2) (2017-03-08)
 
