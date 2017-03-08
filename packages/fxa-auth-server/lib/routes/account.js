@@ -1363,6 +1363,25 @@ module.exports = function (
                 .catch(catchPushError)
             }
           })
+          .then(function () {
+            // Emit a metrics event for when a user sends tabs between devices.
+            // In the future we will aim to get this event directly from sync telemetry,
+            // but we're doing it here for now as a quick way to get metrics on the feature.
+            if (payload.command === 'sync:collection_changed') {
+              // Note that payload schema validation ensures that these properties exist.
+              if (payload.data.collections.length === 1 && payload.data.collections[0] === 'clients') {
+                var deviceId = undefined
+                if  (sessionToken.deviceId) {
+                  deviceId = sessionToken.deviceId.toString('hex')
+                }
+                return request.emitMetricsEvent('sync.sentTabToDevice', {
+                  device_id: deviceId,
+                  service: 'sync',
+                  uid: stringUid
+                })
+              }
+            }
+          })
           .then(
             function () {
               reply({})

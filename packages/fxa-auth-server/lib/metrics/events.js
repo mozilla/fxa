@@ -18,7 +18,8 @@ const ACTIVITY_EVENTS = new Set([
   'account.verified',
   'device.created',
   'device.deleted',
-  'device.updated'
+  'device.updated',
+  'sync.sentTabToDevice'
 ])
 
 // We plan to emit a vast number of flow events to cover all
@@ -30,7 +31,8 @@ const NOT_FLOW_EVENTS = new Set([
   'account.deleted',
   'device.created',
   'device.deleted',
-  'device.updated'
+  'device.updated',
+  'sync.sentTabToDevice'
 ])
 
 // It's an error if a flow event doesn't have a flow_id
