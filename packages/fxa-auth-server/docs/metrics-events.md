@@ -150,6 +150,7 @@ are emitted:
 |`device.created`|A device record has been created for a Sync account.|
 |`device.updated`|Device record is updated on a Sync account.|
 |`device.deleted`|Device record has been deleted from a Sync account.|
+|`sync.sentTabToDevice`|Device sent a push message for send-tab-to-device feature.|
 
 In redshift,
 these events are stored

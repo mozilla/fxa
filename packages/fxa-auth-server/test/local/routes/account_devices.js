@@ -183,9 +183,13 @@ describe('/account/device', function () {
 describe('/account/devices/notify', function () {
   var config = {}
   var uid = uuid.v4('binary')
+  var deviceId = crypto.randomBytes(16)
+  var mockLog = mocks.spyLog()
   var mockRequest = mocks.mockRequest({
+    log: mockLog,
     credentials: {
-      uid: uid.toString('hex')
+      uid: uid,
+      deviceId: deviceId
     }
   })
   var pushPayload = {
@@ -253,7 +257,7 @@ describe('/account/devices/notify', function () {
         assert.equal(mockPush.pushToAllDevices.callCount, 1, 'mockPush.pushToAllDevices was called once')
         var args = mockPush.pushToAllDevices.args[0]
         assert.equal(args.length, 3, 'mockPush.pushToAllDevices was passed three arguments')
-        assert.equal(args[0], uid.toString('hex'), 'first argument was the device uid')
+        assert.equal(args[0], uid, 'first argument was the device uid')
         assert.equal(args[1], 'devicesNotify', 'second argument was the devicesNotify reason')
         assert.deepEqual(args[2], {
           data: Buffer.from(JSON.stringify(pushPayload)),
@@ -266,6 +270,8 @@ describe('/account/devices/notify', function () {
 
   it('specific devices', function () {
     mockCustoms.checkAuthenticated.reset()
+    mockLog.activityEvent.reset()
+    mockLog.error.reset()
     mockRequest.payload = {
       to: ['bogusid1', 'bogusid2'],
       TTL: 60,
@@ -284,14 +290,45 @@ describe('/account/devices/notify', function () {
         assert.equal(mockPush.pushToDevices.callCount, 1, 'mockPush.pushToDevices was called once')
         var args = mockPush.pushToDevices.args[0]
         assert.equal(args.length, 4, 'mockPush.pushToDevices was passed four arguments')
-        assert.equal(args[0], uid.toString('hex'), 'first argument was the device uid')
+        assert.equal(args[0], uid, 'first argument was the device uid')
         assert.deepEqual(args[1], ['bogusid1', 'bogusid2'], 'second argument was the list of device ids')
         assert.equal(args[2], 'devicesNotify', 'third argument was the devicesNotify reason')
         assert.deepEqual(args[3], {
           data: Buffer.from(JSON.stringify(pushPayload)),
           TTL: 60
         }, 'fourth argument was the push options')
+        assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+        args = mockLog.activityEvent.args[0]
+        assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+        assert.deepEqual(args[0], {
+          event: 'sync.sentTabToDevice',
+          service: 'sync',
+          userAgent: 'test user-agent',
+          uid: uid.toString('hex'),
+          device_id: deviceId.toString('hex')
+        }, 'event data was correct')
+        assert.equal(mockLog.error.callCount, 0, 'log.error was not called')
       })
+    })
+  })
+
+  it('does not log activity event for non-send-tab-related messages', function () {
+    mockPush.pushToDevices.reset()
+    mockLog.activityEvent.reset()
+    mockLog.error.reset()
+    mockRequest.payload = {
+      to: ['bogusid1', 'bogusid2'],
+      TTL: 60,
+      payload: {
+        isValid: true,
+        version: 1,
+        command: 'fxaccounts:password_reset'
+      }
+    }
+    return runTest(route, mockRequest, function (response) {
+      assert.equal(mockPush.pushToDevices.callCount, 1, 'mockPush.pushToDevices was called once')
+      assert.equal(mockLog.activityEvent.callCount, 0, 'log.activityEvent was not called')
+      assert.equal(mockLog.error.callCount, 0, 'log.error was not called')
     })
   })
 
@@ -367,7 +404,7 @@ describe('/account/device/destroy', function () {
     var mockDB = mocks.mockDB()
     var mockRequest = mocks.mockRequest({
       credentials: {
-        uid: uid.toString('hex'),
+        uid: uid
       },
       log: mockLog,
       payload: {
@@ -406,7 +443,7 @@ describe('/account/device/destroy', function () {
       assert.equal(args[0], 'device:delete')
       assert.equal(args[1], mockRequest)
       var details = args[2]
-      assert.equal(details.uid, uid.toString('hex'))
+      assert.equal(details.uid, uid)
       assert.equal(details.id, deviceId)
       assert.ok(Date.now() - details.timestamp < 100)
     })
