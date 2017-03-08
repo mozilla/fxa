@@ -43,11 +43,18 @@ module.exports = function (locales, defaultLanguage) {
         languageTranslations[language] = translator
       }
 
-      return function translator(acceptLanguage) {
-        var languages = i18n.parseAcceptLanguage(acceptLanguage)
-        var best = i18n.normalizeLanguage(i18n.bestLanguage(languages, supportedLanguages, defaultLanguage))
+      return {
+        getTranslator: function (acceptLanguage) {
+          return languageTranslations[getLocale(acceptLanguage)]
+        },
 
-        return languageTranslations[best]
+        getLocale: getLocale
+      }
+
+      function getLocale (acceptLanguage) {
+        var languages = i18n.parseAcceptLanguage(acceptLanguage)
+        var bestLanguage = i18n.bestLanguage(languages, supportedLanguages, defaultLanguage)
+        return i18n.normalizeLanguage(bestLanguage)
       }
     }
   )

@@ -15,7 +15,10 @@ if (config.sms.apiKey === NOT_SET || config.sms.apiSecret === NOT_SET) {
 
 const log = require('../../lib/log')(config.log.level, 'sms-balance')
 
-require('../../lib/senders')(config, log)
+require('../../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n.defaultLanguage)
+  .then(translator => {
+    return require('../../lib/senders')(log, config, translator)
+  })
   .then(senders => {
     return senders.sms.balance()
   })

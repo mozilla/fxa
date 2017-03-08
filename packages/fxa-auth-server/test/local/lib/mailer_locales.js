@@ -4,15 +4,20 @@
 
 'use strict'
 
+const ROOT_DIR = '../../..'
+
 const assert = require('insist')
-var config = require('../../../config/index').getProperties()
-var log = {}
+const config = require(`${ROOT_DIR}/config/index`).getProperties()
+const log = {}
 
 describe('mailer locales', () => {
 
   let mailer
   before(() => {
-    return require('../../../lib/senders')(config, log)
+    return require(`${ROOT_DIR}/lib/senders/translator`)(config.i18n.supportedLanguages, config.i18n.defaultLanguage)
+      .then(translator => {
+        return require(`${ROOT_DIR}/lib/senders`)(log, config, translator)
+      })
       .then(result => {
         mailer = result.email
       })

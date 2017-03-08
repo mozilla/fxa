@@ -10,6 +10,7 @@ const error = require('../../../lib/error')
 const hapi = require('hapi')
 const mocks = require('../../mocks')
 const server = require('../../../lib/server')
+const sinon = require('sinon')
 
 describe('lib/server', () => {
   describe('trimLocale', () => {
@@ -60,14 +61,18 @@ describe('lib/server', () => {
   })
 
   describe('create:', () => {
-    let log, config, routes, db, instance, response
+    let log, config, routes, db, instance, response, translator
 
     beforeEach(() => {
       log = mocks.spyLog()
       config = getConfig()
       routes = getRoutes()
       db = mocks.mockDB()
-      instance = server.create(log, error, config, routes, db)
+      translator = {
+        getTranslator: sinon.spy(() => ({ en: { format: () => {}, language: 'en' } })),
+        getLocale: sinon.spy(() => 'en')
+      }
+      instance = server.create(log, error, config, routes, db, translator)
     })
 
     it('returned a hapi Server instance', () => {
@@ -86,10 +91,13 @@ describe('lib/server', () => {
         assert.equal(log.summary.callCount, 0)
       })
 
-      describe('successful request:', () => {
+      describe('successful request, acceptable locale:', () => {
         beforeEach(() => {
           response = 'ok'
           return instance.inject({
+            headers: {
+              'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5'
+            },
             method: 'POST',
             url: '/account/create',
             payload: {}
@@ -103,6 +111,8 @@ describe('lib/server', () => {
           assert.equal(args[0], 'server.onRequest')
           assert.ok(args[1])
           assert.equal(args[1].path, '/account/create')
+          assert.equal(args[1].app.locale, 'en')
+          assert.equal(args[1].app.isLocaleAcceptable, true)
         })
 
         it('called log.summary correctly', () => {
@@ -116,6 +126,35 @@ describe('lib/server', () => {
           assert.equal(args[1].errno, undefined)
           assert.equal(args[1].statusCode, 200)
           assert.equal(args[1].source, 'ok')
+        })
+
+        it('did not call log.error', () => {
+          assert.equal(log.error.callCount, 0)
+        })
+      })
+
+      describe('successful request, unacceptable locale:', () => {
+        beforeEach(() => {
+          response = 'ok'
+          return instance.inject({
+            headers: {
+              'accept-language': 'fr-CH, fr;q=0.9'
+            },
+            method: 'POST',
+            url: '/account/create',
+            payload: {}
+          })
+        })
+
+        it('called log.begin correctly', () => {
+          assert.equal(log.begin.callCount, 1)
+          const args = log.begin.args[0]
+          assert.equal(args[1].app.locale, 'en')
+          assert.equal(args[1].app.isLocaleAcceptable, false)
+        })
+
+        it('called log.summary once', () => {
+          assert.equal(log.summary.callCount, 1)
         })
 
         it('did not call log.error', () => {

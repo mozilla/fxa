@@ -204,6 +204,7 @@ describe('/account/create', () => {
     mockLog.error = sinon.spy()
     const mockMetricsContext = mocks.mockMetricsContext()
     const mockRequest = mocks.mockRequest({
+      locale: 'en-GB',
       log: mockLog,
       metricsContext: mockMetricsContext,
       payload: {
@@ -288,7 +289,6 @@ describe('/account/create', () => {
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
         event: 'account.created',
-        locale: 'en',
         service: 'sync',
         userAgent: 'test user-agent',
         uid: uid.toString('hex')
@@ -302,7 +302,7 @@ describe('/account/create', () => {
         flowCompleteSignal: 'account.signed',
         flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
         flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-        locale: 'en',
+        locale: 'en-GB',
         time: now,
         uid: uid.toString('hex'),
         userAgent: 'test user-agent'

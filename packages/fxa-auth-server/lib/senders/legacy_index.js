@@ -6,27 +6,17 @@
 // Those files should import this module rather than its sibling index.js.
 // If/when we eliminate the old mailer config and everything is importing
 // index.js, we can merge this into there and get rid of the indirection.
-// Be careful when doing that btw, they expect the log and config arguments
-// in a different order.
 
-var P = require('../promise')
 var createMailer = require('./email')
 var createSms = require('./sms')
 
-module.exports = function (log, config, sender) {
+module.exports = function (log, config, translator, sender) {
   var Mailer = createMailer(log)
-  return P.all(
-    [
-      require('./translator')(config.locales, config.defaultLanguage),
-      require('./templates')()
-    ]
-  )
-  .spread(
-    function (translator, templates) {
+  return require('./templates')()
+    .then(function (templates) {
       return {
         email: new Mailer(translator, templates, config.mail, sender),
         sms: createSms(log, translator, templates, config.sms)
       }
-    }
-  )
+    })
 }

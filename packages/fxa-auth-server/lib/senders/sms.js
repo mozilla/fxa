@@ -97,7 +97,7 @@ module.exports = function (log, translator, templates, smsConfig) {
 
     return template({
       link: smsConfig[templateName + 'Link'],
-      translator: translator(acceptLanguage)
+      translator: translator.getTranslator(acceptLanguage)
     }).text
   }
 }

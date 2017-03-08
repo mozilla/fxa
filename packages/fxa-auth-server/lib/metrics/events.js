@@ -144,7 +144,7 @@ module.exports = log => {
 
     return request.gatherMetricsContext({
       event: event,
-      locale: coalesceLocale(optionalData, request),
+      locale: marshallLocale(request),
       uid: coalesceUid(optionalData, request),
       userAgent: request.headers['user-agent']
     }).then(data => {
@@ -175,12 +175,10 @@ function optionallySetService (data, request) {
     (request.query && request.query.service)
 }
 
-function coalesceLocale (data, request) {
-  if (data && data.locale) {
-    return data.locale
+function marshallLocale (request) {
+  if (request.app && request.app.locale) {
+    return `${request.app.locale}${request.app.isLocaleAcceptable ? '' : '.default'}`
   }
-
-  return request.app && request.app.acceptLanguage
 }
 
 function coalesceUid (data, request) {

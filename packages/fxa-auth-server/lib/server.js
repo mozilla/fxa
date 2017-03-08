@@ -43,7 +43,7 @@ function logEndpointErrors(response, log) {
   }
 }
 
-function create(log, error, config, routes, db) {
+function create(log, error, config, routes, db, translator) {
 
   // Hawk needs to calculate request signatures based on public URL,
   // not the local URL to which it is bound.
@@ -284,7 +284,11 @@ function create(log, error, config, routes, db) {
       request.app.remoteAddressChain = xff
       request.app.clientAddress = xff[clientAddressIndex]
 
-      request.app.acceptLanguage = trimLocale(request.headers['accept-language'])
+      const acceptLanguage = trimLocale(request.headers['accept-language'])
+      request.app.acceptLanguage = acceptLanguage
+      const locale = translator.getLocale(acceptLanguage)
+      request.app.locale = locale
+      request.app.isLocaleAcceptable = isLocaleAcceptable(locale, acceptLanguage)
 
       if (request.headers.authorization) {
         // Log some helpful details for debugging authentication problems.
@@ -339,6 +343,10 @@ function create(log, error, config, routes, db) {
   }
 
   return server
+}
+
+function isLocaleAcceptable (locale, acceptLanguage) {
+  return RegExp(`^(?:.+, *)*${locale}(?:[,-].+)*$`, 'i').test(acceptLanguage)
 }
 
 module.exports = {

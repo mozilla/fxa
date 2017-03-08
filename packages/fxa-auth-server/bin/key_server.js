@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 // Only `require()` the newrelic module if explicity enabled.
 // If required, modules will be instrumented.
 require('../lib/newrelic')()
@@ -74,7 +76,12 @@ function main() {
     log.stat(Password.stat())
   }
 
-  require('../lib/senders')(config, log)
+  let translator
+  require('../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n.defaultLanguage)
+    .then(result => {
+      translator = result
+      return require('../lib/senders')(log, config, translator)
+    })
     .then(
       function(result) {
         senders = result
@@ -108,7 +115,7 @@ function main() {
                 config,
                 customs
               )
-              server = Server.create(log, error, config, routes, db)
+              server = Server.create(log, error, config, routes, db, translator)
 
               server.start(
                 function (err) {

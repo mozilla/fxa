@@ -118,7 +118,7 @@ module.exports = function (log) {
     this.supportUrl = config.supportUrl
     this.syncUrl = config.syncUrl
     this.templates = templates
-    this.translator = translator
+    this.translator = translator.getTranslator
     this.verificationUrl = config.verificationUrl
     this.verifyLoginUrl = config.verifyLoginUrl
   }

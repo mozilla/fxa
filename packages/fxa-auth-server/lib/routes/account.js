@@ -221,8 +221,7 @@ module.exports = function (
               account = result
 
               return request.emitMetricsEvent('account.created', {
-                uid: account.uid.toString('hex'),
-                locale: account.locale
+                uid: account.uid.toString('hex')
               })
             }
           )

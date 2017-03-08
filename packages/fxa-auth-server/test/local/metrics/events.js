@@ -170,7 +170,8 @@ describe('metrics/events', () => {
     const metricsContext = mocks.mockMetricsContext()
     const request = {
       app: {
-        acceptLanguage: 'en'
+        isLocaleAcceptable: false,
+        locale: 'en'
       },
       auth: {
         credentials: {
@@ -203,7 +204,7 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 1000,
           flowCompleteSignal: 'account.signed',
-          locale: 'en',
+          locale: 'en.default',
           time,
           uid: 'deadbeef',
           userAgent: 'foo'
@@ -224,6 +225,10 @@ describe('metrics/events', () => {
     sinon.stub(Date, 'now', () => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = {
+      app: {
+        isLocaleAcceptable: true,
+        locale: 'fr'
+      },
       clearMetricsContext: metricsContext.clear,
       gatherMetricsContext: metricsContext.gather,
       headers: {
@@ -247,7 +252,7 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 2000,
           flowCompleteSignal: 'account.reminder',
-          locale: 'baz',
+          locale: 'fr',
           time,
           uid: 'qux',
           userAgent: 'foo'
@@ -257,7 +262,7 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 2000,
           flowCompleteSignal: 'account.reminder',
-          locale: 'baz',
+          locale: 'fr',
           time,
           uid: 'qux',
           userAgent: 'foo'

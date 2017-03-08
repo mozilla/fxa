@@ -8,21 +8,19 @@ var P = require('../promise')
 // This indirection exists to accommodate different config properties
 // in the old auth mailer. If/when the two config files are merged and
 // there's nothing left that imports mailer/config, it is safe to merge
-// legacy_index.js and this file into one. Be careful not to mix the args
-// up when you do that, they expect config and log in a different order.
+// legacy_index.js and this file into one.
 var createSenders = require('./legacy_index')
 
-module.exports = function (config, log, sender) {
+module.exports = function (log, config, translator, sender) {
   var defaultLanguage = config.i18n.defaultLanguage
 
   return createSenders(
     log,
     {
-      locales: config.i18n.supportedLanguages,
-      defaultLanguage: defaultLanguage,
       mail: config.smtp,
       sms: config.sms
     },
+    translator,
     sender
   )
   .then(
