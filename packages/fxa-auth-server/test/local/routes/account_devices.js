@@ -193,7 +193,6 @@ describe('/account/devices/notify', function () {
     }
   })
   var pushPayload = {
-    isValid: true,
     version: 1,
     command: 'sync:collection_changed',
     data: {
@@ -201,22 +200,12 @@ describe('/account/devices/notify', function () {
     }
   }
   var mockPush = mocks.mockPush()
-  var validate = sinon.spy(function (payload) { return payload.isValid })
-  var mockAjv = function () {
-    return {
-      compile: function () {
-        return validate
-      }
-    }
-  }
   var sandbox = sinon.sandbox.create()
   var mockCustoms = mocks.mockCustoms()
   var accountRoutes = makeRoutes({
     config: config,
     customs: mockCustoms,
     push: mockPush
-  }, {
-    ajv: mockAjv
   })
   var route = getRoute(accountRoutes, '/account/devices/notify')
 
@@ -224,14 +213,13 @@ describe('/account/devices/notify', function () {
     mockRequest.payload = {
       to: ['bogusid1'],
       payload: {
-        isValid: false
+        bogus: 'payload'
       }
     }
     return runTest(route, mockRequest, function () {
       assert(false, 'should have thrown')
     })
       .then(() => assert(false), function (err) {
-        assert.equal(validate.callCount, 1, 'ajv validator function was called')
         assert.equal(mockPush.pushToDevices.callCount, 0, 'mockPush.pushToDevices was not called')
         assert.equal(err.errno, 107, 'Correct errno for invalid push payload')
       })
@@ -264,6 +252,34 @@ describe('/account/devices/notify', function () {
           excludedDeviceIds: ['bogusid'],
           TTL: 60
         }, 'third argument was the push options')
+      })
+    })
+  })
+
+  it('extra push payload properties are stripped', function () {
+    var extraPropsPayload = JSON.parse(JSON.stringify(pushPayload))
+    extraPropsPayload.extra = true
+    extraPropsPayload.data.extra = true
+    mockRequest.payload = {
+      to: 'all',
+      excluded: ['bogusid'],
+      TTL: 60,
+      payload: extraPropsPayload
+    }
+    // We don't wait on pushToAllDevices in the request handler, that's why
+    // we have to wait on it manually by spying.
+    var pushToAllDevicesPromise = P.defer()
+    mockPush.pushToAllDevices = sinon.spy(function () {
+      pushToAllDevicesPromise.resolve()
+      return Promise.resolve()
+    })
+    return runTest(route, mockRequest, function (response) {
+      return pushToAllDevicesPromise.promise.then(function () {
+        assert.deepEqual(mockPush.pushToAllDevices.args[0][2], {
+          data: Buffer.from(JSON.stringify(pushPayload)),
+          excludedDeviceIds: ['bogusid'],
+          TTL: 60
+        }, 'third argument payload properties has no extra properties')
       })
     })
   })
@@ -351,6 +367,12 @@ describe('/account/devices/notify', function () {
   })
 
   it('throws error if customs blocked the request', function () {
+    mockRequest.payload = {
+      to: 'all',
+      excluded: ['bogusid'],
+      TTL: 60,
+      payload: pushPayload
+    }
     config.deviceNotificationsEnabled = true
 
     mockCustoms = mocks.mockCustoms({
