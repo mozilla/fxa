@@ -33,6 +33,15 @@
 
 
 
+<a name="1.82.1"></a>
+## 1.82.1 (2017-03-08)
+
+### Features
+
+* **metrics:** Validate POST data to /metrics-errors. (#23) r=vladikoff ([5ca663b](https://github.com/mozilla/fxa-content-server-private/commit/5ca663b))
+* **metrics:** Validate the POST /metrics body (#22) r=vladikoff ([56f7635](https://github.com/mozilla/fxa-content-server-private/commit/56f7635))
+
+
 <a name="1.82.0"></a>
 # 1.82.0 (2017-03-06)
 
