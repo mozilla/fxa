@@ -20,44 +20,59 @@ define([
     name: 'metrics-errors'
   };
 
+  const VALID_METRICS_ERROR =
+    JSON.parse(fs.readFileSync('tests/server/fixtures/metrics_error_valid.json'));
+  const INVALID_METRICS_ERROR_OVEWRITE_SLICE_METHOD =
+    fs.readFileSync('tests/server/fixtures/metrics_error_overwrite_slice.json');
+
   suite['#get deprecated /metrics-errors endpoint - returns 200'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
-
-    got.get(serverUrl + '/metrics-errors')
-      .then(function (res) {
+    return got.get(serverUrl + '/metrics-errors')
+      .then((res) => {
         assert.equal(res.statusCode, 200);
-      })
-      .then(dfd.resolve, dfd.reject);
+      });
   };
 
-  suite['#post /metrics-errors - returns 200 without query'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
-
-    got.post(serverUrl + '/metrics-errors')
-      .then(function (res) {
-        assert.equal(res.statusCode, 200);
-      })
-      .then(dfd.resolve, dfd.reject);
+  suite['#post /metrics-errors - returns 200'] = {
+    'culprit ()': testValidMetricsErrorField('culprit', undefined),
+    'exception w/ empty value': testValidException('value', ''),
+    'level ()': testValidMetricsErrorField('level', undefined),
+    'no query params': testValidMetricsError(VALID_METRICS_ERROR),
+    'query': testValidMetricsError(VALID_METRICS_ERROR, '?sentry_version=4'),
+    'release ()': testValidMetricsErrorField('release', undefined),
+    'stacktrace frame w/ null colno': testValidStacktraceFrame('colno', null),
+    'stacktrace frame w/ null lineno': testValidStacktraceFrame('colno', null),
+    'tags ()': testValidMetricsErrorField('tags', undefined),
+    'tags.code ()': testValidTagValue('code', undefined),
+    'tags.code (400)': testValidTagValue('code', 400),
+    'tags.context ()': testValidTagValue('context', undefined),
+    'tags.context (settings.avatar.gravatar)': testValidTagValue('context', 'settings.avatar.gravatar'),
+    'tags.context (settings.change-password)': testValidTagValue('context', 'settings.change-password'),
+    'tags.context (unknown context)': testValidTagValue('context', 'unknown context'),
+    'tags.errno ()': testValidTagValue('errno', undefined),
+    'tags.errno (400)': testValidTagValue('errno', 400),
+    'tags.errno (Error)': testValidTagValue('errno', 'Error'),
   };
 
-  suite['#post /metrics-errors - returns 200 with an error query'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
-
-    got.post(serverUrl + '/metrics-errors?sentry_version=4')
-      .then(function (res) {
-        assert.equal(res.statusCode, 200);
-      })
-      .then(dfd.resolve, dfd.reject);
+  suite['#post /metrics-errors - returns 400 with invalid body'] = function () {
+    return got.post(serverUrl + '/metrics-errors?sentry_version=4', {
+      body: JSON.stringify({}),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(assert.fail, (res) => {
+      assert.equal(res.statusCode, 400);
+    });
   };
 
-  suite['#post /metrics-errors - returns 200 with an error query and a body'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
-
-    got.post(serverUrl + '/metrics-errors?sentry_version=4', {
-      body: JSON.stringify({ logger: 'javascript', project: 'metrics-errors' }),
-    }).then(function (res) {
-      assert.equal(res.statusCode, 200);
-    }).then(dfd.resolve, dfd.reject);
+  suite['#post /metrics-errors - returns 400 with invalid frames'] = function () {
+    return got.post(serverUrl + '/metrics-errors?sentry_version=4', {
+      body: INVALID_METRICS_ERROR_OVEWRITE_SLICE_METHOD,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(assert.fail, (res) => {
+      assert.equal(res.statusCode, 400);
+    });
   };
 
   // This test cannot be run remotely like the other tests in tests/server.
@@ -122,6 +137,52 @@ define([
       route(req, res);
     };
   }
+
+  function testValidMetricsError(metricsError, query) {
+    return function () {
+      return got.post(serverUrl + '/metrics-errors' + (query || ''), {
+        body: JSON.stringify(metricsError),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then((res) => {
+        assert.equal(res.statusCode, 200);
+      });
+    };
+  }
+
+  function testValidMetricsErrorField(fieldName, fieldValue) {
+    const metricsError = deepCopy(VALID_METRICS_ERROR);
+    metricsError[fieldName] = fieldValue;
+    return testValidMetricsError(metricsError);
+  }
+
+  function testValidException(fieldName, fieldValue) {
+    const metricsError = deepCopy(VALID_METRICS_ERROR);
+    metricsError.exception.values[0][fieldName] = fieldValue;
+
+    return testValidMetricsError(metricsError);
+  }
+
+  function testValidStacktraceFrame(fieldName, fieldValue) {
+    const metricsError = deepCopy(VALID_METRICS_ERROR);
+    metricsError.exception.values[0].stacktrace.frames[0][fieldName] = fieldValue;
+
+    return testValidMetricsError(metricsError);
+  }
+
+  function testValidTagValue(fieldName, fieldValue) {
+    const metricsError = deepCopy(VALID_METRICS_ERROR);
+    metricsError.tags[fieldName] = fieldValue;
+
+    return testValidMetricsError(metricsError);
+  }
+
+  function deepCopy(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
 
   registerSuite(suite);
 });
