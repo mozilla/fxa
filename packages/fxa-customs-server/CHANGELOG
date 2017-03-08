@@ -1,3 +1,28 @@
+v1.82.0
+
+  * feat(docker): add Docker support (#176) r=vladikoff,jbuck
+  * chore(package): Use ip-rep service client with keepalive enabled (#181) r=vladikoff
+  * fix(shutdown): Fix deferred call of process.exit(code). (#183); r=jrgm
+
+v1.81.0
+  * fix(reputation): add more (positive) logging to reputation service requests (#179), r=@vbudhram
+  * feat(blocklist): Add support to specify the block level for multiple blocklists (#167), r=@rfk
+  * fix(config-set): Don't attempt to merge array-valued config items. (#171); r=jrgm
+
+v0.80.0
+  * Fix rep service config (#172), r=@vbudhram, @jrgm
+  * fix(tests): remove old code coverage tool (#173), r=@vbudhram
+  * feat(sms): Add support for rate-limiting sms actions (#161), r=@philbooth, @rfk
+  * fix(startup): Exit process on any startup error. (#169), r=@rfk
+  * fix(timers): Unref all the update-polling timers. (#170); r=vbudhram
+  * refactor(tests): Add ability to debug child processes (#162), r=@rfk
+
+v0.79.0
+
+  * fix(retryAfter): Round blocking periods up instead of down. (#159), r=@vbudhram
+  * feat(config): Merge with existing config when writing to memcache. (#151) r=vladikoff
+  * feat(ipreputation): Use IP reputation service from /check (#152), r=@vbudhram
+  * fix(test): increase rateLimitInterval for send_violation_tests (#157), r=@vbudhram
 
 v0.78.0
 
