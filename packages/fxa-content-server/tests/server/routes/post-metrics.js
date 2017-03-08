@@ -84,11 +84,58 @@ define([
 
       'instance interface is correct': function () {
         assert.isObject(instance);
-        assert.lengthOf(Object.keys(instance), 3);
+        assert.lengthOf(Object.keys(instance), 5);
         assert.equal(instance.method, 'post');
         assert.equal(instance.path, '/metrics');
+        assert.isFunction(instance.preProcess);
+        assert.lengthOf(instance.preProcess, 3);
         assert.isFunction(instance.process);
         assert.lengthOf(instance.process, 2);
+        assert.isObject(instance.validate);
+        assert.lengthOf(Object.keys(instance.validate), 1);
+        assert.isObject(instance.validate.body);
+      },
+
+      'route.preProcess': {
+        'route.preProcess with text/plain Content-Type': {
+          setup: function () {
+            sinon.stub(Date, 'now', function () {
+              return 1000;
+            });
+            setupMetricsHandlerTests({
+              contentType: 'text/plain',
+              data: JSON.stringify({
+                events: [
+                  /*eslint-disable sorting/sort-object-props*/
+                  { type: 'flow.force_auth.begin', offset: 2 },
+                  { type: 'foo', offset: 3 }
+                  /*eslint-enable sorting/sort-object-props*/
+                ],
+                flowBeginTime: 77,
+                flowId: 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+                isSampledUser: true
+              }),
+              userAgent: 'baz'
+            });
+          },
+
+          teardown () {
+            Date.now.restore();
+            sandbox.reset();
+          },
+
+          'request.body was converted to an object': function () {
+            assert.isObject(mocks.request.body);
+          },
+
+          'response.json was called': function () {
+            assert.equal(mocks.response.json.callCount, 1);
+          },
+
+          'process.nextTick was called': function () {
+            assert.equal(mocks.nextTick.callCount, 1);
+          }
+        }
       },
 
       'route.process': {
@@ -99,15 +146,15 @@ define([
           setupMetricsHandlerTests({
             /*eslint-disable sorting/sort-object-props*/
             data: {
+              events: [
+                { type: 'foo', offset: 0 },
+                { type: 'bar', offset: 1 },
+                { type: 'baz', offset: 2 }
+              ],
               isSampledUser: true,
               startTime: 10,
               flushTime: 20
             },
-            events: [
-              { type: 'foo', offset: 0 },
-              { type: 'bar', offset: 1 },
-              { type: 'baz', offset: 2 }
-            ],
             userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
             /*eslint-enable sorting/sort-object-props*/
           });
@@ -187,7 +234,7 @@ define([
         }
       },
 
-      'route.process without isSampledUser': {
+      'route.process with isSampledUser=false': {
         setup: function () {
           sinon.stub(Date, 'now', function () {
             return 1000;
@@ -195,14 +242,15 @@ define([
           setupMetricsHandlerTests({
             /*eslint-disable sorting/sort-object-props*/
             data: {
+              events: [
+                { type: 'foo', offset: 0 },
+                { type: 'bar', offset: 1 },
+                { type: 'baz', offset: 2 }
+              ],
+              isSampledUser: false,
               startTime: 10,
               flushTime: 20
             },
-            events: [
-              { type: 'foo', offset: 0 },
-              { type: 'bar', offset: 1 },
-              { type: 'baz', offset: 2 }
-            ],
             userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
             /*eslint-enable sorting/sort-object-props*/
           });
@@ -246,149 +294,6 @@ define([
             assert.strictEqual(mocks.flowEvent.callCount, 1);
           }
         }
-      },
-
-      'route.process with text/plain Content-Type': {
-        setup: function () {
-          sinon.stub(Date, 'now', function () {
-            return 1000;
-          });
-          setupMetricsHandlerTests({
-            contentType: 'text/plain',
-            data: {
-              flowBeginTime: 77,
-              flowId: 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
-              isSampledUser: true
-            },
-            events: [
-              /*eslint-disable sorting/sort-object-props*/
-              { type: 'flow.force_auth.begin', offset: 2 },
-              { type: 'foo', offset: 3 }
-              /*eslint-enable sorting/sort-object-props*/
-            ],
-            isBodyJSON: true,
-            userAgent: 'baz'
-          });
-        },
-
-        teardown () {
-          Date.now.restore();
-          sandbox.reset();
-        },
-
-        'response.json was called': function () {
-          assert.equal(mocks.response.json.callCount, 1);
-        },
-
-        'process.nextTick was called': function () {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup: function () {
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was not called': function () {
-            assert.strictEqual(mocks.mozlog.error.callCount, 0);
-          },
-
-          'metricsCollector.write was called correctly': function () {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
-
-            var args = mocks.metricsCollector.write.args[0];
-            assert.lengthOf(args, 1);
-            assert.isObject(args[0]);
-            assert.lengthOf(Object.keys(args[0]), 5);
-
-            assert.equal(args[0].agent, 'baz');
-            assert.isArray(args[0].events);
-            assert.lengthOf(args[0].events, 2);
-            assert.equal(args[0].flowId, 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890');
-            assert.equal(args[0].flowBeginTime, 77);
-            assert.strictEqual(args[0].isSampledUser, true);
-          },
-
-          'statsdCollector.write was called correctly': function () {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-            var args = mocks.statsdCollector.write.args[0];
-            assert.lengthOf(args, 1);
-            assert.equal(args[0], mocks.metricsCollector.write.args[0][0]);
-          },
-
-          'gaCollector.write was called correctly': function () {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-            var args = mocks.gaCollector.write.args[0];
-            assert.lengthOf(args, 1);
-            assert.equal(args[0], mocks.metricsCollector.write.args[0][0]);
-          },
-
-          'flowEvent was called correctly': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 1);
-            var args = mocks.flowEvent.args[0];
-            assert.lengthOf(args, 3);
-            assert.equal(args[0], mocks.request);
-            assert.equal(args[1], mocks.metricsCollector.write.args[0][0]);
-            assert.equal(args[2], 1000);
-          }
-        }
-      },
-
-      'route.process with text/plain Content-Type and parsed JSON': {
-        setup: function () {
-          setupMetricsHandlerTests({
-            contentType: 'text/plain',
-            data: {
-              flowBeginTime: 42,
-              flowId: 'bar',
-              isSampledUser: true
-            },
-            events: [
-              /*eslint-disable sorting/sort-object-props*/
-              { type: 'flow.wibble.begin', offset: 2 },
-              { type: 'foo', offset: 3 }
-              /*eslint-enable sorting/sort-object-props*/
-            ],
-            userAgent: 'baz'
-          });
-        },
-
-        'response.json was called': function () {
-          assert.equal(mocks.response.json.callCount, 1);
-        },
-
-        'process.nextTick was called': function () {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup: function () {
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was called correctly': function () {
-            assert.strictEqual(mocks.mozlog.error.callCount, 1);
-            var args = mocks.mozlog.error.args[0];
-            assert.lengthOf(args, 1);
-            assert.instanceOf(args[0], Error);
-          },
-
-          'metricsCollector.write was not called': function () {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 0);
-          },
-
-          'statsdCollector.write was not called': function () {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 0);
-          },
-
-          'gaCollector.write was not called': function () {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 0);
-          },
-
-          'flowEvent was not called': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 0);
-          }
-        }
       }
     }
   });
@@ -407,20 +312,17 @@ define([
         return '';
       })
     };
-    if (options.events) {
-      mocks.request.body.events = options.events;
-    }
+
     if (options.data) {
       _.assign(mocks.request.body, options.data);
-    }
-    if (options.isBodyJSON) {
-      mocks.request.body = JSON.stringify(mocks.request.body);
     }
     mocks.response = { json: sandbox.spy() };
     mocks.nextTick = sandbox.spy();
     var nextTickCopy = process.nextTick;
     process.nextTick = mocks.nextTick;
-    instance.process(mocks.request, mocks.response);
-    process.nextTick = nextTickCopy;
+    instance.preProcess(mocks.request, mocks.response, () => {
+      instance.process(mocks.request, mocks.response);
+      process.nextTick = nextTickCopy;
+    });
   }
 });
