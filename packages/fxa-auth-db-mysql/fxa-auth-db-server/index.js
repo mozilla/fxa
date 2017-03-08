@@ -107,7 +107,7 @@ function createServer(db) {
   api.get('/securityEvents/:id/ip/:ipAddr', withParams(db.securityEvents))
   api.post('/securityEvents', withBodyAndQuery(db.createSecurityEvent))
 
-  api.get('/emailBounces/:email', op(req => db.fetchEmailBounces(req.params.email)))
+  api.get('/emailBounces/:id', withIdAndBody(db.fetchEmailBounces))
   api.post('/emailBounces', withBodyAndQuery(db.createEmailBounce))
 
   api.get('/emailRecord/:id', withIdAndBody(db.emailRecord))
