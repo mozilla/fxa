@@ -45,6 +45,18 @@ function makeRoutes(options) {
   )
 }
 
+function runRoute(routes, name, request) {
+  return new P((resolve, reject) => {
+    getRoute(routes, name).handler(request, res => {
+      if (res instanceof Error) {
+        reject(res)
+      } else {
+        resolve(res)
+      }
+    })
+  })
+}
+
 describe('/password', () => {
   it(
     '/forgot/send_code',
@@ -92,10 +104,7 @@ describe('/password', () => {
         query: {},
         metricsContext: mockMetricsContext
       })
-      return new P(function(resolve) {
-        getRoute(passwordRoutes, '/password/forgot/send_code')
-          .handler(mockRequest, resolve)
-      })
+      return runRoute(passwordRoutes, '/password/forgot/send_code', mockRequest)
       .then(function(response) {
         assert.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called once')
 
@@ -166,10 +175,7 @@ describe('/password', () => {
         query: {},
         metricsContext: mockMetricsContext
       })
-      return new P(function(resolve) {
-        getRoute(passwordRoutes, '/password/forgot/resend_code')
-          .handler(mockRequest, resolve)
-      })
+      return runRoute(passwordRoutes, '/password/forgot/resend_code', mockRequest)
         .then(function(response) {
           assert.equal(mockMailer.sendRecoveryCode.callCount, 1, 'mailer.sendRecoveryCode was called once')
 
@@ -235,10 +241,7 @@ describe('/password', () => {
         },
         query: {}
       })
-      return new P(function(resolve) {
-        getRoute(passwordRoutes, '/password/forgot/verify_code')
-          .handler(mockRequest, resolve)
-      })
+      return runRoute(passwordRoutes, '/password/forgot/verify_code', mockRequest)
       .then(function(response) {
         assert.deepEqual(Object.keys(response), ['accountResetToken'], 'an accountResetToken was returned')
         assert.equal(response.accountResetToken, accountResetToken.data.toString('hex'), 'correct accountResetToken was returned')
@@ -258,68 +261,126 @@ describe('/password', () => {
     }
   )
 
-  it(
-    '/change/finish',
-    () => {
-      var uid = uuid.v4('binary')
-      var mockDB = mocks.mockDB({
-        email: TEST_EMAIL,
-        uid: uid
-      })
-      var mockPush = mocks.mockPush()
-      var mockMailer = mocks.mockMailer()
-      var mockLog = mocks.spyLog()
-      var mockRequest = mocks.mockRequest({
-        credentials: {
-          uid: uid.toString('hex')
-        },
-        payload: {
-          authPW: crypto.randomBytes(32).toString('hex'),
-          wrapKb: crypto.randomBytes(32).toString('hex'),
-          sessionToken: crypto.randomBytes(32).toString('hex')
-        },
-        query: {
-          keys: 'true'
-        },
-        log: mockLog
-      })
-      var passwordRoutes = makeRoutes({
-        db: mockDB,
-        push: mockPush,
-        mailer: mockMailer,
-        log: mockLog
-      })
+  describe('/change/finish', () => {
+    it(
+      'smoke',
+      () => {
+        var uid = uuid.v4('binary')
+        var mockDB = mocks.mockDB({
+          email: TEST_EMAIL,
+          uid: uid
+        })
+        var mockPush = mocks.mockPush()
+        var mockMailer = mocks.mockMailer()
+        var mockLog = mocks.spyLog()
+        var mockRequest = mocks.mockRequest({
+          credentials: {
+            uid: uid.toString('hex')
+          },
+          payload: {
+            authPW: crypto.randomBytes(32).toString('hex'),
+            wrapKb: crypto.randomBytes(32).toString('hex'),
+            sessionToken: crypto.randomBytes(32).toString('hex')
+          },
+          query: {
+            keys: 'true'
+          },
+          log: mockLog
+        })
+        var passwordRoutes = makeRoutes({
+          db: mockDB,
+          push: mockPush,
+          mailer: mockMailer,
+          log: mockLog
+        })
 
-      return new P(function(resolve) {
-        getRoute(passwordRoutes, '/password/change/finish')
-          .handler(mockRequest, function(response) {
-            resolve(response)
+        return runRoute(passwordRoutes, '/password/change/finish', mockRequest)
+        .then(function(response) {
+          assert.equal(mockDB.deletePasswordChangeToken.callCount, 1)
+          assert.equal(mockDB.resetAccount.callCount, 1)
+
+          assert.equal(mockPush.notifyPasswordChanged.callCount, 1)
+          assert.equal(mockPush.notifyPasswordChanged.firstCall.args[0], uid.toString('hex'))
+
+          assert.equal(mockDB.account.callCount, 1)
+          assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1)
+          assert.equal(mockMailer.sendPasswordChangedNotification.firstCall.args[0], TEST_EMAIL)
+          assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].location.city, 'Mountain View')
+          assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].location.country, 'United States')
+          assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].timeZone, 'America/Los_Angeles')
+
+          assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+          var args = mockLog.activityEvent.args[0]
+          assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+          assert.deepEqual(args[0], {
+            event: 'account.changedPassword',
+            service: undefined,
+            uid: uid.toString('hex'),
+            userAgent: 'test user-agent'
+          }, 'argument was event data')
+        })
+      }
+    )
+
+    it(
+      'succeeds even if notification blocked',
+      () => {
+        var uid = uuid.v4('binary')
+        var mockDB = mocks.mockDB({
+          email: TEST_EMAIL,
+          uid: uid
+        })
+        var mockPush = mocks.mockPush()
+        var mockMailer = {
+          sendPasswordChangedNotification: sinon.spy(() => {
+            return P.reject(error.emailBouncedHard())
           })
-      })
-      .then(function(response) {
-        assert.equal(mockDB.deletePasswordChangeToken.callCount, 1)
-        assert.equal(mockDB.resetAccount.callCount, 1)
+        }
+        var mockLog = mocks.spyLog()
+        var mockRequest = mocks.mockRequest({
+          credentials: {
+            uid: uid.toString('hex')
+          },
+          payload: {
+            authPW: crypto.randomBytes(32).toString('hex'),
+            wrapKb: crypto.randomBytes(32).toString('hex'),
+            sessionToken: crypto.randomBytes(32).toString('hex')
+          },
+          query: {
+            keys: 'true'
+          },
+          log: mockLog
+        })
+        var passwordRoutes = makeRoutes({
+          db: mockDB,
+          push: mockPush,
+          mailer: mockMailer,
+          log: mockLog
+        })
 
-        assert.equal(mockPush.notifyPasswordChanged.callCount, 1)
-        assert.equal(mockPush.notifyPasswordChanged.firstCall.args[0], uid.toString('hex'))
+        return runRoute(passwordRoutes, '/password/change/finish', mockRequest)
+        .then(function(response) {
+          assert.equal(mockDB.deletePasswordChangeToken.callCount, 1)
+          assert.equal(mockDB.resetAccount.callCount, 1)
 
-        assert.equal(mockDB.account.callCount, 1)
-        assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1)
-        assert.equal(mockMailer.sendPasswordChangedNotification.firstCall.args[0], TEST_EMAIL)
-        assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].location.city, 'Mountain View')
-        assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].location.country, 'United States')
-        assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[1].timeZone, 'America/Los_Angeles')
+          assert.equal(mockPush.notifyPasswordChanged.callCount, 1)
+          assert.equal(mockPush.notifyPasswordChanged.firstCall.args[0], uid.toString('hex'))
 
-        assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        var args = mockLog.activityEvent.args[0]
-        assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
-        assert.deepEqual(args[0], {
-          event: 'account.changedPassword',
-          service: undefined,
-          uid: uid.toString('hex'),
-          userAgent: 'test user-agent'
-        }, 'argument was event data')
-      })
-    }
-  )
+          assert.equal(mockDB.account.callCount, 1)
+          assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1)
+
+          assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+          var args = mockLog.activityEvent.args[0]
+          assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+          assert.deepEqual(args[0], {
+            event: 'account.changedPassword',
+            service: undefined,
+            uid: uid.toString('hex'),
+            userAgent: 'test user-agent'
+          }, 'argument was event data')
+        })
+
+      }
+    )
+  })
 })
