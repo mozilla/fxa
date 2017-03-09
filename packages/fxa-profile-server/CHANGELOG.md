@@ -1,3 +1,13 @@
+<a name="1.82.1"></a>
+## [1.82.1](https://github.com/mozilla/fxa-profile-server/compare/v1.82.0...v1.82.1) (2017-03-09)
+
+
+### Bug Fixes
+
+* **docker:** Pin graphicsmagick to Alpine Linux v3.5 repo ([ae07870](https://github.com/mozilla/fxa-profile-server/commit/ae07870))
+
+
+
 <a name="1.82.0"></a>
 # [1.82.0](https://github.com/mozilla/fxa-profile-server/compare/v0.79.0...v1.82.0) (2017-03-09)
 
