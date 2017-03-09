@@ -9,7 +9,7 @@ ADD https://s3.amazonaws.com/dumb-init-dist/v1.2.0/dumb-init_1.2.0_amd64 /usr/lo
 RUN chmod +x /usr/local/bin/dumb-init
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
-RUN apk add --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --no-cache graphicsmagick
+RUN apk add --repository http://dl-cdn.alpinelinux.org/alpine/v3.5/community/ --no-cache graphicsmagick
 
 USER app
 
