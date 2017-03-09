@@ -33,7 +33,7 @@ module.exports = function (log, isA, error, db) {
             if(request.payload && request.payload.customSessionToken) {
               const customTokenHex = request.payload.customSessionToken
 
-              return db.sessionToken(Buffer.from(customTokenHex))
+              return db.sessionToken(customTokenHex)
                 .then(function (tokenData) {
                   // NOTE: validate that the token belongs to the same user
                   if (tokenData && uidHex === tokenData.uid.toString('hex')) {

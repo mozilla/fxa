@@ -90,15 +90,16 @@ describe('remote session destroy', function() {
         })
         .then(() => {
           return client.api.sessionStatus(sessionTokenCreate)
+        }, () => {
+          assert(false, 'failed to destroy the session')
         })
-        .then(
-          function (status) {
-            assert(false, 'got status with destroyed session')
-          },
-          function (err) {
-            assert.equal(err.errno, 110, 'session is invalid')
-          }
-        )
+        .then((status) => {
+          assert(false, 'got status with destroyed session')
+        },(err) => {
+          assert.equal(err.code, 401)
+          assert.equal(err.errno, 110, 'session is invalid')
+
+        })
     }
   )
 
