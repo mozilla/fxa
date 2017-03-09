@@ -703,4 +703,67 @@ describe('metrics/events', () => {
         assert.equal(log.error.callCount, 0, 'log.error was not called')
       })
   })
+
+  it('.emitRouteFlowEvent with matching route and invalid metrics context', () => {
+    const metricsContext = mocks.mockMetricsContext()
+    const validateMetricsContext = sinon.spy(() => false)
+    const request = {
+      clearMetricsContext: metricsContext.clear,
+      gatherMetricsContext: metricsContext.gather,
+      headers: {
+        'user-agent': 'foo'
+      },
+      path: '/v1/account/destroy',
+      payload: {
+        metricsContext: {
+          flowId: 'bar',
+          flowBeginTime: Date.now()
+        }
+      },
+      validateMetricsContext
+    }
+    return events.emitRouteFlowEvent.call(request, { statusCode: 400, errno: 107 })
+      .then(() => {
+        assert.equal(validateMetricsContext.callCount, 1, 'metricsContext.validate was called once')
+        assert.equal(validateMetricsContext.args[0].length, 0, 'metricsContext.validate was passed no arguments')
+
+        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
+        assert.equal(log.error.callCount, 0, 'log.error was not called')
+      })
+  })
+
+  it('.emitRouteFlowEvent with missing parameter error but valid metrics context', () => {
+    const metricsContext = mocks.mockMetricsContext()
+    const validateMetricsContext = sinon.spy(() => true)
+    const request = {
+      clearMetricsContext: metricsContext.clear,
+      gatherMetricsContext: metricsContext.gather,
+      headers: {
+        'user-agent': 'foo'
+      },
+      path: '/v1/account/destroy',
+      payload: {
+        metricsContext: {
+          flowId: 'bar',
+          flowBeginTime: Date.now()
+        }
+      },
+      validateMetricsContext
+    }
+    return events.emitRouteFlowEvent.call(request, { statusCode: 400, errno: 107 })
+      .then(() => {
+        assert.equal(validateMetricsContext.callCount, 1, 'metricsContext.validate was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
+
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
+        assert.equal(log.error.callCount, 0, 'log.error was not called')
+      }).finally(() => {
+        log.flowEvent.reset()
+      })
+  })
 })

@@ -4,6 +4,7 @@
 
 'use strict'
 
+const error = require('../error')
 const P = require('../promise')
 
 const ACTIVITY_EVENTS = new Set([
@@ -117,8 +118,15 @@ module.exports = log => {
       }
 
       let status = response.statusCode || response.output.statusCode
+      const errno = response.errno || (response.output && response.output.errno)
+
       if (status >= 400) {
-        status = `${status}.${response.errno || 999}`
+        if (errno === error.ERRNO.INVALID_PARAMETER && ! request.validateMetricsContext()) {
+          // Don't emit flow events if the metrics context failed validation
+          return P.resolve()
+        }
+
+        status = `${status}.${errno || 999}`
       }
 
       return emitFlowEvent(`route.${path}.${status}`, request)
