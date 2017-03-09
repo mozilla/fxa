@@ -1,3 +1,17 @@
+<a name="1.82.0"></a>
+# [1.82.0](https://github.com/mozilla/fxa-profile-server/compare/v0.79.0...v1.82.0) (2017-03-09)
+
+
+### Bug Fixes
+
+* **logs:** add client_id to summary logs (#235) r=seanmonstar ([e4769b3](https://github.com/mozilla/fxa-profile-server/commit/e4769b3)), closes [#234](https://github.com/mozilla/fxa-profile-server/issues/234)
+
+### chore
+
+* **docker:** Update to node v4.8.0 (#237) r=vladikoff ([9dd59e9](https://github.com/mozilla/fxa-profile-server/commit/9dd59e9))
+
+
+
 <a name="0.79.0"></a>
 # [0.79.0](https://github.com/mozilla/fxa-profile-server/compare/v0.78.0...v0.79.0) (2017-01-25)
 
