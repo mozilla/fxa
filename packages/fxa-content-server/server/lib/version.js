@@ -20,7 +20,6 @@
 
 'use strict';
 const cp = require('child_process');
-const util = require('util');
 const path = require('path');
 const Promise = require('bluebird');
 const logger = require('mozlog')('server.version');
@@ -45,8 +44,7 @@ function getCommitHash () {
 
   return new Promise(function (resolve) {
     const gitDir = path.resolve(__dirname, '..', '..', '.git');
-    const cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
-    cp.exec(cmd, function (err, stdout) {
+    cp.exec('git rev-parse HEAD', { cwd: gitDir }, function (err, stdout) {
       if (err) {
         // ignore the error
         resolve(UNKNOWN);
@@ -71,8 +69,8 @@ function getSourceRepo () {
   return new Promise(function (resolve) {
     const gitDir = path.resolve(__dirname, '..', '..', '.git');
     const configPath = path.join(gitDir, 'config');
-    const cmd = util.format('git config --file %s --get remote.origin.url', configPath);
-    cp.exec(cmd, function (err, stdout) {
+    const cmd = 'git config --get remote.origin.url';
+    cp.exec(cmd, { env: { GIT_CONFIG: configPath } }, function (err, stdout) {
       if (err) {
         // ignore the error
         return resolve(UNKNOWN);
