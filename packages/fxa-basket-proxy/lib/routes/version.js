@@ -15,7 +15,6 @@
  */
 
 var cp = require('child_process');
-var util = require('util');
 var path = require('path');
 var Promise = require('bluebird');
 var logger = require('../logging')('routes.version');
@@ -40,8 +39,7 @@ function getCommitHash () {
   var deferred = Promise.defer();
 
   var gitDir = path.resolve(__dirname, '..', '..', '.git');
-  var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
-  cp.exec(cmd, function (err, stdout) {
+  cp.exec('git rev-parse HEAD', { cwd: gitDir }, function (err, stdout) {
     if (err) {
       // ignore the error
       deferred.resolve(UNKNOWN);
@@ -67,8 +65,8 @@ function getSourceRepo () {
 
   var gitDir = path.resolve(__dirname, '..', '..', '.git');
   var configPath = path.join(gitDir, 'config');
-  var cmd = util.format('git config --file %s --get remote.origin.url', configPath);
-  cp.exec(cmd, function (err, stdout) {
+  var cmd = 'git config --get remote.origin.url';
+  cp.exec(cmd, { env: { GIT_CONFIG: configPath } }, function (err, stdout) {
     if (err) {
       // ignore the error
       deferred.resolve(UNKNOWN);
