@@ -44,7 +44,7 @@ describe('SessionToken', () => {
           assert.equal(log.error.callCount, 1, 'log.error was called once')
           const args = log.error.args[0]
           assert.equal(args.length, 1, 'log.error was passed one argument')
-          assert.equal(args[0].op, 'token.constructor', 'log.error was passed correct op')
+          assert.equal(args[0].op, 'token.createNewToken', 'log.error was passed correct op')
           assert.equal(args[0].TokenType, 'SessionToken', 'log.error was passed correct TokenType')
           assert.equal(args[0].createdAt, ACCOUNT.createdAt, 'log.error was passed correct createdAt')
           assert.ok(args[0].err instanceof Error, 'log.error was passed valid err')

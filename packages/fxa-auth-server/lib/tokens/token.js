@@ -64,7 +64,7 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
       // if we do encounter it, to help debug what's going on.
       const err = new Error('Unexpected createdAt data')
       log.error({
-        op: 'token.constructor',
+        op: 'token.createNewToken',
         TokenType: TokenType.name,
         createdAt: details.createdAt,
         err,

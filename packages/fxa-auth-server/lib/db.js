@@ -724,7 +724,7 @@ module.exports = function (
 
   DB.prototype.forgotPasswordVerified = function (passwordForgotToken) {
     log.trace({ op: 'DB.forgotPasswordVerified', uid: passwordForgotToken && passwordForgotToken.uid })
-    return AccountResetToken.create(passwordForgotToken)
+    return AccountResetToken.create({ uid: passwordForgotToken.uid })
       .then(
         function (accountResetToken) {
           return this.pool.post(

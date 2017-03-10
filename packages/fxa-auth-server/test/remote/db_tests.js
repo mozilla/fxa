@@ -415,6 +415,10 @@ describe('remote db', function() {
         })
         .then(function(passwordForgotToken) {
           return db.forgotPasswordVerified(passwordForgotToken)
+            .then(accountResetToken => {
+              assert.ok(accountResetToken.createdAt > passwordForgotToken.createdAt, 'account reset token should be newer than password forgot token')
+              return accountResetToken
+            })
         })
         .then(function(accountResetToken) {
           assert.deepEqual(accountResetToken.uid, ACCOUNT.uid, 'account reset token uid should be the same as the account.uid')
