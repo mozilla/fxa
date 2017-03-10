@@ -12,7 +12,7 @@
     * Each country entry should have the fields listed below.
     */
    /**
-    * Format a phone phone number, expects country code prefix.
+    * Format a normalized phone number, expects country code prefix.
     *
     * @method format
     * @param {String} num phone number to format.

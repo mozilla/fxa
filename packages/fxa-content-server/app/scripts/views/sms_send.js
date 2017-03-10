@@ -12,13 +12,13 @@ define(function (require, exports, module) {
 
   const AuthErrors = require('lib/auth-errors');
   const Cocktail = require('cocktail');
+  const { FIREFOX_MOBILE_INSTALL } = require('lib/sms-message-ids');
   const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FormView = require('views/form');
   const { MARKETING_ID_AUTUMN_2016 } = require('lib/constants');
   const MarketingMixin = require('views/mixins/marketing-mixin');
   const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
   const SmsErrors = require('lib/sms-errors');
-  const SmsMessageIds = require('lib/sms-message-ids');
   const CountryTelephoneInfo = require('lib/country-telephone-info');
   const Template = require('stache!templates/sms_send');
 
@@ -33,10 +33,31 @@ define(function (require, exports, module) {
       proto.initialize.call(this, options);
 
       this._createView = options.createView;
+      this._formPrefill = options.formPrefill;
 
-      this.model.set('country', 'US');
+      // phoneNumber/country come from formPrefill if the
+      // user submits a phone number, sees the incorrect
+      // number in the success message on /sms/sent, and
+      // clicks "Mistyped number?"
+      this.model.set({
+        country: this._formPrefill.get('country') || 'US',
+        phoneNumber: this._formPrefill.get('phoneNumber')
+      });
+
       this.listenTo(this.model, 'change:country', (model, country) => {
         this._onCountryChange(country);
+      });
+    },
+
+    beforeDestroy() {
+      // Save phoneNumber/country to formPrefill in case
+      // the user enters an incorrect phone number and
+      // the user comes back.
+      this._formPrefill.set({
+        country: this.model.get('country'),
+        // save the number as the user entered it, if they come back
+        // to this screen it will display as they entered it.
+        phoneNumber: this.$(SELECTOR_PHONE_NUMBER).__val()
       });
     },
 
@@ -72,10 +93,12 @@ define(function (require, exports, module) {
     context () {
       const escapedLearnMoreAttributes =
           `id="learn-more" href="${encodeURI(View.LEARN_MORE_LINK)}" target="_learn-more" data-flow-event="link.learn_more"`;
+      const { country, phoneNumber } = this.model.toJSON();
 
       return {
-        country: this.model.get('country'),
-        escapedLearnMoreAttributes
+        country,
+        escapedLearnMoreAttributes,
+        phoneNumber
       };
     },
 
@@ -93,35 +116,45 @@ define(function (require, exports, module) {
     },
 
     submit () {
-      const account = this.getAccount();
-      const phoneNumber = this._getPhoneNumber();
+      return this._sendSms(this._getNormalizedPhoneNumber(), FIREFOX_MOBILE_INSTALL);
+    },
 
-      return account.sendSms(phoneNumber, SmsMessageIds.FIREFOX_MOBILE_INSTALL)
-        .then(() => this._onSendSmsSuccess(phoneNumber))
+    /**
+     * Send an SMS with a Firefox Mobile install link to `normalizedPhoneNumber`
+     *
+     * @param {String} normalizedPhoneNumber normalized target phone number
+     * @param {Number} messageId Message ID to send
+     * @returns {Promise}
+     * @private
+     */
+    _sendSms (normalizedPhoneNumber, messageId) {
+      return this.getAccount().sendSms(normalizedPhoneNumber, messageId)
+        .then(() => this._onSendSmsSuccess())
         .fail((err) => this._onSendSmsError(err));
     },
 
     /**
-     * Get the user entered phone number, with country code
+     * Normalized the user entered phone number. Adds country code prefix,
+     * removes any extra characters.
      *
      * @returns {String}
      */
-    _getPhoneNumber () {
-      const phoneNumber = this.getElementValue(SELECTOR_PHONE_NUMBER);
+    _getNormalizedPhoneNumber () {
       const country = this.model.get('country');
+      const phoneNumber = this.getElementValue(SELECTOR_PHONE_NUMBER);
       return CountryTelephoneInfo[country].normalize(phoneNumber);
     },
 
     /**
-     * Sending an SMS to `phoneNumber` succeeded
+     * SMS successfully sent
      *
-     * @param {String} phoneNumber
      * @private
      */
-    _onSendSmsSuccess (phoneNumber) {
+    _onSendSmsSuccess () {
       this.navigate('sms/sent', {
+        account: this.getAccount(),
         country: this.model.get('country'),
-        phoneNumber
+        normalizedPhoneNumber: this._getNormalizedPhoneNumber()
       });
     },
 

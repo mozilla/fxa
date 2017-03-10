@@ -1,10 +1,16 @@
 <div id="main-content" class="card">
-  <header class="hidden" id="fxa-sms-sent-header"><h1>{{#t}}Complete set-up by installing Firefox using the link sent to %(phoneNumber)s{{/t}}</h1></header>
+  <header class="hidden" id="fxa-sms-sent-header"><h1>{{#t}}Install Firefox on your smartphone and sign in to complete set-up{{/t}}</h1></header>
   <section>
+    <div class="success visible">
+      {{#unsafeTranslate}}App link sent to %(escapedPhoneNumber)s. <a %(escapedBackLinkAttrs)s>Mistyped number?</a>{{/unsafeTranslate}}
+
+    </div>
+    <div class="error"></div>
+
     <div class="graphic graphic-sms-sent">{{#t}}Success{{/t}}</div>
 
     <p id="sms-sent-to">
-      {{#t}}Complete set-up by installing Firefox using the link sent to %(phoneNumber)s{{/t}}
+      {{#t}}Install Firefox on your smartphone and sign in to complete set-up{{/t}}
     </p>
 
     <div class="faint">
@@ -12,5 +18,8 @@
     </div>
 
     <div class="marketing-area"></div>
+    <div class="links">
+      <a id="resend" class="delayed-fadein" href="#">{{#t}}Didn't arrive? Resend{{/t}}</a>
+    </div>
   </section>
 </div>

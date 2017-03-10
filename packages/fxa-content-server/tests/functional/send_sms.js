@@ -28,8 +28,10 @@
    const SELECTOR_SEND_SMS_PHONE_NUMBER = 'input[type="tel"]';
    const SELECTOR_SEND_SMS_SUBMIT = 'button[type="submit"]';
    const SELECTOR_SEND_SMS_TOOLTIP = SELECTOR_SEND_SMS_PHONE_NUMBER + ' ~ .tooltip';
+   const SELECTOR_SMS_SENT_BACK = '#back';
    const SELECTOR_SMS_SENT_HEADER = '#fxa-sms-sent-header';
-   const SELECTOR_SMS_SENT_TO = '#sms-sent-to';
+   const SELECTOR_SMS_SENT_RESEND = '#resend';
+   const SELECTOR_SMS_SENT_TO = '.success';
    const SELECTOR_WHY_IS_THIS_REQUIRED = 'a[href="/sms/why"]';
    const SELECTOR_WHY_IS_THIS_REQUIRED_CLOSE = '.connect-another-device button[type="submit"]';
    const SELECTOR_WHY_IS_THIS_REQUIRED_HEADER = '#fxa-why-connect-another-device-header';
@@ -44,6 +46,7 @@
    const openPage = FunctionalHelpers.openPage;
    const testElementExists = FunctionalHelpers.testElementExists;
    const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+   const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
    const type = FunctionalHelpers.type;
 
    const suite = {
@@ -134,14 +137,35 @@
      const formattedPhoneNumber =
        countryInfo.format(countryInfo.normalize(testPhoneNumber));
 
-     suite['valid phone number'] = function () {
+     suite['valid phone number, back'] = function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
         .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, testPhoneNumber))
         .then(click(SELECTOR_SEND_SMS_SUBMIT))
         .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
         .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber))
-        .then(testElementExists(SELECTOR_MARKETING_LINK));
+        .then(testElementExists(SELECTOR_MARKETING_LINK))
+
+        // user realizes they made a mistake
+        .then(click(SELECTOR_SMS_SENT_BACK))
+        .then(testElementExists(SELECTOR_SEND_SMS_HEADER))
+
+        // original phone number should still be in place
+        .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, testPhoneNumber));
+     };
+
+     suite['valid phone number, resend'] = function () {
+       return this.remote
+        .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
+        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, testPhoneNumber))
+        .then(click(SELECTOR_SEND_SMS_SUBMIT))
+        .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
+
+        // Give a slight delay or else nexmo throttles the request
+        .sleep(10000)
+
+        .then(click(SELECTOR_SMS_SENT_RESEND))
+        .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber));
      };
 
      if (testPhoneNumberCountry === 'US') {
@@ -167,12 +191,20 @@
      }
 
      suite['valid phone number (contains spaces and punctuation)'] = function () {
+       const unformattedPhoneNumber = ` ${testPhoneNumber.slice(0,3)} .,- ${testPhoneNumber.slice(3)} `;
        return this.remote
         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, ` ${testPhoneNumber.slice(0,3)} .,- ${testPhoneNumber.slice(3)} `))
+        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, unformattedPhoneNumber))
         .then(click(SELECTOR_SEND_SMS_SUBMIT))
         .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
-        .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber));
+        .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber))
+
+        // user realizes they made a mistake
+        .then(click(SELECTOR_SMS_SENT_BACK))
+        .then(testElementExists(SELECTOR_SEND_SMS_HEADER))
+
+        // original phone number should still be in place
+        .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, unformattedPhoneNumber));
      };
    }
 
