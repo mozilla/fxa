@@ -4,7 +4,6 @@
 
 const exec = require('child_process').exec;
 const path = require('path');
-const util = require('util');
 
 const version = require('../../package.json').version;
 var commitHash, source;
@@ -34,12 +33,11 @@ module.exports = {
 
     // figure it out from .git
     var gitDir = path.resolve(__dirname, '..', '..', '.git');
-    var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
-    exec(cmd, function(err, stdout) {
+    exec('git rev-parse HEAD', { cwd: gitDir }, function(err, stdout) {
       commitHash = stdout.replace(/\s+/, '');
       var configPath = path.join(gitDir, 'config');
-      var cmd = util.format('git config --file %s --get remote.origin.url', configPath);
-      exec(cmd, function(err, stdout) {
+      var cmd = 'git config --get remote.origin.url';
+      exec(cmd, { env: { GIT_CONFIG: configPath } }, function(err, stdout) {
         source = stdout.replace(/\s+/, '');
         return sendReply();
       });
