@@ -14,7 +14,8 @@ define(function (require, exports, module) {
 
   const SCREEN_CLASS = 'screen-choose-what-to-sync';
 
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'choose-what-to-sync',
 
@@ -46,8 +47,9 @@ define(function (require, exports, module) {
       $('body').addClass(SCREEN_CLASS);
     },
 
-    destroy () {
+    destroy (...args) {
       $('body').removeClass(SCREEN_CLASS);
+      return proto.destroy.call(this, ...args);
     },
 
     context () {
@@ -121,6 +123,8 @@ define(function (require, exports, module) {
         });
       }
     }
+  }, {
+    SCREEN_CLASS
   });
 
   Cocktail.mixin(

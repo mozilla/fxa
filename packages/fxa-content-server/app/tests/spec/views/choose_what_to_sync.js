@@ -7,9 +7,9 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const Account = require('models/account');
+  const { assert } = require('chai');
   const Backbone = require('backbone');
   const Broker = require('models/auth_brokers/fx-fennec-v1');
-  const chai = require('chai');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
@@ -18,9 +18,7 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const View = require('views/choose_what_to_sync');
 
-  var assert = chai.assert;
-
-  describe('views/choose_what_to_sync', function () {
+  describe('views/choose_what_to_sync', () => {
     var account;
     var broker;
     var email;
@@ -31,7 +29,7 @@ define(function (require, exports, module) {
     var user;
     var view;
 
-    beforeEach(function () {
+    beforeEach(() => {
       broker = new Broker();
       email = TestHelpers.createEmail();
       model = new Backbone.Model();
@@ -52,7 +50,7 @@ define(function (require, exports, module) {
       });
     });
 
-    afterEach(function () {
+    afterEach(() => {
       metrics.destroy();
       view.remove();
       view.destroy();
@@ -72,33 +70,49 @@ define(function (require, exports, module) {
       sinon.spy(view, 'navigate');
 
       return view.render()
-        .then(function () {
+        .then(() => {
           $('#container').html(view.el);
         });
     }
 
-    describe('renders', function () {
-      it('coming from sign up, redirects to /signup when email accound data missing', function () {
+    describe('renders', () => {
+      it('coming from sign up, redirects to /signup when email accound data missing', () => {
         account.clear('email');
         return initView()
-          .then(function () {
+          .then(() => {
             assert.isTrue(view.navigate.calledWith('signup'));
           });
       });
 
-      it('renders email info', function () {
+      it('renders email info, adds SCREEN_CLASS to body', () => {
         return initView()
-          .then(function () {
+          .then(() => {
             assert.include(view.$('.success-email-created').text(), email,
               'email is in the view');
+            assert.isTrue($('body').hasClass(View.SCREEN_CLASS));
           });
       });
     });
 
-    describe('_getDeclinedEngines', function () {
-      it('returns an array of declined engines', function () {
+    describe('destroy', () => {
+      it('removes SCREEN_CLASS from body, calls the parent', () => {
         return initView()
-          .then(function () {
+          .then(() => {
+            const deferred = p.defer();
+            view.on('destroyed', () => deferred.resolve());
+
+            view.destroy();
+            assert.isFalse($('body').hasClass(View.SCREEN_CLASS));
+
+            return deferred.promise;
+          });
+      });
+    });
+
+    describe('_getDeclinedEngines', () => {
+      it('returns an array of declined engines', () => {
+        return initView()
+          .then(() => {
             //decline the first engine
             $('.customize-sync').first().click();
             var declined = view._getDeclinedEngines();
@@ -108,36 +122,36 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('submit', function () {
-      beforeEach(function () {
-        sinon.stub(user, 'setAccount', function () {
+    describe('submit', () => {
+      beforeEach(() => {
+        sinon.stub(user, 'setAccount', () => {
           return p(account);
         });
 
         return initView()
-          .then(function () {
+          .then(() => {
             $('.customize-sync').first().click();
 
             return view.validateAndSubmit();
           });
       });
 
-      it('sets declinedSyncEngines', function () {
+      it('sets declinedSyncEngines', () => {
         var declined = account.get('declinedSyncEngines');
         assert.equal(declined.length, 1, 'has declined engines');
         assert.equal(declined[0], 'tabs', 'has engine value');
       });
 
-      it('calls onSubmitComplete with the account', function () {
+      it('calls onSubmitComplete with the account', () => {
         assert.isTrue(view.onSubmitComplete.calledOnce);
         assert.instanceOf(view.onSubmitComplete.args[0][0], Account);
       });
 
-      it('logs the expected metrics', function () {
+      it('logs the expected metrics', () => {
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'choose-what-to-sync.engine-unchecked.tabs'));
       });
 
-      it('saves the account', function () {
+      it('saves the account', () => {
         assert.isTrue(user.setAccount.calledWith(account));
       });
     });
