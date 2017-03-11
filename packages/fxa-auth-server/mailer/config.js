@@ -138,7 +138,7 @@ var conf = convict({
     },
     sender: {
       doc: 'email address of the sender',
-      default: 'accounts@firefox.com',
+      default: 'Firefox Accounts <accounts@firefox.com>',
       env: 'SMTP_SENDER'
     },
     verificationUrl: {
