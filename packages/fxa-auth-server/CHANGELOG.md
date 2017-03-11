@@ -1,3 +1,13 @@
+<a name="1.82.4"></a>
+## [1.82.4](https://github.com/mozilla/fxa-auth-server/compare/v1.82.3-private...v1.82.4) (2017-03-11)
+
+
+### Bug Fixes
+
+* **mailer:** fix sender from field. uplift ([ba6a8de](https://github.com/mozilla/fxa-auth-server/commit/ba6a8de))
+
+
+
 <a name="1.82.3"></a>
 ## [1.82.3](https://github.com/mozilla/fxa-auth-server/compare/v1.82.2...v1.82.3) (2017-03-08)
 
