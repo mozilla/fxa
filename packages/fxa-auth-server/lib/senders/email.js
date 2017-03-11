@@ -218,6 +218,7 @@ module.exports = function (log) {
 
     var emailConfig = {
       sender: this.sender,
+      from: this.sender,
       to: message.email,
       subject: localized.subject,
       text: localized.text,
