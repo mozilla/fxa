@@ -57,8 +57,9 @@ define(function (require, exports, module) {
         })
         .fail((err) => {
           if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
-            this.showValidationError(this.$('#old_password'), err);
-            return;
+            return this.showValidationError(this.$('#old_password'), err);
+          } else if (AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT')) {
+            return this.showValidationError(this.$('#new_password'), err);
           }
           throw err;
         });
