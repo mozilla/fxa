@@ -194,7 +194,6 @@ define(function (require, exports, module) {
         });
 
         describe('error', function () {
-          var err;
 
           beforeEach(function () {
             $('#old_password').val('bad_password');
@@ -204,14 +203,12 @@ define(function (require, exports, module) {
               return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
             });
 
-            return view.submit()
-              .then(assert.fail, function (_err) {
-                err = _err;
-              });
+            sinon.stub(view, 'showValidationError', function () { });
+            return view.submit();
           });
 
-          it('propagates the error', function () {
-            assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
+          it('display an error message', function () {
+            assert.isTrue(view.showValidationError.called);
           });
         });
       });

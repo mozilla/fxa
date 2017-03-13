@@ -56,7 +56,7 @@ define(function (require, exports, module) {
     },
     INCORRECT_PASSWORD: {
       errno: 103,
-      message: t('Incorrect password. To double-check what you\'ve entered, press and hold down the Show button.')
+      message: t('Incorrect password')
     },
     UNVERIFIED_ACCOUNT: {
       errno: 104,

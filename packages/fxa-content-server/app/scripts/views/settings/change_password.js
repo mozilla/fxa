@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const AuthErrors = require('lib/auth-errors');
   const BackMixin = require('views/mixins/back-mixin');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
@@ -53,6 +54,13 @@ define(function (require, exports, module) {
           this.navigate('settings');
 
           return this.render();
+        })
+        .fail((err) => {
+          if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+            this.showValidationError(this.$('#old_password'), err);
+            return;
+          }
+          throw err;
         });
     }
 

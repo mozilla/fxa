@@ -27,11 +27,11 @@ define([
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
   var openPage = FunctionalHelpers.openPage;
-  var testElementDisplayed = FunctionalHelpers.testElementDisplayed;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
   var type = FunctionalHelpers.type;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var setupTest = thenify(function (options) {
     options = options || {};
@@ -65,11 +65,12 @@ define([
         // Go to change password screen
         .then(click('#change-password .settings-unit-toggle'))
         .then(fillOutChangePassword('INCORRECT', SECOND_PASSWORD))
-        .then(testElementDisplayed('#change-password .error'))
+        // the validation tooltip should be visible
+        .then(visibleByQSA('.tooltip'))
 
         // click the show button, the error should not be hidden.
         .then(click('[for=show-old_password]'))
-        .then(testElementDisplayed('#change-password .error'))
+        .then(visibleByQSA('.tooltip'))
 
         // Change form so that it is valid, error should be hidden.
         .then(type('#old_password', FIRST_PASSWORD))
