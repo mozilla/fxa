@@ -78,7 +78,7 @@ define([
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(fillOutSignIn(email, 'incorrect password'))
         // success is seeing the error message.
-        .then(visibleByQSA('.error'))
+        .then(visibleByQSA('.tooltip'))
         // If user clicks on "forgot your password?",
         // begin the reset password flow.
         .then(click('a[href="/reset_password"]'))
@@ -115,8 +115,8 @@ define([
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(fillOutSignIn(email, '  ' + PASSWORD))
         // success is seeing the error message.
-        .then(visibleByQSA('.error'))
-        .then(testElementTextInclude('.error', 'password'));
+        .then(visibleByQSA('.tooltip'))
+        .then(testElementTextInclude('.tooltip', 'password'));
     },
 
     'visiting the pp links saves information for return': function () {
