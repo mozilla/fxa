@@ -415,7 +415,7 @@ AppError.featureNotEnabled = function (retryAfter) {
       code: 503,
       error: 'Feature not enabled',
       errno: ERRNO.FEATURE_NOT_ENABLED,
-      message: 'Service unavailable'
+      message: 'Feature not enabled'
     },
     {
       retryAfter: retryAfter
