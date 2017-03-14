@@ -606,6 +606,16 @@ var conf = convict({
       format: RegExp,
       env: 'SMS_REGIONS'
     },
+    senderIds: {
+      doc: 'Sender ids keyed by the region they apply to',
+      default: {
+        CA: '16474909977',
+        GB: 'Firefox',
+        US: '15036789977'
+      },
+      format: Object,
+      env: 'SMS_SENDER_IDS'
+    },
     installFirefoxLink: {
       doc: 'Link for the installFirefox SMS template',
       default: 'https://mzl.la/1HOd4ec',

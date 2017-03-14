@@ -9,7 +9,6 @@ const PhoneNumberUtil = require('google-libphonenumber').PhoneNumberUtil
 const validators = require('./validators')
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
-const SENDER_IDS = new Map(require('../../config/sms-sender-ids.json'))
 
 module.exports = (log, isA, error, config, customs, sms) => {
   if (! config.sms.enabled) {
@@ -18,6 +17,7 @@ module.exports = (log, isA, error, config, customs, sms) => {
 
   const getGeoData = require('../geodb')(log)
   const REGIONS = config.sms.regions
+  const SENDER_IDS = config.sms.senderIds
 
   return [
     {
@@ -68,7 +68,7 @@ module.exports = (log, isA, error, config, customs, sms) => {
 
         function getRegionSpecificSenderId () {
           const region = phoneNumberUtil.getRegionCodeForNumber(parsedPhoneNumber)
-          const senderId = SENDER_IDS.get(region)
+          const senderId = SENDER_IDS[region]
 
           if (! senderId) {
             throw error.invalidRegion(region)

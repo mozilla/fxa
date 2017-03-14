@@ -42,7 +42,12 @@ describe('/sms', () => {
     log = mocks.spyLog()
     config = {
       sms: {
-        enabled: true
+        enabled: true,
+        senderIds: {
+          CA: '16474909977',
+          GB: 'Firefox',
+          US: '15036789977'
+        }
       }
     }
     routes = makeRoutes({ log, config })
