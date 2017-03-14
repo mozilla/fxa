@@ -280,9 +280,15 @@ at each level of recency.~~
 ~~If the false-positive rate seems low enough
 then we will proceed to Phase 3.~~
 
+Phase 2 was de-prioritized for other work, and was not completed.
+We felt that letting users skip sign-in 
+confirmation when they login from a device that they previously logged into 
+within a given timeframe, was greater than the impact of finding
+false positive rates.
+
 ### Phase 3 (IP Profiling)
 
-IP Profiling was deploy on 11-24-2016. In this version, users would
+IP Profiling was deployed on 11-24-2016. In this version, users would
 get to skip sign-in confirmation if they met the following security
 requirements:
 
@@ -327,6 +333,13 @@ that it appears to have caused.~~
 the overall rate of reported fraudulent logins,
 and comment on any change
 that it appears to have caused.~~
+
+We did not complete the engineering work necessary
+to attribute reports of fraudulent logins back to this specific feature.
+However, we did not observe any significant increase
+in reports of fraudulent login attempts
+after rolling out this feature,
+and we are comfortable that it has not adversely affected this metric.
 
 ## Conclusions
 
