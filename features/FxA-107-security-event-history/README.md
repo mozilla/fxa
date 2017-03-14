@@ -280,14 +280,15 @@ at each level of recency.~~
 ~~If the false-positive rate seems low enough
 then we will proceed to Phase 3.~~
 
-Phase 2 was not prioritized because we felt that letting users skip sign-in 
+Phase 2 was de-prioritized for other work, and was not completed.
+We felt that letting users skip sign-in 
 confirmation when they login from a device that they previously logged into 
-within a given timeframe, was greater than the impact finding
+within a given timeframe, was greater than the impact of finding
 false positive rates.
 
 ### Phase 3 (IP Profiling)
 
-IP Profiling was deploy on 11-24-2016. In this version, users would
+IP Profiling was deployed on 11-24-2016. In this version, users would
 get to skip sign-in confirmation if they met the following security
 requirements:
 
