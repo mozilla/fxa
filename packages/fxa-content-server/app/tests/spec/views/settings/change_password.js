@@ -211,6 +211,25 @@ define(function (require, exports, module) {
             assert.isTrue(view.showValidationError.called);
           });
         });
+
+        describe('error', function () {
+
+          beforeEach(function () {
+            $('#old_password').val('password');
+            $('#new_password').val('password');
+
+            sinon.stub(user, 'changeAccountPassword', function () {
+              return p.reject(AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT'));
+            });
+
+            sinon.stub(view, 'showValidationError', function () { });
+            return view.submit();
+          });
+
+          it('display an error message', function () {
+            assert.isTrue(view.showValidationError.called);
+          });
+        });
       });
     });
   });
