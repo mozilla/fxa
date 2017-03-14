@@ -219,9 +219,21 @@ define(function (require, exports, module) {
           });
       });
 
-      it('errors are displayed', function () {
+      it('shows `Please try again later` for 429 (rate-limited) error', function () {
         sinon.stub(emailPrefsModel, 'optOut', function () {
           return p.reject(MarketingEmailErrors.toError('USAGE_ERROR'));
+        });
+
+        return view.setOptInStatus(NEWSLETTER_ID, false)
+          .then(function () {
+            assert.isTrue(view.isErrorVisible());
+            assert.equal($('.error').text(), 'Please try again later');
+          });
+      });
+
+      it('other errors are displayed', function () {
+        sinon.stub(emailPrefsModel, 'optOut', function () {
+          return p.reject(MarketingEmailErrors.toError('UNEXPECTED_ERROR'));
         });
 
         return view.setOptInStatus(NEWSLETTER_ID, false)

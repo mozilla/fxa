@@ -38,7 +38,7 @@ define(function (require, exports, module) {
     },
     USAGE_ERROR: {
       errno: 5,
-      message: UNEXPECTED_ERROR
+      message: t('Please try again later')
     },
     EMAIL_PROVIDER_AUTH_FAILURE: {
       errno: 6,
