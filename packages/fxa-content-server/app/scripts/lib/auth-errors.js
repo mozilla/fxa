@@ -147,7 +147,7 @@ define(function (require, exports, module) {
     },
     USER_CANCELED_LOGIN: {
       errno: 1001,
-      message: t('no message')
+      message: t('Login attempt cancelled')
     },
     SESSION_EXPIRED: {
       errno: 1002,
