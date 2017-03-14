@@ -36,6 +36,9 @@ var ERRNO = {
   INVALID_REGION: 130,
   INVALID_MESSAGE_ID: 131,
   MESSAGE_REJECTED: 132,
+  BOUNCE_COMPLAINT: 133,
+  BOUNCE_HARD: 134,
+  BOUNCE_SOFT: 135,
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   UNEXPECTED_ERROR: 999
@@ -506,6 +509,33 @@ AppError.invalidMessageId = () => {
     error: 'Bad Request',
     errno: ERRNO.INVALID_MESSAGE_ID,
     message: 'Invalid message id'
+  })
+}
+
+AppError.emailComplaint = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.BOUNCE_COMPLAINT,
+    message: 'Email account sent complaint'
+  })
+}
+
+AppError.emailBouncedHard = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.BOUNCE_HARD,
+    message: 'Email account hard bounced'
+  })
+}
+
+AppError.emailBouncedSoft = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.BOUNCE_SOFT,
+    message: 'Email account soft bounced'
   })
 }
 

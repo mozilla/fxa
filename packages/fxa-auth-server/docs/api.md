@@ -92,6 +92,9 @@ The currently-defined error responses are:
 * status code 400, errno 130:  invalid region
 * status code 400, errno 131:  invalid message id
 * status code 400, errno 132:  message rejected
+* status code 400, errno 133:  email sent complaint
+* status code 400, errno 134:  email hard bounced
+* status code 400, errno 135:  email soft bounced
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * status code 503, errno 202:  feature has been disabled for operational reasons
 * any status code, errno 999:  unknown error

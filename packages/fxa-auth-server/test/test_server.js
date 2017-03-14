@@ -24,7 +24,7 @@ function TestServer(config, printLogs) {
       process.env.REMOTE_TEST_LOGS = 'true'
     }
 
-    printLogs = (process.env.REMOTE_TEST_LOGS === 'true')
+    printLogs = (process.env.REMOTE_TEST_LOGS === 'true' || process.env.REMOTE_TEST_LOGS === '1')
   }
   this.printLogs = printLogs
   this.config = config

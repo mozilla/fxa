@@ -926,6 +926,14 @@ module.exports = function (
                       uaDeviceType: sessionToken.uaDeviceType
                     }
                   )
+                  .catch(e => {
+                    // If we couldn't email them, no big deal. Log
+                    // and pretend everything worked.
+                    log.trace({
+                      op: 'Account.login.sendNewDeviceLoginNotification.error',
+                      error: e
+                    })
+                  })
                 }
               )
           }

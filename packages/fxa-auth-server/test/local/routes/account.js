@@ -490,7 +490,7 @@ describe('/account/login', function () {
     mockLog.activityEvent.reset()
     mockLog.flowEvent.reset()
     mockLog.stdout.write.reset()
-    mockMailer.sendNewDeviceLoginNotification.reset()
+    mockMailer.sendNewDeviceLoginNotification = sinon.spy(() => P.resolve([]))
     mockMailer.sendVerifyLoginEmail.reset()
     mockMailer.sendVerifyCode.reset()
     mockDB.createSessionToken.reset()
@@ -817,7 +817,22 @@ describe('/account/login', function () {
           var tokenData = mockDB.createSessionToken.getCall(0).args[0]
           assert.equal(tokenData.tokenVerificationId, null, 'sessionToken was created verified')
           assert.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
-          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was not called')
+          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
+          assert.ok(response.verified, 'response indicates account is verified')
+        })
+      })
+
+      it('do not error if new device login notification is blocked', function () {
+        setup(true, 0)
+
+        mockMailer.sendNewDeviceLoginNotification = sinon.spy(() => P.reject(error.emailBouncedHard()))
+
+        return runTest(route, mockRequest, function (response) {
+          assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
+          var tokenData = mockDB.createSessionToken.getCall(0).args[0]
+          assert.equal(tokenData.tokenVerificationId, null, 'sessionToken was created verified')
+          assert.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
+          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
           assert.ok(response.verified, 'response indicates account is verified')
         })
       })

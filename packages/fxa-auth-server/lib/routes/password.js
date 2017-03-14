@@ -265,6 +265,14 @@ module.exports = function (
                           timeZone: geoData.timeZone
                         }, request.headers['user-agent'], log)
                       )
+                      .catch(e => {
+                        // If we couldn't email them, no big deal. Log
+                        // and pretend everything worked.
+                        log.trace({
+                          op: 'Password.changeFinish.sendPasswordChangedNotification.error',
+                          error: e
+                        })
+                      })
                     }
                   )
               }
