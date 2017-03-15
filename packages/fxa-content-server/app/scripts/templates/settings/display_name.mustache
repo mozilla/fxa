@@ -5,7 +5,8 @@
     </header>
     <button class="settings-button secondary settings-unit-toggle hidden"
       data-href="settings/display_name">
-      {{#t}}Change…{{/t}}
+      {{#displayName}}<span class="change-button">{{#t}}Change…{{/t}}</span>{{/displayName}}
+      {{^displayName}}<span class="add-button">{{#t}}Add…{{/t}}</span>{{/displayName}}
     </button>
   </div>
 

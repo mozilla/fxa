@@ -117,6 +117,24 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('with session', function () {
+      it('has no display name set', function () {
+        account.set('displayName', null);
+        return initView()
+          .then(function () {
+            assert.equal(view.$('.add-button').length, 1);
+          });
+      });
+
+      it('has a display name set', function () {
+        account.set('displayName', 'joe');
+        return initView()
+          .then(function () {
+            assert.equal(view.$('.change-button').length, 1);
+          });
+      });
+    });
+
     describe('isValidStart', function () {
       it('validates the display name field for changes', function () {
         account.set('displayName', 'joe');
