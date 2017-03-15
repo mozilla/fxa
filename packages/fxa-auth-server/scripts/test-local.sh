@@ -4,7 +4,7 @@ set -eu
 
 glob=$*
 if [ -z "$glob" ]; then
-  glob="test/local/* test/remote/*"
+  glob="--recursive test/local test/remote"
 fi
 
 ./scripts/gen_keys.js
