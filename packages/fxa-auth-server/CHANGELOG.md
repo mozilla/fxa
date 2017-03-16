@@ -1,3 +1,13 @@
+<a name="1.82.5"></a>
+## [1.82.5](https://github.com/mozilla/fxa-auth-server/compare/v1.82.4-private...v1.82.5) (2017-03-16)
+
+
+### Bug Fixes
+
+* **config:** sync up both auth and mailer configs (#58) r=jrgm ([ac1e208](https://github.com/mozilla/fxa-auth-server/commit/ac1e208))
+
+
+
 <a name="1.82.4"></a>
 ## [1.82.4](https://github.com/mozilla/fxa-auth-server/compare/v1.82.3-private...v1.82.4) (2017-03-11)
 
