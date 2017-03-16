@@ -15,6 +15,10 @@ define([
   proxyquire.noPreserveCache();
   var suite = {};
 
+  suite.afterEach = function () {
+    process.nextTick.restore();
+  };
+
   suite['sanity check'] = function () {
     var test = setUp();
 
@@ -23,8 +27,6 @@ define([
     assert.equal(typeof test.metrics.process, 'function');
     assert.equal(test.mocks.statsdCollector.init.callCount, 1);
     assert.lengthOf(test.mocks.statsdCollector.init.getCall(0).args, 0);
-
-    tearDown();
   };
 
   suite['process responds with success immediately, calls process.nextTick'] = function () {
@@ -39,16 +41,15 @@ define([
     assert.isTrue(data.success);
 
     assert.equal(process.nextTick.callCount, 1);
-
-    tearDown();
   };
 
   suite['Content-Type is unset, user is not sampled'] = function () {
     var test = setUp();
 
     test.mocks.request.body = {};
+    test.metrics.preProcess(test.mocks.request, test.mocks.response, () => {});
     test.metrics.process(test.mocks.request, test.mocks.response);
-    test.callbacks.nextTick();
+    process.nextTick.args[0][0]();
 
     assert.equal(test.mocks.logger.error.callCount, 0);
 
@@ -62,8 +63,6 @@ define([
     assert.equal(test.mocks.statsdCollector.write.callCount, 0);
     assert.equal(test.mocks.gaCollector.write.callCount, 1);
     assert.lengthOf(test.mocks.gaCollector.write.getCall(0).args, 1);
-
-    tearDown();
   };
 
   suite['Content-Type is unset, user is sampled'] = function () {
@@ -71,8 +70,9 @@ define([
       return 'foo';
     });
     test.mocks.request.body = { bar: 'baz', isSampledUser: true };
+    test.metrics.preProcess(test.mocks.request, test.mocks.response, () => {});
     test.metrics.process(test.mocks.request, test.mocks.response);
-    test.callbacks.nextTick();
+    process.nextTick.args[0][0]();
 
     assert.equal(test.mocks.logger.error.callCount, 0);
 
@@ -91,8 +91,6 @@ define([
     assert.equal(test.mocks.gaCollector.write.callCount, 1);
     assert.lengthOf(test.mocks.gaCollector.write.getCall(0).args, 1);
     assert.equal(test.mocks.gaCollector.write.getCall(0).args[0], data);
-
-    tearDown();
   };
 
   suite['Content-Type is text/plain, data is invalid JSON'] = function () {
@@ -104,8 +102,9 @@ define([
       return 'foo';
     });
     test.mocks.request.body = 'bar';
+    test.metrics.preProcess(test.mocks.request, test.mocks.response, () => {});
     test.metrics.process(test.mocks.request, test.mocks.response);
-    test.callbacks.nextTick();
+    process.nextTick.args[0][0]();
 
     assert.equal(test.mocks.logger.error.callCount, 1);
     assert.lengthOf(test.mocks.logger.error.getCall(0).args, 1);
@@ -113,9 +112,8 @@ define([
 
     assert.equal(test.mocks.metricsCollector.write.callCount, 0);
     assert.equal(test.mocks.statsdCollector.write.callCount, 0);
-    assert.equal(test.mocks.gaCollector.write.callCount, 0);
+    assert.equal(test.mocks.gaCollector.write.callCount, 1);
 
-    tearDown();
   };
 
   suite['Content-Type is text/plain, data is valid JSON, user is sampled'] = function () {
@@ -127,8 +125,9 @@ define([
       return 'wibble';
     });
     test.mocks.request.body = '{"foo":"bar","isSampledUser":true}';
+    test.metrics.preProcess(test.mocks.request, test.mocks.response, () => {});
     test.metrics.process(test.mocks.request, test.mocks.response);
-    test.callbacks.nextTick();
+    process.nextTick.args[0][0]();
 
     assert.equal(test.mocks.logger.error.callCount, 0);
 
@@ -144,8 +143,6 @@ define([
 
     assert.equal(test.mocks.gaCollector.write.callCount, 1);
     assert.equal(test.mocks.gaCollector.write.getCall(0).args[0], data);
-
-    tearDown();
   };
 
   suite['Content-Type is text/plain;charset=UTF-8, data is valid JSON, user is sampled'] = function () {
@@ -157,8 +154,9 @@ define([
       return 'foo';
     });
     test.mocks.request.body = '{"isSampledUser":true}';
+    test.metrics.preProcess(test.mocks.request, test.mocks.response, () => {});
     test.metrics.process(test.mocks.request, test.mocks.response);
-    test.callbacks.nextTick();
+    process.nextTick.args[0][0]();
 
     assert.equal(test.mocks.logger.error.callCount, 0);
 
@@ -173,8 +171,6 @@ define([
 
     assert.equal(test.mocks.gaCollector.write.callCount, 1);
     assert.equal(test.mocks.gaCollector.write.getCall(0).args[0], data);
-
-    tearDown();
   };
 
   registerSuite(suite);
@@ -193,9 +189,7 @@ define([
     };
     var callbacks = {};
 
-    sinon.stub(process, 'nextTick', function (callback) {
-      callbacks.nextTick = callback;
-    });
+    sinon.spy(process, 'nextTick');
 
     return {
       callbacks: callbacks,
@@ -222,9 +216,5 @@ define([
       })(),
       mocks: mocks
     };
-  }
-
-  function tearDown () {
-    process.nextTick.restore();
   }
 });
