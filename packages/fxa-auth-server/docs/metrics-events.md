@@ -48,6 +48,11 @@ in a sign-in or sign-up flow:
 |`flow.${viewName}.create-account`|A user has clicked on the 'Create an account' link.|
 |`flow.${viewName}.forgot-password`|A user has clicked on the 'Forgot password?' link.|
 |`flow.${action}.attempt`|The content server has sent a sign-in/up request to the auth server.|
+|`flow.experiment.${experiment}.${group}`|A user has been included in an active experiment.|
+|`flow.performance`|`flow_time` for this event indicates the number of milliseconds a user waited until the first view rendered and they were able to interact with the page.|
+|`flow.performance.network`|`flow_time` for this event is a number that approximates the relative speed of a user's network performance (lower is faster).|
+|`flow.performance.server`|`flow_time` for this event is a number that approximates the relative speed of the server performance (lower is faster).|
+|`flow.performance.client`|`flow_time` for this event is a number that approximates the relative speed of a user's client-side performance (lower is faster).|
 |`account.login`|An existing account has been signed in to.|
 |`account.created`|A new account has been created.|
 |`email.confirmation.sent`|A sign-in confirmation email has been sent to a user.|
@@ -109,6 +114,8 @@ contains the following fields:
 |`duration`|The length of time from the `flow.begin` event until the last event of the flow.|
 |`completed`|Boolean indicating whether the flow was successfully completed.|
 |`new_account`|Boolean indicating whether the flow was a sign-up.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db.|
+|`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
 |`ua_browser`|The user's web browser, e.g. 'Firefox' or 'Chrome'.|
 |`ua_version`|The user's browser version.|
 |`ua_os`|The user's operating system, e.g. 'Windows 10' or 'Android'.|
@@ -121,6 +128,7 @@ contains the following fields:
 |`utm_medium`|Marketing campaign medium for the first flow in the session. Not stored if the `DNT` request header was `1`.|
 |`utm_source`|Marketing campaign source for the first flow in the session. Not stored if the `DNT` request header was `1`.|
 |`utm_term`|Marketing campaign search term for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`export_date`|The date that the `flow.begin` event was exported to S3 by the metrics pipeline.|
 
 The `flow_events` table
 contains the following fields:
@@ -131,6 +139,9 @@ contains the following fields:
 |`flow_time`|The time since the beginning of the flow.|
 |`flow_id`|The flow identifier.|
 |`type`|The event name.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db.|
+|`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
+|`export_date`|The date that the event was exported to S3 by the metrics pipeline.|
 
 ## Activity events
 
@@ -201,6 +212,26 @@ on a different device
 in the preceding five days.
 
 ## Significant changes
+
+### Train 83
+
+* `locale` was added
+  to the `flow_events`
+  and `flow_metadata` schemata.
+
+### Train 82
+
+* The `flow.performance.*` events
+  were added.
+
+* The `flow.experiment.${experiment}.${group}` event
+  was added.
+
+### Train 81
+
+* `uid` was added
+  to the `flow_events`
+  and `flow_metadata` schemata.
 
 ### Train 80
 
