@@ -6,6 +6,7 @@
   "anyOf":[
     { "$ref":"#/definitions/deviceConnected" },
     { "$ref":"#/definitions/deviceDisconnected" },
+    { "$ref":"#/definitions/profileUpdated" },
     { "$ref":"#/definitions/collectionsChanged" },
     { "$ref":"#/definitions/passwordChanged" },
     { "$ref":"#/definitions/passwordReset" }
@@ -73,6 +74,24 @@
             }
           },
           "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "profileUpdated":{
+      "required":[
+        "version",
+        "command"
+      ],
+      "properties":{
+        "version":{
+          "type":"integer"
+        },
+        "command":{
+          "type":"string",
+          "enum":[
+            "fxaccounts:profile_updated"
+          ]
         }
       },
       "additionalProperties": false

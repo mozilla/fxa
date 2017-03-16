@@ -373,6 +373,20 @@ var conf = convict({
       default: ''
     }
   },
+  profileServerMessaging: {
+    region: {
+      doc: 'The region where the queues live',
+      format: String,
+      env: 'PROFILE_MESSAGING_REGION',
+      default: ''
+    },
+    profileUpdatesQueueUrl: {
+      doc: 'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+      format: String,
+      env: 'PROFILE_UPDATES_QUEUE_URL',
+      default: ''
+    }
+  },
   verificationReminders: {
     rate: {
       doc: 'Rate of users getting the verification reminder. If "0" then the feature is disabled. If "1" all users get it.',
