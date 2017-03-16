@@ -281,6 +281,10 @@ define([
     sendSmsConnectDevice: {
       status: 200,
       body: '{}'
+    },
+    smsStatus: {
+      status: 200,
+      body: '{"ok":true}'
     }
   };
 });

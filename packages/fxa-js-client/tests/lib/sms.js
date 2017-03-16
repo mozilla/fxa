@@ -53,6 +53,25 @@ define([
             assert.notOk
           );
       });
+
+      test('status', function () {
+        return accountHelper.newVerifiedAccount()
+          .then(
+            function (account) {
+              return respond(
+                client.smsStatus(account.signIn.sessionToken),
+                RequestMocks.smsStatus
+              );
+            }
+          )
+          .then(
+            function (resp) {
+              assert.ok(resp);
+              assert.ok(resp.ok);
+            },
+            assert.notOk
+          );
+      });
     });
   }
 });

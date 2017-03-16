@@ -1203,6 +1203,22 @@ define([
   };
 
   /**
+   * Get SMS status for the current user.
+   *
+   * @method smsStatus
+   * @param {String} sessionToken SessionToken obtained from signIn
+   */
+  FxAccountClient.prototype.smsStatus = function (sessionToken) {
+    required(sessionToken, 'sessionToken');
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function (creds) {
+        return request.send('/sms/status', 'GET', creds);
+      });
+  };
+
+  /**
    * Check for a required argument. Exposed for unit testing.
    *
    * @param {Value} val - value to check
