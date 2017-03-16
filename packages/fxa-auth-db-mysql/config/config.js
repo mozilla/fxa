@@ -154,7 +154,8 @@ module.exports = function (fs, path, url, convict) {
     },
     ipHmacKey: {
       doc: 'A secret to hash IP addresses for security history events',
-      default: 'changeme'
+      default: 'changeme',
+      env: 'IP_HMAC_KEY'
     }
   })
 
