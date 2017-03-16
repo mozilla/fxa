@@ -33,6 +33,16 @@
 
 
 
+<a name="1.82.2"></a>
+## 1.82.2 (2017-03-16)
+
+
+### Bug Fixes
+
+* **tests:** fix process.nextTick testing issues (#24) r=jrgm ([77b3a43](https://github.com/mozilla/fxa-content-server/commit/77b3a43)), closes [(#24](https://github.com/(/issues/24)
+
+
+
 <a name="1.82.1"></a>
 ## 1.82.1 (2017-03-08)
 
