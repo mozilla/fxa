@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   const Strings = require('lib/strings');
   const { t } = require('views/base');
   const Template = require('stache!templates/settings/clients');
-  const Url = require('lib/url');
+  const UserAgent = require('lib/user-agent');
 
   const DEVICE_REMOVED_ANIMATION_MS = 150;
   const UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
@@ -30,7 +30,6 @@ define(function (require, exports, module) {
     campaign: 'fxa-devices-page',
     creative: 'button'
   });
-  const FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
 
   var View = FormView.extend({
     template: Template,
@@ -58,8 +57,16 @@ define(function (require, exports, module) {
           item.title += ' - ' + item.scope;
         }
         if (item.lastAccessTimeFormatted) {
-          item.lastAccessTimeFormatted = this.translate(
-            t('Last active %(translatedTimeAgo)s'), { translatedTimeAgo: item.lastAccessTimeFormatted });
+          // only format if not a web session
+          if (item.isWebSession) {
+            item.title = this.translate(
+              t('Web Session, %(userAgent)s'), {userAgent: item.userAgent});
+            item.lastAccessTimeFormatted = this.translate(
+              t('%(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+          } else {
+            item.lastAccessTimeFormatted = this.translate(
+              t('Last active %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+          }
         } else {
           // unknown lastAccessTimeFormatted or not possible to format.
           item.lastAccessTimeFormatted = '';
@@ -72,9 +79,9 @@ define(function (require, exports, module) {
       const clients = this._attachedClients.toJSON();
 
       return {
+        areWebSessionsVisible: this._areWebSessionsVisible(),
         clients: this._formatAccessTimeAndScope(clients),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
-        isPanelEnabled: this._isPanelEnabled(),
         isPanelOpen: this.isPanelOpen(),
         linkAndroid: FIREFOX_ANDROID_DOWNLOAD_LINK,
         linkIOS: FIREFOX_IOS_DOWNLOAD_LINK,
@@ -87,12 +94,21 @@ define(function (require, exports, module) {
       'click [data-get-app]': '_onGetApp'
     },
 
-    _isPanelEnabled () {
-      const account = this.user.getSignedInAccount();
+    /**
+     * Determine if the clients list should show Web Sessions
+     * @returns {Boolean}
+     * @private
+     */
+    _areWebSessionsVisible () {
+      if (this.getSearchParam('sessionsListVisible')) {
+        // if forced via query param
+        return true;
+      }
 
-      return this._able.choose('deviceListVisible', {
-        forceDeviceList: Url.searchParam(FORCE_DEVICE_LIST_VIEW, this.window.location.search),
-        uid: account.get('uid')
+      const userAgent = new UserAgent(this.getSearchParam('forceUA') || this.window.navigator.userAgent);
+      const version = userAgent.parseVersion();
+      return userAgent.isFirefox() && this._able.choose('sessionsListVisible', {
+        firefoxVersion: version.major
       });
     },
 
@@ -139,7 +155,15 @@ define(function (require, exports, module) {
           clients: this._attachedClients
         });
       } else {
-        this.user.destroyAccountClient(this.user.getSignedInAccount(), client);
+        this.user.destroyAccountClient(this.user.getSignedInAccount(), client)
+          .then(() => {
+            if (clientType === Constants.CLIENT_TYPE_WEB_SESSION) {
+              return this.user.sessionStatus().then(null, () => {
+                // if err then it disconnected the current session, the user is signed out
+                this.clearSessionAndNavigateToSignIn();
+              });
+            }
+          });
       }
     },
 
@@ -156,8 +180,8 @@ define(function (require, exports, module) {
 
     _fetchAttachedClients () {
       return this._attachedClients.fetchClients({
-        devices: true,
-        oAuthApps: true
+        oAuthApps: true,
+        sessions: true
       }, this.user).then(() => {
         // log the number of items
         const numOfClients = this._attachedClients.length;
@@ -184,7 +208,7 @@ define(function (require, exports, module) {
           this.render();
         });
       }
-    },
+    }
 
   });
 

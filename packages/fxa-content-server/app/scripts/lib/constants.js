@@ -99,6 +99,7 @@ define(function (require, exports, module) {
 
     CLIENT_TYPE_DEVICE: 'device',
     CLIENT_TYPE_OAUTH_APP: 'oAuthApp',
+    CLIENT_TYPE_WEB_SESSION: 'webSession',
 
     DEFAULT_XHR_TIMEOUT_MS: 2500,
     DEFAULT_DECLINED_ENGINES: [

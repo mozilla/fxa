@@ -20,6 +20,7 @@ define(function (require, exports, module) {
   const Translator = require('lib/translator');
   const User = require('models/user');
   const View = require('views/settings/clients');
+  const WindowMock = require('../../../mocks/window');
 
   describe('views/settings/clients', function () {
     var able;
@@ -34,6 +35,7 @@ define(function (require, exports, module) {
     var UID = '123';
     var user;
     var view;
+    var windowMock;
 
     function initView () {
       view = new View({
@@ -44,7 +46,8 @@ define(function (require, exports, module) {
         notifier: notifier,
         parentView: parentView,
         translator: translator,
-        user: user
+        user: user,
+        window: windowMock
       });
 
       return view.render();
@@ -77,6 +80,7 @@ define(function (require, exports, module) {
       parentView = new BaseView();
       translator = new Translator({forceEnglish: true});
       user = new User();
+      windowMock = new WindowMock();
 
       account = user.initAccount({
         email: email,
@@ -107,12 +111,14 @@ define(function (require, exports, module) {
         {
           clientType: 'oAuthApp',
           id: 'app-1',
+          isOAuthApp: true,
           lastAccessTime: Date.now(),
           name: '123Done'
         },
         {
           clientType: 'oAuthApp',
           id: 'app-2',
+          isOAuthApp: true,
           lastAccessTime: Date.now(),
           name: 'Pocket',
           scope: ['profile', 'profile:write']
@@ -184,18 +190,21 @@ define(function (require, exports, module) {
           {
             clientType: 'oAuthApp',
             id: 'app-1',
+            isOAuthApp: true,
             lastAccessTime: Date.now(),
             name: '123Done'
           },
           {
             clientType: 'oAuthApp',
             id: 'app-2',
+            isOAuthApp: true,
             lastAccessTime: Date.now(),
             name: 'Pocket'
           },
           {
             clientType: 'oAuthApp',
             id: 'app-3',
+            isOAuthApp: true,
             lastAccessTime: Date.now(),
             name: 'Add-ons'
           }
@@ -399,15 +408,15 @@ define(function (require, exports, module) {
 
     });
 
-    describe('_isPanelEnabled', function () {
-      it('calls able with a uid', function () {
+    describe('_areWebSessionsVisible', function () {
+      it('calls able with the first version', function () {
+        windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0) Gecko/20100101 Firefox/52.0';
         return initView()
           .then(() => {
             view._able.choose.reset();
-            view._isPanelEnabled();
-            assert.isTrue(view._able.choose.calledWith('deviceListVisible', {
-              forceDeviceList: undefined,
-              uid: view.uid
+            view._areWebSessionsVisible();
+            assert.isTrue(view._able.choose.calledWith('sessionsListVisible', {
+              firefoxVersion: 52
             }));
           });
       });
@@ -441,7 +450,7 @@ define(function (require, exports, module) {
 
     describe('_fetchAttachedClients', function () {
       beforeEach(function () {
-        sinon.stub(user, 'fetchAccountDevices', function () {
+        sinon.stub(user, 'fetchAccountSessions', function () {
           return p();
         });
 
@@ -457,7 +466,7 @@ define(function (require, exports, module) {
 
       it('delegates to the user to fetch the device list', function () {
         var account = view.getSignedInAccount();
-        assert.isTrue(user.fetchAccountDevices.calledWith(account));
+        assert.isTrue(user.fetchAccountSessions.calledWith(account));
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.clients.items.zero'));
       });
 

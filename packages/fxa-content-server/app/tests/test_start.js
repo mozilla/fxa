@@ -102,6 +102,7 @@ function (Translator, Session) {
     '../tests/spec/models/verification/report-sign-in',
     '../tests/spec/models/verification/same-browser',
     '../tests/spec/models/verification/sign-up',
+    '../tests/spec/models/web-session',
     '../tests/spec/views/app',
     '../tests/spec/views/base',
     '../tests/spec/views/behaviors/halt',

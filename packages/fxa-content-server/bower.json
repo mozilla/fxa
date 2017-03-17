@@ -9,7 +9,7 @@
     "cocktail": "0.5.9",
     "easteregg": "https://github.com/mozilla/fxa-easter-egg.git#ab20cd517cf8ae9feee115e48745189d28e13bc3",
     "fxa-checkbox": "mozilla/fxa-checkbox#7f856afffd394a144f718e28e6fb79092d6ccddd",
-    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.52",
+    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.53",
     "fxa-password-strength-checker": "https://github.com/mozilla/fxa-password-strength-checker.git#d73b3ade374607e2749ee375301b0a168008b16f",
     "html5shiv": "3.7.2",
     "JavaScript-MD5": "1.1.0",

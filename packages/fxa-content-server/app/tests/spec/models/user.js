@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const Storage = require('lib/storage');
   const User = require('models/user');
+  const WebSession = require('models/web-session');
 
   const CODE = 'verification code';
   const EMAIL = 'a@a.com';
@@ -1065,6 +1066,30 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('fetchAccountSessions', function () {
+      var account;
+      var sessions;
+
+      beforeEach(function () {
+        account = user.initAccount({});
+        sinon.stub(account, 'fetchSessions', function () {
+          return p();
+        });
+
+        sessions = new AttachedClients([], {
+          notifier: {
+            on: sinon.spy()
+          }
+        });
+
+        return user.fetchAccountSessions(account, sessions);
+      });
+
+      it('delegates to the account to fetch devices', function () {
+        assert.isTrue(account.fetchSessions.calledWith(sessions));
+      });
+    });
+
     describe('fetchAccountDevices', function () {
       var account;
       var devices;
@@ -1159,6 +1184,42 @@ define(function (require, exports, module) {
           assert.isTrue(account.destroyDevice.calledWith(device));
           assert.isTrue(user.removeAccount.calledOnce);
           assert.isTrue(user.removeAccount.calledWith(account));
+        });
+      });
+    });
+
+    describe('destroyAccountSession', function () {
+      var session;
+      var account;
+
+      beforeEach(function () {
+        account = user.initAccount({});
+        sinon.stub(account, 'destroySession', function () {
+          return p();
+        });
+
+        session = new WebSession({
+          id: 'session-1',
+          isCurrentSession: true,
+          name: 'foo'
+        });
+
+      });
+
+      it('delegates to the account to destroy the session', function () {
+        return user.destroyAccountSession(account, session).then(() => {
+          assert.isTrue(account.destroySession.calledWith(session));
+        });
+      });
+
+      it('calls clearSignedInAccount if current session', function () {
+        sinon.spy(user, 'clearSignedInAccount');
+        sinon.stub(user, 'isSignedInAccount', function () {
+          return true;
+        });
+        return user.destroyAccountSession(account, session).then(() => {
+          assert.isTrue(account.destroySession.calledWith(session));
+          assert.isTrue(user.clearSignedInAccount.calledOnce);
         });
       });
     });

@@ -26,6 +26,7 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const VerificationMethods = require('lib/verification-methods');
   const VerificationReasons = require('lib/verification-reasons');
+  const WebSession = require('models/web-session');
 
   describe('models/account', function () {
     var account;
@@ -1586,6 +1587,88 @@ define(function (require, exports, module) {
           assert.equal(result[0].clientType, 'device');
           assert.equal(result[0].name, 'alpha');
         });
+      });
+    });
+
+    describe('fetchSessions', function () {
+      beforeEach(() => {
+        account.set('sessionToken', SESSION_TOKEN);
+
+        sinon.stub(fxaClient, 'sessions', () => {
+          return p([
+            {
+              deviceName: 'alpha',
+              id: 'device-1',
+              isCurrentDevice: false,
+              isDevice: true
+            },
+            {
+              id: 'foo',
+              isCurrentDevice: false,
+              name: 'session'
+            },
+            {
+              deviceName: 'beta',
+              id: 'device-2',
+              isCurrentDevice: true,
+              isDevice: true
+            }
+          ]);
+        });
+
+      });
+
+      it('fetches the session list from the back end', function () {
+        return account.fetchSessions().then((result) => {
+          assert.isTrue(fxaClient.sessions.calledWith(SESSION_TOKEN));
+          assert.equal(result.length, 3);
+          assert.equal(result[0].clientType, 'device');
+          assert.equal(result[0].name, 'alpha');
+          assert.ok(result[0].isDevice);
+          assert.notOk(result[0].isWebSession);
+
+          assert.equal(result[1].clientType, 'webSession');
+          assert.equal(result[1].name, 'session');
+          assert.ok(result[1].isWebSession);
+          assert.notOk(result[1].isDevice);
+
+          assert.equal(result[2].clientType, 'device');
+          assert.equal(result[2].name, 'beta');
+          assert.ok(result[2].isDevice);
+          assert.notOk(result[2].isWebSession);
+        });
+      });
+    });
+
+
+    describe('destroySession', function () {
+      var session;
+
+      beforeEach(function () {
+        account.set('sessionToken', SESSION_TOKEN);
+
+        session = new WebSession({
+          id: 'session-1',
+          lastAccessTime: 100,
+          lastAccessTimeFormatted: 'a few seconds ago',
+          name: 'alpha',
+          userAgent: 'Firefox 50'
+        });
+        sinon.spy(session, 'destroy');
+
+        sinon.stub(fxaClient, 'sessionDestroy', function () {
+          return p();
+        });
+
+        return account.destroySession(session);
+      });
+
+      it('tells the backend to destroy the session', function () {
+        assert.isTrue(
+          fxaClient.sessionDestroy.calledWith(SESSION_TOKEN, {
+            customSessionToken: 'session-1'
+          }));
+        assert.isTrue(session.destroy.calledOnce);
       });
     });
 

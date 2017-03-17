@@ -1,4 +1,3 @@
-{{#isPanelEnabled}}
 <div id="clients" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}}">
   <div class="settings-unit-stub">
     <header class="settings-unit-summary">
@@ -16,24 +15,44 @@
     <form novalidate>
       <ul class="client-list button-row">
         {{#clients}}
-          <li class="client {{type}} client-{{clientType}} {{#isCurrentDevice}}client-current{{/isCurrentDevice}}"
-            data-name="{{name}}" id="{{id}}">
-            <div class="client-name" title="{{title}}">{{name}}</div>
-            {{#isCurrentDevice}}
-            <div class="device-current">{{#t}}current device{{/t}}</div>
-            {{/isCurrentDevice}}
-            {{^isCurrentDevice}}
-            <div class="last-connected">{{lastAccessTimeFormatted}}</div>
-            {{/isCurrentDevice}}
-            <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="{{clientType}}">
+
             {{#isDevice}}
-              {{#t}}Disconnect…{{/t}}
+              <li class="client {{type}} client-device {{#isCurrentDevice}}client-current{{/isCurrentDevice}}"
+                data-name="{{name}}" id="{{id}}">
+                <div class="client-name" title="{{title}}">{{name}}</div>
+                {{#isCurrentDevice}}
+                    <div class="device-current">{{#t}}current device{{/t}}</div>
+                {{/isCurrentDevice}}
+                {{^isCurrentDevice}}
+                    <div class="last-connected">{{lastAccessTimeFormatted}}</div>
+                {{/isCurrentDevice}}
+                <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="{{clientType}}">{{#t}}Disconnect…{{/t}}</button>
+              </li>
             {{/isDevice}}
-            {{^isDevice}}
-              {{#t}}Disconnect{{/t}}
-            {{/isDevice}}
-            </button>
-          </li>
+
+            {{#areWebSessionsVisible}}
+            {{#isWebSession}}
+                <li class="client {{type}} client-webSession" data-name="{{name}}" id="{{id}}">
+                    <div class="client-name" title="{{title}}">{{title}}</div>
+                  {{#isCurrentDevice}}
+                    <div class="device-current">{{#t}}current session{{/t}}</div>
+                  {{/isCurrentDevice}}
+                  {{^isCurrentDevice}}
+                    <div class="last-connected">{{lastAccessTimeFormatted}}</div>
+                  {{/isCurrentDevice}}
+                    <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="{{clientType}}">{{#t}}Disconnect{{/t}}</button>
+                </li>
+            {{/isWebSession}}
+            {{/areWebSessionsVisible}}
+
+            {{#isOAuthApp}}
+                <li class="client {{type}} client-oAuthApp" data-name="{{name}}" id="{{id}}">
+                  <div class="client-name" title="{{title}}">{{name}}</div>
+                    <div class="last-connected">{{userAgent}} {{lastAccessTimeFormatted}}</div>
+                  <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="{{clientType}}">{{#t}}Disconnect{{/t}}</button>
+                </li>
+            {{/isOAuthApp}}
+
         {{/clients}}
         {{#showMobileApps}}
           <li class="client mobile">
@@ -57,4 +76,3 @@
     </form>
   </div>
 </div>
-{{/isPanelEnabled}}

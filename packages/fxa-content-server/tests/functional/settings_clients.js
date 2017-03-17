@@ -11,7 +11,6 @@ define([
 
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var SIGNIN_URL_DEVICE_LIST = SIGNIN_URL + '?forceDeviceList=1';
 
   var FIRST_PASSWORD = 'password';
   var BROWSER_DEVICE_NAME = 'Browser Session Device';
@@ -53,13 +52,47 @@ define([
       return this.remote.then(clearBrowserState());
     },
 
-    'device panel is not visible without query param': function () {
+    'sessions are listed in clients view': function () {
       return this.remote
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL + '?sessionsListVisible=1', '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
-        .then(noSuchElement('#devices'));
+        .then(click('#clients .settings-unit-stub button'))
+
+        // current session has the text `current session`
+        .then(FunctionalHelpers.testElementTextEquals(
+          '.client-webSession:nth-child(1) .client-name + .device-current',
+          'current session'
+        ))
+
+        // first session has the user agent
+        .then(testElementTextEquals(
+          '.client-webSession:nth-child(1) .client-name',
+          'Web Session, Firefox 40'
+        ))
+
+        // second session is the node.js session from test setup
+        .then(testElementTextEquals(
+          '.client-webSession:nth-child(2) .client-name',
+          'Web Session, node-XMLHttpRequest null'
+        ))
+
+        // clicking disconnect on the second session should update the list
+        .then(click('.client-webSession:nth-child(2) .client-disconnect'))
+        // disconnect waits until successful AJAX session delete
+        .waitForDeletedByCssSelector('.client-webSession:nth-child(2)')
+        .end()
+
+        .then(click('.clients-refresh'))
+        // second session is gone.
+        .then(noSuchElement('.client-webSession:nth-child(2)'))
+
+        // disconnect the current session
+        .then(click('.client-webSession:nth-child(1) .client-disconnect'))
+        // this will sign you out
+        .then(testElementExists('#fxa-signin-header'));
+
     },
 
     'device and apps panel works with query param, same device': function () {
@@ -67,7 +100,7 @@ define([
       var testDeviceId;
 
       return this.remote
-        .then(openPage(SIGNIN_URL_DEVICE_LIST, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))

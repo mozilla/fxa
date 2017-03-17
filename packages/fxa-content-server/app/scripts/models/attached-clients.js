@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const Constants = require('lib/constants');
   const Device = require('models/device');
   const OAuthApp = require('models/oauth-app');
+  const WebSession = require('models/web-session');
   const P = require('lib/promise');
 
   var AttachedClients = Backbone.Collection.extend({
@@ -22,6 +23,8 @@ define(function (require, exports, module) {
         return new Device(attrs, options);
       } else if (attrs.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
         return new OAuthApp(attrs, options);
+      } else if (attrs.clientType === Constants.CLIENT_TYPE_WEB_SESSION) {
+        return new WebSession(attrs, options);
       }
     },
 
@@ -35,6 +38,10 @@ define(function (require, exports, module) {
 
       if (clientTypes.oAuthApps) {
         fetchItems.push(user.fetchAccountOAuthApps(account));
+      }
+
+      if (clientTypes.sessions) {
+        fetchItems.push(user.fetchAccountSessions(account));
       }
 
       return P.all(fetchItems)
