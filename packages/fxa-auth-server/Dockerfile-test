@@ -1,3 +1,1 @@
 FROM fxa-auth-server:build
-ENV FXA_L10N_SKIP 1
-RUN npm install
