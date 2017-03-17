@@ -1,3 +1,13 @@
+<a name="1.82.7"></a>
+## [1.82.7](https://github.com/mozilla/fxa-auth-server/compare/v1.82.6-private...v1.82.7) (2017-03-17)
+
+
+### Features
+
+* **logging:** Use correct logging format (#60) r=vladikoff ([1932afe](https://github.com/mozilla/fxa-auth-server/commit/1932afe))
+
+
+
 <a name="1.82.6"></a>
 ## [1.82.6](https://github.com/mozilla/fxa-auth-server/compare/v1.82.5-private...v1.82.6) (2017-03-17)
 
