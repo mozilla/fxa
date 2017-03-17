@@ -29,22 +29,7 @@ module.exports = function (
   }
 
   DB.connect = function (options) {
-    var db = new DB(options)
-
-    return db.pool.get('/')
-    .then(
-      function (api) {
-        // TODO: transition to api version
-        // patchLevel is mysql specific
-        if (
-          api.patchLevel < options.patchLevel ||
-          api.patchLevel > options.patchLevel + 1
-        ) {
-          throw error.dbIncorrectPatchLevel(api.patchLevel, options.patchLevel)
-        }
-        return db
-      }
-    )
+    return P.resolve(new DB(options))
   }
 
   DB.prototype.close = function () {
