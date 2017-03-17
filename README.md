@@ -75,14 +75,14 @@ If you get an `error` status for any of the servers please verify that you insta
 ### Dependencies
 > Required developer dependencies:
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git),
-[node.js **4.5.0+**, with npm 2.4+](http://nodejs.org/),
+[node.js **4.8.0+**, with npm 2.15+](http://nodejs.org/),
 [Python 2.6+](https://www.python.org/),
 [Java 8+](https://www.java.com/en/download/),
 [Redis](http://redis.io/),
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/).
 
-**Note:** Node.js 5 or 6 is not currently supported. Please use Node.js 4.5.0+.
+**Note:** Node.js 5, 6 or 8 are not currently supported. Please use Node.js 4.8.0+.
 
 ##### OS X (with [Brew](http://brew.sh/)):
 
