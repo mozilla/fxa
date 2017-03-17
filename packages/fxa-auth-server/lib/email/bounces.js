@@ -63,10 +63,12 @@ module.exports = function (log, error) {
 
       return P.each(recipients, function (recipient) {
         const email = eaddrs.parseOneAddress(recipient.emailAddress).address
+        const emailDomain = utils.getAnonymizedEmailDomain(email)
         const logData = {
           op: 'handleBounce',
           action: recipient.action,
           email: email,
+          domain: emailDomain,
           bounce: !! message.bounce,
           diagnosticCode: recipient.diagnosticCode,
           status: recipient.status
@@ -107,8 +109,9 @@ module.exports = function (log, error) {
           }
         }
 
-        // Log the bounced flowEvent metrics if available
+        // Log the bounced flowEvent and emailEvent metrics
         utils.logFlowEventFromMessage(log, message, 'bounced')
+        utils.logEmailEventFromMessage(log, message, 'bounced', emailDomain)
 
         log.info(logData)
         log.increment('account.email_bounced')

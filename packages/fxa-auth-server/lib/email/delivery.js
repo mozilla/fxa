@@ -25,9 +25,11 @@ module.exports = function (log) {
       return P.each(recipients, function (recipient) {
 
         var email = recipient
+        var emailDomain = utils.getAnonymizedEmailDomain(email)
         var logData = {
           op: 'handleDelivery',
           email: email,
+          domain: emailDomain,
           processingTimeMillis: message.delivery.processingTimeMillis
         }
 
@@ -36,8 +38,9 @@ module.exports = function (log) {
           logData.template = templateName
         }
 
-        // Log the delivery flowEvent metrics if available
+        // Log the delivery flowEvent and emailEvent metrics if available
         utils.logFlowEventFromMessage(log, message, 'delivered')
+        utils.logEmailEventFromMessage(log, message, 'delivered', emailDomain)
 
         log.info(logData)
         log.increment('account.email_delivered')

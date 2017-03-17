@@ -60,13 +60,17 @@ describe('delivery messages', () => {
       })
 
       return mockedDelivery(mockLog).handleDelivery(mockMsg).then(function () {
-        assert.equal(mockLog.messages.length, 3)
-        assert.equal(mockLog.messages[1].args[0]['email'], 'jane@example.com')
-        assert.equal(mockLog.messages[1].args[0]['op'], 'handleDelivery')
-        assert.equal(mockLog.messages[1].args[0]['template'], 'verifyLoginEmail')
-        assert.equal(mockLog.messages[1].args[0]['processingTimeMillis'], 546)
-        assert.equal(mockLog.messages[2].args[0], 'account.email_delivered')
-        assert.equal(mockLog.messages[2].level, 'increment')
+        assert.equal(mockLog.messages.length, 4)
+        assert.equal(mockLog.messages[1].args[0], 'emailEvent')
+        assert.equal(mockLog.messages[1].args[1].domain, 'other')
+        assert.equal(mockLog.messages[1].args[1].type, 'delivered')
+        assert.equal(mockLog.messages[1].args[1].template, 'verifyLoginEmail')
+        assert.equal(mockLog.messages[2].args[0]['email'], 'jane@example.com')
+        assert.equal(mockLog.messages[2].args[0]['op'], 'handleDelivery')
+        assert.equal(mockLog.messages[2].args[0]['template'], 'verifyLoginEmail')
+        assert.equal(mockLog.messages[2].args[0]['processingTimeMillis'], 546)
+        assert.equal(mockLog.messages[3].args[0], 'account.email_delivered')
+        assert.equal(mockLog.messages[3].level, 'increment')
       })
     }
   )
@@ -98,17 +102,82 @@ describe('delivery messages', () => {
             {
               name: 'X-Flow-Begin-Time',
               value: '1234'
+            },
+            {
+              name: 'Content-Language',
+              value: 'en'
             }
           ]
         }
       })
 
       return mockedDelivery(mockLog).handleDelivery(mockMsg).then(function () {
-        assert.equal(mockLog.messages.length, 3)
+        assert.equal(mockLog.messages.length, 4)
         assert.equal(mockLog.messages[0].args[0]['event'], 'email.verifyLoginEmail.delivered')
         assert.equal(mockLog.messages[0].args[0]['flow_id'], 'someFlowId')
         assert.equal(mockLog.messages[0].args[0]['flow_time'] > 0, true)
         assert.equal(mockLog.messages[0].args[0]['time'] > 0, true)
+        assert.equal(mockLog.messages[1].args[1].domain, 'other')
+        assert.equal(mockLog.messages[1].args[1].type, 'delivered')
+        assert.equal(mockLog.messages[1].args[1].template, 'verifyLoginEmail')
+        assert.equal(mockLog.messages[1].args[1]['flow_id'], 'someFlowId')
+        assert.equal(mockLog.messages[2].args[0]['email'], 'jane@example.com')
+        assert.equal(mockLog.messages[2].args[0]['domain'], 'other')
+      })
+    }
+  )
+
+  it(
+    'should log popular email domain',
+    () => {
+      const mockLog = spyLog()
+      const mockMsg = mockMessage({
+        notificationType: 'Delivery',
+        delivery: {
+          timestamp: '2016-01-27T14:59:38.237Z',
+          recipients: ['jane@aol.com'],
+          processingTimeMillis: 546,
+          reportingMTA: 'a8-70.smtp-out.amazonses.com',
+          smtpResponse: '250 ok:  Message 64111812 accepted',
+          remoteMtaIp: '127.0.2.0'
+        },
+        mail: {
+          headers: [
+            {
+              name: 'X-Template-Name',
+              value: 'verifyLoginEmail'
+            },
+            {
+              name: 'X-Flow-Id',
+              value: 'someFlowId'
+            },
+            {
+              name: 'X-Flow-Begin-Time',
+              value: '1234'
+            },
+            {
+              name: 'Content-Language',
+              value: 'en'
+            }
+          ]
+        }
+      })
+
+      return mockedDelivery(mockLog).handleDelivery(mockMsg).then(function () {
+        assert.equal(mockLog.messages.length, 4)
+        assert.equal(mockLog.messages[0].args[0]['event'], 'email.verifyLoginEmail.delivered')
+        assert.equal(mockLog.messages[0].args[0]['flow_id'], 'someFlowId')
+        assert.equal(mockLog.messages[0].args[0]['flow_time'] > 0, true)
+        assert.equal(mockLog.messages[0].args[0]['time'] > 0, true)
+        assert.equal(mockLog.messages[1].args[0], 'emailEvent')
+        assert.equal(mockLog.messages[1].args[1].domain, 'aol.com')
+        assert.equal(mockLog.messages[1].args[1].type, 'delivered')
+        assert.equal(mockLog.messages[1].args[1].template, 'verifyLoginEmail')
+        assert.equal(mockLog.messages[1].args[1].locale, 'en')
+        assert.equal(mockLog.messages[1].args[1]['flow_id'], 'someFlowId')
+        assert.equal(mockLog.messages[2].args[0]['email'], 'jane@aol.com')
+        assert.equal(mockLog.messages[2].args[0]['domain'], 'aol.com')
+
       })
     }
   )
