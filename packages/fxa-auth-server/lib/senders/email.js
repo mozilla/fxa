@@ -7,6 +7,7 @@ var url = require('url')
 var P = require('bluebird')
 var nodemailer = require('nodemailer')
 var moment = require('moment-timezone')
+var emailUtils = require('./../email/utils/helpers')
 
 var DEFAULT_LOCALE = 'en'
 var DEFAULT_TIMEZONE = 'Etc/UTC'
@@ -264,6 +265,9 @@ module.exports = function (log) {
             id: status && status.messageId
           }
         )
+
+        emailUtils.logEmailEventSent(log, message)
+
         return d.resolve(status)
       }
     )

@@ -72,12 +72,12 @@ describe('bounce messages', () => {
         assert.equal(mockDB.deleteAccount.callCount, 2)
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
         assert.equal(mockDB.emailRecord.args[1][0], 'foobar@example.com')
-        assert.equal(mockLog.messages.length, 8, 'messages logged')
-        assert.equal(mockLog.messages[2].level, 'increment')
-        assert.equal(mockLog.messages[2].args[0], 'account.email_bounced')
-        assert.equal(mockLog.messages[7].level, 'info')
-        assert.equal(mockLog.messages[7].args[0].op, 'accountDeleted')
-        assert.equal(mockLog.messages[7].args[0].email, 'foobar@example.com')
+        assert.equal(mockLog.messages.length, 10, 'messages logged')
+        assert.equal(mockLog.messages[3].level, 'increment')
+        assert.equal(mockLog.messages[3].args[0], 'account.email_bounced')
+        assert.equal(mockLog.messages[9].level, 'info')
+        assert.equal(mockLog.messages[9].args[0].op, 'accountDeleted')
+        assert.equal(mockLog.messages[9].args[0].email, 'foobar@example.com')
         assert.equal(mockMsg.del.callCount, 1)
       })
     }
@@ -119,10 +119,14 @@ describe('bounce messages', () => {
         assert.equal(mockDB.deleteAccount.callCount, 2)
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
         assert.equal(mockDB.emailRecord.args[1][0], 'foobar@example.com')
-        assert.equal(mockLog.messages.length, 8, 'messages logged')
-        assert.equal(mockLog.messages[1].args[0].complaintFeedbackType, complaintType)
-        assert.equal(mockLog.messages[1].args[0].complaint, true)
-        assert.equal(mockLog.messages[1].args[0].complaintUserAgent, 'AnyCompany Feedback Loop (V0.01)')
+        assert.equal(mockLog.messages.length, 10, 'messages logged')
+        assert.equal(mockLog.messages[1].args[0], 'emailEvent')
+        assert.equal(mockLog.messages[1].args[1].domain, 'other')
+        assert.equal(mockLog.messages[1].args[1].type, 'bounced')
+        assert.equal(mockLog.messages[1].args[1].complaint, true)
+        assert.equal(mockLog.messages[2].args[0].complaintFeedbackType, complaintType)
+        assert.equal(mockLog.messages[2].args[0].complaint, true)
+        assert.equal(mockLog.messages[2].args[0].complaintUserAgent, 'AnyCompany Feedback Loop (V0.01)')
       })
     }
   )
@@ -159,22 +163,23 @@ describe('bounce messages', () => {
         assert.equal(mockDB.emailRecord.args[1][0], 'verified@example.com')
         assert.equal(mockDB.deleteAccount.callCount, 1)
         assert.equal(mockDB.deleteAccount.args[0][0].email, 'test@example.com')
-        assert.equal(mockLog.messages.length, 8)
-        assert.equal(mockLog.messages[1].args[0].op, 'handleBounce')
-        assert.equal(mockLog.messages[1].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[1].args[0].status, '5.0.0')
-        assert.equal(mockLog.messages[1].args[0].action, 'failed')
-        assert.equal(mockLog.messages[1].args[0].diagnosticCode, 'smtp; 550 user unknown')
-        assert.equal(mockLog.messages[2].args[0], 'account.email_bounced')
-        assert.equal(mockLog.messages[3].args[0].op, 'accountDeleted')
-        assert.equal(mockLog.messages[3].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[5].args[0].op, 'handleBounce')
-        assert.equal(mockLog.messages[5].args[0].email, 'verified@example.com')
-        assert.equal(mockLog.messages[5].args[0].status, '4.0.0')
+        assert.equal(mockLog.messages.length, 10)
+        assert.equal(mockLog.messages[2].args[0].op, 'handleBounce')
+        assert.equal(mockLog.messages[2].args[0].email, 'test@example.com')
+        assert.equal(mockLog.messages[2].args[0].domain, 'other')
+        assert.equal(mockLog.messages[2].args[0].status, '5.0.0')
+        assert.equal(mockLog.messages[2].args[0].action, 'failed')
+        assert.equal(mockLog.messages[2].args[0].diagnosticCode, 'smtp; 550 user unknown')
+        assert.equal(mockLog.messages[3].args[0], 'account.email_bounced')
+        assert.equal(mockLog.messages[4].args[0].op, 'accountDeleted')
+        assert.equal(mockLog.messages[4].args[0].email, 'test@example.com')
+        assert.equal(mockLog.messages[7].args[0].op, 'handleBounce')
+        assert.equal(mockLog.messages[7].args[0].email, 'verified@example.com')
+        assert.equal(mockLog.messages[7].args[0].status, '4.0.0')
         assert(! mockLog.messages[3].args[0].diagnosticCode)
-        assert.equal(mockLog.messages[6].args[0], 'account.email_bounced')
-        assert.equal(mockLog.messages[7].level, 'increment')
-        assert.equal(mockLog.messages[7].args[0], 'account.email_bounced.already_verified')
+        assert.equal(mockLog.messages[8].args[0], 'account.email_bounced')
+        assert.equal(mockLog.messages[9].level, 'increment')
+        assert.equal(mockLog.messages[9].args[0], 'account.email_bounced.already_verified')
       })
     }
   )
@@ -200,12 +205,12 @@ describe('bounce messages', () => {
       return mockedBounces(mockLog, mockDB).handleBounce(mockMsg).then(function () {
         assert.equal(mockDB.emailRecord.callCount, 1)
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
-        assert.equal(mockLog.messages.length, 4)
-        assert.equal(mockLog.messages[1].args[0].op, 'handleBounce')
-        assert.equal(mockLog.messages[1].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[2].args[0], 'account.email_bounced')
-        assert.equal(mockLog.messages[3].args[0].op, 'databaseError')
-        assert.equal(mockLog.messages[3].args[0].email, 'test@example.com')
+        assert.equal(mockLog.messages.length, 5)
+        assert.equal(mockLog.messages[2].args[0].op, 'handleBounce')
+        assert.equal(mockLog.messages[2].args[0].email, 'test@example.com')
+        assert.equal(mockLog.messages[3].args[0], 'account.email_bounced')
+        assert.equal(mockLog.messages[4].args[0].op, 'databaseError')
+        assert.equal(mockLog.messages[4].args[0].email, 'test@example.com')
         assert.equal(mockMsg.del.callCount, 1)
       })
     }
@@ -241,13 +246,13 @@ describe('bounce messages', () => {
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
         assert.equal(mockDB.deleteAccount.callCount, 1)
         assert.equal(mockDB.deleteAccount.args[0][0].email, 'test@example.com')
-        assert.equal(mockLog.messages.length, 4)
-        assert.equal(mockLog.messages[1].args[0].op, 'handleBounce')
-        assert.equal(mockLog.messages[1].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[2].args[0], 'account.email_bounced')
-        assert.equal(mockLog.messages[3].args[0].op, 'databaseError')
-        assert.equal(mockLog.messages[3].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[3].args[0].err.errno, error.ERRNO.ACCOUNT_UNKNOWN)
+        assert.equal(mockLog.messages.length, 5)
+        assert.equal(mockLog.messages[2].args[0].op, 'handleBounce')
+        assert.equal(mockLog.messages[2].args[0].email, 'test@example.com')
+        assert.equal(mockLog.messages[3].args[0], 'account.email_bounced')
+        assert.equal(mockLog.messages[4].args[0].op, 'databaseError')
+        assert.equal(mockLog.messages[4].args[0].email, 'test@example.com')
+        assert.equal(mockLog.messages[4].args[0].err.errno, error.ERRNO.ACCOUNT_UNKNOWN)
         assert.equal(mockMsg.del.callCount, 1)
       })
     }
@@ -338,14 +343,14 @@ describe('bounce messages', () => {
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
         assert.equal(mockDB.deleteAccount.callCount, 1)
         assert.equal(mockDB.deleteAccount.args[0][0].email, 'test@example.com')
-        assert.equal(mockLog.messages.length, 4)
-        assert.equal(mockLog.messages[1].args[0].op, 'handleBounce')
-        assert.equal(mockLog.messages[1].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[1].args[0].template, 'verifyLoginEmail')
-        assert.equal(mockLog.messages[1].args[0].bounceType, 'Permanent')
-        assert.equal(mockLog.messages[1].args[0].bounceSubType, 'General')
-        assert.equal(mockLog.messages[1].args[0].lang, 'db-LB')
-        assert.equal(mockLog.messages[2].args[0], 'account.email_bounced')
+        assert.equal(mockLog.messages.length, 5)
+        assert.equal(mockLog.messages[2].args[0].op, 'handleBounce')
+        assert.equal(mockLog.messages[2].args[0].email, 'test@example.com')
+        assert.equal(mockLog.messages[2].args[0].template, 'verifyLoginEmail')
+        assert.equal(mockLog.messages[2].args[0].bounceType, 'Permanent')
+        assert.equal(mockLog.messages[2].args[0].bounceSubType, 'General')
+        assert.equal(mockLog.messages[2].args[0].lang, 'db-LB')
+        assert.equal(mockLog.messages[3].args[0], 'account.email_bounced')
       })
     }
   )
@@ -388,6 +393,10 @@ describe('bounce messages', () => {
             {
               name: 'X-Flow-Begin-Time',
               value: '1234'
+            },
+            {
+              name: 'Content-Language',
+              value: 'en'
             }
           ]
         }
@@ -398,11 +407,82 @@ describe('bounce messages', () => {
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
         assert.equal(mockDB.deleteAccount.callCount, 1)
         assert.equal(mockDB.deleteAccount.args[0][0].email, 'test@example.com')
-        assert.equal(mockLog.messages.length, 4)
+        assert.equal(mockLog.messages.length, 5)
         assert.equal(mockLog.messages[0].args[0]['event'], 'email.verifyLoginEmail.bounced')
         assert.equal(mockLog.messages[0].args[0]['flow_id'], 'someFlowId')
         assert.equal(mockLog.messages[0].args[0]['flow_time'] > 0, true)
         assert.equal(mockLog.messages[0].args[0]['time'] > 0, true)
+        assert.equal(mockLog.messages[1].args[0], 'emailEvent')
+        assert.equal(mockLog.messages[1].args[1].domain, 'other')
+        assert.equal(mockLog.messages[1].args[1].type, 'bounced')
+        assert.equal(mockLog.messages[1].args[1].template, 'verifyLoginEmail')
+        assert.equal(mockLog.messages[1].args[1]['flow_id'], 'someFlowId')
+      })
+    }
+  )
+
+  it(
+    'should log email domain if popular one',
+    () => {
+      var mockLog = spyLog()
+      var mockDB = {
+        createEmailBounce: sinon.spy(() => P.resolve({})),
+        emailRecord: sinon.spy(function (email) {
+          return P.resolve({
+            uid: '123456',
+            email: email,
+            emailVerified: false
+          })
+        }),
+        deleteAccount: sinon.spy(function () {
+          return P.resolve({ })
+        })
+      }
+      var mockMsg = mockMessage({
+        bounce: {
+          bounceType: 'Permanent',
+          bounceSubType: 'General',
+          bouncedRecipients: [
+            {emailAddress: 'test@aol.com'}
+          ]
+        },
+        mail: {
+          headers: [
+            {
+              name: 'X-Template-Name',
+              value: 'verifyLoginEmail'
+            },
+            {
+              name: 'X-Flow-Id',
+              value: 'someFlowId'
+            },
+            {
+              name: 'X-Flow-Begin-Time',
+              value: '1234'
+            },
+            {
+              name: 'Content-Language',
+              value: 'en'
+            }
+          ]
+        }
+      })
+
+      return mockedBounces(mockLog, mockDB).handleBounce(mockMsg).then(function () {
+        assert.equal(mockLog.messages.length, 5)
+        assert.equal(mockLog.messages[0].args[0]['event'], 'email.verifyLoginEmail.bounced')
+        assert.equal(mockLog.messages[0].args[0]['flow_id'], 'someFlowId')
+        assert.equal(mockLog.messages[0].args[0]['flow_time'] > 0, true)
+        assert.equal(mockLog.messages[0].args[0]['time'] > 0, true)
+        assert.equal(mockLog.messages[1].args[0], 'emailEvent')
+        assert.equal(mockLog.messages[1].args[1].domain, 'aol.com')
+        assert.equal(mockLog.messages[1].args[1].type, 'bounced')
+        assert.equal(mockLog.messages[1].args[1].template, 'verifyLoginEmail')
+        assert.equal(mockLog.messages[1].args[1].bounced, true)
+        assert.equal(mockLog.messages[1].args[1].locale, 'en')
+        assert.equal(mockLog.messages[1].args[1]['flow_id'], 'someFlowId')
+        assert.equal(mockLog.messages[2].args[0]['email'], 'test@aol.com')
+        assert.equal(mockLog.messages[2].args[0]['domain'], 'aol.com')
       })
     }
   )
