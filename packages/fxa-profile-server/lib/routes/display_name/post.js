@@ -4,6 +4,7 @@
 
 const Joi = require('joi');
 const db = require('../../db');
+const notifyProfileUpdated = require('../../updates-queue');
 
 const EMPTY = Object.create(null);
 
@@ -36,7 +37,10 @@ module.exports = {
     var uid = req.auth.credentials.user;
     var payload = req.payload;
     db.setDisplayName(uid, payload.displayName)
-      .then(function () { return EMPTY; })
+      .then(function () {
+        notifyProfileUpdated(uid); // Don't wait on promise
+        return EMPTY;
+      })
       .done(reply, reply);
   }
 };

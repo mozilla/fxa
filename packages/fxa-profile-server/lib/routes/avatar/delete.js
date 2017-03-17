@@ -9,15 +9,12 @@ const P = require('../../promise');
 const AppError = require('../../error');
 const db = require('../../db');
 const logger = require('../../logging')('routes.avatar.delete');
+const notifyProfileUpdated = require('../../updates-queue');
 const validate = require('../../validate');
 const workers = require('../../img-workers');
 
 const EMPTY = Object.create(null);
 const FXA_PROVIDER = 'fxa';
-
-function empty() {
-  return EMPTY;
-}
 
 module.exports = {
   auth: {
@@ -53,7 +50,11 @@ module.exports = {
           return workers.delete(req.params.id);
         }
       })
-      .then(empty)
+      .then(function () {
+        var uid = req.auth.credentials.user;
+        notifyProfileUpdated(uid); // Don't wait on promise
+        return EMPTY;
+      })
       .done(reply, reply);
   }
 };

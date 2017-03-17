@@ -10,6 +10,7 @@ const config = require('../../config');
 const db = require('../../db');
 const hex = require('buf').to.hex;
 const img = require('../../img');
+const notifyProfileUpdated = require('../../updates-queue');
 const validate = require('../../validate');
 const workers = require('../../img-workers');
 
@@ -55,6 +56,7 @@ module.exports = {
         return db.addAvatar(id, uid, url, FXA_PROVIDER);
       })
       .done(function uploadDone() {
+        notifyProfileUpdated(uid); // Don't wait on promise
         reply({ url: url, id: hex(id) }).code(201);
       }, reply);
   }
