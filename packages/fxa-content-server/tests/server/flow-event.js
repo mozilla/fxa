@@ -703,10 +703,27 @@ define([
         assert.lengthOf(Object.keys(arg), 16);
         assert.isUndefined(arg.utm_source); //eslint-disable-line camelcase
       }
+    },
+
+    'call flowEvent without navigationTiming data': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          events: [
+            { offset: 2000, type: 'loaded' }
+          ],
+        }, 2000, true);
+      },
+
+      'process.stderr.write was called correctly': () => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.equal(arg.event, 'flow.performance');
+      }
     }
   });
 
-  function setup (data, timeSinceFlowBegin) {
+  function setup (data, timeSinceFlowBegin, clobberNavigationTiming) {
     try {
       const flowBeginTime = data.flowBeginTime || mocks.time - timeSinceFlowBegin;
       flowEvent(mocks.request, {
@@ -719,7 +736,7 @@ define([
         flowId: data.flowId || '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
         flushTime: flowBeginTime,
         migration: data.migration || 'sync11',
-        navigationTiming: {
+        navigationTiming: clobberNavigationTiming ? null : {
           /*eslint-disable sorting/sort-object-props*/
           domainLookupStart: 100,
           domainLookupEnd: 200,
