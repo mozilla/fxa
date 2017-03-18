@@ -5,175 +5,126 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Able = require('lib/able');
-  const chai = require('chai');
+  const { assert } = require('chai');
   const Experiment = require('lib/experiments/base');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const sinon = require('sinon');
   const Storage = require('lib/storage');
-  const User = require('models/user');
-  const WindowMock = require('../../../mocks/window');
 
-  var able;
-  var assert = chai.assert;
-  var experiment;
-  var expOptions;
-  var metrics;
-  var notifier;
-  var storage;
-  var user;
-  var UUID = 'a mock uuid';
-  var windowMock;
+  let experiment;
+  let expOptions;
+  let metrics;
+  let notifier;
+  let storage;
 
-  describe('lib/experiments/base', function () {
-    beforeEach(function () {
-      able = new Able();
-      sinon.stub(able, 'choose', function () {
-        return 'treatment';
-      });
-      notifier = new Notifier();
-      metrics = new Metrics({ notifier });
-      storage = new Storage();
-      user = new User({
-        uniqueUserId: UUID
-      });
-      windowMock = new WindowMock();
+  function createExperiment(experimentName, ExperimentConstructor) {
+    notifier = new Notifier();
+    metrics = new Metrics({ notifier });
 
-      experiment = new Experiment();
-      expOptions = {
-        able: able,
-        metrics: metrics,
-        notifier: notifier,
-        storage: storage,
-        user: user,
-        window: windowMock
-      };
-      experiment.initialize('baseExperiment', expOptions);
+    sinon.spy(metrics, 'logExperiment');
+    sinon.spy(metrics, 'logEvent');
+
+    storage = new Storage();
+
+    experiment = new ExperimentConstructor();
+    expOptions = {
+      groupType: 'treatment',
+      metrics: metrics,
+      notifier: notifier,
+      storage: storage
+    };
+
+    experiment.initialize(experimentName, expOptions);
+  }
+
+  describe('lib/experiments/base', () => {
+    beforeEach(() => {
+      createExperiment('baseExperiment', Experiment);
     });
 
-    describe('initialize', function () {
-      it('requires options', function () {
-        var experiment = new Experiment();
+    describe('initialize', () => {
+      it('requires options', () => {
+        const experiment = new Experiment();
         experiment.initialize();
         assert.isFalse(experiment._initialized);
       });
 
-      it('requires able to choose a group type', function () {
-        able.choose.restore();
-        sinon.stub(able, 'choose', function () {
-          return undefined;
-        });
-        experiment.initialize('baseExperiment', expOptions);
-        assert.isFalse(experiment._initialized);
-        assert.equal(experiment._name, 'baseExperiment');
-        assert.isNull(experiment._groupType);
-      });
-
-      it('initializes treatment', function () {
+      it('initializes', () => {
         assert.isTrue(experiment._initialized);
         assert.equal(experiment._groupType, 'treatment');
         assert.equal(experiment._loggingNamespace, 'experiment.treatment.baseExperiment.');
         assert.equal(experiment._storageNamespace, 'experiment.baseExperiment');
-      });
 
-
-      it('initializes control', function () {
-        able.choose.restore();
-        sinon.stub(able, 'choose', function () {
-          return 'control';
-        });
-        experiment.initialize('baseExperiment', expOptions);
-
-        assert.isTrue(experiment._initialized);
-        assert.equal(experiment._groupType, 'control');
-        assert.equal(experiment._loggingNamespace, 'experiment.control.baseExperiment.');
-        assert.equal(experiment._storageNamespace, 'experiment.baseExperiment');
+        assert.isTrue(metrics.logExperiment.calledOnce);
+        assert.isTrue(metrics.logExperiment.calledWith('baseExperiment', 'treatment'));
       });
     });
 
-    describe('isInGroup', function () {
-      it('returns if part treatment', function () {
-        assert.isTrue(experiment.isInGroup('treatment'));
-        assert.isFalse(experiment.isInGroup('control'));
-        assert.isFalse(experiment.isInGroup('randomGroup'));
-      });
+    describe('saveState', () => {
+      it('saves state', () => {
+        sinon.spy(experiment, 'logEvent');
 
-      it('returns if part control', function () {
-        able.choose.restore();
-        sinon.stub(able, 'choose', function () {
-          return 'control';
-        });
-        experiment.initialize('baseExperiment', expOptions);
-        assert.isTrue(experiment.isInGroup('control'));
-        assert.isFalse(experiment.isInGroup('treatment'));
-        assert.isFalse(experiment.isInGroup('randomGroup'));
-      });
-
-      it('returns if able is undefined', function () {
-        able.choose.restore();
-        sinon.stub(able, 'choose', function () {
-          return undefined;
-        });
-        experiment.initialize('baseExperiment', expOptions);
-        assert.isFalse(experiment.isInGroup('control'));
-        assert.isFalse(experiment.isInGroup('treatment'));
-        assert.isFalse(experiment.isInGroup('randomGroup'));
-      });
-    });
-
-    describe('saveState', function () {
-      it('saves state', function () {
         experiment.saveState('clicked');
         assert.isTrue(JSON.parse(storage.get(experiment._storageNamespace)).clicked);
+
+        assert.isTrue(experiment.logEvent.calledOnce);
+        assert.isTrue(experiment.logEvent.calledWith('clicked'));
       });
 
-      it('requires state', function () {
+      it('requires state', () => {
         assert.isFalse(experiment.saveState());
       });
     });
 
-    describe('hasState', function () {
-      it('returns if part treatment', function () {
+    describe('hasState', () => {
+      it('returns if part treatment', () => {
         storage.set(experiment._storageNamespace, JSON.stringify({
           clicked: true
         }));
         assert.isTrue(experiment.hasState('clicked'));
       });
 
-      it('returns null if no state', function () {
+      it('returns null if no state', () => {
         assert.isNull(experiment.hasState());
         assert.isFalse(experiment.hasState('randomState'));
       });
     });
 
-    describe('delegateNotifications', function () {
-      it('stops if no notifications', function () {
-        experiment.notifications = null;
-        assert.isFalse(experiment.delegateNotifications());
+    describe('notifications', () => {
+      let twoSpy;
+
+      beforeEach(() => {
+        twoSpy = sinon.spy();
+        const ConcreteExperiment = Experiment.extend({
+          notifications: {
+            'one': Experiment.createSaveStateDelegate('thing'),
+            'two': twoSpy
+          },
+
+          saveState: sinon.spy()
+        });
+
+        createExperiment('concreteExperiment', ConcreteExperiment);
       });
 
-      it('sets notifications', function (done) {
-        sinon.spy(experiment, 'delegateNotifications');
-        sinon.spy(experiment, 'saveState');
-        experiment.notifications = {
-          'one': Experiment.createSaveStateDelegate('thing'),
-          'two': 'createSaveStateDelegate',
-          'three' () {
-            assert.ok(true, 'stringMethod called');
-            done();
-          }
-        };
-        assert.isFalse(experiment.delegateNotifications.called);
-        experiment.initialize('baseExperiment', expOptions);
-        assert.isTrue(experiment.delegateNotifications.called, 'delegate called');
-
+      it('attaches notifications', () => {
         assert.isTrue(experiment.saveState.calledOnce, 'enrolled');
+        assert.isTrue(experiment.saveState.calledWith('enrolled'), 'enrolled');
+
         notifier.trigger('one');
         assert.isTrue(experiment.saveState.calledTwice, 'notification');
+        assert.isTrue(experiment.saveState.calledWith('thing'), 'one logs thing');
 
         notifier.trigger('two');
-        notifier.trigger('three');
+        assert.isTrue(twoSpy.calledOnce);
+      });
+
+      it('ignores notifications once destroyed', () => {
+        experiment.destroy();
+        notifier.trigger('two');
+
+        assert.isFalse(twoSpy.called);
       });
     });
   });

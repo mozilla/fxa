@@ -18,21 +18,19 @@ define(function (require, exports, module) {
       notifier = new Notifier();
       experiment = new Experiment();
       experiment.initialize('connectAnotherDevice', {
-        able: {
-          choose: sinon.spy(() => 'choice')
-        },
+        groupType: 'treatment',
         metrics: {
-          isCollectionEnabled: () => true,
-          logEvent: sinon.spy()
+          logEvent () {},
+          logExperiment () {}
         },
-        notifier,
-        user: {
-          get: () => 'uuid'
-        },
-        window
+        notifier
       });
 
       sinon.stub(experiment, 'saveState', () => {});
+    });
+
+    afterEach(() => {
+      experiment.destroy();
     });
 
     function testNotificationSavesState(notification, data, expectedState) {

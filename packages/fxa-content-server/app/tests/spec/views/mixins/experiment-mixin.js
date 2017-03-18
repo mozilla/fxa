@@ -6,8 +6,8 @@ define(function (require, exports, module) {
   'use strict';
 
   const Able = require('lib/able');
+  const { assert } = require('chai');
   const BaseView = require('views/base');
-  const Chai = require('chai');
   const Cocktail = require('cocktail');
   const Metrics = require('lib/metrics');
   const Mixin = require('views/mixins/experiment-mixin');
@@ -17,37 +17,29 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const WindowMock = require('../../../mocks/window');
 
-  var assert = Chai.assert;
-  var View = BaseView.extend({
+  const View = BaseView.extend({
     template: TestTemplate
   });
-  Cocktail.mixin(View, Mixin);
 
-  var mockExperiment = {
-    isInGroup () {
-      return true;
-    }
-  };
+  Cocktail.mixin(
+    View,
+    Mixin
+  );
 
-  describe('views/mixins/experiment-mixin', function () {
-    var UUID = 'a mock uuid';
+  describe('views/mixins/experiment-mixin', () => {
+    let able;
+    let metrics;
+    let notifier;
+    let user;
+    let view;
+    let windowMock;
 
-    var able;
-    var metrics;
-    var notifier;
-    var user;
-    var view;
-    var windowMock;
-
-    beforeEach(function () {
+    beforeEach(() => {
       able = new Able();
       notifier = new Notifier();
       metrics = new Metrics({ notifier });
-      user = new User({
-        uniqueUserId: UUID
-      });
+      user = new User();
       windowMock = new WindowMock();
-      windowMock.navigator.userAgent = 'mocha';
 
       view = new View({
         able: able,
@@ -56,22 +48,44 @@ define(function (require, exports, module) {
         user: user,
         window: windowMock
       });
-
-      return view.render();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       return view.destroy();
     });
 
-    describe('initialize', function () {
-      it('initializes', function () {
-        assert.isTrue(view.experiments.initialized);
+    describe('initialize', () => {
+      it('chooses experiments', () => {
+        // pass in an experimentsMock otherwise a new
+        // ExperimentInterface is created before
+        // a spy can be added to `chooseExperiments`
+        const experimentsMock = {
+          chooseExperiments: sinon.spy(),
+          destroy () {}
+        };
+
+        view.initialize({
+          experiments: experimentsMock
+        });
+
+        assert.isTrue(experimentsMock.chooseExperiments.called);
       });
     });
 
-    describe('isInExperiment', function () {
-      it('returns `true` if user is in experiment, `false` if not', function () {
+
+    describe('destroy', () => {
+      it('destroys the experiments instance', () => {
+        let experiments = view.experiments;
+        sinon.spy(experiments, 'destroy');
+
+        view.destroy();
+
+        assert.isTrue(experiments.destroy.called);
+      });
+    });
+
+    describe('isInExperiment', () => {
+      it('returns `true` if user is in experiment, `false` if not', () => {
         sinon.stub(view.experiments, 'isInExperiment', (experimentName) => {
           return experimentName === 'realExperiment';
         });
@@ -81,26 +95,15 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isInExperimentGroup', function () {
-      it('returns if user is in experiment group', function () {
-        sinon.stub(view.experiments, 'isInExperiment', (experimentName) => {
-          return experimentName === 'realExperiment';
+    describe('isInExperimentGroup', () => {
+      it('returns `true` if user is in experiment group, `false` otw', () => {
+        sinon.stub(view.experiments, 'isInExperimentGroup', (experimentName, groupName) => {
+          return experimentName === 'realExperiment' &&
+                 groupName === 'treatment';
         });
-        view.experiments._activeExperiments = {
-          'realExperiment': mockExperiment
-        };
 
         assert.isTrue(view.isInExperimentGroup('realExperiment', 'treatment'));
-        assert.isTrue(view.isInExperimentGroup('realExperiment', 'control'));
-      });
-
-      it('returns if user is not in experiment group', function () {
-        view.experiments._activeExperiments = {
-          'realExperiment': mockExperiment
-        };
-
-        assert.isFalse(view.isInExperimentGroup('fakeExperiment', 'treatment'));
-        assert.isFalse(view.isInExperimentGroup('fakeExperiment', 'control'));
+        assert.isFalse(view.isInExperimentGroup('realExperiment', 'control'));
       });
     });
   });

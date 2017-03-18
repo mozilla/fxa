@@ -4,7 +4,7 @@
 
 /*
   An experiment interface that helps organize A/B experiments.
-  It helps keep the state, organize testing groups and log experiment metrics.
+  It helps keep the state and log experiment metrics.
  */
 
 define(function (require, exports, module) {
@@ -12,17 +12,14 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Backbone = require('backbone');
+  const NotifierMixin = require('lib/channels/notifier-mixin');
   const Storage = require('lib/storage');
-  const Url = require('lib/url');
-
-  var FORCE_GROUP_TYPE = 'forceExperimentGroup';
-  var storage = Storage.factory('localStorage');
 
   function BaseExperiment() {
     // nothing to do.
   }
 
-  _.extend(BaseExperiment.prototype, {
+  _.extend(BaseExperiment.prototype, Backbone.Events, {
     constructor: BaseExperiment,
 
     /**
@@ -53,76 +50,34 @@ define(function (require, exports, module) {
       // all experiments require these options
       if (! (name &&
              options &&
-             options.able &&
+             options.groupType &&
              options.metrics &&
-             options.notifier &&
-             options.user &&
-             options.window)) {
+             options.notifier)) {
         return false;
       }
 
-      this.able = options.able;
-      this.extraAbleOptions = options.extraAbleOptions || {};
+      this._groupType = options.groupType;
       this.metrics = options.metrics;
       this._name = name;
       this._notifier = options.notifier;
-      this.storage = options.storage || storage;
-      this.user = options.user;
-      this.window = options.window;
+      this.storage = options.storage || Storage.factory('localStorage');
 
-      var abData = {
-        able: this.able,
-        // the window parameter will override any ab testing features
-        forceExperimentGroup: Url.searchParam(FORCE_GROUP_TYPE, this.window.location.search),
-        isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
-        uniqueUserId: this.user.get('uniqueUserId')
-      };
-
-      abData = _.extend(abData, this.extraAbleOptions);
-
-      this._groupType = this.able.choose(this._name, abData) || null;
-      if (! this._groupType) {
-        return false;
-      }
-
-      this._loggingNamespace = 'experiment.' + this._groupType + '.' + this._name + '.';
-      this._storageNamespace = 'experiment.' + this._name;
+      this._loggingNamespace = `experiment.${this._groupType}.${this._name}.`;
+      this._storageNamespace = `experiment.${this._name}`;
       this._initialized = true;
 
+      this.metrics.logExperiment(name, options.groupType);
       this.saveState('enrolled');
 
-      this.delegateNotifications();
+      NotifierMixin.initialize.call(this, {
+        notifier: options.notifier
+      });
 
       return true;
     },
 
-    delegateNotifications (notifications) {
-      // based on delegateEvents from Backbone.View
-      if (! (notifications || (notifications = _.result(this, 'notifications')))) {
-        return false;
-      }
-
-      for (var notificationName in notifications) {
-        var method = notifications[notificationName];
-        if (_.isString(method)) {
-          method = this[notifications[notificationName]];
-        }
-
-        if (_.isFunction(method)) {
-          this._notifier.on(notificationName, method.bind(this));
-        }
-      }
-    },
-
-    /**
-     * Checks the experiment group
-     *
-     * @method isInGroup
-     * @param {String} groupType
-     * @returns {boolean}
-     */
-    isInGroup (groupType) {
-      return !! (groupType && groupType === this._groupType);
+    destroy () {
+      this.stopListening();
     },
 
     /**
@@ -203,7 +158,7 @@ define(function (require, exports, module) {
    * @returns {Function}
    * @static
    */
-  BaseExperiment.createSaveStateDelegate = function (stateName) {
+  BaseExperiment.createSaveStateDelegate = (stateName) => {
     return function () {
       this.saveState(stateName);
     };

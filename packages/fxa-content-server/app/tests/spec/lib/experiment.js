@@ -27,13 +27,12 @@ define(function (require, exports, module) {
     initialize () {
       return true;
     },
-    isInGroup () {
-      return true;
+    destroy () {
     }
   };
 
-  describe('lib/experiment', function () {
-    beforeEach(function () {
+  describe('lib/experiment', () => {
+    beforeEach(() => {
       windowMock = new WindowMock();
       windowMock.navigator.userAgent = 'mocha';
       able = new Able();
@@ -53,13 +52,13 @@ define(function (require, exports, module) {
       expInt = new ExperimentInterface(expOptions);
     });
 
-    describe('constructor', function () {
-      it('requires options', function () {
+    describe('constructor', () => {
+      it('requires options', () => {
         var expInt = new ExperimentInterface();
         assert.isFalse(expInt.initialized);
       });
 
-      it('supports ua override and forcing experiments', function () {
+      it('supports ua override and forcing experiments', () => {
         assert.isTrue(expInt.initialized, 'properly init');
 
         expOptions.window.navigator.userAgent = 'Something/1.0 FxATester/1.0';
@@ -73,9 +72,9 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isInExperiment', function () {
-      it('checks experiment opt in', function () {
-        sinon.stub(expInt, 'isInExperiment', (experimentName) => {
+    describe('isInExperiment', () => {
+      it('checks experiment opt in', () => {
+        sinon.stub(expInt, '_getExperimentGroup', (experimentName) => {
           return experimentName === 'mockExperiment';
         });
 
@@ -85,22 +84,22 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isInExperimentGroup', function () {
-      it('is true when opted in', function () {
-        sinon.stub(expInt, 'isInExperiment', (experimentName) => {
-          return experimentName === 'mockExperiment';
+    describe('isInExperimentGroup', () => {
+      it('is true when opted in', () => {
+        sinon.stub(expInt, '_getExperimentGroup', (experimentName) => {
+          return experimentName === 'mockExperiment' ? 'treatment' : false;
         });
         expInt._activeExperiments = {
           'mockExperiment': mockExperiment
         };
 
-        assert.isTrue(expInt.isInExperimentGroup('mockExperiment'));
-        assert.isFalse(expInt.isInExperimentGroup('otherExperiment'));
+        assert.isTrue(expInt.isInExperimentGroup('mockExperiment', 'treatment'));
+        assert.isFalse(expInt.isInExperimentGroup('otherExperiment', 'control'));
         assert.isFalse(expInt.isInExperimentGroup());
       });
     });
 
-    describe('chooseExperiments', function () {
+    describe('chooseExperiments', () => {
       beforeEach(() => {
         sinon.spy(expInt, 'createExperiment');
         expInt._allExperiments = {
@@ -116,7 +115,7 @@ define(function (require, exports, module) {
         };
       });
 
-      it('does not choose when not initialized', function () {
+      it('does not choose when not initialized', () => {
         sinon.spy(expInt, 'isInExperiment');
         expInt.initialized = false;
         expInt.chooseExperiments();
@@ -125,41 +124,59 @@ define(function (require, exports, module) {
 
       describe('user is not part of any experiment', () => {
         it('does not create the experiment', () => {
-          sinon.stub(expInt, 'isInExperiment', () => false);
+          sinon.stub(expInt, '_getExperimentGroup', () => false);
 
           expInt.chooseExperiments();
 
-          assert.isTrue(expInt.isInExperiment.calledWith('experiment1'));
-          assert.isFalse(expInt.createExperiment.calledWith('experiment1'));
-          assert.isFalse(expInt.isInExperiment('experiment1'));
-
-          assert.isTrue(expInt.isInExperiment.calledWith('experiment2'));
-          assert.isFalse(expInt.createExperiment.calledWith('experiment2'));
-          assert.isFalse(expInt.isInExperiment('experiment2'));
-
-          assert.isTrue(expInt.isInExperiment.calledWith('experiment3'));
-          assert.isFalse(expInt.createExperiment.calledWith('experiment3'));
-          assert.isFalse(expInt.isInExperiment('experiment3'));
+          assert.isFalse(expInt.createExperiment.called);
         });
       });
 
       describe('user is part of at least one experiment', () => {
         it('creates the experiment', () => {
-          sinon.stub(expInt, 'isInExperiment', (choiceName) => {
+          sinon.stub(expInt, '_getExperimentGroup', (choiceName) => {
             if (choiceName === 'experiment1') {
-              return true;
+              return 'treatment';
             } else if (choiceName === 'experiment3') {
-              return true;
+              return 'control';
             }
             return false;
           });
 
           expInt.chooseExperiments();
 
-          assert.isTrue(expInt.isInExperiment('experiment1'));
-          assert.isFalse(expInt.isInExperiment('experiment2'));
-          assert.isTrue(expInt.isInExperiment('experiment3'));
+          assert.equal(expInt.createExperiment.callCount, 2);
+          assert.isTrue(expInt.createExperiment.calledWith('experiment1', 'treatment'));
+          assert.isTrue(expInt.createExperiment.calledWith('experiment3', 'control'));
         });
+      });
+    });
+
+    describe('destroy', () => {
+      beforeEach(() => {
+        expInt._allExperiments = {
+          experiment1: function () {
+            return mockExperiment;
+          },
+          experiment2: function () {
+            return mockExperiment;
+          },
+          experiment3: function () {
+            return mockExperiment;
+          }
+        };
+
+        sinon.stub(expInt, '_getExperimentGroup', (choiceName) => 'treatment');
+        // choose all 3 experiments.
+        expInt.chooseExperiments();
+
+        sinon.spy(mockExperiment, 'destroy');
+        // destroys the experiment 3 times.
+        expInt.destroy();
+      });
+
+      it('destroys each active experiment', () => {
+        assert.equal(mockExperiment.destroy.callCount, 3);
       });
     });
   });

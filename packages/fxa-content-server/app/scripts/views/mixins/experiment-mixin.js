@@ -9,7 +9,7 @@ define(function (require, exports, module) {
 
   module.exports = {
     initialize (options = {}) {
-      this.experiments = new ExperimentInterface({
+      this.experiments = options.experiments || new ExperimentInterface({
         able: options.able,
         account: this._account,
         metrics: this.metrics,
@@ -20,6 +20,16 @@ define(function (require, exports, module) {
       });
 
       this.experiments.chooseExperiments();
+    },
+
+    /**
+     * Destroy the attached experiments instance.
+     */
+    destroy () {
+      if (this.experiments) {
+        this.experiments.destroy();
+        this.experiments = null;
+      }
     },
 
     /**
