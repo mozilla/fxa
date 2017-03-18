@@ -33,6 +33,16 @@
 
 
 
+<a name="1.82.3"></a>
+## 1.82.3 (2017-03-18)
+
+
+### Bug Fixes
+
+* **server:** fix undefined dereference in perf flow events (#4822) r=vladikoff ([31fb753](https://github.com/mozilla/fxa-content-server/commit/31fb753)), closes [(#4822](https://github.com/(/issues/4822)
+
+
+
 <a name="1.82.2"></a>
 ## 1.82.2 (2017-03-16)
 
