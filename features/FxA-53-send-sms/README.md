@@ -137,7 +137,8 @@ This test will target:
 
 ### Original Version (Present Day)
 
-Here is the user flow from the moment the user finishes registration via the form.[(Review the control after phase 1 results come in)](https://docs.google.com/document/d/13AP3rPE4RMKjECBxJzT-OuVyU3DUC1-ggpqUttAJYM4/edit#)
+Here is the user flow from the moment the user finishes registration via the form.
+[(Review the control after phase 1 results come in)](https://docs.google.com/document/d/13AP3rPE4RMKjECBxJzT-OuVyU3DUC1-ggpqUttAJYM4/edit#)
 
 1. User is asked to confirm email address<br />
 <img alt="Confirm your account screen" src="./image_1.png" width=300 />
@@ -147,11 +148,14 @@ Here is the user flow from the moment the user finishes registration via the for
 
 1. Depending on where the user confirms their email address, they will see one of the following screens:
 
-    1. Confirmed from same Firefox desktop<br /><img alt="Confirm in Firefox Desktop" src="./image_3.png" width=300 />
+    1. Confirmed from same Firefox desktop<br />
+<img alt="Confirm in Firefox Desktop" src="./image_3.png" width=300 />
 
-    2. Confirmed from a second disconnect Firefox instance<br /><img alt="Confirm in another Firefox" src="./image_4.png" width=300 />
+    2. Confirmed from a second disconnect Firefox instance<br />
+<img alt="Confirm in another Firefox" src="./image_4.png" width=300 />
 
-    3. Confirmed from Firefox for iOS<br /><img alt="Confirm in Firefox for iOS" src="./image_5.png" width=300 />
+    3. Confirmed from Firefox for iOS<br />
+<img alt="Confirm in Firefox for iOS" src="./image_5.png" width=300 />
 
 ### Variation A
 
@@ -243,8 +247,6 @@ Send SMS message identified by `messageId` to `phoneNumber`. Translate using the
 #### customs server (vbudhram)
 
 A new check is needed on the customs server to limit the number of SMS messages sent by a single IP address or to a single phone number.
-
-TODO - Do the fxa-customs-server docs need to be updated? https://github.com/mozilla/fxa-customs-server/blob/master/docs/api.md
 
 #### fxa-js-client (vbudhram)
 
