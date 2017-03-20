@@ -126,8 +126,8 @@ module.exports = (req, metrics, requestReceivedTime) => {
     logFlowEvent(event, metrics, req);
   });
 
-  if (emitPerformanceEvents) {
-    const navigationTiming = metrics.navigationTiming;
+  const navigationTiming = metrics.navigationTiming;
+  if (emitPerformanceEvents && navigationTiming) {
     PERFORMANCE_TIMINGS.forEach(item => {
       const time = item.timings.reduce((sum, timing) => {
         const from = navigationTiming[timing.from];
