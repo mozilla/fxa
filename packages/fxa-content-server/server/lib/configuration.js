@@ -369,6 +369,7 @@ const conf = module.exports = convict({
   page_template_subdirectory: {
     default: 'src',
     doc: 'Subdirectory of page_template_root for server-rendered page templates',
+    env: 'PAGE_TEMPLATE_SUBDIRECTORY',
     format: [
       'src',
       'dist'
@@ -452,6 +453,7 @@ const conf = module.exports = convict({
   static_directory: {
     default: 'app',
     doc: 'Directory that static files are served from.',
+    env: 'STATIC_DIRECTORY',
     format: String
   },
   static_max_age: {
