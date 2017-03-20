@@ -329,7 +329,7 @@ module.exports = function (log, error) {
 
       // update securityEvents table
       (securityEvents[uid] || []).forEach(function (ev) {
-        if (ev.tokenId.toString('hex') === tokenId) {
+        if (ev.tokenId && ev.tokenId.toString('hex') === tokenId) {
           ev.verified = true
         }
       })
@@ -898,7 +898,7 @@ module.exports = function (log, error) {
       addr = '::' + addr
     }
 
-    var verified = (data.tokenId && !unverifiedTokens[data.tokenId.toString('hex')])
+    var verified = !data.tokenId || !unverifiedTokens[data.tokenId.toString('hex')]
 
     var event = {
       createdAt: Date.now(),
@@ -932,7 +932,7 @@ module.exports = function (log, error) {
         createdAt: ev.createdAt,
         verified: ev.verified
       }
-    }))
+    }).reverse())
   }
 
   Memory.prototype.createUnblockCode = function (uid, code) {

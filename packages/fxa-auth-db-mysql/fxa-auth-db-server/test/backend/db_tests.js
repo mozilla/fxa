@@ -1585,6 +1585,7 @@ module.exports = function(config, DB) {
 
             var evA = 'account.login'
             var evB = 'account.create'
+            var evC = 'account.reset'
 
             var sessionId1 = hex32()
             var sessionId2 = hex32()
@@ -1635,38 +1636,49 @@ module.exports = function(config, DB) {
                   createSession(sessionId2, session2),
                   createSession(sessionId3, session3)
                 ])
+                // Don't paralleize these, the order of them matters
+                // because they record timestamps in the db.
                 .then(function () {
-                  return P.all([
-                    insert(uid1, addr1, evB, sessionId1),
-                    insert(uid1, addr1, evA, sessionId2),
-                    insert(uid1, addr2, evA, sessionId3),
-                    insert(uid2, addr1, evA, hex32())
-                  ])
+                  return insert(uid1, addr1, evA, sessionId2).then(P.delay.bind(P, 1))
+                })
+                .then(function () {
+                  return insert(uid1, addr1, evB, sessionId1).then(P.delay.bind(P, 1))
+                })
+                .then(function () {
+                  return insert(uid1, addr1, evC).then(P.delay.bind(P, 1))
+                })
+                .then(function () {
+                  return insert(uid1, addr2, evA, sessionId3).then(P.delay.bind(P, 1))
+                })
+                .then(function () {
+                  return insert(uid2, addr1, evA, hex32())
                 })
               },
 
               testGetEvent: query(
                 uid1, addr1,
                 function (results) {
-                  t.equal(results.length, 2, 'two events for uid and addr')
-                  // order may differ depending on which query finishes first
-                  var a = results[1].name === evA ? 1 : 0
-                  var b = Number(!a)
-                  t.equal(results[b].name, evB, 'correct event name')
-                  t.equal(!!results[b].verified, false, 'first session is not verified yet')
-                  t.ok(results[b].createdAt < Date.now(), 'createdAt is set')
-                  t.equal(results[a].name, evA, 'correct event name')
-                  t.equal(!!results[a].verified, true, 'second session is verified')
-                  t.ok(results[a].createdAt < Date.now(), 'createdAt is set')
+                  t.equal(results.length, 3, 'three events for uid and addr')
+                  // The most recent event is returned first.
+                  t.equal(results[0].name, evC, 'correct event name')
+                  t.equal(!!results[0].verified, true, 'event without a session is already verified')
+                  t.ok(results[0].createdAt < Date.now(), 'createdAt is set')
+                  t.equal(results[1].name, evB, 'correct event name')
+                  t.equal(!!results[1].verified, false, 'second session is not verified yet')
+                  t.ok(results[1].createdAt < results[0].createdAt, 'createdAt is lower than previous event')
+                  t.equal(results[2].name, evA, 'correct event name')
+                  t.equal(!!results[2].verified, true, 'first session is already verified')
+                  t.ok(results[2].createdAt < results[1].createdAt, 'createdAt is lower than previous event')
                 }
               ),
 
               testGetEventAfterSessionVerified: function () {
                 return verifySession(session1.tokenVerificationId, uid1)
                   .then(query(uid1, addr1, function (results) {
-                    t.equal(results.length, 2, 'two events for uid and addr')
+                    t.equal(results.length, 3, 'three events for uid and addr')
                     t.equal(!!results[0].verified, true, 'first session verified')
                     t.equal(!!results[1].verified, true, 'second session verified')
+                    t.equal(!!results[2].verified, true, 'third session verified')
                   }))
               },
 
@@ -1691,7 +1703,7 @@ module.exports = function(config, DB) {
               testGetWithIPv6: query(
                 uid1, '::' + addr1,
                 function (results) {
-                  t.equal(results.length, 2, 'two events for ipv6 addr')
+                  t.equal(results.length, 3, 'three events for ipv6 addr')
                 }
               ),
 
