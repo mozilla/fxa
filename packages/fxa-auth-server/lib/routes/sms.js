@@ -16,7 +16,7 @@ module.exports = (log, isA, error, config, customs, sms) => {
   }
 
   const getGeoData = require('../geodb')(log)
-  const REGIONS = config.sms.regions
+  const REGIONS = new Set(config.sms.regions)
   const SENDER_IDS = config.sms.senderIds
 
   return [
@@ -107,7 +107,7 @@ module.exports = (log, isA, error, config, customs, sms) => {
 
         function getLocation () {
           return getGeoData(request.app.clientAddress)
-            .then(result => REGIONS.test(result.location.countryCode))
+            .then(result => REGIONS.has(result.location.countryCode))
             .catch(err => {
               log.error({ op: 'sms.getGeoData', err: err })
               throw error.unexpectedError()

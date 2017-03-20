@@ -299,7 +299,7 @@ describe('/sms/status', () => {
     config = {
       sms: {
         enabled: true,
-        regions: /^US$/
+        regions: [ 'US' ]
       }
     }
     geodb = sinon.spy(() => geodbResult)
