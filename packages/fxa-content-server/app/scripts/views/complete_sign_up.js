@@ -150,10 +150,18 @@ define(function (require, exports, module) {
       const account = this.getAccount();
       const relier = this.relier;
 
-      return p()
-        .then(() => {
-          if (relier.isSync()) {
-            if (this._isEligibleToConnectAnotherDevice(account)) {
+      return p().then(() => {
+        if (relier.isSync()) {
+          return p.all([
+            this._isEligibleToSendSms(account),
+            this._isEligibleToConnectAnotherDevice(account)
+          ]).spread((isEligibleToSendSms, isEligibleToConnectAnotherDevice) => {
+            if (isEligibleToSendSms) {
+              // Sync users that are part of the experiment group who verify
+              // are sent to "connect another device". If the experiment proves
+              // useful, all users will be sent there.
+              this.navigate('sms', { account });
+            } else if (isEligibleToConnectAnotherDevice) {
               // Sync users that are part of the experiment group who verify
               // are sent to "connect another device". If the experiment proves
               // useful, all users will be sent there.
@@ -161,25 +169,26 @@ define(function (require, exports, module) {
             } else {
               this._navigateToVerifiedScreen();
             }
-          } else if (relier.isOAuth()) {
-            // If an OAuth user makes it here, they are either not signed in
-            // or are verifying in a different tab. Show the "Account
-            // verified!" screen to the user, the correct tab will have
-            // already transitioned back to the relier.
-            this._navigateToVerifiedScreen();
-          } else {
-            return account.isSignedIn()
-              .then((isSignedIn) => {
-                if (isSignedIn) {
-                  this.navigate('settings', {
-                    success: t('Account verified successfully')
-                  });
-                } else {
-                  this._navigateToVerifiedScreen();
-                }
-              });
-          }
-        });
+          });
+        } else if (relier.isOAuth()) {
+          // If an OAuth user makes it here, they are either not signed in
+          // or are verifying in a different tab. Show the "Account
+          // verified!" screen to the user, the correct tab will have
+          // already transitioned back to the relier.
+          this._navigateToVerifiedScreen();
+        } else {
+          return account.isSignedIn()
+            .then((isSignedIn) => {
+              if (isSignedIn) {
+                this.navigate('settings', {
+                  success: t('Account verified successfully')
+                });
+              } else {
+                this._navigateToVerifiedScreen();
+              }
+            });
+        }
+      });
     },
 
     /**
@@ -195,10 +204,8 @@ define(function (require, exports, module) {
         return false;
       }
 
-      const user = this.user;
       const isInExperimentGroup = this.isInExperimentGroup('connectAnotherDevice', 'treatment');
-      const isAnotherUserSignedIn =
-        (! user.getSignedInAccount().isDefault() && ! user.isSignedInAccount(verifiedAccount));
+      const isAnotherUserSignedIn = this._isAnotherUserSignedIn(verifiedAccount);
 
       if (isInExperimentGroup && isAnotherUserSignedIn) {
         // log that another user is signed in to see how often this happens.
@@ -208,6 +215,43 @@ define(function (require, exports, module) {
       // If a user is already signed in to Sync which is different to the
       // user that just verified, show them the old "Account verified!" screen.
       return isInExperimentGroup && ! isAnotherUserSignedIn;
+    },
+
+    /**
+     * Check if the user is eligible to send an _isEligibleToSendSms
+     *
+     * @param {Object} verifiedAccount - account that was just verified.
+     * @returns {Promise} - resolves to `true` if user can send an SMS,
+     *  `false` otw.
+     * @private
+     */
+    _isEligibleToSendSms (verifiedAccount) {
+      return p().then(() => {
+        if (this.isSignIn()) {
+          return false;
+        }
+
+        const isInExperimentGroup = this.isInExperimentGroup('sendSms', 'treatment');
+        const isAnotherUserSignedIn = this._isAnotherUserSignedIn(verifiedAccount);
+
+        // If a user is already signed in to Sync which is different to the
+        // user that just verified, show them the old "Account verified!" screen.
+        return isInExperimentGroup && ! isAnotherUserSignedIn;
+      });
+    },
+
+    /**
+     * Check if an account that is not `account` is signed in.
+     *
+     * @param {Object} account account to check.
+     * @returns {Boolean} `true` if another user is signed in, `false` otw.
+     * @private
+     */
+    _isAnotherUserSignedIn(account) {
+      const user = this.user;
+      return (! user.getSignedInAccount().isDefault() &&
+              ! user.isSignedInAccount(account));
+
     },
 
     /**

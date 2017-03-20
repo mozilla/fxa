@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const BaseExperiment = require('lib/experiments/base');
   const ConnectAnotherDeviceExperiment = require('lib/experiments/connect-another-device');
   const Url = require('lib/url');
 
@@ -14,7 +15,10 @@ define(function (require, exports, module) {
   const UA_OVERRIDE = 'FxATester';
 
   const ALL_EXPERIMENTS = {
-    'connectAnotherDevice': ConnectAnotherDeviceExperiment
+    'connectAnotherDevice': ConnectAnotherDeviceExperiment,
+    // For now, the send SMS experiment only needs to log "enrolled", so
+    // no special experiment is created.
+    'sendSms': BaseExperiment
   };
 
   function ExperimentInterface (options) {
@@ -67,7 +71,7 @@ define(function (require, exports, module) {
     _allExperiments: ALL_EXPERIMENTS,
 
     /**
-     * Destory all active experiments.
+     * Destroy all active experiments.
      */
     destroy () {
       for (let expName in this._activeExperiments) {
