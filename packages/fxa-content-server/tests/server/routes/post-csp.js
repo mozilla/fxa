@@ -123,7 +123,6 @@ define([
   };
 
   suite['#post csp - returns 400 if CSP report is invalid'] = {
-    'blocked-uri ()': testInvalidCspValue('blocked-uri', ''),
     'blocked-uri not a URL (1)': testInvalidCspValue('blocked-uri', 1),
     'column-number negative (-1)': testInvalidCspValue('column-number', -1),
     'column-number not a number (a)': testInvalidCspValue('column-number', 'a'),
@@ -155,8 +154,10 @@ define([
   };
 
   suite['#post csp - returns 200 if CSP report is valid'] = {
+    'blocked-uri (empty)': testValidCspValue('blocked-uri', ''),
     'blocked-uri (eval)': testValidCspValue('blocked-uri', 'eval'),
     'blocked-uri (inline)': testValidCspValue('blocked-uri', 'inline'),
+    'blocked-uri (null)': testValidCspValue('blocked-uri'),
     'blocked-uri (self)': testValidCspValue('blocked-uri', 'self'),
     'column-number missing': testValidCspValue('column-number', undefined),
     'disposition missing': testValidCspValue('disposition', undefined),

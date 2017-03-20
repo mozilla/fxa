@@ -48,7 +48,8 @@ define([
     'valid screen.height (none)': testValidMetricsScreenField('height', 'none'),
     'valid screen.width (none)': testValidMetricsScreenField('width', 'none'),
     'valid uniqueUserId (none)': testValidMetricsField('uniqueUserId', 'none'),
-    'valid utm_campaign (from firstrun)': testValidMetricsField('utm_campaign', 'page&#x2b;referral&#x2b;-&#x2b;not&#x2b;part&#x2b;of&#x2b;a&#x2b;campaign')
+    'valid utm_campaign (from firstrun)': testValidMetricsField('utm_campaign', 'page+referral+-+not+part+of+a+campaign'),
+    'valid utm_content': testValidMetricsField('utm_campaign', 'firefox/sync')
   };
 
   suite['#post /metrics - returns 400 with invalid data'] = {

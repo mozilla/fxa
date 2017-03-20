@@ -20,7 +20,7 @@ const BODY_SCHEMA = {
   'csp-report': joi.object().keys({
     // CSP 2, 3 required
     // `eval` and `inline` are specified in CSP 3 and sent by Chrome
-    'blocked-uri': URL_TYPE.allow('eval').allow('inline').allow('self').required(),
+    'blocked-uri': URL_TYPE.allow('eval').allow('inline').allow('self').allow('').optional(),
     // CSP 2, 3 optional
     'column-number': INTEGER_TYPE.min(0).optional(),
     // CSP 3 required, but not always sent

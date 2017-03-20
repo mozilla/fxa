@@ -51,6 +51,7 @@ define([
     'tags.errno ()': testValidTagValue('errno', undefined),
     'tags.errno (400)': testValidTagValue('errno', 400),
     'tags.errno (Error)': testValidTagValue('errno', 'Error'),
+    'tags.errno (QuotaRandomError)': testValidTagValue('errno', 'QuotaRandomError'),
   };
 
   suite['#post /metrics-errors - returns 400 with invalid body'] = function () {

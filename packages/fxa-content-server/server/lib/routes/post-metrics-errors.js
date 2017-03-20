@@ -63,7 +63,7 @@ const BODY_SCHEMA = {
   tags: joi.object().keys({
     code: INTEGER_TYPE.min(0).optional(),
     context: STRING_TYPE.regex(ERROR_CONTEXT_PATTERN).optional(),
-    errno: INTEGER_TYPE.min(0).allow('Error').optional(), // localStorage errors have an errno of Error
+    errno: joi.optional(), // errno can be an int or a string (errnoQuotaExceededError, Error, etc)
     namespace: STRING_TYPE.optional(),
     status: INTEGER_TYPE.min(0).optional()
   }).optional()

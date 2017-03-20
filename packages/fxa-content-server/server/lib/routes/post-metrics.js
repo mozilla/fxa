@@ -99,7 +99,7 @@ const BODY_SCHEMA = {
   timers: joi.object().optional(), // this is never consumed.
   uniqueUserId: STRING_TYPE.regex(UNIQUE_USER_ID_PATTERN).allow('none').required(),
   // the crazy long allow comes from the firstrun page.
-  'utm_campaign': UTM_TYPE.allow('page&#x2b;referral&#x2b;-&#x2b;not&#x2b;part&#x2b;of&#x2b;a&#x2b;campaign').required(),
+  'utm_campaign': UTM_TYPE.allow('page+referral+-+not+part+of+a+campaign').required(),
   'utm_content': UTM_TYPE.required(),
   'utm_medium': UTM_TYPE.required(),
   'utm_source': UTM_TYPE.required(),
