@@ -116,7 +116,6 @@ module.exports = config => {
         service: options.service || undefined,
         redirectTo: options.redirectTo || undefined,
         resume: options.resume || undefined,
-        preVerifyToken: options.preVerifyToken || undefined,
         device: options.device || undefined,
         metricsContext: options.metricsContext || undefined
       },

@@ -9,9 +9,6 @@ var isA = require('joi')
 // Match any non-empty hex-encoded string.
 module.exports.HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-// Match an encoded JWT.
-module.exports.BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/
-
 module.exports.URLSAFEBASE64 = /^[a-zA-Z0-9-_]*$/
 
 module.exports.BASE_36 = /^[a-zA-Z0-9]*$/

@@ -6,7 +6,6 @@
 
 var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
-var BASE64_JWT = validators.BASE64_JWT
 var DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
 var URLSAFEBASE64 = validators.URLSAFEBASE64
 var BASE_36 = validators.BASE_36
@@ -41,7 +40,6 @@ module.exports = function (
   Password,
   config,
   customs,
-  isPreVerified,
   checkPassword,
   push,
   devices
@@ -82,7 +80,6 @@ module.exports = function (
             service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
-            preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
@@ -105,8 +102,9 @@ module.exports = function (
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
         var service = form.service || query.service
+        var preVerified = !! form.preVerified
         const ip = request.app.clientAddress
-        var preVerified, password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, authSalt
+        var password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, authSalt
 
         request.validateMetricsContext()
 
@@ -120,7 +118,7 @@ module.exports = function (
         customs.check(request, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
           .then(deleteAccountIfUnverified, ignoreUnknownAccountError)
-          .then(checkPreVerified)
+          .then(setMetricsFlowCompleteSignal)
           .then(generateRandomValues)
           .then(createPassword)
           .then(createAccount)
@@ -146,25 +144,17 @@ module.exports = function (
           }
         }
 
-        function checkPreVerified () {
-          return isPreVerified(form.email, form.preVerifyToken)
-            .then(
-              function (result) {
-                preVerified = result
+        function setMetricsFlowCompleteSignal () {
+          let flowCompleteSignal
+          if (service === 'sync') {
+            flowCompleteSignal = 'account.signed'
+          } else {
+            flowCompleteSignal = 'account.verified'
+          }
+          request.setMetricsFlowCompleteSignal(flowCompleteSignal)
 
-                let flowCompleteSignal
-                if (service === 'sync') {
-                  flowCompleteSignal = 'account.signed'
-                } else if (preVerified) {
-                  flowCompleteSignal = 'account.created'
-                } else {
-                  flowCompleteSignal = 'account.verified'
-                }
-                request.setMetricsFlowCompleteSignal(flowCompleteSignal)
-              }
-            )
+          return P.resolve()
         }
-
         function generateRandomValues() {
           return random(16)
             .then(bytes => {
@@ -205,7 +195,7 @@ module.exports = function (
             createdAt: Date.now(),
             email: email,
             emailCode: emailCode,
-            emailVerified: form.preVerified || preVerified,
+            emailVerified: preVerified,
             kA: bytes.slice(0, 32), // 0..31
             wrapWrapKb: bytes.slice(32), // 32..63
             accountResetToken: null,

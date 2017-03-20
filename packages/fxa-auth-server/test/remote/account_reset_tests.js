@@ -82,7 +82,7 @@ describe('remote account reset', function() {
         .then(
           function () {
             // make sure we can still login after password reset
-            return Client.login(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
+            return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
           }
         )
         .then(
@@ -163,7 +163,7 @@ describe('remote account reset', function() {
         .then(
           function () {
             // make sure we can still login after password reset
-            return Client.login(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
+            return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
           }
         )
         .then(

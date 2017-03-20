@@ -24,8 +24,12 @@ module.exports = function (host, port, printLogs) {
     return waitForEmail(email)
       .then(
         function (emailData) {
-          return emailData.headers['x-verify-code'] ||
-                 emailData.headers['x-recovery-code']
+          var code =  emailData.headers['x-verify-code'] ||
+                      emailData.headers['x-recovery-code']
+          if (! code) {
+            throw new Error('email did not contain a verification code')
+          }
+          return code
         }
       )
   }

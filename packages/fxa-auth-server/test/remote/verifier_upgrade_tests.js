@@ -83,7 +83,7 @@ describe('remote verifier upgrade', function() {
         .then(
           function (server) {
             var client
-            return Client.loginAndVerify(config.publicUrl, email, password, server.mailbox)
+            return Client.login(config.publicUrl, email, password, server.mailbox)
               .then(
                 function (x) {
                   client = x

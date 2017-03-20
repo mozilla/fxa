@@ -42,7 +42,6 @@ var makeRoutes = function (options, requireMocks) {
   var log = options.log || mocks.mockLog()
   var Password = options.Password || require('../../../lib/crypto/password')(log, config)
   var db = options.db || mocks.mockDB()
-  var isPreVerified = require('../../../lib/preverifier')(error, config)
   var customs = options.customs || {
     check: function () { return P.resolve(true) }
   }
@@ -60,7 +59,6 @@ var makeRoutes = function (options, requireMocks) {
     Password,
     config,
     customs,
-    isPreVerified,
     checkPassword,
     push,
     options.devices || require('../../../lib/devices')(log, db, push)

@@ -22,7 +22,6 @@ module.exports = function (
   config,
   customs
   ) {
-  const isPreVerified = require('../preverifier')(error, config)
   const defaults = require('./defaults')(log, P, db, error)
   const idp = require('./idp')(log, serverPublicKeys)
   const checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
@@ -40,7 +39,6 @@ module.exports = function (
     Password,
     config,
     customs,
-    isPreVerified,
     checkPassword,
     push,
     devices

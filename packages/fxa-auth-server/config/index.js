@@ -87,11 +87,6 @@ var conf = convict({
     default: undefined,
     env: 'OLD_PUBLIC_KEY_FILE'
   },
-  trustedJKUs: {
-    format: Array,
-    default: [],
-    env: 'TRUSTED_JKUS'
-  },
   vapidKeysFile: {
     doc: 'Keys to use for VAPID in push notifications',
     format: String,
