@@ -139,7 +139,8 @@ describe(
 
               if (type === 'verificationReminderEmail') {
                 // Handle special case for verification reminders
-                assert.equal(templateName, 'verificationReminderFirstEmail' || 'verificationReminderSecondEmail')
+                assert.ok(templateName === 'verificationReminderFirstEmail' ||
+                  templateName === 'verificationReminderSecondEmail')
               } else if (type === 'verifyEmail') {
                 // Handle special case for verify email
                 assert.equal(templateName, 'verifySyncEmail')
