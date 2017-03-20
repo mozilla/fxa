@@ -64,12 +64,11 @@ module.exports = function (limits, now) {
   }
 
   SMSRecord.prototype.update = function (action) {
-
-    if (this.isRateLimited()) {
-      return this.retryAfter()
-    }
-
     if (actions.isSmsSendingAction(action)) {
+      if (this.isRateLimited()) {
+        return this.retryAfter()
+      }
+
       this.addHit()
 
       if (this.isOverSmsLimit()) {

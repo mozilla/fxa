@@ -110,7 +110,7 @@ module.exports = function (fs, path, url, convict) {
       smsRateLimit: {
         limitIntervalSeconds: {
           doc: 'Duration of automatic throttling for sms',
-          default: 60 * 15,
+          default: 60 * 60,
           format: 'nat',
           env: 'SMS_RATE_LIMIT_INTERVAL_SECONDS'
         },
