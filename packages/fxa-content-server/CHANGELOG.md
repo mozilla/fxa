@@ -1,3 +1,38 @@
+<a name="1.83.0"></a>
+# 1.83.0 (2017-03-20)
+
+
+### Bug Fixes
+
+* **auth_errors:** User received an error message saying no message ([408d692](https://github.com/mozilla/fxa-content-server/commit/408d692))
+* **change_password:** Field specific error message when password is same. ([4262abd](https://github.com/mozilla/fxa-content-server/commit/4262abd))
+* **change_password:** Made "Incorrect Password" error field specific ([ad0048a](https://github.com/mozilla/fxa-content-server/commit/ad0048a))
+* **config:** allow env vars for experiment config (#4785) r=philbooth ([ea2c538](https://github.com/mozilla/fxa-content-server/commit/ea2c538)), closes [#4780](https://github.com/mozilla/fxa-content-server/issues/4780)
+* **config:** env vars for config page_template_subdirectory,static_directory (#4803) r=vladik ([f94bb48](https://github.com/mozilla/fxa-content-server/commit/f94bb48))
+* **CWTS:** Ensure `destroy` calls the parent. (#4808) r=@philbooth ([397afaf](https://github.com/mozilla/fxa-content-server/commit/397afaf))
+* **CWTS:** Fix styles for the trustedUI (#4786) r=vladikoff ([e6aa57b](https://github.com/mozilla/fxa-content-server/commit/e6aa57b)), closes [(#4786](https://github.com/(/issues/4786) [#4749](https://github.com/mozilla/fxa-content-server/issues/4749)
+* **display_name:** button now says Add when display name hasn't been set ([ef7b6b6](https://github.com/mozilla/fxa-content-server/commit/ef7b6b6))
+* **preferences:** add specific error msg for rate-limiting error (#4812) r=vladikoff ([236d172](https://github.com/mozilla/fxa-content-server/commit/236d172))
+* **server:** fix undefined dereference in perf flow events (#4822) r=vladikoff ([05ed9ee](https://github.com/mozilla/fxa-content-server/commit/05ed9ee)), closes [(#4822](https://github.com/(/issues/4822)
+* **server:** fix undefined dereference in perf flow events (#4822) r=vladikoff (#4824) ([a142805](https://github.com/mozilla/fxa-content-server/commit/a142805)), closes [(#4822](https://github.com/(/issues/4822) [(#4824](https://github.com/(/issues/4824)
+* **sign_in:** Making incorrect password error message field specific on Sign in page ([c28061f](https://github.com/mozilla/fxa-content-server/commit/c28061f))
+* **signup:** decrease checkbox line height for email opt-in on signup page (#4797) r=vladikof ([5935bf9](https://github.com/mozilla/fxa-content-server/commit/5935bf9)), closes [#4707](https://github.com/mozilla/fxa-content-server/issues/4707)
+* **teamcity:** add config for fxadevtest box ([45705ba](https://github.com/mozilla/fxa-content-server/commit/45705ba))
+* **version:** use use cwd and env var to get version ([9287337](https://github.com/mozilla/fxa-content-server/commit/9287337))
+
+### Features
+
+* **CAD:** Add flow metrics for connect another device. (#4787) r=@philbooth ([65a70b0](https://github.com/mozilla/fxa-content-server/commit/65a70b0)), closes [#4783](https://github.com/mozilla/fxa-content-server/issues/4783)
+* **sms:** Allow the user to resend and go "back" from /sms/sent (#4777) r=@vbudhram ([8a2c5e7](https://github.com/mozilla/fxa-content-server/commit/8a2c5e7))
+* **sms:** Use Able to decide if user should see /sms (#4792) r=vladikoff ([8b19765](https://github.com/mozilla/fxa-content-server/commit/8b19765))
+* **websessions:** add Sessions to client list (#4628) r=stomlinson,vbudhram ([4c1a8cd](https://github.com/mozilla/fxa-content-server/commit/4c1a8cd))
+
+### Refactor
+
+* **experiments:** Simplify the experiment architecture (#4809) r=vladikoff ([95b122f](https://github.com/mozilla/fxa-content-server/commit/95b122f))
+
+
+
 <a name="1.82.0"></a>
 # 1.82.0 (2017-03-06)
 
