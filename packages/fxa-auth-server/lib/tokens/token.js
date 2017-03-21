@@ -40,28 +40,34 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
     this.algorithm = 'sha256'
     this.uid = details.uid || null
     this.lifetime = details.lifetime || Infinity
-    this.createdAt = optionallyOverrideCreatedAt(details.createdAt)
+    this.createdAt = details.createdAt || 0
   }
 
   function optionallyOverrideCreatedAt (timestamp) {
     var now = Date.now()
-
-    if (! config.isProduction && timestamp >= 0 && timestamp < now) {
-      // In the wild, all tokens should have a fresh createdAt timestamp.
-      // For testing purposes only, allow createdAt to be overridden.
-      return timestamp
+    if (config.isProduction) {
+      return now
     }
-
-    return now
+    if (typeof timestamp !== 'number' || isNaN(timestamp)) {
+      return now
+    }
+    if (timestamp < 0 || timestamp > now) {
+      return now
+    }
+    return timestamp
   }
 
   // Create a new token of the given type.
   // This uses randomly-generated seed data to derive the keys.
   //
   Token.createNewToken = function(TokenType, details) {
-    if (details.createdAt) {
-      // We don't expect this to be set outside the tests so log an error
-      // if we do encounter it, to help debug what's going on.
+    // Avoid modifying the argument.
+    details = Object.assign({}, details)
+    // In the wild, all tokens should have a fresh createdAt timestamp.
+    // For testing purposes only, allow createdAt to be overridden.
+    // We don't expect this to be set outside the tests, so log an error
+    // if we do encounter it, to help debug what's going on.
+    if (typeof details.createdAt !== 'undefined') {
       const err = new Error('Unexpected createdAt data')
       log.error({
         op: 'token.createNewToken',
@@ -71,9 +77,10 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
         stack: err.stack
       })
     }
+    details.createdAt = optionallyOverrideCreatedAt(details.createdAt)
     return random(32)
       .then(bytes => Token.deriveTokenKeys(TokenType, bytes))
-      .then(keys => new TokenType(keys, details || {}))
+      .then(keys => new TokenType(keys, details))
   }
 
 
@@ -81,20 +88,9 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
   // This uses known seed data to derive the keys.
   //
   Token.createTokenFromHexData = function(TokenType, hexData, details) {
-    var d = P.defer()
     var data = Buffer(hexData, 'hex')
-    Token.deriveTokenKeys(TokenType, data)
-      .then(
-        function (keys) {
-          d.resolve(new TokenType(keys, details || {}))
-        }
-      )
-      .catch(
-        function (err) {
-          d.reject(err)
-        }
-      )
-    return d.promise
+    return Token.deriveTokenKeys(TokenType, data)
+      .then(keys => new TokenType(keys, details || {}))
   }
 
 

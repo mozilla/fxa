@@ -21,7 +21,7 @@ const SessionToken = tokens.SessionToken
 
 const TOKEN_FRESHNESS_THRESHOLD = require('../../../lib/tokens/session_token').TOKEN_FRESHNESS_THREADHOLD
 
-const ACCOUNT = {
+const TOKEN = {
   createdAt: Date.now(),
   uid: 'xxx',
   email: Buffer('test@example.com').toString('hex'),
@@ -34,7 +34,7 @@ describe('SessionToken', () => {
   it(
     'interface is correct',
     () => {
-      return SessionToken.create(ACCOUNT)
+      return SessionToken.create(TOKEN)
         .then(token => {
           assert.equal(typeof token.lastAuthAt, 'function', 'lastAuthAt method is defined')
           assert.equal(typeof token.update, 'function', 'update method is defined')
@@ -46,7 +46,7 @@ describe('SessionToken', () => {
           assert.equal(args.length, 1, 'log.error was passed one argument')
           assert.equal(args[0].op, 'token.createNewToken', 'log.error was passed correct op')
           assert.equal(args[0].TokenType, 'SessionToken', 'log.error was passed correct TokenType')
-          assert.equal(args[0].createdAt, ACCOUNT.createdAt, 'log.error was passed correct createdAt')
+          assert.equal(args[0].createdAt, TOKEN.createdAt, 'log.error was passed correct createdAt')
           assert.ok(args[0].err instanceof Error, 'log.error was passed valid err')
           assert.equal(args[0].err.message, 'Unexpected createdAt data', 'log.error was passed correct error message')
           assert.equal(args[0].stack, args[0].err.stack, 'log.error was passed correct stack')
@@ -59,16 +59,15 @@ describe('SessionToken', () => {
     're-creation from tokenData works',
     () => {
       var token = null
-      return SessionToken.create(ACCOUNT)
+      return SessionToken.create(TOKEN)
         .then(
           function (x) {
             token = x
-            assert.equal(token.accountCreatedAt, ACCOUNT.createdAt)
           }
         )
         .then(
           function () {
-            return SessionToken.fromHex(token.data, ACCOUNT)
+            return SessionToken.fromHex(token.data, TOKEN)
           }
         )
         .then(
@@ -81,7 +80,7 @@ describe('SessionToken', () => {
             assert.equal(token.email, token2.email)
             assert.equal(token.emailCode, token2.emailCode)
             assert.equal(token.emailVerified, token2.emailVerified)
-            assert.equal(token.accountCreatedAt, token2.accountCreatedAt)
+            assert.equal(token.createdAt, token2.createdAt)
             assert.equal(token.tokenVerified, token2.tokenVerified)
             assert.equal(token.tokenVerificationId, token2.tokenVerificationId)
           }
@@ -101,9 +100,7 @@ describe('SessionToken', () => {
         function (token) {
           var now = Date.now()
           assert.ok(token.createdAt > now - 1000 && token.createdAt <= now)
-          assert.equal(token.accountCreatedAt, null)
-
-          assert.equal(log.error.callCount, 0, 'log.error was not called')
+          assert.equal(log.error.callCount, 1, 'log.error was called')
         }
       )
     }
@@ -114,7 +111,7 @@ describe('SessionToken', () => {
     () => {
       var token = null
       var tokenData = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf'
-      return SessionToken.fromHex(tokenData, ACCOUNT)
+      return SessionToken.fromHex(tokenData, TOKEN)
         .then(
           function (x) {
             token = x
@@ -129,7 +126,7 @@ describe('SessionToken', () => {
   it(
     'SessionToken.setUserAgentInfo',
     () => {
-      return SessionToken.create(ACCOUNT)
+      return SessionToken.create(TOKEN)
         .then(function (token) {
           token.setUserAgentInfo({
             data: 'foo',
@@ -145,7 +142,6 @@ describe('SessionToken', () => {
             emailVerified: 'foo',
             verifierSetAt: 'foo',
             locale: 'foo',
-            accountCreatedAt: 'foo',
             uaBrowser: 'foo',
             uaBrowserVersion: 'bar',
             uaOS: 'baz',
@@ -165,7 +161,6 @@ describe('SessionToken', () => {
           assert.notEqual(token.emailVerified, 'foo', 'emailVerified was not updated')
           assert.notEqual(token.verifierSetAt, 'foo', 'verifierSetAt was not updated')
           assert.notEqual(token.locale, 'foo', 'locale was not updated')
-          assert.notEqual(token.accountCreatedAt, 'foo', 'accountCreatedAt was not updated')
           assert.equal(token.uaBrowser, 'foo', 'uaBrowser was updated')
           assert.equal(token.uaBrowserVersion, 'bar', 'uaBrowserVersion was updated')
           assert.equal(token.uaOS, 'baz', 'uaOS was updated')

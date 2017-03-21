@@ -21,7 +21,6 @@ describe('/certificate/sign', () => {
   const mockLog = mocks.spyLog()
   const mockRequest = mocks.mockRequest({
     credentials: {
-      accountCreatedAt: Date.now(),
       emailVerified: true,
       lastAuthAt: function () {
         return Date.now()
@@ -67,7 +66,6 @@ describe('/certificate/sign', () => {
       args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
-        account_created_at: mockRequest.auth.credentials.accountCreatedAt,
         device_id: deviceId.toString('hex'),
         event: 'account.signed',
         service: undefined,

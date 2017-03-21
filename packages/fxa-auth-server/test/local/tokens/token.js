@@ -5,7 +5,7 @@
 'use strict'
 
 const assert = require('insist')
-var crypto = require('crypto')
+var random = require('../../../lib/crypto/random')
 var hkdf = require('../../../lib/crypto/hkdf')
 var mocks = require('../../mocks')
 var P = require('../../../lib/promise')
@@ -26,13 +26,20 @@ describe('Token', () => {
       delete require.cache[require.resolve(modulePath)]
       delete require.cache[require.resolve('../../../config')]
       process.env.NODE_ENV = 'dev'
-      Token = require(modulePath)(log, crypto, P, hkdf, Bundle, null)
+      Token = require(modulePath)(log, random, P, hkdf, Bundle, null)
     })
 
     it('Token constructor was exported', () => {
       assert.equal(typeof Token, 'function', 'Token is function')
       assert.equal(Token.name, 'Token', 'function is called Token')
       assert.equal(Token.length, 2, 'function expects two arguments')
+    })
+
+    it('Token constructor has expected factory methods', () => {
+      assert.equal(typeof Token.createNewToken, 'function', 'Token.createNewToken is function')
+      assert.equal(Token.createNewToken.length, 2, 'function expects two arguments')
+      assert.equal(typeof Token.createTokenFromHexData, 'function', 'Token.createTokenFromHexData is function')
+      assert.equal(Token.createTokenFromHexData.length, 3, 'function expects three arguments')
     })
 
     it('Token constructor sets createdAt', () => {
@@ -42,18 +49,52 @@ describe('Token', () => {
       assert.equal(token.createdAt, now, 'token.createdAt is correct')
     })
 
-    it('Token constructor does not set createdAt if it is negative', () => {
-      var notNow = -Date.now()
-      var token = new Token({}, { createdAt: notNow })
-
-      assert.ok(token.createdAt > 0, 'token.createdAt seems correct')
+    it('Token constructor defaults createdAt to zero if not given a value', () => {
+      var token = new Token({}, {})
+      assert.equal(token.createdAt, 0, 'token.createdAt is correct')
     })
 
-    it('Token constructor does not set createdAt if it is in the future', () => {
-      var notNow = Date.now() + 1000
-      var token = new Token({}, { createdAt: notNow })
+    it('Token.createNewToken defaults createdAt to the current time', () => {
+      var now = Date.now()
+      return Token.createNewToken(Token, {}).then(token => {
+        assert.ok(token.createdAt >= now && token.createdAt <= Date.now(), 'token.createdAt seems correct')
+      })
+    })
 
-      assert.ok(token.createdAt > 0 && token.createdAt < notNow, 'token.createdAt seems correct')
+    it('Token.createNewToken accepts an override for createdAt', () => {
+      var now = Date.now() - 1
+      return Token.createNewToken(Token, { createdAt: now }).then(token => {
+        assert.equal(token.createdAt, now, 'token.createdAt is correct')
+      })
+    })
+
+    it('Token.createNewToken ignores a negative value for createdAt', () => {
+      var now = Date.now()
+      var notNow = -now
+      return Token.createNewToken(Token, { createdAt: notNow }).then(token => {
+        assert.ok(token.createdAt >= now && token.createdAt <= Date.now(), 'token.createdAt seems correct')
+      })
+    })
+
+    it('Token.createNewToken ignores a createdAt timestamp in the future', () => {
+      var now = Date.now()
+      var notNow = Date.now() + 1000
+      return Token.createNewToken(Token, { createdAt: notNow }).then(token => {
+        assert.ok(token.createdAt >= now && token.createdAt <= Date.now(), 'token.createdAt seems correct')
+      })
+    })
+
+    it('Token.createTokenFromHexData accepts a value for createdAt', () => {
+      var now = Date.now() - 20
+      return Token.createTokenFromHexData(Token, 'ABCD', { createdAt: now }).then(token => {
+        assert.equal(token.createdAt, now, 'token.createdAt is correct')
+      })
+    })
+
+    it('Token.createTokenFromHexData defaults to zero if not given a value for createdAt', () => {
+      return Token.createTokenFromHexData(Token, 'ABCD', { other: 'data' }).then(token => {
+        assert.equal(token.createdAt, 0, 'token.createdAt is correct')
+      })
     })
   })
 
@@ -63,14 +104,34 @@ describe('Token', () => {
       delete require.cache[require.resolve(modulePath)]
       delete require.cache[require.resolve('../../../config')]
       process.env.NODE_ENV = 'prod'
-      Token = require(modulePath)(log, crypto, P, hkdf, Bundle, null)
+      Token = require(modulePath)(log, random, P, hkdf, Bundle, null)
     })
 
-    it('Token constructor does not set createdAt', () => {
-      var notNow = Date.now() - 1
-      var token = new Token({}, { createdAt: notNow })
+    it('Token.createNewToken defaults createdAt to the current time', () => {
+      var now = Date.now()
+      return Token.createNewToken(Token, {}).then(token => {
+        assert.ok(token.createdAt >= now && token.createdAt <= Date.now(), 'token.createdAt seems correct')
+      })
+    })
 
-      assert.ok(token.createdAt > notNow, 'token.createdAt seems correct')
+    it('Token.createNewToken does not accept an override for createdAt', () => {
+      var now = Date.now() - 1
+      return Token.createNewToken(Token, { createdAt: now }).then(token => {
+        assert.ok(token.createdAt > now && token.createdAt <= Date.now(), 'token.createdAt seems correct')
+      })
+    })
+
+    it('Token.createTokenFromHexData accepts a value for createdAt', () => {
+      var now = Date.now() - 20
+      return Token.createTokenFromHexData(Token, 'ABCD', { createdAt: now }).then(token => {
+        assert.equal(token.createdAt, now, 'token.createdAt is correct')
+      })
+    })
+
+    it('Token.createTokenFromHexData defaults to zero if not given a value for createdAt', () => {
+      return Token.createTokenFromHexData(Token, 'ABCD', { other: 'data' }).then(token => {
+        assert.equal(token.createdAt, 0, 'token.createdAt is correct')
+      })
     })
   })
 

@@ -24,12 +24,6 @@ module.exports = (log, inherits, Token, config) => {
     this.locale = details.locale || null
     this.mustVerify = !! details.mustVerify || false
 
-    if (details.createdAt > 0) {
-      this.accountCreatedAt = details.createdAt
-    } else {
-      this.accountCreatedAt = null
-    }
-
     // Tokens are considered verified if no tokenVerificationId exists
     this.tokenVerificationId = details.tokenVerificationId || null
     this.tokenVerified = this.tokenVerificationId ? false : true
@@ -39,8 +33,9 @@ module.exports = (log, inherits, Token, config) => {
   SessionToken.tokenTypeID = 'sessionToken'
 
   SessionToken.create = function (details) {
-    log.trace({ op: 'SessionToken.create', uid: details && details.uid })
-    return Token.createNewToken(SessionToken, details || {})
+    details = details || {}
+    log.trace({ op: 'SessionToken.create', uid: details.uid })
+    return Token.createNewToken(SessionToken, details)
   }
 
   SessionToken.fromHex = function (string, details) {

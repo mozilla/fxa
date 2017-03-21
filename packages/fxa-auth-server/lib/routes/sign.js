@@ -144,7 +144,6 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
               certResult = result
               return request.emitMetricsEvent('account.signed', {
                 uid: uid,
-                account_created_at: sessionToken.accountCreatedAt,
                 device_id: deviceId
               })
             }
