@@ -1,3 +1,9 @@
+
+v1.83.0
+
+  * fix(tests): Update config and testing for sms (#189) r=vladikoff
+  * fix(docs): Add notes for sms (#184), r=@shane-tomlinson
+
 v1.82.0
 
   * feat(docker): add Docker support (#176) r=vladikoff,jbuck
