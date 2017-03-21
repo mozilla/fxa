@@ -74,6 +74,7 @@ define(function (require, exports, module) {
       const code = verificationInfo.get('code');
       const options = {
         reminder: verificationInfo.get('reminder'),
+        serverVerificationStatus: this.getSearchParam('server_verification') || null,
         service: this.relier.get('service')
       };
 

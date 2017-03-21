@@ -4,3 +4,4 @@ extends: ../.eslintrc
 
 rules:
   id-blacklist: 0
+  strict: 0

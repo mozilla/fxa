@@ -482,23 +482,31 @@ define(function (require, exports, module) {
      * @param {String} code - the verification code
      * @param {Object} [options]
      * @param {Object} [options.service] - the service issuing signup request
+     * @param {String} [options.serverVerificationStatus] - the status of server verification
      * @returns {Promise} - resolves when complete
      */
     verifySignUp (code, options = {}) {
-      return this._fxaClient.verifyCode(
-        this.get('uid'),
-        code,
-        options
-      )
-      .then(() => {
-        this.set('verified', true);
+      return p()
+        .then(() => {
+          if (options.serverVerificationStatus !== 'verified') {
+            // if server verification was not present or not successful
+            // then attempt client verification
+            return this._fxaClient.verifyCode(
+              this.get('uid'),
+              code,
+              options
+            );
+          }
+        })
+        .then(() => {
+          this.set('verified', true);
 
-        if (this.get('needsOptedInToMarketingEmail')) {
-          this.unset('needsOptedInToMarketingEmail');
-          var emailPrefs = this.getMarketingEmailPrefs();
-          return emailPrefs.optIn(NEWSLETTER_ID);
-        }
-      });
+          if (this.get('needsOptedInToMarketingEmail')) {
+            this.unset('needsOptedInToMarketingEmail');
+            var emailPrefs = this.getMarketingEmailPrefs();
+            return emailPrefs.optIn(NEWSLETTER_ID);
+          }
+        });
     },
 
     /**

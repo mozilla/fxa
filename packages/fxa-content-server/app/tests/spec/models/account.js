@@ -691,6 +691,48 @@ define(function (require, exports, module) {
     });
 
     describe('verifySignUp', function () {
+      describe('with custom server verification value', function () {
+        beforeEach(function () {
+          sinon.stub(fxaClient, 'verifyCode', function () {
+            return p();
+          });
+        });
+
+        it('does not call verifyCode with verified', function () {
+          account.set('uid', UID);
+
+          return account.verifySignUp('CODE', {
+            serverVerificationStatus: 'verified'
+          }).then(() => {
+            assert.isFalse(fxaClient.verifyCode.called);
+            assert.isTrue(account.get('verified'));
+          });
+        });
+
+        it('calls verifyCode with other status', function () {
+          account.set('uid', UID);
+
+          return account.verifySignUp('CODE', {
+            serverVerificationStatus: 'test'
+          }).then(() => {
+            assert.isTrue(fxaClient.verifyCode.called);
+            assert.isTrue(account.get('verified'));
+          });
+        });
+
+        it('calls verifyCode with undefined status', function () {
+          account.set('uid', UID);
+
+          return account.verifySignUp('CODE', {
+            serverVerificationStatus: undefined
+          }).then(() => {
+            assert.isTrue(fxaClient.verifyCode.called);
+            assert.isTrue(account.get('verified'));
+          });
+        });
+
+      });
+
       describe('without email opt-in', function () {
         beforeEach(function () {
           sinon.stub(fxaClient, 'verifyCode', function () {

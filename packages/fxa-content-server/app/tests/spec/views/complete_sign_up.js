@@ -198,7 +198,7 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: null, service: validService});
+          assert.deepEqual(args[1], {reminder: null, serverVerificationStatus: null, service: validService});
         });
       });
 
@@ -217,7 +217,7 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: validReminder, service: null});
+          assert.deepEqual(args[1], {reminder: validReminder, serverVerificationStatus: null, service: null});
         });
       });
 
@@ -237,7 +237,27 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: validReminder, service: validService});
+          assert.deepEqual(args[1], {reminder: validReminder, serverVerificationStatus: null, service: validService});
+        });
+      });
+
+      describe('if server_verification is in the url', function () {
+        beforeEach(function () {
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid +
+            '&server_verification=verified';
+          relier = new Relier({}, {
+            window: windowMock
+          });
+          relier.fetch();
+          initView(account);
+          return view.render();
+        });
+
+        it('attempt to pass server_verification to verifySignUp', function () {
+          var args = account.verifySignUp.getCall(0).args;
+          assert.isTrue(account.verifySignUp.called);
+          assert.ok(args[0]);
+          assert.deepEqual(args[1], {reminder: null, serverVerificationStatus: 'verified', service: null});
         });
       });
 
