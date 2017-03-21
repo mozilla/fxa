@@ -1,6 +1,7 @@
 # Firefox Accounts OAuth Server
 
 [![Build Status](https://travis-ci.org/mozilla/fxa-oauth-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-oauth-server)
+[![CircleCI](https://circleci.com/gh/mozilla/fxa-oauth-server.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-oauth-server)
 
 Implementation of OAuth for use by Firefox Accounts
 
