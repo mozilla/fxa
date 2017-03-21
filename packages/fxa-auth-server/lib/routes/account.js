@@ -20,7 +20,8 @@ var MS_ONE_WEEK = MS_ONE_DAY * 7
 var MS_ONE_MONTH = MS_ONE_DAY * 30
 
 var path = require('path')
-var ajv = require('ajv')()
+var Ajv = require('ajv')
+var ajv = new Ajv({ removeAdditional: 'all' })
 var fs = require('fs')
 var butil = require('../crypto/butil')
 var userAgent = require('../userAgent')
@@ -48,7 +49,7 @@ module.exports = function (
   // Loads and compiles a json validator for the payloads received
   // in /account/devices/notify
   var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
-  var schema = fs.readFileSync(schemaPath)
+  var schema = JSON.parse(fs.readFileSync(schemaPath))
   var validatePushPayload = ajv.compile(schema)
   var verificationReminder = require('../verification-reminders')(log, db)
   var getGeoData = require('../geodb')(log)

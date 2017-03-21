@@ -221,12 +221,12 @@ var options = {
 conf.validate(options)
 
 var contentServerUrl = conf.get('contentServer.url')
-conf.set('mail.verificationUrl', contentServerUrl + '/v1/verify_email')
-conf.set('mail.passwordResetUrl', contentServerUrl + '/v1/complete_reset_password')
+conf.set('mail.verificationUrl', contentServerUrl + '/verify_email')
+conf.set('mail.passwordResetUrl', contentServerUrl + '/complete_reset_password')
 conf.set('mail.initiatePasswordResetUrl', contentServerUrl + '/reset_password')
 conf.set('mail.initiatePasswordChangeUrl', contentServerUrl + '/settings/change_password')
 conf.set('mail.verifyLoginUrl', contentServerUrl + '/complete_signin')
-conf.set('mail.reportSignInUrl', contentServerUrl + '/reject_unblock_code')
+conf.set('mail.reportSignInUrl', contentServerUrl + '/report_signin')
 
 // Extra Validations
 if (conf.get('locales').indexOf(conf.get('defaultLanguage')) === -1) {

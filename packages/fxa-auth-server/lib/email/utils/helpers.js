@@ -25,6 +25,7 @@ function logEmailEventSent(log, message) {
   const emailDomain = getAnonymizedEmailDomain(message.email)
   const emailEventInfo = {
     domain: emailDomain,
+    op: 'emailEvent',
     template: message.template,
     type: 'sent'
   }
@@ -37,7 +38,7 @@ function logEmailEventSent(log, message) {
   }
 
 
-  log.info('emailEvent', emailEventInfo)
+  log.info(emailEventInfo)
 }
 
 function logEmailEventFromMessage(log, message, type, emailDomain) {
@@ -48,6 +49,7 @@ function logEmailEventFromMessage(log, message, type, emailDomain) {
   const emailEventInfo = {
     domain: emailDomain,
     locale: locale,
+    op: 'emailEvent',
     template: templateName,
     type: type
   }
@@ -64,7 +66,7 @@ function logEmailEventFromMessage(log, message, type, emailDomain) {
     emailEventInfo.complaint = true
   }
 
-  log.info('emailEvent', emailEventInfo)
+  log.info(emailEventInfo)
 }
 
 function logFlowEventFromMessage(log, message, type) {
