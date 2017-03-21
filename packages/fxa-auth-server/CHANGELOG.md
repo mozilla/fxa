@@ -1,3 +1,18 @@
+<a name"1.83.0"></a>
+## 1.83.0 (2017-03-21)
+
+
+#### Bug Fixes
+
+* **tests:** check insert of utf8mb4 ([4e6a77a8](https://github.com/mozilla/fxa-oauth-server/commit/4e6a77a8))
+* **version:** use cwd and env var to get version (#452) r=vladikoff ([a3b1aa28](https://github.com/mozilla/fxa-oauth-server/commit/a3b1aa28))
+
+
+#### Features
+
+* **keys:** Add created-at timestamp to our public keys. (#453); r=seanmonstar,vladikoff ([511d9a63](https://github.com/mozilla/fxa-oauth-server/commit/511d9a63))
+
+
 <a name"1.81.0"></a>
 ## 1.81.0 (2017-02-24)
 
