@@ -1,3 +1,14 @@
+<a name="1.83.0"></a>
+# [1.83.0](https://github.com/mozilla/fxa-profile-server/compare/v1.82.1...v1.83.0) (2017-03-21)
+
+
+### Bug Fixes
+
+* **config:** only force this settting if it's the default value ([54fcef1](https://github.com/mozilla/fxa-profile-server/commit/54fcef1))
+* **version:** use cwd and env var to get version ([bcf9666](https://github.com/mozilla/fxa-profile-server/commit/bcf9666))
+
+
+
 <a name="1.82.1"></a>
 ## [1.82.1](https://github.com/mozilla/fxa-profile-server/compare/v1.82.0...v1.82.1) (2017-03-09)
 
