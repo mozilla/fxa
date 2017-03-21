@@ -75,7 +75,12 @@ function (intern, topic, firefoxProfile) {
     tunnel: 'SeleniumTunnel',
     tunnelOptions: {
       // this tells SeleniumTunnel to download geckodriver
-      drivers: [ 'firefox' ]
+      drivers: [{
+        name: 'firefox',
+        version: '0.11.1'
+      }],
+      // version of Selenium
+      version: '3.1.0'
     }
   };
 
