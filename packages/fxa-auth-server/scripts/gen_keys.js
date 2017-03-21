@@ -35,21 +35,27 @@ try {
   process.exit();
 }
 
-// Generate a unique key id using hash of public key, and timestamp.
-// This comes out like "2017-01-23-ebe69008de771d62cd1cadf9faa6daae".
-function makeKeyId(kp) {
-  return [
-    (new Date()).toISOString().slice(0, 10) + '-' +
-    crypto.createHash('sha256').update(kp.public).digest('hex').slice(0, 32)
-  ].join('-');
+// We tag our keys with their creation time, and a unique key id
+// based on a hash of the public key and the timestamp.  The result
+// comes out like:
+//  {
+//    kid: "2017-03-16-ebe69008de771d62cd1cadf9faa6daae"
+//    "fxa-createdAt": 1489716000,
+//  }
+function makeKeyProperties(kp) {
+  var now = new Date();
+  return {
+    // Key id based on timestamp and hash of public key.
+    kid: now.toISOString().slice(0, 10) + '-' +
+         crypto.createHash('sha256').update(kp.public).digest('hex').slice(0, 32),
+    // Timestamp to nearest hour; consumers don't need to know the precise time.
+    'fxa-createdAt': Math.round(now / 1000 / 3600) * 3600
+  };
 }
 
 function main(cb) {
   var kp = generateRSAKeypair();
-  var privKey = JwTool.JWK.fromPEM(kp.private, {
-    kid: makeKeyId(kp)
-  });
-
+  var privKey = JwTool.JWK.fromPEM(kp.private, makeKeyProperties(kp));
   try {
     fs.mkdirSync('./config');
   } catch (accessEx) {
@@ -63,9 +69,7 @@ function main(cb) {
   // the private component, we just need to serve the public component
   // so that old signatures can be verified correctly.
   kp = generateRSAKeypair();
-  var pubKey = JwTool.JWK.fromPEM(kp.public, {
-    kid: makeKeyId(kp)
-  });
+  var pubKey = JwTool.JWK.fromPEM(kp.public, makeKeyProperties(kp));
   fs.writeFileSync(oldKeyPath, JSON.stringify(pubKey.toJSON(), undefined, 2));
   console.log('OldKey saved:', oldKeyPath); //eslint-disable-line no-console
   cb();

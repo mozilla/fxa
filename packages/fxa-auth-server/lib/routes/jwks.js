@@ -18,6 +18,7 @@ const KEYS = (function() {
       kty: key.kty,
       alg: 'RS256',
       kid: key.kid,
+      'fxa-createdAt': key['fxa-createdAt'],
       use: 'sig',
       n: key.n,
       e: key.e
