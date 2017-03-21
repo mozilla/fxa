@@ -39,9 +39,11 @@
               "type":"string",
               "description":"The name of the device who joined this account"
             }
-          }
+          },
+          "additionalProperties": false
         }
-      }
+      },
+      "additionalProperties": false
     },
     "deviceDisconnected":{
       "required":[
@@ -69,9 +71,11 @@
               "type":"string",
               "description":"The id of the device who was disconnected remotely"
             }
-          }
+          },
+          "additionalProperties": false
         }
-      }
+      },
+      "additionalProperties": false
     },
     "collectionsChanged":{
       "required":[
@@ -105,9 +109,11 @@
                   "tabs", "passwords", "clients" ]
               }
             }
-          }
+          },
+          "additionalProperties": false
         }
-      }
+      },
+      "additionalProperties": false
     },
     "passwordChanged":{
       "required":[
@@ -124,7 +130,8 @@
             "fxaccounts:password_changed"
           ]
         }
-      }
+      },
+      "additionalProperties": false
     },
     "passwordReset":{
       "required":[
@@ -141,7 +148,8 @@
             "fxaccounts:password_reset"
           ]
         }
-      }
+      },
+      "additionalProperties": false
     }
   }
 }
