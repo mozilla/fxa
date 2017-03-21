@@ -50,6 +50,17 @@ AppError.incorrectPassword = function () {
   )
 }
 
+AppError.cannotDeletePrimaryEmail = function () {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad request',
+      errno: 136,
+      message: 'Can not delete primary email'
+    }
+  )
+}
+
 AppError.wrap = function (err) {
   return new AppError(
     {

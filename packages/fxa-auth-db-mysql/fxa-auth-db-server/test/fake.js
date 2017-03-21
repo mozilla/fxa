@@ -111,6 +111,17 @@ module.exports.newUserDataHex = function() {
     createdAt: Date.now()
   }
 
+  // email
+  data.email = {
+    email: hex16() + '@example.com',
+    emailCode: hex16(),
+    isVerified: 0,
+    isPrimary: 0,
+    verifiedAt: undefined,
+    createdAt: Date.now(),
+  }
+  data.email.normalizedEmail = data.email.email.toLowerCase()
+
   return data
 }
 

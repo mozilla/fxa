@@ -20,6 +20,9 @@ const ER_LOCK_TABLE_FULL = 1206
 const ER_LOCK_DEADLOCK = 1213
 const ER_LOCK_ABORTED = 1689
 
+// custom mysql errors
+const ER_DELETE_PRIMARY_EMAIL = 2100
+
 module.exports = function (log, error) {
 
   var LOCK_ERRNOS = [
@@ -160,7 +163,7 @@ module.exports = function (log, error) {
 
   // Insert : accounts
   // Values : uid = $1, normalizedEmail = $2, email = $3, emailCode = $4, emailVerified = $5, kA = $6, wrapWrapKb = $7, authSalt = $8, verifierVersion = $9, verifyHash = $10, verifierSetAt = $11, createdAt = $12, locale = $13
-  var CREATE_ACCOUNT = 'CALL createAccount_5(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  var CREATE_ACCOUNT = 'CALL createAccount_6(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createAccount = function (uid, data) {
     return this.write(
@@ -674,13 +677,13 @@ module.exports = function (log, error) {
     )
   }
 
-  // Update : accounts
-  // Set    : emailVerified = true
-  // Where  : uid = $1
-  var VERIFY_EMAIL = 'CALL verifyEmail_3(?)'
+  // Update : accounts, emails
+  // Set    : emailVerified = true if email is in accounts table or isVerified = true if on email table
+  // Where  : uid = $1, emailCode = $2
+  var VERIFY_EMAIL = 'CALL verifyEmail_4(?, ?)'
 
-  MySql.prototype.verifyEmail = function (uid) {
-    return this.write(VERIFY_EMAIL, [uid])
+  MySql.prototype.verifyEmail = function (uid, emailCode) {
+    return this.write(VERIFY_EMAIL, [uid, emailCode])
   }
 
   // Step   : 1
@@ -751,6 +754,59 @@ module.exports = function (log, error) {
     )
   }
 
+
+  // USER EMAILS
+  // Insert : emails
+  // Values : normalizedEmail = $1, email = $2, uid = $3, emailCode = $4, isVerified = $5, isPrimary = $6, verifiedAt = $7, createdAt = $8
+  var CREATE_EMAIL = 'CALL createEmail_1(?, ?, ?, ?, ?, ?, ?, ?)'
+  MySql.prototype.createEmail = function (uid, data) {
+    return this.write(
+      CREATE_EMAIL,
+      [
+        data.normalizedEmail,
+        data.email,
+        uid,
+        data.emailCode,
+        data.isVerified,
+        data.isPrimary,
+        data.verifiedAt,
+        Date.now()
+      ]
+    )
+  }
+
+  // Select : emails
+  // Values : uid = $1
+  var ACCOUNT_EMAILS = 'CALL accountEmails_1(?)'
+  MySql.prototype.accountEmails = function (uid) {
+    return this.readOneFromFirstResult(
+      ACCOUNT_EMAILS,
+      [
+        uid
+      ]
+    )
+  }
+
+  // Delete : emails
+  // Values : uid = $1, email = $2
+  var DELETE_EMAIL = 'CALL deleteEmail_1(?, ?)'
+  MySql.prototype.deleteEmail = function (uid, email) {
+    return this.write(
+      DELETE_EMAIL,
+      [
+        uid,
+        email
+      ]
+    )
+      .catch(function(err){
+        // Signal exception is triggered when an attempt to
+        // delete a primary email.
+        if (err.errno === ER_DELETE_PRIMARY_EMAIL) {
+          throw error.cannotDeletePrimaryEmail()
+        }
+        throw err
+      })
+  }
 
   // Internal
 

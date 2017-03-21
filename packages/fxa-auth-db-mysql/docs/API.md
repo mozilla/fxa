@@ -6,11 +6,14 @@ There are a number of methods that a DB storage backend should implement:
     * .createAccount(uid, data)
     * .account(uid)
     * .checkPassword(uid, hash)
-    * .verifyEmail(uid)
+    * .verifyEmail(uid, emailCode)
     * .accountDevices(uid)
     * .resetAccount(uid, data)
     * .deleteAccount(uid)
     * .sessions(uid)
+    * .accountEmails(uid)
+    * .createEmail(uid, data)
+    * .deleteEmail(uid, email)
 * Accounts (using `email`)
     * .emailRecord(emailBuffer)
     * .accountExists(emailBuffer)
@@ -131,11 +134,12 @@ Returns:
     * `error.notFound()` if the credentials are invalid
     * any error from the underlying storage engine
 
-## .verifyEmail(uid) ##
+## .verifyEmail(uid, emailCode) ##
 
 Parameters:
 
 * uid - (Buffer16) the uid of the account to be queried
+* emailCode - (Buffer16) the emailCode of the email to be verified
 
 Returns:
 
@@ -144,7 +148,8 @@ Returns:
     * an error from the underlying storage engine
 
 We do not separate the fact that the account uid may not exist and always
-resolve to an empty object.
+resolve to an empty object. Verify Email will check both the account
+and email table for specified emailCode and verify it.
 
 ## .accountDevices(uid) ##
 
@@ -214,6 +219,59 @@ Returns:
     * an array of incompletely-populated session tokens
 * rejects with:
     * any errors from the underlying storage engine
+
+## .accountEmails(uid) ##
+
+    Fetches all the emails associated with the uid.
+
+    Parameters:
+
+    * `uid` - (Buffer16) the uid of the account to get emails for
+
+    Returns:
+
+    * resolves with:
+        * an array of populated email records
+    * rejects with:
+        * any errors from the underlying storage engine
+
+## .createEmail(uid, data) ##
+
+    Creates a new email and associates it with the uid.
+
+    Parameters:
+
+    * `uid` - (Buffer16) the uid of the account to get emails for
+    * `data`:
+      * email - (string) email to create
+      * normalizedEmail - (string) same as above but `.toLowerCase()`
+      * emailCode - (Buffer16) email code
+      * uid - (Buffer16) uid of the user
+      * isVerified - (number) 0|1 flag for whether or not email is verified
+      * isPrimary - (number) 0|1 flag for whether or not email is primary email
+
+    Returns:
+
+    * resolves with:
+        * an empty object `{}`
+    * rejects with:
+        * any errors from the underlying storage engine
+
+## .deleteEmail(uid, email) ##
+
+    Deletes the associated email from the users account.
+
+    Parameters:
+
+    * `uid` - (Buffer16) the uid of the account to delete emails for
+    * `email` - (string) the email to delete from user account
+
+    Returns:
+
+    * resolves with:
+        * an empty object `{}`
+    * rejects with:
+        * any errors from the underlying storage engine
 
 ## .emailRecord(emailBuffer) ##
 
@@ -506,4 +564,3 @@ Parameters:
   * bounceSubType: The bounce sub type string
 
 (Ends)
-

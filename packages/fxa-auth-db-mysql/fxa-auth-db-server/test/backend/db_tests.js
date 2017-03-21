@@ -37,6 +37,21 @@ function createAccount() {
   return account
 }
 
+function createEmail(data) {
+  var email = {
+    email: ('' + Math.random()).substr(2) + '@bar.com',
+    uid: data.uid,
+    emailCode: data.emailCode || crypto.randomBytes(16),
+    isVerified: false,
+    isPrimary: false,
+    createdAt: Date.now()
+  }
+  email.email = data.email || email.email
+  email.normalizedEmail = email.email.toLowerCase()
+
+  return email
+}
+
 
 var ACCOUNT = createAccount()
 
@@ -865,7 +880,7 @@ module.exports = function(config, DB) {
             var emailBuffer = Buffer(ACCOUNT.email)
             return db.emailRecord(emailBuffer)
             .then(function(emailRecord) {
-              return db.verifyEmail(emailRecord.uid)
+              return db.verifyEmail(emailRecord.uid, emailRecord.emailCode)
             })
             .then(function(result) {
               t.deepEqual(result, {}, 'Returned an empty object email verification')
@@ -886,7 +901,7 @@ module.exports = function(config, DB) {
               t.equal(account.locale, 'en_NZ', 'account should now have new locale')
 
               // test verifyEmail for a non-existant account
-              return db.verifyEmail(newUuid())
+              return db.verifyEmail(newUuid(), account.emailCode)
             })
             .then(function(res) {
               t.deepEqual(res, {}, 'No matter what happens, we get an empty object back')
@@ -2007,6 +2022,194 @@ module.exports = function(config, DB) {
                 t.equal(bounces[0].bounceType, 1)
                 t.equal(bounces[0].bounceSubType, 3)
 
+              })
+              .done(
+                () => {
+                  t.end()
+                },
+                (err) => {
+                  t.fail(err)
+                }
+              )
+          }
+        )
+
+        test(
+          'emails',
+          t => {
+            const account = createAccount()
+            account.emailVerified = true
+
+            var secondEmail = createEmail({
+              uid: account.uid
+            })
+
+            /**
+             * This sequence of tests, test the happy path of adding an
+             * additional email.
+             *
+             * 1) Create an account
+             * 2) Get `accountEmails` only returns email on account table
+             * 3) Add an additional email
+             * 4) Get `accountEmails` returns both emails
+             * 5) Verify secondary email
+             * 6) Get `accountEmails` returns both emails, shows verified
+             * 7) Delete secondary email
+             * 8) Get `accountEmails` only return email on account table
+             *
+             */
+            // Lets begin our journey by creating a new account.
+            db.createAccount(account.uid, account)
+              .then(function (result) {
+                t.deepEqual(result, {}, 'Returned an empty object on account creation')
+
+                // Attempt to add a new email address to this user's account.
+                // At this point we should only have one email address returned, which
+                // should be the email on the accounts table.
+                return db.accountEmails(account.uid)
+              })
+              .then(
+                function(result) {
+                  t.equal(result.length, 1, 'one email returned')
+
+                  // Check first email is email from accounts table
+                  t.equal(result[0].email, account.email, 'matches account email')
+                  t.equal(!!result[0].isPrimary, true, 'isPrimary is true on account email')
+                  t.equal(!!result[0].isVerified, account.emailVerified, 'matches account emailVerified')
+
+                  // Attempt to create an additional email for this user account.
+                  return db.createEmail(account.uid, secondEmail)
+                }
+              )
+              .then(function (result) {
+                t.deepEqual(result, {}, 'Returned an empty object on email creation')
+
+                // Check that second email was added to account.
+                return db.accountEmails(account.uid)
+              })
+              .then(
+                function(result) {
+                  t.equal(result.length, 2, 'two emails returned')
+
+                  // Check first email is email from accounts table
+                  t.equal(result[0].email, account.email, 'matches account email')
+                  t.equal(!!result[0].isPrimary, true, 'isPrimary is true on account email')
+                  t.equal(!!result[0].isVerified, account.emailVerified, 'matches account emailVerified')
+
+                  // Check second email is from emails table
+                  t.equal(result[1].email, secondEmail.email, 'matches secondEmail email')
+                  t.equal(!!result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
+                  t.equal(!!result[1].isVerified, secondEmail.isVerified, 'matches secondEmail isVerified')
+
+                  // Verify second email
+                  return db.verifyEmail(secondEmail.uid, secondEmail.emailCode)
+                }
+              )
+              .then(
+                function(result) {
+                  t.deepEqual(result, {}, 'Returned an empty object on email verification')
+
+                  // Get all emails and check to see if second email has been marked verified
+                  return db.accountEmails(account.uid)
+                }
+              )
+              .then(
+                function(result) {
+                  t.equal(result.length, 2, 'two email returned')
+
+                  // Check second email is from emails table and verified
+                  t.equal(result[1].email, secondEmail.email, 'matches secondEmail email')
+                  t.equal(!!result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
+                  t.equal(!!result[1].isVerified, true, 'secondEmail isVerified is true')
+
+                  // Remove additional email from account
+                  return db.deleteEmail(secondEmail.uid, secondEmail.email)
+                }
+              )
+              .then(
+                function(result) {
+                  t.deepEqual(result, {}, 'Returned an empty object on email deletion')
+
+                  // Get all emails and check to see if it has been removed
+                  return db.accountEmails(account.uid)
+                }
+              )
+              .then(
+                function(result) {
+                  // Verify that the email has been removed
+                  t.equal(result.length, 1, 'one email returned')
+
+                  // Only email returned should be from users account
+                  t.equal(result[0].email, account.email, 'matches account email')
+                  t.equal(!!result[0].isPrimary, true, 'isPrimary is true on account email')
+                  t.equal(!!result[0].isVerified, account.emailVerified, 'matches account emailVerified')
+
+                  return P.resolve()
+                }
+              )
+              .then(
+                function() {
+                  /**
+                   * This sequence of code tests the failure paths
+                   *
+                   * 1) Can not add an an email that exits in emails table or accounts table
+                   * 2) Can not delete primary email
+                   * 3) Can not create an new account that has an email in the emails table
+                   */
+
+                  // Attempt to add the account email to the emails table.
+                  const anotherEmail = createEmail({email: account.email})
+                  return db.createEmail(account.uid, anotherEmail)
+                }
+              )
+              .then(
+                function() {
+                  t.fail('Failed to throw error for creating an already existing email.')
+                }
+              )
+              .catch(function (err) {
+                t.equal(err.errno, 101, 'should return duplicate entry errno')
+                t.equal(err.code, 409, 'should return duplicate entry code')
+
+                // Attempt to add duplicate email to emails table
+                const anotherEmail = createEmail({email: secondEmail.email})
+                return db.createEmail(account.uid, anotherEmail)
+                  .then(function (result) {
+                    t.deepEqual(result, {}, 'Returned an empty object on email creation')
+                    return db.createEmail(account.uid, anotherEmail)
+                      .then(function () {
+                        t.fail('Failed to throw error for creating an already existing email.')
+                      })
+                  })
+              })
+              .catch(function (err) {
+                t.equal(err.errno, 101, 'should return duplicate entry errno')
+                t.equal(err.code, 409, 'should return duplicate entry code')
+
+                // Attempt to delete an email that is on the account table
+                return db.deleteEmail(account.uid, account.normalizedEmail)
+                  .then(function () {
+                    t.fail('Failed to not delete an email in the account table.')
+                  })
+              })
+              .catch(function (err) {
+                t.equal(err.errno, 136, 'should return email delete errno')
+                t.equal(err.code, 400, 'should return email delete code')
+
+                // Attempt to create a new account with an existing email in the emails table
+                const anotherAccount = createAccount()
+                anotherAccount.email = secondEmail.email
+                anotherAccount.normalizedEmail = secondEmail.normalizedEmail
+                anotherAccount.emailVerified = true
+
+                return db.createAccount(anotherAccount.uid, anotherAccount)
+                  .then(function () {
+                    t.fail('Failed to not created account with duplicate email')
+                  })
+                  .catch(function (err) {
+                    t.equal(err.errno, 101, 'should return duplicate entry errno')
+                    t.equal(err.code, 409, 'should return duplicate entry code')
+                  })
               })
               .done(
                 () => {

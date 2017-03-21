@@ -22,6 +22,7 @@ var reminders = {}
 var securityEvents = {}
 var unblockCodes = {}
 var emailBounces = {}
+var emails = {}
 
 var DEVICE_FIELDS = [
   'sessionTokenId',
@@ -69,7 +70,7 @@ module.exports = function (log, error) {
 
     data.devices = {}
 
-    if ( accounts[uid] ) {
+    if ( accounts[uid] || emails[data.normalizedEmail]) {
       return P.reject(error.duplicate())
     }
 
@@ -728,14 +729,39 @@ module.exports = function (log, error) {
   }
 
   // BATCH
-  Memory.prototype.verifyEmail = function (uid) {
+  Memory.prototype.verifyEmail = function (uid, emailCode) {
     return getAccountByUid(uid)
       .then(
         function (account) {
-          account.emailVerified = 1
+          // Check to see if the `emailCode` passed belongs to the account table
+          // or the email table. Verify the correct email that belongs to the code.
+          if (!emailCode || (account.emailCode.toString('hex') === emailCode.toString('hex'))) {
+            account.emailVerified = 1
+            return {}
+          }
+
+          // Check to see if emailCode belongs to emails table,
+          // if so, verify it.
+          Object.keys(emails).some(function (key) {
+            var emailRecord = emails[key]
+
+            // Ignore records that don't belong to this user
+            if (uid.toString('hex') !== emailRecord.uid.toString('hex')) {
+              return false
+            }
+
+            // Verify email record if it matches emailCode
+            if (emailRecord.emailCode.toString('hex') === emailCode.toString('hex')) {
+              emailRecord.isVerified = 1
+              return true
+            }
+
+            return false
+          })
+
           return {}
         },
-        function (err) {
+        function () {
           return {}
         }
       )
@@ -799,6 +825,7 @@ module.exports = function (log, error) {
           deleteByUid(uid, passwordChangeTokens)
           deleteByUid(uid, passwordForgotTokens)
           deleteByUid(uid, unverifiedTokens)
+          deleteByUid(uid, emails)
 
           delete uidByNormalizedEmail[account.normalizedEmail]
           delete accounts[uid]
@@ -967,6 +994,73 @@ module.exports = function (log, error) {
 
   Memory.prototype.fetchEmailBounces = function(email) {
     return P.resolve(emailBounces[email] || [])
+  }
+
+  Memory.prototype.createEmail = function (uid, data) {
+    // Check to see if this email exists
+    var emailExistsInAccounts = Object.keys(accounts).some(function (uid) {
+      if (accounts[uid].normalizedEmail === data.normalizedEmail) {
+        return true
+      }
+    })
+
+    if (emailExistsInAccounts || emails[data.normalizedEmail]) {
+      return P.reject(error.duplicate())
+    }
+
+    // Add new email
+    data.isPrimary = false // New emails can not be set to primary on creation
+    data.uid = uid
+    emails[data.normalizedEmail] = data
+
+    return P.resolve({})
+  }
+
+  Memory.prototype.accountEmails = function (uid) {
+    var userEmails = []
+
+    // Also include email in accounts table
+    return getAccountByUid(uid)
+      .then(function (account) {
+        userEmails.push({
+          email: account.email,
+          isPrimary: true,
+          isVerified: account.emailVerified
+        })
+
+        // Return all emails in emails table
+        Object.keys(emails).forEach(function (key) {
+          var emailRecord = emails[key]
+          if (emailRecord.uid.toString('hex') === uid.toString('hex')) {
+            userEmails.push(emailRecord)
+          }
+        })
+        return userEmails
+      })
+  }
+
+  Memory.prototype.deleteEmail = function (uid, email) {
+    var emailRecord = emails[email]
+
+    if (emailRecord && emailRecord.uid.toString('hex') === uid.toString('hex') && emailRecord.isPrimary === false) {
+      delete emails[email]
+    }
+
+    // No email record found, see if email is in accounts table
+    if (!emailRecord) {
+      var isPrimary = Object.keys(accounts).some(function (key) {
+        var account = accounts[key]
+        if (account.normalizedEmail === email) {
+          return true
+        }
+      })
+
+      if (isPrimary) {
+        return P.reject(error.cannotDeletePrimaryEmail())
+      }
+    }
+
+    return P.resolve({})
   }
 
   // UTILITY FUNCTIONS

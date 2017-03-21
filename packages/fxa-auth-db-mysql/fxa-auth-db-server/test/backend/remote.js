@@ -122,6 +122,88 @@ module.exports = function(cfg, server) {
   )
 
   test(
+    'add account, add email, get emails, delete email',
+    function (t) {
+      var user = fake.newUserDataHex()
+      var secondEmailRecord = user.email
+      var thirdEmailRecord
+
+      return client.putThen('/account/' + user.accountId, user.account)
+        .then(function (r) {
+          respOkEmpty(t, r)
+          return client.postThen('/account/' + user.accountId + '/emails', user.email)
+        })
+        .then(function (r) {
+          respOkEmpty(t, r)
+          return client.getThen('/account/' + user.accountId + '/emails')
+        })
+        .then(function (r) {
+          respOk(t, r)
+
+          var result = r.obj
+          t.equal(result.length, 2, 'two emails returned')
+
+          // Verify first email is email from accounts table
+          t.equal(result[0].email, user.account.email, 'matches account email')
+          t.equal(!!result[0].isPrimary, true, 'isPrimary is true on account email')
+          t.equal(!!result[0].isVerified, !!user.account.emailVerified, 'matches account emailVerified')
+
+          // Verify second email is from emails table
+          t.equal(result[1].email, secondEmailRecord.email, 'matches secondEmail email')
+          t.equal(!!result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
+          t.equal(!!result[1].isVerified, false, 'matches secondEmail isVerified')
+
+          var emailCodeHex = secondEmailRecord.emailCode.toString('hex')
+          return client.postThen('/account/' + user.accountId + '/verifyEmail/' + emailCodeHex)
+        })
+        .then(function (r) {
+          respOkEmpty(t, r)
+          return client.getThen('/account/' + user.accountId + '/emails')
+        })
+        .then(function (r) {
+          respOk(t, r)
+
+          var result = r.obj
+          t.equal(result.length, 2, 'two emails returned')
+          t.equal(result[1].email, secondEmailRecord.email, 'matches secondEmail email')
+          t.equal(!!result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
+          t.equal(!!result[1].isVerified, true, 'matches secondEmail isVerified')
+
+          thirdEmailRecord = fake.newUserDataHex().email
+          return client.postThen('/account/' + user.accountId + '/emails', thirdEmailRecord)
+        })
+        .then(function (r) {
+          respOkEmpty(t, r)
+          return client.getThen('/account/' + user.accountId + '/emails')
+        })
+        .then(function (r) {
+          respOk(t, r)
+
+          var result = r.obj
+          t.equal(result.length, 3, 'three emails returned')
+          t.equal(result[2].email, thirdEmailRecord.email, 'matches thirdEmailRecord email')
+          t.equal(!!result[2].isPrimary, false, 'isPrimary is false on thirdEmailRecord email')
+          t.equal(!!result[2].isVerified, false, 'matches secondEmail thirdEmailRecord')
+
+          return client.delThen('/account/' + user.accountId + '/emails/' + secondEmailRecord.email)
+        })
+        .then(function (r) {
+          respOkEmpty(t, r)
+          return client.getThen('/account/' + user.accountId + '/emails')
+        })
+        .then(function (r) {
+          respOk(t, r)
+
+          var result = r.obj
+          t.equal(result.length, 2, 'one email returned')
+          t.equal(result[0].email, user.account.email, 'matches account email')
+          t.equal(!!result[0].isPrimary, true, 'isPrimary is true on account email')
+          t.equal(!!result[0].isVerified, !!user.account.emailVerified, 'matches account emailVerified')
+        })
+    }
+  )
+
+  test(
     'add account, check password, retrieve it, delete it',
     function (t) {
       t.plan(35)

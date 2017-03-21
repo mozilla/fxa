@@ -69,9 +69,21 @@ function createServer(db) {
   api.get('/account/:id/devices', withIdAndBody(db.accountDevices))
   api.post('/account/:id/checkPassword', withIdAndBody(db.checkPassword))
   api.post('/account/:id/reset', withIdAndBody(db.resetAccount))
-  api.post('/account/:id/verifyEmail', withIdAndBody(db.verifyEmail))
+  api.post('/account/:id/verifyEmail/:emailCode',
+    op(function (req) {
+      return db.verifyEmail(req.params.id, req.params.emailCode)
+    })
+  )
   api.post('/account/:id/locale', withIdAndBody(db.updateLocale))
   api.get('/account/:id/sessions', withIdAndBody(db.sessions))
+
+  api.get('/account/:id/emails', withIdAndBody(db.accountEmails))
+  api.post('/account/:id/emails', withIdAndBody(db.createEmail))
+  api.del('/account/:id/emails/:email',
+    op(function (req) {
+      return db.deleteEmail(req.params.id, req.params.email)
+    })
+  )
 
   api.get('/sessionToken/:id', withIdAndBody(db.sessionToken))
   api.del('/sessionToken/:id', withIdAndBody(db.deleteSessionToken))
