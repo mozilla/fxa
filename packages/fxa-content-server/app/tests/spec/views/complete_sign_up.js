@@ -635,10 +635,11 @@ define(function (require, exports, module) {
         describe('user is completing sign-in', () => {
           beforeEach(() => {
             sinon.stub(view, 'isSignIn', () => true);
+            sinon.stub(account, 'smsStatus', () => true);
           });
 
           it('resolves to `false`', () => {
-            return view._isEligibleToSendSms()
+            return view._isEligibleToSendSms(account)
               .then((isEligible) => {
                 assert.isFalse(isEligible);
               });
@@ -653,10 +654,11 @@ define(function (require, exports, module) {
                 isDefault: () => true
               };
             });
+            sinon.stub(account, 'smsStatus', () => true);
           });
 
           it('resolves to `true`', () => {
-            return view._isEligibleToSendSms()
+            return view._isEligibleToSendSms(account)
               .then((isEligible) => {
                 assert.isTrue(isEligible);
               });
@@ -671,10 +673,11 @@ define(function (require, exports, module) {
               };
             });
             sinon.stub(user, 'isSignedInAccount', () => false);
+            sinon.stub(account, 'smsStatus', () => true);
           });
 
           it('resolves to `false`', () => {
-            return view._isEligibleToSendSms()
+            return view._isEligibleToSendSms(account)
               .then((isEligible) => {
                 assert.isFalse(isEligible);
               });
@@ -689,10 +692,11 @@ define(function (require, exports, module) {
               };
             });
             sinon.stub(user, 'isSignedInAccount', () => true);
+            sinon.stub(account, 'smsStatus', () => true);
           });
 
           it('resolves to `true`', () => {
-            return view._isEligibleToSendSms()
+            return view._isEligibleToSendSms(account)
               .then((isEligible) => {
                 assert.isTrue(isEligible);
               });
@@ -703,10 +707,25 @@ define(function (require, exports, module) {
       describe('user is not part of treatment group', () => {
         beforeEach(() => {
           sinon.stub(view, 'isInExperimentGroup', () => false);
+          sinon.stub(account, 'smsStatus', () => true);
         });
 
         it('resolves to `false`', () => {
-          return view._isEligibleToSendSms()
+          return view._isEligibleToSendSms(account)
+            .then((isEligible) => {
+              assert.isFalse(isEligible);
+            });
+        });
+      });
+
+      describe('auth-server blocks user from sending SMS', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'isInExperimentGroup', () => true);
+          sinon.stub(account, 'smsStatus', () => false);
+        });
+
+        it('resolves to `false`', () => {
+          return view._isEligibleToSendSms(account)
             .then((isEligible) => {
               assert.isFalse(isEligible);
             });

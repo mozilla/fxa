@@ -101,7 +101,7 @@ define(function (require, exports, module) {
      * @param {String} groupName
      * @return {Boolean}
      */
-    isInExperimentGroup(experimentName, groupName) {
+    isInExperimentGroup (experimentName, groupName) {
       return this._getExperimentGroup(experimentName) === groupName;
     },
 
@@ -162,7 +162,7 @@ define(function (require, exports, module) {
      * @returns {String}
      * @private
      */
-    _getExperimentGroup(experimentName) {
+    _getExperimentGroup (experimentName) {
       // can't be in an experiment group if not initialized.
       if (! this.initialized) {
         return false;

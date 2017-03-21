@@ -2192,5 +2192,45 @@ define(function (require, exports, module) {
         });
       });
     });
+
+    describe('sendSms', () => {
+      const flowEventMetaData = {
+        startTime: Date.now()
+      };
+
+      beforeEach(() => {
+        sinon.stub(fxaClient, 'sendSms', () => p());
+        sinon.stub(metrics, 'getFlowEventMetadata', () => flowEventMetaData);
+
+        account.set('sessionToken', 'sessionToken');
+        return account.sendSms('1234567890', 1);
+      });
+
+      it('delegates to the fxa-client', () => {
+        assert.isTrue(fxaClient.sendSms.calledOnce);
+        assert.isTrue(fxaClient.sendSms.calledWith(
+          'sessionToken',
+          '1234567890',
+          1,
+          {
+            metricsContext: flowEventMetaData
+          }
+        ));
+      });
+    });
+
+    describe('smsStatus', () => {
+      beforeEach(() => {
+        sinon.stub(fxaClient, 'smsStatus', () => p());
+
+        account.set('sessionToken', 'sessionToken');
+        return account.smsStatus();
+      });
+
+      it('delegates to the fxa-client', () => {
+        assert.isTrue(fxaClient.smsStatus.calledOnce);
+        assert.isTrue(fxaClient.smsStatus.calledWith('sessionToken'));
+      });
+    });
   });
 });

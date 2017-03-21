@@ -237,7 +237,12 @@ define(function (require, exports, module) {
 
         // If a user is already signed in to Sync which is different to the
         // user that just verified, show them the old "Account verified!" screen.
-        return isInExperimentGroup && ! isAnotherUserSignedIn;
+        return isInExperimentGroup &&
+               ! isAnotherUserSignedIn &&
+               // The auth server can gate whether users can send an SMS based
+               // on the user's country and whether the SMS provider account
+               // has sufficient funds.
+               verifiedAccount.smsStatus();
       });
     },
 
@@ -248,7 +253,7 @@ define(function (require, exports, module) {
      * @returns {Boolean} `true` if another user is signed in, `false` otw.
      * @private
      */
-    _isAnotherUserSignedIn(account) {
+    _isAnotherUserSignedIn (account) {
       const user = this.user;
       return (! user.getSignedInAccount().isDefault() &&
               ! user.isSignedInAccount(account));

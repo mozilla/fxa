@@ -649,6 +649,20 @@ define(function (require, exports, module) {
 
           throw err;
         });
+    }),
+
+    /**
+     * Check whether SMS is enabled for the user
+     *
+     * @param {String} sessionToken
+     * @returns {Promise} resolves to `true` if SMS is enabled,
+     *  `false` otw.
+     */
+    smsStatus: withClient((client, sessionToken) => {
+      return client.smsStatus(sessionToken)
+        .then((resp) => {
+          return !! (resp && resp.ok);
+        });
     })
   };
 

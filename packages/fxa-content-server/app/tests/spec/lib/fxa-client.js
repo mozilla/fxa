@@ -1380,5 +1380,17 @@ define(function (require, exports, module) {
         });
       });
     });
+
+    describe('smsStatus', () => {
+      it('delegates to the fxa-js-client', () => {
+        sinon.stub(realClient, 'smsStatus', () => p());
+
+        return client.smsStatus('sessionToken')
+          .then(() => {
+            assert.isTrue(realClient.smsStatus.calledOnce);
+            assert.isTrue(realClient.smsStatus.calledWith('sessionToken'));
+          });
+      });
+    });
   });
 });
