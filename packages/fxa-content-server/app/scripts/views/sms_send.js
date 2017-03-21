@@ -34,55 +34,14 @@ define(function (require, exports, module) {
 
       this._createView = options.createView;
       this._formPrefill = options.formPrefill;
-
-      // phoneNumber/country come from formPrefill if the
-      // user submits a phone number, sees the incorrect
-      // number in the success message on /sms/sent, and
-      // clicks "Mistyped number?"
-      this.model.set({
-        country: this._formPrefill.get('country') || 'US',
-        phoneNumber: this._formPrefill.get('phoneNumber')
-      });
-
-      this.listenTo(this.model, 'change:country', (model, country) => {
-        this._onCountryChange(country);
-      });
     },
 
     beforeDestroy() {
-      // Save phoneNumber/country to formPrefill in case
-      // the user enters an incorrect phone number and
-      // the user comes back.
-      this._formPrefill.set({
-        country: this.model.get('country'),
-        // save the number as the user entered it, if they come back
-        // to this screen it will display as they entered it.
-        phoneNumber: this.$(SELECTOR_PHONE_NUMBER).__val()
-      });
-    },
-
-    events: {
-      'click .success': '_onSuccessClick'
-    },
-
-    _successClickCount: 0,
-    _onSuccessClick () {
-      this._successClickCount++;
-      if (this._successClickCount === 4) {
-        // Convert to GB mode for testing.
-        this.model.set('country', 'GB');
-      }
-    },
-
-    /**
-     * The country has changed. `country` is the key to an
-     * object in the CountryTelephoneInfo module.
-     *
-     * @param {String} country
-     */
-    _onCountryChange (country) {
-      const countryInfo = CountryTelephoneInfo[country];
-      this.$(SELECTOR_PHONE_NUMBER).data('country', country).val(countryInfo.prefix);
+      // Save phoneNumber to formPrefill in case the user
+      // enters an incorrect phone number and then returns.
+      // save the number as the user entered it, if they come back
+      // to this screen it will display as they entered it.
+      this._formPrefill.set('phoneNumber', this.$(SELECTOR_PHONE_NUMBER).__val());
     },
 
     getAccount () {
@@ -93,7 +52,17 @@ define(function (require, exports, module) {
     context () {
       const escapedLearnMoreAttributes =
           `id="learn-more" href="${encodeURI(View.LEARN_MORE_LINK)}" target="_learn-more" data-flow-event="link.learn_more"`;
-      const { country, phoneNumber } = this.model.toJSON();
+
+      // phoneNumber comes from formPrefill if the
+      // user submits a phone number, sees the incorrect
+      // number in the success message on /sms/sent, and
+      // clicks "Mistyped number?"
+      let phoneNumber = this._formPrefill.get('phoneNumber');
+      const country = this._getCountry();
+      const prefix = CountryTelephoneInfo[country].prefix;
+      if (! phoneNumber && prefix !== CountryTelephoneInfo.US.prefix) {
+        phoneNumber = prefix;
+      }
 
       return {
         country,
@@ -120,6 +89,19 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Return the country to use.
+     *
+     * @returns {String}
+     * @private
+     */
+    _getCountry () {
+      // Once the feature is opened up to more countries, we'll get the country
+      // first from the relier (query params), and then data returned from
+      // the auth-server's /sms/status endpoint
+      return this.relier.get('country');
+    },
+
+    /**
      * Send an SMS with a Firefox Mobile install link to `normalizedPhoneNumber`
      *
      * @param {String} normalizedPhoneNumber normalized target phone number
@@ -140,7 +122,7 @@ define(function (require, exports, module) {
      * @returns {String}
      */
     _getNormalizedPhoneNumber () {
-      const country = this.model.get('country');
+      const country = this._getCountry();
       const phoneNumber = this.getElementValue(SELECTOR_PHONE_NUMBER);
       return CountryTelephoneInfo[country].normalize(phoneNumber);
     },
@@ -153,7 +135,7 @@ define(function (require, exports, module) {
     _onSendSmsSuccess () {
       this.navigate('sms/sent', {
         account: this.getAccount(),
-        country: this.model.get('country'),
+        country: this._getCountry(),
         normalizedPhoneNumber: this._getNormalizedPhoneNumber()
       });
     },

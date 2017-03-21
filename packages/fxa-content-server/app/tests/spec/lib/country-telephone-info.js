@@ -37,6 +37,37 @@
        });
      });
 
+     describe('RO', () => {
+       let { format, normalize, pattern } = CountryTelephoneInfo.RO;
+
+       it('formats correctly', () => {
+         assert.equal(format('+40712345678'), '+40 712 345678');
+       });
+
+       describe('normalize', () => {
+         it('normalizes a number accepted by pattern correctly', () => {
+           assert.equal(normalize('712345678'), '+40712345678'); // no country code prefix
+           assert.equal(normalize('0712345678'), '+40712345678'); // no country code prefix, extra 0 before the 7
+           assert.equal(normalize('+40712345678'), '+40712345678'); // full country code prefix
+           assert.equal(normalize('+400712345678'), '+40712345678'); // full country code prefix, extra 0 before the 7
+         });
+       });
+
+       describe('pattern', () => {
+         it('validates correctly', () => {
+           assert.isFalse(pattern.test('71234567')); // too short
+           assert.isFalse(pattern.test('7123456789')); // too long
+           assert.isFalse(pattern.test('812345678')); // invalid prefix (must be 7)
+
+           assert.ok(pattern.test('712345678'));
+           assert.ok(pattern.test('0712345678')); // allow leading 0
+           assert.ok(pattern.test('+40712345678')); // full country code prefix
+           assert.ok(pattern.test('+400712345678')); // full country code prefix with 0 before 7
+           assert.isFalse(pattern.test('+45712345678')); // incorrect country code prefix
+         });
+       });
+     });
+
      describe('US', () => {
        let { format, normalize, pattern } = CountryTelephoneInfo.US;
 

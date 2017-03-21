@@ -117,6 +117,15 @@ When the relier supports being linked to its `redirect_uri` without extra OAuth 
 * /signup
 * /force_auth
 
+### `country`
+Force a country to be used when testing the SMS feature.
+
+#### Options
+* `CA`
+* `GB`
+* `RO`
+* `US`
+
 ### `customizeSync`
 Set the default value of the "Customize which values to sync" checkbox.
 

@@ -44,16 +44,29 @@
        formPrefill = new Backbone.Model({});
        model = new Backbone.Model({ account });
        notifier = new Notifier();
-       relier = new Relier({ service: 'sync' });
+       relier = new Relier({ country: 'US', service: 'sync' });
 
        createView();
 
        return view.render();
      });
 
-     it('renders, sets the correct country, renders marketing', () => {
-       assert.equal(view.$('input[type=tel]').data('country'), 'US');
-       assert.lengthOf(view.$('.marketing-link'), 2);
+     describe('render', () => {
+       it('with default country, it renders correctly for country, renders marketing', () => {
+         assert.equal(view.$('input[type=tel]').__val(), '');
+         assert.equal(view.$('input[type=tel]').data('country'), 'US');
+         assert.lengthOf(view.$('.marketing-link'), 2);
+       });
+
+       it('with relier set country, it renders correctly for country, renders marketing', () => {
+         formPrefill.unset('phoneNumber');
+         relier.set('country', 'GB');
+         return view.render()
+           .then(() => {
+             assert.equal(view.$('input[type=tel]').__val(), '+44');
+             assert.equal(view.$('input[type=tel]').data('country'), 'GB');
+           });
+       });
      });
 
      describe('submit', () => {
@@ -155,7 +168,7 @@
      describe('_getNormalizedPhoneNumber', () => {
        describe('with a US phone number', () => {
          beforeEach(() => {
-           model.set('country', 'US');
+           relier.set('country', 'US');
          });
 
          it('returns phone number with +1 prefix', () => {
@@ -175,7 +188,7 @@
 
        describe('with a GB phone number', () => {
          beforeEach(() => {
-           model.set('country', 'GB');
+           relier.set('country', 'GB');
          });
 
          it('returns phone number with +44 prefix', () => {
@@ -186,6 +199,22 @@
            // prefix is not pre-filled in form
            view.$('input[type=tel]').val('1234567890');
            assert.equal(view._getNormalizedPhoneNumber(), '+441234567890');
+         });
+       });
+
+       describe('with a RO phone number', () => {
+         beforeEach(() => {
+           relier.set('country', 'RO');
+         });
+
+         it('returns phone number with +40 prefix', () => {
+           // prefix is pre-filled in form
+           view.$('input[type=tel]').val('+401234567890');
+           assert.equal(view._getNormalizedPhoneNumber(), '+401234567890');
+
+           // prefix is not pre-filled in form
+           view.$('input[type=tel]').val('1234567890');
+           assert.equal(view._getNormalizedPhoneNumber(), '+401234567890');
          });
        });
      });
@@ -218,27 +247,21 @@
 
      describe('formPrefill', () => {
        const USER_ENTERED_PHONE_NUMBER = '44(1234) 567890';
-       it('destroy saves country, phoneNumber into formPrefill', () => {
-         view.model.set('country', 'GB');
+       it('destroy saves phoneNumber into formPrefill', () => {
          view.$('input[type=tel]').val(USER_ENTERED_PHONE_NUMBER);
 
          view.destroy();
 
          assert.equal(formPrefill.get('phoneNumber'), USER_ENTERED_PHONE_NUMBER);
-         assert.equal(formPrefill.get('country'), 'GB');
        });
 
        it('render with formPrefill fills in information correctly', () => {
-         formPrefill.set({
-           country: 'GB',
-           phoneNumber: USER_ENTERED_PHONE_NUMBER
-         });
+         formPrefill.set('phoneNumber', USER_ENTERED_PHONE_NUMBER);
          createView();
 
          return view.render()
            .then(() => {
              const $telEl = view.$('input[type=tel]');
-             assert.equal($telEl.data('country'), 'GB');
              assert.equal($telEl.__val(), USER_ENTERED_PHONE_NUMBER);
            });
        });

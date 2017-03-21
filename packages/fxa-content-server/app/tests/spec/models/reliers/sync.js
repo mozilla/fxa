@@ -13,10 +13,11 @@ define(function (require, exports, module) {
   const WindowMock = require('../../../mocks/window');
 
   const CONTEXT = 'fx_desktop_v1';
+  const COUNTRY = 'RO';
   const SYNC_MIGRATION = 'sync11';
   const SYNC_SERVICE = 'sync';
 
-  describe('models/reliers/sync', function () {
+  describe('models/reliers/sync', () => {
     let err;
     let relier;
     let translator;
@@ -29,7 +30,7 @@ define(function (require, exports, module) {
         });
     }
 
-    beforeEach(function () {
+    beforeEach(() => {
       translator = new Translator('en-US', ['en-US']);
       windowMock = new WindowMock();
 
@@ -41,39 +42,41 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('fetch', function () {
-      it('populates model from the search parameters', function () {
+    describe('fetch', () => {
+      it('populates model from the search parameters', () => {
         windowMock.location.search = TestHelpers.toSearchString({
           context: CONTEXT,
+          country: COUNTRY,
           customizeSync: 'true',
           migration: SYNC_MIGRATION,
           service: SYNC_SERVICE
         });
 
         return relier.fetch()
-          .then(function () {
+          .then(() => {
             assert.equal(relier.get('context'), CONTEXT);
+            assert.equal(relier.get('country'), COUNTRY);
             assert.equal(relier.get('migration'), SYNC_MIGRATION);
             assert.equal(relier.get('service'), SYNC_SERVICE);
             assert.isTrue(relier.get('customizeSync'));
           });
       });
 
-      describe('context query parameter', function () {
-        describe('missing', function () {
-          beforeEach(function () {
+      describe('context query parameter', () => {
+        describe('missing', () => {
+          beforeEach(() => {
             windowMock.location.search = TestHelpers.toSearchString({});
 
             return relier.fetch();
           });
 
-          it('falls back to passed in `context', function () {
+          it('falls back to passed in `context', () => {
             assert.equal(relier.get('context'), CONTEXT);
           });
         });
 
-        describe('emtpy', function () {
-          beforeEach(function () {
+        describe('emtpy', () => {
+          beforeEach(() => {
             windowMock.location.search = TestHelpers.toSearchString({
               context: ''
             });
@@ -81,14 +84,14 @@ define(function (require, exports, module) {
             return fetchExpectError();
           });
 
-          it('errors correctly', function () {
+          it('errors correctly', () => {
             assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
             assert.equal(err.param, 'context');
           });
         });
 
-        describe('whitespace', function () {
-          beforeEach(function () {
+        describe('whitespace', () => {
+          beforeEach(() => {
             windowMock.location.search = TestHelpers.toSearchString({
               context: ' '
             });
@@ -96,16 +99,75 @@ define(function (require, exports, module) {
             return fetchExpectError();
           });
 
-          it('errors correctly', function () {
+          it('errors correctly', () => {
             assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
             assert.equal(err.param, 'context');
           });
         });
       });
 
-      describe('customizeSync query parameter', function () {
-        describe('missing', function () {
-          beforeEach(function () {
+      describe('country query parameter', () => {
+        describe('missing', () => {
+          beforeEach(() => {
+            windowMock.location.search = TestHelpers.toSearchString({});
+
+            return relier.fetch();
+          });
+
+          it('falls back to default country', () => {
+            assert.equal(relier.get('country'), 'US');
+          });
+        });
+
+        describe('emtpy', () => {
+          beforeEach(() => {
+            windowMock.location.search = TestHelpers.toSearchString({
+              country: ''
+            });
+
+            return fetchExpectError();
+          });
+
+          it('errors correctly', () => {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+            assert.equal(err.param, 'country');
+          });
+        });
+
+        describe('invalid', () => {
+          beforeEach(() => {
+            windowMock.location.search = TestHelpers.toSearchString({
+              country: 'AR'
+            });
+
+            return fetchExpectError();
+          });
+
+          it('errors correctly', () => {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+            assert.equal(err.param, 'country');
+          });
+        });
+
+        describe('whitespace', () => {
+          beforeEach(() => {
+            windowMock.location.search = TestHelpers.toSearchString({
+              country: ' '
+            });
+
+            return fetchExpectError();
+          });
+
+          it('errors correctly', () => {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+            assert.equal(err.param, 'country');
+          });
+        });
+      });
+
+      describe('customizeSync query parameter', () => {
+        describe('missing', () => {
+          beforeEach(() => {
             windowMock.location.search = TestHelpers.toSearchString({
               context: CONTEXT
             });
@@ -113,13 +175,13 @@ define(function (require, exports, module) {
             return relier.fetch();
           });
 
-          it('succeeds', function () {
+          it('succeeds', () => {
             assert.isFalse(relier.get('customizeSync'));
           });
         });
 
-        describe('emtpy', function () {
-          beforeEach(function () {
+        describe('emtpy', () => {
+          beforeEach(() => {
             windowMock.location.search = TestHelpers.toSearchString({
               context: CONTEXT,
               customizeSync: ''
@@ -128,14 +190,14 @@ define(function (require, exports, module) {
             return fetchExpectError();
           });
 
-          it('errors correctly', function () {
+          it('errors correctly', () => {
             assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
             assert.equal(err.param, 'customizeSync');
           });
         });
 
-        describe('whitespace', function () {
-          beforeEach(function () {
+        describe('whitespace', () => {
+          beforeEach(() => {
             windowMock.location.search = TestHelpers.toSearchString({
               context: CONTEXT,
               customizeSync: ' '
@@ -144,14 +206,14 @@ define(function (require, exports, module) {
             return fetchExpectError();
           });
 
-          it('errors correctly', function () {
+          it('errors correctly', () => {
             assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
             assert.equal(err.param, 'customizeSync');
           });
         });
 
-        describe('not a boolean', function () {
-          beforeEach(function () {
+        describe('not a boolean', () => {
+          beforeEach(() => {
             windowMock.location.search = TestHelpers.toSearchString({
               context: CONTEXT,
               customizeSync: 'not a boolean'
@@ -160,60 +222,60 @@ define(function (require, exports, module) {
             return fetchExpectError();
           });
 
-          it('errors correctly', function () {
+          it('errors correctly', () => {
             assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
             assert.equal(err.param, 'customizeSync');
           });
         });
       });
 
-      it('translates `service` to `serviceName`', function () {
+      it('translates `service` to `serviceName`', () => {
         windowMock.location.search = TestHelpers.toSearchString({
           context: CONTEXT,
           service: SYNC_SERVICE
         });
 
         return relier.fetch()
-          .then(function () {
+          .then(() => {
             assert.equal(relier.get('serviceName'), 'Firefox Sync');
           });
       });
     });
 
-    describe('isSync', function () {
-      it('returns `true`', function () {
+    describe('isSync', () => {
+      it('returns `true`', () => {
         assert.isTrue(relier.isSync());
       });
     });
 
-    describe('isCustomizeSyncChecked', function () {
-      it('returns true if `customizeSync=true`', function () {
+    describe('isCustomizeSyncChecked', () => {
+      it('returns true if `customizeSync=true`', () => {
         windowMock.location.search = TestHelpers.toSearchString({
           context: CONTEXT,
           customizeSync: 'true'
         });
 
         return relier.fetch()
-          .then(function () {
+          .then(() => {
             assert.isTrue(relier.isCustomizeSyncChecked());
           });
       });
 
-      it('returns false if `customizeSync=false`', function () {
+      it('returns false if `customizeSync=false`', () => {
         windowMock.location.search = TestHelpers.toSearchString({
           context: CONTEXT,
           customizeSync: 'false'
         });
 
         return relier.fetch()
-          .then(function () {
+          .then(() => {
             assert.isFalse(relier.isCustomizeSyncChecked());
           });
       });
     });
 
-    describe('wantsKeys', function () {
-      it('always returns true', function () {
+    describe('wantsKeys', () => {
+      it('always returns true', () => {
         assert.isTrue(relier.wantsKeys());
       });
     });

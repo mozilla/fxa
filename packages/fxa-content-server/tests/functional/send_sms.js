@@ -14,7 +14,7 @@
    CountryTelephoneInfo, serverConfig) {
    const config = intern.config;
 
-   const SEND_SMS_URL = config.fxaContentRoot + 'sms?service=sync';
+   const SEND_SMS_URL = config.fxaContentRoot + 'sms?service=sync&country=US';
 
    const LEARN_MORE_WINDOW_HANDLE = '_learn-more';
 
@@ -60,6 +60,46 @@
        return this.remote
          .then(fillOutSignUp(email, PASSWORD))
          .then(testElementExists(SELECTOR_CONFIRM_SIGNUP));
+     },
+
+     'with `country=CA`': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER, {
+           query: {
+             country: 'CA'
+           }
+         }))
+         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, ''));
+     },
+
+     'with `country=RO`': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER, {
+           query: {
+             country: 'RO'
+           }
+         }))
+         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, '+40'));
+     },
+
+     'with `country=GB`': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER, {
+           query: {
+             country: 'GB'
+           }
+         }))
+         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, '+44'));
+     },
+
+     'with `country=US`': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER, {
+           query: {
+             country: 'US'
+           }
+         }))
+         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, ''));
      },
 
      'learn more': function () {

@@ -13,25 +13,26 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
   const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const AllowedCountries = Object.keys(require('lib/country-telephone-info'));
   const Relier = require('models/reliers/relier');
   const Vat = require('lib/vat');
 
-  function t(str) {
-    return str;
-  }
+  const t = (msg) => msg;
 
   /*eslint-disable camelcase*/
-  var QUERY_PARAMETER_SCHEMA = {
+  const QUERY_PARAMETER_SCHEMA = {
     // context is not available when verifying.
     context: Vat.string().min(1),
+    country: Vat.string().valid(...AllowedCountries),
     customizeSync: Vat.boolean()
   };
   /*eslint-enable camelcase*/
 
-  var SyncRelier = Relier.extend({
+  module.exports = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
+      country: 'US',
       customizeSync: false
     }),
 
@@ -74,6 +75,4 @@ define(function (require, exports, module) {
       return !! this.get('customizeSync');
     }
   });
-
-  module.exports = SyncRelier;
 });
