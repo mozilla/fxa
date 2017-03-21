@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.82.7",
+  "version": "1.83.0",
   "dependencies": {
     "ajv": {
       "version": "4.1.7",

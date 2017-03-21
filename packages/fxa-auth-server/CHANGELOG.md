@@ -1,3 +1,51 @@
+<a name="1.83.0"></a>
+# [1.83.0](https://github.com/mozilla/fxa-auth-server/compare/v1.82.2...v1.83.0) (2017-03-21)
+
+
+### Bug Fixes
+
+* **config:** sync up both auth and mailer configs (#58) r=jrgm ([ac1e208](https://github.com/mozilla/fxa-auth-server/commit/ac1e208))
+* **config:** Use a more generic server url pattern for push registrations. ([3099acc](https://github.com/mozilla/fxa-auth-server/commit/3099acc))
+* **docker:** prevent duplicate installation of dev dependencies (#1730) r=vladikoff ([ef8f1c1](https://github.com/mozilla/fxa-auth-server/commit/ef8f1c1))
+* **docs:** fix broken links in metrics events docs (#1738) r=vladikoff ([a843f74](https://github.com/mozilla/fxa-auth-server/commit/a843f74)), closes [#1738](https://github.com/mozilla/fxa-auth-server/issues/1738)
+* **errors:** fix misleading error string for featureNotEnabled ([1c8511a](https://github.com/mozilla/fxa-auth-server/commit/1c8511a))
+* **mailer:** fix sender from field. uplift ([ba6a8de](https://github.com/mozilla/fxa-auth-server/commit/ba6a8de))
+* **mailer:** fix sender from field. uplift ([461c52f](https://github.com/mozilla/fxa-auth-server/commit/461c52f))
+* **metrics:** log locale instead of accept languages on flow events ([2a5d3d0](https://github.com/mozilla/fxa-auth-server/commit/2a5d3d0))
+* **metrics:** suppress route flow events if metrics context is invalid ([c2dc6fc](https://github.com/mozilla/fxa-auth-server/commit/c2dc6fc))
+* **push:** fix push payload validation and disallow additional props (#57) r=vladikoff ([32750a2](https://github.com/mozilla/fxa-auth-server/commit/32750a2)), closes [#57](https://github.com/mozilla/fxa-auth-server/issues/57)
+* **scripts:** mend the broken write-emails-to-disk script (#1701) r=vladikoff,vbudhram ([56a6538](https://github.com/mozilla/fxa-auth-server/commit/56a6538))
+* **sessions:** improve tests and fix incorrect buffer conversion (#1708) r=vbuhdram ([bbdaa64](https://github.com/mozilla/fxa-auth-server/commit/bbdaa64)), closes [#1708](https://github.com/mozilla/fxa-auth-server/issues/1708)
+* **sms:** ditch the silly ad-hoc config file for sender ids ([4cd6f9e](https://github.com/mozilla/fxa-auth-server/commit/4cd6f9e))
+* **tests:** fix bad assertion in mailer tests ([fb916c2](https://github.com/mozilla/fxa-auth-server/commit/fb916c2))
+* **tests:** invoke mocha recursively on test directories ([1a907f7](https://github.com/mozilla/fxa-auth-server/commit/1a907f7))
+* **tokens:** Don't override createdAt when deserializing an existing token. (#1744); r=philbo ([3be60f3](https://github.com/mozilla/fxa-auth-server/commit/3be60f3))
+* **tokens:** ensure account reset tokens get a fresh createdAt ([efed703](https://github.com/mozilla/fxa-auth-server/commit/efed703))
+* **version:** use cwd and env var to get version in dev ([a456c76](https://github.com/mozilla/fxa-auth-server/commit/a456c76))
+
+### chore
+
+* **config:** change SMS region config from regex to array (#1743) r=vladikoff ([33041e9](https://github.com/mozilla/fxa-auth-server/commit/33041e9))
+* **docs:** add circle badge (#1703) ([5a1561b](https://github.com/mozilla/fxa-auth-server/commit/5a1561b))
+* **docs:** update the metrics documentation (#1732), r=@vbudhram ([917d7d8](https://github.com/mozilla/fxa-auth-server/commit/917d7d8))
+
+### Features
+
+* **db:** make database fault tolerant of db server (#1716) r=vladikoff ([5138ad7](https://github.com/mozilla/fxa-auth-server/commit/5138ad7))
+* **docker:** add docker support with circle-ci (#1692) r=vladikoff,jbuck ([4fbc25f](https://github.com/mozilla/fxa-auth-server/commit/4fbc25f))
+* **logging:** Use correct logging format (#60) r=vladikoff ([1932afe](https://github.com/mozilla/fxa-auth-server/commit/1932afe))
+* **mailer:** check for hard bounced or complaints before sending emails ([51f85ce](https://github.com/mozilla/fxa-auth-server/commit/51f85ce))
+* **metrics:** Log metrics event for sending a tab between devices. (#1700); r=pb,vbudhram,sean ([e2942c2](https://github.com/mozilla/fxa-auth-server/commit/e2942c2))
+* **sessions:** add /sessions support (#1617) r=vbudhram ([d79f63a](https://github.com/mozilla/fxa-auth-server/commit/d79f63a))
+
+### Refactor
+
+* **logging:** Log email domain if popular otherwise log `other` (#1666), r=@rfk, @vladikoff ([357d2f7](https://github.com/mozilla/fxa-auth-server/commit/357d2f7))
+* **logging:** Log email domain if popular otherwise log `other` (#1666), r=@rfk, @vladikoff (# ([37d6569](https://github.com/mozilla/fxa-auth-server/commit/37d6569))
+* **routes:** remove preVerifyToken support (#1690) r=rfk ([e440d8f](https://github.com/mozilla/fxa-auth-server/commit/e440d8f)), closes [#1599](https://github.com/mozilla/fxa-auth-server/issues/1599)
+
+
+
 <a name="1.82.7"></a>
 ## [1.82.7](https://github.com/mozilla/fxa-auth-server/compare/v1.82.6-private...v1.82.7) (2017-03-17)
 
