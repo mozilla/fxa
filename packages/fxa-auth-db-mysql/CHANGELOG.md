@@ -1,3 +1,19 @@
+<a name="0.83.0"></a>
+# [0.83.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.82.0...v0.83.0) (2017-03-21)
+
+
+### Bug Fixes
+
+* **config:** Add environment variable for ipHmacKey ([65f6d78](https://github.com/mozilla/fxa-auth-db-mysql/commit/65f6d78))
+* **emailBounces:** receive the email parameter in the url as hex ([e1c078b](https://github.com/mozilla/fxa-auth-db-mysql/commit/e1c078b))
+* **security-events:** Correctly handle tokenless security events in mem backend (#215) r=vladikoff,sea ([0f816cb](https://github.com/mozilla/fxa-auth-db-mysql/commit/0f816cb))
+
+### Features
+
+* **email:** Add support for adding additional emails (#211), r=@seanmonstar, @rfk ([1c436c9](https://github.com/mozilla/fxa-auth-db-mysql/commit/1c436c9))
+
+
+
 <a name="0.82.0"></a>
 # [0.82.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.81.0...v0.82.0) (2017-03-06)
 
