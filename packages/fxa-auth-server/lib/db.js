@@ -685,7 +685,7 @@ module.exports = function (
 
   DB.prototype.verifyEmail = function (account) {
     log.trace({ op: 'DB.verifyEmail', uid: account && account.uid })
-    return this.pool.post('/account/' + account.uid.toString('hex') + '/verifyEmail')
+    return this.pool.post('/account/' + account.uid.toString('hex') + '/verifyEmail/' + account.emailCode.toString('hex'))
   }
 
   DB.prototype.verifyTokens = function (tokenVerificationId, accountData) {
