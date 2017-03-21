@@ -79,7 +79,7 @@
              country: 'RO'
            }
          }))
-         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, '+40'));
+         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, '+407'));
      },
 
      'with `country=GB`': function () {

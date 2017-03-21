@@ -72,7 +72,8 @@
        },
        // +407xxxxxxxx, allow leading 0 for sloppiness.
        pattern: /^(?:\+40)?0?7\d{8,8}$/,
-       prefix: '+40'
+       // The country code is +40, all mobile phones have a 7 prefix.
+       prefix: '+407'
 
      },
      US: {
