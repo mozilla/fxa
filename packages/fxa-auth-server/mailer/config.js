@@ -114,7 +114,8 @@ var conf = convict({
     pollTime: {
       doc: 'Poll duration in milliseconds. 0 is disabled.',
       format: 'duration',
-      default: '30 minutes'
+      default: '30 minutes',
+      env: 'VERIFICATION_REMINDER_POLL_TIME'
     }
   },
   mail: {
