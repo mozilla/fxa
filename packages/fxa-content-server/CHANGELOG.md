@@ -1,3 +1,29 @@
+<a name="1.83.1"></a>
+## 1.83.1 (2017-03-22)
+
+
+### Bug Fixes
+
+* **docs:** changelog fixes ([249b9c2](https://github.com/mozilla/fxa-content-server/commit/249b9c2))
+* **sms:** US area codes must start with 2-9. (#4834) r=vladikoff ([6aa1460](https://github.com/mozilla/fxa-content-server/commit/6aa1460)), closes [#4833](https://github.com/mozilla/fxa-content-server/issues/4833)
+* **tests:** fix process.nextTick testing issues (#24) r=jrgm ([68fd55a](https://github.com/mozilla/fxa-content-server/commit/68fd55a)), closes [(#24](https://github.com/(/issues/24)
+* **tests:** lock Selenium and geckodriver versions (#4836) r=jrgm ([6085ff5](https://github.com/mozilla/fxa-content-server/commit/6085ff5))
+* **validation:** adjust validation rules based on sentry feedback ([d8bf79a](https://github.com/mozilla/fxa-content-server/commit/d8bf79a))
+
+### chore
+
+* **sms:** Use +407 for the Romania prefix. ([72fb877](https://github.com/mozilla/fxa-content-server/commit/72fb877))
+
+### Features
+
+* **metrics:** Validate POST data to /metrics-errors. (#23) r=vladikoff ([7b8532b](https://github.com/mozilla/fxa-content-server/commit/7b8532b))
+* **metrics:** Validate the POST /metrics body (#22) r=vladikoff ([4cbd363](https://github.com/mozilla/fxa-content-server/commit/4cbd363))
+* **server:** try to verify emails on the server (#4794) r=vbudhram ([005549a](https://github.com/mozilla/fxa-content-server/commit/005549a))
+* **sms:** Allow sending SMS messages to Romania. ([42afec7](https://github.com/mozilla/fxa-content-server/commit/42afec7)), closes [#4829](https://github.com/mozilla/fxa-content-server/issues/4829)
+* **sms:** SMS feature gated by the auth-server. (#4827) r=vladikoff,philbooth ([de3ba24](https://github.com/mozilla/fxa-content-server/commit/de3ba24)), closes [#4789](https://github.com/mozilla/fxa-content-server/issues/4789)
+
+
+
 <a name="1.83.0"></a>
 # 1.83.0 (2017-03-20)
 
