@@ -103,26 +103,26 @@
 
      'invalid phone number (too short)': function () {
        return this.remote
-        .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '1234567'))
-        .then(click(SELECTOR_SEND_SMS_SUBMIT))
-        .then(testElementExists(SELECTOR_SEND_SMS_TOOLTIP))
-        .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
+         .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '2134567'))
+         .then(click(SELECTOR_SEND_SMS_SUBMIT))
+         .then(testElementExists(SELECTOR_SEND_SMS_TOOLTIP))
+         .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));
+     },
+
+     'invalid phone number (too long)': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
+         .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '21345678901'))
+         .then(click(SELECTOR_SEND_SMS_SUBMIT))
+         .then(testElementExists(SELECTOR_SEND_SMS_TOOLTIP))
+         .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));
      },
 
      'invalid phone number (contains letters)': function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '1234567a890'))
-        .then(click(SELECTOR_SEND_SMS_SUBMIT))
-        .then(testElementExists(SELECTOR_SEND_SMS_TOOLTIP))
-        .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));
-     },
-
-     'invalid phone number (fails hapi validation)': function () {
-       return this.remote
-        .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '1234567890'))
+        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '2134567a890'))
         .then(click(SELECTOR_SEND_SMS_SUBMIT))
         .then(testElementExists(SELECTOR_SEND_SMS_TOOLTIP))
         .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));

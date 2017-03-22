@@ -70,7 +70,7 @@
          }
          return `+1${num}`;
        },
-       pattern: /^(?:\+?1)?\d{10,10}$/, // allow for a +1 or 1 prefix before the area code
+       pattern: /^(\+?1)?[2-9]\d{9,9}$/, // allow for a +1 or 1 prefix before the area code, area codes are all 2-9
        prefix: '+1'
      }
    };

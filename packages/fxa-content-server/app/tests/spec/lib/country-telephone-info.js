@@ -55,13 +55,18 @@
 
        describe('pattern', () => {
          it('validates correctly', () => {
-           assert.ok(pattern.test('1234567890'));
-           assert.ok(pattern.test('+11234567890')); // full country code prefix
-           assert.ok(pattern.test('11234567890')); // country code prefix w/o +
+           assert.ok(pattern.test('2134567890'));
+           assert.ok(pattern.test('+12134567890')); // full country code prefix
+           assert.ok(pattern.test('12134567890')); // country code prefix w/o +
            assert.ok(pattern.test('15234567890'));
-           assert.isFalse(pattern.test('+331234567890'));
-           assert.isFalse(pattern.test('+1123456789'));
-           assert.isFalse(pattern.test('123456789'));
+           assert.isFalse(pattern.test('+332134567890'));
+           assert.isFalse(pattern.test('+1213456789'));
+           assert.isFalse(pattern.test('213456789'));
+           assert.isFalse(pattern.test('1213456789'));
+           assert.isFalse(pattern.test('1123456789')); // can't start an area code with 1
+           assert.isFalse(pattern.test('11234567890')); // can't start an area code with 1
+           assert.isFalse(pattern.test('121345678901')); // too long, has country prefix
+           assert.isFalse(pattern.test('21345678901')); // too long, no country prefix
          });
        });
      });

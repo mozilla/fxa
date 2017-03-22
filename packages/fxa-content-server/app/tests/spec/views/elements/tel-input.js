@@ -74,15 +74,15 @@ define(function (require, exports, module) {
         });
 
         it('does not throw if valid', () => {
-          assert.isUndefined(validate($requiredTelEl, '1234567890'));
-          assert.isUndefined(validate($requiredTelEl, '11234567890'));
-          assert.isUndefined(validate($requiredTelEl, '(123)4567890'));
-          assert.isUndefined(validate($requiredTelEl, '(123)456-7890'));
-          assert.isUndefined(validate($requiredTelEl, '(123) 456-7890'));
-          assert.isUndefined(validate($requiredTelEl, '1(123) 456-7890'));
-          assert.isUndefined(validate($requiredTelEl, '1 (123) 456-7890'));
-          assert.isUndefined(validate($requiredTelEl, '+1(123) 456-7890'));
-          assert.isUndefined(validate($requiredTelEl, '+1 (123) 456-7890'));
+          assert.isUndefined(validate($requiredTelEl, '2134567890'));
+          assert.isUndefined(validate($requiredTelEl, '12134567890'));
+          assert.isUndefined(validate($requiredTelEl, '(213)4567890'));
+          assert.isUndefined(validate($requiredTelEl, '(213)456-7890'));
+          assert.isUndefined(validate($requiredTelEl, '(213) 456-7890'));
+          assert.isUndefined(validate($requiredTelEl, '1(213) 456-7890'));
+          assert.isUndefined(validate($requiredTelEl, '1 (213) 456-7890'));
+          assert.isUndefined(validate($requiredTelEl, '+1(213) 456-7890'));
+          assert.isUndefined(validate($requiredTelEl, '+1 (213) 456-7890'));
         });
       });
 
