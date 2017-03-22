@@ -47,7 +47,8 @@ describe('/sms', () => {
           CA: '16474909977',
           GB: 'Firefox',
           US: '15036789977'
-        }
+        },
+        isStatusGeoEnabled: true
       }
     }
     routes = makeRoutes({ log, config })
@@ -279,7 +280,8 @@ describe('/sms disabled', () => {
     log = mocks.spyLog()
     config = {
       sms: {
-        enabled: false
+        enabled: false,
+        isStatusGeoEnabled: true
       }
     }
     routes = makeRoutes({ log, config })
@@ -299,7 +301,8 @@ describe('/sms/status', () => {
     config = {
       sms: {
         enabled: true,
-        regions: [ 'US' ]
+        regions: [ 'US' ],
+        isStatusGeoEnabled: true
       }
     }
     geodb = sinon.spy(() => geodbResult)
@@ -317,7 +320,7 @@ describe('/sms/status', () => {
     let response
 
     beforeEach(() => {
-      geodbResult = Promise.resolve({ location: { countryCode: 'US' } })
+      geodbResult = P.resolve({ location: { countryCode: 'US' } })
       sms.balance = sinon.spy(() => P.resolve({ isOk: true }))
       return runTest(route, request)
         .then(r => response = r)
@@ -356,7 +359,7 @@ describe('/sms/status', () => {
     let response
 
     beforeEach(() => {
-      geodbResult = Promise.resolve({ location: { countryCode: 'US' } })
+      geodbResult = P.resolve({ location: { countryCode: 'US' } })
       sms.balance = sinon.spy(() => P.resolve({ isOk: false }))
       return runTest(route, request)
         .then(r => response = r)
@@ -387,7 +390,7 @@ describe('/sms/status', () => {
     let response
 
     beforeEach(() => {
-      geodbResult = Promise.resolve({ location: { countryCode: 'CA' } })
+      geodbResult = P.resolve({ location: { countryCode: 'CA' } })
       sms.balance = sinon.spy(() => P.resolve({ isOk: true }))
       return runTest(route, request)
         .then(r => response = r)
@@ -418,7 +421,7 @@ describe('/sms/status', () => {
     let err
 
     beforeEach(() => {
-      geodbResult = Promise.resolve({ location: { countryCode: 'US' } })
+      geodbResult = P.resolve({ location: { countryCode: 'US' } })
       sms.balance = sinon.spy(() => P.reject(new Error('foo')))
       return runTest(route, request)
         .catch(e => err = e)
@@ -456,7 +459,7 @@ describe('/sms/status', () => {
     let err
 
     beforeEach(() => {
-      geodbResult = Promise.reject(new Error('bar'))
+      geodbResult = P.reject(new Error('bar'))
       sms.balance = sinon.spy(() => P.resolve({ isOk: true }))
       return runTest(route, request)
         .catch(e => err = e)
@@ -488,6 +491,101 @@ describe('/sms/status', () => {
       assert.ok(args[0].err instanceof Error)
       assert.equal(args[0].err.message, 'bar')
     })
+  })
+
+  describe('getGeoData succeeds but returns no location data', () => {
+    let response
+
+    beforeEach(() => {
+      geodbResult = P.resolve({})
+      sms.balance = sinon.spy(() => P.resolve({ isOk: true }))
+      return runTest(route, request)
+        .then(r => response = r)
+    })
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response, { ok: false })
+    })
+
+    it('called log.begin once', () => {
+      assert.equal(log.begin.callCount, 1)
+    })
+
+    it('called geodb once', () => {
+      assert.equal(geodb.callCount, 1)
+    })
+
+    it('called sms.balance once', () => {
+      assert.equal(sms.balance.callCount, 1)
+    })
+
+    it('called log.error correctly', () => {
+      assert.equal(log.error.callCount, 1)
+      const args = log.error.args[0]
+      assert.equal(args.length, 1)
+      assert.deepEqual(args[0], {
+        op: 'sms.getGeoData',
+        err: 'missing location data in result'
+      })
+    })
+  })
+})
+
+describe('/sms/status with disabled geo-ip lookup', () => {
+  let log, config, geodb, routes, route, request, response
+
+  beforeEach(() => {
+    log = mocks.spyLog()
+    config = {
+      sms: {
+        enabled: true,
+        regions: [ 'US' ],
+        isStatusGeoEnabled: false
+      }
+    }
+    geodb = sinon.spy(() => P.resolve())
+    routes = makeRoutes({ log, config }, { '../geodb': () => geodb })
+    route = getRoute(routes, '/sms/status')
+    request = mocks.mockRequest({
+      clientAddress: '127.0.0.1',
+      credentials: {
+        email: 'foo@example.org'
+      },
+      log: log
+    })
+    sms.balance = sinon.spy(() => P.resolve({ isOk: true }))
+    return runTest(route, request)
+      .then(r => response = r)
+  })
+
+  it('returned the correct response', () => {
+    assert.deepEqual(response, { ok: true })
+  })
+
+  it('called log.begin once', () => {
+    assert.equal(log.begin.callCount, 1)
+  })
+
+  it('called log.warn correctly', () => {
+    assert.equal(log.warn.callCount, 1)
+    const args = log.warn.args[0]
+    assert.equal(args.length, 1)
+    assert.deepEqual(args[0], {
+      op: 'sms.getGeoData',
+      warning: 'skipping geolocation step'
+    })
+  })
+
+  it('did not call geodb', () => {
+    assert.equal(geodb.callCount, 0)
+  })
+
+  it('called sms.balance once', () => {
+    assert.equal(sms.balance.callCount, 1)
+  })
+
+  it('did not call log.error', () => {
+    assert.equal(log.error.callCount, 0)
   })
 })
 

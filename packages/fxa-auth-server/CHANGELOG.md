@@ -1,3 +1,13 @@
+<a name="1.83.1"></a>
+## [1.83.1](https://github.com/mozilla/fxa-auth-server/compare/v1.83.0...v1.83.1) (2017-03-21)
+
+
+### Features
+
+* **email:** Pass correct args to verify_email (#1754), r=@philbooth ([1fc8617](https://github.com/mozilla/fxa-auth-server/commit/1fc8617))
+
+
+
 <a name="1.83.0"></a>
 # [1.83.0](https://github.com/mozilla/fxa-auth-server/compare/v1.82.2...v1.83.0) (2017-03-21)
 
