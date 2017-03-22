@@ -37,11 +37,11 @@ const BODY_SCHEMA = {
       stacktrace: joi.object().keys({
         frames: joi.array().items(joi.object().keys({
           'abs_path': STRING_TYPE.optional(),
-          colno: INTEGER_TYPE.allow(null).required(),
+          colno: INTEGER_TYPE.allow(null).optional(),
           filename: STRING_TYPE.required(),
-          function: STRING_TYPE.required(),
+          function: STRING_TYPE.optional(),
           'in_app': BOOLEAN_TYPE.required(),
-          lineno: INTEGER_TYPE.allow(null).required()
+          lineno: INTEGER_TYPE.allow(null).optional()
         }))
       }).required(),
       type: STRING_TYPE.required(),
@@ -52,7 +52,7 @@ const BODY_SCHEMA = {
   fingerprint: joi.array().items(STRING_TYPE).optional(),
   level: STRING_TYPE.optional(),
   logger: STRING_TYPE.required(),
-  message: STRING_TYPE.required(),
+  message: STRING_TYPE.optional(),
   platform: STRING_TYPE.required(),
   project: STRING_TYPE.required(),
   release: STRING_TYPE.optional(),
@@ -91,31 +91,21 @@ const QUERY_SCHEMA = {
 /**
  * Attaches extra tags to sentry data
  *
- * @param {String} data - stringified Sentry data object
- * @returns {String} data - stringified Sentry data object with extra tags
+ * @param {Object} sentryData - Sentry data object
+ * @returns {Object} sentryData - Sentry data object with extra tags
  */
-function setExtraSentryData(data) {
-  let sentryData = null;
-  try {
-    sentryData = JSON.parse(data);
-  } catch (e) {
-    logger.error('Failed to parse Sentry data', data);
+function setExtraSentryData(sentryData) {
+  if (sentryData && sentryData.stacktrace && sentryData.stacktrace.frames) {
+    // the limit for the sentryRequest is controlled by nginx,
+    // by default the request url should not be greater than ~8000 characters.
+    // nginx will throw a '414 Request-URI Too Large' if the sentryRequest is too long.
+    // Cut the stacktrace frames to 20 calls maximum, otherwise the sentryRequest will be too long.
+    // Details at github.com/mozilla/fxa-content-server/issues/3167
+
+    sentryData.stacktrace.frames = sentryData.stacktrace.frames.slice(0, STACK_TRACE_LENGTH);
   }
 
-  if (sentryData) {
-    if (sentryData.stacktrace && sentryData.stacktrace.frames) {
-      // the limit for the sentryRequest is controlled by nginx,
-      // by default the request url should not be greater than ~8000 characters.
-      // nginx will throw a '414 Request-URI Too Large' if the sentryRequest is too long.
-      // Cut the stacktrace frames to 20 calls maximum, otherwise the sentryRequest will be too long.
-      // Details at github.com/mozilla/fxa-content-server/issues/3167
-
-      sentryData.stacktrace.frames = sentryData.stacktrace.frames.slice(0, STACK_TRACE_LENGTH);
-    }
-    return JSON.stringify(sentryData);
-  } else {
-    return data;
-  }
+  return sentryData;
 }
 
 /**
@@ -126,7 +116,11 @@ function setExtraSentryData(data) {
  *          Body of the error request.
  */
 function reportError(query, body) {
-  if (! query || ! body || ! _.isObject(query) || ! _.isString(body)) {
+  if (! query || ! body || ! _.isObject(query) || ! _.isObject(body)) {
+    logger.error('reportError bad query or body', {
+      body: body,
+      query: query
+    });
     return;
   }
 
@@ -138,7 +132,7 @@ function reportError(query, body) {
     const newQuery = querystring.stringify(query);
 
     got.post(sentryConfig.endpoint + '?' + newQuery, {
-      body: body
+      body: JSON.stringify(body)
     }).catch(function (err) {
       logger.error(err, body);
     });
