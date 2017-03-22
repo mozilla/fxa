@@ -1,3 +1,18 @@
+<a name="1.83.2"></a>
+## 1.83.2 (2017-03-22)
+
+
+### Bug Fixes
+
+* **fxa-content-server:** validate log in fxa-content-server.js (#4845) r=vladikoff ([ef70974](https://github.com/mozilla/fxa-content-server/commit/ef70974)), closes [#4841](https://github.com/mozilla/fxa-content-server/issues/4841)
+* **sentry:** update to latest raven.js, fix up validation rules (#4840) r=jrgm,shane-tomlinso ([7d3a234](https://github.com/mozilla/fxa-content-server/commit/7d3a234)), closes [(#4840](https://github.com/(/issues/4840) [#4828](https://github.com/mozilla/fxa-content-server/issues/4828)
+
+### Refactor
+
+* **test:** Use helpers in the Firstrun Sync v2 sign_up test. (#4838) r=@philbooth ([b0ff599](https://github.com/mozilla/fxa-content-server/commit/b0ff599))
+
+
+
 <a name="1.83.1"></a>
 ## 1.83.1 (2017-03-22)
 
