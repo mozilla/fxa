@@ -18,6 +18,7 @@ module.exports = (log, isA, error, config, customs, sms) => {
   const getGeoData = require('../geodb')(log)
   const REGIONS = new Set(config.sms.regions)
   const SENDER_IDS = config.sms.senderIds
+  const IS_STATUS_GEO_ENABLED = config.sms.isStatusGeoEnabled
 
   return [
     {
@@ -106,8 +107,20 @@ module.exports = (log, isA, error, config, customs, sms) => {
           .then(reply, reply)
 
         function getLocation () {
+          if (! IS_STATUS_GEO_ENABLED) {
+            log.warn({ op: 'sms.getGeoData', warning: 'skipping geolocation step' })
+            return true
+          }
+
           return getGeoData(request.app.clientAddress)
-            .then(result => REGIONS.has(result.location.countryCode))
+            .then(result => {
+              if (! result.location) {
+                log.error({ op: 'sms.getGeoData', err: 'missing location data in result' })
+                return false
+              }
+
+              return REGIONS.has(result.location.countryCode)
+            })
             .catch(err => {
               log.error({ op: 'sms.getGeoData', err: err })
               throw error.unexpectedError()

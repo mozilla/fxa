@@ -641,6 +641,12 @@ var conf = convict({
       format: Number,
       env: 'SMS_MINIMUM_BALANCE'
     },
+    isStatusGeoEnabled: {
+      doc: 'Indicates whether the status endpoint should do geo-ip lookup',
+      default: true,
+      format: Boolean,
+      env: 'SMS_STATUS_GEO_ENABLED'
+    },
     regions: {
       doc: 'Valid ISO 3166-1 alpha-2 country codes for enabled regions',
       default: [ 'US', 'CA' ],
