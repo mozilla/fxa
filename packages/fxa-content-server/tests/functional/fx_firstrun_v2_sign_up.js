@@ -5,23 +5,26 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_firstrun_v2&service=sync';
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
+  const config = intern.config;
+  const PAGE_URL = config.fxaContentRoot + 'signup?context=fx_firstrun_v2&service=sync';
 
   var email;
-  var PASSWORD = '12345678';
+  const PASSWORD = '12345678';
 
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testEmailExpected = FunctionalHelpers.testEmailExpected;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const clearBrowserState = FunctionalHelpers.clearBrowserState;
+  const click = FunctionalHelpers.click;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+  const testEmailExpected = FunctionalHelpers.testEmailExpected;
+  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
   registerSuite({
     name: 'Firstrun Sync v2 sign_up',
@@ -29,12 +32,12 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
       return this.remote
-        .then(FunctionalHelpers.clearBrowserState());
+        .then(clearBrowserState());
     },
 
     afterEach: function () {
       return this.remote
-        .then(FunctionalHelpers.clearBrowserState());
+        .then(clearBrowserState());
     },
 
     'sign up, verify same browser': function () {
@@ -45,34 +48,18 @@ define([
         .then(fillOutSignUp(email, PASSWORD))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-
-        .findByCssSelector('#fxa-choose-what-to-sync-header')
-        .end()
+        .then(testElementExists('#fxa-choose-what-to-sync-header'))
 
         // uncheck the passwords and history engines
-        .findByCssSelector('div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)')
-          .click()
-        .end()
-
-        .findByCssSelector('div.two-col-block:nth-child(1) > div:nth-child(3) > label:nth-child(1)')
-          .click()
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(click('div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)'))
+        .then(click('div.two-col-block:nth-child(1) > div:nth-child(3) > label:nth-child(1)'))
+        .then(click('button[type=submit]'))
 
         // user should be transitioned to the "go confirm your address" page
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
-
+        .then(testElementExists('#fxa-confirm-header'))
         // the login message is only sent after the sync preferences screen
         // has been cleared.
         .then(testIsBrowserNotified('fxaccounts:login'))
-
-        // user should be transitioned to the "go confirm your address" page
-        .findByCssSelector('#fxa-confirm-header')
-        .end()
 
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
@@ -82,22 +69,12 @@ define([
         // In real life, the original browser window would show
         // a "welcome to sync!" screen that has a manage button
         // on it, and this screen should show the FxA success screen.
-        .findById('fxa-sign-up-complete-header')
-        .end()
-
-        .findByCssSelector('.account-ready-service')
-          .getVisibleText()
-          .then(function (text) {
-            assert.ok(text.indexOf('Firefox Sync') > -1);
-          })
-        .end()
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
 
         // switch back to the original window, it should transition.
         .then(closeCurrentWindow())
-
-        .findByCssSelector('#fxa-sign-up-complete-header')
-        .end()
-
+        .then(testElementExists('#fxa-sign-up-complete-header'))
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
     }
