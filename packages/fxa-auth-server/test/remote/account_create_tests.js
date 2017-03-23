@@ -15,8 +15,6 @@ describe('remote account create', function() {
   this.timeout(15000)
   let server
   before(() => {
-    // XXX: update this later to avoid issues.
-    process.env.NODE_ENV = 'dev'
     return TestServer.start(config)
       .then(s => {
         server = s

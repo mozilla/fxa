@@ -81,24 +81,24 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
             function () {
               if (publicKey.algorithm === 'RS') {
                 if (! publicKey.n) {
-                  return reply(error.missingRequestParameter('n'))
+                  throw error.missingRequestParameter('n')
                 }
                 if (! publicKey.e) {
-                  return reply(error.missingRequestParameter('e'))
+                  throw error.missingRequestParameter('e')
                 }
               }
               else { // DS
                 if (! publicKey.y) {
-                  return reply(error.missingRequestParameter('y'))
+                  throw error.missingRequestParameter('y')
                 }
                 if (! publicKey.p) {
-                  return reply(error.missingRequestParameter('p'))
+                  throw error.missingRequestParameter('p')
                 }
                 if (! publicKey.q) {
-                  return reply(error.missingRequestParameter('q'))
+                  throw error.missingRequestParameter('q')
                 }
                 if (! publicKey.g) {
-                  return reply(error.missingRequestParameter('g'))
+                  throw error.missingRequestParameter('g')
                 }
               }
 

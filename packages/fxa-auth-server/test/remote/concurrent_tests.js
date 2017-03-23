@@ -16,7 +16,7 @@ describe('remote concurrect', function() {
   this.timeout(15000)
   let server
   before(() => {
-    process.env.VERIFIER_VERSION = '1'
+    config.verifierVersion = 1
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -56,7 +56,6 @@ describe('remote concurrect', function() {
   )
 
   after(() => {
-    delete process.env.VERIFIER_VERSION
     return TestServer.stop(server)
   })
 })

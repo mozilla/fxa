@@ -182,6 +182,11 @@ Lug.prototype.flowEvent = function (data) {
 }
 
 module.exports = function (level, name, options) {
+  if (arguments.length === 1 && typeof level === 'object') {
+    options = level
+    level = options.level
+    name = options.name
+  }
   options = options || {}
   options.name = name
   options.level = level

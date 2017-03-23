@@ -14,9 +14,9 @@ describe('remote base path', function() {
   this.timeout(15000)
   let server, config
   before(() => {
-    process.env.PUBLIC_URL = 'http://127.0.0.1:9000/auth'
     config = require('../../config').getProperties()
-    config.publicUrl = process.env.PUBLIC_URL
+    config.publicUrl = 'http://127.0.0.1:9000/auth'
+
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -72,7 +72,6 @@ describe('remote base path', function() {
   )
 
   after(() => {
-    delete process.env.PUBLIC_URL
     return TestServer.stop(server)
   })
 })

@@ -20,7 +20,7 @@ module.exports = (log, config) => {
     passwordForgotToken: 1000 * 60 * 15
   }
   const Bundle = require('./bundle')(crypto, P, hkdf, butil, error)
-  const Token = require('./token')(log, random, P, hkdf, Bundle, error)
+  const Token = require('./token')(log, config, random, P, hkdf, Bundle, error)
 
   const KeyFetchToken = require('./key_fetch_token')(log, inherits, Token, P, error)
   const AccountResetToken = require('./account_reset_token')(

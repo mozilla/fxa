@@ -23,9 +23,7 @@
  *
  */
 
-var config = require('../../config').getProperties()
-
-module.exports = function (log, random, P, hkdf, Bundle, error) {
+module.exports = function (log, config, random, P, hkdf, Bundle, error) {
 
   // Token constructor.
   //

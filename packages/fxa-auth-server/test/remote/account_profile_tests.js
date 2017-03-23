@@ -5,7 +5,6 @@
 'use strict'
 
 const assert = require('insist')
-var path = require('path')
 var TestServer = require('../test_server')
 const Client = require('../client')()
 
@@ -21,7 +20,7 @@ describe('remote account profile', function() {
 
   let server
   before(() => {
-    process.env.CONFIG_FILES = path.join(__dirname, '../config/mock_oauth.json')
+    config.oauth.url = 'http://localhost:9010'
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -262,7 +261,6 @@ describe('remote account profile', function() {
   )
 
   after(() => {
-    delete process.env.CONFIG_FILES
     return TestServer.stop(server)
   })
 })

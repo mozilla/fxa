@@ -18,6 +18,7 @@ describe('remote password forgot', function() {
   this.timeout(15000)
   let server
   before(() => {
+    config.securityHistory.ipProfiling.enabled = true
     return TestServer.start(config)
       .then(s => {
         server = s

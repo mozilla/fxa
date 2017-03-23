@@ -14,8 +14,8 @@ describe('remote sign key', function() {
   this.timeout(15000)
   let server
   before(() => {
-    process.env.OLD_PUBLIC_KEY_FILE = path.resolve(__dirname, '../../config/public-key.json')
     var config = require('../../config').getProperties()
+    config.oldPublicKeyFile = path.resolve(__dirname, '../../config/public-key.json')
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -36,7 +36,6 @@ describe('remote sign key', function() {
   )
 
   after(() => {
-    delete process.env.OLD_PUBLIC_KEY_FILE
     return TestServer.stop(server)
   })
 })
