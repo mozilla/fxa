@@ -1,56 +1,24 @@
 machine:
-  node:
-    version: 4
   services:
     - docker
 
 dependencies:
-  cache_directories:
-    - fxa-js-client
-    - fxa-content-server
-    - fxa-oauth-server
-    - fxa-profile-server
-    - browserid-verifier
-    - firefox
-
-  pre:
-    - |
-      if [ "$CIRCLE_PROJET_USERNAME" = "fxa-test" ]; then
-        ./scripts/test-integrations.sh pre-deps
-      fi
-
   override:
+    - docker info
     - |
-      if [ "$CIRCLE_PROJET_USERNAME" = "fxa-test" ]; then
-        ./scripts/test-integrations.sh deps
-      else
-        docker info
-
-        printf '{"version":{"hash":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}}\n' \
-          "$CIRCLE_SHA1" \
-          "$CIRCLE_TAG" \
-          "$CIRCLE_PROJECT_USERNAME" \
-          "$CIRCLE_PROJECT_REPONAME" \
-          "$CIRCLE_BUILD_URL" \
-          | tee config/version.json version.json
-
-        docker build -f Dockerfile-build -t fxa-auth-server:build .
-        docker build -f Dockerfile-test -t fxa-auth-server:test .
-      fi
-  post:
-    - |
-      if [ "$CIRCLE_PROJET_USERNAME" = "fxa-test" ]; then
-        ./scripts/test-integrations.sh post-deps
-      fi
+      printf '{"version":{"hash":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}}\n' \
+        "$CIRCLE_SHA1" \
+        "$CIRCLE_TAG" \
+        "$CIRCLE_PROJECT_USERNAME" \
+        "$CIRCLE_PROJECT_REPONAME" \
+        "$CIRCLE_BUILD_URL" \
+        | tee config/version.json version.json
+    - docker build -f Dockerfile-build -t fxa-auth-server:build .
+    - docker build -f Dockerfile-test -t fxa-auth-server:test .
 
 test:
   override:
-    - |
-      if [ "$CIRCLE_PROJET_USERNAME" = "fxa-test" ]; then
-        ./scripts/test-integrations.sh test
-      else
-        docker run fxa-auth-server:test npm test
-      fi
+    - docker run fxa-auth-server:test npm test
 
 deployment:
   hub_latest:
