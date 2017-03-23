@@ -62,7 +62,16 @@ define([
         }, [UNTRUSTED_OAUTH_APP, UNTRUSTED_OAUTH_WINDOW])
         .switchToWindow(UNTRUSTED_OAUTH_WINDOW)
 
-        .then(click('.signin'))
+        // cannot use the helper method here, the helper method uses $ (jQuery)
+        // 123Done loads jQuery in the <body> this leads to '$ is undefined' error
+        // when running tests, because jQuery can be slow to load
+        .findByCssSelector('.ready')
+        .end()
+
+        .findByCssSelector('.signin')
+          .click()
+        .end()
+
         .then(type('#password', PASSWORD))
         .then(click('#submit-btn'))
 
