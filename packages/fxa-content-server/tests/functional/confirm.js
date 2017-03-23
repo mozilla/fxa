@@ -53,7 +53,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-header'))
         .then(testElementTextInclude('.verification-email-message', email))
-        .then(noSuchElement('#open-webmail'), 'no webmail button')
+        .then(noSuchElement('#open-webmail'))
 
         .then(click('#resend'))
 
