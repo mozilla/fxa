@@ -19,7 +19,7 @@ Services ecosystem.
 
 ## Prerequisites
 
-* node 4.5.0 or higher
+* node 4.8.x+
 * npm 2
 * Grunt
 * postfix
