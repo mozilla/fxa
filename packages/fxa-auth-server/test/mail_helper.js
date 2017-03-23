@@ -144,3 +144,7 @@ module.exports = (printLogs) => {
     })
   })
 }
+
+if (require.main === module) {
+  module.exports(true)
+}
