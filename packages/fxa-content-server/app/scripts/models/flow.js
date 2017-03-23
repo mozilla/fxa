@@ -55,11 +55,11 @@ define(function (require, exports, module) {
       if (! data) {
         this.logError(AuthErrors.toMissingDataAttributeError(attribute));
       } else {
-        try {
-          data = this.resumeTokenSchema[attribute].validate(data);
-          this.set(attribute, data);
-        } catch (err) {
+        const result = this.resumeTokenSchema[attribute].validate(data);
+        if (result.error) {
           this.logError(AuthErrors.toInvalidDataAttributeError(attribute));
+        } else {
+          this.set(attribute, data);
         }
       }
     },
