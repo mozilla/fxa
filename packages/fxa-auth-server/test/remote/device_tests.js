@@ -16,10 +16,11 @@ describe('remote device', function() {
   this.timeout(15000)
   let server
   before(() => {
-    // HACK: Force-enable devices.lastAccessTime in the spawned server process
-    process.env.LASTACCESSTIME_UPDATES_ENABLED = 'true'
-    process.env.LASTACCESSTIME_UPDATES_EMAIL_ADDRESSES = '.*'
-    process.env.LASTACCESSTIME_UPDATES_SAMPLE_RATE = '1'
+    config.lastAccessTimeUpdates = {
+      enabled: true,
+      enabledEmailAddresses: /.*/g,
+      sampleRate: 1
+    }
 
     return TestServer.start(config)
       .then(s => {
@@ -462,10 +463,6 @@ describe('remote device', function() {
   )
 
   after(() => {
-    delete process.env.LASTACCESSTIME_UPDATES_ENABLED
-    delete process.env.LASTACCESSTIME_UPDATES_EMAIL_ADDRESSES
-    delete process.env.LASTACCESSTIME_UPDATES_SAMPLE_RATE
-
     return TestServer.stop(server)
   })
 })

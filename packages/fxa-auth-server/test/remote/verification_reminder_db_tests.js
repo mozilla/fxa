@@ -45,13 +45,11 @@ var mockLog = require('../mocks').mockLog
 describe('remote verification reminder db', function() {
   this.timeout(15000)
 
-  let dbServer, reminderConfig, db
+  let dbServer, db
   before(() => {
     return TestServer.start(config)
       .then(s => {
         dbServer = s
-        reminderConfig = process.env.VERIFICATION_REMINDER_RATE
-        process.env.VERIFICATION_REMINDER_RATE = 1
         return DB.connect(config[config.db.backend])
       })
       .then(x => {
@@ -102,9 +100,6 @@ describe('remote verification reminder db', function() {
     return TestServer.stop(dbServer)
       .then(() => {
         return db.close()
-      })
-      .then(function () {
-        process.env.VERIFICATION_REMINDER_RATE = reminderConfig
       })
   })
 })

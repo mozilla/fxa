@@ -5,6 +5,7 @@
 'use strict'
 
 const assert = require('insist')
+const config = require('../../../config').getProperties()
 var random = require('../../../lib/crypto/random')
 var hkdf = require('../../../lib/crypto/hkdf')
 var mocks = require('../../mocks')
@@ -23,10 +24,8 @@ describe('Token', () => {
   describe('NODE_ENV=dev', () => {
     let Token
     before(() => {
-      delete require.cache[require.resolve(modulePath)]
-      delete require.cache[require.resolve('../../../config')]
-      process.env.NODE_ENV = 'dev'
-      Token = require(modulePath)(log, random, P, hkdf, Bundle, null)
+      config.isProduction = false
+      Token = require(modulePath)(log, config, random, P, hkdf, Bundle, null)
     })
 
     it('Token constructor was exported', () => {
@@ -101,10 +100,8 @@ describe('Token', () => {
   describe('NODE_ENV=prod', () => {
     let Token
     before(() => {
-      delete require.cache[require.resolve(modulePath)]
-      delete require.cache[require.resolve('../../../config')]
-      process.env.NODE_ENV = 'prod'
-      Token = require(modulePath)(log, random, P, hkdf, Bundle, null)
+      config.isProduction = true
+      Token = require(modulePath)(log, config, random, P, hkdf, Bundle, null)
     })
 
     it('Token.createNewToken defaults createdAt to the current time', () => {

@@ -4,12 +4,14 @@
 
 'use strict'
 
-var cp = require('child_process')
 var crypto = require('crypto')
+const EventEmitter = require('events')
 var P = require('../lib/promise')
-var request = require('request')
 var mailbox = require('./mailbox')
 var createDBServer = require('fxa-auth-db-mysql')
+var createAuthServer = require('../bin/key_server')
+var createMailHelper = require('./mail_helper')
+var createOauthHelper = require('./oauth_helper')
 
 let currentServer
 
@@ -20,11 +22,15 @@ function TestServer(config, printLogs) {
 
     // Issue where debugger does not attach if
     // child process output is not piped to console
-    if (isDebug()) {
-      process.env.REMOTE_TEST_LOGS = 'true'
-    }
 
     printLogs = (process.env.REMOTE_TEST_LOGS === 'true' || process.env.REMOTE_TEST_LOGS === '1')
+  }
+  if (printLogs) {
+    config.log.level = 'debug'
+  } else {
+    config.log.level = 'critical'
+    config.log.stdout = new EventEmitter()
+    config.log.stdout.write = function () {}
   }
   this.printLogs = printLogs
   this.config = config
@@ -34,116 +40,33 @@ function TestServer(config, printLogs) {
   this.mailbox = mailbox(config.smtp.api.host, config.smtp.api.port, this.printLogs)
 }
 
-function waitLoop(testServer, url, cb) {
-  request(
-    url + '/__heartbeat__',
-    function (err, res, body) {
-      if (err) {
-        if (err.errno !== 'ECONNREFUSED') {
-          console.log('ERROR: unexpected result from ' + url)
-          console.log(err)
-          return cb(err)
-        }
-        if (! testServer.server) {
-          if (testServer.printLogs) {
-            console.log('starting...')
-          }
-          testServer.start()
-        }
-        if (testServer.printLogs) {
-          console.log('waiting...')
-        }
-        return setTimeout(waitLoop.bind(null, testServer, url, cb), 100)
-      } else if (res.statusCode !== 200) {
-        cb(new Error(body))
-      }
-      cb()
-    }
-  )
-}
-
-function processKill(p, kid, signal) {
-  return new P((resolve, reject) => {
-    p.on('exit', (code, sig) => {
-      resolve()
-    })
-    p.kill(signal)
-  })
-}
-
 TestServer.start = function (config, printLogs) {
-  var d = P.defer()
-  TestServer.stop().then(() => {
-    return createDBServer().then(
-      function (db) {
-        db.listen(config.httpdb.url.split(':')[2])
-        db.on('error', function () {})
-        var testServer = new TestServer(config, printLogs)
-        testServer.db = db
-        waitLoop(testServer, config.publicUrl, function (err) {
-          return err ? d.reject(err) : d.resolve(testServer)
-        })
-      }
-    )
-  }).then(null, err => {
-    d.reject(err)
+  return TestServer.stop().then(() => {
+    return createDBServer()
+  }).then((db) => {
+    db.listen(config.httpdb.url.split(':')[2])
+    db.on('error', function () {})
+    var testServer = new TestServer(config, printLogs)
+    testServer.db = db
+    return testServer.start().then(() => testServer)
   })
-  return d.promise
-}
-
-function isDebug(){
-  return global.v8debug ? true : false
 }
 
 TestServer.prototype.start = function () {
-  var spawnOptions = ['./key_server_stub.js']
+  const promises = [
+    createAuthServer(this.config),
+    createMailHelper(this.printLogs)
+  ]
 
-  var nextDebugPort = process.debugPort + 2
-  if (isDebug()) {
-    spawnOptions.unshift('--debug-brk=' + nextDebugPort)
-  }
-
-  this.server = cp.spawn(
-    'node',
-    spawnOptions,
-    {
-      cwd: __dirname,
-      stdio: this.printLogs ? 'pipe' : 'ignore'
-    }
-  )
-
-  if (this.printLogs) {
-    this.server.stdout.on('data', process.stdout.write.bind(process.stdout))
-    this.server.stderr.on('data', process.stderr.write.bind(process.stderr))
-  }
-
-  // if another instance is already running this will just die which is ok
-  this.mail = cp.spawn(
-    'node',
-    ['./mail_helper.js'],
-    {
-      cwd: __dirname,
-      stdio: this.printLogs ? 'pipe' : 'ignore'
-    }
-  )
-  if (this.printLogs) {
-    this.mail.stdout.on('data', process.stdout.write.bind(process.stdout))
-    this.mail.stderr.on('data', process.stderr.write.bind(process.stderr))
-  }
   if (this.config.oauth.url) {
-    this.oauth = cp.spawn(
-      'node',
-      ['./oauth_helper.js'],
-      {
-        cwd: __dirname,
-        stdio: this.printLogs ? 'pipe' : 'ignore'
-      }
-    )
-    if (this.printLogs) {
-      this.oauth.stdout.on('data', process.stdout.write.bind(process.stdout))
-      this.oauth.stderr.on('data', process.stderr.write.bind(process.stderr))
-    }
+    promises.push(createOauthHelper())
   }
+  return P.all(promises)
+    .spread((auth, mail, oauth) => {
+      this.server = auth
+      this.mail = mail
+      this.oauth = oauth
+    })
 }
 
 TestServer.stop = function (maybeServer) {
@@ -161,11 +84,11 @@ TestServer.prototype.stop = function () {
   try { this.db.close() } catch (e) {}
   if (this.server) {
     const doomed = [
-      processKill(this.server, 'server', 'SIGINT'),
-      processKill(this.mail, 'mail')
+      this.server.close(),
+      this.mail.close()
     ]
     if (this.oauth) {
-      doomed.push(processKill(this.oauth, 'oauth'))
+      doomed.push(this.oauth.close())
     }
     return P.all(doomed)
   } else {

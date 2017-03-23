@@ -14,8 +14,8 @@ describe('remote token expiry', function() {
   this.timeout(15000)
   let server, config
   before(() => {
-    process.env.PASSWORD_CHANGE_TOKEN_TTL = '1'
     config = require('../../config').getProperties()
+    config.tokenLifetimes.passwordChangeToken = 1
 
     return TestServer.start(config)
       .then(s => {
@@ -45,7 +45,6 @@ describe('remote token expiry', function() {
   )
 
   after(() => {
-    delete process.env.PASSWORD_CHANGE_TOKEN_TTL
     return TestServer.stop(server)
   })
 })

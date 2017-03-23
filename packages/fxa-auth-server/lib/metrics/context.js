@@ -194,6 +194,10 @@ module.exports = function (log, config) {
       return logInvalidContext(this, 'expired flowBeginTime')
     }
 
+    if (! HEX.test(metadata.flowId)) {
+      return logInvalidContext(this, 'invalid flowId')
+    }
+
     // The first half of the id is random bytes, the second half is a HMAC of
     // additional contextual information about the request.  It's a simple way
     // to check that the metrics came from the right place, without having to

@@ -24,7 +24,7 @@ describe('remote password change', function() {
   this.timeout(15000)
   let server
   before(() => {
-    process.env.IP_PROFILING_ENABLED = false
+    config.securityHistory.ipProfiling.enabled = false
 
     return TestServer.start(config)
       .then(s => {
@@ -394,7 +394,6 @@ describe('remote password change', function() {
   )
 
   after(() => {
-    delete process.env.IP_PROFILING_ENABLED
     return TestServer.stop(server)
   })
 })

@@ -15,10 +15,10 @@ describe('remote hpkp', function() {
   it(
     'Fails with no sha pins set',
     () => {
-      process.env.HPKP_ENABLE = true
-      process.env.HPKP_PIN_SHA256 = []
       var Server = require('../../lib/server')
       var config = require('../../config').getProperties()
+      config.hpkpConfig.enabled = true
+      config.hpkpConfig.sha256s = []
       assert.throws(() => {
         Server.create({},{},config,{})
       }, 'ValidationError: child "sha256s" fails because ["sha256s" must contain at least 1 items]', 'assert server error if no sha passed')
@@ -28,9 +28,8 @@ describe('remote hpkp', function() {
   it(
     'Does not send HPKP header when disabled',
     () => {
-      process.env.HPKP_ENABLE = false
-
       var config = require('../../config').getProperties()
+      config.hpkpConfig.enabled = false
       var server
 
       return TestServer.start(config)
@@ -54,12 +53,12 @@ describe('remote hpkp', function() {
   it(
     'Sends HPKP header',
     () => {
-      process.env.HPKP_ENABLE = true
-      process.env.HPKP_REPORT_ONLY = false
-      process.env.HPKP_PIN_SHA256 = ['sha1=', 'sha2=']
-
       var config = require('../../config').getProperties()
       var server
+      config.hpkpConfig.enabled = true
+      config.hpkpConfig.reportOnly = false
+      config.hpkpConfig.sha256s = ['sha1=', 'sha2=']
+
 
       return TestServer.start(config)
         .then(function main(serverObj) {
@@ -83,13 +82,13 @@ describe('remote hpkp', function() {
   it(
     'Sends HPKP report header',
     () => {
-      process.env.HPKP_ENABLE = true
-      process.env.HPKP_REPORT_ONLY = true
-      process.env.HPKP_PIN_SHA256 = ['sha1=', 'sha2=']
-      process.env.HPKP_REPORT_URI = 'http://example.com'
-
       var config = require('../../config').getProperties()
       var server
+      config.hpkpConfig.enabled = true
+      config.hpkpConfig.reportOnly = true
+      config.hpkpConfig.sha256s = ['sha1=', 'sha2=']
+      config.hpkpConfig.reportUri = 'http://example.com'
+
 
       return TestServer.start(config)
         .then(function main(serverObj) {
@@ -111,10 +110,6 @@ describe('remote hpkp', function() {
   )
 
   after(() => {
-    delete process.env.HPKP_ENABLE
-    delete process.env.HPKP_REPORT_ONLY
-    delete process.env.HPKP_PIN_SHA256
-    delete process.env.HPKP_REPORT_URI
     return TestServer.stop()
   })
 })
