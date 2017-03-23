@@ -60,10 +60,6 @@ define(function (require, exports, module) {
       view = null;
     });
 
-    function testIsNotified(expectedMessage) {
-      assert.isTrue(notifier.trigger.calledWith(expectedMessage), expectedMessage);
-    }
-
     function testIsFlowEventLogged(eventName) {
       assert.isTrue(view.logFlowEvent.calledWith(eventName), eventName);
     }
@@ -81,9 +77,6 @@ define(function (require, exports, module) {
 
         it('shows the marketing area, logs appropriately', () => {
           assert.lengthOf(view.$('.marketing-area'), 1);
-          testIsNotified('connectAnotherDevice.signedin.true');
-          testIsNotified('connectAnotherDevice.signin.ineligible');
-          testIsNotified('connectAnotherDevice.install_from.fx_desktop');
           testIsFlowEventLogged('signedin.true');
           testIsFlowEventLogged('signin.ineligible');
           testIsFlowEventLogged('install_from.fx_desktop');
@@ -113,9 +106,6 @@ define(function (require, exports, module) {
 
         it('shows the marketing area, logs appropriately', () => {
           assert.lengthOf(view.$('.marketing-area'), 1);
-          testIsNotified('connectAnotherDevice.signedin.true');
-          testIsNotified('connectAnotherDevice.signin.ineligible');
-          testIsNotified('connectAnotherDevice.install_from.fx_android');
           testIsFlowEventLogged('signedin.true');
           testIsFlowEventLogged('signin.ineligible');
           testIsFlowEventLogged('install_from.fx_android');
@@ -147,9 +137,6 @@ define(function (require, exports, module) {
 
         it('shows a sign in button with the appropriate link, logs appropriately', () => {
           assert.lengthOf(view.$('#signin'), 1);
-          testIsNotified('connectAnotherDevice.signedin.false');
-          testIsNotified('connectAnotherDevice.signin.eligible');
-          testIsNotified('connectAnotherDevice.signin_from.fx_desktop');
           testIsFlowEventLogged('signedin.false');
           testIsFlowEventLogged('signin.eligible');
           testIsFlowEventLogged('signin_from.fx_desktop');
@@ -181,9 +168,6 @@ define(function (require, exports, module) {
 
         it('shows a sign in button with the appropriate link, logs appropriately', () => {
           assert.lengthOf(view.$('#signin'), 1);
-          testIsNotified('connectAnotherDevice.signedin.false');
-          testIsNotified('connectAnotherDevice.signin.eligible');
-          testIsNotified('connectAnotherDevice.signin_from.fx_android');
           testIsFlowEventLogged('signedin.false');
           testIsFlowEventLogged('signin.eligible');
           testIsFlowEventLogged('signin_from.fx_android');
@@ -214,7 +198,6 @@ define(function (require, exports, module) {
 
               assert.lengthOf(view.$('#signin-fxios'), 1);
               assert.lengthOf(view.$('.marketing-area'), 0);
-              testIsNotified('connectAnotherDevice.signin_from.fx_ios');
               testIsFlowEventLogged('signin_from.fx_ios');
             });
         });
@@ -237,7 +220,6 @@ define(function (require, exports, module) {
 
               assert.lengthOf(view.$('#install-mobile-firefox-ios'), 1);
               assert.lengthOf(view.$('.marketing-area'), 1);
-              testIsNotified('connectAnotherDevice.install_from.other_ios');
               testIsFlowEventLogged('install_from.other_ios');
             });
         });
@@ -260,7 +242,6 @@ define(function (require, exports, module) {
 
               assert.lengthOf(view.$('#install-mobile-firefox-android'), 1);
               assert.lengthOf(view.$('.marketing-area'), 1);
-              testIsNotified('connectAnotherDevice.install_from.other_android');
               testIsFlowEventLogged('install_from.other_android');
             });
         });
@@ -283,7 +264,6 @@ define(function (require, exports, module) {
 
               assert.lengthOf(view.$('#install-mobile-firefox-desktop'), 1);
               assert.lengthOf(view.$('.marketing-area'), 1);
-              testIsNotified('connectAnotherDevice.install_from.fx_desktop');
               testIsFlowEventLogged('install_from.fx_desktop');
             });
         });
@@ -306,7 +286,6 @@ define(function (require, exports, module) {
 
               assert.lengthOf(view.$('#install-mobile-firefox-other'), 1);
               assert.lengthOf(view.$('.marketing-area'), 1);
-              testIsNotified('connectAnotherDevice.install_from.other');
               testIsFlowEventLogged('install_from.other');
             });
         });
@@ -556,7 +535,6 @@ define(function (require, exports, module) {
         });
 
         it('notifies of click', () => {
-          testIsNotified('connectAnotherDevice.signin.clicked');
           testIsFlowEventLogged('link.signin');
         });
       });

@@ -205,17 +205,9 @@ define(function (require, exports, module) {
         return false;
       }
 
-      const isInExperimentGroup = this.isInExperimentGroup('connectAnotherDevice', 'treatment');
-      const isAnotherUserSignedIn = this._isAnotherUserSignedIn(verifiedAccount);
-
-      if (isInExperimentGroup && isAnotherUserSignedIn) {
-        // log that another user is signed in to see how often this happens.
-        this.notifier.trigger('connectAnotherDevice.other_user_signed_in');
-      }
-
       // If a user is already signed in to Sync which is different to the
       // user that just verified, show them the old "Account verified!" screen.
-      return isInExperimentGroup && ! isAnotherUserSignedIn;
+      return ! this._isAnotherUserSignedIn(verifiedAccount);
     },
 
     /**

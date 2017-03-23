@@ -25,7 +25,6 @@ define([
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
@@ -53,7 +52,6 @@ define([
 
         // user should be transitioned to the choose what to Sync page
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
-
         .then(click('button[type=submit]'))
 
         // user should be transitioned to the "go confirm your address" page
@@ -66,12 +64,7 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
-        // user should be redirected to "Success!" screen.
-        // In real life, the original browser window would show
-        // a "welcome to sync!" screen that has a manage button
-        // on it, and this screen should show the FxA success screen.
-        .then(testElementExists('#fxa-sign-up-complete-header'))
-        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
+        .then(testElementExists('#fxa-connect-another-device-header'))
 
         .then(closeCurrentWindow())
 

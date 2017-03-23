@@ -135,7 +135,7 @@ define([
         .then(testEmailExpected(email, 2))
 
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .then(testElementExists('#fxa-connect-another-device-header'))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition

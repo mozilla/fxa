@@ -536,82 +536,63 @@ define(function (require, exports, module) {
         sinon.spy(notifier, 'trigger');
       });
 
-      describe('user is part of treatment group', () => {
+      describe('user is completing sign-in', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isInExperimentGroup', () => true);
-        });
-
-        describe('user is completing sign-in', () => {
-          beforeEach(() => {
-            sinon.stub(user, 'getSignedInAccount', () => {
-              return {
-                isDefault: () => true
-              };
-            });
-            sinon.stub(view, 'isSignIn', () => true);
+          sinon.stub(user, 'getSignedInAccount', () => {
+            return {
+              isDefault: () => true
+            };
           });
-
-          it('returns `false`', () => {
-            assert.isFalse(view._isEligibleToConnectAnotherDevice(account));
-          });
-        });
-
-
-        describe('no user signed in', () => {
-          beforeEach(() => {
-            sinon.stub(user, 'getSignedInAccount', () => {
-              return {
-                isDefault: () => true
-              };
-            });
-          });
-
-          it('returns `true`', () => {
-            assert.isTrue(view._isEligibleToConnectAnotherDevice(account));
-            assert.isFalse(notifier.trigger.called);
-          });
-        });
-
-        describe('different user signed in', () => {
-          beforeEach(() => {
-            sinon.stub(user, 'getSignedInAccount', () => {
-              return {
-                isDefault: () => false
-              };
-            });
-            sinon.stub(user, 'isSignedInAccount', () => false);
-          });
-
-          it('returns `false`, notifies', () => {
-            assert.isFalse(view._isEligibleToConnectAnotherDevice(account));
-            assert.isTrue(notifier.trigger.calledWith('connectAnotherDevice.other_user_signed_in'));
-          });
-        });
-
-        describe('same user signed in', () => {
-          beforeEach(() => {
-            sinon.stub(user, 'getSignedInAccount', () => {
-              return {
-                isDefault: () => false
-              };
-            });
-            sinon.stub(user, 'isSignedInAccount', () => true);
-          });
-
-          it('returns `true`', () => {
-            assert.isTrue(view._isEligibleToConnectAnotherDevice(account));
-          });
-        });
-      });
-
-      describe('user is not part of treatment group', () => {
-        beforeEach(() => {
-          sinon.stub(view, 'isInExperimentGroup', () => false);
+          sinon.stub(view, 'isSignIn', () => true);
         });
 
         it('returns `false`', () => {
           assert.isFalse(view._isEligibleToConnectAnotherDevice(account));
-          assert.isFalse(notifier.trigger.called);
+        });
+      });
+
+
+      describe('no user signed in', () => {
+        beforeEach(() => {
+          sinon.stub(user, 'getSignedInAccount', () => {
+            return {
+              isDefault: () => true
+            };
+          });
+        });
+
+        it('returns `true`', () => {
+          assert.isTrue(view._isEligibleToConnectAnotherDevice(account));
+        });
+      });
+
+      describe('different user signed in', () => {
+        beforeEach(() => {
+          sinon.stub(user, 'getSignedInAccount', () => {
+            return {
+              isDefault: () => false
+            };
+          });
+          sinon.stub(user, 'isSignedInAccount', () => false);
+        });
+
+        it('returns `false`', () => {
+          assert.isFalse(view._isEligibleToConnectAnotherDevice(account));
+        });
+      });
+
+      describe('same user signed in', () => {
+        beforeEach(() => {
+          sinon.stub(user, 'getSignedInAccount', () => {
+            return {
+              isDefault: () => false
+            };
+          });
+          sinon.stub(user, 'isSignedInAccount', () => true);
+        });
+
+        it('returns `true`', () => {
+          assert.isTrue(view._isEligibleToConnectAnotherDevice(account));
         });
       });
     });

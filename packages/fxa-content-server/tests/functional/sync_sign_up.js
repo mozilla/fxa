@@ -27,7 +27,6 @@ define([
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
@@ -59,12 +58,7 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
-        // user should be redirected to "Success!" screen.
-        // In real life, the original browser window would show
-        // a "welcome to sync!" screen that has a manage button
-        // on it, and this screen should show the FxA success screen.
-        .then(testElementExists('#fxa-sign-up-complete-header'))
-        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
+        .then(testElementExists('#fxa-connect-another-device-header'))
         .then(closeCurrentWindow())
 
         // We do not expect the verification poll to occur. The poll
@@ -89,8 +83,7 @@ define([
 
         .switchToWindow('newwindow')
 
-        .then(testElementExists('#fxa-sign-up-complete-header'))
-        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
+        .then(testElementExists('#fxa-connect-another-device-header'))
         .then(closeCurrentWindow());
     },
 
@@ -103,7 +96,7 @@ define([
         .then(testElementExists('#fxa-confirm-header'))
 
         .then(openVerificationLinkInSameTab(email, 0))
-        .then(testElementExists('#fxa-sign-up-complete-header'));
+        .then(testElementExists('#fxa-connect-another-device-header'));
     },
 
 
@@ -139,8 +132,7 @@ define([
         .then(openVerificationLinkInSameTab(email, 0))
 
         // user should be redirected to "Success!" screen
-        .then(testElementExists('#fxa-sign-up-complete-header'))
-        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'));
+        .then(testElementExists('#fxa-connect-another-device-header'));
     },
 
     'choose option to customize sync': function () {

@@ -22,7 +22,6 @@ define([
   const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   const testEmailExpected = FunctionalHelpers.testEmailExpected;
   const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
@@ -69,8 +68,7 @@ define([
         // In real life, the original browser window would show
         // a "welcome to sync!" screen that has a manage button
         // on it, and this screen should show the FxA success screen.
-        .then(testElementExists('#fxa-sign-up-complete-header'))
-        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
+        .then(testElementExists('#fxa-connect-another-device-header'))
 
         // switch back to the original window, it should transition.
         .then(closeCurrentWindow())

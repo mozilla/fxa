@@ -108,7 +108,7 @@ define([
         // email 2 - "You have verified your Firefox Account"
         .then(openVerificationLinkInNewTab(email, 1))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .then(testElementExists('#fxa-connect-another-device-header'))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
@@ -124,7 +124,7 @@ define([
         // email 2 - "You have verified your Firefox Account"
         .then(openVerificationLinkInNewTab(email, 1))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .then(testElementExists('#fxa-connect-another-device-header'))
           .then(closeCurrentWindow())
 
           // In Fx for iOS >= 6.1, user should redirect to the signup-complete

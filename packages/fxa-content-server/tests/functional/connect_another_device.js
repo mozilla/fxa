@@ -20,9 +20,6 @@ define([
     'fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&' +
     'ct=adjust_tracker&mt=8';
 
-  var EXPERIMENT_NAME = 'connectAnotherDevice';
-  var EXPERIMENT_GROUP = 'treatment';
-
   /*eslint-disable max-len*/
   var UA_STRINGS = {
     'android_chrome': 'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19',
@@ -102,12 +99,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-header'))
 
-        .then(openVerificationLinkInSameTab(email, 0, {
-          query: {
-            forceExperiment: EXPERIMENT_NAME,
-            forceExperimentGroup: EXPERIMENT_GROUP
-          }
-        }))
+        .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(SELECTOR_PAGE_LOADED))
         .then(testElementExists(SELECTOR_SUCCESS_SAME_BROWSER))
         .then(noSuchElement(SELECTOR_CONTINUE_BUTTON))
@@ -133,12 +125,7 @@ define([
         // clear browser state to synthesize verifying in a different browser.
         .then(clearBrowserState())
 
-        .then(openVerificationLinkInSameTab(email, 0, {
-          query: {
-            forceExperiment: EXPERIMENT_NAME,
-            forceExperimentGroup: EXPERIMENT_GROUP
-          }
-        }))
+        .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(SELECTOR_SUCCESS_DIFFERENT_BROWSER))
 
         // ask "why must I do this?"
@@ -166,12 +153,7 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
-        .then(openVerificationLinkInSameTab(email, 0, {
-          query: {
-            forceExperiment: EXPERIMENT_NAME,
-            forceExperimentGroup: EXPERIMENT_GROUP
-          }
-        }))
+        .then(openVerificationLinkInSameTab(email, 0))
         // Does not work for sign in, even if forced.
         .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER));
     },
@@ -192,23 +174,13 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(signInEmail, PASSWORD))
         .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
-        .then(openVerificationLinkInSameTab(signInEmail, 0, {
-          query: {
-            forceExperiment: EXPERIMENT_NAME,
-            forceExperimentGroup: EXPERIMENT_GROUP
-          }
-        }))
+        .then(openVerificationLinkInSameTab(signInEmail, 0))
         // Does not work for sign in, even if forced.
         .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER))
 
         // NOW - go back and open the verification link for the sign up user in a
         // browser where another user is already signed in.
-        .then(openVerificationLinkInSameTab(signUpEmail, 0, {
-          query: {
-            forceExperiment: EXPERIMENT_NAME,
-            forceExperimentGroup: EXPERIMENT_GROUP
-          }
-        }))
+        .then(openVerificationLinkInSameTab(signUpEmail, 0))
         // User goes to the old "Account verified" screen.
         .then(testElementExists(SELECTOR_SIGNUP_COMPLETE_HEADER));
     },
@@ -232,8 +204,6 @@ define([
 
         .then(openVerificationLinkInSameTab(email, 0, {
           query: {
-            forceExperiment: EXPERIMENT_NAME,
-            forceExperimentGroup: EXPERIMENT_GROUP,
             forceUA: UA_STRINGS['android_firefox']
           }
         }))
@@ -273,8 +243,6 @@ define([
 
         .then(openVerificationLinkInSameTab(email, 0, {
           query: {
-            forceExperiment: EXPERIMENT_NAME,
-            forceExperimentGroup: EXPERIMENT_GROUP,
             forceUA: UA_STRINGS['ios_firefox']
           }
         }))
@@ -310,8 +278,6 @@ define([
 
         .then(openVerificationLinkInSameTab(email, 0, {
           query: {
-            forceExperiment: EXPERIMENT_NAME,
-            forceExperimentGroup: EXPERIMENT_GROUP,
             forceUA: UA_STRINGS['android_chrome']
           }
         }))
@@ -353,8 +319,6 @@ define([
 
         .then(openVerificationLinkInSameTab(email, 0, {
           query: {
-            forceExperiment: EXPERIMENT_NAME,
-            forceExperimentGroup: EXPERIMENT_GROUP,
             forceUA: UA_STRINGS['desktop_chrome']
           }
         }))
@@ -388,8 +352,6 @@ define([
 
         .then(openVerificationLinkInSameTab(email, 0, {
           query: {
-            forceExperiment: EXPERIMENT_NAME,
-            forceExperimentGroup: EXPERIMENT_GROUP,
             forceUA: UA_STRINGS['ios_safari']
           }
         }))
@@ -424,8 +386,6 @@ define([
 
         .then(openVerificationLinkInSameTab(email, 0, {
           query: {
-            forceExperiment: EXPERIMENT_NAME,
-            forceExperimentGroup: EXPERIMENT_GROUP,
             forceUA: UA_STRINGS['android_firefox']
           }
         }))

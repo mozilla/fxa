@@ -25,7 +25,6 @@ define([
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
@@ -54,8 +53,7 @@ define([
       .then(openVerificationLinkInNewTab(email, 0))
       .switchToWindow('newwindow')
 
-      .then(testElementExists('#fxa-sign-up-complete-header'))
-      .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
+      .then(testElementExists('#fxa-connect-another-device-header'))
       .then(closeCurrentWindow());
   });
 

@@ -90,7 +90,7 @@ define([
         // email 2 - "You have verified your Firefox Account"
         .then(openVerificationLinkInNewTab(email, 1))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .then(testElementExists('#fxa-connect-another-device-header'))
           .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-sign-up-complete-header'));

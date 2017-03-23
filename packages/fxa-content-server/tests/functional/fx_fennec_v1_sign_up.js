@@ -23,7 +23,6 @@ define([
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
@@ -69,8 +68,7 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
-        .then(testElementExists('#fxa-sign-up-complete-header'))
-        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
+        .then(testElementExists('#fxa-connect-another-device-header'))
 
         .then(closeCurrentWindow())
         .then(testElementExists('#fxa-sign-up-complete-header'))

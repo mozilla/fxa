@@ -31,10 +31,6 @@ define(function (require, exports, module) {
       return proto.initialize.call(this, options);
     },
 
-    events: {
-      'click #signin': '_onSignInClick'
-    },
-
     showChildView (ChildView, options = {}) {
       // an extra element is needed to attach the child view to, the extra element
       // is removed from the DOM when the view is destroyed. Without it, .child-view
@@ -81,7 +77,6 @@ define(function (require, exports, module) {
      */
     _logViewMetrics () {
       const isSignedIn = this._isSignedIn();
-      this.notifier.trigger(`connectAnotherDevice.signedin.${isSignedIn}`);
       this.logFlowEvent(`signedin.${isSignedIn}`);
 
       const {
@@ -98,7 +93,6 @@ define(function (require, exports, module) {
       // being nudged to connect another device.
       let connectMethod;
       if (canSignIn) {
-        this.notifier.trigger('connectAnotherDevice.signin.eligible');
         this.logFlowEvent('signin.eligible');
 
         if (isFirefoxAndroid) {
@@ -107,7 +101,6 @@ define(function (require, exports, module) {
           connectMethod = 'signin_from.fx_desktop';
         }
       } else {
-        this.notifier.trigger('connectAnotherDevice.signin.ineligible');
         this.logFlowEvent('signin.ineligible');
 
         if (isFirefoxIos) {
@@ -126,7 +119,6 @@ define(function (require, exports, module) {
       }
 
       if (connectMethod) {
-        this.notifier.trigger(`connectAnotherDevice.${connectMethod}`);
         this.logFlowEvent(connectMethod);
       }
     },
@@ -278,15 +270,6 @@ define(function (require, exports, module) {
       const escapedSearchString = Url.objToSearchString(params);
 
       return `${origin}/signin${escapedSearchString}`;
-    },
-
-    /**
-     * Log a click on the sign-in button.
-     *
-     * @private
-     */
-    _onSignInClick () {
-      this.notifier.trigger('connectAnotherDevice.signin.clicked');
     }
   }, {
     ENTRYPOINT: 'connect_another_device'
