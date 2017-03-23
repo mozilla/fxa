@@ -17,19 +17,11 @@ define(function (require, exports, module) {
 
   var storage = Storage.factory('localStorage');
 
-  function StorageMetrics() {
-    // do nothing
+  function StorageMetrics(options) {
+    Metrics.call(this, options);
   }
 
-  const notifier = {
-    off () {},
-    on () {},
-    trigger () {},
-    triggerAll () {},
-    triggerRemote () {}
-  };
-
-  _.extend(StorageMetrics.prototype, new Metrics({ notifier }), {
+  _.extend(StorageMetrics.prototype, Metrics.prototype, {
     _send (data) {
       var metrics = storage.get('metrics_all');
 
@@ -50,5 +42,4 @@ define(function (require, exports, module) {
   });
 
   module.exports = StorageMetrics;
-
 });

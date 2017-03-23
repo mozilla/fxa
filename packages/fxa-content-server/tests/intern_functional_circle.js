@@ -33,6 +33,7 @@ define([
     'tests/functional/delete_account',
     'tests/functional/reset_password',
     'tests/functional/sync_reset_password',
+    'tests/functional/refreshes_metrics',
     'tests/functional/robots_txt',
     'tests/functional/settings',
     'tests/functional/settings_common',
