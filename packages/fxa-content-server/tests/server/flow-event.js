@@ -705,6 +705,58 @@ define([
       }
     },
 
+    'call flowEvent with invalid loaded timing': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          events: [
+            // The value of offset here puts the loaded event in the distant future
+            { offset: 31536000000, type: 'loaded' }
+          ],
+        }, 1000);
+      },
+
+      'process.stderr.write was called three times': () => {
+        assert.equal(process.stderr.write.callCount, 3);
+      },
+
+      'second call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.equal(arg.event, 'flow.performance.network');
+      },
+
+      'third call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[1][0]);
+        assert.equal(arg.event, 'flow.performance.server');
+      },
+
+      'fourth call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[2][0]);
+        assert.equal(arg.event, 'flow.performance.client');
+      }
+    },
+
+    'call flowEvent with invalid navigationTiming': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          events: [
+            { offset: 1000, type: 'loaded' }
+          ],
+        // The last arg here puts the navtiming events in the distant future
+        }, 1000, false, 31536000000);
+      },
+
+      'process.stderr.write was called once': () => {
+        assert.equal(process.stderr.write.callCount, 1);
+      },
+
+      'first call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.equal(arg.event, 'flow.performance');
+      }
+    },
+
     'call flowEvent without navigationTiming data': {
       beforeEach () {
         flowMetricsValidateResult = true;
@@ -723,7 +775,7 @@ define([
     }
   });
 
-  function setup (data, timeSinceFlowBegin, clobberNavigationTiming) {
+  function setup (data, timeSinceFlowBegin, clobberNavigationTiming, navigationTimingValue) {
     try {
       const flowBeginTime = data.flowBeginTime || mocks.time - timeSinceFlowBegin;
       flowEvent(mocks.request, {
@@ -738,15 +790,15 @@ define([
         migration: data.migration || 'sync11',
         navigationTiming: clobberNavigationTiming ? null : {
           /*eslint-disable sorting/sort-object-props*/
-          domainLookupStart: 100,
-          domainLookupEnd: 200,
-          connectStart: 300,
-          connectEnd: 400,
-          requestStart: 500,
-          responseStart: 600,
-          responseEnd: 700,
-          domLoading: 800,
-          domComplete: 1000
+          domainLookupStart: navigationTimingValue || 100,
+          domainLookupEnd: navigationTimingValue || 200,
+          connectStart: navigationTimingValue || 300,
+          connectEnd: navigationTimingValue || 400,
+          requestStart: navigationTimingValue || 500,
+          responseStart: navigationTimingValue || 600,
+          responseEnd: navigationTimingValue || 700,
+          domLoading: navigationTimingValue || 800,
+          domComplete: navigationTimingValue || 1000
           /*eslint-enable sorting/sort-object-props*/
         },
         service: data.service || '1234567890abcdef',

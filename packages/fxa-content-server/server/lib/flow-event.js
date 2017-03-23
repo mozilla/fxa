@@ -129,7 +129,7 @@ module.exports = (req, metrics, requestReceivedTime) => {
   const navigationTiming = metrics.navigationTiming;
   if (emitPerformanceEvents && navigationTiming) {
     PERFORMANCE_TIMINGS.forEach(item => {
-      const time = item.timings.reduce((sum, timing) => {
+      const relativeTime = item.timings.reduce((sum, timing) => {
         const from = navigationTiming[timing.from];
         const until = navigationTiming[timing.until];
         if (from >= 0 && until > from) {
@@ -137,11 +137,12 @@ module.exports = (req, metrics, requestReceivedTime) => {
         }
         return sum;
       }, 0);
+      const absoluteTime = metrics.flowBeginTime + relativeTime;
 
-      if (time > 0) {
+      if (relativeTime > 0 && isValidTime(absoluteTime, requestReceivedTime)) {
         logFlowEvent({
-          flowTime: time,
-          time: metrics.flowBeginTime + time,
+          flowTime: relativeTime,
+          time: absoluteTime,
           type: `flow.performance.${item.event}`
         }, metrics, req);
       }
