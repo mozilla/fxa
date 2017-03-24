@@ -1,3 +1,30 @@
+<a name="1.83.3"></a>
+## 1.83.3 (2017-03-24)
+
+
+### Bug Fixes
+
+* **metrics:** Fix the "refreshes_metrics" test. (#4850) r=@philbooth, @vladikoff ([8d266f9](https://github.com/mozilla/fxa-content-server/commit/8d266f9)), closes [(#4850](https://github.com/(/issues/4850) [#4844](https://github.com/mozilla/fxa-content-server/issues/4844)
+* **server:** prevent bad performance data polluting metrics ([f0a5baa](https://github.com/mozilla/fxa-content-server/commit/f0a5baa))
+* **tests:** fix avatar test and include it in CI (#4856) ([1fa05b0](https://github.com/mozilla/fxa-content-server/commit/1fa05b0)), closes [(#4856](https://github.com/(/issues/4856)
+* **tests:** fix OAuth settngs clients test (#4853) ([f0411e1](https://github.com/mozilla/fxa-content-server/commit/f0411e1)), closes [(#4853](https://github.com/(/issues/4853)
+* **tests:** remove string from reject then in confirm.js test (#4849) ([27c7797](https://github.com/mozilla/fxa-content-server/commit/27c7797))
+
+### chore
+
+* **validation:** Update to VAT 0.0.9 (#4848) r=@philbooth ([d15994a](https://github.com/mozilla/fxa-content-server/commit/d15994a))
+
+### Features
+
+* **CAD:** Remove the CAD experiment. (#4781) r=@vbudhram ([912a948](https://github.com/mozilla/fxa-content-server/commit/912a948))
+
+### Refactor
+
+* **client:** Create views for `/` and `/oauth` routes. (#4858) r=@philbooth ([4ad97fb](https://github.com/mozilla/fxa-content-server/commit/4ad97fb))
+* **user-agent:** Extract a user-agent-mixin to share amongst the views. (#4859) r=@philbooth ([b78a26c](https://github.com/mozilla/fxa-content-server/commit/b78a26c))
+
+
+
 <a name="1.83.2"></a>
 ## 1.83.2 (2017-03-22)
 
