@@ -20,7 +20,7 @@ define(function (require, exports, module) {
   const MarketingSnippet = require('views/marketing_snippet');
   const Template = require('stache!templates/connect_another_device');
   const Url = require('lib/url');
-  const UserAgent = require('lib/user-agent');
+  const UserAgentMixin = require('views/mixins/user-agent-mixin');
 
   const proto = FormView.prototype;
   const View = FormView.extend({
@@ -49,7 +49,7 @@ define(function (require, exports, module) {
 
       // If the user signed up and verified in Firefox for Android,
       // show marketing material for both mobile OSs.
-      if (this._isSignedIn() && this._getUap().isFirefoxAndroid()) {
+      if (this._isSignedIn() && this.getUserAgent().isFirefoxAndroid()) {
         options.which = MarketingSnippet.WHICH.BOTH;
       }
 
@@ -130,7 +130,7 @@ define(function (require, exports, module) {
       const signInContext = this._getSignInContext();
       const escapedSignInUrl = this._getEscapedSignInUrl(signInContext, email);
 
-      const uap = this._getUap();
+      const uap = this.getUserAgent();
       const isAndroid = uap.isAndroid();
       const isFirefoxAndroid = uap.isFirefoxAndroid();
       const isFirefoxDesktop = uap.isFirefoxDesktop();
@@ -152,33 +152,6 @@ define(function (require, exports, module) {
         isOtherIos,
         isSignedIn
       };
-    },
-
-    /**
-     * Get the user-agent string. For functional testing
-     * purposes, first attempts to fetch a UA string from the
-     * `forceUA` query parameter, if that is not found, use
-     * the browser's.
-     *
-     * @returns {String}
-     * @private
-     */
-    _getUserAgentString () {
-      return this.getSearchParam('forceUA') || this.window.navigator.userAgent;
-    },
-
-    /**
-     * Get a user-agent parser instance.
-     *
-     * @returns {Object}
-     * @private
-     */
-    _getUap () {
-      if (! this._uap) {
-        const userAgent = this._getUserAgentString();
-        this._uap = new UserAgent(userAgent);
-      }
-      return this._uap;
     },
 
     /**
@@ -210,7 +183,7 @@ define(function (require, exports, module) {
      * @private
      */
     _hasWebChannelSupport () {
-      const uap = this._getUap();
+      const uap = this.getUserAgent();
       const browserVersion = uap.browser.version;
 
       // WebChannels were introduced in Fx Desktop 40 and Fennec 43.
@@ -227,7 +200,7 @@ define(function (require, exports, module) {
      * @private
      */
     _getSignInContext() {
-      const uap = this._getUap();
+      const uap = this.getUserAgent();
       if (uap.isFirefoxAndroid()) {
         return Constants.FX_FENNEC_V1_CONTEXT;
       } else if (uap.isFirefoxDesktop()) {
@@ -282,7 +255,8 @@ define(function (require, exports, module) {
     MarketingMixin({
       // The marketing area is manually created to which badges are displayed.
       autocreate: false
-    })
+    }),
+    UserAgentMixin
   );
 
   module.exports = View;

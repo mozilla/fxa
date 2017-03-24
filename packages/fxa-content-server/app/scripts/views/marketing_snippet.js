@@ -22,7 +22,7 @@ define(function (require, exports, module) {
   const Constants = require('lib/constants');
   const Strings = require('lib/strings');
   const Template = require('stache!templates/marketing_snippet');
-  const UserAgent = require('lib/user-agent');
+  const UserAgentMixin = require('views/mixins/user-agent-mixin');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   const APP_STORE_BUTTON = 'apple_app_store_button';
@@ -119,18 +119,6 @@ define(function (require, exports, module) {
       });
     },
 
-    _getUserAgentString () {
-      return this.getSearchParam('forceUA') || this.window.navigator.userAgent;
-    },
-
-    _getUap () {
-      if (! this._uap) {
-        const userAgent = this._getUserAgentString();
-        this._uap = new UserAgent(userAgent);
-      }
-      return this._uap;
-    },
-
     _shouldShowSignUpMarketing () {
       const hasBrokerSupport = this.broker.hasCapability('emailVerificationMarketingSnippet');
       const isFirefoxMobile = this._isFirefoxMobile();
@@ -143,17 +131,17 @@ define(function (require, exports, module) {
     },
 
     _isFirefoxMobile () {
-      const uap = this._getUap();
+      const uap = this.getUserAgent();
       return uap.isFirefoxIos() || uap.isFirefoxAndroid();
     },
 
     _isIos () {
       // if _which is set, ignore the userAgent
-      return (! this._which && this._getUap().isIos()) || this._which === View.WHICH.IOS;
+      return (! this._which && this.getUserAgent().isIos()) || this._which === View.WHICH.IOS;
     },
 
     _isAndroid () {
-      return (! this._which && this._getUap().isAndroid()) || this._which === View.WHICH.ANDROID;
+      return (! this._which && this.getUserAgent().isAndroid()) || this._which === View.WHICH.ANDROID;
     },
 
     _isOther () {
@@ -234,6 +222,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
+    UserAgentMixin,
     VerificationReasonMixin
   );
 

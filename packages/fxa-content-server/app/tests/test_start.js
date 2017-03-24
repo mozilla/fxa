@@ -152,6 +152,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/signin-mixin',
     '../tests/spec/views/mixins/signup-mixin',
     '../tests/spec/views/mixins/timer-mixin',
+    '../tests/spec/views/mixins/user-agent-mixin',
     '../tests/spec/views/mixins/verification-reason-mixin',
     '../tests/spec/views/oauth_index',
     '../tests/spec/views/oauth_sign_in',

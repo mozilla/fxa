@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   const Strings = require('lib/strings');
   const { t } = require('views/base');
   const Template = require('stache!templates/settings/clients');
-  const UserAgent = require('lib/user-agent');
+  const UserAgentMixin = require('views/mixins/user-agent-mixin');
 
   const DEVICE_REMOVED_ANIMATION_MS = 150;
   const UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
@@ -105,7 +105,7 @@ define(function (require, exports, module) {
         return true;
       }
 
-      const userAgent = new UserAgent(this.getSearchParam('forceUA') || this.window.navigator.userAgent);
+      const userAgent = this.getUserAgent();
       const version = userAgent.parseVersion();
       return userAgent.isFirefox() && this._able.choose('sessionsListVisible', {
         firefoxVersion: version.major
@@ -215,7 +215,8 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     SettingsPanelMixin,
-    SignedOutNotificationMixin
+    SignedOutNotificationMixin,
+    UserAgentMixin
   );
 
   module.exports = View;
