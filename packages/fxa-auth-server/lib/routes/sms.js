@@ -4,13 +4,15 @@
 
 'use strict'
 
+const error = require('../error')
+const isA = require('joi')
 const P = require('../promise')
 const PhoneNumberUtil = require('google-libphonenumber').PhoneNumberUtil
 const validators = require('./validators')
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 
-module.exports = (log, isA, error, config, customs, sms) => {
+module.exports = (log, config, customs, sms) => {
   if (! config.sms.enabled) {
     return []
   }

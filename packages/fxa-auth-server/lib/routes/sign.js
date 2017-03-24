@@ -4,9 +4,12 @@
 
 'use strict'
 
+const error = require('../error')
+const isA = require('joi')
+const P = require('../promise')
 const validators = require('./validators')
 
-module.exports = function (log, P, isA, error, signer, db, domain, devices) {
+module.exports = (log, signer, db, domain, devices) => {
 
   const HOUR = 1000 * 60 * 60
 

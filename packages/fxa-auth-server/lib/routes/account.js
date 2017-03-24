@@ -4,38 +4,37 @@
 
 'use strict'
 
-var validators = require('./validators')
-var HEX_STRING = validators.HEX_STRING
-var DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
-var URLSAFEBASE64 = validators.URLSAFEBASE64
-var BASE_36 = validators.BASE_36
-var PUSH_PAYLOADS_SCHEMA_PATH = '../../docs/pushpayloads.schema.json'
+const Ajv = require('ajv')
+const ajv = new Ajv()
+const fs = require('fs')
+const butil = require('../crypto/butil')
+const error = require('../error')
+const isA = require('joi')
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
+const P = require('../promise')
+const path = require('path')
+const random = require('../crypto/random')
+const requestHelper = require('../routes/utils/request_helper')
+const userAgent = require('../userAgent')
+const uuid = require('uuid')
+const validators = require('./validators')
+
+const HEX_STRING = validators.HEX_STRING
+const DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
+const URLSAFEBASE64 = validators.URLSAFEBASE64
+const BASE_36 = validators.BASE_36
+const PUSH_PAYLOADS_SCHEMA_PATH = '../../docs/pushpayloads.schema.json'
 
 // An arbitrary, but very generous, limit on the number of active sessions.
 // Currently only for metrics purposes, not enforced.
-var MAX_ACTIVE_SESSIONS = 200
+const MAX_ACTIVE_SESSIONS = 200
 
-var MS_ONE_DAY = 1000 * 60 * 60 * 24
-var MS_ONE_WEEK = MS_ONE_DAY * 7
-var MS_ONE_MONTH = MS_ONE_DAY * 30
+const MS_ONE_DAY = 1000 * 60 * 60 * 24
+const MS_ONE_WEEK = MS_ONE_DAY * 7
+const MS_ONE_MONTH = MS_ONE_DAY * 30
 
-var path = require('path')
-var Ajv = require('ajv')
-var ajv = new Ajv()
-var fs = require('fs')
-var butil = require('../crypto/butil')
-var userAgent = require('../userAgent')
-var requestHelper = require('../routes/utils/request_helper')
-
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
-
-module.exports = function (
+module.exports = (
   log,
-  random,
-  P,
-  uuid,
-  isA,
-  error,
   db,
   mailer,
   Password,
@@ -44,7 +43,7 @@ module.exports = function (
   checkPassword,
   push,
   devices
-  ) {
+  ) => {
 
   // Loads and compiles a json validator for the payloads received
   // in /account/devices/notify

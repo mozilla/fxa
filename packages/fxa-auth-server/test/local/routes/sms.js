@@ -7,7 +7,6 @@
 const AppError = require('../../../lib/error')
 const assert = require('insist')
 const getRoute = require('../../routes_helpers').getRoute
-const isA = require('joi')
 const mocks = require('../../mocks')
 const P = require('../../../lib/promise')
 const proxyquire = require('proxyquire')
@@ -19,7 +18,7 @@ function makeRoutes (options, dependencies) {
   options = options || {}
   const log = options.log || mocks.mockLog()
   return proxyquire('../../../lib/routes/sms', dependencies || {})(
-    log, isA, AppError, options.config, mocks.mockCustoms(), sms
+    log, options.config, mocks.mockCustoms(), sms
   )
 }
 

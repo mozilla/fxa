@@ -11,7 +11,6 @@ var getRoute = require('../../routes_helpers').getRoute
 var P = require('../../../lib/promise')
 var uuid = require('uuid')
 var crypto = require('crypto')
-var isA = require('joi')
 var error = require('../../../lib/error')
 const sinon = require('sinon')
 const log = require('../../../lib/log')
@@ -32,8 +31,6 @@ function makeRoutes(options) {
   var checkPassword = require('../../../lib/routes/utils/password_check')(log, config, Password, customs, db)
   return require('../../../lib/routes/password')(
     log,
-    isA,
-    error,
     db,
     Password,
     config.smtp.redirectDomain || '',

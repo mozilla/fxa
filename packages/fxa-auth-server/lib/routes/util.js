@@ -4,10 +4,12 @@
 
 'use strict'
 
+const isA = require('joi')
+const random = require('../crypto/random')
 const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
 
-module.exports = (log, random, isA, config, redirectDomain) => {
+module.exports = (log, config, redirectDomain) => {
   return [
     {
       method: 'POST',

@@ -102,7 +102,6 @@ function run(config) {
             customs = new Customs(config.customsUrl)
             var routes = require('../lib/routes')(
               log,
-              error,
               serverPublicKeys,
               signer,
               db,

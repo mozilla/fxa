@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const error = require('../error')
+const isA = require('joi')
 const P = require('../promise')
 
 const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
 
-module.exports = function (log, isA, error, db) {
+module.exports = function (log, db) {
   var routes = [
     {
       method: 'POST',

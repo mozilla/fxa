@@ -4,15 +4,10 @@
 
 'use strict'
 
-const P = require('../promise')
-const uuid = require('uuid')
-const isA = require('joi')
 const url = require('url')
-const random = require('../crypto/random')
 
 module.exports = function (
   log,
-  error,
   serverPublicKeys,
   signer,
   db,
@@ -22,18 +17,13 @@ module.exports = function (
   config,
   customs
   ) {
-  const defaults = require('./defaults')(log, P, db, error)
+  const defaults = require('./defaults')(log, db)
   const idp = require('./idp')(log, serverPublicKeys)
   const checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
   const push = require('../push')(log, db, config)
   const devices = require('../devices')(log, db, push)
   const account = require('./account')(
     log,
-    random,
-    P,
-    uuid,
-    isA,
-    error,
     db,
     mailer,
     Password,
@@ -45,8 +35,6 @@ module.exports = function (
   )
   const password = require('./password')(
     log,
-    isA,
-    error,
     db,
     Password,
     config.smtp.redirectDomain,
@@ -56,13 +44,11 @@ module.exports = function (
     checkPassword,
     push
   )
-  const session = require('./session')(log, isA, error, db)
-  const sign = require('./sign')(log, P, isA, error, signer, db, config.domain, devices)
-  const smsRoute = require('./sms')(log, isA, error, config, customs, smsImpl)
+  const session = require('./session')(log, db)
+  const sign = require('./sign')(log, signer, db, config.domain, devices)
+  const smsRoute = require('./sms')(log, config, customs, smsImpl)
   const util = require('./util')(
     log,
-    random,
-    isA,
     config,
     config.smtp.redirectDomain
   )

@@ -4,10 +4,8 @@
 
 'use strict'
 
-const AppError = require('../../../lib/error')
 const assert = require('insist')
 const getRoute = require('../../routes_helpers').getRoute
-const isA = require('joi')
 const mocks = require('../../mocks')
 const P = require('../../../lib/promise')
 const sinon = require('sinon')
@@ -16,7 +14,7 @@ function makeRoutes (options) {
   options = options || {}
   const db = options.db || mocks.mockDB()
   const log = options.log || mocks.mockLog()
-  return require('../../../lib/routes/session')(log, isA, AppError, db)
+  return require('../../../lib/routes/session')(log, db)
 }
 
 function runTest (route, request) {
