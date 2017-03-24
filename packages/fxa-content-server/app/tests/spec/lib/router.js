@@ -5,16 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Account = require('models/account');
   const { assert } = require('chai');
-  const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const BaseView = require('views/base');
   const Constants = require('lib/constants');
   const DisplayNameView = require('views/settings/display_name');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const Router = require('lib/router');
   const SettingsView = require('views/settings');
@@ -189,110 +186,6 @@ define(function (require, exports, module) {
 
       it('calls `window.history.back`', function () {
         assert.isTrue(windowMock.history.back.called);
-      });
-    });
-
-    describe('redirectToSignupOrSettings', function () {
-      it('replaces current page with the signup page if there is no current account', function () {
-        windowMock.location.search = '';
-        router.redirectToSignupOrSettings();
-        assert.equal(navigateUrl, '/signup');
-        assert.deepEqual(navigateOptions, { replace: true, trigger: true });
-      });
-
-      it('replaces the current page with the settings page if there is a current account', function () {
-        windowMock.location.search = '';
-        sinon.stub(user, 'getSignedInAccount', function () {
-          return user.initAccount({
-            sessionToken: 'abc123'
-          });
-        });
-        router.redirectToSignupOrSettings();
-        assert.equal(navigateUrl, '/settings');
-        assert.deepEqual(navigateOptions, { replace: true, trigger: true });
-      });
-    });
-
-    describe('redirectToBestOAuthChoice', function () {
-      describe('no email in params', function () {
-        it('replaces current page with the signup page if there is no current account', function () {
-          windowMock.location.search = '';
-          return router.redirectToBestOAuthChoice()
-            .then(function () {
-              assert.equal(navigateUrl, '/oauth/signup');
-              assert.deepEqual(navigateOptions, { replace: true, trigger: true });
-            });
-        });
-
-        it('replaces the current page with the signin page', function () {
-          windowMock.location.search = '';
-          sinon.stub(user, 'getChooserAccount', function () {
-            return user.initAccount({
-              sessionToken: 'abc123'
-            });
-          });
-
-          return router.redirectToBestOAuthChoice()
-            .then(function () {
-              assert.equal(navigateUrl, '/oauth/signin');
-              assert.deepEqual(navigateOptions, { replace: true, trigger: true });
-            });
-        });
-      });
-
-      describe('email in params', function () {
-        var accountExists;
-        beforeEach(function () {
-          accountExists = false;
-
-          sinon.stub(user, 'checkAccountEmailExists', function () {
-            if (accountExists instanceof Error) {
-              return p.reject(accountExists);
-            } else {
-              return p(accountExists);
-            }
-          });
-
-          relier.set('email', 'test@email.com');
-        });
-
-        it('navigate to signup page if email is not associated with account', function () {
-          accountExists = false;
-
-          return router.redirectToBestOAuthChoice()
-            .then(function () {
-              assert.include(navigateUrl, '/oauth/signup');
-              assert.deepEqual(navigateOptions, { replace: true, trigger: true });
-            });
-        });
-
-        it('navigate to signin page if email is associated with account', function () {
-          accountExists = true;
-
-          return router.redirectToBestOAuthChoice()
-            .then(function () {
-              assert.include(navigateUrl, '/oauth/signin');
-              assert.deepEqual(navigateOptions, { replace: true, trigger: true });
-            });
-        });
-
-        it('logs and swallows any errors that are thrown checking whether the email is registered', function () {
-          var err = AuthErrors.toError('THROTTLED');
-          accountExists = err;
-
-          sinon.spy(metrics, 'logError');
-          sinon.stub(user, 'getChooserAccount', function () {
-            // return a default account to ensure user is sent to signup
-            return new Account({});
-          });
-
-          return router.redirectToBestOAuthChoice()
-            .then(function () {
-              assert.isTrue(metrics.logError.calledWith(err));
-              assert.include(navigateUrl, '/oauth/signup');
-              assert.deepEqual(navigateOptions, { replace: true, trigger: true });
-            });
-        });
       });
     });
 
