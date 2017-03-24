@@ -79,12 +79,7 @@ function run(config) {
   var DB = require('../lib/db')(
     config,
     log,
-    error,
-    Token.SessionToken,
-    Token.KeyFetchToken,
-    Token.AccountResetToken,
-    Token.PasswordForgotToken,
-    Token.PasswordChangeToken,
+    Token,
     UnblockCode
   )
 

@@ -4,6 +4,7 @@
 
 'use strict'
 
+const error = require('./error')
 const P = require('./promise')
 const Pool = require('./pool')
 const userAgent = require('./userAgent')
@@ -11,18 +12,19 @@ const userAgent = require('./userAgent')
 const bufferize = require('./crypto/butil').bufferize
 const random = require('./crypto/random')
 
-module.exports = function (
+module.exports = (
   config,
   log,
-  error,
-  SessionToken,
-  KeyFetchToken,
-  AccountResetToken,
-  PasswordForgotToken,
-  PasswordChangeToken,
-  UnblockCode) {
+  Token,
+  UnblockCode
+  ) => {
 
   const features = require('./features')(config)
+  const SessionToken = Token.SessionToken
+  const KeyFetchToken = Token.KeyFetchToken
+  const AccountResetToken = Token.AccountResetToken
+  const PasswordForgotToken = Token.PasswordForgotToken
+  const PasswordChangeToken = Token.PasswordChangeToken
 
   function DB(options) {
     this.pool = new Pool(options.url)

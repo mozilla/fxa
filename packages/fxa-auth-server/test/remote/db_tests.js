@@ -25,12 +25,7 @@ const Token = require('../../lib/tokens')(log, {
 const DB = require('../../lib/db')(
   { lastAccessTimeUpdates: lastAccessTimeUpdates },
   log,
-  Token.error,
-  Token.SessionToken,
-  Token.KeyFetchToken,
-  Token.AccountResetToken,
-  Token.PasswordForgotToken,
-  Token.PasswordChangeToken,
+  Token,
   UnblockCode
 )
 
