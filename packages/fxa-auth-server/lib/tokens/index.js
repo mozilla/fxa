@@ -2,13 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const crypto = require('crypto')
-const inherits = require('util').inherits
-
-const P = require('../promise')
-const hkdf = require('../crypto/hkdf')
-const butil = require('../crypto/butil')
-const random = require('../crypto/random')
+'use strict'
 
 const error = require('../error')
 
@@ -19,28 +13,24 @@ module.exports = (log, config) => {
     passwordChangeToken: 1000 * 60 * 15,
     passwordForgotToken: 1000 * 60 * 15
   }
-  const Bundle = require('./bundle')(crypto, P, hkdf, butil, error)
-  const Token = require('./token')(log, config, random, P, hkdf, Bundle, error)
+  const Bundle = require('./bundle')
+  const Token = require('./token')(log, config)
 
-  const KeyFetchToken = require('./key_fetch_token')(log, inherits, Token, P, error)
+  const KeyFetchToken = require('./key_fetch_token')(log, Token)
   const AccountResetToken = require('./account_reset_token')(
     log,
-    inherits,
     Token,
     lifetimes.accountResetToken
   )
-  const SessionToken = require('./session_token')(log, inherits, Token, config)
+  const SessionToken = require('./session_token')(log, Token, config)
   const PasswordForgotToken = require('./password_forgot_token')(
     log,
-    inherits,
     Token,
-    random,
     lifetimes.passwordForgotToken
   )
 
   const PasswordChangeToken = require('./password_change_token')(
     log,
-    inherits,
     Token,
     lifetimes.passwordChangeToken
   )

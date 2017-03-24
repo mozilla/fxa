@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, inherits, Token, P, error) {
+const inherits = require('util').inherits
+const P = require('../promise')
+
+module.exports = function (log, Token) {
 
   function KeyFetchToken(keys, details) {
     Token.call(this, keys, details)

@@ -23,7 +23,11 @@
  *
  */
 
-module.exports = function (log, config, random, P, hkdf, Bundle, error) {
+const Bundle = require('./bundle')
+const hkdf = require('../crypto/hkdf')
+const random = require('../crypto/random')
+
+module.exports = (log, config) => {
 
   // Token constructor.
   //
