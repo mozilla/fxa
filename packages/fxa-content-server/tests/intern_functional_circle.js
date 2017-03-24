@@ -38,6 +38,7 @@ define([
     'tests/functional/settings',
     'tests/functional/settings_common',
     'tests/functional/settings_clients',
+    'tests/functional/avatar',
     'tests/functional/sync_settings',
     'tests/functional/change_password',
     'tests/functional/force_auth',

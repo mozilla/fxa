@@ -31,7 +31,6 @@ define([
   var openPage = FunctionalHelpers.openPage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
   var testIsBrowserNotifiedOfAvatarChange = thenify(function () {
     return this.parent
@@ -114,7 +113,6 @@ define([
         .then(testElementExists('img[src*="https://secure.gravatar.com"]'))
         .then(click('.modal-panel #submit-btn'))
 
-        .then(testSuccessWasShown())
         .then(testIsBrowserNotifiedOfAvatarChange())
         //success is returning to the settings page
         .then(testElementExists('#fxa-settings-header'))
