@@ -33,22 +33,26 @@ var conf = module.exports = convict({
     proxy_url: {
       doc: 'Url for the Basket proxy server',
       format: String,
-      default: 'http://127.0.0.1:1114'
+      default: 'http://127.0.0.1:1114',
+      env: 'BASKET_PROXY_URL'
     },
     api_url: {
       doc: 'Url for the Basket API server',
       format: String,
-      default: 'http://127.0.0.1:10140'
+      default: 'http://127.0.0.1:10140',
+      env: 'BASKET_API_URL'
     },
     api_key: {
       doc: 'Basket API key',
       format: String,
-      default: 'test key please change'
+      default: 'test key please change',
+      env: 'BASKET_API_KEY'
     },
     api_timeout: {
       doc: 'Timeout for talking to the Basket API server, in ms',
       format: 'duration',
-      default: '5 seconds'
+      default: '5 seconds',
+      env: 'BASKET_API_TIMEOUT'
     },
     newsletter_campaigns: {
       doc: 'Values of utm_campaign that identify a newsletter campaign',
