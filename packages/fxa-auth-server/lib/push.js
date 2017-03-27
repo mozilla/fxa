@@ -15,6 +15,7 @@ var PUSH_PAYLOAD_SCHEMA_VERSION = 1
 var PUSH_COMMANDS = {
   DEVICE_CONNECTED: 'fxaccounts:device_connected',
   DEVICE_DISCONNECTED: 'fxaccounts:device_disconnected',
+  PROFILE_UPDATED: 'fxaccounts:profile_updated',
   PASSWORD_CHANGED: 'fxaccounts:password_changed',
   PASSWORD_RESET: 'fxaccounts:password_reset'
 }
@@ -75,6 +76,14 @@ var reasonToEvents = {
     failed: 'push.device_disconnected.failed',
     noCallback: 'push.device_disconnected.no_push_callback',
     noKeys: 'push.device_disconnected.data_but_no_keys'
+  },
+  profileUpdated: {
+    send: 'push.profile_updated.send',
+    success: 'push.profile_updated.success',
+    resetSettings: 'push.profile_updated.reset_settings',
+    failed: 'push.profile_updated.failed',
+    noCallback: 'push.profile_updated.no_push_callback',
+    noKeys: 'push.profile_updated.data_but_no_keys'
   },
   devicesNotify: {
     send: 'push.devices_notify.send',
@@ -196,6 +205,21 @@ module.exports = function (log, db, config) {
       }))
       var options = { data: data, TTL: TTL_DEVICE_DISCONNECTED }
       return this.pushToDevice(uid, idToDisconnect, 'deviceDisconnected', options)
+    },
+
+    /**
+     * Notifies all devices that a the profile attached to the account was updated
+     *
+     * @param uid
+     * @promise
+     */
+    notifyProfileUpdated: function notifyProfileUpdated(uid) {
+      var data = Buffer.from(JSON.stringify({
+        version: PUSH_PAYLOAD_SCHEMA_VERSION,
+        command: PUSH_COMMANDS.PROFILE_UPDATED
+      }))
+      var options = { data: data }
+      return this.pushToAllDevices(uid, 'profileUpdated', options)
     },
 
     /**

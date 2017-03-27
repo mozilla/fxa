@@ -254,7 +254,7 @@ describe('/account/devices/notify', function () {
     })
   })
 
-  it('extra push payload properties are stripped', function () {
+  it('extra push payload properties are rejected', function () {
     var extraPropsPayload = JSON.parse(JSON.stringify(pushPayload))
     extraPropsPayload.extra = true
     extraPropsPayload.data.extra = true
@@ -271,14 +271,12 @@ describe('/account/devices/notify', function () {
       pushToAllDevicesPromise.resolve()
       return Promise.resolve()
     })
-    return runTest(route, mockRequest, function (response) {
-      return pushToAllDevicesPromise.promise.then(function () {
-        assert.deepEqual(mockPush.pushToAllDevices.args[0][2], {
-          data: Buffer.from(JSON.stringify(pushPayload)),
-          excludedDeviceIds: ['bogusid'],
-          TTL: 60
-        }, 'third argument payload properties has no extra properties')
-      })
+    return runTest(route, mockRequest, function () {
+      assert(false, 'should have thrown')
+    })
+    .then(() => assert.ok(false), function (err) {
+      assert.equal(err.output.statusCode, 400, 'correct status code is returned')
+      assert.equal(err.errno, error.ERRNO.INVALID_PARAMETER, 'correct errno is returned')
     })
   })
 
@@ -334,7 +332,6 @@ describe('/account/devices/notify', function () {
       to: ['bogusid1', 'bogusid2'],
       TTL: 60,
       payload: {
-        isValid: true,
         version: 1,
         command: 'fxaccounts:password_reset'
       }

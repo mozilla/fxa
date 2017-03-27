@@ -21,7 +21,7 @@ var MS_ONE_MONTH = MS_ONE_DAY * 30
 
 var path = require('path')
 var Ajv = require('ajv')
-var ajv = new Ajv({ removeAdditional: 'all' })
+var ajv = new Ajv()
 var fs = require('fs')
 var butil = require('../crypto/butil')
 var userAgent = require('../userAgent')
