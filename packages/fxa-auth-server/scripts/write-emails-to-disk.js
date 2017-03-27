@@ -62,7 +62,7 @@ require('../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n
     return createSenders(log, config, error, db, translator, mailSender)
   })
   .then((senders) => {
-    const mailer = senders.email
+    const mailer = senders.email._ungatedMailer
     checkMessageType(mailer, messageToSend)
 
     ensureTargetDirectoryExists()
