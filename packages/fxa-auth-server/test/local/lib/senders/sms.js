@@ -43,6 +43,12 @@ function Nexmo () {}
 Nexmo.prototype.message = { sendSms }
 Nexmo.prototype.account = { checkBalance }
 
+let mockConstructed = false
+function MockNexmo () {
+  mockConstructed = true
+}
+MockNexmo.prototype = Nexmo.prototype
+
 describe('lib/senders/sms:', () => {
   let sms
 
@@ -57,7 +63,8 @@ describe('lib/senders/sms:', () => {
         apiKey: 'foo',
         apiSecret: 'bar',
         balanceThreshold: 1,
-        installFirefoxLink: 'https://baz/qux'
+        installFirefoxLink: 'https://baz/qux',
+        useMock: false
       })
     })
   })
@@ -68,6 +75,7 @@ describe('lib/senders/sms:', () => {
     log.error.reset()
     log.info.reset()
     log.trace.reset()
+    mockConstructed = false
   })
 
   it('interface is correct', () => {
@@ -206,6 +214,30 @@ describe('lib/senders/sms:', () => {
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
       })
+  })
+
+  it('uses the Nexmo constructor if `useMock: false`', () => {
+    assert.equal(mockConstructed, false)
+  })
+
+  it('uses the NexmoMock constructor if `useMock: true`', () => {
+    return P.all([
+      require('../../../../lib/senders/translator')(['en'], 'en'),
+      require('../../../../lib/senders/templates')()
+    ]).spread((translator, templates) => {
+      sms = proxyquire('../../../../lib/senders/sms', {
+        nexmo: Nexmo,
+        '../mock-nexmo': MockNexmo
+      })(log, translator, templates, {
+        apiKey: 'foo',
+        apiSecret: 'bar',
+        balanceThreshold: 1,
+        installFirefoxLink: 'https://baz/qux',
+        useMock: true
+      })
+
+      assert.equal(mockConstructed, true)
+    })
   })
 })
 
