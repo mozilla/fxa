@@ -58,7 +58,13 @@ define(function (require, exports, module) {
       // number in the success message on /sms/sent, and
       // clicks "Mistyped number?"
       let phoneNumber = this._formPrefill.get('phoneNumber');
-      const country = this._getCountry();
+      let country = this._getCountry();
+      if (! CountryTelephoneInfo[country]) {
+        // this shouldn't be possible because only the Sync relier imports
+        // a country, and it'll only import a list of allowed countries,
+        // but defense in depth.
+        country = 'US';
+      }
       const prefix = CountryTelephoneInfo[country].prefix;
       if (! phoneNumber && prefix !== CountryTelephoneInfo.US.prefix) {
         phoneNumber = prefix;
@@ -98,7 +104,7 @@ define(function (require, exports, module) {
       // Once the feature is opened up to more countries, we'll get the country
       // first from the relier (query params), and then data returned from
       // the auth-server's /sms/status endpoint
-      return this.relier.get('country');
+      return this.relier.get('country') || 'US';
     },
 
     /**

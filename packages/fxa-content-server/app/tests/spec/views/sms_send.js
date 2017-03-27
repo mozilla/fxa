@@ -67,6 +67,29 @@
              assert.equal(view.$('input[type=tel]').data('country'), 'GB');
            });
        });
+
+       it('with relier set country that is not supported, it renders correctly for the US/CA, renders marketing', () => {
+         formPrefill.unset('phoneNumber');
+         relier.set('country', 'KZ');
+
+         return view.render()
+           .then(() => {
+             assert.equal(view.$('input[type=tel]').__val(), '');
+             assert.equal(view.$('input[type=tel]').data('country'), 'US');
+             assert.lengthOf(view.$('.marketing-link'), 2);
+           });
+       });
+
+       it('with no relier set country, it renders correctly for the US/CA', () => {
+         formPrefill.unset('phoneNumber');
+         relier.unset('country');
+         return view.render()
+           .then(() => {
+             assert.equal(view.$('input[type=tel]').__val(), '');
+             assert.equal(view.$('input[type=tel]').data('country'), 'US');
+             assert.lengthOf(view.$('.marketing-link'), 2);
+           });
+       });
      });
 
      describe('submit', () => {
