@@ -60,10 +60,10 @@ describe('Token', () => {
       })
     })
 
-    it('Token.createNewToken accepts an override for createdAt', () => {
+    it('Token.createNewToken ignores an override for createdAt', () => {
       var now = Date.now() - 1
       return Token.createNewToken(Token, { createdAt: now }).then(token => {
-        assert.equal(token.createdAt, now, 'token.createdAt is correct')
+        assert.notEqual(token.createdAt, now, 'token.createdAt is new')
       })
     })
 

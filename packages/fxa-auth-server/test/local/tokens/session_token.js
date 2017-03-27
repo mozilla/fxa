@@ -40,18 +40,8 @@ describe('SessionToken', () => {
           assert.equal(typeof token.update, 'function', 'update method is defined')
           assert.equal(typeof token.isFresh, 'function', 'isFresh method is defined')
           assert.equal(typeof token.setUserAgentInfo, 'function', 'setUserAgentInfo method is defined')
-
-          assert.equal(log.error.callCount, 1, 'log.error was called once')
-          const args = log.error.args[0]
-          assert.equal(args.length, 1, 'log.error was passed one argument')
-          assert.equal(args[0].op, 'token.createNewToken', 'log.error was passed correct op')
-          assert.equal(args[0].TokenType, 'SessionToken', 'log.error was passed correct TokenType')
-          assert.equal(args[0].createdAt, TOKEN.createdAt, 'log.error was passed correct createdAt')
-          assert.ok(args[0].err instanceof Error, 'log.error was passed valid err')
-          assert.equal(args[0].err.message, 'Unexpected createdAt data', 'log.error was passed correct error message')
-          assert.equal(args[0].stack, args[0].err.stack, 'log.error was passed correct stack')
+          assert.notEqual(token.createdAt, TOKEN.createdAt, 'createdAt values are completely ignored')
         })
-        .finally(() => log.error.reset())
     }
   )
 
@@ -67,7 +57,7 @@ describe('SessionToken', () => {
         )
         .then(
           function () {
-            return SessionToken.fromHex(token.data, TOKEN)
+            return SessionToken.fromHex(token.data, token)
           }
         )
         .then(
@@ -85,7 +75,6 @@ describe('SessionToken', () => {
             assert.equal(token.tokenVerificationId, token2.tokenVerificationId)
           }
         )
-        .finally(() => log.error.reset())
     }
   )
 
@@ -100,7 +89,6 @@ describe('SessionToken', () => {
         function (token) {
           var now = Date.now()
           assert.ok(token.createdAt > now - 1000 && token.createdAt <= now)
-          assert.equal(log.error.callCount, 1, 'log.error was called')
         }
       )
     }

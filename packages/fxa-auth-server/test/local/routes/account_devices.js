@@ -521,4 +521,18 @@ describe('/account/devices', function () {
       assert.equal(mockDevices.synthesizeName.args[0][0], unnamedDevice, 'mockDevices.synthesizeName was passed unnamed device')
     })
   })
+
+  it('should allow returning a lastAccessTime of 0', () => {
+    const route = getRoute(makeRoutes({}), '/account/devices')
+    const res = [
+      {
+        id: crypto.randomBytes(16).toString('hex'),
+        isCurrentDevice: true,
+        lastAccessTime: 0,
+        name: 'test',
+        type: 'test'
+      }
+    ]
+    isA.assert(res, route.config.response.schema)
+  })
 })
