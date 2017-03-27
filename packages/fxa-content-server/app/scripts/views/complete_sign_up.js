@@ -27,6 +27,7 @@ define(function (require, exports, module) {
   const ResendMixin = require('views/mixins/resend-mixin')();
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const t = BaseView.t;
+  const UserAgentMixin = require('views/mixins/user-agent-mixin');
   const VerificationInfo = require('models/verification/sign-up');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
@@ -220,17 +221,14 @@ define(function (require, exports, module) {
      */
     _isEligibleToSendSms (verifiedAccount) {
       return p().then(() => {
-        if (this.isSignIn()) {
-          return false;
-        }
-
-        const isInExperimentGroup = this.isInExperimentGroup('sendSms', 'treatment');
-        const isAnotherUserSignedIn = this._isAnotherUserSignedIn(verifiedAccount);
-
-        // If a user is already signed in to Sync which is different to the
-        // user that just verified, show them the old "Account verified!" screen.
-        return isInExperimentGroup &&
-               ! isAnotherUserSignedIn &&
+        return ! this.isSignIn() &&
+               // If already on a mobile device, doesn't make sense to send an SMS.
+               ! this.getUserAgent().isAndroid() &&
+               ! this.getUserAgent().isIos() &&
+               this.isInExperimentGroup('sendSms', 'treatment') &&
+               // If a user is already signed in to Sync which is different to the
+               // user that just verified, show them the old "Account verified!" screen.
+               ! this._isAnotherUserSignedIn(verifiedAccount) &&
                // The auth server can gate whether users can send an SMS based
                // on the user's country and whether the SMS provider account
                // has sufficient funds.
@@ -357,6 +355,7 @@ define(function (require, exports, module) {
     ExperimentMixin,
     ResendMixin,
     ResumeTokenMixin,
+    UserAgentMixin,
     VerificationReasonMixin
   );
 

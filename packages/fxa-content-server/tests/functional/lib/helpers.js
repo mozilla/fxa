@@ -8,14 +8,13 @@ define([
   'tests/lib/restmail',
   'tests/lib/helpers',
   'intern/dojo/node!leadfoot/helpers/pollUntil',
-  'intern/browser_modules/dojo/lang',
   'intern/browser_modules/dojo/node!url',
   'intern/browser_modules/dojo/node!querystring',
   'intern/browser_modules/dojo/node!xmlhttprequest',
   'intern/chai!assert',
   'app/bower_components/fxa-js-client/fxa-client',
 ], function (intern, require, restmail, TestHelpers, pollUntil,
-  lang, Url, Querystring, nodeXMLHttpRequest, assert, FxaClient) {
+  Url, Querystring, nodeXMLHttpRequest, assert, FxaClient) {
   const config = intern.config;
 
   const AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -545,33 +544,32 @@ define([
    * Open a verification link in a new tab of the same browser.
    * @param {string} email user's email
    * @param {number} index verification email index
+   * @param {object} [options] options
+   *   @param {object} [options.query] extra query parameters to add to the verification link
    * @returns {promise} resolves when complete
    */
-  const openVerificationLinkInNewTab = thenify(function (email, index, windowName) {
+  const openVerificationLinkInNewTab = thenify(function (email, index, options) {
     var user = TestHelpers.emailToUser(email);
-
-    return this.parent
-      .then(getVerificationLink(user, index))
-      .then(function (verificationLink) {
-        return this.parent
-          .execute(openWindow, [ verificationLink, windowName ]);
-      });
-  });
-
-  const openVerificationLinkInSameTab = thenify(function (email, index, options) {
-    var user = TestHelpers.emailToUser(email);
-
     options = options || {};
 
     return this.parent
       .then(getVerificationLink(user, index))
       .then(function (verificationLink) {
-        const parsedVerificationLink = Url.parse(verificationLink, true);
-        for (var paramName in options.query) {
-          parsedVerificationLink.query[paramName] = options.query[paramName];
-        }
-        parsedVerificationLink.search = undefined;
-        return this.parent.get(require.toUrl(Url.format(parsedVerificationLink)));
+        const verificationLinkWithParams = addQueryParamsToLink(verificationLink, options.query);
+        return this.parent
+          .execute(openWindow, [ verificationLinkWithParams ]);
+      });
+  });
+
+  const openVerificationLinkInSameTab = thenify(function (email, index, options) {
+    var user = TestHelpers.emailToUser(email);
+    options = options || {};
+
+    return this.parent
+      .then(getVerificationLink(user, index))
+      .then(function (verificationLink) {
+        const verificationLinkWithParams = addQueryParamsToLink(verificationLink, options.query);
+        return this.parent.get(verificationLinkWithParams);
       });
   });
 
@@ -755,12 +753,7 @@ define([
   const openPage = thenify(function (url, readySelector, options) {
     options = options || {};
 
-    const parsedUrl = Url.parse(url, true);
-    for (var paramName in options.query) {
-      parsedUrl.query[paramName] = options.query[paramName];
-    }
-    parsedUrl.search = undefined;
-    url = Url.format(parsedUrl);
+    url = addQueryParamsToLink(url, options.query);
 
     return this.parent
       .get(require.toUrl(url))
@@ -802,6 +795,23 @@ define([
   });
 
   /**
+   * Add query parameters to a link
+   *
+   * @param {String} link
+   * @param {Object} query
+   * @returns {String}
+   */
+  function addQueryParamsToLink(link, query) {
+    query = query || {};
+    const parsedLink = Url.parse(link, true);
+    for (var paramName in query) {
+      parsedLink.query[paramName] = query[paramName];
+    }
+    parsedLink.search = undefined;
+    return require.toUrl(Url.format(parsedLink));
+  }
+
+  /**
    * Re-open the same page with additional query parameters.
    *
    * @param   {object} additionalQueryParams key/value pairs of query parameters
@@ -812,10 +822,7 @@ define([
     return this.parent
       .getCurrentUrl()
       .then(function (url) {
-        var parsedUrl = Url.parse(url);
-        var currentQueryParams = Querystring.parse(parsedUrl.search);
-        var updatedQueryParams = lang.mixin({}, currentQueryParams, additionalQueryParams);
-        var urlToOpen = url + '?' + Querystring.stringify(updatedQueryParams);
+        var urlToOpen = addQueryParamsToLink(url, additionalQueryParams);
 
         return this.parent
           .then(openPage(urlToOpen, waitForSelector));
