@@ -1,3 +1,14 @@
+<a name="1.83.4"></a>
+## 1.83.4 (2017-03-27)
+
+
+### Bug Fixes
+
+* **sms:** Fix visiting /sms w/o ?service=sync query parameter. (#4865) r=vbudhram,vladikof ([9c8b14d](https://github.com/mozilla/fxa-content-server/commit/9c8b14d)), closes [(#4865](https://github.com/(/issues/4865)
+* **sms:** Only show the SMS form to desktop users. (#4860) r=@vbudhram, @philbooth ([66afcd5](https://github.com/mozilla/fxa-content-server/commit/66afcd5))
+
+
+
 <a name="1.83.3"></a>
 ## 1.83.3 (2017-03-24)
 
