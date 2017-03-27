@@ -41,41 +41,13 @@ module.exports = function (log, config, random, P, hkdf, Bundle, error) {
     this.createdAt = details.createdAt || 0
   }
 
-  function optionallyOverrideCreatedAt (timestamp) {
-    var now = Date.now()
-    if (config.isProduction) {
-      return now
-    }
-    if (typeof timestamp !== 'number' || isNaN(timestamp)) {
-      return now
-    }
-    if (timestamp < 0 || timestamp > now) {
-      return now
-    }
-    return timestamp
-  }
-
   // Create a new token of the given type.
   // This uses randomly-generated seed data to derive the keys.
   //
   Token.createNewToken = function(TokenType, details) {
     // Avoid modifying the argument.
     details = Object.assign({}, details)
-    // In the wild, all tokens should have a fresh createdAt timestamp.
-    // For testing purposes only, allow createdAt to be overridden.
-    // We don't expect this to be set outside the tests, so log an error
-    // if we do encounter it, to help debug what's going on.
-    if (typeof details.createdAt !== 'undefined') {
-      const err = new Error('Unexpected createdAt data')
-      log.error({
-        op: 'token.createNewToken',
-        TokenType: TokenType.name,
-        createdAt: details.createdAt,
-        err,
-        stack: err.stack
-      })
-    }
-    details.createdAt = optionallyOverrideCreatedAt(details.createdAt)
+    details.createdAt = Date.now()
     return random(32)
       .then(bytes => Token.deriveTokenKeys(TokenType, bytes))
       .then(keys => new TokenType(keys, details))

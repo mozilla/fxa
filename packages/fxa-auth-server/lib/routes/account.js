@@ -71,8 +71,7 @@ module.exports = function (
         validate: {
           query: {
             keys: isA.boolean().optional(),
-            service: validators.service,
-            _createdAt: isA.number().min(0).optional()
+            service: validators.service
           },
           payload: {
             email: validators.email().required(),
@@ -248,25 +247,12 @@ module.exports = function (
             tokenVerificationId = undefined
           }
 
-          if (query._createdAt) {
-            // We don't expect this to be set outside the tests so log an error
-            // if we do encounter it, to help debug what's going on.
-            log.error({
-              op: 'account.create.createSessionToken',
-              err: new Error('Unexpected _createdAt query parameter'),
-              _createdAt: query._createdAt,
-              userAgent: request.headers['user-agent'],
-              service
-            })
-          }
-
           return db.createSessionToken({
             uid: account.uid,
             email: account.email,
             emailCode: account.emailCode,
             emailVerified: account.emailVerified,
             verifierSetAt: account.verifierSetAt,
-            createdAt: parseInt(query._createdAt),
             mustVerify: requestHelper.wantsKeys(request),
             tokenVerificationId: tokenVerificationId
           }, userAgentString)
@@ -2296,7 +2282,6 @@ module.exports = function (
   ]
 
   if (config.isProduction) {
-    delete routes[0].config.validate.query._createdAt
     delete routes[0].config.validate.payload.preVerified
   } else {
     // programmatic account lockout was only available in
