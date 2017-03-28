@@ -37,6 +37,7 @@ module.exports = function (
   isA,
   error,
   db,
+  bounces,
   mailer,
   Password,
   config,
@@ -1618,6 +1619,12 @@ module.exports = function (
           }
           return P.resolve()
         }
+
+        /*
+        function checkBounces() {
+
+        }
+        */
 
         function createResponse() {
 

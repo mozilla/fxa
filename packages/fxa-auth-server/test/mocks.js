@@ -105,6 +105,7 @@ const PUSH_METHOD_NAMES = [
 
 module.exports = {
   generateMetricsContext: generateMetricsContext,
+  mockBounces: mockObject(['check']),
   mockCustoms: mockObject(CUSTOMS_METHOD_NAMES),
   mockDB: mockDB,
   mockDevices: mockDevices,
