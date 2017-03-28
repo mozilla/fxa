@@ -8,7 +8,11 @@ const ROOT_DIR = '../../..'
 
 const assert = require('insist')
 const config = require(`${ROOT_DIR}/config/index`).getProperties()
-const db = {}
+const bounces = {
+  check() {
+    return require(`${ROOT_DIR}/lib/promise`).resolve()
+  }
+}
 const error = require(`${ROOT_DIR}/lib/error`)
 const log = {}
 
@@ -18,7 +22,7 @@ describe('mailer locales', () => {
   before(() => {
     return require(`${ROOT_DIR}/lib/senders/translator`)(config.i18n.supportedLanguages, config.i18n.defaultLanguage)
       .then(translator => {
-        return require(`${ROOT_DIR}/lib/senders`)(log, config, error, db, translator)
+        return require(`${ROOT_DIR}/lib/senders`)(log, config, error, bounces, translator)
       })
       .then(result => {
         mailer = result.email

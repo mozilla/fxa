@@ -95,8 +95,9 @@ function run(config) {
     .spread(
       (db, translator) => {
         database = db
+        const bounces = require('../lib/bounces')(config, db)
 
-        return require('../lib/senders')(log, config, error, db, translator)
+        return require('../lib/senders')(log, config, error, bounces, translator)
           .then(result => {
             senders = result
             customs = new Customs(config.customsUrl)
@@ -106,6 +107,7 @@ function run(config) {
               serverPublicKeys,
               signer,
               db,
+              bounces,
               senders.email,
               senders.sms,
               Password,

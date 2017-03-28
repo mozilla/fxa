@@ -55,6 +55,7 @@ var makeRoutes = function (options, requireMocks) {
     isA,
     error,
     db,
+    mocks.mockBounces(),
     options.mailer || {},
     Password,
     config,
