@@ -540,7 +540,6 @@ describe('/account/login', function () {
         flowCompleteSignal: 'account.signed',
         locale: 'en-US',
         time: now,
-        uid: undefined,
         userAgent: 'test user-agent'
       }, 'second flow event was correct')
 

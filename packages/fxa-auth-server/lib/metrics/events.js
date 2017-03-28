@@ -153,10 +153,14 @@ module.exports = log => {
     return request.gatherMetricsContext({
       event: event,
       locale: marshallLocale(request),
-      uid: coalesceUid(optionalData, request),
       userAgent: request.headers['user-agent']
     }).then(data => {
       if (data.flow_id) {
+        const uid = coalesceUid(optionalData, request)
+        if (uid) {
+          data.uid = uid
+        }
+
         log.flowEvent(data)
 
         if (event === data.flowCompleteSignal) {
@@ -191,7 +195,7 @@ function marshallLocale (request) {
 
 function coalesceUid (data, request) {
   if (data && data.uid) {
-    return data.uid
+    return Buffer.isBuffer(data.uid) ? data.uid.toString('hex') : data.uid
   }
 
   return request.auth &&
