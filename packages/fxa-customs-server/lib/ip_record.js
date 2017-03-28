@@ -126,28 +126,28 @@ module.exports = function (limits, now) {
 
   IpRecord.prototype.isOverSmsLimit = function () {
     this.trimSmsRequests(now())
-    // Limit based on number of unique sms request sent by this IP
-    var count = 0
-    var seen = {}
-    this.sms.forEach(function(info) {
-      if (!(info.u in seen)) {
-        count += 1
-        seen[info.u] = true
-      }
-    })
-    return count > limits.maxSms
+    return this.sms.length > limits.maxSms
   }
 
-  IpRecord.prototype.addSmsRequest = function (info) {
-    info = info || {}
-    var t = now()
-    var phoneNumber = info.phoneNumber || ''
-    this.trimSmsRequests(t)
-    this.sms.push({ t: t, u: phoneNumber })
+  IpRecord.prototype.addSmsRequest = function () {
+    this.sms.push(now())
   }
 
   IpRecord.prototype.trimSmsRequests = function (now) {
-    this.sms = this._trim(now, this.sms, limits.maxSms)
+    if (this.sms.length === 0) { return }
+    // xs is naturally ordered from oldest to newest
+    // and we only need to keep up to limits.maxSms + 1
+
+    var i = this.sms.length - 1
+    var n = 0
+    var hit = this.sms[i]
+
+    // Remove non-numbers and expired entries from list
+    while (hit > (now - limits.ipRateLimitIntervalMs) && n <= limits.maxSms) {
+      hit = this.sms[--i]
+      n++
+    }
+    this.sms = this.sms.slice(i + 1)
   }
 
   IpRecord.prototype._trim = function (now, items, maxUnique) {
@@ -199,7 +199,7 @@ module.exports = function (limits, now) {
     return Math.max(0, rateLimitAfter, banAfter)
   }
 
-  IpRecord.prototype.update = function (action, email, phoneNumber) {
+  IpRecord.prototype.update = function (action, email) {
     // ip block is explicit, no escape hatches
     if (this.isBlocked()) {
       return this.retryAfter()
@@ -236,8 +236,8 @@ module.exports = function (limits, now) {
     }
 
     // Increment sms request count and throttle if needed
-    if (actions.isSmsSendingAction(action) && phoneNumber) {
-      this.addSmsRequest({ phoneNumber: phoneNumber })
+    if (actions.isSmsSendingAction(action)) {
+      this.addSmsRequest()
       if (this.isOverSmsLimit()){
         // If you do more than the limit this can extend the ban.
         this.rateLimit()

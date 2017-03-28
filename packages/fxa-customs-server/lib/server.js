@@ -163,7 +163,7 @@ module.exports = function createServer(config, log) {
             var wantsUnblock = req.body.payload && req.body.payload.unblockCode
             var blockEmail = emailRecord.update(action, !!wantsUnblock)
             var blockIpEmail = ipEmailRecord.update(action)
-            var blockIp = ipRecord.update(action, email, phoneNumber)
+            var blockIp = ipRecord.update(action, email)
 
             var blockSMS = 0
             if (smsRecord) {

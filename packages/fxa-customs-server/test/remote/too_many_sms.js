@@ -124,12 +124,12 @@ test(
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/check', { ip: TEST_IP4, email: 'test6@example.com', payload: { phoneNumber: '2111111111' }, action: CONNECT_DEVICE_SMS })
+        return client.postAsync('/check', { ip: TEST_IP4, email: 'test5@example.com', payload: { phoneNumber: '1111111111' }, action: CONNECT_DEVICE_SMS })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/check', { ip: TEST_IP4, email: 'test8@example.com', payload: { phoneNumber: '3111111111' }, action: CONNECT_DEVICE_SMS })
+        return client.postAsync('/check', { ip: TEST_IP4, email: 'test5@example.com', payload: { phoneNumber: '3111111111' }, action: CONNECT_DEVICE_SMS })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
@@ -138,14 +138,14 @@ test(
 
         // Issue request from new ip address to verify that user is not block from performing another action on
         // another ip
-        return client.postAsync('/check', { ip: TEST_IP3, email: 'test8@example.com', action: 'anotherAction' })
+        return client.postAsync('/check', { ip: TEST_IP3, email: 'test5@example.com', action: 'anotherAction' })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.block, false, 'rate limited')
 
         // Verify that user is still block at the ip level from issuing any more sms requests
-        return client.postAsync('/check', { ip: TEST_IP4, email: 'test8@example.com', payload: { phoneNumber: '4111111111' }, action: CONNECT_DEVICE_SMS })
+        return client.postAsync('/check', { ip: TEST_IP4, email: 'test5@example.com', payload: { phoneNumber: '4111111111' }, action: CONNECT_DEVICE_SMS })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
@@ -158,7 +158,7 @@ test(
 
       // Reissue requests to verify that throttling is disabled
       .then(function(){
-        return client.postAsync('/check', { ip: TEST_IP4, email: 'test9@example.com', payload: { phoneNumber: '5111111111' }, action: CONNECT_DEVICE_SMS })
+        return client.postAsync('/check', { ip: TEST_IP4, email: 'test5@example.com', payload: { phoneNumber: '5111111111' }, action: CONNECT_DEVICE_SMS })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
