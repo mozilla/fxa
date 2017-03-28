@@ -46,6 +46,7 @@ module.exports = function (log) {
           location: {
             city: location.city,
             country: location.country,
+            countryCode: location.countryCode,
             state: location.state,
             stateCode: location.stateCode
           },

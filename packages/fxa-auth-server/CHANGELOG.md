@@ -1,3 +1,13 @@
+<a name="1.83.3"></a>
+## [1.83.3](https://github.com/mozilla/fxa-auth-server/compare/v1.83.2...v1.83.3) (2017-03-28)
+
+
+### Bug Fixes
+
+* **sms:** propagate countryCode through our fxa-geodb wrapper ([176c63e](https://github.com/mozilla/fxa-auth-server/commit/176c63e))
+
+
+
 <a name="1.83.1"></a>
 ## [1.83.1](https://github.com/mozilla/fxa-auth-server/compare/v1.83.0...v1.83.1) (2017-03-21)
 
