@@ -278,7 +278,8 @@ module.exports = function (
           if (! account.emailVerified) {
             return getGeoData(ip)
               .then(function (geoData) {
-                mailer.sendVerifyCode(account, account.emailCode, {
+                mailer.sendVerifyCode([], account, {
+                  code: account.emailCode,
                   service: form.service || query.service,
                   redirectTo: form.redirectTo,
                   resume: form.resume,
@@ -852,7 +853,8 @@ module.exports = function (
             return getGeoData(ip)
               .then(
                 function (geoData) {
-                  return mailer.sendVerifyCode(emailRecord, emailCode, {
+                  return mailer.sendVerifyCode([], emailRecord, {
+                    code: emailCode,
                     service: service,
                     redirectTo: redirectTo,
                     resume: resume,
@@ -888,7 +890,8 @@ module.exports = function (
               .then(
                 function (geoData) {
                   mailer.sendNewDeviceLoginNotification(
-                    emailRecord.email,
+                    [],
+                    emailRecord,
                     {
                       acceptLanguage: request.app.acceptLanguage,
                       flowId: flowId,
@@ -928,10 +931,11 @@ module.exports = function (
               .then(
                 function (geoData) {
                   return mailer.sendVerifyLoginEmail(
+                    [],
                     emailRecord,
-                    tokenVerificationId,
                     {
                       acceptLanguage: request.app.acceptLanguage,
+                      code: tokenVerificationId,
                       flowId: flowId,
                       flowBeginTime: flowBeginTime,
                       ip: ip,
@@ -1690,9 +1694,10 @@ module.exports = function (
           'recoveryEmailResendCode')
           .then(func.bind(
             mailer,
+            [],
             sessionToken,
-            code,
             {
+              code: code,
               service: service,
               timestamp: Date.now(),
               redirectTo: request.payload.redirectTo,
@@ -1876,7 +1881,8 @@ module.exports = function (
                           // so only send it if we're sure this is for sync.
                           if (service === 'sync') {
                             return mailer.sendPostVerifyEmail(
-                              account.email,
+                              [],
+                              account,
                               {
                                 acceptLanguage: request.app.acceptLanguage
                               }
@@ -1972,8 +1978,9 @@ module.exports = function (
         function mailUnblockCode(code) {
           return getGeoData(ip)
             .then((geoData) => {
-              return mailer.sendUnblockCode(emailRecord, code, userAgent.call({
+              return mailer.sendUnblockCode([], emailRecord, userAgent.call({
                 acceptLanguage: request.app.acceptLanguage,
+                unblockCode: code,
                 flowId: flowId,
                 flowBeginTime: flowBeginTime,
                 ip: ip,

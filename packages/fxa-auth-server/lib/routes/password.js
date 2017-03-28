@@ -257,7 +257,8 @@ module.exports = function (
                   .then(
                     function (geoData) {
                       return mailer.sendPasswordChangedNotification(
-                        account.email,
+                        [],
+                        account,
                         userAgent.call({
                           acceptLanguage: request.app.acceptLanguage,
                           ip: ip,
@@ -411,9 +412,11 @@ module.exports = function (
                 .then(
                   function (geoData) {
                     return mailer.sendRecoveryCode(
+                      [],
                       passwordForgotToken,
-                      passwordForgotToken.passCode,
                       userAgent.call({
+                        code: passwordForgotToken.passCode,
+                        token: passwordForgotToken,
                         service: service,
                         redirectTo: request.payload.redirectTo,
                         resume: request.payload.resume,
@@ -511,9 +514,11 @@ module.exports = function (
                 .then(
                   function (geoData) {
                     return mailer.sendRecoveryCode(
+                      [],
                       passwordForgotToken,
-                      passwordForgotToken.passCode,
                       userAgent.call({
+                        code: passwordForgotToken.passCode,
+                        token: passwordForgotToken,
                         service: service,
                         redirectTo: request.payload.redirectTo,
                         resume: request.payload.resume,
@@ -598,7 +603,8 @@ module.exports = function (
                   .then(
                     function (accountResetToken) {
                       return mailer.sendPasswordResetNotification(
-                        passwordForgotToken.email,
+                        [],
+                        passwordForgotToken,
                         {
                           acceptLanguage: request.app.acceptLanguage,
                           flowId: flowId,
