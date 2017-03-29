@@ -305,7 +305,8 @@ define(function (require, exports, module) {
           this.notifier.trigger('signup.tooyoung');
           return this._cannotCreateAccount();
         } else {
-          throw AuthErrors.toError('AGE_REQUIRED');
+          this.showValidationError(this.$('#age'), AuthErrors.toError('AGE_REQUIRED'));
+          return;
         }
       } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
         return this.notifyOfResetAccount(account);

@@ -665,10 +665,8 @@ define(function (require, exports, module) {
               sandbox.stub(coppa, 'hasValue', function () {
                 return false;
               });
-              return view.submit()
-                .fail(function (err) {
-                  failed = err;
-                });
+              sandbox.stub(view, 'showValidationError', function () { });
+              return view.submit();
             });
 
             it('does not call view.signUp', function () {
@@ -690,8 +688,8 @@ define(function (require, exports, module) {
               testExpectTriggered(1, 'signup.submit');
             });
 
-            it('fails with the correct error', function () {
-              assert.isTrue(AuthErrors.is(failed, 'AGE_REQUIRED'));
+            it('display an error message', function () {
+              assert.isTrue(view.showValidationError.called);
             });
           });
 

@@ -309,7 +309,7 @@ define([
         .then(noPageTransition('#fxa-signup-header'))
 
         // an error should be visible
-        .then(visibleByQSA('.error'));
+        .then(visibleByQSA('.tooltip'));
     },
 
     'signup with existing account, coppa is too young, credentials are correct': function () {
