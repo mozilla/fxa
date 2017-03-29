@@ -637,6 +637,12 @@ var conf = convict({
       format: Boolean,
       env: 'SMS_ENABLED'
     },
+    useMock: {
+      doc: 'Use a mock SMS provider implementation, for functional testing',
+      default: false,
+      format: Boolean,
+      env: 'SMS_USE_MOCK'
+    },
     apiKey: {
       doc: 'API key for the SMS service',
       default: 'YOU MUST CHANGE ME',

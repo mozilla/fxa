@@ -5,6 +5,7 @@
 'use strict'
 
 var Nexmo = require('nexmo')
+var MockNexmo = require('../mock-nexmo')
 var P = require('bluebird')
 var error = require('../error')
 
@@ -13,10 +14,11 @@ var TEMPLATE_NAMES = new Map([
 ])
 
 module.exports = function (log, translator, templates, smsConfig) {
-  var nexmo = new Nexmo({
+  var nexmo = smsConfig.useMock ? new MockNexmo(log, smsConfig.balanceThreshold) : new Nexmo({
     apiKey: smsConfig.apiKey,
     apiSecret: smsConfig.apiSecret
   })
+
   var sendSms = promisify('sendSms', nexmo.message)
   var checkBalance = promisify('checkBalance', nexmo.account)
   var NEXMO_ERRORS = new Map([
