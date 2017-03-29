@@ -2221,15 +2221,33 @@ define(function (require, exports, module) {
 
     describe('smsStatus', () => {
       beforeEach(() => {
-        sinon.stub(fxaClient, 'smsStatus', () => p());
-
-        account.set('sessionToken', 'sessionToken');
-        return account.smsStatus();
+        sinon.stub(fxaClient, 'smsStatus', () => p(true));
       });
 
-      it('delegates to the fxa-client', () => {
-        assert.isTrue(fxaClient.smsStatus.calledOnce);
-        assert.isTrue(fxaClient.smsStatus.calledWith('sessionToken'));
+      describe('sessionToken not available', () => {
+        it('does not delegate to fxa-client, resolves with `false`', () => {
+          account.unset('sessionToken');
+
+          return account.smsStatus()
+            .then((response) => {
+              assert.isFalse(response);
+              assert.isFalse(fxaClient.smsStatus.called);
+            });
+        });
+      });
+
+      describe('sessionToken available', () => {
+        it('delegates to the fxa-client, returns response', () => {
+          account.set('sessionToken', 'sessionToken');
+
+          return account.smsStatus()
+            .then((response) => {
+              assert.isTrue(response);
+
+              assert.isTrue(fxaClient.smsStatus.calledOnce);
+              assert.isTrue(fxaClient.smsStatus.calledWith('sessionToken'));
+            });
+        });
       });
     });
   });

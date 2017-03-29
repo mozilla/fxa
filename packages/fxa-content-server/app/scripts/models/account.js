@@ -1023,9 +1023,12 @@ define(function (require, exports, module) {
      *  `false` otw.
      */
     smsStatus() {
-      return this._fxaClient.smsStatus(
-        this.get('sessionToken')
-      );
+      const sessionToken = this.get('sessionToken');
+      if (! sessionToken) {
+        return p(false);
+      }
+
+      return this._fxaClient.smsStatus(sessionToken);
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,
