@@ -13,12 +13,7 @@ var delivery = require('../lib/email/delivery')(log)
 var DB = require('../lib/db')(
   config,
   log,
-  error,
-  Token.SessionToken,
-  Token.KeyFetchToken,
-  Token.AccountResetToken,
-  Token.PasswordForgotToken,
-  Token.PasswordChangeToken
+  Token
 )
 
 var bounceQueue = new SQSReceiver(config.emailNotifications.region, [

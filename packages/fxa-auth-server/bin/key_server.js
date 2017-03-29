@@ -79,12 +79,7 @@ function run(config) {
   var DB = require('../lib/db')(
     config,
     log,
-    error,
-    Token.SessionToken,
-    Token.KeyFetchToken,
-    Token.AccountResetToken,
-    Token.PasswordForgotToken,
-    Token.PasswordChangeToken,
+    Token,
     UnblockCode
   )
 
@@ -103,7 +98,6 @@ function run(config) {
             customs = new Customs(config.customsUrl)
             var routes = require('../lib/routes')(
               log,
-              error,
               serverPublicKeys,
               signer,
               db,

@@ -18,12 +18,7 @@ var Token = require('../../lib/tokens')(log)
 const DB = require('../../lib/db')(
   config,
   log,
-  Token.error,
-  Token.SessionToken,
-  Token.KeyFetchToken,
-  Token.AccountResetToken,
-  Token.PasswordForgotToken,
-  Token.PasswordChangeToken
+  Token
 )
 
 var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')

@@ -7,9 +7,7 @@
 const assert = require('insist')
 var crypto = require('crypto')
 var uuid = require('uuid')
-var error = require('../../../lib/error')
 var getRoute = require('../../routes_helpers').getRoute
-var isA = require('joi')
 var mocks = require('../../mocks')
 var P = require('../../../lib/promise')
 
@@ -151,9 +149,6 @@ describe('/certificate/sign', () => {
 
     return require('../../../lib/routes/sign')(
       log,
-      P,
-      isA,
-      error,
       options.signer || {
         sign: function () {
           return P.resolve({})

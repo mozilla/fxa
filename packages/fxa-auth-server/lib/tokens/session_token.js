@@ -2,15 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var userAgent = require('../userAgent')
-var ONE_HOUR = 60 * 60 * 1000
+'use strict'
+
+const inherits = require('util').inherits
+const userAgent = require('../userAgent')
+const ONE_HOUR = 60 * 60 * 1000
 
 // setting to "forever" to eliminate ~99% of the updates to sessionToken
 // (A small percentage do qualify as "fresh" due to changes in UA).
 // See https://github.com/mozilla/fxa-auth-server/pull/1169
-var TOKEN_FRESHNESS_THRESHOLD = 50 * 365 * 24 * ONE_HOUR // 50 years or post Y2038 ;-)
+const TOKEN_FRESHNESS_THRESHOLD = 50 * 365 * 24 * ONE_HOUR // 50 years or post Y2038 ;-)
 
-module.exports = (log, inherits, Token, config) => {
+module.exports = (log, Token, config) => {
   const features = require('../features')(config)
 
   function SessionToken(keys, details) {

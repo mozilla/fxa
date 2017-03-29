@@ -23,19 +23,17 @@
  *
  */
 
+const butil = require('../crypto/butil')
+const crypto = require('crypto')
+const error = require('../error')
+const hkdf = require('../crypto/hkdf')
 
-module.exports = function (crypto, P, hkdf, butil, error) {
+const HASH_ALGORITHM = 'sha256'
 
-
-  var HASH_ALGORITHM = 'sha256'
-
-
-  function Bundle() {}
-
-
+module.exports = {
   // Encrypt the given buffer into a hex ciphertext string.
   //
-  Bundle.bundle = function (key, keyInfo, payload) {
+  bundle(key, keyInfo, payload) {
     return deriveBundleKeys(key, keyInfo, payload.length)
       .then(
         function (keys) {
@@ -46,12 +44,11 @@ module.exports = function (crypto, P, hkdf, butil, error) {
           return Buffer.concat([ciphertext, mac]).toString('hex')
         }
       )
-  }
-
+  },
 
   // Decrypt the given hex string into a buffer of plaintext data.
   //
-  Bundle.unbundle = function (key, keyInfo, payload) {
+  unbundle(key, keyInfo, payload) {
     payload = Buffer(payload, 'hex')
     var ciphertext = payload.slice(0, -32)
     var expectedHmac = payload.slice(-32)
@@ -68,21 +65,20 @@ module.exports = function (crypto, P, hkdf, butil, error) {
         }
       )
   }
-
-
-  // Derive the HMAC and XOR keys required to encrypt a given size of payload.
-  //
-  function deriveBundleKeys(key, keyInfo, payloadSize) {
-    return hkdf(key, keyInfo, null, 32 + payloadSize)
-      .then(
-        function (keyMaterial) {
-          return {
-            hmacKey: keyMaterial.slice(0, 32),
-            xorKey: keyMaterial.slice(32)
-          }
-        }
-      )
-  }
-
-  return Bundle
 }
+
+
+// Derive the HMAC and XOR keys required to encrypt a given size of payload.
+//
+function deriveBundleKeys(key, keyInfo, payloadSize) {
+  return hkdf(key, keyInfo, null, 32 + payloadSize)
+    .then(
+      function (keyMaterial) {
+        return {
+          hmacKey: keyMaterial.slice(0, 32),
+          xorKey: keyMaterial.slice(32)
+        }
+      }
+    )
+}
+

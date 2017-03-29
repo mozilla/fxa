@@ -8,6 +8,8 @@ const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
 
 const butil = require('../crypto/butil')
+const error = require('../error')
+const isA = require('joi')
 const P = require('../promise')
 const userAgent = require('../userAgent')
 const random = require('../crypto/random')
@@ -17,8 +19,6 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 
 module.exports = function (
   log,
-  isA,
-  error,
   db,
   Password,
   redirectDomain,
