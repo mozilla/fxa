@@ -373,7 +373,7 @@ function mockRequest (data) {
     },
     path: data.path,
     payload: data.payload,
-    query: data.query,
+    query: data.query || {},
     setMetricsFlowCompleteSignal: metricsContext.setFlowCompleteSignal,
     stashMetricsContext: metricsContext.stash,
     validateMetricsContext: metricsContext.validate

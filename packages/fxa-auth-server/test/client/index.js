@@ -442,5 +442,9 @@ module.exports = config => {
       )
   }
 
+  Client.prototype.smsStatus = function (country, clientIpAddress) {
+    return this.api.smsStatus(this.sessionToken, country, clientIpAddress)
+  }
+
   return Client
 }

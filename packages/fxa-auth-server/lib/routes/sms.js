@@ -97,29 +97,47 @@ module.exports = (log, isA, error, config, customs, sms) => {
       config: {
         auth: {
           strategy: 'sessionToken'
+        },
+        validate: {
+          query: {
+            country: isA.string().regex(/^[A-Z][A-Z]$/).optional()
+          }
         }
       },
       handler (request, reply) {
         log.begin('sms.status', request)
+
+        let country
 
         return P.all([ getLocation(), getBalance() ])
           .spread(createResponse)
           .then(reply, reply)
 
         function getLocation () {
-          if (! IS_STATUS_GEO_ENABLED) {
+          const forcedCountry = request.query.country
+
+          if (! forcedCountry && ! IS_STATUS_GEO_ENABLED) {
             log.warn({ op: 'sms.getGeoData', warning: 'skipping geolocation step' })
             return true
           }
 
-          return getGeoData(request.app.clientAddress)
-            .then(result => {
-              if (! result.location) {
-                log.error({ op: 'sms.getGeoData', err: 'missing location data in result' })
-                return false
+          return P.resolve()
+            .then(() => {
+              if (forcedCountry) {
+                return forcedCountry
               }
 
-              return REGIONS.has(result.location.countryCode)
+              return getGeoData(request.app.clientAddress)
+                .then(result => result.location && result.location.countryCode)
+            })
+            .then(result => {
+              country = result
+              if (country) {
+                return REGIONS.has(country)
+              }
+
+              log.error({ op: 'sms.getGeoData', err: 'missing location data in result' })
+              return false
             })
             .catch(err => {
               log.error({ op: 'sms.getGeoData', err: err })
@@ -137,7 +155,7 @@ module.exports = (log, isA, error, config, customs, sms) => {
         }
 
         function createResponse (isLocationOk, isBalanceOk) {
-          return { ok: isLocationOk && isBalanceOk }
+          return { ok: isLocationOk && isBalanceOk, country }
         }
       }
     }
