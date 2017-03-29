@@ -71,6 +71,8 @@ module.exports = (log, isA, error, config, customs, sms) => {
           const region = phoneNumberUtil.getRegionCodeForNumber(parsedPhoneNumber)
           const senderId = SENDER_IDS[region]
 
+          request.emitMetricsEvent(`sms.region.${region}`)
+
           if (! senderId) {
             throw error.invalidRegion(region)
           }

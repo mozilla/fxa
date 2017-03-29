@@ -104,9 +104,14 @@ describe('/sms', () => {
       })
 
       it('called log.flowEvent correctly', () => {
-        assert.equal(log.flowEvent.callCount, 1)
+        assert.equal(log.flowEvent.callCount, 2)
 
-        const args = log.flowEvent.args[0]
+        let args = log.flowEvent.args[0]
+        assert.equal(args.length, 1)
+        assert.equal(args[0].event, 'sms.region.US')
+        assert.equal(args[0].flow_id, request.payload.metricsContext.flowId)
+
+        args = log.flowEvent.args[1]
         assert.equal(args.length, 1)
         assert.equal(args[0].event, 'sms.42.sent')
         assert.equal(args[0].flow_id, request.payload.metricsContext.flowId)
@@ -134,8 +139,9 @@ describe('/sms', () => {
         assert.equal(args[1], '16474909977')
       })
 
-      it('called log.flowEvent once', () => {
-        assert.equal(log.flowEvent.callCount, 1)
+      it('called log.flowEvent correctly', () => {
+        assert.equal(log.flowEvent.callCount, 2)
+        assert.equal(log.flowEvent.args[0][0].event, 'sms.region.CA')
       })
     })
 
@@ -160,8 +166,9 @@ describe('/sms', () => {
         assert.equal(args[1], 'Firefox')
       })
 
-      it('called log.flowEvent once', () => {
-        assert.equal(log.flowEvent.callCount, 1)
+      it('called log.flowEvent correctly', () => {
+        assert.equal(log.flowEvent.callCount, 2)
+        assert.equal(log.flowEvent.args[0][0].event, 'sms.region.GB')
       })
     })
 
@@ -222,8 +229,9 @@ describe('/sms', () => {
         assert.equal(sms.send.callCount, 0)
       })
 
-      it('did not call log.flowEvent', () => {
-        assert.equal(log.flowEvent.callCount, 0)
+      it('called log.flowEvent correctly', () => {
+        assert.equal(log.flowEvent.callCount, 1)
+        assert.equal(log.flowEvent.args[0][0].event, 'sms.region.TW')
       })
 
       it('threw the correct error data', () => {
@@ -259,8 +267,8 @@ describe('/sms', () => {
       assert.equal(sms.send.callCount, 1)
     })
 
-    it('did not call log.flowEvent', () => {
-      assert.equal(log.flowEvent.callCount, 0)
+    it('called log.flowEvent once', () => {
+      assert.equal(log.flowEvent.callCount, 1)
     })
 
     it('threw the correct error data', () => {

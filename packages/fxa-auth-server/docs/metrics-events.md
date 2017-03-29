@@ -61,6 +61,7 @@ in a sign-in or sign-up flow:
 |`email.verification.resent`|A sign-up verification email has been re-sent to a user.|
 |`email.verify_code.clicked`|A user has clicked on the link in a confirmation/verification email.|
 |`email.${templateName}.delivered`|An email was delivered to a user.|
+|`sms.region.${region}`|A user has tried to send SMS to `region`.|
 |`sms.${templateName}.sent`|An SMS message has been sent to a user's phone.|
 |`account.confirmed`|Sign-in to an existing account has been confirmed via email.|
 |`account.reminder`|A new account has been verified via a reminder email.|
@@ -211,6 +212,11 @@ on a different device
 in the preceding five days.
 
 ## Significant changes
+
+### Train 84
+
+* [The `sms.region.${region}` event
+  was implemented](https://github.com/mozilla/fxa-auth-server/pull/1783).
 
 ### Train 83
 
