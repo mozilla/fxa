@@ -89,27 +89,32 @@ var conf = convict({
     reminderTimeFirst: {
       doc: 'Milliseconds since account creation after which the first reminder is sent',
       default: '48 hours',
-      format: 'duration'
+      format: 'duration',
+      env: 'VERIFICATION_REMINDER_TIME_FIRST'
     },
     reminderTimeSecond: {
       doc: 'Milliseconds since account creation after which the second reminder is sent',
       default: '168 hours',
-      format: 'duration'
+      format: 'duration',
+      env: 'VERIFICATION_REMINDER_TIME_SECOND'
     },
     reminderTimeFirstOutdated: {
       doc: 'Milliseconds since account creation after which the reminder should not be sent',
       default: '167 hours',
-      format: 'duration'
+      format: 'duration',
+      env: 'VERIFICATION_REMINDER_TIME_FIRST_OUTDATED'
     },
     reminderTimeSecondOutdated: {
       doc: 'Milliseconds since account creation after which the reminder should not be sent',
       default: '300 hours',
-      format: 'duration'
+      format: 'duration',
+      env: 'VERIFICATION_REMINDER_TIME_SECOND_OUTDATED'
     },
     pollFetch: {
       doc: 'Number of reminder record to fetch when polling.',
       format: Number,
-      default: 20
+      default: 20,
+      env: 'VERIFICATION_REMINDER_POLL_FETCH'
     },
     pollTime: {
       doc: 'Poll duration in milliseconds. 0 is disabled.',
