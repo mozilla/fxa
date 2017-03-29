@@ -16,6 +16,8 @@ var uuid = require('uuid')
 var crypto = require('crypto')
 var error = require('../../../lib/error')
 
+const isA = require('joi')
+
 var makeRoutes = function (options, requireMocks) {
   options = options || {}
 
