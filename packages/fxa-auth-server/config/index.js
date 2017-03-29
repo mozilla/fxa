@@ -527,17 +527,7 @@ var conf = convict({
     }
   },
   securityHistory: {
-    enabled: {
-      doc: 'enable security history',
-      default: true,
-      env: 'SECURITY_HISTORY_ENABLED'
-    },
     ipProfiling: {
-      enabled: {
-        doc: 'enable ip profiling, bypass sign-in confirmation if login is coming from a previously verified ip address.',
-        default: true,
-        env: 'IP_PROFILING_ENABLED'
-      },
       allowedRecency: {
         doc: 'Length of time since previously verified event to allow skipping confirmation',
         default: '72 hours',

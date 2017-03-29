@@ -33,11 +33,9 @@ describe('features', () => {
     'interface is correct',
     () => {
       assert.equal(typeof features, 'object', 'object type should be exported')
-      assert.equal(Object.keys(features).length, 4, 'object should have four properties')
+      assert.equal(Object.keys(features).length, 2, 'object should have four properties')
       assert.equal(typeof features.isSampledUser, 'function', 'isSampledUser should be function')
       assert.equal(typeof features.isLastAccessTimeEnabledForUser, 'function', 'isLastAccessTimeEnabledForUser should be function')
-      assert.equal(typeof features.isSecurityHistoryTrackingEnabled, 'function', 'isSecurityHistoryTrackingEnabled should be function')
-      assert.equal(typeof features.isSecurityHistoryProfilingEnabled, 'function', 'isSecurityHistoryProfilingEnabled should be function')
 
       assert.equal(crypto.createHash.callCount, 1, 'crypto.createHash should have been called once on require')
       let args = crypto.createHash.args[0]
@@ -178,40 +176,6 @@ describe('features', () => {
       config.lastAccessTimeUpdates.sampleRate = 0.03
       config.lastAccessTimeUpdates.enabledEmailAddresses = /.+@mozilla\.com$/
       assert.equal(features.isLastAccessTimeEnabledForUser(uid, email), false, 'should return false when feature is disabled')
-    }
-  )
-
-  it(
-    'isSecurityHistoryTrackingEnabled',
-    () => {
-      config.securityHistory.enabled = true
-      assert.equal(features.isSecurityHistoryTrackingEnabled(), true, 'should return true when enabled in config')
-
-      config.securityHistory.enabled = false
-      assert.equal(features.isSecurityHistoryTrackingEnabled(), false, 'should return false when disabled in config')
-    }
-  )
-
-  it(
-    'isSecurityHistoryProfilingEnabled',
-    () => {
-      config.securityHistory.enabled = true
-      config.securityHistory.ipProfiling = {
-        enabled: true
-      }
-      assert.equal(features.isSecurityHistoryProfilingEnabled(), true, 'should return true when everything is enabled in config')
-
-      config.securityHistory.enabled = true
-      config.securityHistory.ipProfiling = {
-        enabled: false
-      }
-      assert.equal(features.isSecurityHistoryProfilingEnabled(), false, 'should return false when profiling is disabled in config')
-
-      config.securityHistory.enabled = false
-      config.securityHistory.ipProfiling = {
-        enabled: true
-      }
-      assert.equal(features.isSecurityHistoryProfilingEnabled(), false, 'should return false when tracking is disabled in config')
     }
   )
 })

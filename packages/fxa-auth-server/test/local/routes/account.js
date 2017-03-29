@@ -355,7 +355,7 @@ describe('/account/login', function () {
   var config = {
     newLoginNotificationEnabled: true,
     securityHistory: {
-      enabled: true
+      ipProfiling: {}
     },
     signinConfirmation: {},
     signinUnblock: {

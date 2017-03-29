@@ -8,7 +8,6 @@ const crypto = require('crypto')
 
 module.exports = config => {
   const lastAccessTimeUpdates = config.lastAccessTimeUpdates
-  const securityHistory = config.securityHistory
 
   return {
     /**
@@ -23,31 +22,6 @@ module.exports = config => {
         isSampledUser(lastAccessTimeUpdates.sampleRate, uid, 'lastAccessTimeUpdates') ||
         lastAccessTimeUpdates.enabledEmailAddresses.test(email)
       )
-    },
-
-    /**
-     * Return whether tracking of security history events is enabled.
-     *
-     * @returns {boolean}
-     */
-    isSecurityHistoryTrackingEnabled() {
-      return securityHistory.enabled
-    },
-
-    /**
-     * Return whether or not we can bypass sign-in confirmation based
-     * on previously seen security event history.
-     *
-     * @returns {boolean}
-     */
-    isSecurityHistoryProfilingEnabled() {
-      if (! securityHistory.enabled) {
-        return false
-      }
-      if (! securityHistory.ipProfiling || ! securityHistory.ipProfiling.enabled) {
-        return false
-      }
-      return true
     },
 
     /**

@@ -57,7 +57,6 @@ module.exports = (
     supportedLanguages: config.i18n.supportedLanguages,
     defaultLanguage: config.i18n.defaultLanguage
   })
-  const features = require('../features')(config)
 
   const PUSH_SERVER_REGEX = config.push && config.push.allowedServerRegex
   const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
@@ -352,15 +351,12 @@ module.exports = (
         }
 
         function recordSecurityEvent() {
-          if (features.isSecurityHistoryTrackingEnabled()) {
-            // don't block response recording db event
-            db.securityEvent({
-              name: 'account.create',
-              uid: account.uid,
-              ipAddr: request.app.clientAddress,
-              tokenId: sessionToken.tokenId
-            })
-          }
+          db.securityEvent({
+            name: 'account.create',
+            uid: account.uid,
+            ipAddr: request.app.clientAddress,
+            tokenId: sessionToken.tokenId
+          })
         }
 
         function createResponse () {
@@ -565,9 +561,6 @@ module.exports = (
         }
 
         function checkSecurityHistory () {
-          if (! features.isSecurityHistoryTrackingEnabled()) {
-            return
-          }
           return db.securityEvents({
             uid: emailRecord.uid,
             ipAddr: request.app.clientAddress
@@ -701,15 +694,13 @@ module.exports = (
           // If they're logging in from an IP address on which they recently did
           // another, successfully-verified login, then we can consider this one
           // verified as well without going through the loop again.
-          if (features.isSecurityHistoryProfilingEnabled()) {
-            const allowedRecency = config.securityHistory.ipProfiling.allowedRecency || 0
-            if (securityEventVerified && securityEventRecency < allowedRecency) {
-              log.info({
-                op: 'Account.ipprofiling.seenAddress',
-                uid: account.uid.toString('hex')
-              })
-              return true
-            }
+          const allowedRecency = config.securityHistory.ipProfiling.allowedRecency || 0
+          if (securityEventVerified && securityEventRecency < allowedRecency) {
+            log.info({
+              op: 'Account.ipprofiling.seenAddress',
+              uid: account.uid.toString('hex')
+            })
+            return true
           }
 
           // If the account was recently created, don't make the user
@@ -958,15 +949,12 @@ module.exports = (
         }
 
         function recordSecurityEvent() {
-          if (features.isSecurityHistoryTrackingEnabled()) {
-            // don't block response recording db event
-            db.securityEvent({
-              name: 'account.login',
-              uid: emailRecord.uid,
-              ipAddr: request.app.clientAddress,
-              tokenId: sessionToken && sessionToken.tokenId
-            })
-          }
+          db.securityEvent({
+            name: 'account.login',
+            uid: emailRecord.uid,
+            ipAddr: request.app.clientAddress,
+            tokenId: sessionToken && sessionToken.tokenId
+          })
         }
 
         function createResponse () {
@@ -2191,15 +2179,12 @@ module.exports = (
         }
 
         function recordSecurityEvent() {
-          if (features.isSecurityHistoryTrackingEnabled()) {
-             // don't block response recording db event
-            db.securityEvent({
-              name: 'account.reset',
-              uid: account.uid,
-              ipAddr: request.app.clientAddress,
-              tokenId: sessionToken && sessionToken.tokenId
-            })
-          }
+          db.securityEvent({
+            name: 'account.reset',
+            uid: account.uid,
+            ipAddr: request.app.clientAddress,
+            tokenId: sessionToken && sessionToken.tokenId
+          })
         }
 
         function createResponse () {
