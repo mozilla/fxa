@@ -29,7 +29,7 @@ define([
   var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
-  var setupTest = thenify(function (options) {
+  var setupTest = thenify(function (successSelector, options) {
     options = options || {};
 
     return this.parent
@@ -38,6 +38,7 @@ define([
       .then(openPage(PAGE_URL, '#fxa-signin-header'))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists(successSelector))
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
       .then(() => {
         if (! options.blocked) {
@@ -56,9 +57,7 @@ define([
 
     'verified, verify same browser': function () {
       return this.remote
-        .then(setupTest({ preVerified: true }))
-
-        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(setupTest('#fxa-confirm-signin-header', { preVerified: true }))
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
@@ -70,7 +69,7 @@ define([
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(setupTest({ preVerified: true }))
+        .then(setupTest('#fxa-confirm-signin-header', { preVerified: true }))
 
         .then(openVerificationLinkInDifferentBrowser(email))
 
@@ -79,11 +78,7 @@ define([
 
     'unverified': function () {
       return this.remote
-        .then(setupTest({ preVerified: false }))
-
-        .then(testElementExists('#fxa-confirm-header'))
-        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(setupTest('#fxa-confirm-header', { preVerified: false }))
 
         // email 0 - initial sign up email
         // email 1 - sign in w/ unverified address email
@@ -100,14 +95,13 @@ define([
       email = TestHelpers.createEmail('block{id}');
 
       return this.remote
-        .then(setupTest({ blocked: true, preVerified: true }))
+        .then(setupTest('#fxa-signin-unblock-header', { blocked: true, preVerified: true }))
 
-        .then(testElementExists('#fxa-signin-unblock-header'))
         .then(testElementTextInclude('.verification-email-message', email))
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testIsBrowserNotified('fxaccounts:login'))
-        .then(testElementExists('#fxa-sign-in-complete-header'));
+        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });
 });

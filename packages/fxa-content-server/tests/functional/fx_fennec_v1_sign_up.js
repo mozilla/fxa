@@ -47,11 +47,12 @@ define([
         .then(noSuchElement('#customize-sync'))
         .then(fillOutSignUp(email, PASSWORD))
 
+        // user should be transitioned to the choose what to Sync page
+        .then(testElementExists('#fxa-choose-what-to-sync-header'))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         // the login message is only sent after the confirm screen is shown.
         .then(noSuchBrowserNotification('fxaccounts:login'))
-        // user should be transitioned to the choose what to Sync page
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
+
         // uncheck the passwords and history engines
         .then(click('div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)'))
         .then(click('div.two-col-block:nth-child(2) > div:nth-child(2) > label:nth-child(1)'))

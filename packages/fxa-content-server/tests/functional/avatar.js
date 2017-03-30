@@ -113,9 +113,9 @@ define([
         .then(testElementExists('img[src*="https://secure.gravatar.com"]'))
         .then(click('.modal-panel #submit-btn'))
 
-        .then(testIsBrowserNotifiedOfAvatarChange())
         //success is returning to the settings page
         .then(testElementExists('#fxa-settings-header'))
+        .then(testIsBrowserNotifiedOfAvatarChange())
         // check for an image with the gravatar url
         .then(testElementExists('img[src*="https://secure.gravatar.com"]'))
 
@@ -186,8 +186,8 @@ define([
 
         .then(click('.modal-panel #submit-btn'))
 
-        .then(testIsBrowserNotifiedOfAvatarChange())
         .then(testElementExists('#fxa-settings-header'))
+        .then(testIsBrowserNotifiedOfAvatarChange())
         //success is seeing the image loaded
         .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'));
     },
@@ -222,8 +222,8 @@ define([
         .then(click('.rotate'))
         .then(click('.modal-panel #submit-btn'))
 
-        .then(testIsBrowserNotifiedOfAvatarChange())
         .then(testElementExists('#fxa-settings-header'))
+        .then(testIsBrowserNotifiedOfAvatarChange())
         //success is seeing the image loaded
         .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'));
 

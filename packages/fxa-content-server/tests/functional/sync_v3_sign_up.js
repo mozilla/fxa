@@ -47,11 +47,12 @@ define([
         .then(noSuchElement('#suggest-sync'))
         .then(fillOutSignUp(email, PASSWORD))
 
+        // user should be transitioned to the choose what to Sync page
+        .then(testElementExists('#fxa-choose-what-to-sync-header'))
+
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(noSuchBrowserNotification('fxaccounts:login'))
 
-        // user should be transitioned to the choose what to Sync page
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
         .then(click('button[type=submit]'))
 
         // user should be transitioned to the "go confirm your address" page

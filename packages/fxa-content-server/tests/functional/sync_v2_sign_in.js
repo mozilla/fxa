@@ -99,10 +99,10 @@ define([
         .then(setupTest({ blocked: true, preVerified: true }))
 
         .then(fillOutSignInUnblock(email, 0))
-        .then(testIsBrowserNotified('fxaccounts:login'))
 
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-signin-unblock-header'));
+        .then(noPageTransition('#fxa-signin-unblock-header'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
     'verified, blocked, incorrect email case': function () {
@@ -123,10 +123,10 @@ define([
         // the canonicalized email. Ugly UX, but at least the user can proceed.
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignInUnblock(signUpEmail, 0))
-        .then(testIsBrowserNotified('fxaccounts:login'))
 
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-signin-unblock-header'));
+        .then(noPageTransition('#fxa-signin-unblock-header'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });
 });

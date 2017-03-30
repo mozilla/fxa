@@ -48,14 +48,14 @@ define([
       .then(openPage(options.pageUrl || PAGE_URL, '#fxa-signin-header'))
       .execute(listenForFxaCommands)
       .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists(successSelector))
       .then(testIsBrowserNotified('can_link_account'))
       .then(() => {
         if (! options.blocked) {
           return this.parent
             .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }));
         }
-      })
-      .then(testElementExists(successSelector));
+      });
   });
 
   registerSuite({
@@ -139,10 +139,10 @@ define([
         .then(setupTest({ blocked: true, preVerified: true }))
 
         .then(fillOutSignInUnblock(email, 0))
-        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }))
 
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-signin-unblock-header'));
+        .then(noPageTransition('#fxa-signin-unblock-header'))
+        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
     }
   });
 });

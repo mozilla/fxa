@@ -93,9 +93,9 @@ define([
         .then(setupTest({ blocked: true, preVerified: true }))
 
         .then(fillOutSignInUnblock(email, 0))
-        .then(testIsBrowserNotified('fxaccounts:login'))
 
-        .then(testElementExists('#fxa-sign-in-complete-header'));
+        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });
 });

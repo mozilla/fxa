@@ -107,8 +107,8 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
 
-        .then(testIsBrowserNotified('fxaccounts:login'))
         .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
         .then(openVerificationLinkInDifferentBrowser(email))
 
         .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
@@ -150,6 +150,7 @@ define([
         .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .execute(function () {
@@ -215,8 +216,8 @@ define([
         .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
-        .then(testIsBrowserNotified('fxaccounts:login'))
         .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openPage(PAGE_SIGNIN + '?email=' + email2, '#fxa-signin-header'))
         /*.then(testElementValueEquals('input.email.prefilled', email2))*/
@@ -241,8 +242,8 @@ define([
         .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
-        .then(testIsBrowserNotified('fxaccounts:login'))
         .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         // ensure signin page is visible otherwise credentials might
         // not be cleared by clicking .use-different

@@ -72,10 +72,9 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: false } ))
         .then(fillOutSignUp(email, PASSWORD))
 
-        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-
         // user should not transition to the next screen
-        .then(noSuchElement('#fxa-confirm-header'));
+        .then(noSuchElement('#fxa-confirm-header'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'));
     }
   });
 });

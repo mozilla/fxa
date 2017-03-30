@@ -53,8 +53,8 @@ define([
 
       .then(fillOutSignUp(email, PASSWORD))
 
-      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
       .then(testElementExists(SELECTOR_CHOOSE_WHAT_TO_SYNC_HEADER))
+      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
       // uncheck the passwords and history engines
       .then(click(SELECTOR_CHOOSE_WHAT_TO_SYNC_HISTORY_ENTRY))

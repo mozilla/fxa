@@ -42,10 +42,11 @@ define([
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
+
+        .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
-        .then(testElementExists('#fxa-confirm-signin-header'))
         .then(openVerificationLinkInDifferentBrowser(email))
 
         // wait until account data is in localstorage before redirecting

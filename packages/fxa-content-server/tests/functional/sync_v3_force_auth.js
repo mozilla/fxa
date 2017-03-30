@@ -51,10 +51,9 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
+        .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'))
-
-        .then(testElementExists('#fxa-confirm-signin-header'))
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
@@ -82,10 +81,10 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
+        .then(testElementExists('#fxa-confirm-signin-header'))
+
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'))
-
-        .then(testElementExists('#fxa-confirm-signin-header'))
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
@@ -111,11 +110,11 @@ define([
         .then(noSuchBrowserNotification('fxaccounts:logout'))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
-        // user is able to sign in, browser notified of new uid
+
+        .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
-        .then(testElementExists('#fxa-confirm-signin-header'))
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
@@ -224,15 +223,14 @@ define([
         .then(noSuchBrowserNotification('fxaccounts:logout'))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
-        // user is able to sign in, browser notified of new uid
-        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testIsBrowserNotified('fxaccounts:login'))
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-signin-unblock-header'));
+        .then(noPageTransition('#fxa-signin-unblock-header'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });
 });

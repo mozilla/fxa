@@ -62,6 +62,7 @@ define([
         .execute(listenForFxaCommands)
 
         .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotifiedOfLogin(email))
 
         // Sync sign ins must be verified.

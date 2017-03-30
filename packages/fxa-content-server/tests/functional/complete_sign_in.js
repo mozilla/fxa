@@ -45,9 +45,9 @@ define([
         .then(openPage(PAGE_SIGNIN_URL, '#fxa-signin-header'))
         .execute(listenForFxaCommands)
         .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotified('can_link_account'))
         .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
-        .then(testElementExists('#fxa-confirm-signin-header'))
         .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user))
         .then((emails) => {
           code = emails[0].headers['x-verify-code'];
