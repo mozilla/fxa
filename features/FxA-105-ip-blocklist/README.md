@@ -116,14 +116,14 @@ through a [cron job](https://github.com/firehol/blocklist-ipsets/wiki/Installing
 
 Acceptance criteria:
 
-* [ ] The fxa-customs-server is able to load one or more
+* [x] The fxa-customs-server is able to load one or more
       ip blocklists and check incoming IPs against them.
-* [ ] The loaded blocklists are regularly updated.
-* [ ] A `blocklist.check` event is emitted for each
+* [x] The loaded blocklists are regularly updated.
+* [x] A `blocklist.check` event is emitted for each
       request checked by customs-server, and for each blocklist.
-* [ ] A `blocklist.hit` event is emitted for each request
+* [x] A `blocklist.hit` event is emitted for each request
       whose source IP matched an entry in a blocklist.
-* [ ] There is a graph of hit-rate over time
+* [x] There is a graph of hit-rate over time
       for each candidate blocklist.
 
 ### Phase 2
@@ -191,19 +191,32 @@ Additionally, the module will be able to load and refresh multiple lists.
 
 ### Phase 1
 
-When Phase 1 is complete,
-we will include here
-a snapshot of the hit-rate graph
-for the initial set of blocklists.
+Phase 1 was completed and it analyzed two blocklists, [FireHOL Level 1](http://iplists.firehol.org/?ipset=firehol_level1#)
+and [FireHOL webserver](http://iplists.firehol.org/?ipset=firehol_webserver#). The graph below shows potential hits for
+two days worth of real FxA network traffic.
 
-We will also calculate,
-but not share publicly,
-the absolute number of hits per day
-on each blocklist.
+<img src="blocklist_hits.png" />
 
-If these numbers seem high enough
-to justify further development,
-we will proceed to Phase 2.
+While it appears that both lists would block zero requests, it is really
+a non-zero number but still very small compared to all network traffic.
+
+Calulated hit rate %:
+
+* FireHOL Level 1 - 0.001% Hit rate
+* FireHOL Webserver - 0.55% Hit rate
+
+These results make sense because FireHOL Level 1 list is the most
+conservative blocklist. Addresses on this list are usually deemed
+malicious by multiple sources.
+
+FireHOL Webserver list is more liberal and therefore had a higher hit rate.
+We decided to run some analysis on the ip addresses that would have been
+blocked from this list and the majority of these were coming from ip
+addresses usually reserved for AWS EC2 instances. There is a possiblity
+that some of these requests were malicious because we wouldn't
+normally expect network traffic from an EC2 instance.
+
+The detailed blocklist dashboard can be found [here.](https://kibana-fxa-us-west-2.prod.mozaws.net/#/dashboard/elasticsearch/PROD%20-%20IP%20Blocklist%20Stats)
 
 ### Phase 2
 
