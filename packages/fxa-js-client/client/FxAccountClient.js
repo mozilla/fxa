@@ -1207,14 +1207,22 @@ define([
    *
    * @method smsStatus
    * @param {String} sessionToken SessionToken obtained from signIn
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.country] country Country to force for testing.
    */
-  FxAccountClient.prototype.smsStatus = function (sessionToken) {
+  FxAccountClient.prototype.smsStatus = function (sessionToken, options) {
     required(sessionToken, 'sessionToken');
+
+    options = options || {};
 
     var request = this.request;
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function (creds) {
-        return request.send('/sms/status', 'GET', creds);
+        var url = '/sms/status';
+        if (options.country) {
+          url += '?country=' + encodeURIComponent(options.country);
+        }
+        return request.send(url, 'GET', creds);
       });
   };
 

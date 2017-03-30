@@ -68,6 +68,27 @@ define([
             function (resp) {
               assert.ok(resp);
               assert.ok(resp.ok);
+              assert.ok(resp.country);
+            },
+            assert.notOk
+          );
+      });
+
+      test('status with country', function () {
+        return accountHelper.newVerifiedAccount()
+          .then(
+            function (account) {
+              return respond(
+                client.smsStatus(account.signIn.sessionToken, { country: 'RO' }),
+                RequestMocks.smsStatus
+              );
+            }
+          )
+          .then(
+            function (resp) {
+              assert.ok(resp);
+              assert.ok(resp.ok);
+              assert.ok(resp.country, 'RO');
             },
             assert.notOk
           );

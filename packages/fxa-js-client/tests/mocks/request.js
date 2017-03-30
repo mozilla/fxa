@@ -284,7 +284,7 @@ define([
     },
     smsStatus: {
       status: 200,
-      body: '{"ok":true}'
+      body: '{"country":"RO","ok":true}'
     }
   };
 });
