@@ -14,7 +14,7 @@ describe('remote recovery email resend code', function() {
   this.timeout(15000)
   let server
   before(() => {
-    config.securityHistory.ipProfiling.enabled = false
+    config.securityHistory.ipProfiling.allowedRecency = 0
 
     return TestServer.start(config)
       .then(s => {

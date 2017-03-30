@@ -18,7 +18,7 @@ describe('remote password forgot', function() {
   this.timeout(15000)
   let server
   before(() => {
-    config.securityHistory.ipProfiling.enabled = true
+    config.securityHistory.ipProfiling.allowedRecency = 0
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -62,6 +62,7 @@ describe('remote password forgot', function() {
             assert.equal(emailData.html.indexOf('IP address') > -1, true, 'contains ip location data')
             assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set')
             assert.equal(emailData.headers['x-flow-id'], opts.metricsContext.flowId, 'flow id set')
+            assert.equal(emailData.headers['x-template-name'], 'recoveryEmail', 'correct template set')
             return emailData.headers['x-recovery-code']
           }
         )
@@ -84,10 +85,17 @@ describe('remote password forgot', function() {
 
             assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set')
             assert.equal(emailData.headers['x-flow-id'], opts.metricsContext.flowId, 'flow id set')
+            assert.equal(emailData.headers['x-template-name'], 'passwordResetEmail', 'correct template set')
+          }
+        )
+        .then( // make sure we can still login after password reset
+          function () {
+            return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
           }
         )
         .then(
-          function () {
+          function (x) {
+            client = x
             return client.keys()
           }
         )
@@ -97,17 +105,6 @@ describe('remote password forgot', function() {
             assert.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
             assert.deepEqual(kA, keys.kA, 'kA was not reset')
             assert.equal(client.kB.length, 32, 'kB exists, has the right length')
-          }
-        )
-        .then( // make sure we can still login after password reset
-          function () {
-            return Client.login(config.publicUrl, email, newPassword)
-          }
-        )
-        .then(
-          function () {
-            // clear new-login notification email
-            return server.mailbox.waitForEmail(email)
           }
         )
     }

@@ -29,7 +29,7 @@ describe('remote verifier upgrade', function() {
 
   before(() => {
     config.verifierVersion = 0
-    config.securityHistory.ipProfiling.enabled = true
+    config.securityHistory.ipProfiling.allowedRecency = 0
   })
 
   it(
@@ -88,11 +88,6 @@ describe('remote verifier upgrade', function() {
               .then(
                 function (x) {
                   client = x
-                  return client.keys()
-                }
-              )
-              .then(
-                function () {
                   return client.changePassword(password)
                 }
               )
