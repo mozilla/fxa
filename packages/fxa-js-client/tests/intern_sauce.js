@@ -11,6 +11,12 @@ define([
   intern.useSauceConnect = true;
   intern.maxConcurrency = 3;
 
+  intern.tunnel = 'SauceLabsTunnel';
+  intern.tunnelOptions = {
+    directory: '/tmp/sc-4.4.5-linux/bin',
+    executable: './sc'
+  };
+
   intern.webdriver =  {
     host: 'localhost',
     port: 4445

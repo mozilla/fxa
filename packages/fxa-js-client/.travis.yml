@@ -1,5 +1,7 @@
 language: node_js
 
+services:
+  - memcached
 env:
   global:
     # Sauce Labs are OK with this and it is currently necessary to expose this information for testing pull requests;
@@ -23,7 +25,7 @@ notifications:
     on_failure: change
 
 node_js:
-  - "4.5"
+  - "4"
 
 addons:
   apt:
@@ -38,7 +40,9 @@ branches:
     - release
     - /^.*-docs$/
 
-install: npm run-script setup
+install:
+  - npm run-script setup
+  - tests/ci/install-tunnel.sh
 script:
   - if [ $SERVER == "mock" ]; then grunt travis; fi
   - if [ $SERVER == "local" ]; then ./tests/ci/travis-auth-server-test.sh; fi

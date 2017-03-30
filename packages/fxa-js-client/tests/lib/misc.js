@@ -32,8 +32,8 @@ define([
           );
       });
 
-      test('_required', () => {
-        assert.doesNotThrow(() => {
+      test('_required', function () {
+        assert.doesNotThrow(function () {
           client._required(true, 'true_boolean');
           client._required(false, 'false_boolean');
           client._required('string', 'string');
@@ -42,15 +42,15 @@ define([
           client._required(0, 'zero');
         });
 
-        assert.throws(() => {
+        assert.throws(function () {
           client._required('', 'empty_string');
         });
 
-        assert.throws(() => {
+        assert.throws(function () {
           client._required({}, 'empty_object');
         });
 
-        assert.throws(() => {
+        assert.throws(function () {
           client._required(null, 'null');
         });
       });

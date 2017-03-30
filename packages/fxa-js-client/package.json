@@ -52,7 +52,7 @@
     "grunt-jscs": "2.0.0",
     "grunt-open": "~0.2.2",
     "http-proxy": "1.11.1",
-    "intern-geezer": "~1.7.0",
+    "intern-geezer": "2.2.3",
     "jscs-jsdoc": "1.1.0",
     "load-grunt-tasks": "3.2.0"
   }
