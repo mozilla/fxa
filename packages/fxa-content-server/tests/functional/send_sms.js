@@ -17,8 +17,6 @@
    const SEND_SMS_URL = config.fxaContentRoot + 'sms?service=sync&country=US';
    const SEND_SMS_NO_QUERY_URL = config.fxaContentRoot + 'sms';
 
-   const LEARN_MORE_WINDOW_HANDLE = '_learn-more';
-
    const SELECTOR_CONFIRM_SIGNUP = '#fxa-confirm-header';
    const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
    const SELECTOR_400_HEADER = '#fxa-400-header';
@@ -47,6 +45,7 @@
    const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
    const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
    const openPage = FunctionalHelpers.openPage;
+   const switchToWindow = FunctionalHelpers.switchToWindow;
    const testAttributeEquals = FunctionalHelpers.testAttributeEquals;
    const testElementExists = FunctionalHelpers.testElementExists;
    const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
@@ -145,7 +144,7 @@
         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
         .then(testElementExists(SELECTOR_MARKETING_LINK))
         .then(click(SELECTOR_LEARN_MORE))
-        .switchToWindow(LEARN_MORE_WINDOW_HANDLE)
+        .then(switchToWindow(1))
 
         .then(testElementExists(SELECTOR_LEARN_MORE_HEADER))
         .then(closeCurrentWindow());
