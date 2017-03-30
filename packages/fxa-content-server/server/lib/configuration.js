@@ -19,6 +19,7 @@ const conf = module.exports = convict({
   allowed_parent_origins: {
     default: [],
     doc: 'Origins that are allowed to embed FxA within an IFRAME',
+    env: 'ALLOWED_PARENT_ORIGINS',
     format: Array
   },
   are_dist_resources: {
@@ -81,24 +82,29 @@ const conf = module.exports = convict({
   csp: {
     enabled: {
       default: false,
-      doc: 'Send "Content-Security-Policy" header'
+      doc: 'Send "Content-Security-Policy" header',
+      env: 'CSP_ENABLED'
     },
     /*eslint-disable sorting/sort-object-props*/
     reportUri: {
       default: '/_/csp-violation',
-      doc: 'Location of "report-uri" for full, blocking CSP rules'
+      doc: 'Location of "report-uri" for full, blocking CSP rules',
+      env: 'CSP_REPORT_URI'
     },
     reportOnly: {
       default: false,
-      doc: 'DEPRECATED - Only send the "Content-Security-Policy-Report-Only" header'
+      doc: 'DEPRECATED - Only send the "Content-Security-Policy-Report-Only" header',
+      env: 'CSP_REPORT_ONLY'
     },
     reportOnlyEnabled: {
       default: false,
-      doc: 'Send "Content-Security-Policy-Report-Only" header'
+      doc: 'Send "Content-Security-Policy-Report-Only" header',
+      env: 'CSP_REPORT_ONLY_ENABLED'
     },
     reportOnlyUri: {
       default: '/_/csp-violation-report-only',
-      doc: 'Location of "report-uri" for report-only CSP rules'
+      doc: 'Location of "report-uri" for report-only CSP rules',
+      env: 'CSP_REPORT_ONLY_URI'
     }
     /*eslint-enable sorting/sort-object-props*/
   },
@@ -147,6 +153,7 @@ const conf = module.exports = convict({
   flow_id_key: {
     default: 'YOU MUST CHANGE ME',
     doc: 'HMAC key used to verify flow event data',
+    env: 'FLOW_ID_KEY',
     format: String
   },
   fxa_client_configuration: {
@@ -165,6 +172,7 @@ const conf = module.exports = convict({
   google_analytics_id: {
     default: undefined,
     doc: 'Google Analytics id',
+    env: 'GOOGLE_ANALYTICS_ID',
     format: String
   },
   hpkp: {
@@ -420,21 +428,25 @@ const conf = module.exports = convict({
     api_key: {
       default: undefined,
       doc: 'Sentry API key',
+      env: 'SENTRY_API_KEY',
       format: String
     },
     api_secret: {
       default: undefined,
       doc: 'Sentry API secret',
+      env: 'SENTRY_API_SECRET',
       format: String
     },
     endpoint: {
       default: undefined,
       doc: 'Remote Sentry endpoint',
+      env: 'SENTRY_ENDPOINT',
       format: String
     },
     server_errors_dsn: {
       default: undefined,
       doc: 'Sentry config for Express server-side errors. If not set, then no errors reported.',
+      env: 'SENTRY_SERVER_ERRORS_DSN',
       format: String
     }
   },
@@ -459,6 +471,7 @@ const conf = module.exports = convict({
   static_max_age: {
     default: '10 minutes',
     doc: 'Cache max age for static assets, in ms',
+    env: 'STATIC_MAX_AGE',
     format: Number
   },
   static_resource_url: {
