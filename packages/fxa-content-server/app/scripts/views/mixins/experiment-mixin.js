@@ -38,8 +38,8 @@ define(function (require, exports, module) {
      * @param {String} experimentName
      * @return {Boolean}
      */
-    isInExperiment (experimentName) {
-      return this.experiments.isInExperiment(experimentName);
+    isInExperiment (...args) {
+      return this.experiments.isInExperiment(...args);
     },
 
     /**
@@ -49,8 +49,8 @@ define(function (require, exports, module) {
      * @param {String} groupName
      * @return {Boolean}
      */
-    isInExperimentGroup (experimentName, groupName) {
-      return this.experiments.isInExperimentGroup(experimentName, groupName);
+    isInExperimentGroup (...args) {
+      return this.experiments.isInExperimentGroup(...args);
     }
   };
 });

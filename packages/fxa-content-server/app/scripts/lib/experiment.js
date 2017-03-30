@@ -84,12 +84,13 @@ define(function (require, exports, module) {
      * Is the user in an experiment?
      *
      * @param {String} experimentName
+     * @param {Object} [additionalInfo] additional info to pass to Able.
      * @return {Boolean}
      */
-    isInExperiment (experimentName) {
+    isInExperiment (experimentName, additionalInfo) {
       // If able returns any truthy value, consider the
       // user in the experiment.
-      return !! this._getExperimentGroup(experimentName);
+      return !! this._getExperimentGroup(experimentName, additionalInfo);
     },
 
     /**
@@ -97,10 +98,11 @@ define(function (require, exports, module) {
      *
      * @param {String} experimentName
      * @param {String} groupName
+     * @param {Object} [additionalInfo] additional info to pass to Able.
      * @return {Boolean}
      */
-    isInExperimentGroup (experimentName, groupName) {
-      return this._getExperimentGroup(experimentName) === groupName;
+    isInExperimentGroup (experimentName, groupName, additionalInfo) {
+      return this._getExperimentGroup(experimentName, additionalInfo) === groupName;
     },
 
     /**
@@ -157,16 +159,17 @@ define(function (require, exports, module) {
      * Get the experiment group for `experimentName` the user is in.
      *
      * @param {String} experimentName
+     * @param {Object} [additionalInfo] additional info to pass to Able.
      * @returns {String}
      * @private
      */
-    _getExperimentGroup (experimentName) {
+    _getExperimentGroup (experimentName, additionalInfo = {}) {
       // can't be in an experiment group if not initialized.
       if (! this.initialized) {
         return false;
       }
 
-      return this.able.choose(experimentName, {
+      return this.able.choose(experimentName, _.extend({
         // yes, this is a hack because experiments do not have a reference
         // to able internally. This allows experiments to reference other
         // experiments
@@ -176,7 +179,7 @@ define(function (require, exports, module) {
         forceExperimentGroup: this.forceExperimentGroup,
         isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
         uniqueUserId: this.user.get('uniqueUserId')
-      });
+      }, additionalInfo));
     }
   });
 

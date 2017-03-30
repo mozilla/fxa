@@ -74,11 +74,13 @@ define(function (require, exports, module) {
 
     describe('isInExperiment', () => {
       it('checks experiment opt in', () => {
-        sinon.stub(expInt, '_getExperimentGroup', (experimentName) => {
-          return experimentName === 'mockExperiment';
+        sinon.stub(expInt, '_getExperimentGroup', (experimentName, additionalData = {}) => {
+          return !! (experimentName === 'mockExperiment' &&
+                     additionalData.isEligible);
         });
 
-        assert.isTrue(expInt.isInExperiment('mockExperiment'));
+        assert.isTrue(expInt.isInExperiment('mockExperiment', { isEligible: true }));
+        assert.isFalse(expInt.isInExperiment('mockExperiment'));
         assert.isFalse(expInt.isInExperiment('otherExperiment'));
         assert.isFalse(expInt.isInExperiment());
       });
@@ -86,14 +88,16 @@ define(function (require, exports, module) {
 
     describe('isInExperimentGroup', () => {
       it('is true when opted in', () => {
-        sinon.stub(expInt, '_getExperimentGroup', (experimentName) => {
-          return experimentName === 'mockExperiment' ? 'treatment' : false;
+        sinon.stub(expInt, '_getExperimentGroup', (experimentName, additionalData = {}) => {
+          const isInExperimentGroup = !! (experimentName === 'mockExperiment' && additionalData.isEligible);
+          return isInExperimentGroup ? 'treatment' : false;
         });
         expInt._activeExperiments = {
           'mockExperiment': mockExperiment
         };
 
-        assert.isTrue(expInt.isInExperimentGroup('mockExperiment', 'treatment'));
+        assert.isTrue(expInt.isInExperimentGroup('mockExperiment', 'treatment', { isEligible: true }));
+        assert.isFalse(expInt.isInExperimentGroup('mockExperiment', 'treatment'));
         assert.isFalse(expInt.isInExperimentGroup('otherExperiment', 'control'));
         assert.isFalse(expInt.isInExperimentGroup());
       });

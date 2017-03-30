@@ -68,7 +68,7 @@ define(function (require, exports, module) {
           experiments: experimentsMock
         });
 
-        assert.isTrue(experimentsMock.chooseExperiments.called);
+        assert.isTrue(experimentsMock.chooseExperiments.calledOnce);
       });
     });
 
@@ -86,23 +86,28 @@ define(function (require, exports, module) {
 
     describe('isInExperiment', () => {
       it('returns `true` if user is in experiment, `false` if not', () => {
-        sinon.stub(view.experiments, 'isInExperiment', (experimentName) => {
-          return experimentName === 'realExperiment';
+        sinon.stub(view.experiments, 'isInExperiment', (experimentName, additionalData = {}) => {
+          return !! (experimentName === 'realExperiment' && additionalData.isEligible);
         });
 
-        assert.isTrue(view.isInExperiment('realExperiment'));
+        assert.isTrue(view.isInExperiment('realExperiment', { isEligible: true }));
+        assert.isFalse(view.isInExperiment('realExperiment', { isEligible: false }));
+        assert.isFalse(view.isInExperiment('realExperiment'));
         assert.isFalse(view.isInExperiment('fakeExperiment'));
       });
     });
 
     describe('isInExperimentGroup', () => {
       it('returns `true` if user is in experiment group, `false` otw', () => {
-        sinon.stub(view.experiments, 'isInExperimentGroup', (experimentName, groupName) => {
-          return experimentName === 'realExperiment' &&
-                 groupName === 'treatment';
+        sinon.stub(view.experiments, 'isInExperimentGroup', (experimentName, groupName, additionalData = {}) => {
+          return !! (experimentName === 'realExperiment' &&
+                     groupName === 'treatment' &&
+                     additionalData.isEligible);
         });
 
-        assert.isTrue(view.isInExperimentGroup('realExperiment', 'treatment'));
+        assert.isTrue(view.isInExperimentGroup('realExperiment', 'treatment', { isEligible: true }));
+        assert.isFalse(view.isInExperimentGroup('realExperiment', 'treatment', { isEligible: false }));
+        assert.isFalse(view.isInExperimentGroup('realExperiment', 'treatment'));
         assert.isFalse(view.isInExperimentGroup('realExperiment', 'control'));
       });
     });
