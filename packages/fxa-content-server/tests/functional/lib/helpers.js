@@ -1641,6 +1641,25 @@ define([
     };
   }
 
+  /**
+   * Wait for the given `url`
+   *
+   * @param {string} url - url to wait for
+   * @returns {promise} resolves when true
+   */
+
+  const waitForUrl = thenify(function (url) {
+    return this.parent
+      .getCurrentUrl()
+      .then(function (currentUrl) {
+        if (currentUrl !== url) {
+          return this.parent
+            .sleep(500)
+            .then(waitForUrl(url));
+        }
+      });
+  });
+
   return {
     clearBrowserNotifications: clearBrowserNotifications,
     clearBrowserState: clearBrowserState,
@@ -1716,6 +1735,7 @@ define([
     testUrlPathnameEquals: testUrlPathnameEquals,
     thenify: thenify,
     type: type,
-    visibleByQSA: visibleByQSA
+    visibleByQSA: visibleByQSA,
+    waitForUrl: waitForUrl
   };
 });
