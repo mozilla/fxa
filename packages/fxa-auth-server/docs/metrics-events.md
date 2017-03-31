@@ -105,6 +105,10 @@ in two tables:
   for the individual events
   within each flow.
 
+* `flow_experiments`,
+  containing data for flows
+  that are part of a feature experiment.
+
 The `flow_metadata` table
 contains the following fields:
 
@@ -115,7 +119,7 @@ contains the following fields:
 |`duration`|The length of time from the `flow.begin` event until the last event of the flow.|
 |`completed`|Boolean indicating whether the flow was successfully completed.|
 |`new_account`|Boolean indicating whether the flow was a sign-up.|
-|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every flow has a `uid`.|
 |`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
 |`ua_browser`|The user's web browser, e.g. 'Firefox' or 'Chrome'.|
 |`ua_version`|The user's browser version.|
@@ -140,8 +144,20 @@ contains the following fields:
 |`flow_time`|The time since the beginning of the flow.|
 |`flow_id`|The flow identifier.|
 |`type`|The event name.|
-|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every flow event has a `uid`.|
 |`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
+
+The `flow_experiments` table
+contains the following fields:
+
+|Name|Description|
+|----|-----------|
+|`experiment`|The name of the experiment.|
+|`cohort`|The experiment group that this flow was part of, usually one of `treatment` or `control`.|
+|`timestamp`|The time at which the experiment event occurred, indicating when the flow was assigned to the experiment.|
+|`flow_id`|The flow identifier. A randomly-generated opaque id.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every experiment has a `uid`.|
+|`export_date`|The date that the experiment event was exported to S3 by the metrics pipeline.|
 
 ## Activity events
 
@@ -210,6 +226,41 @@ a multi-device user is defined as
 somebody who was also active
 on a different device
 in the preceding five days.
+
+## Sampled data sets
+
+For all of the tables mentioned above,
+related to both flow events
+and activity events,
+data automatically expires
+when it reaches the end
+of a rolling three-month window.
+This is to keep the number of records
+in each data set
+within reasonable limits
+so that queries don't run too slowly.
+
+We also maintain down-sampled equivalents
+of each data set,
+which have a longer history
+but contain only a subset
+of the available events.
+There is a 50%-sampled set,
+which includes data
+for the preceding six months,
+and a 10%-sampled set,
+which includes data
+for the preceding two years.
+If you want to use one of these data sets
+in your queries,
+just add the appropriate suffix
+to each of the table names mentioned above:
+
+* `_sampled_50` for the 50%-sampled sets,
+  e.g. `flow_metadata_sampled_50`.
+
+* `_sampled_10` for the 10%-sampled sets,
+  e.g. `activity_events_sampled_10`.
 
 ## Significant changes
 
