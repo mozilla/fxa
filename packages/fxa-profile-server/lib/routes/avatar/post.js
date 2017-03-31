@@ -10,6 +10,7 @@ const hex = require('buf').to.hex;
 const img = require('../../img');
 const validate = require('../../validate');
 const logger = require('../../logging')('routes.avatar.post');
+const notifyProfileUpdated = require('../../updates-queue');
 const customs = require('../../customs')();
 
 const PROVIDERS = (function(providers) {
@@ -64,6 +65,7 @@ module.exports = {
         return db.addAvatar(id, uid, payload.url, provider);
       })
       .done(function() {
+        notifyProfileUpdated(uid); // Don't wait on promise
         var info = {
           event: 'avatar.post',
           uid: uid
