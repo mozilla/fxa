@@ -501,7 +501,7 @@ describe('userAgent', () => {
   )
 
   it(
-    'recognises Firefox-iOS user agents',
+    'recognises old Firefox-iOS user agents',
     () => {
       parserResult = {
         ua: {
@@ -530,7 +530,7 @@ describe('userAgent', () => {
   )
 
   it(
-    'preserves device type on Firefox-iOS user agents',
+    'preserves device type on old Firefox-iOS user agents',
     () => {
       parserResult = {
         ua: {
@@ -551,6 +551,36 @@ describe('userAgent', () => {
       assert.equal(result.uaBrowserVersion, '6.0')
       assert.equal(result.uaOS, 'iOS')
       assert.equal(result.uaDeviceType, 'tablet')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
+    }
+  )
+
+  it(
+    'recognises new Firefox-iOS user agents',
+    () => {
+      parserResult = {
+        ua: {
+          family: 'Other'
+        },
+        os: {
+          family: 'Other'
+        },
+        device: {
+          family: 'Other'
+        }
+      }
+      const context = {}
+      const userAgentString = 'Firefox-iOS-FxA/6.0b42 (iPhone 6S; iPhone OS 10.3) (Firefox)'
+      const result = userAgent.call(context, userAgentString, log)
+
+      assert.equal(result.uaBrowser, 'Firefox')
+      assert.equal(result.uaBrowserVersion, '6.0')
+      assert.equal(result.uaOS, 'iOS')
+      assert.equal(result.uaOSVersion, '10.3')
+      assert.equal(result.uaDeviceType, 'mobile')
 
       assert.equal(log.info.callCount, 0)
 
