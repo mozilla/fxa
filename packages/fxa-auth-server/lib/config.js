@@ -92,36 +92,42 @@ const conf = convict({
     region: {
       doc: 'AWS Region of fxa account events',
       format: String,
-      default: ''
+      default: '',
+      env: 'FXA_EVENTS_REGION'
     },
     queueUrl: {
       doc: 'SQS queue url for fxa account events',
       format: String,
-      default: ''
+      default: '',
+      env: 'FXA_EVENTS_QUEUE_URL'
     }
   },
   expiration: {
     accessToken: {
       doc: 'Access Tokens maximum expiration (can live shorter)',
       format: 'duration',
-      default: '2 weeks'
+      default: '2 weeks',
+      env: 'FXA_EXPIRATION_ACCESS_TOKEN'
     },
     accessTokenExpiryEpoch: {
       doc: 'Timestamp after which access token expiry is actively enforced',
       format: 'timestamp',
-      default: '2017-01-01'
+      default: '2017-01-01',
+      env: 'FXA_EXPIRATION_ACCESS_TOKEN_EXPIRY_EPOCH'
     },
     code: {
       doc: 'Clients must trade codes for tokens before they expire',
       format: 'duration',
-      default: '15 minutes'
+      default: '15 minutes',
+      env: 'FXA_EXPIRATION_CODE'
     }
   },
   refreshToken: {
     updateAfter: {
       doc: 'lastUsedAt only gets updated after this delay',
       format: 'duration',
-      default: '24 hours'
+      default: '24 hours',
+      env: 'FXA_REFRESH_TOKEN_UPDATE_AFTER'
     }
   },
   git: {
@@ -171,25 +177,28 @@ const conf = convict({
   },
   localRedirects: {
     doc: 'When true, `localhost` and `127.0.0.1` always are legal redirects.',
-    default: false
+    default: false,
+    env: 'FXA_OAUTH_LOCAL_REDIRECTS'
   },
   logging: {
     app: {
-      default: 'fxa-oauth-server'
+      default: 'fxa-oauth-server',
+      env: 'LOG_APP'
     },
     level: {
-      env: 'LOG_LEVEL',
-      default: 'info'
+      default: 'info',
+      env: 'LOG_LEVEL'
     },
     fmt: {
       format: ['heka', 'pretty'],
-      default: 'heka'
+      default: 'heka',
+      env: 'LOG_FORMAT'
     }
   },
   mysql: {
     createSchema: {
-      env: 'CREATE_MYSQL_SCHEMA',
-      default: true
+      default: true,
+      env: 'CREATE_MYSQL_SCHEMA'
     },
     user: {
       default: 'root',
@@ -213,44 +222,51 @@ const conf = convict({
     },
     connectionLimit: {
       doc: 'The maximum number of connections that the pool can use at once.',
-      default: 10
+      default: 10,
+      env: 'MYSQL_CONNECTION_LIMIT'
     }
   },
   openid: {
     keyFile: {
       doc: 'Path to Private key JWK to sign id_tokens',
       format: String,
-      default: ''
+      default: '',
+      env: 'FXA_OPENID_KEYFILE'
     },
     oldKeyFile: {
       doc: 'Path to previous key that was used to sign id_tokens',
       format: String,
-      default: ''
+      default: '',
+      env: 'FXA_OPENID_OLDKEYFILE'
     },
     key: {
       doc: 'Private JWK to sign id_tokens',
-      default: {}
+      default: {},
+      env: 'FXA_OPENID_KEY'
     },
     oldKey: {
       doc: 'The previous public key that was used to sign id_tokens',
-      default: {}
+      default: {},
+      env: 'FXA_OPENID_OLDKEY'
     },
     issuer: {
       // this should match `issuer` in the 'OpenID Provider Metadata' document
       // from the fxa-content-server
       doc: 'The value of the `iss` property of the id_token',
-      default: 'https://accounts.firefox.com'
+      default: 'https://accounts.firefox.com',
+      env: 'FXA_OPENID_ISSUER'
     },
     ttl: {
       doc: 'Number of milliseconds until id_token should expire',
       default: '5 minutes',
-      format: 'duration'
+      format: 'duration',
+      env: 'FXA_OPENID_TTL'
     }
   },
   publicUrl: {
     format: 'url',
-    env: 'PUBLIC_URL',
-    default: 'http://127.0.0.1:9010'
+    default: 'http://127.0.0.1:9010',
+    env: 'PUBLIC_URL'
   },
   server: {
     host: {
