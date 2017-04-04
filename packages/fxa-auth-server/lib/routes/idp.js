@@ -17,6 +17,8 @@ function browseridFormat(keys) {
   var primary = keys[0]
   return {
     'public-key': {
+      kid: primary.jwk.kid,
+      'fxa-createdAt': primary.jwk['fxa-createdAt'],
       algorithm: primary.jwk.algorithm,
       n: toDec(primary.jwk.n),
       e: toDec(primary.jwk.e)
