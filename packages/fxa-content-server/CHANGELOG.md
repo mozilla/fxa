@@ -1,3 +1,32 @@
+<a name="1.84.0"></a>
+# 1.84.0 (2017-04-04)
+
+
+### Bug Fixes
+
+* **signup:** Made error message for AGE-REQUIRED field specific ([7e935e9](https://github.com/mozilla/fxa-content-server/commit/7e935e9))
+* **sms:** Add the send_sms suite to circle. (#4875) r=vladikoff ([b578127](https://github.com/mozilla/fxa-content-server/commit/b578127))
+* **sms:** Fix the "send_sms - learn more" functional test. (#4892) r=vladikoff ([ce5a0ac](https://github.com/mozilla/fxa-content-server/commit/ce5a0ac)), closes [(#4892](https://github.com/(/issues/4892) [#4891](https://github.com/mozilla/fxa-content-server/issues/4891)
+* **sms:** Fix users who verify in a 2nd browser. (#4874) r=@vbudhram, @philbooth ([54ee445](https://github.com/mozilla/fxa-content-server/commit/54ee445)), closes [(#4874](https://github.com/(/issues/4874) [#4873](https://github.com/mozilla/fxa-content-server/issues/4873)
+* **test:** Fix "verify different browser, verification_redirect=always" test. (#4869) r=vla ([3b97981](https://github.com/mozilla/fxa-content-server/commit/3b97981)), closes [(#4869](https://github.com/(/issues/4869)
+* **test:** Fix NoSuchBrowserNotification flakiness. (#4883) r=@jrgm ([679d1ca](https://github.com/mozilla/fxa-content-server/commit/679d1ca)), closes [(#4883](https://github.com/(/issues/4883) [#4882](https://github.com/mozilla/fxa-content-server/issues/4882)
+* **test:** Fix the flaky "learn more" SMS test. (#4881) r=@jrgm ([584a60b](https://github.com/mozilla/fxa-content-server/commit/584a60b)), closes [(#4881](https://github.com/(/issues/4881) [#4880](https://github.com/mozilla/fxa-content-server/issues/4880)
+* **test:** Fix the rp listen in apps, can be deleted test. (#4879) r=vladikoff ([c57a9a7](https://github.com/mozilla/fxa-content-server/commit/c57a9a7)), closes [(#4879](https://github.com/(/issues/4879) [#4878](https://github.com/mozilla/fxa-content-server/issues/4878)
+
+### chore
+
+* **config:** Add environment config options ([ac4f622](https://github.com/mozilla/fxa-content-server/commit/ac4f622))
+
+### Features
+
+* **experiments:** Re-add `additionalInfo` parameter for experiment functions. (#4877) r=@vbudhram ([5cec42e](https://github.com/mozilla/fxa-content-server/commit/5cec42e))
+
+### Refactor
+
+* **test:** Modernize the oauth_sign_up tests. (#4871) r=vladikoff ([f0d99c4](https://github.com/mozilla/fxa-content-server/commit/f0d99c4))
+
+
+
 <a name="1.83.4"></a>
 ## 1.83.4 (2017-03-27)
 
