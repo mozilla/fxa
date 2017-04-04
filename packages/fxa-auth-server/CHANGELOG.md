@@ -1,3 +1,51 @@
+<a name="1.84.0"></a>
+# [1.84.0](https://github.com/mozilla/fxa-auth-server/compare/v1.83.3...v1.84.0) (2017-04-04)
+
+
+### Bug Fixes
+
+* **config:** environment expose verification reminder config ([3a71789](https://github.com/mozilla/fxa-auth-server/commit/3a71789))
+* **config:** Graduate security history and ip profiling ([2b7e712](https://github.com/mozilla/fxa-auth-server/commit/2b7e712))
+* **logging:** don't emit null or undefined uid on flow events ([23c58b9](https://github.com/mozilla/fxa-auth-server/commit/23c58b9))
+* **push:** reject extra push-payloads properties instead of removing them ([c90719a](https://github.com/mozilla/fxa-auth-server/commit/c90719a))
+* **script:** fix broken write email template script (#1775) r=vladikoff ([3697246](https://github.com/mozilla/fxa-auth-server/commit/3697246)), closes [#1775](https://github.com/mozilla/fxa-auth-server/issues/1775)
+* **scripts:** fix the broken sms scripts (#1773), r=@vbudhram ([5c78f7f](https://github.com/mozilla/fxa-auth-server/commit/5c78f7f)), closes [#1773](https://github.com/mozilla/fxa-auth-server/issues/1773)
+* **server:** recognise the new iOS client UA string ([72687c2](https://github.com/mozilla/fxa-auth-server/commit/72687c2))
+* **tests:** add missing require statement (#1784), r=@vbudhram ([79488e4](https://github.com/mozilla/fxa-auth-server/commit/79488e4))
+
+### chore
+
+* **ci:** kill the broken cross-repo tests (#1723) r=vladikoff ([6b310a1](https://github.com/mozilla/fxa-auth-server/commit/6b310a1))
+* **config:** Added environment variable support for verificationReminders.pollTime ([c77df31](https://github.com/mozilla/fxa-auth-server/commit/c77df31))
+* **docs:** document the flow_experiments table (#1780), r=@vbudhram ([ef2878e](https://github.com/mozilla/fxa-auth-server/commit/ef2878e))
+* **docs:** update node version in docs ([9c49c5f](https://github.com/mozilla/fxa-auth-server/commit/9c49c5f))
+* **files:** remove vagrant config ([48f3ee9](https://github.com/mozilla/fxa-auth-server/commit/48f3ee9))
+* **test:** fix mail_helper to run if require.main is mail_helper (#1763) ([a77c591](https://github.com/mozilla/fxa-auth-server/commit/a77c591)), closes [#1763](https://github.com/mozilla/fxa-auth-server/issues/1763) [#1762](https://github.com/mozilla/fxa-auth-server/issues/1762)
+* **tests:** move test/local/lib/* up to test/local/ (#1790) r=vladikoff ([597371c](https://github.com/mozilla/fxa-auth-server/commit/597371c))
+
+### Features
+
+* **emails:** Mailer accept multiple emails Part 1 (#1767), r=@philbooth ([b06b0da](https://github.com/mozilla/fxa-auth-server/commit/b06b0da))
+* **metrics:** emit a flow event for the sms region ([b062d79](https://github.com/mozilla/fxa-auth-server/commit/b062d79))
+* **profile:** send push notifications after a profile update ([2e83420](https://github.com/mozilla/fxa-auth-server/commit/2e83420))
+* **sms:** Mock out Nexmo for functional tests. ([e8a932d](https://github.com/mozilla/fxa-auth-server/commit/e8a932d))
+* **sms:** return country code from /sms/status ([e9ed457](https://github.com/mozilla/fxa-auth-server/commit/e9ed457))
+
+### Refactor
+
+* **bounces:** pull bounce logic into separate module ([48d7625](https://github.com/mozilla/fxa-auth-server/commit/48d7625))
+* **db:** remove unnecessary dependency injection for DB ([cbad916](https://github.com/mozilla/fxa-auth-server/commit/cbad916))
+* **routes:** remove unnecessary dependency injection in routes ([a6b97a7](https://github.com/mozilla/fxa-auth-server/commit/a6b97a7))
+* **token:** remove ability to pass createdAt to Token.create ([dac8f64](https://github.com/mozilla/fxa-auth-server/commit/dac8f64))
+* **tokens:** reduce unnecessary dependency injection in Tokens ([a393413](https://github.com/mozilla/fxa-auth-server/commit/a393413))
+
+### test
+
+* **mailer:** simplify TestServer using in mailer remote tests ([93da89b](https://github.com/mozilla/fxa-auth-server/commit/93da89b))
+* **remote:** refactor to run remote tests in a single process ([8d5c1ed](https://github.com/mozilla/fxa-auth-server/commit/8d5c1ed))
+
+
+
 <a name="1.83.3"></a>
 ## [1.83.3](https://github.com/mozilla/fxa-auth-server/compare/v1.83.2...v1.83.3) (2017-03-28)
 
