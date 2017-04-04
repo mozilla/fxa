@@ -22,7 +22,7 @@
    const SELECTOR_400_HEADER = '#fxa-400-header';
    const SELECTOR_400_ERROR = '.error';
    const SELECTOR_LEARN_MORE = 'a#learn-more';
-   const SELECTOR_LEARN_MORE_HEADER = '#tabzilla';
+   const SELECTOR_LEARN_MORE_HEADER = '#websites-notice';
    const SELECTOR_MARKETING_LINK = '.marketing-link';
    const SELECTOR_SEND_SMS_MAYBE_LATER = 'a[href="/connect_another_device"]';
    const SELECTOR_SEND_SMS_HEADER = '#fxa-send-sms-header';
