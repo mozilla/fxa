@@ -1,3 +1,18 @@
+<a name"1.84.0"></a>
+## 1.84.0 (2017-04-04)
+
+
+#### Bug Fixes
+
+* **config:** expose more environment variables for config ([7a1dd19e](https://github.com/mozilla/fxa-oauth-server/commit/7a1dd19e))
+* **test:** fix unhandled rejection error with memory db impl (#454) r=vladikoff ([c870eba4](https://github.com/mozilla/fxa-oauth-server/commit/c870eba4))
+
+
+#### Features
+
+* **scripts:** Add script to generate an oauth client ([f21f657a](https://github.com/mozilla/fxa-oauth-server/commit/f21f657a))
+
+
 <a name"1.83.0"></a>
 ## 1.83.0 (2017-03-21)
 
