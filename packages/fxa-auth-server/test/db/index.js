@@ -78,7 +78,7 @@ describe('db', function() {
 
     it('2-byte encoding preserved', makeTest(randomString(8), 'Düsseldorf'));
     it('3-byte encoding preserved', makeTest(randomString(8), '北京')); // Beijing
-    it('4-byte encoding throws', function() {
+    it('4-byte encoding throws with mysql; ok with memdb', function() {
       var data = {
         id: randomString(8),
         // 'MUSICAL SYMBOL F CLEF' (U+1D122) (JS: '\uD834\uDD22', UTF8: '0xF0 0x9D 0x84 0xA2')
@@ -90,14 +90,22 @@ describe('db', function() {
         trusted: true
       };
 
-      db.registerClient(data)
+      return db.registerClient(data)
         .then(function(c) {
-          assert.fail('This should not have succeeded.');
+          if (config.get('db.driver') === 'memory') {
+            assert.ok(c.name === data.name, '4-byte UTF8 works with memory db');
+          } else {
+            assert.fail('This should not have succeeded.');
+          }
         })
         .catch(function(err) {
-          assert.ok(err);
-          assert.equal(err.code, 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD');
-          assert.equal(err.errno, 1366);
+          if (config.get('db.driver') === 'memory') {
+            assert.fail('This should not have failed.');
+          } else {
+            assert.ok(err);
+            assert.equal(err.code, 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD');
+            assert.equal(err.errno, 1366);
+          }
         });
     });
   });
