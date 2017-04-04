@@ -1,3 +1,13 @@
+<a name="1.84.0"></a>
+# [1.84.0](https://github.com/mozilla/fxa-profile-server/compare/v1.83.0...v1.84.0) (2017-04-04)
+
+
+### Features
+
+* **push:** notify the auth-server when profile updated ([8f89dad](https://github.com/mozilla/fxa-profile-server/commit/8f89dad))
+
+
+
 <a name="1.83.0"></a>
 # [1.83.0](https://github.com/mozilla/fxa-profile-server/compare/v1.82.1...v1.83.0) (2017-03-21)
 
