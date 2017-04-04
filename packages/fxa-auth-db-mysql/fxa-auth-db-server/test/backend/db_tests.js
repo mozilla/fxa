@@ -1551,9 +1551,9 @@ module.exports = function(config, DB) {
                 }
 
                 return run()
-              }).done(function () {
+              }).then(function () {
                 t.end()
-              })
+              }, t.fail)
             }
 
             function createSession (id, session) {
@@ -1654,16 +1654,16 @@ module.exports = function(config, DB) {
                 // Don't paralleize these, the order of them matters
                 // because they record timestamps in the db.
                 .then(function () {
-                  return insert(uid1, addr1, evA, sessionId2).then(P.delay.bind(P, 1))
+                  return insert(uid1, addr1, evA, sessionId2).delay(10)
                 })
                 .then(function () {
-                  return insert(uid1, addr1, evB, sessionId1).then(P.delay.bind(P, 1))
+                  return insert(uid1, addr1, evB, sessionId1).delay(10)
                 })
                 .then(function () {
-                  return insert(uid1, addr1, evC).then(P.delay.bind(P, 1))
+                  return insert(uid1, addr1, evC).delay(10)
                 })
                 .then(function () {
-                  return insert(uid1, addr2, evA, sessionId3).then(P.delay.bind(P, 1))
+                  return insert(uid1, addr2, evA, sessionId3).delay(10)
                 })
                 .then(function () {
                   return insert(uid2, addr1, evA, hex32())
@@ -1992,7 +1992,7 @@ module.exports = function(config, DB) {
                   t.pass('consume a consumed code errors')
                 }
               )
-              .done(
+              .then(
                 function () {
                   t.end()
                 },
@@ -2023,7 +2023,7 @@ module.exports = function(config, DB) {
                 t.equal(bounces[0].bounceSubType, 3)
 
               })
-              .done(
+              .then(
                 () => {
                   t.end()
                 },
@@ -2211,7 +2211,7 @@ module.exports = function(config, DB) {
                     t.equal(err.code, 409, 'should return duplicate entry code')
                   })
               })
-              .done(
+              .then(
                 () => {
                   t.end()
                 },

@@ -29,16 +29,15 @@
   "license": "MPL-2.0",
   "dependencies": {
     "base64url": "2.0.0",
-    "bluebird": "2.1.3",
-    "clone": "1.0.2",
-    "convict": "1.4.0",
+    "bluebird": "3.5.0",
+    "convict": "3.0.0",
     "fxa-jwtool": "0.7.2",
-    "ip": "1.1.3",
-    "mozlog": "2.0.5",
-    "mysql": "2.11.1",
+    "ip": "1.1.5",
+    "mozlog": "2.1.0",
+    "mysql": "2.13.0",
     "newrelic": "1.30.1",
-    "request": "2.74.0",
-    "restify": "4.1.1"
+    "request": "2.81.0",
+    "restify": "4.3.0"
   },
   "devDependencies": {
     "eslint-config-fxa": "2.1.0",

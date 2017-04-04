@@ -18,7 +18,7 @@ function createServer(db) {
           handleSuccess.bind(null, req, res),
           handleError.bind(null, req, res)
         )
-        .done(next, next)
+        .then(next, next)
     }
   }
 
@@ -134,7 +134,7 @@ function createServer(db) {
           handleSuccess.bind(null, req, res),
           handleError.bind(null, req, res)
         )
-        .done(next, next)
+        .then(next, next)
     }
   }
 

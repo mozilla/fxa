@@ -54,7 +54,9 @@ module.exports = function (log, error) {
     // Use separate pools for master and slave connections.
     this.poolCluster.add('MASTER', options.master)
     this.poolCluster.add('SLAVE', options.slave)
-    this.getClusterConnection = P.promisify(this.poolCluster.getConnection, this.poolCluster)
+    this.getClusterConnection = P.promisify(this.poolCluster.getConnection, {
+      context: this.poolCluster
+    })
 
 
     this.statInterval = setInterval(
@@ -65,7 +67,7 @@ module.exports = function (log, error) {
 
     // prune tokens every so often
     function prune() {
-      this.pruneTokens().done(
+      this.pruneTokens().then(
         function() {
           log.info('MySql.pruneTokens', { msg: 'Finished' })
         },

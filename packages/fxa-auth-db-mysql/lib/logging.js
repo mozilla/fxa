@@ -6,6 +6,4 @@ const mozlog = require('mozlog')
 
 const config = require('../config')
 
-mozlog.config(config.logging)
-
-module.exports = mozlog
+module.exports = mozlog(config.logging)

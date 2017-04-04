@@ -35,6 +35,10 @@ module.exports = function (fs, path, url, convict) {
         env: 'LOG_LEVEL',
         default: 'info'
       },
+      uncaught: {
+        format: ['exit', 'log', 'ignore'],
+        default: 'exit'
+      }
     },
     patchKey: {
       doc: 'The name of the row in the dbMetadata table which stores the patch level',
@@ -168,7 +172,7 @@ module.exports = function (fs, path, url, convict) {
 
   var files = envConfig.split(',').filter(fs.existsSync)
   conf.loadFile(files)
-  conf.validate()
+  conf.validate({ allowed: 'strict' })
 
   return conf.getProperties()
 }
