@@ -4,16 +4,18 @@
 
 'use strict'
 
+const ROOT_DIR = '../..'
+
 const assert = require('insist')
 var proxyquire = require('proxyquire')
 var uuid = require('uuid')
 
-var P = require('../../../lib/promise')
-var mockLog = require('../../mocks').mockLog
+const P = require(`${ROOT_DIR}/lib/promise`)
+const mockLog = require('../mocks').mockLog
 
 var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
 
-const verificationModulePath = '../../../lib/verification-reminders'
+const verificationModulePath = `${ROOT_DIR}/lib/verification-reminders`
 
 var ACCOUNT = {
   uid: uuid.v4('binary'),

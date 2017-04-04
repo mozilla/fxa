@@ -4,7 +4,7 @@
 
 'use strict'
 
-const ROOT_DIR = '../../../..'
+const ROOT_DIR = '../../..'
 
 const assert = require('insist')
 var extend = require('util')._extend

@@ -4,7 +4,7 @@
 
 const assert = require('insist')
 var sinon = require('sinon')
-var legacyLog = require('../../../../lib/senders/legacy_log')
+const legacyLog = require('../../../lib/senders/legacy_log')
 
 var spyLog = {
   critical: sinon.spy(),

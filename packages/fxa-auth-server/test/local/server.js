@@ -4,12 +4,14 @@
 
 'use strict'
 
+const ROOT_DIR = '../..'
+
 const assert = require('insist')
 const EndpointError = require('poolee/lib/error')(require('util').inherits)
-const error = require('../../../lib/error')
+const error = require(`${ROOT_DIR}/lib/error`)
 const hapi = require('hapi')
-const mocks = require('../../mocks')
-const server = require('../../../lib/server')
+const mocks = require('../mocks')
+const server = require(`${ROOT_DIR}/lib/server`)
 const sinon = require('sinon')
 
 describe('lib/server', () => {

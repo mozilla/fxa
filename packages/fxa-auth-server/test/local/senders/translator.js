@@ -6,7 +6,7 @@
 
 const assert = require('insist')
 
-require('../../../../lib/senders/translator')(['en', 'pt_br', 'DE', 'ES_AR', 'ES_cl'], 'en')
+require('../../../lib/senders/translator')(['en', 'pt_br', 'DE', 'ES_AR', 'ES_cl'], 'en')
 .then(translator => {
   it('returns the correct interface', () => {
     assert.equal(typeof translator, 'object')

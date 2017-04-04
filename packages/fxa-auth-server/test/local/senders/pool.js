@@ -239,7 +239,7 @@ it(
 
 function setup () {
   poolee = sinon.createStubInstance(require('poolee'))
-  Pool = proxyquire('../../../../lib/senders/pool', {
+  Pool = proxyquire('../../../lib/senders/pool', {
     poolee: function () {
       return poolee
     }

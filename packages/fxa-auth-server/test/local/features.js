@@ -24,7 +24,7 @@ const config = {
   securityHistory: {}
 }
 
-const features = proxyquire('../../../lib/features', {
+const features = proxyquire('../../lib/features', {
   crypto: crypto
 })(config)
 

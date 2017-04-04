@@ -5,7 +5,7 @@
 'use strict'
 
 const assert = require('insist')
-const MockNexmo = require('../../../lib/mock-nexmo')
+const MockNexmo = require('../../lib/mock-nexmo')
 const sinon = require('sinon')
 
 const BALANCE_THRESHOLD = 1.5

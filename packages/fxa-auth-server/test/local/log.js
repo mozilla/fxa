@@ -28,7 +28,7 @@ mocks.mozlog.config = sinon.spy()
 mocks['./metrics/statsd'] = function () {
   return statsd
 }
-var log = proxyquire('../../../lib/log', mocks)('foo', 'bar')
+const log = proxyquire('../../lib/log', mocks)('foo', 'bar')
 
 const emitRouteFlowEvent = sinon.spy()
 

@@ -6,8 +6,8 @@
 
 const assert = require('insist')
 const proxyquire = require('proxyquire')
-const mockLog = require('../../mocks').mockLog
-const modulePath = '../../../lib/geodb'
+const mockLog = require('../mocks').mockLog
+const modulePath = '../../lib/geodb'
 
 describe('geodb', () => {
   it(

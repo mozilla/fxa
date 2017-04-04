@@ -4,6 +4,8 @@
 
 'use strict'
 
+const ROOT_DIR = '../../..'
+
 const assert = require('insist')
 const P = require('bluebird')
 const proxyquire = require('proxyquire')
@@ -54,10 +56,10 @@ describe('lib/senders/sms:', () => {
 
   before(() => {
     return P.all([
-      require('../../../../lib/senders/translator')(['en'], 'en'),
-      require('../../../../lib/senders/templates')()
+      require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
+      require(`${ROOT_DIR}/lib/senders/templates`)()
     ]).spread((translator, templates) => {
-      sms = proxyquire('../../../../lib/senders/sms', {
+      sms = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
         nexmo: Nexmo
       })(log, translator, templates, {
         apiKey: 'foo',
@@ -222,10 +224,10 @@ describe('lib/senders/sms:', () => {
 
   it('uses the NexmoMock constructor if `useMock: true`', () => {
     return P.all([
-      require('../../../../lib/senders/translator')(['en'], 'en'),
-      require('../../../../lib/senders/templates')()
+      require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
+      require(`${ROOT_DIR}/lib/senders/templates`)()
     ]).spread((translator, templates) => {
-      sms = proxyquire('../../../../lib/senders/sms', {
+      sms = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
         nexmo: Nexmo,
         '../mock-nexmo': MockNexmo
       })(log, translator, templates, {

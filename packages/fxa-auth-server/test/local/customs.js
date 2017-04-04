@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const ROOT_DIR = '../..'
+
 const assert = require('insist')
 const log = {
   trace: () => {},
@@ -9,11 +11,11 @@ const log = {
   flowEvent: () => {},
   error() {}
 }
-const mocks = require('../../mocks')
-var error = require('../../../lib/error.js')
+const mocks = require('../mocks')
+const error = require(`${ROOT_DIR}/lib/error.js`)
 var nock = require('nock')
 
-var Customs = require('../../../lib/customs.js')(log, error)
+const Customs = require(`${ROOT_DIR}/lib/customs.js`)(log, error)
 
 var CUSTOMS_URL_REAL = 'http://localhost:7000'
 var CUSTOMS_URL_MISSING = 'http://localhost:7001'

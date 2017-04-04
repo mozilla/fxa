@@ -4,7 +4,7 @@
 
 const assert = require('insist')
 var messages = require('joi/lib/language')
-var AppError = require('../../../lib/error')
+const AppError = require('../../lib/error')
 
 describe('AppErrors', () => {
 

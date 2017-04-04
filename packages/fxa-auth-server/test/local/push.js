@@ -4,6 +4,8 @@
 
 'use strict'
 
+const ROOT_DIR = '../..'
+
 const assert = require('insist')
 var proxyquire = require('proxyquire')
 var sinon = require('sinon')
@@ -11,14 +13,14 @@ var ajv = require('ajv')()
 var fs = require('fs')
 var path = require('path')
 
-var P = require('../../../lib/promise')
-var mockLog = require('../../mocks').mockLog
+const P = require(`${ROOT_DIR}/lib/promise`)
+const mockLog = require('../mocks').mockLog
 var mockUid = Buffer.from('foo')
 var mockConfig = {}
 
-var PUSH_PAYLOADS_SCHEMA_PATH = '../../../docs/pushpayloads.schema.json'
+const PUSH_PAYLOADS_SCHEMA_PATH = `${ROOT_DIR}/docs/pushpayloads.schema.json`
 var TTL = '42'
-const pushModulePath = '../../../lib/push'
+const pushModulePath = `${ROOT_DIR}/lib/push`
 
 var mockDbEmpty = {
   devices: function () {
@@ -591,7 +593,7 @@ describe('push', () => {
 
       var mockConfig = {
         publicUrl: 'https://example.com',
-        vapidKeysFile: path.join(__dirname, '../../', 'config', 'mock-vapid-keys.json')
+        vapidKeysFile: path.join(__dirname, '../config/mock-vapid-keys.json')
       }
 
       var mocks = {
