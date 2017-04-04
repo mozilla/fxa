@@ -1,4 +1,7 @@
 
+v1.84.0
+  * fix(tests): Correctly rate limit sms by ip address (#191), r=@rfk
+
 v1.83.0
 
   * fix(tests): Update config and testing for sms (#189) r=vladikoff
