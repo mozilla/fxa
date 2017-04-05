@@ -44,17 +44,14 @@ define([
       .then(openPage(PAGE_URL, '#fxa-signin-header'))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutSignIn(signInEmail, PASSWORD))
-
+      .then(testElementExists(successSelector))
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-
       .then(() => {
         if (! options.blocked) {
           return this.parent
             .then(testIsBrowserNotified('fxaccounts:login'));
         }
-      })
-
-      .then(testElementExists(successSelector));
+      });
   });
 
   registerSuite({
