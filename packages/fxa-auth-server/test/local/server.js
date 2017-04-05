@@ -114,7 +114,6 @@ describe('lib/server', () => {
           assert.ok(args[1])
           assert.equal(args[1].path, '/account/create')
           assert.equal(args[1].app.locale, 'en')
-          assert.equal(args[1].app.isLocaleAcceptable, true)
         })
 
         it('called log.summary correctly', () => {
@@ -152,7 +151,6 @@ describe('lib/server', () => {
           assert.equal(log.begin.callCount, 1)
           const args = log.begin.args[0]
           assert.equal(args[1].app.locale, 'en')
-          assert.equal(args[1].app.isLocaleAcceptable, false)
         })
 
         it('called log.summary once', () => {
