@@ -25,6 +25,7 @@ define([
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = FunctionalHelpers.openPage;
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  var switchToWindow = FunctionalHelpers.switchToWindow;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
@@ -85,12 +86,8 @@ define([
         .then(testElementExists('#fxa-confirm-reset-password-header'))
         .then(click('[data-webmail-type="restmail"]'))
 
-        .getAllWindowHandles()
-          .then(function (handles) {
-            return this.parent.switchToWindow(handles[1]);
-          })
-
-          // wait until url is correct
+        .then(switchToWindow(1))
+        // wait until url is correct
         .then(FunctionalHelpers.pollUntil(function (email) {
           return window.location.pathname.endsWith(email);
         }, [email], 10000))
