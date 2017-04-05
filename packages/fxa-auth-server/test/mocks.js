@@ -355,7 +355,6 @@ function mockRequest (data) {
     app: {
       acceptLanguage: 'en-US',
       clientAddress: data.clientAddress || '63.245.221.32',
-      isLocaleAcceptable: true,
       locale: data.locale || 'en-US'
     },
     auth: {
