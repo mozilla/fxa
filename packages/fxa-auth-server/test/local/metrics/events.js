@@ -190,7 +190,6 @@ describe('metrics/events', () => {
     const metricsContext = mocks.mockMetricsContext()
     const request = {
       app: {
-        isLocaleAcceptable: false,
         locale: 'en'
       },
       auth: null,
@@ -219,7 +218,7 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 1000,
           flowCompleteSignal: 'account.signed',
-          locale: 'en.default',
+          locale: 'en',
           time,
           userAgent: 'foo'
         }, 'argument was event data')

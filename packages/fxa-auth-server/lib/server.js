@@ -287,9 +287,7 @@ function create(log, error, config, routes, db, translator) {
 
       const acceptLanguage = trimLocale(request.headers['accept-language'])
       request.app.acceptLanguage = acceptLanguage
-      const locale = translator.getLocale(acceptLanguage)
-      request.app.locale = locale
-      request.app.isLocaleAcceptable = isLocaleAcceptable(locale, acceptLanguage)
+      request.app.locale = translator.getLocale(acceptLanguage)
 
       if (request.headers.authorization) {
         // Log some helpful details for debugging authentication problems.
@@ -344,10 +342,6 @@ function create(log, error, config, routes, db, translator) {
   }
 
   return server
-}
-
-function isLocaleAcceptable (locale, acceptLanguage) {
-  return RegExp(`^(?:.+, *)*${locale}(?:[,-].+)*$`, 'i').test(acceptLanguage)
 }
 
 module.exports = {
