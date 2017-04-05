@@ -18,8 +18,8 @@ define(function (require, exports, module) {
   const FormView = require('views/form');
   const MarketingMixin = require('views/mixins/marketing-mixin');
   const MarketingSnippet = require('views/marketing_snippet');
+  const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
   const Template = require('stache!templates/connect_another_device');
-  const Url = require('lib/url');
   const UserAgentMixin = require('views/mixins/user-agent-mixin');
 
   const proto = FormView.prototype;
@@ -127,8 +127,7 @@ define(function (require, exports, module) {
       const isSignedIn = this._isSignedIn();
       const canSignIn = this._canSignIn();
       const email = this.getAccount().get('email');
-      const signInContext = this._getSignInContext();
-      const escapedSignInUrl = this._getEscapedSignInUrl(signInContext, email);
+      const escapedSignInUrl = this._getEscapedSignInUrl(email);
 
       const uap = this.getUserAgent();
       const isAndroid = uap.isAndroid();
@@ -172,77 +171,19 @@ define(function (require, exports, module) {
      */
     _canSignIn () {
       // Only users that are not signed in can do so.
-      return ! this._isSignedIn() &&
-               this._hasWebChannelSupport();
-    },
-
-    /**
-     * Check if the current browser has web channel support.
-     *
-     * @returns {Boolean}
-     * @private
-     */
-    _hasWebChannelSupport () {
-      const uap = this.getUserAgent();
-      const browserVersion = uap.browser.version;
-
-      // WebChannels were introduced in Fx Desktop 40 and Fennec 43.
-      return ((uap.isFirefoxDesktop() && browserVersion >= 40) ||
-              (uap.isFirefoxAndroid() && browserVersion >= 43));
-    },
-
-    /**
-     * Return the sign in context that can be used to sign in
-     * to Sync. Assumes the context is only used if the user
-     * can actually sign in to Sync.
-     *
-     * @returns {String}
-     * @private
-     */
-    _getSignInContext() {
-      const uap = this.getUserAgent();
-      if (uap.isFirefoxAndroid()) {
-        return Constants.FX_FENNEC_V1_CONTEXT;
-      } else if (uap.isFirefoxDesktop()) {
-        // desktop_v3 is safe for all desktop versions that can
-        // use WebChannels. The only difference between v2 and v3
-        // was the Sync Preferences button, which has since
-        // been disabled.
-        return Constants.FX_DESKTOP_V3_CONTEXT;
-      }
+      return ! this._isSignedIn() && this.isSyncAuthSupported();
     },
 
     /**
      * Get an escaped sign in URL.
      *
-     * @param {String} context - context to use to sign in
      * @param {String} email - users email address, used to
      *  pre-fill the signin page.
      * @returns {String}
      * @private
      */
-    _getEscapedSignInUrl (context, email) {
-      const origin = this.window.location.origin;
-      const relier = this.relier;
-
-      const params = {
-        context,
-        email,
-        entrypoint: View.ENTRYPOINT,
-        service: Constants.SYNC_SERVICE,
-        /* eslint-disable camelcase */
-        utm_campaign: relier.get('utmCampaign'),
-        utm_content: relier.get('utmContent'),
-        utm_medium: relier.get('utmMedium'),
-        utm_source: relier.get('utmSource'),
-        utm_term: relier.get('utmTerm')
-        /* eslint-enable camelcase */
-      };
-      // Url.objToSearchString escapes each of the
-      // query parameters.
-      const escapedSearchString = Url.objToSearchString(params);
-
-      return `${origin}/signin${escapedSearchString}`;
+    _getEscapedSignInUrl (email) {
+      return this.getEscapedSyncUrl('signin', View.ENTRYPOINT, { email: email });
     }
   }, {
     ENTRYPOINT: 'connect_another_device'
@@ -256,6 +197,7 @@ define(function (require, exports, module) {
       // The marketing area is manually created to which badges are displayed.
       autocreate: false
     }),
+    SyncAuthMixin,
     UserAgentMixin
   );
 

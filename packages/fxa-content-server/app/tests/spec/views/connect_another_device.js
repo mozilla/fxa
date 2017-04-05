@@ -10,11 +10,9 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const AuthBroker = require('models/auth_brokers/base');
   const Backbone = require('backbone');
-  const Constants = require('lib/constants');
   const Notifier = require('lib/channels/notifier');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
-  const Url = require('lib/url');
   const User = require('models/user');
   const View = require('views/connect_another_device');
   const WindowMock = require('../../mocks/window');
@@ -306,203 +304,43 @@ define(function (require, exports, module) {
       it('returns `false` if user is signed in', () => {
 
         sinon.stub(user, 'isSignedInAccount', () => true);
-        sinon.stub(view, '_hasWebChannelSupport', () => true);
-
-
-        assert.isFalse(view._canSignIn());
-      });
-
-      it('returns `false` if no web channel support', () => {
-        sinon.stub(user, 'isSignedInAccount', () => false);
-        sinon.stub(view, '_hasWebChannelSupport', () => false);
+        sinon.stub(view, 'isSyncAuthSupported', () => true);
 
         assert.isFalse(view._canSignIn());
       });
 
-      it('returns `true` if not signed in, has web channel support', () => {
+      it('returns `false` if sync authentication not supported', () => {
         sinon.stub(user, 'isSignedInAccount', () => false);
-        sinon.stub(view, '_hasWebChannelSupport', () => true);
+        sinon.stub(view, 'isSyncAuthSupported', () => false);
+
+        assert.isFalse(view._canSignIn());
+      });
+
+      it('returns `true` if not signed in, sync authentication supported', () => {
+        sinon.stub(user, 'isSignedInAccount', () => false);
+        sinon.stub(view, 'isSyncAuthSupported', () => true);
 
         assert.isTrue(view._canSignIn());
       });
     });
 
-    describe('_hasWebChannelSupport', () => {
-      it('returns `false` if not Firefox', () => {
-        sinon.stub(view, 'getUserAgent', () => {
-          return {
-            browser: {
-              version: 52
-            },
-            isFirefox: () => false,
-            isFirefoxAndroid: () => false,
-            isFirefoxDesktop: () => false,
-            isFirefoxIos: () => false,
-            isIos: () => false,
-          };
-        });
-
-        assert.isFalse(view._hasWebChannelSupport());
-      });
-
-      it('returns `false` if Fx Desktop < 40', () => {
-        sinon.stub(view, 'getUserAgent', () => {
-          return {
-            browser: {
-              version: 39
-            },
-            isFirefox: () => true,
-            isFirefoxAndroid: () => false,
-            isFirefoxDesktop: () => true,
-            isFirefoxIos: () => false,
-            isIos: () => false,
-          };
-        });
-
-        assert.isFalse(view._hasWebChannelSupport());
-      });
-
-      it('returns `false` if Fx Desktop < 43', () => {
-        sinon.stub(view, 'getUserAgent', () => {
-          return {
-            browser: {
-              version: 42
-            },
-            isFirefox: () => true,
-            isFirefoxAndroid: () => true,
-            isFirefoxDesktop: () => false,
-            isFirefoxIos: () => false,
-            isIos: () => false,
-          };
-        });
-
-        assert.isFalse(view._hasWebChannelSupport());
-      });
-
-      it('returns `false` if Fx for iOS', () => {
-        sinon.stub(view, 'getUserAgent', () => {
-          return {
-            browser: {
-              version: 6
-            },
-            isFirefox: () => true,
-            isFirefoxAndroid: () => false,
-            isFirefoxDesktop: () => false,
-            isFirefoxIos: () => true,
-            isIos: () => true,
-          };
-        });
-
-        assert.isFalse(view._hasWebChannelSupport());
-      });
-
-      it('returns true if Fx Desktop >= 40', () => {
-        sinon.stub(view, 'getUserAgent', () => {
-          return {
-            browser: {
-              version: 40
-            },
-            isFirefox: () => true,
-            isFirefoxAndroid: () => false,
-            isFirefoxDesktop: () => true,
-            isFirefoxIos: () => false,
-            isIos: () => false,
-          };
-        });
-
-        assert.isTrue(view._hasWebChannelSupport());
-      });
-
-      it('returns true if Fennec >= 43', () => {
-        sinon.stub(view, 'getUserAgent', () => {
-          return {
-            browser: {
-              version: 43
-            },
-            isFirefox: () => true,
-            isFirefoxAndroid: () => true,
-            isFirefoxDesktop: () => false,
-            isFirefoxIos: () => false,
-            isIos: () => false,
-          };
-        });
-
-        assert.isTrue(view._hasWebChannelSupport());
-      });
-    });
-
-    describe('_getSignInContext', () => {
-      it('returns fx_fennec_v1 for fennec', () => {
-        sinon.stub(view, 'getUserAgent', () => {
-          return {
-            isFirefoxAndroid: () => true,
-            isFirefoxDesktop: () => false,
-          };
-        });
-
-        assert.equal(view._getSignInContext(), Constants.FX_FENNEC_V1_CONTEXT);
-      });
-
-      it('returns fx_desktop_v3 for desktop users', () => {
-        sinon.stub(view, 'getUserAgent', () => {
-          return {
-            isFirefoxAndroid: () => false,
-            isFirefoxDesktop: () => true
-          };
-        });
-        assert.equal(view._getSignInContext(), Constants.FX_DESKTOP_V3_CONTEXT);
-      });
-    });
 
     describe('_getEscapedSignInUrl', () => {
-      const CONTEXT = 'fx_desktop_v3';
-      const ORIGIN = 'https://accounts.firefox.com';
+      const SYNC_URL = 'https://accounts.firefox.com/signin?context=fx_desktop_v3&service=sync&email=testuser@testuser.com';
 
       beforeEach(() => {
-        windowMock.location.origin = ORIGIN;
-        relier.set({
-          utmCampaign: 'campaign',
-          utmContent: 'content',
-          utmMedium: 'medium',
-          utmSource: 'source',
-          utmTerm: 'term'
-        });
+        sinon.stub(view, 'getEscapedSyncUrl', () => SYNC_URL);
       });
 
-      describe('with email', () => {
-        it('URL has email query param', () => {
-          const escapedSignInUrl
-            = view._getEscapedSignInUrl(CONTEXT, 'testuser@testuser.com');
+      it('returns the expected URL', () => {
+        assert.equal(
+          view._getEscapedSignInUrl('testuser@testuser.com'),
+          SYNC_URL
+        );
 
-          const search = escapedSignInUrl.split('?')[1];
-          const params = Url.searchParams(search);
-
-          assert.deepEqual(params, {
-            context: CONTEXT,
-            email: 'testuser@testuser.com',
-            entrypoint: View.ENTRYPOINT,
-            service: Constants.SYNC_SERVICE,
-            /* eslint-disable camelcase */
-            utm_campaign: 'campaign',
-            utm_content: 'content',
-            utm_medium: 'medium',
-            utm_source: 'source',
-            utm_term: 'term'
-            /* eslint-enable camelcase */
-          });
-
-          const origin = Url.getOrigin(escapedSignInUrl);
-          assert.equal(origin, ORIGIN);
-        });
-      });
-
-      describe('without an email', () => {
-        it('URL does not have email query param', () => {
-          const escapedSignInUrl = view._getEscapedSignInUrl(CONTEXT);
-          const search = escapedSignInUrl.split('?')[1];
-          const params = Url.searchParams(search);
-          assert.notProperty(params, 'email');
-        });
+        assert.isTrue(view.getEscapedSyncUrl.calledOnce);
+        assert.isTrue(view.getEscapedSyncUrl.calledWith(
+            'signin', View.ENTRYPOINT, { email: 'testuser@testuser.com' }));
       });
     });
 

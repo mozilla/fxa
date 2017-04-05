@@ -151,6 +151,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/signed-out-notification-mixin',
     '../tests/spec/views/mixins/signin-mixin',
     '../tests/spec/views/mixins/signup-mixin',
+    '../tests/spec/views/mixins/sync-auth-mixin',
     '../tests/spec/views/mixins/timer-mixin',
     '../tests/spec/views/mixins/user-agent-mixin',
     '../tests/spec/views/mixins/verification-reason-mixin',
