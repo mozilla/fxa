@@ -31,7 +31,7 @@
     "fxa-jwtool": "^0.7.1",
     "fxa-notifier-aws": "1.0.0",
     "fxa-shared": "1.0.4",
-    "hapi": "16.0.0",
+    "hapi": "16.1.1",
     "hapi-hpkp": "1.0.0",
     "joi": "^10.0.1",
     "keypair": "^1.0.1",
