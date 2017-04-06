@@ -60,6 +60,16 @@
 
 
 
+<a name="1.83.4"></a>
+## [1.83.4](https://github.com/mozilla/fxa-auth-server/compare/v1.83.3...v1.83.4) (2017-04-05)
+
+
+### Bug Fixes
+
+* **server:** remove crippled isLocaleAcceptable functionality (#1793), r=@vbudhram, @rfk ([748fcee](https://github.com/mozilla/fxa-auth-server/commit/748fcee))
+
+
+
 <a name="1.83.3"></a>
 ## [1.83.3](https://github.com/mozilla/fxa-auth-server/compare/v1.83.2...v1.83.3) (2017-03-28)
 
