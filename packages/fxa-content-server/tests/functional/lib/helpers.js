@@ -234,6 +234,27 @@ define([
       .then(testElementExists('#loggedout'));
   });
 
+  /**
+   * Close all windows but the first. Used to cleanup after
+   * failing functional tests where the test fails when checking
+   * the 2nd window.
+   *
+   * @returns {Promise}
+   */
+  const closeAllButFirstWindow = thenify(function () {
+    return this.parent
+      .getAllWindowHandles()
+      .then(function (handles) {
+        if (handles.length > 1) {
+          return this.parent
+            .switchToWindow(handles[1])
+            .closeCurrentWindow()
+            .switchToWindow('')
+            .then(closeAllButFirstWindow());
+        }
+      });
+  });
+
   const clearBrowserState = thenify(function (options) {
     options = options || {};
     if (! ('contentServer' in options)) {
@@ -266,7 +287,8 @@ define([
           return this.parent
             .then(clear123DoneState( { untrusted: true }));
         }
-      });
+      })
+      .then(closeAllButFirstWindow());
   });
 
   const clearSessionStorage = thenify(function () {
