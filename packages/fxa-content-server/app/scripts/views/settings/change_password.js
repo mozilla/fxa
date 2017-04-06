@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const FormView = require('views/form');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const PasswordMixin = require('views/mixins/password-mixin');
-  const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const Template = require('stache!templates/settings/change_password');
@@ -71,7 +70,6 @@ define(function (require, exports, module) {
     View,
     ExperimentMixin,
     PasswordMixin,
-    PasswordStrengthMixin,
     FloatingPlaceholderMixin,
     SettingsPanelMixin,
     ServiceMixin,

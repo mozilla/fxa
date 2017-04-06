@@ -40,8 +40,7 @@ require.config({
   ],
   requireOnDemand: [
     'fxaClient',
-    'jwcrypto',
-    'passwordcheck'
+    'jwcrypto'
   ],
   // the sriify task will replace sriConfig for production
   // DO NOT EDIT BELOW HERE
@@ -85,7 +84,6 @@ require.config({
     modal: '../bower_components/jquery-modal/jquery.modal',
     moment: '../bower_components/moment/moment',
     mustache: '../bower_components/mustache/mustache',
-    passwordcheck: '../bower_components/fxa-password-strength-checker/build/fxa-password-strength-checker',
     'p-promise': '../bower_components/p/p',
     raven: '../bower_components/raven-js/dist/raven',
     sinon: '../bower_components/sinon/lib/sinon',

@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const Notifier = require('lib/channels/notifier');
   const PasswordMixin = require('views/mixins/password-mixin');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
   const ResendMixin = require('views/mixins/resend-mixin')();
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/complete_reset_password');
@@ -168,7 +167,6 @@ define(function (require, exports, module) {
     FlowEventsMixin,
     PasswordMixin,
     PasswordResetMixin,
-    PasswordStrengthMixin,
     ResendMixin,
     ServiceMixin
   );

@@ -18,7 +18,6 @@ define(function (require, exports, module) {
   const MigrationMixin = require('views/mixins/migration-mixin');
   const p = require('lib/promise');
   const PasswordMixin = require('views/mixins/password-mixin');
-  const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
@@ -118,12 +117,6 @@ define(function (require, exports, module) {
         this.$el.find('input[type=password]').click(function () {
           this.onEmailBlur();
         }.bind(this));
-      }
-
-      if (this.isPasswordStrengthCheckEnabled()) {
-        // load the password strength checker early so the user does
-        // not need to wait once they fill out the password.
-        this.getPasswordStrengthChecker();
       }
 
       return FormView.prototype.afterVisible.call(this);
@@ -399,7 +392,6 @@ define(function (require, exports, module) {
     FlowBeginMixin,
     MigrationMixin,
     PasswordMixin,
-    PasswordStrengthMixin,
     ResumeTokenMixin,
     ServiceMixin,
     SignInMixin,
