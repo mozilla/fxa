@@ -133,6 +133,18 @@ define(function (require, exports, module) {
       errno: 132,
       message: t('Could not send a message to this number')
     },
+    EMAIL_SENT_COMPLAINT: {
+      errno: 133,
+      message: t('Your email was just returned')
+    },
+    EMAIL_HARD_BOUNCE: {
+      errno: 134,
+      message: t('Your email was just returned. Mistyped email?')
+    },
+    EMAIL_SOFT_BOUNCE: {
+      errno: 135,
+      message: t('Unable to deliver email')
+    },
     SERVER_BUSY: {
       errno: 201,
       message: t('Server busy, try again soon')
