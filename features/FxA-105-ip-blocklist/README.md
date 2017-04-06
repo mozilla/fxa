@@ -212,11 +212,15 @@ malicious by multiple sources.
 FireHOL Webserver list is more liberal and therefore had a higher hit rate.
 We decided to run some analysis on the ip addresses that would have been
 blocked from this list and the majority of these were coming from ip
-addresses usually reserved for AWS EC2 instances. There is a possiblity
-that some of these requests were malicious because we wouldn't
-normally expect network traffic from an EC2 instance.
+addresses usually reserved for AWS EC2 instances. While we do expect traffic 
+from EC2 instances (ex. from CI boxes), there is a possibility
+that some of these requests were malicious.
 
 The detailed blocklist dashboard can be found [here.](https://kibana-fxa-us-west-2.prod.mozaws.net/#/dashboard/elasticsearch/PROD%20-%20IP%20Blocklist%20Stats)
+
+Based on these results we decided to enable blocking of IPs on the
+Firehol level1 list and disable blocking on the webserver list.
+For now we plan not to prioritize further work on this feature.
 
 ### Phase 2
 
