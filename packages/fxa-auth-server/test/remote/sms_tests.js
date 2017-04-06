@@ -8,8 +8,9 @@ const assert = require('insist')
 const TestServer = require('../test_server')
 const Client = require('../client')()
 const config = require('../../config').getProperties()
+const error = require('../../lib/error')
 
-describe('remote sms', () => {
+describe('remote sms (live nexmo)', () => {
   let server
 
   before(() => {
@@ -30,6 +31,76 @@ describe('remote sms', () => {
             assert.ok(status)
             assert.equal(typeof status.ok, 'boolean')
             assert.equal(status.country, 'US')
+          })
+      })
+  })
+
+  after(() => {
+    return TestServer.stop(server)
+  })
+})
+
+describe('remote sms (mocked nexmo)', () => {
+  let server
+
+  before(() => {
+    config.sms.enabled = true
+    // POST /sms spends actual money unless the SMS provider is mocked
+    config.sms.useMock = true
+
+    return TestServer.start(config)
+      .then(result => {
+        server = result
+      })
+  })
+
+  it('POST /sms success', () => {
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
+      .then(client => {
+        return client.smsSend('+18885083401', 1)
+          .then(result => assert.ok(result))
+      })
+  })
+
+  it('POST /sms with invalid phone number', () => {
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
+      .then(client => {
+        return client.smsSend('+15551234567', 1)
+          .then(() => assert.fail('request should have failed'))
+          .catch(err => {
+            assert.ok(err)
+            assert.equal(err.code, 400)
+            assert.equal(err.errno, error.ERRNO.INVALID_PHONE_NUMBER)
+            assert.equal(err.message, 'Invalid phone number')
+          })
+      })
+  })
+
+  it('POST /sms with invalid region', () => {
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
+      .then(client => {
+        return client.smsSend('+886287861100', 1)
+          .then(() => assert.fail('request should have failed'))
+          .catch(err => {
+            assert.ok(err)
+            assert.equal(err.code, 400)
+            assert.equal(err.errno, error.ERRNO.INVALID_REGION)
+            assert.equal(err.message, 'Invalid region')
+            assert.equal(err.region, 'TW')
+          })
+      })
+  })
+
+  it('POST /sms with invalid message id', () => {
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
+      .then(client => {
+        return client.smsSend('+18885083401', 2)
+          .then(() => assert.fail('request should have failed'))
+          .catch(err => {
+            assert.ok(err)
+            assert.equal(err.code, 400)
+            assert.equal(err.errno, error.ERRNO.INVALID_MESSAGE_ID)
+            assert.equal(err.message, 'Invalid message id')
           })
       })
   })

@@ -591,6 +591,16 @@ module.exports = config => {
       )
   }
 
+  ClientApi.prototype.smsSend = function (sessionTokenHex, phoneNumber, messageId) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(token => this.doRequest(
+        'POST',
+        `${this.baseURL}/sms`,
+        token,
+        { phoneNumber, messageId }
+      ))
+  }
+
   ClientApi.prototype.smsStatus = function (sessionTokenHex, country, clientIpAddress) {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(token => this.doRequest(
