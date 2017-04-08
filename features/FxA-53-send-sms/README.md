@@ -46,7 +46,7 @@ If we offer to download via SMS to remove friction around setting up a second de
 
 We will know our hypothesis to be true when we see the proportion of multi-device users increase after 48h and 7d of registration to FxA+Sync on firstrun.
 
-<img src="./image_0.png" / alt="New signups that connect another device" />
+<img alt="New signups that connect another device" src="./image_0.png" />
 
 From: https://sql.telemetry.mozilla.org/queries/1254#2173
 
@@ -147,15 +147,9 @@ Here is the user flow from the moment the user finishes registration via the for
 <img alt="Sync email" src="./image_2.png" width=300 />
 
 1. Depending on where the user confirms their email address, they will see one of the following screens:
-
-    1. Confirmed from same Firefox desktop<br />
-<img alt="Confirm in Firefox Desktop" src="./image_3.png" width=300 />
-
-    2. Confirmed from a second disconnect Firefox instance<br />
-<img alt="Confirm in another Firefox" src="./image_4.png" width=300 />
-
-    3. Confirmed from Firefox for iOS<br />
-<img alt="Confirm in Firefox for iOS" src="./image_5.png" width=300 />
+    1. Confirmed from same Firefox desktop<br /><img alt="Confirm in Firefox Desktop" src="./image_3.png" width=300 />
+    2. Confirmed from a second disconnect Firefox instance<br /><img alt="Confirm in another Firefox" src="./image_4.png" width=300 />
+    3. Confirmed from Firefox for iOS<br /><img alt="Confirm in Firefox for iOS" src="./image_5.png" width=300 />
 
 ### Variation A
 
@@ -331,7 +325,7 @@ Any of the following are valid:
 
 <img alt="Phone number passes frontend validation, server reports invalid" src="./image_18.png" width=300 />
 
-* A user will be throttled from sending SMSs if they send 5 messages within the span of an hour. The user will have to wait 1 hour from the last request to begin to send additional messages.
+* A user will be throttled from sending SMSs if they send 5 messages within the span of an hour. The user will have to wait 30 minutes from the last request to begin to send additional messages.
 
 <img alt="User has been throttled" src="./image_19.png" width=300 />
 
