@@ -52,6 +52,15 @@ describe('server', function() {
     });
   });
 
+  describe('/__lbheartbeat__', function() {
+    it('should succeed', function(done) {
+      Server.get('/__lbheartbeat__').then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+      }).done(done, done);
+    });
+  });
+
   describe('/config', function() {
     it('should succeed', function(done) {
       Server.get('/config').then(function(res) {
