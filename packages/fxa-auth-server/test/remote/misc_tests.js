@@ -66,6 +66,24 @@ describe('remote misc', function() {
   )
 
   it(
+    '/__heartbeat__ returns a 200 OK',
+    () => {
+      return request(config.publicUrl + '/__heartbeat__').spread((res) => {
+        assert.equal(res.statusCode, 200, 'http ok')
+      })
+    }
+  )
+
+  it(
+    '/__lbheartbeat__ returns a 200 OK',
+    () => {
+      return request(config.publicUrl + '/__lbheartbeat__').spread((res) => {
+        assert.equal(res.statusCode, 200, 'http ok')
+      })
+    }
+  )
+
+  it(
     '/ returns version, git hash and source repo',
     testVersionRoute('/')
   )

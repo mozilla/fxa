@@ -88,6 +88,14 @@ module.exports = (log, db) => {
       }
     },
     {
+      method: 'GET',
+      path: '/__lbheartbeat__',
+      handler: function heartbeat(request, reply) {
+        log.begin('Defaults.lbheartbeat', request)
+        reply({})
+      }
+    },
+    {
       method: '*',
       path: '/v0/{p*}',
       config: {
