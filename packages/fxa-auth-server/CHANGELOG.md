@@ -1,3 +1,18 @@
+<a name="1.84.2"></a>
+## [1.84.2](https://github.com/mozilla/fxa-auth-server/compare/v1.84.0...v1.84.2) (2017-04-11)
+
+
+### Bug Fixes
+
+* **config:** update the default SMS install link ([f82797c](https://github.com/mozilla/fxa-auth-server/commit/f82797c))
+* **locale:** Fix merge conflicts (#1794) ([5406b56](https://github.com/mozilla/fxa-auth-server/commit/5406b56)), closes [#1794](https://github.com/mozilla/fxa-auth-server/issues/1794)
+
+### Features
+
+* **keys:** Add key id and created-at timestamp to our public keys. (#1734); r=seanmonstar ([59cdb4c](https://github.com/mozilla/fxa-auth-server/commit/59cdb4c))
+
+
+
 <a name="1.84.1"></a>
 ## [1.84.1](https://github.com/mozilla/fxa-auth-server/compare/v1.84.0...v1.84.1) (2017-04-05)
 
