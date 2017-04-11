@@ -6,6 +6,7 @@
 
 var Memcached = require('memcached')
 var restify = require('restify')
+var safeJsonFormatter = require('restify-safe-json-formatter')
 var packageJson = require('../package.json')
 var blockReasons = require('./block_reasons')
 var P = require('bluebird')
@@ -70,7 +71,11 @@ module.exports = function createServer(config, log) {
     log.info({ op: 'listeningSQS', sqsRegion: config.bans.region, sqsQueueUrl: config.bans.queueUrl })
   }
 
-  var api = restify.createServer()
+  var api = restify.createServer({
+    formatters: {
+      'application/json; q=0.9': safeJsonFormatter
+    }
+  })
   api.use(restify.bodyParser())
 
   function logError(err) {

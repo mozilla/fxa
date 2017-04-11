@@ -3150,6 +3150,18 @@
         }
       }
     },
+    "restify-safe-json-formatter": {
+      "version": "0.2.0",
+      "from": "restify-safe-json-formatter@0.2.0",
+      "resolved": "https://registry.npmjs.org/restify-safe-json-formatter/-/restify-safe-json-formatter-0.2.0.tgz",
+      "dependencies": {
+        "restify": {
+          "version": "4.1.1",
+          "from": "restify@4.1.1",
+          "resolved": "https://registry.npmjs.org/restify/-/restify-4.1.1.tgz"
+        }
+      }
+    },
     "restify": {
       "version": "4.1.1",
       "from": "restify@4.1.1",
