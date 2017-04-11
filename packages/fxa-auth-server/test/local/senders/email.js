@@ -17,7 +17,7 @@ var mockLog = {
   error: function () {}
 }
 
-var config = require(`${ROOT_DIR}/mailer/config`)
+var config = require(`${ROOT_DIR}/config`)
 var Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog)
 
 var messageTypes = [
@@ -112,7 +112,7 @@ describe(
         require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
         require(`${ROOT_DIR}/lib/senders/templates`)()
       ]).spread((translator, templates) => {
-        mailer = new Mailer(translator, templates, config.get('mail'))
+        mailer = new Mailer(translator, templates, config.get('smtp'))
       })
     })
 
@@ -133,8 +133,8 @@ describe(
           'Contains template header for ' + type,
           function () {
             mailer.mailer.sendMail = function (emailConfig) {
-              assert.equal(emailConfig.from, config.get('mail.sender'), 'from header is correct')
-              assert.equal(emailConfig.sender, config.get('mail.sender'), 'sender header is correct')
+              assert.equal(emailConfig.from, config.get('smtp.sender'), 'from header is correct')
+              assert.equal(emailConfig.sender, config.get('smtp.sender'), 'sender header is correct')
               var templateName = emailConfig.headers['X-Template-Name']
 
               if (type === 'verificationReminderEmail') {
@@ -329,7 +329,7 @@ describe(
           it(
             'password manager info link is in email template output for ' + type,
             function () {
-              var passwordManagerInfoUrl = mailer._generateLinks(config.get('mail').passwordManagerInfoUrl, message.email, {}, type).passwordManagerInfoUrl
+              var passwordManagerInfoUrl = mailer._generateLinks(config.get('smtp').passwordManagerInfoUrl, message.email, {}, type).passwordManagerInfoUrl
 
               mailer.mailer.sendMail = function (emailConfig) {
                 assert.ok(includes(emailConfig.html, passwordManagerInfoUrl))
@@ -431,7 +431,7 @@ describe(
             'test verify token email',
             function () {
               mailer.mailer.sendMail = function (emailConfig) {
-                var verifyLoginUrl = config.get('mail').verifyLoginUrl
+                var verifyLoginUrl = config.get('smtp').verifyLoginUrl
                 assert.ok(emailConfig.html.indexOf(verifyLoginUrl) > 0)
                 assert.ok(emailConfig.text.indexOf(verifyLoginUrl) > 0)
               }
@@ -442,9 +442,9 @@ describe(
           it(
             'test utm params for ' + type,
             function () {
-              var syncLink = mailer._generateUTMLink(config.get('mail').syncUrl, {}, type, 'connect-device')
-              var androidLink = mailer._generateUTMLink(config.get('mail').androidUrl, {}, type, 'connect-android')
-              var iosLink = mailer._generateUTMLink(config.get('mail').iosUrl, {}, type, 'connect-ios')
+              var syncLink = mailer._generateUTMLink(config.get('smtp').syncUrl, {}, type, 'connect-device')
+              var androidLink = mailer._generateUTMLink(config.get('smtp').androidUrl, {}, type, 'connect-android')
+              var iosLink = mailer._generateUTMLink(config.get('smtp').iosUrl, {}, type, 'connect-ios')
 
               mailer.mailer.sendMail = function (emailConfig) {
                 assert.ok(includes(emailConfig.html, syncLink))

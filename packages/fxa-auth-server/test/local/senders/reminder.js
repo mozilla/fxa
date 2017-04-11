@@ -8,7 +8,7 @@ const assert = require('insist')
 var sinon = require('sinon')
 var extend = require('util')._extend
 var P = require(`${ROOT_DIR}/lib/promise`)
-var config = require(`${ROOT_DIR}/mailer/config`)
+var config = require(`${ROOT_DIR}/config`)
 
 var TEST_EMAIL = 'test@restmail.net'
 var TEST_ACCOUNT_RECORD = {
@@ -48,7 +48,7 @@ it('_processReminder sends first reminder for unverified emails', function () {
 
   var legacyMailerLog = require(`${ROOT_DIR}/lib/senders/legacy_log`)(mockLog())
   var Mailer = require(`${ROOT_DIR}/lib/senders/email`)(legacyMailerLog)
-  var mailer = new Mailer({}, {}, config.get('mail'))
+  var mailer = new Mailer({}, {}, config.get('smtp'))
   sandbox.stub(mailer, 'send', function (vals) {
     assert.equal(vals.acceptLanguage, TEST_ACCOUNT_RECORD.locale, 'correct locale')
     assert.equal(vals.uid, TEST_ACCOUNT_RECORD.uid.toString('hex'), 'correct uid')
@@ -68,7 +68,7 @@ it('_processReminder sends second reminder for unverified emails', function () {
   setup()
   var legacyMailerLog = require(`${ROOT_DIR}/lib/senders/legacy_log`)(mockLog())
   var Mailer = require(`${ROOT_DIR}/lib/senders/email`)(legacyMailerLog)
-  var mailer = new Mailer({}, {}, config.get('mail'))
+  var mailer = new Mailer({}, {}, config.get('smtp'))
   sandbox.stub(mailer, 'send', function (vals) {
     assert.equal(vals.template, 'verificationReminderSecondEmail', 'correct template')
     assert.equal(vals.headers['X-Verify-Code'], TEST_ACCOUNT_RECORD.emailCode.toString('hex'), 'correct code')

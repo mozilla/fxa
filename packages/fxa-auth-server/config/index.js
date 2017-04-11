@@ -32,6 +32,10 @@ var conf = convict({
     }
   },
   log: {
+    app: {
+      default: 'fxa-auth-server',
+      env: 'LOG_APP_NAME'
+    },
     level: {
       default: 'info',
       env: 'LOG_LEVEL'
@@ -97,6 +101,18 @@ var conf = convict({
     backend: {
       default: 'httpdb',
       env: 'DB_BACKEND'
+    },
+    connectionRetry: {
+      default: '10 seconds',
+      env: 'DB_CONNECTION_RETRY',
+      doc: 'Time in milliseconds to retry a database connection attempt',
+      format: 'duration'
+    },
+    connectionTimeout: {
+      default: '5 minutes',
+      env: 'DB_CONNECTION_TIMEOUT',
+      doc: 'Timeout in milliseconds after which the mailer will stop trying to connect to the database',
+      format: 'duration'
     }
   },
   httpdb: {
@@ -392,6 +408,42 @@ var conf = convict({
       doc: 'Rate of users getting the verification reminder. If "0" then the feature is disabled. If "1" all users get it.',
       default: 0,
       env: 'VERIFICATION_REMINDER_RATE'
+    },
+    reminderTimeFirst: {
+      doc: 'Milliseconds since account creation after which the first reminder is sent',
+      default: '48 hours',
+      format: 'duration',
+      env: 'VERIFICATION_REMINDER_TIME_FIRST'
+    },
+    reminderTimeSecond: {
+      doc: 'Milliseconds since account creation after which the second reminder is sent',
+      default: '168 hours',
+      format: 'duration',
+      env: 'VERIFICATION_REMINDER_TIME_SECOND'
+    },
+    reminderTimeFirstOutdated: {
+      doc: 'Milliseconds since account creation after which the reminder should not be sent',
+      default: '167 hours',
+      format: 'duration',
+      env: 'VERIFICATION_REMINDER_TIME_FIRST_OUTDATED'
+    },
+    reminderTimeSecondOutdated: {
+      doc: 'Milliseconds since account creation after which the reminder should not be sent',
+      default: '300 hours',
+      format: 'duration',
+      env: 'VERIFICATION_REMINDER_TIME_SECOND_OUTDATED'
+    },
+    pollFetch: {
+      doc: 'Number of reminder record to fetch when polling.',
+      format: Number,
+      default: 20,
+      env: 'VERIFICATION_REMINDER_POLL_FETCH'
+    },
+    pollTime: {
+      doc: 'Poll duration in milliseconds. 0 is disabled.',
+      format: 'duration',
+      default: '30 minutes',
+      env: 'VERIFICATION_REMINDER_POLL_TIME'
     }
   },
   useHttps: {

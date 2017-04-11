@@ -4,7 +4,7 @@
 
 var mozlog = require('mozlog')
 
-var logConfig = require('../../mailer/config').get('logging')
+var logConfig = require('../../config').get('log')
 
 mozlog.config(logConfig)
 

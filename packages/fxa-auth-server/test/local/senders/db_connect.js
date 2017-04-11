@@ -40,7 +40,7 @@ it(
           }
         }
       },
-      '../../mailer/config': mockConfig
+      '../../config': mockConfig
     })()
 
     return dbConnect()
@@ -73,7 +73,7 @@ it(
           }
         }
       },
-      '../../mailer/config': mockConfig
+      '../../config': mockConfig
     })()
 
     return dbConnect()

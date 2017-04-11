@@ -7,7 +7,7 @@
 const assert = require('insist')
 var butil = require('../../lib/crypto/butil')
 var unbuffer = butil.unbuffer
-var config = require('../../mailer/config').getProperties()
+var config = require('../../config').getProperties()
 var TestServer = require('../test_mailer_server')
 
 var testHelper = require('../mailer_helper')

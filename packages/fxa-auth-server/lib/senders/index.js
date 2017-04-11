@@ -4,24 +4,24 @@
 
 // XXX: ES6 features aren't currently allowed in this file.
 
-// This indirection exists to accommodate different config properties
-// in the old auth mailer. If/when the two config files are merged and
-// there's nothing left that imports mailer/config, it is safe to merge
-// legacy_index.js and this file into one.
-var createSenders = require('./legacy_index')
+var createMailer = require('./email')
+var createSms = require('./sms')
 
 module.exports = function (log, config, error, bounces, translator, sender) {
   var defaultLanguage = config.i18n.defaultLanguage
 
-  return createSenders(
-    log,
-    {
-      mail: config.smtp,
-      sms: config.sms
-    },
-    translator,
-    sender
-  )
+  function createSenders() {
+    var Mailer = createMailer(log)
+    return require('./templates')()
+      .then(function (templates) {
+        return {
+          email: new Mailer(translator, templates, config.smtp, sender),
+          sms: createSms(log, translator, templates, config.sms)
+        }
+      })
+  }
+
+  return createSenders()
   .then(function (senders) {
     var ungatedMailer = senders.email
 

@@ -4,7 +4,7 @@
 
 var logger = require('./log')('verification-reminders')
 var P = require('../promise')
-var config = require('../../mailer/config')
+var config = require('../../config')
 var reminderConfig = config.get('verificationReminders')
 
 module.exports = function (mailer, db, options) {

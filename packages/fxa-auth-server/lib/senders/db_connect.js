@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var P = require('bluebird')
-var config = require('../../mailer/config')
+var config = require('../../config')
 var log = require('./log')('db')
 
 var DB = require('./db')()
