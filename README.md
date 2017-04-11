@@ -12,8 +12,7 @@ sub-repositories linked from the docs below.
 
 You can [create an account](https://accounts.firefox.com/signup) or
 [sign in](https://accounts.firefox.com/signin) directly on https://accounts.firefox.com, but you almost certainly want to start by using an account-attached
-service such as [Firefox Sync](https://www.mozilla.org/en-US/firefox/sync/)
-or [Firefox Hello](https://www.mozilla.org/en-US/firefox/hello/).
+service such as [Firefox Sync](https://www.mozilla.org/en-US/firefox/sync/).
 
 
 ## Integrating with Firefox Accounts
