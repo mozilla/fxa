@@ -11,6 +11,8 @@ define([
 ], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
 
+  var TIMEOUT = 90 * 1000;
+
   var TRUSTED_OAUTH_APP = config.fxaOauthApp;
   var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
   var PASSWORD = 'password';
@@ -39,6 +41,7 @@ define([
     name: 'oauth permissions for untrusted reliers',
 
     beforeEach: function () {
+      this.timeout = TIMEOUT;
       email = TestHelpers.createEmail();
 
       return this.remote
