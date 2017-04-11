@@ -820,6 +820,7 @@ define(function (require, exports, module) {
               // if you ever need the tokenId just add it here with a different name
               item.id = item.deviceId;
               item.name = item.deviceName;
+              item.type = item.deviceType;
             } else {
               item.clientType = Constants.CLIENT_TYPE_WEB_SESSION;
               item.isWebSession = true;

@@ -1640,6 +1640,7 @@ define(function (require, exports, module) {
           return p([
             {
               deviceName: 'alpha',
+              deviceType: 'desktop',
               id: 'device-1',
               isCurrentDevice: false,
               isDevice: true
@@ -1651,6 +1652,7 @@ define(function (require, exports, module) {
             },
             {
               deviceName: 'beta',
+              deviceType: 'mobile',
               id: 'device-2',
               isCurrentDevice: true,
               isDevice: true
@@ -1666,6 +1668,8 @@ define(function (require, exports, module) {
           assert.equal(result.length, 3);
           assert.equal(result[0].clientType, 'device');
           assert.equal(result[0].name, 'alpha');
+          assert.equal(result[0].type, 'desktop');
+          assert.equal(result[0].deviceType, 'desktop');
           assert.ok(result[0].isDevice);
           assert.notOk(result[0].isWebSession);
 
@@ -1676,6 +1680,8 @@ define(function (require, exports, module) {
 
           assert.equal(result[2].clientType, 'device');
           assert.equal(result[2].name, 'beta');
+          assert.equal(result[2].type, 'mobile');
+          assert.equal(result[2].deviceType, 'mobile');
           assert.ok(result[2].isDevice);
           assert.notOk(result[2].isWebSession);
         });
