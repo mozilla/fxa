@@ -32,6 +32,7 @@ define([
     'tests/server/routes/get-config',
     'tests/server/routes/get-verify-email',
     'tests/server/routes/get-fxa-client-configuration',
+    'tests/server/routes/get-lbheartbeat',
     'tests/server/routes/get-openid-configuration',
     'tests/server/routes/get-index',
     'tests/server/routes/post-csp',
