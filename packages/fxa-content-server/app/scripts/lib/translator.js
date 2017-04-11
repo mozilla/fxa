@@ -44,12 +44,23 @@ define(function (require, exports, module) {
      * Gets a translated value by key but returns the key if nothing is found.
      * Does string interpolation on %s and %(named)s.
      * @method get
-     * @param {String} key
-     * @param {String} context
+     * @param {String} stringToTranslate
+     * @param {Object} [context={}]
      * @returns {String}
      */
-    get (key, context) {
-      var translation = this.__translations__[key];
+    get (stringToTranslate, context = {}) {
+      const translations = this.__translations__;
+      let translation;
+
+      if (context.msgctxt) {
+        const stringWithContextPrefix = `${context.msgctxt}\u0004${stringToTranslate}`;
+        // If a translation exists with a context prefix, use that. If no translation exists
+        // with the context prefix, try to find a string without the context prefix.
+        translation = translations[stringWithContextPrefix] || translations[stringToTranslate];
+      } else {
+        translation = translations[stringToTranslate];
+      }
+
       /**
        * See http://www.lehman.cuny.edu/cgi-bin/man-cgi?msgfmt+1
        * and
@@ -77,7 +88,7 @@ define(function (require, exports, module) {
       translation = $.trim(translation);
 
       if (! translation) {
-        translation = key;
+        translation = stringToTranslate;
       }
 
       return this.interpolate(translation, context);

@@ -42,6 +42,12 @@ define(function (require, exports, module) {
   // The words "Web Session" are coming soon to the device & apps view, see #4585.
   t('Web Session');
 
+  // For #3128, PR #4916 - We added a 'msgctxt' comment to these buttons
+  // to allow the l10n team differntiate between headers and buttons. This
+  // string is kept and used as a fallback for locales that have it
+  // translated but have not yet translated the contextualized variant.
+  t('Sign in');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context

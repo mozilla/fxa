@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const AuthErrors = require('lib/auth-errors');
-  const BaseView = require('views/base');
+  const { cancelEventThen, t } = require('views/base');
   const Cocktail = require('cocktail');
   const FormView = require('views/form');
   const NullBehavior = require('views/behaviors/null');
@@ -149,14 +149,18 @@ define(function (require, exports, module) {
     },
 
     context () {
+      /// submit button
+      const buttonSignInText = this.translate(t('Sign in'), { msgctxt: 'submit button' });
+
       return {
+        buttonSignInText,
         email: this.relier.get('email'),
         password: this._formPrefill.get('password')
       };
     },
 
     events: _.extend({}, SignInView.prototype.events, {
-      'click a[href="/reset_password"]': BaseView.cancelEventThen('_navigateToForceResetPassword')
+      'click a[href="/reset_password"]': cancelEventThen('_navigateToForceResetPassword')
     }),
 
     beforeDestroy () {
