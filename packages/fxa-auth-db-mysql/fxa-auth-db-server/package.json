@@ -14,7 +14,8 @@
   },
   "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",
   "dependencies": {
-    "restify": "4.3.0"
+    "restify": "4.3.0",
+    "restify-safe-json-formatter": "^0.2.0"
   },
   "keywords": [],
   "engines": {
