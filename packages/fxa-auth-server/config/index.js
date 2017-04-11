@@ -675,7 +675,7 @@ var conf = convict({
     },
     installFirefoxLink: {
       doc: 'Link for the installFirefox SMS template',
-      default: 'https://mzl.la/1HOd4ec',
+      default: 'https://mzl.la/firefoxapp',
       format: 'url',
       env: 'SMS_INSTALL_FIREFOX_LINK'
     },
