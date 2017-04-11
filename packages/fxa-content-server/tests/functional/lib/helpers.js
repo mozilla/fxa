@@ -65,10 +65,10 @@ define([
    */
   const click = thenify(function (selector) {
     return this.parent
-      // Ensure the element is visible and not animating before attempting to click.
-      // Sometimes clicks do not register if the element is in the middle of an animation.
-      .then(visibleByQSA(selector))
       .findByCssSelector(selector)
+        // Ensure the element is visible and not animating before attempting to click.
+        // Sometimes clicks do not register if the element is in the middle of an animation.
+        .then(visibleByQSA(selector))
         .click()
       .end();
   });
