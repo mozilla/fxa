@@ -38,7 +38,7 @@ deployment:
     branch: "master"
     commands:
       - "[ ! -z $DOCKERHUB_REPO ]"
-      - git clean -d --force -x
+      - git clean -dffx
       - docker info
       - mkdir -p config
       - >
@@ -59,7 +59,7 @@ deployment:
     tag: /.*/
     commands:
       - "[ ! -z $DOCKERHUB_REPO ]"
-      - git clean -d --force -x
+      - git clean -dffx
       - docker info
       - mkdir -p config
       - >
