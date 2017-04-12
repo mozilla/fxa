@@ -21,6 +21,14 @@ const NOW = Date.now()
 
 describe('bounces', () => {
 
+  describe('config', () => {
+    it('should have default durations set', () => {
+      assert.equal(config.smtp.bounces.soft.duration, 1000 * 60 * 5)
+      assert.equal(config.smtp.bounces.hard.duration, 1000 * 60 * 60 * 24 * 365)
+      assert.equal(config.smtp.bounces.complaint.duration, 1000 * 60 * 60 * 24 * 365)
+    })
+  })
+
   it('succeeds if bounces not over limit', () => {
     const db = {
       emailBounces: sinon.spy(() => P.resolve([]))

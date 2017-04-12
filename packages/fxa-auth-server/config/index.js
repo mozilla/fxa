@@ -298,7 +298,7 @@ var conf = convict({
       soft: {
         duration: {
           doc: 'Time until a soft bounce is no longer counted',
-          default: '5 mins',
+          default: '5 minutes',
           format: 'duration',
           env: 'BOUNCES_SOFT_DURATION'
         },
