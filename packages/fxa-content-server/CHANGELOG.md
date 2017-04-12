@@ -1,3 +1,32 @@
+<a name="1.84.2"></a>
+## 1.84.2 (2017-04-11)
+
+
+### Bug Fixes
+
+* **clients:** set correct device type for mobile clients (#4936) r=vbudhram ([a1f0f3b](https://github.com/mozilla/fxa-content-server/commit/a1f0f3b)), closes [#4932](https://github.com/mozilla/fxa-content-server/issues/4932)
+
+
+
+<a name="1.84.1"></a>
+## 1.84.1 (2017-04-06)
+
+
+### Bug Fixes
+
+* **errors:** Add the new email bounce errors. ([518d553](https://github.com/mozilla/fxa-content-server/commit/518d553)), closes [#4905](https://github.com/mozilla/fxa-content-server/issues/4905)
+* **experiments:** Use train-84 experiments. (#4909) r=@jbuck ([9a455e0](https://github.com/mozilla/fxa-content-server/commit/9a455e0))
+* **server:** add back verify_email route ([a5a8d30](https://github.com/mozilla/fxa-content-server/commit/a5a8d30))
+* **test:** Close all windows but the first after a test run. ([282260e](https://github.com/mozilla/fxa-content-server/commit/282260e)), closes [#4896](https://github.com/mozilla/fxa-content-server/issues/4896)
+* **test:** Fix Firefox Desktop Sync v2 sign_in ([9ba1874](https://github.com/mozilla/fxa-content-server/commit/9ba1874)), closes [#4898](https://github.com/mozilla/fxa-content-server/issues/4898)
+* **test:** Fix sync v2 password reset test. ([a572f58](https://github.com/mozilla/fxa-content-server/commit/a572f58)), closes [#4894](https://github.com/mozilla/fxa-content-server/issues/4894)
+
+### Features
+
+* **server:** disable server verification ([e17f097](https://github.com/mozilla/fxa-content-server/commit/e17f097))
+
+
+
 <a name="1.84.0"></a>
 # 1.84.0 (2017-04-04)
 
