@@ -25,8 +25,7 @@ define(function (require, exports, module) {
       utmContent: null,
       utmMedium: null,
       utmSource: null,
-      utmTerm: null,
-      verificationRedirect: undefined
+      utmTerm: null
     },
 
     initialize (options) {

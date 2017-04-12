@@ -97,18 +97,6 @@ Specify an alternate style for Firefox Accounts.
 #### When to specify
 When authenticating a user with OAuth and an alternate style is needed.
 
-### `verification_redirect`
-Helps avoid dead-end OAuth flows. This option adds a "Proceed" button to the Ready view.
-The button provides a link to the relier using the `redirect_uri` without extra OAuth parameters.
-
-#### Options
-* `always` shows the "Proceed" button in all cases - when the user confirms using the same browser or a different browser.
-* `none` (default).
-
-#### When to specify
-When the relier supports being linked to its `redirect_uri` without extra OAuth parameters.
-
-
 ## Firefox/Sync parameters
 
 #### When to specify

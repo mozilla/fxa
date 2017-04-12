@@ -347,26 +347,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isVerificationRedirectValid', function () {
-      it('is defined', function () {
-        assert.isFunction(Validate.isVerificationRedirectValid);
-      });
-
-      var invalidTypes = ['', 'word', 'crazyType'];
-      invalidTypes.forEach( function (item) {
-        it('returns false for ' + item, function () {
-          assert.isFalse(Validate.isVerificationRedirectValid(item));
-        });
-      });
-
-      var validTypes = ['always', 'no'];
-      validTypes.forEach( function (item) {
-        it('returns true for ' + item, function () {
-          assert.isTrue(Validate.isVerificationRedirectValid(item));
-        });
-      });
-    });
-
     describe('isUnblockCodeValid', () => {
       const validUnblockCode =
         createRandomBase36String(Constants.UNBLOCK_CODE_LENGTH);

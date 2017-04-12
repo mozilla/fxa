@@ -17,8 +17,6 @@ define(function (require, exports, module) {
   const Validate = require('lib/validate');
   const Vat = require('lib/vat');
 
-  var RELIER_FIELDS_IN_RESUME_TOKEN = ['verificationRedirect'];
-
   /*eslint-disable camelcase*/
   var CLIENT_INFO_SCHEMA = {
     id: Vat.hex().required().renameTo('clientId'),
@@ -37,8 +35,7 @@ define(function (require, exports, module) {
     redirect_uri: Vat.url().renameTo('redirectUri'),
     scope: Vat.string().required().min(1),
     service: Vat.string(),
-    state: Vat.string(),
-    verification_redirect: Vat.string().test(Validate.isVerificationRedirectValid).renameTo('verificationRedirect')
+    state: Vat.string()
   };
 
   var VERIFICATION_INFO_SCHEMA = {
@@ -75,16 +72,8 @@ define(function (require, exports, module) {
       // a rollup of all the permissions
       scope: null,
       // standard oauth parameters.
-      state: null,
-      // verification redirect to the rp, useful during email
-      // verification signup flow
-      verificationRedirect: Constants.VERIFICATION_REDIRECT_NO
+      state: null
     }),
-
-    resumeTokenFields: _.union(
-      RELIER_FIELDS_IN_RESUME_TOKEN,
-      Relier.prototype.resumeTokenFields
-    ),
 
     initialize (attributes, options = {}) {
       Relier.prototype.initialize.call(this, attributes, options);

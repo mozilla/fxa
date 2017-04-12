@@ -15,13 +15,6 @@
     {{^isSync}}
       {{#serviceName}}
         <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
-        {{#shouldShowProceedButton}}
-          <form novalidate>
-            <div class="button-row">
-              <button id="proceed" type="submit">{{#t}}Proceed{{/t}}</button>
-            </div>
-          </form>
-        {{/shouldShowProceedButton}}
       {{/serviceName}}
       {{^serviceName}}
         <p class="account-ready-generic">{{#t}}Your account is ready!{{/t}}</p>

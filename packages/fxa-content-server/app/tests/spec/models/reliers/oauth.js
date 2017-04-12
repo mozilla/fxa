@@ -333,15 +333,6 @@ define(function (require, exports, module) {
             testValidQueryParams('scope', validValues, 'scope', expectedValues);
           });
         });
-
-        describe('verification_redirect', function () {
-          var invalidValues = ['', ' ', 'invalid'];
-          testInvalidQueryParams('verification_redirect', invalidValues);
-
-          var validValues = [undefined, 'no', 'always'];
-          var expectedValues = ['no', 'no', 'always'];
-          testValidQueryParams('verification_redirect', validValues, 'verificationRedirect', expectedValues);
-        });
       });
 
       describe('client info validation', function () {
@@ -427,7 +418,6 @@ define(function (require, exports, module) {
         var ITEM = 'item';
         var ENTRYPOINT = 'entry point';
         var STATE = 'some long opaque state token';
-        var VERIFICATION_REDIRECT = 'https://redirect.here.org';
 
         relier.set({
           entrypoint: ENTRYPOINT,
@@ -438,8 +428,7 @@ define(function (require, exports, module) {
           utmContent: ITEM,
           utmMedium: ITEM,
           utmSource: ITEM,
-          utmTerm: ITEM,
-          verificationRedirect: VERIFICATION_REDIRECT
+          utmTerm: ITEM
         });
 
         assert.deepEqual(relier.pickResumeTokenInfo(), {
@@ -451,8 +440,7 @@ define(function (require, exports, module) {
           utmContent: ITEM,
           utmMedium: ITEM,
           utmSource: ITEM,
-          utmTerm: ITEM,
-          verificationRedirect: VERIFICATION_REDIRECT
+          utmTerm: ITEM
         });
       });
     });

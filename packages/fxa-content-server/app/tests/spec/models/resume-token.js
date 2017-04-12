@@ -10,15 +10,13 @@ define(function (require, exports, module) {
 
   var EMAIL = 'testuser@testuser.com';
   var ENTRYPOINT = 'entrypoint';
-  var VERIFICATION_REDIRECT = 'https://hello.firefox.com';
   var UNIQUE_USER_ID = 'uuid';
 
   var TOKEN_OBJ = {
     email: EMAIL,
     entrypoint: ENTRYPOINT,
     resetPasswordConfirm: false,
-    uniqueUserId: UNIQUE_USER_ID,
-    verificationRedirect: VERIFICATION_REDIRECT
+    uniqueUserId: UNIQUE_USER_ID
   };
 
   describe('models/resume-token', function () {

@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const AuthErrors = require('lib/auth-errors');
   const chai = require('chai');
-  const Constants = require('lib/constants');
   const FxaClient = require('fxaClient');
   const FxaClientWrapper = require('lib/fxa-client');
   const OAuthRelier = require('models/reliers/oauth');
@@ -50,8 +49,7 @@ define(function (require, exports, module) {
       });
 
       resumeToken = ResumeToken.stringify({
-        state: STATE,
-        verificationRedirect: Constants.VERIFICATION_REDIRECT_NO
+        state: STATE
       });
 
       realClient = new FxaClient(AUTH_SERVER_URL);

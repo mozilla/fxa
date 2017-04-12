@@ -89,9 +89,6 @@ define(function (require, exports, module) {
 
     ACCOUNT_UPDATES_WEBCHANNEL_ID: 'account_updates',
 
-    VERIFICATION_REDIRECT_ALWAYS: 'always',
-    VERIFICATION_REDIRECT_NO: 'no',
-
     MARKETING_EMAIL_NEWSLETTER_ID: 'firefox-accounts-journey',
 
     ACCESS_TYPE_ONLINE: 'online',

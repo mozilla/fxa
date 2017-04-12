@@ -7,7 +7,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Constants = require('lib/constants');
   const HaltBehavior = require('views/behaviors/halt');
   const OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
   const p = require('lib/promise');
@@ -86,7 +85,7 @@ define(function (require, exports, module) {
       return proto.afterCompleteSignUp.call(this, account)
         .delay(100)
         .then((behavior) => {
-          if (this.isOriginalTab() || this.canVerificationRedirect()) {
+          if (this.isOriginalTab()) {
             return this.finishOAuthSignUpFlow(account)
               .then(() => {
                 return new HaltBehavior();
@@ -94,14 +93,6 @@ define(function (require, exports, module) {
           }
           return behavior;
         });
-    },
-
-    canVerificationRedirect () {
-      // checks if the relier is using the verificationRedirect option
-      // then automatically redirects to the relier if an oauth session is present
-      var verificationRedirect = this.relier.get('verificationRedirect');
-
-      return this.session.oauth && verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS;
     },
 
     afterCompleteResetPassword (account) {

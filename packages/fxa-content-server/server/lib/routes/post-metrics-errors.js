@@ -84,8 +84,7 @@ const QUERY_SCHEMA = {
   style: STRING_TYPE.optional(),
   'sentry_client': STRING_TYPE.optional(),
   'sentry_key': STRING_TYPE.optional(),
-  'sentry_version': STRING_TYPE.optional(),
-  'verification_redirect': STRING_TYPE.optional()
+  'sentry_version': STRING_TYPE.optional()
 };
 
 /**

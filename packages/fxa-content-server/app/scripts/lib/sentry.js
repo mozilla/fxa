@@ -22,8 +22,7 @@ define(function (require, exports, module) {
     'scope',
     'service',
     'setting',
-    'style',
-    'verification_redirect'
+    'style'
   ];
 
   // last error that Sentry sent

@@ -349,35 +349,6 @@ define([
           client_id: UNTRUSTED_CLIENT_ID,
           scope: UNTRUSTED_SCOPE
         }));
-    },
-
-    'invalid verification_redirect': function () {
-      return this.remote
-        .then(openSignUpExpect400({
-          client_id: TRUSTED_CLIENT_ID,
-          scope: TRUSTED_SCOPE,
-          verification_redirect: 'invalid'
-        }))
-        .then(testErrorInclude('invalid'))
-        .then(testErrorInclude('verification_redirect'));
-    },
-
-    'valid verification_redirect (always)': function () {
-      return this.remote
-        .then(openSignUpExpect200({
-          client_id: TRUSTED_CLIENT_ID,
-          scope: TRUSTED_SCOPE,
-          verification_redirect: 'always'
-        }));
-    },
-
-    'valid verification_redirect (no)': function () {
-      return this.remote
-        .then(openSignUpExpect200({
-          client_id: TRUSTED_CLIENT_ID,
-          scope: TRUSTED_SCOPE,
-          verification_redirect: 'no'
-        }));
     }
   });
   /*eslint-enable camelcase */

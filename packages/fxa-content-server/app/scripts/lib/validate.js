@@ -245,21 +245,6 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Check if the verification redirect value is valid.
-     *
-     * @param {String} value
-     * @returns {Boolean}
-     */
-    isVerificationRedirectValid: function isVerificationRedirectValid(value) {
-      var valid = [
-        Constants.VERIFICATION_REDIRECT_ALWAYS,
-        Constants.VERIFICATION_REDIRECT_NO
-      ];
-
-      return _.contains(valid, value);
-    },
-
-    /**
      * Check if an unblock code is valid
      *
      * @param {String} value
