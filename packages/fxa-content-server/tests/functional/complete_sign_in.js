@@ -6,13 +6,11 @@ define([
   'intern',
   'intern!object',
   'app/scripts/lib/constants',
-  'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, Constants, restmail, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
+], function (intern, registerSuite, Constants, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
-  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var PAGE_COMPLETE_SIGNIN_URL = config.fxaContentRoot + 'complete_signin';
   var PAGE_SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
   var PASSWORD = 'password';
@@ -24,6 +22,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  var getEmailHeaders = FunctionalHelpers.getEmailHeaders;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
@@ -48,10 +47,10 @@ define([
         .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotified('can_link_account'))
         .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
-        .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user))
-        .then((emails) => {
-          code = emails[0].headers['x-verify-code'];
-          uid = emails[0].headers['x-uid'];
+        .then(getEmailHeaders(user, 0))
+        .then((headers) => {
+          code = headers['x-verify-code'];
+          uid = headers['x-uid'];
         });
     },
 

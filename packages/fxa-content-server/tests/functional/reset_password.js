@@ -7,14 +7,12 @@ define([
   'intern!object',
   'intern/browser_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
-  'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, nodeXMLHttpRequest,
-      FxaClient, restmail, TestHelpers, FunctionalHelpers) {
+      FxaClient, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
   var RESET_PAGE_URL = config.fxaContentRoot + 'reset_password';
   var CONFIRM_PAGE_URL = config.fxaContentRoot + 'confirm_reset_password';
@@ -36,6 +34,7 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
+  var getVerificationLink = FunctionalHelpers.getVerificationLink;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openExternalSite = FunctionalHelpers.openExternalSite;
   var openPage = FunctionalHelpers.openPage;
@@ -44,21 +43,12 @@ define([
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
   var type = FunctionalHelpers.type;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var createRandomHexString = TestHelpers.createRandomHexString;
-
-  function setTokenAndCodeFromEmail(emailAddress, emailNumber) {
-    var fetchCount = emailNumber + 1;
-    var user = TestHelpers.emailToUser(emailAddress);
-    return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, fetchCount)()
-      .then(function (emails) {
-        // token and code are hex values
-        token = emails[emailNumber].html.match(/token=([a-f\d]+)/)[1];
-        code = emails[emailNumber].html.match(/code=([a-f\d]+)/)[1];
-      });
-  }
 
   function ensureFxaJSClient() {
     if (! client) {
@@ -75,9 +65,13 @@ define([
   var initiateResetPassword = thenify(function(emailAddress, emailNumber) {
     ensureFxaJSClient();
 
-    return client.passwordForgotSendCode(emailAddress)
-      .then(function () {
-        return setTokenAndCodeFromEmail(emailAddress, emailNumber);
+    return this.parent
+      .then(() => client.passwordForgotSendCode(emailAddress))
+      .then(getVerificationLink(emailAddress, emailNumber))
+      .then((link) => {
+        // token and code are hex values
+        token = link.match(/token=([a-f\d]+)/)[1];
+        code = link.match(/code=([a-f\d]+)/)[1];
       });
   });
 
@@ -109,7 +103,7 @@ define([
 
       .findByCssSelector('#fxa-settings-header')
       .then(null, function (err) {
-        return context.remote.takeScreenshot().then(function (buffer) {
+        return this.parent.takeScreenshot().then(function (buffer) {
           console.error('Error occurred, capturing base64 screenshot:');
           console.error(buffer.toString('base64'));
 
@@ -183,7 +177,7 @@ define([
         .then(fillOutResetPassword(email))
         .then(click('#resend'))
 
-        .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2))
+        .then(testEmailExpected(user, 1))
 
         // Success is showing the success message
         .then(testSuccessWasShown())
@@ -196,7 +190,7 @@ define([
         // this uses .visibleByQSA instead of testSuccessWasShown because
         // the element is not re-shown, but rather should continue to
         // be visible.
-        .then(FunctionalHelpers.visibleByQSA('.success'));
+        .then(visibleByQSA('.success'));
     },
 
     'open complete page with missing token shows damaged screen': function () {

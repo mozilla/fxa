@@ -448,6 +448,29 @@ define([
   });
 
   /**
+   * Get the email headers
+   *
+   * @param {string} user - username or email address
+   * @param {number} index - email index.
+   * @param {object} [options]
+   *   @param {number} [options.maxAttempts] - number of email fetch attempts
+   *   to make. Defaults to 10.
+   * @returns {promise} resolves with the email headers if email is found.
+   */
+  const getEmailHeaders = thenify(function(user, index, options) {
+    if (/@/.test(user)) {
+      user = TestHelpers.emailToUser(user);
+    }
+
+    // restmail takes a length, not an index. Add 1.
+    return this.parent
+      .then(() => restmail(EMAIL_SERVER_ROOT + '/mail/' + user, index + 1, options)())
+      .then(function (emails) {
+        return emails[index].headers;
+      });
+  });
+
+  /**
    * Get an email verification link
    *
    * @param   {string} user username or email
@@ -459,7 +482,8 @@ define([
       user = TestHelpers.emailToUser(user);
     }
 
-    return getEmailHeaders(user, index)
+    return this.parent
+      .then(getEmailHeaders(user, index))
       .then(function (headers) {
         return require.toUrl(headers['x-link']);
       });
@@ -478,7 +502,8 @@ define([
       user = TestHelpers.emailToUser(user);
     }
 
-    return getEmailHeaders(user, index)
+    return this.parent
+      .then(getEmailHeaders(user, index))
       .then(function (headers) {
         return {
           reportSignInLink: require.toUrl(headers['x-report-signin-link']),
@@ -487,28 +512,6 @@ define([
         };
       });
   });
-
-  /**
-   * Get the email headers
-   *
-   * @param {string} user - username or email address
-   * @param {number} index - email index.
-   * @param {object} [options]
-   *   @param {number} [options.maxAttempts] - number of email fetch attempts
-   *   to make. Defaults to 10.
-   * @returns {promise} resolves with the email headers if email is found.
-   */
-  function getEmailHeaders(user, index, options) {
-    if (/@/.test(user)) {
-      user = TestHelpers.emailToUser(user);
-    }
-
-    // restmail takes an index that is 1 based instead of 0 based.
-    return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, index + 1, options)()
-      .then(function (emails) {
-        return emails[index].headers;
-      });
-  }
 
   /**
    * Test to ensure an expected email arrives
@@ -521,7 +524,8 @@ define([
    * Defaults to 10.
    */
   const testEmailExpected = thenify(function (user, index, options) {
-    return getEmailHeaders(user, index, options)
+    return this.parent
+      .then(getEmailHeaders(user, index, options))
       .then(function () {
         return true;
       }, function (err) {
@@ -543,7 +547,8 @@ define([
    *   to make. Defaults to 10.
    */
   const noEmailExpected = thenify(function (user, index, options) {
-    return getEmailHeaders(user, index, options)
+    return this.parent
+      .then(getEmailHeaders(user, index, options))
       .then(function () {
         throw new Error('NoEmailExpected');
       }, function (err) {
@@ -681,7 +686,8 @@ define([
     var client = getFxaClient();
     var user = TestHelpers.emailToUser(email);
 
-    return getEmailHeaders(user, emailNumber || 0)
+    return this.parent
+      .then(getEmailHeaders(user, emailNumber || 0))
       .then(function (headers) {
         var uid = headers['x-uid'];
         var code = headers['x-verify-code'];
@@ -702,7 +708,8 @@ define([
 
     var user = TestHelpers.emailToUser(email);
 
-    return getEmailHeaders(user, 0)
+    return this.parent
+      .then(getEmailHeaders(user, 0))
       .then(function (headers) {
         var code = headers['x-recovery-code'];
         // there is no x-recovery-token header, so we have to parse it
