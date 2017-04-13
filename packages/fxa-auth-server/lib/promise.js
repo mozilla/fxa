@@ -6,7 +6,3 @@
 
 // for easy promise lib switching
 module.exports = require('bluebird')
-
-process.on('unhandledRejection', (reason, promise) => {
-  throw reason
-})

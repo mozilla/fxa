@@ -125,7 +125,7 @@ function create(log, error, config, routes, db, translator) {
     load: {
       sampleInterval: 1000
     },
-    useDomains: false
+    useDomains: true
   }
 
   var connectionOptions = {

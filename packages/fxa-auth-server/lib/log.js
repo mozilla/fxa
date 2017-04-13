@@ -181,6 +181,7 @@ Lug.prototype.flowEvent = function (data) {
   this.logger.info('flowEvent', data)
 }
 
+var onUnhandledRejection
 module.exports = function (level, name, options) {
   if (arguments.length === 1 && typeof level === 'object') {
     options = level
@@ -201,6 +202,17 @@ module.exports = function (level, name, options) {
       }
     }
   )
+
+  if (onUnhandledRejection) {
+    process.removeListener('unhandledRejection', onUnhandledRejection)
+  }
+  onUnhandledRejection = (reason, promise) => {
+    log.fatal({
+      op: 'promise.unhandledRejection',
+      error: reason
+    })
+  }
+  process.on('unhandledRejection', onUnhandledRejection)
 
   return log
 }
