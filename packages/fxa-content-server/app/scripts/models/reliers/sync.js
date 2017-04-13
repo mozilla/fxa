@@ -32,7 +32,6 @@ define(function (require, exports, module) {
 
   module.exports = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
-      country: 'US',
       customizeSync: false
     }),
 

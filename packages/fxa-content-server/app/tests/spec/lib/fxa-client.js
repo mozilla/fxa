@@ -1381,12 +1381,20 @@ define(function (require, exports, module) {
 
     describe('smsStatus', () => {
       it('delegates to the fxa-js-client', () => {
-        sinon.stub(realClient, 'smsStatus', () => p());
+        sinon.stub(realClient, 'smsStatus', () => p({
+          country: 'GB',
+          ok: true
+        }));
 
-        return client.smsStatus('sessionToken')
-          .then(() => {
+        const smsStatusOptions = { country: 'GB '};
+        return client.smsStatus('sessionToken', smsStatusOptions)
+          .then((resp) => {
+            assert.equal(resp.country, 'GB');
+            assert.isTrue(resp.ok);
+
             assert.isTrue(realClient.smsStatus.calledOnce);
-            assert.isTrue(realClient.smsStatus.calledWith('sessionToken'));
+            assert.isTrue(
+              realClient.smsStatus.calledWith('sessionToken', smsStatusOptions));
           });
       });
     });

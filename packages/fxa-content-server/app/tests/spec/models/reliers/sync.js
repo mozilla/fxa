@@ -114,8 +114,8 @@ define(function (require, exports, module) {
             return relier.fetch();
           });
 
-          it('falls back to default country', () => {
-            assert.equal(relier.get('country'), 'US');
+          it('does not set a country, it\'ll be retrieved via a call to /sms/status', () => {
+            assert.isFalse(relier.has('country'));
           });
         });
 

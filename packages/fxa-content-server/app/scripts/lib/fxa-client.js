@@ -655,14 +655,14 @@ define(function (require, exports, module) {
      * Check whether SMS is enabled for the user
      *
      * @param {String} sessionToken
-     * @returns {Promise} resolves to `true` if SMS is enabled,
-     *  `false` otw.
+     * @param {Object} [options={}] options
+     *   @param {String} [options.country] country code to force for testing.
+     * @returns {Promise} resolves to an object with:
+     *   * {Boolean} ok - true if user can send an SMS
+     *   * {String} country - user's country
      */
-    smsStatus: withClient((client, sessionToken) => {
-      return client.smsStatus(sessionToken)
-        .then((resp) => {
-          return !! (resp && resp.ok);
-        });
+    smsStatus: withClient((client, sessionToken, options) => {
+      return client.smsStatus(sessionToken, options);
     })
   };
 

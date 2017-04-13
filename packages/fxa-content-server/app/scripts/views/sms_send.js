@@ -101,10 +101,11 @@ define(function (require, exports, module) {
      * @private
      */
     _getCountry () {
-      // Once the feature is opened up to more countries, we'll get the country
-      // first from the relier (query params), and then data returned from
-      // the auth-server's /sms/status endpoint
-      return this.relier.get('country') || 'US';
+      // relier takes precedence over the model to allow query parameters
+      // to override the auth-server's view of the world. This allows
+      // testers and functional tests to force a country even if geo-lookup
+      // is enabled on the auth server.
+      return this.relier.get('country') || this.model.get('country') || 'US';
     },
 
     /**

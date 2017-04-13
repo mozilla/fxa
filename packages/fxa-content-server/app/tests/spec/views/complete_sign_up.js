@@ -447,32 +447,40 @@ define(function (require, exports, module) {
         });
 
         describe('user is eligible to send sms', () => {
+          let account;
+
           beforeEach(() => {
-            sinon.stub(view, '_isEligibleToSendSms', () => p(true));
+            account = user.initAccount({});
+
+            sinon.stub(view, '_smsStatus', () => p({ country: 'GB', ok: true }));
             sinon.stub(view, '_isEligibleToConnectAnotherDevice', () => true);
+            sinon.stub(view, 'getAccount', () => account);
+
             return view._navigateToNextScreen();
           });
 
           it('redirects user to `/sms`', () => {
-            assert.isTrue(view.navigate.calledWith('sms'));
+            assert.isTrue(view.navigate.calledOnce);
+            assert.isTrue(view.navigate.calledWith('sms', { account, country: 'GB' }));
           });
         });
 
         describe('user is eligible to connect another device', () => {
           beforeEach(() => {
-            sinon.stub(view, '_isEligibleToSendSms', () => p(false));
+            sinon.stub(view, '_smsStatus', () => p({ ok: false }));
             sinon.stub(view, '_isEligibleToConnectAnotherDevice', () => true);
             return view._navigateToNextScreen();
           });
 
           it('redirects user to `/connect_another_device`', () => {
+            assert.isTrue(view.navigate.calledOnce);
             assert.isTrue(view.navigate.calledWith('connect_another_device'));
           });
         });
 
         describe('user is not eligible to connect another device', () => {
           beforeEach(() => {
-            sinon.stub(view, '_isEligibleToSendSms', () => p(false));
+            sinon.stub(view, '_smsStatus', () => p({ ok: false }));
             sinon.stub(view, '_isEligibleToConnectAnotherDevice', () => false);
             sinon.spy(view, '_navigateToVerifiedScreen');
             return view._navigateToNextScreen();
@@ -597,7 +605,7 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_isEligibleToSendSms', () => {
+    describe('_smsStatus', () => {
       beforeEach(() => {
         account = user.initAccount({
           email: 'a@a.com',
@@ -605,12 +613,118 @@ define(function (require, exports, module) {
           uid: validUid
         });
 
+        relier.set('country', 'US');
         sinon.spy(notifier, 'trigger');
       });
 
-      describe('user is on Android, would otherwise be allowed to send SMS', () => {
+      describe('pre-reqs are not met', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isSignIn', () => false);
+          sinon.stub(view, '_areSmsRequirementsMet', () => false);
+          sinon.spy(account, 'smsStatus');
+        });
+
+        it('resolves to object with `ok: false`', () => {
+          return view._smsStatus(account)
+            .then((resp) => {
+              assert.isFalse(resp.ok);
+              assert.isTrue(view._areSmsRequirementsMet.calledOnce);
+              assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
+              assert.isFalse(account.smsStatus.called);
+            });
+        });
+      });
+
+      describe('pre-reqs are met, auth-server blocks, Able says OK', () => {
+        beforeEach(() => {
+          sinon.stub(view, '_areSmsRequirementsMet', () => true);
+          sinon.spy(view, 'isInExperiment');
+          sinon.stub(account, 'smsStatus', () => p({ country: 'US', ok: false }));
+        });
+
+        it('resolves to object with `ok: true, country: US`', () => {
+          return view._smsStatus(account)
+            .then((resp) => {
+              assert.equal(resp.country, 'US');
+              assert.isFalse(resp.ok);
+
+              assert.isTrue(view._areSmsRequirementsMet.calledOnce);
+              assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
+              assert.isTrue(account.smsStatus.calledOnce);
+              assert.isTrue(account.smsStatus.calledWith({ country: 'US' }));
+              assert.isFalse(view.isInExperiment.called);
+            });
+        });
+      });
+
+      describe('pre-reqs are met, auth-server says OK, Able blocks', () => {
+        beforeEach(() => {
+          sinon.stub(view, '_areSmsRequirementsMet', () => true);
+          sinon.stub(view, 'isInExperiment', () => false);
+          sinon.stub(account, 'smsStatus', () => p({ country: 'US', ok: true }));
+        });
+
+        it('resolves to object with `ok: true, country: US`', () => {
+          return view._smsStatus(account)
+            .then((resp) => {
+              assert.equal(resp.country, 'US');
+              assert.isFalse(resp.ok);
+
+              assert.isTrue(view._areSmsRequirementsMet.calledOnce);
+              assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
+              assert.isTrue(account.smsStatus.calledOnce);
+              assert.isTrue(account.smsStatus.calledWith({ country: 'US' }));
+              assert.isTrue(view.isInExperiment.calledOnce);
+              assert.isTrue(view.isInExperiment.calledWith('sendSmsEnabledForCountry'));
+            });
+        });
+      });
+
+      describe('pre-reqs are met, auth-server says OK, Able says OK', () => {
+        beforeEach(() => {
+          sinon.stub(view, '_areSmsRequirementsMet', () => true);
+          sinon.stub(view, 'isInExperiment', (experimentName) => experimentName === 'sendSmsEnabledForCountry');
+          sinon.stub(account, 'smsStatus', () => p({ country: 'US', ok: true }));
+        });
+
+        it('resolves to object with `ok: true, country: US`', () => {
+          return view._smsStatus(account)
+            .then((resp) => {
+              assert.equal(resp.country, 'US');
+              assert.isTrue(resp.ok);
+
+              assert.isTrue(view._areSmsRequirementsMet.calledOnce);
+              assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
+              assert.isTrue(account.smsStatus.calledOnce);
+              assert.isTrue(account.smsStatus.calledWith({ country: 'US' }));
+              assert.isTrue(view.isInExperiment.calledOnce);
+              assert.isTrue(view.isInExperiment.calledWith('sendSmsEnabledForCountry'));
+            });
+        });
+      });
+    });
+
+    describe('_areSmsRequirementsMet', () => {
+      describe('user is signing in', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'isSignUp', () => false);
+          sinon.stub(view, 'isInExperimentGroup', () => true);
+          sinon.stub(view, 'getUserAgent', () => {
+            return {
+              isAndroid: () => false,
+              isIos: () => false
+            };
+          });
+          sinon.stub(view, '_isAnotherUserSignedIn', () => false);
+        });
+
+        it('returns `false', () => {
+          assert.isFalse(view._areSmsRequirementsMet(account));
+        });
+      });
+
+      describe('user is on Android', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'isSignUp', () => true);
           sinon.stub(view, 'isInExperimentGroup', () => true);
           sinon.stub(view, 'getUserAgent', () => {
             return {
@@ -618,26 +732,17 @@ define(function (require, exports, module) {
               isIos: () => false
             };
           });
-          sinon.stub(user, 'getSignedInAccount', () => {
-            return {
-              isDefault: () => true
-            };
-          });
-
-          sinon.stub(account, 'smsStatus', () => true);
+          sinon.stub(view, '_isAnotherUserSignedIn', () => false);
         });
 
-        it('resolves to `false`', () => {
-          return view._isEligibleToSendSms(account)
-            .then((isEligible) => {
-              assert.isFalse(isEligible);
-            });
+        it('returns `false', () => {
+          assert.isFalse(view._areSmsRequirementsMet(account));
         });
       });
 
-      describe('user is on iOS, would otherwise be allowed to send SMS', () => {
+      describe('user is on iOS', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isSignIn', () => false);
+          sinon.stub(view, 'isSignUp', () => true);
           sinon.stub(view, 'isInExperimentGroup', () => true);
           sinon.stub(view, 'getUserAgent', () => {
             return {
@@ -645,25 +750,17 @@ define(function (require, exports, module) {
               isIos: () => true
             };
           });
-          sinon.stub(user, 'getSignedInAccount', () => {
-            return {
-              isDefault: () => true
-            };
-          });
-
-          sinon.stub(account, 'smsStatus', () => true);
+          sinon.stub(view, '_isAnotherUserSignedIn', () => false);
         });
 
-        it('resolves to `false`', () => {
-          return view._isEligibleToSendSms(account)
-            .then((isEligible) => {
-              assert.isFalse(isEligible);
-            });
+        it('returns `false', () => {
+          assert.isFalse(view._areSmsRequirementsMet(account));
         });
       });
 
-      describe('user is part of treatment group, on desktop', () => {
+      describe('another user is signed in', () => {
         beforeEach(() => {
+          sinon.stub(view, 'isSignUp', () => true);
           sinon.stub(view, 'isInExperimentGroup', () => true);
           sinon.stub(view, 'getUserAgent', () => {
             return {
@@ -671,82 +768,17 @@ define(function (require, exports, module) {
               isIos: () => false
             };
           });
+          sinon.stub(view, '_isAnotherUserSignedIn', () => true);
         });
 
-        describe('user is completing sign-in', () => {
-          beforeEach(() => {
-            sinon.stub(view, 'isSignIn', () => true);
-            sinon.stub(account, 'smsStatus', () => true);
-          });
-
-          it('resolves to `false`', () => {
-            return view._isEligibleToSendSms(account)
-              .then((isEligible) => {
-                assert.isFalse(isEligible);
-              });
-          });
-        });
-
-
-        describe('no user signed in', () => {
-          beforeEach(() => {
-            sinon.stub(user, 'getSignedInAccount', () => {
-              return {
-                isDefault: () => true
-              };
-            });
-            sinon.stub(account, 'smsStatus', () => true);
-          });
-
-          it('resolves to `true`', () => {
-            return view._isEligibleToSendSms(account)
-              .then((isEligible) => {
-                assert.isTrue(isEligible);
-              });
-          });
-        });
-
-        describe('different user signed in', () => {
-          beforeEach(() => {
-            sinon.stub(user, 'getSignedInAccount', () => {
-              return {
-                isDefault: () => false
-              };
-            });
-            sinon.stub(user, 'isSignedInAccount', () => false);
-            sinon.stub(account, 'smsStatus', () => true);
-          });
-
-          it('resolves to `false`', () => {
-            return view._isEligibleToSendSms(account)
-              .then((isEligible) => {
-                assert.isFalse(isEligible);
-              });
-          });
-        });
-
-        describe('same user signed in', () => {
-          beforeEach(() => {
-            sinon.stub(user, 'getSignedInAccount', () => {
-              return {
-                isDefault: () => false
-              };
-            });
-            sinon.stub(user, 'isSignedInAccount', () => true);
-            sinon.stub(account, 'smsStatus', () => true);
-          });
-
-          it('resolves to `true`', () => {
-            return view._isEligibleToSendSms(account)
-              .then((isEligible) => {
-                assert.isTrue(isEligible);
-              });
-          });
+        it('returns `false', () => {
+          assert.isFalse(view._areSmsRequirementsMet(account));
         });
       });
 
       describe('user is not part of treatment group', () => {
         beforeEach(() => {
+          sinon.stub(view, 'isSignUp', () => true);
           sinon.stub(view, 'isInExperimentGroup', () => false);
           sinon.stub(view, 'getUserAgent', () => {
             return {
@@ -754,19 +786,17 @@ define(function (require, exports, module) {
               isIos: () => false
             };
           });
-          sinon.stub(account, 'smsStatus', () => true);
+          sinon.stub(view, '_isAnotherUserSignedIn', () => false);
         });
 
-        it('resolves to `false`', () => {
-          return view._isEligibleToSendSms(account)
-            .then((isEligible) => {
-              assert.isFalse(isEligible);
-            });
+        it('returns `false', () => {
+          assert.isFalse(view._areSmsRequirementsMet(account));
         });
       });
 
-      describe('auth-server blocks user from sending SMS', () => {
+      describe('user is eligible',() => {
         beforeEach(() => {
+          sinon.stub(view, 'isSignUp', () => true);
           sinon.stub(view, 'isInExperimentGroup', () => true);
           sinon.stub(view, 'getUserAgent', () => {
             return {
@@ -774,14 +804,11 @@ define(function (require, exports, module) {
               isIos: () => false
             };
           });
-          sinon.stub(account, 'smsStatus', () => false);
+          sinon.stub(view, '_isAnotherUserSignedIn', () => false);
         });
 
-        it('resolves to `false`', () => {
-          return view._isEligibleToSendSms(account)
-            .then((isEligible) => {
-              assert.isFalse(isEligible);
-            });
+        it('returns `true', () => {
+          assert.isTrue(view._areSmsRequirementsMet(account));
         });
       });
     });
@@ -874,3 +901,4 @@ define(function (require, exports, module) {
     });
   });
 });
+

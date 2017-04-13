@@ -44,7 +44,7 @@
        formPrefill = new Backbone.Model({});
        model = new Backbone.Model({ account });
        notifier = new Notifier();
-       relier = new Relier({ country: 'US', service: 'sync' });
+       relier = new Relier({ service: 'sync' });
 
        createView();
 
@@ -58,9 +58,21 @@
          assert.lengthOf(view.$('.marketing-link'), 2);
        });
 
+       it('with model set country, it renders correctly for country, renders marketing', () => {
+         formPrefill.unset('phoneNumber');
+         model.set('country', 'RO');
+
+         return view.render()
+           .then(() => {
+             assert.equal(view.$('input[type=tel]').__val(), '+407');
+             assert.equal(view.$('input[type=tel]').data('country'), 'RO');
+           });
+       });
+
        it('with relier set country, it renders correctly for country, renders marketing', () => {
          formPrefill.unset('phoneNumber');
          relier.set('country', 'GB');
+
          return view.render()
            .then(() => {
              assert.equal(view.$('input[type=tel]').__val(), '+44');

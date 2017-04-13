@@ -2227,7 +2227,10 @@ define(function (require, exports, module) {
 
     describe('smsStatus', () => {
       beforeEach(() => {
-        sinon.stub(fxaClient, 'smsStatus', () => p(true));
+        sinon.stub(fxaClient, 'smsStatus', () => p({
+          country: 'GB',
+          ok: true
+        }));
       });
 
       describe('sessionToken not available', () => {
@@ -2236,7 +2239,8 @@ define(function (require, exports, module) {
 
           return account.smsStatus()
             .then((response) => {
-              assert.isFalse(response);
+              assert.isFalse(response.ok);
+
               assert.isFalse(fxaClient.smsStatus.called);
             });
         });
@@ -2246,12 +2250,15 @@ define(function (require, exports, module) {
         it('delegates to the fxa-client, returns response', () => {
           account.set('sessionToken', 'sessionToken');
 
+          const smsStatusOptions = { country: 'GB' };
           return account.smsStatus()
             .then((response) => {
-              assert.isTrue(response);
+              assert.equal(response.country, 'GB');
+              assert.isTrue(response.ok);
 
               assert.isTrue(fxaClient.smsStatus.calledOnce);
-              assert.isTrue(fxaClient.smsStatus.calledWith('sessionToken'));
+              assert.isTrue(
+                fxaClient.smsStatus.calledWith('sessionToken'), smsStatusOptions);
             });
         });
       });
