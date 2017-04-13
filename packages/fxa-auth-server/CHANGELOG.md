@@ -1,3 +1,13 @@
+<a name="1.84.4"></a>
+## [1.84.4](https://github.com/mozilla/fxa-auth-server/compare/v1.84.3...v1.84.4) (2017-04-13)
+
+
+### Bug Fixes
+
+* **metrics:** fix metrics context errors ([7880d41](https://github.com/mozilla/fxa-auth-server/commit/7880d41))
+
+
+
 <a name="1.84.3"></a>
 ## [1.84.3](https://github.com/mozilla/fxa-auth-server/compare/v1.84.2...v1.84.3) (2017-04-13)
 
