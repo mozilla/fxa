@@ -177,7 +177,7 @@ module.exports = function (log, config) {
    * @this request
    */
   function validate() {
-    const metadata = this.payload.metricsContext
+    const metadata = this.payload && this.payload.metricsContext
 
     if (! metadata) {
       return logInvalidContext(this, 'missing context')
@@ -219,7 +219,7 @@ module.exports = function (log, config) {
   }
 
   function logInvalidContext(request, reason) {
-    if (request.payload.metricsContext) {
+    if (request.payload && request.payload.metricsContext) {
       delete request.payload.metricsContext.flowId
       delete request.payload.metricsContext.flowBeginTime
     }
