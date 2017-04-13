@@ -58,6 +58,82 @@ define([
   }
 
   /**
+   * Take a screen shot, write a base64 encoded image to the console
+   */
+  const takeScreenshot = thenify(function () {
+    return this.parent.takeScreenshot()
+      .then(function (buffer) {
+        console.error('Capturing base64 screenshot:');
+        console.error(buffer.toString('base64'));
+      });
+  });
+
+  /**
+   * Use document.querySelectorAll to find visible elements
+   * used for error and success notification animations.
+   *
+   *
+   * Usage:  ".then(FunctionalHelpers.visibleByQSA('.success'))"
+   *
+   * @param {String} selector
+   *        QSA compatible selector string
+   * @param {Object} options
+   *        options include polling `timeout`
+   */
+  const visibleByQSA = thenify(function (selector, options) {
+    options = options || {};
+    var timeout = options.timeout || config.pageLoadTimeout;
+    var pollError;
+
+    return this.parent
+      .then(pollUntil(function (selector, options) {
+        var matchingEls = document.querySelectorAll(selector);
+
+        if (matchingEls.length === 0) {
+          return null;
+        }
+
+        if (matchingEls.length > 1) {
+          throw new Error('Multiple elements matched. Make a more precise selector - ' + selector);
+        }
+
+        var matchingEl = matchingEls[0];
+
+        // Check if the element is visible. This is from jQuery source - see
+        // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
+        if (! (matchingEl.offsetWidth || matchingEl.offsetHeight || matchingEl.getClientRects().length)) {
+          return null;
+        }
+
+        // use jQuery if available to check for jQuery animations.
+        if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
+          // If the element is animating, try again after a delay. Clicks
+          // do not always register if the element is in the midst of
+          // an animation.
+          return null;
+        }
+
+        return true;
+      }, [ selector, options ], timeout))
+      .then(null, function (err) {
+        // The error has to be swallowed before a screenshot
+        // can be taken or else takeScreenshot is never called
+        // because `this.parent` is a promise that has already
+        // been rejected.
+        pollError = err;
+      })
+      .then(() => {
+        if (pollError) {
+          return this.parent.then(takeScreenshot())
+            .then(() => {
+              throw pollError;
+            });
+        }
+      });
+  });
+
+
+  /**
    * Click an element
    *
    * @param {string} selector
@@ -160,8 +236,24 @@ define([
    * @returns {promise} rejects if element does not exist
    */
   const testElementExists = thenify(function (selector) {
+    var findError;
     return this.parent
       .findByCssSelector(selector)
+      .then(null, function (err) {
+        // The error has to be swallowed before a screenshot
+        // can be taken or else takeScreenshot is never called
+        // because `this.parent` is a promise that has already
+        // been rejected.
+        findError = err;
+      })
+      .then(function () {
+        if (findError) {
+          return this.parent.then(takeScreenshot())
+            .then(() => {
+              throw findError;
+            });
+        }
+      })
       .end();
   });
 
@@ -345,53 +437,6 @@ define([
     return pollUntil(function (selector) {
       return document.querySelectorAll(selector).length === 0 ? true : null;
     }, [ selector ], timeout);
-  }
-
-  /**
-   * Use document.querySelectorAll to find visible elements
-   * used for error and success notification animations.
-   *
-   *
-   * Usage:  ".then(FunctionalHelpers.visibleByQSA('.success'))"
-   *
-   * @param {String} selector
-   *        QSA compatible selector string
-   * @param {Object} options
-   *        options include polling `timeout`
-   */
-  function visibleByQSA(selector, options) {
-    options = options || {};
-    var timeout = options.timeout || config.pageLoadTimeout;
-
-    return pollUntil(function (selector, options) {
-      var matchingEls = document.querySelectorAll(selector);
-
-      if (matchingEls.length === 0) {
-        return null;
-      }
-
-      if (matchingEls.length > 1) {
-        throw new Error('Multiple elements matched. Make a more precise selector - ' + selector);
-      }
-
-      var matchingEl = matchingEls[0];
-
-      // Check if the element is visible. This is from jQuery source - see
-      // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
-      if (! (matchingEl.offsetWidth || matchingEl.offsetHeight || matchingEl.getClientRects().length)) {
-        return null;
-      }
-
-      // use jQuery if available to check for jQuery animations.
-      if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
-        // If the element is animating, try again after a delay. Clicks
-        // do not always register if the element is in the midst of
-        // an animation.
-        return null;
-      }
-
-      return true;
-    }, [ selector, options ], timeout);
   }
 
   /**
@@ -765,17 +810,6 @@ define([
   });
 
   /**
-   * Take a screen shot, write a base64 encoded image to the console
-   */
-  const takeScreenshot = thenify(function () {
-    return this.parent.takeScreenshot()
-      .then(function (buffer) {
-        console.error('Capturing base64 screenshot:');
-        console.error(buffer.toString('base64'));
-      });
-  });
-
-  /**
    * Open `url` in the current tab, wait for `readySelector`
    *
    * @param {String} url - url to open
@@ -803,8 +837,6 @@ define([
               console.log('Error fetching %s, now at %s', url, resultUrl);
             })
           .end()
-
-          .then(takeScreenshot())
 
           .then(function () {
             throw err;

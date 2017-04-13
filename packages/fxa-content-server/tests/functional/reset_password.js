@@ -101,17 +101,7 @@ define([
       .setFindTimeout(intern.config.pageLoadTimeout)
       .sleep(1000)
 
-      .findByCssSelector('#fxa-settings-header')
-      .then(null, function (err) {
-        return this.parent.takeScreenshot().then(function (buffer) {
-          console.error('Error occurred, capturing base64 screenshot:');
-          console.error(buffer.toString('base64'));
-
-          throw err;
-        });
-      })
-      .end()
-
+      .then(testElementExists('#fxa-settings-header'))
       .then(testSuccessWasShown());
   });
 
