@@ -6,8 +6,9 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/ua-strings'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, UA_STRINGS) {
   var config = intern.config;
   var fxaProduction = intern.config.fxaProduction;
   var PAGE_URL = config.fxaContentRoot + 'signup';
@@ -23,6 +24,7 @@ define([
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noPageTransition = FunctionalHelpers.noPageTransition;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
   var openSignUpInNewTab = FunctionalHelpers.openSignUpInNewTab;
   var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
@@ -34,8 +36,20 @@ define([
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
+  var testUrlInclude = FunctionalHelpers.testUrlInclude;
   var type = FunctionalHelpers.type;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
+
+  const SELECTOR_SIGNUP_HEADER = '#fxa-signup-header';
+  const SELECTOR_SUGGEST_SYNC = '#suggest-sync';
+  const SELECTOR_SUGGEST_SYNC_LINK = '#suggest-sync a';
+  const SELECTOR_SYNC_SIGNUP_HEADER = '#fxa-signup-header .service';
+  const SELECTOR_MOZILLA_ORG_SYNC_HEADER = '#firefox-sync';
+
+  var SIGNUP_ENTRYPOINT = 'entrypoint=' + encodeURIComponent('fxa:signup');
+  var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
+  var SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';
+  var SYNC_SERVICE = 'service=sync';
 
   function testAtConfirmScreen (email) {
     return function () {
@@ -79,8 +93,8 @@ define([
 
     'signup, verify same browser': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signup-header'))
-        .then(visibleByQSA('#suggest-sync'))
+        .then(openPage(PAGE_URL, SELECTOR_SIGNUP_HEADER))
+        .then(visibleByQSA(SELECTOR_SUGGEST_SYNC))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(openVerificationLinkInNewTab(email, 0))
@@ -220,7 +234,7 @@ define([
         .then(fillOutSignUp(email + '-', PASSWORD))
 
         // wait five seconds to allow any errant navigation to occur
-        .then(noPageTransition('#fxa-signup-header', 5000))
+        .then(noPageTransition(SELECTOR_SIGNUP_HEADER, 5000))
 
         // the validation tooltip should be visible
         .then(visibleByQSA('.tooltip'));
@@ -306,7 +320,7 @@ define([
         .then(fillOutSignUp(email, PASSWORD, { age: ' ' }))
 
         // navigation should not occur
-        .then(noPageTransition('#fxa-signup-header'))
+        .then(noPageTransition(SELECTOR_SIGNUP_HEADER))
 
         // an error should be visible
         .then(visibleByQSA('.tooltip'));
@@ -391,7 +405,7 @@ define([
         .then(openSignUpInNewTab(windowName))
         .switchToWindow(windowName)
 
-        .then(testElementExists('#fxa-signup-header'))
+        .then(testElementExists(SELECTOR_SIGNUP_HEADER))
 
         .switchToWindow('')
         .then(openVerificationLinkInSameTab(email, 0))
@@ -427,13 +441,13 @@ define([
 
     'data-flow-begin attribute is set': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signup-header'))
+        .then(openPage(PAGE_URL, SELECTOR_SIGNUP_HEADER))
         .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/));
     },
 
     'integrity attribute is set on scripts and css': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signup-header'))
+        .then(openPage(PAGE_URL, SELECTOR_SIGNUP_HEADER))
         .then(testAttributeMatches('script', 'integrity', /^sha512-/))
         .then(testAttributeMatches('link', 'integrity', /^sha512-/))
         .catch(function (err) {
@@ -442,20 +456,59 @@ define([
             throw err;
           }
         });
+    },
+
+    'sync suggestion for Fx Desktop': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, SELECTOR_SIGNUP_HEADER, {
+          query: {
+            forceUA: UA_STRINGS['desktop_firefox']
+          }
+        }))
+        .then(click(SELECTOR_SUGGEST_SYNC_LINK))
+
+        .then(testElementExists(SELECTOR_SYNC_SIGNUP_HEADER))
+        .then(noSuchElement(SELECTOR_SUGGEST_SYNC))
+        .then(testUrlInclude(SYNC_CONTEXT_DESKTOP))
+        .then(testUrlInclude(SYNC_SERVICE))
+        .then(testUrlInclude(SIGNUP_ENTRYPOINT));
+    },
+
+    'sync suggestion for Fennec': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, SELECTOR_SIGNUP_HEADER, {
+          query: {
+            forceUA: UA_STRINGS['android_firefox']
+          }
+        }))
+        .then(click(SELECTOR_SUGGEST_SYNC_LINK))
+
+        .then(testElementExists(SELECTOR_SYNC_SIGNUP_HEADER))
+        .then(noSuchElement(SELECTOR_SUGGEST_SYNC))
+        .then(testUrlInclude(SYNC_CONTEXT_ANDROID))
+        .then(testUrlInclude(SYNC_SERVICE))
+        .then(testUrlInclude(SIGNUP_ENTRYPOINT));
+    },
+
+    'sync suggestion for everyone else': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, SELECTOR_SIGNUP_HEADER, {
+          query: {
+            forceUA: UA_STRINGS['desktop_chrome']
+          }
+        }))
+        .then(click(SELECTOR_SUGGEST_SYNC_LINK))
+        .then(testElementExists(SELECTOR_MOZILLA_ORG_SYNC_HEADER));
     }
   });
 
   function testRepopulateFields(dest, header) {
     return this.remote
-      .then(openPage(PAGE_URL, '#fxa-signup-header'))
-
+      .then(openPage(PAGE_URL, SELECTOR_SIGNUP_HEADER))
       .then(fillOutSignUp(email, PASSWORD, { submit: false }))
 
       .then(click('a[href="' + dest + '"]'))
-
-      .findById(header)
-      .end()
-
+      .then(testElementExists(`#${header}`))
       .then(click('.back'))
 
       .then(testElementValueEquals('input[type=email]', email))

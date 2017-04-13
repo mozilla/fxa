@@ -6,8 +6,9 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/ua-strings'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, UA_STRINGS) {
   const config = intern.config;
   const PAGE_URL = config.fxaContentRoot + 'signup?context=fx_firstrun_v2&service=sync';
 
@@ -26,15 +27,6 @@ define([
   const SELECTOR_SEND_SMS_PHONE_NUMBER = 'input[type="tel"]';
   const SELECTOR_SIGN_UP_HEADER = '#fxa-signup-header';
   const SELECTOR_SIGN_UP_COMPLETE_HEADER = '#fxa-sign-up-complete-header';
-
-  /*eslint-disable max-len*/
-  const UA_STRINGS = {
-    'android_chrome': 'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19',
-    'android_firefox': 'Mozilla/5.0 (Android 4.4; Mobile; rv:43.0) Gecko/41.0 Firefox/43.0',
-    'ios_firefox': 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
-    'ios_safari': 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3'
-  };
-  /*eslint-enable max-len*/
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;

@@ -7,9 +7,10 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop'
+  'tests/functional/lib/fx-desktop',
+  'tests/functional/lib/ua-strings'
 ], function (intern, registerSuite,
-  TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
+  TestHelpers, FunctionalHelpers, FxDesktopHelpers, UA_STRINGS) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_ios_v1&service=sync';
 
@@ -32,13 +33,6 @@ define([
   var testIsBrowserNotified = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
   var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
-
-  /*eslint-disable max-len*/
-  const UA_STRINGS = {
-    'ios_firefox_6_0': 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.0 Mobile/12F69 Safari/600.1.4',
-    'ios_firefox_6_1': 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4',
-  };
-  /*eslint-enable max-len*/
 
   const setupTest = thenify(function (options) {
     options = options || {};
