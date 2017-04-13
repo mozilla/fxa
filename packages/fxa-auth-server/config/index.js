@@ -310,6 +310,19 @@ var conf = convict({
       }
     }
   },
+  mailerServer: {
+    host: {
+      default: '127.0.0.1',
+      doc: 'Host for mailer_server.js',
+      env: 'MAILER_LISTEN_IP_ADDRESS',
+      format: 'ipaddress'
+    },
+    port: {
+      default: 10136,
+      doc: 'Port for mailer_server.js',
+      env: 'MAILER_LISTEN_PORT'
+    }
+  },
   maxEventLoopDelay: {
     doc: 'Max event-loop delay before which incoming requests are rejected',
     default: 0,

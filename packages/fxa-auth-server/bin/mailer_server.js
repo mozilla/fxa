@@ -7,6 +7,7 @@ var config = require('../config')
 
 var log = require('../lib/senders/log')('server')
 var mailConfig = config.get('smtp')
+var mailerServerConfig = config.get('mailerServer')
 
 var packageJson = require('../package.json')
 var P = require('bluebird')
@@ -30,6 +31,7 @@ P.all(
     var mailer = new Mailer(translator, templates, mailConfig)
     log.info('config', config.getProperties())
     log.info('mailConfig', mailConfig)
+    log.info('mailerServerConfig', mailerServerConfig)
     log.info('templates', Object.keys(templates))
 
     dbConnect()
@@ -81,10 +83,10 @@ P.all(
     )
 
     api.listen(
-      mailConfig.port,
-      mailConfig.host,
+      mailerServerConfig.port,
+      mailerServerConfig.host,
       function () {
-        log.info('listening', { port: mailConfig.port, host: mailConfig.host })
+        log.info('listening', { port: mailerServerConfig.port, host: mailerServerConfig.host })
       }
     )
   }
