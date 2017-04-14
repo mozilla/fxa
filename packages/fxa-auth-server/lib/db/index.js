@@ -105,6 +105,8 @@ function preClients() {
         }
       });
     }));
+  } else {
+    return P.resolve();
   }
 }
 
