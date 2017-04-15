@@ -49,6 +49,7 @@ const conf = convict({
   },
   clients: {
     doc: 'Some pre-defined clients that will be inserted into the DB',
+    env: 'OAUTH_CLIENTS',
     default: []
   },
   clientAddressDepth: {
