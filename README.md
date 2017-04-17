@@ -1,5 +1,7 @@
 # Welcome to Firefox Accounts [![Build Status](https://travis-ci.org/mozilla/fxa.svg?branch=master)](https://travis-ci.org/mozilla/fxa) [![Documentation Status](https://readthedocs.org/projects/fxa/badge/?version=latest)](https://readthedocs.org/projects/fxa/?badge=latest)
 
+[![Join the chat at https://gitter.im/mozilla/fxa](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mozilla/fxa?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Firefox Accounts is the authentication and authorization system for Cloud
 Services at Mozilla, providing access to services such as Firefox Sync, Pocket and
 Addons.Mozilla.org.
