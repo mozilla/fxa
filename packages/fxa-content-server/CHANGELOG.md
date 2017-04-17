@@ -1,3 +1,42 @@
+<a name="1.85.0"></a>
+# 1.85.0 (2017-04-17)
+
+
+### Bug Fixes
+
+* **clients:** set correct device type for mobile clients (#4935) r=vbudhram  ([7e27246](https://github.com/mozilla/fxa-content-server/commit/7e27246)), closes [#4932](https://github.com/mozilla/fxa-content-server/issues/4932)
+* **deps:** update connect fonts depenencies (#4955) ([8a771c5](https://github.com/mozilla/fxa-content-server/commit/8a771c5))
+* **errors:** Add the new email bounce errors. (#4907) r=@vbudhram ([9b296fb](https://github.com/mozilla/fxa-content-server/commit/9b296fb)), closes [#4905](https://github.com/mozilla/fxa-content-server/issues/4905)
+* **experiments:** Really, really delete the experiments directory (#4940) r=vladikoff ([2ef1e75](https://github.com/mozilla/fxa-content-server/commit/2ef1e75))
+* **sessions:** made web session icon match add-ons colour r=vladikoff ([d4f8786](https://github.com/mozilla/fxa-content-server/commit/d4f8786))
+* **test:** Bump the timeout to 90 seconds for oauth permissions tests. (#4924) r=vladikoff ([1b879f1](https://github.com/mozilla/fxa-content-server/commit/1b879f1)), closes [#4923](https://github.com/mozilla/fxa-content-server/issues/4923)
+* **test:** Close all windows but the first after a test run. (#4897) r=@philbooth ([dc0b457](https://github.com/mozilla/fxa-content-server/commit/dc0b457)), closes [(#4897](https://github.com/(/issues/4897) [#4896](https://github.com/mozilla/fxa-content-server/issues/4896)
+* **test:** Fix Firefox Desktop Sync v2 sign_in (#4899) r=vladikoff ([b830f64](https://github.com/mozilla/fxa-content-server/commit/b830f64)), closes [(#4899](https://github.com/(/issues/4899) [#4898](https://github.com/mozilla/fxa-content-server/issues/4898)
+* **test:** Fix sync v2 password reset test. (#4895) r=@philbooth ([fe9f193](https://github.com/mozilla/fxa-content-server/commit/fe9f193)), closes [(#4895](https://github.com/(/issues/4895) [#4894](https://github.com/mozilla/fxa-content-server/issues/4894)
+* **test:** Fix the JavaScript error in the functional tests. (#4934) r=vladikoff ([c53b91f](https://github.com/mozilla/fxa-content-server/commit/c53b91f)), closes [(#4934](https://github.com/(/issues/4934) [#4929](https://github.com/mozilla/fxa-content-server/issues/4929)
+* **test:** Fix timing problems in functional tests. (#4912) r=self ([75d76fb](https://github.com/mozilla/fxa-content-server/commit/75d76fb)), closes [(#4912](https://github.com/(/issues/4912)
+
+### Features
+
+* **client:** `sync-suggestion` URL is dynamic based on the environment (#4798) r=@shane-tomli ([413b70f](https://github.com/mozilla/fxa-content-server/commit/413b70f)), closes [#4605](https://github.com/mozilla/fxa-content-server/issues/4605)
+* **l10n:** Add support for msgctxt when translating. (#4916) r=vladikoff,shane-tomlinson  ([c818489](https://github.com/mozilla/fxa-content-server/commit/c818489))
+* **lb:** Add lbheartbeat for dockerflow (#4919), r=@jbuck ([393bc15](https://github.com/mozilla/fxa-content-server/commit/393bc15))
+* **server:** disable server verification (#4937) ([1a39219](https://github.com/mozilla/fxa-content-server/commit/1a39219))
+* **sms:** SMS country based updates. (#4872) r=@philbooth, @vbudhram ([c183737](https://github.com/mozilla/fxa-content-server/commit/c183737)), closes [#4861](https://github.com/mozilla/fxa-content-server/issues/4861)
+* **test:** Add functional tests for the `sync-suggestion` URL. (#4921) r=@philbooth ([d9234a0](https://github.com/mozilla/fxa-content-server/commit/d9234a0))
+* **test:** Replace Sync v2 tests w/ Sync v3 tests. (#4876) r=vladikoff ([8498a5f](https://github.com/mozilla/fxa-content-server/commit/8498a5f))
+* **test:** Screenshot on error in testElementExists, visibleByQSA. (#4943) r=@philbooth ([e05f95e](https://github.com/mozilla/fxa-content-server/commit/e05f95e))
+* **test:** Throw an error if emails do not contain the expected header. (#4926) r=vladikoff ([1a23841](https://github.com/mozilla/fxa-content-server/commit/1a23841))
+
+### Refactor
+
+* **client:** Extract a "sync-auth-mixin" from connect_another_device.js (#4888) r=@vbudhram ([fdca066](https://github.com/mozilla/fxa-content-server/commit/fdca066))
+* **client:** Remove the password strength checker. (#4903) r=vladikoff ([4786c1f](https://github.com/mozilla/fxa-content-server/commit/4786c1f))
+* **oauth:** Remove support for verification_redirect (#4911) r=@vladikoff ([103fb42](https://github.com/mozilla/fxa-content-server/commit/103fb42)), closes [#4870](https://github.com/mozilla/fxa-content-server/issues/4870)
+* **test:** Use helpers to interact with restmail. (#4942) r=@philbooth ([1cfa0fb](https://github.com/mozilla/fxa-content-server/commit/1cfa0fb))
+
+
+
 <a name="1.84.2"></a>
 ## 1.84.2 (2017-04-11)
 
