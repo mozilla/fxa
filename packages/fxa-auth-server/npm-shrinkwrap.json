@@ -261,25 +261,6 @@
       "from": "email-addresses@2.0.2",
       "resolved": "https://registry.npmjs.org/email-addresses/-/email-addresses-2.0.2.tgz"
     },
-    "envc": {
-      "version": "2.4.0",
-      "from": "envc@2.4.0",
-      "resolved": "https://registry.npmjs.org/envc/-/envc-2.4.0.tgz",
-      "dependencies": {
-        "params": {
-          "version": "0.1.1",
-          "from": "params@>=0.1.1 <0.2.0",
-          "resolved": "https://registry.npmjs.org/params/-/params-0.1.1.tgz",
-          "dependencies": {
-            "type-detect": {
-              "version": "0.1.2",
-              "from": "type-detect@>=0.1.2 <0.2.0",
-              "resolved": "https://registry.npmjs.org/type-detect/-/type-detect-0.1.2.tgz"
-            }
-          }
-        }
-      }
-    },
     "eslint-plugin-fxa": {
       "version": "1.0.0",
       "from": "git+https://github.com/mozilla/eslint-plugin-fxa.git#master",

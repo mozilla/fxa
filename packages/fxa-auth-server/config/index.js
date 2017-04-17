@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-require('envc')()
-
 var fs = require('fs')
 var path = require('path')
 var url = require('url')
@@ -757,7 +755,9 @@ var conf = convict({
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable.
 
-var files = (process.env.CONFIG_FILES || '').split(',').filter(fs.existsSync)
+var envConfig = path.join(__dirname, conf.get('env') + '.json')
+envConfig = envConfig + ',' + (process.env.CONFIG_FILES || '')
+var files = envConfig.split(',').filter(fs.existsSync)
 conf.loadFile(files)
 conf.validate({ strict: true })
 

@@ -1,0 +1,32 @@
+{
+  "contentServer": {
+    "url": "http://127.0.0.1:3030"
+  },
+  "customsUrl": "none",
+  "lockoutEnabled": true,
+  "log": {
+    "fmt": "pretty",
+    "level": "info"
+  },
+  "sms": {
+    "isStatusGeoEnabled": false
+  },
+  "smtp": {
+    "host": "127.0.0.1",
+    "port": 9999,
+    "secure": false
+  },
+  "snsTopicArn": "disabled",
+  "statsd": {
+    "sample_rate": 1
+  },
+  "verificationReminders": {
+    "rate": 1
+  },
+  "verifierVersion": 0,
+  "securityHistory": {
+    "ipProfiling": {
+      "allowedRecency": 0
+    }
+  }
+}
