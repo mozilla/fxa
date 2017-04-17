@@ -493,6 +493,27 @@ define([
   });
 
   /**
+   * Get an email
+   *
+   * @param {string} user - username or email address
+   * @param {number} index - email index.
+   * @param {object} [options]
+   *   @param {number} [options.maxAttempts] - number of email fetch attempts
+   *   to make. Defaults to 10.
+   * @returns {promise} resolves with the email if email is found.
+   */
+  const getEmail = thenify(function (user, index, options) {
+    if (/@/.test(user)) {
+      user = TestHelpers.emailToUser(user);
+    }
+
+    // restmail takes a length, not an index. Add 1.
+    return this.parent
+      .then(() => restmail(EMAIL_SERVER_ROOT + '/mail/' + user, index + 1, options)())
+      .then((emails) => emails[index]);
+  });
+
+  /**
    * Get the email headers
    *
    * @param {string} user - username or email address
@@ -503,16 +524,9 @@ define([
    * @returns {promise} resolves with the email headers if email is found.
    */
   const getEmailHeaders = thenify(function(user, index, options) {
-    if (/@/.test(user)) {
-      user = TestHelpers.emailToUser(user);
-    }
-
-    // restmail takes a length, not an index. Add 1.
     return this.parent
-      .then(() => restmail(EMAIL_SERVER_ROOT + '/mail/' + user, index + 1, options)())
-      .then(function (emails) {
-        return emails[index].headers;
-      });
+      .then(getEmail(user, index, options))
+      .then((email) => email.headers);
   });
 
   /**
@@ -530,7 +544,11 @@ define([
     return this.parent
       .then(getEmailHeaders(user, index))
       .then(function (headers) {
-        return require.toUrl(headers['x-link']);
+        const link = headers['x-link'];
+        if (! link) {
+          throw new Error('Email does not contain verification link: ' + headers['x-template-name']);
+        }
+        return require.toUrl(link);
       });
   });
 
@@ -550,13 +568,18 @@ define([
     return this.parent
       .then(getEmailHeaders(user, index))
       .then(function (headers) {
+        const unblockCode = headers['x-unblock-code'];
+        if (! unblockCode) {
+          throw new Error('Email does not contain unblock code: ' + headers['x-template-name']);
+        }
         return {
           reportSignInLink: require.toUrl(headers['x-report-signin-link']),
           uid: headers['x-uid'],
-          unblockCode: headers['x-unblock-code']
+          unblockCode: unblockCode
         };
       });
   });
+
 
   /**
    * Test to ensure an expected email arrives
@@ -736,6 +759,9 @@ define([
       .then(function (headers) {
         var uid = headers['x-uid'];
         var code = headers['x-verify-code'];
+        if (! code) {
+          throw new Error('Email does not contain verify code: ' + headers['x-template-name']);
+        }
 
         return client.verifyCode(uid, code);
       });
@@ -763,7 +789,9 @@ define([
         var search = Url.parse(link).query;
         var queryParams = Querystring.parse(search);
         var token = queryParams.token;
-
+        if (! code) {
+          throw new Error('Email does not contain reset password code: ' + headers['x-template-name']);
+        }
         return client.passwordForgotVerifyCode(code, token);
       })
       .then(function (result) {
@@ -1744,6 +1772,7 @@ define([
     fillOutSignInUnblock: fillOutSignInUnblock,
     fillOutSignUp: fillOutSignUp,
     focus: focus,
+    getEmail: getEmail,
     getEmailHeaders: getEmailHeaders,
     getFxaClient: getFxaClient,
     getQueryParamValue: getQueryParamValue,
