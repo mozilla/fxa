@@ -39,6 +39,17 @@ var ERRNO = {
   BOUNCE_COMPLAINT: 133,
   BOUNCE_HARD: 134,
   BOUNCE_SOFT: 135,
+  EMAIL_EXISTS: 136,
+  EMAIL_DELETE_PRIMARY: 137,
+  SESSION_UNVERIFIED: 138,
+  USER_PRIMARY_EMAIL_EXISTS: 139,
+  VERIFIED_PRIMARY_EMAIL_EXISTS: 140,
+
+  // If there exists an account that was created under 24hrs and
+  // has not verified their email address, this error is thrown
+  // if another user attempts to add that email to their account
+  // as a secondary email.
+  UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED: 141,
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   UNEXPECTED_ERROR: 999
@@ -99,9 +110,9 @@ AppError.prototype.backtrace = function (traced) {
   this.output.payload.log = traced
 }
 
-/*/
+/**
   Translates an error from Hapi format to our format
-/*/
+*/
 AppError.translate = function (response) {
   var error
   if (response instanceof AppError) {
@@ -512,6 +523,18 @@ AppError.invalidMessageId = () => {
   })
 }
 
+AppError.messageRejected = (reason, reasonCode) => {
+  return new AppError({
+    code: 500,
+    error: 'Bad Request',
+    errno: ERRNO.MESSAGE_REJECTED,
+    message: 'Message rejected'
+  }, {
+    reason,
+    reasonCode
+  })
+}
+
 AppError.emailComplaint = () => {
   return new AppError({
     code: 400,
@@ -539,15 +562,60 @@ AppError.emailBouncedSoft = () => {
   })
 }
 
-AppError.messageRejected = (reason, reasonCode) => {
+AppError.emailExists = () => {
   return new AppError({
-    code: 500,
+    code: 400,
     error: 'Bad Request',
-    errno: ERRNO.MESSAGE_REJECTED,
-    message: 'Message rejected'
-  }, {
-    reason,
-    reasonCode
+    errno: ERRNO.EMAIL_EXISTS,
+    message: 'Email already exists'
+  })
+}
+
+AppError.cannotDeletePrimaryEmail = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.EMAIL_DELETE_PRIMARY,
+    message: 'Can not delete primary email'
+  })
+}
+
+AppError.unverifiedSession = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.SESSION_UNVERIFIED,
+    message: 'Unverified session'
+  })
+}
+
+AppError.yourPrimaryEmailExists = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.USER_PRIMARY_EMAIL_EXISTS,
+    message: 'Can not add secondary email that is same as your primary'
+  })
+}
+
+AppError.verifiedPrimaryEmailAlreadyExists = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.VERIFIED_PRIMARY_EMAIL_EXISTS,
+    message: 'Email already exists'
+  })
+}
+
+// This error is thrown when someone attempts to add a secondary email
+// that is the same as the primary email of another account, but the account
+// was recently created ( < 24hrs).
+AppError.unverifiedPrimaryEmailNewlyCreated = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED,
+    message: 'Email already exists'
   })
 }
 

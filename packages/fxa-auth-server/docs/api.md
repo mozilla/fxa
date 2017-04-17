@@ -95,6 +95,12 @@ The currently-defined error responses are:
 * status code 400, errno 133:  email sent complaint
 * status code 400, errno 134:  email hard bounced
 * status code 400, errno 135:  email soft bounced
+* status code 400, errno 136:  email already exists
+* status code 400, errno 137:  can not delete primary email
+* status code 400, errno 138:  can not add email with unverified session
+* status code 400, errno 139:  can not add email that is the same as your primary email
+* status code 400, errno 140:  verified primary email already exists
+* status code 400, errno 141:  newly created unverified primary email exists
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * status code 503, errno 202:  feature has been disabled for operational reasons
 * any status code, errno 999:  unknown error
@@ -144,6 +150,9 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [GET  /v1/recovery_email/status (:lock: sessionToken)](#get-v1recovery_emailstatus)
     * [POST /v1/recovery_email/resend_code (:lock: sessionToken)](#post-v1recovery_emailresend_code)
     * [POST /v1/recovery_email/verify_code](#post-v1recovery_emailverify_code)
+    * [GET  /v1/recovery_emails (:lock: sessionToken)](#get-v1recovery_emails)
+    * [POST /v1/recovery_email (:lock: sessionToken)](#post-v1recovery_email)
+    * [POST /v1/recovery_email/destroy (:lock: sessionToken)](#post-v1recovery_emaildestroy)
 
 * Certificate Signing
     * [POST /v1/certificate/sign (:lock: sessionToken) (verf-required)](#post-v1certificatesign)
@@ -855,7 +864,7 @@ Failing requests may be due to the following errors:
 
 Not HAWK-authenticated.
 
-This is an endpoint that is used to verify tokens and recovery emails for an account. If a valid token code is detected, the account email and tokens will be set to verified. If a valid email code is detected, the email will be marked as verified.
+This is an endpoint that is used to verify tokens and additional emails for an account. If a valid token code is detected, the account email and tokens will be set to verified. If a valid email code is detected, the email will be marked as verified.
 
 The verification code will be a random token, delivered in the fragment portion of a URL sent to the user's email address. The URL will lead to a page that extracts the code from the URL fragment, and performs a POST to `/recovery_email/verify_code`. The link can be clicked from any browser, not just the one being attached to the Firefox account.
 
@@ -865,6 +874,9 @@ ___Parameters___
 
 * uid - account identifier
 * code - the verification code (recovery email or token verification id)
+* service - the service issuing request
+* reminder - (optional) the reminder email associated with code
+* type - (optional) the type of code being verified
 
 ```sh
 curl -v \
@@ -896,6 +908,123 @@ Failing requests may be due to the following errors:
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
 
+## GET /v1/recovery_emails
+
+This endpoint is used to get all the emails associated with the logged in user. The primary email address, currently, will always be the email address on the accounts table.
+
+### Request
+
+```sh
+curl -v \
+-X GET \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/recovery_emails \
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with JSON body:
+
+```json
+[
+   {
+      "isPrimary":true,
+      "verified":true,
+      "email":"primary@email.com"
+   },
+   {
+      "isPrimary":false,
+      "verified":false,
+      "email":"anotherone@email.com"
+   }
+]
+```
+
+## POST /v1/recovery_email
+
+This endpoint is used add a secondary email address to the logged in user account. The address is created `unverified` and marked as not the primary address.
+
+### Request
+
+___Parameters___
+
+* email - email address to add to account
+
+```sh
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/recovery_email \
+-d '{
+  "email": "another@email.com"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with an empty JSON body:
+
+```json
+{}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  invalid verification code
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
+* status code 400, errno 138:  session is not verified
+* status code 400, errno 139:  cannot add your primary email address
+* status code 400, errno 140:  verified primary email address exist
+* status code 400, errno 141:  newly unverified primary account email exist
+
+## POST /v1/recovery_email/destroy
+
+This endpoint is used to delete an email address from the logged in user.
+
+### Request
+
+___Parameters___
+
+* email - email address to add to account
+
+```sh
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/recovery_email/destroy \
+-d '{
+  "email": "another@email.com"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with an empty JSON body:
+
+```json
+{}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  invalid verification code
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 ## POST /v1/certificate/sign
 

@@ -21,11 +21,13 @@ const CUSTOMS_METHOD_NAMES = [
 
 const DB_METHOD_NAMES = [
   'account',
+  'accountEmails',
   'accountResetToken',
   'consumeUnblockCode',
   'createAccount',
   'createDevice',
   'createEmailBounce',
+  'createEmail',
   'createKeyFetchToken',
   'createPasswordForgotToken',
   'createSessionToken',
@@ -33,6 +35,7 @@ const DB_METHOD_NAMES = [
   'createVerificationReminder',
   'deleteAccount',
   'deleteDevice',
+  'deleteEmail',
   'deleteKeyFetchToken',
   'deletePasswordChangeToken',
   'deleteSessionToken',
@@ -79,9 +82,11 @@ const MAILER_METHOD_NAMES = [
   'sendPasswordChangedNotification',
   'sendPasswordResetNotification',
   'sendPostVerifyEmail',
+  'sendPostVerifySecondaryEmail',
   'sendUnblockCode',
   'sendVerifyCode',
   'sendVerifyLoginEmail',
+  'sendVerifySecondaryEmail',
   'sendRecoveryCode'
 ]
 
@@ -131,6 +136,24 @@ function mockDB (data, errors) {
         verifierSetAt: Date.now(),
         wrapWrapKb: data.wrapWrapKb
       })
+    }),
+    accountEmails: sinon.spy(() => {
+      return P.resolve([
+        {
+          email: data.email || 'primary@email.com',
+          normalizedEmail: (data.email || 'primary@email.com').toLowerCase(),
+          emailCode: data.emailCode,
+          isPrimary: true,
+          isVerified: data.emailVerified
+        },
+        {
+          email: data.secondEmail || 'secondEmail@email.com',
+          normalizedEmail: (data.secondEmail || 'secondEmail@email.com').toLowerCase(),
+          emailCode: data.secondEmailCode || crypto.randomBytes(16).toString('hex'),
+          isVerified: data.secondEmailisVerified || false,
+          isPrimary: false
+        }
+      ])
     }),
     createAccount: sinon.spy(() => {
       return P.resolve({

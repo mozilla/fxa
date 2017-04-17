@@ -311,7 +311,8 @@ module.exports = config => {
             {
               service: options.service || undefined,
               redirectTo: options.redirectTo || undefined,
-              resume: options.resume || undefined
+              resume: options.resume || undefined,
+              email: options.email || undefined
             }
           )
         }.bind(this)
@@ -327,7 +328,9 @@ module.exports = config => {
       {
         uid: uid,
         code: code,
-        service: options.service || undefined
+        service: options.service || undefined,
+        type: options.type || undefined,
+        verifiedEmail: options.verifiedEmail || undefined,
       },
       {
         'accept-language': options.lang
@@ -610,6 +613,62 @@ module.exports = config => {
         null,
         { 'X-Forwarded-For': clientIpAddress || '8.8.8.8' }
       ))
+  }
+
+  ClientApi.prototype.accountEmails = function (sessionTokenHex) {
+    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null)
+    return o.then(
+      function (token) {
+        return this.doRequest(
+          'GET',
+          this.baseURL + '/recovery_emails',
+          token
+        )
+      }.bind(this)
+    )
+  }
+
+  ClientApi.prototype.createEmail = function (sessionTokenHex, email) {
+    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null)
+    return o.then(
+      function (token) {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/recovery_email',
+          token,
+          {
+            email: email
+          }
+        )
+      }.bind(this)
+    )
+  }
+
+  ClientApi.prototype.deleteEmail = function (sessionTokenHex, email) {
+    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null)
+    return o.then(
+      function (token) {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/recovery_email/destroy',
+          token,
+          {
+            email: email
+          }
+        )
+      }.bind(this)
+    )
+  }
+
+  ClientApi.prototype.sendUnblockCode = function (email) {
+    return this.doRequest(
+      'POST',
+      this.baseURL + '/account/login/send_unblock_code',
+      null,
+      {
+        email: email
+      }
+    )
   }
 
   ClientApi.heartbeat = function (origin) {

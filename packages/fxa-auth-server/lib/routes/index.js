@@ -44,7 +44,8 @@ module.exports = function (
     config.verifierVersion,
     customs,
     checkPassword,
-    push
+    push,
+    config
   )
   const session = require('./session')(log, db)
   const sign = require('./sign')(log, signer, db, config.domain, devices)

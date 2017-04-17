@@ -685,9 +685,13 @@ module.exports = (
     )
   }
 
-  DB.prototype.verifyEmail = function (account) {
-    log.trace({ op: 'DB.verifyEmail', uid: account && account.uid })
-    return this.pool.post('/account/' + account.uid.toString('hex') + '/verifyEmail/' + account.emailCode.toString('hex'))
+  DB.prototype.verifyEmail = function (account, emailCode) {
+    log.trace({
+      op: 'DB.verifyEmail',
+      uid: account && account.uid,
+      emailCode: emailCode
+    })
+    return this.pool.post('/account/' + account.uid.toString('hex') + '/verifyEmail/' + emailCode.toString('hex'))
   }
 
   DB.prototype.verifyTokens = function (tokenVerificationId, accountData) {
@@ -843,6 +847,50 @@ module.exports = (
     return this.pool.get('/emailBounces/' + Buffer(email, 'utf8').toString('hex'))
   }
 
+  DB.prototype.accountEmails = function (uid) {
+    log.trace({
+      op: 'DB.accountEmails',
+      uid: uid
+    })
+
+    return this.pool.get('/account/' + uid.toString('hex') + '/emails')
+  }
+
+  DB.prototype.createEmail = function (uid, emailData) {
+    log.trace({
+      email: emailData.email,
+      op: 'DB.createEmail',
+      uid: emailData.uid
+    })
+
+    return this.pool.post('/account/' + uid.toString('hex') + '/emails', emailData)
+      .catch(
+        function (err) {
+          if (isEmailAlreadyExistsError(err)) {
+            throw error.emailExists()
+          }
+          throw err
+        }
+      )
+  }
+
+  DB.prototype.deleteEmail = function (uid, email) {
+    log.trace({
+      op: 'DB.deleteEmail',
+      uid: uid
+    })
+
+    return this.pool.del('/account/' + uid.toString('hex') + '/emails/' + email)
+      .catch(
+        function (err) {
+          if (isEmailDeletePrimaryError(err)) {
+            throw error.cannotDeletePrimaryEmail()
+          }
+          throw err
+        }
+      )
+  }
+
   function wrapTokenNotFoundError (err) {
     if (isNotFoundError(err)) {
       err = error.invalidToken('The authentication token could not be found')
@@ -866,4 +914,12 @@ function isIncorrectPasswordError (err) {
 
 function isNotFoundError (err) {
   return err.statusCode === 404 && err.errno === 116
+}
+
+function isEmailAlreadyExistsError (err) {
+  return err.statusCode === 409 && err.errno === 101
+}
+
+function isEmailDeletePrimaryError (err) {
+  return err.statusCode === 400 && err.errno === 136
 }

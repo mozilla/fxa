@@ -27,7 +27,8 @@
     <h1 style="font-family: sans-serif; font-size: 21px; line-height: 29px; font-weight: normal; margin: 0 0 11px 0; text-align: center;">{{t "New sign-in to Firefox"}}</h1>
     <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;">{{t "For added security, please confirm this sign-in to begin syncing with this device:"}}<p/>
     <p style="font-family:sans-serif; font-size: 13px; line-height: 20px; font-weight: normal; margin: 0 0 24px 0px; text-align: center; color: #424f59;">
-    {{{ device }}}<br/>
+    {{#if primaryEmail }}{{ primaryEmail }}<br/>{{/if}}
+    {{#if device }}{{{ device }}}<br/>{{/if}}
     {{#if location }}{{ location }}<br/>{{/if}}
     {{#if ip }}{{t "IP address: %(ip)s" }}<br/>{{/if}}
     {{#if timestamp }}{{ timestamp }}<br/>{{/if}}

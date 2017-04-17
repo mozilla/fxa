@@ -212,6 +212,14 @@ module.exports = config => {
     return p
   }
 
+  Client.prototype.verifySecondaryEmail = function (code, secondaryEmail) {
+    const options = {
+      type: 'secondary',
+      secondaryEmail: secondaryEmail
+    }
+    return this.api.recoveryEmailVerifyCode(this.uid, code, options)
+  }
+
   Client.prototype.verifyEmail = function (code, options) {
     return this.api.recoveryEmailVerifyCode(this.uid, code, options)
   }
@@ -414,6 +422,22 @@ module.exports = config => {
 
   Client.prototype.verifyAccountUnlockCode = function (uid, code) {
     return this.api.accountUnlockVerifyCode(uid, code)
+  }
+
+  Client.prototype.accountEmails = function () {
+    return this.api.accountEmails(this.sessionToken)
+  }
+
+  Client.prototype.createEmail = function (email) {
+    return this.api.createEmail(this.sessionToken, email)
+  }
+
+  Client.prototype.deleteEmail = function (email) {
+    return this.api.deleteEmail(this.sessionToken, email)
+  }
+
+  Client.prototype.sendUnblockCode = function (email) {
+    return this.api.sendUnblockCode(email)
   }
 
   Client.prototype.resetPassword = function (newPassword, headers, options) {

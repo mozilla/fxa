@@ -17,7 +17,9 @@ var crypto = require('crypto')
 var error = require('../../../lib/error')
 
 var TEST_EMAIL = 'foo@gmail.com'
+var TEST_EMAIL_ADDITIONAL = 'foo2@gmail.com'
 var TEST_EMAIL_INVALID = 'example@dotless-domain'
+const MS_IN_DAY = 1000 * 60 * 60 * 24
 
 var makeRoutes = function (options, requireMocks) {
   options = options || {}
@@ -37,6 +39,7 @@ var makeRoutes = function (options, requireMocks) {
   config.lastAccessTimeUpdates = {}
   config.signinConfirmation = config.signinConfirmation || {}
   config.signinUnblock = config.signinUnblock || {}
+  config.secondaryEmail = config.secondaryEmail || {}
   config.push = {
     allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
   }
@@ -78,7 +81,11 @@ function runTest (route, request, assertions) {
 }
 
 describe('/recovery_email/status', function () {
-  var config = {}
+  var config = {
+    secondaryEmail: {
+      enabled: true
+    }
+  }
   var mockDB = mocks.mockDB()
   var pushCalled
   var mockLog = mocks.mockLog({
@@ -212,8 +219,13 @@ describe('/recovery_email/status', function () {
 })
 
 describe('/recovery_email/resend_code', () => {
-  const config = {}
-  const mockDB = mocks.mockDB()
+  const config = {
+    secondaryEmail: {
+      enabled: true
+    }
+  }
+  const secondEmailCode = crypto.randomBytes(16)
+  const mockDB = mocks.mockDB({secondEmailCode: secondEmailCode})
   const mockLog = mocks.mockLog()
   mockLog.flowEvent = sinon.spy(() => {
     return P.resolve()
@@ -250,7 +262,6 @@ describe('/recovery_email/resend_code', () => {
         }
       }
     })
-    mockLog.flowEvent.reset()
 
     return runTest(route, mockRequest, response => {
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
@@ -264,6 +275,44 @@ describe('/recovery_email/resend_code', () => {
       assert.equal(args[2].uaOSVersion, '10.10')
       assert.strictEqual(args[2].uaDeviceType, undefined)
     })
+      .then(() => {
+        mockMailer.sendVerifyCode.reset()
+        mockLog.flowEvent.reset()
+      })
+  })
+
+  it('verification additional email', () => {
+    const mockRequest = mocks.mockRequest({
+      log: mockLog,
+      metricsContext: mockMetricsContext,
+      credentials: {
+        uid: uuid.v4('binary').toString('hex'),
+        email: TEST_EMAIL,
+        emailVerified: true,
+        tokenVerified: false,
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '50',
+        uaOS: 'Android',
+        uaOSVersion: '6',
+        uaDeviceType: 'tablet'
+      },
+      query: {},
+      payload: {
+        email : 'secondEmail@email.com'
+      }
+    })
+
+    return runTest(route, mockRequest, response => {
+      assert.equal(mockMailer.sendVerifySecondaryEmail.callCount, 1)
+      assert.equal(mockMailer.sendVerifyCode.callCount, 0)
+      assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0)
+      const args = mockMailer.sendVerifySecondaryEmail.getCall(0).args
+      assert.equal(args[2].code, secondEmailCode, 'email code set')
+    })
+      .then(() => {
+        mockMailer.sendVerifySecondaryEmail.reset()
+        mockLog.flowEvent.reset()
+      })
   })
 
   it('confirmation', () => {
@@ -333,7 +382,8 @@ describe('/recovery_email/verify_code', function () {
     email: TEST_EMAIL,
     emailCode: Buffer(mockRequest.payload.code, 'hex'),
     emailVerified: false,
-    uid: uid
+    secondEmail: 'test@email.com',
+    secondEmailCode: crypto.randomBytes(16).toString('hex')
   }
   var dbErrors = {
     verifyTokens: error.invalidVerificationCode({})
@@ -346,7 +396,11 @@ describe('/recovery_email/verify_code', function () {
     checkPassword: function () {
       return P.resolve(true)
     },
-    config: {},
+    config: {
+      secondaryEmail: {
+        enabled: true
+      }
+    },
     customs: mockCustoms,
     db: mockDB,
     log: mockLog,
@@ -496,6 +550,248 @@ describe('/recovery_email/verify_code', function () {
           mockDB.verifyTokens.reset()
           mockLog.activityEvent.reset()
           mockPush.notifyUpdate.reset()
+        })
+    })
+
+    it('secondary email verification', function () {
+      dbData.emailCode = crypto.randomBytes(16).toString('hex')
+      mockRequest.payload.code = dbData.secondEmailCode.toString('hex')
+      mockRequest.payload.type = 'secondary'
+      mockRequest.payload.verifiedEmail = dbData.secondEmail
+
+      return runTest(route, mockRequest, function (response) {
+        assert.equal(mockDB.verifyEmail.callCount, 1, 'call db.verifyEmail')
+        var args = mockDB.verifyEmail.args[0]
+        assert.equal(args.length, 2, 'mockDB.verifyEmail was passed correct arguments')
+        assert.equal(args[0].email, dbData.email, 'correct account primary email was passed')
+        assert.equal(args[1].toString('hex'), dbData.secondEmailCode.toString('hex'), 'correct email code was passed')
+
+        assert.equal(mockMailer.sendPostVerifySecondaryEmail.callCount, 1, 'call mailer.sendPostVerifySecondaryEmail')
+        args = mockMailer.sendPostVerifySecondaryEmail.args[0]
+        assert.equal(args.length, 3, 'mockMailer.sendPostVerifySecondaryEmail was passed correct arguments')
+        assert.equal(args[1].email, dbData.email, 'correct account primary email was passed')
+        assert.equal(args[2].secondaryEmail, dbData.secondEmail, 'correct secondary email was passed')
+      })
+        .then(function () {
+          mockDB.verifyEmail.reset()
+          mockLog.activityEvent.reset()
+          mockMailer.sendPostVerifySecondaryEmail.reset()
+          mockPush.notifyUpdate.reset()
+        })
+    })
+  })
+})
+
+describe('/recovery_email', () => {
+  const uid = uuid.v4('binary').toString('hex')
+  const mockLog = mocks.spyLog()
+  let dbData, accountRoutes, mockDB, mockRequest, route
+  const mockMailer = mocks.mockMailer()
+  const mockPush = mocks.mockPush()
+  const mockCustoms = mocks.mockCustoms()
+
+  beforeEach(() => {
+    mockRequest = mocks.mockRequest({
+      credentials: {
+        uid: uuid.v4('binary').toString('hex'),
+        email: TEST_EMAIL,
+        emailVerified: true,
+        normalizedEmail: TEST_EMAIL.toLowerCase()
+      },
+      log: mockLog,
+      payload: {
+        email: TEST_EMAIL_ADDITIONAL
+      }
+    })
+    dbData = {
+      email: TEST_EMAIL,
+      uid: uid,
+      secondEmail: TEST_EMAIL_ADDITIONAL
+    }
+    mockDB = mocks.mockDB(dbData)
+    accountRoutes = makeRoutes({
+      checkPassword: function () {
+        return P.resolve(true)
+      },
+      config: {
+        secondaryEmail: {
+          enabled: true
+        }
+      },
+      customs: mockCustoms,
+      db: mockDB,
+      log: mockLog,
+      mailer: mockMailer,
+      push: mockPush
+    })
+  })
+
+  describe('/recovery_email', () => {
+    beforeEach(() => {
+      mockDB.emailRecord = sinon.spy(() => {
+        return P.reject(error.unknownAccount())
+      })
+    })
+
+    it('should create email on account', () => {
+      route = getRoute(accountRoutes, '/recovery_email')
+      return runTest(route, mockRequest, (response) => {
+        assert.ok(response)
+        assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail')
+        assert.equal(mockMailer.sendVerifySecondaryEmail.callCount, 1, 'call db.sendVerifySecondaryEmail')
+      })
+        .then(function () {
+          mockDB.createEmail.reset()
+          mockMailer.sendVerifySecondaryEmail.reset()
+        })
+    })
+
+    it('should fail with unverified primary email', () => {
+      route = getRoute(accountRoutes, '/recovery_email')
+      mockRequest.auth.credentials.emailVerified = false
+      return runTest(route, mockRequest, () => {
+        assert.fail(new Error('Should have failed adding secondary email with unverified primary email'))
+      })
+        .catch((err) => {
+          assert.equal(err.errno, 104, 'unverified account')
+        })
+        .then(function () {
+          mockDB.createEmail.reset()
+        })
+    })
+
+    it('should fail when adding secondary email that is same as primary', () => {
+      route = getRoute(accountRoutes, '/recovery_email')
+      mockRequest.payload.email = TEST_EMAIL
+      return runTest(route, mockRequest, () => {
+        assert.fail(new Error('Should have failed when adding secondary email that is same as primary'))
+      })
+        .catch((err) => {
+          assert.equal(err.errno, 139, 'cannot add secondary email, same as primary')
+        })
+        .then(function () {
+          mockDB.createEmail.reset()
+        })
+    })
+
+    it('creates secondary email if another user unverified primary more than day old, deletes unverified account', () => {
+      mockDB.emailRecord = sinon.spy(() => {
+        return P.resolve({
+          emailVerified: false,
+          createdAt: Date.now() - MS_IN_DAY,
+          uid: crypto.randomBytes(16)
+        })
+      })
+      route = getRoute(accountRoutes, '/recovery_email')
+      mockRequest.payload.email = TEST_EMAIL_ADDITIONAL
+      return runTest(route, mockRequest, (response) => {
+        assert.ok(response)
+        assert.equal(mockDB.deleteAccount.callCount, 1, 'call db.deleteAccount')
+        assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail')
+        const args = mockDB.createEmail.getCall(0).args
+        assert.equal(args[1].email, TEST_EMAIL_ADDITIONAL, 'call db.createEmail with correct email')
+        assert.equal(mockMailer.sendVerifySecondaryEmail.callCount, 1, 'call mailer.sendVerifySecondaryEmail')
+      })
+        .then(function () {
+          mockDB.deleteAccount.reset()
+          mockDB.createEmail.reset()
+          mockMailer.sendVerifySecondaryEmail.reset()
+        })
+    })
+
+    it('fails create email if another user unverified primary less than day old', () => {
+      mockDB.emailRecord = sinon.spy(() => {
+        return P.resolve({
+          emailVerified: false,
+          createdAt: Date.now(),
+          uid: crypto.randomBytes(16)
+        })
+      })
+      route = getRoute(accountRoutes, '/recovery_email')
+      mockRequest.payload.email = TEST_EMAIL_ADDITIONAL
+      return runTest(route, mockRequest, () => {
+        assert.fail(new Error('Should have failed when creating email'))
+      })
+        .catch((err) => {
+          assert.equal(err.errno, 141, 'cannot add secondary email, newly created primary account')
+        })
+    })
+  })
+
+  describe('/recovery_emails', () => {
+    it('should get all account emails', () => {
+      route = getRoute(accountRoutes, '/recovery_emails')
+      return runTest(route, mockRequest, (response) => {
+        assert.equal(response.length, 2, 'should return two emails')
+        assert.equal(response[0].email, dbData.email, 'should return users email')
+        assert.equal(response[1].email, dbData.secondEmail, 'should return users email')
+        assert.equal(mockDB.accountEmails.callCount, 1, 'call db.accountEmails')
+      })
+        .then(function () {
+          mockDB.accountEmails.reset()
+        })
+    })
+  })
+
+  describe('/recovery_email/destroy', () => {
+    it('should delete email from account', () => {
+      route = getRoute(accountRoutes, '/recovery_email/destroy')
+      return runTest(route, mockRequest, (response) => {
+        assert.ok(response)
+        assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail')
+      })
+        .then(function () {
+          mockDB.deleteEmail.reset()
+        })
+    })
+  })
+
+  describe('can disable feature', () => {
+    beforeEach(() => {
+      accountRoutes = makeRoutes({
+        checkPassword: function () {
+          return P.resolve(true)
+        },
+        config: {
+          secondaryEmail: {
+            enabled: false
+          }
+        },
+        customs: mockCustoms,
+        db: mockDB,
+        log: mockLog,
+        mailer: mockMailer,
+        push: mockPush
+      })
+    })
+
+    it('/recovery_email/destroy disabled', () => {
+      route = getRoute(accountRoutes, '/recovery_email/destroy')
+      return runTest(route, mockRequest, () => {
+        assert.fail(new Error('Should have failed accessing endpoint'))
+      })
+        .catch((err) => {
+          assert.equal(err.errno, 202, 'correct errno feature disabled')
+        })
+    })
+
+    it('/recovery_email disabled', () => {
+      route = getRoute(accountRoutes, '/recovery_email')
+      return runTest(route, mockRequest, () => {
+        assert.fail(new Error('Should have failed accessing endpoint'))
+      })
+        .catch((err) => {
+          assert.equal(err.errno, 202, 'correct errno feature disabled')
+        })
+    })
+
+    it('/recovery_emails disabled', () => {
+      route = getRoute(accountRoutes, '/recovery_emails')
+      return runTest(route, mockRequest, () => {
+        assert.fail(new Error('Should have failed accessing endpoint'))
+      })
+        .catch((err) => {
+          assert.equal(err.errno, 202, 'correct errno feature disabled')
         })
     })
   })

@@ -8,6 +8,7 @@ const crypto = require('crypto')
 
 module.exports = config => {
   const lastAccessTimeUpdates = config.lastAccessTimeUpdates
+  const secondaryEmail = config.secondaryEmail
 
   return {
     /**
@@ -22,6 +23,15 @@ module.exports = config => {
         isSampledUser(lastAccessTimeUpdates.sampleRate, uid, 'lastAccessTimeUpdates') ||
         lastAccessTimeUpdates.enabledEmailAddresses.test(email)
       )
+    },
+
+    /**
+     * Return whether or not secondary email support is enabled.
+     *
+     * @returns {boolean}
+     */
+    isSecondaryEmailEnabled() {
+      return !! secondaryEmail.enabled
     },
 
     /**

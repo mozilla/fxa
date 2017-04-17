@@ -21,7 +21,8 @@ const config = {
   lastAccessTimeUpdates: {},
   signinConfirmation: {},
   signinUnblock: {},
-  securityHistory: {}
+  securityHistory: {},
+  secondaryEmail: {}
 }
 
 const features = proxyquire('../../lib/features', {
@@ -33,9 +34,10 @@ describe('features', () => {
     'interface is correct',
     () => {
       assert.equal(typeof features, 'object', 'object type should be exported')
-      assert.equal(Object.keys(features).length, 2, 'object should have four properties')
+      assert.equal(Object.keys(features).length, 3, 'object should have correct number of properties')
       assert.equal(typeof features.isSampledUser, 'function', 'isSampledUser should be function')
       assert.equal(typeof features.isLastAccessTimeEnabledForUser, 'function', 'isLastAccessTimeEnabledForUser should be function')
+      assert.equal(typeof features.isSecondaryEmailEnabled, 'function', 'isSecondaryEmailEnabled should be function')
 
       assert.equal(crypto.createHash.callCount, 1, 'crypto.createHash should have been called once on require')
       let args = crypto.createHash.args[0]
@@ -176,6 +178,17 @@ describe('features', () => {
       config.lastAccessTimeUpdates.sampleRate = 0.03
       config.lastAccessTimeUpdates.enabledEmailAddresses = /.+@mozilla\.com$/
       assert.equal(features.isLastAccessTimeEnabledForUser(uid, email), false, 'should return false when feature is disabled')
+    }
+  )
+
+  it(
+    'isSecondaryEmailEnabled',
+    () => {
+      config.secondaryEmail.enabled = true
+      assert.equal(features.isSecondaryEmailEnabled(), true, 'should return true when everything is enabled in config')
+
+      config.secondaryEmail.enabled = false
+      assert.equal(features.isSecondaryEmailEnabled(), false, 'should return false when secondary email is disabled in config')
     }
   )
 })

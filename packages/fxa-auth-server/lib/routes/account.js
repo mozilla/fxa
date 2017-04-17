@@ -58,6 +58,8 @@ module.exports = (
     defaultLanguage: config.i18n.defaultLanguage
   })
 
+  const features = require('../features')(config)
+
   const PUSH_SERVER_REGEX = config.push && config.push.allowedServerRegex
   const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
   const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 0
@@ -877,26 +879,28 @@ module.exports = (
             && ! doSigninConfirmation
             && emailRecord.emailVerified
           if (shouldSendNewDeviceLoginEmail) {
-            return getGeoData(ip)
-              .then(
-                function (geoData) {
-                  mailer.sendNewDeviceLoginNotification(
-                    [],
-                    emailRecord,
-                    {
-                      acceptLanguage: request.app.acceptLanguage,
-                      flowId: flowId,
-                      flowBeginTime: flowBeginTime,
-                      ip: ip,
-                      location: geoData.location,
-                      timeZone: geoData.timeZone,
-                      uaBrowser: sessionToken.uaBrowser,
-                      uaBrowserVersion: sessionToken.uaBrowserVersion,
-                      uaOS: sessionToken.uaOS,
-                      uaOSVersion: sessionToken.uaOSVersion,
-                      uaDeviceType: sessionToken.uaDeviceType
-                    }
-                  )
+            const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(sessionToken.uid) : P.resolve([])
+            return P.all([getGeoData(ip), secondaryEmails])
+              .spread((geoData, emails) => {
+                // New device notifications are always sent to the primary account email (emailRecord.email)
+                // and CCed to all secondary email if enabled.
+                mailer.sendNewDeviceLoginNotification(
+                  emails,
+                  emailRecord,
+                  {
+                    acceptLanguage: request.app.acceptLanguage,
+                    flowId: flowId,
+                    flowBeginTime: flowBeginTime,
+                    ip: ip,
+                    location: geoData.location,
+                    timeZone: geoData.timeZone,
+                    uaBrowser: sessionToken.uaBrowser,
+                    uaBrowserVersion: sessionToken.uaBrowserVersion,
+                    uaOS: sessionToken.uaOS,
+                    uaOSVersion: sessionToken.uaOSVersion,
+                    uaDeviceType: sessionToken.uaDeviceType
+                  }
+                )
                   .catch(e => {
                     // If we couldn't email them, no big deal. Log
                     // and pretend everything worked.
@@ -905,8 +909,7 @@ module.exports = (
                       error: e
                     })
                   })
-                }
-              )
+              })
           }
         }
 
@@ -918,32 +921,31 @@ module.exports = (
               tokenVerificationId: tokenVerificationId
             })
 
-            return getGeoData(ip)
-              .then(
-                function (geoData) {
-                  return mailer.sendVerifyLoginEmail(
-                    [],
-                    emailRecord,
-                    {
-                      acceptLanguage: request.app.acceptLanguage,
-                      code: tokenVerificationId,
-                      flowId: flowId,
-                      flowBeginTime: flowBeginTime,
-                      ip: ip,
-                      location: geoData.location,
-                      redirectTo: redirectTo,
-                      resume: resume,
-                      service: service,
-                      timeZone: geoData.timeZone,
-                      uaBrowser: sessionToken.uaBrowser,
-                      uaBrowserVersion: sessionToken.uaBrowserVersion,
-                      uaOS: sessionToken.uaOS,
-                      uaOSVersion: sessionToken.uaOSVersion,
-                      uaDeviceType: sessionToken.uaDeviceType
-                    }
-                  )
-                }
-              )
+            const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(sessionToken.uid) : P.resolve([])
+            return P.all([getGeoData(ip), secondaryEmails])
+              .spread((geoData, emails) => {
+                return mailer.sendVerifyLoginEmail(
+                  emails,
+                  emailRecord,
+                  {
+                    acceptLanguage: request.app.acceptLanguage,
+                    code: tokenVerificationId,
+                    flowId: flowId,
+                    flowBeginTime: flowBeginTime,
+                    ip: ip,
+                    location: geoData.location,
+                    redirectTo: redirectTo,
+                    resume: resume,
+                    service: service,
+                    timeZone: geoData.timeZone,
+                    uaBrowser: sessionToken.uaBrowser,
+                    uaBrowserVersion: sessionToken.uaBrowserVersion,
+                    uaOS: sessionToken.uaOS,
+                    uaOSVersion: sessionToken.uaOSVersion,
+                    uaDeviceType: sessionToken.uaDeviceType
+                  }
+                )
+              })
               .then(() => request.emitMetricsEvent('email.confirmation.sent'))
           }
         }
@@ -1607,12 +1609,6 @@ module.exports = (
           return P.resolve()
         }
 
-        /*
-        function checkBounces() {
-
-        }
-        */
-
         function createResponse() {
 
           var sessionVerified = sessionToken.tokenVerified
@@ -1651,6 +1647,7 @@ module.exports = (
             service: validators.service
           },
           payload: {
+            email: validators.email().optional(),
             service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
@@ -1660,37 +1657,29 @@ module.exports = (
       },
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailResend', request)
+        const email = request.payload.email
         const sessionToken = request.auth.credentials
         const service = request.payload.service || request.query.service
-        if (sessionToken.emailVerified && sessionToken.tokenVerified) {
+
+        // This endpoint can verify multiple types of codes, set these values once it
+        // is known what is being verified.
+        let code
+        let verifyFunction
+        let event
+        let emails = []
+
+        // Return immediately if this session or token is already verified. Only exception
+        // is if the email param has been specified, which means that this is
+        // a request to verify a secondary email.
+        if (sessionToken.emailVerified && sessionToken.tokenVerified && ! email) {
           return reply({})
         }
 
-        // Choose which type of email and code to resend
-        let code, func, event
-        if (sessionToken.tokenVerificationId) {
-          code = sessionToken.tokenVerificationId
-        } else {
-          code = sessionToken.emailCode
-        }
-
-        if (! sessionToken.emailVerified) {
-          func = mailer.sendVerifyCode
-          event = 'verification'
-        } else {
-          func = mailer.sendVerifyLoginEmail
-          event = 'confirmation'
-        }
-
-        return customs.check(
-          request,
-          sessionToken.email,
-          'recoveryEmailResendCode')
-          .then(func.bind(
-            mailer,
-            [],
-            sessionToken,
-            {
+        customs.check(request, sessionToken.email, 'recoveryEmailResendCode')
+          .then(setVerifyCode)
+          .then(setVerifyFunction)
+          .then(() => {
+            const mailerOpts = {
               code: code,
               service: service,
               timestamp: Date.now(),
@@ -1703,12 +1692,57 @@ module.exports = (
               uaOSVersion: sessionToken.uaOSVersion,
               uaDeviceType: sessionToken.uaDeviceType
             }
-          ))
+
+            return verifyFunction(emails, sessionToken, mailerOpts)
+          })
           .then(() => request.emitMetricsEvent(`email.${event}.resent`))
           .then(
             () => reply({}),
             reply
           )
+
+        function setVerifyCode() {
+          const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(sessionToken.uid) : P.resolve([])
+          return secondaryEmails
+            .then((emailData) => {
+              if (email) {
+                // If an email address is specified in payload, this is a request to verify
+                // a secondary email. This should return the corresponding email code for verification.
+                let emailVerified = false
+                emailData.some((userEmail) => {
+                  if (userEmail.normalizedEmail === email.toLowerCase()) {
+                    code = userEmail.emailCode
+                    emailVerified = userEmail.isVerified
+                    emails = [userEmail]
+                    return true
+                  }
+                })
+
+                // Don't resend code for already verified emails
+                if (emailVerified) {
+                  return reply({})
+                }
+              } else if (sessionToken.tokenVerificationId) {
+                emails = emailData
+                code = sessionToken.tokenVerificationId
+              } else {
+                code = sessionToken.emailCode
+              }
+            })
+        }
+
+        function setVerifyFunction() {
+          if (email) {
+            verifyFunction = mailer.sendVerifySecondaryEmail
+            event = 'verification_email'
+          } else if (! sessionToken.emailVerified) {
+            verifyFunction = mailer.sendVerifyCode
+            event = 'verification'
+          } else {
+            verifyFunction = mailer.sendVerifyLoginEmail
+            event = 'confirmation'
+          }
+        }
       }
     },
     {
@@ -1718,13 +1752,15 @@ module.exports = (
         validate: {
           query: {
             service: validators.service,
-            reminder: isA.string().max(32).alphanum().optional()
+            reminder: isA.string().max(32).alphanum().optional(),
+            type: isA.string().max(32).alphanum().optional()
           },
           payload: {
             uid: isA.string().max(32).regex(HEX_STRING).required(),
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
             service: validators.service,
-            reminder: isA.string().max(32).alphanum().optional()
+            reminder: isA.string().max(32).alphanum().optional(),
+            type: isA.string().max(32).alphanum().optional()
           }
         }
       },
@@ -1734,6 +1770,7 @@ module.exports = (
         const code = Buffer(request.payload.code, 'hex')
         const service = request.payload.service || request.query.service
         const reminder = request.payload.reminder || request.query.reminder
+        const type = request.payload.type || request.query.type
 
         log.begin('Account.RecoveryEmailVerify', request)
 
@@ -1743,21 +1780,71 @@ module.exports = (
         // failed right away.
         request.emitMetricsEvent('email.verify_code.clicked')
 
-        db.account(uid)
-          .then(
-            (account) => {
-              // This endpoint is not authenticated, so we need to look up
-              // the target email address before we can check it with customs.
-              return customs.check(request, account.email, 'recoveryEmailVerifyCode')
-                .then(
-                  () => account
-                )
-            }
-          )
-          .then(
-            (account) => {
+
+        /**
+         * Below is a summary of the verify_code flow. This flow is used to verify emails, sign-in and
+         * account codes.
+         *
+         * 1) Check request against customs server, proceed if valid.
+         *
+         * 2) If type=`secondary` then this is an email code and verify it
+         *    accordingly.
+         *
+         * 3) Otherwise attempt to verify code as sign-in code then account code.
+         */
+        return db.account(uid)
+          .then((account) => {
+            // This endpoint is not authenticated, so we need to look up
+            // the target email address before we can check it with customs.
+            return customs.check(request, account.email, 'recoveryEmailVerifyCode')
+              .then(() => {
+                return account
+              })
+          })
+          .then((account) => {
+            // Check if param `type` is specified and equal to `secondary`
+            // If so, verify the secondary email and respond
+            if (type && type === 'secondary' && features.isSecondaryEmailEnabled()) {
+              let verifiedEmail
+              return db.accountEmails(account.uid)
+                .then((emails) => {
+                  const isEmailVerification = emails.some((email) => {
+                    if (email.emailCode && (code.toString('hex') === email.emailCode)) {
+                      verifiedEmail = email.email
+                      log.info({
+                        op: 'account.verifyEmail.secondary.started',
+                        uid: uidHex,
+                        code: request.payload.code
+                      })
+                      return true
+                    }
+                  })
+
+                  // Attempt to verify email token not associated with account
+                  if (! isEmailVerification) {
+                    throw error.invalidVerificationCode()
+                  }
+
+                  return db.verifyEmail(account, code)
+                })
+                .then(function () {
+                  log.info({
+                    op: 'account.verifyEmail.secondary.confirmed',
+                    uid: uidHex,
+                    code: request.payload.code
+                  })
+                  return mailer.sendPostVerifySecondaryEmail(
+                    [],
+                    account,
+                    {
+                      acceptLanguage: request.app.acceptLanguage,
+                      secondaryEmail: verifiedEmail
+                    })
+                })
+            } else {
               const isAccountVerification = butil.buffersAreEqual(code, account.emailCode)
               let device
+
               return db.deviceFromTokenVerificationId(uid, code)
                 .then(function (associatedDevice) {
                   device = associatedDevice
@@ -1829,7 +1916,7 @@ module.exports = (
                       }
 
                       // Any matching code verifies the account
-                      return db.verifyEmail(account)
+                      return db.verifyEmail(account, account.emailCode)
                         .then(function () {
                           log.timing('account.verified', Date.now() - account.createdAt)
                           log.increment('account.verified')
@@ -1867,7 +1954,7 @@ module.exports = (
                           verificationReminder.delete({
                             uid: uidHex
                           }).catch(function (err) {
-                            log.error({ op: 'Account.RecoveryEmailVerify', err: err })
+                            log.error({op: 'Account.RecoveryEmailVerify', err: err})
                           })
                         })
                         .then(function () {
@@ -1886,13 +1973,209 @@ module.exports = (
                     })
                 })
             }
-          )
+          })
           .then(
             function () {
               reply({})
             },
             reply
           )
+      }
+    },
+    {
+      method: 'GET',
+      path: '/recovery_emails',
+      config: {
+        auth: {
+          strategy: 'sessionToken'
+        },
+        response: {
+          schema: isA.array().items(
+            isA.object({
+              verified: isA.boolean().required(),
+              isPrimary: isA.boolean().required(),
+              email: validators.email().required()
+            }))
+        }
+      },
+      handler: function (request, reply) {
+        const sessionToken = request.auth.credentials
+        const uid = sessionToken.uid
+
+        log.begin('Account.RecoveryEmailEmails', request)
+
+        if (! features.isSecondaryEmailEnabled()) {
+          return reply(error.featureNotEnabled())
+        }
+
+        db.accountEmails(uid)
+          .then(createResponse)
+          .done(reply, reply)
+
+        function createResponse(emails) {
+          return emails.map((email) => {
+            return {
+              email: email.email,
+              isPrimary: !! email.isPrimary,
+              verified: !! email.isVerified
+            }
+          })
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/recovery_email',
+      config: {
+        auth: {
+          strategy: 'sessionTokenWithVerificationStatus'
+        },
+        validate: {
+          payload: {
+            email: validators.email().required()
+          }
+        },
+        response: {}
+      },
+      handler: function (request, reply) {
+        const sessionToken = request.auth.credentials
+        const uid = sessionToken.uid
+        const primaryEmail = sessionToken.email
+        const ip = request.app.clientAddress
+        const email = request.payload.email
+        const emailData = {
+          email: email,
+          normalizedEmail: email.toLowerCase(),
+          isVerified: false,
+          isPrimary: false,
+          uid: uid
+        }
+
+        log.begin('Account.RecoveryEmailCreate', request)
+
+        if (! features.isSecondaryEmailEnabled()) {
+          return reply(error.featureNotEnabled())
+        }
+
+        if (! sessionToken.emailVerified) {
+          return reply(error.unverifiedAccount())
+        }
+
+        if (sessionToken.tokenVerificationId) {
+          return reply(error.unverifiedSession())
+        }
+
+        if (sessionToken.email.toLowerCase() === email.toLowerCase()) {
+          return reply(error.yourPrimaryEmailExists())
+        }
+
+        customs.check(request, primaryEmail, 'createEmail')
+          .then(checkEmail)
+          .then(generateRandomValues)
+          .then(createEmail)
+          .then(sendEmailVerification)
+          .then(
+            function () {
+              reply({})
+            },
+            reply
+          )
+
+        function checkEmail() {
+          return db.emailRecord(email)
+            .then((emailRecord) => {
+              if (emailRecord.emailVerified) {
+                throw error.verifiedPrimaryEmailAlreadyExists()
+              }
+
+              // Check to see if this account has been unverified for longer than
+              // a day, if so, delete account so another user can add it as a
+              // secondary email
+              const msSinceCreated = Date.now() - emailRecord.createdAt
+              if (msSinceCreated >= MS_ONE_DAY) {
+                return db.deleteAccount(emailRecord.uid)
+              } else {
+                throw error.unverifiedPrimaryEmailNewlyCreated()
+              }
+            })
+            .catch((err) => {
+              // Email does not exist in primary account table, carry on
+              if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
+                throw err
+              }
+            })
+        }
+
+        function generateRandomValues() {
+          return random(16)
+            .then(bytes => {
+              emailData.emailCode = bytes
+            })
+        }
+
+        function createEmail() {
+          return db.createEmail(uid, emailData)
+        }
+
+        function sendEmailVerification() {
+          return getGeoData(ip)
+            .then((geoData) => {
+              return mailer.sendVerifySecondaryEmail([emailData], sessionToken, {
+                code: emailData.emailCode,
+                acceptLanguage: request.app.acceptLanguage,
+                email: emailData.email,
+                primaryEmail: primaryEmail,
+                ip: ip,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser: sessionToken.uaBrowser,
+                uaBrowserVersion: sessionToken.uaBrowserVersion,
+                uaOS: sessionToken.uaOS,
+                uaOSVersion: sessionToken.uaOSVersion,
+              })
+            })
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/recovery_email/destroy',
+      config: {
+        auth: {
+          strategy: 'sessionTokenWithVerificationStatus'
+        },
+        validate: {
+          payload: {
+            email: validators.email().required()
+          }
+        },
+        response: {}
+      },
+      handler: function (request, reply) {
+        const sessionToken = request.auth.credentials
+        const uid = sessionToken.uid
+        const primaryEmail = sessionToken.email
+        const email = request.payload.email
+
+        log.begin('Account.RecoveryEmailDestroy', request)
+
+        if (! features.isSecondaryEmailEnabled()) {
+          return reply(error.featureNotEnabled())
+        }
+
+        if (sessionToken.tokenVerificationId) {
+          return reply(error.unverifiedSession())
+        }
+
+        customs.check(request, primaryEmail, 'deleteEmail')
+          .then(deleteEmail)
+          .done(() => {
+            reply({})
+          }, reply)
+
+        function deleteEmail() {
+          return db.deleteEmail(uid, email.toLowerCase())
+        }
       }
     },
     {
@@ -1970,9 +2253,9 @@ module.exports = (
         }
 
         function mailUnblockCode(code) {
-          return getGeoData(ip)
-            .then((geoData) => {
-              return mailer.sendUnblockCode([], emailRecord, userAgent.call({
+          return P.all([getGeoData(ip), db.accountEmails(emailRecord.uid)])
+            .spread((geoData, emails) => {
+              return mailer.sendUnblockCode(emails, emailRecord, userAgent.call({
                 acceptLanguage: request.app.acceptLanguage,
                 unblockCode: code,
                 flowId: flowId,

@@ -26,10 +26,12 @@ module.exports = function (
   verifierVersion,
   customs,
   checkPassword,
-  push
+  push,
+  config
   ) {
 
   const getGeoData = require('../geodb')(log)
+  const features = require('../features')(config)
 
   function failVerifyAttempt(passwordForgotToken) {
     return (passwordForgotToken.failAttempt()) ?
@@ -249,15 +251,16 @@ module.exports = function (
             .then(
               function (accountData) {
                 account = accountData
+                return features.isSecondaryEmailEnabled() ? db.accountEmails(passwordChangeToken.uid) : P.resolve([])
               }
             )
             .then(
-              function () {
+              function (emails) {
                 return getGeoData(ip)
                   .then(
                     function (geoData) {
                       return mailer.sendPasswordChangedNotification(
-                        [],
+                        emails,
                         account,
                         userAgent.call({
                           acceptLanguage: request.app.acceptLanguage,
@@ -408,28 +411,27 @@ module.exports = function (
           )
           .then(
             function (passwordForgotToken) {
-              return getGeoData(ip)
-                .then(
-                  function (geoData) {
-                    return mailer.sendRecoveryCode(
-                      [],
-                      passwordForgotToken,
-                      userAgent.call({
-                        code: passwordForgotToken.passCode,
-                        token: passwordForgotToken,
-                        service: service,
-                        redirectTo: request.payload.redirectTo,
-                        resume: request.payload.resume,
-                        acceptLanguage: request.app.acceptLanguage,
-                        flowId: flowId,
-                        flowBeginTime: flowBeginTime,
-                        ip: ip,
-                        location: geoData.location,
-                        timeZone: geoData.timeZone
-                      }, request.headers['user-agent'], log)
-                    )
-                  }
-                )
+              const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
+              return P.all([getGeoData(ip), secondaryEmails])
+                .spread((geoData, emails) => {
+                  return mailer.sendRecoveryCode(
+                    emails,
+                    passwordForgotToken,
+                    userAgent.call({
+                      token: passwordForgotToken,
+                      code: passwordForgotToken.passCode,
+                      service: service,
+                      redirectTo: request.payload.redirectTo,
+                      resume: request.payload.resume,
+                      acceptLanguage: request.app.acceptLanguage,
+                      flowId: flowId,
+                      flowBeginTime: flowBeginTime,
+                      ip: ip,
+                      location: geoData.location,
+                      timeZone: geoData.timeZone
+                    }, request.headers['user-agent'], log)
+                  )
+                })
                 .then(
                   function () {
                     return request.emitMetricsEvent('password.forgot.send_code.completed')
@@ -510,28 +512,27 @@ module.exports = function (
           )
           .then(
             function () {
-              return getGeoData(ip)
-                .then(
-                  function (geoData) {
-                    return mailer.sendRecoveryCode(
-                      [],
-                      passwordForgotToken,
-                      userAgent.call({
-                        code: passwordForgotToken.passCode,
-                        token: passwordForgotToken,
-                        service: service,
-                        redirectTo: request.payload.redirectTo,
-                        resume: request.payload.resume,
-                        acceptLanguage: request.app.acceptLanguage,
-                        flowId: flowId,
-                        flowBeginTime: flowBeginTime,
-                        ip: ip,
-                        location: geoData.location,
-                        timeZone: geoData.timeZone
-                      }, request.headers['user-agent'], log)
-                    )
-                  }
-                )
+              const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
+              return P.all([getGeoData(ip), secondaryEmails])
+                .spread((geoData, emails) => {
+                  return mailer.sendRecoveryCode(
+                    emails,
+                    passwordForgotToken,
+                    userAgent.call({
+                      code: passwordForgotToken.passCode,
+                      token: passwordForgotToken,
+                      service: service,
+                      redirectTo: request.payload.redirectTo,
+                      resume: request.payload.resume,
+                      acceptLanguage: request.app.acceptLanguage,
+                      flowId: flowId,
+                      flowBeginTime: flowBeginTime,
+                      ip: ip,
+                      location: geoData.location,
+                      timeZone: geoData.timeZone
+                    }, request.headers['user-agent'], log)
+                  )
+                })
             }
           )
           .then(
@@ -602,25 +603,30 @@ module.exports = function (
                 db.forgotPasswordVerified(passwordForgotToken)
                   .then(
                     function (accountResetToken) {
-                      return mailer.sendPasswordResetNotification(
-                        [],
-                        passwordForgotToken,
-                        {
-                          acceptLanguage: request.app.acceptLanguage,
-                          flowId: flowId,
-                          flowBeginTime: flowBeginTime
-                        }
-                      )
-                      .then(
-                        function () {
-                          return request.emitMetricsEvent('password.forgot.verify_code.completed')
-                        }
-                      )
-                      .then(
-                        function () {
-                          return accountResetToken
-                        }
-                      )
+                      const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
+                      return secondaryEmails
+                        .then((emails) => {
+                          return mailer.sendPasswordResetNotification(
+                            emails,
+                            passwordForgotToken,
+                            {
+                              code: code,
+                              acceptLanguage: request.app.acceptLanguage,
+                              flowId: flowId,
+                              flowBeginTime: flowBeginTime
+                            }
+                          )
+                        })
+                        .then(
+                          function () {
+                            return request.emitMetricsEvent('password.forgot.verify_code.completed')
+                          }
+                        )
+                        .then(
+                          function () {
+                            return accountResetToken
+                          }
+                        )
                     }
                   )
                   .then(

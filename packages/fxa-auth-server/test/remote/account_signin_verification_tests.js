@@ -730,6 +730,76 @@ describe('remote account signin verification', function() {
     }
   )
 
+  it(
+    'unverified account is verified on sign-in confirmation',
+    () => {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      var tokenCode
+
+      return Client.create(config.publicUrl, email, password, server.mailbox, {keys:true})
+        .then(
+          function (c) {
+            client = c
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            assert.equal(emailData.headers['x-template-name'], 'verifyEmail')
+            tokenCode = emailData.headers['x-verify-code']
+            assert.ok(tokenCode, 'sent verify code')
+          }
+        )
+        .then(
+          function () {
+            return client.login({keys:true})
+          }
+        )
+        .then(
+          function (c) {
+            client = c
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            assert.equal(emailData.headers['x-template-name'], 'verifyEmail')
+            const siginToken = emailData.headers['x-verify-code']
+            assert.notEqual(tokenCode, siginToken, 'login codes should not match')
+
+            return client.verifyEmail(siginToken)
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            assert.equal(status.verified, true, 'account is verified')
+            assert.equal(status.emailVerified, true, 'account email is verified')
+            assert.equal(status.sessionVerified, true, 'account session is  verified')
+          }
+        )
+        .then(
+          function () {
+            // Can retrieve keys now that account tokens verified
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            assert.ok(keys.kA, 'has kA keys')
+            assert.ok(keys.kB, 'has kB keys')
+            assert.ok(keys.wrapKb, 'has wrapKb keys')
+          }
+        )
+    }
+  )
+
   after(() => {
     return TestServer.stop(server)
   })

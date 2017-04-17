@@ -29,6 +29,7 @@ function makeRoutes(options) {
   var Password = require('../../../lib/crypto/password')(log, config)
   var customs = options.customs || {}
   var checkPassword = require('../../../lib/routes/utils/password_check')(log, config, Password, customs, db)
+  config.secondaryEmail = config.secondaryEmail || {}
   return require('../../../lib/routes/password')(
     log,
     db,
@@ -38,7 +39,8 @@ function makeRoutes(options) {
     config.verifierVersion,
     options.customs || {},
     checkPassword,
-    options.push || {}
+    options.push || {},
+    config
   )
 }
 

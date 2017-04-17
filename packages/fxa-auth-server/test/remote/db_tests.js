@@ -498,7 +498,7 @@ describe('remote db', function() {
     () => {
       return db.emailRecord(ACCOUNT.email)
         .then(function(emailRecord) {
-          return db.verifyEmail(emailRecord)
+          return db.verifyEmail(emailRecord, emailRecord.emailCode)
         })
         .then(function() {
           return db.account(ACCOUNT.uid)

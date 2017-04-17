@@ -37,6 +37,7 @@ var makeRoutes = function (options, requireMocks) {
   config.lastAccessTimeUpdates = {}
   config.signinConfirmation = config.signinConfirmation || {}
   config.signinUnblock = config.signinUnblock || {}
+  config.secondaryEmail = config.secondaryEmail || {}
   config.push = {
     allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
   }

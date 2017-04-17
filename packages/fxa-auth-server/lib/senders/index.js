@@ -106,6 +106,31 @@ module.exports = function (log, config, error, bounces, translator, sender) {
             })
           })
       },
+      sendVerifySecondaryEmail: function (emails, account, opts) {
+        var primaryEmail = account.email
+        var verifyEmailAddress = emails[0].email
+
+        return getSafeMailer(primaryEmail)
+          .then(function (mailer) {
+            return mailer.verifySecondaryEmail({
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              code: opts.code.toString('hex'),
+              email: verifyEmailAddress,
+              ip: opts.ip,
+              location: opts.location,
+              redirectTo: opts.redirectTo,
+              resume: opts.resume,
+              service: opts.service,
+              timeZone: opts.timeZone,
+              uaBrowser: opts.uaBrowser,
+              uaBrowserVersion: opts.uaBrowserVersion,
+              uaOS: opts.uaOS,
+              uaOSVersion: opts.uaOSVersion,
+              uid: account.uid.toString('hex'),
+              primaryEmail: primaryEmail
+            })
+          })
+      },
       sendRecoveryCode: function (emails, account, opts) {
         var primaryEmail = account.email
         var ccEmails = getVerifiedSecondaryEmails(emails)
@@ -196,6 +221,18 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           .then(function (mailer) {
             return mailer.postVerifyEmail({
               email: primaryEmail,
+              acceptLanguage: opts.acceptLanguage || defaultLanguage
+            })
+          })
+      },
+      sendPostVerifySecondaryEmail: function (emails, account, opts) {
+        var primaryEmail = account.email
+
+        return getSafeMailer(primaryEmail)
+          .then(function (mailer) {
+            return mailer.postVerifySecondaryEmail({
+              email: primaryEmail,
+              secondaryEmail: opts.secondaryEmail,
               acceptLanguage: opts.acceptLanguage || defaultLanguage
             })
           })

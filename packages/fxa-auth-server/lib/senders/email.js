@@ -25,11 +25,13 @@ module.exports = function (log) {
     'passwordChangedEmail': 'password-changed-success',
     'passwordResetEmail': 'password-reset-success',
     'postVerifyEmail': 'account-verified',
+    'postVerifySecondaryEmail': 'account-email-verified',
     'recoveryEmail': 'forgot-password',
     'unblockCode': 'new-unblock',
     'verifyEmail': 'welcome',
     'verifyLoginEmail': 'new-signin',
     'verifySyncEmail': 'welcome-sync',
+    'verifySecondaryEmail': 'welcome',
     'verificationReminderFirstEmail': 'hello-again-first',
     'verificationReminderSecondEmail': 'still-there-second',
     'verificationReminderEmail': 'hello-again-first'
@@ -43,6 +45,7 @@ module.exports = function (log) {
     'passwordResetEmail': 'password-reset',
     'passwordResetRequiredEmail': 'password-reset',
     'postVerifyEmail': 'connect-device',
+    'postVerifySecondaryEmail': 'manage-account',
     'recoveryEmail': 'reset-password',
     'unblockCode': 'unblock-code',
     'verificationReminderFirstEmail': 'activate',
@@ -51,6 +54,7 @@ module.exports = function (log) {
     'verifyEmail': 'activate',
     'verifyLoginEmail': 'confirm-signin',
     'verifySyncEmail': 'activate-sync',
+    'verifySecondaryEmail': 'activate',
   }
 
   function extend(target, source) {
@@ -105,10 +109,12 @@ module.exports = function (log) {
       }
     }
 
+    this.accountSettingsUrl = config.accountSettingsUrl
     this.androidUrl = config.androidUrl
     this.initiatePasswordChangeUrl = config.initiatePasswordChangeUrl
     this.initiatePasswordResetUrl = config.initiatePasswordResetUrl
     this.iosUrl = config.iosUrl
+    this.iosAdjustUrl = config.iosAdjustUrl
     this.mailer = sender || nodemailer.createTransport(options)
     this.passwordManagerInfoUrl = config.passwordManagerInfoUrl
     this.passwordResetUrl = config.passwordResetUrl
@@ -228,6 +234,12 @@ module.exports = function (log) {
         'Content-Language': localized.language,
         'X-Template-Name': message.template
       }, message.headers)
+    }
+
+    // Utilize nodemailer's cc ability to send to multiple addresses
+    // Ref: https://nodemailer.com/message/
+    if (message.ccEmails) {
+      emailConfig.cc = message.ccEmails
     }
 
     if (this.sesConfigurationSet) {
@@ -362,6 +374,7 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
+      ccEmails: message.ccEmails,
       email: message.email,
       headers: headers,
       subject: gettext('Firefox Account authorization code'),
@@ -414,6 +427,7 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
+      ccEmails: message.ccEmails,
       email: message.email,
       headers: headers,
       subject: gettext('Confirm new sign-in to Firefox'),
@@ -431,6 +445,63 @@ module.exports = function (log) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      },
+      uid: message.uid
+    })
+  }
+
+  Mailer.prototype.verifySecondaryEmail = function (message) {
+    log.trace({ op: 'mailer.verifySecondaryEmail', email: message.email, uid: message.uid })
+
+    var templateName = 'verifySecondaryEmail'
+    var query = {
+      code: message.code,
+      uid: message.uid,
+      type: 'secondary'
+    }
+
+    if (message.service) { query.service = message.service }
+    if (message.redirectTo) { query.redirectTo = message.redirectTo }
+    if (message.resume) { query.resume = message.resume }
+
+    var links = this._generateLinks(this.verificationUrl, message.email, query, templateName)
+
+    var headers = {
+      'X-Link': links.link,
+      'X-Service-ID': message.service,
+      'X-Uid': message.uid,
+      'X-Verify-Code': message.code
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
+      headers: headers,
+      subject: gettext('Verify email for Firefox Accounts'),
+      template: templateName,
+      templateValues: {
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        link: links.link,
+        location: this._constructLocationString(message),
+        oneClickLink: links.oneClickLink,
+        privacyUrl: links.privacyUrl,
+        reportSignInLink: links.reportSignInLink,
+        reportSignInLinkAttributes: links.reportSignInLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage),
+        primaryEmail: message.primaryEmail
       },
       uid: message.uid
     })
@@ -465,6 +536,7 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
+      ccEmails: message.ccEmails,
       email: message.email,
       headers: headers,
       subject: gettext('Reset your Firefox Account password'),
@@ -505,6 +577,7 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
+      ccEmails: message.ccEmails,
       email: message.email,
       headers: headers,
       subject: gettext('Your Firefox Account password has been changed'),
@@ -543,6 +616,7 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
+      ccEmails: message.ccEmails,
       email: message.email,
       headers: headers,
       subject: gettext('Your Firefox Account password has been reset'),
@@ -610,6 +684,7 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
+      ccEmails: message.ccEmails,
       email: message.email,
       headers: headers,
       subject: gettext('New sign-in to Firefox'),
@@ -662,6 +737,44 @@ module.exports = function (log) {
         iosLinkAttributes: linkAttributes(links.iosLink),
         privacyUrl: links.privacyUrl,
         supportUrl: links.supportUrl,
+        supportLinkAttributes: links.supportLinkAttributes
+      },
+      uid: message.uid
+    })
+  }
+
+  Mailer.prototype.postVerifySecondaryEmail = function (message) {
+    log.trace({ op: 'mailer.postVerifySecondaryEmail', email: message.email, uid: message.uid })
+
+    var templateName = 'postVerifySecondaryEmail'
+    var links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+
+    var headers = {
+      'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
+      headers: headers,
+      subject: gettext('Secondary Firefox Account email added'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        supportUrl: links.supportUrl,
+        secondaryEmail: message.secondaryEmail,
         supportLinkAttributes: links.supportLinkAttributes
       },
       uid: message.uid

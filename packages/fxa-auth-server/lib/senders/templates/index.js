@@ -61,6 +61,7 @@ module.exports = function () {
       'password_reset',
       'password_reset_required',
       'post_verify',
+      'post_verify_secondary',
       'recovery',
       'sms.installFirefox',
       'unblock_code',
@@ -68,7 +69,8 @@ module.exports = function () {
       'verification_reminder_second',
       'verify',
       'verify_login',
-      'verify_sync'
+      'verify_sync',
+      'verify_secondary'
     ].map(loadTemplates)
   )
   .then(
