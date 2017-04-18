@@ -23,7 +23,6 @@
   "verificationReminders": {
     "rate": 1
   },
-  "verifierVersion": 0,
   "securityHistory": {
     "ipProfiling": {
       "allowedRecency": 0
