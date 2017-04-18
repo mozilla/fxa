@@ -1,3 +1,18 @@
+<a name="1.85.0"></a>
+# [1.85.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.83.0...v1.85.0) (2017-04-18)
+
+
+### Bug Fixes
+
+* **install:** add formatter to main package.json (#222) ([f4cb995](https://github.com/mozilla/fxa-auth-db-mysql/commit/f4cb995))
+* **security:** escape json output (#220) r=vladikoff ([13b9f70](https://github.com/mozilla/fxa-auth-db-mysql/commit/13b9f70))
+
+### chore
+
+* **dependencies:** update all our production dependencies (#217) r=vladikoff ([e008849](https://github.com/mozilla/fxa-auth-db-mysql/commit/e008849))
+
+
+
 <a name="0.83.0"></a>
 # [0.83.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.82.0...v0.83.0) (2017-03-21)
 
@@ -358,4 +373,3 @@
 
   * Only fail with a DB patch level less than the one expected
   * (hotfix) regenerated npm-shrinkwrap.json that uses the correct version of fxa-auth-db-server - #15
-
