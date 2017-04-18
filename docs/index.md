@@ -163,3 +163,23 @@ There is also a "Core/FxAccounts" bugzilla component that covers the accounts co
 
 * [Get started with local development](https://github.com/mozilla/fxa-local-dev)
 * [Run your own FxA server stack](https://docs.services.mozilla.com/howtos/run-fxa.html)
+
+
+## Detailed Stack Diagrams
+
+[![](https://www.lucidchart.com/publicSegments/view/ef7d28eb-24b5-44c1-bef8-68238a8a3e2d/image.png)](https://www.lucidchart.com/publicSegments/view/ef7d28eb-24b5-44c1-bef8-68238a8a3e2d/image.png)
+
+******
+
+[![](https://www.lucidchart.com/publicSegments/view/b6e56b3b-81df-451c-868d-b0c2f95efa1e/image.png)](https://www.lucidchart.com/publicSegments/view/b6e56b3b-81df-451c-868d-b0c2f95efa1e/image.png)
+
+******
+
+[![](https://www.lucidchart.com/publicSegments/view/423659d0-530b-48f9-aa99-5ee7989f1ece/image.png)](https://www.lucidchart.com/publicSegments/view/423659d0-530b-48f9-aa99-5ee7989f1ece/image.png)
+
+******
+
+[![](https://www.lucidchart.com/publicSegments/view/ea28050a-024f-42bc-aa6c-023e8cf101e3/image.png)](https://www.lucidchart.com/publicSegments/view/ea28050a-024f-42bc-aa6c-023e8cf101e3/image.png)
+
+
+[LucidChart View](https://www.lucidchart.com/documents/edit/677146e7-0fb8-4486-99a7-7eacaa16b6be/1)
