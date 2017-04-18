@@ -174,6 +174,7 @@ function main() {
       })
     }
   })
+  .catch(process.exit.bind(null, 8))
 }
 
 if (require.main === module) {
