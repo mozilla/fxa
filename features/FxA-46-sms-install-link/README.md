@@ -52,5 +52,9 @@ provider behind Basket only allows US phone numbers.
   - App Store for iOS
 - Work in Basket repo to customize text message with our link
 
+## Design
+
+![form screenshot](./sms-form.png)
+
 [Basket API]: https://github.com/mozilla/basket/blob/d3a284a8f35b4ac9ed0eb3942861be38f2911aa1/news/views.py#L336
 [metrics]: https://app.datadoghq.com/dash/54206/fxa-content-server---registration
