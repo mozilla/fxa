@@ -1,3 +1,13 @@
+<a name="1.85.1"></a>
+## [1.85.1](https://github.com/mozilla/fxa-auth-server/compare/v1.85.0...v1.85.1) (2017-04-18)
+
+
+### Bug Fixes
+
+* **starup:** handle promise rejected on bind failure (#1838) r=vladikoff,seanmonstar ([7fd45e3](https://github.com/mozilla/fxa-auth-server/commit/7fd45e3))
+
+
+
 <a name="1.85.0"></a>
 # [1.85.0](https://github.com/mozilla/fxa-auth-server/compare/v1.84.2...v1.85.0) (2017-04-18)
 
