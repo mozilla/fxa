@@ -60,7 +60,7 @@ module.exports = function (fs, path, url, convict) {
     pruneTokensMaxAge: {
       // This setting must always be older than token lifetimes in the fxa-auth-server
       doc: 'Time after which to prune account, password and unblock tokens (in ms)',
-      default: '1 year',
+      default: '3 months',
       format: 'duration',
       env: 'PRUNE_TOKENS_MAX_AGE',
     },
