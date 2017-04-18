@@ -1,3 +1,53 @@
+<a name="1.85.0"></a>
+# [1.85.0](https://github.com/mozilla/fxa-auth-server/compare/v1.84.2...v1.85.0) (2017-04-18)
+
+
+### Bug Fixes
+
+* **config:** bring back signin confirmation in dev (#1830) ([e9f8c23](https://github.com/mozilla/fxa-auth-server/commit/e9f8c23))
+* **config:** change default BOUNCES_SOFT_DURATION to '5 minutes' (#1813) r=vladikoff ([9cb75ac](https://github.com/mozilla/fxa-auth-server/commit/9cb75ac))
+* **config:** Merge auth and mailer configs (#1798), r=@philbooth ([64c96d6](https://github.com/mozilla/fxa-auth-server/commit/64c96d6))
+* **config:** stop using envc; interferes with docker --env-file (#1833) r=vladikoff ([82bd9b5](https://github.com/mozilla/fxa-auth-server/commit/82bd9b5))
+* **mailer:** bring back process ports for mailer_server.js (#1815) r=jrgm ([4a4df8e](https://github.com/mozilla/fxa-auth-server/commit/4a4df8e)), closes [#1814](https://github.com/mozilla/fxa-auth-server/issues/1814)
+* **metrics:** fix metrics context errors ([fb5997e](https://github.com/mozilla/fxa-auth-server/commit/fb5997e))
+* **promise:** log unhandled rejections instead of throwing (#1818) r=vladikoff ([adc6d3e](https://github.com/mozilla/fxa-auth-server/commit/adc6d3e))
+* **routes:** Add a /__lbheartbeat__ route. (#1807) r=vladikoff ([89f5cac](https://github.com/mozilla/fxa-auth-server/commit/89f5cac))
+* **test:** remove obsolete test check (#1824) r=vladikoff ([c8dece9](https://github.com/mozilla/fxa-auth-server/commit/c8dece9))
+* **tests:** add remote tests for POST /sms ([9ac11ac](https://github.com/mozilla/fxa-auth-server/commit/9ac11ac))
+* **tests:** remove leftover ./test/.env.dev file (#1836) r=vladikoff ([646fa64](https://github.com/mozilla/fxa-auth-server/commit/646fa64))
+
+### chore
+
+* **config:** remove verifier version (#1834) ([e396ea6](https://github.com/mozilla/fxa-auth-server/commit/e396ea6))
+* **docs:** add npm test LOG_LEVEL docs ([7631997](https://github.com/mozilla/fxa-auth-server/commit/7631997))
+
+### Features
+
+* **db:** update to latest db v1.85.0 (#1837) r=jrgm ([f1a02f0](https://github.com/mozilla/fxa-auth-server/commit/f1a02f0))
+* **emails:** Add secondary emails api support Part 2 (#1768) r=vladikoff ([7ecad75](https://github.com/mozilla/fxa-auth-server/commit/7ecad75))
+
+
+
+<a name="1.84.1"></a>
+## [1.84.1](https://github.com/mozilla/fxa-auth-server/compare/v1.83.4...v1.84.1) (2017-04-05)
+
+
+### Bug Fixes
+
+* **locale:** Fix merge conflicts (#1794) ([5a7e4a7](https://github.com/mozilla/fxa-auth-server/commit/5a7e4a7)), closes [#1794](https://github.com/mozilla/fxa-auth-server/issues/1794)
+
+
+
+<a name="1.83.4"></a>
+## [1.83.4](https://github.com/mozilla/fxa-auth-server/compare/v1.84.0...v1.83.4) (2017-04-05)
+
+
+### Bug Fixes
+
+* **server:** remove crippled isLocaleAcceptable functionality (#1793), r=@vbudhram, @rfk ([748fcee](https://github.com/mozilla/fxa-auth-server/commit/748fcee))
+
+
+
 <a name="1.84.4"></a>
 ## [1.84.4](https://github.com/mozilla/fxa-auth-server/compare/v1.84.3...v1.84.4) (2017-04-13)
 
