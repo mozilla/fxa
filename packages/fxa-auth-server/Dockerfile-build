@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:4.7.2
+FROM node:4.8.2-alpine
 
 RUN addgroup -g 10001 app && \
     adduser -D -G app -h /app -u 10001 app
