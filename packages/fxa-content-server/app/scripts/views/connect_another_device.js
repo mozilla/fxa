@@ -186,7 +186,7 @@ define(function (require, exports, module) {
       return this.getEscapedSyncUrl('signin', View.ENTRYPOINT, { email: email });
     }
   }, {
-    ENTRYPOINT: 'connect_another_device'
+    ENTRYPOINT: 'fxa:connect_another_device'
   });
 
   Cocktail.mixin(

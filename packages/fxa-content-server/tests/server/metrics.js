@@ -31,6 +31,9 @@ define([
   };
 
   suite['#post /metrics - returns 200 with valid data'] = {
+    'valid entrypoint (fxa:connect_another_device)': testValidMetricsField('entrypoint', 'fxa:connect_another_device'),
+    'valid entrypoint (fxa:signup)': testValidMetricsField('entrypoint', 'fxa:signup'),
+    'valid entrypoint (fxa:signup-complete)': testValidMetricsField('entrypoint', 'fxa:signup-complete'),
     'valid error-type (error.unknown context.auth.108)':
         testValidMetricsEvent('type', 'error.unknown context.auth.108'),
     'valid error-type (signin-permissions.checkbox.change.profile:display_name.unchecked)':

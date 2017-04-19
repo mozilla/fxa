@@ -13,7 +13,7 @@ module.exports = {
     BROKER: /^[0-9a-z-]+$/,
     CLIENT_ID: /^[0-9a-f]{16}/,
     CONTEXT: /^[0-9a-z_-]+$/,
-    ENTRYPOINT: /^[\w.-]+$/,
+    ENTRYPOINT: /^[\w.:-]+$/,
     EVENT_TYPE: /^[\w\s.:-]+$/, // the space is to allow for error contexts that contain spaces, e.g., `error.unknown context.auth.108`
     EXPERIMENT: /^[\w.-]+$/,
     MIGRATION: /^(sync11|amo|none)$/,

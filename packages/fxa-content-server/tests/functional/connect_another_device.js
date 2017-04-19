@@ -21,7 +21,7 @@ define([
     'fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&' +
     'ct=adjust_tracker&mt=8';
 
-  var CONNECT_ANOTHER_DEVICE_ENTRYPOINT = 'entrypoint=connect_another_device';
+  var CONNECT_ANOTHER_DEVICE_ENTRYPOINT = 'entrypoint=' + encodeURIComponent('fxa:connect_another_device');
   var SELECTOR_CONFIRM_SIGNIN_HEADER = '#fxa-confirm-signin-header';
   var SELECTOR_CONTINUE_BUTTON = 'form div a';
   var SELECTOR_INSTALL_TEXT_ANDROID = '#install-mobile-firefox-android';
