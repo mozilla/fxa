@@ -1,5 +1,11 @@
 
+v1.85.0:
+
+  * chore(docker): Use official node image & update to Node.js v4.8.2 (#196) r=vladikoff
+  * fix(security): escape json output (#193) r=vladikoff
+
 v1.84.0
+
   * fix(tests): Correctly rate limit sms by ip address (#191), r=@rfk
 
 v1.83.0
@@ -14,11 +20,13 @@ v1.82.0
   * fix(shutdown): Fix deferred call of process.exit(code). (#183); r=jrgm
 
 v1.81.0
+
   * fix(reputation): add more (positive) logging to reputation service requests (#179), r=@vbudhram
   * feat(blocklist): Add support to specify the block level for multiple blocklists (#167), r=@rfk
   * fix(config-set): Don't attempt to merge array-valued config items. (#171); r=jrgm
 
 v0.80.0
+
   * Fix rep service config (#172), r=@vbudhram, @jrgm
   * fix(tests): remove old code coverage tool (#173), r=@vbudhram
   * feat(sms): Add support for rate-limiting sms actions (#161), r=@philbooth, @rfk
