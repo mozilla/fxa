@@ -1,4 +1,4 @@
-The command `make stack=one23done-stage key=yourkeyname trusted_client_id="dead..." client_secret="beef..." untrusted_client_id="feed..." untrusted_client_secret="deaf..."` will create an EC2+ELB instance [1] with the following attributes:
+The command `make stack=one23done-stage key=yourkeyname trusted_client_id="dead..." trusted_client_secret="beef..." untrusted_client_id="feed..." untrusted_client_secret="deaf..."` will create an EC2+ELB instance [1] with the following attributes:
 
 * builds and runs 123done (https://github.com/mozilla/123done) webserver as both trusted (123done) and untrusted (321done), using the oauth branch
 * an AWS ELB serving both port 80, and port 443 traffic with a SSL certificate for *.dev.lcip.org

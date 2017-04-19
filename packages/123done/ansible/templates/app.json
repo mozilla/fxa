@@ -30,7 +30,7 @@
     "SSLCertificateName": {
       "Description": "Name of SSLCertificate to use with HostedZone.",
       "Type": "String",
-      "ConstraintDescription": "must be a valid certificate stored in EC2."
+      "ConstraintDescription": "must be a valid certificate stored in ACM."
     },
     "FQDNTrusted": {
       "Description": "Fully qualified domain name of this trusted instance (e.g., 123done...).",
@@ -135,16 +135,8 @@
           {
             "InstancePort": "9000",
             "LoadBalancerPort": "443",
-            "PolicyNames": [ "ELBSecurityPolicy-2015-05" ],
             "Protocol": "HTTPS",
-            "SSLCertificateId":{
-              "Fn::Join":[ "", [
-                "arn:aws:iam::",
-                { "Ref": "AWS::AccountId" },
-                ":server-certificate/",
-                { "Ref": "SSLCertificateName" }
-              ] ]
-            }
+            "SSLCertificateId": { "Ref": "SSLCertificateName" }
           },
           {
             "InstancePort": "80",
