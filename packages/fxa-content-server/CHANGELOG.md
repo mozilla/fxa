@@ -1,3 +1,20 @@
+<a name="1.85.1"></a>
+## 1.85.1 (2017-04-19)
+
+
+### Bug Fixes
+
+* **metrics:** Allow entrypoints with the fxa: prefix (#4962) r=@philbooth ([a0b0d1f](https://github.com/mozilla/fxa-content-server/commit/a0b0d1f)), closes [(#4962](https://github.com/(/issues/4962) [#4887](https://github.com/mozilla/fxa-content-server/issues/4887)
+* **test:** Fix the failing unit tests in Chrome. (#4963) r=vladikoff ([c8f854a](https://github.com/mozilla/fxa-content-server/commit/c8f854a)), closes [(#4963](https://github.com/(/issues/4963) [#4793](https://github.com/mozilla/fxa-content-server/issues/4793)
+* **test:** test on travis with node 4 and 6 (#4958) r=vladikoff ([d2ffbfd](https://github.com/mozilla/fxa-content-server/commit/d2ffbfd))
+* **tests:** add config for nightly*.dev.lcip.org (#4957) r=vladikoff ([9ad4bc9](https://github.com/mozilla/fxa-content-server/commit/9ad4bc9))
+
+### Features
+
+* **sessions:** make sessions available to all (#4964) r=vbudhram ([e39410c](https://github.com/mozilla/fxa-content-server/commit/e39410c))
+
+
+
 <a name="1.85.0"></a>
 # 1.85.0 (2017-04-17)
 
