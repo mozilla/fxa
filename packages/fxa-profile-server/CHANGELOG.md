@@ -1,3 +1,13 @@
+<a name="1.85.0"></a>
+# [1.85.0](https://github.com/mozilla/fxa-profile-server/compare/v1.84.0...v1.85.0) (2017-04-19)
+
+
+### chore
+
+* **docker:** Use official node image & update to Node.js v4.8.2 (#243) r=vladikoff ([c67c9f1](https://github.com/mozilla/fxa-profile-server/commit/c67c9f1))
+
+
+
 <a name="1.84.0"></a>
 # [1.84.0](https://github.com/mozilla/fxa-profile-server/compare/v1.83.0...v1.84.0) (2017-04-04)
 
