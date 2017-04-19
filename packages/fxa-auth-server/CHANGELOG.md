@@ -1,3 +1,20 @@
+<a name"1.85.0"></a>
+## 1.85.0 (2017-04-19)
+
+
+#### Bug Fixes
+
+* **config:**
+  * expose clients config as OAUTH_CLIENTS ([04ebf6fd](https://github.com/mozilla/fxa-oauth-server/commit/04ebf6fd))
+  * Add environment config options ([14a9b4a6](https://github.com/mozilla/fxa-oauth-server/commit/14a9b4a6))
+* **patcher:** Fix patcher with no pre-loaded clients ([dcc47b98](https://github.com/mozilla/fxa-oauth-server/commit/dcc47b98))
+
+
+#### Features
+
+* **lb:** Add `__lbheartbeat__` endpoint (#458), r=@jbuck ([c387907c](https://github.com/mozilla/fxa-oauth-server/commit/c387907c))
+
+
 <a name"1.84.1"></a>
 ### 1.84.1 (2017-04-05)
 
