@@ -408,20 +408,6 @@ define(function (require, exports, module) {
 
     });
 
-    describe('_areWebSessionsVisible', function () {
-      it('calls able with the first version', function () {
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0) Gecko/20100101 Firefox/52.0';
-        return initView()
-          .then(() => {
-            view._able.choose.reset();
-            view._areWebSessionsVisible();
-            assert.isTrue(view._able.choose.calledWith('sessionsListVisible', {
-              firefoxVersion: 52
-            }));
-          });
-      });
-    });
-
     describe('_onGetApp', function () {
       it('logs get event', function () {
         attachedClients = new AttachedClients([
