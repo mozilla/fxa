@@ -66,6 +66,7 @@ define(function (require, exports, module) {
       describe('with a Fx desktop user that is signed in', () => {
         beforeEach(() => {
           sinon.stub(user, 'isSignedInAccount', () => true);
+          windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
 
           return view.render()
             .then(() => {
