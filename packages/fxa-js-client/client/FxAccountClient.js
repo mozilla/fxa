@@ -264,6 +264,8 @@ define([
    *   Service being signed into
    *   @param {String} [options.reminder]
    *   Reminder that was used to verify the account
+   *   @param {String} [options.type]
+   *   Type of code being verified, only supports `secondary` otherwise will verify account/sign-in
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.verifyCode = function(uid, code, options) {
@@ -282,6 +284,10 @@ define([
 
       if (options.reminder) {
         data.reminder = options.reminder;
+      }
+
+      if (options.type) {
+        data.type = options.type;
       }
     }
 
@@ -309,6 +315,8 @@ define([
    * @method recoveryEmailResendCode
    * @param {String} sessionToken sessionToken obtained from signIn
    * @param {Object} [options={}] Options
+   *   @param {String} [options.email]
+   *   Code will be resent to this email, only used for secondary email codes
    *   @param {String} [options.service]
    *   Opaque alphanumeric token to be included in verification links
    *   @param {String} [options.redirectTo]
@@ -329,6 +337,10 @@ define([
     required(sessionToken, 'sessionToken');
 
     if (options) {
+      if (options.email) {
+        data.email = options.email;
+      }
+
       if (options.service) {
         data.service = options.service;
       }
@@ -1223,6 +1235,66 @@ define([
           url += '?country=' + encodeURIComponent(options.country);
         }
         return request.send(url, 'GET', creds);
+      });
+  };
+
+  /**
+   * Get the recovery emails associated with the signed in account.
+   *
+   * @method recoveryEmails
+   * @param {String} sessionToken SessionToken obtained from signIn
+   */
+  FxAccountClient.prototype.recoveryEmails = function (sessionToken) {
+    required(sessionToken, 'sessionToken');
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        return request.send('/recovery_emails', 'GET', creds);
+      });
+  };
+
+  /**
+   * Create a new recovery email for the signed in account.
+   *
+   * @method recoveryEmailCreate
+   * @param {String} sessionToken SessionToken obtained from signIn
+   * @param {String} email new email to be added
+   */
+  FxAccountClient.prototype.recoveryEmailCreate = function (sessionToken, email) {
+    required(sessionToken, 'sessionToken');
+    required(sessionToken, 'email');
+
+    var data = {
+      email: email
+    };
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        return request.send('/recovery_email', 'POST', creds, data);
+      });
+  };
+
+  /**
+   * Remove the recovery email for the signed in account.
+   *
+   * @method recoveryEmailDestroy
+   * @param {String} sessionToken SessionToken obtained from signIn
+   * @param {String} email email to be removed
+   */
+  FxAccountClient.prototype.recoveryEmailDestroy = function (sessionToken, email) {
+    required(sessionToken, 'sessionToken');
+    required(sessionToken, 'email');
+
+    var data = {
+      email: email
+    };
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        return request.send('/recovery_email/destroy', 'POST', creds, data);
       });
   };
 

@@ -7,6 +7,7 @@ define([
   'tests/lib/certificateSign',
   'tests/lib/credentials',
   'tests/lib/device',
+  'tests/lib/emails',
   'tests/lib/errors',
   'tests/lib/hawkCredentials',
   'tests/lib/headerLang',

@@ -80,6 +80,10 @@ define([
       status: 200,
       body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
     },
+    mailUnverifiedEmail: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}]'
+    },
     mailSignUpLang: {
       status: 200,
       body: '[{"html":"Mocked code=9001","headers": {"content-language": "zh-CN" }}]'
@@ -285,6 +289,26 @@ define([
     smsStatus: {
       status: 200,
       body: '{"country":"RO","ok":true}'
+    },
+    recoveryEmails: {
+      status: 200,
+      body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}]'
+    },
+    recoveryEmailsUnverified: {
+      status: 200,
+      body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}, {"email": "another@email.com", "verified": false, "isPrimary": false}]'
+    },
+    recoveryEmailsVerified: {
+      status: 200,
+      body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}, {"email": "another@email.com", "verified": true, "isPrimary": false}]'
+    },
+    recoveryEmailCreate: {
+      status: 200,
+      body: '{}'
+    },
+    recoveryEmailDestroy: {
+      status: 200,
+      body: '{}'
     }
   };
 });
