@@ -64,7 +64,7 @@ define([
     return this.parent.takeScreenshot()
       .then(function (buffer) {
         console.error('Capturing base64 screenshot:');
-        console.error(buffer.toString('base64'));
+        console.error('data:image/jpeg;base64,' + buffer.toString('base64'));
       });
   });
 
