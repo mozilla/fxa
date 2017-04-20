@@ -27,6 +27,7 @@ module.exports = {
     INTEGER: joi.number().integer(),
     OFFSET: joi.number().integer().min(0),
     REFERRER: joi.string().max(2048).uri({ scheme: [ 'android-app', 'http', 'https' ]}).allow('none'),
+    RESUME: joi.string().regex(/^[a-zA-Z0-9\/+]+={0,2}$/), // match any valid base64 character
     STRING: joi.string().max(1024), // 1024 is arbitrary, seems like it should give CSP reports plenty of space.
     TIME: joi.number().integer().min(0),
     URL: joi.string().max(2048).uri({ scheme: [ 'http', 'https' ]}), // 2048 is also arbitrary, the same limit we use on the front end.

@@ -153,6 +153,76 @@ define([
       });
 
       return dfd.dojoPromise;
+    },
+
+    'logs error with invalid utm param' () {
+      const dfd = this.async(1000);
+      const req = {
+        query: {
+          /*eslint-disable camelcase*/
+          code: '12345678912345678912345678912312',
+          uid: '12345678912345678912345678912312',
+          utm_campaign: '!'
+          /*eslint-enable camelcase*/
+        },
+        url: '/verify_email'
+      };
+
+      mocks.got = {
+        post: () => {
+          return new Promise((resolve) => {
+            resolve({});
+          });
+        }
+      };
+
+      mockModule(mocks).process(req, res, () => {
+        // We have to use a setTimeout here because the log is performed passively after the response has
+        // been sent.
+        setTimeout(() => {
+          const c = ravenMock.ravenMiddleware.captureMessage;
+          const arg = c.args[0];
+          assert.equal(c.calledOnce, true);
+          assert.equal(arg[0], 'VerificationValidationInfo');
+          const errorMessage = '"utm_campaign" with value "&#x21;" fails to match the required pattern: /^[\\w\\/.%-]+/';
+          assert.equal(arg[1].extra.details[0].message, errorMessage);
+          dfd.resolve();
+        }, 100);
+      });
+
+      return dfd.promise;
+    },
+
+    'no logs with valid resume param' () {
+      const dfd = this.async(1000);
+      const req = {
+        query: {
+          code: '12345678912345678912345678912312',
+          resume: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=', // All possible base64 characters
+          uid: '12345678912345678912345678912312'
+        },
+        url: '/verify_email'
+      };
+
+      mocks.got = {
+        post: () => {
+          return new Promise((resolve) => {
+            resolve({});
+          });
+        }
+      };
+
+      mockModule(mocks).process(req, res, () => {
+        // We have to use a setTimeout here because the log is performed passively after the response has
+        // been sent.
+        setTimeout(() => {
+          const c = ravenMock.ravenMiddleware.captureMessage;
+          assert.equal(c.callCount, 0);
+          dfd.resolve();
+        }, 100);
+      });
+
+      return dfd.promise;
     }
 
   });

@@ -11,7 +11,9 @@ const joi = require('joi');
 const validation = require('../validation');
 
 const fxaAccountUrl = config.get('fxaccount_url');
+const RESUME_TYPE = validation.TYPES.RESUME;
 const STRING_TYPE = validation.TYPES.STRING;
+const UTM_TYPE = validation.TYPES.UTM;
 
 const VERIFICATION_ENDPOINT = `${fxaAccountUrl}/v1/recovery_email/verify_code`;
 const VERIFICATION_TIMEOUT = 5000;
@@ -27,13 +29,13 @@ const REQUIRED_SCHEMA = {
 const REPORT_ONLY_SCHEMA = {
   'code': STRING_TYPE.alphanum().min(32).max(32).required(),
   // resume token can be long, do not use the limited STRING_TYPE
-  'resume': joi.string().alphanum().optional(),
+  'resume': RESUME_TYPE.optional(),
   'service': STRING_TYPE.alphanum().max(100).optional(),
   'uid': STRING_TYPE.alphanum().min(32).max(32).required(),
-  'utm_campaign': STRING_TYPE.alphanum().optional(),
-  'utm_content': STRING_TYPE.alphanum().optional(),
-  'utm_medium': STRING_TYPE.alphanum().optional(),
-  'utm_source': STRING_TYPE.alphanum().optional()
+  'utm_campaign': UTM_TYPE.optional(),
+  'utm_content': UTM_TYPE.optional(),
+  'utm_medium': UTM_TYPE.optional(),
+  'utm_source': UTM_TYPE.optional()
 };
 
 module.exports = function () {
