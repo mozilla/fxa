@@ -2092,8 +2092,9 @@ module.exports = (
               // a day, if so, delete account so another user can add it as a
               // secondary email
               const msSinceCreated = Date.now() - emailRecord.createdAt
-              if (msSinceCreated >= MS_ONE_DAY) {
-                return db.deleteAccount(emailRecord.uid)
+              const minUnverifiedAccountTime = config.secondaryEmail.minUnverifiedAccountTime
+              if (msSinceCreated >= minUnverifiedAccountTime) {
+                return db.deleteAccount(emailRecord)
               } else {
                 throw error.unverifiedPrimaryEmailNewlyCreated()
               }

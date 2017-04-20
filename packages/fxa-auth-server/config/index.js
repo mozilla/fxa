@@ -755,6 +755,12 @@ var conf = convict({
       default: false,
       format: Boolean,
       env: 'SECONDARY_EMAIL_ENABLED'
+    },
+    minUnverifiedAccountTime: {
+      doc: 'The minimum amount of time an account can be unverified before another account can use it for secondary email',
+      default: '1 day',
+      format: 'duration',
+      env: 'SECONDARY_EMAIL_MIN_UNVERIFIED_ACCOUNT_TIME'
     }
   }
 })

@@ -615,7 +615,8 @@ describe('/recovery_email', () => {
       },
       config: {
         secondaryEmail: {
-          enabled: true
+          enabled: true,
+          minUnverifiedAccountTime: MS_IN_DAY
         }
       },
       customs: mockCustoms,

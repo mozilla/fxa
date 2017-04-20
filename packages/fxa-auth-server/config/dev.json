@@ -27,5 +27,8 @@
     "ipProfiling": {
       "allowedRecency": 0
     }
+  },
+  "secondaryEmail": {
+    "enabled": true
   }
 }
