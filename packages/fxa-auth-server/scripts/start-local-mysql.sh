@@ -11,7 +11,7 @@ node ./node_modules/fxa-auth-db-mysql/bin/db_patcher.js
 node ./node_modules/fxa-auth-db-mysql/bin/server.js &
 DB=$!
 
-node ./bin/key_server.js | node ./bin/notifier.js >/dev/null
+node ./bin/key_server.js
 
 kill $MH
 kill $DB

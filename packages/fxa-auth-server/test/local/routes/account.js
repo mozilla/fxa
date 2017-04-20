@@ -178,17 +178,7 @@ describe('/account/reset', function () {
 
 describe('/account/create', () => {
   it('should create an account', () => {
-    // We want to test what's actually written to stdout by the logger.
-    const mockLog = log('ERROR', 'test', {
-      stdout: {
-        on: sinon.spy(),
-        write: sinon.spy()
-      },
-      stderr: {
-        on: sinon.spy(),
-        write: sinon.spy()
-      }
-    })
+    const mockLog = log('ERROR', 'test')
     mockLog.activityEvent = sinon.spy(() => {
       return P.resolve()
     })
@@ -196,6 +186,8 @@ describe('/account/create', () => {
       return P.resolve()
     })
     mockLog.error = sinon.spy()
+    mockLog.notifier.send = sinon.spy()
+
     const mockMetricsContext = mocks.mockMetricsContext()
     const mockRequest = mocks.mockRequest({
       locale: 'en-GB',
@@ -266,8 +258,8 @@ describe('/account/create', () => {
     return runTest(route, mockRequest, () => {
       assert.equal(mockDB.createAccount.callCount, 1, 'createAccount was called')
 
-      assert.equal(mockLog.stdout.write.callCount, 1, 'an sqs event was logged')
-      var eventData = JSON.parse(mockLog.stdout.write.getCall(0).args[0])
+      assert.equal(mockLog.notifier.send.callCount, 1, 'an sqs event was logged')
+      var eventData = mockLog.notifier.send.getCall(0).args[0]
       assert.equal(eventData.event, 'login', 'it was a login event')
       assert.equal(eventData.data.service, 'sync', 'it was for sync')
       assert.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
@@ -363,23 +355,14 @@ describe('/account/login', function () {
       codeLifetime: 1000
     }
   }
-  // We want to test what's actually written to stdout by the logger.
-  const mockLog = log('ERROR', 'test', {
-    stdout: {
-      on: sinon.spy(),
-      write: sinon.spy()
-    },
-    stderr: {
-      on: sinon.spy(),
-      write: sinon.spy()
-    }
-  })
+  const mockLog = log('ERROR', 'test')
   mockLog.activityEvent = sinon.spy(() => {
     return P.resolve()
   })
   mockLog.flowEvent = sinon.spy(() => {
     return P.resolve()
   })
+  mockLog.notifier.send = sinon.spy()
   const mockMetricsContext = mocks.mockMetricsContext()
 
   const mockRequest = mocks.mockRequest({
@@ -470,7 +453,6 @@ describe('/account/login', function () {
   afterEach(() => {
     mockLog.activityEvent.reset()
     mockLog.flowEvent.reset()
-    mockLog.stdout.write.reset()
     mockMailer.sendNewDeviceLoginNotification = sinon.spy(() => P.resolve([]))
     mockMailer.sendVerifyLoginEmail.reset()
     mockMailer.sendVerifyCode.reset()
@@ -492,8 +474,8 @@ describe('/account/login', function () {
       assert.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called')
       assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
 
-      assert.equal(mockLog.stdout.write.callCount, 1, 'an sqs event was logged')
-      var eventData = JSON.parse(mockLog.stdout.write.getCall(0).args[0])
+      assert.equal(mockLog.notifier.send.callCount, 1, 'an sqs event was logged')
+      var eventData = mockLog.notifier.send.getCall(0).args[0]
       assert.equal(eventData.event, 'login', 'it was a login event')
       assert.equal(eventData.data.service, 'sync', 'it was for sync')
       assert.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')

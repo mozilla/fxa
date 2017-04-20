@@ -348,6 +348,7 @@ describe('IP Profiling', () => {
       })
 
       mockRequest.app = {
+        clientAddress: '63.245.221.32',
         isSuspiciousRequest: true
       }
 

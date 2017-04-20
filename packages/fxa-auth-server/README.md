@@ -44,7 +44,6 @@ This runs a script `scripts/start-local.sh` as defined in `package.json`. This w
 * `bin/key_server.js` on port 9000
 * `test/mail_helper.js` on port 9001
 * `./node_modules/fxa-customs-server/bin/customs_server.js` on port 7000
-* `bin/notifier.js` (no port)
 
 When you `Ctrl-c` your server, all 4 processes will be stopped.
 

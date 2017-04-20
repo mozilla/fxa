@@ -12,6 +12,7 @@ const logConfig = config.get('log')
 const StatsDCollector = require('./metrics/statsd')
 const unbuffer = require('./crypto/butil').unbuffer
 
+
 function Lug(options) {
   EventEmitter.call(this)
   this.name = options.name || 'fxa-auth-server'
@@ -27,6 +28,8 @@ function Lug(options) {
 
   this.statsd = new StatsDCollector(this.logger)
   this.statsd.init()
+
+  this.notifier = require('./notifier')(this)
 }
 util.inherits(Lug, EventEmitter)
 
@@ -138,9 +141,7 @@ Lug.prototype.summary = function (request, response) {
 
 
 // Broadcast an event to attached services, such as sync.
-// In production, these events are read from stdout
-// and broadcast to relying services over SNS/SQS.
-
+// In production, these events are broadcast to relying services over SNS/SQS.
 Lug.prototype.notifyAttachedServices = function (name, request, data) {
   return request.gatherMetricsContext({})
     .then(
@@ -150,7 +151,7 @@ Lug.prototype.notifyAttachedServices = function (name, request, data) {
           data: unbuffer(data)
         }
         e.data.metricsContext = metricsContextData
-        this.stdout.write(JSON.stringify(e) + '\n')
+        this.notifier.send(e)
       }
     )
 }
