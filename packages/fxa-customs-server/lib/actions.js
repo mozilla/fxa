@@ -37,6 +37,7 @@ const ACCOUNT_STATUS_ACTION = {
 // us look like spammers if abused.
 const EMAIL_SENDING_ACTION = {
   accountCreate: true,
+  createEmail: true,
   recoveryEmailResendCode: true,
   passwordForgotSendCode: true,
   passwordForgotResendCode: true,
