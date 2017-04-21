@@ -2,10 +2,9 @@ language: node_js
 
 node_js:
   - "4"
-  - "6"
 
 addons:
-  firefox: "50.1.0"
+  firefox: "53.0"
   apt:
     sources:
       - ubuntu-toolchain-r-test

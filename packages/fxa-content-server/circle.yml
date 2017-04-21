@@ -1,7 +1,7 @@
 dependencies:
   pre:
     - pip install mozdownload mozinstall
-    - mozdownload --version 50.1.0 --destination firefox.tar.bz2
+    - mozdownload --version 53.0 --destination firefox.tar.bz2
     - mozinstall firefox.tar.bz2
     - sudo apt-get install expect tightvncserver
     - ulimit -S -n 2048;

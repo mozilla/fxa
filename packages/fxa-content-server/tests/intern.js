@@ -77,10 +77,10 @@ function (intern, topic, firefoxProfile) {
       // this tells SeleniumTunnel to download geckodriver
       drivers: [{
         name: 'firefox',
-        version: '0.11.1'
+        version: '0.16.0'
       }],
       // version of Selenium
-      version: '3.1.0'
+      version: '3.4.0'
     }
   };
 
