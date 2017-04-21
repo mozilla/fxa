@@ -84,12 +84,12 @@ define([
         // second app should show up using 'refresh'
         .then(click('.clients-refresh'))
 
-        .then(testElementExists('li.client-oAuthApp:nth-child(2)'))
+        .then(testElementExists('li.client-oAuthApp[data-name^="321"]'))
 
         // delete should work
-        .then(click('li.client-oAuthApp:nth-child(2) .client-disconnect'))
-        .then(click('li.client-oAuthApp:nth-child(1) .client-disconnect'))
-        .then(pollUntilGoneByQSA('.client-disconnect'));
+        .then(click('li.client-oAuthApp[data-name^="123"] .client-disconnect'))
+        .then(click('li.client-oAuthApp[data-name^="321"] .client-disconnect'))
+        .then(pollUntilGoneByQSA('li.client-oAuthApp'));
     }
 
   });
