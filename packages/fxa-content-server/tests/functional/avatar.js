@@ -12,9 +12,10 @@ define([
 ], function (intern, registerSuite, assert, path, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
 
+  var ADD_AVATAR_BUTTON_SELECTOR  = '#change-avatar .settings-unit-toggle.primary';
   var AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
   var AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
-  var CHANGE_AVATAR_BUTTON_SELECTOR = '#change-avatar .settings-unit-toggle';
+  var CHANGE_AVATAR_BUTTON_SELECTOR = '#change-avatar .settings-unit-toggle.secondary';
   var PASSWORD = 'password';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -64,8 +65,8 @@ define([
       return this.remote
         .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
 
-        // go to change avatar
-        .then(click(CHANGE_AVATAR_BUTTON_SELECTOR))
+        // go to add avatar
+        .then(click(ADD_AVATAR_BUTTON_SELECTOR))
 
         // success is going to the change avatar page
         .then(testElementExists('#avatar-options'));
@@ -86,8 +87,8 @@ define([
       return this.remote
         .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
 
-        // go to change avatar
-        .then(click(CHANGE_AVATAR_BUTTON_SELECTOR))
+        // go to add avatar
+        .then(click(ADD_AVATAR_BUTTON_SELECTOR))
 
         // success is going to the change avatar page
         .then(testElementExists('#avatar-options'));

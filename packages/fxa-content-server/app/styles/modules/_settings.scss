@@ -211,6 +211,7 @@ body.settings #main-content.card {
 
   &.primary {
     background: $button-background-color;
+    border: solid 1px $button-border-default-color;
     color: $message-text-color;
 
     &:disabled,

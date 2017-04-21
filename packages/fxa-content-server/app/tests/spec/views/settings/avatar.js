@@ -71,6 +71,7 @@ define(function (require, exports, module) {
         return view.render()
           .then(function () {
             assert.equal(view.$('.add-button').length, 1);
+            assert.equal(view.$('.settings-unit-toggle.primary').length, 1);
           });
       });
 
@@ -80,6 +81,7 @@ define(function (require, exports, module) {
         return view.render()
           .then(function () {
             assert.equal(view.$('.change-button').length, 1);
+            assert.equal(view.$('.settings-unit-toggle.secondary').length, 1);
           });
       });
 

@@ -3,11 +3,16 @@
     <header class="settings-unit-summary">
       <h2 class="settings-unit-title">{{#t}}Display name{{/t}}</h2>
     </header>
-    <button class="settings-button secondary settings-unit-toggle hidden"
-      data-href="settings/display_name">
-      {{#displayName}}<span class="change-button">{{#t}}Change…{{/t}}</span>{{/displayName}}
-      {{^displayName}}<span class="add-button">{{#t}}Add…{{/t}}</span>{{/displayName}}
-    </button>
+    {{#displayName}}
+      <button class="settings-button secondary settings-unit-toggle" data-href="settings/display_name">
+      <span class="change-button">{{#t}}Change…{{/t}}</span>
+      </button>
+    {{/displayName}}
+    {{^displayName}}
+      <button class="settings-button primary settings-unit-toggle" data-href="settings/display_name">
+      <span class="add-button">{{#t}}Add…{{/t}}</span>
+      </button>
+    {{/displayName}}
   </div>
 
   <div class="settings-unit-details">
