@@ -12,6 +12,7 @@ module.exports = function (limits, now) {
   function EmailRecord() {
     this.vc = []
     this.xs = []
+    this.sms = []
     this.ub = []
   }
 
@@ -22,6 +23,7 @@ module.exports = function (limits, now) {
     rec.rl = object.rl       // timestamp when the account was rate-limited
     rec.vc = object.vc || rec.vc // timestamps when code verifications happened
     rec.xs = object.xs || rec.xs // timestamps when emails were sent
+    rec.sms = object.sms || rec.sms // timestamps when sms were sent
     rec.pr = object.pr       // timestamp of the last password reset
     rec.ub = object.ub || rec.ub
     return rec
@@ -82,6 +84,30 @@ module.exports = function (limits, now) {
     this.vc.push(now())
   }
 
+  EmailRecord.prototype.isOverSmsLimit = function () {
+    this.trimSmsRequests(now())
+    return this.sms.length > limits.maxSms
+  }
+
+  EmailRecord.prototype.trimSmsRequests = function (now) {
+    if (this.sms.length === 0) { return }
+    // sms is naturally ordered from oldest to newest
+    // and we only need to keep up to limits.maxSms + 1
+
+    var i = this.sms.length - 1
+    var n = 0
+    var hit = this.sms[i]
+    while (hit > (now - limits.rateLimitIntervalMs) && n <= limits.maxSms) {
+      hit = this.sms[--i]
+      n++
+    }
+    this.sms = this.sms.slice(i + 1)
+  }
+
+  EmailRecord.prototype.addSmsRequest = function () {
+    this.sms.push(now())
+  }
+
   EmailRecord.prototype.addUnblock = function () {
     this.ub.push(now())
   }
@@ -126,6 +152,7 @@ module.exports = function (limits, now) {
   EmailRecord.prototype.rateLimit = function () {
     this.rl = now()
     this.xs = []
+    this.sms = []
   }
 
   EmailRecord.prototype.passwordReset = function () {
@@ -172,6 +199,21 @@ module.exports = function (limits, now) {
       }
       this.addHit()
       if (this.isOverEmailLimit()) {
+        // They're now over the limit, rate-limit and tell them to retry.
+        this.rateLimit()
+        return this.retryAfter()
+      }
+    }
+
+    // For sms-sending actions, we may need to rate-limit.
+    if (actions.isSmsSendingAction(action)) {
+      // If they're already being blocked then don't count any more hits,
+      // and tell them to retry.
+      if (this.shouldBlock()) {
+        return this.retryAfter()
+      }
+      this.addSmsRequest()
+      if (this.isOverSmsLimit()) {
         // They're now over the limit, rate-limit and tell them to retry.
         this.rateLimit()
         return this.retryAfter()
