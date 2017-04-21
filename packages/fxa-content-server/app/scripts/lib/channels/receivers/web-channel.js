@@ -50,48 +50,58 @@ define(function (require, exports, module) {
       //
       // Ignore events with no `message` field.
       const message = detail.message;
-      if (message && ! this._reportCaughtErrors(message)) {
-        this.trigger('message', message);
+      if (message) {
+        const error = this._extractErrorFromMessage(message);
+        if (error) {
+          this._reportError(error);
+          message.error = error;
+          this.trigger('error', message);
+        } else {
+          this.trigger('message', message);
+        }
       }
     },
 
     /**
-     * Determine if the message received had an error reported.
+     * Report the WebChannel error.
      *
-     * @param {Object} message received from the WebChannel
-     * @returns {Boolean}
-     * @private
+     * @param {Object} error={}
+     *   @param {String} message error message
+     *   @param {String} stack stack trace
      */
-    _reportCaughtErrors (message) {
+    _reportError (error) {
+      this._logger.error('WebChannel error:', error.message);
+      Raven.captureMessage('WebChannel error: ' + error.message, {
+        // manually capture the stack as a custom field
+        extra: {
+          stackTrace: error.stack
+        }
+      });
+    },
+
+    /**
+     * Extract any errors from the WebChannel message.
+     *
+     * @param {Object} message
+     * @returns {Object} if an error exists, contains two fields, `message`, `stack`
+     */
+    _extractErrorFromMessage (message) {
       // this is super confusing, so read carefully:
       // there are two ways the error can be reported. Either `message.error` or `message.data.error`.
-      let errorMsg = 'Unknown error';
-      let errorStack = null;
-      let reportedError = false;
-
       if (message.error && _.isString(message.error)) {
         // if it is a String then it is probably an error from WebChannel.jsm
         // Example: https://dxr.mozilla.org/mozilla-central/rev/bad312aefb42982f492ad2cf36f4c6c3d698f4f7/toolkit/modules/WebChannel.jsm#101
-        errorMsg = message.error;
-        reportedError = true;
+        return {
+          message: message.error,
+          stack: null
+        };
       } else if (message.data && message.data.error) {
         // if it has an error Object that means it is a component error with a stack
-        errorMsg = message.data.error.message;
-        errorStack = message.data.error.stack;
-        reportedError = true;
+        return {
+          message: message.data.error.message,
+          stack: message.data.error.stack
+        };
       }
-
-      if (reportedError) {
-        this._logger.error('WebChannel error:', errorMsg);
-        Raven.captureMessage('WebChannel error: ' + errorMsg, {
-          // manually capture the stack as a custom field
-          extra: {
-            stackTrace: errorStack
-          }
-        });
-      }
-
-      return reportedError;
     },
 
     teardown () {

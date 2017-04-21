@@ -5,7 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
+  const Raven = require('raven');
   const sinon = require('sinon');
   const WebChannelReceiver = require('lib/channels/receivers/web-channel');
   const WindowMock = require('../../../../mocks/window');
@@ -13,10 +14,8 @@ define(function (require, exports, module) {
   var windowMock;
   var receiver;
 
-  var assert = chai.assert;
-
-  describe('lib/channels/receivers/web-channel', function () {
-    beforeEach(function () {
+  describe('lib/channels/receivers/web-channel', () => {
+    beforeEach(() => {
       windowMock = new WindowMock();
       receiver = new WebChannelReceiver();
       receiver.initialize({
@@ -25,12 +24,12 @@ define(function (require, exports, module) {
       });
     });
 
-    afterEach(function () {
+    afterEach(() => {
       receiver.teardown();
     });
 
-    describe('receiveMessage', function () {
-      it('prints an error to the console if the message is malformed', function () {
+    describe('receiveMessage', () => {
+      it('prints an error to the console if the message is malformed', () => {
         sinon.spy(windowMock.console, 'error');
 
         // missing detail
@@ -48,7 +47,7 @@ define(function (require, exports, module) {
         windowMock.console.error.restore();
       });
 
-      it('ignores messages without a `message`', function () {
+      it('ignores messages without a `message`', () => {
         sinon.spy(receiver, 'trigger');
 
         receiver.receiveMessage({
@@ -60,7 +59,7 @@ define(function (require, exports, module) {
         assert.isFalse(receiver.trigger.called);
       });
 
-      it('ignores messages from other channels', function () {
+      it('ignores messages from other channels', () => {
         sinon.spy(receiver, 'trigger');
 
         receiver.receiveMessage({
@@ -75,7 +74,7 @@ define(function (require, exports, module) {
         assert.isFalse(receiver.trigger.called);
       });
 
-      it('triggers a `message` event with event\'s message', function () {
+      it('triggers a `message` event with event\'s message', () => {
         sinon.spy(receiver, 'trigger');
 
         receiver.receiveMessage({
@@ -90,57 +89,91 @@ define(function (require, exports, module) {
         assert.isTrue(receiver.trigger.calledWith('message', { key: 'value' }));
       });
 
-      it('can handle errors triggered by the WebChannel component', function () {
+      it('can handle errors triggered by the WebChannel component', () => {
         sinon.spy(windowMock.console, 'error');
         sinon.spy(receiver, 'trigger');
+        sinon.spy(receiver, '_reportError');
 
+        const message = {
+          error: 'Permission denied'
+        };
         receiver.receiveMessage({
           detail: {
             id: 'channel_id',
-            message: {
-              error: 'Permission denied'
-            }
+            message
           }
         });
 
         assert.equal(windowMock.console.error.callCount, 1);
         assert.isTrue(windowMock.console.error.calledWith('WebChannel error:', 'Permission denied'));
-        assert.isFalse(receiver.trigger.called);
+        assert.isTrue(receiver._reportError.calledOnce);
+        assert.isTrue(receiver.trigger.calledOnce);
+        assert.isTrue(receiver.trigger.calledWith('error', message));
       });
 
-      it('can handle errors that have a stack in data', function () {
+      it('can handle errors that have a stack in data', () => {
         sinon.spy(windowMock.console, 'error');
         sinon.spy(receiver, 'trigger');
+        sinon.spy(receiver, '_reportError');
 
+        const message = {
+          data: {
+            error: {
+              message: 'Permission denied',
+              stack: 'foo \n bar'
+            }
+          }
+        };
         receiver.receiveMessage({
           detail: {
             id: 'channel_id',
-            message: {
-              data: {
-                error: {
-                  message: 'Permission denied',
-                  stack: 'foo \n bar'
-                }
-              }
-            }
+            message
           }
         });
 
         assert.equal(windowMock.console.error.callCount, 1);
         assert.isTrue(windowMock.console.error.calledWith('WebChannel error:', 'Permission denied'));
-        assert.isFalse(receiver.trigger.called);
+        assert.isTrue(receiver._reportError.calledOnce);
+        assert.isTrue(receiver.trigger.calledOnce);
+        assert.isTrue(receiver.trigger.calledWith('error', message));
       });
     });
 
-    describe('_reportCaughtErrors', function () {
+    describe('_extractErrorFromMessage', () => {
+      it('extracts any errors from the WebChannel message', () => {
+        assert.isUndefined(receiver._extractErrorFromMessage({ data: 'ok'}),
+          'undefined if no error');
+        assert.deepEqual(receiver._extractErrorFromMessage({ error: 'fail'}), { message: 'fail', stack: null },
+          'object if error');
+        assert.isUndefined(receiver._extractErrorFromMessage({ error: { shouldNotBeObject: true}}),
+          'undefined if direct object');
+        assert.deepEqual(receiver._extractErrorFromMessage({ data: { error: { message: 'error' }}}), { message: 'error', stack: undefined },
+          'object if nested error object');
+      });
+    });
 
-      it('reports error if it gets an error from WebChannels', function () {
-        assert.isFalse(receiver._reportCaughtErrors({ data: 'ok'}), 'false if no error');
-        assert.isTrue(receiver._reportCaughtErrors({ error: 'fail'}), 'true if error');
-        assert.isFalse(receiver._reportCaughtErrors({ error: { shouldNotBeObject: true}}), 'false if direct object');
-        assert.isTrue(receiver._reportCaughtErrors({ data: { error: { message: 'error'}}}), 'true if nested error object');
+    describe('_reportError', () => {
+      let sandbox;
+
+      beforeEach(() => {
+        sandbox = sinon.sandbox.create();
+        sandbox.spy(Raven, 'captureMessage');
+        sandbox.spy(receiver._logger, 'error');
       });
 
+      afterEach(() => {
+        sandbox.restore();
+      });
+
+      it('notifies the logger and Raven', () => {
+        receiver._reportError({
+          message: 'the error message',
+          stack: 'stack object'
+        });
+
+        assert.isTrue(receiver._logger.error.calledOnce);
+        assert.isTrue(Raven.captureMessage.calledOnce);
+      });
     });
   });
 });

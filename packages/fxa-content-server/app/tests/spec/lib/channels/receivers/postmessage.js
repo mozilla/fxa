@@ -5,16 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
-  const chai = require('chai');
   const PostMessageReceiver = require('lib/channels/receivers/postmessage');
   const sinon = require('sinon');
   const WindowMock = require('../../../../mocks/window');
 
-  var windowMock;
-  var receiver;
-
-  var assert = chai.assert;
+  let windowMock;
+  let receiver;
 
   describe('lib/channels/receivers/postmessage', function () {
     beforeEach(function () {
@@ -110,6 +108,7 @@ define(function (require, exports, module) {
           type: 'message'
         });
         assert.equal(errorSpy.callCount, 1);
+        assert.equal(errorSpy.args[0][0].error.message, 'malformed event');
       });
 
       it('triggers an `error` message if the postMessage event is from an untrusted origin', function () {
@@ -124,7 +123,7 @@ define(function (require, exports, module) {
         });
 
         assert.equal(errorSpy.callCount, 1);
-        assert.isTrue(AuthErrors.is(errorSpy.args[0][0], 'UNEXPECTED_POSTMESSAGE_ORIGIN'));
+        assert.isTrue(AuthErrors.is(errorSpy.args[0][0].error, 'UNEXPECTED_POSTMESSAGE_ORIGIN'));
       });
 
       it('triggers a `message` event with event\'s message', function () {

@@ -19,8 +19,8 @@ define(function (require, exports, module) {
 
   var assert = chai.assert;
 
-  describe('lib/channels/duplex', function () {
-    beforeEach(function () {
+  describe('lib/channels/duplex', () => {
+    beforeEach(() => {
       windowMock = new WindowMock();
       sender = new NullSender();
       receiver = new NullReceiver();
@@ -33,13 +33,13 @@ define(function (require, exports, module) {
       });
     });
 
-    afterEach(function () {
+    afterEach(() => {
       channel.teardown();
     });
 
-    describe('initialize', function () {
-      it('throws if no `sender`', function () {
-        assert.throws(function () {
+    describe('initialize', () => {
+      it('throws if no `sender`', () => {
+        assert.throws(() => {
           channel.initialize({
             receiver: receiver,
             window: windowMock
@@ -47,8 +47,8 @@ define(function (require, exports, module) {
         });
       });
 
-      it('throws if no `receiver`', function () {
-        assert.throws(function () {
+      it('throws if no `receiver`', () => {
+        assert.throws(() => {
           channel.initialize({
             sender: sender,
             window: windowMock
@@ -57,25 +57,25 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('send', function () {
-      it('sends a message to the sender', function () {
+    describe('send', () => {
+      it('sends a message to the sender', () => {
         sinon.spy(sender, 'send');
         return channel.send('message', { key: 'value' })
-          .then(function () {
+          .then(() => {
             assert.isTrue(sender.send.calledWith('message', { key: 'value' }, null));
           });
       });
 
-      it('can send a message with no data', function () {
+      it('can send a message with no data', () => {
         sinon.spy(sender, 'send');
         return channel.send('message')
-          .then(function () {
+          .then(() => {
             assert.isTrue(sender.send.calledWith('message', undefined, null));
           });
       });
 
-      it('returns any errors from the sender', function () {
-        sinon.stub(sender, 'send', function () {
+      it('returns any errors from the sender', () => {
+        sinon.stub(sender, 'send', () => {
           throw new Error('uh oh');
         });
 
@@ -86,21 +86,21 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('request', function () {
+    describe('request', () => {
       it('prints a message to the console if there is no response', function (done) {
         sinon.stub(windowMock, 'setTimeout', function (callback) {
           callback();
         });
 
-        sinon.stub(windowMock.console, 'error', function () {
+        sinon.stub(windowMock.console, 'error', () => {
           done();
         });
 
         channel.request('ping', {});
       });
 
-      it('returns any errors in from the sender', function () {
-        sinon.stub(sender, 'send', function () {
+      it('returns any errors in sending', () => {
+        sinon.stub(sender, 'send', () => {
           throw new Error('uh oh');
         });
 
@@ -110,11 +110,33 @@ define(function (require, exports, module) {
           });
       });
 
-      it('returns the response received by the receiver', function () {
+      it('returns any error responses from the sender', () => {
+        const responseData = {
+          error: {
+            message: 'uh oh'
+          }
+        };
+
+        sinon.stub(sender, 'send', function (command, data, messageId) {
+          responseData.messageId = messageId;
+          receiver.trigger('error', responseData);
+        });
+
+        var errorSpy = sinon.spy();
+        channel.on('error', errorSpy);
+
+        return channel.request('ping')
+          .then(assert.fail, function (error) {
+            assert.equal(error.message, 'uh oh');
+            assert.equal(errorSpy.args[0][0].message, 'uh oh');
+          });
+      });
+
+      it('returns the response received by the receiver', () => {
         sinon.stub(sender, 'send', function (command, data, messageId) {
           receiver.trigger('message', {
-            data: data,
-            messageId: messageId
+            data,
+            messageId
           });
         });
 
@@ -122,18 +144,6 @@ define(function (require, exports, module) {
           .then(function (resp) {
             assert.equal(resp.key, 'value');
           });
-      });
-    });
-
-    describe('errors', function () {
-      it('receiver errors are propagated', function () {
-        var errorSpy = sinon.spy();
-        channel.on('error', errorSpy);
-
-        var error = new Error('malformed message');
-        receiver.trigger('error', error);
-
-        assert.isTrue(errorSpy.calledWith(error));
       });
     });
   });

@@ -77,8 +77,8 @@ define(function (require, exports, module) {
       }
 
       // propagate errors outwards
-      this._receiver.on('error', this.trigger.bind(this, 'error'));
-      this._receiver.on('message', this.onMessageReceived.bind(this));
+      this._receiver.on('error', (err) => this.onErrorReceived(err));
+      this._receiver.on('message', (resp) => this.onMessageReceived(resp));
 
       this._outstandingRequests = new OutstandingRequests({
         sendTimeoutLength: options.sendTimeoutLength,
@@ -158,40 +158,67 @@ define(function (require, exports, module) {
     },
 
     onMessageReceived (message) {
-      var parsedMessage = this.parseMessage(message);
-      var data = parsedMessage.data;
-      var messageId = parsedMessage.messageId;
-
-      // A message is not necessarily in response to a sent request.
-      // If the message is in response to a request, then it should
-      // have a messageId.
-      var outstanding = this._outstandingRequests.get(messageId);
-      if (outstanding) {
-        this._outstandingRequests.remove(messageId);
-        outstanding.deferred.resolve(data);
+      var { command, data, messageId } = this.parseMessage(message);
+      if (messageId) {
+        // A message is not necessarily in response to a sent request.
+        // If the message is in response to a request, then it should
+        // have a messageId.
+        var outstanding = this._outstandingRequests.get(messageId);
+        if (outstanding) {
+          this._outstandingRequests.remove(messageId);
+          outstanding.deferred.resolve(data);
+        }
       }
 
       // Even if the message is not in response to a request, trigger an
       // event for any listeners that are waiting for it.
-      this.trigger(parsedMessage.command, data);
+      this.trigger(command, data);
     },
 
     /**
-     * Parse an incoming message into `messageId`, `command`, and `data`
+     * Parse an incoming message into `command`, `data`, and `messageId`
      *
      * @param {Object} message
      * @returns {Object} parsedMessage
-     *    @param {String} parsedMessage.command - message command
-     *    @param {String} [parsedMessage.messageId] - message id, if
+     *   @param {String} parsedMessage.command - message command
+     *   @param {Object} parsedMessage.data - data
+     *   @param {String} [parsedMessage.messageId] - message id, if
      *    a response.
-     *    @param {Object} parsedMessage.data - data
      */
     parseMessage (message) {
-      return {
-        command: message.command,
-        data: message.data,
-        messageId: message.messageId
-      };
+      return _.pick(message, 'command', 'data', 'messageId');
+    },
+
+    onErrorReceived (message) {
+      var { error, messageId } = this.parseError(message);
+
+      if (messageId) {
+        // A message is not necessarily in response to a sent request.
+        // If the message is in response to a request, then it should
+        // have a messageId.
+        var outstanding = this._outstandingRequests.get(messageId);
+        if (outstanding) {
+          this._outstandingRequests.remove(messageId);
+          outstanding.deferred.reject(error);
+        }
+      }
+
+      // Even if the message is not in response to a request, trigger an
+      // event for any listeners that are waiting for it.
+      this.trigger('error', error);
+    },
+
+    /**
+     * Parse an incoming message into `command`, `error`, and `messageId`
+     *
+     * @param {Object} message
+     * @returns {Object} parsedMessage={}
+     *   @param {String} parsedMessage.error - message error
+     *   @param {String} [parsedMessage.messageId] - message id, if
+     *    a response.
+     */
+    parseError (message) {
+      return _.pick(message, 'error', 'messageId');
     }
   });
 

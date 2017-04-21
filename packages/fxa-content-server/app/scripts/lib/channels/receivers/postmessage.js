@@ -68,9 +68,9 @@ define(function (require, exports, module) {
         // set the unexpected origin as the context, this will be logged.
         err.context = origin;
 
-        this.trigger('error', err);
+        this.trigger('error', { error: err });
       } else if (! event.data) {
-        this.trigger('error', new Error('malformed event'));
+        this.trigger('error', { error: new Error('malformed event') });
       } else {
         this.trigger('message', event.data);
       }
