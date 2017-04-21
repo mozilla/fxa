@@ -1,3 +1,25 @@
+<a name="1.85.2"></a>
+## 1.85.2 (2017-04-21)
+
+
+### Bug Fixes
+
+* **setting:** Made Add… buttons blue. (#4823) r=@shane-tomlinson ([1760d1e](https://github.com/mozilla/fxa-content-server/commit/1760d1e))
+* **test:** Fix the "delete oauth sessions" test. (#4969) r=vladikoff ([e0ecc62](https://github.com/mozilla/fxa-content-server/commit/e0ecc62)), closes [(#4969](https://github.com/(/issues/4969) [#4968](https://github.com/mozilla/fxa-content-server/issues/4968)
+* **tests:** make tests support Firefox 53 (#4973) ([2d3914b](https://github.com/mozilla/fxa-content-server/commit/2d3914b))
+* **validation:** Add validation rules for resume and utm_* (#4956), r=@shane-tomlinson, @philboot ([bb8d298](https://github.com/mozilla/fxa-content-server/commit/bb8d298))
+
+### chore
+
+* **docker:** Use official node image & update to Node.js v4.8.2 (#4961) r=vladikoff ([eb057d3](https://github.com/mozilla/fxa-content-server/commit/eb057d3))
+
+### Features
+
+* **deps:** fxa-js-client update to 0.1.56 (#4965), r=@vbudhram ([3dfd295](https://github.com/mozilla/fxa-content-server/commit/3dfd295))
+* **test:** Make it easier to load screenshots in the browser. (#4970) r=vladikoff ([770fbe8](https://github.com/mozilla/fxa-content-server/commit/770fbe8))
+
+
+
 <a name="1.85.1"></a>
 ## 1.85.1 (2017-04-19)
 
