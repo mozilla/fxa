@@ -36,21 +36,16 @@ define([
       //
       // Note: in production, for /i18n/client.json, nginx can do gzip compression,
       // and will add the header 'Vary: Accept-Encoding' in addition to the 'Vary:
-      // Accept-Language' that is set by nodejs on the server-side. However, while
-      // that is legal in HTTP, in nodejs < 0.11.11 on the client-side, the second
-      // 'Vary:' header clobbers the first one. In nodejs >= 0.11.11, the two headers
-      // are folded into one comma-separated value. Which leads to this way too
-      // complicated test condition. See https://github.com/joyent/node/pull/6821.
+      // Accept-Language' that is set by nodejs on the server-side. In nodejs >=
+      // 0.11.11, the two headers are folded into one comma-separated value by the
+      // client library, so check that both Vary values are present in the Vary
+      // header.
       //
       assert.ok(res.headers.vary, 'the vary header exists');
       var varyHeader = res.headers.vary.toLowerCase().split(/,\s*/);
       if (intern.config.fxaProduction && ! intern.config.fxaDevBox) {
-        if (process.versions['node'] < '0.11.11') {
-          assert.ok(varyHeader.indexOf('accept-encoding') !== -1);
-        } else {
-          assert.ok(varyHeader.indexOf('accept-language') !== -1);
-          assert.ok(varyHeader.indexOf('accept-encoding') !== -1);
-        }
+        assert.ok(varyHeader.indexOf('accept-language') !== -1);
+        assert.ok(varyHeader.indexOf('accept-encoding') !== -1);
       } else {
         assert.ok(varyHeader.indexOf('accept-language') !== -1);
       }
