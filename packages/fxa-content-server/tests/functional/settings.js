@@ -84,17 +84,12 @@ define([
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
-        .findByCssSelector('#fxa-settings-header')
-        .end()
-
+        .then(testElementExists('#fxa-settings-header'))
         // sign the user out
-        .findById('signout')
-          .click()
-        .end()
+        .then(click('#signout'))
 
         // success is going to the signin page
-        .findById('fxa-signin-header')
-        .end();
+        .then(testElementExists('#fxa-signin-header'));
     },
 
     'sign in with incorrect email case, go to settings, canonical email form is used': function () {
@@ -112,7 +107,6 @@ define([
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
-
         // synthesize signin pre-#4470 with incorrect email case
         .then(denormalizeStoredEmail(email))
 
@@ -127,62 +121,49 @@ define([
       return this.remote
         .then(fillOutSignIn(email, FIRST_PASSWORD, true))
 
-        .findById('fxa-settings-header')
-        .end()
-
+        .then(testElementExists('#fxa-settings-header'))
         .then(openPage(SETTINGS_URL + '?setting=avatar', '#avatar-options'))
 
-        .findByCssSelector('.modal-panel button.cancel')
-          .click()
-        .end()
+        .then(click('.modal-panel button.cancel'))
 
         // Should not redirect after clicking the home button
-        .findById('fxa-settings-header')
-        .end();
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'sign in, go to settings with setting param and additional params redirects to avatar change page ': function () {
       return this.remote
         .then(fillOutSignIn(email, FIRST_PASSWORD, true))
 
-        .findById('fxa-settings-header')
-        .end()
-
+        .then(testElementExists('#fxa-settings-header'))
         .then(openPage(SETTINGS_URL + '?setting=avatar&uid=' + accountData.uid, '#avatar-options'))
 
-        .findByCssSelector('.modal-panel button.cancel')
-          .click()
-        .end()
+        .then(click('.modal-panel button.cancel'))
 
         // Should not redirect after clicking the home button
-        .findById('fxa-settings-header')
-        .end();
+        .then(testElementExists('#fxa-settings-header'));
     },
 
     'sign in with setting param set to avatar redirects to avatar change page ': function () {
       return this.remote
         .then(openPage(SIGNIN_URL + '?setting=avatar', '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
-        .findById('avatar-options')
-        .end();
+        .then(testElementExists('#avatar-options'));
     },
 
     'sign in with setting param and additional params redirects to avatar change page ': function () {
       return this.remote
         .then(openPage(SIGNIN_URL + '?setting=avatar&uid=' + accountData.uid, '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
-        .findById('avatar-options')
-        .end();
+        .then(testElementExists('#avatar-options'));
     },
 
     'sign in, go to settings and opening display_name panel autofocuses the first input element': function () {
       return this.remote
         .then(fillOutSignIn(email, FIRST_PASSWORD, true))
-        .findByCssSelector('[data-href="settings/display_name"]')
-          .click()
-        .end()
-        .findByCssSelector('input.display-name')
-        .end()
+        .then(click('[data-href="settings/display_name"]'))
+        .then(testElementExists('input.display-name'))
+
+        // first element is focused
         .getActiveElement()
         .then(function (element) {
           element.getAttribute('class')
