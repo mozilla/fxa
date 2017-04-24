@@ -404,8 +404,7 @@ module.exports = (
             verificationMethod: isA.string().optional(),
             verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
-            authAt: isA.number().integer(),
-            emailSent: isA.boolean().optional()
+            authAt: isA.number().integer()
           }
         }
       },
@@ -423,7 +422,7 @@ module.exports = (
 
         let needsVerificationId = true
         let emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation,
-          emailSent, unblockCode, customsErr, didSigninUnblock, tokenVerificationId
+          unblockCode, customsErr, didSigninUnblock, tokenVerificationId
 
         let securityEventRecency = Infinity, securityEventVerified = false
 
@@ -827,9 +826,6 @@ module.exports = (
         }
 
         function sendVerifyAccountEmail() {
-          // Delegate sending emails for unverified users to auth-server.
-          emailSent = false
-
           if (! emailRecord.emailVerified) {
             if (didSigninUnblock) {
               log.info({
@@ -841,7 +837,6 @@ module.exports = (
             // Only use tokenVerificationId if it is set, otherwise use the corresponding email code
             // This covers the cases where sign-in confirmation is disabled or not needed.
             var emailCode = tokenVerificationId ? tokenVerificationId : emailRecord.emailCode
-            emailSent = true
 
             return getGeoData(ip)
               .then(
@@ -967,7 +962,6 @@ module.exports = (
             authAt: sessionToken.lastAuthAt()
           }
 
-          response.emailSent = emailSent
 
           if (! requestHelper.wantsKeys(request)) {
             return P.resolve(response)
