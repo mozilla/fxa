@@ -86,8 +86,13 @@ define([
 
         .then(testElementExists('li.client-oAuthApp[data-name^="321"]'))
 
-        // delete should work
         .then(click('li.client-oAuthApp[data-name^="123"] .client-disconnect'))
+        // wait for the element to be gone or else it's possible for the subsequent
+        // `click` can fail with a StaleElementReference because click on 123Done's
+        // button happens, the XHR request takes a bit of time, the reference to the
+        // 321Done button is fetched, the XHR request completes and updates the DOM,
+        // making the reference to the 321Done button stale.
+        .then(pollUntilGoneByQSA('li.client-oAuthApp[data-name^="123"]'))
         .then(click('li.client-oAuthApp[data-name^="321"] .client-disconnect'))
         .then(pollUntilGoneByQSA('li.client-oAuthApp'));
     }
