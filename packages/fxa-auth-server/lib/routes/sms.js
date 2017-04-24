@@ -18,8 +18,8 @@ module.exports = (log, config, customs, sms) => {
   }
 
   const getGeoData = require('../geodb')(log)
-  const REGIONS = new Set(config.sms.regions)
   const SENDER_IDS = config.sms.senderIds
+  const REGIONS = new Set(Object.keys(SENDER_IDS))
   const IS_STATUS_GEO_ENABLED = config.sms.isStatusGeoEnabled
 
   return [

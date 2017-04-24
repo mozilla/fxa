@@ -308,7 +308,7 @@ describe('/sms/status', () => {
     config = {
       sms: {
         enabled: true,
-        regions: [ 'US' ],
+        senderIds: { 'US': '18005551212' },
         isStatusGeoEnabled: true
       }
     }
@@ -546,7 +546,7 @@ describe('/sms/status with disabled geo-ip lookup', () => {
     config = {
       sms: {
         enabled: true,
-        regions: [ 'US' ],
+        senderIds: { 'US': '18005551212' },
         isStatusGeoEnabled: false
       }
     }
@@ -604,7 +604,7 @@ describe('/sms/status with query param and enabled geo-ip lookup', () => {
     config = {
       sms: {
         enabled: true,
-        regions: [ 'RO' ],
+        senderIds: { 'RO': '0215555111' },
         isStatusGeoEnabled: true
       }
     }
@@ -654,7 +654,7 @@ describe('/sms/status with query param and disabled geo-ip lookup', () => {
     config = {
       sms: {
         enabled: true,
-        regions: [ 'GB' ],
+        senderIds: { 'GB': '03456000000' },
         isStatusGeoEnabled: false
       }
     }

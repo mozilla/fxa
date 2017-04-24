@@ -720,14 +720,8 @@ var conf = convict({
       format: Boolean,
       env: 'SMS_STATUS_GEO_ENABLED'
     },
-    regions: {
-      doc: 'Valid ISO 3166-1 alpha-2 country codes for enabled regions',
-      default: [ 'US', 'CA' ],
-      format: Array,
-      env: 'SMS_REGIONS'
-    },
     senderIds: {
-      doc: 'Sender ids keyed by the region they apply to',
+      doc: 'Sender ids keyed by the ISO 3166-1 alpha-2 country code (region) they apply to',
       default: {
         CA: '16474909977',
         GB: 'Firefox',
