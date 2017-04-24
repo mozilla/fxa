@@ -60,5 +60,6 @@ git push origin/master
 ### Adding new milestones
 
 * Add the milestone by hand on the mozilla/fxa repo
+* Create an issue in the new milestone so that it's not empty
 * Get a [GitHub access token](https://github.com/settings/tokens), set `GITHUB_USERNAME` and `GITHUB_API_KEY`
 * Run `scripts/sync_milestones.js` to propagate it to the other repos
