@@ -4,6 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var Memcached = require('memcached')
 var restify = require('restify')
 var safeJsonFormatter = require('restify-safe-json-formatter')
@@ -40,20 +42,22 @@ module.exports = function createServer(config, log) {
   )
 
   var reputationService = require('./reputationService')(config, log)
-  var limits = require('./limits')(config, mc, log)
-  var allowedIPs = require('./allowed_ips')(config, mc, log)
-  var allowedEmailDomains = require('./allowed_email_domains')(config, mc, log)
-  var requestChecks = require('./requestChecks')(config, mc, log)
+  const Settings = require('./settings/settings')(config, mc, log)
+  var limits = require('./settings/limits')(config, Settings, log)
+  var allowedIPs = require('./settings/allowed_ips')(config, Settings, log)
+  var allowedEmailDomains = require('./settings/allowed_email_domains')(config, Settings, log)
+  var requestChecks = require('./settings/requestChecks')(config, Settings, log)
 
   if (config.updatePollIntervalSeconds) {
-    limits.refresh({ pushOnMissing: true })
-    limits.pollForUpdates()
-    allowedIPs.refresh({ pushOnMissing: true })
-    allowedIPs.pollForUpdates()
-    allowedEmailDomains.refresh({ pushOnMissing: true })
-    allowedEmailDomains.pollForUpdates()
-    requestChecks.refresh({ pushOnMissing: true })
-    requestChecks.pollForUpdates()
+    [
+      allowedEmailDomains,
+      allowedIPs,
+      limits,
+      requestChecks
+    ].forEach(settings => {
+      settings.refresh({ pushOnMissing: true }).catch(() => {})
+      settings.pollForUpdates()
+    })
   }
 
   var IpEmailRecord = require('./ip_email_record')(limits)
