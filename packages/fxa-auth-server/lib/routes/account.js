@@ -1433,6 +1433,7 @@ module.exports = (
             lastAccessTime: isA.number().min(0).required().allow(null),
             lastAccessTimeFormatted: isA.string().optional().allow(''),
             userAgent: isA.string().max(255).required().allow(''),
+            os: isA.string().max(255).allow('').allow(null),
             deviceId: isA.string().regex(HEX_STRING).allow(null),
             deviceName: isA.string().max(255).required().allow('').allow(null),
             deviceType: isA.string().max(16).required().allow(null),
@@ -1470,6 +1471,8 @@ module.exports = (
 
               session.lastAccessTimeFormatted = localizeTimestamp.format(session.lastAccessTime,
                 request.headers['accept-language'])
+
+              session.os = session.uaOS
 
               delete session.tokenId
               delete session.uid

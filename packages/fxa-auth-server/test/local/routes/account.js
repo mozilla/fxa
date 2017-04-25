@@ -1217,7 +1217,7 @@ describe('/account/sessions', function () {
 
     return runTest(route, mockRequest, function (res) {
       assert.equal(res.length, 1)
-      assert.equal(Object.keys(res[0]).length, 12)
+      assert.equal(Object.keys(res[0]).length, 13)
       var s = res[0]
       assert.equal(s.id, testSession.tokenId)
       assert.equal(s.deviceName, testSession.deviceName)
@@ -1230,6 +1230,7 @@ describe('/account/sessions', function () {
       assert.equal(s.isDevice, true)
       assert.equal(s.lastAccessTimeFormatted, 'a few seconds ago')
       assert.equal(s.userAgent, 'Firefox 50')
+      assert.equal(s.os, 'Windows')
     })
 
   })
