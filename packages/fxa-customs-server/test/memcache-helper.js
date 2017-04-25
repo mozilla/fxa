@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var P = require('bluebird')
 var Memcached = require('memcached')
 P.promisifyAll(Memcached.prototype)
@@ -52,10 +54,11 @@ module.exports.mc = mc
 var TEST_EMAIL = 'test@example.com'
 var TEST_IP = '192.0.2.1'
 
-var limits = require('../lib/limits')(config, mc, console)
-var allowedIPs = require('../lib/allowed_ips')(config, mc, console)
-var allowedEmailDomains = require('../lib/allowed_email_domains')(config, mc, console)
-var requestChecks = require('../lib/requestChecks')(config, mc, console)
+const Settings = require('../lib/settings/settings')(config, mc, console)
+var limits = require('../lib/settings/limits')(config, Settings, console)
+var allowedIPs = require('../lib/settings/allowed_ips')(config, Settings, console)
+var allowedEmailDomains = require('../lib/settings/allowed_email_domains')(config, Settings, console)
+var requestChecks = require('../lib/settings/requestChecks')(config, Settings, console)
 var EmailRecord = require('../lib/email_record')(limits)
 var IpEmailRecord = require('../lib/ip_email_record')(limits)
 var IpRecord = require('../lib/ip_record')(limits)
