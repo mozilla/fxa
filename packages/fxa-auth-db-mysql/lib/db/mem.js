@@ -1016,6 +1016,16 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
+  Memory.prototype.getSecondaryEmail = function (emailBuffer) {
+    const normalizedEmail = emailBuffer.toString('utf8').toLowerCase()
+
+    if (emails[normalizedEmail]) {
+      return P.resolve(emails[normalizedEmail])
+    } else {
+      return P.reject(error.notFound())
+    }
+  }
+
   Memory.prototype.accountEmails = function (uid) {
     var userEmails = []
 

@@ -122,7 +122,7 @@ module.exports = function(cfg, server) {
   )
 
   test(
-    'add account, add email, get emails, delete email',
+    'add account, add email, get secondary email, get emails, delete email',
     function (t) {
       var user = fake.newUserDataHex()
       var secondEmailRecord = user.email
@@ -195,10 +195,21 @@ module.exports = function(cfg, server) {
           respOk(t, r)
 
           var result = r.obj
-          t.equal(result.length, 2, 'one email returned')
+          t.equal(result.length, 2, 'two emails returned')
           t.equal(result[0].email, user.account.email, 'matches account email')
           t.equal(!!result[0].isPrimary, true, 'isPrimary is true on account email')
           t.equal(!!result[0].isVerified, !!user.account.emailVerified, 'matches account emailVerified')
+
+          // Attempt to get a specific secondary email
+          return client.getThen('/email/' + emailToHex(thirdEmailRecord.email))
+        })
+        .then(function (r) {
+          respOk(t, r)
+
+          var result = r.obj
+          t.equal(result.email, thirdEmailRecord.email, 'matches email')
+          t.equal(!!result.isPrimary, false, 'isPrimary is false on email')
+          t.equal(!!result.isVerified, !!thirdEmailRecord.emailVerified, 'matches emailVerified')
         })
     }
   )

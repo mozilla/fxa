@@ -2052,6 +2052,7 @@ module.exports = function(config, DB) {
              * 2) Get `accountEmails` only returns email on account table
              * 3) Add an additional email
              * 4) Get `accountEmails` returns both emails
+             * 5) Get `getSecondaryEmail` returns specified email on emails table
              * 5) Verify secondary email
              * 6) Get `accountEmails` returns both emails, shows verified
              * 7) Delete secondary email
@@ -2100,6 +2101,16 @@ module.exports = function(config, DB) {
                   t.equal(result[1].email, secondEmail.email, 'matches secondEmail email')
                   t.equal(!!result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
                   t.equal(!!result[1].isVerified, secondEmail.isVerified, 'matches secondEmail isVerified')
+
+                  // Get a specific email
+                  return db.getSecondaryEmail(secondEmail.email)
+                }
+              )
+              .then(
+                function(result) {
+                  t.equal(result.email, secondEmail.email, 'matches secondEmail email')
+                  t.equal(!!result.isPrimary, false, 'isPrimary is false on secondEmail email')
+                  t.equal(!!result.isVerified, secondEmail.isVerified, 'matches secondEmail isVerified')
 
                   // Verify second email
                   return db.verifyEmail(secondEmail.uid, secondEmail.emailCode)
@@ -2155,6 +2166,7 @@ module.exports = function(config, DB) {
                    * 1) Can not add an an email that exits in emails table or accounts table
                    * 2) Can not delete primary email
                    * 3) Can not create an new account that has an email in the emails table
+                   * 4) Can not get non-existent secondary email
                    */
 
                   // Attempt to add the account email to the emails table.
@@ -2209,6 +2221,17 @@ module.exports = function(config, DB) {
                   .catch(function (err) {
                     t.equal(err.errno, 101, 'should return duplicate entry errno')
                     t.equal(err.code, 409, 'should return duplicate entry code')
+                  })
+              })
+              .then(() => {
+                // Attempt to get a non-existent email
+                return db.getSecondaryEmail('non-existent@email.com')
+                  .then(() => {
+                    t.fail('Failed to not get a non-existent email')
+                  })
+                  .catch((err) => {
+                    t.equal(err.errno, 116, 'should return not found errno')
+                    t.equal(err.code, 404, 'should return not found code')
                   })
               })
               .then(

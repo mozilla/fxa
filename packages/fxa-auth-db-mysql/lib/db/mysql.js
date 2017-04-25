@@ -777,6 +777,13 @@ module.exports = function (log, error) {
     )
   }
 
+  // Get : email
+  // Values : email = $1
+  var GET_SECONDARY_EMAIL = 'CALL getSecondaryEmail_1(?)'
+  MySql.prototype.getSecondaryEmail = function (emailBuffer) {
+    return this.readFirstResult(GET_SECONDARY_EMAIL, [emailBuffer.toString('utf8')])
+  }
+
   // Select : emails
   // Values : uid = $1
   var ACCOUNT_EMAILS = 'CALL accountEmails_1(?)'

@@ -17,6 +17,7 @@ There are a number of methods that a DB storage backend should implement:
 * Accounts (using `email`)
     * .emailRecord(emailBuffer)
     * .accountExists(emailBuffer)
+    * .getSecondaryEmail(emailBuffer)
 * Session Tokens
     * .createSessionToken(tokenId, sessionToken)
     * .updateSessionToken(tokenId, sessionToken)
@@ -316,6 +317,30 @@ Returns:
     * an empty object `{}`
 * rejects: with one of:
     * `error.notFound()` if no account exists for this email address
+    * any error from the underlying storage engine
+
+## .getSecondaryEmail(emailBuffer) ##
+
+Get the email entry associated with this `emailBuffer`. This email is located on the secondary email table.
+
+Parameters:
+
+* email: the email address will be a hex encoded string, which is converted back to a string, then `.toLowerCase()`. In
+  the MySql backend we use `LOWER(?)` which uses the current locale for case-folding.
+
+Returns:
+
+* resolves with:
+    * `email` - consisting of:
+        * uid - (Buffer16)
+        * email - (string)
+        * emailCode - (Buffer16)
+        * isPrimary - (boolean)
+        * isVerified - (boolean)
+        * normalizedEmail - (string)        
+        * createdAt - (number)
+* rejects: with one of:
+    * `error.notFound()` if no email address exists on emails table
     * any error from the underlying storage engine
 
 ## Tokens ##
