@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const OAuthErrors = require('lib/oauth-errors');
   const Relier = require('models/reliers/relier');
   const Transform = require('lib/transform');
-  const Validate = require('lib/validate');
   const Vat = require('lib/vat');
 
   /*eslint-disable camelcase*/
@@ -27,10 +26,10 @@ define(function (require, exports, module) {
   };
 
   var SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
-    access_type: Vat.string().test(Validate.isAccessTypeValid).renameTo('accessType'),
-    client_id: Vat.hex().required().renameTo('clientId'),
+    access_type: Vat.accessType().renameTo('accessType'),
+    client_id: Vat.clientId().required().renameTo('clientId'),
     keys: Vat.boolean(),
-    prompt: Vat.string().test(Validate.isPromptValid),
+    prompt: Vat.prompt(),
     redirectTo: Vat.url(),
     redirect_uri: Vat.url().renameTo('redirectUri'),
     scope: Vat.string().required().min(1),
@@ -39,11 +38,11 @@ define(function (require, exports, module) {
   };
 
   var VERIFICATION_INFO_SCHEMA = {
-    access_type: Vat.string().test(Validate.isAccessTypeValid).renameTo('accessType'),
+    access_type: Vat.accessType().renameTo('accessType'),
     action: Vat.string().min(1),
-    client_id: Vat.hex().required().renameTo('clientId'),
+    client_id: Vat.clientId().required().renameTo('clientId'),
     keys: Vat.boolean(),
-    prompt: Vat.string().test(Validate.isPromptValid),
+    prompt: Vat.prompt(),
     redirect_uri: Vat.url().renameTo('redirectUri'),
     // scopes are optional when verifying, user could be verifying in a 2nd browser
     scope: Vat.string().min(1),

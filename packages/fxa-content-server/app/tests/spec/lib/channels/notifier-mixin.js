@@ -7,12 +7,13 @@ define(function (require, exports, module) {
 
   const { assert } = require('chai');
   const BaseView = require('views/base');
+  const { createUid } = require('../../../lib/helpers');
   const Notifier = require('lib/channels/notifier');
   const NotifierMixin = require('lib/channels/notifier-mixin');
   const sinon = require('sinon');
 
   describe('lib/channels/notifier-mixin', () => {
-    let data = { uid: 'foo' };
+    let data = { uid: createUid() };
     let functionHandlerSpy;
     let notifier;
     let view;

@@ -11,7 +11,7 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Backbone = require('backbone');
-  const Validate = require('lib/validate');
+  const Vat = require('lib/vat');
 
   // Commands that have the 'internal:' namespace should only be
   // handled by the content server. Other commands may be handled
@@ -20,12 +20,12 @@ define(function (require, exports, module) {
     CHANGE_PASSWORD: {
       name: 'fxaccounts:change_password',
       schema: {
-        email: 'String',
-        keyFetchToken: 'String',
-        sessionToken: 'String',
-        uid: 'String',
-        unwrapBKey: 'String',
-        verified: 'Boolean'
+        email: Vat.email().required(),
+        keyFetchToken: Vat.keyFetchToken().optional(),
+        sessionToken: Vat.sessionToken().required(),
+        uid: Vat.uid().required(),
+        unwrapBKey: Vat.unwrapBKey().optional(),
+        verified: Vat.boolean().required()
       }
     },
     COMPLETE_RESET_PASSWORD_TAB_OPEN: {
@@ -34,11 +34,15 @@ define(function (require, exports, module) {
     },
     DELETE: {
       name: 'fxaccounts:delete',
-      schema: { uid: 'String' }
+      schema: {
+        uid: Vat.uid().required()
+      }
     },
     PROFILE_CHANGE: {
       name: 'profile:change',
-      schema: { uid: 'String' }
+      schema: {
+        uid: Vat.uid().required()
+      }
     },
     SIGNED_IN: {
       name: 'internal:signed_in',
@@ -48,16 +52,18 @@ define(function (require, exports, module) {
         // from within about:accounts. Because of this, all account data needed to sign in must
         // be passed between windows. See https://github.com/mozilla/fxa-content-server/issues/4763
         // and https://bugzilla.mozilla.org/show_bug.cgi?id=666724
-        keyFetchToken: '?String',
-        sessionToken: 'String',
-        sessionTokenContext: 'String',
-        uid: 'String',
-        unwrapBKey: '?String'
+        keyFetchToken: Vat.keyFetchToken().optional(),
+        sessionToken: Vat.sessionToken().required(),
+        sessionTokenContext: Vat.string().optional(),
+        uid: Vat.uid().required(),
+        unwrapBKey: Vat.unwrapBKey().optional()
       }
     },
     SIGNED_OUT: {
       name: 'fxaccounts:logout',
-      schema: { uid: '?String' }
+      schema: {
+        uid: Vat.uid().optional()
+      }
     }
   };
 
@@ -128,11 +134,12 @@ define(function (require, exports, module) {
       data = eliminateUndefinedProperties(data);
 
       if (SCHEMATA[command]) {
-        if (! Validate.isDataValid(data, SCHEMATA[command])) {
-          throw new Error('Invalid data for command ' + command);
+        const result = Vat.validate(data, SCHEMATA[command]);
+        if (result.error) {
+          throw new Error(`Invalid data for command ${command}`);
         }
       } else if (! _.isNull(data) && ! _.isUndefined(data)) {
-        throw new Error('Unexpected data for command ' + command);
+        throw new Error(`Unexpected data for command ${command}`);
       }
 
       // internal:* messages are never sent outside of FxA. Ensure

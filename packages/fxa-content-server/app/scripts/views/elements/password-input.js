@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const AuthErrors = require('lib/auth-errors');
-  const Validate = require('lib/validate');
+  const Vat = require('lib/vat');
 
   return {
     match ($el) {
@@ -20,7 +20,7 @@ define(function (require, exports, module) {
 
       if (! value) {
         throw AuthErrors.toError('PASSWORD_REQUIRED');
-      } else if (! Validate.isPasswordValid(value)) {
+      } else if (Vat.password().validate(value).error) {
         throw AuthErrors.toError('PASSWORD_TOO_SHORT');
       }
     }

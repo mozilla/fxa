@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const AuthErrors = require('lib/auth-errors');
-  const Validate = require('lib/validate');
+  const Vat = require('lib/vat');
 
   return {
     match ($el) {
@@ -26,7 +26,7 @@ define(function (require, exports, module) {
 
       if (! value) {
         throw AuthErrors.toError('EMAIL_REQUIRED');
-      } else if (! Validate.isEmailValid(value)) {
+      } else if (Vat.email().validate(value).error) {
         throw AuthErrors.toError('INVALID_EMAIL');
       }
     }

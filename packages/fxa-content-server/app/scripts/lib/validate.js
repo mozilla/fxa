@@ -138,52 +138,6 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Check whether data matches schema, depth-first.
-     * Compares using Object.prototype.toString. Prefix
-     * schema types with `?` to indicate optional.
-     *
-     * e.g.:
-     *   Validate.isDataValid(
-     *     { foo: 'bar', baz: { qux: [] } },
-     *     { foo: 'String', baz: { qux: 'Array', optional: '?String' } }
-     *   ); // returns true
-     *
-     *   Validate.isDataValid(
-     *     { foo: 'bar', baz: { qux: [] } },
-     *     { foo: 'String', baz: { qux: 'Array', required: 'String' } }
-     *   ); // returns false
-     *
-     * @param {Object} data
-     * @param {Object} schema
-     * @returns {Boolean}
-     */
-    isDataValid: function isDataValid(data, schema) {
-      if (! schema) {
-        return false;
-      }
-
-      if (_.isString(schema)) {
-        if (schema[0] === '?') {
-          if (_.isNull(data) || _.isUndefined(data)) {
-            return true;
-          }
-
-          schema = schema.substr(1);
-        }
-
-        return Object.prototype.toString.call(data) === '[object ' + schema + ']';
-      }
-
-      if (! data) {
-        return false;
-      }
-
-      return _.all(_.keys(data), function (key) {
-        return isDataValid(data[key], schema[key]);
-      });
-    },
-
-    /**
      * Check whether the `prompt` OAuth value is valid
      *
      * @param {String} prompt

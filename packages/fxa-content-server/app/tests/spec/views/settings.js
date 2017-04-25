@@ -56,7 +56,7 @@ define(function (require, exports, module) {
     var view;
 
     var ACCESS_TOKEN = 'access token';
-    var UID = 'uid';
+    var UID = TestHelpers.createUid();
 
     function createView(Constructor, options) {
       return new Constructor(options);

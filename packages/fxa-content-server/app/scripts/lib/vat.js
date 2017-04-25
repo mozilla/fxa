@@ -10,12 +10,25 @@ define(function (require, exports, module) {
   const Validate = require('lib/validate');
   const Vat = require('vat');
 
+  Vat.register('accessType', Vat.string().test(Validate.isAccessTypeValid));
   Vat.register('email', Vat.string().test(Validate.isEmailValid));
   Vat.register('hex', Vat.string().test(Validate.isHexValid));
+  Vat.register('keyFetchToken', Vat.string());
+  Vat.register('oauthCode', Vat.string().test(Validate.isOAuthCodeValid));
+  Vat.register('password', Vat.string().test(Validate.isPasswordValid));
+  Vat.register('prompt', Vat.string().test(Validate.isPromptValid));
+  Vat.register('sessionToken', Vat.string());
+  Vat.register('token', Vat.string().test(Validate.isTokenValid));
   Vat.register('uid', Vat.string().test(Validate.isUidValid));
   Vat.register('unblockCode', Vat.string().test(Validate.isUnblockCodeValid));
+  Vat.register('unwrapBKey', Vat.string());
   Vat.register('url', Vat.string().test(Validate.isUrlValid));
   Vat.register('uuid', Vat.string().test(Validate.isUuidValid));
+  Vat.register('verificationCode', Vat.string().test(Validate.isCodeValid));
+  Vat.register('verificationRedirect', Vat.string().test(Validate.isVerificationRedirectValid));
+
+  // depends on hex, must come afterwards
+  Vat.register('clientId', Vat.hex());
 
   return Vat;
 });

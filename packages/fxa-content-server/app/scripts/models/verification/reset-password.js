@@ -9,7 +9,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Validate = require('lib/validate');
+  const Vat = require('lib/vat');
   const VerificationInfo = require('./base');
 
   module.exports = VerificationInfo.extend({
@@ -20,9 +20,9 @@ define(function (require, exports, module) {
     },
 
     validation: {
-      code: Validate.isCodeValid,
-      email: Validate.isEmailValid,
-      token: Validate.isTokenValid
+      code: Vat.verificationCode().required(),
+      email: Vat.email().required(),
+      token: Vat.token().required()
     }
   });
 });

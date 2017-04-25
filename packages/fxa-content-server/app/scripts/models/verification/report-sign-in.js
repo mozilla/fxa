@@ -9,7 +9,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Validate = require('lib/validate');
+  const Vat = require('lib/vat');
   const VerificationInfo = require('./base');
 
   module.exports = VerificationInfo.extend({
@@ -19,8 +19,8 @@ define(function (require, exports, module) {
     },
 
     validation: {
-      uid: Validate.isUidValid,
-      unblockCode: Validate.isUnblockCodeValid
+      uid: Vat.uid().required(),
+      unblockCode: Vat.unblockCode().required()
     }
   });
 });

@@ -18,7 +18,7 @@ define(function (require, exports, module) {
   const OAuthErrors = require('lib/oauth-errors');
   const p = require('lib/promise');
   const Url = require('lib/url');
-  const Validate = require('lib/validate');
+  const Vat = require('lib/vat');
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
@@ -40,7 +40,7 @@ define(function (require, exports, module) {
     result.state = Url.searchParam('state', redirectParams);
     result.code = Url.searchParam('code', redirectParams);
 
-    if (! Validate.isOAuthCodeValid(result.code)) {
+    if (Vat.oauthCode().validate(result.code).error) {
       return p.reject(OAuthErrors.toError('INVALID_RESULT_CODE'));
     }
 

@@ -6,10 +6,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const Account = require('models/account');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const AvatarMixin = require('views/mixins/avatar-mixin');
   const BaseView = require('views/base');
-  const Chai = require('chai');
   const Cocktail = require('cocktail');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
@@ -19,25 +19,22 @@ define(function (require, exports, module) {
   const ProfileImage = require('models/profile-image');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
-
   const TestHelpers = require('../../../lib/helpers');
   const User = require('models/user');
 
-  var assert = Chai.assert;
+  const UID = TestHelpers.createUid();
 
-  var SettingsView = BaseView.extend({});
-
+  const SettingsView = BaseView.extend({});
   Cocktail.mixin(SettingsView, AvatarMixin);
 
   describe('views/mixins/avatar-mixin', function () {
-    var UID = '123';
-    var account;
-    var metrics;
-    var notifier;
-    var relier;
-    var tabChannelMock;
-    var user;
-    var view;
+    let account;
+    let metrics;
+    let notifier;
+    let relier;
+    let tabChannelMock;
+    let user;
+    let view;
 
     beforeEach(function () {
       account = new Account();
@@ -82,7 +79,7 @@ define(function (require, exports, module) {
         });
         return view.displayAccountProfileImage(account)
           .then(function () {
-            var err = view._normalizeError(ProfileErrors.toError('UNAUTHORIZED'));
+            let err = view._normalizeError(ProfileErrors.toError('UNAUTHORIZED'));
             assert.isFalse(TestHelpers.isErrorLogged(metrics, err));
           });
       });

@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   const { assert } = require('chai');
   const Backbone = require('backbone');
+  const { createUid } = require('../../../lib/helpers');
   const Notifier = require('lib/channels/notifier');
   const NullChannel = require('lib/channels/null');
   const sinon = require('sinon');
@@ -67,7 +68,7 @@ define(function (require, exports, module) {
     describe('triggerAll', function () {
       it('triggers events on all channels and self', function () {
         var ev = 'fxaccounts:logout';
-        var data = { uid: 'foo' };
+        var data = { uid: createUid() };
         var spy = sinon.spy();
 
         notifier.on(ev, spy);
@@ -82,7 +83,7 @@ define(function (require, exports, module) {
 
     describe('triggerRemote', function () {
       describe('with a global message', function () {
-        var data = { uid: 'foo' };
+        var data = { uid: createUid() };
         var ev = 'fxaccounts:logout';
         var notifierSpy;
 
@@ -122,8 +123,9 @@ define(function (require, exports, module) {
       });
 
       describe('with undefined properties', function () {
-        var data = { a: undefined, uid: 'foo', z: undefined };
-        var expectedData = { uid: 'foo' };
+        const uid = createUid();
+        var data = { a: undefined, uid, z: undefined };
+        var expectedData = { uid };
         var ev = 'fxaccounts:logout';
         var notifierSpy;
 
@@ -164,7 +166,7 @@ define(function (require, exports, module) {
 
       it('does not throw if password is not sent with fxaccounts:delete', function () {
         assert.doesNotThrow(function () {
-          notifier.triggerRemote('fxaccounts:delete', { uid: 'foo' });
+          notifier.triggerRemote('fxaccounts:delete', { uid: createUid() });
         });
       });
 
@@ -176,7 +178,7 @@ define(function (require, exports, module) {
 
       it('does not throw if password is not sent with profile:change', function () {
         assert.doesNotThrow(function () {
-          notifier.triggerRemote('profile:change', { uid: 'foo' });
+          notifier.triggerRemote('profile:change', { uid: createUid() });
         });
       });
 
@@ -185,7 +187,9 @@ define(function (require, exports, module) {
           notifier.triggerRemote('internal:signed_in', {
             keyFetchToken: 'foo',
             password: 'bar',
-            uid: 'baz',
+            sessionToken: 'bar',
+            sessionTokenContext: 'baz',
+            uid: createUid(),
             unwrapBKey: 'qux'
           });
         });
@@ -195,7 +199,9 @@ define(function (require, exports, module) {
         assert.doesNotThrow(function () {
           notifier.triggerRemote('internal:signed_in', {
             keyFetchToken: 'foo',
-            uid: 'baz',
+            sessionToken: 'bar',
+            sessionTokenContext: 'baz',
+            uid: createUid(),
             unwrapBKey: 'qux'
           });
         });
@@ -206,7 +212,9 @@ define(function (require, exports, module) {
           notifier.triggerRemote('internal:signed_in', {
             keyFetchToken: 'foo',
             password: undefined,
-            uid: 'baz',
+            sessionToken: 'bar',
+            sessionTokenContext: 'baz',
+            uid: createUid(),
             unwrapBKey: 'qux'
           });
         });
@@ -214,13 +222,18 @@ define(function (require, exports, module) {
 
       it('throws if password is sent with fxaccounts:logout', function () {
         assert.throws(function () {
-          notifier.triggerRemote('fxaccounts:logout', { password: 'foo', uid: 'bar' });
+          notifier.triggerRemote('fxaccounts:logout', {
+            password: 'foo',
+            uid: createUid()
+          });
         });
       });
 
       it('does not throw if password is not sent with fxaccounts:logout', function () {
         assert.doesNotThrow(function () {
-          notifier.triggerRemote('fxaccounts:logout', { uid: 'foo' });
+          notifier.triggerRemote('fxaccounts:logout', {
+            uid: createUid()
+          });
         });
       });
     });

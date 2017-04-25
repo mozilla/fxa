@@ -36,7 +36,7 @@ define(function (require, exports, module) {
     let view;
     let windowMock;
 
-    const validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
+    const validCode = TestHelpers.createUid();
     const validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
     const validService = 'someValidService';
     const validReminder = 'validReminder';
@@ -95,6 +95,7 @@ define(function (require, exports, module) {
       account = user.initAccount({
         email: 'a@a.com',
         sessionToken: 'foo',
+        sessionTokenContext: 'context',
         uid: validUid
       });
 

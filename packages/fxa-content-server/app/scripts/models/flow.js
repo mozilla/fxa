@@ -59,7 +59,7 @@ define(function (require, exports, module) {
         if (result.error) {
           this.logError(AuthErrors.toInvalidDataAttributeError(attribute));
         } else {
-          this.set(attribute, data);
+          this.set(attribute, result.value);
         }
       }
     },

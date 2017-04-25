@@ -17,6 +17,8 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Backbone = require('backbone');
+  const Vat = require('lib/vat');
+
 
   var proto = Backbone.Model.prototype;
 
@@ -72,13 +74,13 @@ define(function (require, exports, module) {
      *
      * @method validate
      * @param {Object} attributes
+     * @throws any validation errors.
      */
     validate (attributes) {
-      _.each(this.validation, function (validator, key) {
-        if (! validator(attributes[key])) {
-          throw new Error('invalid ' + key);
-        }
-      });
+      const result = Vat.validate(attributes, this.validation, { allowUnknown: true });
+      if (result.error) {
+        throw result.error;
+      }
     },
 
     /**
