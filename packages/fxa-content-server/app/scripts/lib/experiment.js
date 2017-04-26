@@ -13,11 +13,24 @@ define(function (require, exports, module) {
   const FORCE_EXPERIMENT_GROUP_PARAM = 'forceExperimentGroup';
   const UA_OVERRIDE = 'FxATester';
 
-  const ALL_EXPERIMENTS = {
+  /**
+   * Experiments that are created on startup in `chooseExperiments`.
+   */
+  const STARTUP_EXPERIMENTS = {
+    // none for now.
+  };
+
+  /**
+   * Experiments created manually by calling `createExperiment`,
+   * after the app has started.
+   */
+  const MANUAL_EXPERIMENTS = {
     // For now, the send SMS experiment only needs to log "enrolled", so
     // no special experiment is created.
     'sendSms': BaseExperiment
   };
+
+  const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);
 
   function ExperimentInterface (options) {
     if (! (options &&
@@ -64,6 +77,11 @@ define(function (require, exports, module) {
     _activeExperiments: {},
 
     /**
+     * Experiments created on startup
+     */
+    _startupExperiments: STARTUP_EXPERIMENTS,
+
+    /**
      * All possible experiments
      */
     _allExperiments: ALL_EXPERIMENTS,
@@ -90,7 +108,7 @@ define(function (require, exports, module) {
     isInExperiment (experimentName, additionalInfo) {
       // If able returns any truthy value, consider the
       // user in the experiment.
-      return !! this._getExperimentGroup(experimentName, additionalInfo);
+      return !! this.getExperimentGroup(experimentName, additionalInfo);
     },
 
     /**
@@ -102,11 +120,12 @@ define(function (require, exports, module) {
      * @return {Boolean}
      */
     isInExperimentGroup (experimentName, groupName, additionalInfo) {
-      return this._getExperimentGroup(experimentName, additionalInfo) === groupName;
+      return this.getExperimentGroup(experimentName, additionalInfo) === groupName;
     },
 
     /**
-     * Use Able to pick an experiment based on experiment type.
+     * Use Able to pick an experiment based on experiment type. Only experiments
+     * listed in STARTUP_EXPERIMENTS will be checked.
      *
      * Makes experiment of same independent.
      */
@@ -115,8 +134,8 @@ define(function (require, exports, module) {
         return;
       }
 
-      for (const experimentName in this._allExperiments) {
-        const groupType = this._getExperimentGroup(experimentName);
+      for (const experimentName in this._startupExperiments) {
+        const groupType = this.getExperimentGroup(experimentName);
 
         if (groupType) {
           this.createExperiment(experimentName, groupType);
@@ -126,11 +145,17 @@ define(function (require, exports, module) {
 
     /**
      * Create an experiment and add it to the list of active experiments.
+     * Only creates an experiment with `experimentName` once.
      *
      * @param {String} experimentName - name of experiment to create.
      * @param {String} groupType - which group the user is in.
+     * @returns {Object} experiment object, if created.
      */
     createExperiment (experimentName, groupType) {
+      if (this._activeExperiments[experimentName]) {
+        // experiment is already created. Bail.
+        return this._activeExperiments[experimentName];
+      }
       const ExperimentConstructor = this._allExperiments[experimentName];
       if (_.isFunction(ExperimentConstructor)) {
         const experiment = new ExperimentConstructor();
@@ -151,6 +176,7 @@ define(function (require, exports, module) {
          */
         if (initResult) {
           this._activeExperiments[experimentName] = experiment;
+          return experiment;
         }
       }
     },
@@ -161,9 +187,8 @@ define(function (require, exports, module) {
      * @param {String} experimentName
      * @param {Object} [additionalInfo] additional info to pass to Able.
      * @returns {String}
-     * @private
      */
-    _getExperimentGroup (experimentName, additionalInfo = {}) {
+    getExperimentGroup (experimentName, additionalInfo = {}) {
       // can't be in an experiment group if not initialized.
       if (! this.initialized) {
         return false;

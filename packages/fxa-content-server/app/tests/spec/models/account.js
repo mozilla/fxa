@@ -2251,14 +2251,14 @@ define(function (require, exports, module) {
           account.set('sessionToken', 'sessionToken');
 
           const smsStatusOptions = { country: 'GB' };
-          return account.smsStatus()
+          return account.smsStatus(smsStatusOptions)
             .then((response) => {
               assert.equal(response.country, 'GB');
               assert.isTrue(response.ok);
 
               assert.isTrue(fxaClient.smsStatus.calledOnce);
               assert.isTrue(
-                fxaClient.smsStatus.calledWith('sessionToken'), smsStatusOptions);
+                fxaClient.smsStatus.calledWith('sessionToken', smsStatusOptions));
             });
         });
       });

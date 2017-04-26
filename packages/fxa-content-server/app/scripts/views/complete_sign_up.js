@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
+  const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
   const p = require('lib/promise');
@@ -154,24 +155,11 @@ define(function (require, exports, module) {
 
       return p().then(() => {
         if (relier.isSync()) {
-          return p.all([
-            this._smsStatus(account),
-            this._isEligibleToConnectAnotherDevice(account)
-          ]).spread((smsStatus, isEligibleToConnectAnotherDevice) => {
-            if (smsStatus.ok) {
-              // Sync users that are part of the experiment group who verify
-              // are sent to "connect another device". If the experiment proves
-              // useful, all users will be sent there.
-              this.navigate('sms', { account, country: smsStatus.country });
-            } else if (isEligibleToConnectAnotherDevice) {
-              // Sync users that are part of the experiment group who verify
-              // are sent to "connect another device". If the experiment proves
-              // useful, all users will be sent there.
-              this.navigate('connect_another_device', { account });
-            } else {
-              this._navigateToVerifiedScreen();
-            }
-          });
+          if (this.isEligibleForConnectAnotherDevice(account)) {
+            return this.navigateToConnectAnotherDeviceScreen(account);
+          } else {
+            this._navigateToVerifiedScreen();
+          }
         } else if (relier.isOAuth()) {
           // If an OAuth user makes it here, they are either not signed in
           // or are verifying in a different tab. Show the "Account
@@ -191,91 +179,6 @@ define(function (require, exports, module) {
             });
         }
       });
-    },
-
-    /**
-     * Check if the `account` is eligible to connect another device
-     *
-     * @param {Object} account - account to check
-     * @returns {Boolean}
-     */
-    _isEligibleToConnectAnotherDevice (account) {
-      // Only show to users who are signing up, until we have better text for
-      // users who are signing in.
-      if (this.isSignIn()) {
-        return false;
-      }
-
-      // If a user is already signed in to Sync which is different to the
-      // user that just verified, show them the old "Account verified!" screen.
-      return ! this._isAnotherUserSignedIn(account);
-    },
-
-    /**
-     * Check if the `account` is eligible to send an sms
-     *
-     * @param {Object} account - account to check
-     * @returns {Promise} resolves to an object with:
-     *   * {Boolean} ok - true if user can send an SMS
-     *   * {String} country - user's country
-     * @private
-     */
-    _smsStatus (account) {
-      if (! this._areSmsRequirementsMet(account)) {
-        return p({ ok: false });
-      }
-
-      // The auth server can gate whether users can send an SMS based
-      // on the user's country and whether the SMS provider account
-      // has sufficient funds.
-      return account.smsStatus(this.relier.pick('country'))
-        .then((resp = {}) => {
-          if (resp.ok) {
-            // If the auth-server says the user is good to send an SMS,
-            // check with Able to ensure SMS is enabled for the country
-            // returned in the response. The auth-server may report
-            // that SMS is enabled for Romania, though it's only enabled
-            // for testing and not for the public at large. Able is used
-            // for this because it's the logic most likey to change.
-            resp.ok = this.isInExperiment('sendSmsEnabledForCountry', {
-              // If geo-lookup is disabled, no country is returned, assume US
-              country: resp.country || 'US'
-            });
-          }
-          return resp;
-        });
-    },
-
-    /**
-     * Check whether prereqs are met to send an SMS.
-     *
-     * @param {Object} account
-     * @returns {Boolean}
-     * @private
-     */
-    _areSmsRequirementsMet (account) {
-      return this.isSignUp() &&
-             this.isInExperimentGroup('sendSms', 'treatment') &&
-             // If already on a mobile device, doesn't make sense to send an SMS.
-             ! this.getUserAgent().isAndroid() &&
-             ! this.getUserAgent().isIos() &&
-             // If a user is already signed in to Sync which is different to the
-             // user that just verified, show them the old "Account verified!" screen.
-             ! this._isAnotherUserSignedIn(account);
-    },
-
-    /**
-     * Check if an account that is not `account` is signed in.
-     *
-     * @param {Object} account account to check.
-     * @returns {Boolean} `true` if another user is signed in, `false` otw.
-     * @private
-     */
-    _isAnotherUserSignedIn (account) {
-      const user = this.user;
-      return (! user.getSignedInAccount().isDefault() &&
-              ! user.isSignedInAccount(account));
-
     },
 
     /**
@@ -380,6 +283,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     CompleteSignUpView,
+    ConnectAnotherDeviceMixin,
     ExperimentMixin,
     ResendMixin,
     ResumeTokenMixin,

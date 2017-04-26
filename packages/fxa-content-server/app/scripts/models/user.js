@@ -202,6 +202,19 @@ define(function (require, exports, module) {
       return accountUid === signedInAccountUid;
     },
 
+    /**
+     * Check if another account is signed in. Not the inverse
+     * of `isSignedInAccount` because if either account is default,
+     * this will return `false`.
+     *
+     * @param {Object} account
+     * @returns {Boolean}
+     */
+    isAnotherAccountSignedIn (account) {
+      return ! this.getSignedInAccount().isDefault() &&
+             ! this.isSignedInAccount(account);
+    },
+
     setSignedInAccountByUid (uid) {
       if (this._accounts()[uid]) {
         this._setSignedInAccountUid(uid);

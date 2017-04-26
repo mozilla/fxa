@@ -1026,13 +1026,13 @@ define(function (require, exports, module) {
      *   * {Boolean} ok - true if user can send an SMS
      *   * {String} country - user's country
      */
-    smsStatus() {
+    smsStatus (options) {
       const sessionToken = this.get('sessionToken');
       if (! sessionToken) {
         return p({ ok: false });
       }
 
-      return this._fxaClient.smsStatus(sessionToken);
+      return this._fxaClient.smsStatus(sessionToken, options);
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,

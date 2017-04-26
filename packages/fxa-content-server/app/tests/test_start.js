@@ -127,6 +127,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/avatar-mixin',
     '../tests/spec/views/mixins/back-mixin',
     '../tests/spec/views/mixins/checkbox-mixin',
+    '../tests/spec/views/mixins/connect-another-device-mixin',
     '../tests/spec/views/mixins/experiment-mixin',
     '../tests/spec/views/mixins/external-links-mixin',
     '../tests/spec/views/mixins/floating-placeholder-mixin',

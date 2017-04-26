@@ -5,16 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Able = require('lib/able');
   const { assert } = require('chai');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
-  const Metrics = require('lib/metrics');
   const Mixin = require('views/mixins/experiment-mixin');
-  const Notifier = require('lib/channels/notifier');
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
-  const User = require('models/user');
   const WindowMock = require('../../../mocks/window');
 
   const View = BaseView.extend({
@@ -27,25 +23,31 @@ define(function (require, exports, module) {
   );
 
   describe('views/mixins/experiment-mixin', () => {
-    let able;
-    let metrics;
+    let experiments;
     let notifier;
-    let user;
     let view;
     let windowMock;
 
     beforeEach(() => {
-      able = new Able();
-      notifier = new Notifier();
-      metrics = new Metrics({ notifier });
-      user = new User();
+      // pass in an experimentsMock otherwise a new
+      // ExperimentInterface is created before
+      // a spy can be added to `chooseExperiments`
+      experiments = {
+        chooseExperiments: sinon.spy(),
+        createExperiment: sinon.spy(() => {
+          return {};
+        }),
+        destroy () {}
+      };
+
+      notifier = {
+        trigger: sinon.spy()
+      };
       windowMock = new WindowMock();
 
       view = new View({
-        able: able,
-        metrics: metrics,
-        notifier: notifier,
-        user: user,
+        experiments,
+        notifier,
         window: windowMock
       });
     });
@@ -56,22 +58,9 @@ define(function (require, exports, module) {
 
     describe('initialize', () => {
       it('chooses experiments', () => {
-        // pass in an experimentsMock otherwise a new
-        // ExperimentInterface is created before
-        // a spy can be added to `chooseExperiments`
-        const experimentsMock = {
-          chooseExperiments: sinon.spy(),
-          destroy () {}
-        };
-
-        view.initialize({
-          experiments: experimentsMock
-        });
-
-        assert.isTrue(experimentsMock.chooseExperiments.calledOnce);
+        assert.isTrue(experiments.chooseExperiments.calledOnce);
       });
     });
-
 
     describe('destroy', () => {
       it('destroys the experiments instance', () => {
@@ -84,32 +73,21 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isInExperiment', () => {
-      it('returns `true` if user is in experiment, `false` if not', () => {
-        sinon.stub(view.experiments, 'isInExperiment', (experimentName, additionalData = {}) => {
-          return !! (experimentName === 'realExperiment' && additionalData.isEligible);
-        });
+    describe('createExperiment', () => {
+      it('forces the flow model to initialize, then creates the experiment', () => {
+        assert.ok(view.createExperiment('experimentName', 'control'));
 
-        assert.isTrue(view.isInExperiment('realExperiment', { isEligible: true }));
-        assert.isFalse(view.isInExperiment('realExperiment', { isEligible: false }));
-        assert.isFalse(view.isInExperiment('realExperiment'));
-        assert.isFalse(view.isInExperiment('fakeExperiment'));
+        assert.isTrue(notifier.trigger.calledOnce);
+        assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
+        assert.isTrue(experiments.createExperiment.calledOnce);
+        assert.isTrue(experiments.createExperiment.calledWith('experimentName', 'control'));
       });
     });
 
-    describe('isInExperimentGroup', () => {
-      it('returns `true` if user is in experiment group, `false` otw', () => {
-        sinon.stub(view.experiments, 'isInExperimentGroup', (experimentName, groupName, additionalData = {}) => {
-          return !! (experimentName === 'realExperiment' &&
-                     groupName === 'treatment' &&
-                     additionalData.isEligible);
-        });
-
-        assert.isTrue(view.isInExperimentGroup('realExperiment', 'treatment', { isEligible: true }));
-        assert.isFalse(view.isInExperimentGroup('realExperiment', 'treatment', { isEligible: false }));
-        assert.isFalse(view.isInExperimentGroup('realExperiment', 'treatment'));
-        assert.isFalse(view.isInExperimentGroup('realExperiment', 'control'));
-      });
+    it('contains delegate functions', () => {
+      assert.isFunction(view.getExperimentGroup);
+      assert.isFunction(view.isInExperiment);
+      assert.isFunction(view.isInExperimentGroup);
     });
   });
 });

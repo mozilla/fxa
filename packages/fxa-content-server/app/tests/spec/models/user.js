@@ -1372,21 +1372,21 @@ define(function (require, exports, module) {
         account = user.initAccount({ email: 'testuser@testuser.com', uid: createUid() });
       });
 
-      describe('no signed in user', () => {
+      describe('no account signed in', () => {
         it('returns false', () => {
           user.clearSignedInAccount();
           assert.isFalse(user.isSignedInAccount(account));
         });
       });
 
-      describe('no signed in user, pass in a `default` account', () => {
+      describe('no account signed in, pass in a `default` account', () => {
         it('returns false', () => {
           user.clearSignedInAccount();
           assert.isFalse(user.isSignedInAccount(user.initAccount({})));
         });
       });
 
-      describe('different signed in user', () => {
+      describe('different account signed in', () => {
         it('returns false', () => {
           const signedInAccount = user.initAccount({
             email: 'testuser2@testuser.com',
@@ -1400,11 +1400,56 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('is the signed in user', () => {
+      describe('same account signed in', () => {
         it('returns true', () => {
           return user.setSignedInAccount(account)
             .then(() => {
               assert.isTrue(user.isSignedInAccount(account));
+            });
+        });
+      });
+    });
+
+    describe('isAnotherAccountSignedIn', () => {
+      let account;
+
+      beforeEach(() => {
+        account = user.initAccount({ email: 'testuser@testuser.com', uid: 'uid' });
+      });
+
+      describe('no account signed in', () => {
+        it('returns false', () => {
+          user.clearSignedInAccount();
+          assert.isFalse(user.isAnotherAccountSignedIn(account));
+        });
+      });
+
+      describe('no account signed in, pass in a `default` account', () => {
+        it('returns false', () => {
+          user.clearSignedInAccount();
+          assert.isFalse(user.isAnotherAccountSignedIn(user.initAccount({})));
+        });
+      });
+
+      describe('different account signed in', () => {
+        it('returns true', () => {
+          const signedInAccount = user.initAccount({
+            email: 'testuser2@testuser.com',
+            uid: 'uid2'
+          });
+
+          return user.setSignedInAccount(signedInAccount)
+            .then(() => {
+              assert.isTrue(user.isAnotherAccountSignedIn(account));
+            });
+        });
+      });
+
+      describe('same account signed in', () => {
+        it('returns false', () => {
+          return user.setSignedInAccount(account)
+            .then(() => {
+              assert.isFalse(user.isAnotherAccountSignedIn(account));
             });
         });
       });

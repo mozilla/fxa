@@ -72,9 +72,19 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('createExperiment', () => {
+      it('creates an experiment, only once', () => {
+        const firstExperiment = expInt.createExperiment('sendSms', 'treatment');
+        assert.ok(firstExperiment);
+        const secondExperiment = expInt.createExperiment('sendSms', 'treatment');
+        // It's the same object, not updated
+        assert.strictEqual(firstExperiment, secondExperiment);
+      });
+    });
+
     describe('isInExperiment', () => {
       it('checks experiment opt in', () => {
-        sinon.stub(expInt, '_getExperimentGroup', (experimentName, additionalData = {}) => {
+        sinon.stub(expInt, 'getExperimentGroup', (experimentName, additionalData = {}) => {
           return !! (experimentName === 'mockExperiment' &&
                      additionalData.isEligible);
         });
@@ -88,13 +98,10 @@ define(function (require, exports, module) {
 
     describe('isInExperimentGroup', () => {
       it('is true when opted in', () => {
-        sinon.stub(expInt, '_getExperimentGroup', (experimentName, additionalData = {}) => {
+        sinon.stub(expInt, 'getExperimentGroup', (experimentName, additionalData = {}) => {
           const isInExperimentGroup = !! (experimentName === 'mockExperiment' && additionalData.isEligible);
           return isInExperimentGroup ? 'treatment' : false;
         });
-        expInt._activeExperiments = {
-          'mockExperiment': mockExperiment
-        };
 
         assert.isTrue(expInt.isInExperimentGroup('mockExperiment', 'treatment', { isEligible: true }));
         assert.isFalse(expInt.isInExperimentGroup('mockExperiment', 'treatment'));
@@ -106,7 +113,7 @@ define(function (require, exports, module) {
     describe('chooseExperiments', () => {
       beforeEach(() => {
         sinon.spy(expInt, 'createExperiment');
-        expInt._allExperiments = {
+        expInt._startupExperiments = {
           experiment1: function () {
             return mockExperiment;
           },
@@ -128,7 +135,7 @@ define(function (require, exports, module) {
 
       describe('user is not part of any experiment', () => {
         it('does not create the experiment', () => {
-          sinon.stub(expInt, '_getExperimentGroup', () => false);
+          sinon.stub(expInt, 'getExperimentGroup', () => false);
 
           expInt.chooseExperiments();
 
@@ -138,7 +145,7 @@ define(function (require, exports, module) {
 
       describe('user is part of at least one experiment', () => {
         it('creates the experiment', () => {
-          sinon.stub(expInt, '_getExperimentGroup', (choiceName) => {
+          sinon.stub(expInt, 'getExperimentGroup', (choiceName) => {
             if (choiceName === 'experiment1') {
               return 'treatment';
             } else if (choiceName === 'experiment3') {
@@ -158,24 +165,13 @@ define(function (require, exports, module) {
 
     describe('destroy', () => {
       beforeEach(() => {
-        expInt._allExperiments = {
-          experiment1: function () {
-            return mockExperiment;
-          },
-          experiment2: function () {
-            return mockExperiment;
-          },
-          experiment3: function () {
-            return mockExperiment;
-          }
+        expInt._activeExperiments = {
+          experiment1: mockExperiment,
+          experiment2: mockExperiment,
+          experiment3: mockExperiment
         };
-
-        sinon.stub(expInt, '_getExperimentGroup', (choiceName) => 'treatment');
-        // choose all 3 experiments.
-        expInt.chooseExperiments();
-
         sinon.spy(mockExperiment, 'destroy');
-        // destroys the experiment 3 times.
+
         expInt.destroy();
       });
 
