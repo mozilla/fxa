@@ -340,5 +340,39 @@ define(function (require, exports, module) {
         });
       });
     });
+
+    describe('toGenericOSName', function () {
+      function eq(os, expected) {
+        assert.equal(UserAgent.toGenericOSName(os), expected);
+      }
+
+      it('returns proper generic operating system names', function () {
+        eq('Windows 10', 'Windows');
+        eq('Windows RT 8.1', 'Windows');
+        eq('Windows 7', 'Windows');
+        eq('Windows Vista', 'Windows');
+        eq('Windows', 'Windows');
+
+        eq('Android', 'Android');
+        eq('Android 5.1', 'Android');
+
+        eq('Mac OS', 'macOS');
+        eq('Mac OS X', 'macOS');
+
+        eq('Ubuntu', 'Linux');
+        eq('Fedora', 'Linux');
+        eq('Linux', 'Linux');
+        eq('Debian', 'Linux');
+        eq('Red Hat', 'Linux');
+        eq('Linux Mint', 'Linux');
+
+        eq('iOS', 'iOS');
+
+        eq('FreeBSD', 'Unknown');
+        eq('Solaris', 'Unknown');
+        eq('', 'Unknown');
+        eq(null, 'Unknown');
+      });
+    });
   });
 });

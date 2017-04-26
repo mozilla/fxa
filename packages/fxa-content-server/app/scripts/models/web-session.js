@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   module.exports = Backbone.Model.extend({
     defaults: {
       clientType: Constants.CLIENT_TYPE_WEB_SESSION,
+      genericOS: null,
       id: null,
       lastAccessTime: null,
       lastAccessTimeFormatted: null,

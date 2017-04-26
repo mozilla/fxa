@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   var Device = Backbone.Model.extend({
     defaults: {
       clientType: Constants.CLIENT_TYPE_DEVICE,
+      genericOS: null,
       id: null,
       isCurrentDevice: null,
       isDevice: true,

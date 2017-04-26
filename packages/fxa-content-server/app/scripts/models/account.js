@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   const ProfileImage = require('models/profile-image');
   const ResumeTokenMixin = require('models/mixins/resume-token');
   const SignInReasons = require('lib/sign-in-reasons');
+  const UserAgent = require('lib/user-agent');
   const vat = require('lib/vat');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
@@ -826,6 +827,7 @@ define(function (require, exports, module) {
               item.isWebSession = true;
             }
 
+            item.genericOS = UserAgent.toGenericOSName(item.os);
           });
 
           return sessions;

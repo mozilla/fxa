@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const UAParser = require('ua-parser-js');
 
-  module.exports = function (userAgent) {
+  const UserAgent = function (userAgent) {
     const uap = UAParser(userAgent);
 
     _.extend(uap, {
@@ -93,5 +93,38 @@ define(function (require, exports, module) {
 
     return uap;
   };
+
+  /**
+   * Simplifies user agent operating system names (50+) to generic popular names (~6)
+   *
+   * @param {String} os Operating System name from
+   * @returns {String} generic operating system name
+   */
+  UserAgent.toGenericOSName = function toGenericOSName (os) {
+    if (/^Windows/.test(os)) {
+      return 'Windows';
+    }
+
+    if (/^Android/.test(os)) {
+      return 'Android';
+    }
+
+    if (/^Mac OS/.test(os)) {
+      return 'macOS';
+    }
+
+    if (/^iOS/.test(os)) {
+      return 'iOS';
+    }
+
+    if (/^Ubuntu/.test(os) || /^Linux/.test(os) || /^Fedora/.test(os)
+      || /^Red Hat/.test(os) || /^Debian/.test(os)) {
+      return 'Linux';
+    }
+
+    return 'Unknown';
+  };
+
+  module.exports = UserAgent;
 
 });

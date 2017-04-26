@@ -96,6 +96,7 @@ define(function (require, exports, module) {
       attachedClients = new AttachedClients([
         {
           clientType: 'device',
+          genericOS: 'Windows',
           id: 'device-1',
           isCurrentDevice: false,
           name: 'alpha',
@@ -103,6 +104,7 @@ define(function (require, exports, module) {
         },
         {
           clientType: 'device',
+          genericOS: 'iOS',
           id: 'device-2',
           isCurrentDevice: true,
           name: 'beta',
@@ -180,8 +182,10 @@ define(function (require, exports, module) {
       it('properly sets the type of devices', function () {
         assert.ok(view.$('#device-1').hasClass('tablet'));
         assert.notOk(view.$('#device-1').hasClass('desktop'));
+        assert.equal(view.$('#device-1').data('os'), 'Windows');
         assert.ok(view.$('#device-2').hasClass('mobile'));
         assert.notOk(view.$('#device-2').hasClass('desktop'));
+        assert.equal(view.$('#device-2').data('os'), 'iOS');
         assert.equal($('#container [data-get-app]').length, 0, '0 mobile app placeholders');
       });
 
@@ -221,6 +225,8 @@ define(function (require, exports, module) {
             assert.equal(view.$('#app-2').data('name'), 'Pocket');
             assert.equal(view.$('#app-3').data('name'), 'Add-ons');
             assert.equal($('#container [data-get-app]').length, 2, 'has mobile app placeholders');
+            assert.equal($('#container [data-os=iOS]').length, 1, 'has the iOS placeholder');
+            assert.equal($('#container [data-os=Android]').length, 1, 'has the Android placeholder');
           });
 
       });

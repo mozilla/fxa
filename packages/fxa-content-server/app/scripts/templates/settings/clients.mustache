@@ -18,7 +18,9 @@
 
             {{#isDevice}}
               <li class="client {{type}} client-device {{#isCurrentDevice}}client-current{{/isCurrentDevice}}"
-                data-name="{{name}}" id="{{id}}">
+                {{#genericOS}}data-os="{{genericOS}}"{{/genericOS}}
+                data-name="{{name}}"
+                id="{{id}}">
                 <div class="client-name" title="{{title}}">{{name}}</div>
                 {{#isCurrentDevice}}
                     <div class="device-current">{{#t}}current device{{/t}}</div>
@@ -32,7 +34,10 @@
 
             {{#areWebSessionsVisible}}
             {{#isWebSession}}
-                <li class="client {{type}} client-webSession" data-name="{{name}}" id="{{id}}">
+                <li class="client {{type}} client-webSession"
+                    {{#genericOS}}data-os="{{genericOS}}"{{/genericOS}}
+                    data-name="{{name}}"
+                    id="{{id}}">
                     <div class="client-name" title="{{title}}">{{title}}</div>
                   {{#isCurrentDevice}}
                     <div class="device-current">{{#t}}current session{{/t}}</div>
@@ -55,12 +60,12 @@
 
         {{/clients}}
         {{#showMobileApps}}
-          <li class="client mobile">
+          <li class="client mobile" data-os="iOS">
             <div class="client-name">{{#t}}Firefox for iOS{{/t}}</div>
             <div class="last-connected">{{#t}}none connected{{/t}}</div>
             <a target="_blank" href="{{ linkIOS }}" class="settings-button secondary" data-get-app="ios">{{#t}}Download{{/t}}</a>
           </li>
-          <li class="client mobile">
+          <li class="client mobile" data-os="Android">
             <div class="client-name">{{#t}}Firefox for Android{{/t}}</div>
             <div class="last-connected">{{#t}}none connected{{/t}}</div>
             <a target="_blank" href="{{ linkAndroid }}" class="settings-button secondary" data-get-app="android">{{#t}}Download{{/t}}</a>
