@@ -30,6 +30,7 @@
               </li>
             {{/isDevice}}
 
+            {{#areWebSessionsVisible}}
             {{#isWebSession}}
                 <li class="client {{type}} client-webSession" data-name="{{name}}" id="{{id}}">
                     <div class="client-name" title="{{title}}">{{title}}</div>
@@ -42,6 +43,7 @@
                     <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="{{clientType}}">{{#t}}Disconnect{{/t}}</button>
                 </li>
             {{/isWebSession}}
+            {{/areWebSessionsVisible}}
 
             {{#isOAuthApp}}
                 <li class="client {{type}} client-oAuthApp" data-name="{{name}}" id="{{id}}">

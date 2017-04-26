@@ -79,6 +79,7 @@ define(function (require, exports, module) {
       const clients = this._attachedClients.toJSON();
 
       return {
+        areWebSessionsVisible: this._areWebSessionsVisible(),
         clients: this._formatAccessTimeAndScope(clients),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelOpen: this.isPanelOpen(),
@@ -91,6 +92,20 @@ define(function (require, exports, module) {
     events: {
       'click .client-disconnect': preventDefaultThen('_onDisconnectClient'),
       'click [data-get-app]': '_onGetApp'
+    },
+
+    /**
+     * Determine if the clients list should show Web Sessions
+     * @returns {Boolean}
+     * @private
+     */
+    _areWebSessionsVisible () {
+      if (this.getSearchParam('sessionsListVisible')) {
+        // if forced via query param
+        return true;
+      }
+      // currently disabled by default for all users, pending some fixes.
+      return false;
     },
 
     /**

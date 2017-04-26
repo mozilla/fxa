@@ -54,7 +54,7 @@ define([
 
     'sessions are listed in clients view': function () {
       return this.remote
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL + '?sessionsListVisible=1', '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
