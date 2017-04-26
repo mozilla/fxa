@@ -28,7 +28,6 @@ define(function (require, exports, module) {
   var SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
     access_type: Vat.accessType().renameTo('accessType'),
     client_id: Vat.clientId().required().renameTo('clientId'),
-    keys: Vat.boolean(),
     prompt: Vat.prompt(),
     redirectTo: Vat.url(),
     redirect_uri: Vat.url().renameTo('redirectUri'),
@@ -41,7 +40,6 @@ define(function (require, exports, module) {
     access_type: Vat.accessType().renameTo('accessType'),
     action: Vat.string().min(1),
     client_id: Vat.clientId().required().renameTo('clientId'),
-    keys: Vat.boolean(),
     prompt: Vat.prompt(),
     redirect_uri: Vat.url().renameTo('redirectUri'),
     // scopes are optional when verifying, user could be verifying in a 2nd browser
@@ -57,8 +55,6 @@ define(function (require, exports, module) {
       accessType: null,
       clientId: null,
       context: Constants.OAUTH_CONTEXT,
-      // whether to fetch and derive relier-specific keys
-      keys: false,
       // permissions are individual scopes
       permissions: null,
       // whether the permissions prompt will be shown to trusted reliers
@@ -131,18 +127,6 @@ define(function (require, exports, module) {
 
     isOAuth () {
       return true;
-    },
-
-    /**
-     * OAuth reliers can opt in to fetch relier-specific keys.
-     *
-     * @returns {Boolean}
-     */
-    wantsKeys () {
-      if (this.get('keys')) {
-        return true;
-      }
-      return Relier.prototype.wantsKeys.call(this);
     },
 
     _isVerificationFlow () {

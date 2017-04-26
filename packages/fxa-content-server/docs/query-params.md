@@ -24,20 +24,6 @@ When signing up a user.
 #### Options
 * `amo`
 
-### `keys`
-Set to true to receive derived kA and kB keys that can be used to encrypt data.
-
-#### Options
-* `true`
-* `false` (default)
-
-#### When to specify
-When authenticating a user for OAuth.
-
-* /oauth/signin
-* /oauth/signup
-* /oauth/force_auth
-
 ### `prompt`
 Specifies whether the content server prompts for permissions consent. Only applicable for `trusted` reliers.
 Untrusted reliers always show the prompt.

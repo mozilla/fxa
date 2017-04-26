@@ -173,8 +173,7 @@ define(function (require, exports, module) {
         });
 
         relier.set('service', NON_SYNC_SERVICE);
-        relier.set('keys', true);
-        assert.isTrue(relier.wantsKeys());
+        sinon.stub(relier, 'wantsKeys', () => true);
         return client.signUp(email, password, relier, { customizeSync: true, resume: resumeToken })
           .then(function (sessionData) {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
@@ -501,7 +500,7 @@ define(function (require, exports, module) {
         });
       });
 
-      it('Sync signIn signs in a user with email/password and returns keys', function () {
+      it('signIn w/ relier that wants keys signs in a user with email/password and returns keys', function () {
         sinon.stub(realClient, 'signIn', function () {
           return p({
             keyFetchToken: 'keyFetchToken',
@@ -512,13 +511,7 @@ define(function (require, exports, module) {
           });
         });
 
-        sinon.stub(relier, 'wantsKeys', function () {
-          return true;
-        });
-
-        sinon.stub(relier, 'isSync', function () {
-          return true;
-        });
+        sinon.stub(relier, 'wantsKeys', () => true);
 
         return client.signIn(email, password, relier, { customizeSync: true, resume: resumeToken })
           .then(function (sessionData) {
@@ -531,7 +524,7 @@ define(function (require, exports, module) {
             }));
 
             // `customizeSync` should only be set for Sync
-            assert.isTrue(sessionData.customizeSync);
+            assert.isUndefined(sessionData.customizeSync);
             assert.equal(sessionData.keyFetchToken, 'keyFetchToken');
             assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
             assert.isFalse(sessionData.verified);
@@ -540,13 +533,12 @@ define(function (require, exports, module) {
           });
       });
 
-      it('non-Sync signIn signs a user in with email/password and does not request keys', function () {
-        sinon.stub(realClient, 'signIn', function () {
-          return p({});
-        });
+      it('signIn w/ relier that does not want keys signs a user in with email/password and does not request keys', function () {
+        sinon.stub(realClient, 'signIn', () => p({}));
 
         relier.set('service', NON_SYNC_SERVICE);
-        assert.isFalse(relier.wantsKeys());
+        sinon.stub(relier, 'wantsKeys', () => false);
+
         // customizeSync should be ignored.
         return client.signIn(email, password, relier)
           .then(function (sessionData) {
@@ -565,48 +557,13 @@ define(function (require, exports, module) {
           });
       });
 
-      it('non-Sync signIn requests keys if the relier explicitly wants them', function () {
-        sinon.stub(realClient, 'signIn', function () {
-          return p({
-            keyFetchToken: 'keyFetchToken',
-            unwrapBKey: 'unwrapBKey'
-          });
-        });
-
-        relier.set('service', NON_SYNC_SERVICE);
-        relier.set('keys', true);
-        assert.isTrue(relier.wantsKeys());
-        return client.signIn(email, password, relier)
-          .then(function (sessionData) {
-            assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
-              keys: true,
-              reason: SignInReasons.SIGN_IN,
-              redirectTo: REDIRECT_TO,
-              service: NON_SYNC_SERVICE
-            }));
-
-            assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
-            assert.equal(sessionData.keyFetchToken, 'keyFetchToken');
-            // The following should only be set for Sync
-            assert.isFalse('customizeSync' in sessionData);
-          });
-      });
-
       it('Sync signIn informs browser of customizeSync option', function () {
-        sinon.stub(relier, 'isSync', function () {
-          return true;
-        });
-
-        sinon.stub(relier, 'wantsKeys', function () {
-          return true;
-        });
-
-        sinon.stub(realClient, 'signIn', function () {
-          return p({});
-        });
+        sinon.stub(relier, 'isSync', () => true);
+        sinon.stub(relier, 'wantsKeys', () => true);
+        sinon.stub(realClient, 'signIn', () => p({}));
 
         return client.signIn(email, password, relier, { customizeSync: true })
-          .then(function (result) {
+          .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
               keys: true,
               reason: SignInReasons.SIGN_IN,
@@ -614,7 +571,7 @@ define(function (require, exports, module) {
               service: SYNC_SERVICE
             }));
 
-            assert.isTrue(result.customizeSync);
+            assert.isTrue(sessionData.customizeSync);
           });
       });
 

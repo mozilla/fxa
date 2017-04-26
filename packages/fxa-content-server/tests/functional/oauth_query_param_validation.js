@@ -155,65 +155,6 @@ define([
         .then(testErrorInclude('unknown client'));
     },
 
-    'missing keys': function () {
-      return this.remote
-        .then(openSignUpExpect200({
-          client_id: TRUSTED_CLIENT_ID,
-          scope: TRUSTED_SCOPE
-        }));
-    },
-
-    'empty keys': function () {
-      return this.remote
-        .then(openSignUpExpect400({
-          client_id: TRUSTED_CLIENT_ID,
-          keys: '',
-          scope: TRUSTED_SCOPE
-        }))
-        .then(testErrorInclude('invalid'))
-        .then(testErrorInclude('keys'));
-    },
-
-    'space keys': function () {
-      return this.remote
-        .then(openSignUpExpect400({
-          client_id: TRUSTED_CLIENT_ID,
-          keys: ' ',
-          scope: TRUSTED_SCOPE
-        }))
-        .then(testErrorInclude('invalid'))
-        .then(testErrorInclude('keys'));
-    },
-
-    'invalid keys': function () {
-      return this.remote
-        .then(openSignUpExpect400({
-          client_id: TRUSTED_CLIENT_ID,
-          keys: 'asdf',
-          scope: TRUSTED_SCOPE
-        }))
-        .then(testErrorInclude('invalid'))
-        .then(testErrorInclude('keys'));
-    },
-
-    'valid keys (true)': function () {
-      return this.remote
-        .then(openSignUpExpect200({
-          client_id: TRUSTED_CLIENT_ID,
-          keys: 'true',
-          scope: TRUSTED_SCOPE
-        }));
-    },
-
-    'valid keys (false)': function () {
-      return this.remote
-        .then(openSignUpExpect200({
-          client_id: TRUSTED_CLIENT_ID,
-          keys: 'false',
-          scope: TRUSTED_SCOPE
-        }));
-    },
-
     'empty prompt': function () {
       return this.remote
         .then(openSignUpExpect400({

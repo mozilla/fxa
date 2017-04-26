@@ -100,9 +100,6 @@ define(function (require, exports, module) {
             // the redirect_uri returned by the oauth server
             assert.notEqual(relier.get('redirectUri'), REDIRECT_URI);
             assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
-
-            // Encryption keys are not fetched by default.
-            assert.equal(relier.get('keys'), false);
           });
       });
 
@@ -237,15 +234,6 @@ define(function (require, exports, module) {
               });
             });
           });
-        });
-
-        describe('keys', function () {
-          var invalidValues = ['', ' ', 'not-boolean'];
-          testInvalidQueryParams('keys', invalidValues);
-
-          var validValues = [undefined, 'true', 'false'];
-          var expectedValues = [false, true, false];
-          testValidQueryParams('keys', validValues, 'keys', expectedValues);
         });
 
         describe('prompt', function () {
@@ -442,14 +430,6 @@ define(function (require, exports, module) {
           utmSource: ITEM,
           utmTerm: ITEM
         });
-      });
-    });
-
-    describe('wantsKeys', function () {
-      it('returns `true` only when keys are explicitly asked for', function () {
-        assert.isFalse(relier.wantsKeys());
-        relier.set('keys', true);
-        assert.isTrue(relier.wantsKeys());
       });
     });
 
