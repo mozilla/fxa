@@ -137,7 +137,6 @@ define([
     'effective-directive not a string (true)': testInvalidCspValue('effective-directive', true),
     'line-number negative (-1)': testInvalidCspValue('line-number', -1),
     'line-number not a number (a)': testInvalidCspValue('line-number', 'a'),
-    'original-policy empty ()': testInvalidCspValue('original-policy', ''),
     'referrer not a string (null)': testInvalidCspValue('referrer', null),
     'script-sample not a string (123)': testInvalidCspValue('script-sample', 123),
     'source-file not a string (123)': testInvalidCspValue('script-sample', 123),
@@ -154,6 +153,8 @@ define([
   };
 
   suite['#post csp - returns 200 if CSP report is valid'] = {
+    'blocked-uri (asset)': testValidCspValue('blocked-uri', 'asset'),
+    'blocked-uri (data)': testValidCspValue('blocked-uri', 'data'),
     'blocked-uri (empty)': testValidCspValue('blocked-uri', ''),
     'blocked-uri (eval)': testValidCspValue('blocked-uri', 'eval'),
     'blocked-uri (inline)': testValidCspValue('blocked-uri', 'inline'),
@@ -161,8 +162,10 @@ define([
     'blocked-uri (self)': testValidCspValue('blocked-uri', 'self'),
     'column-number missing': testValidCspValue('column-number', undefined),
     'disposition missing': testValidCspValue('disposition', undefined),
+    'document-uri (about:srcdoc)': testValidCspValue('document-uri', 'about:srcdoc'),
     'effective-directive missing': testValidCspValue('effective-directive', undefined),
     'line-number missing': testValidCspValue('line-number', undefined),
+    'original-policy empty ()': testValidCspValue('original-policy', undefined),
     'referrer empty ()': testValidCspValue('referrer', ''),
     'script-sample empty ()': testValidCspValue('script-sample', ''),
     'script-sample missing': testValidCspValue('script-sample', undefined),

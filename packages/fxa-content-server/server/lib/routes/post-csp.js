@@ -20,19 +20,27 @@ const BODY_SCHEMA = {
   'csp-report': joi.object().keys({
     // CSP 2, 3 required
     // `eval` and `inline` are specified in CSP 3 and sent by Chrome
-    'blocked-uri': URL_TYPE.allow('eval').allow('inline').allow('self').allow('').optional(),
+    'blocked-uri': URL_TYPE
+      .allow('eval')
+      .allow('inline')
+      .allow('self')
+      .allow('data')
+      .allow('asset')
+      .allow('')
+      .optional(),
     // CSP 2, 3 optional
     'column-number': INTEGER_TYPE.min(0).optional(),
     // CSP 3 required, but not always sent
     'disposition': STRING_TYPE.optional(),
     // CSP 2, 3 required
-    'document-uri': URL_TYPE.required(),
+    // Allow 'about:srcdoc', see https://bugzilla.mozilla.org/show_bug.cgi?id=1073952#c22
+    'document-uri': URL_TYPE.required().allow('about:srcdoc'),
      // CSP 2 required, but not always sent
     'effective-directive': STRING_TYPE.optional(),
     // CSP 2 optional
     'line-number': INTEGER_TYPE.min(0).optional(),
-    // CSP 2, 3 required
-    'original-policy': STRING_TYPE.required(),
+    // CSP 2, 3 required. However some reports do not contain it.
+    'original-policy': STRING_TYPE.optional(),
     // CSP 2, 3 required, can be empty
     'referrer': STRING_TYPE.allow('').required(),
     // Not in spec but sent by Firefox, can be empty
