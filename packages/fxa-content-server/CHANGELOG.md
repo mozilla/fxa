@@ -1,3 +1,12 @@
+<a name="1.85.3"></a>
+## 1.85.3 (2017-04-26)
+
+
+### Features
+
+* **sessions:** disable web sessions by default (#4999), r=vladikoff ([ba07e1f4](https://github.com/mozilla/fxa-content-server/commit/ba07e1f443))
+
+
 <a name="1.85.2"></a>
 ## 1.85.2 (2017-04-21)
 
