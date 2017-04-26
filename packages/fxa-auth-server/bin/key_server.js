@@ -29,11 +29,6 @@ function run(config) {
       v && v.constructor === RegExp ? v.toString() : v
     )
 
-  log.notifier.send({
-    event: 'config',
-    data: config
-  })
-
   if (config.env !== 'prod') {
     log.info(stringifiedConfig, 'starting config')
   }
