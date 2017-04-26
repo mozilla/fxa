@@ -68,6 +68,7 @@
     "poolee": "1.0.1",
     "request": "2.79.0",
     "restify": "4.3.0",
+    "restify-safe-json-formatter": "0.2.0",
     "scrypt-hash": "1.1.14",
     "through": "2.3.8",
     "uuid": "1.4.1",

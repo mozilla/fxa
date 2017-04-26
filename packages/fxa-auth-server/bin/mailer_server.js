@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var restify = require('restify')
+var safeJsonFormatter = require('restify-safe-json-formatter')
 var config = require('../config')
 
 var log = require('../lib/senders/log')('server')
@@ -44,7 +45,11 @@ P.all(
         log.error('server', {err: err})
       })
 
-    var api = restify.createServer()
+    var api = restify.createServer({
+      formatters: {
+        'application/json; q=0.9': safeJsonFormatter
+      }
+    })
     api.use(restify.bodyParser())
     /*/
     {
