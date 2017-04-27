@@ -463,6 +463,8 @@ describe('/account/login', function () {
     mockMetricsContext.setFlowCompleteSignal.reset()
     mockDB.emailRecord = defaultEmailRecord
     mockDB.emailRecord.reset()
+    mockDB.getSecondaryEmail = sinon.spy(() => P.reject(error.unknownSecondaryEmail()))
+    mockDB.getSecondaryEmail.reset()
     mockRequest.payload.email = TEST_EMAIL
   })
 
@@ -1044,6 +1046,22 @@ describe('/account/login', function () {
           assert.equal(err.output.payload.verificationReason, undefined, 'no verificationReason')
         })
       })
+    })
+  })
+
+  it('fails login with secondary email', function () {
+    config.secondaryEmail.enabled = true
+    mockDB.emailRecord = sinon.spy(function () {
+      return P.reject(error.unknownAccount())
+    })
+    mockDB.getSecondaryEmail = sinon.spy(function (email) {
+      return P.resolve({
+        email: email
+      })
+    })
+    return runTest(route, mockRequest).then(() => assert.ok(false), (err) => {
+      assert.equal(mockDB.getSecondaryEmail.callCount, 1, 'db.getSecondaryEmail was called')
+      assert.equal(err.errno, 141, 'correct errno called')
     })
   })
 })

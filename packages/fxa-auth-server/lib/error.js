@@ -44,6 +44,8 @@ var ERRNO = {
   SESSION_UNVERIFIED: 138,
   USER_PRIMARY_EMAIL_EXISTS: 139,
   VERIFIED_PRIMARY_EMAIL_EXISTS: 140,
+  LOGIN_WITH_SECONDARY_EMAIL: 141,
+  SECONDARY_EMAIL_UNKNOWN: 142,
 
   // If there exists an account that was created under 24hrs and
   // has not verified their email address, this error is thrown
@@ -616,6 +618,24 @@ AppError.unverifiedPrimaryEmailNewlyCreated = () => {
     error: 'Bad Request',
     errno: ERRNO.UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED,
     message: 'Email already exists'
+  })
+}
+
+AppError.cannotLoginWithSecondaryEmail = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.LOGIN_WITH_SECONDARY_EMAIL,
+    message: 'Sign in with this email type is not currently supported'
+  })
+}
+
+AppError.unknownSecondaryEmail = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.SECONDARY_EMAIL_UNKNOWN,
+    message: 'Unknown email'
   })
 }
 

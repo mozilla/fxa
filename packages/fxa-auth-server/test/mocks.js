@@ -11,6 +11,7 @@ const extend = require('util')._extend
 const P = require('../lib/promise')
 const crypto = require('crypto')
 const config = require('../config').getProperties()
+const error = require('../lib/error')
 
 const CUSTOMS_METHOD_NAMES = [
   'check',
@@ -45,6 +46,7 @@ const DB_METHOD_NAMES = [
   'emailBounces',
   'emailRecord',
   'forgotPasswordVerified',
+  'getSecondaryEmail',
   'keyFetchToken',
   'keyFetchTokenWithVerificationStatus',
   'passwordChangeToken',
@@ -237,6 +239,9 @@ function mockDB (data, errors) {
     }),
     forgotPasswordVerified: sinon.spy(() => {
       return P.resolve(data.accountResetToken)
+    }),
+    getSecondaryEmail: sinon.spy(() => {
+      return P.reject(error.unknownSecondaryEmail())
     }),
     securityEvents: sinon.spy(() => {
       return P.resolve([])

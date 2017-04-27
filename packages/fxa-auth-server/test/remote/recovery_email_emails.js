@@ -633,6 +633,50 @@ describe('remote emails', function () {
     )
   })
 
+  describe('shouldn\'t be able to login with secondary email', () => {
+    let secondEmail
+    beforeEach(() => {
+      secondEmail = server.uniqueEmail()
+      return client.createEmail(secondEmail)
+        .then((res) => {
+          assert.ok(res, 'ok response')
+          return server.mailbox.waitForEmail(secondEmail)
+        })
+        .then((emailData) => {
+          const templateName = emailData['headers']['x-template-name']
+          const emailCode = emailData['headers']['x-verify-code']
+          assert.equal(templateName, 'verifySecondaryEmail', 'email template name set')
+          assert.ok(emailCode, 'emailCode set')
+          return client.verifySecondaryEmail(emailCode, secondEmail)
+        })
+        .then((res) => {
+          assert.ok(res, 'ok response')
+          return client.accountEmails()
+        })
+        .then((res) => {
+          assert.equal(res.length, 2, 'returns number of emails')
+          assert.equal(res[1].email, secondEmail, 'returns correct email')
+          assert.equal(res[1].isPrimary, false, 'returns correct isPrimary')
+          assert.equal(res[1].verified, true, 'returns correct verified')
+          return server.mailbox.waitForEmail(email)
+        })
+    })
+
+    it(
+      'fails to login',
+      () => {
+        return Client.login(config.publicUrl, secondEmail, password, {})
+          .then(() => {
+            assert.fail(new Error('should not have been able to login'))
+          })
+          .catch((err) => {
+            assert.equal(err.code, 400, 'correct error code')
+            assert.equal(err.errno, 141, 'correct errno code')
+          })
+      }
+    )
+  })
+
   after(() => {
     return TestServer.stop(server)
   })

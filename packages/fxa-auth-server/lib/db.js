@@ -856,6 +856,21 @@ module.exports = (
     return this.pool.get('/account/' + uid.toString('hex') + '/emails')
   }
 
+  DB.prototype.getSecondaryEmail = function (email) {
+    log.trace({
+      op: 'DB.getSecondaryEmail',
+      email: email
+    })
+
+    return this.pool.get('/email/' + Buffer(email, 'utf8').toString('hex'))
+      .catch((err) => {
+        if (isNotFoundError(err)) {
+          throw error.unknownSecondaryEmail()
+        }
+        throw err
+      })
+  }
+
   DB.prototype.createEmail = function (uid, emailData) {
     log.trace({
       email: emailData.email,

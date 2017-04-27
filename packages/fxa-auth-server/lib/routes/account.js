@@ -489,6 +489,32 @@ module.exports = (
           throw e
         }
 
+        function checkSecondaryEmail() {
+          log.trace({op: 'Account.login.checkSecondaryEmail'})
+
+          if (! features.isSecondaryEmailEnabled()) {
+            return
+          }
+
+          // Currently, we only allow emails on the account table to log a user in.
+          // If the email being used is a secondary email, fail fast and let the user
+          // know that this can not be used to login.
+          return db.getSecondaryEmail(email)
+            .then((email) => {
+              if (email) {
+                throw error.cannotLoginWithSecondaryEmail()
+              }
+            }, (err) => {
+              // No secondary email exists for this, continue with the regular login flow
+              if (err.errno === error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
+                log.trace({op: 'Account.login.checkSecondaryEmail.noconflict'})
+
+                return
+              }
+              throw err
+            })
+        }
+
         function readEmailRecord () {
           return db.emailRecord(email)
             .then(
@@ -505,19 +531,28 @@ module.exports = (
               },
               function (err) {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                  customs.flag(request.app.clientAddress, {
-                    email: email,
-                    errno: err.errno
-                  })
-                  // We rate-limit attempts to check whether an account exists, so
-                  // we have to be careful to re-throw any customs-server errors here.
-                  // We also have to be careful not to leak info about whether the account
-                  // existed, for example by saying sign-in unblock is unavailable on
-                  // accounts that don't exist. We pass a fake uid into the feature-flag
-                  // test to mask whether the account existed.
-                  if (customsErr) {
-                    throw customsErr
-                  }
+
+                  // Check to see if this email exists on the emails table. `checkSecondaryEmail` throws
+                  // a custom error if user is attempting to login with a secondary email, otherwise we
+                  // flag the request and throw account unknown error.
+                  return checkSecondaryEmail()
+                    .then(() => {
+                      customs.flag(request.app.clientAddress, {
+                        email: email,
+                        errno: err.errno
+                      })
+                      // We rate-limit attempts to check whether an account exists, so
+                      // we have to be careful to re-throw any customs-server errors here.
+                      // We also have to be careful not to leak info about whether the account
+                      // existed, for example by saying sign-in unblock is unavailable on
+                      // accounts that don't exist. We pass a fake uid into the feature-flag
+                      // test to mask whether the account existed.
+                      if (customsErr) {
+                        throw customsErr
+                      }
+
+                      throw err
+                    })
                 }
                 throw err
               }
