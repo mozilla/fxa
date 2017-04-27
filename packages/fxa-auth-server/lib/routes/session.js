@@ -69,13 +69,22 @@ module.exports = function (log, db) {
       path: '/session/status',
       config: {
         auth: {
-          strategy: 'sessionToken'
+          strategy: 'sessionTokenWithVerificationStatus'
+        },
+        response: {
+          schema: {
+            state: isA.string().required(),
+            uid: isA.string().regex(HEX_STRING).required()
+          }
         }
       },
-      handler: function (request, reply) {
+      handler(request, reply) {
         log.begin('Session.status', request)
-        var sessionToken = request.auth.credentials
-        reply({ uid: sessionToken.uid.toString('hex') })
+        const sessionToken = request.auth.credentials
+        reply({
+          state: sessionToken.state,
+          uid: sessionToken.uid.toString('hex')
+        })
       }
     }
   ]

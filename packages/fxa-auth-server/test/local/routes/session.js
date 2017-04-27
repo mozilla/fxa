@@ -37,14 +37,16 @@ describe('/session/status', () => {
   const request = mocks.mockRequest({
     credentials: {
       email: 'foo@example.org',
+      state: 'unverified',
       uid: 'foo'
     }
   })
 
-  it('returns uid correctly', () => {
+  it('returns status correctly', () => {
     return runTest(route, request).then((res) => {
-      assert.equal(Object.keys(res).length, 1)
+      assert.equal(Object.keys(res).length, 2)
       assert.equal(res.uid, 'foo')
+      assert.equal(res.state, 'unverified')
     })
   })
 
