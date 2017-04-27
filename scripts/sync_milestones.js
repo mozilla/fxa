@@ -12,6 +12,7 @@ var ghlib = require('./ghlib.js')
 var P = require('bluebird')
 
 var ACTIVE_FEATURE_LABELS = {
+  "designin": true,
   "defined": true,
   "building": true,
   "shipping": true,
