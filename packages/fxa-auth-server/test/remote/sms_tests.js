@@ -10,7 +10,8 @@ const Client = require('../client')()
 const config = require('../../config').getProperties()
 const error = require('../../lib/error')
 
-describe('remote sms (live nexmo)', () => {
+describe('remote sms (live nexmo)', function() {
+  this.timeout(10000)
   let server
 
   before(() => {
@@ -40,7 +41,8 @@ describe('remote sms (live nexmo)', () => {
   })
 })
 
-describe('remote sms (mocked nexmo)', () => {
+describe('remote sms (mocked nexmo)', function() {
+  this.timeout(10000)
   let server
 
   before(() => {
