@@ -52,13 +52,14 @@ deployment:
           | tee config/version.json version.json
       - docker build -f Dockerfile-build -t fxa-content-server:build .
       - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
-      - >
-          if [ $CIRCLE_BRANCH -eq "master" ]; then
+      - |
+          if [ $CIRCLE_BRANCH = "master" ]; then
             CIRCLE_BRANCH=latest
           fi
-      - "echo ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}"
-      - "docker tag fxa-content-server:build ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}"
-      - "docker push ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}"
+
+          echo ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
+          docker tag fxa-content-server:build ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
+          docker push ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
 
   hub_releases:
     # push all tags
