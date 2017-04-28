@@ -28,13 +28,13 @@ deployment:
     commands:
       - "[ ! -z $DOCKERHUB_REPO ]"
       - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
-      - >
+      - |
           if [ $CIRCLE_BRANCH -eq "master" ]; then
             CIRCLE_BRANCH=latest
           fi
-      - "echo ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}"
-      - "docker tag fxa-auth-server:build ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}"
-      - "docker push ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}"
+          echo ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
+          docker tag fxa-auth-server:build ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
+          docker push ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
 
   hub_releases:
     # push all tags
