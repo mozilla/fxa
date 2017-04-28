@@ -45,13 +45,6 @@ define(function (require, exports, module) {
     return this._request('/v1/avatar', 'get', accessToken);
   };
 
-  ProfileClient.prototype.postAvatar = function (accessToken, url) {
-    return this._request('/v1/avatar', 'post', accessToken, {
-      selected: true, // TODO: this can be removed once fxa-profile-server updates
-      url: url
-    });
-  };
-
   ProfileClient.prototype.deleteAvatar = function (accessToken, id) {
     return this._request('/v1/avatar/' + id, 'delete', accessToken);
   };

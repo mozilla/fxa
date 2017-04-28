@@ -163,8 +163,6 @@ define(function (require, exports, module) {
               assert.isTrue(view.navigate.calledWith('settings'));
               assert.isTrue(TestHelpers.isEventLogged(metrics,
                 'settings.avatar.crop.submit.new'));
-              assert.isFalse(TestHelpers.isEventLogged(metrics,
-                'settings.avatar.gravatar.submit.change'));
             });
         });
 

@@ -33,8 +33,6 @@ define([
     '/avatar/camera': 'avatar-camera',
     '/avatar/change': 'avatar-change',
     '/avatar/crop': 'avatar-crop',
-    '/avatar/gravatar': 'avatar-gravatar',
-    '/avatar/gravatar_permissions': 'avatar-gravatar-permissions',
     '/change_password': 'change-password',
     '/communication_preferences': 'communication-preferences',
     '/delete_account': 'delete-account',

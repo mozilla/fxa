@@ -80,7 +80,6 @@ require.config({
     jwcrypto: 'vendor/jwcrypto/jwcrypto.ds',
     'jwcrypto.rs': 'vendor/jwcrypto/jwcrypto.rs',
     mailcheck: '../bower_components/mailcheck/src/mailcheck',
-    md5: '../bower_components/JavaScript-MD5/js/md5',
     modal: '../bower_components/jquery-modal/jquery.modal',
     moment: '../bower_components/moment/moment',
     mustache: '../bower_components/mustache/mustache',

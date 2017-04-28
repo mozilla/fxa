@@ -177,7 +177,6 @@
 
       &#camera,
       &#file,
-      &#gravatar,
       &.remove {
         background-position: 50% 22%;
         background-size: 41%;
@@ -197,10 +196,6 @@
 
       &#file {
         background-image: image-url('glyph-upload-32.svg');
-      }
-
-      &#gravatar {
-        background-image: image-url('glyph-gravatar-32.svg');
       }
 
       &.remove {

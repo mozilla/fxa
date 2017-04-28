@@ -5,17 +5,15 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
   'intern/browser_modules/dojo/node!path',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, path, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, path, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
 
   var ADD_AVATAR_BUTTON_SELECTOR  = '#change-avatar .settings-unit-toggle.primary';
   var AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
   var AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
-  var CHANGE_AVATAR_BUTTON_SELECTOR = '#change-avatar .settings-unit-toggle.secondary';
   var PASSWORD = 'password';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -92,92 +90,6 @@ define([
 
         // success is going to the change avatar page
         .then(testElementExists('#avatar-options'));
-    },
-
-    'visit gravatar with gravatar set': function () {
-      return this.remote
-        .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#gravatar'))
-
-        // go to gravatar change
-        .then(click('#gravatar'))
-
-        // there is a strange race condition with the permission screen,
-        // if the .sleep does not help then we should revisit this
-        .then(testElementExists('.email'))
-        .then(testElementExists('#back'))
-
-        .sleep(2000)
-
-        // accept permission
-        .then(click('#accept'))
-
-        .then(testElementExists('img[src*="https://secure.gravatar.com"]'))
-        .then(click('.modal-panel #submit-btn'))
-
-        //success is returning to the settings page
-        .then(testElementExists('#fxa-settings-header'))
-        .then(testIsBrowserNotifiedOfAvatarChange())
-        // check for an image with the gravatar url
-        .then(testElementExists('img[src*="https://secure.gravatar.com"]'))
-
-        // Go back to the gravatar view to make sure permission prompt is skipped the second time
-        .then(click(CHANGE_AVATAR_BUTTON_SELECTOR))
-        .then(click('#gravatar'))
-
-        .then(testElementExists('#avatar-gravatar'));
-    },
-
-    'visit gravatar with gravatar set then cancel': function () {
-      return this.remote
-        .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#gravatar'))
-        // go to change avatar
-        .then(click('#gravatar'))
-
-        // accept permission
-        .then(click('#accept'))
-
-        .then(testElementExists('img[src*="https://secure.gravatar.com"]'))
-        .then(click('.modal-panel #back'))
-
-        // redirected back to main avatar page after save
-        .then(testElementExists('#avatar-options'))
-
-        // give time for error to show up, there should be no error though
-        .sleep(500)
-
-        .findByCssSelector('.modal-panel .error')
-          .getVisibleText()
-          .then(function (val) {
-            assert.ok(! val, 'has no error text');
-          })
-        .end()
-
-        // success is seeing no profile image set
-        .waitForDeletedByCssSelector('.avatar-wrapper img')
-        .end();
-    },
-
-    'visit gravatar with no gravatar set': function () {
-      return this.remote
-        .then(openPage(AVATAR_CHANGE_URL, '#gravatar'))
-
-        // go to change avatar
-        .then(click('#gravatar'))
-
-        // accept permission
-        .then(click('#accept'))
-
-        // success is going to the change avatar page
-        .then(testElementExists('#avatar-options'))
-
-        // success is seeing the error text
-        .then(FunctionalHelpers.visibleByQSA('.modal-panel .error'))
-        .findByCssSelector('.modal-panel .error')
-          .getVisibleText()
-          .then(function (val) {
-            assert.ok(val, 'has error text');
-          })
-        .end();
     },
 
     'attempt to use webcam for avatar': function () {

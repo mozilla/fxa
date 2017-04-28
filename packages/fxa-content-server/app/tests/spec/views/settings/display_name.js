@@ -80,7 +80,7 @@ define(function (require, exports, module) {
     }
 
     describe('renders', function () {
-      it('redirects to /settings/avatar/gravatar if permissions already granted', function () {
+      it('renders the displayName correctly', function () {
         var name = 'joe cool';
         account.set('displayName', name);
 

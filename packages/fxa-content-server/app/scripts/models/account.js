@@ -1044,7 +1044,6 @@ define(function (require, exports, module) {
   [
     'getProfile',
     'getAvatar',
-    'postAvatar',
     'deleteAvatar',
     'uploadAvatar',
     'postDisplayName'

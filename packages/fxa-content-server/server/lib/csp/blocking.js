@@ -66,6 +66,9 @@ module.exports = function (config) {
       imgSrc: addCdnRuleIfRequired([
         SELF,
         DATA,
+        // Gravatar support was removed in #4927, but we don't want
+        // to break the site for users who already use a Gravatar as
+        // their profile image.
         GRAVATAR,
         PROFILE_IMAGES_SERVER
       ]),

@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const AvatarCameraView = require('../views/settings/avatar_camera');
   const AvatarChangeView = require('../views/settings/avatar_change');
   const AvatarCropView = require('../views/settings/avatar_crop');
-  const AvatarGravatarView = require('../views/settings/avatar_gravatar');
   const Backbone = require('backbone');
   const CannotCreateAccountView = require('../views/cannot_create_account');
   const ChangePasswordView = require('../views/settings/change_password');
@@ -28,7 +27,6 @@ define(function (require, exports, module) {
   const DeleteAccountView = require('../views/settings/delete_account');
   const DisplayNameView = require('../views/settings/display_name');
   const ForceAuthView = require('../views/force_auth');
-  const GravatarPermissionsView = require('../views/settings/gravatar_permissions');
   const IndexView = require('../views/index');
   const LegalView = require('../views/legal');
   const OAuthIndexView = require('../views/oauth_index');
@@ -95,8 +93,6 @@ define(function (require, exports, module) {
       'settings/avatar/camera(/)': createChildViewHandler(AvatarCameraView, SettingsView),
       'settings/avatar/change(/)': createChildViewHandler(AvatarChangeView, SettingsView),
       'settings/avatar/crop(/)': createChildViewHandler(AvatarCropView, SettingsView),
-      'settings/avatar/gravatar(/)': createChildViewHandler(AvatarGravatarView, SettingsView),
-      'settings/avatar/gravatar_permissions(/)': createChildViewHandler(GravatarPermissionsView, SettingsView),
       'settings/change_password(/)': createChildViewHandler(ChangePasswordView, SettingsView),
       'settings/clients(/)': createChildViewHandler(ClientsView, SettingsView),
       'settings/clients/disconnect(/)': createChildViewHandler(ClientDisconnectView, SettingsView),

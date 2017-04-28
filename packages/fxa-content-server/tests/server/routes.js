@@ -61,8 +61,6 @@ define([
     '/settings/avatar/camera': { statusCode: 200 },
     '/settings/avatar/change': { statusCode: 200 },
     '/settings/avatar/crop': { statusCode: 200 },
-    '/settings/avatar/gravatar': { statusCode: 200 },
-    '/settings/avatar/gravatar_permissions': { statusCode: 200 },
     '/settings/change_password': { statusCode: 200 },
     '/settings/clients': { statusCode: 200 },
     '/settings/clients/disconnect': { statusCode: 200 },

@@ -92,15 +92,6 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('postAvatar', function () {
-        it('post an avatar url', function () {
-          server.respondWith('POST', PROFILE_URL + '/v1/avatar',
-            [201, { 'Content-Type': 'application/json' }, '{}']);
-
-          return client.postAvatar(token, 'https://secure.gravatar.com/deadbeef', true);
-        });
-      });
-
       describe('uploadAvatar', function () {
         it('upload an image', function () {
           server.respondWith('POST', PROFILE_URL + '/v1/avatar/upload',

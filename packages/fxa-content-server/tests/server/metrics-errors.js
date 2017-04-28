@@ -48,7 +48,6 @@ define([
     'tags (undefined)': testValidMetricsErrorField('tags', undefined),
     'tags.code (400)': testValidTagValue('code', 400),
     'tags.code undefined': testValidTagValue('code', undefined),
-    'tags.context (settings.avatar.gravatar)': testValidTagValue('context', 'settings.avatar.gravatar'),
     'tags.context (settings.change-password)': testValidTagValue('context', 'settings.change-password'),
     'tags.context (undefined)': testValidTagValue('context', undefined),
     'tags.context (unknown context)': testValidTagValue('context', 'unknown context'),

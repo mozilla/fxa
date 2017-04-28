@@ -31,8 +31,6 @@ module.exports = function () {
     'settings/avatar/camera',
     'settings/avatar/change',
     'settings/avatar/crop',
-    'settings/avatar/gravatar',
-    'settings/avatar/gravatar_permissions',
     'settings/change_password',
     'settings/clients',
     'settings/clients/disconnect',

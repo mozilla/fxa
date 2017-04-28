@@ -21,8 +21,6 @@ define(function (require, exports, module) {
   const ClientDisconnectView = require('views/settings/client_disconnect');
   const DisplayNameView = require('views/settings/display_name');
   const Duration = require('duration');
-  const GravatarPermissionsView = require('views/settings/gravatar_permissions');
-  const GravatarView = require('views/settings/avatar_gravatar');
   const LoadingMixin = require('views/mixins/loading-mixin');
   const modal = require('modal'); //eslint-disable-line no-unused-vars
   const Session = require('lib/session');
@@ -41,9 +39,7 @@ define(function (require, exports, module) {
     DeleteAccountView,
     AvatarChangeView,
     AvatarCropView,
-    AvatarCameraView,
-    GravatarView,
-    GravatarPermissionsView
+    AvatarCameraView
   ];
 
   const proto = BaseView.prototype;

@@ -293,10 +293,13 @@ define(function (require, exports, module) {
       errno: 1031,
       message: t('You must enter your age to sign up')
     },
+    /*
+    Removed in #4927
     NO_GRAVATAR_FOUND: {
       errno: 1032,
       message: t('No Gravatar found')
     },
+     */
     INVALID_CAMERA_DIMENSIONS: {
       errno: 1033,
       message: UNEXPECTED_ERROR_MESSAGE

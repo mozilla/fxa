@@ -274,21 +274,6 @@ The event stream is a log of events and the time they occurred while the user is
 * settings.avatar.crop.submit.change - user submit the cropper and had an avatar set before
 * settings.avatar.crop.submit.new - user submit the cropper avatar
 
-
-#### settings/avatar/gravatar
-
-* settings.avatar.gravatar.submit - user submit the gravatar avatar view
-* settings.avatar.gravatar.submit.change - user submit the gravatar and had an avatar set before
-* settings.avatar.gravatar.submit.new - user submit the gravatar and had no avatar set
-* error.settings.avatar.gravatar.auth.1032 - No gravatar found
-
-#### settings/avatar/gravatar_permissions
-
-* settings.avatar.gravatar-permissions.accepted - user accepted permission prompt
-* settings.avatar.gravatar-permissions.already-accepted - user accepted permission prompt
-* settings.avatar.gravatar-permissions.submit - user accepted permission prompt
-
-
 #### settings/clients
 
 * settings.clients.[clientType].disconnect - user is attempting to disconnect a client type (types: `device` or `app`)
