@@ -128,6 +128,7 @@ module.exports = function (log) {
     this.translator = translator.getTranslator
     this.verificationUrl = config.verificationUrl
     this.verifyLoginUrl = config.verifyLoginUrl
+    this.verifySecondaryEmailUrl = config.verifySecondaryEmailUrl
   }
 
   Mailer.prototype.stop = function () {
@@ -457,14 +458,15 @@ module.exports = function (log) {
     var query = {
       code: message.code,
       uid: message.uid,
-      type: 'secondary'
+      type: 'secondary',
+      secondary_email_verified: message.email
     }
 
     if (message.service) { query.service = message.service }
     if (message.redirectTo) { query.redirectTo = message.redirectTo }
     if (message.resume) { query.resume = message.resume }
 
-    var links = this._generateLinks(this.verificationUrl, message.email, query, templateName)
+    var links = this._generateLinks(this.verifySecondaryEmailUrl, message.email, query, templateName)
 
     var headers = {
       'X-Link': links.link,

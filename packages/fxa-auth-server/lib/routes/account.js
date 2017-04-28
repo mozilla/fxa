@@ -118,7 +118,7 @@ module.exports = (
 
         customs.check(request, email, 'accountCreate')
           .then(db.emailRecord.bind(db, email))
-          .then(deleteAccountIfUnverified, ignoreUnknownAccountError)
+          .then(deleteAccountIfUnverified, checkAccountError)
           .then(setMetricsFlowCompleteSignal)
           .then(generateRandomValues)
           .then(createPassword)
@@ -139,10 +139,32 @@ module.exports = (
           return db.deleteAccount(emailRecord)
         }
 
-        function ignoreUnknownAccountError (err) {
-          if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
-            throw err
+        function checkAccountError (err) {
+          if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+            // Even though the email is not on the account table, it could be on the emails table.
+            // Delete the unverified secondary email if it exists and proceed with account creation.
+            return deleteSecondaryEmailIfUnverified()
           }
+
+          throw err
+        }
+
+        function deleteSecondaryEmailIfUnverified() {
+          return db.getSecondaryEmail(email)
+            .then((secondaryEmailRecord) => {
+              // Currently, users can not create an account from a verified
+              // secondary email address
+              if (secondaryEmailRecord.isVerified) {
+                throw error.verifiedSecondaryEmailAlreadyExists()
+              }
+
+              return db.deleteEmail(Buffer(secondaryEmailRecord.uid, 'hex'), secondaryEmailRecord.email)
+            })
+            .catch((err) => {
+              if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
+                throw err
+              }
+            })
         }
 
         function setMetricsFlowCompleteSignal () {
@@ -491,7 +513,6 @@ module.exports = (
 
         function checkSecondaryEmail() {
           log.trace({op: 'Account.login.checkSecondaryEmail'})
-
           if (! features.isSecondaryEmailEnabled()) {
             return
           }
@@ -508,7 +529,6 @@ module.exports = (
               // No secondary email exists for this, continue with the regular login flow
               if (err.errno === error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
                 log.trace({op: 'Account.login.checkSecondaryEmail.noconflict'})
-
                 return
               }
               throw err
@@ -1812,7 +1832,6 @@ module.exports = (
         // failed right away.
         request.emitMetricsEvent('email.verify_code.clicked')
 
-
         /**
          * Below is a summary of the verify_code flow. This flow is used to verify emails, sign-in and
          * account codes.
@@ -1837,12 +1856,12 @@ module.exports = (
             // Check if param `type` is specified and equal to `secondary`
             // If so, verify the secondary email and respond
             if (type && type === 'secondary' && features.isSecondaryEmailEnabled()) {
-              let verifiedEmail
+              let matchedEmail
               return db.accountEmails(account.uid)
                 .then((emails) => {
                   const isEmailVerification = emails.some((email) => {
                     if (email.emailCode && (code.toString('hex') === email.emailCode)) {
-                      verifiedEmail = email.email
+                      matchedEmail = email
                       log.info({
                         op: 'account.verifyEmail.secondary.started',
                         uid: uidHex,
@@ -1857,20 +1876,31 @@ module.exports = (
                     throw error.invalidVerificationCode()
                   }
 
+                  // User is attempting to verify a secondary email that has already been verified.
+                  // Silently succeed and don't send post verification email.
+                  if (matchedEmail.isVerified) {
+                    log.info({
+                      op: 'account.verifyEmail.secondary.already-verified',
+                      uid: uidHex,
+                      code: request.payload.code
+                    })
+                    return P.resolve()
+                  }
+
                   return db.verifyEmail(account, code)
-                })
-                .then(function () {
-                  log.info({
-                    op: 'account.verifyEmail.secondary.confirmed',
-                    uid: uidHex,
-                    code: request.payload.code
-                  })
-                  return mailer.sendPostVerifySecondaryEmail(
-                    [],
-                    account,
-                    {
-                      acceptLanguage: request.app.acceptLanguage,
-                      secondaryEmail: verifiedEmail
+                    .then(() => {
+                      log.info({
+                        op: 'account.verifyEmail.secondary.confirmed',
+                        uid: uidHex,
+                        code: request.payload.code
+                      })
+                      return mailer.sendPostVerifySecondaryEmail(
+                        [],
+                        account,
+                        {
+                          acceptLanguage: request.app.acceptLanguage,
+                          secondaryEmail: matchedEmail.email
+                        })
                     })
                 })
             } else {

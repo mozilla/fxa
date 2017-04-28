@@ -129,6 +129,7 @@ describe(
           service: 'sync',
           uid: 'uid',
           unblockCode: 'AS6334PK',
+          type: 'secondary',
           flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
           flowBeginTime: Date.now()
         }
@@ -184,6 +185,20 @@ describe(
             mailer[type](message)
           }
         )
+
+        if (type === 'verifySecondaryEmail') {
+          it(
+            'contains correct type ' + type,
+            function () {
+              mailer.mailer.sendMail = function (emailConfig) {
+                assert.ok(includes(emailConfig.headers['X-Link'], 'type=secondary'))
+                assert.ok(includes(emailConfig.html, 'type=secondary'))
+                assert.ok(includes(emailConfig.text, 'type=secondary'))
+              }
+              mailer[type](message)
+            }
+          )
+        }
 
         it(
           'If sesConfigurationSet is not defined, then outgoing email does not contain X-SES* headers, for type ' + type,

@@ -11,6 +11,10 @@ const Client = require('../client')()
 let config, server, client, email
 const password = 'allyourbasearebelongtous'
 
+function includes(haystack, needle) {
+  return (haystack.indexOf(needle) > -1)
+}
+
 describe('remote emails', function () {
   this.timeout(30000)
 
@@ -203,7 +207,13 @@ describe('remote emails', function () {
           .then((emailData) => {
             const templateName = emailData['headers']['x-template-name']
             const emailCode = emailData['headers']['x-verify-code']
+            const verifyLink = emailData['headers']['x-link']
             assert.equal(templateName, 'verifySecondaryEmail', 'email template name set')
+
+            assert.equal(includes(verifyLink, 'type=secondary'), true, 'contains type=secondary')
+            const secondaryEmailParam = 'secondary_email_verified=' + encodeURIComponent(secondEmail)
+            assert.equal(includes(verifyLink, secondaryEmailParam), true, 'contains correct secondary_email_verified')
+
             assert.ok(emailCode, 'emailCode set')
             return client.verifySecondaryEmail(emailCode, secondEmail)
           })
@@ -671,10 +681,75 @@ describe('remote emails', function () {
           })
           .catch((err) => {
             assert.equal(err.code, 400, 'correct error code')
-            assert.equal(err.errno, 141, 'correct errno code')
+            assert.equal(err.errno, 142, 'correct errno code')
           })
       }
     )
+  })
+
+  describe('should handle account creation', () => {
+    let secondEmail
+    let emailCode
+
+    beforeEach(() => {
+      secondEmail = server.uniqueEmail()
+      return client.createEmail(secondEmail)
+        .then((res) => {
+          assert.ok(res, 'ok response')
+          return server.mailbox.waitForEmail(secondEmail)
+        })
+        .then((emailData) => {
+          emailCode = emailData['headers']['x-verify-code']
+        })
+    })
+
+    it('fails to create account using verified secondary email', () => {
+      return client.verifySecondaryEmail(emailCode, secondEmail)
+        .then((res) => {
+          assert.ok(res, 'ok response')
+          return client.accountEmails()
+        })
+        .then((res) => {
+          assert.equal(res.length, 2, 'returns number of emails')
+          assert.equal(res[1].email, secondEmail, 'returns correct email')
+          assert.equal(res[1].isPrimary, false, 'returns correct isPrimary')
+          assert.equal(res[1].verified, true, 'returns correct verified')
+          return server.mailbox.waitForEmail(email)
+        })
+        .then(() => {
+          return Client.create(config.publicUrl, secondEmail, password, {})
+            .then(assert.fail)
+            .catch((err) => {
+              assert.equal(err.errno, 144, 'return correct errno')
+              assert.equal(err.code, 400, 'return correct code')
+            })
+        })
+    })
+
+    it('should create account with unverified secondary email and delete unverified secondary email', () => {
+      let client2
+      return client.accountEmails()
+        .then((res) => {
+          assert.equal(res.length, 2, 'returns number of emails')
+          assert.equal(res[1].email, secondEmail, 'returns correct email')
+          assert.equal(res[1].isPrimary, false, 'returns correct isPrimary')
+          assert.equal(res[1].verified, false, 'returns correct verified')
+          return Client.createAndVerify(config.publicUrl, secondEmail, password, server.mailbox)
+            .catch(assert.fail)
+        })
+        .then((x) => {
+          client2 = x
+          assert.equal(client2.email, secondEmail, 'account created with secondary email address')
+          return client.accountEmails()
+        })
+        .then((res) => {
+          // Secondary email on first account should have been deleted
+          assert.equal(res.length, 1, 'returns number of emails')
+          assert.equal(res[0].email, client.email, 'returns correct email')
+          assert.equal(res[0].isPrimary, true, 'returns correct isPrimary')
+          assert.equal(res[0].verified, true, 'returns correct verified')
+        })
+    })
   })
 
   after(() => {

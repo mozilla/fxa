@@ -1061,7 +1061,7 @@ describe('/account/login', function () {
     })
     return runTest(route, mockRequest).then(() => assert.ok(false), (err) => {
       assert.equal(mockDB.getSecondaryEmail.callCount, 1, 'db.getSecondaryEmail was called')
-      assert.equal(err.errno, 141, 'correct errno called')
+      assert.equal(err.errno, 142, 'correct errno called')
     })
   })
 })

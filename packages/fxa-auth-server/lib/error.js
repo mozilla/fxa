@@ -44,14 +44,15 @@ var ERRNO = {
   SESSION_UNVERIFIED: 138,
   USER_PRIMARY_EMAIL_EXISTS: 139,
   VERIFIED_PRIMARY_EMAIL_EXISTS: 140,
-  LOGIN_WITH_SECONDARY_EMAIL: 141,
-  SECONDARY_EMAIL_UNKNOWN: 142,
-
   // If there exists an account that was created under 24hrs and
   // has not verified their email address, this error is thrown
   // if another user attempts to add that email to their account
   // as a secondary email.
   UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED: 141,
+  LOGIN_WITH_SECONDARY_EMAIL: 142,
+  SECONDARY_EMAIL_UNKNOWN: 143,
+  VERIFIED_SECONDARY_EMAIL_EXISTS: 144,
+
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   UNEXPECTED_ERROR: 999
@@ -605,6 +606,15 @@ AppError.verifiedPrimaryEmailAlreadyExists = () => {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.VERIFIED_PRIMARY_EMAIL_EXISTS,
+    message: 'Email already exists'
+  })
+}
+
+AppError.verifiedSecondaryEmailAlreadyExists = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.VERIFIED_SECONDARY_EMAIL_EXISTS,
     message: 'Email already exists'
   })
 }
