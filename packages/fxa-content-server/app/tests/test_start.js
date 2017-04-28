@@ -77,7 +77,7 @@ function (Translator, Session) {
     '../tests/spec/models/auth_brokers/fx-sync',
     '../tests/spec/models/auth_brokers/index',
     '../tests/spec/models/auth_brokers/oauth',
-    '../tests/spec/models/auth_brokers/redirect',
+    '../tests/spec/models/auth_brokers/oauth-redirect',
     '../tests/spec/models/device',
     '../tests/spec/models/email-resend',
     '../tests/spec/models/flow',

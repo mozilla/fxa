@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   const chai = require('chai');
   const Constants = require('lib/constants');
   const p = require('lib/promise');
-  const RedirectAuthenticationBroker = require('models/auth_brokers/redirect');
+  const RedirectAuthenticationBroker = require('models/auth_brokers/oauth-redirect');
   const Relier = require('models/reliers/base');
   const Session = require('lib/session');
   const sinon = require('sinon');

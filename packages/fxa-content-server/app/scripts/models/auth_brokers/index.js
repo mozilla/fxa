@@ -45,7 +45,7 @@ define(function (require, exports, module) {
     },
     {
       context: Constants.OAUTH_CONTEXT,
-      Constructor: require('models/auth_brokers/redirect')
+      Constructor: require('models/auth_brokers/oauth-redirect')
     }
     /* eslint-enable sorting/sort-object-props */
   ].reduce((authBrokers, authBroker) => {

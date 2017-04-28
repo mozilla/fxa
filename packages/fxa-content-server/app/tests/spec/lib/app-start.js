@@ -25,7 +25,7 @@ define(function (require, exports, module) {
   const OAuthRelier = require('models/reliers/oauth');
   const p = require('lib/promise');
   const Raven = require('raven');
-  const RedirectBroker = require('models/auth_brokers/redirect');
+  const RedirectBroker = require('models/auth_brokers/oauth-redirect');
   const RefreshObserver = require('models/refresh-observer');
   const Relier = require('models/reliers/relier');
   const SameBrowserVerificationModel = require('models/verification/same-browser');

@@ -57,7 +57,7 @@ define((require, exports, module) => {
 
     it('get returns correct broker for oauth context', () => {
       const authBroker = index.get(constants.OAUTH_CONTEXT);
-      assert.equal(authBroker, require('models/auth_brokers/redirect'));
+      assert.equal(authBroker, require('models/auth_brokers/oauth-redirect'));
     });
 
     it('get falls back to the base auth broker', () => {
