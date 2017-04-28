@@ -1024,7 +1024,7 @@ module.exports = (
 
           response.keyFetchToken = keyFetchToken.data.toString('hex')
 
-          if(! emailRecord.emailVerified) {
+          if (! emailRecord.emailVerified) {
             response.verified = false
             response.verificationMethod = 'email'
             response.verificationReason = 'signup'
@@ -1289,7 +1289,7 @@ module.exports = (
         // Check if anything has actually changed, and log lots metrics on what.
         function isSpuriousUpdate(payload, token) {
           var spurious = true
-          if(! token.deviceId || payload.id !== token.deviceId.toString('hex')) {
+          if (! token.deviceId || payload.id !== token.deviceId.toString('hex')) {
             spurious = false
             log.increment('device.update.sessionToken')
           }

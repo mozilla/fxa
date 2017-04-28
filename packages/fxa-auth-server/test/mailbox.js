@@ -49,7 +49,7 @@ module.exports = function (host, port, printLogs) {
           return cb(e)
         }
 
-        if(! json) {
+        if (! json) {
           if (tries === 0) {
             return cb(new Error('could not get mail for ' + url))
           }

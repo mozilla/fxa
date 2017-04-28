@@ -32,7 +32,7 @@ const secretKeyFile = config.get('secretKeyFile')
 try {
   var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile)
   assert(! keysExist, 'keys already exists')
-} catch(e) {
+} catch (e) {
   process.exit()
 }
 

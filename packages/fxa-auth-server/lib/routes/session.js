@@ -32,7 +32,7 @@ module.exports = function (log, db) {
 
         return P.resolve()
           .then(() => {
-            if(request.payload && request.payload.customSessionToken) {
+            if (request.payload && request.payload.customSessionToken) {
               const customTokenHex = request.payload.customSessionToken
 
               return db.sessionToken(customTokenHex)

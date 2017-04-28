@@ -60,7 +60,7 @@ function readRecords() {
   var records = []
   try {
     records = require(inputFileName)
-  } catch(e) {
+  } catch (e) {
     console.error(inputFileName, 'does not contain JSON')
     process.exit(1)
   }

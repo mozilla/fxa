@@ -133,7 +133,7 @@ function create(log, error, config, routes, db, translator) {
     port: config.listen.port
   }
 
-  if(config.useHttps) {
+  if (config.useHttps) {
     connectionOptions.tls = {
       key: fs.readFileSync(config.keyPath),
       cert: fs.readFileSync(config.certPath)
@@ -156,11 +156,11 @@ function create(log, error, config, routes, db, translator) {
       includeSubdomains: config.hpkpConfig.includeSubDomains
     }
 
-    if(config.hpkpConfig.reportUri){
+    if (config.hpkpConfig.reportUri){
       hpkpOptions.reportUri = config.hpkpConfig.reportUri
     }
 
-    if(config.hpkpConfig.reportOnly){
+    if (config.hpkpConfig.reportOnly){
       hpkpOptions.reportOnly = config.hpkpConfig.reportOnly
     }
 
