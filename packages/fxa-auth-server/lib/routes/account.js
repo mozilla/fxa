@@ -514,7 +514,7 @@ module.exports = (
         function checkSecondaryEmail() {
           log.trace({op: 'Account.login.checkSecondaryEmail'})
           if (! features.isSecondaryEmailEnabled()) {
-            return
+            return P.resolve()
           }
 
           // Currently, we only allow emails on the account table to log a user in.
@@ -529,7 +529,7 @@ module.exports = (
               // No secondary email exists for this, continue with the regular login flow
               if (err.errno === error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
                 log.trace({op: 'Account.login.checkSecondaryEmail.noconflict'})
-                return
+                return P.resolve()
               }
               throw err
             })

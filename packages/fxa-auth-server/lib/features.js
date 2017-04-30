@@ -31,7 +31,7 @@ module.exports = config => {
      * @returns {boolean}
      */
     isSecondaryEmailEnabled() {
-      return !! secondaryEmail.enabled
+      return !! (secondaryEmail && secondaryEmail.enabled)
     },
 
     /**
