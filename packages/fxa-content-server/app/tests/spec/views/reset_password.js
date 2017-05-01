@@ -277,7 +277,7 @@ define(function (require, exports, module) {
 
   describe('views/reset_password with model.forceEmail', () => {
     let broker;
-    let email = 'testuser@testuser.com';
+    const email = 'testuser@testuser.com';
     let formPrefill;
     let model;
     let notifier;

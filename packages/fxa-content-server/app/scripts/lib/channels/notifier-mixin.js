@@ -53,7 +53,7 @@ define(function (require, exports, module) {
       }
 
       for (let notificationName in notifications) {
-        let method = notifications[notificationName];
+        const method = notifications[notificationName];
         let attachMethod = 'on';
 
         if (ONCE_PREFIX.test(notificationName)) {

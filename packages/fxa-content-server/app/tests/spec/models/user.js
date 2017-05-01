@@ -72,7 +72,7 @@ define(function (require, exports, module) {
 
     describe('initAccount', function () {
       let account;
-      let email = 'a@a.com';
+      const email = 'a@a.com';
 
       beforeEach(function () {
         account = user.initAccount({

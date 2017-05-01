@@ -12,7 +12,7 @@ if (typeof window !== 'undefined') {
 } else if (typeof global !== 'undefined') {
   // being run in node for the build step. Mock in require, and
   // export the config
-  require = {
+  require = { // eslint-disable-line no-global-assign
     config: function (cfg) {
       module.exports = cfg;
     }

@@ -40,7 +40,7 @@ define(function (require, exports, module) {
         it('normally responds with profile', function () {
           server.respondWith('GET', PROFILE_URL + '/v1/profile',
             [200, { 'Content-Type': 'application/json' },
-            '{ "uid": "' + UID + '", "email": "' + EMAIL + '" }']);
+              '{ "uid": "' + UID + '", "email": "' + EMAIL + '" }']);
 
           return client.getProfile(token)
             .then(function (result) {
@@ -82,7 +82,7 @@ define(function (require, exports, module) {
         it('normally responds with avatar', function () {
           server.respondWith('GET', PROFILE_URL + '/v1/avatar',
             [200, { 'Content-Type': 'application/json' },
-            '{ "avatar": "' + URL + '" }']);
+              '{ "avatar": "' + URL + '" }']);
 
           return client.getAvatar(token)
             .then(function (result) {
@@ -96,7 +96,7 @@ define(function (require, exports, module) {
         it('upload an image', function () {
           server.respondWith('POST', PROFILE_URL + '/v1/avatar/upload',
             [201, { 'Content-Type': 'application/json' },
-            '{ "url": "' + URL + '" }']);
+              '{ "url": "' + URL + '" }']);
 
           return client.uploadAvatar(token, 'image blob goes here')
             .then(function (result) {
@@ -120,7 +120,7 @@ define(function (require, exports, module) {
           var name = 'Joe';
           server.respondWith('GET', PROFILE_URL + '/v1/display_name',
             [200, { 'Content-Type': 'application/json' },
-            '{ "displayName": "' + name + '" }']);
+              '{ "displayName": "' + name + '" }']);
 
           return client.getDisplayName(token)
             .then(function (result) {

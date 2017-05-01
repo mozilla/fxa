@@ -38,7 +38,7 @@ define(function (require, exports, module) {
     let translator;
     let user;
     let view;
-    let viewName = 'view';
+    const viewName = 'view';
     let windowMock;
 
     const View = BaseView.extend({

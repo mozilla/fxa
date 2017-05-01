@@ -64,7 +64,7 @@ define(function (require, exports, module) {
 
     describe('destroy', () => {
       it('destroys the experiments instance', () => {
-        let experiments = view.experiments;
+        const experiments = view.experiments;
         sinon.spy(experiments, 'destroy');
 
         view.destroy();

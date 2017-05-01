@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
 
   describe('lib/channels/notifier-mixin', () => {
-    let data = { uid: createUid() };
+    const data = { uid: createUid() };
     let functionHandlerSpy;
     let notifier;
     let view;
@@ -52,7 +52,7 @@ define(function (require, exports, module) {
     });
 
     it('exports correct interface', () => {
-      let expectedFunctions = [
+      const expectedFunctions = [
         'initialize',
       ];
       assert.lengthOf(Object.keys(NotifierMixin), expectedFunctions.length);

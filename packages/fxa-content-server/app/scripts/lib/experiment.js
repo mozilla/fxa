@@ -90,7 +90,7 @@ define(function (require, exports, module) {
      * Destroy all active experiments.
      */
     destroy () {
-      for (let expName in this._activeExperiments) {
+      for (const expName in this._activeExperiments) {
         const experiment = this._activeExperiments[expName];
         experiment.destroy();
         this._activeExperiments[expName] = null;

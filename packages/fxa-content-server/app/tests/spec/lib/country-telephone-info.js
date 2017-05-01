@@ -10,7 +10,7 @@
 
    describe('lib/country-telephone-info', () => {
      describe('GB', () => {
-       let { format, normalize, pattern } = CountryTelephoneInfo.GB;
+       const { format, normalize, pattern } = CountryTelephoneInfo.GB;
 
        describe('format', () => {
          it('formats correctly', () => {
@@ -38,7 +38,7 @@
      });
 
      describe('RO', () => {
-       let { format, normalize, pattern } = CountryTelephoneInfo.RO;
+       const { format, normalize, pattern } = CountryTelephoneInfo.RO;
 
        it('formats correctly', () => {
          assert.equal(format('+40712345678'), '+40 712 345678');
@@ -69,7 +69,7 @@
      });
 
      describe('US', () => {
-       let { format, normalize, pattern } = CountryTelephoneInfo.US;
+       const { format, normalize, pattern } = CountryTelephoneInfo.US;
 
        it('formats correctly', () => {
          assert.equal(format('+11234567890'), '123-456-7890');

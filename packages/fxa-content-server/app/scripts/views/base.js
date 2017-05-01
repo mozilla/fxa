@@ -147,7 +147,7 @@ define(function (require, exports, module) {
       // spies & stubs to be used on DOM event handlers.
       // Without indirection, the original function is
       // always called.
-      for (let eventName in this.events) {
+      for (const eventName in this.events) {
         const method = this.events[eventName];
         if (_.isString(method) && _.isFunction(this[method])) {
           // a function must be used instead of a fat arrow

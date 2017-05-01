@@ -79,7 +79,7 @@ define(function (require, exports, module) {
         });
         return view.displayAccountProfileImage(account)
           .then(function () {
-            let err = view._normalizeError(ProfileErrors.toError('UNAUTHORIZED'));
+            const err = view._normalizeError(ProfileErrors.toError('UNAUTHORIZED'));
             assert.isFalse(TestHelpers.isErrorLogged(metrics, err));
           });
       });

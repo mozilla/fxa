@@ -36,7 +36,7 @@ define((require, exports, module) => {
     });
 
     it('navigates to the settings page if there is a current account', function () {
-      let signedInAccount = user.initAccount({
+      const signedInAccount = user.initAccount({
         sessionToken: 'token'
       });
       sinon.stub(user, 'getSignedInAccount', () => signedInAccount);

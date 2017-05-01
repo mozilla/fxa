@@ -139,7 +139,7 @@ module.exports = function () {
       res.json({ success: true });
 
       process.nextTick(() => {
-        let metrics = req.body || {};
+        const metrics = req.body || {};
 
         metrics.agent = req.get('user-agent');
 

@@ -122,7 +122,7 @@
 
        describe('errors', () => {
          it('it delegates to `account.sendSms`, calls `_onSendSmsError` with the error', () => {
-           let err = AuthErrors.toError('UNEXPECTED ERROR');
+           const err = AuthErrors.toError('UNEXPECTED ERROR');
            sinon.stub(account, 'sendSms', () => p.reject(err));
            sinon.spy(view, '_onSendSmsError');
            view.$('input[type=tel]').val('1234567890');
