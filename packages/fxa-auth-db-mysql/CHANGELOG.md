@@ -1,3 +1,22 @@
+<a name="1.86.0"></a>
+# [1.86.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.85.0...v1.86.0) (2017-05-01)
+
+
+### Bug Fixes
+
+* **docs:** update authors and node.js version in README ([6d89d30](https://github.com/mozilla/fxa-auth-db-mysql/commit/6d89d30))
+
+### chore
+
+* **docker:** Use official node image & update to Node.js v4.8.2 (#225) r=vladikoff ([2298e38](https://github.com/mozilla/fxa-auth-db-mysql/commit/2298e38))
+
+### Features
+
+* **email:** Add get email endpoint (#227), r=@vladikoff, @rfk ([8f5653c](https://github.com/mozilla/fxa-auth-db-mysql/commit/8f5653c))
+* **tokens:** prune tokens older than 3 months (#224) r=vladikoff ([fdc19c1](https://github.com/mozilla/fxa-auth-db-mysql/commit/fdc19c1)), closes [#219](https://github.com/mozilla/fxa-auth-db-mysql/issues/219)
+
+
+
 <a name="1.85.0"></a>
 # [1.85.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v0.83.0...v1.85.0) (2017-04-18)
 
