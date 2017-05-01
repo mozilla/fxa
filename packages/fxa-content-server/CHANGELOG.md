@@ -1,3 +1,37 @@
+<a name="1.86.0"></a>
+# 1.86.0 (2017-05-01)
+
+
+### Bug Fixes
+
+* **circle:** if branch master, tag is latest (#5019) ([b32de77](https://github.com/mozilla/fxa-content-server/commit/b32de77))
+* **csp:** adjust CSP validation for edge cases (#4998) r=shane-tomlinson ([0a32f08](https://github.com/mozilla/fxa-content-server/commit/0a32f08)), closes [#4886](https://github.com/mozilla/fxa-content-server/issues/4886)
+* **sms:** Fix the SMS experiment bucketing logic. (#4977) r=vladikoff ([5515f60](https://github.com/mozilla/fxa-content-server/commit/5515f60)), closes [(#4977](https://github.com/(/issues/4977)
+* **test:** Fix the StaleElementReference in 'rp listed in apps, can be deleted' (#4979) r=v ([39b8267](https://github.com/mozilla/fxa-content-server/commit/39b8267)), closes [(#4979](https://github.com/(/issues/4979) [#4968](https://github.com/mozilla/fxa-content-server/issues/4968)
+* **tests:** remove obsolete test check for node < 0.11.11 (#4976) ([c51e6b3](https://github.com/mozilla/fxa-content-server/commit/c51e6b3))
+* **userAgent:** fix parseVersion for bad user agents (#5018), r=@vbudhram ([ff87ed3](https://github.com/mozilla/fxa-content-server/commit/ff87ed3)), closes [(#5018](https://github.com/(/issues/5018)
+
+### chore
+
+* **test:** add a latestd config ([aa73dab](https://github.com/mozilla/fxa-content-server/commit/aa73dab))
+
+### Features
+
+* **channels:** Unify how channels handle errors. (#4889) r=vladikoff ([ecc007c](https://github.com/mozilla/fxa-content-server/commit/ecc007c))
+* **devices:** add OS device icons (#4975) r=shane-tomlinson  ([d3668b9](https://github.com/mozilla/fxa-content-server/commit/d3668b9)), closes [#4985](https://github.com/mozilla/fxa-content-server/issues/4985)
+* **docker:** push branches to dockerhub (#4990) r=jrgm ([8d3ce17](https://github.com/mozilla/fxa-content-server/commit/8d3ce17))
+* **docker:** remove the old docker file (#4997) ([fd9a0fb](https://github.com/mozilla/fxa-content-server/commit/fd9a0fb))
+
+### Refactor
+
+* **brokers:** Rename redirect.js to oauth-redirect.js (#5017) r=vladikoff ([3ceb9fb](https://github.com/mozilla/fxa-content-server/commit/3ceb9fb))
+* **gravatar:** Remove gravatar (#4927) r=vladikoff ([c897b6d](https://github.com/mozilla/fxa-content-server/commit/c897b6d))
+* **test:** Modernize the settings.js functional suite. (#4980) r=@philbooth ([0477e9e](https://github.com/mozilla/fxa-content-server/commit/0477e9e))
+* **test:** Remove the oauth `keys` tests. (#5002) r=vladikoff ([e80fba2](https://github.com/mozilla/fxa-content-server/commit/e80fba2)), closes [#5001](https://github.com/mozilla/fxa-content-server/issues/5001)
+* **validation:** Use VAT for validation everywhere on the front. (#4981) r=@philbooth ([7648a8c](https://github.com/mozilla/fxa-content-server/commit/7648a8c))
+
+
+
 <a name="1.85.3"></a>
 ## 1.85.3 (2017-04-26)
 
