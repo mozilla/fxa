@@ -52,6 +52,7 @@ var ERRNO = {
   LOGIN_WITH_SECONDARY_EMAIL: 142,
   SECONDARY_EMAIL_UNKNOWN: 143,
   VERIFIED_SECONDARY_EMAIL_EXISTS: 144,
+  RESET_PASSWORD_WITH_SECONDARY_EMAIL: 145,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -646,6 +647,15 @@ AppError.unknownSecondaryEmail = () => {
     error: 'Bad Request',
     errno: ERRNO.SECONDARY_EMAIL_UNKNOWN,
     message: 'Unknown email'
+  })
+}
+
+AppError.cannotResetPasswordWithSecondaryEmail = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.RESET_PASSWORD_WITH_SECONDARY_EMAIL,
+    message: 'Reset password with this email type is not currently supported'
   })
 }
 

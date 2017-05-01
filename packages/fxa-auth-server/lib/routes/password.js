@@ -407,6 +407,25 @@ module.exports = function (
               // Clobber the timestamp to prevent prematurely expired tokens.
               emailRecord.createdAt = undefined
               return db.createPasswordForgotToken(emailRecord)
+            },
+            (err) => {
+              // If account was not found, ensure that this is not a secondary email and
+              // throw the correct error if it is.
+              if (features.isSecondaryEmailEnabled() && err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+                return db.getSecondaryEmail(email)
+                  .then(() => {
+                    throw error.cannotResetPasswordWithSecondaryEmail()
+                  })
+                  .catch((emailErr) => {
+                    // If no secondary email exists, we want to throw the original account unknown
+                    // error because the user could potentially create this account.
+                    if (emailErr.errno === error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
+                      throw err
+                    }
+                    throw emailErr
+                  })
+              }
+              throw err
             }
           )
           .then(

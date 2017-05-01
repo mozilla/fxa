@@ -645,6 +645,53 @@ describe('remote emails', function () {
     )
   })
 
+  describe('shouldn\'t be able to initiate account reset from secondary email', () => {
+    let secondEmail
+    beforeEach(() => {
+      secondEmail = server.uniqueEmail()
+      return client.createEmail(secondEmail)
+        .then((res) => {
+          assert.ok(res, 'ok response')
+          return server.mailbox.waitForEmail(secondEmail)
+        })
+        .then((emailData) => {
+          const emailCode = emailData['headers']['x-verify-code']
+          assert.ok(emailCode, 'emailCode set')
+          return client.verifySecondaryEmail(emailCode, secondEmail)
+        })
+    })
+
+    it(
+      'fails to initiate account reset with known secondary email',
+      () => {
+        client.email = secondEmail
+        return client.forgotPassword()
+          .then(() => {
+            assert.fail(new Error('should not have been able to initiate reset password'))
+          })
+          .catch((err) => {
+            assert.equal(err.code, 400, 'correct error code')
+            assert.equal(err.errno, 145, 'correct errno code')
+          })
+      }
+    )
+
+    it(
+      'returns account unknown error when using unknown email',
+      () => {
+        client.email = 'unknown@email.com'
+        return client.forgotPassword()
+          .then(() => {
+            assert.fail(new Error('should not have been able to initiate reset password'))
+          })
+          .catch((err) => {
+            assert.equal(err.code, 400, 'correct error code')
+            assert.equal(err.errno, 102, 'correct errno code')
+          })
+      }
+    )
+  })
+
   describe('shouldn\'t be able to login with secondary email', () => {
     let secondEmail
     beforeEach(() => {
