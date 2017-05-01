@@ -307,6 +307,12 @@ define(function (require, exports, module) {
       describe('parseVersion', () => {
         it('returns expected major, minor, patch', () => {
           const toTest = {
+            ' ': {
+              major: 0,
+              minor: 0,
+              patch: 0
+            },
+
             'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19': {
               major: 18,
               minor: 0,
@@ -322,6 +328,12 @@ define(function (require, exports, module) {
             'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4': {
               major: 6,
               minor: 1,
+              patch: 0
+            },
+
+            'word': {
+              major: 0,
+              minor: 0,
               patch: 0
             }
 

@@ -82,7 +82,8 @@ define(function (require, exports, module) {
        * @returns {Object}
        */
       parseVersion () {
-        const browserVersion = this.browser.version.split('.');
+        // this.browser.version can be `undefined`
+        const browserVersion = this.browser.version ? this.browser.version.split('.') : [];
         return {
           major: parseInt(browserVersion[0] || 0, 10),
           minor: parseInt(browserVersion[1] || 0, 10),
