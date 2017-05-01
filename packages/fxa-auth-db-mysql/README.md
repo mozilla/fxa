@@ -27,7 +27,7 @@ npm test
 
 ## Prerequisites
 
-* Node.js 0.10 or later
+* node.js 4
 * npm
 * MySQL (we use version 5.6.21 in production)
 
