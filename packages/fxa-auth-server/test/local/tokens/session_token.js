@@ -40,6 +40,12 @@ describe('SessionToken', () => {
           assert.equal(typeof token.update, 'function', 'update method is defined')
           assert.equal(typeof token.isFresh, 'function', 'isFresh method is defined')
           assert.equal(typeof token.setUserAgentInfo, 'function', 'setUserAgentInfo method is defined')
+          assert.equal(Object.getOwnPropertyDescriptor(token, 'state'), undefined, 'state property is undefined')
+          assert.equal(
+            typeof Object.getOwnPropertyDescriptor(Object.getPrototypeOf(token), 'state').get,
+            'function',
+            'state is a getter'
+          )
           assert.notEqual(token.createdAt, TOKEN.createdAt, 'createdAt values are completely ignored')
         })
     }
@@ -73,6 +79,7 @@ describe('SessionToken', () => {
             assert.equal(token.createdAt, token2.createdAt)
             assert.equal(token.tokenVerified, token2.tokenVerified)
             assert.equal(token.tokenVerificationId, token2.tokenVerificationId)
+            assert.equal(token.state, token2.state)
           }
         )
     }
@@ -337,4 +344,21 @@ describe('SessionToken', () => {
         })
     }
   )
+
+  describe('state', () => {
+
+    it('should be unverified if token is not verified', () => {
+      const token = new SessionToken({}, {})
+      token.tokenVerified = false
+      assert.equal(token.state, 'unverified')
+    })
+
+    it('should be verified if token is verified', () => {
+      const token = new SessionToken({}, {})
+      token.tokenVerified = true
+      assert.equal(token.state, 'verified')
+    })
+
+  })
+
 })
