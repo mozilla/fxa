@@ -53,6 +53,10 @@ define([
     },
 
     'with an unregistered email': function () {
+      // Test often times out waiting for emails, give it a bit more time.
+      // See #5024
+      this.timeout = 60 * 1000;
+
       return this.remote
         .then(openFxaFromRp('force_auth', {
           header: '#fxa-signup-header',
