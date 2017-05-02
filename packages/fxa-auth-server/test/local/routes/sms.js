@@ -58,7 +58,7 @@ describe('/sms', () => {
       },
       log: log,
       payload: {
-        messageId: 42,
+        messageId: 1,
         metricsContext: {
           flowBeginTime: Date.now(),
           flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
@@ -98,7 +98,7 @@ describe('/sms', () => {
         assert.equal(args.length, 4)
         assert.equal(args[0], '+18885083401')
         assert.equal(args[1], '15036789977')
-        assert.equal(args[2], 42)
+        assert.equal(args[2], 'installFirefox')
         assert.equal(args[3], 'en-US')
       })
 
@@ -112,7 +112,7 @@ describe('/sms', () => {
 
         args = log.flowEvent.args[1]
         assert.equal(args.length, 1)
-        assert.equal(args[0].event, 'sms.42.sent')
+        assert.equal(args[0].event, 'sms.installFirefox.sent')
         assert.equal(args[0].flow_id, request.payload.metricsContext.flowId)
       })
     })

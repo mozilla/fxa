@@ -9,10 +9,6 @@ var MockNexmo = require('../mock-nexmo')
 var P = require('bluebird')
 var error = require('../error')
 
-var TEMPLATE_NAMES = new Map([
-  [ 1, 'installFirefox' ]
-])
-
 module.exports = function (log, translator, templates, smsConfig) {
   var nexmo = smsConfig.useMock ? new MockNexmo(log, smsConfig.balanceThreshold) : new Nexmo({
     apiKey: smsConfig.apiKey,
@@ -26,17 +22,17 @@ module.exports = function (log, translator, templates, smsConfig) {
   ])
 
   return {
-    send: function (phoneNumber, senderId, messageId, acceptLanguage) {
+    send: function (phoneNumber, senderId, templateName, acceptLanguage) {
       log.trace({
         op: 'sms.send',
         senderId: senderId,
-        messageId: messageId,
+        templateName: templateName,
         acceptLanguage: acceptLanguage
       })
 
       return P.resolve()
         .then(function () {
-          var message = getMessage(messageId, acceptLanguage)
+          var message = getMessage(templateName, acceptLanguage)
 
           return sendSms(senderId, phoneNumber, message.trim())
         })
@@ -58,7 +54,7 @@ module.exports = function (log, translator, templates, smsConfig) {
             log.info({
               op: 'sms.send.success',
               senderId: senderId,
-              messageId: messageId,
+              templateName: templateName,
               acceptLanguage: acceptLanguage
             })
           } else {
@@ -88,12 +84,11 @@ module.exports = function (log, translator, templates, smsConfig) {
     return P.promisify(object[methodName], { context: object })
   }
 
-  function getMessage (messageId, acceptLanguage) {
-    var templateName = TEMPLATE_NAMES.get(messageId)
+  function getMessage (templateName, acceptLanguage) {
     var template = templates['sms.' + templateName]
 
     if (! template) {
-      log.error({ op: 'sms.getMessage.error', messageId: messageId, templateName: templateName })
+      log.error({ op: 'sms.getMessage.error', templateName: templateName })
       throw error.invalidMessageId()
     }
 

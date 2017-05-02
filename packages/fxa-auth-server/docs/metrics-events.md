@@ -264,6 +264,14 @@ to each of the table names mentioned above:
 
 ## Significant changes
 
+### Train 86
+
+* [The template name
+  in the `sms.${templateName}.sent` event
+  was fixed.
+  Previously the message id
+  was logged in its place](https://github.com/mozilla/fxa-auth-server/pull/1843).
+
 ### Train 84
 
 * [The `sms.region.${region}` event

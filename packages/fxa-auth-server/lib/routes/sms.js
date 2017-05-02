@@ -11,6 +11,9 @@ const PhoneNumberUtil = require('google-libphonenumber').PhoneNumberUtil
 const validators = require('./validators')
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
+const TEMPLATE_NAMES = new Map([
+  [ 1, 'installFirefox' ]
+])
 
 module.exports = (log, config, customs, sms) => {
   if (! config.sms.enabled) {
@@ -44,7 +47,7 @@ module.exports = (log, config, customs, sms) => {
 
         const sessionToken = request.auth.credentials
         const phoneNumber = request.payload.phoneNumber
-        const messageId = request.payload.messageId
+        const templateName = TEMPLATE_NAMES.get(request.payload.messageId)
         const acceptLanguage = request.app.acceptLanguage
 
         let phoneNumberUtil, parsedPhoneNumber
@@ -83,11 +86,11 @@ module.exports = (log, config, customs, sms) => {
         }
 
         function sendMessage (senderId) {
-          return sms.send(phoneNumber, senderId, messageId, acceptLanguage)
+          return sms.send(phoneNumber, senderId, templateName, acceptLanguage)
         }
 
         function logSuccess () {
-          return request.emitMetricsEvent(`sms.${messageId}.sent`)
+          return request.emitMetricsEvent(`sms.${templateName}.sent`)
         }
 
         function createResponse () {
