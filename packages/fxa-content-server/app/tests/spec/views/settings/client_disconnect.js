@@ -139,11 +139,11 @@ define(function (require, exports, module) {
         return view.render().then(() => {
           assert.ok(view.disableForm.calledOnce);
           assert.notOk(view.enableForm.calledOnce);
-          assert.ok($(view.el).find('.primary.disabled').length, 'has disabled class');
+          assert.ok($(view.el).find('.warning.disabled').length, 'has disabled class');
 
           // choose an option
           $(view.el).find('input[name=disconnect-reasons][value=no]').prop('checked', true).change();
-          assert.notOk($(view.el).find('.primary.disabled').length, 'no disabled button');
+          assert.notOk($(view.el).find('.warning.disabled').length, 'no disabled button');
           assert.ok(view.disableForm.calledOnce);
           assert.ok(view.enableForm.calledOnce);
         });

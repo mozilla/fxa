@@ -199,7 +199,7 @@ define([
         .then(click('.disconnect-reasons > label > input[value="lost"]'))
         // wait until button is enabled (disabled class has gone away)
         .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
-        .then(click('#client-disconnect .primary'))
+        .then(click('#client-disconnect .warning'))
         .then(click('#client-disconnect .reason-help'))
 
         // disconnect waits until successful AJAX device delete
@@ -214,7 +214,7 @@ define([
         // wait until button is enabled
         .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
         // clicking disconnect on the current device should sign you out
-        .then(click('#client-disconnect .primary'))
+        .then(click('#client-disconnect .warning'))
 
         .then(testElementExists('#fxa-signin-header'))
         .then(noSuchStoredAccountByEmail(email));
