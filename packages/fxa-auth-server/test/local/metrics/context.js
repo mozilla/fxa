@@ -4,23 +4,36 @@
 
 'use strict'
 
+const ROOT_DIR = '../../..'
+
 const assert = require('insist')
-const crypto = require('crypto')
+const proxyquire = require('proxyquire')
 const sinon = require('sinon')
 const mocks = require('../../mocks')
-const log = mocks.spyLog()
-const Memcached = require('memcached')
-const metricsContextModule = require('../../../lib/metrics/context')
-const metricsContext = metricsContextModule(log, {
-  memcached: {
-    address: '127.0.0.1:1121',
-    idle: 500,
-    lifetime: 30
-  }
-})
-const P = require('../../../lib/promise')
+const P = require(`${ROOT_DIR}/lib/promise`)
 
-describe('metricsConext', () => {
+const modulePath = `${ROOT_DIR}/lib/metrics/context`
+const metricsContextModule = require(modulePath)
+
+describe('metricsContext', () => {
+  let results, cache, cacheFactory, log, config, metricsContext
+
+  beforeEach(() => {
+    results = {
+      del: P.resolve(),
+      get: P.resolve(),
+      set: P.resolve()
+    }
+    cache = {
+      del: sinon.spy(() => results.del),
+      get: sinon.spy(() => results.get),
+      set: sinon.spy(() => results.set)
+    }
+    cacheFactory = sinon.spy(() => cache)
+    log = mocks.spyLog()
+    config = {}
+    metricsContext = proxyquire(modulePath, { '../cache': cacheFactory })(log, config)
+  })
 
   it(
     'metricsContext interface is correct',
@@ -51,37 +64,36 @@ describe('metricsConext', () => {
     }
   )
 
+  it('instantiated cache correctly', () => {
+    assert.equal(cacheFactory.callCount, 1)
+    const args = cacheFactory.args[0]
+    assert.equal(args.length, 3)
+    assert.equal(args[0], log)
+    assert.equal(args[1], config)
+    assert.equal(args[2], 'fxa-metrics~')
+  })
+
   it(
     'metricsContext.stash',
     () => {
-      const uid = Buffer.alloc(32, 'cd')
-      const id = 'foo'
-      const hash = crypto.createHash('sha256')
-      hash.update(uid)
-      hash.update(id)
-      sinon.stub(Memcached.prototype, 'setAsync', function () {
-        return P.resolve('wibble')
-      })
-      metricsContext.stash.call({
+      results.set = P.resolve('wibble')
+      const token = {
+        uid: Buffer.alloc(32, 'cd'),
+        id: 'foo'
+      }
+      return metricsContext.stash.call({
         payload: {
           metricsContext: 'bar'
         }
-      }, {
-        uid: uid,
-        id: id
-      }).then(result => {
+      }, token).then(result => {
         assert.equal(result, 'wibble', 'result is correct')
 
-        assert.equal(Memcached.prototype.setAsync.callCount, 1, 'memcached.setAsync was called once')
-        assert.equal(Memcached.prototype.setAsync.args[0].length, 3, 'memcached.setAsync was passed three arguments')
-        assert.equal(Memcached.prototype.setAsync.args[0][0], hash.digest('base64'), 'first argument was correct')
-        assert.equal(Memcached.prototype.setAsync.args[0][1], 'bar', 'second argument was correct')
-        assert.equal(Memcached.prototype.setAsync.args[0][2], 30, 'third argument was correct')
+        assert.equal(cache.set.callCount, 1, 'cache.set was called once')
+        assert.equal(cache.set.args[0].length, 2, 'cache.set was passed two arguments')
+        assert.equal(cache.set.args[0][0], token, 'first argument was correct')
+        assert.equal(cache.set.args[0][1], 'bar', 'second argument was correct')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
-
-        Memcached.prototype.setAsync.restore()
-
       })
     }
   )
@@ -89,10 +101,8 @@ describe('metricsConext', () => {
   it(
     'metricsContext.stash error',
     () => {
-      sinon.stub(Memcached.prototype, 'setAsync', function () {
-        return P.reject('wibble')
-      })
-      metricsContext.stash.call({
+      results.set = P.reject('wibble')
+      return metricsContext.stash.call({
         payload: {
           metricsContext: 'bar'
         }
@@ -102,7 +112,7 @@ describe('metricsConext', () => {
       }).then(result => {
         assert.equal(result, undefined, 'result is undefined')
 
-        assert.equal(Memcached.prototype.setAsync.callCount, 1, 'memcached.setAsync was called once')
+        assert.equal(cache.set.callCount, 1, 'cache.set was called once')
 
         assert.equal(log.error.callCount, 1, 'log.error was called once')
         assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
@@ -111,10 +121,6 @@ describe('metricsConext', () => {
         assert.strictEqual(log.error.args[0][0].hasToken, true, 'hasToken property was correct')
         assert.strictEqual(log.error.args[0][0].hasId, true, 'hasId property was correct')
         assert.strictEqual(log.error.args[0][0].hasUid, true, 'hasUid property was correct')
-
-        Memcached.prototype.setAsync.restore()
-        log.error.reset()
-
       })
     }
   )
@@ -122,10 +128,8 @@ describe('metricsConext', () => {
   it(
     'metricsContext.stash with bad token',
     () => {
-      sinon.stub(Memcached.prototype, 'setAsync', function () {
-        return P.resolve('wibble')
-      })
-      metricsContext.stash.call({
+      results.set = P.reject(new Error('Invalid token'))
+      return metricsContext.stash.call({
         payload: {
           metricsContext: 'bar'
         }
@@ -142,11 +146,7 @@ describe('metricsConext', () => {
         assert.strictEqual(log.error.args[0][0].hasId, true, 'hasId property was correct')
         assert.strictEqual(log.error.args[0][0].hasUid, false, 'hasUid property was correct')
 
-        assert.equal(Memcached.prototype.setAsync.callCount, 0, 'memcached.setAsync was not called')
-
-        Memcached.prototype.setAsync.restore()
-        log.error.reset()
-
+        assert.equal(cache.set.callCount, 1, 'cache.set was called once')
       })
     }
   )
@@ -154,10 +154,7 @@ describe('metricsConext', () => {
   it(
     'metricsContext.stash without metadata',
     () => {
-      sinon.stub(Memcached.prototype, 'setAsync', function () {
-        return P.resolve('wibble')
-      })
-      metricsContext.stash.call({
+      return metricsContext.stash.call({
         payload: {}
       }, {
         uid: Buffer.alloc(32, 'cd'),
@@ -165,11 +162,8 @@ describe('metricsConext', () => {
       }).then(result => {
         assert.equal(result, undefined, 'result is undefined')
 
-        assert.equal(Memcached.prototype.setAsync.callCount, 0, 'memcached.setAsync was not called')
+        assert.equal(cache.set.callCount, 0, 'cache.set was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
-
-        Memcached.prototype.setAsync.restore()
-
       })
     }
   )
@@ -177,14 +171,12 @@ describe('metricsConext', () => {
   it(
     'metricsContext.gather with metadata',
     () => {
-      sinon.stub(Memcached.prototype, 'getAsync', function () {
-        return P.resolve({
-          flowId: 'not this flow id',
-          flowBeginTime: 0
-        })
+      results.get = P.resolve({
+        flowId: 'not this flow id',
+        flowBeginTime: 0
       })
-      var time = Date.now() - 1
-      metricsContext.gather.call({
+      const time = Date.now() - 1
+      return metricsContext.gather.call({
         payload: {
           metricsContext: {
             flowId: 'mock flow id',
@@ -212,11 +204,8 @@ describe('metricsConext', () => {
         assert.ok(result.flow_time < time, 'result.flow_time is less than the current time')
         assert.equal(result.flowCompleteSignal, 'mock flow complete signal', 'result.flowCompleteSignal is correct')
 
-        assert.equal(Memcached.prototype.getAsync.callCount, 0, 'memcached.getAsync was not called')
+        assert.equal(cache.get.callCount, 0, 'cache.get was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
-
-        Memcached.prototype.getAsync.restore()
-
       })
     }
   )
@@ -224,7 +213,7 @@ describe('metricsConext', () => {
   it(
     'metricsContext.gather with bad flowBeginTime',
     () => {
-      metricsContext.gather.call({
+      return metricsContext.gather.call({
         payload: {
           metricsContext: {
             flowBeginTime: Date.now() + 10000
@@ -245,29 +234,23 @@ describe('metricsConext', () => {
     'metricsContext.gather with token',
     () => {
       const time = Date.now() - 1
-      const uid = Buffer.alloc(32, '77')
-      const id = 'wibble'
-      const hash = crypto.createHash('sha256')
-      hash.update(uid)
-      hash.update(id)
-      sinon.stub(Memcached.prototype, 'getAsync', function () {
-        return P.resolve({
-          flowId: 'flowId',
-          flowBeginTime: time,
-          flowCompleteSignal: 'flowCompleteSignal'
-        })
+      const token = {
+        uid: Buffer.alloc(32, '77'),
+        id: 'wibble'
+      }
+      results.get = P.resolve({
+        flowId: 'flowId',
+        flowBeginTime: time,
+        flowCompleteSignal: 'flowCompleteSignal'
       })
-      metricsContext.gather.call({
+      return metricsContext.gather.call({
         auth: {
-          credentials: {
-            uid: uid,
-            id: id
-          }
+          credentials: token
         }
       }, {}).then(function (result) {
-        assert.equal(Memcached.prototype.getAsync.callCount, 1, 'memcached.getAsync was called once')
-        assert.equal(Memcached.prototype.getAsync.args[0].length, 1, 'memcached.getAsync was passed one argument')
-        assert.equal(Memcached.prototype.getAsync.args[0][0], hash.digest('base64'), 'memcached.getAsync argument was correct')
+        assert.equal(cache.get.callCount, 1, 'cache.get was called once')
+        assert.equal(cache.get.args[0].length, 1, 'cache.get was passed one argument')
+        assert.equal(cache.get.args[0][0], token, 'cache.get argument was correct')
 
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
@@ -279,9 +262,6 @@ describe('metricsConext', () => {
         assert.equal(result.flowCompleteSignal, 'flowCompleteSignal', 'result.flowCompleteSignal is correct')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
-
-        Memcached.prototype.getAsync.restore()
-
       })
     }
   )
@@ -292,24 +272,19 @@ describe('metricsConext', () => {
       const time = Date.now() - 1
       const uid = Buffer.alloc(32, '77')
       const id = 'wibble'
-      const hash = crypto.createHash('sha256')
-      hash.update(uid)
-      hash.update(id)
-      sinon.stub(Memcached.prototype, 'getAsync', function () {
-        return P.resolve({
-          flowId: 'flowId',
-          flowBeginTime: time
-        })
+      results.get = P.resolve({
+        flowId: 'flowId',
+        flowBeginTime: time
       })
-      metricsContext.gather.call({
+      return metricsContext.gather.call({
         payload: {
           uid: uid.toString('hex'),
           code: id
         }
       }, {}).then(function (result) {
-        assert.equal(Memcached.prototype.getAsync.callCount, 1, 'memcached.getAsync was called once')
-        assert.equal(Memcached.prototype.getAsync.args[0].length, 1, 'memcached.getAsync was passed one argument')
-        assert.equal(Memcached.prototype.getAsync.args[0][0], hash.digest('base64'), 'memcached.getAsync argument was correct')
+        assert.equal(cache.get.callCount, 1, 'cache.get was called once')
+        assert.equal(cache.get.args[0].length, 1, 'cache.get was passed one argument')
+        assert.deepEqual(cache.get.args[0][0], { uid, id }, 'cache.get argument was correct')
 
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
@@ -320,9 +295,6 @@ describe('metricsConext', () => {
         assert.ok(result.flow_time < time, 'result.flow_time is less than the current time')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
-
-        Memcached.prototype.getAsync.restore()
-
       })
     }
   )
@@ -330,13 +302,8 @@ describe('metricsConext', () => {
   it(
     'metricsContext.gather with bad token',
     () => {
-      sinon.stub(Memcached.prototype, 'getAsync', function () {
-        return P.resolve({
-          flowId: 'flowId',
-          flowBeginTime: Date.now()
-        })
-      })
-      metricsContext.gather.call({
+      results.get = P.reject(new Error('Invalid token'))
+      return metricsContext.gather.call({
         auth: {
           credentials: {
             uid: Buffer.alloc(32, 'cd')
@@ -354,10 +321,6 @@ describe('metricsConext', () => {
         assert.strictEqual(log.error.args[0][0].hasToken, true, 'hasToken property was correct')
         assert.strictEqual(log.error.args[0][0].hasId, false, 'hasId property was correct')
         assert.strictEqual(log.error.args[0][0].hasUid, true, 'hasUid property was correct')
-
-        Memcached.prototype.getAsync.restore()
-        log.error.reset()
-
       })
     }
   )
@@ -365,13 +328,11 @@ describe('metricsConext', () => {
   it(
     'metricsContext.gather with no token',
     () => {
-      sinon.stub(Memcached.prototype, 'getAsync', function () {
-        return P.resolve({
-          flowId: 'flowId',
-          flowBeginTime: Date.now()
-        })
+      results.get = P.resolve({
+        flowId: 'flowId',
+        flowBeginTime: Date.now()
       })
-      metricsContext.gather.call({
+      return metricsContext.gather.call({
         auth: {}
       }, {}).then(function (result) {
         assert.equal(typeof result, 'object', 'result is object')
@@ -379,10 +340,6 @@ describe('metricsConext', () => {
         assert.equal(Object.keys(result).length, 0, 'result is empty')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
-
-        Memcached.prototype.getAsync.restore()
-        log.error.reset()
-
       })
     }
   )
@@ -390,14 +347,12 @@ describe('metricsConext', () => {
   it(
     'metricsContext.gather with metadata and token',
     () => {
-      var time = Date.now() - 1
-      sinon.stub(Memcached.prototype, 'getAsync', function () {
-        return P.resolve({
-          flowId: 'foo',
-          flowBeginTime: time
-        })
+      const time = Date.now() - 1
+      results.get = P.resolve({
+        flowId: 'foo',
+        flowBeginTime: time
       })
-      metricsContext.gather.call({
+      return metricsContext.gather.call({
         auth: {
           credentials: {
             uid: Buffer.alloc(8, 'ff'),
@@ -415,11 +370,8 @@ describe('metricsConext', () => {
         assert.notEqual(result, null, 'result is not null')
         assert.equal(result.flow_id, 'baz', 'result.flow_id is correct')
 
-        assert.equal(Memcached.prototype.getAsync.callCount, 0, 'memcached.getAsync was not called')
+        assert.equal(cache.get.callCount, 0, 'cache.get was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
-
-        Memcached.prototype.getAsync.restore()
-
       })
     }
   )
@@ -427,10 +379,8 @@ describe('metricsConext', () => {
   it(
     'metricsContext.gather with get error',
     () => {
-      sinon.stub(Memcached.prototype, 'getAsync', function () {
-        return P.reject('foo')
-      })
-      metricsContext.gather.call({
+      results.get = P.reject('foo')
+      return metricsContext.gather.call({
         auth: {
           credentials: {
             uid: Buffer.alloc(8, 'ff'),
@@ -443,77 +393,7 @@ describe('metricsConext', () => {
         assert.equal(log.error.args[0][0].op, 'metricsContext.gather', 'argument op property was correct')
         assert.equal(log.error.args[0][0].err, 'foo', 'argument err property was correct')
 
-        assert.equal(Memcached.prototype.getAsync.callCount, 1, 'memcached.getAsync was called once')
-
-        Memcached.prototype.getAsync.restore()
-        log.error.reset()
-
-      })
-    }
-  )
-
-  it(
-    'metricsContext.stash with config.memcached.address === "none"',
-    () => {
-      var metricsContextWithoutMemcached = require('../../../lib/metrics/context')(log, {
-        memcached: {
-          address: 'none',
-          idle: 500,
-          lifetime: 30
-        }
-      })
-      sinon.stub(Memcached.prototype, 'setAsync', function () {
-        return P.reject('wibble')
-      })
-      metricsContextWithoutMemcached.stash({
-        uid: Buffer.alloc(8, 'ff'),
-        id: 'bar'
-      }, {
-        payload: {
-          metricsContext: 'baz'
-        }
-      }).then(result => {
-        assert.equal(result, undefined, 'result is undefined')
-
-        assert.equal(Memcached.prototype.setAsync.callCount, 0, 'memcached.setAsync was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-
-        Memcached.prototype.setAsync.restore()
-
-      })
-    }
-  )
-
-  it(
-    'metricsContext.gather with config.memcached.address === "none"',
-    () => {
-      var metricsContextWithoutMemcached = require('../../../lib/metrics/context')(log, {
-        memcached: {
-          address: 'none',
-          idle: 500,
-          lifetime: 30
-        }
-      })
-      sinon.stub(Memcached.prototype, 'getAsync', function () {
-        return P.resolve({
-          flowId: 'foo',
-          flowBeginTime: 42
-        })
-      })
-      metricsContextWithoutMemcached.gather.call({
-        auth: {
-          credentials: {
-            uid: Buffer.alloc(8, 'ff'),
-            id: 'baz'
-          }
-        }
-      }, {}).then(function () {
-        assert.equal(Memcached.prototype.getAsync.callCount, 0, 'memcached.getAsync was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-
-        Memcached.prototype.getAsync.restore()
-        log.error.reset()
-
+        assert.equal(cache.get.callCount, 1, 'cache.get was called once')
       })
     }
   )
@@ -521,25 +401,18 @@ describe('metricsConext', () => {
   it(
     'metricsContext.clear with token',
     () => {
-      const uid = Buffer.alloc(32, '77')
-      const id = 'wibble'
-      const hash = crypto.createHash('sha256')
-      hash.update(uid)
-      hash.update(id)
-      sinon.stub(Memcached.prototype, 'delAsync', () => P.resolve())
+      const token = {
+        uid: Buffer.alloc(32, '77'),
+        id: 'wibble'
+      }
       return metricsContext.clear.call({
         auth: {
-          credentials: {
-            uid: uid,
-            id: id
-          }
+          credentials: token
         }
       }).then(() => {
-        assert.equal(Memcached.prototype.delAsync.callCount, 1, 'memcached.delAsync was called once')
-        assert.equal(Memcached.prototype.delAsync.args[0].length, 1, 'memcached.delAsync was passed one argument')
-        assert.equal(Memcached.prototype.delAsync.args[0][0], hash.digest('base64'), 'memcached.delAsync argument was correct')
-
-        Memcached.prototype.delAsync.restore()
+        assert.equal(cache.del.callCount, 1, 'cache.del was called once')
+        assert.equal(cache.del.args[0].length, 1, 'cache.del was passed one argument')
+        assert.equal(cache.del.args[0][0], token, 'cache.del argument was correct')
       })
     }
   )
@@ -549,21 +422,15 @@ describe('metricsConext', () => {
     () => {
       const uid = Buffer.alloc(32, '66')
       const id = 'blee'
-      const hash = crypto.createHash('sha256')
-      hash.update(uid)
-      hash.update(id)
-      sinon.stub(Memcached.prototype, 'delAsync', () => P.resolve())
       return metricsContext.clear.call({
         payload: {
           uid: uid.toString('hex'),
           code: id
         }
       }).then(() => {
-        assert.equal(Memcached.prototype.delAsync.callCount, 1, 'memcached.delAsync was called once')
-        assert.equal(Memcached.prototype.delAsync.args[0].length, 1, 'memcached.delAsync was passed one argument')
-        assert.equal(Memcached.prototype.delAsync.args[0][0], hash.digest('base64'), 'memcached.delAsync argument was correct')
-
-        Memcached.prototype.delAsync.restore()
+        assert.equal(cache.del.callCount, 1, 'cache.del was called once')
+        assert.equal(cache.del.args[0].length, 1, 'cache.del was passed one argument')
+        assert.deepEqual(cache.del.args[0][0], { uid, id }, 'cache.del argument was correct')
       })
     }
   )
@@ -571,12 +438,9 @@ describe('metricsConext', () => {
   it(
     'metricsContext.clear with no token',
     () => {
-      sinon.stub(Memcached.prototype, 'delAsync', () => P.resolve())
       return metricsContext.clear.call({}).then(() => {
-        assert.equal(Memcached.prototype.delAsync.callCount, 0, 'memcached.delAsync was not called')
+        assert.equal(cache.del.callCount, 0, 'cache.del was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
-
-        Memcached.prototype.delAsync.restore()
       }).catch(err => assert.fail(err))
     }
   )
@@ -584,57 +448,20 @@ describe('metricsConext', () => {
   it(
     'metricsContext.clear with memcached error',
     () => {
-      const uid = Buffer.alloc(32, '77')
-      const id = 'wibble'
-      const hash = crypto.createHash('sha256')
-      hash.update(uid)
-      hash.update(id)
-      sinon.stub(Memcached.prototype, 'delAsync', () => P.reject('blee'))
+      const token = {
+        uid: Buffer.alloc(32, '77'),
+        id: 'wibble'
+      }
+      results.del = P.reject(new Error('blee'))
       return metricsContext.clear.call({
         auth: {
-          credentials: {
-            uid: uid,
-            id: id
-          }
+          credentials: token
         }
       })
       .then(() => assert.fail('call to metricsContext.clear should have failed'))
       .catch(err => {
-        assert.equal(err, 'blee', 'metricsContext.clear should have rejected with memcached error')
-        assert.equal(Memcached.prototype.delAsync.callCount, 1, 'memcached.delAsync was called once')
-
-        Memcached.prototype.delAsync.restore()
-      })
-    }
-  )
-
-  it(
-    'metricsContext.clear with config.memcached.address === "none"',
-    () => {
-      const metricsContextWithoutMemcached = require('../../../lib/metrics/context')(log, {
-        memcached: {
-          address: 'none',
-          idle: 500,
-          lifetime: 30
-        }
-      })
-      const uid = Buffer.alloc(32, '77')
-      const id = 'wibble'
-      const hash = crypto.createHash('sha256')
-      hash.update(uid)
-      hash.update(id)
-      sinon.stub(Memcached.prototype, 'delAsync', () => P.resolve())
-      return metricsContextWithoutMemcached.clear.call({
-        auth: {
-          credentials: {
-            uid: uid,
-            id: id
-          }
-        }
-      }).then(() => {
-        assert.equal(Memcached.prototype.delAsync.callCount, 0, 'memcached.delAsync was not called')
-
-        Memcached.prototype.delAsync.restore()
+        assert.equal(err.message, 'blee', 'metricsContext.clear should have rejected with memcached error')
+        assert.equal(cache.del.callCount, 1, 'cache.del was called once')
       })
     }
   )
@@ -649,6 +476,7 @@ describe('metricsConext', () => {
       })
       const mockLog = mocks.spyLog()
       const mockConfig = {
+        memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'S3CR37'
@@ -666,7 +494,7 @@ describe('metricsConext', () => {
         }
       }
 
-      const metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
+      const metricsContext = require(modulePath)(mockLog, mockConfig)
       const result = metricsContext.validate.call(mockRequest)
 
       assert.strictEqual(result, true, 'result was true')
@@ -689,6 +517,7 @@ describe('metricsConext', () => {
     () => {
       var mockLog = mocks.spyLog()
       var mockConfig = {
+        memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'test'
@@ -704,7 +533,7 @@ describe('metricsConext', () => {
         }
       }
 
-      var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
+      var metricsContext = require(modulePath)(mockLog, mockConfig)
       var valid = metricsContext.validate.call(mockRequest)
 
       assert(! valid, 'the data is treated as invalid')
@@ -724,6 +553,7 @@ describe('metricsConext', () => {
     () => {
       var mockLog = mocks.spyLog()
       var mockConfig = {
+        memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'test'
@@ -740,7 +570,7 @@ describe('metricsConext', () => {
         }
       }
 
-      var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
+      var metricsContext = require(modulePath)(mockLog, mockConfig)
       var valid = metricsContext.validate.call(mockRequest)
 
       assert(! valid, 'the data is treated as invalid')
@@ -761,6 +591,7 @@ describe('metricsConext', () => {
     () => {
       var mockLog = mocks.spyLog()
       var mockConfig = {
+        memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'test'
@@ -777,7 +608,7 @@ describe('metricsConext', () => {
         }
       }
 
-      var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
+      var metricsContext = require(modulePath)(mockLog, mockConfig)
       var valid = metricsContext.validate.call(mockRequest)
 
       assert(! valid, 'the data is treated as invalid')
@@ -798,6 +629,7 @@ describe('metricsConext', () => {
     () => {
       var mockLog = mocks.spyLog()
       var mockConfig = {
+        memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'test'
@@ -815,7 +647,7 @@ describe('metricsConext', () => {
         }
       }
 
-      var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
+      var metricsContext = require(modulePath)(mockLog, mockConfig)
       var valid = metricsContext.validate.call(mockRequest)
 
       assert(! valid, 'the data is treated as invalid')
@@ -836,6 +668,7 @@ describe('metricsConext', () => {
     () => {
       var mockLog = mocks.spyLog()
       var mockConfig = {
+        memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'test'
@@ -853,7 +686,7 @@ describe('metricsConext', () => {
         }
       }
 
-      var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
+      var metricsContext = require(modulePath)(mockLog, mockConfig)
       var valid = metricsContext.validate.call(mockRequest)
 
       assert(! valid, 'the data is treated as invalid')
@@ -877,6 +710,7 @@ describe('metricsConext', () => {
       var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
       var mockLog = mocks.spyLog()
       var mockConfig = {
+        memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'ThisIsTheWrongKey'
@@ -898,7 +732,7 @@ describe('metricsConext', () => {
       })
 
       try {
-        var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
+        var metricsContext = require(modulePath)(mockLog, mockConfig)
         var valid = metricsContext.validate.call(mockRequest)
       } finally {
         Date.now.restore()
@@ -925,6 +759,7 @@ describe('metricsConext', () => {
       var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
       var mockLog = mocks.spyLog()
       var mockConfig = {
+        memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'S3CR37'
@@ -946,7 +781,7 @@ describe('metricsConext', () => {
       })
 
       try {
-        var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
+        var metricsContext = require(modulePath)(mockLog, mockConfig)
         var valid = metricsContext.validate.call(mockRequest)
       } finally {
         Date.now.restore()
@@ -973,6 +808,7 @@ describe('metricsConext', () => {
       var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
       var mockLog = mocks.spyLog()
       var mockConfig = {
+        memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'S3CR37'
@@ -994,7 +830,7 @@ describe('metricsConext', () => {
       })
 
       try {
-        var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
+        var metricsContext = require(modulePath)(mockLog, mockConfig)
         var valid = metricsContext.validate.call(mockRequest)
       } finally {
         Date.now.restore()

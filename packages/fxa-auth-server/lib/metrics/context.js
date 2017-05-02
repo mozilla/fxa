@@ -8,10 +8,7 @@ const bufferEqualConstantTime = require('buffer-equal-constant-time')
 const crypto = require('crypto')
 const HEX = require('../routes/validators').HEX_STRING
 const isA = require('joi')
-const Memcached = require('memcached')
 const P = require('../promise')
-
-P.promisifyAll(Memcached.prototype)
 
 const FLOW_ID_LENGTH = 64
 
@@ -23,18 +20,8 @@ const SCHEMA = isA.object({
   .and('flowId', 'flowBeginTime')
   .optional()
 
-const NOP = function () {
-  return P.resolve()
-}
-
-const NULL_MEMCACHED = {
-  delAsync: NOP,
-  getAsync: NOP,
-  setAsync: NOP
-}
-
 module.exports = function (log, config) {
-  let _memcached
+  const cache = require('../cache')(log, config, 'fxa-metrics~')
 
   return {
     stash: stash,
@@ -60,7 +47,7 @@ module.exports = function (log, config) {
     }
 
     return P.resolve()
-      .then(() => getMemcached().setAsync(getKey(token), metadata, config.memcached.lifetime))
+      .then(() => cache.set(token, metadata))
       .catch(err => log.error({
         op: 'metricsContext.stash',
         err: err,
@@ -68,31 +55,6 @@ module.exports = function (log, config) {
         hasId: !! (token && token.id),
         hasUid: !! (token && token.uid)
       }))
-  }
-
-  function getMemcached () {
-    if (_memcached) {
-      return _memcached
-    }
-
-    try {
-      if (config.memcached.address !== 'none') {
-        _memcached = new Memcached(config.memcached.address, {
-          timeout: 500,
-          retries: 1,
-          retry: 1000,
-          reconnect: 1000,
-          idle: config.memcached.idle,
-          namespace: 'fxa-metrics~'
-        })
-
-        return _memcached
-      }
-    } catch (err) {
-      log.error({ op: 'metricsContext.getMemcached', err: err })
-    }
-
-    return NULL_MEMCACHED
   }
 
   /**
@@ -118,7 +80,7 @@ module.exports = function (log, config) {
 
         token = getToken(this)
         if (token) {
-          return getMemcached().getAsync(getKey(token))
+          return cache.get(token)
         }
       })
       .then(metadata => {
@@ -163,7 +125,7 @@ module.exports = function (log, config) {
       .then(() => {
         const token = getToken(this)
         if (token) {
-          return getMemcached().delAsync(getKey(token))
+          return cache.del(token)
         }
       })
   }
@@ -260,19 +222,6 @@ module.exports = function (log, config) {
       this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal
     }
   }
-}
-
-function getKey (token) {
-  if (! token || ! token.uid || ! token.id) {
-    const err = new Error('Invalid token')
-    throw err
-  }
-
-  const hash = crypto.createHash('sha256')
-  hash.update(token.uid)
-  hash.update(token.id)
-
-  return hash.digest('base64')
 }
 
 function calculateFlowTime (time, flowBeginTime) {
