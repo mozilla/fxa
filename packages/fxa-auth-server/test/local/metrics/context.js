@@ -513,6 +513,38 @@ describe('metricsContext', () => {
   )
 
   it(
+    'metricsContext.validate with missing payload',
+    () => {
+      var mockLog = mocks.spyLog()
+      var mockConfig = {
+        memcached: {},
+        metrics: {
+          flow_id_expiry: 60000,
+          flow_id_key: 'test'
+        }
+      }
+      var mockRequest = {
+        headers: {
+          'user-agent': 'test-agent'
+        }
+      }
+
+      var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig)
+      var valid = metricsContext.validate.call(mockRequest)
+
+      assert(! valid, 'the data is treated as invalid')
+      assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
+      assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
+      assert.ok(mockLog.warn.calledWithExactly({
+        op: 'metrics.context.validate',
+        valid: false,
+        reason: 'missing payload',
+        agent: 'test-agent'
+      }), 'log.warn was called with the expected log data')
+    }
+  )
+
+  it(
     'metricsContext.validate with missing data bundle',
     () => {
       var mockLog = mocks.spyLog()

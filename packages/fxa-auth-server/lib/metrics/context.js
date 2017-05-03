@@ -139,7 +139,11 @@ module.exports = function (log, config) {
    * @this request
    */
   function validate() {
-    const metadata = this.payload && this.payload.metricsContext
+    if (! this.payload) {
+      return logInvalidContext(this, 'missing payload')
+    }
+
+    const metadata = this.payload.metricsContext
 
     if (! metadata) {
       return logInvalidContext(this, 'missing context')
