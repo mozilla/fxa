@@ -1,6 +1,6 @@
 {
   "name": "fxa-profile-server",
-  "version": "1.85.0",
+  "version": "1.86.0",
   "dependencies": {
     "aws-sdk": {
       "version": "2.4.7",

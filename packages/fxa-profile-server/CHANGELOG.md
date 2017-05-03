@@ -1,3 +1,13 @@
+<a name="1.86.0"></a>
+# [1.86.0](https://github.com/mozilla/fxa-profile-server/compare/v1.85.0...v1.86.0) (2017-05-03)
+
+
+### chore
+
+* **deps:** Update shrinkwrap ([49302fe](https://github.com/mozilla/fxa-profile-server/commit/49302fe))
+
+
+
 <a name="1.85.0"></a>
 # [1.85.0](https://github.com/mozilla/fxa-profile-server/compare/v1.84.0...v1.85.0) (2017-04-19)
 
