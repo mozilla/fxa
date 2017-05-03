@@ -1,4 +1,11 @@
 
+v1.86.0:
+
+  * chore(deps): Update shrinkwrap
+  * fix(settings): pushOnMissing no longer updates on unexpected errors
+  * fix(sms): Add ability to rate-limit sms by email (#198), r=@rfk
+  * feat(emails): Add `createEmail` to email sending endpoints (#199) r=vladikoff
+
 v1.85.0:
 
   * chore(docker): Use official node image & update to Node.js v4.8.2 (#196) r=vladikoff
