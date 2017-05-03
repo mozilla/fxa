@@ -1,3 +1,41 @@
+<a name="1.86.0"></a>
+# [1.86.0](https://github.com/mozilla/fxa-auth-server/compare/v1.85.1...v1.86.0) (2017-05-03)
+
+
+### Bug Fixes
+
+* **circle:** fix string comparison on docker push (#1870) r=vladikoff ([9f660d4](https://github.com/mozilla/fxa-auth-server/commit/9f660d4)), closes [#1870](https://github.com/mozilla/fxa-auth-server/issues/1870)
+* **circle:** if branch master, tag is latest (#1869) r=vladikoff ([6462d6c](https://github.com/mozilla/fxa-auth-server/commit/6462d6c))
+* **config:** Add config for unverified account to exist before secondary email can be create  ([d0b5976](https://github.com/mozilla/fxa-auth-server/commit/d0b5976))
+* **config:** Correctly resolve isSecondaryEmailEnabled and add more checks for config (#1872) ([ae95582](https://github.com/mozilla/fxa-auth-server/commit/ae95582)), closes [#1872](https://github.com/mozilla/fxa-auth-server/issues/1872)
+* **mailer:** escape json output (#1853) r=vladikoff ([b06033e](https://github.com/mozilla/fxa-auth-server/commit/b06033e))
+* **metrics:** include template name in sms.sent event ([2e9963c](https://github.com/mozilla/fxa-auth-server/commit/2e9963c))
+* **notifier:** disable notifier in key_server.js (#1852) r=jrgm ([bb35ed2](https://github.com/mozilla/fxa-auth-server/commit/bb35ed2))
+* **tests:** Add timeout for sms (#1866) r=vladikoff ([93bb872](https://github.com/mozilla/fxa-auth-server/commit/93bb872))
+
+### chore
+
+* **deps:** update shrinkwrap and latest eslint (#1868) ([10d5b56](https://github.com/mozilla/fxa-auth-server/commit/10d5b56))
+* **docker:** Use official node image & update to Node.js v4.8.2 (#1840) r=vladikoff ([3d80e82](https://github.com/mozilla/fxa-auth-server/commit/3d80e82))
+* **email:** Remove unused `emailSent` (#1846) r=vladikoff,philbooth ([a5ff7ca](https://github.com/mozilla/fxa-auth-server/commit/a5ff7ca))
+
+### Features
+
+* **deps:** update shrinkwrap ([5e80168](https://github.com/mozilla/fxa-auth-server/commit/5e80168))
+* **devices:** return OS from user agent os (#1848) r=philbooth ([3fd0418](https://github.com/mozilla/fxa-auth-server/commit/3fd0418)), closes [#1829](https://github.com/mozilla/fxa-auth-server/issues/1829)
+* **docker:** add feature branches (#1865) ([cb7e8c3](https://github.com/mozilla/fxa-auth-server/commit/cb7e8c3))
+* **emails:** Add custom error for users logging in with secondary email (#1850), r=@vladikoff ([f509bcb](https://github.com/mozilla/fxa-auth-server/commit/f509bcb))
+* **emails:** Throw unique error if initiating password reset from secondary email (#1874) r=v ([d1fae0d](https://github.com/mozilla/fxa-auth-server/commit/d1fae0d)), closes [mozilla/fxa-content-server#4996](https://github.com/mozilla/fxa-content-server/issues/4996)
+* **emails:** Use new verification link, pass type, pass email verified (#1864), r=@vladikoff ([e7697e0](https://github.com/mozilla/fxa-auth-server/commit/e7697e0))
+* **session:** add a 'state' property in `/session/status` ([a74a1f7](https://github.com/mozilla/fxa-auth-server/commit/a74a1f7))
+
+### Refactor
+
+* **server:** extract memcached usage to a dedicated module ([5698537](https://github.com/mozilla/fxa-auth-server/commit/5698537))
+* **server:** remove separate notifier process (#1800) r=vbudhram ([7414ee8](https://github.com/mozilla/fxa-auth-server/commit/7414ee8))
+
+
+
 <a name="1.85.1"></a>
 ## [1.85.1](https://github.com/mozilla/fxa-auth-server/compare/v1.85.0...v1.85.1) (2017-04-18)
 
