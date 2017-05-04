@@ -231,6 +231,7 @@ module.exports = function (log) {
       subject: localized.subject,
       text: localized.text,
       html: localized.html,
+      xMailer: false,
       headers: extend({
         'Content-Language': localized.language,
         'X-Template-Name': message.template

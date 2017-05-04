@@ -81,6 +81,7 @@ describe('remote account create', function() {
         )
         .then(
           function (emailData) {
+            assert.equal(emailData.headers['x-mailer'], undefined)
             assert.equal(emailData.headers['x-template-name'], 'verifySyncEmail')
             assert.equal(emailData.html.indexOf('IP address') > -1, true) // Ensure some location data is present
             return emailData.headers['x-verify-code']
