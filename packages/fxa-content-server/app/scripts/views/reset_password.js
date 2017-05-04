@@ -48,14 +48,6 @@ define(function (require, exports, module) {
       return FormView.prototype.beforeRender.call(this);
     },
 
-    afterRender () {
-      if (this.relier.isOAuth()) {
-        this.transformLinks();
-      }
-
-      FormView.prototype.afterRender.call(this);
-    },
-
     beforeDestroy () {
       this._formPrefill.set('email', this.getElementValue('.email'));
     },

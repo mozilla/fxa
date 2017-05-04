@@ -100,11 +100,7 @@ define(function (require, exports, module) {
           String(this._isEmailOptInEnabled()));
 
       return this._createCoppaView()
-        .then(() => {
-          this.transformLinks();
-
-          return FormView.prototype.afterRender.call(this);
-        });
+        .then(() => FormView.prototype.afterRender.call(this));
     },
 
     afterVisible () {

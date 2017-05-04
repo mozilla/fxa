@@ -88,11 +88,6 @@ define(function (require, exports, module) {
       }
     },
 
-    afterRender () {
-      this.transformLinks();
-      return proto.afterRender.call(this);
-    },
-
     afterVisible () {
       // the view is always rendered, but the confirmation poll may be
       // prevented by the broker. An example is Firefox Desktop where the

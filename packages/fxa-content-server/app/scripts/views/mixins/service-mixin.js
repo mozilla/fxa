@@ -12,6 +12,10 @@ define(function (require, exports, module) {
   const $ = require('jquery');
 
   module.exports = {
+    afterRender () {
+      this.transformLinks();
+    },
+
     transformLinks () {
       // need to add /oauth to urls, but also maintain the existing query params
       const $linkEls = this.$('a[href^="/signin"],a[href^="/signup"],a[href^="/reset_password"]');

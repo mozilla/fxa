@@ -111,11 +111,6 @@ define(function (require, exports, module) {
       'click .use-logged-in': 'useLoggedInAccount'
     },
 
-    afterRender () {
-      this.transformLinks();
-      return FormView.prototype.afterRender.call(this);
-    },
-
     afterVisible () {
       FormView.prototype.afterVisible.call(this);
       return this.displayAccountProfileImage(this.getAccount(), { spinner: true });
