@@ -134,6 +134,43 @@ describe('remote device', function() {
   )
 
   it(
+    'device registration with unicode characters in the name',
+    () => {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              // That's a beta, and a CJK character from https://bugzilla.mozilla.org/show_bug.cgi?id=1348298
+              name: 'Firefox \u5728 \u03b2 test',
+              type: 'desktop',
+            }
+            return client.updateDevice(deviceInfo)
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.ok(device.createdAt > 0, 'device.createdAt was set')
+                  assert.equal(device.name, deviceInfo.name, 'device.name is correct')
+                }
+              )
+              .then(
+                function () {
+                  return client.devices()
+                }
+              )
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 1, 'devices returned one item')
+                  assert.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
+                }
+              )
+          }
+        )
+    }
+  )
+
+  it(
     'device registration without required name parameter',
     () => {
       var email = server.uniqueEmail()
