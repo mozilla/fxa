@@ -513,7 +513,7 @@ module.exports = (
 
         function checkSecondaryEmail() {
           log.trace({op: 'Account.login.checkSecondaryEmail'})
-          if (! features.isSecondaryEmailEnabled()) {
+          if (! features.isSecondaryEmailEnabled(email)) {
             return P.resolve()
           }
 
@@ -929,7 +929,7 @@ module.exports = (
             && ! doSigninConfirmation
             && emailRecord.emailVerified
           if (shouldSendNewDeviceLoginEmail) {
-            const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(sessionToken.uid) : P.resolve([])
+            const secondaryEmails = features.isSecondaryEmailEnabled(emailRecord.email) ? db.accountEmails(sessionToken.uid) : P.resolve([])
             return P.all([getGeoData(ip), secondaryEmails])
               .spread((geoData, emails) => {
                 // New device notifications are always sent to the primary account email (emailRecord.email)
@@ -971,7 +971,7 @@ module.exports = (
               tokenVerificationId: tokenVerificationId
             })
 
-            const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(sessionToken.uid) : P.resolve([])
+            const secondaryEmails = features.isSecondaryEmailEnabled(emailRecord.email) ? db.accountEmails(sessionToken.uid) : P.resolve([])
             return P.all([getGeoData(ip), secondaryEmails])
               .spread((geoData, emails) => {
                 return mailer.sendVerifyLoginEmail(
@@ -1754,7 +1754,7 @@ module.exports = (
           )
 
         function setVerifyCode() {
-          const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(sessionToken.uid) : P.resolve([])
+          const secondaryEmails = features.isSecondaryEmailEnabled(sessionToken.email) ? db.accountEmails(sessionToken.uid) : P.resolve([])
           return secondaryEmails
             .then((emailData) => {
               if (email) {
@@ -1855,7 +1855,7 @@ module.exports = (
           .then((account) => {
             // Check if param `type` is specified and equal to `secondary`
             // If so, verify the secondary email and respond
-            if (type && type === 'secondary' && features.isSecondaryEmailEnabled()) {
+            if (type && type === 'secondary' && features.isSecondaryEmailEnabled(account.email)) {
               let matchedEmail
               return db.accountEmails(account.uid)
                 .then((emails) => {
@@ -2066,7 +2066,7 @@ module.exports = (
 
         log.begin('Account.RecoveryEmailEmails', request)
 
-        if (! features.isSecondaryEmailEnabled()) {
+        if (! features.isSecondaryEmailEnabled(sessionToken.email)) {
           return reply(error.featureNotEnabled())
         }
 
@@ -2115,7 +2115,7 @@ module.exports = (
 
         log.begin('Account.RecoveryEmailCreate', request)
 
-        if (! features.isSecondaryEmailEnabled()) {
+        if (! features.isSecondaryEmailEnabled(primaryEmail)) {
           return reply(error.featureNotEnabled())
         }
 
@@ -2222,7 +2222,7 @@ module.exports = (
 
         log.begin('Account.RecoveryEmailDestroy', request)
 
-        if (! features.isSecondaryEmailEnabled()) {
+        if (! features.isSecondaryEmailEnabled(primaryEmail)) {
           return reply(error.featureNotEnabled())
         }
 

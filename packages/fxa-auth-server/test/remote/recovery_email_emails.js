@@ -21,7 +21,8 @@ describe('remote emails', function () {
   before(() => {
     config = require('../../config').getProperties()
     config.secondaryEmail = {
-      enabled: true
+      enabled: true,
+      enabledEmailAddresses: /\w/
     }
     config.securityHistory.ipProfiling = {}
     return TestServer.start(config)

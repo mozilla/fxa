@@ -750,6 +750,12 @@ var conf = convict({
       format: Boolean,
       env: 'SECONDARY_EMAIL_ENABLED'
     },
+    enabledEmailAddresses: {
+      doc: 'Only enable for email addresses matching this regex.',
+      format: RegExp,
+      default: /.+@mozilla\.com$/,
+      env: 'SECONDARY_EMAIL_ENABLE_REGEX'
+    },
     minUnverifiedAccountTime: {
       doc: 'The minimum amount of time an account can be unverified before another account can use it for secondary email',
       default: '1 day',
