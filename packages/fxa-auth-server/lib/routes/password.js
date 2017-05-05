@@ -251,7 +251,7 @@ module.exports = function (
             .then(
               function (accountData) {
                 account = accountData
-                return features.isSecondaryEmailEnabled() ? db.accountEmails(passwordChangeToken.uid) : P.resolve([])
+                return features.isSecondaryEmailEnabled(account.email) ? db.accountEmails(passwordChangeToken.uid) : P.resolve([])
               }
             )
             .then(
@@ -411,7 +411,7 @@ module.exports = function (
             (err) => {
               // If account was not found, ensure that this is not a secondary email and
               // throw the correct error if it is.
-              if (features.isSecondaryEmailEnabled() && err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+              if (features.isSecondaryEmailEnabled(email) && err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
                 return db.getSecondaryEmail(email)
                   .then(() => {
                     throw error.cannotResetPasswordWithSecondaryEmail()
@@ -430,7 +430,7 @@ module.exports = function (
           )
           .then(
             function (passwordForgotToken) {
-              const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
+              const secondaryEmails = features.isSecondaryEmailEnabled(email) ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
               return P.all([getGeoData(ip), secondaryEmails])
                 .spread((geoData, emails) => {
                   return mailer.sendRecoveryCode(
@@ -531,7 +531,7 @@ module.exports = function (
           )
           .then(
             function () {
-              const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
+              const secondaryEmails = features.isSecondaryEmailEnabled(passwordForgotToken.email) ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
               return P.all([getGeoData(ip), secondaryEmails])
                 .spread((geoData, emails) => {
                   return mailer.sendRecoveryCode(
@@ -622,7 +622,7 @@ module.exports = function (
                 db.forgotPasswordVerified(passwordForgotToken)
                   .then(
                     function (accountResetToken) {
-                      const secondaryEmails = features.isSecondaryEmailEnabled() ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
+                      const secondaryEmails = features.isSecondaryEmailEnabled(passwordForgotToken.email) ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
                       return secondaryEmails
                         .then((emails) => {
                           return mailer.sendPasswordResetNotification(

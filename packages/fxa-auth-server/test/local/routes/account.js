@@ -1051,6 +1051,7 @@ describe('/account/login', function () {
 
   it('fails login with secondary email', function () {
     config.secondaryEmail.enabled = true
+    config.secondaryEmail.enabledEmailAddresses = /\w/
     mockDB.emailRecord = sinon.spy(function () {
       return P.reject(error.unknownAccount())
     })

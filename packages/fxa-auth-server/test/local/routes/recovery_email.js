@@ -83,7 +83,8 @@ function runTest (route, request, assertions) {
 describe('/recovery_email/status', function () {
   var config = {
     secondaryEmail: {
-      enabled: true
+      enabled: true,
+      enabledEmailAddresses: /\w/
     }
   }
   var mockDB = mocks.mockDB()
@@ -221,7 +222,8 @@ describe('/recovery_email/status', function () {
 describe('/recovery_email/resend_code', () => {
   const config = {
     secondaryEmail: {
-      enabled: true
+      enabled: true,
+      enabledEmailAddresses: /\w/
     }
   }
   const secondEmailCode = crypto.randomBytes(16)
@@ -398,7 +400,8 @@ describe('/recovery_email/verify_code', function () {
     },
     config: {
       secondaryEmail: {
-        enabled: true
+        enabled: true,
+        enabledEmailAddresses: /\w/
       }
     },
     customs: mockCustoms,
@@ -616,6 +619,7 @@ describe('/recovery_email', () => {
       config: {
         secondaryEmail: {
           enabled: true,
+          enabledEmailAddresses: /\w/,
           minUnverifiedAccountTime: MS_IN_DAY
         }
       },
@@ -755,7 +759,8 @@ describe('/recovery_email', () => {
         },
         config: {
           secondaryEmail: {
-            enabled: false
+            enabled: false,
+            enabledEmailAddresses: /\w/
           }
         },
         customs: mockCustoms,
