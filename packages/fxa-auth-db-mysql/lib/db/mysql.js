@@ -514,9 +514,9 @@ module.exports = function (log, error) {
   // DELETE
 
   // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens,
-  //          passwordForgotTokens, accounts, devices, unverifiedTokens
+  //          passwordForgotTokens, accounts, devices, unverifiedTokens, emails
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_11(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_12(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])

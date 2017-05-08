@@ -2057,6 +2057,8 @@ module.exports = function(config, DB) {
              * 6) Get `accountEmails` returns both emails, shows verified
              * 7) Delete secondary email
              * 8) Get `accountEmails` only return email on account table
+             * 9) Can create account from deleted account's secondary email
+             * 10) Can reuse secondary email from deleted account
              *
              */
             // Lets begin our journey by creating a new account.
@@ -2156,6 +2158,84 @@ module.exports = function(config, DB) {
                   t.equal(!!result[0].isVerified, account.emailVerified, 'matches account emailVerified')
 
                   return P.resolve()
+                }
+              )
+              .then(
+                function() {
+                  // Can create an account from a deleted account's secondary email
+                  const testAccount = createAccount()
+                  testAccount.emailVerified = true
+
+                  const testSecondaryEmail = createEmail({
+                    uid: testAccount.uid,
+                    isVerified: true
+                  })
+
+                  return db.createAccount(testAccount.uid, testAccount)
+                    .then(function () {
+                      return db.createEmail(testAccount.uid, testSecondaryEmail)
+                    })
+                    .then(function () {
+                      return db.deleteAccount(testAccount.uid)
+                    })
+                    .then(function () {
+                      testAccount.email = testSecondaryEmail.email
+                      testAccount.normalizedEmail = testSecondaryEmail.normalizedEmail
+
+                      // Create new account with secondary email that was deleted
+                      return db.createAccount(testAccount.uid, testAccount)
+                        .catch(t.fail)
+                    })
+                    .then(function (res) {
+                      t.deepEqual(res, {}, 'successfully created an account')
+
+                      // Attempt to create secondary email address
+                      return db.createEmail(testAccount.uid, testSecondaryEmail)
+                        .then(() => {
+                          t.fail(new Error('Should not have created secondary email'))
+                        })
+                        .catch((err) => {
+                          t.equal(err.errno, 101, 'Correct errno')
+                        })
+                    })
+                }
+              )
+              .then(
+                function() {
+                  // Ensure that secondary emails get removed from an account
+                  // when account is deleted and that it can be reused
+                  // in another account
+                  const testAccount = createAccount()
+                  testAccount.emailVerified = true
+
+                  const testAccount2 = createAccount()
+                  testAccount2.emailVerified = true
+
+                  const testSecondaryEmail = createEmail({
+                    uid: testAccount.uid,
+                    isVerified: true
+                  })
+
+                  return db.createAccount(testAccount.uid, testAccount)
+                    .then(function () {
+                      return db.createEmail(testAccount.uid, testSecondaryEmail)
+                    })
+                    .then(function () {
+                      return db.deleteAccount(testAccount.uid)
+                    })
+                    .then(function () {
+                      // Create new account and attempt to add secondary email
+                      // that was deleted
+                      return db.createAccount(testAccount2.uid, testAccount2)
+                    })
+                    .then(function (res) {
+                      t.deepEqual(res, {}, 'successfully created an account')
+                      testSecondaryEmail.uid = testAccount2.uid
+                      return db.createEmail(testAccount2.uid, testSecondaryEmail)
+                    })
+                    .then((res) => {
+                      t.deepEqual(res, {}, 'successfully created an secondary email on new account')
+                    })
                 }
               )
               .then(
