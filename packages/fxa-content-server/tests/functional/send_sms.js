@@ -18,13 +18,11 @@
    const SEND_SMS_NO_QUERY_URL = config.fxaContentRoot + 'sms';
 
    const SELECTOR_CONFIRM_SIGNUP = '#fxa-confirm-header';
-   const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
    const SELECTOR_400_HEADER = '#fxa-400-header';
    const SELECTOR_400_ERROR = '.error';
    const SELECTOR_LEARN_MORE = 'a#learn-more';
    const SELECTOR_LEARN_MORE_HEADER = '#websites-notice';
    const SELECTOR_MARKETING_LINK = '.marketing-link';
-   const SELECTOR_SEND_SMS_MAYBE_LATER = 'a[href="/connect_another_device"]';
    const SELECTOR_SEND_SMS_HEADER = '#fxa-send-sms-header';
    const SELECTOR_SEND_SMS_PHONE_NUMBER = 'input[type="tel"]';
    const SELECTOR_SEND_SMS_SUBMIT = 'button[type="submit"]';
@@ -160,14 +158,6 @@
         .then(click(SELECTOR_WHY_IS_THIS_REQUIRED_CLOSE))
 
         .then(testElementExists(SELECTOR_SEND_SMS_HEADER));
-     },
-
-     'maybe later': function () {
-       return this.remote
-         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-         .then(click(SELECTOR_SEND_SMS_MAYBE_LATER))
-
-         .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER));
      },
 
      'empty phone number': function () {
