@@ -37,22 +37,14 @@ module.exports = function (log, config, error, bounces, translator, sender) {
         })
     }
 
-    function getVerifiedSecondaryEmails(emais) {
-      return emais.reduce(function(list, email) {
-        if (! email.isPrimary && email.isVerified) {
-          list.push(email.email)
-        }
-        return list
-      }, [])
-    }
-
-    function getSecondaryEmails(emails) {
-      return emails.reduce(function(list, email) {
-        if (! email.isPrimary) {
-          list.push(email.email)
-        }
-        return list
-      }, [])
+    // Returns an array of only emails that are verified.
+    // This returns only the email and not the email object.
+    function getVerifiedSecondaryEmails(emails) {
+      return emails.filter(function (email) {
+        return ! email.isPrimary && email.isVerified
+      }).map(function (email) {
+        return email.email
+      })
     }
 
     senders.email = {
@@ -160,7 +152,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       },
       sendPasswordChangedNotification: function (emails, account, opts) {
         var primaryEmail = account.email
-        var ccEmails = getSecondaryEmails(emails)
+        var ccEmails = getVerifiedSecondaryEmails(emails)
 
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {
@@ -179,7 +171,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       },
       sendPasswordResetNotification: function (emails, account, opts) {
         var primaryEmail = account.email
-        var ccEmails = getSecondaryEmails(emails)
+        var ccEmails = getVerifiedSecondaryEmails(emails)
 
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {
@@ -194,7 +186,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       },
       sendNewDeviceLoginNotification: function (emails, account, opts) {
         var primaryEmail = account.email
-        var ccEmails = getSecondaryEmails(emails)
+        var ccEmails = getVerifiedSecondaryEmails(emails)
 
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {

@@ -379,7 +379,7 @@ describe('remote emails', function () {
     )
   })
 
-  describe('should receive email confirmations on verified secondary emails', () => {
+  describe('should receive emails on verified secondary emails', () => {
     let secondEmail
     let thirdEmail
     beforeEach(() => {
@@ -498,46 +498,6 @@ describe('remote emails', function () {
           })
       }
     )
-  })
-
-  describe('should receive email notifications on all secondary emails', () => {
-    let secondEmail
-    let thirdEmail
-    beforeEach(() => {
-      secondEmail = server.uniqueEmail()
-      thirdEmail = server.uniqueEmail()
-      return client.createEmail(secondEmail)
-        .then((res) => {
-          assert.ok(res, 'ok response')
-          return server.mailbox.waitForEmail(secondEmail)
-        })
-        .then((emailData) => {
-          const templateName = emailData['headers']['x-template-name']
-          const emailCode = emailData['headers']['x-verify-code']
-          assert.equal(templateName, 'verifySecondaryEmail', 'email template name set')
-          assert.ok(emailCode, 'emailCode set')
-          return client.verifySecondaryEmail(emailCode, secondEmail)
-        })
-        .then((res) => {
-          assert.ok(res, 'ok response')
-          return client.accountEmails()
-        })
-        .then((res) => {
-          assert.equal(res.length, 2, 'returns number of emails')
-          assert.equal(res[1].email, secondEmail, 'returns correct email')
-          assert.equal(res[1].isPrimary, false, 'returns correct isPrimary')
-          assert.equal(res[1].verified, true, 'returns correct verified')
-          return server.mailbox.waitForEmail(email)
-        })
-        .then((emailData) => {
-          const templateName = emailData['headers']['x-template-name']
-          assert.equal(templateName, 'postVerifySecondaryEmail', 'email template name set')
-
-          // Create a third email that is unverified. User should receive notifications
-          // on this email, even thought it is not been verified
-          return client.createEmail(thirdEmail)
-        })
-    })
 
     it(
       'receives change password notification',
@@ -550,9 +510,8 @@ describe('remote emails', function () {
           .then((emailData) => {
             const templateName = emailData['headers']['x-template-name']
             assert.equal(templateName, 'passwordChangedEmail', 'email template name set')
-            assert.equal(emailData.cc.length, 2)
+            assert.equal(emailData.cc.length, 1)
             assert.equal(emailData.cc[0].address, secondEmail)
-            assert.equal(emailData.cc[1].address, thirdEmail)
           })
       }
     )
@@ -577,9 +536,8 @@ describe('remote emails', function () {
           .then((emailData) => {
             const templateName = emailData['headers']['x-template-name']
             assert.equal(templateName, 'passwordResetEmail', 'email template name set')
-            assert.equal(emailData.cc.length, 2)
+            assert.equal(emailData.cc.length, 1)
             assert.equal(emailData.cc[0].address, secondEmail)
-            assert.equal(emailData.cc[1].address, thirdEmail)
             return client.login({keys: true})
           })
           .then((x) => {
@@ -638,9 +596,8 @@ describe('remote emails', function () {
           .then((emailData) => {
             const templateName = emailData['headers']['x-template-name']
             assert.equal(templateName, 'newDeviceLoginEmail', 'email template name set')
-            assert.equal(emailData.cc.length, 2)
+            assert.equal(emailData.cc.length, 1)
             assert.equal(emailData.cc[0].address, secondEmail)
-            assert.equal(emailData.cc[1].address, thirdEmail)
           })
       }
     )

@@ -145,10 +145,8 @@ describe('lib/senders/index', () => {
 
             const args = email._ungatedMailer.passwordChangedEmail.getCall(0).args
             assert.equal(args[0].email, EMAIL, 'email correctly set')
-            assert.equal(args[0].ccEmails.length, 2, 'email correctly set')
+            assert.equal(args[0].ccEmails.length, 1, 'email correctly set')
             assert.equal(args[0].ccEmails[0], EMAILS[1].email, 'cc email correctly set')
-            assert.equal(args[0].ccEmails[1], EMAILS[2].email, 'cc email correctly set')
-
             assert.equal(bounces.check.callCount, 1)
           })
       })
@@ -168,10 +166,8 @@ describe('lib/senders/index', () => {
 
             const args = email._ungatedMailer.passwordResetEmail.getCall(0).args
             assert.equal(args[0].email, EMAIL, 'email correctly set')
-            assert.equal(args[0].ccEmails.length, 2, 'email correctly set')
+            assert.equal(args[0].ccEmails.length, 1, 'email correctly set')
             assert.equal(args[0].ccEmails[0], EMAILS[1].email, 'cc email correctly set')
-            assert.equal(args[0].ccEmails[1], EMAILS[2].email, 'cc email correctly set')
-
             assert.equal(bounces.check.callCount, 1)
           })
       })
@@ -191,10 +187,8 @@ describe('lib/senders/index', () => {
 
             const args = email._ungatedMailer.newDeviceLoginEmail.getCall(0).args
             assert.equal(args[0].email, EMAIL, 'email correctly set')
-            assert.equal(args[0].ccEmails.length, 2, 'email correctly set')
+            assert.equal(args[0].ccEmails.length, 1, 'email correctly set')
             assert.equal(args[0].ccEmails[0], EMAILS[1].email, 'cc email correctly set')
-            assert.equal(args[0].ccEmails[1], EMAILS[2].email, 'cc email correctly set')
-
             assert.equal(bounces.check.callCount, 1)
           })
       })
@@ -215,7 +209,6 @@ describe('lib/senders/index', () => {
             const args = email._ungatedMailer.postVerifyEmail.getCall(0).args
             assert.equal(args[0].email, EMAIL, 'email correctly set')
             assert.equal(args[0].ccEmails, undefined, 'no cc emails set')
-
             assert.equal(bounces.check.callCount, 1)
           })
       })
