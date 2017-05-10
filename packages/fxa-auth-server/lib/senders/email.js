@@ -498,6 +498,8 @@ module.exports = function (log) {
         link: links.link,
         location: this._constructLocationString(message),
         oneClickLink: links.oneClickLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
         privacyUrl: links.privacyUrl,
         reportSignInLink: links.reportSignInLink,
         reportSignInLinkAttributes: links.reportSignInLinkAttributes,

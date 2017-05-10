@@ -54,7 +54,8 @@ var typesContainPasswordResetLinks = [
 
 var typesContainPasswordChangeLinks = [
   'newDeviceLoginEmail',
-  'verifyLoginEmail'
+  'verifyLoginEmail',
+  'verifySecondaryEmail'
 ]
 
 var typesContainUnblockCode = [
