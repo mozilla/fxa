@@ -5,10 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Able = require('lib/able');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Broker = require('models/auth_brokers/base');
-  const chai = require('chai');
   const FxaClient = require('lib/fxa-client');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
@@ -21,8 +20,7 @@ define(function (require, exports, module) {
   const View = require('views/complete_reset_password');
   const WindowMock = require('../../mocks/window');
 
-  var assert = chai.assert;
-  var wrapAssertion = TestHelpers.wrapAssertion;
+  const wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/complete_reset_password', function () {
     var CODE = 'dea0fae1abc2fab3bed4dec5eec6ace7';
@@ -30,7 +28,6 @@ define(function (require, exports, module) {
     var PASSWORD = 'password';
     var TOKEN = 'feed';
 
-    var able;
     var broker;
     var fxaClient;
     var isPasswordResetComplete;
@@ -53,7 +50,6 @@ define(function (require, exports, module) {
 
     function initView() {
       view = new View({
-        able: able,
         broker: broker,
         metrics: metrics,
         notifier: notifier,
@@ -65,7 +61,6 @@ define(function (require, exports, module) {
     }
 
     beforeEach(function () {
-      able = new Able();
       broker = new Broker();
       fxaClient = new FxaClient();
       notifier = new Notifier();
@@ -302,7 +297,7 @@ define(function (require, exports, module) {
             });
       });
 
-      describe('non-direct-access', function () {
+      describe('broker does not halt', function () {
         beforeEach(function () {
           view.$('[type=password]').val(PASSWORD);
           view.enableForm();
@@ -318,16 +313,12 @@ define(function (require, exports, module) {
 
           sinon.spy(broker, 'afterCompleteResetPassword');
 
-          sinon.stub(relier, 'isDirectAccess', function () {
-            return false;
-          });
-
           sinon.spy(view, 'navigate');
 
           return view.validateAndSubmit();
         });
 
-        it('delegates to the user', function () {
+        it('completes, notifies, redirects to reset_password_verified', function () {
           var args = user.completeAccountPasswordReset.args[0];
           assert.isTrue(user.completeAccountPasswordReset.called);
           var account = args[0];
@@ -341,53 +332,15 @@ define(function (require, exports, module) {
 
           var code = args[3];
           assert.equal(code, CODE);
-        });
 
-        it('logs success', function () {
           assert.isTrue(TestHelpers.isEventLogged(
             metrics, 'complete_reset_password.verification.success'));
-        });
 
-        it('notifies the broker', function () {
+          assert.isTrue(view.navigate.calledWith('reset_password_verified'));
+
           return user.completeAccountPasswordReset.returnValues[0].then(function (returnValue) {
             assert.isTrue(broker.afterCompleteResetPassword.calledWith(returnValue));
           });
-        });
-
-        it('redirects to `/reset_password_verified`', function () {
-          assert.isTrue(view.navigate.calledWith('reset_password_verified'));
-        });
-      });
-
-      describe('direct access', function () {
-        var account;
-
-        beforeEach(function () {
-          view.$('[type=password]').val(PASSWORD);
-          view.enableForm();
-
-          sinon.stub(user, 'completeAccountPasswordReset', function (_account) {
-            account = _account;
-            account.set('verified', true);
-            return p(account);
-          });
-
-          sinon.stub(relier, 'isDirectAccess', function () {
-            return true;
-          });
-
-          sinon.spy(view, 'navigate');
-
-          return view.validateAndSubmit();
-        });
-
-        it('delegates to the user model', function () {
-          assert.isTrue(user.completeAccountPasswordReset.calledWith(
-            account, PASSWORD, TOKEN, CODE, relier));
-        });
-
-        it('redirects the user to `/settings`', function () {
-          assert.isTrue(view.navigate.calledWith('settings'));
         });
       });
 
@@ -404,10 +357,6 @@ define(function (require, exports, module) {
 
           sinon.stub(user, 'setSignedInAccount', function (newAccount) {
             return p(newAccount);
-          });
-
-          sinon.stub(relier, 'isDirectAccess', function () {
-            return false;
           });
 
           return view.validateAndSubmit();

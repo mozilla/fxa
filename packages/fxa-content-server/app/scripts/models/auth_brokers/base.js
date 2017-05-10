@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const Environment = require('lib/environment');
   const NotifierMixin = require('lib/channels/notifier-mixin');
+  const NavigateBehavior = require('views/behaviors/navigate');
   const NullBehavior = require('views/behaviors/null');
   const p = require('lib/promise');
   const SameBrowserVerificationModel = require('models/verification/same-browser');
@@ -56,9 +57,9 @@ define(function (require, exports, module) {
       afterForceAuth: new NullBehavior(),
       afterResetPasswordConfirmationPoll: new NullBehavior(),
       afterSignIn: new NullBehavior(),
-      afterSignInConfirmationPoll: new NullBehavior(),
+      afterSignInConfirmationPoll: new NavigateBehavior('signin_confirmed'),
       afterSignUp: new NullBehavior(),
-      afterSignUpConfirmationPoll: new NullBehavior(),
+      afterSignUpConfirmationPoll: new NavigateBehavior('signup_confirmed'),
       beforeSignIn: new NullBehavior(),
       beforeSignUpConfirmationPoll: new NullBehavior()
     },

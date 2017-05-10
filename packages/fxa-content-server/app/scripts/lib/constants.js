@@ -29,6 +29,8 @@ define(function (require, exports, module) {
 
     // Users that sign in to the content server directly
     CONTENT_SERVER_CONTEXT: 'web',
+
+    FX_SYNC_CONTEXT: 'fx_sync',
     FX_DESKTOP_V1_CONTEXT: 'fx_desktop_v1',
     FX_DESKTOP_V2_CONTEXT: 'fx_desktop_v2',
     FX_DESKTOP_V3_CONTEXT: 'fx_desktop_v3',

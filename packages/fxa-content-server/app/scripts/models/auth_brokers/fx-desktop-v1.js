@@ -11,13 +11,13 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const FxDesktopChannel = require('lib/channels/fx-desktop-v1');
-  const FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
+  const FxSyncChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-channel');
   const HaltBehavior = require('views/behaviors/halt');
   const Url = require('lib/url');
 
-  var proto = FxSyncAuthenticationBroker.prototype;
+  var proto = FxSyncChannelAuthenticationBroker.prototype;
 
-  var FxDesktopV1AuthenticationBroker = FxSyncAuthenticationBroker.extend({
+  var FxDesktopV1AuthenticationBroker = FxSyncChannelAuthenticationBroker.extend({
     type: 'fx-desktop-v1',
 
     commands: {

@@ -40,6 +40,15 @@ define(function (require, exports, module) {
       return behavior;
     }
 
+    function testNavigates(expectedEndpoint) {
+      return (behavior) => {
+        assert.ok(behavior);
+        assert.isTrue(behavior.halt);
+        assert.equal(behavior.endpoint, expectedEndpoint);
+        return behavior;
+      };
+    }
+
     describe('afterLoaded', function () {
       it('returns a promise', function () {
         return broker.afterLoaded()
@@ -148,9 +157,9 @@ define(function (require, exports, module) {
     });
 
     describe('afterSignInConfirmationPoll', function () {
-      it('returns a promise', function () {
+      it('returns a promise, behavior navigates to signin_confirmed', function () {
         return broker.afterSignInConfirmationPoll(account)
-          .then(testDoesNotHalt);
+          .then(testNavigates('signin_confirmed'));
       });
     });
 
@@ -169,9 +178,9 @@ define(function (require, exports, module) {
     });
 
     describe('afterSignUpConfirmationPoll', function () {
-      it('returns a promise', function () {
+      it('returns a promise, behavior navigates to signup_confirmed', function () {
         return broker.afterSignUpConfirmationPoll(account)
-          .then(testDoesNotHalt);
+          .then(testNavigates('signup_confirmed'));
       });
     });
 

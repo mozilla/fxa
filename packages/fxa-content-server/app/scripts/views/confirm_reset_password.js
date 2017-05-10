@@ -163,15 +163,7 @@ define(function (require, exports, module) {
                   'afterResetPasswordConfirmationPoll', account);
         })
         .then(() => {
-          if (this.relier.isDirectAccess()) {
-            // user is most definitely signed in since sessionInfo
-            // was passed in. Just ship direct access users to /settings
-            this.navigate('settings', {
-              success: t('Account verified successfully')
-            });
-          } else {
-            this.navigate('reset_password_confirmed');
-          }
+          this.navigate('reset_password_confirmed');
         });
     },
 

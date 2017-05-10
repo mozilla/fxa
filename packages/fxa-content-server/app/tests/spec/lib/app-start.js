@@ -812,51 +812,55 @@ define(function (require, exports, module) {
     });
 
     describe('_getVerificationContext', function () {
+      let sameBrowserVerificationModelContext;
+
+      beforeEach(() => {
+        sameBrowserVerificationModelContext = undefined;
+
+        appStart = new AppStart({
+          notifier: notifier,
+          window: windowMock
+        });
+
+        sinon.stub(appStart, '_getSameBrowserVerificationModel', () => {
+          return {
+            get () {
+              return sameBrowserVerificationModelContext;
+            }
+          };
+        });
+      });
+
       describe('with a stored `context`', function () {
         beforeEach(function () {
-          appStart = new AppStart({
-            notifier: notifier,
-            window: windowMock
-          });
-
-          sinon.stub(appStart, '_getSameBrowserVerificationModel', function () {
-            return {
-              get () {
-                return 'fx_ios_v1';
-              }
-            };
-          });
+          sameBrowserVerificationModelContext = 'fx_ios_v1';
 
           appStart._getVerificationContext();
         });
 
-        it('calls _getSameBrowserVerificationModel', function () {
+        it('returns the stored context', () => {
           assert.isTrue(appStart._getSameBrowserVerificationModel.called);
-        });
-
-        it('returns the stored context', function () {
           assert.equal(appStart._getVerificationContext(), 'fx_ios_v1');
         });
       });
 
-      describe('without a stored `context`', function () {
-        beforeEach(function () {
-          appStart = new AppStart({
-            notifier: notifier,
-            window: windowMock
-          });
-
-          sinon.stub(appStart, '_getSameBrowserVerificationModel', function () {
-            return {
-              get () {
-                return undefined;
-              }
-            };
-          });
+      describe('without a stored `context`, sync verification', function () {
+        it('returns sync context', function () {
+          sinon.stub(appStart, '_isServiceSync', () => true);
+          assert.equal(appStart._getVerificationContext(), Constants.FX_SYNC_CONTEXT);
         });
+      });
 
-        it('returns `undefined`', function () {
-          assert.isUndefined(appStart._getVerificationContext());
+      describe('without a stored `context`, oauth verification', function () {
+        it('returns oauth context', function () {
+          sinon.stub(appStart, '_isServiceOAuth', () => true);
+          assert.equal(appStart._getVerificationContext(), Constants.OAUTH_CONTEXT);
+        });
+      });
+
+      describe('without a stored `context`, web verification', function () {
+        it('returns web context', function () {
+          assert.equal(appStart._getVerificationContext(), Constants.CONTENT_SERVER_CONTEXT);
         });
       });
     });

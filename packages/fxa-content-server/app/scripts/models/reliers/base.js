@@ -23,18 +23,6 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Check if the user visits FxA directly, without
-     * a relier.
-     *
-     * @returns {Boolean}
-     * `true` if the user visits FxA without using
-     * a relier
-     */
-    isDirectAccess () {
-      return ! this.has('service');
-    },
-
-    /**
      * Check if the relier is using the oauth flow
      *
      * @returns {Boolean}

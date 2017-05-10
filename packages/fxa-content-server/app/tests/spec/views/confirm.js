@@ -78,10 +78,7 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
-      return view.render()
-        .then(function () {
-          $('#container').html(view.el);
-        });
+      return view.render();
     });
 
     afterEach(function () {
@@ -103,8 +100,8 @@ define(function (require, exports, module) {
           });
 
           it('draws the correct template', function () {
-            assert.lengthOf($('#back'), 0);
-            assert.lengthOf($('#fxa-confirm-header'), 1);
+            assert.lengthOf(view.$('#back'), 0);
+            assert.lengthOf(view.$('#fxa-confirm-header'), 1);
           });
         });
 
@@ -116,8 +113,8 @@ define(function (require, exports, module) {
           });
 
           it('draws the correct template', function () {
-            assert.lengthOf($('#back'), 1);
-            assert.lengthOf($('#fxa-confirm-signin-header'), 1);
+            assert.lengthOf(view.$('#back'), 1);
+            assert.lengthOf(view.$('#fxa-confirm-signin-header'), 1);
           });
         });
       });
@@ -152,7 +149,7 @@ define(function (require, exports, module) {
 
         describe('sign in', function () {
           beforeEach(function () {
-            model.set('type', VerificationReasons.SIGN_IN);
+            model.set('type', SIGNIN_REASON);
 
             return view.render();
           });
@@ -185,13 +182,8 @@ define(function (require, exports, module) {
 
       describe('signup', function () {
         it('notifies the broker after the account is confirmed', function () {
-          sinon.stub(view, 'isSignUp', function () {
-            return true;
-          });
-
-          sinon.stub(view, 'isSignIn', function () {
-            return false;
-          });
+          sinon.stub(view, 'isSignUp', () => true);
+          sinon.stub(view, 'isSignIn', () => false);
 
           return testEmailVerificationPoll('afterSignUpConfirmationPoll');
         });
@@ -199,13 +191,8 @@ define(function (require, exports, module) {
 
       describe('signin', function () {
         it('notifies the broker after the account is confirmed', function () {
-          sinon.stub(view, 'isSignUp', function () {
-            return false;
-          });
-
-          sinon.stub(view, 'isSignIn', function () {
-            return true;
-          });
+          sinon.stub(view, 'isSignUp', () => false);
+          sinon.stub(view, 'isSignIn', () => true);
 
           return testEmailVerificationPoll('afterSignInConfirmationPoll');
         });
@@ -234,31 +221,44 @@ define(function (require, exports, module) {
           });
       }
 
-      it('displays an error message allowing the user to re-signup if their email bounces', function () {
-        sinon.stub(account, 'waitForSessionVerification', function () {
-          return p.reject(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
-        });
+      describe('with an error', () => {
+        it('passes error to `_onConfirmationError', () => {
+          const error = AuthErrors.toError('UNEXPECTED_ERROR');
+          sinon.stub(view, 'isSignUp', () => false);
+          sinon.stub(view, 'isSignIn', () => true);
 
+          sinon.stub(account, 'waitForSessionVerification', () => p.reject(error));
+          sinon.stub(broker, 'beforeSignUpConfirmationPoll', () => p());
+          sinon.stub(broker, 'afterSignInConfirmationPoll', () => p());
+
+          sinon.stub(view, '_onConfirmationError', () => p());
+
+          return view.afterVisible()
+            .then(() => {
+              assert.isTrue(view._onConfirmationError.calledOnce);
+              assert.isTrue(view._onConfirmationError.calledWith(error));
+
+              assert.isFalse(broker.afterSignInConfirmationPoll.called);
+            });
+        });
+      });
+    });
+
+    describe('_onConfirmationError', () => {
+      it('displays an error message allowing the user to re-signup if their email bounces', function () {
         sinon.spy(view, 'navigate');
-        return view.afterVisible()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('signup', { bouncedEmail: 'a@a.com' }));
-            assert.isTrue(account.waitForSessionVerification.calledOnce);
-          });
+        view._onConfirmationError(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
+
+        assert.isTrue(view.navigate.calledWith('signup', { bouncedEmail: 'a@a.com' }));
       });
 
       it('displays an error when an unknown error occurs', function () {
         var unknownError = 'Something failed';
-        sinon.stub(account, 'waitForSessionVerification', function () {
-          return p.reject(new Error(unknownError));
-        });
 
         sinon.spy(view, 'navigate');
-        return view.afterVisible()
-          .then(function () {
-            assert.isTrue(account.waitForSessionVerification.calledOnce);
-            assert.equal(view.$('.error').text(), unknownError);
-          });
+        view._onConfirmationError(unknownError);
+
+        assert.equal(view.$('.error').text(), unknownError);
       });
 
       describe('with an unexpected error', function () {
@@ -266,48 +266,23 @@ define(function (require, exports, module) {
 
         beforeEach(function () {
           sandbox = sinon.sandbox.create();
-          sandbox.stub(account, 'waitForSessionVerification', () => {
-            var callCount = account.waitForSessionVerification.callCount;
-            if (callCount < 2) {
-              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-            } else {
-              return p();
-            }
-          });
-
-          sandbox.spy(view, 'navigate');
           sandbox.spy(view.sentryMetrics, 'captureException');
-          sandbox.spy(view, '_startPolling');
+          sandbox.stub(view, '_startPolling', () => p());
+          sandbox.stub(view, 'setTimeout', (callback) => callback());
 
-          sandbox.stub(view, 'setTimeout', function (callback) {
-            callback();
-          });
-
-          sandbox.stub(user, 'setAccount', () => p());
-
-          return view.afterVisible();
+          view._onConfirmationError(AuthErrors.toError('UNEXPECTED_ERROR'));
         });
 
         afterEach(function () {
           sandbox.restore();
         });
 
-        it('polls the auth server', function () {
-          assert.equal(account.waitForSessionVerification.callCount, 2);
-        });
-
-        it('captures the exception to Sentry', function () {
+        it('polls the auth server, captures the exception, no error to user, restarts polling', function () {
           assert.isTrue(view.sentryMetrics.captureException.called);
           assert.equal(view.sentryMetrics.captureException.firstCall.args[0].errno,
              AuthErrors.toError('POLLING_FAILED').errno);
-        });
-
-        it('does not display an error to the user when unexpected error occurs', function () {
           assert.equal(view.$('.error').text(), '');
-        });
-
-        it('restarts polling when an unexpected error occurs', function () {
-          assert.equal(view._startPolling.callCount, 2);
+          assert.equal(view._startPolling.callCount, 1);
         });
       });
     });
@@ -366,62 +341,9 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('complete', function () {
-      beforeEach(function () {
-        sinon.stub(account, 'waitForSessionVerification', () => p());
-        sinon.stub(user, 'setAccount', () => p());
-        sinon.stub(view, 'navigate', function (page) {
-          // do nothing
-        });
-      });
-
-      it('direct access redirects to `/settings`', function () {
-        sinon.stub(relier, 'isDirectAccess', function () {
-          return true;
-        });
-
-        return view.afterVisible()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('settings'));
-          });
-      });
-
-      describe('signup', function () {
-        beforeEach(function () {
-          sinon.stub(relier, 'isDirectAccess', function () {
-            return false;
-          });
-
-          model.set('type', SIGNUP_REASON);
-
-          return view.afterVisible();
-        });
-
-        it('redirects to `signup_confirmed`', function () {
-          assert.isTrue(view.navigate.calledWith('signup_confirmed'));
-        });
-      });
-
-      describe('signin', function () {
-        beforeEach(function () {
-          sinon.stub(relier, 'isDirectAccess', function () {
-            return false;
-          });
-
-          model.set('type', SIGNIN_REASON);
-
-          return view.afterVisible();
-        });
-
-        it('redirects to `/signin_confirmed`', function () {
-          assert.isTrue(view.navigate.calledWith('signin_confirmed'));
-        });
-      });
-    });
-
     describe('openWebmail feature', function () {
       it('it is not visible in basic contexts', function () {
-        assert.notOk($('#open-webmail').length);
+        assert.notOk(view.$('#open-webmail').length);
       });
 
       it('is visible with the the openGmailButtonVisible capability and email is @gmail.com', function () {
@@ -452,7 +374,6 @@ define(function (require, exports, module) {
 
         return view.render()
           .then(function () {
-            $('#container').html(view.el);
             assert.lengthOf(view.$('#open-webmail'), 1);
           });
       });

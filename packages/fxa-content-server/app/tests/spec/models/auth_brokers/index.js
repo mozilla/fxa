@@ -20,6 +20,11 @@ define((require, exports, module) => {
       assert.lengthOf(index.get, 1);
     });
 
+    it('get returns correct broker for fx-sync context', () => {
+      const authBroker = index.get(constants.FX_SYNC_CONTEXT);
+      assert.equal(authBroker, require('models/auth_brokers/fx-sync'));
+    });
+
     it('get returns correct broker for desktop-v1 context', () => {
       const authBroker = index.get(constants.FX_DESKTOP_V1_CONTEXT);
       assert.equal(authBroker, require('models/auth_brokers/fx-desktop-v1'));
@@ -60,9 +65,14 @@ define((require, exports, module) => {
       assert.equal(authBroker, require('models/auth_brokers/oauth-redirect'));
     });
 
-    it('get falls back to the base auth broker', () => {
+    it('get returns correct broker for web context', () => {
+      const authBroker = index.get(constants.CONTENT_SERVER_CONTEXT);
+      assert.equal(authBroker, require('models/auth_brokers/web'));
+    });
+
+    it('get falls back to the web auth broker', () => {
       const authBroker = index.get('wibble');
-      assert.equal(authBroker, require('models/auth_brokers/base'));
+      assert.equal(authBroker, require('models/auth_brokers/web'));
     });
   });
 });

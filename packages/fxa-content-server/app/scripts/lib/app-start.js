@@ -597,12 +597,28 @@ define(function (require, exports, module) {
     },
 
     _getVerificationContext () {
-      // Users that verify in the same browser use the same context that
-      // was used to sign up to allow the verification tab to have
-      // the same capabilities as the signup tab.
-      // If verifying in a separate browser, fall back to the default context.
-      const verificationInfo = this._getSameBrowserVerificationModel('context');
-      return verificationInfo.get('context');
+      // If the user verifies in the same browser, use the same context that
+      // was used to sign up to allow the verification tab to have the same
+      // capabilities as the signup tab.
+      // For users that verify in a 2nd browser, choose the most appropriate
+      // broker based on the service to allow the verification tab to have
+      // service specific behaviors and messaging. For Sync, use the generic
+      // Sync broker, for OAuth, use the OAuth broker.
+      // If no service is specified and the user is verifies in a 2nd browser,
+      // then fall back to the default content server context.
+      const sameBrowserVerificationContext = this._getSameBrowserVerificationModel('context').get('context');
+      if (sameBrowserVerificationContext) {
+        // user is verifying in the same browser, use the same context they signed up with.
+        return sameBrowserVerificationContext;
+      } else if (this._isServiceSync()) {
+        // user is verifying in a different browser.
+        return Constants.FX_SYNC_CONTEXT;
+      } else if (this._isServiceOAuth()) {
+        // oauth, user is verifying in a different browser.
+        return Constants.OAUTH_CONTEXT;
+      }
+
+      return Constants.CONTENT_SERVER_CONTEXT;
     },
 
     _getSameBrowserVerificationModel (namespace) {

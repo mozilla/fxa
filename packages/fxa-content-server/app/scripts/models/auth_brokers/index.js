@@ -16,6 +16,10 @@ define(function (require, exports, module) {
   const AUTH_BROKERS = [
     /* eslint-disable sorting/sort-object-props */
     {
+      context: Constants.FX_SYNC_CONTEXT,
+      Constructor: require('models/auth_brokers/fx-sync')
+    },
+    {
       context: Constants.FX_DESKTOP_V1_CONTEXT,
       Constructor: require('models/auth_brokers/fx-desktop-v1')
     },
@@ -46,6 +50,10 @@ define(function (require, exports, module) {
     {
       context: Constants.OAUTH_CONTEXT,
       Constructor: require('models/auth_brokers/oauth-redirect')
+    },
+    {
+      context: Constants.CONTENT_SERVER_CONTEXT,
+      Constructor: require('models/auth_brokers/web')
     }
     /* eslint-enable sorting/sort-object-props */
   ].reduce((authBrokers, authBroker) => {
@@ -61,7 +69,7 @@ define(function (require, exports, module) {
      * @returns {Function} Constructor
      */
     get (context) {
-      return AUTH_BROKERS[context] || require('models/auth_brokers/base');
+      return AUTH_BROKERS[context] || require('models/auth_brokers/web');
     }
   };
 });

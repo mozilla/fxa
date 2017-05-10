@@ -24,17 +24,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isDirectAccess', function () {
-      it('returns false if `service` is set', function () {
-        relier.set('service', 'serviceName');
-        assert.isFalse(relier.isDirectAccess());
-      });
-
-      it('returns true if `service` is unset', function () {
-        assert.isTrue(relier.isDirectAccess());
-      });
-    });
-
     describe('isOAuth', function () {
       it('returns `false`', function () {
         assert.isFalse(relier.isOAuth());

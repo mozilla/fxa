@@ -16,7 +16,6 @@ define(function (require, exports, module) {
   const ResendMixin = require('views/mixins/resend-mixin')();
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/complete_reset_password');
-  const { t } = require('views/base');
   const Url = require('lib/url');
   const VerificationInfo = require('models/verification/reset-password');
 
@@ -125,15 +124,7 @@ define(function (require, exports, module) {
                     'afterCompleteResetPassword', updatedAccount);
         })
         .then(() => {
-          // the user is definitively signed in here, otherwise this
-          // path would not be taken.
-          if (this.relier.isDirectAccess()) {
-            this.navigate('settings', {
-              success: t('Account verified successfully')
-            });
-          } else {
-            this.navigate('reset_password_verified');
-          }
+          this.navigate('reset_password_verified');
         })
         .fail((err) => {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {

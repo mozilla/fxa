@@ -405,12 +405,8 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('non direct access', function () {
+      describe('broker does not halt', function () {
         beforeEach(function () {
-          sinon.stub(relier, 'isDirectAccess', function () {
-            return false;
-          });
-
           user._persistAccount({
             displayName: 'fx user',
             email: 'a@a.com',
@@ -424,7 +420,7 @@ define(function (require, exports, module) {
           });
         });
 
-        it('notifies the user model with the updated signed in account', function () {
+        it('notifies, redirects to reset_password_confirmed', () => {
           assert.isTrue(user.setSignedInAccount.called);
           var account = user.setSignedInAccount.args[0][0];
 
@@ -438,28 +434,9 @@ define(function (require, exports, module) {
               unwrapBKey: 'unwrapbkey'
             }
           );
-        });
 
-        it('notifies the broker', function () {
           assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
-        });
-
-        it('redirects to `/reset_password_confirmed`', function () {
           assert.isTrue(view.navigate.calledWith('reset_password_confirmed'));
-        });
-      });
-
-      describe('direct access', function () {
-        beforeEach(function () {
-          sinon.stub(relier, 'isDirectAccess', function () {
-            return true;
-          });
-
-          return view._finishPasswordResetSameBrowser({ uid: 'uid' });
-        });
-
-        it('redirects to `/settings`', function () {
-          assert.isTrue(view.navigate.calledWith('settings'));
         });
       });
     });
