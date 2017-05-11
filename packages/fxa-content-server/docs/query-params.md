@@ -260,10 +260,6 @@ when authentication completes.
 * /force_auth
 * /
 
-### `webChannelId`
-Sign into a Firefox service that listens on a [WebChannel](https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/WebChannel.jsm).
-
-
 ## Email verification parameters
 
 ### `code`
@@ -299,19 +295,6 @@ Used by functional tests to synthesize localStorage being disabled.
 
 #### When to use
 Should not be used by reliers. Should only be used by functional tests.
-
-### `mailcheck`
-Indicate the "mailcheck" feature should be used to validate email addresses.
-
-#### Options
-* `true`
-* `false` (default)
-
-#### When to specify
-If the "mailcheck" feature should be used.
-
-* /signup
-* /oauth/signup
 
 ### `forceExperiment`
 Force a particular AB test.
