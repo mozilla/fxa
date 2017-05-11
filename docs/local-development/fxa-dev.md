@@ -45,6 +45,15 @@ docker push NAME[:TAG]
 
 Example: `docker push vladikoff/123done:oauth-keys`
 
+Other
+
+`docker ps` - show running containers. Keep an eye on the `NAMES` column.
+
+`docker logs [NAME]` - show logs for a particular container.
+
+`docker restart [NAME]` - restart a container.
+
+
 ### MySQL SSH Access
 
 You can access the MySQL database via SSH. Here's an example configuration using Sequel Pro on macOS.
