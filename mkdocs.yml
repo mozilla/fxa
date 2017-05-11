@@ -8,4 +8,5 @@ pages:
     - 'DataDog Documentation': 'metrics/datadog.md'
 - 'Local Development':
     - 'Getting Started': 'local-development/getting-started.md'
+    - 'fxa-dev AWS deployment': 'local-development/fxa-dev.md'
 theme: readthedocs
