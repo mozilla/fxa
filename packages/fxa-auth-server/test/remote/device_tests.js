@@ -286,6 +286,116 @@ describe('remote device', function() {
   )
 
   it(
+    'update device works with stage servers',
+    () => {
+      var goodPushCallback = 'https://updates-autopush.stage.mozaws.net'
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              name: 'test device',
+              type: 'mobile',
+              pushCallback: goodPushCallback,
+              pushPublicKey: '',
+              pushAuthKey: ''
+            }
+            return client.devices()
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 0, 'devices returned no items')
+                  return client.updateDevice(deviceInfo)
+                }
+              )
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.fail(err, 'request should have worked')
+                }
+              )
+          })
+    }
+  )
+
+  it(
+    'update device works with dev servers',
+    () => {
+      var goodPushCallback = 'https://updates-autopush.dev.mozaws.net'
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              name: 'test device',
+              type: 'mobile',
+              pushCallback: goodPushCallback,
+              pushPublicKey: '',
+              pushAuthKey: ''
+            }
+            return client.devices()
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 0, 'devices returned no items')
+                  return client.updateDevice(deviceInfo)
+                }
+              )
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.fail(err, 'request should have worked')
+                }
+              )
+          })
+    }
+  )
+
+  it(
+    'update device fails with bad dev callbackUrl',
+    () => {
+      var badPushCallback = 'https://evil.mozaws.net'
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      var deviceInfo = {
+        id: crypto.randomBytes(16).toString('hex'),
+        name: 'test device',
+        type: 'desktop',
+        pushCallback: badPushCallback,
+        pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
+        pushAuthKey: base64url(crypto.randomBytes(16))
+      }
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            return client.updateDevice(deviceInfo)
+              .then(
+                function (r) {
+                  assert(false, 'request should have failed')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.equal(err.code, 400, 'err.code was 400')
+                  assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter')
+                  assert.equal(err.validation.keys[0], 'pushCallback', 'bad pushCallback caught in validation')
+                }
+              )
+          })
+    }
+  )
+
+  it(
     'device registration from a different session',
     () => {
       var email = server.uniqueEmail()
