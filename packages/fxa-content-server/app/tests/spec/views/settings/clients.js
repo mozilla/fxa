@@ -227,6 +227,7 @@ define(function (require, exports, module) {
             assert.equal($('#container [data-get-app]').length, 2, 'has mobile app placeholders');
             assert.equal($('#container [data-os=iOS]').length, 1, 'has the iOS placeholder');
             assert.equal($('#container [data-os=Android]').length, 1, 'has the Android placeholder');
+            assert.equal($('#container .device-support').prop('target'), '_blank', 'opens device article in new tab');
           });
 
       });
