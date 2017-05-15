@@ -87,6 +87,53 @@ describe('remote emails', function () {
       }
     )
 
+    it('can create email if email is unverified on another account', () => {
+      let client2
+      const clientEmail = server.uniqueEmail()
+      const secondEmail = server.uniqueEmail()
+      return client.createEmail(secondEmail)
+        .then((res) => {
+          assert.ok(res, 'ok response')
+          return server.mailbox.waitForEmail(secondEmail)
+        })
+        .then(() => {
+          return client.accountEmails()
+        })
+        .then((res) => {
+          assert.equal(res.length, 2, 'returns number of emails')
+          assert.equal(res[1].email, secondEmail, 'returns correct email')
+          assert.equal(res[1].isPrimary, false, 'returns correct isPrimary')
+          assert.equal(res[1].verified, false, 'returns correct verified')
+          return Client.createAndVerify(config.publicUrl, clientEmail, password, server.mailbox)
+            .catch(assert.fail)
+        })
+        .then((x) => {
+          client2 = x
+          assert.equal(client2.email, clientEmail, 'account created with email')
+          return client2.createEmail(secondEmail)
+        })
+        .then((res) => {
+          assert.ok(res, 'ok response')
+          return client.accountEmails()
+        })
+        .then((res) => {
+          // Secondary email on first account should have been deleted
+          assert.equal(res.length, 1, 'returns number of emails')
+          assert.equal(res[0].email, client.email, 'returns correct email')
+          assert.equal(res[0].isPrimary, true, 'returns correct isPrimary')
+          assert.equal(res[0].verified, true, 'returns correct verified')
+          return client2.accountEmails()
+        })
+        .then((res) => {
+          // Secondary email should be on the second account
+          assert.equal(res.length, 2, 'returns number of emails')
+          assert.equal(res[1].email, secondEmail, 'returns correct email')
+          assert.equal(res[1].isPrimary, false, 'returns correct isPrimary')
+          assert.equal(res[1].verified, false, 'returns correct verified')
+        })
+    })
+
+
     it(
       'fails create when email is user primary email',
       () => {
@@ -119,7 +166,7 @@ describe('remote emails', function () {
     )
 
     it(
-      'fails create when email exists in other user account',
+      'fails create when verified secondary email exists in other user account',
       () => {
         const anotherUserEmail = server.uniqueEmail()
         const anotherUserSecondEmail = server.uniqueEmail()
@@ -129,6 +176,13 @@ describe('remote emails', function () {
             anotherClient = x
             assert.ok(client.authAt, 'authAt was set')
             return anotherClient.createEmail(anotherUserSecondEmail)
+          })
+          .then(() => {
+            return server.mailbox.waitForEmail(anotherUserSecondEmail)
+          })
+          .then((emailData) => {
+            const emailCode = emailData['headers']['x-verify-code']
+            return anotherClient.verifySecondaryEmail(emailCode, anotherUserSecondEmail)
           })
           .then((res) => {
             assert.ok(res, 'ok response')

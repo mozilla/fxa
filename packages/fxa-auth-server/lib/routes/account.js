@@ -158,7 +158,7 @@ module.exports = (
                 throw error.verifiedSecondaryEmailAlreadyExists()
               }
 
-              return db.deleteEmail(Buffer(secondaryEmailRecord.uid, 'hex'), secondaryEmailRecord.email)
+              return db.deleteEmail(Buffer.from(secondaryEmailRecord.uid, 'hex'), secondaryEmailRecord.email)
             })
             .catch((err) => {
               if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
@@ -2132,7 +2132,8 @@ module.exports = (
         }
 
         customs.check(request, primaryEmail, 'createEmail')
-          .then(checkEmail)
+          .then(deleteAccountIfUnverified)
+          .then(deleteSecondaryEmailIfUnverified)
           .then(generateRandomValues)
           .then(createEmail)
           .then(sendEmailVerification)
@@ -2143,7 +2144,7 @@ module.exports = (
             reply
           )
 
-        function checkEmail() {
+        function deleteAccountIfUnverified() {
           return db.emailRecord(email)
             .then((emailRecord) => {
               if (emailRecord.emailVerified) {
@@ -2164,6 +2165,22 @@ module.exports = (
             .catch((err) => {
               // Email does not exist in primary account table, carry on
               if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
+                throw err
+              }
+            })
+        }
+
+        function deleteSecondaryEmailIfUnverified() {
+          return db.getSecondaryEmail(email)
+            .then((secondaryEmailRecord) => {
+              // Only delete secondary email if it is unverified and does not belong
+              // to the current user.
+              if (! secondaryEmailRecord.isVerified && ! butil.buffersAreEqual(secondaryEmailRecord.uid, uid)) {
+                return db.deleteEmail(Buffer.from(secondaryEmailRecord.uid, 'hex'), secondaryEmailRecord.email)
+              }
+            })
+            .catch((err) => {
+              if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
                 throw err
               }
             })

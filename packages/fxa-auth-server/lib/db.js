@@ -863,6 +863,9 @@ module.exports = (
     })
 
     return this.pool.get('/email/' + Buffer(email, 'utf8').toString('hex'))
+      .then((body) => {
+        return bufferize(body)
+      })
       .catch((err) => {
         if (isNotFoundError(err)) {
           throw error.unknownSecondaryEmail()
