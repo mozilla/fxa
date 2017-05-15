@@ -12,13 +12,14 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const Backbone = require('backbone');
   const Vat = require('lib/vat');
+  const WebChannel = require('lib/channels/web');
 
   // Commands that have the 'internal:' namespace should only be
   // handled by the content server. Other commands may be handled
   // both externally and internally to the content server.
   var COMMANDS = {
     CHANGE_PASSWORD: {
-      name: 'fxaccounts:change_password',
+      name: WebChannel.CHANGE_PASSWORD,
       schema: {
         email: Vat.email().required(),
         keyFetchToken: Vat.keyFetchToken().optional(),
@@ -33,13 +34,13 @@ define(function (require, exports, module) {
       schema: null
     },
     DELETE: {
-      name: 'fxaccounts:delete',
+      name: WebChannel.DELETE,
       schema: {
         uid: Vat.uid().required()
       }
     },
     PROFILE_CHANGE: {
-      name: 'profile:change',
+      name: WebChannel.PROFILE_CHANGE,
       schema: {
         uid: Vat.uid().required()
       }
@@ -60,7 +61,7 @@ define(function (require, exports, module) {
       }
     },
     SIGNED_OUT: {
-      name: 'fxaccounts:logout',
+      name: WebChannel.LOGOUT,
       schema: {
         uid: Vat.uid().optional()
       }

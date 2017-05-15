@@ -35,6 +35,32 @@ define(function (require, exports, module) {
       }, 'WebChannel must have an id');
     });
 
+    it('exports the expected commands on the static interface', () => {
+      assert.ok(WebChannel.CAN_LINK_ACCOUNT);
+      assert.ok(WebChannel.CHANGE_PASSWORD);
+      assert.ok(WebChannel.DELETE);
+      assert.ok(WebChannel.LOADED);
+      assert.ok(WebChannel.LOGIN);
+      assert.ok(WebChannel.LOGOUT);
+      assert.ok(WebChannel.PROFILE_CHANGE);
+    });
+
+    it('exports the expected commands on an instance', () => {
+      channel = new WebChannel('MyChannel');
+      channel.initialize({
+        window: windowMock
+      });
+
+      assert.lengthOf(Object.keys(channel.COMMANDS), 8);
+      assert.ok(channel.COMMANDS.CAN_LINK_ACCOUNT);
+      assert.ok(channel.COMMANDS.CHANGE_PASSWORD);
+      assert.ok(channel.COMMANDS.DELETE);
+      assert.ok(channel.COMMANDS.LOADED);
+      assert.ok(channel.COMMANDS.LOGIN);
+      assert.ok(channel.COMMANDS.LOGOUT);
+      assert.ok(channel.COMMANDS.PROFILE_CHANGE);
+    });
+
     describe('send', function () {
       it('sends a message', function () {
         channel = new WebChannel('MyChannel');

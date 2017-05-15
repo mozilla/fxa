@@ -14,6 +14,24 @@ define(function (require, exports, module) {
   const WebChannelReceiver = require('lib/channels/receivers/web-channel');
   const WebChannelSender = require('lib/channels/senders/web-channel');
 
+  // The corresponding Firefox list is in
+  // https://dxr.mozilla.org/mozilla-central/rev/8a7d0b15595f9916123848ca906f29c62d4914c9/services/fxaccounts/FxAccountsWebChannel.jsm#30
+  const COMMANDS = {
+    CAN_LINK_ACCOUNT: 'fxaccounts:can_link_account',
+    CHANGE_PASSWORD: 'fxaccounts:change_password',
+    // Fx Desktop expects fxaccounts:delete, Fennec expects fxaccounts:delete_account.
+    // See https://github.com/mozilla/fxa-content-server/issues/3432
+    DELETE: 'fxaccounts:delete',
+    DELETE_ACCOUNT: 'fxaccounts:delete_account',
+    LOADED: 'fxaccounts:loaded',
+    LOGIN: 'fxaccounts:login',
+    LOGOUT: 'fxaccounts:logout',
+    PROFILE_CHANGE: 'profile:change',
+    /*
+    SYNC_PREFERENCES: 'fxaccounts:sync_preferences', // Removed in issue #4250
+    */
+  };
+
   function WebChannel(id) {
     if (! id) {
       throw new Error('WebChannel must have an id');
@@ -22,32 +40,35 @@ define(function (require, exports, module) {
     this._id = id;
   }
 
-  _.extend(WebChannel.prototype, new DuplexChannel(), {
-    initialize (options) {
-      options = options || {};
+  _.extend(WebChannel, COMMANDS);
 
-      var win = options.window || window;
-      var webChannelId = this._id;
+  _.extend(WebChannel.prototype, new DuplexChannel(), {
+    COMMANDS,
+
+    initialize (options = {}) {
+      const win = this._window = options.window || window;
+      const webChannelId = this._id;
 
       var sender = this._sender = new WebChannelSender();
       sender.initialize({
-        webChannelId: webChannelId,
+        webChannelId,
         window: win
       });
 
       var receiver = this._receiver = new WebChannelReceiver();
       receiver.initialize({
-        webChannelId: webChannelId,
+        webChannelId,
         window: win
       });
 
       DuplexChannel.prototype.initialize.call(this, {
-        receiver: receiver,
-        sender: sender,
+        receiver,
+        sender,
         window: win
       });
     }
   });
+
 
   module.exports = WebChannel;
 });

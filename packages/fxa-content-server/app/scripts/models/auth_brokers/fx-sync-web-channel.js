@@ -24,16 +24,13 @@ define(function (require, exports, module) {
       sendChangePasswordNotice: false
     }),
 
-    commands: {
-      CAN_LINK_ACCOUNT: 'fxaccounts:can_link_account',
-      CHANGE_PASSWORD: null,
-      DELETE_ACCOUNT: 'fxaccounts:delete_account',
-      LOADED: 'fxaccounts:loaded',
-      LOGIN: 'fxaccounts:login'
-      /*
-      SYNC_PREFERENCES: 'fxaccounts:sync_preferences' // Removed in issue #4250
-      */
-    },
+    commands: _.pick(WebChannel,
+      'CAN_LINK_ACCOUNT',
+      'CHANGE_PASSWORD',
+      'DELETE_ACCOUNT',
+      'LOADED',
+      'LOGIN'
+    ),
 
     createChannel () {
       var channel = new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
