@@ -10,6 +10,7 @@
  * 2. Existing users that have signed in with an unverified account.
  * 3. Existing users that are signing into Sync and
  *    must re-confirm their account.
+ * 4. Existing users that confirmed a secondary email.
  *
  * The auth server endpoints that are called are the same in all cases.
  */
@@ -76,8 +77,10 @@ define(function (require, exports, module) {
       const code = verificationInfo.get('code');
       const options = {
         reminder: verificationInfo.get('reminder'),
+        secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
         serverVerificationStatus: this.getSearchParam('server_verification') || null,
-        service: this.relier.get('service') || null
+        service: this.relier.get('service') || null,
+        type: verificationInfo.get('type')
       };
 
       return this.user.completeAccountSignUp(account, code, options)
@@ -187,7 +190,9 @@ define(function (require, exports, module) {
      * @private
      */
     _navigateToVerifiedScreen () {
-      if (this.isSignUp()) {
+      if (this.getSearchParam('secondary_email_verified')) {
+        this.navigate('secondary_email_verified');
+      } else if (this.isSignUp()) {
         this.navigate('signup_verified');
       } else {
         this.navigate('signin_verified');

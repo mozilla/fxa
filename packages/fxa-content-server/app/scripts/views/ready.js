@@ -39,6 +39,10 @@ define(function (require, exports, module) {
       headerTitle: t('Password reset'),
       readyToSyncText: t('Complete set-up by entering the new password on your other Firefox devices.')
     },
+    SECONDARY_EMAIL_VERIFIED: {
+      headerId: 'fxa-sign-up-complete-header',
+      headerTitle: t('Email verified')
+    },
     // signin_confirmed and signin_verified are only shown to Sync for now.
     SIGN_IN: {
       headerId: 'fxa-sign-in-complete-header',
@@ -69,6 +73,7 @@ define(function (require, exports, module) {
         isSync: this.relier.isSync(),
         readyToSyncText: this._getReadyToSyncText(),
         redirectUri: this.relier.get('redirectUri'),
+        secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
         service: this.relier.get('service'),
         serviceName: this.relier.get('serviceName')
       };

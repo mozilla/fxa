@@ -1,0 +1,69 @@
+<div id="emails" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}}">
+    <div class="settings-unit-stub">
+        <header class="settings-unit-summary">
+            <h2 class="settings-unit-title">{{#t}}Secondary email{{/t}}</h2>
+        </header>
+        <button class="settings-button settings-unit-toggle hidden {{buttonClass}}" data-href="/settings/emails">
+            {{#hasSecondaryEmail}}{{#t}}Change…{{/t}}{{/hasSecondaryEmail}}
+            {{^hasSecondaryEmail}}{{#t}}Add…{{/t}}{{/hasSecondaryEmail}}
+        </button>
+    </div>
+
+    <div class="settings-unit-details">
+        <form novalidate>
+            <p>
+                {{#t}}A secondary email is an additional address for receiving security notices and confirming new Sync devices.{{/t}}
+            </p>
+            {{#hasSecondaryEmail}}
+                <ul class="email-list button-row">
+                    {{#emails}}
+                        {{^isPrimary}}
+                            <li class="email-address">
+                                <div class="address">{{email}}</div>
+                                <div class="details">
+                                    {{#verified}}
+                                        <div class="verified">{{#t}}verified{{/t}}</div>
+                                    {{/verified}}
+                                    {{^verified}}
+                                        <div class="not-verified">{{#t}}verification required{{/t}}</div>
+                                    {{/verified}}
+                                </div>
+                                <button class="settings-button warning email-disconnect" data-id="{{email}}">
+                                    {{#t}}Remove{{/t}}
+                                </button>
+                            </li>
+                            {{^verified}}
+                                <a class="resend" data-id="{{email}}">{{#t}}Didn't arrive and not in spam folder? Resend?{{/t}}</a>
+                            {{/verified}}
+                        {{/isPrimary}}
+                    {{/emails}}
+                </ul>
+            {{/hasSecondaryEmail}}
+
+            {{^hasSecondaryEmail}}
+                <div class="input-row">
+                    <label class="label-helper"></label>
+                    <input type="email" class="new-email tooltip-below" placeholder="{{#t}}Secondary email{{/t}}"
+                           value="{{newEmail}}" autofocus autocomplete="off"/>
+                </div>
+            {{/hasSecondaryEmail}}
+
+            <div class="button-row">
+                {{#hasSecondaryEmail}}
+                    <button class="settings-button email-refresh primary enabled">{{#t}}Refresh{{/t}}</button>
+
+                    <button
+                        class="settings-button {{#hasSecondaryVerifiedEmail}}cancel secondary enabled{{/hasSecondaryVerifiedEmail}}
+                            {{^hasSecondaryVerifiedEmail}} secondary-disabled disabled {{/hasSecondaryVerifiedEmail}}">
+                        {{#t}}Done{{/t}}
+                    </button>
+                {{/hasSecondaryEmail}}
+
+                {{^hasSecondaryEmail}}
+                    <button type="submit" class="settings-button email-add primary disabled">{{#t}}Add{{/t}}</button>
+                    <button class="settings-button cancel secondary enabled">{{#t}}Cancel{{/t}}</button>
+                {{/hasSecondaryEmail}}
+            </div>
+        </form>
+    </div>
+</div>

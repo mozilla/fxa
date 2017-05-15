@@ -263,6 +263,43 @@ define(function (require, exports, module) {
     },
 
     /**
+     * This function simply returns the session status of the user. It differs
+     * from `sessionStatus` function above because it is not used to determine
+     * which view to take a user after the login. This function also does not
+     * have the restriction to be backwards compatible to legacy clients.
+     *
+     * @returns {Promise} resolves with the account's current session
+     * information if session is valid. Rejects with an INVALID_TOKEN error
+     * if session is invalid.
+     *
+     * Session information:
+     * {
+     *   email: <canonicalized email>,
+     *   verified: <boolean>
+     *   emailVerified: <boolean>
+     *   sessionVerified: <boolean>
+     * }
+     */
+    sessionVerificationStatus () {
+      const sessionToken = this.get('sessionToken');
+      if (! sessionToken) {
+        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+      }
+
+      return this._fxaClient.sessionVerificationStatus(sessionToken)
+        .then((resp) => {
+          return resp;
+        }, (err) => {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            // sessionToken is no longer valid, kill it.
+            this.unset('sessionToken');
+          }
+
+          throw err;
+        });
+    },
+
+    /**
      * Wait for the session to become verified.
      *
      * @param {Number} pollIntervalInMs
@@ -1035,6 +1072,98 @@ define(function (require, exports, module) {
       }
 
       return this._fxaClient.smsStatus(sessionToken, options);
+    },
+
+    /**
+     * Get emails associated with user.
+     *
+     * @returns {Promise}
+     */
+    recoveryEmails () {
+      return this._fxaClient.recoveryEmails(
+        this.get('sessionToken')
+      );
+    },
+
+    /**
+     * Associates a new email to a user's account.
+     *
+     * @param {String} email
+     *
+     * @returns {Promise}
+     */
+    recoveryEmailCreate (email) {
+      return this._fxaClient.recoveryEmailCreate(
+        this.get('sessionToken'),
+        email
+      );
+    },
+
+    /**
+     * Deletes email from user's account.
+     *
+     * @param {String} email
+     *
+     * @returns {Promise}
+     */
+    recoveryEmailDestroy (email) {
+      return this._fxaClient.recoveryEmailDestroy(
+        this.get('sessionToken'),
+        email
+      );
+    },
+
+    /**
+     * Resend the verification code associated with the passed email address
+     *
+     * @param {String} email
+     *
+     * @returns {Promise}
+     */
+    resendEmailCode (email) {
+      return this._fxaClient.resendEmailCode(
+        this.get('sessionToken'),
+        email
+      );
+    },
+
+    /**
+     * Get emails associated with user.
+     *
+     * @returns {Promise}
+     */
+    getEmails () {
+      return this._fxaClient.getEmails(
+        this.get('sessionToken')
+      );
+    },
+
+    /**
+     * Associates a new email to a users account.
+     *
+     * @param {String} email
+     *
+     * @returns {Promise}
+     */
+    createEmail (email) {
+      return this._fxaClient.createEmail(
+        this.get('sessionToken'),
+        email
+      );
+    },
+
+    /**
+     * Associates a new email to a users account.
+     *
+     * @param {String} email
+     *
+     * @returns {Promise}
+     */
+    deleteEmail (email) {
+      return this._fxaClient.deleteEmail(
+        this.get('sessionToken'),
+        email
+      );
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,

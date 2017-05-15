@@ -16,6 +16,7 @@ define(function (require, exports, module) {
     defaults: {
       code: null,
       reminder: null,
+      type: null,
       uid: null
     },
 

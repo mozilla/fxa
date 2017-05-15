@@ -89,12 +89,15 @@ define(function (require, exports, module) {
       $('.settings-unit').removeClass('open');
     },
 
-    displaySuccess (msg) {
+    displaySuccess (msg, options = {closePanel: true}) {
       if (! this.parentView) {
         return;
       }
       this.parentView.displaySuccess(msg);
-      this.closePanel();
-    }
+
+      if (options.closePanel) {
+        this.closePanel();
+      }
+    },
   };
 });

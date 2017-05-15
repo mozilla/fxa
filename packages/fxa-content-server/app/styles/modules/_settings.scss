@@ -245,6 +245,12 @@ body.settings #main-content.card {
     }
   }
 
+  &.secondary-disabled {
+      background: $secondary-button-background-color;
+      border: 1px solid $secondary-button-border-color;
+      color: $text-color;
+  }
+
   &.warning {
     background: $error-background-color;
     border: 0;
@@ -640,4 +646,70 @@ section.modal-panel {
   label {
     display: block;
   }
+}
+
+.email-list {
+    padding: 0;
+}
+
+.email-address {
+    height: 40px;
+    list-style: none;
+    margin: 10px 0;
+    position: relative;
+
+    html[dir='ltr'] & {
+        background-position: left 2px;
+    }
+
+    html[dir='rtl'] & {
+        background-position: right 2px;
+    }
+
+    .address {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: calc(95% - 95px);
+    }
+
+    .details {
+        color: $color-grey;
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: calc(95% - 95px);
+
+        & .not-verified {
+            color: $color-red;
+        }
+
+        & .verified {
+            color: $color-green;
+        }
+    }
+
+    .settings-button {
+        height: 35px;
+        /*minimum width required for the button to look good without occupying too much space*/
+        /*is also the default computed width on desktop screen*/
+        min-width: 100px;
+        position: absolute;
+        text-align: center;
+        top: 0;
+        width: 20%;
+
+        html[dir='ltr'] & {
+            right: 0;
+        }
+
+        html[dir='rtl'] & {
+            left: 0;
+        }
+    }
+
+    a.settings-button {
+        padding-top: 8px;
+    }
 }

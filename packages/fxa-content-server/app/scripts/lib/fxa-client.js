@@ -565,6 +565,21 @@ define(function (require, exports, module) {
         });
     }),
 
+    /**
+     * This function gets the status of the user's sessionToken.
+     * It differs from `recoveryEmailStatus` because it also returns
+     * `sessionVerified`, which gives the true state of the sessionToken.
+     *
+     * Note that a session is considered verified if it has gone through
+     * an email verification loop.
+     *
+     * @param {String} sessionToken
+     * @returns {Promise} resolves with response when complete.
+     */
+    sessionVerificationStatus: withClient(function (client, sessionToken) {
+      return client.recoveryEmailStatus(sessionToken);
+    }),
+
     accountKeys: withClient((client, keyFetchToken, unwrapBKey) => {
       return client.accountKeys(keyFetchToken, unwrapBKey);
     }),
@@ -651,6 +666,22 @@ define(function (require, exports, module) {
         });
     }),
 
+    recoveryEmails: withClient((client, sessionToken) => {
+      return client.recoveryEmails(sessionToken);
+    }),
+
+    recoveryEmailCreate: withClient((client, sessionToken, email) => {
+      return client.recoveryEmailCreate(sessionToken, email);
+    }),
+
+    recoveryEmailDestroy: withClient((client, sessionToken, email) => {
+      return client.recoveryEmailDestroy(sessionToken, email);
+    }),
+
+    resendEmailCode: withClient((client, sessionToken, email) => {
+      return client.recoveryEmailResendCode(sessionToken, {email: email});
+    }),
+
     /**
      * Check whether SMS is enabled for the user
      *
@@ -663,6 +694,10 @@ define(function (require, exports, module) {
      */
     smsStatus: withClient((client, sessionToken, options) => {
       return client.smsStatus(sessionToken, options);
+    }),
+
+    deleteEmail: withClient((client, sessionToken, email) => {
+      return client.deleteEmail(sessionToken, email);
     })
   };
 

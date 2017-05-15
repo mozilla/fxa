@@ -145,6 +145,36 @@ define(function (require, exports, module) {
       errno: 135,
       message: t('Unable to deliver email')
     },
+    // Secondary Email errors
+    EMAIL_EXISTS: {
+      errno: 136,
+      message: t('This email was already verified by another user')
+    },
+    EMAIL_PRIMARY_EXISTS: {
+      errno: 139,
+      message: t('Secondary email must be different than your account email')
+    },
+    EMAIL_VERIFIED_PRIMARY_EXISTS: {
+      errno: 140,
+      message: t('Account already exists')
+    },
+    UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED: {
+      errno: 141,
+      message: t('Account already exists')
+    },
+    LOGIN_WITH_SECONDARY_EMAIL: {
+      errno: 142,
+      message: t('Primary account email required for sign-in')
+    },
+    VERIFIED_SECONDARY_EMAIL_EXISTS: {
+      errno: 144,
+      message: t('Address in use by another account')
+    },
+    RESET_PASSWORD_WITH_SECONDARY_EMAIL: {
+      errno: 145,
+      message: t('Primary account email required for reset')
+    },
+    // Secondary Email errors end
     SERVER_BUSY: {
       errno: 201,
       message: t('Server busy, try again soon')
