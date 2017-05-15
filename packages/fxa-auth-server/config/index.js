@@ -746,7 +746,7 @@ var conf = convict({
   secondaryEmail: {
     enabled: {
       doc: 'Indicates whether secondary email APIs are enabled',
-      default: false,
+      default: true,
       format: Boolean,
       env: 'SECONDARY_EMAIL_ENABLED'
     },
