@@ -436,18 +436,15 @@ define(function (require, exports, module) {
       });
 
       it('creates an SyncRelier if Sync', function () {
-        sinon.stub(appStart, '_isServiceSync', function () {
-          return true;
-        });
+        sinon.stub(appStart, '_isServiceSync', () => true);
 
         appStart.initializeRelier();
         assert.instanceOf(appStart._relier, SyncRelier);
       });
 
-      it('creates an OAuthRelier if using the OAuth flow', function () {
-        sinon.stub(appStart, '_isOAuth', function () {
-          return true;
-        });
+      it('creates an OAuthRelier if in the OAuth flow, even if service=sync is specified', function () {
+        sinon.stub(appStart, '_isOAuth', () => true);
+        sinon.stub(appStart, '_isServiceSync', () => true);
 
         appStart.initializeRelier();
         assert.instanceOf(appStart._relier, OAuthRelier);

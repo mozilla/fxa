@@ -26,7 +26,8 @@ define(function (require, exports, module) {
     // context is not available when verifying.
     context: Vat.string().min(1),
     country: Vat.string().valid(...AllowedCountries),
-    customizeSync: Vat.boolean()
+    customizeSync: Vat.boolean(),
+    service: Vat.string()
   };
   /*eslint-enable camelcase*/
 

@@ -22,7 +22,6 @@ define(function (require, exports, module) {
 
     var EMAIL = 'email@moz.org';
     var ENTRYPOINT = 'preferences';
-    var SERVICE = 'sync';
     var SETTING = 'avatar';
     var UID = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
     var UTM_CAMPAIGN = 'utm_campaign';
@@ -56,7 +55,6 @@ define(function (require, exports, module) {
         email: EMAIL,
         entrypoint: ENTRYPOINT,
         ignored: 'ignored',
-        service: SERVICE,
         setting: SETTING,
         uid: UID,
         utm_campaign: UTM_CAMPAIGN, //eslint-disable-line camelcase
@@ -73,7 +71,6 @@ define(function (require, exports, module) {
           assert.equal(relier.get('context'), Constants.CONTENT_SERVER_CONTEXT);
 
           // The rest are imported from search parameters
-          assert.equal(relier.get('service'), SERVICE);
           assert.equal(relier.get('email'), EMAIL);
 
           assert.equal(relier.get('setting'), SETTING);
@@ -199,10 +196,6 @@ define(function (require, exports, module) {
     });
 
     it('isSync returns `false` by default', function () {
-      windowMock.location.search = TestHelpers.toSearchString({
-        service: SERVICE
-      });
-
       return relier.fetch()
         .then(function () {
           assert.isFalse(relier.isSync());

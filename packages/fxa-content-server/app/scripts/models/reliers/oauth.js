@@ -32,7 +32,6 @@ define(function (require, exports, module) {
     redirectTo: Vat.url(),
     redirect_uri: Vat.url().renameTo('redirectUri'),
     scope: Vat.string().required().min(1),
-    service: Vat.string(),
     state: Vat.string()
   };
 
@@ -44,7 +43,8 @@ define(function (require, exports, module) {
     redirect_uri: Vat.url().renameTo('redirectUri'),
     // scopes are optional when verifying, user could be verifying in a 2nd browser
     scope: Vat.string().min(1),
-    service: Vat.string().min(1),
+    // `service` for OAuth verification is a clientId
+    service: Vat.clientId(),
     state: Vat.string().min(1)
   };
   /*eslint-enable camelcase*/
@@ -157,6 +157,12 @@ define(function (require, exports, module) {
       // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
       this.importSearchParamsUsingSchema(
           SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA, OAuthErrors);
+
+      // OAuth reliers are not allowed to specify a service. `service`
+      // is used in the verification flow, it'll be set to the `client_id`.
+      if (this.getSearchParam('service')) {
+        throw OAuthErrors.toInvalidParameterError('service');
+      }
     },
 
     _setupOAuthRPInfo () {

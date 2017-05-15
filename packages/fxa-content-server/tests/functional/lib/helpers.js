@@ -1805,6 +1805,7 @@ define([
     openVerificationLinkInSameTab: openVerificationLinkInSameTab,
     pollUntil: pollUntil,
     pollUntilGoneByQSA: pollUntilGoneByQSA,
+    reOpenWithAdditionalQueryParams: reOpenWithAdditionalQueryParams,
     respondToWebChannelMessage: respondToWebChannelMessage,
     switchToWindow: switchToWindow,
     takeScreenshot: takeScreenshot,

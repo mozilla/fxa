@@ -70,37 +70,91 @@ define(function (require, exports, module) {
     });
 
     describe('fetch', function () {
-      it('populates expected fields from the search parameters', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          access_type: ACCESS_TYPE,
-          action: ACTION,
-          client_id: CLIENT_ID,
-          prompt: PROMPT,
-          redirect_uri: REDIRECT_URI,
-          scope: SCOPE,
-          service: SERVICE,
-          state: STATE
+      describe('signin/signup flow', () => {
+        it('populates expected fields from the search parameters', function () {
+          windowMock.location.search = TestHelpers.toSearchString({
+            access_type: ACCESS_TYPE,
+            action: ACTION,
+            client_id: CLIENT_ID,
+            prompt: PROMPT,
+            redirect_uri: REDIRECT_URI,
+            scope: SCOPE,
+            state: STATE
+          });
+
+          return relier.fetch()
+            .then(function () {
+              // context is not imported from query params
+              assert.equal(relier.get('context'), Constants.OAUTH_CONTEXT);
+
+              assert.equal(relier.get('prompt'), PROMPT);
+
+              // service will be the client_id in the signin/up flow
+              assert.equal(relier.get('service'), CLIENT_ID);
+              assert.equal(relier.get('state'), STATE);
+
+              // client_id and redirect_uri are converted to camelCase
+              // for consistency with other variables in the app.
+              assert.equal(relier.get('clientId'), CLIENT_ID);
+              assert.equal(relier.get('accessType'), ACCESS_TYPE);
+
+              // The redirect_uri passed in is ignored, we only care about
+              // the redirect_uri returned by the oauth server
+              assert.notEqual(relier.get('redirectUri'), REDIRECT_URI);
+              assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
+            });
         });
 
-        return relier.fetch()
-          .then(function () {
-            // context is not imported from query params
-            assert.equal(relier.get('context'), Constants.OAUTH_CONTEXT);
-
-            assert.equal(relier.get('prompt'), PROMPT);
-            assert.equal(relier.get('service'), SERVICE);
-            assert.equal(relier.get('state'), STATE);
-
-            // client_id and redirect_uri are converted to camelCase
-            // for consistency with other variables in the app.
-            assert.equal(relier.get('clientId'), CLIENT_ID);
-            assert.equal(relier.get('accessType'), ACCESS_TYPE);
-
-            // The redirect_uri passed in is ignored, we only care about
-            // the redirect_uri returned by the oauth server
-            assert.notEqual(relier.get('redirectUri'), REDIRECT_URI);
-            assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
+        it('throws if `service` is specified', () => {
+          windowMock.location.search = TestHelpers.toSearchString({
+            access_type: ACCESS_TYPE,
+            action: ACTION,
+            client_id: CLIENT_ID,
+            prompt: PROMPT,
+            redirect_uri: REDIRECT_URI,
+            scope: SCOPE,
+            service: SERVICE,
+            state: STATE
           });
+
+          return relier.fetch()
+            .then(assert.fail, (err) => {
+              assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
+            });
+        });
+      });
+
+      describe('verification flow', () => {
+        it('populates OAuth information from Session if verifying in the same browser', function () {
+          windowMock.location.search = TestHelpers.toSearchString({
+            code: '123'
+          });
+          Session.set('oauth', RESUME_INFO);
+
+          return relier.fetch()
+            .then(function () {
+              assert.equal(relier.get('state'), STATE);
+              // both clientId and service are populated from the stored info.
+              assert.equal(relier.get('clientId'), CLIENT_ID);
+              assert.equal(relier.get('service'), CLIENT_ID);
+              assert.equal(relier.get('scope'), SCOPE);
+              assert.equal(relier.get('accessType'), ACCESS_TYPE);
+            });
+        });
+
+        it('populates OAuth information from from the `service` query params if verifying in a second browser', function () {
+          windowMock.location.search = TestHelpers.toSearchString({
+            code: '123',
+            scope: SCOPE,
+            service: CLIENT_ID
+          });
+
+          return relier.fetch()
+            .then(function () {
+              assert.equal(relier.get('clientId'), CLIENT_ID);
+              assert.equal(relier.get('service'), CLIENT_ID);
+            });
+        });
       });
 
       it('sets serviceName, and redirectUri from parameters returned by the server', function () {
@@ -109,7 +163,6 @@ define(function (require, exports, module) {
           client_id: CLIENT_ID,
           redirect_uri: REDIRECT_URI,
           scope: SCOPE,
-          service: SERVICE,
           state: STATE
         });
 
@@ -117,35 +170,6 @@ define(function (require, exports, module) {
           .then(function () {
             assert.equal(relier.get('serviceName'), SERVICE_NAME);
             assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
-          });
-      });
-
-      it('populates OAuth information from Session to allow a user to verify', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          code: '123'
-        });
-        Session.set('oauth', RESUME_INFO);
-
-        return relier.fetch()
-          .then(function () {
-            assert.equal(relier.get('state'), STATE);
-            assert.equal(relier.get('clientId'), CLIENT_ID);
-            assert.equal(relier.get('scope'), SCOPE);
-            assert.equal(relier.get('accessType'), ACCESS_TYPE);
-          });
-      });
-
-      it('populates `clientId` and `service` from the `service` URL search parameter if verifying in a second browser', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          code: '123',
-          scope: SCOPE,
-          service: CLIENT_ID
-        });
-
-        return relier.fetch()
-          .then(function () {
-            assert.equal(relier.get('clientId'), CLIENT_ID);
-            assert.equal(relier.get('service'), CLIENT_ID);
           });
       });
 
@@ -207,31 +231,15 @@ define(function (require, exports, module) {
           });
 
           describe('is valid', function () {
-            describe('without a service', function () {
-              beforeEach(function () {
-                return fetchExpectSuccess({
-                  client_id: CLIENT_ID,
-                  scope: SCOPE
-                });
-              });
-
-              it('populates service with client_id', function () {
-                assert.equal(relier.get('service'), CLIENT_ID);
+            beforeEach(function () {
+              return fetchExpectSuccess({
+                client_id: CLIENT_ID,
+                scope: SCOPE
               });
             });
 
-            describe('with a service', function () {
-              beforeEach(function () {
-                return fetchExpectSuccess({
-                  client_id: CLIENT_ID,
-                  scope: SCOPE,
-                  service: SERVICE
-                });
-              });
-
-              it('populates service from url', function () {
-                assert.equal(relier.get('service'), SERVICE);
-              });
+            it('populates service with client_id', function () {
+              assert.equal(relier.get('service'), CLIENT_ID);
             });
           });
         });

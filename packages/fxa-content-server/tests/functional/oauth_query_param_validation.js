@@ -78,6 +78,17 @@ define([
         });
     },
 
+    'service specified': function () {
+      return this.remote
+        .then(openSignUpExpect400({
+          client_id: TRUSTED_CLIENT_ID,
+          scope: TRUSTED_SCOPE,
+          service: 'sync'
+        }))
+        .then(testErrorInclude('invalid'))
+        .then(testErrorInclude('service'));
+    },
+
     'invalid access_type': function () {
       return this.remote
         .then(openSignUpExpect400({

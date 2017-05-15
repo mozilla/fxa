@@ -257,21 +257,28 @@ define(function (require, exports, module) {
         let relier;
         const context = this._getContext();
 
-        if (this._isServiceSync()) {
-          // Use the SyncRelier for sync verification so that
-          // the service name is translated correctly.
-          relier = new SyncRelier({ context }, {
-            isVerification: this._isVerification(),
-            sentryMetrics: this._sentryMetrics,
-            translator: this._translator,
-            window: this._window
-          });
-        } else if (this._isOAuth()) {
+        // The order of the checks is important. The OAuth check
+        // is more strict than the Sync check, and if the Sync
+        // check is done first, a bad acting OAuth relier could
+        // specify both a client_id and service=sync which would
+        // cause us to present the Sync UI to the user.
+        // Unfortunately, the Sync check cannot be made as strict
+        // as the OAuth check - when users sign up for Sync
+        // and verify in a 2nd browser, all we have to know the user
+        // is completing a Sync flow is `service=sync`.
+        if (this._isOAuth()) {
           relier = new OAuthRelier({ context }, {
             isVerification: this._isVerification(),
             oAuthClient: this._oAuthClient,
             sentryMetrics: this._sentryMetrics,
             session: Session,
+            window: this._window
+          });
+        } else if (this._isServiceSync()) {
+          relier = new SyncRelier({ context }, {
+            isVerification: this._isVerification(),
+            sentryMetrics: this._sentryMetrics,
+            translator: this._translator,
             window: this._window
           });
         } else {

@@ -10,29 +10,30 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var OAUTH_APP = config.fxaOauthApp;
-  var SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
+  const config = intern.config;
+  const OAUTH_APP = config.fxaOauthApp;
+  const SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
 
-  var PASSWORD = 'password';
+  const PASSWORD = 'password';
   var email;
 
-  var thenify = FunctionalHelpers.thenify;
+  const thenify = FunctionalHelpers.thenify;
 
-  var click = FunctionalHelpers.click;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
-  var type = FunctionalHelpers.type;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const click = FunctionalHelpers.click;
+  const createUser = FunctionalHelpers.createUser;
+  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
+  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  const openFxaFromRp = FunctionalHelpers.openFxaFromRp;
+  const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+  const reOpenWithAdditionalQueryParams = FunctionalHelpers.reOpenWithAdditionalQueryParams;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
+  const type = FunctionalHelpers.type;
+  const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-  var testAtOAuthApp = thenify(function () {
+  const testAtOAuthApp = thenify(function () {
     return this.parent
       .then(testElementExists('#loggedin'))
 
@@ -44,7 +45,7 @@ define([
   });
 
   registerSuite({
-    name: 'oauth sign_in',
+    name: 'oauth signin',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -69,6 +70,14 @@ define([
     'with invalid client_id': function () {
       return this.remote
         .then(openPage(SIGNIN_ROOT + '?client_id=invalid_client_id&scope=profile', '#fxa-400-header'));
+    },
+
+    'with service=sync specified': function () {
+      return this.remote
+        .then(openFxaFromRp('signin'))
+        .then(reOpenWithAdditionalQueryParams({
+          service: 'sync'
+        }, '#fxa-400-header'));
     },
 
     'verified': function () {

@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
+  const SyncRelier = require('models/reliers/sync');
   const TestHelpers = require('../../lib/helpers');
   const Translator = require('lib/translator');
   const User = require('models/user');
@@ -187,7 +188,7 @@ define(function (require, exports, module) {
       describe('if service is available in the URL', function () {
         beforeEach(function () {
           windowMock.location.search = '?code=' + validCode + '&uid=' + validUid + '&service=' + validService;
-          relier = new Relier({}, {
+          relier = new SyncRelier({}, {
             window: windowMock
           });
           relier.fetch();
@@ -226,7 +227,7 @@ define(function (require, exports, module) {
         beforeEach(function () {
           windowMock.location.search = '?code=' + validCode + '&uid=' + validUid +
             '&service=' + validService + '&reminder=' + validReminder;
-          relier = new Relier({}, {
+          relier = new SyncRelier({}, {
             window: windowMock
           });
           relier.fetch();
