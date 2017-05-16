@@ -31,12 +31,19 @@ test:
 # appropriately tag and push the container to dockerhub
 deployment:
   hub_latest:
-    branch: "master"
+    # push certain branches, they are used by fxa-dev for deployment
+    branch: /^(master|feature.*|dockerpush.*)$/
     commands:
       - "[ ! -z $DOCKERHUB_REPO ]"
       - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
-      - "docker tag fxa-profile-server:build ${DOCKERHUB_REPO}:latest"
-      - "docker push ${DOCKERHUB_REPO}:latest"
+      - |
+          if [ $CIRCLE_BRANCH = "master" ]; then
+            CIRCLE_BRANCH=latest
+          fi
+
+          echo ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
+          docker tag fxa-profile-server:build ${DOCKERHUB_REPO}:latest
+          docker push ${DOCKERHUB_REPO}:latest
 
   hub_releases:
     # push all tags
