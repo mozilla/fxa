@@ -592,22 +592,12 @@ section.modal-panel {
 }
 
 .client-device {
-  // device clients currently have their 'last active' time hidden
-  // See issue https://github.com/mozilla/fxa/issues/190
-  .client-name {
-    padding-top: 8px;
-  }
-
   &.client-current {
     background-position: left 5px;
 
     .client-name {
       padding-top: 5px;
     }
-  }
-
-  .last-connected {
-    display: none;
   }
 }
 

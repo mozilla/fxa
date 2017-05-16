@@ -312,8 +312,7 @@ define(function (require, exports, module) {
         assert.lengthOf(view.$('li.client-device'), 3);
         assert.include(view.$('#device-3 .client-name').text().trim(), 'delta');
         assert.include(view.$('#device-3 .client-name').attr('title'), 'delta', 'the title attr is correct');
-        assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('Last active') === 0, 'formats last active string');
-        assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('a few seconds ago') >= 0, 'formats connected date');
+        assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('started syncing a few seconds ago') >= 0, 'formats connected date');
         assert.ok(view.$('#device-3').hasClass('desktop'));
       });
     });
@@ -504,7 +503,7 @@ define(function (require, exports, module) {
           .then(() => {
             view.translator = {
               get: (untranslatedText) => {
-                if (untranslatedText === 'Last active %(translatedTimeAgo)s') {
+                if (untranslatedText === 'started syncing %(translatedTimeAgo)s') {
                   return 'Translated %(translatedTimeAgo)s';
                 }
 
@@ -514,6 +513,7 @@ define(function (require, exports, module) {
 
             const formatted = view._formatAccessTimeAndScope([
               {
+                isDevice: true,
                 lastAccessTimeFormatted: 'a few seconds ago',
                 name: 'client-1'
               }
@@ -534,6 +534,7 @@ define(function (require, exports, module) {
                 clientType: 'oAuthApp',
                 id: 'app-1',
                 lastAccessTime: Date.now(),
+                lastAccessTimeFormatted: 'a few seconds ago',
                 name: '123Done',
                 scope: ['profile']
               },
@@ -541,6 +542,7 @@ define(function (require, exports, module) {
                 clientType: 'oAuthApp',
                 id: 'app-2',
                 lastAccessTime: Date.now(),
+                lastAccessTimeFormatted: '32 minutes ago',
                 name: 'Pocket',
                 scope: ['profile', 'profile:write']
               },
@@ -548,11 +550,13 @@ define(function (require, exports, module) {
                 clientType: 'oAuthApp',
                 id: 'app-3',
                 lastAccessTime: Date.now(),
+                lastAccessTimeFormatted: 'a month ago',
                 name: 'Add-ons'
               }
             ]);
 
             assert.equal(formatted[0].title, '123Done - profile');
+            assert.equal(formatted[0].lastAccessTimeFormatted, 'last active a few seconds ago');
             assert.equal(formatted[1].title, 'Pocket - profile,profile:write');
             assert.equal(formatted[2].title, 'Add-ons');
           });

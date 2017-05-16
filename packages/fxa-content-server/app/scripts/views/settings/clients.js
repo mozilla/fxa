@@ -57,15 +57,22 @@ define(function (require, exports, module) {
           item.title += ' - ' + item.scope;
         }
         if (item.lastAccessTimeFormatted) {
-          // only format if not a web session
+
           if (item.isWebSession) {
             item.title = this.translate(
               t('Web Session, %(userAgent)s'), {userAgent: item.userAgent});
             item.lastAccessTimeFormatted = this.translate(
               t('%(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
-          } else {
+          }
+
+          if (item.isDevice) {
             item.lastAccessTimeFormatted = this.translate(
-              t('Last active %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+              t('started syncing %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+          }
+
+          if (item.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
+            item.lastAccessTimeFormatted = this.translate(
+              t('last active %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
           }
         } else {
           // unknown lastAccessTimeFormatted or not possible to format.
