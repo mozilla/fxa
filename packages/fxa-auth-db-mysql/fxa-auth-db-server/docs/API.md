@@ -38,6 +38,7 @@ The following datatypes are used throughout this document:
 * hex128    : a 128 bit value in hex encoding. ie. 32 chars long (16 bytes)
 * hex256    : a 256 bit value in hex encoding. ie. 64 chars long (32 bytes)
 * hex768    : a 768 bit value in hex encoding. ie. 192 chars long (96 bytes)
+* hex       : a hex string representing n bytes of binary data.
 * string255 : a string up to 255 characters/bytes long
 
 # Operations
@@ -62,34 +63,38 @@ The following datatypes are used throughout this document:
 * Devices:
     * createDevice              : `PUT /account/:id/device/:deviceId`
     * updateDevice              : `POST /account/:id/device/:deviceId/update`
-    * deleteDevice              : `DEL /account/:id/device/:deviceId`
+    * deleteDevice              : `DELETE /account/:id/device/:deviceId`
 * Session Tokens:
     * sessionToken              : `GET /sessionToken/:id`
     * sessionTokenWithVerificationStatus : `GET /sessionToken/:id/verified`
     * sessionWithDevice         : `GET /sessionToken/:id/device`
-    * deleteSessionToken        : `DEL /sessionToken/:id`
+    * deleteSessionToken        : `DELETE /sessionToken/:id`
     * createSessionToken        : `PUT /sessionToken/:id`
     * updateSessionToken        : `POST /sessionToken/:id/update`
 * Account Reset Tokens:
     * accountResetToken         : `GET /accountResetToken/:id`
-    * deleteAccountResetToken   : `DEL /accountResetToken/:id`
+    * deleteAccountResetToken   : `DELETE /accountResetToken/:id`
 * Key Fetch Tokens:
     * keyFetchToken             : `GET /keyFetchToken/:id`
     * keyFetchTokenWithVerificationStatus : `GET /keyFetchToken/:id/verified`
-    * deleteKeyFetchToken       : `DEL /keyFetchToken/:id`
+    * deleteKeyFetchToken       : `DELETE /keyFetchToken/:id`
     * createKeyFetchToken       : `PUT /keyFetchToken/:id`
 * Password Change Tokens:
     * passwordChangeToken       : `GET /passwordChangeToken/:id`
-    * deletePasswordChangeToken : `DEL /passwordChangeToken/:id`
+    * deletePasswordChangeToken : `DELETE /passwordChangeToken/:id`
     * createPasswordChangeToken : `PUT /passwordChangeToken/:id`
 * Password Forgot Tokens:
     * passwordForgotToken       : `GET /passwordForgotToken/:id`
-    * deletePasswordForgotToken : `DEL /passwordForgotToken/:id`
+    * deletePasswordForgotToken : `DELETE /passwordForgotToken/:id`
     * createPasswordForgotToken : `PUT /passwordForgotToken/:id`
     * updatePasswordForgotToken : `POST /passwordForgotToken/:id/update`
     * forgotPasswordVerified    : `POST /passwordForgotToken/:id/verified`
 * Unverified tokens:
     * verifyTokens              : `POST /tokens/:tokenVerificationId/verify`
+* Sign-in codes
+    * createSigninCode          : `PUT /signinCodes/:code`
+    * consumeSigninCode         : `POST /signinCodes/:code/consume`
+    * expireSigninCodes         : `DELETE /signinCodes/expire/:olderThan`
 
 ## Ping : `GET /`
 
@@ -809,7 +814,7 @@ Content-Type: application/json
     * Content-Type : 'application/json'
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
-## deleteDevice : `DEL /account/<uid>/device/<deviceId>`
+## deleteDevice : `DELETE /account/<uid>/device/<deviceId>`
 
 ### Example
 
@@ -1008,7 +1013,7 @@ Content-Length: 285
     * Content-Type : 'application/json'
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
-## deleteSessionToken : `DEL /sessionToken/<tokenId>`
+## deleteSessionToken : `DELETE /sessionToken/<tokenId>`
 
 This operation is idempotent. If you delete a `tokenId` twice, the same result occurs. In fact, if you delete a
 `tokenId` that doesn't exist, it also returns the same `200 OK` result (since it is already not there).
@@ -1099,7 +1104,7 @@ Content-Length: 177
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 
-## deleteAccountResetToken : `DEL /accountResetToken/<tokenId>`
+## deleteAccountResetToken : `DELETE /accountResetToken/<tokenId>`
 
 This operation is idempotent. If you delete a `tokenId` twice, the same result occurs. In fact, if you delete a
 `tokenId` that doesn't exist, it also returns the same `200 OK` result (since it is already not there).
@@ -1289,7 +1294,7 @@ Content-Length: 399
     * Content-Type : 'application/json'
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
-## deleteKeyFetchToken : `DEL /keyFetchToken/<tokenId>`
+## deleteKeyFetchToken : `DELETE /keyFetchToken/<tokenId>`
 
 This operation is idempotent. If you delete a `tokenId` twice, the same result occurs. In fact, if you delete a
 `tokenId` that doesn't exist, it also returns the same `200 OK` result (since it is already not there).
@@ -1425,7 +1430,7 @@ Content-Length: 177
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 
-## deletePasswordChangeToken : `DEL /passwordChangeToken/<tokenId>`
+## deletePasswordChangeToken : `DELETE /passwordChangeToken/<tokenId>`
 
 This operation is idempotent. If you delete a `tokenId` twice, the same result occurs. In fact, if you delete a
 `tokenId` that doesn't exist, it also returns the same `200 OK` result (since it is already not there).
@@ -1567,7 +1572,7 @@ Content-Length: 259
     * Content-Type : 'application/json'
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
-## deletePasswordForgotToken : `DEL /passwordForgotToken/<tokenId>`
+## deletePasswordForgotToken : `DELETE /passwordForgotToken/<tokenId>`
 
 This operation is idempotent. If you delete a `tokenId` twice, the same result occurs. In fact, if you delete a
 `tokenId` that doesn't exist, it also returns the same `200 OK` result (since it is already not there).
@@ -1760,4 +1765,129 @@ Content-Length: 2
     * Content-Type : 'application/json'
     * Body : {"code":"InternalError","message":"...<message related to the error>..."}
 ```
+
+## createSigninCode : `PUT /signinCodes/:code`
+
+Create a user-specific, time-limited, single-use code
+that can be used for expedited sign-in.
+
+### Example
+
+```
+curl \
+    -v \
+    -X PUT \
+    -H "Content-Type: application/json" \
+    -d '{"uid":"fdea27c8188b3d980a28917bc1399e47","createdAt":1494253830983}' \
+    http://localhost:8000/signinCodes/1234567890ab
+```
+
+### Request
+
+* Method : `PUT`
+* Path : `/signinCodes/<code>
+    * `code` : hex
+* Params:
+    * `uid` : hex128
+    * `createdAt` : epoch
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
+* Status Code : `409 Conflict`
+    * Conditions: if the specified sign-in code already exists
+    * Content-Type : `application/json`
+    * Body : `{"errno":101,"message":"Record already exists"}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## consumeSigninCode : `POST /signinCodes/:code/consume`
+
+Use (and delete) a sign-in code.
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    http://localhost:8000/signinCodes/1234567890ab/consume
+```
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{"email":"foo@example.com"}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{"email":"foo@example.com"}`
+* Status Code : 404 Not Found
+    * Conditions: if the specified sign-in code doesn't exist
+    * Content-Type : `application/json`
+    * Body : `{"errno":116,"message":"Not found"}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+### Request
+
+* Method : `DELETE`
+* Path : `/signinCodes/<code>
+    * `code` : hex
+
+## expireSigninCodes : `DELETE /signinCodes/expire/:olderThan`
+
+Delete expired sign-in codes.
+
+### Example
+
+```
+curl \
+    -v \
+    -X DELETE \
+    http://localhost:8000/signinCodes/expire/1494253830983
+```
+
+### Request
+
+* Method : `DELETE`
+* Path : `/signinCodes/expire/<olderThan>
+    * `olderThan` : epoch
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
 

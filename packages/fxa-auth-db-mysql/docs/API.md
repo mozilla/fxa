@@ -50,6 +50,11 @@ There are a number of methods that a DB storage backend should implement:
     * .fetchReminders(body, query)
     * .deleteReminder(body)
 * Email Bounces
+    * .createEmailBounce(body)
+* Signin codes
+    * .createSigninCode(code, uid, createdAt)
+    * .consumeSigninCode(code)
+    * .expireSigninCodes(olderThan)
 * General
     * .ping()
     * .close()
@@ -588,4 +593,37 @@ Parameters:
   * bounceType: The bounce type ([`'Permanent'`, `'Transient'`, `'Complaint'`])
   * bounceSubType: The bounce sub type string
 
-(Ends)
+## .createSigninCode(code, uid, createdAt)
+
+Create a user-specific, time-limited, single-use code
+that can be used for expedited sign-in.
+
+Parameters:
+
+* `code` (Buffer):
+  The value of the code
+* `uid` (Buffer16):
+  The uid for the relevant user
+* `createdAt` (number):
+  Creation timestamp for the code, milliseconds since the epoch
+
+## .consumeSigninCode(code)
+
+Use (and delete) a sign-in code.
+
+Parameters:
+
+* `code` (Buffer):
+  The value of the code
+
+## .expireSigninCodes(olderThan)
+
+Delete expired sign-in codes.
+
+Parameters:
+
+* `olderThan` (number):
+  Threshold timestamp for deletion,
+  if `createdAt` is less than this number
+  the sign-in code will be deleted.
+

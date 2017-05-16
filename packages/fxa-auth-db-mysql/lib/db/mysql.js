@@ -514,9 +514,9 @@ module.exports = function (log, error) {
   // DELETE
 
   // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens,
-  //          passwordForgotTokens, accounts, devices, unverifiedTokens, emails
+  //          passwordForgotTokens, accounts, devices, unverifiedTokens, emails, signinCodes
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_12(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_13(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])
@@ -728,7 +728,7 @@ module.exports = function (log, error) {
 
   MySql.prototype.createUnblockCode = function (uid, code) {
     // hash the code since it's like a password
-    code = crypto.createHash('sha256').update(uid).update(code).digest()
+    code = createHash(uid, code)
     return this.write(
       CREATE_UNBLOCK_CODE,
       [ uid, code, Date.now() ],
@@ -742,7 +742,7 @@ module.exports = function (log, error) {
 
   MySql.prototype.consumeUnblockCode = function (uid, code) {
     // hash the code since it's like a password
-    code = crypto.createHash('sha256').update(uid).update(code).digest()
+    code = createHash(uid, code)
     return this.write(
       CONSUME_UNBLOCK_CODE,
       [ uid, code ],
@@ -1174,5 +1174,39 @@ module.exports = function (log, error) {
       .then(result => result[0])
   }
 
+  // Insert : signinCodes
+  // Values : hash = $1, uid = $2, createdAt = $3
+  const CREATE_SIGNIN_CODE = 'CALL createSigninCode_1(?, ?, ?)'
+  MySql.prototype.createSigninCode = function (code, uid, createdAt) {
+    // code is hashed to thwart timing attacks
+    return this.write(CREATE_SIGNIN_CODE, [ createHash(code), uid, createdAt ])
+  }
+
+  // Delete : signinCodes
+  // Where : hash = $1
+  const CONSUME_SIGNIN_CODE = 'CALL consumeSigninCode_1(?)'
+  MySql.prototype.consumeSigninCode = function (code) {
+    return this.readFirstResult(CONSUME_SIGNIN_CODE, [ createHash(code) ])
+  }
+
+  // Delete : signinCodes
+  // Where : createdAt < $1
+  const EXPIRE_SIGNIN_CODES = 'CALL expireSigninCodes_1(?)'
+  MySql.prototype.expireSigninCodes = function (olderThan) {
+    return this.write(EXPIRE_SIGNIN_CODES, [ olderThan ])
+  }
+
   return MySql
 }
+
+function createHash () {
+  const hash = crypto.createHash('sha256')
+
+  // Use ...rest operator and forEach when we're on node 6
+  for (let i = 0; i < arguments.length; ++i) {
+    hash.update(arguments[i])
+  }
+
+  return hash.digest()
+}
+

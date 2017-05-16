@@ -52,6 +52,22 @@ function testNotFound(t, err) {
   }, 'Object contains no other fields')
 }
 
+// Helper function that performs two tests:
+//
+// (1) checks that the response is a 409
+// (2) checks that the error body for a 409 is consistent
+//
+// Takes the test object (t) and the error object (err).
+function testConflict (t, err) {
+  t.equal(err.statusCode, 409, 'err.statusCode should be 409')
+  t.deepEqual(err.body, {
+    message: 'Record already exists',
+    errno: 101,
+    error: 'Conflict',
+    code: 409
+  }, 'err.body should have correct properties set')
+}
+
 // Helper function that tests for the server failure event.
 //
 // Takes two arguments:
@@ -1248,6 +1264,68 @@ module.exports = function(cfg, server) {
         )
     }
   )
+
+  test('sign-in codes', t => {
+    t.plan(18)
+
+    const user = fake.newUserDataHex()
+    const now = Date.now()
+    const signinCodes = [ crypto.randomBytes(6).toString('hex'), crypto.randomBytes(6).toString('hex') ]
+    const timestamps = [ now - 2, now - 1 ]
+
+    // Create an account
+    return client.putThen(`/account/${user.accountId}`, user.account)
+      .then(() => {
+        // Create 2 sign-in codes
+        return P.all([
+          client.putThen(`/signinCodes/${signinCodes[0]}`, {
+            uid: user.accountId,
+            createdAt: timestamps[0]
+          }),
+          client.putThen(`/signinCodes/${signinCodes[1]}`, {
+            uid: user.accountId,
+            createdAt: timestamps[1]
+          })
+        ])
+      })
+      .then(r => {
+        respOkEmpty(t, r[0])
+        respOkEmpty(t, r[1])
+
+        // Attempt to create a duplicate sign-in code
+        return client.putThen(`/signinCodes/${signinCodes[0]}`, {
+          uid: user.accountId,
+          createdAt: timestamps[0]
+        })
+          .then(() => t.fail('creating a duplicate sign-in code should fail'))
+          .catch(err => testConflict(t, err))
+      })
+      .then(() => {
+        // Expire the 1st sign-in code
+        return client.delThen(`/signinCodes/expire/${timestamps[1]}`)
+      })
+      .then(r => {
+        respOkEmpty(t, r)
+
+        // Attempt to delete the 1st sign-in code
+        return client.postThen(`/signinCodes/${signinCodes[0]}/consume`)
+          .then(() => t.fail('deleting an expired sign-in code should fail'))
+          .catch(err => testNotFound(t, err))
+      })
+      .then(() => {
+        // Delete the 2nd sign-in code
+        return client.postThen(`/signinCodes/${signinCodes[1]}/consume`)
+      })
+      .then(r => {
+        respOk(t, r)
+        t.deepEqual(r.obj, { email: user.account.email }, 'deleting a sign-in code should return the email address')
+
+        // Attempt to delete the 2nd sign-in code again
+        return client.postThen(`/signinCodes/${signinCodes[0]}/consume`)
+          .then(() => t.fail('deleting a deleted sign-in code should fail'))
+          .catch(err => testNotFound(t, err))
+      })
+  })
 
   test(
     'GET an unknown path',

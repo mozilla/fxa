@@ -23,6 +23,7 @@ var securityEvents = {}
 var unblockCodes = {}
 var emailBounces = {}
 var emails = {}
+var signinCodes = {}
 
 var DEVICE_FIELDS = [
   'sessionTokenId',
@@ -826,6 +827,7 @@ module.exports = function (log, error) {
           deleteByUid(uid, passwordForgotTokens)
           deleteByUid(uid, unverifiedTokens)
           deleteByUid(uid, emails)
+          deleteByUid(uid, signinCodes)
 
           delete uidByNormalizedEmail[account.normalizedEmail]
           delete accounts[uid]
@@ -1069,6 +1071,44 @@ module.exports = function (log, error) {
         return P.reject(error.cannotDeletePrimaryEmail())
       }
     }
+
+    return P.resolve({})
+  }
+
+  Memory.prototype.createSigninCode = (code, uid, createdAt) => {
+    code = code.toString('hex')
+
+    if (signinCodes[code]) {
+      return P.reject(error.duplicate())
+    }
+
+    signinCodes[code] = {
+      uid: uid.toString('hex'),
+      createdAt
+    }
+
+    return P.resolve({})
+  }
+
+  Memory.prototype.consumeSigninCode = code => {
+    code = code.toString('hex')
+
+    if (! signinCodes[code]) {
+      return P.reject(error.notFound())
+    }
+
+    const email = accounts[signinCodes[code].uid.toString('hex')].email
+    delete signinCodes[code]
+
+    return P.resolve({ email })
+  }
+
+  Memory.prototype.expireSigninCodes = olderThan => {
+    Object.keys(signinCodes).forEach(code => {
+      if (signinCodes[code].createdAt < olderThan) {
+        delete signinCodes[code]
+      }
+    })
 
     return P.resolve({})
   }
