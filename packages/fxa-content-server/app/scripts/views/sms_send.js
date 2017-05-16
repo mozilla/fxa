@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   const { FIREFOX_MOBILE_INSTALL } = require('lib/sms-message-ids');
   const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FormView = require('views/form');
-  const { MARKETING_ID_AUTUMN_2016 } = require('lib/constants');
+  const { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } = require('lib/constants');
   const MarketingMixin = require('views/mixins/marketing-mixin');
   const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
   const SmsErrors = require('lib/sms-errors');
@@ -174,7 +174,13 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     FlowEventsMixin,
-    MarketingMixin({ marketingId: MARKETING_ID_AUTUMN_2016 }),
+    MarketingMixin({
+      marketingId: MARKETING_ID_AUTUMN_2016,
+      // This screen is only shown to Sync users. The service is always Sync,
+      // even if not specified on the URL. This makes manual testing slightly
+      // easier where sometimes ?service=sync is forgotten. See #4948.
+      service: SYNC_SERVICE
+    }),
     PulseGraphicMixin
   );
 

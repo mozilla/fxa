@@ -14,6 +14,17 @@
    CountryTelephoneInfo, serverConfig) {
    const config = intern.config;
 
+   const ADJUST_LINK_ANDROID =
+    'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&' +
+    'creative=button-autumn-2016-connect-another-device&adgroup=android';
+
+   const ADJUST_LINK_IOS =
+    'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&' +
+    'creative=button-autumn-2016-connect-another-device&adgroup=ios&' +
+    'fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&' +
+    'ct=adjust_tracker&mt=8';
+
+
    const SEND_SMS_URL = config.fxaContentRoot + 'sms?service=sync&country=US';
    const SEND_SMS_NO_QUERY_URL = config.fxaContentRoot + 'sms';
 
@@ -23,6 +34,8 @@
    const SELECTOR_LEARN_MORE = 'a#learn-more';
    const SELECTOR_LEARN_MORE_HEADER = '#websites-notice';
    const SELECTOR_MARKETING_LINK = '.marketing-link';
+   const SELECTOR_MARKETING_LINK_ANDROID = '.marketing-link-android';
+   const SELECTOR_MARKETING_LINK_IOS = '.marketing-link-ios';
    const SELECTOR_SEND_SMS_HEADER = '#fxa-send-sms-header';
    const SELECTOR_SEND_SMS_PHONE_NUMBER = 'input[type="tel"]';
    const SELECTOR_SEND_SMS_SUBMIT = 'button[type="submit"]';
@@ -48,6 +61,7 @@
    const testElementExists = FunctionalHelpers.testElementExists;
    const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
    const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+   const testHrefEquals = FunctionalHelpers.testHrefEquals;
    const type = FunctionalHelpers.type;
 
    const suite = {
@@ -67,7 +81,9 @@
        return this.remote
          .then(openPage(SEND_SMS_NO_QUERY_URL, SELECTOR_SEND_SMS_HEADER))
          .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, ''))
-         .then(testAttributeEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, 'data-country', 'US'));
+         .then(testAttributeEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, 'data-country', 'US'))
+         .then(testHrefEquals(SELECTOR_MARKETING_LINK_IOS, ADJUST_LINK_IOS))
+         .then(testHrefEquals(SELECTOR_MARKETING_LINK_ANDROID, ADJUST_LINK_ANDROID));
      },
 
      'with no service, unsupported country': function () {

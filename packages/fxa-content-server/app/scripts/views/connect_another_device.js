@@ -12,10 +12,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const Cocktail = require('cocktail');
-  const Constants = require('lib/constants');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FormView = require('views/form');
+  const { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } = require('lib/constants');
   const MarketingMixin = require('views/mixins/marketing-mixin');
   const MarketingSnippet = require('views/marketing_snippet');
   const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
@@ -44,7 +44,7 @@ define(function (require, exports, module) {
 
     afterRender () {
       const options = {
-        marketingId: Constants.MARKETING_ID_AUTUMN_2016
+        marketingId: MARKETING_ID_AUTUMN_2016
       };
 
       // If the user signed up and verified in Firefox for Android,
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
 
     getAccount () {
       if (! this.model.get('account')) {
-        this.model.set('account', this.user.initAccount({}));
+        this.model.set('account', this.user.getSignedInAccount());
       }
 
       return this.model.get('account');
@@ -195,7 +195,11 @@ define(function (require, exports, module) {
     FlowEventsMixin,
     MarketingMixin({
       // The marketing area is manually created to which badges are displayed.
-      autocreate: false
+      autocreate: false,
+      // This screen is only shown to Sync users. The service is always Sync,
+      // even if not specified on the URL. This makes manual testing slightly
+      // easier where sometimes ?service=sync is forgotten. See #4948.
+      service: SYNC_SERVICE
     }),
     SyncAuthMixin,
     UserAgentMixin

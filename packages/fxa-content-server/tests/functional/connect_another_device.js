@@ -21,9 +21,15 @@ define([
     'fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&' +
     'ct=adjust_tracker&mt=8';
 
+  var CHANNEL_COMMAND_CAN_LINK_ACCOUNT = 'fxaccounts:can_link_account';
   var CONNECT_ANOTHER_DEVICE_ENTRYPOINT = 'entrypoint=' + encodeURIComponent('fxa:connect_another_device');
+  var CONNECT_ANOTHER_DEVICE_URL = config.fxaContentRoot + 'connect_another_device';
+  var SELECTOR_CHOOSE_WHAT_TO_SYNC = '#fxa-choose-what-to-sync-header';
+  var SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
   var SELECTOR_CONFIRM_SIGNIN_HEADER = '#fxa-confirm-signin-header';
+  var SELECTOR_CONFIRM_SIGNUP_HEADER = '#fxa-confirm-header';
   var SELECTOR_CONTINUE_BUTTON = 'form div a';
+  var SELECTOR_EMAIL_INPUT = 'input[type=email]';
   var SELECTOR_INSTALL_TEXT_ANDROID = '#install-mobile-firefox-android';
   var SELECTOR_INSTALL_TEXT_FX_DESKTOP = '#install-mobile-firefox-desktop';
   var SELECTOR_INSTALL_TEXT_IOS = '#install-mobile-firefox-ios';
@@ -35,7 +41,9 @@ define([
   var SELECTOR_SIGNIN_FXIOS = '#signin-fxios';
   var SELECTOR_SIGNIN_HEADER = '#fxa-signin-header';
   var SELECTOR_SIGNIN_COMPLETE_HEADER = '#fxa-sign-in-complete-header';
+  var SELECTOR_SIGNUP_HEADER = '#fxa-signup-header';
   var SELECTOR_SIGNUP_COMPLETE_HEADER = '#fxa-sign-up-complete-header';
+  var SELECTOR_SUBMIT_BUTTON = 'button[type=submit]';
   var SELECTOR_SUCCESS_DIFFERENT_BROWSER = '.success-not-authenticated';
   var SELECTOR_SUCCESS_SAME_BROWSER = '.success-authenticated';
   var SELECTOR_WHY_CONNECT_ANOTHER_DEVICE = 'a[href="/connect_another_device/why"]';
@@ -76,18 +84,35 @@ define([
       return this.remote.then(clearBrowserState());
     },
 
+    'sign up Fx Desktop, load /connect_another_device page': function () {
+      // should have both links to mobile apps
+      return this.remote
+        .then(openPage(SIGNUP_DESKTOP_URL, SELECTOR_SIGNUP_HEADER, {
+          forceUA: UA_STRINGS['desktop_firefox']
+        }))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists(SELECTOR_CHOOSE_WHAT_TO_SYNC))
+
+        .then(openPage(CONNECT_ANOTHER_DEVICE_URL, SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(noSuchElement(SELECTOR_CONTINUE_BUTTON))
+        .then(testElementExists(SELECTOR_INSTALL_TEXT_FX_DESKTOP))
+        .then(testHrefEquals(SELECTOR_MARKETING_LINK_IOS, ADJUST_LINK_IOS))
+        .then(testHrefEquals(SELECTOR_MARKETING_LINK_ANDROID, ADJUST_LINK_ANDROID));
+    },
+
     'sign up Fx Desktop, verify same browser': function () {
       // should have both links to mobile apps
       return this.remote
-        .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
+        .then(openPage(SIGNUP_DESKTOP_URL, SELECTOR_SIGNUP_HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(SELECTOR_CHOOSE_WHAT_TO_SYNC))
+        .then(click(SELECTOR_SUBMIT_BUTTON))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNUP_HEADER))
 
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(SELECTOR_PAGE_LOADED))
@@ -101,16 +126,16 @@ define([
     'sign up Fx Desktop, verify different Fx Desktop': function () {
       // should sign in to sync here
       return this.remote
-        .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
+        .then(openPage(SIGNUP_DESKTOP_URL, SELECTOR_SIGNUP_HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         // this tests needs to sign up so that we can check if the email gets prefilled
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(SELECTOR_CHOOSE_WHAT_TO_SYNC))
+        .then(click(SELECTOR_SUBMIT_BUTTON))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNUP_HEADER))
 
         // clear browser state to synthesize verifying in a different browser.
         .then(clearBrowserState())
@@ -127,7 +152,7 @@ define([
         .then(click(SELECTOR_CONTINUE_BUTTON))
 
         .then(testElementExists(SELECTOR_SIGNIN_HEADER))
-        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementValueEquals(SELECTOR_EMAIL_INPUT, email))
         .then(testUrlPathnameEquals('/signin'))
         .then(testUrlInclude(SYNC_CONTEXT_DESKTOP))
         .then(testUrlInclude(SYNC_SERVICE))
@@ -137,10 +162,10 @@ define([
     'sign in Fx Desktop, verify same browser': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(SIGNIN_DESKTOP_URL, '#fxa-signin-header', {
+        .then(openPage(SIGNIN_DESKTOP_URL, SELECTOR_SIGNIN_HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
@@ -158,10 +183,10 @@ define([
         .then(createUser(signUpEmail, PASSWORD, { preVerified: false }))
         .then(createUser(signInEmail, PASSWORD, { preVerified: true }))
 
-        .then(openPage(SIGNIN_DESKTOP_URL, '#fxa-signin-header', {
+        .then(openPage(SIGNIN_DESKTOP_URL, SELECTOR_SIGNIN_HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignIn(signInEmail, PASSWORD))
         .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
         .then(openVerificationLinkInSameTab(signInEmail, 0))
@@ -178,16 +203,16 @@ define([
     'sign up Fx Desktop, verify in Fennec': function () {
       // should navigate to sign in and have the email prefilled
       return this.remote
-        .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
+        .then(openPage(SIGNUP_DESKTOP_URL, SELECTOR_SIGNUP_HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         // this tests needs to sign up so that we can check if the email gets prefilled
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(SELECTOR_CHOOSE_WHAT_TO_SYNC))
+        .then(click(SELECTOR_SUBMIT_BUTTON))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNUP_HEADER))
 
         // clear browser state to synthesize verifying in an Android browser.
         .then(clearBrowserState())
@@ -208,7 +233,7 @@ define([
         .then(click(SELECTOR_CONTINUE_BUTTON))
 
         .then(testElementExists(SELECTOR_SIGNIN_HEADER))
-        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementValueEquals(SELECTOR_EMAIL_INPUT, email))
         .then(testUrlPathnameEquals('/signin'))
         .then(testUrlInclude(SYNC_CONTEXT_ANDROID))
         .then(testUrlInclude(SYNC_SERVICE))
@@ -218,15 +243,15 @@ define([
 
     'sign up Fx Desktop, verify in Fx for iOS': function () {
       return this.remote
-        .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
+        .then(openPage(SIGNUP_DESKTOP_URL, SELECTOR_SIGNUP_HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(SELECTOR_CHOOSE_WHAT_TO_SYNC))
+        .then(click(SELECTOR_SUBMIT_BUTTON))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNUP_HEADER))
 
         // clear browser state to synthesize verifying in an Android browser.
         .then(clearBrowserState())
@@ -253,15 +278,15 @@ define([
     'sign up Fx Desktop, verify in Android Chrome': function () {
       // should show adjust Google badge
       return this.remote
-        .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
+        .then(openPage(SIGNUP_DESKTOP_URL, SELECTOR_SIGNUP_HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(SELECTOR_CHOOSE_WHAT_TO_SYNC))
+        .then(click(SELECTOR_SUBMIT_BUTTON))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNUP_HEADER))
 
         // clear browser state to synthesize verifying in an Android browser.
         .then(clearBrowserState())
@@ -294,15 +319,15 @@ define([
     'sign up Fx Desktop, verify in Chrome Desktop': function () {
       // should show adjust Google badge
       return this.remote
-        .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
+        .then(openPage(SIGNUP_DESKTOP_URL, SELECTOR_SIGNUP_HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(SELECTOR_CHOOSE_WHAT_TO_SYNC))
+        .then(click(SELECTOR_SUBMIT_BUTTON))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNUP_HEADER))
 
         // clear browser state to synthesize verifying in an Android browser.
         .then(clearBrowserState())
@@ -327,15 +352,15 @@ define([
 
     'sign up Fx Desktop, verify in iOS Safari': function () {
       return this.remote
-        .then(openPage(SIGNUP_DESKTOP_URL, '#fxa-signup-header', {
+        .then(openPage(SIGNUP_DESKTOP_URL, SELECTOR_SIGNUP_HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(SELECTOR_CHOOSE_WHAT_TO_SYNC))
+        .then(click(SELECTOR_SUBMIT_BUTTON))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNUP_HEADER))
 
         // clear browser state to synthesize verifying in an Android browser.
         .then(clearBrowserState())
@@ -362,17 +387,17 @@ define([
     'sign up in Fennec, verify same browser': function () {
       // should have both links to mobile apps
       return this.remote
-        .then(openPage(SIGNUP_FENNEC_URL, '#fxa-signup-header', {
+        .then(openPage(SIGNUP_FENNEC_URL, SELECTOR_SIGNUP_HEADER, {
           query: {
             forceUA: UA_STRINGS['android_firefox']
           }
         }))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(SELECTOR_CHOOSE_WHAT_TO_SYNC))
+        .then(click(SELECTOR_SUBMIT_BUTTON))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNUP_HEADER))
 
         .then(openVerificationLinkInSameTab(email, 0, {
           query: {
