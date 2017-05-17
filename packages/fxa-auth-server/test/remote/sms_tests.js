@@ -10,44 +10,14 @@ const Client = require('../client')()
 const config = require('../../config').getProperties()
 const error = require('../../lib/error')
 
-describe('remote sms (live nexmo)', function() {
-  this.timeout(10000)
-  let server
-
-  before(() => {
-    config.sms.enabled = true
-    config.sms.isStatusGeoEnabled = true
-
-    return TestServer.start(config)
-      .then(result => {
-        server = result
-      })
-  })
-
-  it('GET /sms/status', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
-      .then(client => {
-        return client.smsStatus()
-          .then(status => {
-            assert.ok(status)
-            assert.equal(typeof status.ok, 'boolean')
-            assert.equal(status.country, 'US')
-          })
-      })
-  })
-
-  after(() => {
-    return TestServer.stop(server)
-  })
-})
-
 describe('remote sms (mocked nexmo)', function() {
   this.timeout(10000)
   let server
 
   before(() => {
     config.sms.enabled = true
-    // POST /sms spends actual money unless the SMS provider is mocked
+    config.sms.isStatusGeoEnabled = true
+    // /sms endpoints need creds and spend money unless the SMS provider is mocked
     config.sms.useMock = true
 
     return TestServer.start(config)
@@ -103,6 +73,18 @@ describe('remote sms (mocked nexmo)', function() {
             assert.equal(err.code, 400)
             assert.equal(err.errno, error.ERRNO.INVALID_MESSAGE_ID)
             assert.equal(err.message, 'Invalid message id')
+          })
+      })
+  })
+
+  it('GET /sms/status', () => {
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
+      .then(client => {
+        return client.smsStatus()
+          .then(status => {
+            assert.ok(status)
+            assert.equal(typeof status.ok, 'boolean')
+            assert.equal(status.country, 'US')
           })
       })
   })
