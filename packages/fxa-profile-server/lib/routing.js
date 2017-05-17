@@ -56,11 +56,6 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: v('/avatar'),
-    config: require('./routes/avatar/post')
-  },
-  {
-    method: 'POST',
     path: v('/avatar/upload'),
     config: require('./routes/avatar/upload')
   },
