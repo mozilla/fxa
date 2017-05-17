@@ -85,7 +85,7 @@ describe('/account/reset', function () {
     const mockMetricsContext = mocks.mockMetricsContext()
     const mockRequest = mocks.mockRequest({
       credentials: {
-        uid: uid.toString('hex')
+        uid: uid
       },
       log: mockLog,
       metricsContext: mockMetricsContext,
@@ -130,7 +130,7 @@ describe('/account/reset', function () {
       assert.equal(mockDB.resetAccount.callCount, 1)
 
       assert.equal(mockPush.notifyPasswordReset.callCount, 1)
-      assert.equal(mockPush.notifyPasswordReset.firstCall.args[0], uid.toString('hex'))
+      assert.deepEqual(mockPush.notifyPasswordReset.firstCall.args[0], uid)
 
       assert.equal(mockDB.account.callCount, 1)
       assert.equal(mockCustoms.reset.callCount, 1)

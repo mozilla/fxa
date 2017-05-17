@@ -95,6 +95,12 @@ var reasonToEvents = {
   }
 }
 
+/**
+ * A device object returned by the db,
+ * typically obtained by calling db.devices(uid).
+ * @typedef {Object} Device
+ */
+
 module.exports = function (log, db, config) {
   var vapid
   if (config.vapidKeysFile) {
@@ -109,15 +115,14 @@ module.exports = function (log, db, config) {
   /**
    * Reports push errors to logs
    *
-   * @param err
-   * Error object
-   * @param deviceId
-   * The device id
+   * @param {Error} err
+   * @param {Buffer} uid
+   * @param {String} deviceId
    */
   function reportPushError(err, uid, deviceId) {
     log.error({
       op: LOG_OP_PUSH_TO_DEVICES,
-      uid: uid,
+      uid: uid.toString('hex'),
       deviceId: deviceId,
       err: err
     })
@@ -126,8 +131,7 @@ module.exports = function (log, db, config) {
   /**
    * Reports push increment actions to logs
    *
-   * @param name
-   * Name of the push action
+   * @param {String} name
    */
   function incrementPushAction(name) {
     if (name) {
@@ -143,7 +147,7 @@ module.exports = function (log, db, config) {
    * Copy sendPush authorized options from an existing options object
    * to a new one
    *
-   * @param options
+   * @param {Object} options
    */
   function filterOptions(options) {
     var allowedProps = ['TTL', 'data']
@@ -159,8 +163,8 @@ module.exports = function (log, db, config) {
     /**
      * Notifies all devices that there was an update to the account
      *
-     * @param uid
-     * @param reason
+     * @param {Buffer} uid
+     * @param {String} reason
      * @promise
      */
     notifyUpdate: function notifyUpdate(uid, reason) {
@@ -171,9 +175,9 @@ module.exports = function (log, db, config) {
     /**
      * Notifies all devices (except the one who joined) that a new device joined the account
      *
-     * @param uid
-     * @param deviceName
-     * @param currentDeviceId
+     * @param {Buffer} uid
+     * @param {String} deviceName
+     * @param {String} currentDeviceId
      * @promise
      */
     notifyDeviceConnected: function notifyDeviceConnected(uid, deviceName, currentDeviceId) {
@@ -191,8 +195,8 @@ module.exports = function (log, db, config) {
     /**
      * Notifies a device that it is now disconnected from the account
      *
-     * @param uid
-     * @param idToDisconnect
+     * @param {Buffer} uid
+     * @param {String} idToDisconnect
      * @promise
      */
     notifyDeviceDisconnected: function notifyDeviceDisconnected(uid, idToDisconnect) {
@@ -210,7 +214,7 @@ module.exports = function (log, db, config) {
     /**
      * Notifies all devices that a the profile attached to the account was updated
      *
-     * @param uid
+     * @param {Buffer} uid
      * @promise
      */
     notifyProfileUpdated: function notifyProfileUpdated(uid) {
@@ -225,8 +229,8 @@ module.exports = function (log, db, config) {
     /**
      * Notifies a set of devices that the password was changed
      *
-     * @param uid
-     * @param {Object[]} devices (complete devices objects)
+     * @param {Buffer} uid
+     * @param {Device[]} devices
      * @promise
      */
     notifyPasswordChanged: function notifyPasswordChanged(uid, devices) {
@@ -241,8 +245,8 @@ module.exports = function (log, db, config) {
     /**
      * Notifies a set of devices that the password was reset
      *
-     * @param uid
-     * @param {Object[]} devices (complete devices objects)
+     * @param {Buffer} uid
+     * @param {Device[]} devices
      * @promise
      */
     notifyPasswordReset: function notifyPasswordReset(uid, devices) {
@@ -257,8 +261,8 @@ module.exports = function (log, db, config) {
     /**
      * Send a push notification with or without data to all the devices in the account (except the ones in the excludedDeviceIds)
      *
-     * @param uid
-     * @param reason
+     * @param {Buffer} uid
+     * @param {String} reason
      * @param {Object} options
      * @param {String} options.excludedDeviceIds
      * @param {String} options.data
@@ -283,9 +287,9 @@ module.exports = function (log, db, config) {
     /**
      * Send a push notification with or without data to a set of devices in the account
      *
-     * @param uid
-     * @param {Array} ids
-     * @param reason
+     * @param {Buffer} uid
+     * @param {String[]} ids
+     * @param {String} reason
      * @param {Object} options
      * @param {String} options.data
      * @param {String} options.TTL (in seconds)
@@ -309,9 +313,9 @@ module.exports = function (log, db, config) {
     /**
      * Send a push notification with or without data to one device in the account
      *
-     * @param uid
-     * @param id
-     * @param reason
+     * @param {Buffer} uid
+     * @param {String} id
+     * @param {String} reason
      * @param {Object} options
      * @param {String} options.data
      * @param {String} options.TTL (in seconds)
@@ -324,9 +328,9 @@ module.exports = function (log, db, config) {
     /**
      * Send a push notification with or without data to a list of devices
      *
-     * @param uid
-     * @param devices
-     * @param reason
+     * @param {Buffer} uid
+     * @param {Device[]} devices
+     * @param {String} reason
      * @param {Object} options
      * @param {String} options.data
      * @param {String} options.TTL (in seconds)

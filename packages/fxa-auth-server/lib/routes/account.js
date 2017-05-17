@@ -1962,7 +1962,7 @@ module.exports = (
                     })
                     .then(function () {
                       if (device) {
-                        push.notifyDeviceConnected(uidHex, device.name, device.id.toString('hex'))
+                        push.notifyDeviceConnected(uid, device.name, device.id.toString('hex'))
                       }
                     })
                     .then(function () {

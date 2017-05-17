@@ -274,7 +274,7 @@ describe('/password', () => {
         var mockLog = mocks.spyLog()
         var mockRequest = mocks.mockRequest({
           credentials: {
-            uid: uid.toString('hex')
+            uid: uid
           },
           payload: {
             authPW: crypto.randomBytes(32).toString('hex'),
@@ -299,7 +299,7 @@ describe('/password', () => {
           assert.equal(mockDB.resetAccount.callCount, 1)
 
           assert.equal(mockPush.notifyPasswordChanged.callCount, 1)
-          assert.equal(mockPush.notifyPasswordChanged.firstCall.args[0], uid.toString('hex'))
+          assert.deepEqual(mockPush.notifyPasswordChanged.firstCall.args[0], uid)
 
           assert.equal(mockDB.account.callCount, 1)
           assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1)
@@ -338,7 +338,7 @@ describe('/password', () => {
         var mockLog = mocks.spyLog()
         var mockRequest = mocks.mockRequest({
           credentials: {
-            uid: uid.toString('hex')
+            uid: uid
           },
           payload: {
             authPW: crypto.randomBytes(32).toString('hex'),
@@ -363,7 +363,7 @@ describe('/password', () => {
           assert.equal(mockDB.resetAccount.callCount, 1)
 
           assert.equal(mockPush.notifyPasswordChanged.callCount, 1)
-          assert.equal(mockPush.notifyPasswordChanged.firstCall.args[0], uid.toString('hex'))
+          assert.deepEqual(mockPush.notifyPasswordChanged.firstCall.args[0], uid)
 
           assert.equal(mockDB.account.callCount, 1)
           assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1)
