@@ -8,22 +8,23 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signup?context=iframe&service=sync';
+  const config = intern.config;
+  const PAGE_URL = config.fxaContentRoot + 'signup?context=iframe&service=sync';
 
   var email;
-  var PASSWORD = '12345678';
+  const PASSWORD = '12345678';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testEmailExpected = FunctionalHelpers.testEmailExpected;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const clearBrowserState = FunctionalHelpers.clearBrowserState;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  const noSuchElement = FunctionalHelpers.noSuchElement;
+  const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testEmailExpected = FunctionalHelpers.testEmailExpected;
+  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'Firstrun Sync v1 sign_up',
@@ -40,6 +41,7 @@ define([
     'sign up, verify same browser in a different tab': function () {
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signup-header'))
+        .then(visibleByQSA('#fxa-signup-header .service'))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
 

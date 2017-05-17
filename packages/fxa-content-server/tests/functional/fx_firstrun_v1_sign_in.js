@@ -8,36 +8,38 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signin?context=iframe&service=sync';
+  const config = intern.config;
+  const PAGE_URL = config.fxaContentRoot + 'signin?context=iframe&service=sync';
 
   var email;
-  var PASSWORD = '12345678';
+  const PASSWORD = '12345678';
 
-  var thenify = FunctionalHelpers.thenify;
+  const thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserNotifications = FunctionalHelpers.clearBrowserNotifications;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
-  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const clearBrowserNotifications = FunctionalHelpers.clearBrowserNotifications;
+  const clearBrowserState = FunctionalHelpers.clearBrowserState;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  const createUser = FunctionalHelpers.createUser;
+  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
+  const noPageTransition = FunctionalHelpers.noPageTransition;
+  const noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
+  const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
+  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-  var setupTest = thenify(function (options) {
+  const setupTest = thenify(function (options) {
     options = options || {};
 
     return this.parent
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openPage(options.pageUrl || PAGE_URL, '.email'))
+      .then(visibleByQSA('#fxa-signin-header .service'))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
       // delay for the webchannel message
       .sleep(500)

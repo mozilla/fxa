@@ -26,6 +26,7 @@ define([
   const SELECTOR_SEND_SMS_HEADER = '#fxa-send-sms-header';
   const SELECTOR_SEND_SMS_PHONE_NUMBER = 'input[type="tel"]';
   const SELECTOR_SIGN_UP_HEADER = '#fxa-signup-header';
+  const SELECTOR_SIGN_UP_SUB_HEADER = '#fxa-signup-header .service';
   const SELECTOR_SIGN_UP_COMPLETE_HEADER = '#fxa-sign-up-complete-header';
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
@@ -42,10 +43,12 @@ define([
   const testEmailExpected = FunctionalHelpers.testEmailExpected;
   const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   const thenify = FunctionalHelpers.thenify;
+  const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   const setupTest = thenify(function () {
     return this.parent
       .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER))
+      .then(visibleByQSA(SELECTOR_SIGN_UP_SUB_HEADER))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
 
       .then(fillOutSignUp(email, PASSWORD))

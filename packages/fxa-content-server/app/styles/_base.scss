@@ -124,12 +124,6 @@ header {
       }
     }
 
-    .service {
-      .chromeless & {
-        display: none;
-      }
-    }
-
     .email {
       color: $faint-text-color;
       // allow long email addresses to be
