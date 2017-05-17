@@ -678,7 +678,8 @@ define(function (require, exports, module) {
     describe('logView', function () {
       it('logs the screen', function () {
         metrics.logView('signup');
-        assert.isTrue(TestHelpers.isViewLogged(metrics, 'signup'));
+
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.signup'));
       });
     });
 

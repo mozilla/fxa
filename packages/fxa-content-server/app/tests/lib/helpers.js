@@ -133,11 +133,6 @@ define(function (require, exports, module) {
     return isEventLogged(metrics, eventName);
   }
 
-  function isViewLogged(metrics, viewName) {
-    var eventName = metrics.viewToId(viewName);
-    return isEventLogged(metrics, eventName);
-  }
-
   function toSearchString(obj) {
     var searchString = '?';
     var pairs = [];
@@ -174,7 +169,6 @@ define(function (require, exports, module) {
     indexOfEvent: indexOfEvent,
     isErrorLogged: isErrorLogged,
     isEventLogged: isEventLogged,
-    isViewLogged: isViewLogged,
     removeFxaClientSpy: removeFxaClientSpy,
     requiresFocus: requiresFocus,
     stubbedProfileClient: stubbedProfileClient,

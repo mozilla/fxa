@@ -485,7 +485,9 @@ define(function (require, exports, module) {
      * @param {String} viewName
      */
     logView (viewName) {
-      this.logEvent(this.viewToId(viewName));
+      // `screen.` is a legacy artifact from when each View was a screen.
+      // The identifier is kept to avoid updating all metrics queries.
+      this.logEvent(`screen.${viewName}`);
     },
 
     /**
@@ -495,25 +497,9 @@ define(function (require, exports, module) {
      * @param {String} eventName
      */
     logViewEvent (viewName, eventName) {
-      var event = Strings.interpolate('%(viewName)s.%(eventName)s', {
-        eventName: eventName,
-        viewName: viewName,
-      });
-
-      this.logEvent(event);
+      this.logEvent(`${viewName}.${eventName}`);
     },
 
-    /**
-     * Convert a viewName to an identifier used in metrics.
-     *
-     * @param {String} viewName
-     * @return {String} identifier
-     */
-    viewToId (viewName) {
-      // `screen.` is a legacy artifact from when each View was a screen.
-      // The idenifier is kept to avoid updating all metrics queries.
-      return 'screen.' + viewName;
-    },
     /**
      * Log when an experiment is shown to the user
      *
