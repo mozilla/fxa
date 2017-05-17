@@ -1,3 +1,13 @@
+<a name="1.87.1"></a>
+## 1.87.1 (2017-05-17)
+
+
+### Bug Fixes
+
+* **broker:** Fix the POST /metrics validation error w/ FxSync broker. (#5067) r=@philbooth ([4542ccd](https://github.com/mozilla/fxa-content-server/commit/4542ccd)), closes [(#5067](https://github.com/(/issues/5067) [#5066](https://github.com/mozilla/fxa-content-server/issues/5066)
+
+
+
 <a name="1.87.0"></a>
 # 1.87.0 (2017-05-15)
 
