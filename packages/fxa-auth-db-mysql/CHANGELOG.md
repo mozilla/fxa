@@ -1,3 +1,25 @@
+<a name="1.87.0"></a>
+# [1.87.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.85.0...v1.87.0) (2017-05-17)
+
+
+### Bug Fixes
+
+* **docs:** update authors and node.js version in README ([5610b92](https://github.com/mozilla/fxa-auth-db-mysql/commit/5610b92))
+* **email:** Use correct delete account procedure (#231) ([4a16bf3](https://github.com/mozilla/fxa-auth-db-mysql/commit/4a16bf3))
+
+### chore
+
+* **docker:** Use official node image & update to Node.js v4.8.2 (#225) r=vladikoff ([2298e38](https://github.com/mozilla/fxa-auth-db-mysql/commit/2298e38))
+
+### Features
+
+* **docker:** add custom feature branch (#237) r=jrgm ([d21a8df](https://github.com/mozilla/fxa-auth-db-mysql/commit/d21a8df))
+* **email:** Add get email endpoint (#227), r=@vladikoff, @rfk ([8f5653c](https://github.com/mozilla/fxa-auth-db-mysql/commit/8f5653c))
+* **signinCodes:** migration and endpoints for signinCodes table (#235), r=@vbudhram ([b740793](https://github.com/mozilla/fxa-auth-db-mysql/commit/b740793))
+* **tokens:** prune tokens older than 3 months (#224) r=vladikoff ([fdc19c1](https://github.com/mozilla/fxa-auth-db-mysql/commit/fdc19c1)), closes [#219](https://github.com/mozilla/fxa-auth-db-mysql/issues/219)
+
+
+
 <a name="1.86.0"></a>
 # [1.86.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.85.0...v1.86.0) (2017-05-01)
 
