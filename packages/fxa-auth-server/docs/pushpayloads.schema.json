@@ -9,7 +9,8 @@
     { "$ref":"#/definitions/profileUpdated" },
     { "$ref":"#/definitions/collectionsChanged" },
     { "$ref":"#/definitions/passwordChanged" },
-    { "$ref":"#/definitions/passwordReset" }
+    { "$ref":"#/definitions/passwordReset" },
+    { "$ref":"#/definitions/accountDestroyed" }
   ],
   "definitions":{
     "deviceConnected":{
@@ -166,6 +167,38 @@
           "enum":[
             "fxaccounts:password_reset"
           ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "accountDestroyed":{
+      "required":[
+        "version",
+        "command",
+        "data"
+      ],
+      "properties":{
+        "version":{
+          "type":"integer"
+        },
+        "command":{
+          "type":"string",
+          "enum":[
+            "fxaccounts:account_destroyed"
+          ]
+        },
+        "data":{
+          "type":"object",
+          "required":[
+            "uid"
+          ],
+          "properties":{
+            "uid":{
+              "type":"string",
+              "description":"The UID of the account which was destroyed"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false

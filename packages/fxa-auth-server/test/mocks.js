@@ -105,6 +105,7 @@ const PUSH_METHOD_NAMES = [
   'notifyDeviceDisconnected',
   'notifyPasswordChanged',
   'notifyPasswordReset',
+  'notifyAccountDestroyed',
   'notifyUpdate',
   'pushToAllDevices',
   'pushToDevices'

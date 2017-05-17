@@ -1144,6 +1144,7 @@ describe('/account/destroy', function () {
         authPW: new Array(65).join('f')
       }
     })
+    const mockPush = mocks.mockPush()
     var accountRoutes = makeRoutes({
       checkPassword: function () {
         return P.resolve(true)
@@ -1152,7 +1153,8 @@ describe('/account/destroy', function () {
         domain: 'wibble'
       },
       db: mockDB,
-      log: mockLog
+      log: mockLog,
+      push: mockPush
     })
     var route = getRoute(accountRoutes, '/account/destroy')
 
@@ -1168,6 +1170,9 @@ describe('/account/destroy', function () {
       assert.equal(args.length, 1, 'db.deleteAccount was passed one argument')
       assert.equal(args[0].email, email, 'db.deleteAccount was passed email record')
       assert.deepEqual(args[0].uid, uid, 'email record had correct uid')
+
+      assert.equal(mockPush.notifyAccountDestroyed.callCount, 1)
+      assert.equal(mockPush.notifyAccountDestroyed.firstCall.args[0], uid)
 
       assert.equal(mockLog.notifyAttachedServices.callCount, 1, 'log.notifyAttachedServices was called once')
       args = mockLog.notifyAttachedServices.args[0]

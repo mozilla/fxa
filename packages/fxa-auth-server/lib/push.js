@@ -17,12 +17,14 @@ var PUSH_COMMANDS = {
   DEVICE_DISCONNECTED: 'fxaccounts:device_disconnected',
   PROFILE_UPDATED: 'fxaccounts:profile_updated',
   PASSWORD_CHANGED: 'fxaccounts:password_changed',
-  PASSWORD_RESET: 'fxaccounts:password_reset'
+  PASSWORD_RESET: 'fxaccounts:password_reset',
+  ACCOUNT_DESTROYED: 'fxaccounts:account_destroyed'
 }
 
 var TTL_DEVICE_DISCONNECTED = 5 * 3600 // 5 hours
 var TTL_PASSWORD_CHANGED = 6 * 3600 // 6 hours
 var TTL_PASSWORD_RESET = TTL_PASSWORD_CHANGED
+var TTL_ACCOUNT_DESTROYED = TTL_DEVICE_DISCONNECTED
 
 // An arbitrary, but very generous, limit on the number of active devices.
 // Currently only for metrics purposes, not enforced.
@@ -92,6 +94,14 @@ var reasonToEvents = {
     failed: 'push.devices_notify.failed',
     noCallback: 'push.devices_notify.no_push_callback',
     noKeys: 'push.devices_notify.data_but_no_keys'
+  },
+  accountDestroyed: {
+    send: 'push.account_destroyed.send',
+    success: 'push.account_destroyed.success',
+    resetSettings: 'push.account_destroyed.reset_settings',
+    failed: 'push.account_destroyed.failed',
+    noCallback: 'push.account_destroyed.no_push_callback',
+    noKeys: 'push.account_destroyed.data_but_no_keys'
   }
 }
 
@@ -256,6 +266,25 @@ module.exports = function (log, db, config) {
       }))
       var options = { data: data, TTL: TTL_PASSWORD_RESET }
       return this.sendPush(uid, devices, 'passwordReset', options)
+    },
+
+    /**
+     * Notifies a set of devices that the account no longer exists
+     *
+     * @param {Buffer} uid
+     * @param {Device[]} devices
+     * @promise
+     */
+    notifyAccountDestroyed: function notifyAccountDestroyed(uid, devices) {
+      var data = Buffer.from(JSON.stringify({
+        version: PUSH_PAYLOAD_SCHEMA_VERSION,
+        command: PUSH_COMMANDS.ACCOUNT_DESTROYED,
+        data: {
+          uid: uid.toString('hex')
+        }
+      }))
+      var options = { data: data, TTL: TTL_ACCOUNT_DESTROYED }
+      return this.sendPush(uid, devices, 'accountDestroyed', options)
     },
 
     /**

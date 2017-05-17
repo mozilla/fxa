@@ -580,6 +580,45 @@ describe('push', () => {
   )
 
   it(
+    'notifyAccountDestroyed calls sendPush',
+    () => {
+      var mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            return P.resolve()
+          }
+        }
+      }
+      var push = proxyquire(pushModulePath, mocks)(mockLog(), mockDbEmpty, mockConfig)
+      sinon.spy(push, 'sendPush')
+      var expectedData = {
+        version: 1,
+        command: 'fxaccounts:account_destroyed',
+        data: {
+          uid: mockUid.toString('hex')
+        }
+      }
+      return push.notifyAccountDestroyed(mockUid, mockDevices).catch(function (err) {
+        assert.fail('must not throw')
+        throw err
+      })
+      .then(function() {
+        assert.ok(push.sendPush.calledOnce, 'sendPush was called')
+        assert.equal(push.sendPush.getCall(0).args[0], mockUid)
+        assert.equal(push.sendPush.getCall(0).args[1], mockDevices)
+        assert.equal(push.sendPush.getCall(0).args[2], 'accountDestroyed')
+        var options = push.sendPush.getCall(0).args[3]
+        var payload = JSON.parse(options.data.toString('utf8'))
+        assert.deepEqual(payload, expectedData)
+        var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
+        var schema = JSON.parse(fs.readFileSync(schemaPath))
+        assert.ok(ajv.validate(schema, payload))
+        push.sendPush.restore()
+      })
+    }
+  )
+
+  it(
     'sendPush includes VAPID identification if it is configured',
     () => {
       let count = 0
