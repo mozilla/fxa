@@ -12,14 +12,13 @@ define(function (require, exports, module) {
   'use strict';
 
   const BaseAuthenticationBroker = require('models/auth_brokers/base');
-  const { FX_SYNC_CONTEXT } = require('lib/constants');
 
   const proto = BaseAuthenticationBroker.prototype;
 
   module.exports = BaseAuthenticationBroker.extend({
     defaultBehaviors: proto.defaultBehaviors,
 
-    type: FX_SYNC_CONTEXT
+    type: 'fx-sync'
   });
 });
 
