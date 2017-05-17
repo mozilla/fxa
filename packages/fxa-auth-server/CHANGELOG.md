@@ -1,3 +1,29 @@
+<a name="1.87.0"></a>
+# [1.87.0](https://github.com/mozilla/fxa-auth-server/compare/v1.86.0...v1.87.0) (2017-05-17)
+
+
+### Bug Fixes
+
+* **config:** Add email regex feature flag for secondary email ([d62995e](https://github.com/mozilla/fxa-auth-server/commit/d62995e))
+* **config:** Update secondary email config to support softvision and restmail (#1894) r=vladi ([b3edcef](https://github.com/mozilla/fxa-auth-server/commit/b3edcef)), closes [#1891](https://github.com/mozilla/fxa-auth-server/issues/1891)
+* **devices:** Add test for unicode device names. (#1758) r=vladikoff ([46861c3](https://github.com/mozilla/fxa-auth-server/commit/46861c3))
+* **emails:** Can create secondary email if it is unverified in another account (#1892) r=vlad ([34e3841](https://github.com/mozilla/fxa-auth-server/commit/34e3841))
+* **emails:** Fix issue where change password link was undefined (#1886) r=vladikoff ([e62aab1](https://github.com/mozilla/fxa-auth-server/commit/e62aab1)), closes [#1886](https://github.com/mozilla/fxa-auth-server/issues/1886)
+* **emails:** Only send email notifications to verified secondary emails (#1888) r=rfk,philboo ([3bc36eb](https://github.com/mozilla/fxa-auth-server/commit/3bc36eb)), closes [#1887](https://github.com/mozilla/fxa-auth-server/issues/1887)
+* **metrics:** handle and log missing payload (#1875) r=vbudhram ([36ec6f7](https://github.com/mozilla/fxa-auth-server/commit/36ec6f7)), closes [#1817](https://github.com/mozilla/fxa-auth-server/issues/1817)
+* **push:** add support for dev and stage push servers (#1895) r=vbudhram ([495acd6](https://github.com/mozilla/fxa-auth-server/commit/495acd6)), closes [#1799](https://github.com/mozilla/fxa-auth-server/issues/1799)
+
+### chore
+
+* **deps:** update nexmo (#1899), r=@vbudhram ([362aa6b](https://github.com/mozilla/fxa-auth-server/commit/362aa6b))
+
+### Features
+
+* **emails:** enable secondary email for matching emails (#1896), r=@vbudhram ([ff78b04](https://github.com/mozilla/fxa-auth-server/commit/ff78b04))
+* **mailer:** disable X-Mailer header in emails (#1881) r=vladikoff,philbooth ([4948a7e](https://github.com/mozilla/fxa-auth-server/commit/4948a7e))
+
+
+
 <a name="1.86.0"></a>
 # [1.86.0](https://github.com/mozilla/fxa-auth-server/compare/v1.85.1...v1.86.0) (2017-05-03)
 
