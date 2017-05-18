@@ -20,6 +20,7 @@ define(function (require, exports, module) {
   const UserAgentMixin = require('views/mixins/user-agent-mixin');
 
   const DEVICE_REMOVED_ANIMATION_MS = 150;
+
   const UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
   const DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
   const FIREFOX_ANDROID_DOWNLOAD_LINK = Strings.interpolate(Constants.DOWNLOAD_LINK_TEMPLATE_ANDROID, {
@@ -31,7 +32,8 @@ define(function (require, exports, module) {
     creative: 'button'
   });
 
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'clients',
     viewName: 'settings.clients',
@@ -46,7 +48,6 @@ define(function (require, exports, module) {
         });
       }
 
-      this.listenTo(this._attachedClients, 'add', this._onItemAdded);
       this.listenTo(this._attachedClients, 'remove', this._onItemRemoved);
     },
 
@@ -98,6 +99,7 @@ define(function (require, exports, module) {
 
     events: {
       'click .client-disconnect': preventDefaultThen('_onDisconnectClient'),
+      'click .clients-refresh': 'startRefresh',
       'click [data-get-app]': '_onGetApp'
     },
 
@@ -132,10 +134,6 @@ define(function (require, exports, module) {
       return ! _.some(clients, function (client) {
         return client.type === 'mobile' || client.type === 'tablet';
       });
-    },
-
-    _onItemAdded () {
-      this.render();
     },
 
     _onItemRemoved (item) {
@@ -178,7 +176,7 @@ define(function (require, exports, module) {
     openPanel () {
       this.logViewEvent('open');
       // manually submit using an element to trigger the progress indicator mixin
-      this.$el.find('.clients-refresh').trigger('submit');
+      return this.validateAndSubmit();
     },
 
     _fetchAttachedClients () {
@@ -202,17 +200,35 @@ define(function (require, exports, module) {
       });
     },
 
+    startRefresh () {
+      // only add the artificial delay once the user clicks refresh. This
+      // allows the initial load/render to occur as fast as the server
+      // can respond.
+      this.$('.clients-refresh').data('minProgressIndicatorMs', View.MIN_REFRESH_INDICATOR_MS);
+      this.logViewEvent('refresh');
+      // the actual refresh is done by `submit`.
+    },
+
     submit () {
       if (this.isPanelOpen()) {
-        this.logViewEvent('refresh');
         // only refresh devices if panel is visible
-        // if panel is hidden there is no point of fetching devices
-        return this._fetchAttachedClients().then(() => {
-          this.render();
-        });
+        // if panel is hidden there is no point of fetching devices.
+        // The re-render is done in afterSubmit to ensure
+        // the minimum artifical delay time is honored before
+        // re-rendering.
+        return this._fetchAttachedClients();
       }
-    }
+    },
 
+    afterSubmit () {
+      // afterSubmit is called after the artificial delay has
+      // expired in the progress indicator decorator. re-render
+      // once the progress indicator has gone away.
+      return proto.afterSubmit.call(this)
+        .then(() => this.render());
+    }
+  }, {
+    MIN_REFRESH_INDICATOR_MS: 1600
   });
 
   Cocktail.mixin(

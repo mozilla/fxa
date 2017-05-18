@@ -229,7 +229,8 @@ define(function (require, exports, module) {
 
           // all good, do the beforeSubmit, submit, and afterSubmit chain.
           this.logViewEvent('submit');
-          return this._submitForm();
+          return this._submitForm()
+            .then(() => this.afterSubmit());
         });
     }),
 
@@ -246,8 +247,7 @@ define(function (require, exports, module) {
           // display error and surface for testing.
           this.displayError(err);
           throw err;
-        })
-        .then(_.bind(this.afterSubmit, this));
+        });
     })),
 
     /**

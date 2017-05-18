@@ -9,30 +9,34 @@ define([
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
 
-  var config = intern.config;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
+  const config = intern.config;
+  const SIGNIN_URL = config.fxaContentRoot + 'signin';
 
-  var FIRST_PASSWORD = 'password';
-  var BROWSER_DEVICE_NAME = 'Browser Session Device';
-  var BROWSER_DEVICE_TYPE = 'desktop';
-  var TEST_DEVICE_NAME = 'Test Runner Session Device';
-  var TEST_DEVICE_NAME_UPDATED = 'Test Runner Session Device Updated';
-  var TEST_DEVICE_TYPE = 'mobile';
+  const FIRST_PASSWORD = 'password';
+  const BROWSER_DEVICE_NAME = 'Browser Session Device';
+  const BROWSER_DEVICE_TYPE = 'desktop';
+  const TEST_DEVICE_NAME = 'Test Runner Session Device';
+  const TEST_DEVICE_NAME_UPDATED = 'Test Runner Session Device Updated';
+  const TEST_DEVICE_TYPE = 'mobile';
+
+  const SELECTOR_REFRESH = '.clients-refresh';
+  const SELECTOR_REFRESHING = '.clients-refresh.disabled';
+
   var email;
   var client;
   var accountData;
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var click = FunctionalHelpers.click;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var noSuchStoredAccountByEmail = FunctionalHelpers.noSuchStoredAccountByEmail;
-  var openPage = FunctionalHelpers.openPage;
-  var pollUntil = FunctionalHelpers.pollUntil;
-  var pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
+  const clearBrowserState = FunctionalHelpers.clearBrowserState;
+  const click = FunctionalHelpers.click;
+  const createUser = FunctionalHelpers.createUser;
+  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  const noSuchElement = FunctionalHelpers.noSuchElement;
+  const noSuchStoredAccountByEmail = FunctionalHelpers.noSuchStoredAccountByEmail;
+  const openPage = FunctionalHelpers.openPage;
+  const pollUntil = FunctionalHelpers.pollUntil;
+  const pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
 
   registerSuite({
     name: 'settings clients',
@@ -84,7 +88,9 @@ define([
         .waitForDeletedByCssSelector('.client-webSession:nth-child(2)')
         .end()
 
-        .then(click('.clients-refresh'))
+        .then(click(SELECTOR_REFRESH))
+        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
+
         // second session is gone.
         .then(noSuchElement('.client-webSession:nth-child(2)'))
 
@@ -120,9 +126,10 @@ define([
         })
 
         // on a slow connection we wait until early refresh stops first
-        .then(pollUntilGoneByQSA('.clients-refresh.disabled'))
+        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
 
-        .then(click('.clients-refresh'))
+        .then(click(SELECTOR_REFRESH))
+        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
 
         .then(testElementTextEquals(
           '.client-device .client-name', TEST_DEVICE_NAME
@@ -142,7 +149,8 @@ define([
           );
         })
 
-        .then(click('.clients-refresh'))
+        .then(click(SELECTOR_REFRESH))
+        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
 
         // wait for 2 devices
         .then(testElementExists('.client-device:nth-child(2)'))
@@ -169,7 +177,8 @@ define([
         ))
 
         // external update should show in the device list
-        .then(click('.clients-refresh'))
+        .then(click(SELECTOR_REFRESH))
+        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
 
         // external text change is hard to track, use pollUntil
         .then(pollUntil(function (newName) {
@@ -206,7 +215,9 @@ define([
         .waitForDeletedByCssSelector('.client-device:nth-child(2)')
         .end()
 
-        .then(click('.clients-refresh'))
+        .then(click(SELECTOR_REFRESH))
+        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
+
         // second device is still gone.
         .then(noSuchElement('.client-device:nth-child(2)'))
         .then(click('.client-device:nth-child(1) .client-disconnect'))

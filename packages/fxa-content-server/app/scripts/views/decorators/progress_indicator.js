@@ -25,26 +25,33 @@ define(function (require, exports, module) {
     return deferred.promise;
   }
 
-  function showProgressIndicator(handler, _el, delayMills) {
-    var el = _el || 'button[type=submit]';
-    const delayHandlerByMills = delayMills || 0;
+  function showProgressIndicator(handler, el = 'button[type=submit]', delayHandlerByMills = 0) {
+    return function (...args) {
+      const target = this.$(el);
+      const RADIX = 10;
+      const minProgressIndicatorMs = parseInt(target.data('minProgressIndicatorMs') || 0, RADIX);
 
-    return function () {
-      var args = arguments;
-      var target = this.$(el);
-
-      var progressIndicator = getProgressIndicator(this, target);
+      const progressIndicator = getProgressIndicator(this, target);
       progressIndicator.start(target);
 
+      const startTime = Date.now();
       return delay(progressIndicator, delayHandlerByMills)
         .then(() => this.invokeHandler(handler, args))
-        .then(function (value) {
-          // Stop the progress indicator unless the flow halts.
-          if (! (value && value.halt)) {
-            progressIndicator.done();
-          }
-          return value;
-        }, function (err) {
+        .then((value) => {
+          // calculate the artificial delay time, if one is set.
+          // If the handler took longer than the artificial delay,
+          // or if no artificial delay is set, the extra delay is 0.
+          const diff = Date.now() - startTime;
+          const extraDelayTimeMS = Math.max(minProgressIndicatorMs - diff, 0);
+          return delay(progressIndicator, extraDelayTimeMS)
+            .then(() => {
+              // Stop the progress indicator unless the flow halts.
+              if (! (value && value.halt)) {
+                progressIndicator.done();
+              }
+              return value;
+            });
+        }, (err) => {
           progressIndicator.done();
           throw err;
         });
