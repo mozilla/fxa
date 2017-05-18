@@ -1,1845 +1,2205 @@
-# Firefox Accounts Server API
+# Firefox Accounts authentication server API
 
-This document provides protocol-level details of the Firefox Accounts Server API.  For a prose description of the client/server protocol and details on how each parameter is derived see the [API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol).
+This document is automatically generated.
+If you are editing it,
+read [this section](#this-document) first.
 
----
+<!--begin-abstract-->
+This document provides protocol-level details
+of the Firefox Accounts auth server API.
+For a prose description of the client/server protocol
+and details on how each parameter is derived,
+see the [API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol).
+For a reference client implementation,
+see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
+<!--end-abstract-->
+* [Overview](#overview)
+  * [URL structure](#url-structure)
+  * [Request format](#request-format)
+  * [Response format](#response-format)
+    * [Defined errors](#defined-errors)
+    * [Responses from intermediary servers](#responses-from-intermediary-servers)
+  * [Validation](#validation)
+* [API endpoints](#api-endpoints)
+  * [Account](#account)
+    * [POST /account/create](#post-accountcreate)
+    * [POST /account/login](#post-accountlogin)
+    * [GET /account/status (:lock::unlock: sessionToken)](#get-accountstatus)
+    * [POST /account/status](#post-accountstatus)
+    * [GET /account/profile (:lock::unlock: sessionToken, oauthToken)](#get-accountprofile)
+    * [GET /account/keys (:lock: keyFetchToken)](#get-accountkeys)
+    * [POST /account/device (:lock: sessionToken)](#post-accountdevice)
+    * [POST /account/devices/notify (:lock: sessionToken)](#post-accountdevicesnotify)
+    * [GET /account/devices (:lock: sessionToken)](#get-accountdevices)
+    * [GET /account/sessions (:lock: sessionToken)](#get-accountsessions)
+    * [POST /account/device/destroy (:lock: sessionToken)](#post-accountdevicedestroy)
+    * [GET /recovery_email/status (:lock: sessionToken)](#get-recovery_emailstatus)
+    * [POST /recovery_email/resend_code (:lock: sessionToken)](#post-recovery_emailresend_code)
+    * [POST /recovery_email/verify_code](#post-recovery_emailverify_code)
+    * [GET /recovery_emails (:lock: sessionToken)](#get-recovery_emails)
+    * [POST /recovery_email (:lock: sessionToken)](#post-recovery_email)
+    * [POST /recovery_email/destroy (:lock: sessionToken)](#post-recovery_emaildestroy)
+    * [POST /account/unlock/resend_code](#post-accountunlockresend_code)
+    * [POST /account/unlock/verify_code](#post-accountunlockverify_code)
+    * [POST /account/login/send_unblock_code](#post-accountloginsend_unblock_code)
+    * [POST /account/login/reject_unblock_code](#post-accountloginreject_unblock_code)
+    * [POST /account/reset (:lock: accountResetToken)](#post-accountreset)
+    * [POST /account/destroy](#post-accountdestroy)
+  * [Password](#password)
+    * [POST /password/change/start](#post-passwordchangestart)
+    * [POST /password/change/finish (:lock: passwordChangeToken)](#post-passwordchangefinish)
+    * [POST /password/forgot/send_code](#post-passwordforgotsend_code)
+    * [POST /password/forgot/resend_code (:lock: passwordForgotToken)](#post-passwordforgotresend_code)
+    * [POST /password/forgot/verify_code (:lock: passwordForgotToken)](#post-passwordforgotverify_code)
+    * [GET /password/forgot/status (:lock: passwordForgotToken)](#get-passwordforgotstatus)
+  * [Session](#session)
+    * [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
+    * [GET /session/status (:lock: sessionToken)](#get-sessionstatus)
+  * [Sign](#sign)
+    * [POST /certificate/sign (:lock: sessionToken)](#post-certificatesign)
+  * [Sms](#sms)
+    * [POST /sms (:lock: sessionToken)](#post-sms)
+    * [GET /sms/status (:lock: sessionToken)](#get-smsstatus)
+  * [Util](#util)
+    * [POST /get_random_bytes](#post-get_random_bytes)
+    * [GET /verify_email](#get-verify_email)
+    * [GET /complete_reset_password](#get-complete_reset_password)
+* [Example flows](#example-flows)
+* [Back-off protocol](#back-off-protocol)
+* [This document](#this-document)
 
-# Overview
+## Overview
 
-## URL Structure
+### URL structure
+<!--begin-url-structure-->
+All requests use URLs of the form:
 
-All requests will be to URLs for the form:
-
-    https://<server-url>/v1/<api-endpoint>
+```
+https://<base-URI>/v1/<endpoint-path>
+```
 
 Note that:
 
 * All API access must be over a properly-validated HTTPS connection.
-* The URL embeds a version identifier "v1"; future revisions of this API may introduce new version numbers.
-* The base URL of the server may be configured on a per-client basis:
-  * For a list of development servers see [Firefox Accounts deployments on MDN](https://developer.mozilla.org/en-US/Firefox_Accounts#Firefox_Accounts_deployments).
-  * The canonical URL for Mozilla's hosted Firefox Accounts server is TODO-DEFINE-ME.
+* The URL embeds a version identifier `v1`.
+  Future revisions of this API may introduce new version numbers.
+* The base URI of the server may be configured on a per-client basis:
+  * For a list of development servers
+    see [Firefox Accounts deployments on MDN](https://developer.mozilla.org/en-US/Firefox_Accounts#Firefox_Accounts_deployments).
+  * The canonical URL for Mozilla's hosted Firefox Accounts server
+    is `https://api.accounts.firefox.com/v1`.
+<!--end-url-structure-->
 
+### Request format
+<!--begin-request-format-->
+Requests that require authentication
+use [Hawk](https://github.com/hueniverse/hawk) request signatures.
+These endpoints are marked
+with a :lock: icon.
+Where the authentication is optional,
+there will also be a :question: icon.
 
-## Request Format
+All POST requests must have a content-type of `application/json`
+with a UTF8-encoded JSON body
+and must specify the content-length header.
+Keys and other binary data are included in the JSON
+as hexadecimal strings.
 
-Requests that require authentication use [Hawk](https://github.com/hueniverse/hawk) request signatures.
-These endpoints are marked :lock: in the description below.
+The following request headers may be specified
+to influence the behaviour of the server:
 
-All POST requests must have a content-type of `application/json` with a utf8-encoded JSON body, and must specify the content-length header.  Keys and other binary data are included in the JSON as base16 encoded strings.
+* `Accept-Language`
+  may be used to localize
+  emails and SMS messages.
+<!--end-request-format-->
 
-The following request headers may be specified to influence the behaviour of the server:
+### Response format
+<!--begin-response-format-->
+All requests receive
+a JSON response body
+with a `Content-Type: application/json` header
+and appropriate `Content-Length` set.
+The body structure
+depends on the endpoint returning it.
 
-* `Accept-Language`:  may be used to localize verification emails
+Successful responses will have
+an HTTP status code of 200
+and a `Timestamp` header
+that contains the current server time
+in seconds since the epoch.
 
+Error responses caused by invalid client behaviour
+will have an HTTP status code in the 4xx range.
+Error responses caused by server-side problems
+will have an HTTP status code in the 5xx range.
+Failures due to invalid behavior from the client
 
-## Response Format
-
-All successful requests will produce a response with HTTP status code of "200" and content-type of "application/json".  The structure of the response body will depend on the endpoint in question.
-
-Successful responses will also include the following headers, which may be useful for the client:
-
-* `Timestamp`:  the current POSIX timestamp as seen by the server, in integer seconds.
-
-
-Failures due to invalid behavior from the client will produce a response with HTTP status code in the "4XX" range and content-type of "application/json".  Failures due to an unexpected situation on the server will produce a response with HTTP status code in the "5XX" range and content-type of "application/json".
-
-To simplify error handling for the client, the type of error is indicated both by a particular HTTP status code, and by an application-specific error code in the JSON response body.  For example:
+To simplify error handling for the client,
+the type of error is indicated by both
+a defined HTTP status code
+and an application-specific `errno` in the body.
+For example:
 
 ```js
 {
-  "code": 400, // matches the HTTP status code
-  "errno": 107, // stable application-level error number
-  "error": "Bad Request", // string description of the error type
-  "message": "the value of salt is not allowed to be undefined",
-  "info": "https://docs.dev.lcip.og/errors/1234" // link to more info on the error
+  "code": 400,  // Matches the HTTP status code
+  "errno": 107, // Stable application-level error number
+  "error": "Bad Request", // String description of the error type
+  "message": "Invalid parameter in request body", // Specific error message
+  "info": "https://docs.dev.lcip.og/errors/1234"  // Link to more information
 }
 ```
 
-Responses for particular types of error may include additional parameters.
+Responses for some errors may include additional parameters.
+<!--end-response-format-->
 
-The currently-defined error responses are:
+#### Defined errors
 
-* status code 400, errno 101:  attempt to create an account that already exists
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 103:  incorrect password
-* status code 400, errno 104:  attempt to operate on an unverified account
-* status code 400, errno 105:  invalid verification code
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 429, errno 114:  client has sent too many requests (see [backoff protocol](#backoff-protocol))
-* status code 401, errno 115:  invalid authentication nonce
-* status code 410, errno 116:  endpoint is no longer supported
-* status code 400, errno 117:  incorrect login method for this account
-* status code 400, errno 118:  incorrect key retrieval method for this account
-* status code 400, errno 119:  incorrect API version for this account
-* status code 400, errno 120:  incorrect email case
-* status code 400, errno 121:  account is locked (no longer used)
-* status code 400, errno 122:  account is not locked (no longer used)
-* status code 400, errno 123:  unknown device
-* status code 400, errno 124:  session already registered by another device
-* status code 400, errno 125:  request blocked for security reasons
-* status code 400, errno 126:  account must be reset
-* status code 400, errno 127:  invalid unblock code
-* status code 400, errno 128:  missing token (no longer used)
-* status code 400, errno 129:  invalid phone number
-* status code 400, errno 130:  invalid region
-* status code 400, errno 131:  invalid message id
-* status code 400, errno 132:  message rejected
-* status code 400, errno 133:  email sent complaint
-* status code 400, errno 134:  email hard bounced
-* status code 400, errno 135:  email soft bounced
-* status code 400, errno 136:  email already exists
-* status code 400, errno 137:  can not delete primary email
-* status code 400, errno 138:  can not add email with unverified session
-* status code 400, errno 139:  can not add email that is the same as your primary email
-* status code 400, errno 140:  verified primary email already exists
-* status code 400, errno 141:  newly created unverified primary email exists
-* status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
-* status code 503, errno 202:  feature has been disabled for operational reasons
-* any status code, errno 999:  unknown error
+The currently-defined values
+for `code` and `errno` are:
 
-The follow error responses include additional parameters:
+* `code: 400, errno: 100`:
+  Incorrect Database Patch Level
+* `code: 400, errno: 101`:
+  Account already exists
+* `code: 400, errno: 102`:
+  Unknown account
+* `code: 400, errno: 103`:
+  Incorrect password
+* `code: 400, errno: 104`:
+  Unverified account
+* `code: 400, errno: 105`:
+  Invalid verification code
+* `code: 400, errno: 106`:
+  Invalid JSON in request body
+* `code: 400, errno: 107`:
+  Invalid parameter in request body
+* `code: 400, errno: 108`:
+  Missing parameter in request body
+* `code: 401, errno: 109`:
+  Invalid request signature
+* `code: 401, errno: 110`:
+  Invalid authentication token in request signature
+* `code: 401, errno: 111`:
+  Invalid timestamp in request signature
+* `code: 411, errno: 112`:
+  Missing content-length header
+* `code: 413, errno: 113`:
+  Request body too large
+* `code: 429, errno: 114`:
+  Client has sent too many requests
+* `code: 401, errno: 115`:
+  Invalid nonce in request signature
+* `code: 410, errno: 116`:
+  This endpoint is no longer supported
+* `code: 400, errno: 120`:
+  Incorrect email case
+* `code: 400, errno: 123`:
+  Unknown device
+* `code: 400, errno: 124`:
+  Session already registered by another device
+* `code: 400, errno: 125`:
+  The request was blocked for security reasons
+* `code: 400, errno: 126`:
+  Account must be reset
+* `code: 400, errno: 127`:
+  Invalid unblock code
+* `code: 400, errno: 129`:
+  Invalid phone number
+* `code: 400, errno: 130`:
+  Invalid region
+* `code: 400, errno: 131`:
+  Invalid message id
+* `code: 500, errno: 132`:
+  Message rejected
+* `code: 400, errno: 133`:
+  Email account sent complaint
+* `code: 400, errno: 134`:
+  Email account hard bounced
+* `code: 400, errno: 135`:
+  Email account soft bounced
+* `code: 400, errno: 136`:
+  Email already exists
+* `code: 400, errno: 137`:
+  Can not delete primary email
+* `code: 400, errno: 138`:
+  Unverified session
+* `code: 400, errno: 139`:
+  Can not add secondary email that is same as your primary
+* `code: 400, errno: 140`:
+  Email already exists
+* `code: 400, errno: 141`:
+  Email already exists
+* `code: 400, errno: 142`:
+  Sign in with this email type is not currently supported
+* `code: 400, errno: 143`:
+  Unknown email
+* `code: 400, errno: 144`:
+  Email already exists
+* `code: 400, errno: 145`:
+  Reset password with this email type is not currently supported
+* `code: 503, errno: 201`:
+  Service unavailable
+* `code: 503, errno: 202`:
+  Feature not enabled
+* `code: 500, errno: 999`:
+  Unspecified error
 
-* errno 111:  a `serverTime` parameter giving the current server time in seconds.
-* errno 114:  a `retryAfter` parameter indicating how long the client should wait before re-trying.
-* errno 120:  an `email` parameter indicating the case used to create the account.
-* errno 130:  a `region` parameter indicating the region code that was deemed invalid.
-* errno 132:  `reason` and `reasonCode` parameters indicating why the message was rejected
-  (see [nexmo docs](https://docs.nexmo.com/messaging/sms-api/api-reference#status-codes)).
-* errno 201:  a `retryAfter` parameter indicating how long the client should wait before re-trying.
+The following errors
+include additional response properties:
+
+* `errno: 100`: level, levelRequired
+* `errno: 101`: email
+* `errno: 102`: email
+* `errno: 103`: email
+* `errno: 105`
+* `errno: 107`: validation
+* `errno: 108`: param
+* `errno: 111`: serverTime
+* `errno: 114`: retryAfter, retryAfterLocalized, verificationMethod, verificationReason
+* `errno: 120`: email
+* `errno: 125`: verificationMethod, verificationReason
+* `errno: 126`: email
+* `errno: 130`: region
+* `errno: 132`: reason, reasonCode
+* `errno: 201`: retryAfter
+* `errno: 202`: retryAfter
+
+#### Responses from intermediary servers
+<!--begin-responses-from-intermediary-servers-->
+As with any HTTP-based API,
+clients must handle standard errors that may be returned
+by proxies, load-balancers or other intermediary servers.
+These non-application responses can be identified
+by the absence of a correctly-formatted JSON response body.
+
+Common examples include:
+
+* `413 Request Entity Too Large`:
+  may be returned by an upstream proxy server.
+* `502 Gateway Timeout`:
+  may be returned if a load-balancer can't connect to application servers.
+<!--end-responses-from-intermediary-servers-->
+
+### Validation
+
+In the documentation that follows,
+some properties of requests and responses
+are validated by common code
+that has been refactored and extracted.
+For reference,
+those common validations are defined here.
+
+#### lib/routes/validators
+
+* `HEX_STRING`: `/^(?:[a-fA-F0-9]{2})+$/`
+* `URLSAFEBASE64`: `/^[a-zA-Z0-9-_]*$/`
+* `BASE_36`: `/^[a-zA-Z0-9]*$/`
+* `DISPLAY_SAFE_UNICODE`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
+* `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/g)`
+* `E164_NUMBER`: `/^\+[1-9]\d{1,14}$/`
+
+#### lib/metrics/context
+
+* `schema`: object({
+    * `flowId`: string, length(64), regex(HEX_STRING), optional
+    * `flowBeginTime`: number, integer, positive, optional
+
+  }), unknown(false), and('flowId', 'flowBeginTime'), optional
+
+## API endpoints
+
+### Account
+
+#### POST /account/create
+<!--begin-route-post-accountcreate-->
+Creates a user account.
+The client provides the email address
+with which this account will be associated
+and a stretched password.
+Stretching is detailed
+on the [onepw](https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol#creating-the-account) wiki page.
+
+This endpoint may send a verification email to the user.
+Callers may optionally provide the `service` parameter
+to indicate which service they are acting on behalf of.
+This is an opaque alphanumeric token
+that will be embedded in the verification link
+as a query parameter.
+
+Creating an account also logs in.
+The response contains a `sessionToken`
+and, optionally, a `keyFetchToken`
+if the url has a query parameter of `keys=true`.
+<!--end-route-post-accountcreate-->
+
+##### Query parameters
+
+* `keys`: *boolean, optional*
+
+  <!--begin-query-param-post-accountcreate-keys-->
+  Indicates whether a key-fetch token should be returned in the success response.
+  <!--end-query-param-post-accountcreate-keys-->
+
+* `service`: *validators.service*
+
+  <!--begin-query-param-post-accountcreate-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-query-param-post-accountcreate-service-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-accountcreate-email-->
+  The primary email for this account.
+  <!--end-request-body-post-accountcreate-email-->
+
+* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-accountcreate-authPW-->
+  The PBKDF2/HKDF-stretched password as a hex string.
+  <!--end-request-body-post-accountcreate-authPW-->
+
+* `preVerified`: *boolean*
+
+  <!--begin-request-body-post-accountcreate-preVerified-->
+  
+  <!--end-request-body-post-accountcreate-preVerified-->
+
+* `service`: *validators.service*
+
+  <!--begin-request-body-post-accountcreate-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-request-body-post-accountcreate-service-->
+
+* `redirectTo`: *validators.redirectTo(config.smtp.redirectDomain).optional*
+
+  <!--begin-request-body-post-accountcreate-redirectTo-->
+  URL that the client should be redirected to after handling the request.
+  <!--end-request-body-post-accountcreate-redirectTo-->
+
+* `resume`: *string, max(2048), optional*
+
+  <!--begin-request-body-post-accountcreate-resume-->
+  Opaque URL-encoded string to be included in the verification link as a query parameter.
+  <!--end-request-body-post-accountcreate-resume-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-accountcreate-metricsContext-->
+  
+  <!--end-request-body-post-accountcreate-metricsContext-->
+
+##### Response body
+
+* `uid`: *string, regex(HEX_STRING), required*
+
+  <!--begin-response-body-post-accountcreate-uid-->
+  
+  <!--end-response-body-post-accountcreate-uid-->
+
+* `sessionToken`: *string, regex(HEX_STRING), required*
+
+  <!--begin-response-body-post-accountcreate-sessionToken-->
+  
+  <!--end-response-body-post-accountcreate-sessionToken-->
+
+* `keyFetchToken`: *string, regex(HEX_STRING), optional*
+
+  <!--begin-response-body-post-accountcreate-keyFetchToken-->
+  
+  <!--end-response-body-post-accountcreate-keyFetchToken-->
+
+* `authAt`: *number, integer*
+
+  <!--begin-response-body-post-accountcreate-authAt-->
+  Authentication time for the session (seconds since epoch).
+  <!--end-response-body-post-accountcreate-authAt-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 101`:
+  Account already exists
+
+* `code: 400, errno: 144`:
+  Email already exists
 
 
-## Responses from Intermediary Servers
+#### POST /account/login
+<!--begin-route-post-accountlogin-->
+Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
+<!--end-route-post-accountlogin-->
 
-Since this is a HTTP-based protocol, clients should be prepared to gracefully handle standard HTTP error responses that may be produced by proxies, load-balancers, or other intermediary servers.  Non-application responses can be identified by their lack of properly-formatted JSON response body.  Common examples would include:
+##### Query parameters
 
-* "413 Request Entity Too Large" may be produced by an upstream proxy server.
-* "502 Gateway Timeout" may be produced by a load-balancer if it cannot contact the application servers.
+* `keys`: *boolean, optional*
 
----
+  <!--begin-query-param-post-accountlogin-keys-->
+  Indicates whether a key-fetch token should be returned in the success response.
+  <!--end-query-param-post-accountlogin-keys-->
 
-# API Endpoints
+* `service`: *validators.service*
 
-* Account
-    * [POST /v1/account/create](#post-v1accountcreate)
-    * [GET  /v1/account/status](#get-v1accountstatus)
-    * [POST /v1/account/status](#post-v1accountstatus)
-    * [GET  /v1/account/keys (:lock: keyFetchToken) (verf-required)](#get-v1accountkeys)
-    * [GET  /v1/account/profile (:lock: oauthBearerToken)](#get-v1accountprofile)
-    * [GET  /v1/account/sessions (:lock: sessionToken)](#get-v1accountsessions)
-    * [POST /v1/account/reset (:lock: accountResetToken)](#post-v1accountreset)
-    * [POST /v1/account/destroy](#post-v1accountdestroy)
+  <!--begin-query-param-post-accountlogin-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-query-param-post-accountlogin-service-->
 
-* Authentication
-    * [POST /v1/account/login](#post-v1accountlogin)
-    * [POST /v1/account/send_unblock_code](#post-v1accountloginsend_unblock_code)
-    * [POST /v1/account/reject_unblock_code](#post-v1accountloginreject_unblock_code)
+##### Request body
 
-* Session
-    * [GET /v1/session/status (:lock: sessionToken)](#get-v1sessionstatus)
-    * [POST /v1/session/destroy (:lock: sessionToken)](#post-v1sessiondestroy)
+* `email`: *validators.email.required*
 
-* Recovery Email
-    * [GET  /v1/recovery_email/status (:lock: sessionToken)](#get-v1recovery_emailstatus)
-    * [POST /v1/recovery_email/resend_code (:lock: sessionToken)](#post-v1recovery_emailresend_code)
-    * [POST /v1/recovery_email/verify_code](#post-v1recovery_emailverify_code)
-    * [GET  /v1/recovery_emails (:lock: sessionToken)](#get-v1recovery_emails)
-    * [POST /v1/recovery_email (:lock: sessionToken)](#post-v1recovery_email)
-    * [POST /v1/recovery_email/destroy (:lock: sessionToken)](#post-v1recovery_emaildestroy)
+  <!--begin-request-body-post-accountlogin-email-->
+  The primary email for this account.
+  <!--end-request-body-post-accountlogin-email-->
 
-* Certificate Signing
-    * [POST /v1/certificate/sign (:lock: sessionToken) (verf-required)](#post-v1certificatesign)
+* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
 
-* Password
-    * [POST /v1/password/change/start](#post-v1passwordchangestart)
-    * [POST /v1/password/change/finish (:lock: passwordChangeToken)](#post-v1passwordchangefinish)
-    * [POST /v1/password/forgot/send_code](#post-v1passwordforgotsend_code)
-    * [POST /v1/password/forgot/resend_code (:lock: passwordForgotToken)](#post-v1passwordforgotresend_code)
-    * [POST /v1/password/forgot/verify_code (:lock: passwordForgotToken)](#post-v1passwordforgotverify_code)
-    * [GET /v1/password/forgot/status (:lock: passwordForgotToken)](#get-v1passwordforgotstatus)
+  <!--begin-request-body-post-accountlogin-authPW-->
+  The PBKDF2/HKDF stretched password as a hex string.
+  <!--end-request-body-post-accountlogin-authPW-->
 
-* Device registration
-    * [POST /v1/account/device (:lock: sessionToken)](#post-v1accountdevice)
-    * [GET /v1/account/devices (:lock: sessionToken)](#get-v1accountdevices)
-    * [POST /v1/account/devices/notify (:lock: sessionToken)](#post-v1accountdevicesnotify)
-    * [POST /v1/account/device/destroy (:lock: sessionToken)](#post-v1accountdevicedestroy)
+* `service`: *validators.service*
 
-* Send SMS
-    * [POST /v1/sms (:lock: sessionToken)](#post-v1sms)
-    * [GET /v1/sms/status (:lock: sessionToken)](#get-v1smsstatus)
+  <!--begin-request-body-post-accountlogin-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-request-body-post-accountlogin-service-->
 
-* Miscellaneous
-    * [POST /v1/get_random_bytes](#post-v1get_random_bytes)
+* `redirectTo`: *string, uri, optional*
+
+  <!--begin-request-body-post-accountlogin-redirectTo-->
+  
+  <!--end-request-body-post-accountlogin-redirectTo-->
+
+* `resume`: *string, optional*
+
+  <!--begin-request-body-post-accountlogin-resume-->
+  Opaque URL-encoded string to be included in the verification link as a query parameter.
+  <!--end-request-body-post-accountlogin-resume-->
+
+* `reason`: *string, max(16), optional*
+
+  <!--begin-request-body-post-accountlogin-reason-->
+  Alphanumeric string indicating the reason for establishing a new session; may be "login" (the default) or "reconnect".
+  <!--end-request-body-post-accountlogin-reason-->
+
+* `unblockCode`: *string, regex(BASE_36), length(unblockCodeLen), optional*
+
+  <!--begin-request-body-post-accountlogin-unblockCode-->
+  Alphanumeric code used to unblock certain rate-limitings.
+  <!--end-request-body-post-accountlogin-unblockCode-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-accountlogin-metricsContext-->
+  
+  <!--end-request-body-post-accountlogin-metricsContext-->
+
+##### Response body
+
+* `uid`: *string, regex(HEX_STRING), required*
+
+  <!--begin-response-body-post-accountlogin-uid-->
+  
+  <!--end-response-body-post-accountlogin-uid-->
+
+* `sessionToken`: *string, regex(HEX_STRING), required*
+
+  <!--begin-response-body-post-accountlogin-sessionToken-->
+  
+  <!--end-response-body-post-accountlogin-sessionToken-->
+
+* `keyFetchToken`: *string, regex(HEX_STRING), optional*
+
+  <!--begin-response-body-post-accountlogin-keyFetchToken-->
+  
+  <!--end-response-body-post-accountlogin-keyFetchToken-->
+
+* `verificationMethod`: *string, optional*
+
+  <!--begin-response-body-post-accountlogin-verificationMethod-->
+  The medium for how the user can verify.
+  <!--end-response-body-post-accountlogin-verificationMethod-->
+
+* `verificationReason`: *string, optional*
+
+  <!--begin-response-body-post-accountlogin-verificationReason-->
+  The authentication method that required additional verification.
+  <!--end-response-body-post-accountlogin-verificationReason-->
+
+* `verified`: *boolean, required*
+
+  <!--begin-response-body-post-accountlogin-verified-->
+  
+  <!--end-response-body-post-accountlogin-verified-->
+
+* `authAt`: *number, integer*
+
+  <!--begin-response-body-post-accountlogin-authAt-->
+  Authentication time for the session (seconds since epoch).
+  <!--end-response-body-post-accountlogin-authAt-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 125`:
+  The request was blocked for security reasons
+
+* `code: 400, errno: 142`:
+  Sign in with this email type is not currently supported
+
+* `code: 400, errno: 103`:
+  Incorrect password
+
+* `code: 400, errno: 127`:
+  Invalid unblock code
 
 
-## POST /v1/account/create
+#### GET /account/status
 
-Creates a user account. The client provides the email address with which this account will be labeled and a stretched password. Stretching is detailed on the [onepw](https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol#creating-the-account) wiki page.
+:lock::unlock: Optionally HAWK-authenticated with session token
+<!--begin-route-get-accountstatus-->
+Gets the status of an account.
+<!--end-route-get-accountstatus-->
 
-This endpoint may send a verification email to the user.  Callers may optionally provide the `service` parameter to indicate what Identity-Attached Service they are acting on behalf of.  This is an opaque alphanumeric token which will be embedded in the verification link as a query parameter.
+##### Query parameters
 
-Creating an account also logs in. The response contains a `sessionToken` and optionally a `keyFetchToken` if the url has a query parameter of `keys=true`.
+* `uid`: *string, min(32), max(32), regex(validators.HEX_STRING)*
 
-___Parameters___
+  <!--begin-query-param-get-accountstatus-uid-->
+  
+  <!--end-query-param-get-accountstatus-uid-->
 
-* email - the primary email for this account
-* authPW - the PBKDF2/HKDF stretched password as a hex string
-* service - (optional) opaque alphanumeric token to be included in verification links
-* redirectTo - (optional) a URL that the client should be redirected to after handling the request
-* resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
+##### Error responses
 
-### Request
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
 
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-"https://api-accounts.dev.lcip.org/v1/account/create?keys=true" \
--d '{
-  "email": "me@example.com",
-  "authPW": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with the account's unique identifier in the JSON body:
-
-```json
-{
-  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
-  "keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c",
-  "authAt": 1392144866
-}
-```
-
-* authAt - authentication time for the session (seconds since epoch)
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 101:  attempt to create an account that already exists
-* status code 400, errno 105:  invalid verification code
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
+* `code: 400, errno: 108`:
+  Missing parameter in request body
 
 
-## GET /v1/account/status
-
+#### POST /account/status
+<!--begin-route-post-accountstatus-->
 Gets the status of an account
+without exposing user data
+through query params.
+This endpoint is rate limited
+by [fxa-customs-server](https://github.com/mozilla/fxa-customs-server).
+<!--end-route-post-accountstatus-->
 
-### Request
+##### Request body
 
-```sh
-curl -v "https://api-accounts.dev.lcip.org/v1/account/status?uid=4c352927cd4f4a4aa03d7d1893d950b8"
-```
+* `email`: *validators.email.required*
 
-### Response
+  <!--begin-request-body-post-accountstatus-email-->
+  
+  <!--end-request-body-post-accountstatus-email-->
 
-Successful requests will produce a "200 OK" response with the account status provided in the JSON body:
+##### Response body
 
-```json
-{
-  "exists": true
-}
-```
+* `exists`: *boolean, required*
 
-Failing requests may be due to the following errors:
+  <!--begin-response-body-post-accountstatus-exists-->
+  
+  <!--end-response-body-post-accountstatus-exists-->
 
-* status code 400, errno 107:  request query contains invalid parameters
-* status code 400, errno 108:  request query missing required parameters
 
-## POST /v1/account/status
+#### GET /account/profile
 
-Gets the status of an account without exposing user data through query params. This
-endpoint is rate limited by the [fxa-customs-server]()
-
-___Parameters___
-
-* email - the primary email for this account
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-"https://api-accounts.dev.lcip.org/v1/account/status" \
--d '{
-  "email": "me@example.com"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with the account status provided in the JSON body:
-
-```json
-{
-  "exists": true
-}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 107:  request query contains invalid parameters
-* status code 429, errno 114:  client has sent too many requests
-
-## POST /v1/account/login
-
-Obtain a `sessionToken` and optionally a `keyFetchToken` by adding the query parameter `keys=true`.
-
-___Parameters___
-
-* email - the primary email for this account
-* authPW - the PBKDF2/HKDF stretched password as a hex string
-* service - (optional) opaque alphanumeric token to be included in verification links
-* reason - (optional) alphanumeric string indicating the reason for establishing a new session; may be "login" (the default) or "reconnect"
-* unblockCode - (optional) alphanumeric code used to unblock certain  rate-limitings
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-https://api-accounts.dev.lcip.org/v1/account/login?keys=true \
--d '{
-  "email": "me@example.com",
-  "authPW": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" and a json body. `keyFetchToken` and `verificationReason` will only be present if `keys=true` was specified.
-
-```json
-{
-  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
-  "keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c",
-  "verified": false,
-  "authAt": 1392144866,
-  "verificationReason": "login",
-  "verificationMethod": "email"
-}
-```
-
-* authAt - authentication time for the session (seconds since epoch)
-* verificationReason - authentication method that was requested that required additional verification (Currently, only `login`)
-* verificationMethod - the medium for how the user can verify (Currently, only `email`)
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 103:  incorrect password
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 400, errno 120:  incorrect email case
-* status code 400, errno 126:  account must be reset
-* status code 400, errno 127:  invalid unblock code
-
-
-## POST /v1/account/login/send_unblock_code
-
-Send an unblock code to a provided email to reset rate-limiting.
-
-___Parameters___
-
-* email - the primary email for this account
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-https://api-accounts.dev.lcip.org/v1/account/login/send_unblock_code \
--d '{
-  "email": "me@example.com"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" and an empty json body.
-
-```json
-{}
-```
-
-
-## POST /v1/account/login/reject_unblock_code
-
-Used to reject and report an unblock code that was sent to a user
-
-___Parameters___
-
-* uid - the user id
-* unblockCode - the unblock code
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-https://api-accounts.dev.lcip.org/v1/account/login/reject_unblock_code \
--d '{
-  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "unblockCode": "A1B2C3D4"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" and an empty json body.
-
-```json
-{}
-```
-
-
-## GET /v1/account/keys
-
-:lock: HAWK-authenticated with keyFetchToken
-
-Get the base16 bundle of encrypted `kA|wrapKb`. The return value must be decrypted with a key derived from keyFetchToken, and then `wrapKb` must be further decrypted with a key derived from the user's password.
-
-Since keyFetchToken is single-use, this can only be done once per session. Note that the keyFetchToken is consumed regardless of whether the request succeeds or fails.
-
-This request will fail unless the account's email address and current session has been verified.
-
-### Request
-
-___Headers___
-
-The request must include a HAWK header that authenticates the request using a `keyFetchToken` received from `/session/create`.
-
-```sh
-curl -v \
--X GET \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/account/keys \
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with the key data provided in the JSON body as hex-encoded bytes:
-
-```json
-{
-  "bundle": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad"
-}
-```
-
-See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
-for info on how to extract `kA|wrapKb` from the bundle.
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 104:  attempt to operate on an unverified account
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
-
-## GET /v1/account/profile
-
-:lock: OAuth Bearer token, or HAWK-authenticated with sessionToken
-
+:lock::unlock: Optionally authenticated with OAuth bearer token, or HAWK-authenticated with session token
+<!--begin-route-get-accountprofile-->
 Get the email and locale of a user.
 
-If an OAuth Bearer token is used, the values returned depend on the
-scopes that the token is authorized for.
+If an OAuth bearer token is used,
+the values returned depend on
+the scopes that the token is authorized for:
 
-- `email` requires `profile:email` scope
-- `locale` require `profile:locale` scope
+* `email` requires `profile:email` scope.
 
-The `profile` scope includes both of the above sub-scopes.
+* `locale` require `profile:locale` scope.
 
-### Request
+The `profile` scope includes both
+of the `email` and `locale` sub-scopes.
+<!--end-route-get-accountprofile-->
 
-___Headers___
 
-The request must include an OAuth Bearer token, or a HAWK header that authenticates the request using a `sessionToken` received from `/account/login`.
+#### GET /account/keys
 
-```sh
-curl -v \
--X GET \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Bearer d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d' \
-https://api-accounts.dev.lcip.org/v1/account/keys \
-```
+:lock: HAWK-authenticated with key fetch token
+<!--begin-route-get-accountkeys-->
+Get the base-16 bundle of encrypted `kA|wrapKb`.
+The return value must be decrypted
+with a key derived from `keyFetchToken`,
+then `wrapKb` must be further decrypted
+with a key derived from the user's password.
 
-### Response
+Since `keyFetchToken` is single-use,
+this can only be done once per session.
+Note that `keyFetchToken` is consumed
+regardless of whether the request succeeds or fails.
 
-Successful requests will produce a "200 OK" response with data returned as JSON:
+This request will fail
+unless the account's email address and current session
+has been verified.
+<!--end-route-get-accountkeys-->
 
-```json
-{
-  "email": "me@example.com",
-  "locale": "hi-IN"
-}
-```
+##### Response body
 
-## GET /v1/account/sessions
+* `bundle`: *string, regex(validators.HEX_STRING)*
 
-:lock: HAWK-authenticated with sessionToken
+  <!--begin-response-body-get-accountkeys-bundle-->
+  See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
+  for information on how to extract `kA|wrapKb`
+  from the bundle.
+  <!--end-response-body-get-accountkeys-bundle-->
 
-Get the user's sessions with device information.
+##### Error responses
 
-### Request
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
 
-___Headers___
+* `code: 400, errno: 104`:
+  Unverified account
 
-The request must include a Hawk header that authenticates the request
-using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
 
-```sh
-curl -v \
--X GET \
--H "Host: api-accounts.dev.lcip.org" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/account/sessions
-```
+#### POST /account/device
 
-### Response
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-accountdevice-->
+Either:
 
-Successful requests will return a `200 OK` response
-with an array of device details in the JSON body:
+* Registers a new device for this session
+  if no device id is specified, or;
 
-```json
-[
-  {
-    "id": "eff779f59ab974f800625264145306ce53185bb22ee01fe80280964ff2766504",
-    "isCurrentDevice": true,
-    "isDevice": true,
-    "userAgent": "Firefox 50",
-    "os": "Windows",
-    "lastAccessTime": 1449235471335,
-    "lastAccessTimeFormatted": "a few seconds ago",
-    "deviceId": "0f7aa00356e5416e82b3bef7bc409eef",
-    "deviceName": "My Phone",
-    "deviceType": "mobile",
-    "devicePushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
-    "devicePushPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
-    "devicePushAuthKey": "w3b14Zjc-Afj2SDOLOyong"
-  },
-  {
-    "id": "321779f59ab974f800625264145306ce53185bb22ee01fe80280964ff2766542",
-    "isCurrentDevice": false,
-    "isDevice": false,
-    "userAgent": "Chrome 50",
-    "os": "Windows",
-    "lastAccessTime": 1449235471337,
-    "lastAccessTimeFormatted": "a few seconds ago",
-    "deviceId": null,
-    "deviceName": null,
-    "deviceType": "desktop",
-    "devicePushCallback": null,
-    "devicePushPublicKey": null,
-    "devicePushAuthKey": null
-  }
-]
-```
+* Updates existing device details for this session
+  if a device id is specified.
 
-Failing requests may return the following error:
-
-* status code 400, errno 102: unknown account
-
-
-## POST /v1/account/reset
-
-:lock: HAWK-authenticated with accountResetToken
-
-This sets the account password and resets wrapKb to a new random value.
-
-The accountResetToken is single-use, and is consumed regardless of whether the request succeeds or fails.
-
-The caller can optionally request a new `sessionToken` and `keyFetchToken`.
-
-### Request
-
-___Parameters___
-
-* authPW - the PBKDF2/HKDF stretched password as a hex string
-* sessionToken - (optional) boolean, whether to generate a new sessionToken; default is false
-* keys - (optional) whether to request new `keyFetchToken`, `keys=true`
-
-
-___Headers___
-
-The request must include a HAWK header that authenticates the request (including payload) using a key derived from the `accountResetToken`, which is returned by `/v1/password/forgot/verify_code`.
-
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/account/reset?keys=true \
--d '{
-  "authPW": "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4",
-  "sessionToken": true
-  }
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with JSON body:
-
-```json
-{
-  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
-  "keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c",
-  "authAt": 1392144866,
-  "verified": true
-}
-```
-
-
-If no `sessionToken` is requested the response is an empty JSON body:
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 401, errno 115:  invalid authentication nonce
-
-
-## POST /v1/account/destroy
-
-This deletes the account completely. All stored data is erased. The client should seek user confirmation first. The client should erase data stored on any attached services before deleting the user's account data.
-
-### Request
-
-___Parameters___
-
-* email - the account email address
-* authPW - the PBKDF2/HKDF stretched password as a hex string
-
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
-https://api-accounts.dev.lcip.org/v1/account/destroy \
--d '{
-  "email": "me@example.com",
-  "authPW": "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with empty JSON body:
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 103:  incorrect password
-* status code 400, errno 106:  request body was not valid json
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 401, errno 115:  invalid authentication nonce
-* status code 400, errno 120:  incorrect email case
-* status code 400, errno 126:  account must be reset
-
-## GET /v1/session/status
-
-:lock: HAWK-authenticated with the sessionToken.
-
-The request will return a success response as long as the token is valid.
-
-### Request
-
-___Headers___
-
-The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
-
-```sh
-curl -v \
--X GET \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/session/status \
-```
-
-
-### Response
-
-Successful requests will produce a "200 OK" response with the details about the token in the JSON body object:
-
-```json
-{
-  "state": "verified",
-  "uid": "80dc2f2e373b4b3bb992468e6d578cd2"
-}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
-
-
-## POST /v1/session/destroy
-
-:lock: HAWK-authenticated with the sessionToken.
-
-Destroys this session, by invalidating the sessionToken. This is used when a device "signs-out", detaching itself from the  account. After calling this, the device must re-perform the `/v1/account/login` sequence to obtain a new sessionToken.
-
-___Headers___
-
-The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/account/login`.
-
-___Parameters___
-
-* customSessionToken - (optional) custom session token tokenId to destroy.
-
-### Request
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/session/destroy \
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with an empty JSON body:
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 106:  request body was not valid json
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 401, errno 115:  invalid authentication nonce
-
-
-## GET /v1/recovery_email/status
-
-:lock: HAWK-authenticated with the sessionToken.
-
-Returns the "verified" status for the account's recovery email address.
-
-Currently, each account is associated with exactly one email address. This address must be "verified" before the account can be used (specifically, `/v1/certificate/sign` and `/v1/account/keys` will return errors until the address is verified). In the future, this may be expanded to include multiple addresses, and/or alternate types of recovery methods (e.g., SMS). A new API will be provided for this extra functionality.
-
-This call is used to determine the current state (verified or unverified) of the account. During account creation, until the address is verified, the agent can poll this method to discover when it should proceed with `/v1/certificate/sign` and `/v1/account/keys`.
-
-
-### Request
-
-___Headers___
-
-The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/account/login`.
-
-```sh
-curl -v \
--X GET \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/recovery_email/status \
-```
-
-
-### Response
-
-Successful requests will produce a "200 OK" response with the account email and details on the verification status in the JSON body object:
-
-```json
-{
-  "email": "me@example.com",
-  "verified": true,
-  "sessionVerified": true,
-  "emailVerified": true
-}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
-
-
-## POST /v1/recovery_email/resend_code
-
-:lock: HAWK-authenticated with the sessionToken.
-
-Re-sends a verification code to the account's recovery email address. The code is first sent when the account is created, but if the user thinks the message was lost or accidentally deleted, they can request a new message to be sent with this endpoint. The new message will contain the same code as the original message. When this code is provided to `/v1/recovery_email/verify_code` (below), the email will be marked as "verified".
-
-This endpoint may send a verification email to the user.  Callers may optionally provide the `service` parameter to indicate what Identity-Attached Service they are acting on behalf of.  This is an opaque alphanumeric token which will be embedded in the verification link as a query parameter.
-
-
-### Request
-
-___Parameters___
-
-* service - (optional) opaque alphanumeric token to be included in verification links
-* redirectTo - (optional) a URL that the client should be redirected to after handling the request
-* resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
-
-___Headers___
-
-The request must include a Hawk header that authenticates the request (including payload) using a `sessionToken` received from `/v1/session/create`.
-
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/recovery_email/resend_code
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with an empty JSON body:
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 106:  request body was not valid json
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 401, errno 115:  invalid authentication nonce
-
-
-## POST /v1/recovery_email/verify_code
-
-Not HAWK-authenticated.
-
-This is an endpoint that is used to verify tokens and additional emails for an account. If a valid token code is detected, the account email and tokens will be set to verified. If a valid email code is detected, the email will be marked as verified.
-
-The verification code will be a random token, delivered in the fragment portion of a URL sent to the user's email address. The URL will lead to a page that extracts the code from the URL fragment, and performs a POST to `/recovery_email/verify_code`. The link can be clicked from any browser, not just the one being attached to the Firefox account.
-
-### Request
-
-___Parameters___
-
-* uid - account identifier
-* code - the verification code (recovery email or token verification id)
-* service - the service issuing request
-* reminder - (optional) the reminder email associated with code
-* type - (optional) the type of code being verified
-
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
-https://api-accounts.dev.lcip.org/v1/recovery_email/verify_code \
--d '{
-  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "code": "e3c5b0e3f5391e134596c27519979b93"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with an empty JSON body:
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  invalid verification code
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-
-## GET /v1/recovery_emails
-
-This endpoint is used to get all the emails associated with the logged in user. The primary email address, currently, will always be the email address on the accounts table.
-
-### Request
-
-```sh
-curl -v \
--X GET \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/recovery_emails \
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with JSON body:
-
-```json
-[
-   {
-      "isPrimary":true,
-      "verified":true,
-      "email":"primary@email.com"
-   },
-   {
-      "isPrimary":false,
-      "verified":false,
-      "email":"anotherone@email.com"
-   }
-]
-```
-
-## POST /v1/recovery_email
-
-This endpoint is used add a secondary email address to the logged in user account. The address is created `unverified` and marked as not the primary address.
-
-### Request
-
-___Parameters___
-
-* email - email address to add to account
-
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/recovery_email \
--d '{
-  "email": "another@email.com"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with an empty JSON body:
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  invalid verification code
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 400, errno 138:  session is not verified
-* status code 400, errno 139:  cannot add your primary email address
-* status code 400, errno 140:  verified primary email address exist
-* status code 400, errno 141:  newly unverified primary account email exist
-
-## POST /v1/recovery_email/destroy
-
-This endpoint is used to delete an email address from the logged in user.
-
-### Request
-
-___Parameters___
-
-* email - email address to add to account
-
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/recovery_email/destroy \
--d '{
-  "email": "another@email.com"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with an empty JSON body:
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  invalid verification code
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-
-## POST /v1/certificate/sign
-
-:lock: HAWK-authenticated with the sessionToken.
-
-Sign a BrowserID public key. The server is given a public key, and returns a signed certificate using the same JWT-like mechanism as a BrowserID primary IdP would (see the [browserid-certifier project](https://github.com/mozilla/browserid-certifier) for details). The signed certificate includes a `principal.email` property to indicate the Firefox Account identifier (a uuid at the account server's primary domain) and is stamped with an expiry time based on the "duration" parameter.
-
-This request will fail unless the account's email address has been verified.
-
-Clients should include a query parameter `?service=<service-name>` for metrics and validation
-purposes.  The value of `<service-name>` should be `sync` when connecting to sync, or the
-OAuth client_id when connecting to an OAuth relier.
-
-If you do not specify a `service` parameter, or if you specify `service=sync`,
-this endpoint will assume the request is coming from a legacy Firefox sync client.
-If the sessionToken does not have a corresponding device record,
-one will be created automatically by the server.
-
-___Parameters___
-
-* publicKey - the key to sign (run `bin/generate-keypair` from [browserid-crypto](https://github.com/mozilla/browserid-crypto))
-    * algorithm - "RS" or "DS"
-    * n - RS only
-    * e - RS only
-    * y - DS only
-    * p - DS only
-    * q - DS only
-    * g - DS only
-* duration - time interval from now when the certificate will expire, in milliseconds, up to a maximum of 24 hours.
-
-___Headers___
-
-The request must include a Hawk header that authenticates the request (including payload) using a `sessionToken` received from `/v1/account/login`.
-
-### Request
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/certificate/sign \
--d '{
-  "publicKey": {
-    "algorithm":"RS",
-    "n":"4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123",
-    "e":"65537"
-  },
-  "duration": 86400000
-}'
-```
-
-### Response
-
-
-Successful requests will produce a "200 OK" response with the signed identity certificate in the JSON body object:
-
-```json
-{
-  "cert": "eyJhbGciOiJEUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7ImFsZ29yaXRobSI6IlJTIiwibiI6IjU3NjE1NTUwOTM3NjU1NDk2MDk4MjAyMjM2MDYyOTA3Mzg5ODMyMzI0MjUyMDY2Mzc4OTA0ODUyNDgyMjUzODg1MTA3MzQzMTY5MzI2OTEyNDkxNjY5NjQxNTQ3NzQ1OTM3NzAxNzYzMTk1NzQ3NDI1NTEyNjU5NjM2MDgwMzYzNjE3MTc1MzMzNjY5MzEyNTA2OTk1MzMyNDMiLCJlIjoiNjU1MzcifSwicHJpbmNpcGFsIjp7ImVtYWlsIjoiZm9vQGV4YW1wbGUuY29tIn0sImlhdCI6MTM3MzM5MjE4OTA5MywiZXhwIjoxMzczMzkyMjM5MDkzLCJpc3MiOiIxMjcuMC4wLjE6OTAwMCJ9.l5I6WSjsDIwCKIz_9d3juwHGlzVcvI90T2lv2maDlr8bvtMglUKFFWlN_JEzNyPBcMDrvNmu5hnhyN7vtwLu3Q"
-}
-```
-
-The signed certificate includes these additional claims:
-
-* fxa-generation - a number that increases each time the user's password is changed
-* fxa-lastAuthAt - authentication time for this session (seconds since epoch)
-* fxa-verifiedEmail - the user's verified recovery email address
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 104:  attempt to operate on an unverified account
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 401, errno 115:  invalid authentication nonce
-
-
-## POST /v1/password/change/start
-
-Begin the "change password" process. It returns a single-use `passwordChangeToken`, which will be delivered to `/v1/password/change/finish`. It also returns a single-use `keyFetchToken`.
-
-___Parameters___
-
-* email - the account email address
-* oldAuthPW - the PBKDF2/HKDF stretched password as a hex string
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-https://api-accounts.dev.lcip.org/v1/password/change/start \
--d '{
-  "email": "me@example.com",
-  "oldAuthPW": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with the encrypted sessionToken+keyFetchToken bundle in the JSON body object:
-
-```json
-{
-  "keyFetchToken": "fa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad",
-  "passwordChangeToken": "0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215b",
-  "verified": true
-}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 103:  incorrect password
-* status code 400, errno 106:  request body was not valid json
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 400, errno 120:  incorrect email case
-* status code 400, errno 126:  account must be reset
-
-
-## POST /v1/password/change/finish
-
-:lock: HAWK-authenticated with the passwordChangeToken.
-
-Change the password and update `wrapKb`. Optionally returns a `sessionToken` and
-`keyFetchToken`.
-
-___Parameters___
-
-* authPW - the new PBKDF2/HKDF stretched password as a hex string
-* wrapKb - the new wrapKb value as a hex string
-* sessionToken - (optional) the current sessionToken as a hex string
-* keys - (optional) whether to request new `keyFetchToken`, `keys=true`
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/password/change/finish \
--d '{
-  "authPW": "761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a309",
-  "wrapKb": "20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb0267614",
-  "sessionToken": "93a4f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb0267614'
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with JSON body:
-
-```json
-{
-  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
-  "keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c",
-  "authAt": 1392144866,
-  "verified": true
-}
-```
-
-If a `sessionToken` was not requested, then an empty JSON body is returned:
-
-```json
-{}
-```
-
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 401, errno 115:  invalid authentication nonce
-
-
-## POST /v1/password/forgot/send_code
-
-Not HAWK-authenticated.
-
-This requests a "reset password" code to be sent to the user's recovery email. The user should type this code into the agent, which will then submit it to `/v1/password/forgot/verify_code` (described below). `verify_code` will then return a `accountResetToken`, which can be used to reset the account password.
-
-This code will be either 8 or 16 digits long, and the `send_code` response indicates the code length (so the UI can display a suitable input form). The email will either contain the code itself, or will contain a link to a web page which will display the code.
-
-The `send_code` response includes a `passwordForgotToken`, which must be submitted with the code to `/v1/password/forgot/verify_code` later.
-
-The response also specifies the ttl of this token, and a limit on the number of times `verify_code` can be called with this token. By limiting the number of submission attempts, we also limit an attacker's ability to guess the code. After the token expires, or the maximum number of submissions have happened, the agent must use `send_code` again to generate a new code and token.
-
-Each account can have at most one `passwordForgotToken` valid at a time. Calling `send_code` causes any existing tokens to be canceled and a new one created. Each token is associated with a specific code, so `send_code` also invalidates any existing codes.
-
-___Parameters___
-
-* email - the recovery email for this account
-* service - (optional) indicates the relying service that the user was interacting with that triggered the password reset
-* redirectTo - (optional) a URL that the client should be redirected to after handling the request
-* resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
-
-### Request
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-https://api-accounts.dev.lcip.org/v1/password/forgot/send_code \
--d '{
-  "email": "me@example.com",
-  "service": "sync",
-  "redirectTo": "https://sync.firefox.com/after_reset"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with details of the reset code in the JSON body object:
-
-```json
-{
-  "passwordForgotToken": "10ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a309",
-  "ttl": 900,
-  "codeLength": 8,
-  "tries": 3
-}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-
-
-## POST /v1/password/forgot/resend_code
-
-:lock: HAWK-authenticated with the passwordForgotToken.
-
-While the agent is waiting for the user to paste in the forgot-password code, if the user believes the email has been lost or accidentally deleted, the `/v1/password/forgot/resend_code` API can be used to send a new copy of the same code.
-
-This API requires the `passwordForgotToken` returned by the original `send_code` call (only the original browser which started the process may request a replacement message). It will return the same response as `send_code` did, except with a shorter `ttl` indicating the remaining validity period. If `verify_code` has been called some number of times with the same token, then `tries` will be smaller too.
-
-___Parameters___
-
-* email - the recovery email for this account
-* service - (optional) indicates the relying service that the user was interacting with that triggered the password reset
-* redirectTo - (optional) a URL that the client should be redirected to after handling the request
-* resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/password/forgot/resend_code \
--d '{
-  "email": "me@example.com"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with details of the reset code in the JSON body object:
-
-```json
-{
-  "passwordForgotToken": "10ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a309",
-  "ttl": 550,
-  "codeLength": 8,
-  "tries": 2
-}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 401, errno 115:  invalid authentication nonce
-
-
-## POST /v1/password/forgot/verify_code
-
-:lock: HAWK-authenticated with the passwordForgotToken.
-
-Once the code created by `/v1/password/forgot/send_code` is emailed to the user, and they paste it into their browser, the browser agent should deliver it to this `verify_code` endpoint (along with the `passwordForgotToken`). This will cause the server to allocate and return an `accountResetToken`, which can be used to reset the account password and wrap(kB) with the `/v1/account/reset` API (described above).
-
-___Parameters___
-
-* code - the code sent to the user's recovery method
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/password/forgot/verify_code \
--d '{
-  "code": "12345678"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with accountResetToken in the JSON body object, as *unencrypted* hex-encoded bytes:
-
-```json
-{
-  "accountResetToken": "99ce20e3f5391e134596c2ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa349917519979b93a45e6d0da34c7509c5632ac35b2865d3"
-}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 105:  invalid verification code
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-* status code 401, errno 115:  invalid authentication nonce
-
-
-## GET /v1/password/forgot/status
-
-:lock: HAWK-authenticated with the passwordForgotToken.
-
-Returns the status for the passwordForgotToken. If the request returns a success response, the token has not yet been consumed. When the token is consumed by a successful reset or expires you can expect to get a 401 HTTP status code with an errno of 110.
-
-### Request
-
-___Headers___
-
-The request must include a Hawk header that authenticates the request using a `passwordForgotToken` received from `/v1/password/forgot/send_code`.
-
-```sh
-curl -v \
--X GET \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/password/forgot/status \
-```
-
-
-### Response
-
-Successful requests will produce a "200 OK" response with the tries and ttl in the JSON body object:
-
-```json
-{ "tries": 3, "ttl": 420 }
-```
-
-Failing requests may be due to the following errors:
-
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
-
-## POST /v1/account/device
-
-:lock: HAWK-authenticated with the sessionToken.
-
-Either registers a new device for this user/session
-(if a device `id` is not specified)
-or updates existing device details for this user/session
-(if a device `id` is specified).
-
-If no device `id` is specified,
+If no device id is specified,
 both `name` and `type` must be provided.
-If a device `id` is specified,
-at least one of `name`, `type`, `pushCallback` or the tuple (`pushCallback`, `pushPublicKey` and `pushAuthKey`)
+If a device id is specified,
+at least one of `name`, `type`, `pushCallback`
+or the tuple `{ pushCallback, pushPublicKey, pushAuthKey }`
 must be present.
-Beware that if you provide `pushCallback` without the couple (`pushPublicKey` and `pushAuthKey`), both of
-the keys will be reset to an empty string.
+Beware that if you provide `pushCallback`
+without the pair `{ pushPublicKey, pushAuthKey }`,
+both of those keys will be reset
+to the empty string.
 
-Devices should register with this endpoint *before* attempting to obtain a signed certificate
-and perform their first sync, so that an appropriate device name can be made available
-to other connected devices.
+Devices should register with this endpoint
+before attempting to obtain a signed certificate
+and perform their first sync,
+so that an appropriate device name
+can be made available to other connected devices.
+<!--end-route-post-accountdevice-->
 
-### Request
+##### Request body
 
-___Headers___
+* `id`: *string, length(32), regex(HEX_STRING), required*
 
-The request must include a Hawk header that authenticates the request
-using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
+  <!--begin-request-body-post-accountdevice-id-->
+  
+  <!--end-request-body-post-accountdevice-id-->
 
-#### Registering a new device
+* `name`: *string, max(255), regex(DISPLAY_SAFE_UNICODE), optional*;<br />or *string, max(255), regex(DISPLAY_SAFE_UNICODE), required*
 
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/account/device \
--d '{
-  "name": "My Phone",
-  "type": "mobile",
-  "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
-  "pushPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
-  "pushAuthKey": "w3b14Zjc-Afj2SDOLOyong"
-}'
-```
+  <!--begin-request-body-post-accountdevice-name-->
+  
+  <!--end-request-body-post-accountdevice-name-->
 
-#### Updating an existing device
+* `type`: *string, max(16), optional*;<br />or *string, max(16), required*
 
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/account/device \
--d '{
-  "id": "0f7aa00356e5416e82b3bef7bc409eef",
-  "name": "My Old Phone"
-}'
-```
+  <!--begin-request-body-post-accountdevice-type-->
+  
+  <!--end-request-body-post-accountdevice-type-->
 
-### Response
+* `pushCallback`: *string, uri({ scheme: 'https' }), regex(PUSH_SERVER_REGEX), max(255), optional, allow('')*
 
-Successful requests will return a `200 OK` response
-with an object that contains the device id in the JSON body:
+  <!--begin-request-body-post-accountdevice-pushCallback-->
+  
+  <!--end-request-body-post-accountdevice-pushCallback-->
 
-```json
-{
-  "id": "0f7aa00356e5416e82b3bef7bc409eef",
-  "createdAt": 1447755864288,
-  "name": "My Phone",
-  "type": "mobile",
-  "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
-  "pushPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
-  "pushAuthKey": "w3b14Zjc-Afj2SDOLOyong"
-}
-```
+* `pushPublicKey`: *string, max(88), regex(URLSAFEBASE64), optional, allow('')*
 
-Failing requests may return the following errors:
+  <!--begin-request-body-post-accountdevice-pushPublicKey-->
+  
+  <!--end-request-body-post-accountdevice-pushPublicKey-->
 
-* status code 400, errno 123: unknown device
-* status code 400, errno 124: session already registered by another device
+* `pushAuthKey`: *string, max(24), regex(URLSAFEBASE64), optional, allow('')*
 
-## GET /v1/account/devices
+  <!--begin-request-body-post-accountdevice-pushAuthKey-->
+  
+  <!--end-request-body-post-accountdevice-pushAuthKey-->
 
-:lock: HAWK-authenticated with the sessionToken.
+##### Response body
 
-Returns the list of all registered devices
+* `id`: *string, length(32), regex(HEX_STRING), required*
+
+  <!--begin-response-body-post-accountdevice-id-->
+  
+  <!--end-response-body-post-accountdevice-id-->
+
+* `createdAt`: *number, positive, optional*
+
+  <!--begin-response-body-post-accountdevice-createdAt-->
+  
+  <!--end-response-body-post-accountdevice-createdAt-->
+
+* `name`: *string, max(255), optional*
+
+  <!--begin-response-body-post-accountdevice-name-->
+  
+  <!--end-response-body-post-accountdevice-name-->
+
+* `type`: *string, max(16), optional*
+
+  <!--begin-response-body-post-accountdevice-type-->
+  
+  <!--end-response-body-post-accountdevice-type-->
+
+* `pushCallback`: *string, uri({ scheme: 'https' }), max(255), optional, allow('')*
+
+  <!--begin-response-body-post-accountdevice-pushCallback-->
+  
+  <!--end-response-body-post-accountdevice-pushCallback-->
+
+* `pushPublicKey`: *string, max(88), regex(URLSAFEBASE64), optional, allow('')*
+
+  <!--begin-response-body-post-accountdevice-pushPublicKey-->
+  
+  <!--end-response-body-post-accountdevice-pushPublicKey-->
+
+* `pushAuthKey`: *string, max(24), regex(URLSAFEBASE64), optional, allow('')*
+
+  <!--begin-response-body-post-accountdevice-pushAuthKey-->
+  
+  <!--end-response-body-post-accountdevice-pushAuthKey-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 503, errno: 202`:
+  Feature not enabled
+
+
+#### POST /account/devices/notify
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-accountdevicesnotify-->
+Notifies a set of devices associated with the user's account
+of an event by sending a browser push notification.
+A typical use case would be
+to send a notification to another device
+after sending a tab with Sync,
+so it can sync too
+and display the tab in a timely manner.
+<!--end-route-post-accountdevicesnotify-->
+
+##### Request body
+
+* `to`: *string, valid('all'), required*;<br />or *array, items(string, length(32), regex(HEX_STRING)), required*
+
+  <!--begin-request-body-post-accountdevicesnotify-to-->
+  Devices to notify.
+  May be the string `'all'`
+  or an array
+  containing the relevant device ids.
+  <!--end-request-body-post-accountdevicesnotify-to-->
+
+* `excluded`: *array, items(string, length(32), regex(HEX_STRING)), optional*
+
+  <!--begin-request-body-post-accountdevicesnotify-excluded-->
+  Array of device ids
+  to exclude from the notification.
+  Ignored unless `to:"all"` is specified.
+  <!--end-request-body-post-accountdevicesnotify-excluded-->
+
+* `payload`: *object, required*
+
+  <!--begin-request-body-post-accountdevicesnotify-payload-->
+  Push payload,
+  validated against [`pushpayloads.schema.json`](pushpayloads.schema.json).
+  <!--end-request-body-post-accountdevicesnotify-payload-->
+
+* `TTL`: *number, integer, min(0), optional*
+
+  <!--begin-request-body-post-accountdevicesnotify-TTL-->
+  Push notification TTL,
+  defaults to `0`.
+  <!--end-request-body-post-accountdevicesnotify-TTL-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 503, errno: 202`:
+  Feature not enabled
+
+* `code: 400, errno: 107`:
+  Invalid parameter in request body
+
+
+#### GET /account/devices
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-accountdevices-->
+Returns an array
+of registered device objects
 for the authenticated user.
+<!--end-route-get-accountdevices-->
 
-### Request
+##### Response body
 
-___Headers___
+* `id`: *string, length(32), regex(HEX_STRING), required*
 
-The request must include a Hawk header that authenticates the request
-using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
+  <!--begin-response-body-get-accountdevices-id-->
+  
+  <!--end-response-body-get-accountdevices-id-->
 
-```sh
-curl -v \
--X GET \
--H "Host: api-accounts.dev.lcip.org" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/account/devices
-```
+* `isCurrentDevice`: *boolean, required*
 
-### Response
+  <!--begin-response-body-get-accountdevices-isCurrentDevice-->
+  
+  <!--end-response-body-get-accountdevices-isCurrentDevice-->
 
-Successful requests will return a `200 OK` response
-with an array of device details in the JSON body:
+* `lastAccessTime`: *number, min(0), required, allow(null)*
 
-```json
-[
-  {
-    "id": "0f7aa00356e5416e82b3bef7bc409eef",
-    "isCurrentDevice": true,
-    "lastAccessTime": 1449235471335,
-    "lastAccessTimeFormatted": "a few seconds ago",
-    "name": "My Phone",
-    "type": "mobile",
-    "pushCallback": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
-    "pushPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
-    "pushAuthKey": "w3b14Zjc-Afj2SDOLOyong"
-  },
-  {
-    "id": "0f7aa00356e5416e82b3bef7bc409eef",
-    "isCurrentDevice": false,
-    "lastAccessTime": 1417699471335,
-    "lastAccessTimeFormatted": "a few seconds ago",
-    "name": "My Desktop",
-    "type": null,
-    "pushCallback": "https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75",
-    "pushPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
-    "pushAuthKey": "w3b14Zjc-Afj2SDOLOyong"
-  }
-]
-```
+  <!--begin-response-body-get-accountdevices-lastAccessTime-->
+  
+  <!--end-response-body-get-accountdevices-lastAccessTime-->
 
-Failing requests may return the following error:
+* `lastAccessTimeFormatted`: *string, optional, allow('')*
 
-* status code 400, errno 102: unknown account
+  <!--begin-response-body-get-accountdevices-lastAccessTimeFormatted-->
+  
+  <!--end-response-body-get-accountdevices-lastAccessTimeFormatted-->
 
-## POST /v1/account/devices/notify
+* `name`: *string, max(255), required, allow('')*
 
-:lock: HAWK-authenticated with the sessionToken.
+  <!--begin-response-body-get-accountdevices-name-->
+  
+  <!--end-response-body-get-accountdevices-name-->
 
-Notifies a set of devices in the caller's account of an event
-by sending a Push notification. A typical use case would be to
-send a notification to another device after sending a tab with Sync,
-so it can sync as well and display the tab in a timely manner.
+* `type`: *string, max(16), required*
 
-### Request
+  <!--begin-response-body-get-accountdevices-type-->
+  
+  <!--end-response-body-get-accountdevices-type-->
 
-___Parameters___
+* `pushCallback`: *string, uri({ scheme: 'https' }), max(255), optional, allow(''), allow(null)*
 
-* to - the devices to send the notification to. It can be the string "all" (all devices except the caller) or an array of devices id.
-* excluded - (optional) only with "to": "all". Devices IDs to exclude from the notification.
-* payload - payload to send. It will be validated against [pushpayloads.schema.json](pushpayloads.schema.json).
-* TTL - (optional) TTL in seconds of the push notification (defaults to 0)
+  <!--begin-response-body-get-accountdevices-pushCallback-->
+  
+  <!--end-response-body-get-accountdevices-pushCallback-->
 
-___Headers___
+* `pushPublicKey`: *string, max(88), regex(URLSAFEBASE64), optional, allow(''), allow(null)*
 
-The request must include a Hawk header that authenticates the request
-using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
+  <!--begin-response-body-get-accountdevices-pushPublicKey-->
+  
+  <!--end-response-body-get-accountdevices-pushPublicKey-->
 
-#### Notify all other devices except excluded devices identified by their id
+* `pushAuthKey`: *string, max(24), regex(URLSAFEBASE64), optional, allow(''), allow(null)*
 
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/account/devices/notify \
--d '{
-  "to": "all",
-  "excluded": ["0f7aa00356e5416e82b3bef7bc409eef"],
-  "payload": {
-    version: 1,
-    command: "sync:collection_changed",
-    data: {
-      collections: ["clients"]
-    }
-  },
-  "TTL": 10
-}'
-```
+  <!--begin-response-body-get-accountdevices-pushAuthKey-->
+  
+  <!--end-response-body-get-accountdevices-pushAuthKey-->
 
-#### Notify specific devices identified by their id
 
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/account/devices/notify \
--d '{
-  "to": ["0f7aa00356e5416e82b3bef7bc409eef", "fee904cb7feb3b28e6145e65300aa7f0"],
-  "payload": {
-    version: 1,
-    command: "sync:collection_changed",
-    data: {
-      collections: ["clients"]
-    }
-  }
-}'
-```
+#### GET /account/sessions
 
-### Response
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-accountsessions-->
+Returns an array
+of session objects
+for the authenticated user.
+<!--end-route-get-accountsessions-->
 
-Successful requests will return a `200 OK` response
-with an empty object in the JSON body:
+##### Response body
 
-```json
-{}
-```
+* `id`: *string, regex(HEX_STRING), required*
 
-Failing requests may return the following error:
+  <!--begin-response-body-get-accountsessions-id-->
+  
+  <!--end-response-body-get-accountsessions-id-->
 
-* status code 400, errno 107: may be sent if the payload parameter is not valid
+* `lastAccessTime`: *number, min(0), required, allow(null)*
 
-## POST /v1/account/device/destroy
+  <!--begin-response-body-get-accountsessions-lastAccessTime-->
+  
+  <!--end-response-body-get-accountsessions-lastAccessTime-->
 
-:lock: HAWK-authenticated with the sessionToken.
+* `lastAccessTimeFormatted`: *string, optional, allow('')*
 
-Destroys an existing device record
-and its associated sessionToken
+  <!--begin-response-body-get-accountsessions-lastAccessTimeFormatted-->
+  
+  <!--end-response-body-get-accountsessions-lastAccessTimeFormatted-->
+
+* `userAgent`: *string, max(255), required, allow('')*
+
+  <!--begin-response-body-get-accountsessions-userAgent-->
+  
+  <!--end-response-body-get-accountsessions-userAgent-->
+
+* `os`: *string, max(255), allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-os-->
+  
+  <!--end-response-body-get-accountsessions-os-->
+
+* `deviceId`: *string, regex(HEX_STRING), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceId-->
+  
+  <!--end-response-body-get-accountsessions-deviceId-->
+
+* `deviceName`: *string, max(255), required, allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceName-->
+  
+  <!--end-response-body-get-accountsessions-deviceName-->
+
+* `deviceType`: *string, max(16), required, allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceType-->
+  
+  <!--end-response-body-get-accountsessions-deviceType-->
+
+* `deviceCallbackURL`: *string, uri({ scheme: 'https' }), max(255), optional, allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceCallbackURL-->
+  
+  <!--end-response-body-get-accountsessions-deviceCallbackURL-->
+
+* `deviceCallbackPublicKey`: *string, max(88), regex(URLSAFEBASE64), optional, allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceCallbackPublicKey-->
+  
+  <!--end-response-body-get-accountsessions-deviceCallbackPublicKey-->
+
+* `deviceCallbackAuthKey`: *string, max(24), regex(URLSAFEBASE64), optional, allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceCallbackAuthKey-->
+  
+  <!--end-response-body-get-accountsessions-deviceCallbackAuthKey-->
+
+* `isDevice`: *boolean, required*
+
+  <!--begin-response-body-get-accountsessions-isDevice-->
+  
+  <!--end-response-body-get-accountsessions-isDevice-->
+
+* `isCurrentDevice`: *boolean, required*
+
+  <!--begin-response-body-get-accountsessions-isCurrentDevice-->
+  
+  <!--end-response-body-get-accountsessions-isCurrentDevice-->
+
+
+#### POST /account/device/destroy
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-accountdevicedestroy-->
+Destroys a device record
+and the associated `sessionToken`
 for the authenticated user.
 The identified device must sign in again
 to use the API after this request has succeeded.
+<!--end-route-post-accountdevicedestroy-->
 
-### Request
+##### Request body
 
-___Headers___
+* `id`: *string, length(32), regex(HEX_STRING), required*
 
-The request must include a Hawk header that authenticates the request
-using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
+  <!--begin-request-body-post-accountdevicedestroy-id-->
+  
+  <!--end-request-body-post-accountdevicedestroy-id-->
 
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/account/device/destroy \
--d '{
-  "id": "0f7aa00356e5416e82b3bef7bc409eef"
-}'
-```
 
-### Response
+#### GET /recovery_email/status
 
-Successful requests will return a `200 OK` response
-with an empty object in the JSON body:
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-recovery_emailstatus-->
+Returns the "verified" status
+for the account's recovery email address.
 
-```json
-{}
-```
+Currently, each account is associated
+with exactly one email address.
+This address must be verified
+before the account can be used
+(specifically, `POST /certificate/sign` and `GET /account/keys`
+will return errors until the address is verified).
+In the future, this may be expanded to include multiple addresses,
+and/or alternate types of recovery methods (e.g. SMS).
+A new API will be provided for this extra functionality.
 
-Failing requests may return the following error:
+This call is used to determine the current state
+(verified or unverified)
+of the account.
+During account creation,
+until the address is verified,
+the agent can poll this method
+to discover when it should proceed
+with `POST /certificate/sign` and `GET /account/keys`.
+<!--end-route-get-recovery_emailstatus-->
 
-* status code 400, errno 123: unknown device
+##### Query parameters
 
-## POST /v1/sms
+* `reason`: *string, max(16), optional*
 
-:lock: HAWK-authenticated with the sessionToken.
+  <!--begin-query-param-get-recovery_emailstatus-reason-->
+  
+  <!--end-query-param-get-recovery_emailstatus-reason-->
 
+##### Response body
+
+* `email`: *string, required*
+
+  <!--begin-response-body-get-recovery_emailstatus-email-->
+  
+  <!--end-response-body-get-recovery_emailstatus-email-->
+
+* `verified`: *boolean, required*
+
+  <!--begin-response-body-get-recovery_emailstatus-verified-->
+  
+  <!--end-response-body-get-recovery_emailstatus-verified-->
+
+* `sessionVerified`: *boolean, optional*
+
+  <!--begin-response-body-get-recovery_emailstatus-sessionVerified-->
+  
+  <!--end-response-body-get-recovery_emailstatus-sessionVerified-->
+
+* `emailVerified`: *boolean, optional*
+
+  <!--begin-response-body-get-recovery_emailstatus-emailVerified-->
+  
+  <!--end-response-body-get-recovery_emailstatus-emailVerified-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 401, errno: 110`:
+  Invalid authentication token in request signature
+
+
+#### POST /recovery_email/resend_code
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-recovery_emailresend_code-->
+Re-sends a verification code
+to the account's recovery email address.
+The code is first sent when the account is created,
+but if the user thinks the message was lost
+or accidentally deleted,
+they can request a new message to be sent
+via this endpoint.
+The new message will contain the same code
+as the original message.
+When this code is provided to `/v1/recovery_email/verify_code`,
+the email will be marked as "verified".
+
+This endpoint may send a verification email to the user.
+Callers may optionally provide
+the `service` parameter to indicate
+what identity-attached service
+they're acting on behalf of.
+This is an opaque alphanumeric token
+that will be embedded
+in the verification link
+as a query parameter.
+<!--end-route-post-recovery_emailresend_code-->
+
+##### Query parameters
+
+* `service`: *validators.service*
+
+  <!--begin-query-param-post-recovery_emailresend_code-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-query-param-post-recovery_emailresend_code-service-->
+
+##### Request body
+
+* `email`: *validators.email.optional*
+
+  <!--begin-request-body-post-recovery_emailresend_code-email-->
+  
+  <!--end-request-body-post-recovery_emailresend_code-email-->
+
+* `service`: *validators.service*
+
+  <!--begin-request-body-post-recovery_emailresend_code-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-request-body-post-recovery_emailresend_code-service-->
+
+* `redirectTo`: *validators.redirectTo(config.smtp.redirectDomain).optional*
+
+  <!--begin-request-body-post-recovery_emailresend_code-redirectTo-->
+  
+  <!--end-request-body-post-recovery_emailresend_code-redirectTo-->
+
+* `resume`: *string, max(2048), optional*
+
+  <!--begin-request-body-post-recovery_emailresend_code-resume-->
+  Opaque URL-encoded string to be included in the verification link as a query parameter.
+  <!--end-request-body-post-recovery_emailresend_code-resume-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-recovery_emailresend_code-metricsContext-->
+  
+  <!--end-request-body-post-recovery_emailresend_code-metricsContext-->
+
+
+#### POST /recovery_email/verify_code
+<!--begin-route-post-recovery_emailverify_code-->
+Verify tokens and/or recovery emails for an account.
+If a valid token code is detected,
+the account email and tokens will be set to verified.
+If a valid email code is detected,
+the email will be marked as verified.
+
+The verification code will be a random token,
+delivered in the fragment identifier of a URL
+sent to the user's email address.
+Navigating to the URL opens a page
+that extracts the code from the fragment identifier
+and performs a POST to `/recovery_email/verify_code`.
+The link can be clicked from any browser,
+not just the one being attached to the Firefox account.
+<!--end-route-post-recovery_emailverify_code-->
+
+##### Query parameters
+
+* `service`: *validators.service*
+
+  <!--begin-query-param-post-recovery_emailverify_code-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-query-param-post-recovery_emailverify_code-service-->
+
+* `reminder`: *string, max(32), alphanum, optional*
+
+  <!--begin-query-param-post-recovery_emailverify_code-reminder-->
+  The reminder email associated with the code.
+  <!--end-query-param-post-recovery_emailverify_code-reminder-->
+
+* `type`: *string, max(32), alphanum, optional*
+
+  <!--begin-query-param-post-recovery_emailverify_code-type-->
+  The type of code being verified.
+  <!--end-query-param-post-recovery_emailverify_code-type-->
+
+##### Request body
+
+* `uid`: *string, max(32), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-recovery_emailverify_code-uid-->
+  
+  <!--end-request-body-post-recovery_emailverify_code-uid-->
+
+* `code`: *string, min(32), max(32), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-recovery_emailverify_code-code-->
+  
+  <!--end-request-body-post-recovery_emailverify_code-code-->
+
+* `service`: *validators.service*
+
+  <!--begin-request-body-post-recovery_emailverify_code-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-request-body-post-recovery_emailverify_code-service-->
+
+* `reminder`: *string, max(32), alphanum, optional*
+
+  <!--begin-request-body-post-recovery_emailverify_code-reminder-->
+  The reminder email associated with the code.
+  <!--end-request-body-post-recovery_emailverify_code-reminder-->
+
+* `type`: *string, max(32), alphanum, optional*
+
+  <!--begin-request-body-post-recovery_emailverify_code-type-->
+  The type of code being verified.
+  <!--end-request-body-post-recovery_emailverify_code-type-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 105`:
+  Invalid verification code
+
+
+#### GET /recovery_emails
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-recovery_emails-->
+Returns an array of objects
+containing details of the email addresses
+associated with the logged-in user.
+Currently,
+the primary email address
+is always the one
+from the `accounts` table.
+<!--end-route-get-recovery_emails-->
+
+##### Response body
+
+* `verified`: *boolean, required*
+
+  <!--begin-response-body-get-recovery_emails-verified-->
+  
+  <!--end-response-body-get-recovery_emails-verified-->
+
+* `isPrimary`: *boolean, required*
+
+  <!--begin-response-body-get-recovery_emails-isPrimary-->
+  
+  <!--end-response-body-get-recovery_emails-isPrimary-->
+
+* `email`: *validators.email.required*
+
+  <!--begin-response-body-get-recovery_emails-email-->
+  
+  <!--end-response-body-get-recovery_emails-email-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 503, errno: 202`:
+  Feature not enabled
+
+
+#### POST /recovery_email
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-recovery_email-->
+Add a secondary email address
+to the logged-in account.
+The created address will be unverified
+and will not replace the primary email address.
+<!--end-route-post-recovery_email-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-recovery_email-email-->
+  The email address to add to the account.
+  <!--end-request-body-post-recovery_email-email-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 503, errno: 202`:
+  Feature not enabled
+
+* `code: 400, errno: 104`:
+  Unverified account
+
+* `code: 400, errno: 138`:
+  Unverified session
+
+* `code: 400, errno: 139`:
+  Can not add secondary email that is same as your primary
+
+* `code: 400, errno: 140`:
+  Email already exists
+
+* `code: 400, errno: 141`:
+  Email already exists
+
+
+#### POST /recovery_email/destroy
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-recovery_emaildestroy-->
+Delete an email address
+associated with the logged-in user.
+<!--end-route-post-recovery_emaildestroy-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-recovery_emaildestroy-email-->
+  The email address to delete.
+  <!--end-request-body-post-recovery_emaildestroy-email-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 503, errno: 202`:
+  Feature not enabled
+
+* `code: 400, errno: 138`:
+  Unverified session
+
+
+#### POST /account/unlock/resend_code
+<!--begin-route-post-accountunlockresend_code-->
+This endpoint is deprecated.
+<!--end-route-post-accountunlockresend_code-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 410, errno: 116`:
+  This endpoint is no longer supported
+
+
+#### POST /account/unlock/verify_code
+<!--begin-route-post-accountunlockverify_code-->
+This endpoint is deprecated.
+<!--end-route-post-accountunlockverify_code-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 410, errno: 116`:
+  This endpoint is no longer supported
+
+
+#### POST /account/login/send_unblock_code
+<!--begin-route-post-accountloginsend_unblock_code-->
+Send an unblock code via email
+to reset rate-limiting for an account.
+<!--end-route-post-accountloginsend_unblock_code-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-accountloginsend_unblock_code-email-->
+  Primary email for the account.
+  <!--end-request-body-post-accountloginsend_unblock_code-email-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-accountloginsend_unblock_code-metricsContext-->
+  
+  <!--end-request-body-post-accountloginsend_unblock_code-metricsContext-->
+
+
+#### POST /account/login/reject_unblock_code
+<!--begin-route-post-accountloginreject_unblock_code-->
+Used to reject and report
+unblock codes that were not requested by the user.
+<!--end-route-post-accountloginreject_unblock_code-->
+
+##### Request body
+
+* `uid`: *string, max(32), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-accountloginreject_unblock_code-uid-->
+  The user id.
+  <!--end-request-body-post-accountloginreject_unblock_code-uid-->
+
+* `unblockCode`: *string, regex(BASE_36), length(unblockCodeLen), required*
+
+  <!--begin-request-body-post-accountloginreject_unblock_code-unblockCode-->
+  The unblock code.
+  <!--end-request-body-post-accountloginreject_unblock_code-unblockCode-->
+
+
+#### POST /account/reset
+
+:lock: HAWK-authenticated with account reset token
+<!--begin-route-post-accountreset-->
+This sets the account password
+and resets `wrapKb` to a new random value.
+
+Account reset tokens are single-use
+and consumed regardless of
+whether the request succeeds or fails.
+They are returned by
+the `POST /password/forgot/verify_code` endpoint.
+
+The caller can optionally request
+a new `sessionToken` and `keyFetchToken`.
+<!--end-route-post-accountreset-->
+
+##### Query parameters
+
+* `keys`: *boolean, optional*
+
+  <!--begin-query-param-post-accountreset-keys-->
+  Indicates whether a new `keyFetchToken` is required, default to `false`.
+  <!--end-query-param-post-accountreset-keys-->
+
+##### Request body
+
+* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-accountreset-authPW-->
+  The PBKDF2/HKDF-stretched password as a hex string.
+  <!--end-request-body-post-accountreset-authPW-->
+
+* `sessionToken`: *boolean, optional*
+
+  <!--begin-request-body-post-accountreset-sessionToken-->
+  Indicates whether a new `sessionToken` is required, default to `false`.
+  <!--end-request-body-post-accountreset-sessionToken-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-accountreset-metricsContext-->
+  
+  <!--end-request-body-post-accountreset-metricsContext-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 108`:
+  Missing parameter in request body
+
+
+#### POST /account/destroy
+<!--begin-route-post-accountdestroy-->
+Deletes an account.
+All stored data is erased.
+The client should seek user confirmation first.
+The client should erase data
+stored on any attached services
+before deleting the user's account data.
+<!--end-route-post-accountdestroy-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-accountdestroy-email-->
+  Primary email address of the account.
+  <!--end-request-body-post-accountdestroy-email-->
+
+* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-accountdestroy-authPW-->
+  The PBKDF2/HKDF-stretched password as a hex string.
+  <!--end-request-body-post-accountdestroy-authPW-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 103`:
+  Incorrect password
+
+
+### Password
+
+#### POST /password/change/start
+<!--begin-route-post-passwordchangestart-->
+Begin the "change password" process.
+Returns a single-use `passwordChangeToken`,
+to be sent to `POST /password/change/finish`.
+Also returns a single-use `keyFetchToken`.
+<!--end-route-post-passwordchangestart-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-passwordchangestart-email-->
+  Primary email address of the account.
+  <!--end-request-body-post-passwordchangestart-email-->
+
+* `oldAuthPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-passwordchangestart-oldAuthPW-->
+  The PBKDF2/HKDF-stretched password as a hex string.
+  <!--end-request-body-post-passwordchangestart-oldAuthPW-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 103`:
+  Incorrect password
+
+
+#### POST /password/change/finish
+
+:lock: HAWK-authenticated with password change token
+<!--begin-route-post-passwordchangefinish-->
+Change the password and update `wrapKb`.
+Optionally returns `sessionToken` and `keyFetchToken`.
+<!--end-route-post-passwordchangefinish-->
+
+##### Query parameters
+
+* `keys`: *boolean, optional*
+
+  <!--begin-query-param-post-passwordchangefinish-keys-->
+  Indicates whether a new `keyFetchToken` is required, default to `false`.
+  <!--end-query-param-post-passwordchangefinish-keys-->
+
+##### Request body
+
+* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-passwordchangefinish-authPW-->
+  The PBKDF2/HKDF-stretched password as a hex string.
+  <!--end-request-body-post-passwordchangefinish-authPW-->
+
+* `wrapKb`: *string, min(64), max(64), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-passwordchangefinish-wrapKb-->
+  The new `wrapKb` value as a hex string.
+  <!--end-request-body-post-passwordchangefinish-wrapKb-->
+
+* `sessionToken`: *string, min(64), max(64), regex(HEX_STRING), optional*
+
+  <!--begin-request-body-post-passwordchangefinish-sessionToken-->
+  Indicates whether a new `sessionToken` is required, default to `false`.
+  <!--end-request-body-post-passwordchangefinish-sessionToken-->
+
+
+#### POST /password/forgot/send_code
+<!--begin-route-post-passwordforgotsend_code-->
+Requests a "reset password" code
+to be sent to the user's recovery email.
+The user should type this code into the agent,
+which will then submit it
+to `POST /password/forgot/verify_code`.
+
+The code will be either 8 or 16 digits long,
+with the length indicated in the response.
+The email will either contain the code itself
+or the URL for a web page that displays the code.
+
+The response includes `passwordForgotToken`,
+which must be submitted with the code
+to `POST /password/forgot/verify_code`.
+
+The response also specifies the TTL of `passwordForgotToken`
+and an upper limit on the number of times
+the token may be submitted.
+By limiting the number of submission attempts,
+we also limit an attacker's ability to guess the code.
+After the token expires,
+or the maximum number of submissions has been made,
+the agent must call this endpoint again
+to generate a new code and token pair.
+
+Each account can have at most
+one `passwordForgotToken` valid at a time.
+Calling this endpoint causes existing tokens
+to be invalidated and a new one created.
+Each token is associated with a specific code,
+so by extension the codes are invalidated
+with their tokens.
+<!--end-route-post-passwordforgotsend_code-->
+
+##### Query parameters
+
+* `service`: *validators.service*
+
+  <!--begin-query-param-post-passwordforgotsend_code-service-->
+  Identifies the relying service
+  the user was interacting with
+  that triggered the password reset.
+  <!--end-query-param-post-passwordforgotsend_code-service-->
+
+* `keys`: *boolean, optional*
+
+  <!--begin-query-param-post-passwordforgotsend_code-keys-->
+  
+  <!--end-query-param-post-passwordforgotsend_code-keys-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-passwordforgotsend_code-email-->
+  Recovery email for the account.
+  <!--end-request-body-post-passwordforgotsend_code-email-->
+
+* `service`: *validators.service*
+
+  <!--begin-request-body-post-passwordforgotsend_code-service-->
+  Identifies the relying service
+  the user was interacting with
+  that triggered the password reset.
+  <!--end-request-body-post-passwordforgotsend_code-service-->
+
+* `redirectTo`: *validators.redirectTo(redirectDomain).optional*
+
+  <!--begin-request-body-post-passwordforgotsend_code-redirectTo-->
+  URL that the client should be redirected to
+  after handling the request.
+  <!--end-request-body-post-passwordforgotsend_code-redirectTo-->
+
+* `resume`: *string, max(2048), optional*
+
+  <!--begin-request-body-post-passwordforgotsend_code-resume-->
+  Opaque URL-encoded string to be included in the verification link as a query parameter.
+  <!--end-request-body-post-passwordforgotsend_code-resume-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-passwordforgotsend_code-metricsContext-->
+  
+  <!--end-request-body-post-passwordforgotsend_code-metricsContext-->
+
+##### Response body
+
+* `passwordForgotToken`: *string*
+
+  <!--begin-response-body-post-passwordforgotsend_code-passwordForgotToken-->
+  
+  <!--end-response-body-post-passwordforgotsend_code-passwordForgotToken-->
+
+* `ttl`: *number*
+
+  <!--begin-response-body-post-passwordforgotsend_code-ttl-->
+  
+  <!--end-response-body-post-passwordforgotsend_code-ttl-->
+
+* `codeLength`: *number*
+
+  <!--begin-response-body-post-passwordforgotsend_code-codeLength-->
+  
+  <!--end-response-body-post-passwordforgotsend_code-codeLength-->
+
+* `tries`: *number*
+
+  <!--begin-response-body-post-passwordforgotsend_code-tries-->
+  
+  <!--end-response-body-post-passwordforgotsend_code-tries-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 145`:
+  Reset password with this email type is not currently supported
+
+
+#### POST /password/forgot/resend_code
+
+:lock: HAWK-authenticated with password forgot token
+<!--begin-route-post-passwordforgotresend_code-->
+Resends the email
+from `POST /password/forgot/send_code`,
+for use when the original email
+has been lost or accidentally deleted.
+
+This endpoint requires the `passwordForgotToken`
+returned in the original response,
+so only the original client which started the process
+may request a resent message.
+The response will match that from
+`POST /password/forgot/send_code`,
+except `ttl` will be lower
+to indicate the shorter validity period.
+`tries` will also be lower
+if `POST /password/forgot/verify_code`
+has been called.
+<!--end-route-post-passwordforgotresend_code-->
+
+##### Query parameters
+
+* `service`: *validators.service*
+
+  <!--begin-query-param-post-passwordforgotresend_code-service-->
+  Identifies the relying service
+  the user was interacting with
+  that triggered the password reset.
+  <!--end-query-param-post-passwordforgotresend_code-service-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-passwordforgotresend_code-email-->
+  Recovery email for the account.
+  <!--end-request-body-post-passwordforgotresend_code-email-->
+
+* `service`: *validators.service*
+
+  <!--begin-request-body-post-passwordforgotresend_code-service-->
+  Identifies the relying service
+  the user was interacting with
+  that triggered the password reset.
+  <!--end-request-body-post-passwordforgotresend_code-service-->
+
+* `redirectTo`: *validators.redirectTo(redirectDomain).optional*
+
+  <!--begin-request-body-post-passwordforgotresend_code-redirectTo-->
+  URL that the client should be redirected to
+  after handling the request.
+  <!--end-request-body-post-passwordforgotresend_code-redirectTo-->
+
+* `resume`: *string, max(2048), optional*
+
+  <!--begin-request-body-post-passwordforgotresend_code-resume-->
+  Opaque URL-encoded string to be included in the verification link as a query parameter.
+  <!--end-request-body-post-passwordforgotresend_code-resume-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-passwordforgotresend_code-metricsContext-->
+  
+  <!--end-request-body-post-passwordforgotresend_code-metricsContext-->
+
+##### Response body
+
+* `passwordForgotToken`: *string*
+
+  <!--begin-response-body-post-passwordforgotresend_code-passwordForgotToken-->
+  
+  <!--end-response-body-post-passwordforgotresend_code-passwordForgotToken-->
+
+* `ttl`: *number*
+
+  <!--begin-response-body-post-passwordforgotresend_code-ttl-->
+  
+  <!--end-response-body-post-passwordforgotresend_code-ttl-->
+
+* `codeLength`: *number*
+
+  <!--begin-response-body-post-passwordforgotresend_code-codeLength-->
+  
+  <!--end-response-body-post-passwordforgotresend_code-codeLength-->
+
+* `tries`: *number*
+
+  <!--begin-response-body-post-passwordforgotresend_code-tries-->
+  
+  <!--end-response-body-post-passwordforgotresend_code-tries-->
+
+
+#### POST /password/forgot/verify_code
+
+:lock: HAWK-authenticated with password forgot token
+<!--begin-route-post-passwordforgotverify_code-->
+The code returned by `POST /v1/password/forgot/send_code`
+should be submitted to this endpoint
+with the `passwordForgotToken`.
+For successful requests,
+the server will return `accountResetToken`,
+to be submitted in requests to `POST /account/reset`
+to reset the account password and `wrapKb`.
+<!--end-route-post-passwordforgotverify_code-->
+
+##### Request body
+
+* `code`: *string, min(32), max(32), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-passwordforgotverify_code-code-->
+  The code sent to the user's recovery email.
+  <!--end-request-body-post-passwordforgotverify_code-code-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-passwordforgotverify_code-metricsContext-->
+  
+  <!--end-request-body-post-passwordforgotverify_code-metricsContext-->
+
+##### Response body
+
+* `accountResetToken`: *string*
+
+  <!--begin-response-body-post-passwordforgotverify_code-accountResetToken-->
+  
+  <!--end-response-body-post-passwordforgotverify_code-accountResetToken-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 105`:
+  Invalid verification code
+
+
+#### GET /password/forgot/status
+
+:lock: HAWK-authenticated with password forgot token
+<!--begin-route-get-passwordforgotstatus-->
+Returns the status of a `passwordForgotToken`.
+Success responses indicate
+the token has not yet been consumed.
+For consumed or expired tokens,
+an HTTP `401` response
+with `errno: 110`
+will be returned.
+<!--end-route-get-passwordforgotstatus-->
+
+##### Response body
+
+* `tries`: *number*
+
+  <!--begin-response-body-get-passwordforgotstatus-tries-->
+  
+  <!--end-response-body-get-passwordforgotstatus-tries-->
+
+* `ttl`: *number*
+
+  <!--begin-response-body-get-passwordforgotstatus-ttl-->
+  
+  <!--end-response-body-get-passwordforgotstatus-ttl-->
+
+
+### Session
+
+#### POST /session/destroy
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-sessiondestroy-->
+Destroys the current session
+and invalidates `sessionToken`,
+to be called when a user signs out.
+To sign back in,
+a call must be made to
+`POST /account/login`
+to obtain a new `sessionToken`.
+<!--end-route-post-sessiondestroy-->
+
+##### Request body
+
+* `customSessionToken`: *string, min(64), max(64), regex(HEX_STRING), optional*
+
+  <!--begin-request-body-post-sessiondestroy-customSessionToken-->
+  Custom session token id to destroy.
+  <!--end-request-body-post-sessiondestroy-customSessionToken-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 401, errno: 110`:
+  Invalid authentication token in request signature
+
+
+#### GET /session/status
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-sessionstatus-->
+Returns a success response
+if the session token is valid.
+<!--end-route-get-sessionstatus-->
+
+##### Response body
+
+* `state`: *string, required*
+
+  <!--begin-response-body-get-sessionstatus-state-->
+  
+  <!--end-response-body-get-sessionstatus-state-->
+
+* `uid`: *string, regex(HEX_STRING), required*
+
+  <!--begin-response-body-get-sessionstatus-uid-->
+  
+  <!--end-response-body-get-sessionstatus-uid-->
+
+
+### Sign
+
+#### POST /certificate/sign
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-certificatesign-->
+Sign a BrowserID public key.
+The server is given a public key
+and returns a signed certificate
+using the same JWT-like mechanism
+as a BrowserID primary IdP would
+(see [browserid-certifier](https://github.com/mozilla/browserid-certifier) for details).
+The signed certificate includes
+a `principal.email` property
+to indicate the Firefox Account identifier
+(a UUID at the account server's primary domain)
+and is stamped with an expiry time
+based on the `duration` parameter.
+
+This request will fail unless the
+primary email address for the account
+has been verified.
+
+Clients should include a query parameter, `service`,
+for metrics and validation purposes.
+The value of `service` should be
+`sync` when connecting to Firefox Sync
+or the OAuth `client_id`
+when connecting to an OAuth relier.
+
+If you do not specify a `service` parameter,
+or if you specify `service=sync`,
+this endpoint assumes the request is from
+a legacy Sync client.
+If the session token
+doesn't have a corresponding device record,
+one will be created automatically by the server.
+
+The signed certificate includes these additional claims:
+
+* `fxa-generation`:
+  A number that increases
+  each time the user's password is changed.
+
+* `fxa-lastAuthAt`:
+  Authentication time for this session,
+  in seconds since epoch.
+
+* `fxa-verifiedEmail`:
+  The user's verified recovery email address.
+<!--end-route-post-certificatesign-->
+
+##### Query parameters
+
+* `service`: *validators.service*
+
+  <!--begin-query-param-post-certificatesign-service-->
+  
+  <!--end-query-param-post-certificatesign-service-->
+
+##### Request body
+
+* `publicKey`: *object({ algorithm: string, valid('RS', 'DS'), required, n: string, e: string, y: string, p: string, q: string, g: string, version: string }), required*
+
+  <!--begin-request-body-post-certificatesign-publicKey-->
+  The key to sign
+  (run `bin/generate-keypair`
+  from [browserid-crypto](https://github.com/mozilla/browserid-crypto)).
+  <!--end-request-body-post-certificatesign-publicKey-->
+
+* `duration`: *number, integer, min(0), max(), required*
+
+  <!--begin-request-body-post-certificatesign-duration-->
+  Time interval in milliseconds
+  until the certificate will expire,
+  up to a maximum of 24 hours.
+  <!--end-request-body-post-certificatesign-duration-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 104`:
+  Unverified account
+
+* `code: 400, errno: 108`:
+  Missing parameter in request body
+
+
+### Sms
+
+#### POST /sms
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-sms-->
 Sends an SMS message.
+<!--end-route-post-sms-->
 
-### Request
+##### Request body
 
-___Headers___
+* `phoneNumber`: *string, regex(validators.E164_NUMBER), required*
 
-The request must include a Hawk header
-that authenticates the request
-using a `sessionToken`
-received from `/v1/account/create` or `/v1/account/login`.
+  <!--begin-request-body-post-sms-phoneNumber-->
+  The phone number to send the message to, in E.164 format.
+  <!--end-request-body-post-sms-phoneNumber-->
 
-___Parameters___
+* `messageId`: *number, positive, required*
 
-* phoneNumber - the phone number to send the message to, in E.164 format
-* messageId - the id of the message to send
+  <!--begin-request-body-post-sms-messageId-->
+  The id of the message to send.
+  <!--end-request-body-post-sms-messageId-->
 
-___Example___
+* `metricsContext`: *metricsContext.schema*
 
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/sms \
--d '{
-  "phoneNumber": "+15036789977",
-  "messageId": 1
-}'
-```
+  <!--begin-request-body-post-sms-metricsContext-->
+  
+  <!--end-request-body-post-sms-metricsContext-->
 
-### Response
+##### Error responses
 
-Successful requests
-will return a `200 OK` response
-with an empty object
-in the JSON body:
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
 
-```json
-{}
-```
+* `code: 400, errno: 129`:
+  Invalid phone number
 
-Failing requests may return the following errors:
+* `code: 400, errno: 130`:
+  Invalid region
 
-* status code 400, errno 129: invalid phone number
-* status code 400, errno 130: invalid region
-* status code 400, errno 131: invalid message id
-* status code 500, errno 132: message rejected
-* status code 500, errno 999: unexpected error
 
-## GET /v1/sms/status
+#### GET /sms/status
 
-:lock: HAWK-authenticated with the sessionToken.
-
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-smsstatus-->
 Returns SMS status for the current user.
+<!--end-route-get-smsstatus-->
 
-### Request
+##### Query parameters
 
-___Headers___
+* `country`: *string, regex(/^[A-Z][A-Z]$/), optional*
 
-The request must include a Hawk header
-that authenticates the request
-using a `sessionToken`
-received from `/v1/account/create` or `/v1/account/login`.
+  <!--begin-query-param-get-smsstatus-country-->
+  Skip geo-lookup
+  and act as if the user
+  is in the specified country.
+  <!--end-query-param-get-smsstatus-country-->
 
-___Example___
+##### Error responses
 
-```sh
-curl -v \
--X GET \
--H "Host: api-accounts.dev.lcip.org" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://api-accounts.dev.lcip.org/v1/sms/status \
-```
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
 
-### Response
-
-Successful requests
-will return a `200 OK` response
-with an object
-containing an `ok` property
-indicating the result
-in the JSON body:
-
-```json
-{"ok":true}
-```
-
-Failing requests may return the following errors:
-
-* status code 500, errno 999: unexpected error
-
-## POST /v1/get_random_bytes
-
-Not HAWK-authenticated.
-
-Get 32 bytes of random data.  This should be combined with locally-sourced entropy when creating salts, etc.
-
-### Request
-
-```sh
-curl -X POST -v https://api-accounts.dev.lcip.org/v1/get_random_bytes
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with the random bytes as hex-encoded data in the JSON body object:
-
-```json
-{
-  "data": "ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa34991"
-}
-```
-
-There are no standard failure modes for this endpoint.
+* `code: 500, errno: 999`:
+  Unspecified error
 
 
-# Example flows
+### Util
 
-## Create account
-
-* `POST /get_random_bytes`
-* `POST /account/create`
-* `POST /account/login?keys=true`
-* `POST /account/device`
-* `GET /recovery_email/status`
-* `POST /recovery_email/verify_code`
-* `GET /account/keys`
-* `POST /certificate/sign`
-
-## Attach a new device
-
-* `POST /account/login?keys=true`
-* `POST /account/device`
-* `GET /account/keys`
-* `POST /certificate/sign`
-
-## Forgot password
-
-* `POST /password/forgot/send_code`
-* `POST /password/forgot/verify_code`
-* `POST /account/reset`
-* GOTO "Attach a new device"
-
-## Change password
-
-* start with active session (and keys)
-* `POST /password/change/start`
-* `GET /account/keys`
-* `POST /password/change/finish`
-* GOTO "Attach a new device"
+#### POST /get_random_bytes
+<!--begin-route-post-get_random_bytes-->
+Get 32 bytes of random data.
+This should be combined with locally-sourced entropy
+when creating salts, etc.
+<!--end-route-post-get_random_bytes-->
 
 
-# Backoff Protocol
+#### GET /verify_email
+<!--begin-route-get-verify_email-->
 
-During periods of heavy load, the auth server may request that clients enter a "backoff" state in which they avoid making further requests.
+<!--end-route-get-verify_email-->
 
-If the server is under too much load to handle the client's request, it will return a `503 Service Unavailable` HTTP response.  The response will include `Retry-After` header giving the number of seconds that the client should wait before issuing any further requests.  It will also include a [JSON error response](#response-format) with `errno` of 201, and with a `retryAfter` field that matches the value in the `Retry-After` header.  For example, the following response would indicate that the server could not process the request and the client should avoid sending additional requests for 30 seconds:
+##### Query parameters
+
+* `code`: *string, max(32), regex(HEX_STRING), required*
+
+  <!--begin-query-param-get-verify_email-code-->
+  
+  <!--end-query-param-get-verify_email-code-->
+
+* `uid`: *string, max(32), regex(HEX_STRING), required*
+
+  <!--begin-query-param-get-verify_email-uid-->
+  
+  <!--end-query-param-get-verify_email-uid-->
+
+* `service`: *string, max(16), alphanum, optional*
+
+  <!--begin-query-param-get-verify_email-service-->
+  
+  <!--end-query-param-get-verify_email-service-->
+
+* `redirectTo`: *validators.redirectTo(redirectDomain).optional*
+
+  <!--begin-query-param-get-verify_email-redirectTo-->
+  
+  <!--end-query-param-get-verify_email-redirectTo-->
+
+
+#### GET /complete_reset_password
+<!--begin-route-get-complete_reset_password-->
+
+<!--end-route-get-complete_reset_password-->
+
+##### Query parameters
+
+* `email`: *validators.email.required*
+
+  <!--begin-query-param-get-complete_reset_password-email-->
+  
+  <!--end-query-param-get-complete_reset_password-email-->
+
+* `code`: *string, max(32), regex(HEX_STRING), required*
+
+  <!--begin-query-param-get-complete_reset_password-code-->
+  
+  <!--end-query-param-get-complete_reset_password-code-->
+
+* `token`: *string, max(64), regex(HEX_STRING), required*
+
+  <!--begin-query-param-get-complete_reset_password-token-->
+  
+  <!--end-query-param-get-complete_reset_password-token-->
+
+* `service`: *string, max(16), alphanum, optional*
+
+  <!--begin-query-param-get-complete_reset_password-service-->
+  
+  <!--end-query-param-get-complete_reset_password-service-->
+
+* `redirectTo`: *validators.redirectTo(redirectDomain).optional*
+
+  <!--begin-query-param-get-complete_reset_password-redirectTo-->
+  
+  <!--end-query-param-get-complete_reset_password-redirectTo-->
+
+
+## Back-off protocol
+<!--begin-back-off-protocol-->
+During periods of heavy load,
+the server may request that clients enter a "back-off" state,
+in which they avoid making further requests.
+
+At such times,
+it will return a `503 Service Unavailable` response
+with a `Retry-After` header denoting the number of seconds to wait
+before issuing any further requests.
+It will also include `errno: 201`
+and a `retryAfter` field
+matching the value of the `Retry-After` header
+in the body.
+
+For example,
+the following response indicates that the client
+should suspend making further requests
+for 30 seconds:
 
 ```
 HTTP/1.1 503 Service Unavailable
@@ -1847,37 +2207,42 @@ Retry-After: 30
 Content-Type: application/json
 
 {
- "code": 503,
- "errno": 201,
- "error": "Service Unavailable",
- "message": "The server is experiencing heavy load, please try again shortly",
- "info": "https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format",
- "retryAfter": 30,
- "retryAfterLocalized": "in a few seconds"
+  "code": 503,
+  "errno": 201,
+  "error": "Service Unavailable",
+  "message": "Service unavailable",
+  "info": "https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format",
+  "retryAfter": 30,
+  "retryAfterLocalized": "in a few seconds"
 }
 ```
+<!--end-back-off-protocol-->
 
-The `Retry-After` value is included in both the headers and body so that clients can choose to handle it at the most appropriate level of abstraction for their environment.
+## This document
+<!--begin-this-document-->
+This document is automatically generated
+by [a script](../scripts/write-api-docs.js)
+that parses the source code
+and the document itself.
 
-If an individual client is found to be issuing too many requests in quick succession, the server may return a `429 Too Many Requests` response.  This is similar to the `503 Service Unavailable` response but indicates that the problem originates from the client's behavior, rather than the server.  The response will include `Retry-After` header giving the number of seconds that the client should wait before issuing any further requests.  It will also include a [JSON error response](#response-format) with `errno` of 114, and with a `retryAfter` field that matches the value in the `Retry-After` header.  For example:
-
-```
-HTTP/1.1 429 Too Many Requests
-Retry-After: 30
-Content-Type: application/json
-
-{
- "code": 429,
- "errno": 114,
- "error": "Too Many Requests",
- "message": "This client has sent too many requests",
- "info": "https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format",
- "retryAfter": 30,
- "retryAfterLocalized": "in a few seconds"
-}
+All changes to this document will be lost
+unless they are made inside
+delimiting HTML comments of the form:
+```html
+<!--begin-foo-bar-->
+YOUR CHANGE GOES HERE
+<!--end-foo-bar->
 ```
 
+`foo-bar` must be a tag
+that, when camel-cased,
+matches a property name in the data
+for the [mustache template](../scripts/api-docs.mustache)
+this document is generated from.
 
-# Reference Client
-
-https://github.com/mozilla/fxa-js-client
+If you want to change
+the structure of the document,
+you must make your changes
+to `scripts/api-docs.mustache`
+rather than in this document directly.
+<!--end-this-document-->

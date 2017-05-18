@@ -6,14 +6,14 @@
 
 const bufferEqualConstantTime = require('buffer-equal-constant-time')
 const crypto = require('crypto')
-const HEX = require('../routes/validators').HEX_STRING
+const HEX_STRING = require('../routes/validators').HEX_STRING
 const isA = require('joi')
 const P = require('../promise')
 
 const FLOW_ID_LENGTH = 64
 
 const SCHEMA = isA.object({
-  flowId: isA.string().length(64).regex(HEX).optional(),
+  flowId: isA.string().length(64).regex(HEX_STRING).optional(),
   flowBeginTime: isA.number().integer().positive().optional()
 })
   .unknown(false)
@@ -160,7 +160,7 @@ module.exports = function (log, config) {
       return logInvalidContext(this, 'expired flowBeginTime')
     }
 
-    if (! HEX.test(metadata.flowId)) {
+    if (! HEX_STRING.test(metadata.flowId)) {
       return logInvalidContext(this, 'invalid flowId')
     }
 

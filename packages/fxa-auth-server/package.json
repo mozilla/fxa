@@ -75,6 +75,7 @@
     "web-push": "3.0.0"
   },
   "devDependencies": {
+    "acorn": "5.0.3",
     "commander": "2.9.0",
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
     "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
