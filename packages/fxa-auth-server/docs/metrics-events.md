@@ -15,6 +15,26 @@ metrics queries in redash:
   or state changes
   at the account level.
 
+* [Flow events](#flow-events)
+  * [`flow_metadata`](#flow_metadata)
+  * [`flow_events`](#flow_events)
+  * [`flow_experiments`](#flow_experiments)
+  * [Success event names](#success-event-names)
+    * [View names](#view-names)
+    * [Action names](#action-names)
+    * [Experiment names](#experiment-names)
+    * [Template names](#template-names)
+  * [Error event names](#error-event-names)
+* [Activity events](#activity-events)
+  * [`activity_events`](#activity_events)
+  * [`daily_activity_per_device`](#daily_activity_per_device)
+  * [`daily_multi_device_users`](#daily_multi_device_users)
+  * [Event names](#event-names)
+* [Sampled data sets](#sampled-data-sets)
+* [Significant changes](#significant-changes)
+
+## Flow events
+
 Flow events are used
 to plot charts for
 sign-in and sign-up user funnels.
@@ -23,16 +43,82 @@ follow individual user journeys
 for the length of each flow,
 even when those journeys
 span over multiple devices or browsers.
-They also power the chart for our
-"time taken for device connection" KPI.
 
-Activity events are used
-for analysing user behaviour
-in a more general way.
-They are behind the charts for our
-"engagement ratio" and "multi-device usage" KPIs.
+In redshift,
+flow event data is stored
+in three tables:
 
-## Flow events
+* [`flow_metadata`](#flow_metadata),
+  containing all of the data
+  relating to a flow
+  as a single entity.
+
+* [`flow_events`](#flow_events),
+  containing data
+  for the individual events
+  within each flow.
+
+* [`flow_experiments`](#flow_experiments),
+  containing data for flows
+  that are part of a feature experiment.
+
+### flow_metadata
+
+The `flow_metadata` table
+contains the following fields:
+
+|Name|Description|
+|----|-----------|
+|`flow_id`|The flow identifier. A randomly-generated opaque id.|
+|`begin_time`|The time at which the `flow.begin` event occurred.|
+|`duration`|The length of time from the `flow.begin` event until the last event of the flow.|
+|`completed`|Boolean indicating whether the flow was successfully completed.|
+|`new_account`|Boolean indicating whether the flow was a sign-up.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every flow has a `uid`.|
+|`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
+|`ua_browser`|The user's web browser, e.g. 'Firefox' or 'Chrome'.|
+|`ua_version`|The user's browser version.|
+|`ua_os`|The user's operating system, e.g. 'Windows 10' or 'Android'.|
+|`context`|FxA auth broker context. This is related to browser platform and version |
+|`entrypoint`|The entrypoint of the first flow in the session. Typically a UI touchpoint like "preferences".|
+|`migration`|Sync migration.|
+|`service`|The service identifier. For Sync it may be empty or `sync`. For OAuth reliers it is their hex client id.|
+|`utm_campaign`|Marketing campaign identifier for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_content`|Marketing campaign content identifier for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_medium`|Marketing campaign medium for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_source`|Marketing campaign source for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_term`|Marketing campaign search term for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`export_date`|The date that the `flow.begin` event was exported to S3 by the metrics pipeline.|
+
+### flow_events
+
+The `flow_events` table
+contains the following fields:
+
+|Name|Description|
+|----|-----------|
+|`timestamp`|The time at which the event occurred.|
+|`flow_time`|The time since the beginning of the flow.|
+|`flow_id`|The flow identifier.|
+|`type`|The event name.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every flow event has a `uid`.|
+|`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
+
+### flow_experiments
+
+The `flow_experiments` table
+contains the following fields:
+
+|Name|Description|
+|----|-----------|
+|`experiment`|The name of the experiment.|
+|`cohort`|The experiment group that this flow was part of, usually one of `treatment` or `control`.|
+|`timestamp`|The time at which the experiment event occurred, indicating when the flow was assigned to the experiment.|
+|`flow_id`|The flow identifier. A randomly-generated opaque id.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every experiment has a `uid`.|
+|`export_date`|The date that the experiment event was exported to S3 by the metrics pipeline.|
+
+### Success event names
 
 The following flow events
 represent a successful step
@@ -80,6 +166,62 @@ in a sign-in or sign-up flow:
 |`route.${path}.200`| A route responded with a 200 status code. Example: `route./account/login.200`|
 |`flow.complete`|A user has successfully completed a sign-in or sign-up flow.|
 
+#### View names
+
+Possible values for `${viewName}` include,
+but are not limited to:
+
+View name|Description
+---------|-----------
+`signup`|The sign-up form
+`confirm`|Displayed while awaiting account verification
+`signup-confirmed`|The tab the user signed up from, after account verification
+`signup-verified`|The tab the user verified their email in, after account verification
+`signin`|The sign-in form
+`confirm-signin`|Displayed while awaiting sign-in confirmation
+`signin-confirmed`|The tab the user signed in from, after sign-in confirmation
+`verify-email`|The tab the user confirmed their email in, after sign-in confirmation
+`complete-signin`|
+`reset-password`|The reset password form
+`confirm-reset-password`|
+`reset-password-confirmed`|
+`reset-password-verified`|
+`complete-reset-password`|
+`signin-unblock`|The sign-in unblock screen
+`choose-what-to-sync`|Choose what to Sync
+`connect-another-device`|Connect another device, phase 1
+`sms`|Connect another device, phase 2
+`cookies-disabled`|Error page shown if local storage or cookies are disabled
+
+#### Action names
+
+Possible values for `${action}` are:
+
+Action name|Description
+-----------|-----------
+`signup`|Create an account, i.e. `/account/create`
+`signin`|Sign in to an existing account, i.e. `/account/login`
+
+#### Experiment names
+
+Possible values for `${experiment}` are:
+
+Experiment name|Description
+---------------|-----------
+`connectAnotherDevice`|Connect another device, phase 1
+`sendSms`|Connect another device, phase 2
+
+#### Template names
+
+Possible values for `${templateName}` are:
+
+Template name|Description
+-------------|-----------
+`installFirefox`|Firefox app store link
+`1`|Historically, there was [a bug] where message ids were in included in the event instead of template names. For that reason, `1` is the pre-train-86 version of `installFirefox`.
+
+### Error event names
+
 The following flow events
 represent error conditions,
 which may or may not be terminal
@@ -88,81 +230,72 @@ to a flow:
 |Name|Description|
 |----|-----------|
 |`customs.blocked`|A request was blocked by the customs server.|
-|`route.${path}.${statusCode}.${errno}`| A route responded with a >=400 status code. Includes `errno`. Example: `route./account/login.400.103`|
+|`route.${path}.${statusCode}.${errno}`| A route responded with a >=400 status code. Example: `route./account/login.400.103`|
 |`email.${templateName}.bounced`|An email bounced.|
 
-In redshift,
-these events are stored
-in two tables:
+## Activity events
 
-* `flow_metadata`,
-  containing all of the data
-  relating to a flow
-  as a single entity.
+Activity events are used
+for analysing behaviour
+at the user level.
+The data is stored
+in the [`activity_events` table](#activity_events).
 
-* `flow_events`,
-  containing data
-  for the individual events
-  within each flow.
+Two further tables
+summarise daily activity
+for Sync-connected devices:
 
-* `flow_experiments`,
-  containing data for flows
-  that are part of a feature experiment.
+* [`daily_activity_per_device`](#daily_activity_per_device),
+  contains data about the devices
+  that are active on each day.
 
-The `flow_metadata` table
-contains the following fields:
+* [`daily_multi_device_users`](#daily_multi_device_users),
+  contains data for users
+  with multiple active devices
+  within a five-day period.
 
-|Name|Description|
-|----|-----------|
-|`flow_id`|The flow identifier. A randomly-generated opaque id.|
-|`begin_time`|The time at which the `flow.begin` event occurred.|
-|`duration`|The length of time from the `flow.begin` event until the last event of the flow.|
-|`completed`|Boolean indicating whether the flow was successfully completed.|
-|`new_account`|Boolean indicating whether the flow was a sign-up.|
-|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every flow has a `uid`.|
-|`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
-|`ua_browser`|The user's web browser, e.g. 'Firefox' or 'Chrome'.|
-|`ua_version`|The user's browser version.|
-|`ua_os`|The user's operating system, e.g. 'Windows 10' or 'Android'.|
-|`context`|FxA auth broker context. This is related to browser platform and version |
-|`entrypoint`|The entrypoint of the first flow in the session. Typically a UI touchpoint like "preferences".|
-|`migration`|Sync migration.|
-|`service`|The service identifier. For Sync it may be empty or `sync`. For OAuth reliers it is their hex client id.|
-|`utm_campaign`|Marketing campaign identifier for the first flow in the session. Not stored if the `DNT` request header was `1`.|
-|`utm_content`|Marketing campaign content identifier for the first flow in the session. Not stored if the `DNT` request header was `1`.|
-|`utm_medium`|Marketing campaign medium for the first flow in the session. Not stored if the `DNT` request header was `1`.|
-|`utm_source`|Marketing campaign source for the first flow in the session. Not stored if the `DNT` request header was `1`.|
-|`utm_term`|Marketing campaign search term for the first flow in the session. Not stored if the `DNT` request header was `1`.|
-|`export_date`|The date that the `flow.begin` event was exported to S3 by the metrics pipeline.|
+### activity_events
 
-The `flow_events` table
+The `activity_events` table
 contains the following fields:
 
 |Name|Description|
 |----|-----------|
 |`timestamp`|The time at which the event occurred.|
-|`flow_time`|The time since the beginning of the flow.|
-|`flow_id`|The flow identifier.|
-|`type`|The event name.|
-|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every flow event has a `uid`.|
-|`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
+|`type`|The name of the event.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db.|
+|`device_id`|Optional. The id of the device record.  This *does* correlate back to a record the FxA user db.|
+|`service`|Optional. The id of the requesting service. For Sync this may be `'sync'` or the empty string.|
+|`ua_browser`|The user's web browser.|
+|`ua_version`|The user's browser version.|
+|`ua_os`|The user's operating system.|
 
-The `flow_experiments` table
+### daily_activity_per_device
+
+The `daily_activity_per_device` table
 contains the following fields:
 
 |Name|Description|
 |----|-----------|
-|`experiment`|The name of the experiment.|
-|`cohort`|The experiment group that this flow was part of, usually one of `treatment` or `control`.|
-|`timestamp`|The time at which the experiment event occurred, indicating when the flow was assigned to the experiment.|
-|`flow_id`|The flow identifier. A randomly-generated opaque id.|
-|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every experiment has a `uid`.|
-|`export_date`|The date that the experiment event was exported to S3 by the metrics pipeline.|
+|`day`|The date of the activity.|
+|`uid`|The HMACed user id.|
+|`device_id`|The id of the active device.|
+|`service`|The id of the requesting service.|
+|`ua_browser`|The user's web browser.|
+|`ua_version`|The user's browser version.|
+|`ua_os`|The user's operating system.|
 
-## Activity events
+### daily_multi_device_users
 
-The following activity events
-are emitted:
+The `daily_multi_device_users` table
+contains the following fields:
+
+|Name|Description|
+|----|-----------|
+|`day`|The date of the activity.|
+|`uid`|The HMACed user id.|
+
+### Event names
 
 |Name|Description|
 |----|-----------|
@@ -178,54 +311,6 @@ are emitted:
 |`device.updated`|Device record is updated on a Sync account.|
 |`device.deleted`|Device record has been deleted from a Sync account.|
 |`sync.sentTabToDevice`|Device sent a push message for send-tab-to-device feature.|
-
-In redshift,
-these events are stored
-in the `activity_events` table
-with the following fields:
-
-|Name|Description|
-|----|-----------|
-|`timestamp`|The time at which the event occurred.|
-|`type`|The name of the event.|
-|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db.|
-|`device_id`|Optional. The id of the device record.  This *does* correlate back to a record the FxA user db.|
-|`service`|Optional. The id of the requesting service. For Sync this may be `'sync'` or the empty string.|
-|`ua_browser`|The user's web browser.|
-|`ua_version`|The user's browser version.|
-|`ua_os`|The user's operating system.|
-
-Two further tables,
-summarising device usage,
-are populated
-based on the activity event data.
-
-The table `daily_activity_per_device`
-contains the following fields:
-
-|Name|Description|
-|----|-----------|
-|`day`|The date of the activity.|
-|`uid`|The HMACed user id.|
-|`device_id`|The id of the active device.|
-|`service`|The id of the requesting service.|
-|`ua_browser`|The user's web browser.|
-|`ua_version`|The user's browser version.|
-|`ua_os`|The user's operating system.|
-
-The table `daily_multi_device_users`
-contains the following fields:
-
-|Name|Description|
-|----|-----------|
-|`day`|The date of the activity.|
-|`uid`|The HMACed user id.|
-
-For this table,
-a multi-device user is defined as
-somebody who was also active
-on a different device
-in the preceding five days.
 
 ## Sampled data sets
 
@@ -271,6 +356,11 @@ to each of the table names mentioned above:
   was fixed.
   Previously the message id
   was logged in its place](https://github.com/mozilla/fxa-auth-server/pull/1843).
+
+* [The bucketing of users
+  into experiments was fixed,
+  drastically changing the number of users
+  going through our `sendSms` experiment](https://github.com/mozilla/fxa-content-server/pull/4977).
 
 ### Train 84
 
