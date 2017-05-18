@@ -988,30 +988,72 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('invokeBrokerMethod', function () {
-      it('invokes the broker method, passing along any extra parameters, invokes the value returned from the broker if a function', function () {
-        var behavior = sinon.spy();
+    describe('invokeBrokerMethod', () => {
+      it('invokes the broker method, passing along any extra parameters, invokes the behavior', function () {
+        const behavior = sinon.spy();
+        sinon.stub(broker, 'afterSignIn', () => behavior);
+        sinon.stub(view, 'invokeBehavior', () => {});
 
-        sinon.stub(broker, 'afterSignIn', function () {
-          return behavior;
-        });
-
-        var extraData = { key: 'value' };
+        const extraData = { key: 'value' };
         return view.invokeBrokerMethod('afterSignIn', extraData)
           .then(function () {
+            assert.isTrue(broker.afterSignIn.calledOnce);
             assert.isTrue(broker.afterSignIn.calledWith(extraData));
-            assert.isTrue(behavior.calledWith(view));
+
+            assert.isTrue(view.invokeBehavior.calledOnce);
+            assert.isTrue(view.invokeBehavior.calledWith(behavior, extraData));
           });
       });
 
-      it('does not explode if the value returned from the broker is not a function', function () {
-        sinon.stub(broker, 'afterSignIn', function () {
-          return {};
-        });
+      it('correctly handles rejected broker promises', () => {
+        const error = new Error('propagated error');
+        const behavior = p.reject(error);
+        sinon.stub(broker, 'afterSignIn', () => behavior);
+        sinon.spy(view, 'invokeBehavior');
+
+        return view.invokeBrokerMethod('afterSignIn')
+          .then(assert.fail, (caughtError) => {
+            assert.isTrue(broker.afterSignIn.calledOnce);
+
+            assert.isFalse(view.invokeBehavior.called);
+          });
+      });
+
+      it('correctly handles broker returning an object', function () {
+        const behavior = {};
+        sinon.stub(broker, 'afterSignIn', () => behavior);
+        sinon.stub(view, 'invokeBehavior', () => {});
 
         return view.invokeBrokerMethod('afterSignIn')
           .then(function () {
-            assert.isTrue(broker.afterSignIn.called);
+            assert.isTrue(broker.afterSignIn.calledOnce);
+
+            assert.isTrue(view.invokeBehavior.calledOnce);
+            assert.isTrue(view.invokeBehavior.calledWith(behavior));
+          });
+      });
+    });
+
+    describe('invokeBehavior', () => {
+      it('correctly handles a function', () => {
+        const behavior = sinon.spy(() => behavior);
+        const extraData = {};
+
+        return view.invokeBehavior(behavior, extraData)
+          .then((value) => {
+            assert.strictEqual(value, behavior);
+
+            assert.isTrue(behavior.calledOnce);
+            assert.isTrue(behavior.calledWith(view, extraData));
+          });
+      });
+
+      it('correctly handles an object', () => {
+        const behavior = {};
+
+        return view.invokeBehavior(behavior)
+          .then((value) => {
+            assert.strictEqual(value, behavior);
           });
       });
     });
