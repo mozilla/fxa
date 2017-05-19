@@ -117,6 +117,10 @@ define(function (require, exports, module) {
       this.$('.marketing-link').each((index, element) => {
         this._logMarketingImpression(element);
       });
+
+      // Add the marketingId as a class so that different styles
+      // can be applied to different snippets.
+      this.$el.addClass(this._marketingId);
     },
 
     _shouldShowSignUpMarketing () {

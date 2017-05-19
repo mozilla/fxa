@@ -51,9 +51,14 @@ define(function (require, exports, module) {
     });
 
     afterEach(function () {
+      metrics.destroy();
+      metrics = null;
+
       view.remove();
       view.destroy();
-      view = windowMock = null;
+      view = null;
+
+      windowMock = null;
     });
 
     testMarketingCampaign(Constants.MARKETING_ID_SPRING_2015);
@@ -90,6 +95,7 @@ define(function (require, exports, module) {
           .then(() => {
             assert.lengthOf(view.$('.marketing-link-ios'), 1);
             assert.lengthOf(view.$('.marketing-link-android'), 1);
+            assert.isTrue(view.$el.hasClass(marketingId));
           });
         });
 
@@ -104,6 +110,7 @@ define(function (require, exports, module) {
           .then(() => {
             assertLinkHasExpectedAttributes(view, marketingId, 'ios');
             assert.lengthOf(view.$('.marketing-link-android'), 0);
+            assert.isTrue(view.$el.hasClass(marketingId));
           });
         });
 
@@ -116,6 +123,7 @@ define(function (require, exports, module) {
           .then(() => {
             assert.lengthOf(view.$('.marketing-link-ios'), 0);
             assertLinkHasExpectedAttributes(view, marketingId, 'android');
+            assert.isTrue(view.$el.hasClass(marketingId));
           });
         });
 

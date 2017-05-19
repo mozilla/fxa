@@ -78,7 +78,7 @@ $link-color: $button-background-color;
 $marketing-border-color: $color-grey-spinner;
 $message-text-color: $color-white;
 $mobile-html-background-color: $color-white;
-$modal-border-color: $color-black;
+
 $secondary-button-background-color: $color-grey-lightest;
 $secondary-button-border-color: lighten($color-grey, 5);
 
@@ -88,6 +88,10 @@ $show-password-label-color: $color-grey-faint-text;
 
 $success-background-color: #5fad47;
 $text-color: $color-grey-text;
+
+//Modal colors
+$modal-border-color: $color-black;
+$modal-background-color-iframe: $color-white;
 
 //Settings Specific Colors
 $settings-header-border-bottom: #b4bdc3;

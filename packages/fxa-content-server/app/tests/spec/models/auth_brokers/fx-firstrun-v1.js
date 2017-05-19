@@ -6,23 +6,23 @@ define(function (require, exports, module) {
   'use strict';
 
   const Account = require('models/account');
-  const chai = require('chai');
+  const { assert } = require('chai');
   const FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
+  const Metrics = require('lib/metrics');
   const NullChannel = require('lib/channels/null');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
 
-  var assert = chai.assert;
-
   describe('models/auth_brokers/fx-firstrun-v1', function () {
-    var account;
-    var broker;
-    var channelMock;
-    var iframeChannel;
-    var relier;
-    var windowMock;
+    let account;
+    let broker;
+    let channelMock;
+    let metrics;
+    let iframeChannel;
+    let relier;
+    let windowMock;
 
     beforeEach(function () {
       account = new Account({
@@ -35,15 +35,26 @@ define(function (require, exports, module) {
         return p();
       });
       iframeChannel = new NullChannel();
+      metrics = new Metrics();
       relier = new Relier();
       windowMock = new WindowMock();
 
       broker = new FxFirstrunV1AuthenticationBroker({
         channel: channelMock,
         iframeChannel: iframeChannel,
-        relier: relier,
+        metrics,
+        relier,
         window: windowMock
       });
+    });
+
+    afterEach(() => {
+      metrics.destroy();
+      metrics = null;
+    });
+
+    it('has the `cadAfterSignUpConfirmationPoll` capability by default', function () {
+      assert.isTrue(broker.hasCapability('cadAfterSignUpConfirmationPoll'));
     });
 
     it('has the `signup` capability by default', function () {
@@ -70,7 +81,7 @@ define(function (require, exports, module) {
     });
 
     describe('afterSignIn', function () {
-      var result;
+      let result;
 
       describe('defaults', function () {
         beforeEach(function () {
@@ -123,7 +134,7 @@ define(function (require, exports, module) {
     });
 
     describe('beforeSignUpConfirmationPoll', function () {
-      var result;
+      let result;
       beforeEach(function () {
         sinon.spy(iframeChannel, 'send');
 
@@ -160,10 +171,15 @@ define(function (require, exports, module) {
     describe('afterSignUpConfirmationPoll', function () {
       it('notifies the iframe channel', function () {
         sinon.spy(iframeChannel, 'send');
+        sinon.spy(metrics, 'setViewNamePrefix');
 
         return broker.afterSignUpConfirmationPoll(account)
-          .then(function () {
+          .then(() => {
+            assert.isTrue(iframeChannel.send.calledOnce);
             assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.VERIFICATION_COMPLETE));
+
+            assert.isTrue(metrics.setViewNamePrefix.called);
+            assert.isTrue(metrics.setViewNamePrefix.calledWith('signup'));
           });
       });
     });

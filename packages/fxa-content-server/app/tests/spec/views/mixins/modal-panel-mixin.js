@@ -19,11 +19,11 @@ define(function (require, exports, module) {
     ModalPanelMixin
   );
 
-  describe('views/mixins/modal-panel-mixin', function () {
+  describe('views/mixins/modal-panel-mixin', () => {
     let notifier;
     let view;
 
-    beforeEach(function () {
+    beforeEach(() => {
       notifier = new Notifier();
       view = new ModalPanelView({
         notifier
@@ -32,7 +32,7 @@ define(function (require, exports, module) {
       return view.render();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       view.remove();
       view.destroy();
 
@@ -40,12 +40,32 @@ define(function (require, exports, module) {
     });
 
 
-    it('open and close', function () {
-      view.openPanel();
-      assert.isTrue($.modal.isActive());
+    describe('open and close', () => {
+      it('does the right thing when body min-height needed', () => {
+        sinon.stub(view, '_needsToSetBodyMinHeight', () => true);
 
-      view.closePanel();
-      assert.isFalse($.modal.isActive());
+        assert.equal($('body').css('min-height'), '0px');
+        view.openPanel();
+        assert.isTrue($.modal.isActive());
+        assert.ok(parseInt($('body').css('min-height'), 10) > 0);
+
+        view.closePanel();
+        assert.isFalse($.modal.isActive());
+        assert.equal($('body').css('min-height'), '0px');
+      });
+
+      it('does the right thing when body min-height not needed', () => {
+        sinon.stub(view, '_needsToSetBodyMinHeight', () => false);
+
+        assert.equal($('body').css('min-height'), '0px');
+        view.openPanel();
+        assert.isTrue($.modal.isActive());
+        assert.equal($('body').css('min-height'), '0px');
+
+        view.closePanel();
+        assert.isFalse($.modal.isActive());
+        assert.equal($('body').css('min-height'), '0px');
+      });
     });
 
     it('closePanel destroys the view', () => {

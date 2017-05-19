@@ -682,9 +682,7 @@ define(function (require, exports, module) {
         err = new Error(err);
       }
 
-      if (! err.context) {
-        err.context = this.getViewName();
-      }
+      err.viewName = this.getViewName();
 
       return err;
     },
@@ -733,7 +731,7 @@ define(function (require, exports, module) {
     logFlowEvent (eventName, viewName, data) {
       this.notifier.trigger('flow.event', _.assign({}, data, {
         event: eventName,
-        view: viewName
+        viewName
       }));
     },
 

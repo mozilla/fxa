@@ -14,6 +14,11 @@ define([
   var email;
   const PASSWORD = '12345678';
 
+  const SELECTOR_CONFIRM_HEADER = '#fxa-confirm-header';
+  const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
+  const SELECTOR_SIGN_UP_HEADER = '#fxa-signup-header';
+  const SELECTOR_SIGN_UP_SUB_HEADER = '#fxa-signup-header .service';
+
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
@@ -40,12 +45,12 @@ define([
 
     'sign up, verify same browser in a different tab': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signup-header'))
-        .then(visibleByQSA('#fxa-signup-header .service'))
+        .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER))
+        .then(visibleByQSA(SELECTOR_SIGN_UP_SUB_HEADER))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
@@ -54,15 +59,12 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
-        // user should be redirected to "Success!" screen.
-        // In real life, the original browser window would show
-        // a "welcome to sync!" screen that has a manage button
-        // on it, and this screen should show the FxA success screen.
-        .then(testElementExists('#fxa-connect-another-device-header'))
+        // user should see the CAD screen in both signup and verification tabs.
+        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
         // switch back to the original window, it should transition.
         .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
 
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
@@ -70,12 +72,12 @@ define([
 
     'sign up, cancel merge warning': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signup-header'))
+        .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: false } ))
         .then(fillOutSignUp(email, PASSWORD))
 
         // user should not transition to the next screen
-        .then(noSuchElement('#fxa-confirm-header'))
+        .then(noSuchElement(SELECTOR_CONFIRM_HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'));
     }
   });

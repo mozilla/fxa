@@ -14,6 +14,16 @@ define([
   var email;
   const PASSWORD = '12345678';
 
+  const SELECTOR_CONFIRM_SIGNIN_HEADER = '#fxa-confirm-signin-header';
+  const SELECTOR_CONFIRM_SIGNUP_HEADER = '#fxa-confirm-header';
+  const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
+  const SELECTOR_SETTINGS_HEADER = '#fxa-settings-header';
+  const SELECTOR_SIGNIN_HEADER = '#fxa-signin-header';
+  const SELECTOR_SIGNIN_SUB_HEADER = '#fxa-signin-header .service';
+  const SELECTOR_SIGNIN_UNBLOCK_HEADER = '#fxa-signin-unblock-header';
+  const SELECTOR_SIGNIN_COMPLETE_HEADER = '#fxa-sign-in-complete-header';
+  const SELECTOR_VERIFICATION_EMAIL = '.verification-email-message';
+
   const thenify = FunctionalHelpers.thenify;
 
   const clearBrowserNotifications = FunctionalHelpers.clearBrowserNotifications;
@@ -39,7 +49,7 @@ define([
     return this.parent
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openPage(options.pageUrl || PAGE_URL, '.email'))
-      .then(visibleByQSA('#fxa-signin-header .service'))
+      .then(visibleByQSA(SELECTOR_SIGNIN_SUB_HEADER))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
       // delay for the webchannel message
       .sleep(500)
@@ -63,17 +73,17 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER))
           .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER))
         .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 
@@ -81,13 +91,13 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
 
         .then(openVerificationLinkInDifferentBrowser(email))
 
-        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER))
         .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 
@@ -96,7 +106,7 @@ define([
       return this.remote
         .then(setupTest({ preVerified: false }))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNUP_HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
 
@@ -105,10 +115,12 @@ define([
         // email 2 - "You have verified your Firefox Account"
         .then(openVerificationLinkInNewTab(email, 1))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-connect-another-device-header'))
+          .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
           .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-sign-up-complete-header'))
+        // Since this is really a signup flow, the original tab
+        // redirects to CAD too.
+        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
         .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 
@@ -119,7 +131,7 @@ define([
         .then(noSuchBrowserNotification('fxaccounts:login'))
 
         // user should not transition to the next screen
-        .then(noPageTransition('#fxa-signin-header'));
+        .then(noPageTransition(SELECTOR_SIGNIN_HEADER));
     },
 
     'blocked, valid code entered': function () {
@@ -128,14 +140,14 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(testElementExists('#fxa-signin-unblock-header'))
-        .then(testElementTextInclude('.verification-email-message', email))
+        .then(testElementExists(SELECTOR_SIGNIN_UNBLOCK_HEADER))
+        .then(testElementTextInclude(SELECTOR_VERIFICATION_EMAIL, email))
         .then(fillOutSignInUnblock(email, 0))
 
         // Only users that go through signin confirmation see
         // `/signin_complete`, and users that go through signin unblock see
         // the default `settings` page.
-        .then(testElementExists('#fxa-settings-header'))
+        .then(testElementExists(SELECTOR_SETTINGS_HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });

@@ -107,6 +107,7 @@ function (Translator, Session) {
     '../tests/spec/models/web-session',
     '../tests/spec/views/app',
     '../tests/spec/views/base',
+    '../tests/spec/views/behaviors/connect-another-device',
     '../tests/spec/views/behaviors/halt',
     '../tests/spec/views/behaviors/navigate',
     '../tests/spec/views/behaviors/null',

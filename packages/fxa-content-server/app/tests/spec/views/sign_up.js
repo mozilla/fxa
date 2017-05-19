@@ -1299,7 +1299,7 @@ define(function (require, exports, module) {
         assert.equal(notifier.trigger.callCount, 2);
         assert.equal(notifier.trigger.args[0][0], 'flow.initialize');
         assert.equal(notifier.trigger.args[1][0], 'flow.event');
-        assert.deepEqual(notifier.trigger.args[1][1], { event: 'begin', once: true, view: undefined });
+        assert.deepEqual(notifier.trigger.args[1][1], { event: 'begin', once: true, viewName: undefined });
       });
 
       it('logs the begin event', () => {

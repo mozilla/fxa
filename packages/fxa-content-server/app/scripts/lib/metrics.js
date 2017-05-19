@@ -212,7 +212,7 @@ define(function (require, exports, module) {
      *
      * @param {Object} data
      *   @param {String} data.event The name of the event.
-     *   @param {String} [data.view] The name of the view, to be
+     *   @param {String} [data.viewName] The name of the view, to be
      *     interpolated in the event name. If unset, the event is
      *     logged without a view name.
      *   @param {Boolean} [data.once] If set, emit this event via
@@ -227,7 +227,8 @@ define(function (require, exports, module) {
         return;
       }
 
-      const eventName = marshallFlowEvent(data.event, data.view);
+      const viewName = data.viewName && this.addViewNamePrefix(data.viewName);
+      const eventName = marshallFlowEvent(data.event, viewName);
 
       if (data.once) {
         this.logEventOnce(eventName);
@@ -471,12 +472,52 @@ define(function (require, exports, module) {
      * @returns {String}
      */
     errorToId (error) {
+      // Prefer context to viewName for the context identifier.
+      let context = error.context;
+      if (! context) {
+        if (error.viewName) {
+          context = this.addViewNamePrefix(error.viewName);
+        } else {
+          context = 'unknown context';
+        }
+      }
+
       var id = Strings.interpolate('error.%s.%s.%s', [
-        error.context || 'unknown context',
+        context,
         error.namespace || 'unknown namespace',
         error.errno || String(error)
       ]);
       return id;
+    },
+
+    /**
+     * Set the view name prefix for metrics that contain a viewName.
+     * This is used to differentiate between flows when the same
+     * URL can appear in more than one place in the flow, e.g., the
+     * /sms screen. The /sms screen can be displayed in either the
+     * signup or verification tab, and we want to be able to
+     * differentiate between the two.
+     *
+     * This prefix is prepended to the view name anywhere a view
+     * name is used.
+     *
+     * @param {String} [viewNamePrefix='']
+     */
+    setViewNamePrefix (viewNamePrefix = '') {
+      this._viewNamePrefix = viewNamePrefix;
+    },
+
+    /**
+     * Add the view name prefix to `viewName`.
+     *
+     * @param {String} viewName
+     * @returns {String}
+     */
+    addViewNamePrefix (viewName) {
+      if (this._viewNamePrefix) {
+        return `${this._viewNamePrefix}.${viewName}`;
+      }
+      return viewName;
     },
 
     /**
@@ -487,7 +528,7 @@ define(function (require, exports, module) {
     logView (viewName) {
       // `screen.` is a legacy artifact from when each View was a screen.
       // The identifier is kept to avoid updating all metrics queries.
-      this.logEvent(`screen.${viewName}`);
+      this.logEvent(`screen.${this.addViewNamePrefix(viewName)}`);
     },
 
     /**
@@ -497,7 +538,7 @@ define(function (require, exports, module) {
      * @param {String} eventName
      */
     logViewEvent (viewName, eventName) {
-      this.logEvent(`${viewName}.${eventName}`);
+      this.logEvent(`${this.addViewNamePrefix(viewName)}.${eventName}`);
     },
 
     /**

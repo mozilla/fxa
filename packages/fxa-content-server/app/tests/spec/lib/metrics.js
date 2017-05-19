@@ -106,9 +106,9 @@ define(function (require, exports, module) {
       });
 
       it('flow events are triggered correctly', () => {
-        notifier.trigger('flow.event', { event: 'foo', view: 'signin' });
-        notifier.trigger('flow.event', { event: 'foo', view: 'signin' });
-        notifier.trigger('flow.event', { event: 'bar', view: 'oauth.signin' });
+        notifier.trigger('flow.event', { event: 'foo', viewName: 'signin' });
+        notifier.trigger('flow.event', { event: 'foo', viewName: 'signin' });
+        notifier.trigger('flow.event', { event: 'bar', viewName: 'oauth.signin' });
         notifier.trigger('flow.event', { event: 'baz' });
 
         const events = metrics.getFilteredData().events;
@@ -120,9 +120,9 @@ define(function (require, exports, module) {
       });
 
       it('flow events are triggered correctly with once=true', () => {
-        notifier.trigger('flow.event', { event: 'foo', once: true, view: 'signin' });
-        notifier.trigger('flow.event', { event: 'foo', once: true, view: 'signin' });
-        notifier.trigger('flow.event', { event: 'foo', once: true, view: 'signup' });
+        notifier.trigger('flow.event', { event: 'foo', once: true, viewName: 'signin' });
+        notifier.trigger('flow.event', { event: 'foo', once: true, viewName: 'signin' });
+        notifier.trigger('flow.event', { event: 'foo', once: true, viewName: 'signup' });
 
         const events = metrics.getFilteredData().events;
         assert.equal(events.length, 2);
@@ -660,9 +660,27 @@ define(function (require, exports, module) {
     describe('errorToId', function () {
       it('converts an error into an id that can be used for logging', function () {
         var error = AuthErrors.toError('UNEXPECTED_ERROR', 'signup');
+        error.viewName = 'sms'; // this should be ignored, context is specified
 
         var id = metrics.errorToId(error);
         assert.equal(id, 'error.signup.auth.999');
+      });
+
+      it('handles a viewName on the error', () => {
+        const error = AuthErrors.toError('UNEXPECTED_ERROR');
+        error.viewName = 'sms';
+
+        const id = metrics.errorToId(error);
+        assert.equal(id, 'error.sms.auth.999');
+      });
+
+      it('handles viewName prefix', () => {
+        const error = AuthErrors.toError('UNEXPECTED_ERROR');
+        error.viewName = 'sms';
+        metrics.setViewNamePrefix('signup');
+
+        const id = metrics.errorToId(error);
+        assert.equal(id, 'error.signup.sms.auth.999');
       });
     });
 
@@ -681,6 +699,12 @@ define(function (require, exports, module) {
 
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.signup'));
       });
+
+      it('adds the viewName prefix', () => {
+        metrics.setViewNamePrefix('signup');
+        metrics.logView('sms');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.signup.sms'));
+      });
     });
 
     describe('logViewEvent', function () {
@@ -690,6 +714,12 @@ define(function (require, exports, module) {
 
       it('logs an event with the view name as a prefix to the event stream', function () {
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'view-name.event1'));
+      });
+
+      it('adds the viewName prefix', () => {
+        metrics.setViewNamePrefix('signup');
+        metrics.logViewEvent('view-name', 'event1');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'signup.view-name.event1'));
       });
     });
 

@@ -27,13 +27,13 @@ define([
   const SELECTOR_SEND_SMS_PHONE_NUMBER = 'input[type="tel"]';
   const SELECTOR_SIGN_UP_HEADER = '#fxa-signup-header';
   const SELECTOR_SIGN_UP_SUB_HEADER = '#fxa-signup-header .service';
-  const SELECTOR_SIGN_UP_COMPLETE_HEADER = '#fxa-sign-up-complete-header';
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;
   const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
@@ -45,9 +45,9 @@ define([
   const thenify = FunctionalHelpers.thenify;
   const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-  const setupTest = thenify(function () {
+  const setupTest = thenify(function (options) {
     return this.parent
-      .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER))
+      .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER, options))
       .then(visibleByQSA(SELECTOR_SIGN_UP_SUB_HEADER))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
 
@@ -68,31 +68,39 @@ define([
       .then(testIsBrowserNotified('fxaccounts:login'));
   });
 
-  const verifyMobileTest = thenify(function (uaString) {
+  const verifyMobileTest = thenify(function (verificationUaString) {
+    const query = {
+      country: 'US',
+      forceExperiment: 'sendSms',
+      forceExperimentGroup: 'treatment'
+    };
+
+    const signupOptions = { query };
+
+    const verificationQuery = Object.create(query);
+    verificationQuery.forceUA = verificationUaString;
+    const verificationOptions = {
+      query: verificationQuery
+    };
+
     return this.parent
-      .then(setupTest())
+      .then(setupTest(signupOptions))
       // These all synthesize the user verifying on a mobile device
       // instead of on the same device. Clear browser state.
       .then(clearBrowserState())
 
       // verify the user
-      .then(openVerificationLinkInNewTab(email, 0, {
-        query: {
-          country: 'US',
-          forceExperiment: 'sendSms',
-          forceExperimentGroup: 'treatment',
-          forceUA: uaString
-        }
-      }))
+      .then(openVerificationLinkInNewTab(email, 0, verificationOptions))
       .switchToWindow('newwindow')
 
       // mobile users are ineligible to send an SMS, they should be redirected
       // to the "connect another device" screen
       .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
 
-      // switch back to the original window, it should transition.
+      // switch back to the original window, user should be
+      // able to send an SMS.
       .then(closeCurrentWindow())
-      .then(testElementExists(SELECTOR_SIGN_UP_COMPLETE_HEADER));
+      .then(testElementExists(SELECTOR_SEND_SMS_HEADER));
   });
 
   registerSuite({
@@ -117,59 +125,95 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
-        // user should be redirected to "Success!" screen.
-        // In real life, the original browser window would show
-        // a "welcome to sync!" screen that has a manage button
-        // on it, and this screen should show the FxA success screen.
+        // user should see the CAD screen in both signup and verification tabs.
         .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
 
-        // switch back to the original window, it should transition.
+        // switch back to the original window, it should transition to CAD.
         .then(closeCurrentWindow())
-        .then(testElementExists(SELECTOR_SIGN_UP_COMPLETE_HEADER))
+        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
     },
 
-    'sign up, verify different browser, force SMS': function () {
+    'sign up, verify different browser': function () {
       return this.remote
         .then(setupTest())
+        // First, synthesize opening the verification link in a different browser
+        // to see how the original browser reacts. Then, use this browser to
+        // synthesize what the other browser sees.
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
+
         // clear browser state to synthesize opening in a different browser
         .then(clearBrowserState({ force: true }))
         // verify the user in a different browser, they should see the
         // "connect another device" screen.
-        .then(openVerificationLinkInSameTab(email, 0, {
-          query: {
-            forceExperiment: 'sendSms',
-            forceExperimentGroup: 'treatment'
-          }
-        }))
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER));
+    },
+
+    'sign up, verify different browser, force SMS': function () {
+      const options =  {
+        query: {
+          forceExperiment: 'sendSms',
+          forceExperimentGroup: 'treatment'
+        }
+      };
+
+      return this.remote
+        .then(setupTest(options))
+        // First, synthesize opening the verification link in a different browser
+        // to see how the original browser reacts. Then, use this browser to
+        // synthesize what the other browser sees.
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+        .then(testElementExists(SELECTOR_SEND_SMS_HEADER))
+
+        // clear browser state to synthesize opening in a different browser
+        .then(clearBrowserState({ force: true }))
+        // verify the user in a different browser, they should see the
+        // "connect another device" screen.
+        .then(openVerificationLinkInSameTab(email, 0, options))
         .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER));
     },
 
     'sign up, verify same browser, force SMS, force supported country': function () {
+      const options =  {
+        query: {
+          country: 'CA',
+          forceExperiment: 'sendSms',
+          forceExperimentGroup: 'treatment'
+        }
+      };
+
       return this.remote
-        .then(setupTest())
+        .then(setupTest(options))
 
         // verify the user
-        .then(openVerificationLinkInNewTab(email, 0, {
-          query: {
-            country: 'CA',
-            forceExperiment: 'sendSms',
-            forceExperimentGroup: 'treatment'
-          }
-        }))
+        .then(openVerificationLinkInNewTab(email, 0, options))
         .switchToWindow('newwindow')
 
         // user should be redirected to "Send SMS" screen.
         .then(testElementExists(SELECTOR_SEND_SMS_HEADER))
         .then(testAttributeEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, 'data-country', 'CA'))
 
-        // switch back to the original window, it should transition.
+        // switch back to the original window, it should transition to the verification tab.
         .then(closeCurrentWindow())
-        .then(testElementExists(SELECTOR_SIGN_UP_COMPLETE_HEADER));
+        .then(testElementExists(SELECTOR_SEND_SMS_HEADER));
     },
 
-    'sign up, verify same browser, force SMS, force unsupported country': function () {
+    'sign up, force SMS, force unsupported country in signup tab': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, SELECTOR_400_HEADER, {
+          query: {
+            country: 'ZZ',
+            forceExperiment: 'sendSms',
+            forceExperimentGroup: 'treatment'
+          }
+        }))
+        .then(testElementTextInclude(SELECTOR_400_ERROR, 'country'));
+    },
+
+    'sign up, verify same browser, force SMS, force unsupported country in verification tab': function () {
       return this.remote
         .then(setupTest())
 
