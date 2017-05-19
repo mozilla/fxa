@@ -60,11 +60,12 @@ define(function (require, exports, module) {
     testMarketingCampaign(Constants.MARKETING_ID_AUTUMN_2016);
 
     function testMarketingCampaign (marketingId) {
-      function assertLinkHasExpectedIdAndType(view, expectedId, expectedType) {
+      function assertLinkHasExpectedAttributes(view, expectedId, expectedType) {
         const $linkEl = view.$(`.marketing-link-${expectedType}`);
         assert.lengthOf($linkEl, 1);
         assert.equal($linkEl.data('marketing-id'), expectedId);
         assert.equal($linkEl.data('marketing-type'), expectedType);
+        assert.equal($linkEl.prop('target'), '_blank');
       }
 
       describe(`render for ${marketingId}`, function () {
@@ -101,7 +102,7 @@ define(function (require, exports, module) {
 
           return view.render()
           .then(() => {
-            assertLinkHasExpectedIdAndType(view, marketingId, 'ios');
+            assertLinkHasExpectedAttributes(view, marketingId, 'ios');
             assert.lengthOf(view.$('.marketing-link-android'), 0);
           });
         });
@@ -114,7 +115,7 @@ define(function (require, exports, module) {
           return view.render()
           .then(() => {
             assert.lengthOf(view.$('.marketing-link-ios'), 0);
-            assertLinkHasExpectedIdAndType(view, marketingId, 'android');
+            assertLinkHasExpectedAttributes(view, marketingId, 'android');
           });
         });
 
@@ -125,8 +126,8 @@ define(function (require, exports, module) {
 
           return view.render()
           .then(() => {
-            assertLinkHasExpectedIdAndType(view, marketingId, 'ios');
-            assertLinkHasExpectedIdAndType(view, marketingId, 'android');
+            assertLinkHasExpectedAttributes(view, marketingId, 'ios');
+            assertLinkHasExpectedAttributes(view, marketingId, 'android');
           });
         });
 
