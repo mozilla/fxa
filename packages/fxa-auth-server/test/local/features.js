@@ -25,7 +25,9 @@ const config = {
   secondaryEmail: {}
 }
 
-const features = proxyquire('../../lib/features', {
+const MODULE_PATH = '../../lib/features'
+
+const features = proxyquire(MODULE_PATH, {
   crypto: crypto
 })(config)
 
@@ -33,6 +35,9 @@ describe('features', () => {
   it(
     'interface is correct',
     () => {
+      assert.equal(typeof require(MODULE_PATH).schema, 'object', 'features.schema is object')
+      assert.notEqual(require(MODULE_PATH).schema, null, 'features.schema is not null')
+
       assert.equal(typeof features, 'object', 'object type should be exported')
       assert.equal(Object.keys(features).length, 3, 'object should have correct number of properties')
       assert.equal(typeof features.isSampledUser, 'function', 'isSampledUser should be function')

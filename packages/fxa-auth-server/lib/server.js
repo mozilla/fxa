@@ -305,6 +305,13 @@ function create(log, error, config, routes, db, translator) {
     }
   )
 
+  server.ext('onPreHandler', (request, reply) => {
+    const features = request.payload && request.payload.features
+    request.app.features = new Set(Array.isArray(features) ? features : [])
+
+    reply.continue()
+  })
+
   server.ext(
     'onPreResponse',
     function (request, reply) {

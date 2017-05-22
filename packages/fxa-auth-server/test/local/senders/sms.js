@@ -66,6 +66,7 @@ describe('lib/senders/sms:', () => {
         apiSecret: 'bar',
         balanceThreshold: 1,
         installFirefoxLink: 'https://baz/qux',
+        installFirefoxWithSigninCodeBaseUri: 'https://wibble',
         useMock: false
       })
     })
@@ -82,7 +83,7 @@ describe('lib/senders/sms:', () => {
 
   it('interface is correct', () => {
     assert.equal(typeof sms.send, 'function', 'sms.send is function')
-    assert.equal(sms.send.length, 4, 'sms.send expects 4 arguments')
+    assert.equal(sms.send.length, 5, 'sms.send expects 5 arguments')
 
     assert.equal(typeof sms.balance, 'function', 'sms.balance is function')
     assert.equal(sms.balance.length, 0, 'sms.balance expects no arguments')
@@ -90,7 +91,7 @@ describe('lib/senders/sms:', () => {
     assert.equal(Object.keys(sms).length, 2, 'sms has no other methods')
   })
 
-  it('sends a valid sms', () => {
+  it('sends a valid sms without a signinCode', () => {
     return sms.send('+442078553000', 'Firefox', 'installFirefox', 'en')
       .then(() => {
         assert.equal(sendSms.callCount, 1, 'nexmo.message.sendSms was called once')
@@ -124,8 +125,22 @@ describe('lib/senders/sms:', () => {
       })
   })
 
+  it('sends a valid sms with a signinCode', () => {
+    return sms.send('+442078553000', 'Firefox', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
+      .then(() => {
+        assert.equal(sendSms.callCount, 1, 'nexmo.message.sendSms was called once')
+        assert.equal(sendSms.args[0][2], 'As requested, here is a link to install Firefox on your mobile device: https://wibble/--__ff0', 'nexmo.message.sendSms was passed the correct message')
+
+        assert.equal(log.trace.callCount, 1, 'log.trace was called once')
+        assert.equal(log.info.callCount, 1, 'log.info was called once')
+
+        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(checkBalance.callCount, 0, 'checkBalance was not called')
+      })
+  })
+
   it('fails to send an sms with an invalid template name', () => {
-    return sms.send('+442078553000', 'Firefox', 'wibble', 'en')
+    return sms.send('+442078553000', 'Firefox', 'wibble', 'en', Buffer.from('++//ff0=', 'base64'))
       .then(() => assert.fail('sms.send should have rejected'))
       .catch(error => {
         assert.equal(error.errno, 131, 'error.errno was set correctly')
@@ -146,7 +161,7 @@ describe('lib/senders/sms:', () => {
 
   it('fails to send an sms that is throttled by the network provider', () => {
     nexmoStatus = '1'
-    return sms.send('+442078553000', 'Firefox', 'installFirefox', 'en')
+    return sms.send('+442078553000', 'Firefox', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
       .then(() => assert.fail('sms.send should have rejected'))
       .catch(error => {
         assert.equal(error.errno, 114, 'error.errno was set correctly')
@@ -161,7 +176,7 @@ describe('lib/senders/sms:', () => {
 
   it('fails to send an sms that is rejected by the network provider', () => {
     nexmoStatus = '2'
-    return sms.send('+442078553000', 'Firefox', 'installFirefox', 'en')
+    return sms.send('+442078553000', 'Firefox', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
       .then(() => assert.fail('sms.send should have rejected'))
       .catch(error => {
         assert.equal(error.errno, 132, 'error.errno was set correctly')

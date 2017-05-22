@@ -32,6 +32,7 @@ const DB_METHOD_NAMES = [
   'createKeyFetchToken',
   'createPasswordForgotToken',
   'createSessionToken',
+  'createSigninCode',
   'createUnblockCode',
   'createVerificationReminder',
   'deleteAccount',
@@ -213,6 +214,9 @@ function mockDB (data, errors) {
         uid: data.uid
       })
     }),
+    createSigninCode: sinon.spy(() => {
+      return P.resolve(data.signinCode || [])
+    }),
     devices: sinon.spy(() => {
       return P.resolve(data.devices || [])
     }),
@@ -386,7 +390,8 @@ function mockRequest (data) {
     app: {
       acceptLanguage: 'en-US',
       clientAddress: data.clientAddress || '63.245.221.32',
-      locale: data.locale || 'en-US'
+      locale: data.locale || 'en-US',
+      features: new Set(data.features)
     },
     auth: {
       credentials: data.credentials

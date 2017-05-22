@@ -8,6 +8,7 @@ const assert = require('insist')
 var uuid = require('uuid')
 var crypto = require('crypto')
 var base64url = require('base64url')
+const sinon = require('sinon')
 const log = { trace () {}, info () {}, error () {} }
 
 var config = require('../../config').getProperties()
@@ -23,7 +24,7 @@ const Token = require('../../lib/tokens')(log, {
   lastAccessTimeUpdates: lastAccessTimeUpdates
 })
 const DB = require('../../lib/db')(
-  { lastAccessTimeUpdates: lastAccessTimeUpdates },
+  { lastAccessTimeUpdates, signinCodeSize: config.signinCodeSize },
   log,
   Token,
   UnblockCode
@@ -660,6 +661,39 @@ describe('remote db', function() {
         })
     }
   )
+
+  it('signinCodes', () => {
+    let previousCode
+
+    // Create a signinCode
+    return db.createSigninCode(ACCOUNT.uid)
+      .then(code => {
+        assert.ok(Buffer.isBuffer(code), 'db.createSigninCode should return a buffer')
+        assert.equal(code.length, config.signinCodeSize, 'db.createSigninCode should return the correct size code')
+
+        previousCode = code
+
+        // Stub crypto.randomBytes to return a duplicate code
+        sinon.stub(crypto, 'randomBytes', (size, callback) => {
+          // Reinstate the real crypto.randomBytes after we've returned a duplicate
+          crypto.randomBytes.restore()
+
+          if (! callback) {
+            return previousCode
+          }
+
+          callback(null, previousCode)
+        })
+
+        // Create a signinCode with crypto.randomBytes rigged to return a duplicate
+        return db.createSigninCode(ACCOUNT.uid)
+      })
+      .then(code => {
+        assert.ok(Buffer.isBuffer(code), 'db.createSigninCode should return a buffer')
+        assert.equal(code.equals(previousCode), false, 'db.createSigninCode should not return a duplicate code')
+        assert.equal(code.length, config.signinCodeSize, 'db.createSigninCode should return the correct size code')
+      })
+  })
 
   after(() => {
     return TestServer.stop(dbServer)

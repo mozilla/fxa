@@ -909,6 +909,24 @@ module.exports = (
       )
   }
 
+  DB.prototype.createSigninCode = function (uid) {
+    log.trace({ op: 'DB.createSigninCode' })
+
+    return random(config.signinCodeSize)
+      .then(code => {
+        const data = { uid, createdAt: Date.now() }
+        return this.pool.put(`/signinCodes/${code.toString('hex')}`, data)
+          .then(() => code, err => {
+            if (isRecordAlreadyExistsError(err)) {
+              log.warn({ op: 'DB.createSigninCode.duplicate' })
+              return this.createSigninCode(uid)
+            }
+
+            throw err
+          })
+      })
+  }
+
   function wrapTokenNotFoundError (err) {
     if (isNotFoundError(err)) {
       err = error.invalidToken('The authentication token could not be found')

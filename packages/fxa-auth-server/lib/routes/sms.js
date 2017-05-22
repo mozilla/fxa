@@ -11,11 +11,12 @@ const PhoneNumberUtil = require('google-libphonenumber').PhoneNumberUtil
 const validators = require('./validators')
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
+const FEATURES_SCHEMA = require('../features').schema
 const TEMPLATE_NAMES = new Map([
   [ 1, 'installFirefox' ]
 ])
 
-module.exports = (log, config, customs, sms) => {
+module.exports = (log, db, config, customs, sms) => {
   if (! config.sms.enabled) {
     return []
   }
@@ -37,7 +38,8 @@ module.exports = (log, config, customs, sms) => {
           payload: {
             phoneNumber: isA.string().regex(validators.E164_NUMBER).required(),
             messageId: isA.number().positive().required(),
-            metricsContext: METRICS_CONTEXT_SCHEMA
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            features: FEATURES_SCHEMA
           }
         }
       },
@@ -50,12 +52,13 @@ module.exports = (log, config, customs, sms) => {
         const templateName = TEMPLATE_NAMES.get(request.payload.messageId)
         const acceptLanguage = request.app.acceptLanguage
 
-        let phoneNumberUtil, parsedPhoneNumber
+        let phoneNumberUtil, parsedPhoneNumber, senderId
 
         customs.check(request, sessionToken.email, 'connectDeviceSms')
           .then(parsePhoneNumber)
           .then(validatePhoneNumber)
           .then(getRegionSpecificSenderId)
+          .then(createSigninCode)
           .then(sendMessage)
           .then(logSuccess)
           .then(createResponse)
@@ -74,19 +77,22 @@ module.exports = (log, config, customs, sms) => {
 
         function getRegionSpecificSenderId () {
           const region = phoneNumberUtil.getRegionCodeForNumber(parsedPhoneNumber)
-          const senderId = SENDER_IDS[region]
-
           request.emitMetricsEvent(`sms.region.${region}`)
 
+          senderId = SENDER_IDS[region]
           if (! senderId) {
             throw error.invalidRegion(region)
           }
-
-          return senderId
         }
 
-        function sendMessage (senderId) {
-          return sms.send(phoneNumber, senderId, templateName, acceptLanguage)
+        function createSigninCode () {
+          if (request.app.features.has('signinCodes')) {
+            return db.createSigninCode(sessionToken.uid)
+          }
+        }
+
+        function sendMessage (signinCode) {
+          return sms.send(phoneNumber, senderId, templateName, acceptLanguage, signinCode)
         }
 
         function logSuccess () {

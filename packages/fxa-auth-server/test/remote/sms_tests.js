@@ -10,7 +10,7 @@ const Client = require('../client')()
 const config = require('../../config').getProperties()
 const error = require('../../lib/error')
 
-describe('remote sms (mocked nexmo)', function() {
+describe('remote sms with signinCodes disabled', function() {
   this.timeout(10000)
   let server
 
@@ -86,6 +86,35 @@ describe('remote sms (mocked nexmo)', function() {
             assert.equal(typeof status.ok, 'boolean')
             assert.equal(status.country, 'US')
           })
+      })
+  })
+
+  after(() => {
+    return TestServer.stop(server)
+  })
+})
+
+describe('remote sms with signinCodes enabled', function() {
+  this.timeout(10000)
+  let server
+
+  before(() => {
+    config.sms.enabled = true
+    config.sms.isStatusGeoEnabled = true
+    // /sms endpoints need creds and spend money unless the SMS provider is mocked
+    config.sms.useMock = true
+
+    return TestServer.start(config)
+      .then(result => {
+        server = result
+      })
+  })
+
+  it('POST /sms success', () => {
+    return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble')
+      .then(client => {
+        return client.smsSend('+18885083401', 1, [ 'signinCodes' ])
+          .then(result => assert.ok(result))
       })
   })
 

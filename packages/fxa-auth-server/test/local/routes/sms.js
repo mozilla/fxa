@@ -17,8 +17,9 @@ const sms = {}
 function makeRoutes (options, dependencies) {
   options = options || {}
   const log = options.log || mocks.mockLog()
+  const db = options.db || mocks.mockDB()
   return proxyquire('../../../lib/routes/sms', dependencies || {})(
-    log, options.config, mocks.mockCustoms(), sms
+    log, db, options.config, mocks.mockCustoms(), sms
   )
 }
 
@@ -34,11 +35,13 @@ function runTest (route, request) {
   })
 }
 
-describe('/sms', () => {
-  let log, config, routes, route, request
+describe('/sms with the signinCodes feature included in the payload', () => {
+  let log, signinCode, db, config, routes, route, request
 
   beforeEach(() => {
     log = mocks.spyLog()
+    signinCode = Buffer.from('++//ff0=', 'base64')
+    db = mocks.mockDB({ signinCode })
     config = {
       sms: {
         enabled: true,
@@ -50,12 +53,14 @@ describe('/sms', () => {
         isStatusGeoEnabled: true
       }
     }
-    routes = makeRoutes({ log, config })
+    routes = makeRoutes({ log, db, config })
     route = getRoute(routes, '/sms')
     request = mocks.mockRequest({
       credentials: {
-        email: 'foo@example.org'
+        email: 'foo@example.org',
+        uid: 'bar'
       },
+      features: [ 'signinCodes' ],
       log: log,
       payload: {
         messageId: 1,
@@ -92,14 +97,22 @@ describe('/sms', () => {
         assert.equal(args.length, 0)
       })
 
+      it('called db.createSigninCode correctly', () => {
+        assert.equal(db.createSigninCode.callCount, 1)
+        const args = db.createSigninCode.args[0]
+        assert.equal(args.length, 1)
+        assert.equal(args[0], 'bar')
+      })
+
       it('called sms.send correctly', () => {
         assert.equal(sms.send.callCount, 1)
         const args = sms.send.args[0]
-        assert.equal(args.length, 4)
+        assert.equal(args.length, 5)
         assert.equal(args[0], '+18885083401')
         assert.equal(args[1], '15036789977')
         assert.equal(args[2], 'installFirefox')
         assert.equal(args[3], 'en-US')
+        assert.equal(args[4], signinCode)
       })
 
       it('called log.flowEvent correctly', () => {
@@ -131,6 +144,10 @@ describe('/sms', () => {
         assert.equal(request.validateMetricsContext.callCount, 1)
       })
 
+      it('called db.createSigninCode once', () => {
+        assert.equal(db.createSigninCode.callCount, 1)
+      })
+
       it('called sms.send correctly', () => {
         assert.equal(sms.send.callCount, 1)
         const args = sms.send.args[0]
@@ -156,6 +173,10 @@ describe('/sms', () => {
 
       it('called request.validateMetricsContext once', () => {
         assert.equal(request.validateMetricsContext.callCount, 1)
+      })
+
+      it('called db.createSigninCode once', () => {
+        assert.equal(db.createSigninCode.callCount, 1)
       })
 
       it('called sms.send correctly', () => {
@@ -190,6 +211,10 @@ describe('/sms', () => {
         assert.equal(request.validateMetricsContext.callCount, 1)
       })
 
+      it('did not call db.createSigninCode', () => {
+        assert.equal(db.createSigninCode.callCount, 0)
+      })
+
       it('did not call sms.send', () => {
         assert.equal(sms.send.callCount, 0)
       })
@@ -222,6 +247,10 @@ describe('/sms', () => {
 
       it('called request.validateMetricsContext once', () => {
         assert.equal(request.validateMetricsContext.callCount, 1)
+      })
+
+      it('did not call db.createSigninCode', () => {
+        assert.equal(db.createSigninCode.callCount, 0)
       })
 
       it('did not call sms.send', () => {
@@ -262,6 +291,10 @@ describe('/sms', () => {
       assert.equal(request.validateMetricsContext.callCount, 1)
     })
 
+    it('called db.createSigninCode once', () => {
+      assert.equal(db.createSigninCode.callCount, 1)
+    })
+
     it('called sms.send once', () => {
       assert.equal(sms.send.callCount, 1)
     })
@@ -277,6 +310,67 @@ describe('/sms', () => {
       assert.equal(err.output.payload.reason, 'wibble')
       assert.equal(err.output.payload.reasonCode, 7)
     })
+  })
+})
+
+describe('/sms without the signinCodes feature included in the payload', () => {
+  let log, signinCode, db, config, routes, route, request
+
+  beforeEach(() => {
+    log = mocks.spyLog()
+    signinCode = Buffer.from('++//ff0=', 'base64')
+    db = mocks.mockDB({ signinCode })
+    config = {
+      sms: {
+        enabled: true,
+        senderIds: {
+          CA: '16474909977',
+          GB: 'Firefox',
+          US: '15036789977'
+        },
+        isStatusGeoEnabled: true
+      }
+    }
+    routes = makeRoutes({ log, db, config })
+    route = getRoute(routes, '/sms')
+    request = mocks.mockRequest({
+      credentials: {
+        email: 'foo@example.org',
+        uid: 'bar'
+      },
+      log: log,
+      payload: {
+        phoneNumber: '+18885083401',
+        messageId: 1,
+        metricsContext: {
+          flowBeginTime: Date.now(),
+          flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+        }
+      }
+    })
+    sms.send = sinon.spy(() => P.resolve())
+    return runTest(route, request)
+  })
+
+  it('called log.begin', () => {
+    assert.equal(log.begin.callCount, 1)
+  })
+
+  it('called request.validateMetricsContext', () => {
+    assert.equal(request.validateMetricsContext.callCount, 1)
+  })
+
+  it('did not call db.createSigninCode', () => {
+    assert.equal(db.createSigninCode.callCount, 0)
+  })
+
+  it('called sms.send correctly', () => {
+    assert.equal(sms.send.callCount, 1)
+    assert.equal(sms.send.args[0][4], undefined)
+  })
+
+  it('called log.flowEvent', () => {
+    assert.equal(log.flowEvent.callCount, 2)
   })
 })
 

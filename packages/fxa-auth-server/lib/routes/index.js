@@ -49,7 +49,7 @@ module.exports = function (
   )
   const session = require('./session')(log, db)
   const sign = require('./sign')(log, signer, db, config.domain, devices)
-  const smsRoute = require('./sms')(log, config, customs, smsImpl)
+  const smsRoute = require('./sms')(log, db, config, customs, smsImpl)
   const util = require('./util')(
     log,
     config,

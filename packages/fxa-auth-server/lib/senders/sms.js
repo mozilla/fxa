@@ -22,7 +22,7 @@ module.exports = function (log, translator, templates, smsConfig) {
   ])
 
   return {
-    send: function (phoneNumber, senderId, templateName, acceptLanguage) {
+    send: function (phoneNumber, senderId, templateName, acceptLanguage, signinCode) {
       log.trace({
         op: 'sms.send',
         senderId: senderId,
@@ -32,7 +32,7 @@ module.exports = function (log, translator, templates, smsConfig) {
 
       return P.resolve()
         .then(function () {
-          var message = getMessage(templateName, acceptLanguage)
+          var message = getMessage(templateName, acceptLanguage, signinCode)
 
           return sendSms(senderId, phoneNumber, message.trim())
         })
@@ -84,7 +84,7 @@ module.exports = function (log, translator, templates, smsConfig) {
     return P.promisify(object[methodName], { context: object })
   }
 
-  function getMessage (templateName, acceptLanguage) {
+  function getMessage (templateName, acceptLanguage, signinCode) {
     var template = templates['sms.' + templateName]
 
     if (! template) {
@@ -92,9 +92,20 @@ module.exports = function (log, translator, templates, smsConfig) {
       throw error.invalidMessageId()
     }
 
+    var link
+    if (signinCode) {
+      link = smsConfig.installFirefoxWithSigninCodeBaseUri + '/' + urlSafeBase64(signinCode)
+    } else {
+      link = smsConfig[templateName + 'Link']
+    }
+
     return template({
-      link: smsConfig[templateName + 'Link'],
+      link: link,
       translator: translator.getTranslator(acceptLanguage)
     }).text
+  }
+
+  function urlSafeBase64 (buffer) {
+    return buffer.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
   }
 }

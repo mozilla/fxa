@@ -93,7 +93,9 @@ describe('lib/server', () => {
         assert.equal(log.summary.callCount, 0)
       })
 
-      describe('successful request, acceptable locale:', () => {
+      describe('successful request, acceptable locale, signinCodes feature enabled:', () => {
+        let request
+
         beforeEach(() => {
           response = 'ok'
           return instance.inject({
@@ -102,8 +104,10 @@ describe('lib/server', () => {
             },
             method: 'POST',
             url: '/account/create',
-            payload: {}
-          })
+            payload: {
+              features: [ 'signinCodes' ]
+            }
+          }).then(response => request = response.request)
         })
 
         it('called log.begin correctly', () => {
@@ -132,9 +136,17 @@ describe('lib/server', () => {
         it('did not call log.error', () => {
           assert.equal(log.error.callCount, 0)
         })
+
+        it('parsed features correctly', () => {
+          assert.ok(request.app.features)
+          assert.equal(typeof request.app.features.has, 'function')
+          assert.equal(request.app.features.has('signinCodes'), true)
+        })
       })
 
-      describe('successful request, unacceptable locale:', () => {
+      describe('successful request, unacceptable locale, no features enabled:', () => {
+        let request
+
         beforeEach(() => {
           response = 'ok'
           return instance.inject({
@@ -144,7 +156,7 @@ describe('lib/server', () => {
             method: 'POST',
             url: '/account/create',
             payload: {}
-          })
+          }).then(response => request = response.request)
         })
 
         it('called log.begin correctly', () => {
@@ -159,6 +171,11 @@ describe('lib/server', () => {
 
         it('did not call log.error', () => {
           assert.equal(log.error.callCount, 0)
+        })
+
+        it('parsed features correctly', () => {
+          assert.ok(request.app.features)
+          assert.equal(request.app.features.has('signinCodes'), false)
         })
       })
 

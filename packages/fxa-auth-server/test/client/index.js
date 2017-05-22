@@ -466,8 +466,8 @@ module.exports = config => {
       )
   }
 
-  Client.prototype.smsSend = function (phoneNumber, messageId) {
-    return this.api.smsSend(this.sessionToken, phoneNumber, messageId)
+  Client.prototype.smsSend = function (phoneNumber, messageId, features) {
+    return this.api.smsSend(this.sessionToken, phoneNumber, messageId, features)
   }
 
   Client.prototype.smsStatus = function (country, clientIpAddress) {

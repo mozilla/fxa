@@ -736,6 +736,12 @@ var conf = convict({
       format: 'url',
       env: 'SMS_INSTALL_FIREFOX_LINK'
     },
+    installFirefoxWithSigninCodeBaseUri: {
+      doc: 'Base URI for the SMS template when the signinCodes feature is active',
+      default: 'https://accounts.firefox.com/m',
+      format: 'url',
+      env: 'SMS_SIGNIN_CODES_BASE_URI'
+    },
     throttleWaitTime: {
       doc: 'The number of seconds to wait if throttled by the SMS service provider',
       default: 2,
@@ -762,6 +768,12 @@ var conf = convict({
       format: 'duration',
       env: 'SECONDARY_EMAIL_MIN_UNVERIFIED_ACCOUNT_TIME'
     }
+  },
+  signinCodeSize: {
+    doc: 'signinCode size in bytes',
+    default: 6,
+    format: 'nat',
+    env: 'SIGNIN_CODE_SIZE'
   }
 })
 

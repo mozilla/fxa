@@ -52,13 +52,15 @@ P.all([
   parseRoutes().then(routes => marshallRouteData(docs, errors.definitionsMap, routes)),
   parseValidators(),
   parseMetricsContext(),
+  parseFeatures(),
   docs,
   errors
 ]))
-.spread((modules, validators, metricsContext, docs, errors) => writeOutput(Object.assign({
+.spread((modules, validators, metricsContext, features, docs, errors) => writeOutput(Object.assign({
   modules,
   validators,
   metricsContext,
+  features,
   errors: errors.definitions,
   additionalErrorParams: errors.additionalErrorParams
 }, docs), args.path))
@@ -746,8 +748,9 @@ function marshallValidation (validation) {
     return validation
   }
 
-  // HACK: Assumes single quotes, specific path
+  // HACK: Assumes single quotes, specific paths
   validation = validation.replace(/require\('\.\.\/metrics\/context'\)/g, 'metricsContext')
+  validation = validation.replace(/require\('\.\.\/features'\)/g, 'features')
 
   // HACK: Assumes we always import joi as `isA`
   if (! /^isA\./.test(validation)) {
@@ -769,6 +772,15 @@ function parseMetricsContext () {
           .replace(/, /, '\n    * `')
           .replace(/:/g, '`:')
       )
+      return item
+    }))
+}
+
+function parseFeatures () {
+  // HACK: Assumes the location of lib/features.js
+  return parseModuleExports('../lib/features')
+    .then(features => features.map(item => {
+      item.value = marshallValidation(item.value)
       return item
     }))
 }

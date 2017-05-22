@@ -307,6 +307,10 @@ those common validations are defined here.
 
   }), unknown(false), and('flowId', 'flowBeginTime'), optional
 
+#### lib/features
+
+* `schema`: array, items(string), optional
+
 ## API endpoints
 
 ### Account
@@ -2058,8 +2062,14 @@ Sends an SMS message.
 * `metricsContext`: *metricsContext.schema*
 
   <!--begin-request-body-post-sms-metricsContext-->
-  
+  Metrics context data for the request.
   <!--end-request-body-post-sms-metricsContext-->
+
+* `features`: *features.schema*
+
+  <!--begin-request-body-post-sms-features-->
+  Enabled features for the request.
+  <!--end-request-body-post-sms-features-->
 
 ##### Error responses
 
