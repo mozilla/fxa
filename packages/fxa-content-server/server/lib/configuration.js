@@ -451,6 +451,13 @@ const conf = module.exports = convict({
     }
   },
   sms: {
+    redirect: {
+      targetLink: {
+        default: 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&adgroup=sms&creative=link',
+        doc: 'Target URL for redirection',
+        format: 'url'
+      }
+    },
     testPhoneNumber: {
       default: '',
       doc: 'Phone number to send SMS messages to in function tests',

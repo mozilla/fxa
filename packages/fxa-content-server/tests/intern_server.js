@@ -36,7 +36,8 @@ define([
     'tests/server/routes/get-openid-configuration',
     'tests/server/routes/get-index',
     'tests/server/routes/post-csp',
-    'tests/server/routes/post-metrics'
+    'tests/server/routes/post-metrics',
+    'tests/server/routes/redirect-m-to-adjust',
   ];
 
   return intern;

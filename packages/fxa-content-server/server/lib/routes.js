@@ -45,6 +45,7 @@ module.exports = function (config, i18n) {
     require('./routes/post-metrics')(),
     require('./routes/post-metrics-errors')(),
     require('./routes/redirect-complete-to-verified')(),
+    require('./routes/redirect-m-to-adjust')(config),
     require('./routes/get-500')(config)
   ];
 

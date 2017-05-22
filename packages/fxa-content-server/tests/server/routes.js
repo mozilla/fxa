@@ -107,6 +107,10 @@ define([
   }
 
   var redirectedRoutes = {
+    '/m/12345678': {
+      location: config.get('sms.redirect.targetLink') + '&signin=12345678',
+      statusCode: 302
+    },
     '/reset_password_complete': {
       location: '/reset_password_verified',
       statusCode: 302
@@ -131,9 +135,7 @@ define([
     routeTest(key, routes[key].statusCode, requestOptions);
   });
 
-  Object.keys(redirectedRoutes).forEach(function (key) {
-    redirectTest(key);
-  });
+  Object.keys(redirectedRoutes).forEach(redirectTest);
 
   registerSuite(suite);
 
