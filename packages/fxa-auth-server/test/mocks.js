@@ -106,6 +106,7 @@ const PUSH_METHOD_NAMES = [
   'notifyDeviceDisconnected',
   'notifyPasswordChanged',
   'notifyPasswordReset',
+  'notifyAccountDestroyed',
   'notifyUpdate',
   'pushToAllDevices',
   'pushToDevices'
@@ -121,7 +122,7 @@ module.exports = {
   spyLog: spyLog,
   mockMailer: mockObject(MAILER_METHOD_NAMES),
   mockMetricsContext: mockMetricsContext,
-  mockPush: mockObject(PUSH_METHOD_NAMES),
+  mockPush: mockPush,
   mockRequest: mockRequest
 }
 
@@ -282,6 +283,22 @@ function mockObject (methodNames) {
       return object
     }, {})
   }
+}
+
+function mockPush (methods) {
+  const push = extend({}, methods)
+  // So far every push method has a uid for first argument, let's keep it simple.
+  PUSH_METHOD_NAMES.forEach((name) => {
+    if (! push[name]) {
+      push[name] = sinon.spy(uid => {
+        if (! (uid instanceof Uint8Array)) {
+          throw new Error('The first param –uid– of ' + name + ' must be a Buffer!')
+        }
+        return P.resolve()
+      })
+    }
+  })
+  return push
 }
 
 function mockDevices (data) {

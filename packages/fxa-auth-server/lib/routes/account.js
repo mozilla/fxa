@@ -1962,7 +1962,7 @@ module.exports = (
                     })
                     .then(function () {
                       if (device) {
-                        push.notifyDeviceConnected(uidHex, device.name, device.id.toString('hex'))
+                        push.notifyDeviceConnected(uid, device.name, device.id.toString('hex'))
                       }
                     })
                     .then(function () {
@@ -2589,6 +2589,7 @@ module.exports = (
         var form = request.payload
         var authPW = Buffer(form.authPW, 'hex')
         var uid
+        var devicesToNotify
         customs.check(
           request,
           form.email,
@@ -2596,7 +2597,7 @@ module.exports = (
           .then(db.emailRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
-              uid = emailRecord.uid.toString('hex')
+              uid = emailRecord.uid
 
               return checkPassword(emailRecord, authPW, request.app.clientAddress)
                 .then(
@@ -2604,20 +2605,29 @@ module.exports = (
                     if (! match) {
                       throw error.incorrectPassword(emailRecord.email, form.email)
                     }
+                    // We fetch the devices to notify before deleteAccount()
+                    // because obviously we can't retrieve the devices list after!
+                    return db.devices(uid)
+                  }
+                )
+                .then(
+                  function (devices) {
+                    devicesToNotify = devices
                     return db.deleteAccount(emailRecord)
                   }
                 )
                 .then(
                   function () {
+                    push.notifyAccountDestroyed(uid, devicesToNotify).catch(function () {})
                     return log.notifyAttachedServices('delete', request, {
-                      uid: uid + '@' + config.domain
+                      uid: uid.toString('hex') + '@' + config.domain
                     })
                   }
                 )
                 .then(
                   function () {
                     return request.emitMetricsEvent('account.deleted', {
-                      uid: uid
+                      uid: uid.toString('hex')
                     })
                   }
                 )
