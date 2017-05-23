@@ -95,7 +95,7 @@ module.exports = function (grunt) {
     // write HTML file if any changes to file
 
     var options = this.options({});
-    var sriDirectives = normalizeSriDirectives(grunt.file.readJSON(options.src));
+    var sriDirectives = normalizeSriDirectives(grunt.file.readJSON(options.directives));
 
     this.filesSrc.forEach(
       updateHtmlWithSriAttributes.bind(null, sriDirectives));
@@ -103,7 +103,7 @@ module.exports = function (grunt) {
 
   grunt.config('sri-update-html', {
     options: {
-      src: '<%= yeoman.tmp %>/sri-directives.json'
+      directives: '<%= yeoman.tmp %>/sri-directives.json'
     },
     dist: { //eslint-disable-line sorting/sort-object-props
       src: [
@@ -116,7 +116,7 @@ module.exports = function (grunt) {
     // replace `sriConfig: {}` in require_config.js with a list
     // of SRI hashes for the list of resources specified in `requireOnDemand`.
     var options = this.options({});
-    var sriDirectives = normalizeSriDirectives(grunt.file.readJSON(options.src));
+    var sriDirectives = normalizeSriDirectives(grunt.file.readJSON(options.directives));
 
     this.filesSrc.forEach(
       updateJsWithSriAttributes.bind(null, sriDirectives));
@@ -124,11 +124,13 @@ module.exports = function (grunt) {
 
   grunt.config('sri-update-js', {
     options: {
-      src: '<%= yeoman.tmp %>/sri-directives.json'
+      directives: '<%= yeoman.tmp %>/sri-directives.json'
     },
     dist: { //eslint-disable-line sorting/sort-object-props
       src: [
-        '<%= yeoman.dist %>/scripts/*.main.js'
+        // the .* is to handle the country code prefix.
+        // The filenames do not yet have the md5 prefix
+        '<%= yeoman.dist %>/scripts/main.*.js'
       ]
     }
   });
