@@ -1,3 +1,17 @@
+<a name="1.87.2"></a>
+## 1.87.2 (2017-05-23)
+
+
+### Bug Fixes
+
+* **build:** Ensure the requireOnDemand files use SRI (#5094), r=@vbudhram ([6e5ef7b](https://github.com/mozilla/fxa-content-server/commit/6e5ef7b))
+
+### Features
+
+* **emails:** Disable secondary emails for everyone (#5095) r=vladikoff ([0fe39b8](https://github.com/mozilla/fxa-content-server/commit/0fe39b8))
+
+
+
 <a name="1.87.1"></a>
 ## 1.87.1 (2017-05-17)
 
