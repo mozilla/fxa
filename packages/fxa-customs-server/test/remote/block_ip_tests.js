@@ -10,6 +10,7 @@ var mcHelper = require('../memcache-helper')
 var TEST_EMAIL = 'test@example.com'
 var TEST_IP = '192.0.2.1'
 var ALLOWED_IP = '192.0.3.1'
+const ENDPOINTS = [ '/check', '/checkIpOnly' ]
 
 var config = {
   listen: {
@@ -65,10 +66,18 @@ test(
   }
 )
 
-test(
-  'well-formed request',
-  function (t) {
-    return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' })
+ENDPOINTS.forEach(endpoint => {
+  test('clear everything', t => {
+    mcHelper.clearEverything(
+      function (err) {
+        t.notOk(err, 'no errors were returned')
+        t.end()
+      }
+    )
+  })
+
+  test(`${endpoint} well-formed request`, t => {
+    return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' })
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check worked')
         t.equal(obj.block, false, 'request was not blocked')
@@ -79,7 +88,7 @@ test(
         t.equal(res.statusCode, 200, 'block request returns a 200')
         t.ok(obj, 'got an obj, make jshint happy')
 
-        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' })
+        return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' })
       })
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check worked')
@@ -90,8 +99,8 @@ test(
         t.fail(err)
         t.end()
       })
-  }
-)
+  })
+})
 
 test(
   'allowed ip is not blocked, even by this explicit blocking action',

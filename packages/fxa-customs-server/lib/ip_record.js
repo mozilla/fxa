@@ -25,6 +25,7 @@ module.exports = function (limits, now) {
     rec.vc = object.vc || []    // timestamp+email when code verifications occurred
     rec.as = object.as || []    // timestamp+email when account status checks occurred
     rec.sms = object.sms || []  // timestamp+sms when sms sent
+    rec.aa = object.aa || []    // timestamp when account access was attempted
     rec.rl = object.rl          // timestamp when the account was rate-limited
     return rec
   }
@@ -150,6 +151,14 @@ module.exports = function (limits, now) {
     this.sms = this.sms.slice(i + 1)
   }
 
+  IpRecord.prototype.addAccountAccess = function () {
+    this.aa.push(now())
+  }
+
+  IpRecord.prototype.isOverAccountAccessLimit = function () {
+    return this.aa.length > limits.maxAccountAccess
+  }
+
   IpRecord.prototype._trim = function (now, items, maxUnique) {
     if (items.length === 0) { return items }
     // the list is naturally ordered from oldest to newest,
@@ -191,6 +200,7 @@ module.exports = function (limits, now) {
     this.rl = now()
     this.as = []
     this.sms = []
+    this.aa = []
   }
 
   IpRecord.prototype.retryAfter = function () {
@@ -240,6 +250,13 @@ module.exports = function (limits, now) {
       this.addSmsRequest()
       if (this.isOverSmsLimit()){
         // If you do more than the limit this can extend the ban.
+        this.rateLimit()
+      }
+    }
+
+    if (actions.isAccountAccessAction(action)) {
+      this.addAccountAccess()
+      if (this.isOverAccountAccessLimit()) {
         this.rateLimit()
       }
     }

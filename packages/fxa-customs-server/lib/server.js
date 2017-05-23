@@ -87,14 +87,18 @@ module.exports = function createServer(config, log) {
     throw err
   }
 
-  function fetchRecords(email, ip, phoneNumber) {
+  function fetchRecords(ip, email, phoneNumber) {
     var promises = [
       // get records and ignore errors by returning a new record
-      mc.getAsync(email).then(EmailRecord.parse, EmailRecord.parse),
       mc.getAsync(ip).then(IpRecord.parse, IpRecord.parse),
-      mc.getAsync(ip + email).then(IpEmailRecord.parse, IpEmailRecord.parse),
       reputationService.get(ip)
     ]
+
+    // The /checkIpOnly endpoint has no email (or phoneNumber)
+    if (email) {
+      promises.push(mc.getAsync(email).then(EmailRecord.parse, EmailRecord.parse))
+      promises.push(mc.getAsync(ip + email).then(IpEmailRecord.parse, IpEmailRecord.parse))
+    }
 
     // Check against SMS records to make sure that this request
     // can send to this phone number
@@ -110,18 +114,51 @@ module.exports = function createServer(config, log) {
     return mc.setAsync(key, record, lifetime)
   }
 
-  function setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord, phoneNumber, smsRecord) {
-    var promises =       [
-      setRecord(email, emailRecord),
-      setRecord(ip, ipRecord),
-      setRecord(ip + email, ipEmailRecord)
+  function setRecords(ip, ipRecord, email, emailRecord, ipEmailRecord, phoneNumber, smsRecord) {
+    let promises = [
+      setRecord(ip, ipRecord)
     ]
+
+    if (email) {
+      if (emailRecord) {
+        promises.push(setRecord(email, emailRecord))
+      }
+
+      if (ipEmailRecord) {
+        promises.push(setRecord(ip + email, ipEmailRecord))
+      }
+    }
 
     if (phoneNumber && smsRecord) {
       promises.push(setRecord(phoneNumber, smsRecord))
     }
 
     return P.all(promises)
+  }
+
+  function allowWhitelisted (result, ip, email) {
+    // Regardless of any preceding checks, there are some IPs and emails
+    // that we won't block. These are typically for Mozilla QA purposes.
+    // They should be checked after everything else so as not to pay the
+    // overhead of checking the many requests that are *not* QA-related.
+    if (result.block || result.suspect) {
+      if (ip in allowedIPs.ips || (email && allowedEmailDomains.isAllowed(email))) {
+        log.info({
+          op: 'request.check.allowed',
+          ip: ip,
+          block: result.block,
+          suspect: result.suspect
+        })
+        result.block = false
+        result.suspect = false
+      }
+    }
+  }
+
+  function optionallyReportIp (result, ip, action) {
+    if (result.block && result.blockReason !== blockReasons.IP_BAD_REPUTATION) {
+      reputationService.report(ip, `fxa:request.check.block.${action}`)
+    }
   }
 
   function max(prev, cur) {
@@ -156,9 +193,9 @@ module.exports = function createServer(config, log) {
       }
 
 
-      fetchRecords(email, ip, phoneNumber)
+      fetchRecords(ip, email, phoneNumber)
         .spread(
-          function (emailRecord, ipRecord, ipEmailRecord, reputation, smsRecord) {
+          function (ipRecord, reputation, emailRecord, ipEmailRecord, smsRecord) {
             if (ipRecord.isBlocked()) {
               // a blocked ip should just be ignored completely
               // it's malicious, it shouldn't penalize emails or allow
@@ -216,7 +253,7 @@ module.exports = function createServer(config, log) {
               blockReason = blockReasons.IP_BAD_REPUTATION
             }
 
-            return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord, phoneNumber, smsRecord)
+            return setRecords(ip, ipRecord, email, emailRecord, ipEmailRecord, phoneNumber, smsRecord)
               .then(
                 function () {
                   return {
@@ -232,23 +269,7 @@ module.exports = function createServer(config, log) {
         )
         .then(
           function (result) {
-            // Regardless of all the above checks, there are some
-            // IPs and emails that we just won't block.  These are
-            // typically for Mozilla QA purposes.  We check them at
-            // the end so as not to pay the overhead of the checks
-            // on the many requests that are *not* QA-related.
-            if (result.block || result.suspect) {
-              if (ip in allowedIPs.ips || allowedEmailDomains.isAllowed(email)) {
-                log.info({
-                  op: 'request.check.allowed',
-                  ip: ip,
-                  block: result.block,
-                  suspect: result.suspect
-                })
-                result.block = false
-                result.suspect = false
-              }
-            }
+            allowWhitelisted(result, ip, email)
 
             log.info({
               op: 'request.check',
@@ -266,9 +287,7 @@ module.exports = function createServer(config, log) {
               suspect: result.suspect
             })
 
-            if (result.block && result.blockReason !== blockReasons.IP_BAD_REPUTATION) {
-              reputationService.report(ip, 'fxa:request.check.block.' + action)
-            }
+            optionallyReportIp(result, ip, action)
           },
           function (err) {
             log.error({ op: 'request.check', email: email, ip: ip, action: action, err: err })
@@ -340,6 +359,73 @@ module.exports = function createServer(config, log) {
     }
   )
 
+  api.post('/checkIpOnly', (req, res, next) => {
+    const action = req.body.action
+    const ip = req.body.ip
+
+    if (! action || ! ip) {
+      const err = { code: 'MissingParameters', message: 'action and ip are both required' }
+      log.error({ op:'request.checkAuthenticated', action: action, ip: ip, err: err })
+      res.send(400, err)
+      return next()
+    }
+
+    fetchRecords(ip)
+      .spread((ipRecord, reputation) => {
+        if (ipRecord.isBlocked()) {
+          return { block: true, retryAfter: ipRecord.retryAfter() }
+        }
+
+        const suspect = requestChecks.treatEveryoneWithSuspicion || reputationService.isSuspectBelow(reputation)
+        let retryAfter = ipRecord.update(action)
+        let block = retryAfter > 0
+        let blockReason
+
+        if (block) {
+          blockReason = blockReasons.OTHER
+        }
+
+        if (config.ipBlocklist.enable && blockListManager.contains(ip)) {
+          block = true
+          blockReason = blockReasons.IP_IN_BLOCKLIST
+          retryAfter = 0
+        }
+
+        if (reputationService.isBlockBelow(reputation)) {
+          block = true
+          retryAfter = ipRecord.retryAfter()
+          blockReason = blockReasons.IP_BAD_REPUTATION
+        }
+
+        return setRecords(ip, ipRecord)
+          .then(() => ({ block, blockReason, retryAfter, suspect }))
+      })
+      .then(result => {
+        allowWhitelisted(result, ip)
+
+        log.info({
+          op: 'request.checkIpOnly',
+          ip,
+          action,
+          block: result.block,
+          blockReason: result.blockReason,
+          suspect: result.suspect
+        })
+
+        res.send({
+          block: result.block,
+          retryAfter: result.retryAfter,
+          suspect: result.suspect
+        })
+
+        optionallyReportIp(result, ip, action)
+      }, err => {
+        log.error({ op: 'request.checkIpOnly', ip: ip, action: action, err: err })
+        res.send({ block: true, retryAfter: limits.ipRateLimitIntervalSeconds })
+      })
+      .done(next, next)
+  })
+
   api.post(
     '/failedLoginAttempt',
     function (req, res, next) {
@@ -354,9 +440,9 @@ module.exports = function createServer(config, log) {
       }
       email = normalizedEmail(email)
 
-      fetchRecords(email, ip)
+      fetchRecords(ip, email)
         .spread(
-          function (emailRecord, ipRecord, ipEmailRecord) {
+          function (ipRecord, reputation, emailRecord, ipEmailRecord) {
             ipRecord.addBadLogin({ email: email, errno: errno })
             ipEmailRecord.addBadLogin()
 
@@ -364,7 +450,7 @@ module.exports = function createServer(config, log) {
               reputationService.report(ip, 'fxa:request.failedLoginAttempt.isOverBadLogins')
             }
 
-            return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
+            return setRecords(ip, ipRecord, email, emailRecord, ipEmailRecord)
               .then(
                 function () {
                   return {}

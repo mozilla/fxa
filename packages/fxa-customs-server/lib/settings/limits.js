@@ -38,6 +38,7 @@ module.exports = (config, Settings, log) => {
       this.maxSms = settings.smsRateLimit.maxSms
       this.smsRateLimitIntervalSeconds = this.smsRateLimit.limitIntervalSeconds
       this.smsRateLimitIntervalMs = this.smsRateLimitIntervalSeconds * 1000
+      this.maxAccountAccess = settings.maxAccountAccess
 
       return this
     }

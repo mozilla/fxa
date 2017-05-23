@@ -13,6 +13,7 @@ var TEST_IP = '192.0.2.1'
 var TEST_BAD_IP = '9.9.9.9'
 var ALLOWED_IP = '192.0.3.1'
 var TEST_CHECK_ACTION = 'recoveryEmailVerifyCode'
+const ENDPOINTS = [ '/check', '/checkIpOnly' ]
 
 // wait for the violation to be sent for endpoints that respond
 // before sending violation
@@ -47,17 +48,12 @@ process.env.REPUTATION_SERVICE_BLOCK_BELOW = config.reputationService.blockBelow
 process.env.REPUTATION_SERVICE_SUSPECT_BELOW = config.reputationService.suspectBelow
 
 var testServer = new TestServer(config)
-var reputationServer = new ReputationServerStub(config)
 
 var client = restify.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
-var reputationClient = restify.createJsonClient({
-  url: config.reputationService.baseUrl
-})
 
 Promise.promisifyAll(client, { multiArgs: true })
-Promise.promisifyAll(reputationClient, { multiArgs: true })
 
 test(
   'startup test server',
@@ -70,36 +66,35 @@ test(
   }
 )
 
-test(
-  'startup reputation service',
-  function (t) {
+ENDPOINTS.forEach(endpoint => {
+  const  reputationServer = new ReputationServerStub(config)
+  const reputationClient = restify.createJsonClient({
+    url: config.reputationService.baseUrl
+  })
+  Promise.promisifyAll(reputationClient, { multiArgs: true })
+
+  test('startup reputation service', t => {
     reputationServer.start(function (err) {
       t.type(reputationServer.server, 'object', 'test server was started')
       t.notOk(err, 'no errors were returned')
       t.end()
     })
-  }
-)
+  })
 
-test(
-  'clear everything',
-  function (t) {
+  test('clear everything', t => {
     mcHelper.clearEverything(
       function (err) {
         t.notOk(err, 'no errors were returned')
         t.end()
       }
     )
-  }
-)
+  })
 
-test(
-  'does not block /check for IP with nonexistent reputation',
-  function (t) {
+  test(`does not block ${endpoint} for IP with nonexistent reputation`, t => {
     return reputationClient.delAsync('/' + TEST_IP)
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP')
-        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
+        return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200')
         t.equal(obj.block, false, 'action not blocked')
@@ -108,19 +103,16 @@ test(
         t.fail(err)
         t.end()
       })
-  }
-)
+  })
 
-test(
-  'does not block /check for IP with reputation above blockBelow',
-  function (t) {
+  test(`does not block ${endpoint} for IP with reputation above blockBelow`, t => {
     return reputationClient.delAsync('/' + TEST_IP)
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP')
         return reputationClient.postAsync('/', {ip: TEST_IP, reputation: 60})
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 201, 'sets reputation for TEST_IP')
-        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
+        return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200')
         t.equal(obj.block, false, 'action not blocked')
@@ -129,19 +121,16 @@ test(
         t.fail(err)
         t.end()
       })
-  }
-)
+  })
 
-test(
-  'suspects /check for IP with reputation below suspectBelow',
-  function (t) {
+  test(`suspects ${endpoint} for IP with reputation below suspectBelow`, t => {
     return reputationClient.delAsync('/' + TEST_IP)
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP')
         return reputationClient.postAsync('/', {ip: TEST_IP, reputation: 55})
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 201, 'sets reputation for TEST_IP')
-        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
+        return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200')
         t.equal(obj.suspect, true, 'action suspected')
@@ -151,19 +140,16 @@ test(
         t.fail(err)
         t.end()
       })
-  }
-)
+  })
 
-test(
-  'blocks /check for IP with reputation below blockBelow',
-  function (t) {
+  test(`blocks ${endpoint} for IP with reputation below blockBelow`, t => {
     return reputationClient.delAsync('/' + TEST_IP)
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP')
         return reputationClient.postAsync('/', {ip: TEST_IP, reputation: 10})
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 201, 'sets reputation for TEST_IP')
-        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
+        return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200')
         t.equal(obj.block, true, 'action blocked')
@@ -179,19 +165,16 @@ test(
         t.fail(err)
         t.end()
       })
-  }
-)
+  })
 
-test(
-  'does not block /check for whitelisted IP with reputation below blockBelow',
-  function (t) {
+  test(`does not block ${endpoint} for whitelisted IP with reputation below blockBelow`, t => {
     return reputationClient.delAsync('/' + ALLOWED_IP)
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for ALLOWED_IP')
         return reputationClient.postAsync('/', {ip: ALLOWED_IP, reputation: 10})
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 201, 'sets reputation for ALLOWED_IP')
-        return client.postAsync('/check', { email: TEST_EMAIL, ip: ALLOWED_IP, action: TEST_CHECK_ACTION })
+        return client.postAsync(endpoint, { email: TEST_EMAIL, ip: ALLOWED_IP, action: TEST_CHECK_ACTION })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200')
         t.equal(obj.block, false, 'action not blocked')
@@ -200,13 +183,10 @@ test(
         t.fail(err)
         t.end()
       })
-  }
-)
+  })
 
-test(
-  '/check returns when GET IP reputation service returns an bad response',
-  function (t) {
-    return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_BAD_IP, action: TEST_CHECK_ACTION })
+  test(`${endpoint} returns when GET IP reputation service returns an bad response`, t => {
+    return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_BAD_IP, action: TEST_CHECK_ACTION })
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200')
         t.equal(obj.block, false, 'action not blocked')
@@ -215,22 +195,16 @@ test(
         t.fail(err)
         t.end()
       })
-  }
-)
+  })
 
-test(
-  'teardown test reputation server',
-  function (t) {
+  test('teardown test reputation server', t => {
     reputationServer.stop()
     t.equal(reputationServer.server.killed, true, 'test reputation server killed')
     t.end()
-  }
-)
+  })
 
-test(
-  '/check returns when GET IP reputation times out',
-  function (t) {
-    return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
+  test(`${endpoint} returns when GET IP reputation times out`, t => {
+    return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200')
         t.equal(obj.block, false, 'action not blocked')
@@ -239,8 +213,8 @@ test(
         t.fail(err)
         t.end()
       })
-  }
-)
+  })
+})
 
 test(
   'teardown test server',

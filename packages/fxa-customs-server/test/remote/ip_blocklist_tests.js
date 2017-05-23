@@ -14,6 +14,7 @@ var LOG_ONLY_BOTH_LIST_IP = '1.93.0.225'
 var LOG_ONLY_IP = '86.75.30.9'
 var BLOCK_IP_INRANGE = '0.1.0.0'
 var VALID_IP = '3.0.0.0'
+const ENDPOINTS = [ '/check', '/checkIpOnly' ]
 
 process.env.IP_BLOCKLIST_ENABLE = true
 process.env.IP_BLOCKLIST_FILES = [
@@ -59,65 +60,52 @@ var client = restify.createJsonClient({
 
 Promise.promisifyAll(client, {multiArgs: true})
 
-test(
-  'block ip from ip blocklist',
-  function (t) {
-    client.postAsync('/check', {ip: BLOCK_IP, email: TEST_EMAIL, action: ACTION},
+ENDPOINTS.forEach(endpoint => {
+  test(`${endpoint} block ip from ip blocklist`, t => {
+    client.postAsync(endpoint, {ip: BLOCK_IP, email: TEST_EMAIL, action: ACTION},
       function (err, req, res, obj) {
         t.equal(obj.block, true, 'request is blocked')
         t.end()
       }
     )
-  }
-)
+  })
 
-test(
-  'block ip in range of blocklist',
-  function (t) {
-    client.postAsync('/check', {ip: BLOCK_IP_INRANGE, email: TEST_EMAIL, action: ACTION},
+  test(`${endpoint} block ip in range of blocklist`, t => {
+    client.postAsync(endpoint, {ip: BLOCK_IP_INRANGE, email: TEST_EMAIL, action: ACTION},
       function (err, req, res, obj) {
         t.equal(obj.block, true, 'request is blocked')
         t.end()
       }
     )
-  }
-)
+  })
 
-test(
-  'do not block ip not in range blocklist',
-  function (t) {
-    client.postAsync('/check', {ip: VALID_IP, email: TEST_EMAIL, action: ACTION},
+  test(`${endpoint} do not block ip not in range blocklist`, t => {
+    client.postAsync(endpoint, {ip: VALID_IP, email: TEST_EMAIL, action: ACTION},
       function (err, req, res, obj) {
         t.equal(obj.block, false, 'request is not blocked')
         t.end()
       }
     )
-  }
-)
+  })
 
-test(
-  'should log only on hit from logOnly list',
-  function (t) {
-    client.postAsync('/check', {ip: LOG_ONLY_IP, email: TEST_EMAIL, action: ACTION},
+  test(`${endpoint} should log only on hit from logOnly list`, t => {
+    client.postAsync(endpoint, {ip: LOG_ONLY_IP, email: TEST_EMAIL, action: ACTION},
       function (err, req, res, obj) {
         t.equal(obj.block, false, 'request is not blocked')
         t.end()
       }
     )
-  }
-)
+  })
 
-test(
-  'should block request on hit form logOnly and blocklist',
-  function (t) {
-    client.postAsync('/check', {ip: LOG_ONLY_BOTH_LIST_IP, email: TEST_EMAIL, action: ACTION},
+  test(`${endpoint} should block request on hit from logOnly and blocklist`, t => {
+    client.postAsync(endpoint, {ip: LOG_ONLY_BOTH_LIST_IP, email: TEST_EMAIL, action: ACTION},
       function (err, req, res, obj) {
         t.equal(obj.block, true, 'request is blocked')
         t.end()
       }
     )
-  }
-)
+  })
+})
 
 test(
   'teardown',

@@ -146,6 +146,12 @@ module.exports = function (fs, path, url, convict) {
         default: 5,
         format: 'nat',
         env: 'MAX_ACCOUNT_STATUS_CHECK'
+      },
+      maxAccountAccess: {
+        doc: 'Number of account access actions within ipRateLimitIntervalSeconds before throttling',
+        default: 5,
+        format: 'nat',
+        env: 'MAX_ACCOUNT_ACCESS'
       }
     },
     memcache: {

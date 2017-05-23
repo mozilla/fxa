@@ -50,6 +50,12 @@ const SMS_SENDING_ACTION = {
   connectDeviceSms: true
 }
 
+// Actions that may grant access to an account but
+// are not associated with an email address or uid.
+const ACCOUNT_ACCESS_ACTION = new Set([
+  'consumeSigninCode'
+])
+
 module.exports = {
 
   isPasswordCheckingAction: function (action) {
@@ -70,5 +76,9 @@ module.exports = {
 
   isSmsSendingAction: function (action) {
     return SMS_SENDING_ACTION[action]
+  },
+
+  isAccountAccessAction (action) {
+    return ACCOUNT_ACCESS_ACTION.has(action)
   }
 }

@@ -10,6 +10,7 @@ var mcHelper = require('../memcache-helper')
 var TEST_EMAIL = 'test@example.com'
 var ACTION = 'dummyAction'
 var BLOCK_IP = '1.93.0.224'
+const ENDPOINTS = [ '/check', '/checkIpOnly' ]
 
 process.env.IP_BLOCKLIST_ENABLE = false
 
@@ -49,17 +50,16 @@ var client = restify.createJsonClient({
 
 Promise.promisifyAll(client, {multiArgs: true})
 
-test(
-  'ignore ip from ip blocklist',
-  function (t) {
-    client.postAsync('/check', {ip: BLOCK_IP, email: TEST_EMAIL, action: ACTION},
+ENDPOINTS.forEach(endpoint => {
+  test(`${endpoint} ignore ip from ip blocklist`, t => {
+    client.postAsync(endpoint, {ip: BLOCK_IP, email: TEST_EMAIL, action: ACTION},
       function (err, req, res, obj) {
         t.equal(obj.block, false, 'request is blocked')
         t.end()
       }
     )
-  }
-)
+  })
+})
 
 test(
   'teardown',
