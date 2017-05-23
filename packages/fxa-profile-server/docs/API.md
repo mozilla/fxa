@@ -176,39 +176,6 @@ curl -v \
 }
 ```
 
-### POST /v1/avatar
-
-- scope: `profile:avatar:write`
-
-Add a URL for an avatar to the user's profile.
-
-#### Request
-
-- `url` - The URL of the image. Must be from a supported provider.
-- `selected` - (DEPRECATED) Boolean, whether it should be the selected avatar.
-
-Supported Providers:
-
-- FxAccounts
-- Gravatar
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
--H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
-"https://profile.accounts.firefox.com/v1/avatar" \
--d '{
-  "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96"
-}'
-```
-
-#### Response
-
-```json
-{}
-```
-
 ### POST /v1/avatar/upload
 
 - scope: `profile:avatar:write`
