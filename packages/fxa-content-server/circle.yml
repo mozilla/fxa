@@ -59,7 +59,8 @@ deployment:
 
           echo ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
           docker tag fxa-content-server:build ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
-          docker push ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
+
+          case $CIRCLE_NODE_INDEX in 0) docker push ${DOCKERHUB_REPO}:${CIRCLE_BRANCH} ;; 1) echo "Image pushed in another node" ;; esac
 
   hub_releases:
     # push all tags
@@ -82,4 +83,4 @@ deployment:
       - "echo ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
       - "docker tag fxa-content-server:build ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
       - "docker images"
-      - "docker push ${DOCKERHUB_REPO}:${CIRCLE_TAG}"
+      - case $CIRCLE_NODE_INDEX in 0) docker push ${DOCKERHUB_REPO}:${CIRCLE_BRANCH} ;; 1) echo "Image pushed in another node" ;; esac
