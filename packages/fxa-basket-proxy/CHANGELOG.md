@@ -1,3 +1,24 @@
+<a name="0.74.0"></a>
+# [0.74.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.73.0...v0.74.0) (2017-05-24)
+
+
+### Bug Fixes
+
+* **version:** use cwd and env var to get version (#34) r=vladikoff ([1f7e8b0](https://github.com/mozilla/fxa-basket-proxy/commit/1f7e8b0))
+
+### chore
+
+* **config:** Add environment config options ([231eced](https://github.com/mozilla/fxa-basket-proxy/commit/231eced))
+* **docker:** Use official node image & update to Node.js v4.8.2 (#36) r=vladikoff ([1054164](https://github.com/mozilla/fxa-basket-proxy/commit/1054164))
+* **docs:** update to node 4 ([c2a4d3b](https://github.com/mozilla/fxa-basket-proxy/commit/c2a4d3b))
+
+### Features
+
+* **docker:** add custom feature branch (#37) r=jrgm ([827c041](https://github.com/mozilla/fxa-basket-proxy/commit/827c041))
+* **docker:** Shrink Docker image size ([00f3e70](https://github.com/mozilla/fxa-basket-proxy/commit/00f3e70))
+
+
+
 <a name="0.73.0"></a>
 # [0.73.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.71.0...v0.73.0) (2016-11-02)
 
