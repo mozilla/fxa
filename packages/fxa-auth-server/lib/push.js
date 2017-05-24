@@ -218,7 +218,7 @@ module.exports = function (log, db, config) {
         }
       }))
       var options = { data: data, TTL: TTL_DEVICE_DISCONNECTED }
-      return this.pushToDevice(uid, idToDisconnect, 'deviceDisconnected', options)
+      return this.pushToAllDevices(uid, 'deviceDisconnected', options)
     },
 
     /**

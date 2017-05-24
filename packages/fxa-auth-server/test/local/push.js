@@ -474,10 +474,10 @@ describe('push', () => {
   )
 
   it(
-    'notifyDeviceDisconnected calls pushToDevice',
+    'notifyDeviceDisconnected calls pushToAllDevices',
     () => {
       var push = require(pushModulePath)(mockLog(), mockDbResult, mockConfig)
-      sinon.spy(push, 'pushToDevice')
+      sinon.spy(push, 'pushToAllDevices')
       var idToDisconnect = mockDevices[0].id
       var expectedData = {
         version: 1,
@@ -491,18 +491,17 @@ describe('push', () => {
         throw err
       })
       .then(function() {
-        assert.ok(push.pushToDevice.calledOnce, 'pushToDevice was called')
-        assert.equal(push.pushToDevice.getCall(0).args[0], mockUid)
-        assert.equal(push.pushToDevice.getCall(0).args[1], idToDisconnect)
-        assert.equal(push.pushToDevice.getCall(0).args[2], 'deviceDisconnected')
-        var options = push.pushToDevice.getCall(0).args[3]
+        assert.ok(push.pushToAllDevices.calledOnce, 'pushToAllDevices was called')
+        assert.equal(push.pushToAllDevices.getCall(0).args[0], mockUid)
+        assert.equal(push.pushToAllDevices.getCall(0).args[1], 'deviceDisconnected')
+        var options = push.pushToAllDevices.getCall(0).args[2]
         var payload = JSON.parse(options.data.toString('utf8'))
         assert.deepEqual(payload, expectedData)
         var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
         var schema = JSON.parse(fs.readFileSync(schemaPath))
         assert.ok(ajv.validate(schema, payload))
         assert.ok(options.TTL, 'TTL should be set')
-        push.pushToDevice.restore()
+        push.pushToAllDevices.restore()
       })
     }
   )
