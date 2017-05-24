@@ -97,6 +97,38 @@ define(function (require, exports, module) {
     });
 
     describe('feature disabled', () => {
+      describe('for email', () => {
+        beforeEach(() => {
+          account = user.initAccount({
+            email: 'a@notenabled.com',
+            sessionToken: 'abc123',
+            uid: UID,
+            verified: true
+          });
+
+          view = new View({
+            broker: broker,
+            emails: emails,
+            metrics: metrics,
+            notifier: notifier,
+            parentView: parentView,
+            translator: translator,
+            user: user,
+            window: windowMock
+          });
+
+          sinon.stub(view, 'remove', () => {
+            return true;
+          });
+
+          return view.render();
+        });
+
+        it('should be disabled when feature is disabled for email', () => {
+          assert.equal(view.remove.callCount, 1);
+        });
+      });
+
       describe('for user', () => {
         beforeEach(() => {
           sinon.stub(account, 'recoveryEmails', () => {

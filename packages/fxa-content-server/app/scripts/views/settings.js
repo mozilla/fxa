@@ -20,6 +20,7 @@ define(function (require, exports, module) {
   const ClientsView = require('views/settings/clients');
   const ClientDisconnectView = require('views/settings/client_disconnect');
   const DisplayNameView = require('views/settings/display_name');
+  const EmailsView = require('views/settings/emails');
   const Duration = require('duration');
   const LoadingMixin = require('views/mixins/loading-mixin');
   const modal = require('modal'); //eslint-disable-line no-unused-vars
@@ -30,6 +31,7 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/settings');
 
   var PANEL_VIEWS = [
+    EmailsView,
     AvatarView,
     ClientsView,
     ClientDisconnectView,
