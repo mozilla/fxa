@@ -38,7 +38,7 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const WindowMock = require('../../mocks/window');
 
-  describe('lib/app-start', function () {
+  describe('lib/app-start', () => {
     let appStart;
     let backboneHistoryMock;
     let brokerMock;
@@ -47,7 +47,7 @@ define(function (require, exports, module) {
     let userMock;
     let windowMock;
 
-    beforeEach(function () {
+    beforeEach(() => {
       brokerMock = new BaseBroker();
       backboneHistoryMock = new HistoryMock();
       notifier = new Notifier();
@@ -58,16 +58,16 @@ define(function (require, exports, module) {
       windowMock.parent = new WindowMock();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       Raven.uninstall();
     });
 
-    describe('fatalError', function () {
+    describe('fatalError', () => {
       var err;
       var sandbox;
 
 
-      beforeEach(function () {
+      beforeEach(() => {
         sandbox = sinon.sandbox.create();
 
         appStart = new AppStart({
@@ -80,27 +80,27 @@ define(function (require, exports, module) {
         });
 
         sandbox.spy(appStart, 'enableSentryMetrics');
-        sandbox.stub(ErrorUtils, 'fatalError', function () {});
+        sandbox.stub(ErrorUtils, 'fatalError', () => {});
 
         err = new Error('boom');
         return appStart.fatalError(err);
       });
 
-      afterEach(function () {
+      afterEach(() => {
         sandbox.restore();
       });
 
-      it('enables sentry if not already enabled', function () {
+      it('enables sentry if not already enabled', () => {
         assert.isTrue(appStart.enableSentryMetrics.called);
       });
 
-      it('delegates to ErrorUtils', function () {
+      it('delegates to ErrorUtils', () => {
         assert.isTrue(ErrorUtils.fatalError.calledWith(err));
       });
     });
 
-    describe('startApp', function () {
-      beforeEach(function () {
+    describe('startApp', () => {
+      beforeEach(() => {
         appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
@@ -113,17 +113,17 @@ define(function (require, exports, module) {
         appStart.useConfig({});
       });
 
-      it('starts the app', function () {
+      it('starts the app', () => {
         return appStart.startApp()
-          .then(function () {
+          .then(() => {
             // translator is put on the global object.
             assert.isDefined(windowMock.translator);
           });
       });
 
-      it('does not redirect', function () {
+      it('does not redirect', () => {
         return appStart.startApp()
-          .then(function () {
+          .then(() => {
             assert.isFalse(routerMock.navigate.called);
           });
       });
@@ -131,7 +131,7 @@ define(function (require, exports, module) {
       it('logs an error `fatalError` if config is missing', () => {
         appStart.useConfig(null);
 
-        sinon.stub(appStart, 'fatalError', function () {});
+        sinon.stub(appStart, 'fatalError', () => {});
 
         return appStart.startApp()
           .then(() => {
@@ -144,7 +144,7 @@ define(function (require, exports, module) {
       it('logs an error `fatalError` if config is invalid', () => {
         appStart.useConfig(null);
 
-        sinon.stub(appStart, 'fatalError', function () {});
+        sinon.stub(appStart, 'fatalError', () => {});
 
         $('head').append('<meta name="fxa-content-server/config" content="asdf" />');
         return appStart.startApp()
@@ -157,100 +157,100 @@ define(function (require, exports, module) {
           });
       });
 
-      it('delegates to `fatalError` if an error occurs', function () {
+      it('delegates to `fatalError` if an error occurs', () => {
         var err = new Error('boom');
-        sinon.stub(appStart, 'allResourcesReady', function () {
+        sinon.stub(appStart, 'allResourcesReady', () => {
           return p.reject(err);
         });
 
-        sinon.stub(appStart, 'fatalError', function () {});
+        sinon.stub(appStart, 'fatalError', () => {});
 
         return appStart.startApp()
-          .then(function () {
+          .then(() => {
             assert.isTrue(appStart.fatalError.calledWith(err));
           });
       });
 
-      it('updates old storage formats', function () {
-        sinon.stub(appStart, 'upgradeStorageFormats', function () {
+      it('updates old storage formats', () => {
+        sinon.stub(appStart, 'upgradeStorageFormats', () => {
           return p();
         });
 
         return appStart.startApp()
-          .then(function () {
+          .then(() => {
             assert.isTrue(appStart.upgradeStorageFormats.calledOnce);
           });
       });
 
-      it('uses storage metrics when an automated browser is detected', function () {
+      it('uses storage metrics when an automated browser is detected', () => {
         windowMock.location.search = Url.objToSearchString({
           automatedBrowser: true
         });
 
         return appStart.startApp()
-          .then(function () {
+          .then(() => {
             assert.instanceOf(appStart._metrics, StorageMetrics);
           });
       });
 
-      describe('with localStorage disabled', function () {
+      describe('with localStorage disabled', () => {
         var sandbox;
 
-        beforeEach(function () {
+        beforeEach(() => {
           sandbox = sinon.sandbox.create();
-          sandbox.stub(Storage, 'isLocalStorageEnabled', function () {
+          sandbox.stub(Storage, 'isLocalStorageEnabled', () => {
             return false;
           });
         });
 
-        afterEach(function () {
+        afterEach(() => {
           sandbox.restore();
         });
 
-        it('redirects to /cookies_disabled', function () {
+        it('redirects to /cookies_disabled', () => {
           return appStart.startApp()
-            .then(function () {
+            .then(() => {
               assert.isTrue(routerMock.navigate.calledWith('cookies_disabled'));
             });
         });
 
-        it('does not redirect if path is already /cookies_disabled', function () {
+        it('does not redirect if path is already /cookies_disabled', () => {
           windowMock.location.pathname = '/cookies_disabled';
           return appStart.startApp()
-            .then(function () {
+            .then(() => {
               assert.isFalse(routerMock.navigate.called);
             });
         });
 
-        it('does not redirect if Mobile Safari and /complete_signin', function () {
+        it('does not redirect if Mobile Safari and /complete_signin', () => {
           windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
             'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
           windowMock.location.pathname = '/complete_signin';
 
           return appStart.startApp()
-            .then(function () {
+            .then(() => {
               assert.isFalse(routerMock.navigate.called);
             });
         });
 
-        it('does not redirect if Mobile Safari and /verify_email', function () {
+        it('does not redirect if Mobile Safari and /verify_email', () => {
           windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
             'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
           windowMock.location.pathname = '/verify_email';
 
           return appStart.startApp()
-            .then(function () {
+            .then(() => {
               assert.isFalse(routerMock.navigate.called);
             });
         });
 
-        it('redirects if Mobile Safari and root path', function () {
+        it('redirects if Mobile Safari and root path', () => {
           windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
             'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
           windowMock.location.pathname = '/';
 
           return appStart.startApp()
-            .then(function () {
+            .then(() => {
               assert.isTrue(routerMock.navigate.called);
             });
         });
@@ -258,15 +258,15 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('initializeAuthenticationBroker', function () {
+    describe('initializeAuthenticationBroker', () => {
       function testExpectedBrokerCreated(ExpectedBroker) {
         return appStart.initializeAuthenticationBroker()
-          .then(function () {
+          .then(() => {
             assert.instanceOf(appStart._authenticationBroker, ExpectedBroker);
           });
       }
 
-      beforeEach(function () {
+      beforeEach(() => {
         appStart = new AppStart({
           history: backboneHistoryMock,
           notifier,
@@ -277,8 +277,8 @@ define(function (require, exports, module) {
         appStart._metrics = new Metrics({ notifier });
       });
 
-      describe('fx-firstrun-v1', function () {
-        it('returns a FxFirstrunV1 broker if `service=sync&context=iframe`', function () {
+      describe('fx-firstrun-v1', () => {
+        it('returns a FxFirstrunV1 broker if `service=sync&context=iframe`', () => {
           windowMock.location.search = Url.objToSearchString({
             context: Constants.IFRAME_CONTEXT,
             service: Constants.SYNC_SERVICE
@@ -288,8 +288,8 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('fx-firstrun-v2', function () {
-        it('returns a FxFirstrunV2 broker if `service=sync&context=fx_firstrun_v2`', function () {
+      describe('fx-firstrun-v2', () => {
+        it('returns a FxFirstrunV2 broker if `service=sync&context=fx_firstrun_v2`', () => {
           windowMock.location.search = Url.objToSearchString({
             context: Constants.FX_FIRSTRUN_V2_CONTEXT,
             service: Constants.SYNC_SERVICE
@@ -299,8 +299,8 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('fx-desktop-v1', function () {
-        it('returns an FxDesktopV1 broker if `context=fx_desktop_v1`', function () {
+      describe('fx-desktop-v1', () => {
+        it('returns an FxDesktopV1 broker if `context=fx_desktop_v1`', () => {
           windowMock.location.search = Url.objToSearchString({
             context: Constants.FX_DESKTOP_V1_CONTEXT
           });
@@ -309,8 +309,8 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('fx-desktop-v2', function () {
-        it('returns an FxDesktopV2 broker if `context=fx_desktop_v2`', function () {
+      describe('fx-desktop-v2', () => {
+        it('returns an FxDesktopV2 broker if `context=fx_desktop_v2`', () => {
           windowMock.location.search = Url.objToSearchString({
             context: Constants.FX_DESKTOP_V2_CONTEXT
           });
@@ -319,8 +319,8 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('fx-fennec-v1', function () {
-        it('returns an FxFennecV1 broker if `context=fx_fennec_v1`', function () {
+      describe('fx-fennec-v1', () => {
+        it('returns an FxFennecV1 broker if `context=fx_fennec_v1`', () => {
           windowMock.location.search = Url.objToSearchString({
             context: Constants.FX_FENNEC_V1_CONTEXT
           });
@@ -329,8 +329,8 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('fx-ios-v1', function () {
-        it('returns an FxiOSV1 broker if `context=fx_ios_v1`', function () {
+      describe('fx-ios-v1', () => {
+        it('returns an FxiOSV1 broker if `context=fx_ios_v1`', () => {
           windowMock.location.search = Url.objToSearchString({
             context: Constants.FX_IOS_V1_CONTEXT
           });
@@ -339,8 +339,8 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('deprecated oauth iframe support', function () {
-        it('returns an Redirect broker if `context=iframe` is present and in an iframe', function () {
+      describe('deprecated oauth iframe support', () => {
+        it('returns an Redirect broker if `context=iframe` is present and in an iframe', () => {
           windowMock.top = new WindowMock();
           windowMock.location.search = Url.objToSearchString({
             client_id: 'client id', //eslint-disable-line camelcase
@@ -350,7 +350,7 @@ define(function (require, exports, module) {
           return testExpectedBrokerCreated(RedirectBroker);
         });
 
-        it('returns a Redirect broker if `context=iframe` is not present and in an iframe - for Marketplace on Android', function () {
+        it('returns a Redirect broker if `context=iframe` is not present and in an iframe - for Marketplace on Android', () => {
           windowMock.top = new WindowMock();
           windowMock.location.search = Url.objToSearchString({
             client_id: 'client id' //eslint-disable-line camelcase
@@ -360,8 +360,8 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('redirect', function () {
-        it('returns a Redirect broker if `client_id` is available', function () {
+      describe('redirect', () => {
+        it('returns a Redirect broker if `client_id` is available', () => {
           windowMock.location.search = Url.objToSearchString({
             client_id: 'client id' //eslint-disable-line camelcase
           });
@@ -369,7 +369,7 @@ define(function (require, exports, module) {
           return testExpectedBrokerCreated(RedirectBroker);
         });
 
-        it('returns a Redirect broker if both `code` and `service` are available - for verification flows', function () {
+        it('returns a Redirect broker if both `code` and `service` are available - for verification flows', () => {
           windowMock.location.search = Url.objToSearchString({
             code: 'the code',
             service: 'the service',
@@ -379,27 +379,27 @@ define(function (require, exports, module) {
           return testExpectedBrokerCreated(RedirectBroker);
         });
 
-        it('returns a Redirect broker if user directly browses to `/oauth/signin`', function () {
+        it('returns a Redirect broker if user directly browses to `/oauth/signin`', () => {
           windowMock.location.href = '/oauth/signin';
 
           return testExpectedBrokerCreated(RedirectBroker);
         });
 
-        it('returns a Redirect broker if user directly browses to `/oauth/signup`', function () {
+        it('returns a Redirect broker if user directly browses to `/oauth/signup`', () => {
           windowMock.location.href = '/oauth/signup';
 
           return testExpectedBrokerCreated(RedirectBroker);
         });
       });
 
-      describe('base', function () {
-        it('returns a Base broker if the user directly browses to any other page', function () {
+      describe('base', () => {
+        it('returns a Base broker if the user directly browses to any other page', () => {
           windowMock.location.href = '/settings';
 
           return testExpectedBrokerCreated(BaseBroker);
         });
 
-        it('returns a BaseBroker if verifying a Sync signup', function () {
+        it('returns a BaseBroker if verifying a Sync signup', () => {
           windowMock.location.search = Url.objToSearchString({
             code: 'the code',
             service: Constants.SYNC_SERVICE,
@@ -410,12 +410,12 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('broker errors', function () {
-        it('are logged to metrics', function () {
+      describe('broker errors', () => {
+        it('are logged to metrics', () => {
           sinon.stub(appStart, 'captureError', sinon.spy());
 
           return appStart.initializeAuthenticationBroker()
-            .then(function () {
+            .then(() => {
               var err = new Error('test error');
               appStart._authenticationBroker.trigger('error', err);
               assert.isTrue(appStart.captureError.called);
@@ -424,8 +424,8 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('initializeRelier', function () {
-      beforeEach(function () {
+    describe('initializeRelier', () => {
+      beforeEach(() => {
         appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
@@ -435,14 +435,14 @@ define(function (require, exports, module) {
         });
       });
 
-      it('creates an SyncRelier if Sync', function () {
+      it('creates an SyncRelier if Sync', () => {
         sinon.stub(appStart, '_isServiceSync', () => true);
 
         appStart.initializeRelier();
         assert.instanceOf(appStart._relier, SyncRelier);
       });
 
-      it('creates an OAuthRelier if in the OAuth flow, even if service=sync is specified', function () {
+      it('creates an OAuthRelier if in the OAuth flow, even if service=sync is specified', () => {
         sinon.stub(appStart, '_isOAuth', () => true);
         sinon.stub(appStart, '_isServiceSync', () => true);
 
@@ -450,14 +450,14 @@ define(function (require, exports, module) {
         assert.instanceOf(appStart._relier, OAuthRelier);
       });
 
-      it('creates a Relier by default', function () {
+      it('creates a Relier by default', () => {
         appStart.initializeRelier();
         assert.instanceOf(appStart._relier, Relier);
       });
     });
 
-    describe('initializeUser', function () {
-      beforeEach(function () {
+    describe('initializeUser', () => {
+      beforeEach(() => {
         appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
@@ -467,19 +467,19 @@ define(function (require, exports, module) {
         appStart.useConfig({});
       });
 
-      it('creates a user', function () {
+      it('creates a user', () => {
         appStart.initializeUser();
         assert.isDefined(appStart._user);
       });
 
-      it('sets the user uniqueUserId', function () {
+      it('sets the user uniqueUserId', () => {
         appStart.initializeUser();
         assert.isDefined(appStart._user.get('uniqueUserId'));
       });
     });
 
-    describe('initializeErrorMetrics', function () {
-      beforeEach(function () {
+    describe('initializeErrorMetrics', () => {
+      beforeEach(() => {
         appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
@@ -489,9 +489,9 @@ define(function (require, exports, module) {
         appStart.useConfig({});
       });
 
-      it('skips error metrics on empty config', function () {
+      it('skips error metrics on empty config', () => {
         appStart.initializeAble();
-        var ableChoose = sinon.stub(appStart._able, 'choose', function () {
+        var ableChoose = sinon.stub(appStart._able, 'choose', () => {
           return true;
         });
 
@@ -500,7 +500,7 @@ define(function (require, exports, module) {
         ableChoose.restore();
       });
 
-      it('skips error metrics if env is not defined', function () {
+      it('skips error metrics if env is not defined', () => {
         appStart.useConfig({ });
         appStart.initializeAble();
 
@@ -508,7 +508,7 @@ define(function (require, exports, module) {
         assert.isUndefined(appStart._sentryMetrics);
       });
 
-      it('creates error metrics', function () {
+      it('creates error metrics', () => {
         var appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
@@ -518,7 +518,7 @@ define(function (require, exports, module) {
         appStart.useConfig({ env: 'development' });
         appStart.initializeAble();
 
-        var ableChoose = sinon.stub(appStart._able, 'choose', function () {
+        var ableChoose = sinon.stub(appStart._able, 'choose', () => {
           return true;
         });
 
@@ -529,8 +529,8 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_getUniqueUserId', function () {
-      beforeEach(function () {
+    describe('_getUniqueUserId', () => {
+      beforeEach(() => {
         appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
@@ -540,13 +540,13 @@ define(function (require, exports, module) {
         appStart.useConfig({});
       });
 
-      it('creates a user id', function () {
+      it('creates a user id', () => {
         assert.isDefined(appStart._getUniqueUserId());
       });
     });
 
-    describe('initializeRouter', function () {
-      beforeEach(function () {
+    describe('initializeRouter', () => {
+      beforeEach(() => {
         appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
@@ -556,14 +556,14 @@ define(function (require, exports, module) {
         appStart.useConfig({});
       });
 
-      it('creates a router', function () {
+      it('creates a router', () => {
         appStart.initializeRouter();
         assert.isDefined(appStart._router);
       });
     });
 
-    describe('initializeIframeChannel', function () {
-      beforeEach(function () {
+    describe('initializeIframeChannel', () => {
+      beforeEach(() => {
         windowMock.location.search = '?context=fx_ios_v1&service=sync&origin=' + encodeURIComponent('http://127.0.0.1:8111');
         appStart = new AppStart({
           broker: brokerMock,
@@ -572,7 +572,7 @@ define(function (require, exports, module) {
         });
       });
 
-      it('creates an iframe channel if in an iframe', function () {
+      it('creates an iframe channel if in an iframe', () => {
         windowMock.top = new WindowMock();
 
         appStart.initializeIframeChannel();
@@ -580,14 +580,14 @@ define(function (require, exports, module) {
         assert.equal(appStart._iframeChannel.origin, 'http://127.0.0.1:8111');
       });
 
-      it('creates a null iframe channel if not in an iframe', function () {
+      it('creates a null iframe channel if not in an iframe', () => {
         appStart.initializeIframeChannel();
         assert.instanceOf(appStart._iframeChannel, NullChannel);
       });
     });
 
-    describe('initializeHeightObserver', function () {
-      beforeEach(function () {
+    describe('initializeHeightObserver', () => {
+      beforeEach(() => {
         appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
@@ -598,13 +598,13 @@ define(function (require, exports, module) {
       });
 
       it('sets up the HeightObserver, triggers a `resize` notification on the iframe channel when the height changes', function (done) {
-        sinon.stub(appStart, '_isInAnIframe', function () {
+        sinon.stub(appStart, '_isInAnIframe', () => {
           return true;
         });
 
         appStart._iframeChannel = {
           send (message, data) {
-            TestHelpers.wrapAssertion(function () {
+            TestHelpers.wrapAssertion(() => {
               assert.equal(message, 'resize');
               assert.typeOf(data.height, 'number');
             }, done);
@@ -615,30 +615,30 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('initializeRefreshObserver', function () {
-      beforeEach(function () {
+    describe('initializeRefreshObserver', () => {
+      beforeEach(() => {
         appStart = new AppStart({
           notifier: notifier,
           window: windowMock
         });
       });
 
-      it('creates a RefreshObserver instance', function () {
+      it('creates a RefreshObserver instance', () => {
         appStart.initializeRefreshObserver();
         assert.instanceOf(appStart._refreshObserver, RefreshObserver);
       });
     });
 
-    describe('testLocalStorage', function () {
-      describe('with localStorage disabled', function () {
+    describe('testLocalStorage', () => {
+      describe('with localStorage disabled', () => {
         var err;
 
-        beforeEach(function () {
+        beforeEach(() => {
           err = new Error('NS_ERROR_FILE_ACCESS_DENIED');
 
           appStart = new AppStart({
             storage: {
-              testLocalStorage: sinon.spy(function () {
+              testLocalStorage: sinon.spy(() => {
                 throw err;
               })
             }
@@ -649,24 +649,24 @@ define(function (require, exports, module) {
           return appStart.testLocalStorage();
         });
 
-        it('logs the error', function () {
+        it('logs the error', () => {
           assert.isTrue(appStart.captureError.calledWith(err));
         });
       });
     });
 
-    describe('captureError', function () {
+    describe('captureError', () => {
       var err;
       var metricsMock;
       var sentryMock;
 
-      beforeEach(function () {
+      beforeEach(() => {
         sinon.spy(backboneHistoryMock, 'start');
 
         err = new Error('NS_ERROR_FILE_ACCESS_DENIED');
 
         metricsMock = {
-          flush: sinon.spy(function () {
+          flush: sinon.spy(() => {
             return p();
           }),
           logError: sinon.spy()
@@ -681,7 +681,7 @@ define(function (require, exports, module) {
           metrics: metricsMock,
           sentryMetrics: sentryMock,
           storage: {
-            testLocalStorage: sinon.spy(function () {
+            testLocalStorage: sinon.spy(() => {
               throw err;
             })
           }
@@ -690,20 +690,20 @@ define(function (require, exports, module) {
         return appStart.captureError(err);
       });
 
-      it('logs the error to sentry', function () {
+      it('logs the error to sentry', () => {
         assert.isTrue(sentryMock.captureException.calledWith(err));
       });
 
-      it('logs the error to metrics', function () {
+      it('logs the error to metrics', () => {
         assert.isTrue(metricsMock.logError.calledWith(err));
         assert.isTrue(metricsMock.flush.called);
       });
     });
 
-    describe('allResourcesReady', function () {
+    describe('allResourcesReady', () => {
       let requireOnDemandMock;
 
-      beforeEach(function () {
+      beforeEach(() => {
         sinon.spy(backboneHistoryMock, 'start');
         requireOnDemandMock = sinon.spy();
 
@@ -744,15 +744,15 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_getContext', function () {
-      describe('in a verification flow', function () {
-        beforeEach(function () {
+    describe('_getContext', () => {
+      describe('in a verification flow', () => {
+        beforeEach(() => {
           appStart = new AppStart({
             notifier: notifier,
             window: windowMock
           });
 
-          sinon.stub(appStart, '_isVerification', function () {
+          sinon.stub(appStart, '_isVerification', () => {
             return true;
           });
 
@@ -761,14 +761,14 @@ define(function (require, exports, module) {
           appStart._getContext();
         });
 
-        it('calls `_getVerificationContext`', function () {
+        it('calls `_getVerificationContext`', () => {
           assert.isTrue(appStart._getVerificationContext.called);
         });
       });
 
-      describe('in a non-verification flow', function () {
-        describe('with a `context` in the query parameters', function () {
-          beforeEach(function () {
+      describe('in a non-verification flow', () => {
+        describe('with a `context` in the query parameters', () => {
+          beforeEach(() => {
             windowMock.location.search = '?context=fx_ios_v1';
 
             appStart = new AppStart({
@@ -776,19 +776,19 @@ define(function (require, exports, module) {
               window: windowMock
             });
 
-            sinon.stub(appStart, '_isVerification', function () {
+            sinon.stub(appStart, '_isVerification', () => {
               return false;
             });
 
           });
 
-          it('returns the `context` from the query parameters', function () {
+          it('returns the `context` from the query parameters', () => {
             assert.equal(appStart._getContext(), 'fx_ios_v1');
           });
         });
 
-        describe('without a `context` in the query parameters', function () {
-          beforeEach(function () {
+        describe('without a `context` in the query parameters', () => {
+          beforeEach(() => {
             windowMock.location.search = '?';
 
             appStart = new AppStart({
@@ -796,19 +796,19 @@ define(function (require, exports, module) {
               window: windowMock
             });
 
-            sinon.stub(appStart, '_isVerification', function () {
+            sinon.stub(appStart, '_isVerification', () => {
               return false;
             });
           });
 
-          it('returns `undefined`', function () {
+          it('returns `undefined`', () => {
             assert.isUndefined(appStart._getContext());
           });
         });
       });
     });
 
-    describe('_getVerificationContext', function () {
+    describe('_getVerificationContext', () => {
       let sameBrowserVerificationModelContext;
 
       beforeEach(() => {
@@ -828,8 +828,8 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('with a stored `context`', function () {
-        beforeEach(function () {
+      describe('with a stored `context`', () => {
+        beforeEach(() => {
           sameBrowserVerificationModelContext = 'fx_ios_v1';
 
           appStart._getVerificationContext();
@@ -841,36 +841,36 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('without a stored `context`, sync verification', function () {
-        it('returns sync context', function () {
+      describe('without a stored `context`, sync verification', () => {
+        it('returns sync context', () => {
           sinon.stub(appStart, '_isServiceSync', () => true);
           assert.equal(appStart._getVerificationContext(), Constants.FX_SYNC_CONTEXT);
         });
       });
 
-      describe('without a stored `context`, oauth verification', function () {
-        it('returns oauth context', function () {
+      describe('without a stored `context`, oauth verification', () => {
+        it('returns oauth context', () => {
           sinon.stub(appStart, '_isServiceOAuth', () => true);
           assert.equal(appStart._getVerificationContext(), Constants.OAUTH_CONTEXT);
         });
       });
 
-      describe('without a stored `context`, web verification', function () {
-        it('returns web context', function () {
+      describe('without a stored `context`, web verification', () => {
+        it('returns web context', () => {
           assert.equal(appStart._getVerificationContext(), Constants.CONTENT_SERVER_CONTEXT);
         });
       });
     });
 
-    describe('_getSameBrowserVerificationModel', function () {
-      beforeEach(function () {
+    describe('_getSameBrowserVerificationModel', () => {
+      beforeEach(() => {
         appStart = new AppStart({
           notifier: notifier,
           window: windowMock
         });
       });
 
-      it('gets a `SameBrowserVerificationModel` instance', function () {
+      it('gets a `SameBrowserVerificationModel` instance', () => {
         assert.instanceOf(
           appStart._getSameBrowserVerificationModel('context'),
           SameBrowserVerificationModel
@@ -878,8 +878,8 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('upgradeStorageFormats', function () {
-      beforeEach(function () {
+    describe('upgradeStorageFormats', () => {
+      beforeEach(() => {
         appStart = new AppStart({
           user: userMock,
           window: windowMock
@@ -892,7 +892,7 @@ define(function (require, exports, module) {
         return appStart.upgradeStorageFormats();
       });
 
-      it('upgrades and fixes account data', function () {
+      it('upgrades and fixes account data', () => {
         assert.isTrue(userMock.upgradeFromUnfilteredAccountData.calledOnce);
         assert.isTrue(userMock.upgradeFromSession.calledOnce);
         assert.isTrue(userMock.removeAccountsWithInvalidUid.calledOnce);
