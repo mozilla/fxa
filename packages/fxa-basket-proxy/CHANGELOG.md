@@ -1,3 +1,13 @@
+<a name="1.75.0"></a>
+# [1.75.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.74.0...v1.75.0) (2017-05-24)
+
+
+### chore
+
+* **version:** bump from v0.74.0 to v1.74.0 ([cc7dfd4](https://github.com/mozilla/fxa-basket-proxy/commit/cc7dfd4))
+
+
+
 <a name="0.74.0"></a>
 # [0.74.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.73.0...v0.74.0) (2017-05-24)
 
