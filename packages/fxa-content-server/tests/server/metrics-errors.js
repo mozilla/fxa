@@ -34,6 +34,8 @@ define([
 
   suite['#post /metrics-errors - returns 200'] = {
     'culprit (undefined)': testValidMetricsErrorField('culprit', undefined),
+    'event_id value (empty)': testValidException('event_id', ''),
+    'event_id value (undefined)': testValidException('event_id', undefined),
     'exception value (empty)': testValidException('value', ''),
     'level (undefined)': testValidMetricsErrorField('level', undefined),
     'message (undefined)': testValidMetricsErrorField('message', undefined),

@@ -31,7 +31,7 @@ const URL_TYPE = validation.TYPES.URL;
 
 const BODY_SCHEMA = {
   culprit: STRING_TYPE.optional(),
-  'event_id': STRING_TYPE.required(),
+  'event_id': STRING_TYPE.optional(),
   exception: joi.object().keys({
     values: joi.array().items(joi.object().keys({
       stacktrace: joi.object().keys({
