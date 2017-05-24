@@ -1,6 +1,6 @@
 {
   "name": "fxa-basket-proxy",
-  "version": "0.74.0",
+  "version": "1.74.0",
   "dependencies": {
     "JSONStream": {
       "version": "1.2.1",
