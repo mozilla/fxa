@@ -20,7 +20,7 @@ define(function (require, exports, module) {
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/confirm');
-  const UserAgentMixin = require('views/mixins/user-agent-mixin');
+  const UserAgentMixin = require('lib/user-agent-mixin');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   const proto = BaseView.prototype;

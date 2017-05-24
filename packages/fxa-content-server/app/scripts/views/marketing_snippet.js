@@ -22,7 +22,7 @@ define(function (require, exports, module) {
   const Constants = require('lib/constants');
   const Strings = require('lib/strings');
   const Template = require('stache!templates/marketing_snippet');
-  const UserAgentMixin = require('views/mixins/user-agent-mixin');
+  const UserAgentMixin = require('lib/user-agent-mixin');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   const APP_STORE_BUTTON = 'apple_app_store_button';

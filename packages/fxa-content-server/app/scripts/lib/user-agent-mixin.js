@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Get the user agent string, or a user agent parser.
+ *
+ * Requires `this.window` to be set.
+ * Requires the `SearchParamMixin`.
+ */
 
 define((require, exports, module) => {
   'use strict';
@@ -24,14 +30,12 @@ define((require, exports, module) => {
     /**
      * Get a UserAgent instance.
      *
+     * @param {String} [userAgent] - user agent string.
+     *   Defaults to result of this.getUserAgentString()
      * @returns {Object}
      */
-    getUserAgent () {
-      if (! this._uap) {
-        const userAgent = this.getUserAgentString();
-        this._uap = new UserAgent(userAgent);
-      }
-      return this._uap;
+    getUserAgent (userAgent = this.getUserAgentString()) {
+      return new UserAgent(userAgent);
     }
   };
 });

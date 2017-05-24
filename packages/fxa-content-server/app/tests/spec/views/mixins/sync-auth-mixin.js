@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
   const Url = require('lib/url');
-  const UserAgentMixin = require('views/mixins/user-agent-mixin');
+  const UserAgentMixin = require('lib/user-agent-mixin');
   const WindowMock = require('../../../mocks/window');
 
   const SyncView = BaseView.extend({});

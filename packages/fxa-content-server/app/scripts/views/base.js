@@ -18,9 +18,9 @@ define(function (require, exports, module) {
   const Logger = require('lib/logger');
   const p = require('lib/promise');
   const Raven = require('raven');
+  const SearchParamMixin = require('lib/search-param-mixin');
   const Strings = require('lib/strings');
   const TimerMixin = require('views/mixins/timer-mixin');
-  const Url = require('lib/url');
   const VerificationReasons = require('lib/verification-reasons');
 
   var DEFAULT_TITLE = window.document.title;
@@ -956,27 +956,6 @@ define(function (require, exports, module) {
 
         return behavior;
       });
-    },
-
-    /**
-     * Get a value from the URL search parameter
-     *
-     * @param {String} paramName - name of the search parameter to get
-     * @returns {String}
-     */
-    getSearchParam (paramName) {
-      return Url.searchParam(paramName, this.window.location.search);
-    },
-
-    /**
-     * Get values from the URL search parameters.
-     *
-     * @param {String[]} [paramNames] - name of the search parameters
-     * to return. If not provided, all params are returned.
-     * @returns {Object}
-     */
-    getSearchParams (paramNames) {
-      return Url.searchParams(this.window.location.search, paramNames);
     }
   });
 
@@ -1042,6 +1021,7 @@ define(function (require, exports, module) {
     // view has any external links that need to have
     // their behaviors modified.
     ExternalLinksMixin,
+    SearchParamMixin,
     TimerMixin
   );
 

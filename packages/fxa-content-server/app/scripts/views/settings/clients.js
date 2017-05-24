@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   const Strings = require('lib/strings');
   const { t } = require('views/base');
   const Template = require('stache!templates/settings/clients');
-  const UserAgentMixin = require('views/mixins/user-agent-mixin');
+  const UserAgentMixin = require('lib/user-agent-mixin');
 
   const DEVICE_REMOVED_ANIMATION_MS = 150;
 

@@ -25,7 +25,7 @@ define(function (require, exports, module) {
   const SignUpMixin = require('views/mixins/signup-mixin');
   const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
   const Template = require('stache!templates/sign_up');
-  const UserAgentMixin = require('views/mixins/user-agent-mixin');
+  const UserAgentMixin = require('lib/user-agent-mixin');
 
   var t = BaseView.t;
 

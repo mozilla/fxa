@@ -9,8 +9,8 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const sinon = require('sinon');
-  const UserAgentMixin = require('views/mixins/user-agent-mixin');
-  const WindowMock = require('../../../mocks/window');
+  const UserAgentMixin = require('lib/user-agent-mixin');
+  const WindowMock = require('../../mocks/window');
 
   const View = BaseView.extend({});
 
@@ -22,7 +22,7 @@ define(function (require, exports, module) {
     UserAgentMixin
   );
 
-  describe('views/mixins/user-agent-mixin', function () {
+  describe('lib/user-agent-mixin', function () {
     let view;
     let windowMock;
 

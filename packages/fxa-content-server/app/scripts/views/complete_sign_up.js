@@ -29,7 +29,7 @@ define(function (require, exports, module) {
   const ResendMixin = require('views/mixins/resend-mixin')();
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const t = BaseView.t;
-  const UserAgentMixin = require('views/mixins/user-agent-mixin');
+  const UserAgentMixin = require('lib/user-agent-mixin');
   const VerificationInfo = require('models/verification/sign-up');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 

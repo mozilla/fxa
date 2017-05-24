@@ -20,7 +20,7 @@ define(function (require, exports, module) {
   const MarketingSnippet = require('views/marketing_snippet');
   const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
   const Template = require('stache!templates/connect_another_device');
-  const UserAgentMixin = require('views/mixins/user-agent-mixin');
+  const UserAgentMixin = require('lib/user-agent-mixin');
 
   const proto = FormView.prototype;
   const View = FormView.extend({

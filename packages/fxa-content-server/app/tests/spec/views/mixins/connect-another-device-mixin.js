@@ -16,7 +16,7 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const Template = require('stache!templates/test_template');
   const User = require('models/user');
-  const UserAgentMixin = require('views/mixins/user-agent-mixin');
+  const UserAgentMixin = require('lib/user-agent-mixin');
   const { createRandomHexString } = require('../../../lib/helpers');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
@@ -33,7 +33,6 @@ define(function (require, exports, module) {
     UserAgentMixin,
     VerificationReasonMixin
   );
-
 
   describe('views/mixins/connect-another-device-mixin', () => {
     let account;
