@@ -1,3 +1,13 @@
+<a name="1.87.3"></a>
+## 1.87.3 (2017-05-24)
+
+
+### Features
+
+* **emails:** Add emails feature flag check (#5093), r=@shane-tomlinson ([dae0ff6](https://github.com/mozilla/fxa-content-server/commit/dae0ff6))
+
+
+
 <a name="1.87.2"></a>
 ## 1.87.2 (2017-05-23)
 
