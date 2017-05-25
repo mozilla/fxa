@@ -287,11 +287,7 @@ define([
           assert.equal(res.statusCode, 200);
 
           var headers = res.headers;
-          var hasCORSHeaders =
-            // Node responds with Access-Control-Allow-Origin,
-            // nginx responds with access-control-allow-origin
-            headers.hasOwnProperty('Access-Control-Allow-Origin') ||
-            headers.hasOwnProperty('access-control-allow-origin');
+          var hasCORSHeaders = headers.hasOwnProperty('access-control-allow-origin');
 
           if (doesURLRequireCORS(url)) {
             assert.ok(hasCORSHeaders, url + ' should have CORS headers');
