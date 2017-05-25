@@ -36,7 +36,7 @@ var mockDevices = [
     'name': 'My Phone',
     'type': 'mobile',
     'pushCallback': 'https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef',
-    'pushPublicKey': 'BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA=',
+    'pushPublicKey': 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJXwAdITiPFcSUsaRI2nlzTNRn++q36F38XrH8m8sf28DQ+2Oob5SUzvgjVS0e70pIqH6bSXDgPc8mKtSs9Zi26Q==',
     'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong=='
   },
   {
@@ -46,7 +46,7 @@ var mockDevices = [
     'name': 'My Desktop',
     'type': null,
     'pushCallback': 'https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75',
-    'pushPublicKey': 'BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA=',
+    'pushPublicKey': 'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJXwAdITiPFcSUsaRI2nlzTNRn++q36F38XrH8m8sf28DQ+2Oob5SUzvgjVS0e70pIqH6bSXDgPc8mKtSs9Zi26Q==',
     'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong=='
   }
 ]
