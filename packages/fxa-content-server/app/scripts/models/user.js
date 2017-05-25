@@ -733,6 +733,46 @@ define(function (require, exports, module) {
      */
     rejectAccountUnblockCode(account, unblockCode) {
       return account.rejectUnblockCode(unblockCode);
+    },
+
+    /**
+     * Should the model be initialized using browser data?
+     *
+     * @param {Object} service service being signed into.
+     * @returns {Boolean}
+     */
+    shouldSetSignedInAccountFromBrowser (service) {
+      // If service=sync, always use the browser's state of the world.
+      // If trying to sign in to an OAuth relier, prefer any users that are
+      // stored in localStorage and only use the browser's state if no
+      // user is stored.
+      return service === Constants.SYNC_SERVICE || this.getSignedInAccount().isDefault();
+    },
+
+    /**
+     * Set signed in account from the browser's `accountData`
+     *
+     * @param {Object} accountData
+     * @returns {Promise}
+     */
+    setSignedInAccountFromBrowserAccountData (accountData) {
+      return p().then(() => {
+        if (accountData) {
+          const account = this.initAccount(
+            _.pick(accountData, 'email', 'sessionToken', 'uid', 'verified')
+          );
+          account.set('sessionTokenContext', Constants.SESSION_TOKEN_USED_FOR_SYNC);
+
+          // If service=sync, account information is stored in memory only.
+          // All other services store account information in localStorage.
+          return this.setSignedInAccount(account);
+        }
+
+        // If no account data is returned from the browser,
+        // don't clear or store anything. No need to. Sync users
+        // will have no accounts stored in memory, and OAuth users
+        // can only arrive here if no accounts are stored in localStorage.
+      });
     }
   });
 

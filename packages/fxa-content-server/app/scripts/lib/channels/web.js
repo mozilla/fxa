@@ -10,9 +10,14 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const Cocktail = require('cocktail');
   const DuplexChannel = require('lib/channels/duplex');
+  const SearchParamMixin = require('lib/search-param-mixin');
+  const UserAgentMixin = require('lib/user-agent-mixin');
   const WebChannelReceiver = require('lib/channels/receivers/web-channel');
   const WebChannelSender = require('lib/channels/senders/web-channel');
+
+  const FXA_STATUS_MIN_FIREFOX_DESKTOP_VERSION = 55;
 
   // The corresponding Firefox list is in
   // https://dxr.mozilla.org/mozilla-central/rev/8a7d0b15595f9916123848ca906f29c62d4914c9/services/fxaccounts/FxAccountsWebChannel.jsm#30
@@ -23,6 +28,7 @@ define(function (require, exports, module) {
     // See https://github.com/mozilla/fxa-content-server/issues/3432
     DELETE: 'fxaccounts:delete',
     DELETE_ACCOUNT: 'fxaccounts:delete_account',
+    FXA_STATUS: 'fxaccounts:fxa_status',
     LOADED: 'fxaccounts:loaded',
     LOGIN: 'fxaccounts:login',
     LOGOUT: 'fxaccounts:logout',
@@ -46,7 +52,7 @@ define(function (require, exports, module) {
     COMMANDS,
 
     initialize (options = {}) {
-      const win = this._window = options.window || window;
+      const win = this.window = options.window || window;
       const webChannelId = this._id;
 
       var sender = this._sender = new WebChannelSender();
@@ -66,8 +72,26 @@ define(function (require, exports, module) {
         sender,
         window: win
       });
+    },
+
+    /**
+     * Check if the browser supports the FXA_STATUS request.
+     *
+     * @param {String} [userAgent] UA string to check.
+     *   Defaults to `this.getUserAgentString()`
+     * @returns {Boolean}
+     */
+    isFxaStatusSupported (userAgent = this.getUserAgentString()) {
+      const uap = this.getUserAgent(userAgent);
+      return uap.isFirefoxDesktop() && uap.parseVersion().major >= FXA_STATUS_MIN_FIREFOX_DESKTOP_VERSION;
     }
   });
+
+  Cocktail.mixin(
+    WebChannel,
+    SearchParamMixin,
+    UserAgentMixin
+  );
 
 
   module.exports = WebChannel;

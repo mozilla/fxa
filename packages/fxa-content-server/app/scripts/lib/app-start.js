@@ -115,7 +115,9 @@ define(function (require, exports, module) {
         // fxaClient depends on the relier and
         // inter tab communication.
         .then(_.bind(this.initializeFxaClient, this))
-        // depends on iframeChannel and interTabChannel
+        // depends on nothing
+        .then(_.bind(this.initializeNotificationChannel, this))
+        // depends on iframeChannel and interTabChannel, web channel
         .then(_.bind(this.initializeNotifier, this))
         // metrics depends on relier and notifier
         .then(_.bind(this.initializeMetrics, this))
@@ -125,12 +127,12 @@ define(function (require, exports, module) {
         .then(_.bind(this.initializeProfileClient, this))
         // marketingEmailClient depends on config
         .then(_.bind(this.initializeMarketingEmailClient, this))
-        // user depends on the profileClient, oAuthClient,
-        // assertionLibrary and notifier.
-        .then(_.bind(this.initializeUser, this))
-        // broker relies on the user, relier, fxaClient,
+        // broker relies on the relier, fxaClient,
         // assertionLibrary, and metrics
         .then(_.bind(this.initializeAuthenticationBroker, this))
+        // user depends on the auth broker, profileClient, oAuthClient,
+        // assertionLibrary and notifier.
+        .then(_.bind(this.initializeUser, this))
         // depends on the authentication broker
         .then(_.bind(this.initializeHeightObserver, this))
         // storage format upgrades depend on user
@@ -321,6 +323,7 @@ define(function (require, exports, module) {
           assertionLibrary: this._assertionLibrary,
           iframeChannel: this._iframeChannel,
           metrics: this._metrics,
+          notificationChannel: this._notificationChannel,
           notifier: this._notifier,
           oAuthClient: this._oAuthClient,
           relier: this._relier,
@@ -362,7 +365,7 @@ define(function (require, exports, module) {
 
     initializeUser () {
       if (! this._user) {
-        this._user = new User({
+        const user = this._user = new User({
           assertion: this._assertionLibrary,
           fxaClient: this._fxaClient,
           marketingEmailClient: this._marketingEmailClient,
@@ -372,22 +375,33 @@ define(function (require, exports, module) {
           oAuthClientId: this._config.oAuthClientId,
           profileClient: this._profileClient,
           sentryMetrics: this._sentryMetrics,
-          storage: this._getStorageInstance(),
+          storage: this._getUserStorageInstance(),
           uniqueUserId: this._getUniqueUserId()
+        });
+
+        const accountData  = this._authenticationBroker.get('browserSignedInAccount');
+        if (user.shouldSetSignedInAccountFromBrowser(this._relier.get('service'))) {
+          user.setSignedInAccountFromBrowserAccountData(accountData);
+        }
+      }
+    },
+
+    initializeNotificationChannel () {
+      if (! this._notificationChannel) {
+        this._notificationChannel =
+              new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
+        this._notificationChannel.initialize({
+          window: this._window
         });
       }
     },
 
     initializeNotifier () {
       if (! this._notifier) {
-        const notificationWebChannel =
-              new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
-        notificationWebChannel.initialize();
-
         this._notifier = new Notifier({
           iframeChannel: this._iframeChannel,
           tabChannel: this._interTabChannel,
-          webChannel: notificationWebChannel
+          webChannel: this._notificationChannel
         });
       }
     },
@@ -561,8 +575,15 @@ define(function (require, exports, module) {
       return true;
     },
 
-    _getStorageInstance () {
-      return Storage.factory('localStorage', this._window);
+    _getUserStorageInstance () {
+      // The Sync user should *always* come from the browser
+      // if FXA_STATUS is supported. Don't even bother
+      // with localStorage.
+      const shouldUseMemoryStorage =
+        this._authenticationBroker.hasCapability('fxaStatus') && this._relier.isSync();
+
+      const storageType = shouldUseMemoryStorage ? undefined : 'localStorage';
+      return Storage.factory(storageType, this._window);
     },
 
     _isServiceSync () {

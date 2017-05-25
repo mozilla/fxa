@@ -21,6 +21,7 @@ define([
     'tests/functional/cookies_disabled',
     'tests/functional/delete_account',
     'tests/functional/force_auth',
+    'tests/functional/fx_desktop_handshake',
     'tests/functional/fx_fennec_v1_force_auth',
     'tests/functional/fx_fennec_v1_sign_in',
     'tests/functional/fx_fennec_v1_sign_up',

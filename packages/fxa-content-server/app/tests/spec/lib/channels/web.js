@@ -5,32 +5,31 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const sinon = require('sinon');
   const WebChannel = require('lib/channels/web');
   const WindowMock = require('/tests/mocks/window.js');
 
-  var assert = chai.assert;
+  describe('lib/channels/web', () => {
+    let channel;
+    let windowMock;
 
-  describe('lib/channels/web', function () {
-    var channel;
-    var windowMock;
-
-    beforeEach(function () {
+    beforeEach(() => {
       windowMock = new WindowMock();
       windowMock.navigator.userAgent =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:49.0) Gecko/20100101 Firefox/49.0';
     });
 
 
-    afterEach(function () {
+    afterEach(() => {
       if (channel) {
         channel.teardown();
+        channel = null;
       }
     });
 
-    it('requires an id', function () {
-      assert.throws(function () {
+    it('requires an id', () => {
+      assert.throws(() => {
         new WebChannel();//eslint-disable-line no-new
       }, 'WebChannel must have an id');
     });
@@ -39,6 +38,8 @@ define(function (require, exports, module) {
       assert.ok(WebChannel.CAN_LINK_ACCOUNT);
       assert.ok(WebChannel.CHANGE_PASSWORD);
       assert.ok(WebChannel.DELETE);
+      assert.ok(WebChannel.DELETE_ACCOUNT);
+      assert.ok(WebChannel.FXA_STATUS);
       assert.ok(WebChannel.LOADED);
       assert.ok(WebChannel.LOGIN);
       assert.ok(WebChannel.LOGOUT);
@@ -51,31 +52,33 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
-      assert.lengthOf(Object.keys(channel.COMMANDS), 8);
+      assert.lengthOf(Object.keys(channel.COMMANDS), 9);
       assert.ok(channel.COMMANDS.CAN_LINK_ACCOUNT);
       assert.ok(channel.COMMANDS.CHANGE_PASSWORD);
       assert.ok(channel.COMMANDS.DELETE);
+      assert.ok(channel.COMMANDS.DELETE_ACCOUNT);
+      assert.ok(channel.COMMANDS.FXA_STATUS);
       assert.ok(channel.COMMANDS.LOADED);
       assert.ok(channel.COMMANDS.LOGIN);
       assert.ok(channel.COMMANDS.LOGOUT);
       assert.ok(channel.COMMANDS.PROFILE_CHANGE);
     });
 
-    describe('send', function () {
-      it('sends a message', function () {
+    describe('send', () => {
+      it('sends a message', () => {
         channel = new WebChannel('MyChannel');
         channel.initialize({
           window: windowMock
         });
 
         return channel.send('after_render', {})
-          .then(function () {
+          .then(() => {
             assert.ok(windowMock.dispatchedEvents['after_render']);
           });
       });
 
-      it('throws an error if dispatchEvent fails', function () {
-        sinon.stub(windowMock, 'dispatchEvent', function () {
+      it('throws an error if dispatchEvent fails', () => {
+        sinon.stub(windowMock, 'dispatchEvent', () => {
           throw new Error('Not supported');
         });
 
@@ -91,8 +94,8 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('request', function () {
-      it('sends a message, waits for a response, ', function () {
+    describe('request', () => {
+      it('sends a message, waits for a response, ', () => {
         channel = new WebChannel('MyChannel');
         channel.initialize({
           window: windowMock
@@ -109,6 +112,36 @@ define(function (require, exports, module) {
           .then(function (response) {
             assert.isTrue(response.ok);
           });
+      });
+    });
+
+    describe('isFxaStatusSupported', () => {
+      it('returns `true` if Fx Desktop >= 55', () => {
+        channel = new WebChannel('MyChannel');
+        channel.initialize({
+          window: windowMock
+        });
+
+        // Desktop
+        assert.isFalse(channel.isFxaStatusSupported(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:54.0) Gecko/20100101 Firefox/54.0'
+        ));
+        assert.isTrue(channel.isFxaStatusSupported(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0'
+        ));
+        assert.isTrue(channel.isFxaStatusSupported(
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:56.0) Gecko/20100101 Firefox/56.0'
+        ));
+
+        // Android
+        assert.isFalse(channel.isFxaStatusSupported(
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:55.0) Gecko/55.0 Firefox/55.0'
+        ));
+
+        // iOS
+        assert.isFalse(channel.isFxaStatusSupported(
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4'
+        ));
       });
     });
   });

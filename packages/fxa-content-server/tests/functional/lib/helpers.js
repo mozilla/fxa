@@ -700,6 +700,53 @@ define([
       });
   });
 
+  /**
+   * Respond to a web channel message.
+   *
+   * @param   {string} expectedCommand command to respond to
+   * @param   {object} response response
+   * @returns {promise} resolves when complete
+   */
+  const respondToWebChannelMessage = thenify(function (expectedCommand, response) {
+    var attachedId = Math.floor(Math.random() * 10000);
+    return this.parent
+      .execute(function (expectedCommand, response, attachedId) {
+        function startListening() {
+          try {
+            addEventListener('WebChannelMessageToChrome', function listener(e) {
+              var command = e.detail.message.command;
+              var messageId = e.detail.message.messageId;
+
+              if (command === expectedCommand) {
+                removeEventListener('WebChannelMessageToChrome', listener);
+                var event = new CustomEvent('WebChannelMessageToContent', {
+                  detail: {
+                    id: 'account_updates',
+                    message: {
+                      command: command,
+                      data: response,
+                      messageId: messageId
+                    }
+                  }
+                });
+
+                dispatchEvent(event);
+              }
+            });
+            $('body').append('<div>').addClass('attached' + attachedId);
+          } catch (e) {
+            // problem adding the listener, window may not be
+            // ready, try again.
+            setTimeout(startListening, 0);
+          }
+        }
+
+        startListening();
+      }, [ expectedCommand, response, attachedId ])
+      // once the event is attached it adds a div with an attachedId.
+      .then(testElementExists('.attached' + attachedId));
+  });
+
   function openWindow (url, name) {
     var newWindow = window.open(url, name || 'newwindow');
 
@@ -854,6 +901,15 @@ define([
     return this.parent
       .get(require.toUrl(url))
       .setFindTimeout(config.pageLoadTimeout)
+
+      .then(function () {
+        const webChannelResponses = options.webChannelResponses;
+        if (webChannelResponses) {
+          return Object.keys(webChannelResponses).reduce((parent, webChannelMessage) => {
+            return parent.then(respondToWebChannelMessage(webChannelMessage, webChannelResponses[webChannelMessage]));
+          }, this.parent);
+        }
+      })
 
       // Wait until the `readySelector` element is found to return.
       .then(testElementExists(readySelector))
@@ -1170,53 +1226,6 @@ define([
   var mousedown = mouseevent('mousedown');
   var mouseout = mouseevent('mouseout');
   var mouseup = mouseevent('mouseup');
-
-  /**
-   * Respond to a web channel message.
-   *
-   * @param   {string} expectedCommand command to respond to
-   * @param   {object} response response
-   * @returns {promise} resolves when complete
-   */
-  const respondToWebChannelMessage = thenify(function (expectedCommand, response) {
-    var attachedId = Math.floor(Math.random() * 10000);
-    return this.parent
-      .execute(function (expectedCommand, response, attachedId) {
-        function startListening() {
-          try {
-            addEventListener('WebChannelMessageToChrome', function listener(e) {
-              var command = e.detail.message.command;
-              var messageId = e.detail.message.messageId;
-
-              if (command === expectedCommand) {
-                removeEventListener('WebChannelMessageToChrome', listener);
-                var event = new CustomEvent('WebChannelMessageToContent', {
-                  detail: {
-                    id: 'account_updates',
-                    message: {
-                      command: command,
-                      data: response,
-                      messageId: messageId
-                    }
-                  }
-                });
-
-                dispatchEvent(event);
-              }
-            });
-            $('body').append('<div>').addClass('attached' + attachedId);
-          } catch (e) {
-            // problem adding the listener, window may not be
-            // ready, try again.
-            setTimeout(startListening, 0);
-          }
-        }
-
-        startListening();
-      }, [ expectedCommand, response, attachedId ])
-      // once the event is attached it adds a div with an attachedId.
-      .then(testElementExists('.attached' + attachedId));
-  });
 
   const clearBrowserNotifications = thenify(function () {
     return this.parent

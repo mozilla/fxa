@@ -36,6 +36,11 @@ define(function (require, exports, module) {
 
       this._behaviors = new Backbone.Model(this.defaultBehaviors);
       this._capabilities = new Backbone.Model(this.defaultCapabilities);
+
+      this._notificationChannel = options.notificationChannel;
+      if (this._notificationChannel) {
+        this.setCapability('fxaStatus', this._notificationChannel.isFxaStatusSupported());
+      }
     },
 
     notifications: {
@@ -89,14 +94,40 @@ define(function (require, exports, module) {
     },
 
     /**
-     * initialize the broker with any necessary data.
+     * Initialize the broker with any necessary data.
+     *
      * @returns {Promise}
      */
     fetch () {
       return p().then(() => {
         this._isForceAuth = this._isForceAuthUrl();
         this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
+
+        if (this.hasCapability('fxaStatus')) {
+          return this._fetchFxaStatus();
+        }
       });
+    },
+
+    /**
+     * Request FXA_STATUS info from the UA.
+     *
+     * @returns {Promise} resolves when complete.
+     */
+    _fetchFxaStatus () {
+      const TEST_REQUEST_DELAY_MS = this.isAutomatedBrowser() ? 200 : 0;
+
+      const channel = this._notificationChannel;
+      return p().delay(TEST_REQUEST_DELAY_MS)
+        .then(() => channel.request(channel.COMMANDS.FXA_STATUS, this.relier.pick('service')))
+        .then((response = {}) => {
+          // The browser will respond with a signedInUser in the following cases:
+          // - non-PB mode, service=*
+          // - PB mode, service=sync
+          this.set('browserSignedInAccount', response.signedInUser);
+          // In the future, additional data will be returned
+          // in the response, handle it here.
+        });
     },
 
     /**
@@ -337,6 +368,10 @@ define(function (require, exports, module) {
        * should the *_complete pages show the marketing snippet?
        */
       emailVerificationMarketingSnippet: true,
+      /**
+       * Should the UA be queried for FxA data?
+       */
+      fxaStatus: false,
       /**
        * Should the view handle signed-in notifications from other tabs?
        */

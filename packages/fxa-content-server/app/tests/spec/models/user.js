@@ -1454,5 +1454,76 @@ define(function (require, exports, module) {
         });
       });
     });
+
+    describe('shouldSetSignedInAccountFromBrowser', () => {
+      it('returns true if service=sync', () => {
+        sinon.stub(user, 'getSignedInAccount', () => user.initAccount({ email: 'already-signed-in@testuser.com' }));
+
+        assert.isTrue(user.shouldSetSignedInAccountFromBrowser('sync'));
+      });
+
+      it('returns true if no local user, not sync', () => {
+        sinon.stub(user, 'getSignedInAccount', () => user.initAccount({}));
+
+        assert.isTrue(user.shouldSetSignedInAccountFromBrowser(''));
+      });
+
+      it('returns false if local user, not sync', () => {
+        sinon.stub(user, 'getSignedInAccount', () => user.initAccount({ email: 'already-signed-in@testuser.com' }));
+
+        assert.isFalse(user.shouldSetSignedInAccountFromBrowser(''));
+      });
+    });
+
+    describe('setSignedInAccountFromBrowserAccountData', () => {
+      beforeEach(() => {
+        sinon.spy(user, 'setSignedInAccount');
+      });
+
+      describe('with account data', () => {
+        it('sets the signed in user', () => {
+          const browserAccountData = {
+            email: 'testuser@testuser.com',
+            filtered: true,
+            sessionToken: 'sessionToken',
+            uid: 'uid',
+            verified: true
+          };
+
+          return user.setSignedInAccountFromBrowserAccountData(browserAccountData)
+            .then(() => {
+              assert.isTrue(user.setSignedInAccount.calledOnce);
+
+              const signedInAccount = user.getSignedInAccount();
+              assert.deepEqual(
+                signedInAccount.pick(
+                  'email',
+                  'sessionToken',
+                  'sessionTokenContext',
+                  'uid',
+                  'verified'
+                ),
+                {
+                  email: 'testuser@testuser.com',
+                  sessionToken: 'sessionToken',
+                  sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
+                  uid: 'uid',
+                  verified: true
+                }
+              );
+              assert.isFalse(signedInAccount.has('filtered'));
+            });
+        });
+      });
+
+      describe('no account data', () => {
+        it('does nothing', () => {
+          return user.setSignedInAccountFromBrowserAccountData(null)
+            .then(() => {
+              assert.isFalse(user.setSignedInAccount.called);
+            });
+        });
+      });
+    });
   });
 });

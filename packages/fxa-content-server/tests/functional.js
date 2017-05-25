@@ -23,6 +23,7 @@ define([
   './functional/sync_v3_sign_in',
   './functional/sync_v3_settings',
   './functional/sync_v3_force_auth',
+  './functional/fx_desktop_handshake',
   './functional/fx_firstrun_v1_sign_up',
   './functional/fx_firstrun_v1_sign_in',
   './functional/fx_firstrun_v1_settings',
