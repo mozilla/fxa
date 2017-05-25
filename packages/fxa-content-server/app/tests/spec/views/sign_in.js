@@ -163,9 +163,11 @@ define(function (require, exports, module) {
           });
 
           sinon.stub(view, '_suggestedAccount', () => account);
+          sinon.stub(view, 'displayAccountProfileImage', () => p());
           sinon.spy(view, 'render');
 
           return view.render()
+            .then(() => view.afterVisible())
             .then(() => {
               account.set({
                 accessToken: null,
@@ -181,6 +183,38 @@ define(function (require, exports, module) {
           assert.equal(view.$('input[type=email]').val(), 'a@a.com');
           assert.lengthOf(view.$('input[type=password]'), 1);
         });
+      });
+    });
+
+    describe('destroy', () => {
+      beforeEach(() => {
+        initView();
+
+        const account = user.initAccount({
+          accessToken: 'access token',
+          email: 'a@a.com',
+          sessionToken: 'session token',
+          sessionTokenContext: Constants.SYNC_SERVICE
+        });
+
+        sinon.stub(view, '_suggestedAccount', () => account);
+        sinon.stub(view, 'displayAccountProfileImage', () => p());
+        sinon.spy(view, 'render');
+
+        return view.render()
+          .then(() => view.afterVisible())
+          .then(() => view.destroy())
+          .then(() => {
+            account.set({
+              accessToken: null,
+              sessionToken: null,
+              sessionTokenContext: null
+            });
+          });
+      });
+
+      it('does not re-render once destroyed if the accessToken is invalidated', () => {
+        assert.equal(view.render.callCount, 1);
       });
     });
 

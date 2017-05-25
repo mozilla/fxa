@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   const AuthErrors = require('lib/auth-errors');
   const AvatarMixin = require('views/mixins/avatar-mixin');
-  const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
@@ -18,6 +17,7 @@ define(function (require, exports, module) {
   const MigrationMixin = require('views/mixins/migration-mixin');
   const PasswordMixin = require('views/mixins/password-mixin');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
+  const { preventDefaultThen, t } = require('views/base');
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Session = require('lib/session');
@@ -26,15 +26,13 @@ define(function (require, exports, module) {
   const SignInMixin = require('views/mixins/signin-mixin');
   const SignInTemplate = require('stache!templates/sign_in');
 
-  var t = BaseView.t;
+  const proto = FormView.prototype;
 
-  var View = FormView.extend({
+  const View = FormView.extend({
     template: SignInTemplate,
     className: 'sign-in',
 
-    initialize (options) {
-      options = options || {};
-
+    initialize (options = {}) {
       this._formPrefill = options.formPrefill;
 
       // The number of stored accounts is logged to see if we can simplify
@@ -49,18 +47,25 @@ define(function (require, exports, module) {
 
     beforeRender () {
       this._account = this._suggestedAccount();
+    },
 
-      this._account.on('change:accessToken', () => {
+    afterVisible () {
+      proto.afterVisible.call(this);
+      // this.displayAccountProfileImage could cause the existing
+      // accessToken to be invalidated, in which case the view
+      // should be re-rendered with the default avatar.
+      const account = this.getAccount();
+      this.listenTo(account, 'change:accessToken', () => {
         // if no access token and password is not visible we need to show the password field.
-        if (! this._account.has('accessToken') && this.$('.password').is(':hidden')) {
+        if (! account.has('accessToken') && this.$('.password').is(':hidden')) {
           // accessToken could be changed async by an external request after render
           // If the ProfileClient fails to get an OAuth token with the current token then reset the view
           this.chooserAskForPassword = true;
-          return this.render().then(function () {
-            this.setDefaultPlaceholderAvatar();
-          });
+          return this.render().then(() => this.setDefaultPlaceholderAvatar());
         }
       });
+
+      return this.displayAccountProfileImage(account, { spinner: true });
     },
 
     getAccount () {
@@ -109,11 +114,6 @@ define(function (require, exports, module) {
     events: {
       'click .use-different': 'useDifferentAccount',
       'click .use-logged-in': 'useLoggedInAccount'
-    },
-
-    afterVisible () {
-      FormView.prototype.afterVisible.call(this);
-      return this.displayAccountProfileImage(this.getAccount(), { spinner: true });
     },
 
     beforeDestroy () {
@@ -195,7 +195,7 @@ define(function (require, exports, module) {
     /**
      * Render to a basic sign in view, used with "Use a different account" button
      */
-    useDifferentAccount: BaseView.preventDefaultThen(function () {
+    useDifferentAccount: preventDefaultThen(function () {
       // TODO when the UI allows removal of individual accounts,
       // only clear the current account.
       this.user.removeAllAccounts();
