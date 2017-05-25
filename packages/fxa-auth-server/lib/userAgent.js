@@ -4,35 +4,39 @@
 
 'use strict'
 
-var ua = require('node-uap')
+const ua = require('node-uap')
 
-var MOBILE_OS_FAMILIES = {
-  'Android': null,
-  'Bada': null,
-  'BlackBerry OS': null,
-  'BlackBerry Tablet OS': null,
-  'Brew MP': null,
-  'Firefox OS': null,
-  'iOS': null,
-  'Maemo': null,
-  'MeeGo': null,
-  'Symbian OS': null,
-  'Symbian^3': null,
-  'Symbian^3 Anna': null,
-  'Symbian^3 Belle': null,
-  'Windows CE': null,
-  'Windows Mobile': null,
-  'Windows Phone': null
-}
+const MOBILE_OS_FAMILIES = new Set([
+  'Android',
+  'Bada',
+  'BlackBerry OS',
+  'BlackBerry Tablet OS',
+  'Brew MP',
+  'Firefox OS',
+  'iOS',
+  'Maemo',
+  'MeeGo',
+  'Symbian OS',
+  'Symbian^3',
+  'Symbian^3 Anna',
+  'Symbian^3 Belle',
+  'Windows CE',
+  'Windows Mobile',
+  'Windows Phone'
+])
 
-var ELLIPSIS = '\u2026'
+const ELLIPSIS = '\u2026'
 
-// TODO: Awaiting Android change from https://bugzilla.mozilla.org/show_bug.cgi?id=1350768
-const OLD_SYNC_MOBILE_USER_AGENT = /^Firefox-(Android|iOS)-FxA(?:ccounts)?\/(\S+)/
-const SYNC_IOS_USER_AGENT = /^Firefox-iOS-FxA\/([^\sb]+)b\S+ \(.+; iPhone OS (\S+)\)/
+// $1 = 'Firefox' indicates Firefox Sync, 'Mobile' indicates Sync mobile library
+// $2 = OS
+// $3 = application version
+// $4 = form factor
+// $5 = OS version
+// $6 = application name
+const SYNC_USER_AGENT = /^(Firefox|Mobile)-(\w+)-(?:FxA(?:ccounts)?|Sync)\/([^\sb]*)(?:b\S+)? ?(?:\(([\w\s]+); [\w\s]+ ([^\s()]+)\))?(?: \((.+)\))?$/
 
 module.exports = function (userAgentString, log) {
-  var userAgentData = ua.parse(userAgentString)
+  const userAgentData = ua.parse(userAgentString)
 
   this.uaBrowser = getFamily(userAgentData.ua) || null
   this.uaBrowserVersion = getVersion(userAgentData.ua) || null
@@ -41,28 +45,18 @@ module.exports = function (userAgentString, log) {
   this.uaDeviceType = getDeviceType(userAgentData) || null
 
   if (! this.uaBrowser) {
-    let matches = SYNC_IOS_USER_AGENT.exec(userAgentString)
-    if (matches && matches.length === 3) {
-      this.uaBrowser = 'Firefox'
-      this.uaBrowserVersion = matches[1]
-      this.uaOS = 'iOS'
-      this.uaOSVersion = matches[2]
+    const matches = SYNC_USER_AGENT.exec(userAgentString)
+    if (matches && matches.length > 2) {
+      this.uaBrowser = matches[6] || matches[1]
+      this.uaBrowserVersion = matches[3] || null
+      this.uaOS = matches[2]
+      this.uaOSVersion = matches[5]
       if (! this.uaDeviceType) {
-        this.uaDeviceType = 'mobile'
+        this.uaDeviceType = marshallFormFactor(matches[4])
       }
-    } else {
-      matches = OLD_SYNC_MOBILE_USER_AGENT.exec(userAgentString)
-      if (matches && matches.length === 3) {
-        this.uaBrowser = 'Firefox'
-        this.uaBrowserVersion = matches[2]
-        this.uaOS = matches[1]
-        if (! this.uaDeviceType) {
-          this.uaDeviceType = 'mobile'
-        }
-      } else if (! this.uaOS) {
-        // In the worst case, fall back to a truncated user agent string
-        this.uaBrowser = truncate(userAgentString || '', log)
-      }
+    } else if (! this.uaOS) {
+      // In the worst case, fall back to a truncated user agent string
+      this.uaBrowser = truncate(userAgentString || '', log)
     }
   }
 
@@ -98,7 +92,7 @@ function getDeviceType (data) {
 }
 
 function isMobileOS (os) {
-  return os.family in MOBILE_OS_FAMILIES
+  return MOBILE_OS_FAMILIES.has(os.family)
 }
 
 function isTablet(data) {
@@ -113,6 +107,14 @@ function isTablet(data) {
   }
 
   return false
+}
+
+function marshallFormFactor (formFactor) {
+  if (/iPad/.test(formFactor) || /tablet/i.test(formFactor)) {
+    return 'tablet'
+  }
+
+  return 'mobile'
 }
 
 function truncate (userAgentString, log) {
