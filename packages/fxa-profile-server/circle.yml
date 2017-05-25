@@ -42,8 +42,8 @@ deployment:
           fi
 
           echo ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
-          docker tag fxa-profile-server:build ${DOCKERHUB_REPO}:latest
-          docker push ${DOCKERHUB_REPO}:latest
+          docker tag fxa-profile-server:build ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
+          docker push ${DOCKERHUB_REPO}:${CIRCLE_BRANCH}
 
   hub_releases:
     # push all tags
