@@ -179,6 +179,10 @@ module.exports = function (log, db, config) {
       dummyCurve.computeSecret(base64url.toBuffer(publicKey))
       return true
     } catch (err) {
+      log.info({
+        op: 'push.isValidPublicKey',
+        name: 'Bad public key detected'
+      })
       // However!  The above call might have left some junk
       // sitting around on the openssl error stack.
       // Clear it by deliberately triggering a signing error
