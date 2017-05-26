@@ -4,21 +4,44 @@
 
 const emailDomains = require('../../../config/popular-email-domains')
 
-function getHeaderValue(headerName, message){
+function getInsensitiveHeaderValueFromArray(headerName, headers) {
   var value = ''
   var headerNameNormalized = headerName.toLowerCase()
-  if (message.mail && message.mail.headers) {
-    message.mail.headers.some(function (header) {
-      if (header.name.toLowerCase() === headerNameNormalized) {
-        value = header.value
-        return true
-      }
+  headers.some(function (header) {
+    if (header.name.toLowerCase() === headerNameNormalized) {
+      value = header.value
+      return true
+    }
 
-      return false
-    })
-  }
+    return false
+  })
 
   return value
+}
+
+function getInsensitiveHeaderValueFromObject(headerName, headers) {
+  var headerNameNormalized = headerName.toLowerCase()
+  var value = ''
+  Object.keys(headers).some(function (name) {
+    if (name.toLowerCase() === headerNameNormalized) {
+      value = headers[name]
+      return true
+    }
+
+    return false
+  })
+  return value
+}
+
+function getHeaderValue(headerName, message){
+  var headers = message.mail && message.mail.headers || message.headers
+  if (Array.isArray(headers)) {
+    return getInsensitiveHeaderValueFromArray(headerName, headers)
+  } else if (headers) {
+    return getInsensitiveHeaderValueFromObject(headerName, headers)
+  } else {
+    return ''
+  }
 }
 
 function logEmailEventSent(log, message) {
@@ -30,13 +53,8 @@ function logEmailEventSent(log, message) {
     type: 'sent'
   }
 
-  if (message.headers && message.headers['X-Flow-Id']) {
-    emailEventInfo['flow_id'] = message.headers['X-Flow-Id']
-  }
-  if (message.headers && message.headers['Content-Language']) {
-    emailEventInfo.locale = message.headers['Content-Language']
-  }
-
+  emailEventInfo['flow_id'] = getHeaderValue('X-Flow-Id', message)
+  emailEventInfo.locale = getHeaderValue('Content-Language', message)
 
   log.info(emailEventInfo)
 }
