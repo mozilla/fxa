@@ -14,7 +14,8 @@ var fs = require('fs')
 var path = require('path')
 
 const P = require(`${ROOT_DIR}/lib/promise`)
-const mockLog = require('../mocks').mockLog
+const mocks = require('../mocks')
+const mockLog = mocks.mockLog
 var mockUid = Buffer.from('foo')
 var mockConfig = {}
 
@@ -36,7 +37,7 @@ var mockDevices = [
     'name': 'My Phone',
     'type': 'mobile',
     'pushCallback': 'https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef',
-    'pushPublicKey': 'BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA=',
+    'pushPublicKey': mocks.MOCK_PUSH_KEY,
     'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong=='
   },
   {
@@ -46,7 +47,7 @@ var mockDevices = [
     'name': 'My Desktop',
     'type': null,
     'pushCallback': 'https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75',
-    'pushPublicKey': 'BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA=',
+    'pushPublicKey': mocks.MOCK_PUSH_KEY,
     'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong=='
   }
 ]
@@ -402,6 +403,88 @@ describe('push', () => {
       }
 
       var push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
+      // Careful, the argument gets modified in-place.
+      var device = JSON.parse(JSON.stringify(mockDevices[0]))
+      return push.sendPush(mockUid, [device], 'accountVerify')
+        .then(() => {
+          assert.equal(count, 1)
+        })
+    }
+  )
+
+  it(
+    'push resets device push data when a failure is caused by bad encryption keys',
+    () => {
+      var mockDb = {
+        updateDevice: sinon.spy(function () {
+          return P.resolve()
+        })
+      }
+
+      let count = 0
+      var thisMockLog = mockLog({
+        info: function (log) {
+          if (log.name === 'push.account_verify.reset_settings') {
+            // web-push failed
+            assert.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once')
+            var args = mockDb.updateDevice.args[0]
+            assert.equal(args.length, 3, 'db.updateDevice was passed three arguments')
+            assert.equal(args[1], null, 'sessionTokenId argument was null')
+            count++
+          }
+        }
+      })
+
+      var mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            var err = new Error('Failed')
+            return P.reject(err)
+          }
+        }
+      }
+
+      var push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
+      // Careful, the argument gets modified in-place.
+      var device = JSON.parse(JSON.stringify(mockDevices[0]))
+      device.pushPublicKey = 'E' + device.pushPublicKey.substring(1) // make the key invalid
+      return push.sendPush(mockUid, [device], 'accountVerify')
+        .then(() => {
+          assert.equal(count, 1)
+        })
+    }
+  )
+
+  it(
+    'push does not reset device push data after an unexpected failure',
+    () => {
+      var mockDb = {
+        updateDevice: sinon.spy(function () {
+          return P.resolve()
+        })
+      }
+
+      let count = 0
+      var thisMockLog = mockLog({
+        info: function (log) {
+          if (log.name === 'push.account_verify.failed') {
+            // web-push failed
+            assert.equal(mockDb.updateDevice.callCount, 0, 'db.updateDevice was not called')
+            count++
+          }
+        }
+      })
+
+      var mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            var err = new Error('Failed')
+            return P.reject(err)
+          }
+        }
+      }
+
+      var push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
       return push.sendPush(mockUid, [mockDevices[0]], 'accountVerify')
         .then(() => {
           assert.equal(count, 1)
@@ -476,7 +559,14 @@ describe('push', () => {
   it(
     'notifyDeviceDisconnected calls pushToDevice',
     () => {
-      var push = require(pushModulePath)(mockLog(), mockDbResult, mockConfig)
+      var mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            return P.resolve()
+          }
+        }
+      }
+      var push = proxyquire(pushModulePath, mocks)(mockLog(), mockDbResult, mockConfig)
       sinon.spy(push, 'pushToDevice')
       var idToDisconnect = mockDevices[0].id
       var expectedData = {
@@ -611,7 +701,7 @@ describe('push', () => {
       var push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDbResult, mockConfig)
       return push.sendPush(mockUid, mockDevices, 'accountVerify')
         .then(() => {
-          assert.equal(count, 1)
+          assert.equal(count, 2)
         })
     }
   )

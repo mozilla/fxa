@@ -122,7 +122,7 @@ describe('/account/device', function () {
     payload.name = 'my even awesomer device'
     payload.type = 'phone'
     payload.pushCallback = 'https://push.services.mozilla.com/123456'
-    payload.pushPublicKey = 'SomeEncodedBinaryStuffThatDoesntGetValidedByThisTest'
+    payload.pushPublicKey = mocks.MOCK_PUSH_KEY
 
     return runTest(route, mockRequest, function (response) {
       assert.equal(mockLog.increment.callCount, 5, 'the counters were incremented')
