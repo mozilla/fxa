@@ -1,3 +1,37 @@
+<a name="1.87.3"></a>
+## 1.87.3 (2017-05-24)
+
+
+### Features
+
+* **emails:** Add emails feature flag check (#5093), r=@shane-tomlinson ([dae0ff6](https://github.com/mozilla/fxa-content-server/commit/dae0ff6))
+
+
+
+<a name="1.87.2"></a>
+## 1.87.2 (2017-05-23)
+
+
+### Bug Fixes
+
+* **build:** Ensure the requireOnDemand files use SRI (#5094), r=@vbudhram ([6e5ef7b](https://github.com/mozilla/fxa-content-server/commit/6e5ef7b))
+
+### Features
+
+* **emails:** Disable secondary emails for everyone (#5095) r=vladikoff ([0fe39b8](https://github.com/mozilla/fxa-content-server/commit/0fe39b8))
+
+
+
+<a name="1.87.1"></a>
+## 1.87.1 (2017-05-17)
+
+
+### Bug Fixes
+
+* **broker:** Fix the POST /metrics validation error w/ FxSync broker. (#5067) r=@philbooth ([4542ccd](https://github.com/mozilla/fxa-content-server/commit/4542ccd)), closes [(#5067](https://github.com/(/issues/5067) [#5066](https://github.com/mozilla/fxa-content-server/issues/5066)
+
+
+
 <a name="1.87.0"></a>
 # 1.87.0 (2017-05-15)
 
