@@ -113,6 +113,7 @@ const PUSH_METHOD_NAMES = [
 ]
 
 module.exports = {
+  MOCK_PUSH_KEY: 'BDLugiRzQCANNj5KI1fAqui8ELrE7qboxzfa5K_R0wnUoJ89xY1D_SOXI_QJKNmellykaW_7U2BZ7hnrPW3A3LM',
   generateMetricsContext: generateMetricsContext,
   mockBounces: mockObject(['check']),
   mockCustoms: mockObject(CUSTOMS_METHOD_NAMES),

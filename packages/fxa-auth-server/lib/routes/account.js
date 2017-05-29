@@ -1256,6 +1256,13 @@ module.exports = (
         var payload = request.payload
         var sessionToken = request.auth.credentials
 
+        // Some additional, slightly tricky validation to detect bad public keys.
+        if (payload.pushPublicKey) {
+          if (! push.isValidPublicKey(payload.pushPublicKey)) {
+            throw error.invalidRequestParameter('invalid pushPublicKey')
+          }
+        }
+
         if (payload.id) {
           // Don't write out the update if nothing has actually changed.
           if (isSpuriousUpdate(payload, sessionToken)) {

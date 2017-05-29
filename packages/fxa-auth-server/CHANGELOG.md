@@ -1,3 +1,14 @@
+<a name="1.87.1"></a>
+## [1.87.1](https://github.com/mozilla/fxa-auth-server/compare/v1.87.0...v1.87.1) (2017-05-26)
+
+
+### Bug Fixes
+
+* **push:** add extra logs ([5362c64](https://github.com/mozilla/fxa-auth-server/commit/5362c64))
+* **push:** Validate push public keys at registration time. ([8920a01](https://github.com/mozilla/fxa-auth-server/commit/8920a01))
+
+
+
 <a name="1.87.0"></a>
 # [1.87.0](https://github.com/mozilla/fxa-auth-server/compare/v1.86.0...v1.87.0) (2017-05-17)
 

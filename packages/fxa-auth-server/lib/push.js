@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var crypto = require('crypto')
+var base64url = require('base64url')
 var webpush = require('web-push')
 var P = require('./promise')
 
@@ -169,7 +171,47 @@ module.exports = function (log, db, config) {
     }, {})
   }
 
+  /**
+   * Checks whether the given string is a valid public key for push.
+   * This is a little tricky because we need to work around a bug in nodejs
+   * where using an invalid ECDH key can cause a later (unrelated) attempt
+   * to generate an RSA signature to fail :-(
+   *
+   * @param key
+   * The public key as a b64url string.
+   */
+
+  var dummySigner = crypto.createSign('RSA-SHA256')
+  var dummyKey = Buffer.alloc(0)
+  var dummyCurve = crypto.createECDH('prime256v1')
+  dummyCurve.generateKeys()
+
+  function isValidPublicKey(publicKey) {
+    // Try to use the key in an ECDH agreement.
+    // If the key is invalid then this will throw an error.
+    try {
+      dummyCurve.computeSecret(base64url.toBuffer(publicKey))
+      return true
+    } catch (err) {
+      log.info({
+        op: 'push.isValidPublicKey',
+        name: 'Bad public key detected'
+      })
+      // However!  The above call might have left some junk
+      // sitting around on the openssl error stack.
+      // Clear it by deliberately triggering a signing error
+      // before anything yields the event loop.
+      try {
+        dummySigner.sign(dummyKey)
+      } catch (e) {}
+      return false
+    }
+  }
+
   return {
+
+    isValidPublicKey: isValidPublicKey,
+
     /**
      * Notifies all devices that there was an update to the account
      *
@@ -413,10 +455,19 @@ module.exports = function (log, db, config) {
               incrementPushAction(events.success)
             },
             function (err) {
+              // If we've stored an invalid key in the db for some reason, then we
+              // might get an encryption failure here.  Check the key, which also
+              // happens to work around bugginess in node's handling of said failures.
+              var keyWasInvalid = false
+              if (! err.statusCode && device.pushPublicKey) {
+                if (! isValidPublicKey(device.pushPublicKey)) {
+                  keyWasInvalid = true
+                }
+              }
               // 404 or 410 error from the push servers means
               // the push settings need to be reset.
               // the clients will check this and re-register push endpoints
-              if (err.statusCode === 404 || err.statusCode === 410) {
+              if (err.statusCode === 404 || err.statusCode === 410 || keyWasInvalid) {
                 // reset device push configuration
                 // Warning: this method is called without any session tokens or auth validation.
                 device.pushCallback = ''
