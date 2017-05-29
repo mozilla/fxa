@@ -387,7 +387,7 @@ describe('remote password forgot', function() {
               name: 'baz',
               type: 'mobile',
               pushCallback: 'https://updates.push.services.mozilla.com/qux',
-              pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
+              pushPublicKey: mocks.MOCK_PUSH_KEY,
               pushAuthKey: base64url(crypto.randomBytes(16))
             })
           }
