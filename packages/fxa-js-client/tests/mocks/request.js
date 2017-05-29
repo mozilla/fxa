@@ -290,6 +290,10 @@ define([
       status: 200,
       body: '{"country":"RO","ok":true}'
     },
+    consumeSigninCode: {
+      status: 200,
+      body: '{"email":"foo@example.org"}'
+    },
     recoveryEmails: {
       status: 200,
       body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}]'

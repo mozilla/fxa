@@ -1178,7 +1178,8 @@ define([
    * @param {String} phoneNumber Phone number sms will be sent to
    * @param {String} messageId Corresponding message id that will be sent
    * @param {Object} [options={}] Options
-   *   @param {String} [options.lang] lang Language that sms will be sent in
+   *   @param {String} [options.lang] Language that sms will be sent in
+   *   @param {Array} [options.features] Array of features to be enabled for the request
    *   @param {Object} [options.metricsContext={}] Metrics context metadata
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
@@ -1200,6 +1201,10 @@ define([
         requestOpts.headers = {
           'Accept-Language': options.lang
         };
+      }
+
+      if (options.features) {
+        data.features = options.features;
       }
 
       if (options.metricsContext) {
@@ -1236,6 +1241,28 @@ define([
         }
         return request.send(url, 'GET', creds);
       });
+  };
+
+  /**
+   * Consume a signinCode.
+   *
+   * @method consumeSigninCode
+   * @param {String} code The signinCode entered by the user
+   * @param {String} flowId Identifier for the current event flow
+   * @param {Number} flowBeginTime Timestamp for the flow.begin event
+   */
+  FxAccountClient.prototype.consumeSigninCode = function (code, flowId, flowBeginTime) {
+    required(code, 'code');
+    required(flowId, 'flowId');
+    required(flowBeginTime, 'flowBeginTime');
+
+    return this.request.send('/signinCodes/consume', 'POST', null, {
+      code: code,
+      metricsContext: {
+        flowId: flowId,
+        flowBeginTime: flowBeginTime
+      }
+    });
   };
 
   /**

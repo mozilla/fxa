@@ -20,6 +20,7 @@ define([
   'tests/lib/request',
   'tests/lib/session',
   'tests/lib/signIn',
+  'tests/lib/signinCodes',
   'tests/lib/signUp',
   'tests/lib/sms',
   'tests/lib/unbundle',
