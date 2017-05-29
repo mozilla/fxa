@@ -175,7 +175,9 @@ module.exports = function (log, db, config) {
    * Checks whether the given string is a valid public key for push.
    * This is a little tricky because we need to work around a bug in nodejs
    * where using an invalid ECDH key can cause a later (unrelated) attempt
-   * to generate an RSA signature to fail :-(
+   * to generate an RSA signature to fail:
+   *
+   *   https://github.com/nodejs/node/pull/13275
    *
    * @param key
    * The public key as a b64url string.
