@@ -671,6 +671,15 @@ module.exports = config => {
     )
   }
 
+  ClientApi.prototype.consumeSigninCode = function (code, metricsContext) {
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/signinCodes/consume`,
+      null,
+      { code, metricsContext }
+    )
+  }
+
   ClientApi.heartbeat = function (origin) {
     return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
   }

@@ -149,6 +149,7 @@ in a sign-in or sign-up flow:
 |`email.${templateName}.delivered`|An email was delivered to a user.|
 |`sms.region.${region}`|A user has tried to send SMS to `region`.|
 |`sms.${templateName}.sent`|An SMS message has been sent to a user's phone.|
+|`signinCode.consumed`|A sign-in code has been consumed on the server.|
 |`account.confirmed`|Sign-in to an existing account has been confirmed via email.|
 |`account.reminder`|A new account has been verified via a reminder email.|
 |`account.verified`|A new account has been verified via email.|

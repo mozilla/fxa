@@ -18,7 +18,6 @@ const SCHEMA = isA.object({
 })
   .unknown(false)
   .and('flowId', 'flowBeginTime')
-  .optional()
 
 module.exports = function (log, config) {
   const cache = require('../cache')(log, config, 'fxa-metrics~')
@@ -236,4 +235,8 @@ function calculateFlowTime (time, flowBeginTime) {
   return time - flowBeginTime
 }
 
-module.exports.schema = SCHEMA
+// HACK: Force the API docs to expand SCHEMA inline
+module.exports.SCHEMA = SCHEMA
+module.exports.schema = SCHEMA.optional()
+module.exports.requiredSchema = SCHEMA.required()
+

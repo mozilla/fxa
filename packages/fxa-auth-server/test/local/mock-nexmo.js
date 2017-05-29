@@ -7,8 +7,7 @@
 const assert = require('insist')
 const MockNexmo = require('../../lib/mock-nexmo')
 const sinon = require('sinon')
-
-const BALANCE_THRESHOLD = 1.5
+const config = require('../../config').getProperties()
 
 describe('mock-nexmo', () => {
   let log
@@ -18,7 +17,7 @@ describe('mock-nexmo', () => {
     log = {
       info: sinon.spy()
     }
-    mockNexmo = new MockNexmo(log, BALANCE_THRESHOLD)
+    mockNexmo = new MockNexmo(log, config)
   })
 
   afterEach(() => {
@@ -32,7 +31,7 @@ describe('mock-nexmo', () => {
   describe('account.checkBalance', () => {
     it('returns the balance threshold', (done) => {
       mockNexmo.account.checkBalance((err, resp) => {
-        assert.equal(resp.value, BALANCE_THRESHOLD)
+        assert.equal(resp.value, config.sms.balanceThreshold)
         assert.equal(log.info.callCount, 1)
 
         done()

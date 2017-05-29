@@ -644,24 +644,6 @@ describe('remote db', function() {
     }
   )
 
-  it(
-    'account deletion',
-    () => {
-      return db.emailRecord(ACCOUNT.email)
-        .then(function(emailRecord) {
-          assert.deepEqual(emailRecord.uid, ACCOUNT.uid, 'retrieving uid should be the same')
-          return db.deleteAccount(emailRecord)
-        })
-        .then(function() {
-          // account should no longer exist for this email address
-          return db.accountExists(ACCOUNT.email)
-        })
-        .then(function(exists) {
-          assert.equal(exists, false, 'account should no longer exist')
-        })
-    }
-  )
-
   it('signinCodes', () => {
     let previousCode
 
@@ -692,8 +674,44 @@ describe('remote db', function() {
         assert.ok(Buffer.isBuffer(code), 'db.createSigninCode should return a buffer')
         assert.equal(code.equals(previousCode), false, 'db.createSigninCode should not return a duplicate code')
         assert.equal(code.length, config.signinCodeSize, 'db.createSigninCode should return the correct size code')
+
+        // Consume both signinCodes
+        return P.all([
+          db.consumeSigninCode(previousCode),
+          db.consumeSigninCode(code)
+        ])
+      })
+      .then(results => {
+        results.forEach(result => assert.deepEqual(result, { email: ACCOUNT.email }, 'db.consumeSigninCode should return the email address'))
+
+        // Attempt to consume a consumed signinCode
+        return db.consumeSigninCode(previousCode)
+          .then(() => assert.fail('db.consumeSigninCode should have failed'))
+          .catch(err => {
+            assert.equal(err.errno, 146, 'db.consumeSigninCode should fail with errno 146')
+            assert.equal(err.message, 'Invalid signin code', 'db.consumeSigninCode should fail with message "Invalid signin code"')
+            assert.equal(err.output.statusCode, 400, 'db.consumeSigninCode should fail with status 400')
+          })
       })
   })
+
+  it(
+    'account deletion',
+    () => {
+      return db.emailRecord(ACCOUNT.email)
+        .then(function(emailRecord) {
+          assert.deepEqual(emailRecord.uid, ACCOUNT.uid, 'retrieving uid should be the same')
+          return db.deleteAccount(emailRecord)
+        })
+        .then(function() {
+          // account should no longer exist for this email address
+          return db.accountExists(ACCOUNT.email)
+        })
+        .then(function(exists) {
+          assert.equal(exists, false, 'account should no longer exist')
+        })
+    }
+  )
 
   after(() => {
     return TestServer.stop(dbServer)

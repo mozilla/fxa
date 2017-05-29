@@ -211,7 +211,9 @@ function marshallRouteData (docs, errors, files) {
 }
 
 function getModuleName (filePath) {
-  return path.basename(filePath, '.js').replace(/^[a-z]/, character => character.toUpperCase())
+  return path.basename(filePath, '.js')
+    .replace(/^[a-z]/, character => character.toUpperCase())
+    .replace(/-/g, ' ')
 }
 
 function parseVariables (node) {

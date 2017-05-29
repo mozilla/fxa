@@ -9,8 +9,9 @@ var MockNexmo = require('../mock-nexmo')
 var P = require('bluebird')
 var error = require('../error')
 
-module.exports = function (log, translator, templates, smsConfig) {
-  var nexmo = smsConfig.useMock ? new MockNexmo(log, smsConfig.balanceThreshold) : new Nexmo({
+module.exports = function (log, translator, templates, config) {
+  var smsConfig = config.sms
+  var nexmo = smsConfig.useMock ? new MockNexmo(log, config) : new Nexmo({
     apiKey: smsConfig.apiKey,
     apiSecret: smsConfig.apiSecret
   })

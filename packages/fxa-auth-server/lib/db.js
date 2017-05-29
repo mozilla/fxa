@@ -927,6 +927,19 @@ module.exports = (
       })
   }
 
+  DB.prototype.consumeSigninCode = function (code) {
+    log.trace({ op: 'DB.consumeSigninCode', code })
+
+    return this.pool.post(`/signinCodes/${code.toString('hex')}/consume`)
+      .catch(err => {
+        if (isNotFoundError(err)) {
+          throw error.invalidSigninCode()
+        }
+
+        throw err
+      })
+  }
+
   function wrapTokenNotFoundError (err) {
     if (isNotFoundError(err)) {
       err = error.invalidToken('The authentication token could not be found')

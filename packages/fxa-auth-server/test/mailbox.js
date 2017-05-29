@@ -78,9 +78,14 @@ module.exports = function (host, port, printLogs) {
     return d.promise
   }
 
+  function waitForSms (phoneNumber) {
+    return waitForEmail(`sms.${phoneNumber}@restmail.net`)
+  }
+
   return {
     waitForEmail: waitForEmail,
     waitForCode: waitForCode,
+    waitForSms: waitForSms,
     eventEmitter: eventEmitter
   }
 }

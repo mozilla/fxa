@@ -53,6 +53,7 @@ var ERRNO = {
   SECONDARY_EMAIL_UNKNOWN: 143,
   VERIFIED_SECONDARY_EMAIL_EXISTS: 144,
   RESET_PASSWORD_WITH_SECONDARY_EMAIL: 145,
+  INVALID_SIGNIN_CODE: 146,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -656,6 +657,15 @@ AppError.cannotResetPasswordWithSecondaryEmail = () => {
     error: 'Bad Request',
     errno: ERRNO.RESET_PASSWORD_WITH_SECONDARY_EMAIL,
     message: 'Reset password with this email type is not currently supported'
+  })
+}
+
+AppError.invalidSigninCode = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_SIGNIN_CODE,
+    message: 'Invalid signin code'
   })
 }
 

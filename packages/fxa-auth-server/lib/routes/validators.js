@@ -13,6 +13,9 @@ module.exports.URLSAFEBASE64 = /^[a-zA-Z0-9-_]*$/
 
 module.exports.BASE_36 = /^[a-zA-Z0-9]*$/
 
+// RFC 4648, section 5
+module.exports.URL_SAFE_BASE_64 = /^[A-Za-z0-9_-]+$/
+
 // Crude phone number validation. The handler code does it more thoroughly.
 exports.E164_NUMBER = /^\+[1-9]\d{1,14}$/
 

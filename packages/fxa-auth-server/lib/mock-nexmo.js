@@ -10,7 +10,22 @@
  * the message is sent successfully.
  */
 
-function MockNexmo(log, balanceThreshold) {
+function MockNexmo(log, config) {
+  const balanceThreshold = config.sms.balanceThreshold
+  const mailerOptions = {
+    host: config.smtp.host,
+    secure: config.smtp.secure,
+    ignoreTLS: ! config.smtp.secure,
+    port: config.smtp.port
+  }
+  if (config.smtp.user && config.smtp.password) {
+    mailerOptions.auth = {
+      user: config.smtp.user,
+      password: config.smtp.password
+    }
+  }
+  const mailer = require('nodemailer').createTransport(mailerOptions)
+
   return {
     account: {
       /**
@@ -37,8 +52,16 @@ function MockNexmo(log, balanceThreshold) {
 
         log.info({ op: 'sms.send.mock' })
 
-        callback(null, {
-          messages: [{ status: '0' }]
+        // HACK: Enable remote tests to see what was sent
+        mailer.sendMail({
+          from: `sms.${senderId}@restmail.net`,
+          to: `sms.${phoneNumber}@restmail.net`,
+          subject: 'MockNexmo.message.sendSms',
+          text: message
+        }, () => {
+          callback(null, {
+            messages: [{ status: '0' }]
+          })
         })
       }
     }

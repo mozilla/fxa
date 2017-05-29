@@ -62,12 +62,14 @@ describe('lib/senders/sms:', () => {
       sms = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
         nexmo: Nexmo
       })(log, translator, templates, {
-        apiKey: 'foo',
-        apiSecret: 'bar',
-        balanceThreshold: 1,
-        installFirefoxLink: 'https://baz/qux',
-        installFirefoxWithSigninCodeBaseUri: 'https://wibble',
-        useMock: false
+        sms: {
+          apiKey: 'foo',
+          apiSecret: 'bar',
+          balanceThreshold: 1,
+          installFirefoxLink: 'https://baz/qux',
+          installFirefoxWithSigninCodeBaseUri: 'https://wibble',
+          useMock: false
+        }
       })
     })
   })
@@ -245,11 +247,13 @@ describe('lib/senders/sms:', () => {
         nexmo: Nexmo,
         '../mock-nexmo': MockNexmo
       })(log, translator, templates, {
-        apiKey: 'foo',
-        apiSecret: 'bar',
-        balanceThreshold: 1,
-        installFirefoxLink: 'https://baz/qux',
-        useMock: true
+        sms: {
+          apiKey: 'foo',
+          apiSecret: 'bar',
+          balanceThreshold: 1,
+          installFirefoxLink: 'https://baz/qux',
+          useMock: true
+        }
       })
 
       assert.equal(mockConstructed, true)

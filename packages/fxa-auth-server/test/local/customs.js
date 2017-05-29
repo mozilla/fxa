@@ -58,6 +58,12 @@ describe('Customs', () => {
         .then(function(result) {
           assert.equal(result, undefined, 'Nothing is returned when /passwordReset succeeds')
         })
+        .then(() => {
+          return customsNoUrl.checkIpOnly(request, action)
+        })
+        .then(result => {
+          assert.equal(result, undefined, 'Nothing is returned when /checkIpOnly succeeds')
+        })
     }
   )
 
@@ -194,6 +200,22 @@ describe('Customs', () => {
           assert.equal(err.output.statusCode, 400, 'Status Code is correct')
           assert(! err.output.payload.retryAfter, 'retryAfter field is not present')
           assert(! err.output.headers['retry-after'], 'retryAfter header is not present')
+        })
+        .then(() => {
+          customsServer.post('/checkIpOnly', function (body) {
+            assert.deepEqual(body, {
+              ip: ip,
+              action: action
+            }, 'first call to /check had expected request params')
+            return true
+          }).reply(200, {
+            block: false,
+            retryAfter: 0
+          })
+          return customsWithUrl.checkIpOnly(request, action)
+        })
+        .then(result => {
+          assert.equal(result, undefined, 'Nothing is returned when /check succeeds')
         })
     }
   )

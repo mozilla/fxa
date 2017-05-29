@@ -57,6 +57,8 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [GET /session/status (:lock: sessionToken)](#get-sessionstatus)
   * [Sign](#sign)
     * [POST /certificate/sign (:lock: sessionToken)](#post-certificatesign)
+  * [Signin codes](#signin-codes)
+    * [POST /signinCodes/consume](#post-signincodesconsume)
   * [Sms](#sms)
     * [POST /sms (:lock: sessionToken)](#post-sms)
     * [GET /sms/status (:lock: sessionToken)](#get-smsstatus)
@@ -238,6 +240,8 @@ for `code` and `errno` are:
   Email already exists
 * `code: 400, errno: 145`:
   Reset password with this email type is not currently supported
+* `code: 400, errno: 146`:
+  Invalid signin code
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -295,17 +299,20 @@ those common validations are defined here.
 * `HEX_STRING`: `/^(?:[a-fA-F0-9]{2})+$/`
 * `URLSAFEBASE64`: `/^[a-zA-Z0-9-_]*$/`
 * `BASE_36`: `/^[a-zA-Z0-9]*$/`
+* `URL_SAFE_BASE_64`: `/^[A-Za-z0-9_-]*$/`
 * `DISPLAY_SAFE_UNICODE`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/g)`
 * `E164_NUMBER`: `/^\+[1-9]\d{1,14}$/`
 
 #### lib/metrics/context
 
-* `schema`: object({
+* `SCHEMA`: object({
     * `flowId`: string, length(64), regex(HEX_STRING), optional
     * `flowBeginTime`: number, integer, positive, optional
 
-  }), unknown(false), and('flowId', 'flowBeginTime'), optional
+  }), unknown(false), and('flowId', 'flowBeginTime')
+* `schema`: SCHEMA.optional
+* `requiredSchema`: SCHEMA.required
 
 #### lib/features
 
@@ -2034,6 +2041,37 @@ by the following errors
 
 * `code: 400, errno: 108`:
   Missing parameter in request body
+
+
+### Signin codes
+
+#### POST /signinCodes/consume
+<!--begin-route-post-signincodesconsume-->
+Exchange a single-use signin code
+for an email address.
+<!--end-route-post-signincodesconsume-->
+
+##### Request body
+
+* `code`: *string, regex(validators.URL_SAFE_BASE_64), length(CODE_LENGTH), required*
+
+  <!--begin-request-body-post-signincodesconsume-code-->
+  The signin code.
+  <!--end-request-body-post-signincodesconsume-code-->
+
+* `metricsContext`: *metricsContext.requiredSchema*
+
+  <!--begin-request-body-post-signincodesconsume-metricsContext-->
+  Metrics context data for the new flow.
+  <!--end-request-body-post-signincodesconsume-metricsContext-->
+
+##### Response body
+
+* `email`: *validators.email.required*
+
+  <!--begin-response-body-post-signincodesconsume-email-->
+  The email address associated with the signin code.
+  <!--end-response-body-post-signincodesconsume-email-->
 
 
 ### Sms

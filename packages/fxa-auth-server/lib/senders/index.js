@@ -16,7 +16,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       .then(function (templates) {
         return {
           email: new Mailer(translator, templates, config.smtp, sender),
-          sms: createSms(log, translator, templates, config.sms)
+          sms: createSms(log, translator, templates, config)
         }
       })
   }

@@ -10,7 +10,7 @@ const Client = require('../client')()
 const config = require('../../config').getProperties()
 const error = require('../../lib/error')
 
-describe('remote sms with signinCodes disabled', function() {
+describe('remote sms without the signinCodes feature included in the payload', function() {
   this.timeout(10000)
   let server
 
@@ -94,7 +94,7 @@ describe('remote sms with signinCodes disabled', function() {
   })
 })
 
-describe('remote sms with signinCodes enabled', function() {
+describe('remote sms with the signinCodes feature included in the payload', function() {
   this.timeout(10000)
   let server
 

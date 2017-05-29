@@ -53,27 +53,8 @@ module.exports = function (log, error) {
       }
     )
     .then(
-      function (result) {
-        if (result.suspect) {
-          request.app.isSuspiciousRequest = true
-        }
-        if (result.block) {
-          // log a flow event that user got blocked.
-          request.emitMetricsEvent('customs.blocked')
-
-          var unblock = !! result.unblock
-          if (result.retryAfter) {
-            // create a localized retryAfterLocalized value from retryAfter, for example '713' becomes '12 minutes'.
-            var retryAfterLocalized = localizeTimestamp.format(Date.now() + (result.retryAfter * 1000),
-                request.headers['accept-language'])
-
-            throw error.tooManyRequests(result.retryAfter, retryAfterLocalized, unblock)
-          } else {
-            throw error.requestBlocked(unblock)
-          }
-        }
-      },
-      function (err) {
+      handleCustomsResult.bind(request),
+      err => {
         log.error({ op: 'customs.check.1', email: email, action: action, err: err })
         // If this happens, either:
         // - (1) the url in config doesn't point to a real customs server
@@ -81,6 +62,34 @@ module.exports = function (log, error) {
         // Either way, allow the request through so we fail open.
       }
     )
+  }
+
+  function handleCustomsResult (result) {
+    const request = this
+
+    if (result.suspect) {
+      request.app.isSuspiciousRequest = true
+    }
+
+    if (result.block) {
+      // Log a flow event that user got blocked.
+      request.emitMetricsEvent('customs.blocked')
+
+      const unblock = !! result.unblock
+
+      if (result.retryAfter) {
+        // Create a localized retryAfterLocalized value from retryAfter.
+        // For example '713' becomes '12 minutes' in English.
+        const retryAfterLocalized = localizeTimestamp.format(
+          Date.now() + result.retryAfter * 1000,
+          request.headers['accept-language']
+        )
+
+        throw error.tooManyRequests(result.retryAfter, retryAfterLocalized, unblock)
+      }
+
+      throw error.requestBlocked(unblock)
+    }
   }
 
   Customs.prototype.checkAuthenticated = function (action, ip, uid) {
@@ -105,6 +114,24 @@ module.exports = function (log, error) {
       },
       function (err) {
         log.error({ op: 'customs.checkAuthenticated', uid: uid, action: action, err: err })
+        // If this happens, either:
+        // - (1) the url in config doesn't point to a real customs server
+        // - (2) the customs server returned an internal server error
+        // Either way, allow the request through so we fail open.
+      }
+    )
+  }
+
+  Customs.prototype.checkIpOnly = function (request, action) {
+    log.trace({ op: 'customs.checkIpOnly', action: action })
+    return this.pool.post('/checkIpOnly', {
+      ip: request.app.clientAddress,
+      action: action
+    })
+    .then(
+      handleCustomsResult.bind(request),
+      err => {
+        log.error({ op: 'customs.checkIpOnly.1', action: action, err: err })
         // If this happens, either:
         // - (1) the url in config doesn't point to a real customs server
         // - (2) the customs server returned an internal server error

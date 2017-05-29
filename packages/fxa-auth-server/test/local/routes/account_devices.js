@@ -195,7 +195,6 @@ describe('/account/devices/notify', function () {
     }
   }
   var mockPush = mocks.mockPush()
-  var sandbox = sinon.sandbox.create()
   var mockCustoms = mocks.mockCustoms()
   var accountRoutes = makeRoutes({
     config: config,
@@ -368,9 +367,7 @@ describe('/account/devices/notify', function () {
     config.deviceNotificationsEnabled = true
 
     mockCustoms = mocks.mockCustoms({
-      checkAuthenticated: sandbox.spy(function () {
-        throw error.tooManyRequests(1)
-      })
+      checkAuthenticated: error.tooManyRequests(1)
     })
     route = getRoute(makeRoutes({customs: mockCustoms}), '/account/devices/notify')
 
