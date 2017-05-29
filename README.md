@@ -92,16 +92,13 @@ xcode-select --install
 ```
 then:
 ```
-brew install gmp redis graphicsmagick yarn
+brew install gmp redis graphicsmagick
 sudo easy_install pip && sudo pip install virtualenv
 ```
 
 ##### Ubuntu:
 ```
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-sudo apt-get update
-sudo apt-get install yarn build-essential git-core libgmp3-dev graphicsmagick redis-server python-virtualenv python-dev
+sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick redis-server python-virtualenv python-dev
 ```
 
 #### Installing Node.js
