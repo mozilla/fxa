@@ -1,4 +1,6 @@
-language: cpp
+language: node_js
+node_js:
+  - "4.8"
 
 dist: trusty
 sudo: required
@@ -20,7 +22,7 @@ addons:
 
 env:
   matrix:
-  - TRAVIS_NODE_VERSION="4.5"
+  - TRAVIS_NODE_VERSION="4.8"
 
 matrix:
   allow_failures:
@@ -31,14 +33,13 @@ before_install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install graphicsmagick; fi
 
 install:
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
   - PATH="`npm bin`:`npm bin -g`:$PATH"
   - npm install -g npm@2
   - node --version
   - npm --version
 
 script:
-  - if [ $TRAVIS_NODE_VERSION == "4.5" ]; then export CXX=g++-4.8; fi
+  - if [ $TRAVIS_NODE_VERSION == "4.8" ]; then export CXX=g++-4.8; fi
   - npm config set spin false
   - npm install
   - ./test/curl.sh
