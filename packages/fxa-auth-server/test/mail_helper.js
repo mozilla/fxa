@@ -45,6 +45,13 @@ module.exports = (printLogs) => {
             var uc = mail.headers['x-unblock-code']
             var vc = mail.headers['x-verify-code']
             var template = mail.headers['x-template-name']
+
+            var smsLink
+            if (/MockNexmo\.message\.sendSms/.test(mail.subject)) {
+              const smsUrlMatch = /(https?:\/\/.*$)/.exec(mail.text)
+              smsLink = smsUrlMatch && smsUrlMatch[1]
+            }
+
             var name = emailName(mail.headers.to)
             if (vc) {
               console.log('\x1B[32m', link, '\x1B[39m')
@@ -55,6 +62,9 @@ module.exports = (printLogs) => {
             else if (uc) {
               console.log('\x1B[36mUnblock code:', uc, '\x1B[39m')
               console.log('\x1B[36mReport link:', rul, '\x1B[39m')
+            }
+            else if (smsLink) {
+              console.log('\x1B[36mSMS link:', smsLink, '\x1B[39m')
             }
             else if (TEMPLATES_WITH_NO_CODE.has(template)) {
               console.log(`Notification email: ${template}`)
