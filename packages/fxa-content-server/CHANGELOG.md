@@ -1,3 +1,37 @@
+<a name="1.88.0"></a>
+# 1.88.0 (2017-05-30)
+
+
+### Bug Fixes
+
+* **app-store:** Open app-store links in a new tab. (#5083) r=@philbooth ([252ba6e](https://github.com/mozilla/fxa-content-server/commit/252ba6e)), closes [#5079](https://github.com/mozilla/fxa-content-server/issues/5079)
+* **cad:** Always show app store buttons for /connect_another_device, /sms (#5061) r=@vbudh ([4bbbfb5](https://github.com/mozilla/fxa-content-server/commit/4bbbfb5)), closes [#4948](https://github.com/mozilla/fxa-content-server/issues/4948)
+* **devices:** Add the 1800 ms artificial delay when clicking `Refresh` (#5074) r=@vbudhram, @p ([218ef6c](https://github.com/mozilla/fxa-content-server/commit/218ef6c))
+* **devices:** bring back sync start date to device view (#5058) r=vbudhram ([3064f03](https://github.com/mozilla/fxa-content-server/commit/3064f03))
+* **docker:** only push from one test node (#5065) r=jrgm ([3a269e6](https://github.com/mozilla/fxa-content-server/commit/3a269e6)), closes [#4950](https://github.com/mozilla/fxa-content-server/issues/4950)
+* **firstrun:** Show the `continue to Firefox Sync` subheader in the firstrun page (#5064) r=@ry ([3224eb8](https://github.com/mozilla/fxa-content-server/commit/3224eb8)), closes [#5063](https://github.com/mozilla/fxa-content-server/issues/5063)
+* **server:** allow empty event_id fields (#5097) ([935ac11](https://github.com/mozilla/fxa-content-server/commit/935ac11)), closes [#5049](https://github.com/mozilla/fxa-content-server/issues/5049)
+* **sign_in:** Fix how the listener is bound for account->chang:accessToken (#5103) r=@philboot ([d7298f5](https://github.com/mozilla/fxa-content-server/commit/d7298f5)), closes [(#5103](https://github.com/(/issues/5103)
+* **test:** Fix "Upgrade from account that has `accountData`" (#5107) r=vladikoff,philbooth ([c8fba8f](https://github.com/mozilla/fxa-content-server/commit/c8fba8f)), closes [(#5107](https://github.com/(/issues/5107) [#5104](https://github.com/mozilla/fxa-content-server/issues/5104)
+* **tests:** pull entrained sub-resources in all locales (tests/server/l10n-entrained.js) (#5 ([3fcaafa](https://github.com/mozilla/fxa-content-server/commit/3fcaafa))
+* **tests:** remove uppercase check for route tests (#5096) r=jrgm ([5ea8d83](https://github.com/mozilla/fxa-content-server/commit/5ea8d83)), closes [#5086](https://github.com/mozilla/fxa-content-server/issues/5086)
+
+### Features
+
+* **CAD:** Add CAD to the signup tab in firstrun (#5026) r=@philbooth, @ryanfeeley ([a574d84](https://github.com/mozilla/fxa-content-server/commit/a574d84)), closes [#4944](https://github.com/mozilla/fxa-content-server/issues/4944)
+* **client:** Sync state with the browser! (#4695) r=@philbooth ([18fa0d5](https://github.com/mozilla/fxa-content-server/commit/18fa0d5))
+* **sms:** Add the `/m/:signinCode` redirect handler. (#5082) r=@philbooth ([398d339](https://github.com/mozilla/fxa-content-server/commit/398d339)), closes [#5081](https://github.com/mozilla/fxa-content-server/issues/5081)
+
+### Refactor
+
+* **client:** Clean up invoke* using ES2015. (#5075) r=@philbooth ([6ec3f64](https://github.com/mozilla/fxa-content-server/commit/6ec3f64))
+* **metrics:** Remove `viewToId` and helpers.testIsViewLogged (#5069) r=@philbooth ([f1cbf2b](https://github.com/mozilla/fxa-content-server/commit/f1cbf2b))
+* **mixins:** Move search-param-mixin and user-agent-mixin to /lib (#5099) r=vladikoff ([efea825](https://github.com/mozilla/fxa-content-server/commit/efea825))
+* **test:** In app-start.js, convert to fat arrows. (#5100) r=vladikoff ([5f7d8b6](https://github.com/mozilla/fxa-content-server/commit/5f7d8b6))
+* **test:** Modernize the sign_in view unit test. (#5102) r=self ([3f665b6](https://github.com/mozilla/fxa-content-server/commit/3f665b6))
+
+
+
 <a name="1.87.3"></a>
 ## 1.87.3 (2017-05-24)
 
