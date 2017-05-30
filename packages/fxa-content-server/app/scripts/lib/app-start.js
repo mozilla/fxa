@@ -135,9 +135,6 @@ define(function (require, exports, module) {
         .then(_.bind(this.initializeUser, this))
         // depends on the authentication broker
         .then(_.bind(this.initializeHeightObserver, this))
-        // storage format upgrades depend on user
-        .then(_.bind(this.upgradeStorageFormats, this))
-
         // depends on nothing
         .then(_.bind(this.initializeFormPrefill, this))
         // depends on notifier, metrics
@@ -379,10 +376,18 @@ define(function (require, exports, module) {
           uniqueUserId: this._getUniqueUserId()
         });
 
-        const accountData  = this._authenticationBroker.get('browserSignedInAccount');
-        if (user.shouldSetSignedInAccountFromBrowser(this._relier.get('service'))) {
-          user.setSignedInAccountFromBrowserAccountData(accountData);
-        }
+        // The storage formats must be upgraded before checking
+        // whether to set the signed in account from the browser
+        // or else an attempt can be made to populate an Account
+        // with data in the old format, causing an exception to
+        // be thrown.
+        return this.upgradeStorageFormats()
+          .then(() => {
+            const accountData  = this._authenticationBroker.get('browserSignedInAccount');
+            if (user.shouldSetSignedInAccountFromBrowser(this._relier.get('service'))) {
+              user.setSignedInAccountFromBrowserAccountData(accountData);
+            }
+          });
       }
     },
 

@@ -172,17 +172,6 @@ define(function (require, exports, module) {
           });
       });
 
-      it('updates old storage formats', () => {
-        sinon.stub(appStart, 'upgradeStorageFormats', () => {
-          return p();
-        });
-
-        return appStart.startApp()
-          .then(() => {
-            assert.isTrue(appStart.upgradeStorageFormats.calledOnce);
-          });
-      });
-
       it('uses storage metrics when an automated browser is detected', () => {
         windowMock.location.search = Url.objToSearchString({
           automatedBrowser: true
@@ -485,6 +474,7 @@ define(function (require, exports, module) {
           window: windowMock
         });
 
+        sinon.stub(appStart, 'upgradeStorageFormats', () => p());
         sandbox.stub(appStart, '_getUserStorageInstance', () => new NullStorage());
 
         appStart.useConfig({});
@@ -495,15 +485,19 @@ define(function (require, exports, module) {
       });
 
       it('creates a user, sets the uniqueUserId, populates from the browser', () => {
-        appStart.initializeUser();
-        assert.isDefined(appStart._user);
-        assert.isDefined(appStart._user.get('uniqueUserId'));
+        return appStart.initializeUser()
+          .then(() => {
+            assert.isDefined(appStart._user);
+            assert.isDefined(appStart._user.get('uniqueUserId'));
 
-        assert.isTrue(appStart._user.shouldSetSignedInAccountFromBrowser.calledOnce);
-        assert.isTrue(appStart._user.shouldSetSignedInAccountFromBrowser.calledWith('sync'));
+            assert.isTrue(appStart._user.shouldSetSignedInAccountFromBrowser.calledOnce);
+            assert.isTrue(appStart._user.shouldSetSignedInAccountFromBrowser.calledWith('sync'));
 
-        assert.isTrue(appStart._user.setSignedInAccountFromBrowserAccountData.calledOnce);
-        assert.isTrue(appStart._user.setSignedInAccountFromBrowserAccountData.calledWith(browserAccountData));
+            assert.isTrue(appStart._user.setSignedInAccountFromBrowserAccountData.calledOnce);
+            assert.isTrue(appStart._user.setSignedInAccountFromBrowserAccountData.calledWith(browserAccountData));
+
+            assert.isTrue(appStart.upgradeStorageFormats.calledOnce);
+          });
       });
     });
 
