@@ -11,6 +11,7 @@ define([
   intern.functionalSuites = [];
   intern.suites = [
     'tests/server/routes',
+    'tests/server/l10n-entrained',
     'tests/server/ver.json.js',
     'tests/server/csp',
     'tests/server/flow-event',

@@ -87,6 +87,7 @@
   },
   "devDependencies": {
     "coveralls": "2.11.9",
+    "css": "2.2.1",
     "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#41504c9dd30e8b52900c15b524946aa0428aef95",
     "eslint-plugin-sorting": "git://github.com/shane-tomlinson/eslint-plugin-sorting.git#bcacb99d",
     "firefox-profile": "0.3.12",

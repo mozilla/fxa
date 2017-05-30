@@ -77,6 +77,7 @@ node ./tests/teamcity/install-npm-deps.js \
   bluebird                        \
   bower                           \
   convict                         \
+  css                             \
   extend                          \
   firefox-profile                 \
   fxa-shared                      \
@@ -97,8 +98,10 @@ node ./tests/teamcity/install-npm-deps.js \
   universal-analytics             \
   xmlhttprequest
 
+FXA_TEST_CONFIG=${FXA_TEST_CONFIG:-tests/intern_server}
+
 ./node_modules/.bin/intern-client \
-  config=tests/intern_server \
+  config="$FXA_TEST_CONFIG" \
   fxaAuthRoot="$FXA_AUTH_ROOT" \
   fxaContentRoot="$FXA_CONTENT_ROOT" \
   fxaOAuthRoot="$FXA_OAUTH_ROOT" \
