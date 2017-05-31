@@ -823,19 +823,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('signOut', function () {
-      it('signs the user out', function () {
-        sinon.stub(realClient, 'sessionDestroy', function () {
-          return p();
-        });
-
-        return client.signOut('session token')
-          .then(function () {
-            assert.isTrue(realClient.sessionDestroy.called);
-          });
-      });
-    });
-
     describe('checkAccountExists', function () {
       it('returns true if an account exists', function () {
         sinon.stub(realClient, 'accountStatus', function () {

@@ -568,12 +568,12 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Sign out the user
+     * Sign out the current session.
      *
      * @returns {Promise} - resolves when complete
      */
     signOut () {
-      return this._fxaClient.signOut(this.get('sessionToken'));
+      return this._fxaClient.sessionDestroy(this.get('sessionToken'));
     },
 
     /**
@@ -887,6 +887,12 @@ define(function (require, exports, module) {
         });
     },
 
+    /**
+     * Destroy another session.
+     *
+     * @param {Object} session to destroy.
+     * @returns {Promise}
+     */
     destroySession (session) {
       var tokenId = session.get('id');
       var sessionToken = this.get('sessionToken');
@@ -897,7 +903,6 @@ define(function (require, exports, module) {
         session.destroy();
       });
     },
-
 
     /**
      * Delete the device from the account

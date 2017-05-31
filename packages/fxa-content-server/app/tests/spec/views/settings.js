@@ -359,12 +359,12 @@ define(function (require, exports, module) {
 
       describe('signOut', () => {
         it('on success, logs events and calls clearSessionAndNavigateToSignIn', () => {
-          sinon.stub(fxaClient, 'signOut', () => {
-            return p();
-          });
+          sinon.stub(account, 'signOut', () => p());
 
           return view.signOut()
             .then(() => {
+              assert.isTrue(account.signOut.calledOnce);
+
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.success'));
               assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.signout.error'));
@@ -375,12 +375,14 @@ define(function (require, exports, module) {
         });
 
         it('on error, logs events and calls clearSessionAndNavigateToSignIn', () => {
-          sinon.stub(fxaClient, 'signOut', () => {
+          sinon.stub(account, 'signOut', () => {
             return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
           });
 
           return view.signOut()
             .then(() => {
+              assert.isTrue(account.signOut.calledOnce);
+
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));
               // track the error, but success is still finally called
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.error'));

@@ -781,20 +781,18 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('signOut', function () {
-      beforeEach(function () {
-        sinon.stub(fxaClient, 'signOut', function () {
-          return p();
-        });
+    describe('signOut', () => {
+      beforeEach(() => {
+        sinon.stub(fxaClient, 'sessionDestroy', () => p());
 
         account.set('sessionToken', SESSION_TOKEN);
 
         return account.signOut();
       });
 
-      it('calls the correct fxaClient method', function () {
-        assert.isTrue(fxaClient.signOut.calledOnce);
-        assert.isTrue(fxaClient.signOut.calledWith(SESSION_TOKEN));
+      it('calls the correct fxaClient method', () => {
+        assert.isTrue(fxaClient.sessionDestroy.calledOnce);
+        assert.isTrue(fxaClient.sessionDestroy.calledWith(SESSION_TOKEN));
       });
     });
 

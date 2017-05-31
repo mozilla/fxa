@@ -87,6 +87,24 @@ define(function (require, exports, module) {
     };
   }
 
+  /**
+   * Create a delegate method to the fxa-js-client.
+   *
+   * @param {String} method to delegate to.
+   * @returns {Function}
+   */
+  function createClientDelegate(method) {
+    return function (...args) {
+      return this._getClient()
+        .then((client) => {
+          if (! _.isFunction(client[method])) {
+            throw new Error(`Invalid method on fxa-js-client: ${method}`);
+          }
+          return client[method](...args);
+        });
+    };
+  }
+
   function getUpdatedSessionData(email, relier, accountData, options = {}) {
     var sessionTokenContext = options.sessionTokenContext;
     if (! sessionTokenContext && relier.isSync()) {
@@ -143,9 +161,8 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    getRandomBytes: withClient((client) => {
-      return client.getRandomBytes();
-    }),
+    getRandomBytes: createClientDelegate('getRandomBytes'),
+
 
     /**
      * Check the user's current password without affecting session state.
@@ -319,6 +336,18 @@ define(function (require, exports, module) {
         .then((accountData) => getUpdatedSessionData(email, relier, accountData, options));
     }),
 
+    /**
+     * Re-sends a verification code to the account's recovery email address.
+     *
+     * @param {Object} relier being signed into.
+     * @param {String} sessionToken sessionToken obtained from signIn
+     * @param {Object} [options={}] Options
+     *   @param {String} [options.resume]
+     *   Opaque url-encoded string that will be included in the verification link
+     *   as a querystring parameter, useful for continuing an OAuth flow for
+     *   example.
+     * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+     */
     signUpResend: withClient((client, relier, sessionToken, options = {}) => {
       var clientOptions = {
         redirectTo: relier.get('redirectTo'),
@@ -332,27 +361,32 @@ define(function (require, exports, module) {
       return client.recoveryEmailResendCode(sessionToken, clientOptions);
     }),
 
-    signOut: withClient((client, sessionToken) => {
-      return client.sessionDestroy(sessionToken);
-    }),
-
     /**
      * Destroy the user's current or custom session
      *
-     * @method sessionDestroy
      * @param {String} sessionToken
      * @param {Object} [options]
      *   @param {String} [options.customSessionToken] - if provided, deletes a custom session token
      * @returns {Promise}
      *
      */
-    sessionDestroy: withClient((client, sessionToken, options = {}) => {
-      return client.sessionDestroy(sessionToken, options);
-    }),
+    sessionDestroy: createClientDelegate('sessionDestroy'),
 
-    verifyCode: withClient((client, uid, code, options) => {
-      return client.verifyCode(uid, code, options);
-    }),
+    /**
+     * Verify a signup code
+     *
+     * @param {String} uid Account ID
+     * @param {String} code Verification code
+     * @param {Object} [options={}] Options
+     *   @param {String} [options.service]
+     *   Service being signed into
+     *   @param {String} [options.reminder]
+     *   Reminder that was used to verify the account
+     *   @param {String} [options.type]
+     *   Type of code being verified, only supports `secondary` otherwise will verify account/sign-in
+     * @return {Promise} resolves when complete
+     */
+    verifyCode: createClientDelegate('verifyCode'),
 
     /**
      * Initiate a password reset
@@ -368,7 +402,7 @@ define(function (require, exports, module) {
      *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
      *                   whether the user wants to customize which items will
      *                   be synced. Defaults to `false`
-     * @returns {Promise}
+     * @return {Promise} resolves when complete
      */
     passwordReset: withClient((client, originalEmail, relier, options = {}) => {
       var email = trim(originalEmail);
@@ -391,6 +425,19 @@ define(function (require, exports, module) {
         });
     }),
 
+    /**
+     * Re-sends a password reset verification code to the account's recovery email address.
+     *
+     * @param {String} originalEmail
+     * @param {String} passwordForgotToken
+     * @param {Object} relier
+     * @param {Object} [options={}] Options
+     *   @param {String} [options.resume]
+     *   Opaque url-encoded string that will be included in the verification link
+     *   as a querystring parameter, useful for continuing an OAuth flow for
+     *   example.
+     * @return {Promise} resolves when complete
+     */
     passwordResetResend: withClient((client, originalEmail, passwordForgotToken, relier, options = {}) => {
       var email = trim(originalEmail);
 
@@ -414,6 +461,19 @@ define(function (require, exports, module) {
       );
     }),
 
+    /**
+     * Submits the verification token to the server.
+     * The API returns accountResetToken to the client.
+     *
+     * @method passwordForgotVerifyCode
+     * @param {String} originalEmail
+     * @param {String} newPassword
+     * @param {String} token
+     * @param {String} code
+     * @param {Object} relier
+     * @param {Object} [options={}]
+     * @return {Promise} resolves when complete
+     */
     completePasswordReset: withClient((client, originalEmail, newPassword, token, code, relier, options = {}) => {
       const email = trim(originalEmail);
 
@@ -439,6 +499,12 @@ define(function (require, exports, module) {
         });
     }),
 
+    /**
+     * Check if the password reset is complete
+     *
+     * @param {String} token to check
+     * @returns {Promise} resolves to true if password reset has completed, false otw.
+     */
     isPasswordResetComplete: withClient((client, token) => {
       return client.passwordForgotStatus(token)
         .then(function () {
@@ -481,11 +547,27 @@ define(function (require, exports, module) {
       });
     }),
 
+    /**
+     * Deletes the account.
+     *
+     * @param {String} originalEmail Email input
+     * @param {String} password Password input
+     * @return {Promise} resolves when complete
+     */
     deleteAccount: withClient((client, originalEmail, password) => {
       var email = trim(originalEmail);
       return client.accountDestroy(email, password);
     }),
 
+    /**
+     * Sign a BrowserID public key
+     *
+     * @param {Object} pubkey The key to sign
+     * @param {Number} duration Time interval from now when the certificate will expire in milliseconds
+     * @param {String} sessionToken User session token
+     * @param {String} [service=''] The requesting service, sent via the query string
+     * @return {Promise} resolves when complete
+     */
     certificateSign: withClient((client, pubkey, duration, sessionToken, service) => {
       return client.certificateSign(
         sessionToken,
@@ -497,10 +579,20 @@ define(function (require, exports, module) {
       );
     }),
 
-    sessionStatus: withClient((client, sessionToken) => {
-      return client.sessionStatus(sessionToken);
-    }),
+    /**
+     * Responds successfully if the session status is valid, requires the sessionToken.
+     *
+     * @param {String} sessionToken User session token
+     * @return {Promise} resolves when complete
+     */
+    sessionStatus: createClientDelegate('sessionStatus'),
 
+    /**
+     * Check if `sessionToken` is valid
+     *
+     * @param {String} sessionToken
+     * @returns {Promise} resolves to true if valid, false otw.
+     */
     isSignedIn (sessionToken) {
       // Check if the user is signed in.
       if (! sessionToken) {
@@ -576,17 +668,24 @@ define(function (require, exports, module) {
      * @param {String} sessionToken
      * @returns {Promise} resolves with response when complete.
      */
-    sessionVerificationStatus: withClient(function (client, sessionToken) {
-      return client.recoveryEmailStatus(sessionToken);
-    }),
+    sessionVerificationStatus: createClientDelegate('recoveryEmailStatus'),
 
-    accountKeys: withClient((client, keyFetchToken, unwrapBKey) => {
-      return client.accountKeys(keyFetchToken, unwrapBKey);
-    }),
+    /**
+     * Get the base16 bundle of encrypted kA|wrapKb.
+     *
+     * @param {String} keyFetchToken
+     * @param {String} oldUnwrapBKey
+     * @return {Promise} resolves when complete
+     */
+    accountKeys: createClientDelegate('accountKeys'),
 
-    deviceList: withClient((client, sessionToken) => {
-      return client.deviceList(sessionToken);
-    }),
+    /**
+     * Get a list of all devices for a user
+     *
+     * @param {String} sessionToken sessionToken obtained from signIn
+     * @return {Promise} resolves when complete
+     */
+    deviceList: createClientDelegate('deviceList'),
 
     /**
      * Get user's sessions
@@ -594,13 +693,16 @@ define(function (require, exports, module) {
      * @param {String} sessionToken
      * @returns {Promise} resolves with response when complete.
      */
-    sessions: withClient((client, sessionToken) => {
-      return client.sessions(sessionToken);
-    }),
+    sessions: createClientDelegate('sessions'),
 
-    deviceDestroy: withClient((client, sessionToken, deviceId) => {
-      return client.deviceDestroy(sessionToken, deviceId);
-    }),
+    /**
+     * Unregister an existing device
+     *
+     * @param {String} sessionToken Session token obtained from signIn
+     * @param {String} deviceId User-unique identifier of device
+     * @return {Promise} resolves when complete
+     */
+    deviceDestroy: createClientDelegate('deviceDestroy'),
 
     /**
      * Send an unblock email.
@@ -626,9 +728,7 @@ define(function (require, exports, module) {
      * @param {String} unblockCode - unblock code
      * @returns {Promise} resolves when complete.
      */
-    rejectUnblockCode: withClient((client, uid, unblockCode) => {
-      return client.rejectUnblockCode(uid, unblockCode);
-    }),
+    rejectUnblockCode: createClientDelegate('rejectUnblockCode'),
 
     /**
      * Send an SMS
@@ -666,22 +766,6 @@ define(function (require, exports, module) {
         });
     }),
 
-    recoveryEmails: withClient((client, sessionToken) => {
-      return client.recoveryEmails(sessionToken);
-    }),
-
-    recoveryEmailCreate: withClient((client, sessionToken, email) => {
-      return client.recoveryEmailCreate(sessionToken, email);
-    }),
-
-    recoveryEmailDestroy: withClient((client, sessionToken, email) => {
-      return client.recoveryEmailDestroy(sessionToken, email);
-    }),
-
-    resendEmailCode: withClient((client, sessionToken, email) => {
-      return client.recoveryEmailResendCode(sessionToken, {email: email});
-    }),
-
     /**
      * Check whether SMS is enabled for the user
      *
@@ -692,13 +776,56 @@ define(function (require, exports, module) {
      *   * {Boolean} ok - true if user can send an SMS
      *   * {String} country - user's country
      */
-    smsStatus: withClient((client, sessionToken, options) => {
-      return client.smsStatus(sessionToken, options);
-    }),
+    smsStatus: createClientDelegate('smsStatus'),
 
-    deleteEmail: withClient((client, sessionToken, email) => {
-      return client.deleteEmail(sessionToken, email);
-    })
+    /**
+     * Get the recovery emails associated with the signed in account.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @returns {Promise} resolves to the list of recovery emails when complete
+     */
+    recoveryEmails: createClientDelegate('recoveryEmails'),
+
+    /**
+     * Create a new recovery email for the signed in account.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @param {String} email new email to be added
+     * @returns {Promise} resolves when complete
+     */
+    recoveryEmailCreate: createClientDelegate('recoveryEmailCreate'),
+
+    /**
+     * Remove the recovery email for the signed in account.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @param {String} email email to be removed
+     * @returns {Promise} resolves when complete
+     */
+    recoveryEmailDestroy: createClientDelegate('recoveryEmailDestroy'),
+
+    /**
+     * Re-sends a verification code to the account's recovery email address.
+     *
+     * @param {String} sessionToken sessionToken obtained from signIn
+     * @param {Object} [options={}] Options
+     *   @param {String} [options.email]
+     *   Code will be resent to this email, only used for secondary email codes
+     *   @param {String} [options.service]
+     *   Opaque alphanumeric token to be included in verification links
+     *   @param {String} [options.redirectTo]
+     *   a URL that the client should be redirected to after handling the request
+     *   @param {String} [options.resume]
+     *   Opaque url-encoded string that will be included in the verification link
+     *   as a querystring parameter, useful for continuing an OAuth flow for
+     *   example.
+     *   @param {String} [options.lang]
+     *   set the language for the 'Accept-Language' header
+     * @return {Promise} resolves when complete
+     */
+    resendEmailCode: createClientDelegate('recoveryEmailResendCode'),
+
+    deleteEmail: createClientDelegate('deleteEmail'),
   };
 
   module.exports = FxaClientWrapper;
