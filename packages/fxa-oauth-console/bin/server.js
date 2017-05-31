@@ -3,12 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /* global require */
 
-const config = require('../lib/config').getProperties();
+const config = require('../lib/config');
 const server = require('../lib/server');
-var log = require('mozlog')('server');
+const log = require('mozlog')('server');
+const updateConfig = require('./updateConfigFromEnv');
 
-log.debug('Starting with config: %:2j', config);
-var app = server.listen(config.server.port, function () {
-  var port = app.address().port;
-  log.info('FxA OAuth Developer Console started on port:', port);
-});
+/* Update config that's passed into ember app by updating the config built at run-time
+ * with config values passed in through environment variables.
+ * This enables re-running the server with newer environment vars
+ * without having to rebuild ember app.
+*/
+updateConfig(config)
+  .then(() => {
+    const configProps = config.getProperties();
+    log.debug('Starting with config: %:2j', configProps);
+    const app = server.listen(configProps.server.port, function () {
+      const port = app.address().port;
+      log.info('FxA OAuth Developer Console started on port:', port);
+    });
+  })
+  .catch(err => {
+    log.info(err);
+  });

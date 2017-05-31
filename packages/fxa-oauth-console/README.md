@@ -16,6 +16,21 @@ Run development server locally:
 npm start
 ```
 
+## Docker Dev
+You can run the docker container by:
+* ```docker-compose build```
+* ```docker-compose up```
+
+#### Changing environment configuration.
+You can customize the servers that the app communicates with by passing them in the docker-compose file.
+
+```yml
+environment:
+  PROFILE_URI: https://127.0.0.1:9010/v1
+  OAUTH_INTERNAL_URI: https://127.0.0.1:9011/v1
+  OAUTH_URI: https://127.0.0.1:1111/profile/v1
+```
+
 **You will need a local Firefox Accounts stack to login to the console.** Use [fxa-local-dev](https://github.com/vladikoff/fxa-local-dev) to get started.
 
 Run tests: `npm test`

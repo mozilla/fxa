@@ -5,8 +5,9 @@
   "scripts": {
     "start": "./scripts/run_dev.js",
     "production": "NODE_ENV=production ember build --environment=production && node bin/server.js",
+    "build": "NODE_ENV=production ember build --environment=production",
     "test": "ember test && grunt lint",
-    "postinstall": "node_modules/.bin/bower install --config.interactive=false -s",
+    "postinstall": "node_modules/.bin/bower install --config.interactive=false -s --allow-root",
     "outdated": "npm outdated --depth 0",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS"
   },
@@ -24,7 +25,7 @@
     "bower": "*",
     "broccoli-asset-rev": "^2.1.2",
     "broccoli-ember-hbs-template-compiler": "1.7.0",
-    "broccoli-sass": "0.7.0",
+    "broccoli-sass": "udaraweerasinghege/broccoli-sass#02dfa0ae15409ad1762d4dfc65c9f7998ea648bd",
     "client-sessions": "0.7.0",
     "convict": "1.5.0",
     "cookie-parser": "1.4.3",

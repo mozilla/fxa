@@ -23,7 +23,8 @@ const conf = convict({
     commit: {
       doc: 'Commit SHA when in stage/production',
       format: String,
-      default: ''
+      default: '',
+      env: 'GIT_COMMIT_SHA'
     }
   },
   /**
@@ -59,37 +60,44 @@ const conf = convict({
     client_id: {
       doc: 'The FxA client_id (8 bytes key encoded as hex)',
       format: String,
-      default: ''
+      default: '',
+      env: 'FXA_OAUTH_CLIENT_ID'
     },
     client_secret: {
       doc: 'The FxA client secret (32 bytes key encoded as hex)',
       format: String,
-      default: ''
+      default: '',
+      env: 'FXA_OAUTH_CLIENT_SECRET'
     },
     oauth_uri: {
       doc: 'The location of the FxA OAuth server.',
       format: 'url',
-      default: 'https://oauth-latest.dev.lcip.org/v1'
+      default: 'https://127.0.0.1:9010/v1',
+      env: 'FXA_OAUTH_URI'
     },
     oauth_internal_uri: {
       doc: 'The location of the FxA OAuth internal server.',
       format: 'url',
-      default: 'https://127.0.0.1:9011/v1'
+      default: 'https://127.0.0.1:9011/v1',
+      env: 'FXA_OAUTH_INTERNAL_URI'
     },
     redirect_uri: {
       doc: 'The redirect_uri.',
       format: String,
-      default: 'https://127.0.0.1:10137/oauth/redirect'
+      default: 'https://127.0.0.1:10137/oauth/redirect',
+      env: 'FXA_OAUTH_REDIRECT_URI'
     },
     profile_uri: {
       doc: 'The FxA profile uri.',
       format: 'url',
-      default: 'https://latest.dev.lcip.org/profile/v1'
+      default: 'https://127.0.0.1:1111/profile/v1',
+      env: 'FXA_OAUTH_PROFILE_URI'
     },
     scopes: {
       doc: 'The oauth server scopes',
       format: String,
-      default: 'profile oauth'
+      default: 'profile oauth',
+      env: 'FXA_OAUTH_SCOPES'
     }
   },
   /**
