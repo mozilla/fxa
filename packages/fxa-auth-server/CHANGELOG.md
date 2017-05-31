@@ -1,3 +1,33 @@
+<a name="1.88.0"></a>
+# [1.88.0](https://github.com/mozilla/fxa-auth-server/compare/v1.87.0...v1.88.0) (2017-05-31)
+
+
+### Bug Fixes
+
+* **devices:** handle new user agent string from Sync client lib ([009428e](https://github.com/mozilla/fxa-auth-server/commit/009428e))
+* **docs:** overhaul the metrics events documentation ([2d5943c](https://github.com/mozilla/fxa-auth-server/commit/2d5943c))
+* **email:** check case insensitive headers in EmailSent event (#1916), r=@philbooth, @vbudhr ([23593c7](https://github.com/mozilla/fxa-auth-server/commit/23593c7))
+* **notifications:** Send disable notification to all devices ([91ce14c](https://github.com/mozilla/fxa-auth-server/commit/91ce14c))
+* **push:** add extra logs ([5362c64](https://github.com/mozilla/fxa-auth-server/commit/5362c64))
+* **push:** correct params types in push.js ([7ba4f67](https://github.com/mozilla/fxa-auth-server/commit/7ba4f67))
+* **push:** Validate push public keys at registration time. ([8920a01](https://github.com/mozilla/fxa-auth-server/commit/8920a01))
+* **tests:** adjust public keys in tests ([43b8fd8](https://github.com/mozilla/fxa-auth-server/commit/43b8fd8))
+
+### chore
+
+* **ci:** always get most recent node 4 on travis ([4e9b8b4](https://github.com/mozilla/fxa-auth-server/commit/4e9b8b4))
+* **push:** Add a link to nodejs ECDH issue in code comments. ([0503479](https://github.com/mozilla/fxa-auth-server/commit/0503479))
+
+### Features
+
+* **docs:** automatically generate API docs from the code ([643ed85](https://github.com/mozilla/fxa-auth-server/commit/643ed85))
+* **push:** send push notification on account deletion ([163e2f4](https://github.com/mozilla/fxa-auth-server/commit/163e2f4))
+* **server:** add endpoint for consuming signinCodes ([f10655d](https://github.com/mozilla/fxa-auth-server/commit/f10655d))
+* **server:** include signinCode in the installFirefox SMS ([2610d2f](https://github.com/mozilla/fxa-auth-server/commit/2610d2f))
+* **sms:** Show SMS links in the mail helper. ([fd4b85a](https://github.com/mozilla/fxa-auth-server/commit/fd4b85a))
+
+
+
 <a name="1.87.1"></a>
 ## [1.87.1](https://github.com/mozilla/fxa-auth-server/compare/v1.87.0...v1.87.1) (2017-05-26)
 
