@@ -1,3 +1,25 @@
+<a name="1.88.0"></a>
+# [1.88.0](https://github.com/mozilla/fxa-profile-server/compare/v1.86.0...v1.88.0) (2017-05-31)
+
+
+### Bug Fixes
+
+* **docker:** push to circle branch tag instead of latest (#249) r=vladikoff ([811d89d](https://github.com/mozilla/fxa-profile-server/commit/811d89d))
+
+### chore
+
+* **docker:** remove old docker file (#245) ([b433360](https://github.com/mozilla/fxa-profile-server/commit/b433360))
+
+### Features
+
+* **docker:** allow feature branches (#246) r=jrgm ([8f5821f](https://github.com/mozilla/fxa-profile-server/commit/8f5821f))
+
+### Refactor
+
+* **avatar:** remove POST avatar ([8fde69e](https://github.com/mozilla/fxa-profile-server/commit/8fde69e)), closes [#244](https://github.com/mozilla/fxa-profile-server/issues/244)
+
+
+
 <a name="1.86.0"></a>
 # [1.86.0](https://github.com/mozilla/fxa-profile-server/compare/v1.85.0...v1.86.0) (2017-05-03)
 
