@@ -1,3 +1,13 @@
+<a name="1.88.1"></a>
+## [1.88.1](https://github.com/mozilla/fxa-auth-server/compare/v1.88.0...v1.88.1) (2017-06-01)
+
+
+### Bug Fixes
+
+* **sms:** ditch the balance checks due to rate-limiting woe ([2394652](https://github.com/mozilla/fxa-auth-server/commit/2394652))
+
+
+
 <a name="1.88.0"></a>
 # [1.88.0](https://github.com/mozilla/fxa-auth-server/compare/v1.87.0...v1.88.0) (2017-05-31)
 
