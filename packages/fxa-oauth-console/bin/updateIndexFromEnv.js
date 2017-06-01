@@ -23,6 +23,7 @@ function getConfigsFromEnv() {
     oauthUri: process.env.OAUTH_URI || undefined,
     oauthInternalUri: process.env.OAUTH_INTERNAL_URI || undefined,
     profileUri: process.env.PROFILE_URI || undefined,
+    baseURL: process.env.BASE_URL || undefined
   };
 }
 
@@ -37,7 +38,9 @@ function getUriParts(rawUri) {
 }
 
 function applyEnvVars(currentConfig, envVars, serverConfig) {
+  currentConfig.baseURL = envVars.baseURL || currentConfig.baseURL;
   const servers = currentConfig.servers;
+
   if (envVars.oauthUri) {
     const oauthUriParts = getUriParts(envVars.oauthUri);
     servers.oauth = oauthUriParts.uri;
