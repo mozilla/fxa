@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const { assert } = require('chai');
+  const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
   const Constants = require('lib/constants');
@@ -163,6 +164,31 @@ define(function (require, exports, module) {
               assert.isTrue(account.smsStatus.calledOnce);
               assert.isTrue(account.smsStatus.calledWith({ country: 'US' }));
               assert.isFalse(view.isInExperiment.called);
+            });
+        });
+      });
+
+      describe('pre-reqs are met, auth-server errors, Able says OK', () => {
+        let err;
+
+        beforeEach(() => {
+          err = AuthErrors.toError('UNEXPECTED_ERROR');
+          sinon.stub(view, '_areSmsRequirementsMet', () => true);
+          sinon.spy(view, 'isInExperiment');
+          sinon.spy(view, 'logError');
+          sinon.stub(account, 'smsStatus', () => p.reject(err));
+        });
+
+        it('resolves to object with `ok: false`, logs error', () => {
+          return view._isEligibleForSms(account)
+            .then((resp) => {
+              assert.isFalse(resp.ok);
+              assert.isTrue(view._areSmsRequirementsMet.calledOnce);
+              assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
+              assert.isTrue(account.smsStatus.calledOnce);
+              assert.isTrue(account.smsStatus.calledWith({ country: 'US' }));
+              assert.isTrue(view.logError.calledOnce);
+              assert.isTrue(view.logError.calledWith(err));
             });
         });
       });

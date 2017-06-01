@@ -144,6 +144,11 @@ define((require, exports, module) => {
           if (resp.ok && this.isInExperiment('sendSmsEnabledForCountry', { country })) {
             return country;
           }
+        }, (err) => {
+          // Log and throw away errors from smsStatus, it shouldn't
+          // prevent verification from completing. Send the user to
+          // /connect_another_device instead. See #5109
+          this.logError(err);
         });
     }
   };
