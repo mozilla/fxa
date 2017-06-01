@@ -4,7 +4,6 @@
 /* global require */
 
 const config = require('../lib/config');
-const server = require('../lib/server');
 const log = require('mozlog')('server');
 const updateIndex = require('./updateIndexFromEnv');
 
@@ -15,6 +14,7 @@ const updateIndex = require('./updateIndexFromEnv');
 */
 updateIndex(config)
   .then(() => {
+    const server = require('../lib/server');
     const configProps = config.getProperties();
     log.debug('Starting with config: %:2j', configProps);
     const app = server.listen(configProps.server.port, function () {

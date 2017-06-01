@@ -73,13 +73,13 @@ const conf = convict({
       doc: 'The location of the FxA OAuth server.',
       format: 'url',
       default: 'https://127.0.0.1:9010/v1',
-      env: 'FXA_OAUTH_URI'
+      env: 'OAUTH_URI'
     },
     oauth_internal_uri: {
       doc: 'The location of the FxA OAuth internal server.',
       format: 'url',
       default: 'https://127.0.0.1:9011/v1',
-      env: 'FXA_OAUTH_INTERNAL_URI'
+      env: 'OAUTH_INTERNAL_URI'
     },
     redirect_uri: {
       doc: 'The redirect_uri.',
@@ -91,7 +91,7 @@ const conf = convict({
       doc: 'The FxA profile uri.',
       format: 'url',
       default: 'https://127.0.0.1:1111/profile/v1',
-      env: 'FXA_OAUTH_PROFILE_URI'
+      env: 'PROFILE_URI'
     },
     scopes: {
       doc: 'The oauth server scopes',
