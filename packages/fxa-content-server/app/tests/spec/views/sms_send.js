@@ -298,6 +298,12 @@
          assert.isTrue(view.logFlowEvent.calledWith('link.why'));
        });
 
+       it('logs a click on `maybe later`', () => {
+         view.$('a#maybe-later').click();
+         assert.isTrue(view.logFlowEvent.calledOnce);
+         assert.isTrue(view.logFlowEvent.calledWith('link.maybe_later'));
+       });
+
        it('logs a click in the phone number field', () => {
          view.$('input[type=tel]').val('1234').click();
          assert.isTrue(view.logFlowEventOnce.calledOnce);
