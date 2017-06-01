@@ -7,27 +7,35 @@ define(function (require, exports, module) {
 
   const Account = require('models/account');
   const { assert } = require('chai');
+  const AuthErrors = require('lib/auth-errors');
   const BaseAuthenticationBroker = require('models/auth_brokers/base');
   const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const SameBrowserVerificationModel = require('models/verification/same-browser');
   const sinon = require('sinon');
+  const WebChannel = require('lib/channels/web');
   const WindowMock = require('../../../mocks/window');
 
   describe('models/auth_brokers/base', function () {
     let account;
     let broker;
     let notifier;
+    let notificationChannel;
     let relier;
     let windowMock;
 
     beforeEach(function () {
       account = new Account({ uid: 'users_uid' });
+      notificationChannel = new WebChannel('web_channel');
+      sinon.stub(notificationChannel, 'isFxaStatusSupported', () => false);
+
       notifier = new Notifier();
       relier = new Relier({ context: 'fx_fennec_v1' });
       windowMock = new WindowMock();
 
       broker = new BaseAuthenticationBroker({
+        notificationChannel,
         notifier,
         relier,
         window: windowMock
@@ -48,6 +56,74 @@ define(function (require, exports, module) {
         return behavior;
       };
     }
+
+    describe('fetch', () => {
+      beforeEach(() => {
+        sinon.stub(broker, '_fetchFxaStatus', () => p());
+      });
+
+      describe('fxaStatus not supported', () => {
+        it('does not attempt to fetch status from the browser', () => {
+          broker.setCapability('fxaStatus', false);
+
+          return broker.fetch()
+            .then(() => {
+              assert.isFalse(broker._fetchFxaStatus.called);
+            });
+        });
+      });
+
+      describe('fxaStatus is supported', () => {
+        it('fetches status from the browser', () => {
+          broker.setCapability('fxaStatus', true);
+
+          return broker.fetch()
+            .then(() => {
+              assert.isTrue(broker._fetchFxaStatus.calledOnce);
+            });
+        });
+      });
+    });
+
+    describe('_fetchFxaStatus', () => {
+      describe('success', () => {
+        it('sets `browserSignedInAccount', () => {
+          const signedInUser = {
+            email: 'testuser@testuser.com'
+          };
+          sinon.stub(notificationChannel, 'request', () => p({ signedInUser }));
+
+          return broker._fetchFxaStatus()
+            .then(() => {
+              assert.deepEqual(broker.get('browserSignedInAccount'), signedInUser);
+            });
+        });
+      });
+
+      describe('INVALID_WEB_CHANNEL error', () => {
+        it('sets the fxaStatus capability to false, drops the error', () => {
+          sinon.stub(notificationChannel, 'request', () =>
+            p.reject(AuthErrors.toError('INVALID_WEB_CHANNEL')));
+
+          return broker._fetchFxaStatus()
+            .then(() => {
+              assert.isFalse(broker.getCapability('fxaStatus'));
+            });
+        });
+      });
+
+      describe('other errors', () => {
+        it('are propagated', () => {
+          sinon.stub(notificationChannel, 'request', () =>
+            p.reject(AuthErrors.toError('UNEXPECTED_ERROR')));
+
+          return broker._fetchFxaStatus()
+            .then(assert.fail, (err) => {
+              assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+            });
+        });
+      });
+    });
 
     describe('afterLoaded', function () {
       it('returns a promise', function () {

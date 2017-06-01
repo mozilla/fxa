@@ -6,6 +6,8 @@ define(function (require, exports, module) {
   'use strict';
 
   const { assert } = require('chai');
+  const AuthErrors = require('lib/auth-errors');
+  const DuplexChannel = require('lib/channels/duplex');
   const sinon = require('sinon');
   const WebChannel = require('lib/channels/web');
   const WindowMock = require('/tests/mocks/window.js');
@@ -142,6 +144,55 @@ define(function (require, exports, module) {
         assert.isFalse(channel.isFxaStatusSupported(
           'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4'
         ));
+      });
+    });
+
+    describe('onErrorReceived', () => {
+      let sandbox;
+
+      beforeEach(() => {
+        sandbox = sinon.sandbox.create();
+
+        channel = new WebChannel('MyChannel');
+        channel.initialize({
+          window: windowMock
+        });
+
+        sandbox.stub(channel, 'rejectAllOutstandingRequests', () => {});
+        sandbox.stub(DuplexChannel.prototype, 'onErrorReceived', () => {});
+      });
+
+      afterEach(() => {
+        sandbox.restore();
+      });
+
+      describe('with a `No Such Channel` error', () => {
+        it('rejects outstanding requests, delegates to the parent method', () => {
+          const webChannelError = {
+            error: new Error('No Such Channel')
+          };
+          channel.onErrorReceived(webChannelError);
+
+          assert.isTrue(channel.rejectAllOutstandingRequests.calledOnce);
+          const receivedError = channel.rejectAllOutstandingRequests.args[0][0];
+          assert.isTrue(AuthErrors.is(receivedError, 'INVALID_WEB_CHANNEL'));
+
+          assert.isTrue(DuplexChannel.prototype.onErrorReceived.calledOnce);
+          assert.isTrue(DuplexChannel.prototype.onErrorReceived.calledWith(webChannelError));
+        });
+      });
+
+      describe('with another WebChannel error', () => {
+        it('delegates ot the parent method', () => {
+          const webChannelError = {
+            error: new Error('Error sending request')
+          };
+          channel.onErrorReceived(webChannelError);
+          assert.isFalse(channel.rejectAllOutstandingRequests.called);
+
+          assert.isTrue(DuplexChannel.prototype.onErrorReceived.calledOnce);
+          assert.isTrue(DuplexChannel.prototype.onErrorReceived.calledWith(webChannelError));
+        });
       });
     });
   });

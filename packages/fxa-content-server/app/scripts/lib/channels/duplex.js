@@ -56,8 +56,27 @@ define(function (require, exports, module) {
       for (var messageId in this._requests) {
         this.remove(this._requests[messageId]);
       }
+    },
+
+    /**
+     * Iterate through each of the outstanding requests
+     *
+     * @param {Function} callback
+     */
+    each (callback) {
+      _.each(this._requests, callback);
     }
   };
+
+  // Suffix to ensure each message has a unique messageId.
+  // Every send increments the suffix by 1.
+  // A module variable is used instead of an instance variable because
+  // more than one channel can exist. Using an instance variable,
+  // it's possible for two messages on two channels to have the same
+  // messageId, if both channels send a message in the same millisecond.
+  // This might not cause any harm in reality, but this avoids
+  // that possibility.
+  let messageIdSuffix = 0;
 
   function DuplexChannel() {
   }
@@ -154,7 +173,9 @@ define(function (require, exports, module) {
      * @return {String}
      */
     createMessageId (command, data) {
-      return Date.now();
+      // If two messages are created within the same millisecond, Date.now()
+      // returns the same value. Append a suffix that ensures uniqueness.
+      return `${Date.now()}${++messageIdSuffix}`;
     },
 
     onMessageReceived (message) {
@@ -209,7 +230,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Parse an incoming message into `command`, `error`, and `messageId`
+     * Parse an incoming message into `error`, and `messageId`
      *
      * @param {Object} message
      * @returns {Object} parsedMessage={}
@@ -219,6 +240,18 @@ define(function (require, exports, module) {
      */
     parseError (message) {
       return _.pick(message, 'error', 'messageId');
+    },
+
+    /**
+     * Reject all outstanding requests with `reason`
+     *
+     * @param {Any} reason
+     */
+    rejectAllOutstandingRequests (reason) {
+      this._outstandingRequests.each((outstanding, messageId) => {
+        this._outstandingRequests.remove(messageId);
+        outstanding.deferred.reject(reason);
+      });
     }
   });
 

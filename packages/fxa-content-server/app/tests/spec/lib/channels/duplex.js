@@ -5,10 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const DuplexChannel = require('lib/channels/duplex');
   const NullReceiver = require('lib/channels/receivers/null');
   const NullSender = require('lib/channels/senders/null');
+  const p = require('lib/promise');
   const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
 
@@ -16,8 +17,6 @@ define(function (require, exports, module) {
   var windowMock;
   var receiver;
   var sender;
-
-  var assert = chai.assert;
 
   describe('lib/channels/duplex', () => {
     beforeEach(() => {
@@ -144,6 +143,24 @@ define(function (require, exports, module) {
           .then(function (resp) {
             assert.equal(resp.key, 'value');
           });
+      });
+    });
+
+    describe('rejectAllOutstandingRequests', () => {
+      it('rejects all outstanding requests with `reason`', () => {
+        sinon.stub(sender, 'send', () => {});
+
+        setTimeout(() => {
+          channel.rejectAllOutstandingRequests('reason');
+        }, 5);
+
+        return p.all([
+          channel.request('ping').then(assert.fail, (err) => err),
+          channel.request('ping1').then(assert.fail, (err) => err),
+        ]).then(([err1, err2]) => {
+          assert.equal(err1, 'reason');
+          assert.equal(err2, 'reason');
+        });
       });
     });
   });

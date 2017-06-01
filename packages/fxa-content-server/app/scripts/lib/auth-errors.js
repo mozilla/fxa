@@ -412,6 +412,10 @@ define(function (require, exports, module) {
       // an attempt is made to write an account w/o a uid
       // to localStorage.
       message: 'Account has no uid'
+    },
+    INVALID_WEB_CHANNEL: {
+      errno: 1051,
+      message: 'Browser not configured to accept WebChannel messages from this domain'
     }
   };
   /*eslint-enable sorting/sort-object-props*/
