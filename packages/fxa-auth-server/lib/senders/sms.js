@@ -17,7 +17,6 @@ module.exports = function (log, translator, templates, config) {
   })
 
   var sendSms = promisify('sendSms', nexmo.message)
-  var checkBalance = promisify('checkBalance', nexmo.account)
   var NEXMO_ERRORS = new Map([
     [ '1', error.tooManyRequests(smsConfig.throttleWaitTime) ]
   ])
@@ -63,20 +62,6 @@ module.exports = function (log, translator, templates, config) {
             log.error({ op: 'sms.send.error', reason: reason, status: status })
             throw NEXMO_ERRORS.get(status) || error.messageRejected(reason, status)
           }
-        })
-    },
-
-    balance: function () {
-      log.trace({ op: 'sms.balance' })
-
-      return checkBalance()
-        .then(function (result) {
-          var balance = result.value
-          var isOk = balance >= smsConfig.balanceThreshold
-
-          log.info({ op: 'sms.balance.success', balance: balance, isOk: isOk })
-
-          return { value: balance, isOk: isOk }
         })
     }
   }

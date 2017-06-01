@@ -5,13 +5,10 @@
 'use strict'
 
 /**
- * Mock out Nexmo for functional tests. `checkBalance` always
- * returns `balanceThreshold`, and `sendSms` always pretends
- * the message is sent successfully.
+ * Mock out Nexmo for functional tests. `sendSms` always succeeds.
  */
 
 function MockNexmo(log, config) {
-  const balanceThreshold = config.sms.balanceThreshold
   const mailerOptions = {
     host: config.smtp.host,
     secure: config.smtp.secure,
@@ -27,18 +24,6 @@ function MockNexmo(log, config) {
   const mailer = require('nodemailer').createTransport(mailerOptions)
 
   return {
-    account: {
-      /**
-       * Always returns the `balanceThreshold`
-       */
-      checkBalance: function checkBalance (callback) {
-        log.info({ op: 'sms.balance.mock' })
-
-        callback(null, {
-          value: balanceThreshold
-        })
-      }
-    },
     message: {
       /**
        * Drop message on the ground, call callback with `0` (send-OK) status.

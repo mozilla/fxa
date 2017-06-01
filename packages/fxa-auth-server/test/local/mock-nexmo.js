@@ -28,17 +28,6 @@ describe('mock-nexmo', () => {
     assert.ok(mockNexmo)
   })
 
-  describe('account.checkBalance', () => {
-    it('returns the balance threshold', (done) => {
-      mockNexmo.account.checkBalance((err, resp) => {
-        assert.equal(resp.value, config.sms.balanceThreshold)
-        assert.equal(log.info.callCount, 1)
-
-        done()
-      })
-    })
-  })
-
   describe('message.sendSms', () => {
     it('returns status: 0 with options, callback', (done) => {
       mockNexmo.message.sendSms('senderid', '+019999999999', 'message', {}, (err, resp) => {

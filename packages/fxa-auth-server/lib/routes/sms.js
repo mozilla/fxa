@@ -122,8 +122,8 @@ module.exports = (log, db, config, customs, sms) => {
 
         let country
 
-        return P.all([ getLocation(), getBalance() ])
-          .spread(createResponse)
+        return getLocation()
+          .then(createResponse)
           .then(reply, reply)
 
         function getLocation () {
@@ -131,7 +131,7 @@ module.exports = (log, db, config, customs, sms) => {
 
           if (! forcedCountry && ! IS_STATUS_GEO_ENABLED) {
             log.warn({ op: 'sms.getGeoData', warning: 'skipping geolocation step' })
-            return true
+            return P.resolve(true)
           }
 
           return P.resolve()
@@ -158,17 +158,8 @@ module.exports = (log, db, config, customs, sms) => {
             })
         }
 
-        function getBalance () {
-          return sms.balance()
-            .then(balance => balance.isOk)
-            .catch(err => {
-              log.error({ op: 'sms.balance', err: err })
-              throw error.unexpectedError()
-            })
-        }
-
-        function createResponse (isLocationOk, isBalanceOk) {
-          return { ok: isLocationOk && isBalanceOk, country }
+        function createResponse (isLocationOk) {
+          return { ok: isLocationOk, country }
         }
       }
     }

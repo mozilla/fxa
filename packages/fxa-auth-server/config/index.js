@@ -708,12 +708,6 @@ var conf = convict({
       format: String,
       env: 'SMS_API_SECRET'
     },
-    balanceThreshold: {
-      doc: 'Minimum balance (in Euros) necessary for status to be deemed "good"',
-      default: 1,
-      format: Number,
-      env: 'SMS_MINIMUM_BALANCE'
-    },
     isStatusGeoEnabled: {
       doc: 'Indicates whether the status endpoint should do geo-ip lookup',
       default: true,

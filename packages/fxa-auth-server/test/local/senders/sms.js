@@ -34,16 +34,8 @@ const sendSms = sinon.spy((from, to, message, callback) => {
     ]
   })
 })
-let nexmoBalance = 1
-const checkBalance = sinon.spy(callback => {
-  callback(null, {
-    value: nexmoBalance,
-    autoReload: false
-  })
-})
 function Nexmo () {}
 Nexmo.prototype.message = { sendSms }
-Nexmo.prototype.account = { checkBalance }
 
 let mockConstructed = false
 function MockNexmo () {
@@ -65,7 +57,6 @@ describe('lib/senders/sms:', () => {
         sms: {
           apiKey: 'foo',
           apiSecret: 'bar',
-          balanceThreshold: 1,
           installFirefoxLink: 'https://baz/qux',
           installFirefoxWithSigninCodeBaseUri: 'https://wibble',
           useMock: false
@@ -76,7 +67,6 @@ describe('lib/senders/sms:', () => {
 
   afterEach(() => {
     sendSms.reset()
-    checkBalance.reset()
     log.error.reset()
     log.info.reset()
     log.trace.reset()
@@ -87,10 +77,7 @@ describe('lib/senders/sms:', () => {
     assert.equal(typeof sms.send, 'function', 'sms.send is function')
     assert.equal(sms.send.length, 5, 'sms.send expects 5 arguments')
 
-    assert.equal(typeof sms.balance, 'function', 'sms.balance is function')
-    assert.equal(sms.balance.length, 0, 'sms.balance expects no arguments')
-
-    assert.equal(Object.keys(sms).length, 2, 'sms has no other methods')
+    assert.equal(Object.keys(sms).length, 1, 'sms has no other methods')
   })
 
   it('sends a valid sms without a signinCode', () => {
@@ -123,7 +110,6 @@ describe('lib/senders/sms:', () => {
         }, 'log.info was passed the correct data')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
-        assert.equal(checkBalance.callCount, 0, 'checkBalance was not called')
       })
   })
 
@@ -137,7 +123,6 @@ describe('lib/senders/sms:', () => {
         assert.equal(log.info.callCount, 1, 'log.info was called once')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
-        assert.equal(checkBalance.callCount, 0, 'checkBalance was not called')
       })
   })
 
@@ -194,46 +179,6 @@ describe('lib/senders/sms:', () => {
   })
 
 
-  it('gets balance when balance is good', () => {
-    return sms.balance()
-      .then(result => {
-        assert.deepEqual(result, { value: 1, isOk: true }, 'result is correct')
-
-        assert.equal(checkBalance.callCount, 1, 'nexmo.account.checkBalance was called once')
-        assert.equal(checkBalance.args[0].length, 1, 'nexmo.account.checkBalance was passed no arguments')
-        assert.equal(typeof checkBalance.args[0][0], 'function', 'nexmo.account.checkBalance was passed a callback function')
-
-        assert.equal(log.trace.callCount, 1, 'log.trace was called once')
-        assert.equal(log.trace.args[0].length, 1, 'log.trace was passed one argument')
-        assert.deepEqual(log.trace.args[0][0], { op: 'sms.balance' }, 'log.trace was passed the correct data')
-
-        assert.equal(log.info.callCount, 1, 'log.info was called once')
-        assert.equal(log.info.args[0].length, 1, 'log.info was passed one argument')
-        assert.deepEqual(log.info.args[0][0], {
-          op: 'sms.balance.success',
-          balance: 1,
-          isOk: true
-        }, 'log.info was passed the correct data')
-
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-        assert.equal(sendSms.callCount, 0, 'sendSms was not called')
-      })
-  })
-
-  it('gets balance when balance is too low', () => {
-    nexmoBalance = 0.99
-    return sms.balance()
-      .then(result => {
-        assert.deepEqual(result, { value: 0.99, isOk: false }, 'result is correct')
-
-        assert.equal(checkBalance.callCount, 1, 'nexmo.account.checkBalance was called once')
-        assert.equal(log.trace.callCount, 1, 'log.trace was called once')
-        assert.equal(log.info.callCount, 1, 'log.info was called once')
-
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-  })
-
   it('uses the Nexmo constructor if `useMock: false`', () => {
     assert.equal(mockConstructed, false)
   })
@@ -250,7 +195,6 @@ describe('lib/senders/sms:', () => {
         sms: {
           apiKey: 'foo',
           apiSecret: 'bar',
-          balanceThreshold: 1,
           installFirefoxLink: 'https://baz/qux',
           useMock: true
         }
