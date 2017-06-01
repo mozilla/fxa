@@ -24,7 +24,8 @@ define(function (require, exports, module) {
   const VALID_UID = createRandomHexString(Constants.UID_LENGTH);
 
   var View = BaseView.extend({
-    template: Template
+    template: Template,
+    viewName: 'connect-another-device'
   });
 
   Cocktail.mixin(
@@ -187,8 +188,11 @@ define(function (require, exports, module) {
               assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
               assert.isTrue(account.smsStatus.calledOnce);
               assert.isTrue(account.smsStatus.calledWith({ country: 'US' }));
+
               assert.isTrue(view.logError.calledOnce);
               assert.isTrue(view.logError.calledWith(err));
+              // context is updated to include extra `.smsStatus` for reporting.
+              assert.equal(err.context, 'connect-another-device.smsStatus');
             });
         });
       });

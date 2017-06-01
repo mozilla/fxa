@@ -145,6 +145,9 @@ define((require, exports, module) => {
             return country;
           }
         }, (err) => {
+          // Add `.smsStatus` to the context so we can differentiate between errors
+          // checking smsStatus from other XHR errors that occur in the consumer modules.
+          err.context = `${this.getViewName()}.smsStatus`;
           // Log and throw away errors from smsStatus, it shouldn't
           // prevent verification from completing. Send the user to
           // /connect_another_device instead. See #5109
