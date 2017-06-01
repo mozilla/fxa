@@ -1,3 +1,23 @@
+<a name="1.88.1"></a>
+## 1.88.1 (2017-06-01)
+
+
+### Bug Fixes
+
+* **sms:** Handle errors to /sms/status (#5110) r=@philbooth ([a338756](https://github.com/mozilla/fxa-content-server/commit/a338756)), closes [#5109](https://github.com/mozilla/fxa-content-server/issues/5109)
+* **WebChannel:** Fix the startup hang if the UA errors fetching fxaccounts:fxa_status (#5117) r=@ ([d4c0343](https://github.com/mozilla/fxa-content-server/commit/d4c0343)), closes [(#5117](https://github.com/(/issues/5117) [#5114](https://github.com/mozilla/fxa-content-server/issues/5114)
+
+### Features
+
+* **CAD:** Log clicks on app store links into flow metrics. (#5113) r=@philbooth ([8c55d18](https://github.com/mozilla/fxa-content-server/commit/8c55d18)), closes [#5112](https://github.com/mozilla/fxa-content-server/issues/5112)
+* **CAD:** Make it easier to find `.smsStatus` errors in the logs. (#5121) r=@philbooth ([c20bc4c](https://github.com/mozilla/fxa-content-server/commit/c20bc4c))
+
+### Reverts
+
+* **sms:** Re-add the "Maybe later" link. (#5119) r=@vbudhram ([b639e0a](https://github.com/mozilla/fxa-content-server/commit/b639e0a)), closes [#5117](https://github.com/mozilla/fxa-content-server/issues/5117)
+
+
+
 <a name="1.88.0"></a>
 # 1.88.0 (2017-05-30)
 
