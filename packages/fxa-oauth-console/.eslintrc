@@ -4,8 +4,7 @@
     "modules": true
   },
   "rules": {
-    "semi": 0,
-    "strict": [2, "never"]
+    "semi": 0
   },
   "parserOptions": {
     "sourceType": "module"

@@ -6,14 +6,14 @@
 const config = require('../lib/config');
 const server = require('../lib/server');
 const log = require('mozlog')('server');
-const updateConfig = require('./updateConfigFromEnv');
+const updateIndex = require('./updateIndexFromEnv');
 
 /* Update config that's passed into ember app by updating the config built at run-time
  * with config values passed in through environment variables.
  * This enables re-running the server with newer environment vars
  * without having to rebuild ember app.
 */
-updateConfig(config)
+updateIndex(config)
   .then(() => {
     const configProps = config.getProperties();
     log.debug('Starting with config: %:2j', configProps);
