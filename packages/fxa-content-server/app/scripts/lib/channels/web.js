@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
   const Cocktail = require('cocktail');
   const DuplexChannel = require('lib/channels/duplex');
   const SearchParamMixin = require('lib/search-param-mixin');
@@ -84,6 +85,21 @@ define(function (require, exports, module) {
     isFxaStatusSupported (userAgent = this.getUserAgentString()) {
       const uap = this.getUserAgent(userAgent);
       return uap.isFirefoxDesktop() && uap.parseVersion().major >= FXA_STATUS_MIN_FIREFOX_DESKTOP_VERSION;
+    },
+
+    onErrorReceived (message) {
+      const { error } = this.parseError(message);
+      const errorMessage = error && error.message;
+
+      // Browser does not support WebChannels sent on this channel,
+      // or from this domain.
+      if (/no such channel/i.test(errorMessage)) {
+        // Since the channel is not supported, reject all outstanding
+        // requests to avoid hanging until the requests time out.
+        this.rejectAllOutstandingRequests(AuthErrors.toError('INVALID_WEB_CHANNEL'));
+      }
+
+      DuplexChannel.prototype.onErrorReceived.call(this, message);
     }
   });
 

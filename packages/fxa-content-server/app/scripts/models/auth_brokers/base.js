@@ -39,6 +39,11 @@ define(function (require, exports, module) {
 
       this._notificationChannel = options.notificationChannel;
       if (this._notificationChannel) {
+        // optimistically set fxaStatus to `true` if the channel says it's supported.
+        // The request for fxaccounts:fxa_status could fail with a `no such channel`
+        // error if the browser is not configured to accept WebChannel messages
+        // from this FxA server, which often happens when testing against
+        // non-production servers. See #5114
         this.setCapability('fxaStatus', this._notificationChannel.isFxaStatusSupported());
       }
     },
@@ -127,6 +132,16 @@ define(function (require, exports, module) {
           this.set('browserSignedInAccount', response.signedInUser);
           // In the future, additional data will be returned
           // in the response, handle it here.
+        }, (err) => {
+          // The browser is not configured to accept WebChannel messages from
+          // this FxA server. fxaStatus is not supported. Error has
+          // already been logged and can be ignored. See #5114
+          if (AuthErrors.is(err, 'INVALID_WEB_CHANNEL')) {
+            this.setCapability('fxaStatus', false);
+            return;
+          }
+
+          throw err;
         });
     },
 

@@ -5,11 +5,13 @@
  define((require, exports, module) => {
    'use strict';
 
+   const $ = require('jquery');
    const Account = require('models/account');
    const { assert } = require('chai');
    const Backbone = require('backbone');
    const Broker = require('models/auth_brokers/base');
    const { FIREFOX_MOBILE_INSTALL } = require('lib/sms-message-ids');
+   const Metrics = require('lib/metrics');
    const Notifier = require('lib/channels/notifier');
    const p = require('lib/promise');
    const Relier = require('models/reliers/relier');
@@ -19,11 +21,13 @@
 
    describe('views/sms_sent', () => {
      let account;
+     let metrics;
      let model;
      let view;
 
      beforeEach(() => {
        account = new Account();
+       metrics = new Metrics();
        model = new Backbone.Model({
          account,
          country: 'US',
@@ -32,16 +36,22 @@
 
        view = new View({
          broker: new Broker({}),
+         metrics,
          model,
          notifier: new Notifier(),
-         relier: new Relier({ service: 'sync' })
+         relier: new Relier({ service: 'sync' }),
+         viewName: 'sms-sent'
        });
 
        sinon.stub(view, 'checkAuthorization', () => p(true));
      });
 
      afterEach(() => {
+       metrics.destroy();
+       metrics = null;
+
        view.destroy(true);
+       view = null;
      });
 
      it('returns to `sms` if no `normalizedPhoneNumber`', () => {
@@ -78,6 +88,23 @@
         .then(() => {
           assert.include(view.$('.success').text(), '123-456-7890');
           assert.lengthOf(view.$('.marketing-link'), 2);
+
+          // ensure clicks on the marketing links work as expected.
+          sinon.spy(metrics, 'logMarketingClick');
+          sinon.spy(view, 'logFlowEvent');
+          $('#container').html(view.$el);
+
+          view.$('.marketing-link-ios').click();
+          assert.isTrue(metrics.logMarketingClick.calledOnce);
+          assert.equal(metrics.logMarketingClick.args[0][0], 'autumn-2016-connect-another-device');
+          assert.isTrue(view.logFlowEvent.calledOnce);
+          assert.isTrue(view.logFlowEvent.calledWith('link.app-store.ios', 'sms-sent'));
+
+          view.$('.marketing-link-android').click();
+          assert.isTrue(metrics.logMarketingClick.calledTwice);
+          assert.equal(metrics.logMarketingClick.args[1][0], 'autumn-2016-connect-another-device');
+          assert.isTrue(view.logFlowEvent.calledTwice);
+          assert.isTrue(view.logFlowEvent.calledWith('link.app-store.android', 'sms-sent'));
         });
      });
 

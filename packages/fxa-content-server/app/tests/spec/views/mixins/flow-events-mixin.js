@@ -51,10 +51,10 @@ define((require, exports, module) => {
       });
     });
 
-    describe('_clickFlowEventsLink with target id', () => {
+    describe('_clickFlowEventsLink with currentTarget id', () => {
       beforeEach(() => {
         flowEventsMixin._clickFlowEventsLink({
-          target: {
+          currentTarget: {
             getAttribute () {
               return 'baz';
             },
@@ -73,10 +73,10 @@ define((require, exports, module) => {
       });
     });
 
-    describe('_clickFlowEventsLink without target id', () => {
+    describe('_clickFlowEventsLink without currentTarget id', () => {
       beforeEach(() => {
         flowEventsMixin._clickFlowEventsLink({
-          target: {
+          currentTarget: {
             getAttribute () {},
             nodeType: 1
           }

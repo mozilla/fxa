@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const Able = require('lib/able');
   const { assert } = require('chai');
   const VerificationReasons = require('lib/verification-reasons');
@@ -48,7 +49,8 @@ define(function (require, exports, module) {
       able = new Able();
       metrics = {
         flush: sinon.spy(p),
-        logMarketingImpression () {}
+        logMarketingClick: sinon.spy(),
+        logMarketingImpression: sinon.spy(),
       };
     }
 
@@ -62,6 +64,7 @@ define(function (require, exports, module) {
         notifier: notifier,
         relier: relier,
         type: type,
+        viewName: 'ready',
         window: windowMock
       });
     }
@@ -126,9 +129,26 @@ define(function (require, exports, module) {
         relier.set('service', 'sync');
         createView(VerificationReasons.SIGN_UP);
 
+        sinon.spy(view, 'logFlowEvent');
+
         return view.render()
           .then(function () {
-            assert.ok(view.$('.marketing-link').length);
+            assert.lengthOf(view.$('.marketing-link'), 2);
+
+            // ensure clicks on the marketing links work as expected.
+            $('#container').html(view.$el);
+
+            view.$('.marketing-link-ios').click();
+            assert.isTrue(metrics.logMarketingClick.calledOnce);
+            assert.equal(metrics.logMarketingClick.args[0][0], 'spring-2015-android-ios-sync');
+            assert.isTrue(view.logFlowEvent.calledOnce);
+            assert.isTrue(view.logFlowEvent.calledWith('link.app-store.ios', 'ready'));
+
+            view.$('.marketing-link-android').click();
+            assert.isTrue(metrics.logMarketingClick.calledTwice);
+            assert.equal(metrics.logMarketingClick.args[1][0], 'spring-2015-android-ios-sync');
+            assert.isTrue(view.logFlowEvent.calledTwice);
+            assert.isTrue(view.logFlowEvent.calledWith('link.app-store.android', 'ready'));
           });
       });
 
