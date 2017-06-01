@@ -5,11 +5,13 @@
  define((require, exports, module) => {
    'use strict';
 
+   const $ = require('jquery');
    const { assert } = require('chai');
    const Account = require('models/account');
    const AuthErrors = require('lib/auth-errors');
    const Broker = require('models/auth_brokers/base');
    const Backbone = require('backbone');
+   const Metrics = require('lib/metrics');
    const Notifier = require('lib/channels/notifier');
    const p = require('lib/promise');
    const Relier = require('models/reliers/relier');
@@ -22,6 +24,7 @@
      let account;
      let broker;
      let formPrefill;
+     let metrics;
      let model;
      let notifier;
      let relier;
@@ -31,9 +34,11 @@
        view = new View({
          broker,
          formPrefill,
+         metrics,
          model,
          notifier,
-         relier
+         relier,
+         viewName: 'sms-send'
        });
        sinon.stub(view, 'checkAuthorization', () => p(true));
      }
@@ -42,6 +47,7 @@
        account = new Account({ sessionToken: 'token' });
        broker = new Broker();
        formPrefill = new Backbone.Model({});
+       metrics = new Metrics();
        model = new Backbone.Model({ account });
        notifier = new Notifier();
        relier = new Relier({ service: 'sync' });
@@ -51,14 +57,39 @@
        return view.render();
      });
 
+     afterEach(() => {
+       metrics.destroy();
+       metrics = null;
+
+       view.destroy(true);
+       view = null;
+     });
+
      describe('render', () => {
        it('with default country, it renders correctly for country, renders marketing', () => {
          assert.equal(view.$('input[type=tel]').__val(), '');
          assert.equal(view.$('input[type=tel]').data('country'), 'US');
          assert.lengthOf(view.$('.marketing-link'), 2);
+
+         // ensure clicks on the marketing links work as expected.
+         sinon.spy(metrics, 'logMarketingClick');
+         sinon.spy(view, 'logFlowEvent');
+         $('#container').html(view.$el);
+
+         view.$('.marketing-link-ios').click();
+         assert.isTrue(metrics.logMarketingClick.calledOnce);
+         assert.equal(metrics.logMarketingClick.args[0][0], 'autumn-2016-connect-another-device');
+         assert.isTrue(view.logFlowEvent.calledOnce);
+         assert.isTrue(view.logFlowEvent.calledWith('link.app-store.ios', 'sms-send'));
+
+         view.$('.marketing-link-android').click();
+         assert.isTrue(metrics.logMarketingClick.calledTwice);
+         assert.equal(metrics.logMarketingClick.args[1][0], 'autumn-2016-connect-another-device');
+         assert.isTrue(view.logFlowEvent.calledTwice);
+         assert.isTrue(view.logFlowEvent.calledWith('link.app-store.android', 'sms-send'));
        });
 
-       it('with model set country, it renders correctly for country, renders marketing', () => {
+       it('with model set country, it renders correctly for country', () => {
          formPrefill.unset('phoneNumber');
          model.set('country', 'RO');
 
@@ -69,7 +100,7 @@
            });
        });
 
-       it('with relier set country, it renders correctly for country, renders marketing', () => {
+       it('with relier set country, it renders correctly for country', () => {
          formPrefill.unset('phoneNumber');
          relier.set('country', 'GB');
 

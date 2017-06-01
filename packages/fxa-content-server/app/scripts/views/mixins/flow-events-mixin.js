@@ -24,8 +24,8 @@ define(function (require, exports, module) {
     },
 
     _clickFlowEventsLink (event) {
-      if (event && event.target) {
-        const flowEvent = $(event.target).data('flowEvent');
+      if (event && event.currentTarget) {
+        const flowEvent = $(event.currentTarget).data('flowEvent');
         if (flowEvent) {
           this.logFlowEvent(flowEvent, this.viewName);
         }

@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const CountryTelephoneInfo = require('lib/country-telephone-info');
   const { FIREFOX_MOBILE_INSTALL } = require('lib/sms-message-ids');
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const { MARKETING_ID_AUTUMN_2016 } = require('lib/constants');
   const MarketingMixin = require('views/mixins/marketing-mixin')({ marketingId: MARKETING_ID_AUTUMN_2016 });
   const ResendMixin = require('views/mixins/resend-mixin')({ successMessage: false });
@@ -64,6 +65,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     BackMixin,
+    FlowEventsMixin,
     MarketingMixin,
     ResendMixin
   );

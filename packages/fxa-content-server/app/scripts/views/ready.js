@@ -13,6 +13,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FormView = require('views/form');
   const MarketingMixin = require('views/mixins/marketing-mixin');
   const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
@@ -97,6 +98,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     ExperimentMixin,
+    FlowEventsMixin,
     MarketingMixin({ marketingId: Constants.MARKETING_ID_SPRING_2015 }),
     PulseGraphicMixin,
     ServiceMixin,
