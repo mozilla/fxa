@@ -16,10 +16,10 @@
     "start": "node ./bin/db_patcher.js >/dev/null && node ./bin/server.js",
     "start-mem": "node ./bin/mem",
     "test": "npm run test-mysql && npm run test-mem && npm run test-server",
-    "test-mem": "./scripts/tap-coverage.js test/mem",
-    "test-mysql": "grunt && node ./bin/db_patcher.js >/dev/null && ./scripts/tap-coverage.js test/backend test/local",
-    "test-server": "./scripts/tap-coverage.js fxa-auth-db-server/test/local",
-    "test-travis": "grunt && node ./bin/db_patcher.js && ./scripts/tap-coverage.js test/backend test/local fxa-auth-db-server/test/local"
+    "test-mem": "./scripts/mocha-coverage.js test/mem",
+    "test-mysql": "grunt && node ./bin/db_patcher.js >/dev/null && ./scripts/mocha-coverage.js test/backend test/local",
+    "test-server": "./scripts/mocha-coverage.js fxa-auth-db-server/test/local",
+    "test-travis": "grunt && node ./bin/db_patcher.js && ./scripts/mocha-coverage.js test/backend test/local fxa-auth-db-server/test/local"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",
@@ -49,13 +49,15 @@
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",
     "grunt-nsp": "2.3.1",
+    "insist": "1.0.0",
     "load-grunt-tasks": "3.5.0",
+    "mocha": "3.4.2",
     "mysql-patcher": "0.7.0",
     "nock": "8.0.0",
+    "nyc": "10.3.2",
     "npmshrink": "1.0.1",
     "proxyquire": "1.7.10",
-    "sinon": "1.17.5",
-    "tap": "6.2.0"
+    "sinon": "1.17.5"
   },
   "keywords": [
     "fxa",
