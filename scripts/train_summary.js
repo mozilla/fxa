@@ -20,7 +20,7 @@ var TRAIN_REPOS = {
   'fxa-auth-server': {},
   'fxa-auth-mailer': {},
   'fxa-content-server': {},
-  'fxa-auth-db-myql': {},
+  'fxa-auth-db-mysql': {},
   'fxa-oauth-server': {},
   'fxa-customs-server': {},
   'fxa-profile-server': {},
@@ -39,7 +39,10 @@ ghlib.ensureLocalRepos()
     return ghlib.findTrainTag(repo, trainNumber).then(function(tag) {
       return ghlib.findPreviousTrainTag(repo, trainNumber).then(function (prevTag) {
         // No train cut on that repo this time around.
-        if (!tag || !prevTag) { return }
+        if (!tag || !prevTag) {
+            console.log('Skipping ' + repo.name + ', no tag found...')
+            return
+        }
         console.log('Examining ' + repo.name + '...')
         repoInfo = TRAIN_REPOS[repo.name]
         repoInfo.trainTag = tag
@@ -63,6 +66,7 @@ ghlib.ensureLocalRepos()
     var reviewedByUser = {}
     var commentedByUser = {}
     var milestonesByTitle = {}
+    var commitsByMilestone = {}
 
     function incr(what, who) {
       if (! what[who]) {
@@ -78,12 +82,13 @@ ghlib.ensureLocalRepos()
       })
     }
 
+    // Gather all the commit stats, grouping by milestone.
     return P.each(Object.keys(TRAIN_REPOS), function(repoName) {
       var repoInfo = TRAIN_REPOS[repoName]
       if (!repoInfo.commits) {
         return
       }
-      // List out the important commits, for later editing.
+      var currentCommitSummary = []
       return P.each(repoInfo.commits, function(commit) {
         commitInfo = repoInfo.commitInfo[commit];
         if (commitInfo.ignore) {
@@ -91,32 +96,66 @@ ghlib.ensureLocalRepos()
         }
         if (!commitInfo.fromMerge) {
           // It's a top-level merge with reviewers, comments, etc.
-          outfile.write('\n')
-          if (commitInfo.fromPR) {
-            var prInfo = commitInfo.fromPR
-            outfile.write('  * #' + prInfo.number + ' in ' + repoName + '\n')
-            outfile.write('    ' + prInfo.html_url + '\n')
-            if (prInfo.milestone) {
-              outfile.write('    Milestone: ' + prInfo.milestone.title + '\n')
-              incr(milestonesByTitle, prInfo.milestone.title)
-            } else {
-              outfile.write('    No Milestone\n')
-            }
-            outfile.write('    Submitter: ' + prInfo.submitter + '\n')
-            outfile.write('    Reviewers: ' + prInfo.reviewers.join(',') + '\n')
-            outfile.write('    Commenters: ' + prInfo.commenters.join(',') + '\n')
-            outfile.write('      ' + commitInfo.message.replace(/\n/g,'\n      ') + '\n')
+          var milestone = '';
+          var prInfo = commitInfo.fromPR
+          if (prInfo.milestone) {
+            milestone = prInfo.milestone.title
+            incr(milestonesByTitle, prInfo.milestone.title)
+          }
+          if (! commitsByMilestone[milestone]) {
+            commitsByMilestone[milestone] = []
+          }
+          currentCommitSummary = []
+          commitsByMilestone[milestone].push(currentCommitSummary)
+          if (prInfo) {
+            currentCommitSummary.push('  * #' + prInfo.number + ' in ' + repoName)
+            currentCommitSummary.push('    ' + prInfo.html_url)
+            currentCommitSummary.push('    Submitter: ' + prInfo.submitter)
+            currentCommitSummary.push('    Reviewers: ' + prInfo.reviewers.join(','))
+            currentCommitSummary.push('    Commenters: ' + prInfo.commenters.join(','))
+            currentCommitSummary.push('      ' + commitInfo.message.replace(/\n/g,'\n      '))
             incr(submittedByUser, prInfo.submitter)
             incrEach(reviewedByUser, prInfo.reviewers)
             incrEach(commentedByUser, prInfo.commenters)
           } else {
-            outfile.write('  * #<unknown> in ' + repoName)
-            outfile.write('      ' + commitInfo.message.replace(/\n/g,'\n      ') + '\n')
+            currentCommitSummary.push('  * #<unknown> in ' + repoName)
+            currentCommitSummary.push('      ' + commitInfo.message.replace(/\n/g,'\n      '))
           }
         } else {
            // It's part of a broader PR, print summary indented for visual nesting.
-           outfile.write('        * ' + commitInfo.message.replace(/\n/g,'\n          ') + '\n')
+           currentCommitSummary.push('        * ' + commitInfo.message.replace(/\n/g,'\n          '))
         }
+      })
+    })
+    // Print out commit summaries grouped by milestone
+    .then(function() {
+      // Try to put them in a sensible order.
+      // Nicely-formatted "FxA-NN: title" milestones go first in number order,
+      // followed by other things in alphabetical order.
+      var sortedMilestones = Object.keys(commitsByMilestone).sort(function(a, b) {
+        if (a.indexOf('FxA-') === 0) {
+          if (b.indexOf('FxA-') === 0) {
+            return parseInt(a.split('-')[1], 10) - parseInt(b.split('-')[1], 10)
+          }
+          return -1
+        }
+        if (b.indexOf('FxA-') === 0) {
+          return 1
+        }
+        if (b === '' || a < b) {
+          return -1
+        }
+        return 1
+      })
+      sortedMilestones.forEach(function(milestone) {
+        outfile.write('\n----\n')
+        outfile.write(milestone || 'No milestone')
+        outfile.write('\n')
+        commitsByMilestone[milestone].forEach(function(commitSummary) {
+          outfile.write('\n')
+          outfile.write(commitSummary.join('\n'))
+          outfile.write('\n')
+        })
       })
     })
     // Explicitly thank our community contributors, if any
@@ -160,7 +199,7 @@ ghlib.ensureLocalRepos()
       outfile.write('    Ryan\n')
       outfile.write('\n')
     })
-    // List team members by number of commits, prs, reviews.
+    // List some basic PR stats.
     .then(function () {
       outfile.write('\n\n')
       outfile.write('------------\n\n')
