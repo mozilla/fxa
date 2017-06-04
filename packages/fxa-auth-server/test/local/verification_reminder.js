@@ -7,11 +7,12 @@
 const ROOT_DIR = '../..'
 
 const assert = require('insist')
-var proxyquire = require('proxyquire')
-var uuid = require('uuid')
+const proxyquire = require('proxyquire')
+const uuid = require('uuid')
+const sinon = require('sinon')
 
 const P = require(`${ROOT_DIR}/lib/promise`)
-const mockLog = require('../mocks').mockLog
+const mocks = require('../mocks')
 
 var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
 
@@ -26,12 +27,6 @@ var ACCOUNT = {
 
 var reminderData = {
   email: ACCOUNT.email
-}
-
-var mockDb = {
-  createVerificationReminder: function () {
-    return P.resolve()
-  }
 }
 
 describe('verification reminders', () => {
@@ -50,16 +45,10 @@ describe('verification reminders', () => {
         }
       }
 
-      var addedTimes = 0
-      var thisMockLog = mockLog({
-        increment: function (name) {
-          if (name === 'verification-reminders.created') {
-            addedTimes++
-          }
-        }
-      })
+      var mockLog = mocks.spyLog()
+      var mockDB = mocks.mockDB()
 
-      var verificationReminder = proxyquire(verificationModulePath, moduleMocks)(thisMockLog, mockDb)
+      var verificationReminder = proxyquire(verificationModulePath, moduleMocks)(mockLog, mockDB)
 
       return P.all([
         verificationReminder.create(reminderData),
@@ -68,7 +57,8 @@ describe('verification reminders', () => {
         verificationReminder.create(reminderData),
         verificationReminder.create(reminderData)
       ]).then(() => {
-        assert.equal(addedTimes, 5)
+        assert.equal(mockLog.error.callCount, 0)
+        assert.equal(mockDB.createVerificationReminder.callCount, 10) // 5 x first, 5 x second
       })
     }
   )
@@ -88,7 +78,7 @@ describe('verification reminders', () => {
         }
       }
 
-      var verificationReminder = proxyquire(verificationModulePath, moduleMocks)(mockLog, mockDb)
+      var verificationReminder = proxyquire(verificationModulePath, moduleMocks)(mocks.mockLog(), mocks.mockDB())
       verificationReminder.create(reminderData)
         .then(function (result) {
           assert.equal(result, false)
@@ -99,25 +89,30 @@ describe('verification reminders', () => {
   it(
     'deletes reminders',
     () => {
-      let count = 0
-      var thisMockLog = mockLog({
-        increment: function (name) {
-          if (name === 'verification-reminders.deleted') {
-            count++
+      var moduleMocks = {
+        '../config': {
+          'get': function (item) {
+            if (item === 'verificationReminders') {
+              return {
+                rate: 1
+              }
+            }
           }
         }
-      })
-      var thisMockDb = {
+      }
+      var mockLog = mocks.spyLog()
+      var mockDB = mocks.mockDB({
         deleteVerificationReminder: function (reminderData) {
           assert.ok(reminderData.email)
           assert.ok(reminderData.type)
           return P.resolve()
         }
-      }
+      })
 
-      var verificationReminder = proxyquire(verificationModulePath, {})(thisMockLog, thisMockDb)
+      var verificationReminder = proxyquire(verificationModulePath, moduleMocks)(mockLog, mockDB)
       return verificationReminder.delete(reminderData).then(() => {
-        assert.equal(count, 1)
+        assert.equal(mockLog.error.callCount, 0)
+        assert.equal(mockDB.deleteVerificationReminder.callCount, 2) // first and second
       })
     }
   )
@@ -125,23 +120,21 @@ describe('verification reminders', () => {
   it(
     'deletes reminders can catch errors',
     () => {
-      let count = 0
-      var thisMockLog = mockLog({
+      var mockLog = mocks.spyLog({
         error: function (logErr) {
           assert.equal(logErr.op, 'verification-reminder.delete')
           assert.ok(logErr.err.message)
-          count++
         }
       })
-      var thisMockDb = {
-        deleteVerificationReminder: function () {
+      var mockDB = {
+        deleteVerificationReminder: sinon.spy(function () {
           return P.reject(new Error('Something is wrong'))
-        }
+        })
       }
 
-      var verificationReminder = proxyquire(verificationModulePath, {})(thisMockLog, thisMockDb)
+      var verificationReminder = proxyquire(verificationModulePath, {})(mockLog, mockDB)
       return verificationReminder.delete(reminderData).then(() => {
-        assert.equal(count, 1)
+        assert.equal(mockLog.error.callCount, 1, 'the error was logged and ignored')
       })
     }
   )

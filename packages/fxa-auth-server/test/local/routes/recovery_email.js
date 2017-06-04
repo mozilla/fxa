@@ -90,8 +90,8 @@ describe('/recovery_email/status', function () {
   var mockDB = mocks.mockDB()
   var pushCalled
   var mockLog = mocks.mockLog({
-    increment: function (name) {
-      if (name === 'recovery_email_reason.push') {
+    info: function (data) {
+      if (data.name === 'recovery_email_reason.push') {
         pushCalled = true
       }
     }

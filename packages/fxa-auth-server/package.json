@@ -61,7 +61,6 @@
     "mozlog": "2.0.6",
     "newrelic": "1.30.1",
     "nexmo": "2.0.2",
-    "node-statsd": "0.1.1",
     "node-uap": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
     "nodemailer": "2.7.2",
     "po2json": "0.4.5",

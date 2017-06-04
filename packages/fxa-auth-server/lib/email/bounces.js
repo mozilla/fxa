@@ -35,11 +35,6 @@ module.exports = function (log, error) {
             accountDeleted.bind(null, record.uid, record.email),
             gotError.bind(null, record.email)
           )
-      } else {
-        // A previously-verified email is now bouncing.
-        // We don't know what to do here, yet.
-        // But we can measure it!
-        log.increment('account.email_bounced.already_verified')
       }
     }
 
@@ -112,9 +107,7 @@ module.exports = function (log, error) {
         // Log the bounced flowEvent and emailEvent metrics
         utils.logFlowEventFromMessage(log, message, 'bounced')
         utils.logEmailEventFromMessage(log, message, 'bounced', emailDomain)
-
         log.info(logData)
-        log.increment('account.email_bounced')
 
         const shouldDelete = bounce.bounceType === 'Permanent' ||
           (bounce.bounceType === 'Complaint' && bounce.bounceSubType === 'abuse')

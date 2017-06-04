@@ -151,7 +151,6 @@ module.exports = function (log, db, config) {
         op: LOG_OP_PUSH_TO_DEVICES,
         name: name
       })
-      log.increment(name)
     }
   }
 

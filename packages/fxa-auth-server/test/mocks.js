@@ -73,12 +73,10 @@ const LOG_METHOD_NAMES = [
   'begin',
   'error',
   'flowEvent',
-  'increment',
   'info',
   'notifyAttachedServices',
   'warn',
   'summary',
-  'timing',
   'trace'
 ]
 

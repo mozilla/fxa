@@ -6,8 +6,6 @@ var config = require('../config')
 var P = require('./promise')
 var reminderConfig = config.get('verificationReminders')
 
-var LOG_REMINDERS_CREATED = 'verification-reminders.created'
-var LOG_REMINDERS_DELETED = 'verification-reminders.deleted'
 var LOG_REMINDERS_ERROR_CREATE = 'verification-reminder.create'
 var LOG_REMINDERS_ERROR_DELETE = 'verification-reminder.delete'
 
@@ -48,10 +46,7 @@ module.exports = function (log, db) {
       var secondReminder = db.createVerificationReminder(reminderData)
 
       return P.all([firstReminder, secondReminder])
-        .then(
-          function () {
-            log.increment(LOG_REMINDERS_CREATED)
-          },
+        .catch(
           function (err) {
             log.error({ op: LOG_REMINDERS_ERROR_CREATE, err: err })
           }
@@ -70,10 +65,7 @@ module.exports = function (log, db) {
       var secondReminder = db.deleteVerificationReminder(reminderData)
 
       return P.all([firstReminder, secondReminder])
-        .then(
-          function () {
-            log.increment(LOG_REMINDERS_DELETED)
-          },
+        .catch(
           function (err) {
             log.error({ op: LOG_REMINDERS_ERROR_DELETE, err: err })
           }

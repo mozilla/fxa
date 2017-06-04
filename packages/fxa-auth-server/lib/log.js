@@ -9,7 +9,6 @@ const util = require('util')
 const mozlog = require('mozlog')
 const config = require('../config')
 const logConfig = config.get('log')
-const StatsDCollector = require('./metrics/statsd')
 const unbuffer = require('./crypto/butil').unbuffer
 
 
@@ -26,15 +25,11 @@ function Lug(options) {
 
   this.stdout = options.stdout || process.stdout
 
-  this.statsd = new StatsDCollector(this.logger)
-  this.statsd.init()
-
   this.notifier = require('./notifier')(this)
 }
 util.inherits(Lug, EventEmitter)
 
 Lug.prototype.close = function() {
-  return this.statsd.close()
 }
 
 // Expose the standard error/warn/info/debug/etc log methods.
@@ -72,26 +67,9 @@ Lug.prototype.begin = function (op, request) {
   this.logger.debug(op)
 }
 
-// Expose some statsd helpers directly on the logger object.
-
-Lug.prototype.increment = function(event) {
-  this.statsd.write({
-    event: event
-  })
-}
-
 Lug.prototype.stat = function (stats) {
   this.logger.info('stat', stats)
 }
-
-Lug.prototype.timing = function(name, timing, tags) {
-  this.statsd.timing(name, timing, tags)
-}
-
-Lug.prototype.histogram = function(name, value, tags) {
-  this.statsd.histogram(name, value, tags)
-}
-
 
 // Log a request summary line.
 // This gets called once for each compelted request.
@@ -167,7 +145,6 @@ Lug.prototype.activityEvent = function (data) {
   }
 
   this.logger.info('activityEvent', data)
-  this.statsd.write(data)
 }
 
 // Log a flow metrics event.

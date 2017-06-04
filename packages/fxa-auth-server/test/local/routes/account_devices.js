@@ -106,13 +106,11 @@ describe('/account/device', function () {
 
   it('identical data', function () {
     return runTest(route, mockRequest, function (response) {
-      assert.equal(mockLog.increment.callCount, 1, 'a counter was incremented')
-      assert.equal(mockLog.increment.firstCall.args[0], 'device.update.spurious')
-
+      assert.equal(mockDevices.upsert.callCount, 0, 'the device was not updated')
       assert.deepEqual(response, mockRequest.payload)
     })
       .then(function () {
-        mockLog.increment.reset()
+        mockDevices.upsert.reset()
       })
   })
 
@@ -125,13 +123,6 @@ describe('/account/device', function () {
     payload.pushPublicKey = mocks.MOCK_PUSH_KEY
 
     return runTest(route, mockRequest, function (response) {
-      assert.equal(mockLog.increment.callCount, 5, 'the counters were incremented')
-      assert.equal(mockLog.increment.getCall(0).args[0], 'device.update.sessionToken')
-      assert.equal(mockLog.increment.getCall(1).args[0], 'device.update.name')
-      assert.equal(mockLog.increment.getCall(2).args[0], 'device.update.type')
-      assert.equal(mockLog.increment.getCall(3).args[0], 'device.update.pushCallback')
-      assert.equal(mockLog.increment.getCall(4).args[0], 'device.update.pushPublicKey')
-
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
       var args = mockDevices.upsert.args[0]
       assert.equal(args.length, 3, 'devices.upsert was passed three arguments')
@@ -141,7 +132,6 @@ describe('/account/device', function () {
       assert.deepEqual(args[2], mockRequest.payload, 'third argument was payload')
     })
       .then(function () {
-        mockLog.increment.reset()
         mockDevices.upsert.reset()
       })
   })
@@ -150,14 +140,11 @@ describe('/account/device', function () {
     mockRequest.payload.id = undefined
 
     return runTest(route, mockRequest, function (response) {
-      assert.equal(mockLog.increment.callCount, 0, 'log.increment was not called')
-
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
       var args = mockDevices.upsert.args[0]
       assert.equal(args[2].id, mockRequest.auth.credentials.deviceId.toString('hex'), 'payload.id defaulted to credentials.deviceId')
     })
       .then(function () {
-        mockLog.increment.reset()
         mockDevices.upsert.reset()
       })
   })

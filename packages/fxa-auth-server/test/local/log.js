@@ -15,19 +15,12 @@ var logger = {
   warn: sinon.spy(),
   info: sinon.spy()
 }
-var statsd = {
-  init: sinon.spy(),
-  write: sinon.spy()
-}
 var mocks = {
   mozlog: sinon.spy(function () {
     return logger
   })
 }
 mocks.mozlog.config = sinon.spy()
-mocks['./metrics/statsd'] = function () {
-  return statsd
-}
 const log = proxyquire('../../lib/log', mocks)('foo', 'bar')
 
 const emitRouteFlowEvent = sinon.spy()
@@ -48,10 +41,6 @@ describe('log', () => {
       assert.ok(mocks.mozlog.config.calledBefore(mocks.mozlog), 'mozlog was called after mozlog.config')
       assert.equal(mocks.mozlog.args[0].length, 0, 'mozlog was passed no arguments')
 
-      assert.equal(statsd.init.callCount, 1, 'statsd.init was called once')
-      assert.equal(statsd.init.args[0].length, 0, 'statsd.init was passed no arguments')
-
-      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.error.callCount, 0, 'logger.error was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
@@ -67,8 +56,6 @@ describe('log', () => {
       assert.equal(typeof log.notifyAttachedServices, 'function', 'log.notifyAttachedServices method was exported')
       assert.equal(typeof log.activityEvent, 'function', 'log.activityEvent method was exported')
       assert.equal(typeof log.flowEvent, 'function', 'log.flowEvent method was exported')
-      assert.equal(typeof log.increment, 'function', 'log.increment method was exported')
-      assert.equal(typeof log.stat, 'function', 'log.stat method was exported')
       assert.equal(typeof log.summary, 'function', 'log.summary method was exported')
     }
   )
@@ -82,7 +69,7 @@ describe('log', () => {
       })
 
       assert.equal(logger.info.callCount, 1, 'logger.info was called once')
-      let args = logger.info.args[0]
+      const args = logger.info.args[0]
       assert.equal(args.length, 2, 'logger.info was passed two arguments')
       assert.equal(args[0], 'activityEvent', 'first argument was correct')
       assert.deepEqual(args[1], {
@@ -90,18 +77,12 @@ describe('log', () => {
         uid: 'bar'
       }, 'second argument was event data')
 
-      assert.equal(statsd.write.callCount, 1, 'statsd.write was called once')
-      args = statsd.write.args[0]
-      assert.equal(args.length, 1, 'statsd.write was passed one argument')
-      assert.equal(args[0], logger.info.args[0][1], 'statsd.write argument was correct')
-
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.error.callCount, 0, 'logger.error was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
 
       logger.info.reset()
-      statsd.write.reset()
     }
   )
 
@@ -120,7 +101,6 @@ describe('log', () => {
       }, 'argument was correct')
 
       assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
@@ -148,7 +128,6 @@ describe('log', () => {
       }, 'argument was correct')
 
       assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
@@ -176,7 +155,6 @@ describe('log', () => {
       }, 'argument was correct')
 
       assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
@@ -206,7 +184,6 @@ describe('log', () => {
         time: 1483557217331
       }, 'second argument was event data')
 
-      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
@@ -231,7 +208,6 @@ describe('log', () => {
       }, 'argument was correct')
 
       assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
@@ -263,7 +239,6 @@ describe('log', () => {
       }, 'argument was correct')
 
       assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
@@ -295,7 +270,6 @@ describe('log', () => {
       }, 'argument was correct')
 
       assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
@@ -327,7 +301,6 @@ describe('log', () => {
       }, 'argument was correct')
 
       assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
@@ -359,7 +332,6 @@ describe('log', () => {
       }, 'argument was correct')
 
       assert.equal(logger.info.callCount, 0, 'logger.info was not called')
-      assert.equal(statsd.write.callCount, 0, 'statsd.write was not called')
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')

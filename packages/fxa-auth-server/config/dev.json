@@ -17,9 +17,6 @@
     "secure": false
   },
   "snsTopicArn": "disabled",
-  "statsd": {
-    "sample_rate": 1
-  },
   "verificationReminders": {
     "rate": 1
   },

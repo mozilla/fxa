@@ -1266,7 +1266,6 @@ module.exports = (
         if (payload.id) {
           // Don't write out the update if nothing has actually changed.
           if (isSpuriousUpdate(payload, sessionToken)) {
-            log.increment('device.update.spurious')
             return reply(payload)
           }
           // We also reserve the right to disable updates until
@@ -1298,23 +1297,18 @@ module.exports = (
           var spurious = true
           if (! token.deviceId || payload.id !== token.deviceId.toString('hex')) {
             spurious = false
-            log.increment('device.update.sessionToken')
           }
           if (payload.name && payload.name !== token.deviceName) {
             spurious = false
-            log.increment('device.update.name')
           }
           if (payload.type && payload.type !== token.deviceType) {
             spurious = false
-            log.increment('device.update.type')
           }
           if (payload.pushCallback && payload.pushCallback !== token.deviceCallbackURL) {
             spurious = false
-            log.increment('device.update.pushCallback')
           }
           if (payload.pushPublicKey && payload.pushPublicKey !== token.deviceCallbackPublicKey) {
             spurious = false
-            log.increment('device.update.pushPublicKey')
           }
           return spurious
         }
@@ -1635,8 +1629,6 @@ module.exports = (
         log.begin('Account.RecoveryEmailStatus', request)
         var sessionToken = request.auth.credentials
         if (request.query && request.query.reason === 'push') {
-          // only log recovery_email requests with 'push' to avoid sending too many requests.
-          log.increment('recovery_email_reason.push')
           // log to the push namespace that account was verified via push
           log.info({
             op: 'push.pushToDevices',
@@ -1978,17 +1970,12 @@ module.exports = (
                       // for sign-in confirmation or they may have been clicking a
                       // stale link. Silently succeed.
                       if (account.emailVerified) {
-                        if (butil.buffersAreEqual(code, account.emailCode)) {
-                          log.increment('account.already_verified')
-                        }
                         return true
                       }
 
                       // Any matching code verifies the account
                       return db.verifyEmail(account, account.emailCode)
                         .then(function () {
-                          log.timing('account.verified', Date.now() - account.createdAt)
-                          log.increment('account.verified')
                           return log.notifyAttachedServices('verified', request, {
                             email: account.email,
                             uid: account.uid,
@@ -2005,7 +1992,6 @@ module.exports = (
                             // if verified using a known reminder
                             var reminderOp = 'account.verified_reminder.' + reminder
 
-                            log.increment(reminderOp)
                             // log to the mailer namespace that account was verified via a reminder
                             log.info({
                               op: 'mailer.send',

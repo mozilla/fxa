@@ -60,7 +60,7 @@ describe('delivery messages', () => {
       })
 
       return mockedDelivery(mockLog).handleDelivery(mockMsg).then(function () {
-        assert.equal(mockLog.messages.length, 4)
+        assert.equal(mockLog.messages.length, 3)
         assert.equal(mockLog.messages[1].args[0].op, 'emailEvent')
         assert.equal(mockLog.messages[1].args[0].domain, 'other')
         assert.equal(mockLog.messages[1].args[0].type, 'delivered')
@@ -69,8 +69,6 @@ describe('delivery messages', () => {
         assert.equal(mockLog.messages[2].args[0]['op'], 'handleDelivery')
         assert.equal(mockLog.messages[2].args[0]['template'], 'verifyLoginEmail')
         assert.equal(mockLog.messages[2].args[0]['processingTimeMillis'], 546)
-        assert.equal(mockLog.messages[3].args[0], 'account.email_delivered')
-        assert.equal(mockLog.messages[3].level, 'increment')
       })
     }
   )
@@ -112,7 +110,7 @@ describe('delivery messages', () => {
       })
 
       return mockedDelivery(mockLog).handleDelivery(mockMsg).then(function () {
-        assert.equal(mockLog.messages.length, 4)
+        assert.equal(mockLog.messages.length, 3)
         assert.equal(mockLog.messages[0].args[0]['event'], 'email.verifyLoginEmail.delivered')
         assert.equal(mockLog.messages[0].args[0]['flow_id'], 'someFlowId')
         assert.equal(mockLog.messages[0].args[0]['flow_time'] > 0, true)
@@ -165,7 +163,7 @@ describe('delivery messages', () => {
       })
 
       return mockedDelivery(mockLog).handleDelivery(mockMsg).then(function () {
-        assert.equal(mockLog.messages.length, 4)
+        assert.equal(mockLog.messages.length, 3)
         assert.equal(mockLog.messages[0].args[0]['event'], 'email.verifyLoginEmail.delivered')
         assert.equal(mockLog.messages[0].args[0]['flow_id'], 'someFlowId')
         assert.equal(mockLog.messages[0].args[0]['flow_time'] > 0, true)

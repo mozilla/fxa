@@ -43,7 +43,6 @@ module.exports = function (log) {
         utils.logEmailEventFromMessage(log, message, 'delivered', emailDomain)
 
         log.info(logData)
-        log.increment('account.email_delivered')
       }).then(
         function () {
           // We always delete the message, even if handling some addrs failed.

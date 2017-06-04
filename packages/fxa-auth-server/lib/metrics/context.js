@@ -179,7 +179,6 @@ module.exports = function (log, config) {
       valid: true,
       agent: this.headers['user-agent']
     })
-    log.increment('metrics.context.valid')
     return true
   }
 
@@ -194,7 +193,6 @@ module.exports = function (log, config) {
       reason: reason,
       agent: request.headers['user-agent']
     })
-    log.increment('metrics.context.invalid')
     return false
   }
 
