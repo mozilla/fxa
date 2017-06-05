@@ -37,17 +37,19 @@ describe('mysql db backend', function() {
     mockResponses.push([null, [{ mode: 'DUMMY_VALUE,NO_ENGINE_SUBSTITUTION' }]]);
     mockResponses.push([null, []]);
     return store.ping().then(function() {
-      assert.equal(capturedQueries.length, 2);
+      assert.equal(capturedQueries.length, 3);
       // The first query is checking the sql_mode.
       assert.equal(capturedQueries[0], 'SELECT @@sql_mode AS mode');
       // The second query is to set the sql_mode.
       assert.equal(capturedQueries[1], 'SET SESSION sql_mode = \'DUMMY_VALUE,NO_ENGINE_SUBSTITUTION,STRICT_ALL_TABLES\'');
+      // The third sets utf8mb4
+      assert.equal(capturedQueries[2], 'SET NAMES utf8mb4 COLLATE utf8mb4_bin;');
     }).then(function() {
       // But re-using the connection a second time
       return store.ping();
     }).then(function() {
       // Should not re-issue the strict-mode queries.
-      assert.equal(capturedQueries.length, 2);
+      assert.equal(capturedQueries.length, 3);
     });
   });
 

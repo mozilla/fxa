@@ -1,6 +1,8 @@
 language: node_js
 
-sudo: false
+dist: trusty
+
+sudo: required
 
 node_js:
   - '4'
@@ -9,6 +11,14 @@ node_js:
 addons:
   apt_packages:
     - graphicsmagick
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
+    - mysql-server-5.6
+    - mysql-client-core-5.6
+    - mysql-client-5.6
 
 notifications:
   email:

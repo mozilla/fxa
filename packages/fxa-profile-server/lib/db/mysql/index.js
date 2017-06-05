@@ -17,7 +17,7 @@ const REQUIRED_SQL_MODES = [
   'STRICT_ALL_TABLES',
   'NO_ENGINE_SUBSTITUTION',
 ];
-const REQUIRED_CHARSET = 'UTF8MB4_UNICODE_CI';
+const REQUIRED_CHARSET = 'UTF8MB4_BIN';
 
 
 function MysqlStore(options) {
@@ -260,8 +260,16 @@ MysqlStore.prototype = {
             if (err) {
               return reject(err);
             }
-            conn._fxa_initialized = true;
-            return resolve(conn);
+
+            conn.query('SET NAMES utf8mb4 COLLATE utf8mb4_bin;', function(err) {
+              if (err) {
+                return reject(err);
+              }
+
+              conn._fxa_initialized = true;
+              return resolve(conn);
+            });
+
           });
         });
       });
