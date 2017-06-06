@@ -1,6 +1,6 @@
 # Auth server metrics events
 
-The auth server emits two types of event
+The auth server emits three types of event
 that are imported to redshift
 and made available to
 metrics queries in redash:
@@ -14,6 +14,10 @@ metrics queries in redash:
   which represent significant actions
   or state changes
   at the account level.
+
+* [Email events](#email-events),
+  which represent significant actions
+  for a user that involves email deliverability.
 
 * [Flow events](#flow-events)
   * [`flow_metadata`](#flow_metadata)
@@ -30,6 +34,8 @@ metrics queries in redash:
   * [`daily_activity_per_device`](#daily_activity_per_device)
   * [`daily_multi_device_users`](#daily_multi_device_users)
   * [Event names](#event-names)
+* [Email events](#email-events)
+  * [`email_events`](#email_events)  
 * [Sampled data sets](#sampled-data-sets)
 * [Significant changes](#significant-changes)
 
@@ -313,6 +319,69 @@ contains the following fields:
 |`device.deleted`|Device record has been deleted from a Sync account.|
 |`sync.sentTabToDevice`|Device sent a push message for send-tab-to-device feature.|
 
+## Email events
+
+Email events are used
+for analysing email deliverability for
+FxA. These events are stored in the
+[`email_events` table](#email_events).
+
+### email_events
+
+The `email_events` table
+contains the following fields:
+
+|Name|Description|
+|----|-----------|
+|`timestamp`|The time at which the event occurred.|
+|`flow_id`|The corresponding `flow_id` of the event.|
+|`domain`|The email domain that email was sent to.|
+|`template`|The email template that was sent.|
+|`type`|The type of email event that has occurred.|
+|`bounced`|Boolean whether this is a bounced email.|
+|`complaint`|Boolean whether this email has flagged as a complaint.|
+|`locale`|The locale that the email was sent in.|
+
+#### Domain names
+
+Possible values for `${domain}` include this
+list of top 20 FxA [email domains](https://github.com/mozilla/fxa-auth-server/blob/master/config/popular-email-domains.js). If an email is not on the list, then the
+value `other` is stored.
+
+#### Template names
+
+Possible values for `${template}` include
+
+|Name|Description|
+|----|-----------|
+|`newDeviceLoginEmail`|Email sent when a login has occurred from a new device.|
+|`passwordChangedEmail`|Email sent when a user has successfully changed their password.|
+|`passwordResetEmail`|Email sent when a user has reset their password.|
+|`postVerifyEmail`|Email sent when a user has verified their account.|
+|`recoveryEmail`|Email sent when a user attempts to reset their password.|
+|`unblockCodeEmail`|Email sent containing the account unblock code.|
+|`verifyEmail`|Email sent to verify a user's account.|
+|`verifyLoginEmail`|Sign-in confirmation email was sent.|
+|`verifySyncEmail`|Email to verify a Sync user's account.|
+|`postVerifySecondaryEmail`|Email sent when a user has added a secondary email.|
+|`verifySecondaryEmail`|Email to confirm adding a secondary email.|
+
+#### Type names
+
+Possible values for `${type}` include
+
+|Name|Description|
+|----|-----------|
+|`sent`|Email sent as reported by nodemailer.|
+|`delivered`|Email has been delivered as reported by Amazon SES.|
+|`bounced`|Email has been bounced as reported by Amazon SES.|
+
+#### Locale names
+
+Possible values for `${locale}` include
+any valid parsed locale via auth-server
+[translator](https://github.com/mozilla/fxa-auth-server/blob/master/lib/senders/translator.js).
+
 ## Sampled data sets
 
 For all of the tables mentioned above,
@@ -489,4 +558,3 @@ to each of the table names mentioned above:
 * [Expiry time for flow ids
   was increased from 30 minutes
   to two hours](https://github.com/mozilla/fxa-auth-server/pull/1487).
-
