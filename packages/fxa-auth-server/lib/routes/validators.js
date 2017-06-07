@@ -9,8 +9,6 @@ var isA = require('joi')
 // Match any non-empty hex-encoded string.
 module.exports.HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-module.exports.URLSAFEBASE64 = /^[a-zA-Z0-9-_]*$/
-
 module.exports.BASE_36 = /^[a-zA-Z0-9]*$/
 
 // RFC 4648, section 5
