@@ -33,6 +33,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [GET /account/devices (:lock: sessionToken)](#get-accountdevices)
     * [GET /account/sessions (:lock: sessionToken)](#get-accountsessions)
     * [POST /account/device/destroy (:lock: sessionToken)](#post-accountdevicedestroy)
+    * [GET /recovery_email/enabled (:lock: sessionToken)](#get-recovery_emailenabled)
     * [GET /recovery_email/status (:lock: sessionToken)](#get-recovery_emailstatus)
     * [POST /recovery_email/resend_code (:lock: sessionToken)](#post-recovery_emailresend_code)
     * [POST /recovery_email/verify_code](#post-recovery_emailverify_code)
@@ -299,7 +300,7 @@ those common validations are defined here.
 * `HEX_STRING`: `/^(?:[a-fA-F0-9]{2})+$/`
 * `URLSAFEBASE64`: `/^[a-zA-Z0-9-_]*$/`
 * `BASE_36`: `/^[a-zA-Z0-9]*$/`
-* `URL_SAFE_BASE_64`: `/^[A-Za-z0-9_-]*$/`
+* `URL_SAFE_BASE_64`: `/^[A-Za-z0-9_-]+$/`
 * `DISPLAY_SAFE_UNICODE`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/g)`
 * `E164_NUMBER`: `/^\+[1-9]\d{1,14}$/`
@@ -801,6 +802,9 @@ Failing requests may be caused
 by the following errors
 (this is not an exhaustive list):
 
+* `code: 400, errno: 107`:
+  Invalid parameter in request body
+
 * `code: 503, errno: 202`:
   Feature not enabled
 
@@ -1038,6 +1042,14 @@ to use the API after this request has succeeded.
   <!--begin-request-body-post-accountdevicedestroy-id-->
   
   <!--end-request-body-post-accountdevicedestroy-id-->
+
+
+#### GET /recovery_email/enabled
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-recovery_emailenabled-->
+Returns whether or not secondary emails is enabled for a user.
+<!--end-route-get-recovery_emailenabled-->
 
 
 #### GET /recovery_email/status
@@ -2053,7 +2065,7 @@ for an email address.
 
 ##### Request body
 
-* `code`: *string, regex(validators.URL_SAFE_BASE_64), length(CODE_LENGTH), required*
+* `code`: *string, regex(validators.URL_SAFE_BASE_64), required*
 
   <!--begin-request-body-post-signincodesconsume-code-->
   The signin code.

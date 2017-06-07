@@ -801,4 +801,53 @@ describe('/recovery_email', () => {
         })
     })
   })
+
+  describe('can check feature enable flag', () => {
+    beforeEach(() => {
+      accountRoutes = makeRoutes({
+        checkPassword: function () {
+          return P.resolve(true)
+        },
+        config: {
+          secondaryEmail: {
+            enabled: true,
+            enabledEmailAddresses: /@mozilla\.com/
+          }
+        },
+        customs: mockCustoms,
+        db: mockDB,
+        log: mockLog,
+        mailer: mockMailer,
+        push: mockPush
+      })
+    })
+
+    it('/recovery_email/check_can_add_secondary_address disabled with unverified session', () => {
+      route = getRoute(accountRoutes, '/recovery_email/check_can_add_secondary_address')
+      mockRequest.auth.credentials.tokenVerified = false
+      mockRequest.auth.credentials.email = 'asdf@mozilla.com'
+      return runTest(route, mockRequest, (res) => {
+        assert.equal(res.ok, false, 'return ok `false` when feature is not enabled for user')
+      })
+    })
+
+    it('/recovery_email/check_can_add_secondary_address disabled with invalid email', () => {
+      route = getRoute(accountRoutes, '/recovery_email/check_can_add_secondary_address')
+      mockRequest.auth.credentials.tokenVerified = true
+      mockRequest.auth.credentials.email = 'email@notvalid.com'
+      return runTest(route, mockRequest, (res) => {
+        assert.equal(res.ok, false, 'return ok `false` when feature is not enabled for user')
+      })
+    })
+
+    it('/recovery_email/check_can_add_secondary_address enabled with verified session', () => {
+      route = getRoute(accountRoutes, '/recovery_email/check_can_add_secondary_address')
+      mockRequest.auth.credentials.tokenVerified = true
+      mockRequest.auth.credentials.email = 'asdf@mozilla.com'
+      return runTest(route, mockRequest, (res) => {
+        assert.equal(res.ok, true, 'return ok `true` when feature is enabled for user')
+      })
+    })
+  })
+
 })

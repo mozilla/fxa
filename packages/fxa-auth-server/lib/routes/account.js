@@ -1604,6 +1604,27 @@ module.exports = (
     },
     {
       method: 'GET',
+      path: '/recovery_email/check_can_add_secondary_address',
+      config: {
+        auth: {
+          strategy: 'sessionTokenWithVerificationStatus'
+        }
+      },
+      handler (request, reply) {
+        log.begin('Account.RecoveryEmailEnabled', request)
+        const sessionToken = request.auth.credentials
+        let enabled = false
+
+        // Secondary emails are enabled if feature is enabled for user and they are in a verified session
+        if (features.isSecondaryEmailEnabled(sessionToken.email) && sessionToken.tokenVerified) {
+          enabled = true
+        }
+
+        return reply({ok: enabled})
+      }
+    },
+    {
+      method: 'GET',
       path: '/recovery_email/status',
       config: {
         auth: {
