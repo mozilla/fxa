@@ -1242,60 +1242,63 @@ module.exports = function(cfg, makeServer) {
 
       const user = fake.newUserDataHex()
       const now = Date.now()
-      const signinCodes = [ crypto.randomBytes(6).toString('hex'), crypto.randomBytes(6).toString('hex') ]
-      const timestamps = [ now - 2, now - 1 ]
+      const signinCode = crypto.randomBytes(6).toString('hex')
+      const goodTimestamp = now - 1
+      const badTimestamp = now - cfg.signinCodesMaxAge - 1
 
       // Create an account
       return client.putThen(`/account/${user.accountId}`, user.account)
         .then(() => {
-          // Create 2 sign-in codes
-          return P.all([
-            client.putThen(`/signinCodes/${signinCodes[0]}`, {
-              uid: user.accountId,
-              createdAt: timestamps[0]
-            }),
-            client.putThen(`/signinCodes/${signinCodes[1]}`, {
-              uid: user.accountId,
-              createdAt: timestamps[1]
-            })
-          ])
-        })
-        .then(r => {
-          respOkEmpty(r[0])
-          respOkEmpty(r[1])
-
-          // Attempt to create a duplicate sign-in code
-          return client.putThen(`/signinCodes/${signinCodes[0]}`, {
+          // Create a sign-in code
+          return client.putThen(`/signinCodes/${signinCode}`, {
             uid: user.accountId,
-            createdAt: timestamps[0]
+            createdAt: goodTimestamp
           })
-            .then(() => assert(false, 'creating a duplicate sign-in code should fail'))
-            .catch(err => testConflict(err))
-        })
-        .then(() => {
-          // Expire the 1st sign-in code
-          return client.delThen(`/signinCodes/expire/${timestamps[1]}`)
         })
         .then(r => {
           respOkEmpty(r)
 
-          // Attempt to delete the 1st sign-in code
-          return client.postThen(`/signinCodes/${signinCodes[0]}/consume`)
-            .then(() => assert(false, 'deleting an expired sign-in code should fail'))
-            .catch(err => testNotFound(err))
+          // Attempt to create a duplicate sign-in code
+          return client.putThen(`/signinCodes/${signinCode}`, {
+            uid: user.accountId,
+            createdAt: goodTimestamp
+          })
+            .then(
+              () => assert(false, 'creating a duplicate sign-in code should fail'),
+              err => testConflict(err)
+            )
         })
         .then(() => {
-          // Delete the 2nd sign-in code
-          return client.postThen(`/signinCodes/${signinCodes[1]}/consume`)
+          // Consume the sign-in code
+          return client.postThen(`/signinCodes/${signinCode}/consume`)
         })
         .then(r => {
           respOk(r)
-          assert.deepEqual(r.obj, { email: user.account.email }, 'deleting a sign-in code should return the email address')
+          assert.deepEqual(r.obj, { email: user.account.email }, 'consuming a sign-in code should return the email address')
 
-          // Attempt to delete the 2nd sign-in code again
-          return client.postThen(`/signinCodes/${signinCodes[0]}/consume`)
-            .then(() => assert(false, 'deleting a deleted sign-in code should fail'))
-            .catch(err => testNotFound(err))
+          // Attempt to consume the sign-in code again
+          return client.postThen(`/signinCodes/${signinCode}/consume`)
+            .then(
+              () => assert(false, 'consuming a consumed sign-in code should fail'),
+              err => testNotFound(err)
+            )
+        })
+        .then(() => {
+          // Create an expired sign-in code
+          return client.putThen(`/signinCodes/${signinCode}`, {
+            uid: user.accountId,
+            createdAt: badTimestamp
+          })
+        })
+        .then(r => {
+          respOkEmpty(r)
+
+          // Attempt to consume the expired sign-in code
+          return client.postThen(`/signinCodes/${signinCode}/consume`)
+            .then(
+              () => assert(false, 'consuming an expired sign-in code should fail'),
+              err => testNotFound(err)
+            )
         })
     })
 

@@ -8,6 +8,7 @@ const P = require('bluebird')
 const extend = require('util')._extend
 const ip = require('ip')
 const dbUtil = require('./util')
+const config = require('../../config')
 
 // our data stores
 var accounts = {}
@@ -1091,9 +1092,10 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.consumeSigninCode = code => {
+    const newerThan = Date.now() - config.signinCodesMaxAge
     code = code.toString('hex')
 
-    if (! signinCodes[code]) {
+    if (! signinCodes[code] || signinCodes[code].createdAt <= newerThan) {
       return P.reject(error.notFound())
     }
 
@@ -1101,16 +1103,6 @@ module.exports = function (log, error) {
     delete signinCodes[code]
 
     return P.resolve({ email })
-  }
-
-  Memory.prototype.expireSigninCodes = olderThan => {
-    Object.keys(signinCodes).forEach(code => {
-      if (signinCodes[code].createdAt < olderThan) {
-        delete signinCodes[code]
-      }
-    })
-
-    return P.resolve({})
   }
 
   // UTILITY FUNCTIONS

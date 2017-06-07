@@ -94,7 +94,6 @@ The following datatypes are used throughout this document:
 * Sign-in codes
     * createSigninCode          : `PUT /signinCodes/:code`
     * consumeSigninCode         : `POST /signinCodes/:code/consume`
-    * expireSigninCodes         : `DELETE /signinCodes/expire/:olderThan`
 
 ## Ping : `GET /`
 
@@ -1853,41 +1852,4 @@ Content-Length: 2
 * Method : `DELETE`
 * Path : `/signinCodes/<code>
     * `code` : hex
-
-## expireSigninCodes : `DELETE /signinCodes/expire/:olderThan`
-
-Delete expired sign-in codes.
-
-### Example
-
-```
-curl \
-    -v \
-    -X DELETE \
-    http://localhost:8000/signinCodes/expire/1494253830983
-```
-
-### Request
-
-* Method : `DELETE`
-* Path : `/signinCodes/expire/<olderThan>
-    * `olderThan` : epoch
-
-### Response
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 2
-
-{}
-```
-
-* Status Code : `200 OK`
-    * Content-Type : `application/json`
-    * Body : `{}`
-* Status Code : `500 Internal Server Error`
-    * Conditions: if something goes wrong on the server
-    * Content-Type : `application/json`
-    * Body : `{"code":"InternalError","message":"..."}`
 

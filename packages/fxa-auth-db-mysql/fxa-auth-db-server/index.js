@@ -200,11 +200,6 @@ function createServer(db) {
     op(req => db.consumeSigninCode(req.params.code))
   )
 
-  api.del(
-    '/signinCodes/expire/:olderThan',
-    op(req => db.expireSigninCodes(req.params.olderThan))
-  )
-
   api.get(
     '/',
     function (req, res, next) {

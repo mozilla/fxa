@@ -1024,7 +1024,7 @@ module.exports = function (log, error) {
   // exposed for testing only
   MySql.prototype.retryable_ = retryable
 
-  var PRUNE = 'CALL prune_2(?)'
+  var PRUNE = 'CALL prune_3(?)'
   MySql.prototype.pruneTokens = function () {
     log.info('MySql.pruneTokens')
 
@@ -1183,17 +1183,11 @@ module.exports = function (log, error) {
   }
 
   // Delete : signinCodes
-  // Where : hash = $1
-  const CONSUME_SIGNIN_CODE = 'CALL consumeSigninCode_1(?)'
+  // Where : hash = $1, createdAt > now - config.signinCodesMaxAge
+  const CONSUME_SIGNIN_CODE = 'CALL consumeSigninCode_2(?, ?)'
   MySql.prototype.consumeSigninCode = function (code) {
-    return this.readFirstResult(CONSUME_SIGNIN_CODE, [ createHash(code) ])
-  }
-
-  // Delete : signinCodes
-  // Where : createdAt < $1
-  const EXPIRE_SIGNIN_CODES = 'CALL expireSigninCodes_1(?)'
-  MySql.prototype.expireSigninCodes = function (olderThan) {
-    return this.write(EXPIRE_SIGNIN_CODES, [ olderThan ])
+    const newerThan = Date.now() - this.options.signinCodesMaxAge
+    return this.readFirstResult(CONSUME_SIGNIN_CODE, [ createHash(code), newerThan ])
   }
 
   return MySql

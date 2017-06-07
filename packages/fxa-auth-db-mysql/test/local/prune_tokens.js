@@ -5,14 +5,17 @@
 
 const TOKEN_PRUNE_AGE = 24 * 60 * 60 * 1000 * 2 // two days
 
+const ROOT_DIR = '../..'
+
 const assert = require('insist')
 const crypto = require('crypto')
-const dbServer = require('../../fxa-auth-db-server')
+const dbServer = require(`${ROOT_DIR}/fxa-auth-db-server`)
 const log = require('../lib/log')
-const DB = require('../../lib/db/mysql')(log, dbServer.errors)
-const fake = require('../../fxa-auth-db-server/test/fake')
+const P = require(`${ROOT_DIR}/lib/promise`)
+const DB = require(`${ROOT_DIR}/lib/db/mysql`)(log, dbServer.errors)
+const fake = require(`${ROOT_DIR}/fxa-auth-db-server/test/fake`)
 // shallow copy, but it's all we need
-const config = Object.assign({}, require('../../config'))
+const config = Object.assign({}, require(`${ROOT_DIR}/config`))
 config.pruneTokensMaxAge = 24 * 60 * 60 * 1000 // one day setting for tests
 
 
@@ -31,6 +34,8 @@ describe('prune tokens', () => {
     () => {
       var user = fake.newUserDataBuffer()
       var unblockCode = crypto.randomBytes(4).toString('hex')
+      const signinCode = crypto.randomBytes(6).toString('hex')
+      const signinCodeHash = crypto.createHash('sha256').update(signinCode).digest()
       return db.createAccount(user.accountId, user.account)
         .then(function() {
           return db.createPasswordForgotToken(user.passwordForgotTokenId, user.passwordForgotToken)
@@ -38,30 +43,28 @@ describe('prune tokens', () => {
         .then(function() {
           return db.forgotPasswordVerified(user.accountResetTokenId, user.accountResetToken)
         })
-        .then(function () {
-          return db.createUnblockCode(user.accountId, unblockCode)
+        .then(() => {
+          return P.all([
+            db.createPasswordForgotToken(user.passwordForgotTokenId, user.passwordForgotToken),
+            db.createUnblockCode(user.accountId, unblockCode),
+            db.createSigninCode(signinCode, user.accountId, Date.now() - TOKEN_PRUNE_AGE)
+          ])
         })
+        .then(() => {
+          // Set createdAt to be older than prune date
+          const sql = {
+            accountResetToken: 'UPDATE accountResetTokens SET createdAt = createdAt - ? WHERE tokenId = ?',
+            passwordForgotToken: 'UPDATE passwordForgotTokens SET createdAt = createdAt - ? WHERE tokenId = ?',
+            unblockCode: 'UPDATE unblockCodes SET createdAt = createdAt - ? WHERE uid = ?'
+          }
+          return P.all([
+            db.write(sql.accountResetToken, [TOKEN_PRUNE_AGE, user.accountResetTokenId]),
+            db.write(sql.passwordForgotToken, [TOKEN_PRUNE_AGE, user.passwordForgotTokenId]),
+            db.write(sql.unblockCode, [TOKEN_PRUNE_AGE, user.accountId])
+          ])
+        })
+        // check tokens exist
         .then(function() {
-          // now set it to be older than prune date
-          var sql = 'UPDATE accountResetTokens SET createdAt = createdAt - ? WHERE tokenId = ?'
-          return db.write(sql, [TOKEN_PRUNE_AGE, user.accountResetTokenId])
-        })
-        .then(function(sdf) {
-          return db.createPasswordForgotToken(user.passwordForgotTokenId, user.passwordForgotToken)
-        })
-        .then(function() {
-          // now set it to be older than prune date
-          var sql = 'UPDATE passwordForgotTokens SET createdAt = createdAt - ? WHERE tokenId = ?'
-          return db.write(sql, [TOKEN_PRUNE_AGE, user.passwordForgotTokenId])
-        })
-        .then(function() {
-          // now set it to be older than prune date
-          var sql = 'UPDATE unblockCodes SET createdAt = createdAt - ? WHERE uid = ?'
-          return db.write(sql, [TOKEN_PRUNE_AGE, user.accountId])
-        })
-        // check token exist
-        .then(function() {
-          // now check that all tokens for this uid have been deleted
           return db.accountResetToken(user.accountResetTokenId)
         })
         .then(function() {
@@ -73,6 +76,12 @@ describe('prune tokens', () => {
         })
         .then(function(res) {
           assert.equal(res[0].uid.toString('hex'), user.accountId.toString('hex'))
+        })
+        .then(() => {
+          return db.read('SELECT * FROM signinCodes WHERE hash = ?', [signinCodeHash])
+        })
+        .then(res => {
+          assert.equal(res[0].hash.toString('hex'), signinCodeHash.toString('hex'))
         })
         .then(function() {
           // prune older tokens
@@ -107,6 +116,12 @@ describe('prune tokens', () => {
         })
         .then(function(res) {
           assert.equal(res.length, 0, 'no unblock codes for that user')
+        })
+        .then(() => {
+          return db.read('SELECT * FROM signinCodes WHERE hash = ?', [signinCodeHash])
+        })
+        .then(res => {
+          assert.equal(res.length, 0, 'db.read should return an empty recordset')
         })
     }
   )

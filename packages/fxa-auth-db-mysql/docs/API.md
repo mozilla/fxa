@@ -54,7 +54,6 @@ There are a number of methods that a DB storage backend should implement:
 * Signin codes
     * .createSigninCode(code, uid, createdAt)
     * .consumeSigninCode(code)
-    * .expireSigninCodes(olderThan)
 * General
     * .ping()
     * .close()
@@ -615,15 +614,4 @@ Parameters:
 
 * `code` (Buffer):
   The value of the code
-
-## .expireSigninCodes(olderThan)
-
-Delete expired sign-in codes.
-
-Parameters:
-
-* `olderThan` (number):
-  Threshold timestamp for deletion,
-  if `createdAt` is less than this number
-  the sign-in code will be deleted.
 

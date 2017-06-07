@@ -64,6 +64,12 @@ module.exports = function (fs, path, url, convict) {
       format: 'duration',
       env: 'PRUNE_TOKENS_MAX_AGE',
     },
+    signinCodesMaxAge: {
+      doc: 'Maximum age for signinCodes, after which they will expire',
+      default: '2 days',
+      format: 'duration',
+      env: 'SIGNIN_CODES_MAX_AGE',
+    },
     master: {
       user: {
         doc: 'The user to connect to for MySql',
