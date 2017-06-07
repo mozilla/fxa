@@ -5,7 +5,9 @@
 'use strict'
 
 const assert = require('insist')
-const proxyquire = require('proxyquire')
+// noPreserveCache is needed to prevent the mock mailer from
+// being used for all future tests that include mock-nexmo.
+const proxyquire = require('proxyquire').noPreserveCache()
 const sinon = require('sinon')
 const config = require('../../config').getProperties()
 
@@ -50,7 +52,6 @@ describe('mock-nexmo', () => {
         assert.equal(mailer.sendMail.callCount, 1)
         const sendConfig = mailer.sendMail.args[0][0]
         assert.equal(sendConfig.from, config.smtp.sender)
-        assert.equal(sendConfig.sender, config.smtp.sender)
         assert.equal(sendConfig.to, 'sms.+019999999999@restmail.net')
         assert.equal(sendConfig.subject, 'MockNexmo.message.sendSms')
         assert.equal(sendConfig.text, 'message')
@@ -69,7 +70,6 @@ describe('mock-nexmo', () => {
         assert.equal(mailer.sendMail.callCount, 1)
         const sendConfig = mailer.sendMail.args[0][0]
         assert.equal(sendConfig.from, config.smtp.sender)
-        assert.equal(sendConfig.sender, config.smtp.sender)
         assert.equal(sendConfig.to, 'sms.+019999999999@restmail.net')
         assert.equal(sendConfig.subject, 'MockNexmo.message.sendSms')
         assert.equal(sendConfig.text, 'message')

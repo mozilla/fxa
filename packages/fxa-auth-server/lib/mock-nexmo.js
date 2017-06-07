@@ -40,7 +40,6 @@ function MockNexmo(log, config) {
         // HACK: Enable remote tests to see what was sent
         mailer.sendMail({
           from: config.smtp.sender,
-          sender: config.smtp.sender,
           to: `sms.${phoneNumber}@restmail.net`,
           subject: 'MockNexmo.message.sendSms',
           text: message
