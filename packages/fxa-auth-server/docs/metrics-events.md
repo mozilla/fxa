@@ -35,7 +35,7 @@ metrics queries in redash:
   * [`daily_multi_device_users`](#daily_multi_device_users)
   * [Event names](#event-names)
 * [Email events](#email-events)
-  * [`email_events`](#email_events)  
+  * [`email_events`](#email_events)
 * [Sampled data sets](#sampled-data-sets)
 * [Significant changes](#significant-changes)
 
@@ -139,6 +139,14 @@ in a sign-in or sign-up flow:
 |`flow.${viewName}.have-account`|A user has clicked on the 'Already have an account?' link.|
 |`flow.${viewName}.create-account`|A user has clicked on the 'Create an account' link.|
 |`flow.${viewName}.forgot-password`|A user has clicked on the 'Forgot password?' link.|
+|`flow.${viewName}.install_from.${connectMethod}`|Suggested 'connect another device' method.|
+|`flow.${viewName}.link.app-store(android|ios)`|A user has clicked on an app store link.|
+|`flow.${viewName}.link.maybe_later`|A user has clicked on the 'Maybe later' link.|
+|`flow.${viewName}.link.signin`|A user has clicked on the 'Sign in' link.|
+|`flow.${viewName}.link.why`|A user has clicked on the 'Why is this required?' link.|
+|`flow.${viewName}.signedin.(true|false)`|Is the user signed in during the connect another device flow?.|
+|`flow.${viewName}.signin.eligible`|A user is eligible to sign in during the connect another device flow.|
+|`flow.${viewName}.signin.ineligible`|A user is not eligible to sign in during the connect another device flow.|
 |`flow.${action}.attempt`|The content server has sent a sign-in/up request to the auth server.|
 |`flow.experiment.${experiment}.${group}`|A user has been included in an active experiment.|
 |`flow.performance`|`flow_time` for this event indicates the number of milliseconds a user waited until the first view rendered and they were able to interact with the page.|
@@ -187,17 +195,18 @@ View name|Description
 `signin`|The sign-in form
 `confirm-signin`|Displayed while awaiting sign-in confirmation
 `signin-confirmed`|The tab the user signed in from, after sign-in confirmation
-`verify-email`|The tab the user confirmed their email in, after sign-in confirmation
-`complete-signin`|
+`verify-email`|The tab the user attempted to verify a signup in, before verification
+`complete-signin`|The tab the user attempted to verify a signin in, before verification
 `reset-password`|The reset password form
-`confirm-reset-password`|
-`reset-password-confirmed`|
-`reset-password-verified`|
-`complete-reset-password`|
+`confirm-reset-password`|The tab the user initiated the password reset from, before verification
+`reset-password-confirmed`|The tab the user initiated the password reset from, after verification
+`reset-password-verified`|The tab the user has verified the password reset from, after verification
+`complete-reset-password`|The tab the user attempted to verify the password reset in, before verification
 `signin-unblock`|The sign-in unblock screen
 `choose-what-to-sync`|Choose what to Sync
 `connect-another-device`|Connect another device, phase 1
-`sms`|Connect another device, phase 2
+`sms`|Connect another device, phase 2, Send an SMS form
+`sms.sent`|Connect another device, phase 2, SMS sent
 `cookies-disabled`|Error page shown if local storage or cookies are disabled
 
 #### Action names
@@ -208,6 +217,20 @@ Action name|Description
 -----------|-----------
 `signup`|Create an account, i.e. `/account/create`
 `signin`|Sign in to an existing account, i.e. `/account/login`
+
+#### Connect method names ####
+
+Possible values for `${connectMethod}` are:
+
+Connect method name|Description
+`signin_from.fx_android`|User has verified in Firefox for Android, is not signed in, and can do so.
+`signin_from.fx_desktop`|User has verified in Firefox Desktop, is not signed in, and can do so.
+`signin_from.fx_ios`|User has verified in Firefox for iOS, is not signed in, and can do so.
+`install_from.fx_android`|User has verified in Firefox for Android, is signed in, and should install Firefox on another mobile device.
+`install_from.fx_deskop`|User has verified in Firefox Desktop, is signed in, and should install Firefox on a mobile device.
+`install_from.other_android`|User has verified a non-Firefox browser for Android, and should install Firefox on their mobile device.
+`install_from.other_ios`|User has verified a non-Firefox browser for iOS, and should install Firefox on their mobile device.
+`install_from.other`|User has verified in a non-firefox browser, and should install Firefox on another mobile device.
 
 #### Experiment names
 
@@ -418,6 +441,11 @@ to each of the table names mentioned above:
   e.g. `activity_events_sampled_10`.
 
 ## Significant changes
+
+### Train 88
+ * [Flow events added for clicks on app store
+   install links](https://github.com/mozilla/fxa-content-server/pull/5113)
+   * flow.{viewName}.link.app-store.(android|ios)
 
 ### Train 86
 
