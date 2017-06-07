@@ -21,7 +21,7 @@ const validators = require('./validators')
 
 const HEX_STRING = validators.HEX_STRING
 const DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
-const URLSAFEBASE64 = validators.URLSAFEBASE64
+const URL_SAFE_BASE_64 = validators.URL_SAFE_BASE_64
 const BASE_36 = validators.BASE_36
 const PUSH_PAYLOADS_SCHEMA_PATH = '../../docs/pushpayloads.schema.json'
 
@@ -1225,15 +1225,15 @@ module.exports = (
               name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).optional(),
               type: isA.string().max(16).optional(),
               pushCallback: isA.string().uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).optional().allow(''),
-              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
-              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
+              pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow(''),
+              pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('')
             }).or('name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey').and('pushPublicKey', 'pushAuthKey'),
             isA.object({
               name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).required(),
               type: isA.string().max(16).required(),
               pushCallback: isA.string().uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).optional().allow(''),
-              pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
-              pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
+              pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow(''),
+              pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('')
             }).and('pushPublicKey', 'pushAuthKey')
           )
         },
@@ -1246,8 +1246,8 @@ module.exports = (
             name: isA.string().max(255).optional(),
             type: isA.string().max(16).optional(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-            pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow(''),
-            pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('')
+            pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow(''),
+            pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('')
           }).and('pushPublicKey', 'pushAuthKey')
         }
       },
@@ -1436,8 +1436,8 @@ module.exports = (
             name: isA.string().max(255).required().allow(''),
             type: isA.string().max(16).required(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
-            pushPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow('').allow(null),
-            pushAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('').allow(null)
+            pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
+            pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('').allow(null)
           }).and('pushPublicKey', 'pushAuthKey'))
         }
       },
@@ -1494,8 +1494,8 @@ module.exports = (
             deviceName: isA.string().max(255).required().allow('').allow(null),
             deviceType: isA.string().max(16).required().allow(null),
             deviceCallbackURL: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
-            deviceCallbackPublicKey: isA.string().max(88).regex(URLSAFEBASE64).optional().allow('').allow(null),
-            deviceCallbackAuthKey: isA.string().max(24).regex(URLSAFEBASE64).optional().allow('').allow(null),
+            deviceCallbackPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
+            deviceCallbackAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
             isDevice: isA.boolean().required(),
             isCurrentDevice: isA.boolean().required()
           }))

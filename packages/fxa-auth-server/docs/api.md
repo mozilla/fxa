@@ -33,7 +33,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [GET /account/devices (:lock: sessionToken)](#get-accountdevices)
     * [GET /account/sessions (:lock: sessionToken)](#get-accountsessions)
     * [POST /account/device/destroy (:lock: sessionToken)](#post-accountdevicedestroy)
-    * [GET /recovery_email/enabled (:lock: sessionToken)](#get-recovery_emailenabled)
+    * [GET /recovery_email/check_can_add_secondary_address (:lock: sessionToken)](#get-recovery_emailcheck_can_add_secondary_address)
     * [GET /recovery_email/status (:lock: sessionToken)](#get-recovery_emailstatus)
     * [POST /recovery_email/resend_code (:lock: sessionToken)](#post-recovery_emailresend_code)
     * [POST /recovery_email/verify_code](#post-recovery_emailverify_code)
@@ -298,7 +298,6 @@ those common validations are defined here.
 #### lib/routes/validators
 
 * `HEX_STRING`: `/^(?:[a-fA-F0-9]{2})+$/`
-* `URLSAFEBASE64`: `/^[a-zA-Z0-9-_]*$/`
 * `BASE_36`: `/^[a-zA-Z0-9]*$/`
 * `URL_SAFE_BASE_64`: `/^[A-Za-z0-9_-]+$/`
 * `DISPLAY_SAFE_UNICODE`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
@@ -740,13 +739,13 @@ can be made available to other connected devices.
   
   <!--end-request-body-post-accountdevice-pushCallback-->
 
-* `pushPublicKey`: *string, max(88), regex(URLSAFEBASE64), optional, allow('')*
+* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow('')*
 
   <!--begin-request-body-post-accountdevice-pushPublicKey-->
   
   <!--end-request-body-post-accountdevice-pushPublicKey-->
 
-* `pushAuthKey`: *string, max(24), regex(URLSAFEBASE64), optional, allow('')*
+* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow('')*
 
   <!--begin-request-body-post-accountdevice-pushAuthKey-->
   
@@ -784,13 +783,13 @@ can be made available to other connected devices.
   
   <!--end-response-body-post-accountdevice-pushCallback-->
 
-* `pushPublicKey`: *string, max(88), regex(URLSAFEBASE64), optional, allow('')*
+* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow('')*
 
   <!--begin-response-body-post-accountdevice-pushPublicKey-->
   
   <!--end-response-body-post-accountdevice-pushPublicKey-->
 
-* `pushAuthKey`: *string, max(24), regex(URLSAFEBASE64), optional, allow('')*
+* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow('')*
 
   <!--begin-response-body-post-accountdevice-pushAuthKey-->
   
@@ -921,13 +920,13 @@ for the authenticated user.
   
   <!--end-response-body-get-accountdevices-pushCallback-->
 
-* `pushPublicKey`: *string, max(88), regex(URLSAFEBASE64), optional, allow(''), allow(null)*
+* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
 
   <!--begin-response-body-get-accountdevices-pushPublicKey-->
   
   <!--end-response-body-get-accountdevices-pushPublicKey-->
 
-* `pushAuthKey`: *string, max(24), regex(URLSAFEBASE64), optional, allow(''), allow(null)*
+* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
 
   <!--begin-response-body-get-accountdevices-pushAuthKey-->
   
@@ -999,13 +998,13 @@ for the authenticated user.
   
   <!--end-response-body-get-accountsessions-deviceCallbackURL-->
 
-* `deviceCallbackPublicKey`: *string, max(88), regex(URLSAFEBASE64), optional, allow(''), allow(null)*
+* `deviceCallbackPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
 
   <!--begin-response-body-get-accountsessions-deviceCallbackPublicKey-->
   
   <!--end-response-body-get-accountsessions-deviceCallbackPublicKey-->
 
-* `deviceCallbackAuthKey`: *string, max(24), regex(URLSAFEBASE64), optional, allow(''), allow(null)*
+* `deviceCallbackAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
 
   <!--begin-response-body-get-accountsessions-deviceCallbackAuthKey-->
   
@@ -1044,12 +1043,12 @@ to use the API after this request has succeeded.
   <!--end-request-body-post-accountdevicedestroy-id-->
 
 
-#### GET /recovery_email/enabled
+#### GET /recovery_email/check_can_add_secondary_address
 
 :lock: HAWK-authenticated with session token
-<!--begin-route-get-recovery_emailenabled-->
+<!--begin-route-get-recovery_emailcheck_can_add_secondary_address-->
 Returns whether or not secondary emails is enabled for a user.
-<!--end-route-get-recovery_emailenabled-->
+<!--end-route-get-recovery_emailcheck_can_add_secondary_address-->
 
 
 #### GET /recovery_email/status
