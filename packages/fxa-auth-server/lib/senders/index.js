@@ -28,12 +28,17 @@ module.exports = function (log, config, error, bounces, translator, sender) {
     function getSafeMailer(email) {
       return bounces.check(email)
         .return(ungatedMailer)
-        .catch(function (err) {
-          log.info({
+        .catch(function (e) {
+          var info = {
             op: 'mailer.blocked',
-            errno: err.errno
-          })
-          throw err
+            errno: e.errno
+          }
+          var bouncedAt = e.output && e.output.payload && e.output.payload.bouncedAt
+          if (bouncedAt) {
+            info.bouncedAt = bouncedAt
+          }
+          log.info(info)
+          throw e
         })
     }
 

@@ -21,14 +21,6 @@ const NOW = Date.now()
 
 describe('bounces', () => {
 
-  describe('config', () => {
-    it('should have default durations set', () => {
-      assert.equal(config.smtp.bounces.soft.duration, 1000 * 60 * 5)
-      assert.equal(config.smtp.bounces.hard.duration, 1000 * 60 * 60 * 24 * 365)
-      assert.equal(config.smtp.bounces.complaint.duration, 1000 * 60 * 60 * 24 * 365)
-    })
-  })
-
   it('succeeds if bounces not over limit', () => {
     const db = {
       emailBounces: sinon.spy(() => P.resolve([]))
@@ -45,7 +37,7 @@ describe('bounces', () => {
       bounces: {
         enabled: true,
         complaint: {
-          max: 0
+          0: Infinity
         }
       }
     }
@@ -73,15 +65,21 @@ describe('bounces', () => {
       bounces: {
         enabled: true,
         hard: {
-          max: 0
+          0: 100,
+          1: 5000
         }
       }
     }
+    const DATE = Date.now() - 1000
     const db = {
       emailBounces: sinon.spy(() => P.resolve([
         {
           bounceType: BOUNCE_TYPE_HARD,
-          createdAt: NOW
+          createdAt: DATE
+        },
+        {
+          bounceType: BOUNCE_TYPE_HARD,
+          createdAt: DATE - 1000
         }
       ]))
     }
@@ -91,6 +89,7 @@ describe('bounces', () => {
         e => {
           assert.equal(db.emailBounces.callCount, 1)
           assert.equal(e.errno, error.ERRNO.BOUNCE_HARD)
+          assert.equal(e.output.payload.bouncedAt, DATE)
         }
       )
   })
@@ -101,8 +100,8 @@ describe('bounces', () => {
       bounces: {
         enabled: true,
         hard: {
-          max: 0,
-          duration: 5000
+          0: 5000,
+          1: 50000
         }
       }
     }
