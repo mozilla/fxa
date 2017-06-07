@@ -174,6 +174,10 @@ define(function (require, exports, module) {
       errno: 145,
       message: t('Primary account email required for reset')
     },
+    INVALID_SIGNIN_CODE: {
+      errno: 146,
+      message: t('Invalid signin code')
+    },
     // Secondary Email errors end
     SERVER_BUSY: {
       errno: 201,

@@ -36,6 +36,8 @@ define(function (require, exports, module) {
 
       this._behaviors = new Backbone.Model(this.defaultBehaviors);
       this._capabilities = new Backbone.Model(this.defaultCapabilities);
+      this._fxaClient = options.fxaClient;
+      this._metrics = options.metrics;
 
       this._notificationChannel = options.notificationChannel;
       if (this._notificationChannel) {
@@ -111,6 +113,12 @@ define(function (require, exports, module) {
         if (this.hasCapability('fxaStatus')) {
           return this._fetchFxaStatus();
         }
+      })
+      .then(() => {
+        const signinCode = this.relier && this.relier.get('signinCode');
+        if (signinCode) {
+          return this._consumeSigninCode(signinCode);
+        }
       });
     },
 
@@ -118,6 +126,7 @@ define(function (require, exports, module) {
      * Request FXA_STATUS info from the UA.
      *
      * @returns {Promise} resolves when complete.
+     * @private
      */
     _fetchFxaStatus () {
       const TEST_REQUEST_DELAY_MS = this.isAutomatedBrowser() ? 200 : 0;
@@ -142,6 +151,27 @@ define(function (require, exports, module) {
           }
 
           throw err;
+        });
+    },
+
+    /**
+     * Consume the `signinCode` for account data. If successfully consumed,
+     * `signinCodeAccount` will be available via this.get.
+     *
+     * @param {String} signinCode
+     * @returns {Promise} resolves when complete.
+     * @private
+     */
+    _consumeSigninCode (signinCode) {
+      this._metrics._initializeFlowModel();
+      const { flowId, flowBeginTime } = this._metrics.getFlowEventMetadata();
+      return this._fxaClient.consumeSigninCode(signinCode, flowId, flowBeginTime)
+        .then((response) => {
+          this.set('signinCodeAccount', response);
+        }, (err) => {
+          // log and ignore any errors. The user should still
+          // be able to sign in normally.
+          this._metrics.logError(err);
         });
     },
 

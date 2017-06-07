@@ -123,12 +123,14 @@
      it('resend success, displays the success message', () => {
        sinon.stub(account, 'sendSms', () => p());
        sinon.spy(view, 'displaySuccess');
+       sinon.stub(view, 'getSmsFeatures', () => ['signinCodes']);
 
        return view.resend()
          .then(() => {
            assert.isTrue(account.sendSms.calledOnce);
-           assert.isTrue(account.sendSms.calledWith('+11234567890', FIREFOX_MOBILE_INSTALL));
+           assert.isTrue(account.sendSms.calledWith('+11234567890', FIREFOX_MOBILE_INSTALL, { features: ['signinCodes']}));
 
+           assert.isTrue(view.getSmsFeatures.calledOnce);
            assert.isTrue(view.displaySuccess.calledOnce);
            const successText = view.displaySuccess.args[0][0];
            assert.include(successText, 'resent');
@@ -139,13 +141,15 @@
      it('resend failure, displays the error message', () => {
        sinon.stub(account, 'sendSms', () => p.reject(SmsErrors.toError('THROTTLED')));
        sinon.spy(view, 'displayError');
+       sinon.stub(view, 'getSmsFeatures', () => ['signinCodes']);
 
        // _resend is called instead of resend to test resend-mixin integration.
        return view._resend()
          .then(() => {
            assert.isTrue(account.sendSms.calledOnce);
-           assert.isTrue(account.sendSms.calledWith('+11234567890', FIREFOX_MOBILE_INSTALL));
+           assert.isTrue(account.sendSms.calledWith('+11234567890', FIREFOX_MOBILE_INSTALL, { features: ['signinCodes']}));
 
+           assert.isTrue(view.getSmsFeatures.calledOnce);
            assert.isTrue(view.displayError.calledOnce);
            assert.isTrue(SmsErrors.is(view.displayError.args[0][0], 'THROTTLED'));
          });

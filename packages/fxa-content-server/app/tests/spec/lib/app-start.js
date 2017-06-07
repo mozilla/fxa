@@ -453,18 +453,22 @@ define(function (require, exports, module) {
 
     describe('initializeUser', () => {
       let browserAccountData;
+      let signinCodeAccountData;
       let sandbox;
 
       beforeEach(() => {
         browserAccountData = { email: 'testuser@testuser.com', uid: 'uid' };
+        signinCodeAccountData = { email: 'signinCode@testuser.com' };
 
         // sandbox is used because stubs are added to User.prototype.
         sandbox = sinon.sandbox.create();
 
         sandbox.stub(User.prototype, 'shouldSetSignedInAccountFromBrowser', () => p());
         sandbox.stub(User.prototype, 'setSignedInAccountFromBrowserAccountData', () => true);
+        sandbox.stub(User.prototype, 'setSigninCodeAccount', () => p());
 
         brokerMock.set('browserSignedInAccount', browserAccountData);
+        brokerMock.set('signinCodeAccount', signinCodeAccountData);
 
         appStart = new AppStart({
           broker: brokerMock,
@@ -497,6 +501,9 @@ define(function (require, exports, module) {
             assert.isTrue(appStart._user.setSignedInAccountFromBrowserAccountData.calledWith(browserAccountData));
 
             assert.isTrue(appStart.upgradeStorageFormats.calledOnce);
+
+            assert.isTrue(appStart._user.setSigninCodeAccount.calledOnce);
+            assert.isTrue(appStart._user.setSigninCodeAccount.calledWith(signinCodeAccountData));
           });
       });
     });

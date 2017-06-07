@@ -9,6 +9,8 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const BaseAuthenticationBroker = require('models/auth_brokers/base');
+  const FxaClient = require('lib/fxa-client');
+  const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
@@ -20,6 +22,8 @@ define(function (require, exports, module) {
   describe('models/auth_brokers/base', function () {
     let account;
     let broker;
+    let fxaClient;
+    let metrics;
     let notifier;
     let notificationChannel;
     let relier;
@@ -27,14 +31,17 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       account = new Account({ uid: 'users_uid' });
+      fxaClient = new FxaClient();
+      metrics = new Metrics();
       notificationChannel = new WebChannel('web_channel');
       sinon.stub(notificationChannel, 'isFxaStatusSupported', () => false);
-
       notifier = new Notifier();
       relier = new Relier({ context: 'fx_fennec_v1' });
       windowMock = new WindowMock();
 
       broker = new BaseAuthenticationBroker({
+        fxaClient,
+        metrics,
         notificationChannel,
         notifier,
         relier,
@@ -82,6 +89,17 @@ define(function (require, exports, module) {
               assert.isTrue(broker._fetchFxaStatus.calledOnce);
             });
         });
+      });
+
+      it('if relier has a `signinCode`, it is consumed', () => {
+        relier.set('signinCode', 'signin-code');
+        sinon.stub(broker, '_consumeSigninCode', () => p());
+
+        return broker.fetch()
+          .then(() => {
+            assert.isTrue(broker._consumeSigninCode.calledOnce);
+            assert.isTrue(broker._consumeSigninCode.calledWith('signin-code'));
+          });
       });
     });
 
@@ -380,6 +398,40 @@ define(function (require, exports, module) {
       it('sets a behavior', function () {
         broker.setBehavior('new behavior', { halt: true });
         assert.isTrue(broker.getBehavior('new behavior').halt);
+      });
+    });
+
+    describe('_consumeSigninCode', () => {
+      it('delegates to the user, clears signinCode when complete', () => {
+        sinon.stub(fxaClient, 'consumeSigninCode', function () {
+          return p({ email: 'signed-in-email@testuser.com' });
+        });
+
+        return broker._consumeSigninCode('signin-code')
+          .then(() => {
+            assert.isTrue(fxaClient.consumeSigninCode.calledOnce);
+            assert.isTrue(fxaClient.consumeSigninCode.calledWith('signin-code'));
+
+            assert.deepEqual(broker.get('signinCodeAccount'), {
+              email: 'signed-in-email@testuser.com'
+            });
+          });
+      });
+
+      it('logs and ignores errors, clears signinCode when complete', () => {
+        const err = AuthErrors.toError('INVALID_SIGNIN_CODE');
+        sinon.stub(fxaClient, 'consumeSigninCode', function () {
+          return p.reject(err);
+        });
+        sinon.spy(metrics, 'logError');
+
+        return broker._consumeSigninCode('signin-code')
+          .then(() => {
+            assert.isFalse(broker.has('signinCodeAccount'));
+
+            assert.isTrue(metrics.logError.calledOnce);
+            assert.isTrue(metrics.logError.calledWith(err));
+          });
       });
     });
   });

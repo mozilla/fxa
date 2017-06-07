@@ -1342,5 +1342,22 @@ define(function (require, exports, module) {
           });
       });
     });
+
+    describe('consumeSigninCode', () => {
+      it('delegates to the fxa-js-client', () => {
+        const resp = {
+          email: 'testuser@testuser.com'
+        };
+        sinon.stub(realClient, 'consumeSigninCode', () => p(resp));
+
+        return client.consumeSigninCode('thecode')
+          .then((_resp) => {
+            assert.strictEqual(_resp, resp);
+
+            assert.isTrue(realClient.consumeSigninCode.calledOnce);
+            assert.isTrue(realClient.consumeSigninCode.calledWith('thecode'));
+          });
+      });
+    });
   });
 });

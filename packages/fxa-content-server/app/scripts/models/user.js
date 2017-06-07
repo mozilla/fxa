@@ -238,15 +238,40 @@ define(function (require, exports, module) {
       return this.initAccount(accounts[uid]);
     },
 
-    // Return the account selected in the account chooser.
-    // Defaults to the last logged in account unless a desktop session
-    // has been stored.
+    /**
+     * Return the account to display in the account chooser.
+     * Account preference order:
+     *   1. Accounts fetched using a signinCode (only have email)
+     *   2. Valid Sync accounts (have email, sessionToken)
+     *   3. Valid signed in accounts (have email, sessionToken)
+     *   4. Default account
+     *
+     * @returns {Object} resolves to an Account.
+     */
     getChooserAccount () {
-      var account = _.find(this._accounts(), (account) => {
-        return this.isSyncAccount(account);
-      }) || this.getSignedInAccount();
+      function isValidStoredAccount(account) {
+        return !! (account && account.get('sessionToken') && account.get('email'));
+      }
 
-      return this.initAccount(account);
+      if (this.has('signinCodeAccount')) {
+        return this.get('signinCodeAccount');
+      } else {
+        const validSyncAccount = _.find(this._accounts(), (accountData) => {
+          const account = this.initAccount(accountData);
+          return this.isSyncAccount(account) && isValidStoredAccount(account);
+        });
+        const signedInAccount = this.getSignedInAccount();
+        const validSignedInAccount = isValidStoredAccount(signedInAccount) && signedInAccount;
+
+        let account = {};
+        if (validSyncAccount) {
+          account = validSyncAccount;
+        } else if (validSignedInAccount) {
+          account = validSignedInAccount;
+        }
+
+        return this.initAccount(account);
+      }
     },
 
     // Used to clear the current account, but keeps the account details
@@ -261,6 +286,7 @@ define(function (require, exports, module) {
     removeAllAccounts () {
       this.clearSignedInAccountUid();
       this._storage.remove('accounts');
+      this.unset('signinCodeAccount');
     },
 
     /**
@@ -772,6 +798,21 @@ define(function (require, exports, module) {
         // don't clear or store anything. No need to. Sync users
         // will have no accounts stored in memory, and OAuth users
         // can only arrive here if no accounts are stored in localStorage.
+      });
+    },
+
+    /**
+     * Set the signinCode account from `accountData`
+     *
+     * @param {Object} accountData
+     * @returns {Promise}
+     */
+    setSigninCodeAccount (accountData) {
+      return p().then(() => {
+        const account = this.initAccount(
+          _.pick(accountData, 'email')
+        );
+        this.set('signinCodeAccount', account);
       });
     }
   });

@@ -3,34 +3,40 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'tests/lib/request',
   'intern/browser_modules/dojo/Promise'
-], function (request, Promise) {
+], function (intern, request, Promise) {
+  'use strict';
+
+  const config = intern.config;
+  const EMAIL_SERVER_ROOT = config.fxaEmailRoot;
 
   /**
    * Wait for an email.
    *
-   * @param {string} uri - email uri
-   * @param {number} number
-   * @param {object} [options]
-   *   @param {number} [options.minAttemptsBeforeLog] - Minimum number of
+   * @param {String} user
+   * @param {Number} number
+   * @param {Object} [options]
+   *   @param {Number} [options.minAttemptsBeforeLog] - Minimum number of
    *   attempts before attempts are logged. Defaults to 2.
-   *   @param {number} [options.maxAttempts] - number of email fetch attempts
+   *   @param {Number} [options.maxAttempts] - number of email fetch attempts
    *   to make. Defaults to 10.
    */
-  function waitForEmail(uri, number, options) {
+  function waitForEmail(user, number, options) {
     options = options || {};
-    var requestAttempts = 0;
+    let requestAttempts = 0;
     if (! number) {
       number = 1;
     }
 
-    var maxAttempts = options.maxAttempts || 10;
-    var minAttemptsBeforeLog = options.minAttemptsBeforeLog ||
+    const maxAttempts = options.maxAttempts || 10;
+    const minAttemptsBeforeLog = options.minAttemptsBeforeLog ||
                                options.maxAttempts ||
                                2;
 
-    return function checkIt () {
+    const uri = getUserUri(user);
+    function checkIt () {
       if (requestAttempts > minAttemptsBeforeLog) {
         // only log if too many attempts, probably means the service is
         // not properly responding
@@ -53,9 +59,26 @@ define([
 
             return dfd.promise;
           }
+        }, (err) => {
+          console.log('error', err);
         });
-    };
+    }
+
+    return checkIt();
   }
 
-  return waitForEmail;
+  function deleteAllEmails(user) {
+    // restmail returns an empty response, which causes a blowup. Ignore the error.
+    return request(getUserUri(user), 'DELETE', null).then(null, (err) => {});
+
+  }
+
+  function getUserUri(user) {
+    return EMAIL_SERVER_ROOT + '/mail/' + user;
+  }
+
+  return {
+    deleteAllEmails,
+    waitForEmail
+  };
 });

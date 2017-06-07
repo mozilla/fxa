@@ -26,9 +26,14 @@ define(function (require, exports, module) {
   Vat.register('uuid', Vat.string().test(Validate.isUuidValid));
   Vat.register('verificationCode', Vat.string().test(Validate.isCodeValid));
   Vat.register('verificationRedirect', Vat.string().test(Validate.isVerificationRedirectValid));
-
   // depends on hex, must come afterwards
   Vat.register('clientId', Vat.hex());
+
+  Vat.any().extend({
+    empty (...args) {
+      return this.transform((val) => args.indexOf(val) > -1 ? undefined : val);
+    }
+  });
 
   return Vat;
 });

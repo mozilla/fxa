@@ -2194,7 +2194,9 @@ define(function (require, exports, module) {
         sinon.stub(metrics, 'getFlowEventMetadata', () => flowEventMetaData);
 
         account.set('sessionToken', 'sessionToken');
-        return account.sendSms('1234567890', 1);
+        return account.sendSms('1234567890', 1, {
+          features: ['signinCodes']
+        });
       });
 
       it('delegates to the fxa-client', () => {
@@ -2204,6 +2206,7 @@ define(function (require, exports, module) {
           '1234567890',
           1,
           {
+            features: ['signinCodes'],
             metricsContext: flowEventMetaData
           }
         ));

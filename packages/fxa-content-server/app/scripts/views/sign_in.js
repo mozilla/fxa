@@ -27,7 +27,6 @@ define(function (require, exports, module) {
   const SignInTemplate = require('stache!templates/sign_in');
 
   const proto = FormView.prototype;
-
   const View = FormView.extend({
     template: SignInTemplate,
     className: 'sign-in',
@@ -207,29 +206,29 @@ define(function (require, exports, module) {
     }),
 
     /**
-     * Determines if the user should be suggested for the signin flow.
+     * Get the "suggested" account
      *
-     * @returns {Object|null}
-     *          Returns user information if the user should be suggested
-     *          Returns "null" if the current signin view must not suggest users.
+     * @returns {Object} the suggested Account
      * @private
      */
     _suggestedAccount () {
-      var account = this.user.getChooserAccount();
-      var prefillEmail = this.getPrefillEmail();
-
-      if (
-        // the relier can overrule cached creds.
-        this.relier.allowCachedCredentials() &&
-        // confirm that session email is present
-        account.get('email') && account.get('sessionToken') &&
-        // prefilled email must be the same or absent
-        (prefillEmail === account.get('email') || ! prefillEmail)
-      ) {
+      const user = this.user;
+      const account = user.getChooserAccount();
+      if (this._allowSuggestedAccount(account)) {
         return account;
       } else {
-        return this.user.initAccount();
+        return user.initAccount({});
       }
+    },
+
+    _allowSuggestedAccount (account) {
+      const prefillEmail = this.getPrefillEmail();
+      return !! (
+        // the relier can overrule cached creds.
+        this.relier.allowCachedCredentials() &&
+        // prefilled email must be the same or absent
+        (prefillEmail === account.get('email') || ! prefillEmail)
+      );
     },
 
     /**

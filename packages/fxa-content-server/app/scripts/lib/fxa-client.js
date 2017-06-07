@@ -738,6 +738,7 @@ define(function (require, exports, module) {
      *   a country code prefix, e.g., +1, +44.
      * @param {Number} messageId - ID of message to send.
      * @param {Object} [options]
+     *   @param {String[]} [options.features] - Features to enable for the request, e.g., `signinCodes`
      *   @param {String} [options.metricsContext] - context metadata for use in
      *                   flow events
      * @returns {Promise}
@@ -777,6 +778,16 @@ define(function (require, exports, module) {
      *   * {String} country - user's country
      */
     smsStatus: createClientDelegate('smsStatus'),
+
+    /**
+     * Consume a signinCode
+     *
+     * @param {String} signinCode
+     * @param {String} flowId
+     * @param {String} flowBeginTime
+     * @returns {Promise} resolves to an object with Account information.
+     */
+    consumeSigninCode: createClientDelegate('consumeSigninCode'),
 
     /**
      * Get the recovery emails associated with the signed in account.

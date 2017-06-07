@@ -58,6 +58,7 @@ define(function (require, exports, module) {
       sentryMetrics = new SentryMetrics();
       storage = new Storage();
       user = new User({
+        fxaClient: fxaClientMock,
         metrics: metrics,
         notifier: notifier,
         sentryMetrics: sentryMetrics,
@@ -175,17 +176,126 @@ define(function (require, exports, module) {
         });
     });
 
-    it('getChooserAccount', function () {
-      return user.setSignedInAccount({
-        email: EMAIL,
+    describe('getChooserAccount', () => {
+      const NON_SYNC_ACCOUNT = {
+        email: `non-sync-${EMAIL}`,
+        sessionToken: 'sessionToken',
+        uid: 'uid'
+      };
+
+      const NON_SYNC_ACCOUNT_NO_EMAIL = {
+        sessionToken: 'sessionToken',
+        uid: 'uid'
+      };
+
+      const NON_SYNC_ACCOUNT_NO_SESSION_TOKEN = {
+        email: `non-sync-${EMAIL}`,
+        uid: 'uid'
+      };
+
+      const SYNC_ACCOUNT = {
+        email: `sync-${EMAIL}`,
+        sessionToken: 'sessionToken',
         sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
         uid: 'uid2'
-      })
-      .then(function () {
-        return user.setSignedInAccount({ email: EMAIL, uid: 'uid' });
-      })
-      .then(function () {
-        assert.equal(user.getChooserAccount().get('uid'), 'uid2');
+      };
+
+      const SYNC_ACCOUNT_NO_EMAIL = {
+        sessionToken: 'sessionToken',
+        sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
+        uid: 'uid2'
+      };
+
+      const SYNC_ACCOUNT_NO_SESSION_TOKEN = {
+        email: `sync-${EMAIL}`,
+        uid: 'uid2'
+      };
+
+      const SIGNIN_CODE_ACCOUNT = {
+        email: `signin-code-${EMAIL}`
+      };
+
+      function compareAccounts(account, expected) {
+        const accountData = account.pick('email', 'sessionToken', 'sessionTokenContext', 'uid');
+
+        // Get rid of undefined properties
+        for (var key in accountData) {
+          if (typeof accountData[key] === 'undefined') {
+            delete accountData[key];
+          }
+        }
+
+        assert.deepEqual(accountData, expected);
+      }
+
+      describe('signinCode used', () => {
+        it('returns the account data accessible via the signinCode', () => {
+          user.set('signinCodeAccount', user.initAccount(SIGNIN_CODE_ACCOUNT));
+
+          let account = user.getChooserAccount();
+          compareAccounts(account, SIGNIN_CODE_ACCOUNT);
+
+          // clears the signinCodeAccount too.
+          user.removeAllAccounts();
+          account = user.getChooserAccount();
+          assert.isTrue(account.isDefault());
+        });
+      });
+
+      describe('signinCode never used, valid stored Sync account', () => {
+        it('returns the Sync account', () => {
+          return user.setSignedInAccount(SYNC_ACCOUNT)
+            .then(() => {
+              compareAccounts(user.getChooserAccount(), SYNC_ACCOUNT);
+
+              return user.setSignedInAccount(NON_SYNC_ACCOUNT);
+            })
+            .then(() => {
+              // Sync account is still preferred.
+              compareAccounts(user.getChooserAccount(), SYNC_ACCOUNT);
+            });
+        });
+      });
+
+      describe('signinCode never used, invalid stored Sync account', () => {
+        it('returns the Sync account', () => {
+          return user.setSignedInAccount(SYNC_ACCOUNT_NO_EMAIL)
+            .then(() => {
+              assert.isTrue(user.getChooserAccount().isDefault());
+              return user.setSignedInAccount(SYNC_ACCOUNT_NO_SESSION_TOKEN);
+            })
+            .then(() => {
+              assert.isTrue(user.getChooserAccount().isDefault());
+            });
+        });
+      });
+
+      describe('signinCode never used, no stored Sync account, signed in account', () => {
+        it('returns the signed in account', () => {
+          return user.setSignedInAccount(NON_SYNC_ACCOUNT)
+            .then(() => {
+              compareAccounts(user.getChooserAccount(), NON_SYNC_ACCOUNT);
+            });
+        });
+      });
+
+      describe('signinCode never used, no stored Sync account, invalid signed in account', () => {
+        it('returns the signed in account', () => {
+          return user.setSignedInAccount(NON_SYNC_ACCOUNT_NO_EMAIL)
+            .then(() => {
+              assert.isTrue(user.getChooserAccount().isDefault());
+              return user.setSignedInAccount(NON_SYNC_ACCOUNT_NO_SESSION_TOKEN);
+            })
+            .then(() => {
+              assert.isTrue(user.getChooserAccount().isDefault());
+            });
+        });
+      });
+
+      describe('signinCode never used, no stored Sync account, no signed in account', () => {
+        it('returns a default account', () => {
+          assert.isTrue(user.getChooserAccount().isDefault());
+        });
       });
     });
 
@@ -354,8 +464,8 @@ define(function (require, exports, module) {
       });
 
       it('getSignedInAccount returns same instance as getChooserAccount', function () {
-        return user.setSignedInAccount({ email: EMAIL, uid: 'uid' })
-          .then(function () {
+        return user.setSignedInAccount({ email: EMAIL, sessionToken: 'token', uid: 'uid' })
+          .then(() => {
             assert.strictEqual(user.getSignedInAccount(), user.getChooserAccount());
           });
       });
@@ -1523,6 +1633,22 @@ define(function (require, exports, module) {
               assert.isFalse(user.setSignedInAccount.called);
             });
         });
+      });
+    });
+
+    describe('setSigninCodeAccount', () => {
+      it('sets the `signinCodeAccount`', () => {
+        const signinCodeAccountData = {
+          email: 'testuser@testuser.com',
+          filtered: true
+        };
+
+        return user.setSigninCodeAccount(signinCodeAccountData)
+          .then(() => {
+            const signinCodeAccount = user.get('signinCodeAccount');
+            assert.equal(signinCodeAccount.get('email'), 'testuser@testuser.com');
+            assert.isFalse(signinCodeAccount.has('filtered'));
+          });
       });
     });
   });

@@ -459,7 +459,8 @@ const conf = module.exports = convict({
       }
     },
     testPhoneNumber: {
-      default: '',
+      // This is a test phone number that always says "All circuits are busy now"
+      default: '9164400029',
       doc: 'Phone number to send SMS messages to in function tests',
       format: String
     },

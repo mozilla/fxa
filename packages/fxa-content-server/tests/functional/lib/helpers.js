@@ -19,7 +19,6 @@ define([
 
   const AUTH_SERVER_ROOT = config.fxaAuthRoot;
   const CONTENT_SERVER = config.fxaContentRoot;
-  const EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   const EXTERNAL_SITE_LINK_TEXT = 'More information';
   const EXTERNAL_SITE_URL = 'http://example.com';
   const FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth';
@@ -507,10 +506,99 @@ define([
       user = TestHelpers.emailToUser(user);
     }
 
-    // restmail takes a length, not an index. Add 1.
+    // restmail takes a count, not an index. Add 1.
     return this.parent
-      .then(() => restmail(EMAIL_SERVER_ROOT + '/mail/' + user, index + 1, options)())
+      .then(() => restmail.waitForEmail(user, index + 1, options))
       .then((emails) => emails[index]);
+  });
+
+  /**
+   * Delete all emails for `user`
+   *
+   * @param {String} user - username or email address
+   * @returns {Promise} resolves when complete
+   */
+  const deleteAllEmails = thenify(function (user) {
+    if (/@/.test(user)) {
+      user = TestHelpers.emailToUser(user);
+    }
+
+    return this.parent
+      .then(() => restmail.deleteAllEmails(user));
+  });
+
+  /**
+   * Get SMS message `index` for `phoneNumber`.
+   *
+   * @param {String} phoneNumber
+   * @param {Number} index
+   * @param {Object} [options={}]
+   *   @param {Number} [options.maxAttempts] - number of email fetch attempts
+   *   to make. Defaults to 10.
+   * @returns {Promise} resolves with the SMS, if found.
+   */
+  const getSms = thenify(function (phoneNumber, index, options) {
+    return this.parent
+      .then(getEmail(phoneNumberToEmailAddress(phoneNumber), index, options))
+      .then((email) => {
+        return email.text.trim();
+      });
+  });
+
+  /**
+   * Delete all SMS messages for `phoneNumber`
+   *
+   * @param {String} phoneNumber
+   * @returns {Promise} resolves when complete
+   */
+  const deleteAllSms = thenify(function (phoneNumber) {
+    return this.parent
+      .then(deleteAllEmails(phoneNumberToEmailAddress(phoneNumber)));
+  });
+
+  /**
+   * Convert a phone number to an email address
+   *
+   * @param {String} phoneNumber
+   * @returns {String}
+   */
+  function phoneNumberToEmailAddress(phoneNumber) {
+    return `sms.+1${phoneNumber}`;
+  }
+
+  /**
+   * Ensure SMS message `index` for `phoneNumber` matches `smsFormatRegExp`
+   *
+   * @param {String} phoneNumber
+   * @param {Number} index
+   * @param {RegExp} smsFormatRegExp
+   * @returns {Promise} resolves when complete
+   */
+  const testSmsFormat = thenify(function (phoneNumber, index, smsFormatRegExp) {
+    return this.parent
+      .then(getSms(phoneNumber, index))
+      .then((sms) => {
+        assert.isTrue(smsFormatRegExp.test(sms));
+      });
+  });
+
+  const SIGNIN_CODE_SMS_FORMAT = /m\/([a-zA-Z0-9_-]{8,8})$/;
+
+  /**
+   * Get a signinCode from the SMS message `index` for `phoneNumber`
+   *
+   * @param {String} phoneNumber
+   * @param {Number} index
+   * @param {RegExp} smsFormatRegExp
+   * @returns {Promise} resolves with the signinCode when complete
+   */
+  const getSmsSigninCode = thenify(function (phoneNumber, index, options) {
+    return this.parent
+      .then(testSmsFormat(phoneNumber, index, SIGNIN_CODE_SMS_FORMAT))
+      .then(getSms(phoneNumber, index, options))
+      .then((sms) => {
+        return SIGNIN_CODE_SMS_FORMAT.exec(sms)[1];
+      });
   });
 
   /**
@@ -1770,6 +1858,8 @@ define([
     click: click,
     closeCurrentWindow: closeCurrentWindow,
     createUser: createUser,
+    deleteAllEmails,
+    deleteAllSms,
     denormalizeStoredEmail: denormalizeStoredEmail,
     fetchAllMetrics: fetchAllMetrics,
     fillOutChangePassword: fillOutChangePassword,
@@ -1781,10 +1871,12 @@ define([
     fillOutSignInUnblock: fillOutSignInUnblock,
     fillOutSignUp: fillOutSignUp,
     focus: focus,
-    getEmail: getEmail,
+    getEmail,
     getEmailHeaders: getEmailHeaders,
     getFxaClient: getFxaClient,
     getQueryParamValue: getQueryParamValue,
+    getSms,
+    getSmsSigninCode,
     getStoredAccountByEmail: getStoredAccountByEmail,
     getUnblockInfo: getUnblockInfo,
     getVerificationLink: getVerificationLink,
@@ -1834,6 +1926,7 @@ define([
     testErrorWasShown: testErrorWasShown,
     testHrefEquals: testHrefEquals,
     testIsBrowserNotified: testIsBrowserNotified,
+    testSmsFormat,
     testSuccessWasShown: testSuccessWasShown,
     testUrlEquals: testUrlEquals,
     testUrlInclude: testUrlInclude,

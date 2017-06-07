@@ -12,17 +12,17 @@ define(function (require, exports, module) {
 
   const AuthErrors = require('lib/auth-errors');
   const Cocktail = require('cocktail');
+  const CountryTelephoneInfo = require('lib/country-telephone-info');
   const { FIREFOX_MOBILE_INSTALL } = require('lib/sms-message-ids');
   const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FormView = require('views/form');
   const { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } = require('lib/constants');
   const MarketingMixin = require('views/mixins/marketing-mixin');
   const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
-  const SmsErrors = require('lib/sms-errors');
-  const CountryTelephoneInfo = require('lib/country-telephone-info');
-  const Template = require('stache!templates/sms_send');
-
   const SELECTOR_PHONE_NUMBER = 'input[type=tel]';
+  const SmsErrors = require('lib/sms-errors');
+  const SmsMixin = require('views/mixins/sms-mixin');
+  const Template = require('stache!templates/sms_send');
 
   const proto = FormView.prototype;
   const View = FormView.extend({
@@ -117,9 +117,11 @@ define(function (require, exports, module) {
      * @private
      */
     _sendSms (normalizedPhoneNumber, messageId) {
-      return this.getAccount().sendSms(normalizedPhoneNumber, messageId)
-        .then(() => this._onSendSmsSuccess())
-        .fail((err) => this._onSendSmsError(err));
+      return this.getAccount().sendSms(normalizedPhoneNumber, messageId, {
+        features: this.getSmsFeatures()
+      })
+      .then(() => this._onSendSmsSuccess())
+      .fail((err) => this._onSendSmsError(err));
     },
 
     /**
@@ -181,7 +183,8 @@ define(function (require, exports, module) {
       // easier where sometimes ?service=sync is forgotten. See #4948.
       service: SYNC_SERVICE
     }),
-    PulseGraphicMixin
+    PulseGraphicMixin,
+    SmsMixin
   );
 
   module.exports = View;

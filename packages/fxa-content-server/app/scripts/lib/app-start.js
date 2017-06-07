@@ -318,6 +318,7 @@ define(function (require, exports, module) {
         const Constructor = authBrokers.get(context);
         this._authenticationBroker = new Constructor({
           assertionLibrary: this._assertionLibrary,
+          fxaClient: this._fxaClient,
           iframeChannel: this._iframeChannel,
           metrics: this._metrics,
           notificationChannel: this._notificationChannel,
@@ -383,9 +384,14 @@ define(function (require, exports, module) {
         // be thrown.
         return this.upgradeStorageFormats()
           .then(() => {
-            const accountData  = this._authenticationBroker.get('browserSignedInAccount');
+            const signinCodeAccount = this._authenticationBroker.get('signinCodeAccount');
+            if (signinCodeAccount) {
+              user.setSigninCodeAccount(signinCodeAccount);
+            }
+
+            const browserAccountData  = this._authenticationBroker.get('browserSignedInAccount');
             if (user.shouldSetSignedInAccountFromBrowser(this._relier.get('service'))) {
-              user.setSignedInAccountFromBrowserAccountData(accountData);
+              user.setSignedInAccountFromBrowserAccountData(browserAccountData);
             }
           });
       }

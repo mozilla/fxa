@@ -1048,14 +1048,18 @@ define(function (require, exports, module) {
      *
      * @param {String} phoneNumber - target phone number
      * @param {Number} messageId - ID of message
+     * @param {Object} [options={}]
+     *   @param {String[]} [options.features] Features to enable for
+     *     the request, e.g., `signinCodes`
      * @returns {Promise}
      */
-    sendSms (phoneNumber, messageId) {
+    sendSms (phoneNumber, messageId, options = {}) {
       return this._fxaClient.sendSms(
         this.get('sessionToken'),
         phoneNumber,
         messageId,
         {
+          features: options.features || [],
           metricsContext: this._metrics.getFlowEventMetadata()
         }
       );

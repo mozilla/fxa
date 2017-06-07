@@ -27,13 +27,22 @@ define(function (require, exports, module) {
     context: Vat.string().min(1),
     country: Vat.string().valid(...AllowedCountries),
     customizeSync: Vat.boolean(),
-    service: Vat.string()
+    service: Vat.string(),
+    // signin code, from an SMS. Note, this is *not* validated
+    // because users that open the verification link with an
+    // invalid signinCode should still be able to sign in.
+    // The error will be logged and the signinCode ignored.
+    signin: Vat.string().empty('').renameTo('signinCode'),
+    // allow relier to enable signinCodes, used for testing.
+    signinCodes: Vat.boolean().renameTo('enableSigninCodes')
   };
   /*eslint-enable camelcase*/
 
   module.exports = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
-      customizeSync: false
+      customizeSync: false,
+      enableSigninCodes: false,
+      signinCode: undefined
     }),
 
     initialize (attributes, options = {}) {

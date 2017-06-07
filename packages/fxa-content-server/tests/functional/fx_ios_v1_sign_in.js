@@ -8,31 +8,43 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop',
-  'tests/functional/lib/ua-strings'
+  'tests/functional/lib/selectors',
+  'tests/functional/lib/ua-strings',
+  'intern/dojo/node!../../server/lib/configuration',
 ], function (intern, registerSuite,
-  TestHelpers, FunctionalHelpers, FxDesktopHelpers, UA_STRINGS) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_ios_v1&service=sync';
+  TestHelpers, FunctionalHelpers, FxDesktopHelpers, selectors, UA_STRINGS, serverConfig) {
+  'use strict';
 
-  var email;
-  var PASSWORD = '12345678';
+  const config = intern.config;
+  const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_ios_v1&service=sync`;
+  const SMS_PAGE_URL = `${config.fxaContentRoot}sms?context=fx_desktop_v1&service=sync&signinCodes=true`;
 
-  var thenify = FunctionalHelpers.thenify;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var testIsBrowserNotified = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  let email;
+  const PASSWORD = '12345678';
+
+  const testPhoneNumber = serverConfig.get('sms.testPhoneNumber');
+
+  const thenify = FunctionalHelpers.thenify;
+  const clearBrowserState = FunctionalHelpers.clearBrowserState;
+  const click = FunctionalHelpers.click;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  const createUser = FunctionalHelpers.createUser;
+  const deleteAllSms = FunctionalHelpers.deleteAllSms;
+  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
+  const getSmsSigninCode = FunctionalHelpers.getSmsSigninCode;
+  const listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  const noPageTransition = FunctionalHelpers.noPageTransition;
+  const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
+  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
+  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+  const testIsBrowserNotified = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
+  const testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
+  const type = FunctionalHelpers.type;
+  const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   const setupTest = thenify(function (options) {
     options = options || {};
@@ -43,7 +55,7 @@ define([
 
     return this.parent
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-      .then(openPage(PAGE_URL, '#fxa-signin-header', {
+      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
         query: {
           forceUA: options.userAgent || UA_STRINGS['ios_firefox_6_0']
         }
@@ -128,13 +140,13 @@ define([
 
     'signup link is enabled': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER))
         .then(testElementExists('a[href^="/signup"]'));
     },
 
     'signin with an unknown account does not allow the user to sign up': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER))
         .execute(listenForFxaCommands)
 
         .then(fillOutSignIn(email, PASSWORD))
@@ -155,6 +167,30 @@ define([
         // about:accounts will take over post-unblock, no transition
         .then(noPageTransition('#fxa-signin-unblock-header'))
         .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
+    },
+
+    'signup in desktop, send an SMS, open deferred deeplink in Fx for iOS': function () {
+      if (testPhoneNumber) {
+        let signinUrlWithSigninCode;
+
+        return this.remote
+          // The phoneNumber is reused across tests, delete all
+          // if its SMS messages to ensure a clean slate.
+          .then(deleteAllSms(testPhoneNumber))
+          .then(setupTest(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
+          .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
+          .then(click(selectors.SMS_SEND.SUBMIT))
+          .then(testElementExists(selectors.SMS_SENT.HEADER))
+          .then(getSmsSigninCode(testPhoneNumber, 0))
+          .then(function (signinCode) {
+            signinUrlWithSigninCode = `${SIGNIN_PAGE_URL}&signin=${signinCode}`;
+            return this.parent
+              .then(clearBrowserState())
+              .then(openPage(signinUrlWithSigninCode, selectors.SIGNIN.HEADER))
+              .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email));
+          });
+      }
     }
   });
 });

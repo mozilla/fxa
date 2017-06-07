@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   const { MARKETING_ID_AUTUMN_2016 } = require('lib/constants');
   const MarketingMixin = require('views/mixins/marketing-mixin')({ marketingId: MARKETING_ID_AUTUMN_2016 });
   const ResendMixin = require('views/mixins/resend-mixin')({ successMessage: false });
+  const SmsMixin = require('views/mixins/sms-mixin');
   const Template = require('stache!templates/sms_sent');
 
   const t = msg => msg;
@@ -47,12 +48,14 @@ define(function (require, exports, module) {
     resend () {
       const account = this.model.get('account');
       const normalizedPhoneNumber = this.model.get('normalizedPhoneNumber');
-      return account.sendSms(normalizedPhoneNumber, FIREFOX_MOBILE_INSTALL)
-        .then(() => {
-          this.displaySuccess(this.translate(UNTRANSLATED_RESENT_MESSAGE, {
-            phoneNumber: this._getFormattedPhoneNumber()
-          }));
-        });
+      return account.sendSms(normalizedPhoneNumber, FIREFOX_MOBILE_INSTALL, {
+        features: this.getSmsFeatures()
+      })
+      .then(() => {
+        this.displaySuccess(this.translate(UNTRANSLATED_RESENT_MESSAGE, {
+          phoneNumber: this._getFormattedPhoneNumber()
+        }));
+      });
     },
 
     _getFormattedPhoneNumber () {
@@ -67,7 +70,8 @@ define(function (require, exports, module) {
     BackMixin,
     FlowEventsMixin,
     MarketingMixin,
-    ResendMixin
+    ResendMixin,
+    SmsMixin
   );
 
   module.exports = View;

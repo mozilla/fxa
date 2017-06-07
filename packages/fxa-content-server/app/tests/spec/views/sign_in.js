@@ -141,7 +141,7 @@ define(function (require, exports, module) {
             });
       });
 
-      it('prefills email with email from relier if Session.prefillEmail is not set', () => {
+      it('prefills email with email from relier if prefillEmail is not set', () => {
         relier.set('email', 'testuser@testuser.com');
 
         initView();
@@ -474,23 +474,18 @@ define(function (require, exports, module) {
 
     describe('_suggestedAccount', () => {
       it('can suggest the user based on session variables', () => {
+        let chooserAccount = user.initAccount({});
+
+        sinon.stub(user, 'getChooserAccount', () => chooserAccount);
+
         assert.isTrue(view._suggestedAccount().isDefault(), 'null when no account set');
 
-        sinon.stub(user, 'getChooserAccount', () => user.initAccount({ sessionToken: 'abc123' }));
-        assert.isTrue(view._suggestedAccount().isDefault(), 'null when no email set');
-
-        user.getChooserAccount.restore();
-        sinon.stub(user, 'getChooserAccount', () => user.initAccount({ email: 'a@a.com' }));
-        assert.isTrue(view._suggestedAccount().isDefault(), 'null when no session token set');
-
-        user.getChooserAccount.restore();
         formPrefill.set('email', 'a@a.com');
-        sinon.stub(user, 'getChooserAccount', () => user.initAccount({ email: 'b@b.com', sessionToken: 'abc123' }));
+        chooserAccount = user.initAccount({ email: 'b@b.com', sessionToken: 'abc123' });
         assert.isTrue(view._suggestedAccount().isDefault(), 'null when prefill does not match');
 
         delete view.prefillEmail;
-        user.getChooserAccount.restore();
-        sinon.stub(user, 'getChooserAccount', () => user.initAccount({ email: 'a@a.com', sessionToken: 'abc123' }));
+        chooserAccount = user.initAccount({ email: 'a@a.com', sessionToken: 'abc123' });
         assert.equal(view._suggestedAccount().get('email'), 'a@a.com');
       });
 
