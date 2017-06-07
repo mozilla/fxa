@@ -71,9 +71,6 @@ define(function (require, exports, module) {
       }
 
       event.preventDefault();
-      // Let the current view handle this, otherwise
-      // the `app` view will also flush.
-      event.stopImmediatePropagation();
 
       return this._flushMetricsThenRedirect(event.currentTarget.href);
     },

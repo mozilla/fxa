@@ -140,14 +140,12 @@ define(function (require, exports, module) {
           currentTarget: {
             href: 'url'
           },
-          preventDefault: sinon.spy(),
-          stopImmediatePropagation: sinon.spy(),
+          preventDefault: sinon.spy()
         };
 
         return view._onExternalLinkClick(event)
           .then(() => {
             assert.isTrue(event.preventDefault.calledOnce);
-            assert.isTrue(event.stopImmediatePropagation.calledOnce);
             assert.isTrue(view._flushMetricsThenRedirect.calledOnce);
             assert.isTrue(view._flushMetricsThenRedirect.calledWith('url'));
           });

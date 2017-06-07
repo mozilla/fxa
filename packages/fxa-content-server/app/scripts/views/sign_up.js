@@ -167,14 +167,17 @@ define(function (require, exports, module) {
         shouldFocusPassword: autofocusEl === 'password',
         showSyncSuggestion: this.isSyncSuggestionEnabled()
       };
+
+      let escapedSyncSuggestionUrl;
       if (this.isSyncAuthSupported()) {
-        context.escapedSyncSuggestionUrl = this.getEscapedSyncUrl('signup', View.ENTRYPOINT);
+        escapedSyncSuggestionUrl = this.getEscapedSyncUrl('signup', View.ENTRYPOINT);
       } else {
-        context.escapedSyncSuggestionUrl = encodeURI(
+        escapedSyncSuggestionUrl = encodeURI(
                 'https://mozilla.org/firefox/sync?' +
                 'utm_source=fx-website&utm_medium=fx-accounts&' +
                 'utm_campaign=fx-signup&utm_content=fx-sync-get-started');
       }
+      context.escapedSyncSuggestionAttrs = `data-flow-event="link.signin" href="${escapedSyncSuggestionUrl}"`;
 
       return context;
     },
