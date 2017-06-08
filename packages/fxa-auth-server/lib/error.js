@@ -540,30 +540,36 @@ AppError.messageRejected = (reason, reasonCode) => {
   })
 }
 
-AppError.emailComplaint = () => {
+AppError.emailComplaint = (bouncedAt) => {
   return new AppError({
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.BOUNCE_COMPLAINT,
     message: 'Email account sent complaint'
+  }, {
+    bouncedAt
   })
 }
 
-AppError.emailBouncedHard = () => {
+AppError.emailBouncedHard = (bouncedAt) => {
   return new AppError({
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.BOUNCE_HARD,
     message: 'Email account hard bounced'
+  }, {
+    bouncedAt
   })
 }
 
-AppError.emailBouncedSoft = () => {
+AppError.emailBouncedSoft = (bouncedAt) => {
   return new AppError({
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.BOUNCE_SOFT,
     message: 'Email account soft bounced'
+  }, {
+    bouncedAt
   })
 }
 

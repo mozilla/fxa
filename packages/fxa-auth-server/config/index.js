@@ -8,6 +8,10 @@ var url = require('url')
 var convict = require('convict')
 var DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages')
 
+const ONE_DAY = 1000 * 60 * 60 * 24
+const ONE_YEAR = ONE_DAY * 365
+const FIVE_MINUTES = 1000 * 60 * 5
+
 var conf = convict({
   env: {
     doc: 'The current node.js environment',
@@ -268,43 +272,28 @@ var conf = convict({
         env: 'BOUNCES_ENABLED'
       },
       complaint: {
-        duration: {
-          doc: 'Time until a complaint is no longer counted',
-          default: '1 year',
-          format: 'duration',
-          env: 'BOUNCES_COMPLAINT_DURATION'
+        doc: 'Tiers of max allowed complaints per amount of milliseconds',
+        default: {
+          0: ONE_YEAR
         },
-        max: {
-          doc: 'Maximum number of complaints before blocking emails',
-          default: 0,
-          env: 'BOUNCES_COMPLAINT_MAX'
-        }
+        env: 'BOUNCES_COMPLAINT'
       },
       hard: {
-        duration: {
-          doc: 'Time until a hard bounce is no longer counted',
-          default: '1 year',
-          format: 'duration',
-          env: 'BOUNCES_HARD_DURATION'
+        doc: 'Tiers of max allowed hard bounces per amount of milliseconds',
+        default: {
+          // 0 are allowed in the past day.
+          // 1 is allowed in the past year.
+          0: ONE_DAY,
+          1: ONE_YEAR
         },
-        max: {
-          doc: 'Maximum number of hard bounces before blocking emails',
-          default: 0,
-          env: 'BOUNCES_HARD_MAX'
-        }
+        env: 'BOUNCES_HARD'
       },
       soft: {
-        duration: {
-          doc: 'Time until a soft bounce is no longer counted',
-          default: '5 minutes',
-          format: 'duration',
-          env: 'BOUNCES_SOFT_DURATION'
+        doc: 'Tiers of max allowed soft bounces per amount of milliseconds',
+        default: {
+          0: FIVE_MINUTES
         },
-        max: {
-          doc: 'Maximum number of soft bounces before blocking emails',
-          default: 0,
-          env: 'BOUNCES_SOFT_MAX'
-        }
+        env: 'BOUNCES_SOFT'
       }
     }
   },

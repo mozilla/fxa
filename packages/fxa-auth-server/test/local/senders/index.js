@@ -44,8 +44,8 @@ describe('lib/senders/index', () => {
       uid: UID
     }
 
-    function createSender(config, bounces) {
-      return senders(nullLog, config, error, bounces, {})
+    function createSender(config, bounces, log) {
+      return senders(log || nullLog, config, error, bounces, {})
         .then(sndrs => {
           const email = sndrs.email
           email._ungatedMailer.mailer.sendMail = sinon.spy((opts, cb) => {
@@ -242,10 +242,12 @@ describe('lib/senders/index', () => {
       const code = crypto.randomBytes(8).toString('hex')
 
       it('errors if bounce check fails', () => {
+        const log = mocks.spyLog()
+        const DATE = Date.now() - 10000
         const errorBounces =  {
-          check: sinon.spy(() => P.reject(error.emailComplaint()))
+          check: sinon.spy(() => P.reject(error.emailComplaint(DATE)))
         }
-        return createSender(config, errorBounces)
+        return createSender(config, errorBounces, log)
           .then(email => {
             email._ungatedMailer.unblockCodeEmail = sinon.spy(() => P.resolve({}))
             return email.sendUnblockCode(EMAILS, acct, {code: code})
@@ -253,6 +255,12 @@ describe('lib/senders/index', () => {
           .catch(e => {
             assert.equal(errorBounces.check.callCount, 1)
             assert.equal(e.errno, error.ERRNO.BOUNCE_COMPLAINT)
+
+            assert.equal(log.info.callCount, 1)
+            const msg = log.info.args[0][0]
+            assert.equal(msg.op, 'mailer.blocked')
+            assert.equal(msg.errno, e.errno)
+            assert.equal(msg.bouncedAt, DATE)
           })
       })
     })
