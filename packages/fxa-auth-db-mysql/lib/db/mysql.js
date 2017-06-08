@@ -165,7 +165,7 @@ module.exports = function (log, error) {
 
   // Insert : accounts
   // Values : uid = $1, normalizedEmail = $2, email = $3, emailCode = $4, emailVerified = $5, kA = $6, wrapWrapKb = $7, authSalt = $8, verifierVersion = $9, verifyHash = $10, verifierSetAt = $11, createdAt = $12, locale = $13
-  var CREATE_ACCOUNT = 'CALL createAccount_6(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  var CREATE_ACCOUNT = 'CALL createAccount_7(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createAccount = function (uid, data) {
     return this.write(
@@ -682,7 +682,7 @@ module.exports = function (log, error) {
   // Update : accounts, emails
   // Set    : emailVerified = true if email is in accounts table or isVerified = true if on email table
   // Where  : uid = $1, emailCode = $2
-  var VERIFY_EMAIL = 'CALL verifyEmail_4(?, ?)'
+  var VERIFY_EMAIL = 'CALL verifyEmail_5(?, ?)'
 
   MySql.prototype.verifyEmail = function (uid, emailCode) {
     return this.write(VERIFY_EMAIL, [uid, emailCode])
@@ -700,7 +700,7 @@ module.exports = function (log, error) {
   // Update : accounts
   // Set    : emailVerified = true
   // Where  : uid = $4
-  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_5(?, ?, ?, ?, ?)'
+  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_6(?, ?, ?, ?, ?)'
 
   MySql.prototype.forgotPasswordVerified = function (tokenId, accountResetToken) {
     return this.write(
@@ -786,7 +786,7 @@ module.exports = function (log, error) {
 
   // Select : emails
   // Values : uid = $1
-  var ACCOUNT_EMAILS = 'CALL accountEmails_1(?)'
+  var ACCOUNT_EMAILS = 'CALL accountEmails_2(?)'
   MySql.prototype.accountEmails = function (uid) {
     return this.readOneFromFirstResult(
       ACCOUNT_EMAILS,

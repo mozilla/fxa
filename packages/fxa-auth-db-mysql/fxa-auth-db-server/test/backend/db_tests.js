@@ -1397,7 +1397,8 @@ module.exports = function(config, DB) {
     it(
       'db.resetAccount',
       () => {
-        var uid = ACCOUNT.uid
+        var account = createAccount()
+        var uid = account.uid
         var createdAt = Date.now()
         var THROWAWAY_PASSWORD_FORGOT_TOKEN_ID = hex32()
         var THROWAWAY_PASSWORD_FORGOT_TOKEN = {
@@ -1414,10 +1415,25 @@ module.exports = function(config, DB) {
           uid : uid,
           createdAt: now + 4
         }
+        var sessionToken = {
+          data : hex32(),
+          uid : account.uid,
+          createdAt : now + 1,
+          uaBrowser : 'mock browser',
+          uaBrowserVersion : 'mock browser version',
+          uaOS : 'mock OS',
+          uaOSVersion : 'mock OS version',
+          uaDeviceType : 'mock device type',
+          mustVerify: true,
+          tokenVerificationId : hex16()
+        }
 
-        return db.createSessionToken(SESSION_TOKEN_ID, SESSION_TOKEN)
-          .then(function(sessionToken) {
-            return db.createDevice(ACCOUNT.uid, newUuid(), {
+        return db.createAccount(account.uid, account)
+          .then(function () {
+            return db.createSessionToken(SESSION_TOKEN_ID, sessionToken)
+          })
+          .then(function() {
+            return db.createDevice(account.uid, newUuid(), {
               sessionTokenId: SESSION_TOKEN_ID,
               createdAt: createdAt
             })
@@ -1426,19 +1442,38 @@ module.exports = function(config, DB) {
             return db.createPasswordForgotToken(THROWAWAY_PASSWORD_FORGOT_TOKEN_ID, THROWAWAY_PASSWORD_FORGOT_TOKEN)
           })
           .then(function(passwordForgotToken) {
+            return P.all([db.account(uid), db.accountEmails(uid)])
+          })
+          .spread(function(accountResult, emails) {
+            // Account should be unverified
+            assert.equal(!!accountResult.emailVerified, false, 'email is not verified')
+            assert.equal(!!emails[0].isVerified, false, 'email is not verified')
+            assert.equal(!!emails[0].isPrimary, true, 'email is primary')
+            assert.equal(accountResult.email, emails[0].email, 'emails should match')
+
             return db.forgotPasswordVerified(THROWAWAY_PASSWORD_FORGOT_TOKEN_ID, THROWAWAY_ACCOUNT_RESET_TOKEN)
+          })
+          .then(function() {
+            return P.all([db.account(uid), db.accountEmails(uid)])
+          })
+          .spread(function(accountResult, emails) {
+            // Account should be verified
+            assert.equal(!!accountResult.emailVerified, true, 'email is verified')
+            assert.equal(!!emails[0].isVerified, true, 'email is verified')
+            assert.equal(!!emails[0].isPrimary, true, 'email is primary')
+            assert.equal(accountResult.email, emails[0].email, 'emails should match')
           })
           .then(function() {
             return db.resetAccount(uid, ACCOUNT)
           })
-          .then(function(sessionToken) {
+          .then(function() {
             return db.accountDevices(uid)
           })
           .then(function(devices) {
             assert.equal(devices.length, 0, 'The devices length should be zero')
 
             // Attempt to verify the session token
-            return db.verifyTokens(SESSION_TOKEN.tokenVerificationId, { uid: uid })
+            return db.verifyTokens(sessionToken.tokenVerificationId, { uid: uid })
           })
           .then(function () {
             assert(false, 'Verifying deleted token should have failed')
@@ -1458,7 +1493,7 @@ module.exports = function(config, DB) {
           })
           .then(function() {
             // account should STILL exist for this email address
-            var emailBuffer = Buffer(ACCOUNT.email)
+            var emailBuffer = Buffer(account.email)
             return db.accountExists(emailBuffer)
           })
           .then(function(exists) {
@@ -2297,6 +2332,33 @@ module.exports = function(config, DB) {
                 assert.equal(err.errno, 116, 'db.consumeSigninCode should reject with errno 116')
               }
             )
+        })
+    })
+
+    it('email on account/email table in sync', () => {
+      const account = createAccount()
+
+      return db.createAccount(account.uid, account)
+        .then(function (result) {
+          assert.deepEqual(result, {}, 'returned empty response on account creation')
+          return P.all([db.accountEmails(account.uid), db.account(account.uid)])
+        })
+        .spread(function (emails, account) {
+          assert.equal(emails[0].email, account.email, 'correct email returned')
+          assert.equal(!!emails[0].isVerified, !!account.emailVerified, 'correct email verification')
+          assert.equal(!!emails[0].isPrimary, true, 'correct email primary')
+
+          // Verify account email
+          return db.verifyEmail(account.uid, account.emailCode)
+        })
+        .then(function (result) {
+          assert.deepEqual(result, {}, 'returned empty response on verify email')
+          return P.all([db.accountEmails(account.uid), db.account(account.uid)])
+        })
+        .spread(function (emails, account) {
+          assert.equal(emails[0].email, account.email, 'correct email returned')
+          assert.equal(!!emails[0].isVerified, !!account.emailVerified, 'correct email verification')
+          assert.equal(!!emails[0].isPrimary, true, 'correct email primary')
         })
     })
 

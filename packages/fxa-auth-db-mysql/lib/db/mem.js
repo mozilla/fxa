@@ -83,6 +83,16 @@ module.exports = function (log, error) {
     accounts[uid.toString('hex')] = data
     uidByNormalizedEmail[data.normalizedEmail] = uid
 
+    emails[data.normalizedEmail] = {
+      createdAt: data.createdAt,
+      email: data.email,
+      emailCode: data.emailCode,
+      normalizedEmail: data.normalizedEmail,
+      isPrimary: true,
+      isVerified: data.emailVerified,
+      uid: uid
+    }
+
     return P.resolve({})
   }
 
@@ -737,9 +747,12 @@ module.exports = function (log, error) {
         function (account) {
           // Check to see if the `emailCode` passed belongs to the account table
           // or the email table. Verify the correct email that belongs to the code.
-          if (!emailCode || (account.emailCode.toString('hex') === emailCode.toString('hex'))) {
+          if (! emailCode) {
+            emailCode = account.emailCode
+          }
+
+          if (account.emailCode.toString('hex') === emailCode.toString('hex')) {
             account.emailVerified = 1
-            return {}
           }
 
           // Check to see if emailCode belongs to emails table,
@@ -1035,20 +1048,34 @@ module.exports = function (log, error) {
     // Also include email in accounts table
     return getAccountByUid(uid)
       .then(function (account) {
-        userEmails.push({
-          email: account.email,
-          isPrimary: true,
-          isVerified: account.emailVerified
-        })
-
-        // Return all emails in emails table
+        var containsPrimaryEmail = false
         Object.keys(emails).forEach(function (key) {
           var emailRecord = emails[key]
           if (emailRecord.uid.toString('hex') === uid.toString('hex')) {
+            if (emailRecord.isPrimary) {
+              containsPrimaryEmail = true
+            }
             userEmails.push(emailRecord)
           }
         })
-        return userEmails
+
+        if (! containsPrimaryEmail) {
+          userEmails.push({
+            email: account.email,
+            emailCode: account.emailCode,
+            normalizedEmail: account.normalizedEmail,
+            isPrimary: true,
+            isVerified: !!account.emailVerified,
+            uid: uid
+          })
+        }
+
+        // Sort emails so that primary email is first
+        userEmails.sort((a, b) => {
+          return (a.isPrimary === b.isPrimary) ? 0 : a.isPrimary ? -1 : 1
+        })
+
+        return P.resolve(userEmails)
       })
   }
 
@@ -1057,6 +1084,10 @@ module.exports = function (log, error) {
 
     if (emailRecord && emailRecord.uid.toString('hex') === uid.toString('hex') && emailRecord.isPrimary === false) {
       delete emails[email]
+    }
+
+    if (emailRecord && emailRecord.isPrimary === true) {
+      return P.reject(error.cannotDeletePrimaryEmail())
     }
 
     // No email record found, see if email is in accounts table
