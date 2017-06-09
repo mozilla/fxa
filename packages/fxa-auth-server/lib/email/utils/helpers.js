@@ -45,9 +45,7 @@ function getHeaderValue(headerName, message){
 }
 
 function logEmailEventSent(log, message) {
-  const emailDomain = getAnonymizedEmailDomain(message.email)
   const emailEventInfo = {
-    domain: emailDomain,
     op: 'emailEvent',
     template: message.template,
     type: 'sent'
@@ -56,7 +54,13 @@ function logEmailEventSent(log, message) {
   emailEventInfo['flow_id'] = getHeaderValue('X-Flow-Id', message)
   emailEventInfo.locale = getHeaderValue('Content-Language', message)
 
-  log.info(emailEventInfo)
+  const addrs = [message.email].concat(message.ccEmails || [])
+
+  addrs.forEach(addr => {
+    const msg = Object.assign({}, emailEventInfo)
+    msg.domain = getAnonymizedEmailDomain(addr)
+    log.info(msg)
+  })
 }
 
 function logEmailEventFromMessage(log, message, type, emailDomain) {

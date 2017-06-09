@@ -56,6 +56,20 @@ describe('email utils helpers', () => {
       assert.equal(mockLog.info.args[0][0].locale, 'ru')
     })
 
+    it('should log an event per CC email', () => {
+      const mockLog = spyLog()
+      const message = {
+        email: 'user@example.domain',
+        ccEmails: ['noreply@gmail.com', 'noreply@yahoo.com'],
+        template: 'verifyEmail'
+      }
+      emailHelpers.logEmailEventSent(mockLog, message)
+      assert.equal(mockLog.info.callCount, 3)
+      assert.equal(mockLog.info.args[0][0].domain, 'other')
+      assert.equal(mockLog.info.args[1][0].domain, 'gmail.com')
+      assert.equal(mockLog.info.args[2][0].domain, 'yahoo.com')
+    })
+
   })
 
 })
