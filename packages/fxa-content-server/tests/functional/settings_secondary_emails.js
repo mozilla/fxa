@@ -7,27 +7,37 @@
 define([
   'intern',
   'intern!object',
+  'intern/chai!assert',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors',
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers, selectors) {
 
   const config = intern.config;
   const SIGNUP_URL = config.fxaContentRoot + 'signup';
+  const SIGNIN_URL = config.fxaContentRoot + 'signin';
   const PASSWORD = 'password';
 
+  let client;
   let email;
   let secondaryEmail;
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   const createUser = FunctionalHelpers.createUser;
   const fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  const getUnblockInfo = FunctionalHelpers.getUnblockInfo;
   const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
+  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   const testElementExists = FunctionalHelpers.testElementExists;
   const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
+  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   const testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
   const type = FunctionalHelpers.type;
   const visibleByQSA = FunctionalHelpers.visibleByQSA;
@@ -38,6 +48,7 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
       secondaryEmail = TestHelpers.createEmail();
+      client = FunctionalHelpers.getFxaClient();
 
       return this.remote.then(clearBrowserState());
     },
@@ -49,11 +60,11 @@ define([
     'add and verify secondary email': function () {
       return this.remote
         // sign up via the UI, we need a verified session to use secondary email
-        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInSameTab(email, 0))
-        .then(testElementExists('#fxa-settings-header'))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(click('#emails .settings-unit-stub button'))
 
         // attempt to the same email as primary
@@ -80,7 +91,7 @@ define([
 
         // sign out, try to sign in with secondary
         .then(click('#signout'))
-        .then(testElementExists('#fxa-signin-header'))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
         .then(fillOutSignIn(secondaryEmail, PASSWORD))
         .then(testErrorTextInclude('primary account email required'))
 
@@ -103,12 +114,12 @@ define([
         .then(createUser(existingUnverified, PASSWORD, { preVerified: false }))
         .then(createUser(existingVerified, PASSWORD, { preVerified: true }))
 
-        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(unverifiedAccountEmail, PASSWORD))
         .then(testElementExists('#fxa-confirm-header'))
 
         // sign up and verify
-        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInSameTab(email, 0))
@@ -121,11 +132,11 @@ define([
     'signin and signup with existing secondary email': function () {
       return this.remote
         // sign up via the UI, we need a verified session to use secondary email
-        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInSameTab(email, 0))
-        .then(testElementExists('#fxa-settings-header'))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(click('#emails .settings-unit-stub button'))
 
         .then(type('.new-email', secondaryEmail))
@@ -136,14 +147,98 @@ define([
         .then(click('#emails .settings-unit-stub button'))
         .then(testElementExists('.verified'))
         .then(click('#signout'))
-        .then(testElementExists('#fxa-signin-header'))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
         // try to signin with the secondary email
         .then(fillOutSignIn(secondaryEmail, PASSWORD))
         .then(testErrorTextInclude('Primary account email required'))
         // try to signup with the secondary email
-        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-settings-content'));
+    },
+
+    'unblock code is sent to secondary emails': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(function (result) {
+          return client.recoveryEmailCreate(result.sessionToken, secondaryEmail);
+        })
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(getUnblockInfo(email, 0))
+        .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
+        .then(getUnblockInfo(email, 0))
+        .then(function (unblockInfo) {
+          return this.parent
+            .then(type('#unblock_code', '   ' + unblockInfo.unblockCode));
+        })
+        .then(click('button[type=submit]'))
+
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(openVerificationLinkInSameTab(secondaryEmail, 0))
+        .then(click('#emails .settings-unit-stub button'))
+        .then(testElementExists('.verified'))
+        .then(click('#signout'))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
+        .then(getUnblockInfo(email, 0))
+        .then(function (unblockInfo) {
+          // original email gets the unblock code
+          assert.ok(unblockInfo.unblockCode);
+        })
+        .then(getUnblockInfo(secondaryEmail, 1))
+        .then(function (unblockInfo) {
+          return this.parent
+            .then(type('#unblock_code', '   ' + unblockInfo.unblockCode));
+        })
+        .then(click('button[type=submit]'))
+
+        .then(testElementExists(selectors.SETTINGS.HEADER));
+    },
+
+
+    'signin confirmation is sent to secondary emails': function () {
+      const PAGE_SIGNIN_DESKTOP = `${SIGNIN_URL}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
+      const SETTINGS_URL = `${config.fxaContentRoot}settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
+
+      email = TestHelpers.createEmail('sync{id}');
+
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(function (result) {
+          return client.recoveryEmailCreate(result.sessionToken, secondaryEmail);
+        })
+        .then(openPage(PAGE_SIGNIN_DESKTOP, selectors.SIGNIN.HEADER))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(openVerificationLinkInDifferentBrowser(email))
+
+        // wait until account data is in localstorage before redirecting
+        .then(FunctionalHelpers.pollUntil(function () {
+          var accounts = Object.keys(JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {});
+          return accounts.length === 1 ? true : null;
+        }, [], 10000))
+
+        .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(openVerificationLinkInSameTab(secondaryEmail, 0))
+        .then(click('#emails .settings-unit-stub button'))
+        .then(testElementExists('.verified'))
+
+        .then(clearBrowserState())
+
+        .then(openPage(PAGE_SIGNIN_DESKTOP, selectors.SIGNIN.HEADER))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-signin-header'))
+
+        .then(openVerificationLinkInNewTab(secondaryEmail, 1))
+        .switchToWindow('newwindow')
+        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(closeCurrentWindow());
     }
   });
 });

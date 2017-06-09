@@ -36,6 +36,10 @@ define([], function () {
       HEADER: '#fxa-signin-header',
       PASSWORD: 'input[type=password]'
     },
+    SIGNIN_UNBLOCK: {
+      EMAIL_FIELD: '.verification-email-message',
+      HEADER: '#fxa-signin-unblock-header'
+    },
     SIGNUP: {
       EMAIL: 'input[type=email]',
       HEADER: '#fxa-signup-header',
