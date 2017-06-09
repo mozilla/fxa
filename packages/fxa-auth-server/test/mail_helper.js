@@ -78,6 +78,17 @@ module.exports = (printLogs) => {
             } else {
               users[name] = [mail]
             }
+
+            if (mail.headers.cc) {
+              // Support for CC headers
+              var ccName = emailName(mail.headers.cc)
+
+              if (users[ccName]) {
+                users[ccName].push(mail)
+              } else {
+                users[ccName] = [mail]
+              }
+            }
           }
         )
         req.pipe(mp)
