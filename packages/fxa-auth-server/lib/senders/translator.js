@@ -11,24 +11,33 @@ var poParseFile = P.promisify(po2json.parseFile)
 
 Jed.prototype.format = i18n.format
 
+var parseCache = {}
+
+function parseLocale(locale) {
+  if (parseCache[locale]) {
+    return P.resolve(parseCache[locale])
+  }
+
+  return poParseFile(
+    path.join(
+      __dirname,
+      '../../node_modules/fxa-content-server-l10n/locale',
+      i18n.normalizeLocale(locale),
+      'LC_MESSAGES/server.po'
+    ),
+    {
+      fuzzy: true,
+      format: 'jed'
+    }
+  ).then(function (parsed) {
+    parseCache[locale] = parsed
+    return parsed
+  })
+}
+
 module.exports = function (locales, defaultLanguage) {
   return P.all(
-    locales.map(
-      function (locale) {
-        return poParseFile(
-          path.join(
-            __dirname,
-            '../../node_modules/fxa-content-server-l10n/locale',
-            i18n.normalizeLocale(locale),
-            'LC_MESSAGES/server.po'
-          ),
-          {
-            fuzzy: true,
-            format: 'jed'
-          }
-        )
-      }
-    )
+    locales.map(parseLocale)
   )
   .then(
     function (translations) {

@@ -43,7 +43,7 @@ install:
 
 script:
   - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
-  - COVERALLS_REPO_TOKEN=vKN3jjhAOwxkv9HG0VBX4EYIlWLPwiJ9d npm test
+  - COVERALLS_REPO_TOKEN=vKN3jjhAOwxkv9HG0VBX4EYIlWLPwiJ9d npm run test-ci
   - npm run test-e2e
   # Test fxa-auth-mailer
   - grunt templates
