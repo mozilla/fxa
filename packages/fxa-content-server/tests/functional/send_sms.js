@@ -9,8 +9,10 @@
    'tests/lib/helpers',
    'tests/functional/lib/helpers',
    'tests/functional/lib/selectors',
-   'app/scripts/lib/country-telephone-info'
- ], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, CountryTelephoneInfo) {
+   'app/scripts/lib/country-telephone-info',
+   'intern/dojo/node!../../server/lib/configuration',
+ ], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors,
+   CountryTelephoneInfo, serverConfig) {
    'use strict';
 
    const config = intern.config;
@@ -33,8 +35,8 @@
    let email;
    const PASSWORD = 'password';
 
-   let testPhoneNumber;
-   let formattedPhoneNumber;
+   const testPhoneNumber = serverConfig.get('sms.testPhoneNumber');
+   const testPhoneNumberCountry = serverConfig.get('sms.testPhoneNumberCountry');
 
    const click = FunctionalHelpers.click;
    const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
@@ -56,19 +58,20 @@
 
      beforeEach: function () {
        email = TestHelpers.createEmail();
-       testPhoneNumber = TestHelpers.createPhoneNumber();
-       const countryInfo = CountryTelephoneInfo['US'];
-       formattedPhoneNumber =
-          countryInfo.format(countryInfo.normalize(testPhoneNumber));
 
        // User needs a sessionToken to be able to send an SMS. Sign up,
        // no need to verify.
        return this.remote
          .then(fillOutSignUp(email, PASSWORD))
          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-         // The phoneNumber can be reused by different tests, delete all
-         // of its SMS messages to ensure a clean slate.
-         .then(deleteAllSms(testPhoneNumber));
+         .then(function () {
+           if (testPhoneNumber) {
+             return this.parent
+               // The phoneNumber is reused across tests, delete all
+               // if its SMS messages to ensure a clean slate.
+               .then(deleteAllSms(testPhoneNumber));
+           }
+         });
      },
 
      'with no query parameters': function () {
@@ -211,9 +214,15 @@
         .then(click(selectors.SMS_SEND.SUBMIT))
         .then(testElementExists(selectors.SMS_SEND.PHONE_NUMBER_TOOLTIP))
         .then(testElementTextInclude(selectors.SMS_SEND.PHONE_NUMBER_TOOLTIP, 'invalid'));
-     },
+     }
+   };
 
-     'valid phone number, back': function () {
+   if (testPhoneNumber && testPhoneNumberCountry) {
+     const countryInfo = CountryTelephoneInfo[testPhoneNumberCountry];
+     const formattedPhoneNumber =
+       countryInfo.format(countryInfo.normalize(testPhoneNumber));
+
+     suite['valid phone number, back'] = function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
@@ -229,9 +238,9 @@
 
         // original phone number should still be in place
         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber));
-     },
+     };
 
-     'valid phone number, resend': function () {
+     suite['valid phone number, resend'] = function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
@@ -242,40 +251,42 @@
         .then(click(selectors.SMS_SENT.LINK_RESEND))
         .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
         .then(getSms(testPhoneNumber, 1));
-     },
+     };
 
-     'valid phone number, enable signinCode': function () {
+     suite['valid phone number, enable signinCode'] = function () {
        return this.remote
         .then(openPage(SEND_SMS_SIGNIN_CODE_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
         .then(click(selectors.SMS_SEND.SUBMIT))
         .then(testElementExists(selectors.SMS_SENT.HEADER))
         .then(getSmsSigninCode(testPhoneNumber, 0));
-     },
+     };
 
-     'valid phone number w/ country code of 1': function () {
-       return this.remote
-         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
-         .then(type(selectors.SMS_SEND.PHONE_NUMBER, `1${testPhoneNumber}`))
-         .then(click(selectors.SMS_SEND.SUBMIT))
-         .then(testElementExists(selectors.SMS_SENT.HEADER))
-         .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
-         .then(testElementExists(selectors.SMS_SEND.LINK_MARKETING))
-         .then(getSms(testPhoneNumber, 0));
-     },
+     if (testPhoneNumberCountry === 'US') {
+       suite['valid phone number w/ country code of 1'] = function () {
+         return this.remote
+          .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
+          .then(type(selectors.SMS_SEND.PHONE_NUMBER, `1${testPhoneNumber}`))
+          .then(click(selectors.SMS_SEND.SUBMIT))
+          .then(testElementExists(selectors.SMS_SENT.HEADER))
+          .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
+          .then(testElementExists(selectors.SMS_SEND.LINK_MARKETING))
+          .then(getSms(testPhoneNumber, 0));
+       };
 
-     'valid phone number w/ country code of +1': function () {
-       return this.remote
-         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
-         .then(type(selectors.SMS_SEND.PHONE_NUMBER, `+1${testPhoneNumber}`))
-         .then(click(selectors.SMS_SEND.SUBMIT))
-         .then(testElementExists(selectors.SMS_SENT.HEADER))
-         .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
-         .then(testElementExists(selectors.SMS_SEND.LINK_MARKETING))
-         .then(getSms(testPhoneNumber, 0));
-     },
+       suite['valid phone number w/ country code of +1'] = function () {
+         return this.remote
+          .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
+          .then(type(selectors.SMS_SEND.PHONE_NUMBER, `+1${testPhoneNumber}`))
+          .then(click(selectors.SMS_SEND.SUBMIT))
+          .then(testElementExists(selectors.SMS_SENT.HEADER))
+          .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
+          .then(testElementExists(selectors.SMS_SEND.LINK_MARKETING))
+          .then(getSms(testPhoneNumber, 0));
+       };
+     }
 
-     'valid phone number (contains spaces and punctuation)': function () {
+     suite['valid phone number (contains spaces and punctuation)'] = function () {
        const unformattedPhoneNumber = ` ${testPhoneNumber.slice(0,3)} .,- ${testPhoneNumber.slice(3)} `;
        return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
@@ -291,8 +302,8 @@
 
         // original phone number should still be in place
         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, unformattedPhoneNumber));
-     }
-   };
+     };
+   }
 
    registerSuite(suite);
  });

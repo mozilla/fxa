@@ -8,11 +8,14 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/selectors',
-  'tests/functional/lib/ua-strings'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, uaStrings) {
+  'tests/functional/lib/ua-strings',
+  'intern/dojo/node!../../server/lib/configuration',
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, uaStrings, serverConfig) {
   'use strict';
 
   const config = intern.config;
+
+  const testPhoneNumber = serverConfig.get('sms.testPhoneNumber');
 
   const userAgent = uaStrings['desktop_firefox_55'];
 
@@ -141,45 +144,46 @@ define([
     },
 
     'Sync signin page w/ signin code - user signed into browser': function () {
-      const testPhoneNumber = TestHelpers.createPhoneNumber();
-      let signinUrlWithSigninCode;
+      if (testPhoneNumber) {
+        let signinUrlWithSigninCode;
 
-      return this.remote
-        // The phoneNumber can be reused by different tests, delete all
-        // of its SMS messages to ensure a clean slate.
-        .then(deleteAllSms(testPhoneNumber))
+        return this.remote
+          // The phoneNumber is reused across tests, delete all
+          // if its SMS messages to ensure a clean slate.
+          .then(deleteAllSms(testPhoneNumber))
 
-        .then(openPage(SYNC_SMS_PAGE_URL, selectors.SMS_SEND.HEADER, {
-          webChannelResponses: {
-            'fxaccounts:fxa_status': {
-              signedInUser: browserSignedInAccount
-            }
-          }
-        }))
-        .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
-        .then(click(selectors.SMS_SEND.SUBMIT))
-
-        .then(testElementExists(selectors.SMS_SENT.HEADER))
-        .then(getSmsSigninCode(testPhoneNumber, 0))
-        .then(function (signinCode) {
-          signinUrlWithSigninCode = `${SYNC_SIGNIN_PAGE_URL}&signin=${signinCode}`;
-          return this.parent
-            .then(clearBrowserState())
-            // Synthesize opening the SMS message in a browser where another
-            // user is already signed in.
-            .then(openPage(signinUrlWithSigninCode, selectors.SIGNIN.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:fxa_status': {
-                  signedInUser: otherAccount
-                }
+          .then(openPage(SYNC_SMS_PAGE_URL, selectors.SMS_SEND.HEADER, {
+            webChannelResponses: {
+              'fxaccounts:fxa_status': {
+                signedInUser: browserSignedInAccount
               }
-            }))
-            // user opened an SMS w/ deferred deeplink in a browser that supports
-            // fxa_status. This can't happen currently because only Fx Desktop
-            // supports the query, but I want a test to ensure the behavior is
-            // defined so that we are ready when Fennec or iOS adds fxa_status support.
-            .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail));
-        });
+            }
+          }))
+          .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
+          .then(click(selectors.SMS_SEND.SUBMIT))
+
+          .then(testElementExists(selectors.SMS_SENT.HEADER))
+          .then(getSmsSigninCode(testPhoneNumber, 0))
+          .then(function (signinCode) {
+            signinUrlWithSigninCode = `${SYNC_SIGNIN_PAGE_URL}&signin=${signinCode}`;
+            return this.parent
+              .then(clearBrowserState())
+              // Synthesize opening the SMS message in a browser where another
+              // user is already signed in.
+              .then(openPage(signinUrlWithSigninCode, selectors.SIGNIN.HEADER, {
+                webChannelResponses: {
+                  'fxaccounts:fxa_status': {
+                    signedInUser: otherAccount
+                  }
+                }
+              }))
+              // user opened an SMS w/ deferred deeplink in a browser that supports
+              // fxa_status. This can't happen currently because only Fx Desktop
+              // supports the query, but I want a test to ensure the behavior is
+              // defined so that we are ready when Fennec or iOS adds fxa_status support.
+              .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail));
+          });
+      }
     },
 
     'Non-Sync signin page - user signed into browser, no user signed in locally': function () {

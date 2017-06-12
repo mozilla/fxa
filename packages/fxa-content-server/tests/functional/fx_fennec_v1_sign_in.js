@@ -7,8 +7,10 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'tests/functional/lib/selectors',
+  'intern/dojo/node!../../server/lib/configuration',
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
+  selectors, serverConfig) {
   'use strict';
 
   const config = intern.config;
@@ -17,6 +19,8 @@ define([
 
   let email;
   const PASSWORD = '12345678';
+
+  const testPhoneNumber = serverConfig.get('sms.testPhoneNumber');
 
   const thenify = FunctionalHelpers.thenify;
 
@@ -114,26 +118,27 @@ define([
     },
 
     'signup in desktop, send an SMS, open deferred deeplink in Fennec': function () {
-      const testPhoneNumber = TestHelpers.createPhoneNumber();
-      let signinUrlWithSigninCode;
+      if (testPhoneNumber) {
+        let signinUrlWithSigninCode;
 
-      return this.remote
-        // The phoneNumber can be reused by different tests, delete all
-        // of its SMS messages to ensure a clean slate.
-        .then(deleteAllSms(testPhoneNumber))
-        .then(setupTest(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
-        .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
-        .then(click(selectors.SMS_SEND.SUBMIT))
-        .then(testElementExists(selectors.SMS_SENT.HEADER))
-        .then(getSmsSigninCode(testPhoneNumber, 0))
-        .then(function (signinCode) {
-          signinUrlWithSigninCode = `${SIGNIN_PAGE_URL}&signin=${signinCode}`;
-          return this.parent
-            .then(clearBrowserState())
-            .then(openPage(signinUrlWithSigninCode, selectors.SIGNIN.HEADER))
-            .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email));
-        });
+        return this.remote
+          // The phoneNumber is reused across tests, delete all
+          // if its SMS messages to ensure a clean slate.
+          .then(deleteAllSms(testPhoneNumber))
+          .then(setupTest(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
+          .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
+          .then(click(selectors.SMS_SEND.SUBMIT))
+          .then(testElementExists(selectors.SMS_SENT.HEADER))
+          .then(getSmsSigninCode(testPhoneNumber, 0))
+          .then(function (signinCode) {
+            signinUrlWithSigninCode = `${SIGNIN_PAGE_URL}&signin=${signinCode}`;
+            return this.parent
+              .then(clearBrowserState())
+              .then(openPage(signinUrlWithSigninCode, selectors.SIGNIN.HEADER))
+              .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email));
+          });
+      }
     }
   });
 });
