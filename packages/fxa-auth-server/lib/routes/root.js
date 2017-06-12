@@ -37,7 +37,7 @@ module.exports = {
       commitHash = stdout.replace(/\s+/, '');
       var configPath = path.join(gitDir, 'config');
       var cmd = 'git config --get remote.origin.url';
-      exec(cmd, { env: { GIT_CONFIG: configPath } }, function(err, stdout) {
+      exec(cmd, { env: { GIT_CONFIG: configPath, PATH: process.env.PATH }}, function(err, stdout) {
         source = stdout.replace(/\s+/, '');
         return sendReply();
       });

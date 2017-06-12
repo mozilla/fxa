@@ -41,5 +41,5 @@ before_script:
 
 script:
   - npm run outdated
-  - grunt test
+  - npm test
   - grunt nsp --force

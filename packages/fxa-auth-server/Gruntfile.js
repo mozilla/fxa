@@ -19,6 +19,7 @@ module.exports = function (grunt) {
   grunt.loadTasks('grunttasks');
 
   grunt.registerTask('default', [
-    'test'
+    'lint',
+    'copyright'
   ]);
 };

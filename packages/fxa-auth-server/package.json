@@ -5,7 +5,7 @@
   "description": "Firefox Accounts OAuth2 server.",
   "scripts": {
     "start": "grunt server --node-env=dev",
-    "test": "grunt test --node-env=test",
+    "test": "NODE_ENV=test scripts/test-local.sh",
     "outdated": "npm outdated --depth 0",
     "postinstall": "node scripts/gen_keys",
     "shrinkwrap": "npmshrink"
@@ -42,7 +42,6 @@
     "urijs": "^1.16.1"
   },
   "devDependencies": {
-    "blanket": "1.1.6",
     "eslint-config-fxa": "^1.8.0",
     "grunt": "^1.0.1",
     "grunt-bump": "0.8.0",
@@ -50,14 +49,14 @@
     "grunt-copyright": "^0.3.0",
     "grunt-eslint": "^16.0.0",
     "grunt-jscs": "^3.0.1",
-    "grunt-mocha-test": "^0.12.2",
     "grunt-nodemon": "^0.4.0",
     "grunt-nsp": "2.3.1",
     "insist": "1.x",
     "load-grunt-tasks": "^3.1.0",
-    "mocha-text-cov": "^0.1.0",
+    "mocha": "^3.4.2",
     "nock": "^8.0.0",
     "npmshrink": "^1.0.1",
+    "nyc": "11.0.2",
     "proxyquire": "^1.6.0",
     "read": "^1.0.5",
     "sinon": "^1.15.4",
