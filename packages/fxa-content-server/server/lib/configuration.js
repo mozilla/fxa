@@ -457,16 +457,6 @@ const conf = module.exports = convict({
         doc: 'Target URL for redirection',
         format: 'url'
       }
-    },
-    testPhoneNumber: {
-      default: '',
-      doc: 'Phone number to send SMS messages to in function tests',
-      format: String
-    },
-    testPhoneNumberCountry: {
-      default: 'US',
-      doc: 'The country `testPhoneNumber` is in, see app/scripts/lib/country-telephone-info.js',
-      format: String
     }
   },
   static_directory: {
