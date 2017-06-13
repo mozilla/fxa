@@ -26,6 +26,7 @@ metrics queries in redash:
   * [Success event names](#success-event-names)
     * [View names](#view-names)
     * [Action names](#action-names)
+    * [Connect method names](#connect-method-names)
     * [Experiment names](#experiment-names)
     * [Template names](#template-names)
   * [Error event names](#error-event-names)
@@ -223,6 +224,7 @@ Action name|Description
 Possible values for `${connectMethod}` are:
 
 Connect method name|Description
+-------------------|------------
 `signin_from.fx_android`|User has verified in Firefox for Android, is not signed in, and can do so.
 `signin_from.fx_desktop`|User has verified in Firefox Desktop, is not signed in, and can do so.
 `signin_from.fx_ios`|User has verified in Firefox for iOS, is not signed in, and can do so.
