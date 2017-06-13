@@ -1,3 +1,28 @@
+<a name="1.89.0"></a>
+# 1.89.0 (2017-06-13)
+
+
+### Bug Fixes
+
+* **sms:** Use a distinct phone number for every SMS test. (#5128) r=@philbooth ([6ea77cd](https://github.com/mozilla/fxa-content-server/commit/6ea77cd))
+* **test:** Remove the testPhoneNumber default to fix tests. ([18721e7](https://github.com/mozilla/fxa-content-server/commit/18721e7))
+
+### Features
+
+* **emails:** add tests for unblock and sign in confirmation (#5125) ([841e1cf](https://github.com/mozilla/fxa-content-server/commit/841e1cf)), closes [#5054](https://github.com/mozilla/fxa-content-server/issues/5054)
+* **metrics:** Add a `flow.signup.link.signin` flow event. (#5116) r=@philbooth ([b8d7e56](https://github.com/mozilla/fxa-content-server/commit/b8d7e56))
+* **sms:** Add support for the SMS signinCode (#5092) r=@vbudhram, @philbooth ([25b4c30](https://github.com/mozilla/fxa-content-server/commit/25b4c30))
+
+### Refactor
+
+* **fxa-client:** Reduce boilerplate when delegating to fxa-js-client. (#5108) r=@philbooth ([277e046](https://github.com/mozilla/fxa-content-server/commit/277e046))
+
+### Reverts
+
+* **sms:** Use a distinct phone number for every SMS test. (#5133) ([d342fab](https://github.com/mozilla/fxa-content-server/commit/d342fab))
+
+
+
 <a name="1.88.1"></a>
 ## 1.88.1 (2017-06-01)
 
