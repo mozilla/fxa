@@ -13,9 +13,10 @@ define([
   'intern/dojo/node!url',
   'intern/browser_modules/dojo/Promise',
   'tests/server/helpers/routesHelpers',
-  'intern/dojo/node!fxa-shared'
-], function (intern, registerSuite, assert, config, csp,
-  htmlparser2, got, url, Promise, routesHelpers, fxaShared) {
+  'intern/dojo/node!fxa-shared',
+  'intern/dojo/node!./lib/dnshook'
+], function (intern, registerSuite, assert, config, csp, htmlparser2,
+             got, url, Promise, routesHelpers, fxaShared, dnshook) {
 
   var checkHeaders = routesHelpers.checkHeaders;
   var extractAndCheckUrls = routesHelpers.extractAndCheckUrls;
@@ -26,6 +27,10 @@ define([
 
   if (intern.config.fxaProduction) {
     assert.equal(0, httpsUrl.indexOf('https://'), 'uses https scheme');
+  }
+
+  if (process.env.FXA_DNS_ELB && process.env.FXA_DNS_ALIAS) {
+    dnshook(process.env.FXA_DNS_ELB, process.env.FXA_DNS_ALIAS);
   }
 
   var suite = {
