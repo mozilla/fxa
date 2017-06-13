@@ -31,11 +31,11 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/settings');
 
   var PANEL_VIEWS = [
-    EmailsView,
     AvatarView,
+    DisplayNameView,
+    EmailsView,
     ClientsView,
     ClientDisconnectView,
-    DisplayNameView,
     CommunicationPreferencesView,
     ChangePasswordView,
     DeleteAccountView,
