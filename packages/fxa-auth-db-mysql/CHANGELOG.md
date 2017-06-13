@@ -1,3 +1,18 @@
+<a name="1.89.0"></a>
+# [1.89.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.87.0...v1.89.0) (2017-06-13)
+
+
+### Features
+
+* **db:** enable signinCode expiry ([2b53553](https://github.com/mozilla/fxa-auth-db-mysql/commit/2b53553))
+* **email:** Keep account email and emails table in sync (#241), r=@rfk, @philbooth ([78d5559](https://github.com/mozilla/fxa-auth-db-mysql/commit/78d5559))
+
+### Refactor
+
+* **test:** refactor our tests to use Mocha instead of TAP ([0441ea9](https://github.com/mozilla/fxa-auth-db-mysql/commit/0441ea9))
+
+
+
 <a name="1.87.0"></a>
 # [1.87.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.85.0...v1.87.0) (2017-05-17)
 
