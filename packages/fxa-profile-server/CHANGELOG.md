@@ -1,3 +1,13 @@
+<a name="1.89.0"></a>
+# [1.89.0](https://github.com/mozilla/fxa-profile-server/compare/v1.88.0...v1.89.0) (2017-06-14)
+
+
+### Features
+
+* **db:** support emoji in display name (#248) r=rfk,jrgm ([90da3fa](https://github.com/mozilla/fxa-profile-server/commit/90da3fa))
+
+
+
 <a name="1.88.0"></a>
 # [1.88.0](https://github.com/mozilla/fxa-profile-server/compare/v1.86.0...v1.88.0) (2017-05-31)
 
