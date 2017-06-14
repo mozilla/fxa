@@ -94,7 +94,6 @@ function includes(haystack, needle) {
 
 function getLocationMessage (location) {
   return {
-    device: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:48.0) Gecko/20100101 Firefox/48.0',
     email: 'a@b.com',
     ip: '219.129.234.194',
     location: location,
@@ -456,6 +455,37 @@ describe(
               mailer.mailer.sendMail = function (emailConfig) {
                 assert.ok(includes(emailConfig.html, location.country))
                 assert.ok(includes(emailConfig.text, location.country))
+              }
+              mailer[type](message)
+            }
+          )
+
+          it(
+            'device name is correct for ' + type,
+            function () {
+              var message = getLocationMessage(defaultLocation)
+              message.uaBrowser = 'Firefox'
+              message.uaOS = 'BeOS'
+
+              mailer.mailer.sendMail = function (emailConfig) {
+                assert.ok(includes(emailConfig.html, 'Firefox on BeOS'))
+                assert.ok(includes(emailConfig.text, 'Firefox on BeOS'))
+              }
+              mailer[type](message)
+            }
+          )
+
+          it(
+            'device name gets HTML-escaped for ' + type,
+            function () {
+              var message = getLocationMessage(defaultLocation)
+              message.uaBrowser = 'Firefox <a>Link</a>'
+
+              mailer.mailer.sendMail = function (emailConfig) {
+                assert.ok(! includes(emailConfig.html, '<a>Link</a>'))
+                assert.ok(! includes(emailConfig.text, '<a>Link</a>'))
+                assert.ok(includes(emailConfig.html, 'Firefox &lt;a&gt;Link&lt;/a&gt;'))
+                assert.ok(includes(emailConfig.text, 'Firefox &lt;a&gt;Link&lt;/a&gt;'))
               }
               mailer[type](message)
             }
