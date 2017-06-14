@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const Constants = require('lib/constants');
   const p = require('lib/promise');
   const RedirectAuthenticationBroker = require('models/auth_brokers/oauth-redirect');
@@ -15,10 +15,9 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const WindowMock = require('../../../mocks/window');
 
-  var assert = chai.assert;
   var REDIRECT_TO = 'https://redirect.here';
 
-  describe('models/auth_brokers/redirect', function () {
+  describe('models/auth_brokers/redirect', () => {
     var account;
     var broker;
     var metrics;
@@ -26,8 +25,11 @@ define(function (require, exports, module) {
     var user;
     var windowMock;
 
-    beforeEach(function () {
-      metrics = { flush: sinon.spy(p) };
+    beforeEach(() => {
+      metrics = {
+        flush: sinon.spy(p),
+        logEvent: () => {}
+      };
       relier = new Relier();
       user = new User();
       windowMock = new WindowMock();
@@ -41,31 +43,32 @@ define(function (require, exports, module) {
         session: Session,
         window: windowMock
       });
+      broker.DELAY_BROKER_RESPONSE_MS = 0;
 
-      sinon.stub(broker, 'finishOAuthFlow', function () {
+      sinon.stub(broker, 'finishOAuthFlow', () => {
         return p();
       });
     });
 
-    it('has the `signup` capability by default', function () {
+    it('has the `signup` capability by default', () => {
       assert.isTrue(broker.hasCapability('signup'));
     });
 
-    it('does not have the `handleSignedInNotification` capability by default', function () {
+    it('does not have the `handleSignedInNotification` capability by default', () => {
       assert.isFalse(broker.hasCapability('handleSignedInNotification'));
     });
 
-    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+    it('has the `emailVerificationMarketingSnippet` capability by default', () => {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 
-    describe('sendOAuthResultToRelier', function () {
-      describe('with no error', function () {
-        it('prepares window to be closed', function () {
+    describe('sendOAuthResultToRelier', () => {
+      describe('with no error', () => {
+        it('prepares window to be closed', () => {
           return broker.sendOAuthResultToRelier({
             redirect: REDIRECT_TO
           })
-          .then(function () {
+          .then(() => {
             assert.isTrue(metrics.flush.calledOnce);
             assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.equal(windowMock.location.href, REDIRECT_TO);
@@ -73,13 +76,13 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('with an error', function () {
-        it('appends an error query parameter', function () {
+      describe('with an error', () => {
+        it('appends an error query parameter', () => {
           return broker.sendOAuthResultToRelier({
             error: 'error',
             redirect: REDIRECT_TO
           })
-          .then(function () {
+          .then(() => {
             assert.isTrue(metrics.flush.calledOnce);
             assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.include(windowMock.location.href, REDIRECT_TO);
@@ -88,14 +91,14 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('with an action', function () {
-        it('appends an action query parameter', function () {
+      describe('with an action', () => {
+        it('appends an action query parameter', () => {
           var action = Constants.OAUTH_ACTION_SIGNIN;
           return broker.sendOAuthResultToRelier({
             action: action,
             redirect: REDIRECT_TO
           })
-          .then(function () {
+          .then(() => {
             assert.isTrue(metrics.flush.calledOnce);
             assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.include(windowMock.location.href, REDIRECT_TO);
@@ -104,13 +107,13 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('with existing query parameters', function () {
-        it('passes through existing parameters unchanged', function () {
+      describe('with existing query parameters', () => {
+        it('passes through existing parameters unchanged', () => {
           return broker.sendOAuthResultToRelier({
             error: 'error',
             redirect: REDIRECT_TO + '?test=param'
           })
-          .then(function () {
+          .then(() => {
             assert.isTrue(metrics.flush.calledOnce);
             assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.include(windowMock.location.href, REDIRECT_TO);
@@ -121,75 +124,75 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('persistVerificationData', function () {
-      it('sets the Original Tab marker', function () {
+    describe('persistVerificationData', () => {
+      it('sets the Original Tab marker', () => {
         return broker.persistVerificationData(account)
-          .then(function () {
+          .then(() => {
             assert.isTrue(broker.isOriginalTab());
           });
       });
     });
 
-    describe('finishOAuthFlow', function () {
-      it('clears the original tab marker', function () {
+    describe('finishOAuthFlow', () => {
+      it('clears the original tab marker', () => {
         broker.finishOAuthFlow.restore();
 
-        sinon.stub(broker, 'getOAuthResult', function () {
+        sinon.stub(broker, 'getOAuthResult', () => {
           return p({});
         });
 
-        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
+        sinon.stub(broker, 'sendOAuthResultToRelier', () => {
           return p();
         });
 
         return broker.persistVerificationData(account)
-          .then(function () {
+          .then(() => {
             return broker.finishOAuthFlow(account);
           })
-          .then(function () {
+          .then(() => {
             assert.isTrue(broker.getOAuthResult.calledWith(account));
             assert.isFalse(broker.isOriginalTab());
           });
       });
     });
 
-    describe('afterCompleteSignUp', function () {
-      it('finishes the oauth flow if the user verifies in the original tab', function () {
+    describe('afterCompleteSignUp', () => {
+      it('finishes the oauth flow if the user verifies in the original tab', () => {
         return broker.persistVerificationData(account)
-          .then(function () {
+          .then(() => {
             return broker.afterCompleteSignUp(account);
           })
-          .then(function () {
+          .then(() => {
             assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
               action: Constants.OAUTH_ACTION_SIGNUP
             }));
           });
       });
 
-      it('does not finish the oauth flow if the user verifies in another tab', function () {
+      it('does not finish the oauth flow if the user verifies in another tab', () => {
         return broker.afterCompleteSignUp(account)
-          .then(function () {
+          .then(() => {
             assert.isFalse(broker.finishOAuthFlow.calledWith(account));
           });
       });
     });
 
-    describe('afterCompleteResetPassword', function () {
-      it('finishes the oauth flow if the user verifies in the original tab', function () {
+    describe('afterCompleteResetPassword', () => {
+      it('finishes the oauth flow if the user verifies in the original tab', () => {
         return broker.persistVerificationData(account)
-          .then(function () {
+          .then(() => {
             return broker.afterCompleteResetPassword(account);
           })
-          .then(function () {
+          .then(() => {
             assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
               action: Constants.OAUTH_ACTION_SIGNIN
             }));
           });
       });
 
-      it('does not finish the oauth flow if the user verifies in another tab', function () {
+      it('does not finish the oauth flow if the user verifies in another tab', () => {
         return broker.afterCompleteResetPassword(account)
-          .then(function () {
+          .then(() => {
             assert.isFalse(broker.finishOAuthFlow.calledWith(account));
           });
       });

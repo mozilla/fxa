@@ -12,17 +12,49 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
   const Url = require('lib/url');
 
-  var proto = OAuthAuthenticationBroker.prototype;
+  const proto = OAuthAuthenticationBroker.prototype;
 
-  var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
+  /**
+   * Invoke `brokerMethod` on the broker and finish the OAuth flow by
+   * invoking `finishMethod` if verifying in the original tab. If verifying
+   * in another tab, the default behavior is returned.
+   *
+   * @param {String} brokerMethod
+   * @param {String} finishMethod
+   * @returns {Promise}
+   */
+  function finishOAuthFlowIfOriginalTab (brokerMethod, finishMethod) {
+    return function (account) {
+      // The user may have replaced the original tab with the verification
+      // tab. If this is the case, send the OAuth result to the RP.
+      //
+      // The slight delay is to allow the functional tests time to bind
+      // event handlers before the flow completes.
+      return proto[brokerMethod].call(this, account)
+        .delay(this.DELAY_BROKER_RESPONSE_MS)
+        .then((behavior) => {
+          if (this.isOriginalTab()) {
+            return this[finishMethod](account)
+              .then(() => {
+                return new HaltBehavior();
+              });
+          }
+          return behavior;
+        });
+    };
+  }
+
+  module.exports = OAuthAuthenticationBroker.extend({
     type: 'redirect',
+
     initialize (options) {
       options = options || {};
 
       this._metrics = options.metrics;
-
       return proto.initialize.call(this, options);
     },
+
+    DELAY_BROKER_RESPONSE_MS: 100,
 
     sendOAuthResultToRelier (result) {
       var win = this.window;
@@ -76,41 +108,7 @@ define(function (require, exports, module) {
       });
     },
 
-    afterCompleteSignUp (account) {
-      // The user may have replaced the original tab with the verification
-      // tab. If this is the case, send the OAuth result to the RP.
-      //
-      // The slight delay is to allow the functional tests time to bind
-      // event handlers before the flow completes.
-      return proto.afterCompleteSignUp.call(this, account)
-        .delay(100)
-        .then((behavior) => {
-          if (this.isOriginalTab()) {
-            return this.finishOAuthSignUpFlow(account)
-              .then(() => {
-                return new HaltBehavior();
-              });
-          }
-          return behavior;
-        });
-    },
-
-    afterCompleteResetPassword (account) {
-      // The user may have replaced the original tab with the verification
-      // tab. If this is the case, send the OAuth result to the RP.
-      return proto.afterCompleteResetPassword.call(this, account)
-        .then((behavior) => {
-          if (this.isOriginalTab()) {
-            return this.finishOAuthSignInFlow(account)
-              .then(() => {
-                return new HaltBehavior();
-              });
-          }
-
-          return behavior;
-        });
-    }
+    afterCompleteResetPassword: finishOAuthFlowIfOriginalTab('afterCompleteResetPassword', 'finishOAuthSignInFlow'),
+    afterCompleteSignUp: finishOAuthFlowIfOriginalTab('afterCompleteSignUp', 'finishOAuthSignUpFlow'),
   });
-
-  module.exports = RedirectAuthenticationBroker;
 });
