@@ -1,3 +1,13 @@
+<a name="1.89.1"></a>
+## [1.89.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.89.0...v1.89.1) (2017-06-14)
+
+
+### Features
+
+* **email:** Add email table migration script (#247), r=@rfk, @jbuck ([9ef8cbf](https://github.com/mozilla/fxa-auth-db-mysql/commit/9ef8cbf))
+
+
+
 <a name="1.89.0"></a>
 # [1.89.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.87.0...v1.89.0) (2017-06-13)
 
