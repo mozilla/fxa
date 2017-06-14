@@ -1,3 +1,19 @@
+<a name"1.89.0"></a>
+## 1.89.0 (2017-06-14)
+
+
+#### Bug Fixes
+
+* **tests:**
+  * double before hook timeout for tests on slow machines ([23334169](https://github.com/mozilla/fxa-oauth-server/commit/23334169))
+  * speed up and upgrade the test runner (#467) r=seanmonstar ([2e76c9e4](https://github.com/mozilla/fxa-oauth-server/commit/2e76c9e4))
+
+
+#### Features
+
+* **docker:** support feature branches (#464) r=jrgm ([f94fd61a](https://github.com/mozilla/fxa-oauth-server/commit/f94fd61a))
+
+
 <a name"1.86.0"></a>
 ## 1.86.0 (2017-05-03)
 
