@@ -1,3 +1,32 @@
+<a name="1.89.0"></a>
+# [1.89.0](https://github.com/mozilla/fxa-auth-server/compare/v1.88.1...v1.89.0) (2017-06-14)
+
+
+### Bug Fixes
+
+* **CAD:** Document CAD flow events. ([aa789f8](https://github.com/mozilla/fxa-auth-server/commit/aa789f8))
+* **CAD:** Fix connectMethod table formatting. (#1941), r=@philbooth ([fa9ebc7](https://github.com/mozilla/fxa-auth-server/commit/fa9ebc7)), closes [#1941](https://github.com/mozilla/fxa-auth-server/issues/1941)
+* **email:** Escape device name in HTML emails. (#1944), r=@philbooth ([bcad58c](https://github.com/mozilla/fxa-auth-server/commit/bcad58c))
+* **email:** log a 'sent' email event for each CC address (#1936), r=@vbudhram ([82b24e2](https://github.com/mozilla/fxa-auth-server/commit/82b24e2))
+* **server:** remove duplicate URL-safe base 64 validator ([50f6303](https://github.com/mozilla/fxa-auth-server/commit/50f6303))
+* **sms:** Use the real email sender when sending via MockNexmo ([577db70](https://github.com/mozilla/fxa-auth-server/commit/577db70))
+* **test:** Add tests for the `sender` and `from` fields in mock-nexmo. ([068791a](https://github.com/mozilla/fxa-auth-server/commit/068791a))
+* **test:** Fix the broken smsSend test. ([ef2cc2a](https://github.com/mozilla/fxa-auth-server/commit/ef2cc2a))
+* **tests:** add CC suport to mail_helper (#1937) r=vbudhram ([8dfb5e3](https://github.com/mozilla/fxa-auth-server/commit/8dfb5e3))
+* **tests:** Update loadtests to cope with sign-in confirmation (#1890) r=jrgm,vladikoff ([be2d1ef](https://github.com/mozilla/fxa-auth-server/commit/be2d1ef))
+
+### chore
+
+* **log:** Remove datadog/statsd integration (#1921); r=vladikoff ([3f7ed68](https://github.com/mozilla/fxa-auth-server/commit/3f7ed68))
+
+### Features
+
+* **bounces:** add tiers to bounce blocklist ([09e18e5](https://github.com/mozilla/fxa-auth-server/commit/09e18e5)), closes [#1893](https://github.com/mozilla/fxa-auth-server/issues/1893)
+* **emails:** Add email metrics documentation (#1919) r=vladikoff,davismtl ([ae0a4f8](https://github.com/mozilla/fxa-auth-server/commit/ae0a4f8))
+* **emails:** Add endpoint to check if secondary emails are enabled (#1926), r=@philbooth, @rf ([a459ff1](https://github.com/mozilla/fxa-auth-server/commit/a459ff1))
+
+
+
 <a name="1.88.1"></a>
 ## [1.88.1](https://github.com/mozilla/fxa-auth-server/compare/v1.88.0...v1.88.1) (2017-06-01)
 
