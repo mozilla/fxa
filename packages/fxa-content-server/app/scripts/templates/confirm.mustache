@@ -15,10 +15,10 @@
     <div class="graphic graphic-mail">{{#t}}Email Sent{{/t}}</div>
 
     {{#isSignUp}}
-    <p class="verification-email-message">{{#unsafeTranslate}}A verification link has been sent&nbsp;to %(escapedEmail)s{{/unsafeTranslate}}</p>
+    <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the verification link sent&nbsp;to %(escapedEmail)s{{/unsafeTranslate}}</p>
     {{/isSignUp}}
     {{#isSignIn}}
-    <p class="verification-email-message">{{#t}}To better protect your Firefox data, we've emailed a confirmation link to %(email)s{{/t}}</p>
+    <p class="verification-email-message">{{#t}}Check your email for the sign-in confirmation link sent to %(email)s{{/t}}</p>
     {{/isSignIn}}
 
     {{#isOpenWebmailButtonVisible}}
