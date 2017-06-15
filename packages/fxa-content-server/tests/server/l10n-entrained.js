@@ -25,16 +25,55 @@ define([
   var languages = fxaShared.l10n.supportedLanguages;
   var httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
+  var hookDns = process.env.FXA_DNS_ELB && process.env.FXA_DNS_ALIAS;
+
   if (intern.config.fxaProduction) {
     assert.equal(0, httpsUrl.indexOf('https://'), 'uses https scheme');
   }
 
-  if (process.env.FXA_DNS_ELB && process.env.FXA_DNS_ALIAS) {
-    dnshook(process.env.FXA_DNS_ELB, process.env.FXA_DNS_ALIAS);
-  }
+  var dnsSuite = {
+    name: 'confirm that dns.lookup is called via makeRequest by aliasing non-existent domain',
+    setup: function () {
+      if (hookDns) {
+        dnshook('nxdomain.nxdomain.nxdomain', process.env.FXA_DNS_ALIAS);
+      }
+    },
+    teardown: function () {
+      dnshook(false);
+    }
+  };
+
+  dnsSuite['#https get ' + httpsUrl + '/signin fails if non-existent domain'] = function () {
+    var dfd = this.async(2000);
+
+    makeRequest(httpsUrl + '/signin', {})
+      .then((res) => {
+        if (hookDns) {
+          // If we've hooked dns, then this should fail. But `makeRequest`
+          // squelches errors, so "failure" means `res` will be undefined.
+          assert.ok(res === undefined);
+        } else {
+          // Otherwise, if we haven't hooked dns, then this should succeed.
+          assert.equal(res.statusCode, 200);
+        }
+      })
+      .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+
+    return dfd;
+  };
+
+  registerSuite(dnsSuite);
 
   var suite = {
-    name: 'check resources entrained by /signin in all locales'
+    name: 'check resources entrained by /signin in all locales',
+    setup: function () {
+      if (hookDns) {
+        dnshook(process.env.FXA_DNS_ELB, process.env.FXA_DNS_ALIAS);
+      }
+    },
+    teardown: function () {
+      dnshook(false);
+    }
   };
 
   var routes = {

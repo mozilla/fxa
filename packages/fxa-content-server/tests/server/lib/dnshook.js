@@ -1,22 +1,29 @@
 'use strict';
 
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 // Replace the builtin `dns.lookup` with one that will divert lookups of
 // `alias` to a test `elb`. Useful for testing deployments before going live,
 // specifically for `tests/server/l10n-entrained`.
 //
 // Caveats:
 // - the `got` module appears to wind up using `dns.lookup`, but this is a
-//   fragile assumption.
-// - no provision is made for unwrapping `dns.lookup`; maybe I should allow
-//   for cleanup, but this module is not intended to be used outside of a
-//   narrow testing use case.
+//   fragile assumption/implementation detail.
 // - Written for node4; may need to be rewritten for more modern nodejs
-//   major versions.
+//   major versions, but quite possibly not.
 
 const dns = require('dns');
 var originalLookup;
 
 module.exports = function hookedLookup(elb, alias) {
+  // remove the wrapped hook if first argument is literally `false`.
+  if (elb === false && dns.lookup._wrapped && originalLookup) {
+    dns.lookup = originalLookup;
+    return;
+  }
+
   if (! elb || ! alias) {
     return;
   }
