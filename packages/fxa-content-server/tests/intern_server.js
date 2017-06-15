@@ -39,6 +39,7 @@ define([
     'tests/server/routes/post-csp',
     'tests/server/routes/post-metrics',
     'tests/server/routes/redirect-m-to-adjust',
+    'tests/server/logging/route_logging'
   ];
 
   return intern;
