@@ -315,7 +315,7 @@ module.exports = function (log, error) {
   // Select : accounts
   // Fields : uid
   // Where  : normalizedEmail = LOWER($1)
-  var ACCOUNT_EXISTS = 'CALL accountExists_1(?)'
+  var ACCOUNT_EXISTS = 'CALL accountExists_2(?)'
 
   MySql.prototype.accountExists = function (emailBuffer) {
     return this.readFirstResult(ACCOUNT_EXISTS, [emailBuffer.toString('utf8')])
@@ -345,7 +345,7 @@ module.exports = function (log, error) {
   //          d.callbackPublicKey, d.callbackAuthKey, s.uaBrowser, s.uaBrowserVersion,
   //          s.uaOS, s.uaOSVersion, s.uaDeviceType, s.lastAccessTime, a.email
   // Where  : d.uid = $1
-  var ACCOUNT_DEVICES = 'CALL accountDevices_6(?)'
+  var ACCOUNT_DEVICES = 'CALL accountDevices_7(?)'
 
   MySql.prototype.accountDevices = function (uid) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
@@ -373,7 +373,7 @@ module.exports = function (log, error) {
   //          ut.tokenVerificationId, ut.mustVerify
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSION_DEVICE = 'CALL sessionWithDevice_4(?)'
+  var SESSION_DEVICE = 'CALL sessionWithDevice_5(?)'
 
   MySql.prototype.sessionWithDevice = function (id) {
     return this.readFirstResult(SESSION_DEVICE, [id])
@@ -398,7 +398,7 @@ module.exports = function (log, error) {
   //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
   //          a.createdAt AS accountCreatedAt
   // Where  : t.tokenId = $1 AND t.uid = a.uid
-  var SESSION_TOKEN = 'CALL sessionToken_3(?)'
+  var SESSION_TOKEN = 'CALL sessionToken_4(?)'
 
   MySql.prototype.sessionToken = function (id) {
     return this.readFirstResult(SESSION_TOKEN, [id])
@@ -410,7 +410,7 @@ module.exports = function (log, error) {
   //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
   //          a.createdAt AS accountCreatedAt, ut.tokenVerificationId, ut.mustVerify
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = ut.tokenId
-  var SESSION_TOKEN_VERIFIED = 'CALL sessionTokenWithVerificationStatus_2(?)'
+  var SESSION_TOKEN_VERIFIED = 'CALL sessionTokenWithVerificationStatus_3(?)'
 
   MySql.prototype.sessionTokenWithVerificationStatus = function (tokenId) {
     return this.readFirstResult(SESSION_TOKEN_VERIFIED, [tokenId])
@@ -429,7 +429,7 @@ module.exports = function (log, error) {
   // Fields : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt,
   //          ut.tokenVerificationId
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = ut.tokenId
-  var KEY_FETCH_TOKEN_VERIFIED = 'CALL keyFetchTokenWithVerificationStatus_1(?)'
+  var KEY_FETCH_TOKEN_VERIFIED = 'CALL keyFetchTokenWithVerificationStatus_2(?)'
 
   MySql.prototype.keyFetchTokenWithVerificationStatus = function (tokenId) {
     return this.readFirstResult(KEY_FETCH_TOKEN_VERIFIED, [tokenId])
@@ -447,7 +447,7 @@ module.exports = function (log, error) {
   // Select : passwordForgotToken t, accounts a
   // Fields : t.uid, t.tokenData, t.createdAt, t.passCode, t.tries, a.email, a.verifierSetAt
   // Where  : t.tokenId = $1 AND t.uid = a.uid
-  var PASSWORD_FORGOT_TOKEN = 'CALL passwordForgotToken_1(?)'
+  var PASSWORD_FORGOT_TOKEN = 'CALL passwordForgotToken_2(?)'
   MySql.prototype.passwordForgotToken = function (id) {
     return this.readFirstResult(PASSWORD_FORGOT_TOKEN, [id])
   }
@@ -455,7 +455,7 @@ module.exports = function (log, error) {
   // Select : passwordChangeToken t, accounts a
   // Fields : t.uid, t.tokenData, t.createdAt, a.email, a.verifierSetAt
   // Where  : t.tokenId = $1 AND t.uid = a.uid
-  var PASSWORD_CHANGE_TOKEN = 'CALL passwordChangeToken_2(?)'
+  var PASSWORD_CHANGE_TOKEN = 'CALL passwordChangeToken_3(?)'
 
   MySql.prototype.passwordChangeToken = function (id) {
     return this.readFirstResult(PASSWORD_CHANGE_TOKEN, [id])
@@ -759,8 +759,8 @@ module.exports = function (log, error) {
 
   // USER EMAILS
   // Insert : emails
-  // Values : normalizedEmail = $1, email = $2, uid = $3, emailCode = $4, isVerified = $5, isPrimary = $6, verifiedAt = $7, createdAt = $8
-  var CREATE_EMAIL = 'CALL createEmail_1(?, ?, ?, ?, ?, ?, ?, ?)'
+  // Values : normalizedEmail = $1, email = $2, uid = $3, emailCode = $4, isVerified = $5, verifiedAt = $7, createdAt = $8
+  var CREATE_EMAIL = 'CALL createEmail_2(?, ?, ?, ?, ?, ?, ?)'
   MySql.prototype.createEmail = function (uid, data) {
     return this.write(
       CREATE_EMAIL,
@@ -770,7 +770,6 @@ module.exports = function (log, error) {
         uid,
         data.emailCode,
         data.isVerified,
-        data.isPrimary,
         data.verifiedAt,
         Date.now()
       ]
@@ -786,7 +785,7 @@ module.exports = function (log, error) {
 
   // Select : emails
   // Values : uid = $1
-  var ACCOUNT_EMAILS = 'CALL accountEmails_2(?)'
+  var ACCOUNT_EMAILS = 'CALL accountEmails_3(?)'
   MySql.prototype.accountEmails = function (uid) {
     return this.readOneFromFirstResult(
       ACCOUNT_EMAILS,
@@ -798,7 +797,7 @@ module.exports = function (log, error) {
 
   // Delete : emails
   // Values : uid = $1, email = $2
-  var DELETE_EMAIL = 'CALL deleteEmail_1(?, ?)'
+  var DELETE_EMAIL = 'CALL deleteEmail_2(?, ?)'
   MySql.prototype.deleteEmail = function (uid, email) {
     return this.write(
       DELETE_EMAIL,
@@ -1184,7 +1183,7 @@ module.exports = function (log, error) {
 
   // Delete : signinCodes
   // Where : hash = $1, createdAt > now - config.signinCodesMaxAge
-  const CONSUME_SIGNIN_CODE = 'CALL consumeSigninCode_2(?, ?)'
+  const CONSUME_SIGNIN_CODE = 'CALL consumeSigninCode_3(?, ?)'
   MySql.prototype.consumeSigninCode = function (code) {
     const newerThan = Date.now() - this.options.signinCodesMaxAge
     return this.readFirstResult(CONSUME_SIGNIN_CODE, [ createHash(code), newerThan ])

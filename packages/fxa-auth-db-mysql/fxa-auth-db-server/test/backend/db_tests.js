@@ -2215,11 +2215,11 @@ module.exports = function(config, DB) {
                   })
               })
               .then(() => {
-                // Attempt to delete an email that is on the account table
+                // Attempt to delete a primary email
                 return db.deleteEmail(account.uid, account.normalizedEmail)
                   .then(
                     () => {
-                      assert(false, 'Failed to not delete an email in the account table.')
+                      assert(false, 'Failed to not delete a primary email')
                     },
                     err => {
                       assert.equal(err.errno, 136, 'should return email delete errno')

@@ -1043,40 +1043,16 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.accountEmails = function (uid) {
-    var userEmails = []
+    const userEmails = []
 
-    // Also include email in accounts table
-    return getAccountByUid(uid)
-      .then(function (account) {
-        var containsPrimaryEmail = false
-        Object.keys(emails).forEach(function (key) {
-          var emailRecord = emails[key]
-          if (emailRecord.uid.toString('hex') === uid.toString('hex')) {
-            if (emailRecord.isPrimary) {
-              containsPrimaryEmail = true
-            }
-            userEmails.push(emailRecord)
-          }
-        })
+    Object.keys(emails).forEach(function (key) {
+      var emailRecord = emails[key]
+      if (emailRecord.uid.toString('hex') === uid.toString('hex')) {
+        userEmails.push(emailRecord)
+      }
+    })
 
-        if (! containsPrimaryEmail) {
-          userEmails.push({
-            email: account.email,
-            emailCode: account.emailCode,
-            normalizedEmail: account.normalizedEmail,
-            isPrimary: true,
-            isVerified: !!account.emailVerified,
-            uid: uid
-          })
-        }
-
-        // Sort emails so that primary email is first
-        userEmails.sort((a, b) => {
-          return (a.isPrimary === b.isPrimary) ? 0 : a.isPrimary ? -1 : 1
-        })
-
-        return P.resolve(userEmails)
-      })
+    return P.resolve(userEmails)
   }
 
   Memory.prototype.deleteEmail = function (uid, email) {
