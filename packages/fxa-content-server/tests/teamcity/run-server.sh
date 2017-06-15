@@ -73,30 +73,7 @@ export npm_config_tmp=~/fxatemp
 
 set -o xtrace # echo the following commands
 
-node ./tests/teamcity/install-npm-deps.js \
-  bluebird                        \
-  bower                           \
-  convict                         \
-  css                             \
-  extend                          \
-  firefox-profile                 \
-  fxa-shared                      \
-  got                             \
-  helmet                          \
-  htmlparser2                     \
-  intern                          \
-  joi                             \
-  lodash                          \
-  mozlog                          \
-  node-statsd                     \
-  node-uap                        \
-  on-headers                      \
-  proxyquire                      \
-  raven                           \
-  sinon                           \
-  sync-exec                       \
-  universal-analytics             \
-  xmlhttprequest
+./tests/teamcity/install-npm-deps.sh
 
 FXA_TEST_CONFIG=${FXA_TEST_CONFIG:-tests/intern_server}
 
