@@ -13,8 +13,9 @@ define([
   'intern/browser_modules/dojo/node!xmlhttprequest',
   'intern/chai!assert',
   'app/bower_components/fxa-js-client/fxa-client',
+  'intern/dojo/node!got'
 ], function (intern, require, restmail, TestHelpers, pollUntil,
-  Url, Querystring, nodeXMLHttpRequest, assert, FxaClient) {
+  Url, Querystring, nodeXMLHttpRequest, assert, FxaClient, got) {
   const config = intern.config;
 
   const AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -62,8 +63,14 @@ define([
   const takeScreenshot = thenify(function () {
     return this.parent.takeScreenshot()
       .then(function (buffer) {
-        console.error('Capturing base64 screenshot:');
-        console.error('data:image/jpeg;base64,' + buffer.toString('base64'));
+        const screenCaptureHost = 'https://screencap.co.uk';
+        return got.post(`${screenCaptureHost}/png`, { body: buffer, followRedirect: false })
+          .then((res) => {
+            console.log(`Screenshot saved at: ${screenCaptureHost}${res.headers.location}`);
+          }, (err) => {
+            console.error('Capturing base64 screenshot:');
+            console.error(`data:image/png;base64,${buffer.toString('base64')}`);
+          });
       });
   });
 
