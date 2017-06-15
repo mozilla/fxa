@@ -149,7 +149,7 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('pre-reqs are met, auth-server blocks, Able says OK', () => {
+      describe('pre-reqs are met, auth-server blocks, Experiment choice rules say OK', () => {
         beforeEach(() => {
           sinon.stub(view, '_areSmsRequirementsMet', () => true);
           sinon.spy(view, 'isInExperiment');
@@ -169,7 +169,7 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('pre-reqs are met, auth-server errors, Able says OK', () => {
+      describe('pre-reqs are met, auth-server errors, Experiment choice rules say OK', () => {
         let err;
 
         beforeEach(() => {
@@ -197,7 +197,7 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('pre-reqs are met, auth-server says OK, Able blocks', () => {
+      describe('pre-reqs are met, auth-server says OK, Experiment choice rules block', () => {
         beforeEach(() => {
           sinon.stub(view, '_areSmsRequirementsMet', () => true);
           sinon.stub(view, 'isInExperiment', () => false);
@@ -219,7 +219,7 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('pre-reqs are met, auth-server says OK, Able says OK', () => {
+      describe('pre-reqs are met, auth-server says OK, Experiment choice rules say OK', () => {
         beforeEach(() => {
           sinon.stub(view, '_areSmsRequirementsMet', () => true);
           sinon.stub(view, 'isInExperiment', (experimentName) => experimentName === 'sendSmsEnabledForCountry');

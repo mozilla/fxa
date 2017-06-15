@@ -19,7 +19,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Able = require('lib/able');
+  const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
   const AppView = require('views/app');
   const authBrokers = require('models/auth_brokers/index');
   const Assertion = require('lib/assertion');
@@ -88,8 +88,8 @@ define(function (require, exports, module) {
       this._interTabChannel = new InterTabChannel();
     },
 
-    initializeAble () {
-      this._able = new Able();
+    initializeExperimentGroupingRules () {
+      this._experimentGroupingRules = new ExperimentGroupingRules();
     },
 
     initializeConfig () {
@@ -104,7 +104,7 @@ define(function (require, exports, module) {
         .then(_.bind(this.initializeConfig, this))
         .then(_.bind(this.initializeL10n, this))
         .then(_.bind(this.initializeInterTabChannel, this))
-        .then(_.bind(this.initializeAble, this))
+        .then(_.bind(this.initializeExperimentGroupingRules, this))
         .then(_.bind(this.initializeErrorMetrics, this))
         .then(_.bind(this.initializeOAuthClient, this))
         // both the metrics and router depend on the language
@@ -151,14 +151,12 @@ define(function (require, exports, module) {
     },
 
     initializeErrorMetrics () {
-      if (this._config && this._config.env && this._able) {
-        const abData = {
+      if (this._config && this._config.env && this._experimentGroupingRules) {
+        const subject = {
           env: this._config.env,
           uniqueUserId: this._getUniqueUserId()
         };
-        const abChoose = this._able.choose('sentryEnabled', abData);
-
-        if (abChoose) {
+        if (this._experimentGroupingRules.choose('sentryEnabled', subject)) {
           this.enableSentryMetrics();
         }
       }
@@ -177,7 +175,7 @@ define(function (require, exports, module) {
     },
 
     initializeMetrics () {
-      const isSampledUser = this._able.choose('isSampledUser', {
+      const isSampledUser = this._experimentGroupingRules.choose('isSampledUser', {
         env: this._config.env,
         uniqueUserId: this._getUniqueUserId()
       });
@@ -185,7 +183,6 @@ define(function (require, exports, module) {
       const relier = this._relier;
       const screenInfo = new ScreenInfo(this._window);
       this._metrics = this._createMetrics({
-        able: this._able,
         clientHeight: screenInfo.clientHeight,
         clientWidth: screenInfo.clientWidth,
         context: relier.get('context'),
@@ -458,9 +455,9 @@ define(function (require, exports, module) {
 
     createView (Constructor, options = {}) {
       const viewOptions = _.extend({
-        able: this._able,
         broker: this._authenticationBroker,
         createView: this.createView.bind(this),
+        experimentGroupingRules: this._experimentGroupingRules,
         formPrefill: this._formPrefill,
         interTabChannel: this._interTabChannel,
         lang: this._config.lang,

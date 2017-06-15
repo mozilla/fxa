@@ -12,7 +12,6 @@ function (Translator, Session) {
 
   var tests = [
     '../tests/spec/head/startup-styles',
-    '../tests/spec/lib/able',
     '../tests/spec/lib/app-start',
     '../tests/spec/lib/assertion',
     '../tests/spec/lib/auth-errors',
@@ -36,6 +35,14 @@ function (Translator, Session) {
     '../tests/spec/lib/error-utils',
     '../tests/spec/lib/experiment',
     '../tests/spec/lib/experiments/base',
+    '../tests/spec/lib/experiments/grouping-rules/base',
+    '../tests/spec/lib/experiments/grouping-rules/communication-prefs',
+    '../tests/spec/lib/experiments/grouping-rules/index',
+    '../tests/spec/lib/experiments/grouping-rules/is-sampled-user',
+    '../tests/spec/lib/experiments/grouping-rules/send-sms-enabled-for-country',
+    '../tests/spec/lib/experiments/grouping-rules/send-sms-install-link',
+    '../tests/spec/lib/experiments/grouping-rules/sentry',
+    '../tests/spec/lib/experiments/grouping-rules/sessions',
     '../tests/spec/lib/fxa-client',
     '../tests/spec/lib/height-observer',
     '../tests/spec/lib/image-loader',

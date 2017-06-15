@@ -119,15 +119,6 @@ function makeApp() {
     type: ['json', '*/json', 'application/csp-report']
   }));
 
-  const ableOptions = {
-    addRoutes: true,
-    dir: config.get('experiments.dir'),
-    git: config.get('experiments.git'),
-    watch: config.get('experiments.watch')
-  };
-
-  app.use(require('express-able')(ableOptions));
-
   if (isCorsRequired()) {
     // JS, CSS and web font resources served from a CDN
     // will be ignored unless CORS headers are present.

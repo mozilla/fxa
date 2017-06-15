@@ -1,0 +1,117 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+define(function (require, exports, module) {
+  'use strict';
+
+  const { assert } = require('chai');
+  const BaseChoiceRule = require('lib/experiments/grouping-rules/base');
+  const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
+  const sinon = require('sinon');
+
+  describe('lib/experiments/grouping-rules/index', () => {
+    describe('choose', () => {
+      let experimentGroupingRules;
+      let rule1;
+      let rule2;
+
+      before(() => {
+        rule1 = {
+          choose: sinon.spy(() => true),
+          name: 'rule1',
+        };
+        rule2 = {
+          choose: sinon.spy(() => 'treatment'),
+          name: 'rule2'
+        };
+
+        experimentGroupingRules = new ExperimentGroupingRules({
+          experimentGroupingRules: [
+            rule1,
+            rule2
+          ]
+        });
+      });
+
+      it('returns `undefined` if ExperimentGroupingRule with name does not exist', () => {
+        assert.isUndefined(experimentGroupingRules.choose('does-not-exist', {}));
+      });
+
+      it('delegates to the experimentGroupingRule', () => {
+        const subject = { uniqueUserId: 'user-id' };
+
+        assert.isTrue(experimentGroupingRules.choose('rule1', subject));
+        assert.isTrue(rule1.choose.calledOnce);
+        assert.isTrue(rule1.choose.calledWith(subject));
+
+        assert.equal(experimentGroupingRules.choose('rule2', subject), 'treatment');
+        assert.isTrue(rule2.choose.calledOnce);
+        assert.isTrue(rule2.choose.calledWith(subject));
+      });
+    });
+
+    describe('choose with mutual exclusion', () => {
+      class ChooserRule extends BaseChoiceRule {
+        constructor () {
+          super();
+          this.name = 'chooser-rule';
+        }
+
+        choose (subject) {
+          return 'rule1';
+        }
+      }
+
+      class Rule1 extends BaseChoiceRule {
+        constructor () {
+          super();
+          this.name = 'rule1';
+        }
+
+        choose (subject) {
+          if (subject.experimentGroupingRules.choose('chooser-rule', subject) === this.name) {
+            return 'rule1-group';
+          }
+        }
+      }
+
+      class Rule2 extends BaseChoiceRule {
+        constructor () {
+          super();
+          this.name = 'rule2';
+        }
+
+        choose (subject) {
+          if (subject.experimentGroupingRules.choose('chooser-rule', subject) === this.name) {
+            return 'rule2-group';
+          }
+        }
+      }
+
+      let experimentGroupingRules;
+      let chooserRule;
+      let rule1;
+      let rule2;
+
+      before(() => {
+        chooserRule = new ChooserRule();
+        rule1 = new Rule1();
+        rule2 = new Rule2();
+
+        experimentGroupingRules = new ExperimentGroupingRules({
+          experimentGroupingRules: [
+            chooserRule,
+            rule1,
+            rule2
+          ]
+        });
+      });
+
+      it('returns a value for the chosen rule, undefined for the non-chosen rule', () => {
+        assert.equal(experimentGroupingRules.choose('rule1'), 'rule1-group');
+        assert.isUndefined(experimentGroupingRules.choose('rule2'));
+      });
+    });
+  });
+});

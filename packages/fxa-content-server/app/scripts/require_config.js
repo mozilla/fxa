@@ -69,6 +69,7 @@ require.config({
     canvasToBlob: '../bower_components/blueimp-canvas-to-blob/js/canvas-to-blob',
     chai: '../bower_components/chai/chai',
     cocktail: '../bower_components/cocktail/Cocktail',
+    crc: '../bower_components/js-crc/src/crc',
     duration: '../bower_components/Duration.js/duration',
     fxaCheckbox: '../bower_components/fxa-checkbox/checkbox',
     fxaClient: '../bower_components/fxa-js-client/fxa-client',

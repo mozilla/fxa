@@ -133,11 +133,11 @@ define((require, exports, module) => {
       return account.smsStatus(this.relier.pick('country'))
         .then((resp = {}) => {
           // If the auth-server says the user is good to send an SMS,
-          // check with Able to ensure SMS is enabled for the country
+          // check with the experiment choices to ensure SMS is enabled for the country
           // returned in the response. The auth-server may report
           // that SMS is enabled for Romania, though it's only enabled
-          // for testing and not for the public at large. Able is used
-          // for this because it's the logic most likey to change.
+          // for testing and not for the public at large. Experiment choices are used
+          // for this because it's the logic most likely to change.
 
           // If geo-lookup is disabled, no country is returned, assume US
           const country = resp.country || 'US';

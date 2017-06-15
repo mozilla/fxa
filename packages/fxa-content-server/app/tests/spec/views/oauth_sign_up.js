@@ -6,9 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const Able = require('lib/able');
+  const { assert } = require('chai');
   const Assertion = require('lib/assertion');
-  const chai = require('chai');
+  const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
   const FormPrefill = require('models/form-prefill');
   const FxaClient = require('lib/fxa-client');
   const Metrics = require('lib/metrics');
@@ -24,8 +24,6 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const View = require('views/sign_up');
   const WindowMock = require('../../mocks/window');
-
-  var assert = chai.assert;
 
   function fillOutSignUp (email, password, opts) {
     opts = opts || {};
@@ -51,11 +49,11 @@ define(function (require, exports, module) {
   var BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
 
   describe('views/sign_up for /oauth/signup', function () {
-    var able;
     var assertionLibrary;
     var broker;
     var email;
     var encodedLocationSearch;
+    let experimentGroupingRules;
     var formPrefill;
     var fxaClient;
     var metrics;
@@ -70,7 +68,6 @@ define(function (require, exports, module) {
     beforeEach(function () {
       Session.clear();
       email = TestHelpers.createEmail();
-
 
       windowMock = new WindowMock();
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
@@ -106,23 +103,23 @@ define(function (require, exports, module) {
       user = new User({
         fxaClient: fxaClient
       });
+      experimentGroupingRules = new ExperimentGroupingRules();
       formPrefill = new FormPrefill();
-      able = new Able();
       notifier = new Notifier();
       sentryMetrics = new SentryMetrics();
       metrics = new Metrics({ notifier, sentryMetrics });
 
       view = new View({
-        able: able,
-        assertionLibrary: assertionLibrary,
-        broker: broker,
-        formPrefill: formPrefill,
-        fxaClient: fxaClient,
-        metrics: metrics,
-        notifier: notifier,
-        oAuthClient: oAuthClient,
-        relier: relier,
-        user: user,
+        assertionLibrary,
+        broker,
+        experimentGroupingRules,
+        formPrefill,
+        fxaClient,
+        metrics,
+        notifier,
+        oAuthClient,
+        relier,
+        user,
         viewName: 'oauth.signup',
         window: windowMock
       });

@@ -5,7 +5,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Able = require('lib/able');
   const { assert } = require('chai');
   const BaseBroker = require('models/auth_brokers/base');
   const Constants = require('lib/constants');
@@ -36,7 +35,6 @@ define(function (require, exports, module) {
       metrics = new Metrics({ notifier });
       options.metrics = metrics;
 
-      options.able = new Able();
       view = new View(options);
     }
 

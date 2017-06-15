@@ -44,12 +44,10 @@ define(function (require, exports, module) {
     template: Template,
     className: 'sign-up',
 
-    initialize (options) {
-      options = options || {};
-
-      this._formPrefill = options.formPrefill;
+    initialize (options = {}) {
       this._coppa = options.coppa;
-      this._able = options.able;
+      this._experimentGroupingRules = options.experimentGroupingRules;
+      this._formPrefill = options.formPrefill;
     },
 
     beforeRender () {
@@ -384,7 +382,7 @@ define(function (require, exports, module) {
     },
 
     _isEmailOptInEnabled () {
-      return !! this._able.choose('communicationPrefsVisible', {
+      return !! this._experimentGroupingRules.choose('communicationPrefsVisible', {
         lang: this.navigator.language
       });
     }

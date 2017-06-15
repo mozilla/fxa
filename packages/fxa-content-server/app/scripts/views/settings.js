@@ -14,14 +14,14 @@ define(function (require, exports, module) {
   const AvatarView = require('views/settings/avatar');
   const BaseView = require('views/base');
   const ChangePasswordView = require('views/settings/change_password');
+  const ClientDisconnectView = require('views/settings/client_disconnect');
+  const ClientsView = require('views/settings/clients');
   const Cocktail = require('cocktail');
   const CommunicationPreferencesView = require('views/settings/communication_preferences');
   const DeleteAccountView = require('views/settings/delete_account');
-  const ClientsView = require('views/settings/clients');
-  const ClientDisconnectView = require('views/settings/client_disconnect');
   const DisplayNameView = require('views/settings/display_name');
-  const EmailsView = require('views/settings/emails');
   const Duration = require('duration');
+  const EmailsView = require('views/settings/emails');
   const LoadingMixin = require('views/mixins/loading-mixin');
   const modal = require('modal'); //eslint-disable-line no-unused-vars
   const Session = require('lib/session');
@@ -56,7 +56,7 @@ define(function (require, exports, module) {
     initialize (options) {
       options = options || {};
 
-      this._able = options.able;
+      this._experimentGroupingRules = options.experimentGroupingRules;
       this._subPanels = options.subPanels || this._initializeSubPanels(options);
       this._formPrefill = options.formPrefill;
 
@@ -191,7 +191,7 @@ define(function (require, exports, module) {
     },
 
     _areCommunicationPrefsVisible () {
-      return !! this._able.choose('communicationPrefsVisible', {
+      return !! this._experimentGroupingRules.choose('communicationPrefsVisible', {
         lang: this.navigator.language
       });
     },

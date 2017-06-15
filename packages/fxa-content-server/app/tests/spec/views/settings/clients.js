@@ -7,7 +7,6 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const _ = require ('underscore');
-  const Able = require('lib/able');
   const assert = require('chai').assert;
   const AttachedClients = require('models/attached-clients');
   const BaseBroker = require('models/auth_brokers/base');
@@ -23,7 +22,6 @@ define(function (require, exports, module) {
   const WindowMock = require('../../../mocks/window');
 
   describe('views/settings/clients', () => {
-    let able;
     let account;
     let attachedClients;
     let broker;
@@ -40,7 +38,6 @@ define(function (require, exports, module) {
 
     function initView () {
       view = new View({
-        able: able,
         attachedClients: attachedClients,
         broker: broker,
         metrics: metrics,
@@ -70,10 +67,6 @@ define(function (require, exports, module) {
     }
 
     beforeEach(() => {
-      able = new Able();
-      sinon.stub(able, 'choose', () => {
-        return true;
-      });
       broker = new BaseBroker();
       email = TestHelpers.createEmail();
       notifier = new Notifier();

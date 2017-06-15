@@ -41,7 +41,6 @@
     "cookie-parser": "1.4.3",
     "cors": "2.8.3",
     "express": "4.15.3",
-    "express-able": "dannycoates/express-able#7c143a0a4ba08fce9fcdb65aa192f90534bdeccc",
     "extend": "3.0.1",
     "fxa-shared": "1.0.4",
     "got": "6.7.1",

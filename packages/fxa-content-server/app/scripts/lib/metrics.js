@@ -98,7 +98,6 @@ define(function (require, exports, module) {
 
     this._window = options.window || window;
 
-    this._able = options.able;
     this._activeExperiments = {};
     this._brokerType = options.brokerType || NOT_REPORTED_VALUE;
     this._clientHeight = options.clientHeight || NOT_REPORTED_VALUE;

@@ -7,14 +7,13 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const _ = require('underscore');
-  const Able = require('lib/able');
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const CommunicationPreferencesView = require('views/settings/communication_preferences');
+  const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
   const FormPrefill = require('models/form-prefill');
-  const FxaClient = require('lib/fxa-client');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
@@ -41,10 +40,9 @@ define(function (require, exports, module) {
   );
 
   describe('views/settings', function () {
-    var able;
     var account;
+    var experimentGroupingRules;
     var formPrefill;
-    var fxaClient;
     var initialChildView;
     var metrics;
     var notifier;
@@ -64,17 +62,16 @@ define(function (require, exports, module) {
 
     function createSettingsView () {
       view = new View({
-        able: able,
         childView: initialChildView,
-        createView: createView,
-        formPrefill: formPrefill,
-        fxaClient: fxaClient,
-        metrics: metrics,
-        notifier: notifier,
-        panelViews: panelViews,
-        relier: relier,
-        subPanels: subPanels,
-        user: user,
+        createView,
+        experimentGroupingRules,
+        formPrefill,
+        metrics,
+        notifier,
+        panelViews,
+        relier,
+        subPanels,
+        user,
         viewName: 'settings'
       });
 
@@ -83,16 +80,14 @@ define(function (require, exports, module) {
     }
 
     beforeEach(function () {
-      able = new Able();
+      experimentGroupingRules = new ExperimentGroupingRules();
       formPrefill = new FormPrefill();
-      fxaClient = new FxaClient();
       notifier = new Notifier();
       metrics = new Metrics({ notifier });
       profileClient = new ProfileClient();
       relier = new Relier();
 
       user = new User({
-        fxaClient: fxaClient,
         notifier: notifier,
         profileClient: profileClient
       });
@@ -478,12 +473,12 @@ define(function (require, exports, module) {
 
         it('CommunicationPreferencesView is visible if enabled', function () {
           panelViews.push(CommunicationPreferencesView);
-          sinon.stub(able, 'choose', function () {
+          sinon.stub(experimentGroupingRules, 'choose', function () {
             return true;
           });
           createSettingsView();
 
-          assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+          assert.isTrue(experimentGroupingRules.choose.calledWith('communicationPrefsVisible'));
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.true'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
             createView: createView,
@@ -495,12 +490,12 @@ define(function (require, exports, module) {
 
         it('CommunicationPreferencesView is not visible if disabled', function () {
           panelViews.push(CommunicationPreferencesView);
-          sinon.stub(able, 'choose', function () {
+          sinon.stub(experimentGroupingRules, 'choose', function () {
             return false;
           });
           createSettingsView();
 
-          assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+          assert.isTrue(experimentGroupingRules.choose.calledWith('communicationPrefsVisible'));
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
             createView: createView,
@@ -511,10 +506,10 @@ define(function (require, exports, module) {
         });
 
         it('initialize SubPanels without CommunicationPreferencesView', function () {
-          sinon.spy(able, 'choose');
+          sinon.spy(experimentGroupingRules, 'choose');
           createSettingsView();
 
-          assert.isFalse(able.choose.called);
+          assert.isFalse(experimentGroupingRules.choose.called);
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
           assert.isTrue(SubPanels.prototype.initialize.calledWith({
             createView: createView,

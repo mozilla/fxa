@@ -39,7 +39,6 @@ define(function (require, exports, module) {
     viewName: 'settings.clients',
 
     initialize (options) {
-      this._able = options.able;
       this._attachedClients = options.attachedClients;
 
       if (! this._attachedClients) {

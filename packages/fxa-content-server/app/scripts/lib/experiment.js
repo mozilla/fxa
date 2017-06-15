@@ -34,7 +34,7 @@ define(function (require, exports, module) {
 
   function ExperimentInterface (options) {
     if (! (options &&
-           options.able &&
+           options.experimentGroupingRules &&
            options.metrics &&
            options.notifier &&
            options.user &&
@@ -53,8 +53,8 @@ define(function (require, exports, module) {
     // of the interface creates its own copy of the list.
     this._activeExperiments = {};
 
-    this.able = options.able;
     this.account = options.account;
+    this.experimentGroupingRules = options.experimentGroupingRules;
     this.metrics = options.metrics;
     this.notifier = options.notifier;
     this.translator = options.translator;
@@ -102,11 +102,11 @@ define(function (require, exports, module) {
      * Is the user in an experiment?
      *
      * @param {String} experimentName
-     * @param {Object} [additionalInfo] additional info to pass to Able.
+     * @param {Object} [additionalInfo] additional info to pass to the experiment grouping rule.
      * @return {Boolean}
      */
     isInExperiment (experimentName, additionalInfo) {
-      // If able returns any truthy value, consider the
+      // If experimentGroupingRules returns any truthy value, consider the
       // user in the experiment.
       return !! this.getExperimentGroup(experimentName, additionalInfo);
     },
@@ -116,7 +116,7 @@ define(function (require, exports, module) {
      *
      * @param {String} experimentName
      * @param {String} groupName
-     * @param {Object} [additionalInfo] additional info to pass to Able.
+     * @param {Object} [additionalInfo] additional info to pass to the experiment grouping rule.
      * @return {Boolean}
      */
     isInExperimentGroup (experimentName, groupName, additionalInfo) {
@@ -124,7 +124,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Use Able to pick an experiment based on experiment type. Only experiments
+     * Use the experiment grouping rule to pick an experiment based on experiment type. Only experiments
      * listed in STARTUP_EXPERIMENTS will be checked.
      *
      * Makes experiment of same independent.
@@ -185,7 +185,7 @@ define(function (require, exports, module) {
      * Get the experiment group for `experimentName` the user is in.
      *
      * @param {String} experimentName
-     * @param {Object} [additionalInfo] additional info to pass to Able.
+     * @param {Object} [additionalInfo] additional info to pass to the experiment grouping rule.
      * @returns {String}
      */
     getExperimentGroup (experimentName, additionalInfo = {}) {
@@ -194,12 +194,12 @@ define(function (require, exports, module) {
         return false;
       }
 
-      return this.able.choose(experimentName, _.extend({
-        // yes, this is a hack because experiments do not have a reference
-        // to able internally. This allows experiments to reference other
-        // experiments
-        able: this.able,
+      return this.experimentGroupingRules.choose(experimentName, _.extend({
         account: this.account,
+        // yes, this is a hack because experiments do not have a reference
+        // to experimentGroupingRules internally. This allows experiments to reference other
+        // experiments
+        experimentGroupingRules: this.experimentGroupingRules,
         forceExperiment: this.forceExperiment,
         forceExperimentGroup: this.forceExperimentGroup,
         isMetricsEnabledValue: this.metrics.isCollectionEnabled(),

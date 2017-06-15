@@ -10,8 +10,8 @@ define(function (require, exports, module) {
   module.exports = {
     initialize (options = {}) {
       this.experiments = options.experiments || new ExperimentInterface({
-        able: options.able,
         account: this._account,
+        experimentGroupingRules: options.experimentGroupingRules,
         metrics: this.metrics,
         notifier: options.notifier,
         translator: this.translator,

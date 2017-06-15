@@ -7,13 +7,13 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const Able = require('lib/able');
   const Account = require('models/account');
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const Broker = require('models/auth_brokers/base');
   const CoppaAgeInput = require('views/coppa/coppa-age-input');
+  const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
   const ExperimentInterface = require('lib/experiment');
   const FormPrefill = require('models/form-prefill');
   const FxaClient = require('lib/fxa-client');
@@ -30,10 +30,10 @@ define(function (require, exports, module) {
   const WindowMock = require('../../mocks/window');
 
   describe('views/sign_up', function () {
-    var able;
     var broker;
     var coppa;
     var email;
+    var experimentGroupingRules;
     var formPrefill;
     var fxaClient;
     var metrics;
@@ -55,9 +55,9 @@ define(function (require, exports, module) {
       options = options || {};
 
       var viewOpts = {
-        able: options.able || able,
         broker: broker,
         coppa: coppa,
+        experimentGroupingRules: options.experimentGroupingRules || experimentGroupingRules,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
@@ -85,7 +85,7 @@ define(function (require, exports, module) {
     beforeEach(function () {
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
 
-      able = new Able();
+      experimentGroupingRules = new ExperimentGroupingRules();
       coppa = new CoppaAgeInput();
       email = TestHelpers.createEmail();
       formPrefill = new FormPrefill();
@@ -219,25 +219,25 @@ define(function (require, exports, module) {
 
       describe('email opt in', function () {
         it('is visible if enabled', function () {
-          sinon.stub(able, 'choose', function () {
+          sinon.stub(experimentGroupingRules, 'choose', function () {
             return true;
           });
 
           return view.render()
             .then(function () {
-              assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+              assert.isTrue(experimentGroupingRules.choose.calledWith('communicationPrefsVisible'));
               assert.equal(view.$('#marketing-email-optin').length, 1);
             });
         });
 
         it('is not visible if disabled', function () {
-          sinon.stub(able, 'choose', function () {
+          sinon.stub(experimentGroupingRules, 'choose', function () {
             return false;
           });
 
           return view.render()
             .then(function () {
-              assert.isTrue(able.choose.calledWith('communicationPrefsVisible'));
+              assert.isTrue(experimentGroupingRules.choose.calledWith('communicationPrefsVisible'));
               assert.equal(view.$('#marketing-email-optin').length, 0);
             });
         });
@@ -771,7 +771,7 @@ define(function (require, exports, module) {
               var revisitView;
               beforeEach(function () {
                 revisitView = new View({
-                  able: able,
+                  experimentGroupingRules: experimentGroupingRules,
                   fxaClient: fxaClient,
                   notifier: notifier,
                   relier: relier
@@ -1188,8 +1188,7 @@ define(function (require, exports, module) {
       it('measures how successful our mailcheck suggestion is', function () {
         var windowMock = new WindowMock();
         windowMock.navigator.userAgent = 'mocha';
-        var mockAble = new Able();
-        sinon.stub(mockAble, 'choose', function (name) {
+        sinon.stub(experimentGroupingRules, 'choose', function (name) {
           if (name === 'mailcheck') {
             return 'treatment';
           }
@@ -1197,7 +1196,7 @@ define(function (require, exports, module) {
           return false;
         });
         view.experiments = new ExperimentInterface({
-          able: mockAble,
+          experimentGroupingRules: experimentGroupingRules,
           metrics: metrics,
           notifier: notifier,
           user: user,

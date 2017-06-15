@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Able = require('lib/able');
   const { assert } = require('chai');
+  const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
   const ExperimentInterface = require('lib/experiment');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
@@ -14,7 +14,7 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const WindowMock = require('../../mocks/window');
 
-  let able;
+  let experimentGroupingRules;
   let expInt;
   let expOptions;
   let metrics;
@@ -35,7 +35,7 @@ define(function (require, exports, module) {
     beforeEach(() => {
       windowMock = new WindowMock();
       windowMock.navigator.userAgent = 'mocha';
-      able = new Able();
+      experimentGroupingRules = new ExperimentGroupingRules();
       user = new User({
         uniqueUserId: UUID
       });
@@ -43,10 +43,10 @@ define(function (require, exports, module) {
       notifier = new Notifier();
       metrics = new Metrics({ notifier });
       expOptions = {
-        able: able,
-        metrics: metrics,
-        notifier: notifier,
-        user: user,
+        experimentGroupingRules,
+        metrics,
+        notifier,
+        user,
         window: windowMock
       };
       expInt = new ExperimentInterface(expOptions);

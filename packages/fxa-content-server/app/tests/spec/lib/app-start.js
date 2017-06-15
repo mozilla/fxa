@@ -520,8 +520,8 @@ define(function (require, exports, module) {
       });
 
       it('skips error metrics on empty config', () => {
-        appStart.initializeAble();
-        var ableChoose = sinon.stub(appStart._able, 'choose', () => {
+        appStart.initializeExperimentGroupingRules();
+        var ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose', () => {
           return true;
         });
 
@@ -532,7 +532,7 @@ define(function (require, exports, module) {
 
       it('skips error metrics if env is not defined', () => {
         appStart.useConfig({ });
-        appStart.initializeAble();
+        appStart.initializeExperimentGroupingRules();
 
         appStart.initializeErrorMetrics();
         assert.isUndefined(appStart._sentryMetrics);
@@ -546,9 +546,9 @@ define(function (require, exports, module) {
           window: windowMock
         });
         appStart.useConfig({ env: 'development' });
-        appStart.initializeAble();
+        appStart.initializeExperimentGroupingRules();
 
-        var ableChoose = sinon.stub(appStart._able, 'choose', () => {
+        var ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose', () => {
           return true;
         });
 
