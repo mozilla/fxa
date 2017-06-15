@@ -70,6 +70,18 @@ define((require, exports, module) => {
       assert.ok(VALID_TYPE.test(authBroker.prototype.type));
     });
 
+    it('get returns correct broker for mob-android-v1 context', () => {
+      const authBroker = index.get(constants.MOBILE_ANDROID_V1_CONTEXT);
+      assert.equal(authBroker, require('models/auth_brokers/mob-android-v1'));
+      assert.ok(VALID_TYPE.test(authBroker.prototype.type));
+    });
+
+    it('get returns correct broker for mob-ios-v1 context', () => {
+      const authBroker = index.get(constants.MOBILE_IOS_V1_CONTEXT);
+      assert.equal(authBroker, require('models/auth_brokers/mob-ios-v1'));
+      assert.ok(VALID_TYPE.test(authBroker.prototype.type));
+    });
+
     it('get returns correct broker for oauth context', () => {
       const authBroker = index.get(constants.OAUTH_CONTEXT);
       assert.equal(authBroker, require('models/auth_brokers/oauth-redirect'));

@@ -29,7 +29,6 @@ define(function (require, exports, module) {
 
     // Users that sign in to the content server directly
     CONTENT_SERVER_CONTEXT: 'web',
-
     FX_SYNC_CONTEXT: 'fx_sync',
     FX_DESKTOP_V1_CONTEXT: 'fx_desktop_v1',
     FX_DESKTOP_V2_CONTEXT: 'fx_desktop_v2',
@@ -40,6 +39,8 @@ define(function (require, exports, module) {
     FX_FIRSTRUN_V1_CONTEXT: 'fx_firstrun_v1',
     FX_FIRSTRUN_V2_CONTEXT: 'fx_firstrun_v2',
     FX_IOS_V1_CONTEXT: 'fx_ios_v1',
+    MOBILE_ANDROID_V1_CONTEXT: 'mob_android_v1',
+    MOBILE_IOS_V1_CONTEXT: 'mob_ios_v1',
     IFRAME_CONTEXT: 'iframe',
     OAUTH_CONTEXT: 'oauth',
 

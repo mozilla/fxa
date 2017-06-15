@@ -35,6 +35,8 @@ define([
   './functional/fx_fennec_v1_force_auth',
   './functional/fx_fennec_v1_sign_up',
   './functional/fx_fennec_v1_settings',
+  './functional/mob_android_v1',
+  './functional/mob_ios_v1',
   './functional/mailcheck',
   './functional/bounced_email',
   './functional/legal',

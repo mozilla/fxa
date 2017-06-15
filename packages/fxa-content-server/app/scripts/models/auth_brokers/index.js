@@ -48,6 +48,14 @@ define(function (require, exports, module) {
       Constructor: require('models/auth_brokers/fx-ios-v1')
     },
     {
+      context: Constants.MOBILE_ANDROID_V1_CONTEXT,
+      Constructor: require('models/auth_brokers/mob-android-v1')
+    },
+    {
+      context: Constants.MOBILE_IOS_V1_CONTEXT,
+      Constructor: require('models/auth_brokers/mob-ios-v1')
+    },
+    {
       context: Constants.OAUTH_CONTEXT,
       Constructor: require('models/auth_brokers/oauth-redirect')
     },

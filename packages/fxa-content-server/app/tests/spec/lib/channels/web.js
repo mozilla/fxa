@@ -46,6 +46,7 @@ define(function (require, exports, module) {
       assert.ok(WebChannel.LOGIN);
       assert.ok(WebChannel.LOGOUT);
       assert.ok(WebChannel.PROFILE_CHANGE);
+      assert.ok(WebChannel.VERIFIED);
     });
 
     it('exports the expected commands on an instance', () => {
@@ -54,7 +55,7 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
-      assert.lengthOf(Object.keys(channel.COMMANDS), 9);
+      assert.lengthOf(Object.keys(channel.COMMANDS), 10);
       assert.ok(channel.COMMANDS.CAN_LINK_ACCOUNT);
       assert.ok(channel.COMMANDS.CHANGE_PASSWORD);
       assert.ok(channel.COMMANDS.DELETE);
@@ -64,6 +65,7 @@ define(function (require, exports, module) {
       assert.ok(channel.COMMANDS.LOGIN);
       assert.ok(channel.COMMANDS.LOGOUT);
       assert.ok(channel.COMMANDS.PROFILE_CHANGE);
+      assert.ok(channel.COMMANDS.VERIFIED);
     });
 
     describe('send', () => {

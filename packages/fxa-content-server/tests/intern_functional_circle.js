@@ -30,6 +30,8 @@ define([
     'tests/functional/fx_firstrun_v2_sign_up',
     'tests/functional/fx_ios_v1_sign_in',
     'tests/functional/fx_ios_v1_sign_up',
+    'tests/functional/mob_android_v1',
+    'tests/functional/mob_ios_v1',
     'tests/functional/mailcheck',
     'tests/functional/password_visibility',
     'tests/functional/refreshes_metrics',

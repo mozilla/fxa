@@ -37,6 +37,7 @@ define(function (require, exports, module) {
     /*
     SYNC_PREFERENCES: 'fxaccounts:sync_preferences', // Removed in issue #4250
     */
+    VERIFIED: 'fxaccounts:verified',
   };
 
   function WebChannel(id) {

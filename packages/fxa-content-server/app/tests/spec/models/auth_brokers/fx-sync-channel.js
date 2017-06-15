@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const WindowMock = require('../../../mocks/window');
 
-  describe('models/auth_brokers/fx-sync-channel', function () {
+  describe('models/auth_brokers/fx-sync-channel', () => {
     let account;
     let broker;
     let channelMock;
@@ -36,15 +36,16 @@ define(function (require, exports, module) {
           /*
           SYNC_PREFERENCES: 'sync_preferences' // Removed in issue #4250
           */
+          VERIFIED: 'verified',
         },
         window: windowMock
       }, options));
     }
 
-    beforeEach(function () {
+    beforeEach(() => {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
-      channelMock.send = sinon.spy(function () {
+      channelMock.send = sinon.spy(() => {
         return p();
       });
 
@@ -58,29 +59,29 @@ define(function (require, exports, module) {
       createAuthBroker();
     });
 
-    it('has the `signup` capability by default', function () {
+    it('has the `signup` capability by default', () => {
       assert.isTrue(broker.hasCapability('signup'));
     });
 
-    it('has the `handleSignedInNotification` capability by default', function () {
+    it('has the `handleSignedInNotification` capability by default', () => {
       assert.isTrue(broker.hasCapability('handleSignedInNotification'));
     });
 
-    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+    it('has the `emailVerificationMarketingSnippet` capability by default', () => {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 
-    describe('afterLoaded', function () {
-      it('sends a `loaded` message', function () {
+    describe('afterLoaded', () => {
+      it('sends a `loaded` message', () => {
         return broker.afterLoaded()
-          .then(function () {
+          .then(() => {
             assert.isTrue(channelMock.send.calledWith('loaded'));
           });
       });
     });
 
-    describe('beforeSignIn', function () {
-      it('is happy if the user clicks `yes`', function () {
+    describe('beforeSignIn', () => {
+      it('is happy if the user clicks `yes`', () => {
         channelMock.request = sinon.spy(() => p({ ok: true }));
 
         return broker.beforeSignIn(account)
@@ -117,8 +118,8 @@ define(function (require, exports, module) {
           });
       });
 
-      it('throws a USER_CANCELED_LOGIN error if user rejects', function () {
-        channelMock.request = sinon.spy(function () {
+      it('throws a USER_CANCELED_LOGIN error if user rejects', () => {
+        channelMock.request = sinon.spy(() => {
           return p({ data: {}});
         });
 
@@ -129,38 +130,38 @@ define(function (require, exports, module) {
           });
       });
 
-      it('swallows errors returned by the browser', function () {
-        channelMock.request = sinon.spy(function () {
+      it('swallows errors returned by the browser', () => {
+        channelMock.request = sinon.spy(() => {
           return p.reject(new Error('uh oh'));
         });
 
         sinon.spy(console, 'error');
 
         return broker.beforeSignIn(account)
-          .then(function () {
+          .then(() => {
             assert.isTrue(console.error.called);
             console.error.restore();
           });
       });
     });
 
-    describe('_notifyRelierOfLogin', function () {
+    describe('_notifyRelierOfLogin', () => {
       // verified will be auto-populated if not in the account.
       const requiredAccountFields = _.without(FxSyncChannelAuthenticationBroker.REQUIRED_LOGIN_FIELDS, 'verified');
 
       requiredAccountFields.forEach(function (fieldName) {
-        it('does not send a `login` message to the channel if the account does not have `' + fieldName + '`', function () {
+        it('does not send a `login` message to the channel if the account does not have `' + fieldName + '`', () => {
           account.unset(fieldName);
           return broker._notifyRelierOfLogin(account)
-            .then(function () {
+            .then(() => {
               assert.isFalse(channelMock.send.called);
             });
         });
       });
 
-      it('sends a `login` message to the channel using current account data', function () {
+      it('sends a `login` message to the channel using current account data', () => {
         return broker._notifyRelierOfLogin(account)
-          .then(function () {
+          .then(() => {
             assert.isTrue(channelMock.send.calledWith('login'));
 
             const data = channelMock.send.args[0][1];
@@ -172,7 +173,7 @@ define(function (require, exports, module) {
           });
       });
 
-      it('tells the window not to re-verify if the user can link accounts if the question has already been asked', function () {
+      it('tells the window not to re-verify if the user can link accounts if the question has already been asked', () => {
         channelMock.send = sinon.spy(function (message) {
           if (message === 'can_link_account') {
             return p({ ok: true });
@@ -182,10 +183,10 @@ define(function (require, exports, module) {
         });
 
         return broker.beforeSignIn(account)
-          .then(function () {
+          .then(() => {
             return broker._notifyRelierOfLogin(account);
           })
-          .then(function () {
+          .then(() => {
             assert.equal(channelMock.send.args[0][0], 'can_link_account');
             const data = channelMock.send.args[1][1];
             assert.equal(data.email, 'testuser@testuser.com');
@@ -195,7 +196,7 @@ define(function (require, exports, module) {
           });
       });
 
-      it('indicates whether the account is verified', function () {
+      it('indicates whether the account is verified', () => {
         // set account as verified
         account.set('verified', true);
 
@@ -208,18 +209,18 @@ define(function (require, exports, module) {
         });
 
         return broker.beforeSignIn(account)
-          .then(function () {
+          .then(() => {
             return broker._notifyRelierOfLogin(account);
           })
-          .then(function () {
+          .then(() => {
             const data = channelMock.send.args[1][1];
             assert.isTrue(data.verified);
           });
       });
     });
 
-    describe('afterSignIn', function () {
-      it('notifies the channel of login, does not halt by default', function () {
+    describe('afterSignIn', () => {
+      it('notifies the channel of login, does not halt by default', () => {
         account.set({
           customizeSync: true,
           declinedSyncEngines: ['bookmarks', 'passwords'],
@@ -251,18 +252,105 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('beforeSignUpConfirmationPoll', function () {
-      it('notifies the channel of login, does not halt the flow by default', function () {
+    describe('beforeSignUpConfirmationPoll', () => {
+      it('notifies the channel of login, does not halt the flow by default', () => {
         return broker.beforeSignUpConfirmationPoll(account)
-          .then(function (result) {
+          .then((result) => {
+            assert.isTrue(channelMock.send.calledOnce);
             assert.isTrue(channelMock.send.calledWith('login'));
             assert.isUndefined(result.halt);
           });
       });
     });
 
-    describe('afterResetPasswordConfirmationPoll', function () {
-      it('notifies the channel of login, does not halt by default', function () {
+    describe('afterSignInConfirmationPoll', () => {
+      describe('browser does not support `sendAfterSignInConfirmationPollNotice`', () => {
+        it('notifies the channel of login, does not halt the flow by default', () => {
+          broker.setCapability('sendAfterSignInConfirmationPollNotice', false);
+          return broker.afterSignInConfirmationPoll(account)
+            .then((result) => {
+              assert.isFalse(channelMock.send.called);
+              assert.ok(result);
+            });
+        });
+      });
+
+      describe('browser supports `sendAfterSignInConfirmationPollNotice`', () => {
+        it('notifies the channel of login, does not halt the flow by default', () => {
+          broker.setCapability('sendAfterSignInConfirmationPollNotice', true);
+
+          account.set({
+            keyFetchToken: 'key_fetch_token',
+            sessionToken: 'session_token',
+            sessionTokenContext: 'sync',
+            uid: 'uid',
+            unwrapBKey: 'unwrap_b_key',
+            verified: true
+          });
+
+          return broker.afterSignInConfirmationPoll(account)
+            .then((result) => {
+              assert.ok(result);
+
+              assert.isTrue(channelMock.send.calledOnce);
+              assert.isTrue(channelMock.send.calledWith('verified'));
+
+              const loginData = channelMock.send.args[0][1];
+              assert.equal(loginData.email, 'testuser@testuser.com');
+              assert.equal(loginData.sessionToken, 'session_token');
+              assert.equal(loginData.uid, 'uid');
+              assert.equal(loginData.unwrapBKey, 'unwrap_b_key');
+              assert.equal(loginData.verified, true);
+            });
+        });
+      });
+    });
+
+    describe('afterSignUpConfirmationPoll', () => {
+      describe('browser does not support `sendAfterSignUpConfirmationPollNotice`', () => {
+        it('notifies the channel of login, does not halt the flow by default', () => {
+          broker.setCapability('sendAfterSignUpConfirmationPollNotice', false);
+          return broker.afterSignUpConfirmationPoll(account)
+            .then((result) => {
+              assert.ok(result);
+              assert.isFalse(channelMock.send.called);
+            });
+        });
+      });
+
+      describe('browser supports `sendAfterSignUpConfirmationPollNotice`', () => {
+        it('notifies the channel of login, does not halt the flow by default', () => {
+          broker.setCapability('sendAfterSignUpConfirmationPollNotice', true);
+
+          account.set({
+            keyFetchToken: 'key_fetch_token',
+            sessionToken: 'session_token',
+            sessionTokenContext: 'sync',
+            uid: 'uid',
+            unwrapBKey: 'unwrap_b_key',
+            verified: true
+          });
+
+          return broker.afterSignUpConfirmationPoll(account)
+            .then((result) => {
+              assert.ok(result);
+
+              assert.isTrue(channelMock.send.calledOnce);
+              assert.isTrue(channelMock.send.calledWith('verified'));
+
+              const loginData = channelMock.send.args[0][1];
+              assert.equal(loginData.email, 'testuser@testuser.com');
+              assert.equal(loginData.sessionToken, 'session_token');
+              assert.equal(loginData.uid, 'uid');
+              assert.equal(loginData.unwrapBKey, 'unwrap_b_key');
+              assert.equal(loginData.verified, true);
+            });
+        });
+      });
+    });
+
+    describe('afterResetPasswordConfirmationPoll', () => {
+      it('notifies the channel of login, does not halt by default', () => {
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('login'));
@@ -271,8 +359,8 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterChangePassword', function () {
-      it('notifies the channel of change_password with the new login info', function () {
+    describe('afterChangePassword', () => {
+      it('notifies the channel of change_password with the new login info', () => {
         account.set({
           customizeSync: true,
           keyFetchToken: 'key_fetch_token',
@@ -284,7 +372,7 @@ define(function (require, exports, module) {
         });
 
         return broker.afterChangePassword(account)
-          .then(function () {
+          .then(() => {
             const args = channelMock.send.args[0];
             assert.equal(args[0], 'change_password');
             assert.equal(args[1].email, 'testuser@testuser.com');
@@ -298,12 +386,12 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterDeleteAccount', function () {
-      it('notifies the channel of delete_account', function () {
+    describe('afterDeleteAccount', () => {
+      it('notifies the channel of delete_account', () => {
         account.set('uid', 'uid');
 
         return broker.afterDeleteAccount(account)
-          .then(function () {
+          .then(() => {
             const args = channelMock.send.args[0];
             assert.equal(args[0], 'delete_account');
             assert.equal(args[1].email, 'testuser@testuser.com');
@@ -312,36 +400,36 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('createChannel', function () {
-      it('must be overridden', function () {
-        assert.throws(function () {
+    describe('createChannel', () => {
+      it('must be overridden', () => {
+        assert.throws(() => {
           broker.createChannel();
         }, 'createChannel must be overridden');
       });
     });
 
-    describe('getChannel', function () {
-      it('returns an already created channel, if available', function () {
+    describe('getChannel', () => {
+      it('returns an already created channel, if available', () => {
         assert.strictEqual(broker.getChannel(), channelMock);
       });
     });
 
-    describe('getCommand', function () {
-      it('throws if commands is not overridden', function () {
+    describe('getCommand', () => {
+      it('throws if commands is not overridden', () => {
         const SubBroker = FxSyncChannelAuthenticationBroker.extend({});
         const subBroker = new SubBroker();
-        assert.throws(function () {
+        assert.throws(() => {
           subBroker.getCommand('LOGIN');
         }, 'this.commands must be specified');
       });
 
-      it('throws if a command is not defined', function () {
-        assert.throws(function () {
+      it('throws if a command is not defined', () => {
+        assert.throws(() => {
           broker.getCommand('NOT_SPECIFIED');
         }, 'command not found for: NOT_SPECIFIED');
       });
 
-      it('returns a command specified', function () {
+      it('returns a command specified', () => {
         assert.equal(broker.getCommand('LOGIN'), 'login');
       });
     });

@@ -29,7 +29,8 @@ define(function (require, exports, module) {
       'CHANGE_PASSWORD',
       'DELETE_ACCOUNT',
       'LOADED',
-      'LOGIN'
+      'LOGIN',
+      'VERIFIED'
     ),
 
     createChannel () {

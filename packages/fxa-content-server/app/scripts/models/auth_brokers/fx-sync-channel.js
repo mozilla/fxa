@@ -32,7 +32,8 @@ define(function (require, exports, module) {
      *   CHANGE_PASSWORD: <specify in subclass>,
      *   DELETE_ACCOUNT: <specify in subclass>,
      *   LOADED: <specify in subclass>,
-     *   LOGIN: <specify in subclass>
+     *   LOGIN: <specify in subclass>,
+     *   VERIFIED: <specify in subclass>,
      * }
      *
      * @property commands
@@ -40,7 +41,9 @@ define(function (require, exports, module) {
     commands: null,
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      sendChangePasswordNotice: true
+      sendAfterSignInConfirmationPollNotice: false,
+      sendAfterSignUpConfirmationPollNotice: false,
+      sendChangePasswordNotice: true,
     }),
 
     getCommand (commandName) {
@@ -129,6 +132,30 @@ define(function (require, exports, module) {
       // the about:accounts tab and have Sync still successfully start.
       return this._notifyRelierOfLogin(account)
         .then(() => proto.beforeSignUpConfirmationPoll.call(this, account));
+    },
+
+    afterSignInConfirmationPoll (account) {
+      return proto.afterSignInConfirmationPoll.call(this, account)
+        .then((behavior) => {
+          if (this.hasCapability('sendAfterSignInConfirmationPollNotice')) {
+            const loginData = this._getLoginData(account);
+            return this.send(this.getCommand('VERIFIED'), loginData)
+              .then(() => behavior);
+          }
+          return behavior;
+        });
+    },
+
+    afterSignUpConfirmationPoll (account) {
+      return proto.afterSignUpConfirmationPoll.call(this, account)
+        .then((behavior) => {
+          if (this.hasCapability('sendAfterSignUpConfirmationPollNotice')) {
+            const loginData = this._getLoginData(account);
+            return this.send(this.getCommand('VERIFIED'), loginData)
+              .then(() => behavior);
+          }
+          return behavior;
+        });
     },
 
     afterResetPasswordConfirmationPoll (account) {

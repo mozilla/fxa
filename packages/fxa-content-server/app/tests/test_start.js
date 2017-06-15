@@ -79,6 +79,8 @@ function (Translator, Session) {
     '../tests/spec/models/auth_brokers/fx-sync',
     '../tests/spec/models/auth_brokers/fx-sync-channel',
     '../tests/spec/models/auth_brokers/index',
+    '../tests/spec/models/auth_brokers/mob-android-v1',
+    '../tests/spec/models/auth_brokers/mob-ios-v1',
     '../tests/spec/models/auth_brokers/oauth',
     '../tests/spec/models/auth_brokers/oauth-redirect',
     '../tests/spec/models/auth_brokers/web',
