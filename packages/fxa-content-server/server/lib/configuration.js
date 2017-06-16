@@ -529,7 +529,7 @@ let files;
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable
 if (process.env.CONFIG_FILES && process.env.CONFIG_FILES.trim() !== '') {
-  files = process.env.CONFIG_FILES.split(',');
+  files = process.env.CONFIG_FILES.split(',').filter(fs.existsSync);
 } else if (fs.existsSync(DEV_CONFIG_PATH)) {
   files = [ DEV_CONFIG_PATH ];
 }
