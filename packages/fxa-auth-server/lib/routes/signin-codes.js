@@ -51,6 +51,11 @@ module.exports = (log, db, customs) => {
           return db.consumeSigninCode(code)
             .then(result => {
               return request.emitMetricsEvent('signinCode.consumed')
+                .then(() => {
+                  if (result.flowId) {
+                    return request.emitMetricsEvent(`flow.continued.${result.flowId}`)
+                  }
+                })
                 .then(() => result)
             })
         }

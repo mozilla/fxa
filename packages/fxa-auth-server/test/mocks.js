@@ -178,7 +178,15 @@ function mockDB (data, errors) {
         }
       ])
     }),
-    consumeSigninCode: optionallyThrow(errors, 'consumeSigninCode'),
+    consumeSigninCode: sinon.spy(() => {
+      if (errors.consumeSigninCode) {
+        return P.reject(errors.consumeSigninCode)
+      }
+      return P.resolve({
+        email: data.email,
+        flowId: data.flowId
+      })
+    }),
     createAccount: sinon.spy(() => {
       return P.resolve({
         uid: data.uid,

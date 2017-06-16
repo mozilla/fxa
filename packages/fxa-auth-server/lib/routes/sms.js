@@ -87,7 +87,8 @@ module.exports = (log, db, config, customs, sms) => {
 
         function createSigninCode () {
           if (request.app.features.has('signinCodes')) {
-            return db.createSigninCode(sessionToken.uid)
+            return request.gatherMetricsContext({})
+              .then(metricsContext => db.createSigninCode(sessionToken.uid, metricsContext.flow_id))
           }
         }
 

@@ -909,12 +909,12 @@ module.exports = (
       )
   }
 
-  DB.prototype.createSigninCode = function (uid) {
+  DB.prototype.createSigninCode = function (uid, flowId) {
     log.trace({ op: 'DB.createSigninCode' })
 
     return random(config.signinCodeSize)
       .then(code => {
-        const data = { uid, createdAt: Date.now() }
+        const data = { uid, createdAt: Date.now(), flowId }
         return this.pool.put(`/signinCodes/${code.toString('hex')}`, data)
           .then(() => code, err => {
             if (isRecordAlreadyExistsError(err)) {

@@ -100,8 +100,9 @@ describe('/sms with the signinCodes feature included in the payload', () => {
       it('called db.createSigninCode correctly', () => {
         assert.equal(db.createSigninCode.callCount, 1)
         const args = db.createSigninCode.args[0]
-        assert.equal(args.length, 1)
+        assert.equal(args.length, 2)
         assert.equal(args[0], 'bar')
+        assert.equal(args[1], request.payload.metricsContext.flowId)
       })
 
       it('called sms.send correctly', () => {

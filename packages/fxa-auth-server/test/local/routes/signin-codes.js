@@ -12,8 +12,8 @@ const P = require('../../../lib/promise')
 describe('/signinCodes/consume:', () => {
   let log, db, customs, routes, route, request
 
-  describe('success:', () => {
-    beforeEach(() => setup())
+  describe('success, db does not return flowId:', () => {
+    beforeEach(() => setup({ db: { email: 'foo@bar' } }))
 
     it('called log.begin correctly', () => {
       assert.equal(log.begin.callCount, 1)
@@ -55,8 +55,42 @@ describe('/signinCodes/consume:', () => {
     })
   })
 
+  describe('success, db returns flowId:', () => {
+    beforeEach(() => setup({ db: { email: 'foo@bar', flowId: 'baz' } }))
+
+    it('called log.begin once', () => {
+      assert.equal(log.begin.callCount, 1)
+    })
+
+    it('called request.validateMetricsContext once', () => {
+      assert.equal(request.validateMetricsContext.callCount, 1)
+    })
+
+    it('called customs.checkIpOnly once', () => {
+      assert.equal(customs.checkIpOnly.callCount, 1)
+    })
+
+    it('called db.consumeSigninCode once', () => {
+      assert.equal(db.consumeSigninCode.callCount, 1)
+    })
+
+    it('called log.flowEvent correctly', () => {
+      assert.equal(log.flowEvent.callCount, 2)
+
+      let args = log.flowEvent.args[0]
+      assert.equal(args.length, 1)
+      assert.equal(args[0].event, 'signinCode.consumed')
+      assert.equal(args[0].flow_id, request.payload.metricsContext.flowId)
+
+      args = log.flowEvent.args[1]
+      assert.equal(args.length, 1)
+      assert.equal(args[0].event, 'flow.continued.baz')
+      assert.equal(args[0].flow_id, request.payload.metricsContext.flowId)
+    })
+  })
+
   describe('db error:', () => {
-    beforeEach(() => setup({ db: { consumeSigninCode: 'foo' } }))
+    beforeEach(() => setup(null, { db: { consumeSigninCode: 'foo' } }))
 
     it('called log.begin', () => {
       assert.equal(log.begin.callCount, 1)
@@ -80,7 +114,7 @@ describe('/signinCodes/consume:', () => {
   })
 
   describe('customs error:', () => {
-    beforeEach(() => setup({ customs: { checkIpOnly: 'foo' } }))
+    beforeEach(() => setup(null, { customs: { checkIpOnly: 'foo' } }))
 
     it('called log.begin', () => {
       assert.equal(log.begin.callCount, 1)
@@ -103,11 +137,12 @@ describe('/signinCodes/consume:', () => {
     })
   })
 
-  function setup (errors) {
+  function setup (results, errors) {
+    results = results || {}
     errors = errors || {}
 
     log = mocks.spyLog()
-    db = mocks.mockDB(null, errors.db)
+    db = mocks.mockDB(results.db, errors.db)
     customs = mocks.mockCustoms(errors.customs)
     routes = makeRoutes({ log, db, customs })
     route = getRoute(routes, '/signinCodes/consume')

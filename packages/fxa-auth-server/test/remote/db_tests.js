@@ -646,8 +646,9 @@ describe('remote db', function() {
 
   it('signinCodes', () => {
     let previousCode
+    const flowId = crypto.randomBytes(32)
 
-    // Create a signinCode
+    // Create a signinCode without a flowId
     return db.createSigninCode(ACCOUNT.uid)
       .then(code => {
         assert.ok(Buffer.isBuffer(code), 'db.createSigninCode should return a buffer')
@@ -667,8 +668,9 @@ describe('remote db', function() {
           callback(null, previousCode)
         })
 
-        // Create a signinCode with crypto.randomBytes rigged to return a duplicate
-        return db.createSigninCode(ACCOUNT.uid)
+        // Create a signinCode with crypto.randomBytes rigged to return a duplicate,
+        // and this time specifying a flowId
+        return db.createSigninCode(ACCOUNT.uid, flowId)
       })
       .then(code => {
         assert.ok(Buffer.isBuffer(code), 'db.createSigninCode should return a buffer')
@@ -682,7 +684,12 @@ describe('remote db', function() {
         ])
       })
       .then(results => {
-        results.forEach(result => assert.deepEqual(result, { email: ACCOUNT.email }, 'db.consumeSigninCode should return the email address'))
+        assert.deepEqual(results[0], { email: ACCOUNT.email }, 'db.consumeSigninCode should return the email address')
+        assert.equal(results[1].email, ACCOUNT.email, 'db.consumeSigninCode should return the email address')
+        if (results[1].flowId) {
+          // This assertion is conditional so that tests pass regardless of db version
+          assert.equal(results[1].flowId, flowId.toString('hex'), 'db.consumeSigninCode should return the flowId')
+        }
 
         // Attempt to consume a consumed signinCode
         return db.consumeSigninCode(previousCode)
