@@ -20,6 +20,7 @@ node ./tests/teamcity/install-npm-deps.js \
   intern                          \
   joi                             \
   lodash                          \
+  morgan                          \
   mozlog                          \
   node-statsd                     \
   node-uap                        \
