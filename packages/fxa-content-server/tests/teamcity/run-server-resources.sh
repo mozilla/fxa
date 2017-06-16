@@ -1,22 +1,10 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 set -o errexit # exit on first command with non-zero status
-
-# Dump out the `/__version__` data, and if not valid JSON, then
-# exit and abort this test run, to make it clear early on that
-# one or more test servers are not in a testable state.
-function check_version {
-  echo "Checking server $1"
-  local version_info=$(curl -s $1)
-  if ! echo $version_info | python -mjson.tool; then
-    echo "Invalid Server Response. Exiting: ${version_info}"
-    exit 1
-  fi
-}
 
 BASENAME=$(basename $0)
 DIRNAME=$(dirname $0)
