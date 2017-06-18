@@ -5,6 +5,7 @@
 // Hello, dear traveller! Please, turn back now. It's dangerous in here!
 
 /*jshint camelcase: false*/
+const crypto = require('crypto');
 const AppError = require('../error');
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
@@ -17,6 +18,7 @@ const encrypt = require('../encrypt');
 const logger = require('../logging')('routes.token');
 const P = require('../promise');
 const Scope = require('../scope');
+const util = require('../util');
 const validators = require('../validators');
 
 const HEX_STRING = validators.HEX_STRING;
@@ -53,6 +55,16 @@ const PAYLOAD_SCHEMA = Joi.object({
     }),
 
   client_secret: validators.clientSecret
+    .when('grant_type', {
+      is: GRANT_JWT,
+      then: Joi.forbidden()
+    })
+    .when('code_verifier', {
+      is: Joi.string().required(), // if (typeof code_verifier === 'string') {
+      then: Joi.forbidden()
+    }),
+
+  code_verifier: validators.codeVerifier
     .when('grant_type', {
       is: GRANT_JWT,
       then: Joi.forbidden()
@@ -127,7 +139,13 @@ module.exports = {
     // we don't use, such as `response_type`, or something else. Instead
     // of giving an error here, we can just ignore them.
     payload: function validatePayload(value, options, next) {
-      return Joi.validate(value, PAYLOAD_SCHEMA, { stripUnknown: true }, next);
+      return Joi.validate(value, PAYLOAD_SCHEMA, { stripUnknown: true }, function(err, value) {
+        if (err) {
+          logger.info('routes.token.payload', err);
+        }
+
+        next(err, value);
+      });
     }
   },
   response: {
@@ -138,17 +156,24 @@ module.exports = {
       scope: validators.scope.required().allow(''),
       token_type: Joi.string().valid('bearer').required(),
       expires_in: Joi.number().max(MAX_TTL_S).required(),
-      auth_at: Joi.number(),
+      auth_at: Joi.number()
     })
   },
   handler: function tokenEndpoint(req, reply) {
     var params = req.payload;
     P.try(function() {
       if (params.grant_type === GRANT_AUTHORIZATION_CODE) {
-        return confirmClient(params.client_id, params.client_secret)
-        .then(function() {
-          return confirmCode(params.client_id, params.code);
-        });
+        if (params.code_verifier) {
+          return confirmPkceClient(params.client_id)
+            .then(function() {
+              return confirmPkceCode(params.client_id, params.code, params.code_verifier);
+            });
+        } else {
+          return confirmClient(params.client_id, params.client_secret)
+            .then(function() {
+              return confirmCode(params.client_id, params.code);
+            });
+        }
       } else if (params.grant_type === GRANT_REFRESH_TOKEN) {
         return confirmClient(params.client_id, params.client_secret)
         .then(function() {
@@ -174,6 +199,49 @@ module.exports = {
   }
 };
 
+/**
+ * Generate a PKCE code_challenge
+ * See https://tools.ietf.org/html/rfc7636#section-4.6 for details
+ */
+function pkceHash(input) {
+  return util.base64URLEncode(crypto.createHash('sha256').update(input).digest());
+}
+
+function confirmPkceCode(id, code, pkceVerifier) {
+  return db.getCode(buf(code)).then(function(codeObj) {
+    if (!codeObj) {
+      logger.debug('code.notFound', { code: code });
+      throw AppError.unknownCode(code);
+    }
+
+    const pkceHashValue = pkceHash(pkceVerifier);
+    if (codeObj.codeChallenge &&
+        codeObj.codeChallengeMethod === 'S256' &&
+        pkceHashValue === codeObj.codeChallenge) {
+      return db.removeCode(buf(code)).then(function() {
+        return codeObj;
+      });
+    } else {
+      throw AppError.mismatchCodeChallenge(pkceHashValue);
+    }
+  });
+}
+
+function confirmPkceClient(id) {
+  return db.getClient(buf(id)).then(function(client) {
+    if (!client) {
+      logger.debug('client.notFound', { id: id });
+      throw AppError.unknownClient(id);
+    }
+
+    if (!client.publicClient) {
+      logger.debug('client.notPublicClient', { id: id });
+      throw AppError.notPublicClient(id);
+    }
+
+    return client;
+  });
+}
 
 function confirmClient(id, secret) {
   return db.getClient(buf(id)).then(function(client) {

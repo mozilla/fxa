@@ -45,6 +45,16 @@
       "redirectUri": "https://example.domain/return?foo=bar",
       "trusted": false,
       "canGrant": false
+    },
+    {
+      "id": "38a6b9b3a65a1871",
+      "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+      "name": "Public Client PKCE",
+      "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
+      "redirectUri": "https://example.domain/return?foo=bar",
+      "trusted": true,
+      "canGrant": false,
+      "publicClient": true
     }
   ],
   "logging": {

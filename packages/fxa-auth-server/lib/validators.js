@@ -18,6 +18,9 @@ exports.clientSecret = Joi.string()
   .regex(exports.HEX_STRING)
   .required();
 
+exports.codeVerifier = Joi.string()
+  .length(32); // https://tools.ietf.org/html/rfc7636#section-4.1
+
 exports.token = Joi.string()
   .length(config.get('unique.token') * 2)
   .regex(exports.HEX_STRING);

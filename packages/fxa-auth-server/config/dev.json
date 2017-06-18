@@ -15,6 +15,16 @@
       "canGrant": false
     },
     {
+      "id": "38a6b9b3a65a1871",
+      "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+      "name": "123Done PKCE",
+      "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
+      "redirectUri": "http://127.0.0.1:8080/?oauth_pkce_redirect=1",
+      "trusted": true,
+      "canGrant": false,
+      "publicClient": true
+    },
+    {
       "id": "325b4083e32fe8e7",
       "hashedSecret": "ded3c396f28123f3fe6b152784e8eab7357c6806cb5175805602a2cd67f85080",
       "name": "321Done Untrusted",

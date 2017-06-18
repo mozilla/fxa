@@ -79,6 +79,7 @@ function preClients() {
       // ensure booleans are boolean and not undefined
       c.trusted = !!c.trusted;
       c.canGrant = !!c.canGrant;
+      c.publicClient = !!c.publicClient;
 
       // Modification of the database at startup in production and stage is
       // not preferred. This option will be set to false on those stacks.

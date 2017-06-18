@@ -37,7 +37,9 @@ const MAX_TTL = config.get('expiration.accessToken');
  *       scope: <string>,
  *       authAt: <timestamp>,
  *       createdAt: <timestamp>,
- *       offline: <boolean>
+ *       offline: <boolean>,
+ *       codeChallengeMethod: <string>,
+ *       codeChallenge: <string>,
  *     }
  *   },
  *   developers: {

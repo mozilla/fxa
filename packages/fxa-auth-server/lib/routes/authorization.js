@@ -22,6 +22,9 @@ const TOKEN = 'token';
 const ACCESS_TYPE_ONLINE = 'online';
 const ACCESS_TYPE_OFFLINE = 'offline';
 
+const PKCE_SHA256_CHALLENGE_METHOD = 'S256'; // This server only supports S256 PKCE, no 'plain'
+const PKCE_CODE_CHALLENGE_LENGTH = 43;
+
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
 const UNTRUSTED_CLIENT_ALLOWED_SCOPES = [
@@ -65,7 +68,9 @@ function generateCode(claims, client, scope, req) {
     email: claims['fxa-verifiedEmail'],
     scope: scope,
     authAt: claims['fxa-lastAuthAt'],
-    offline: req.payload.access_type === ACCESS_TYPE_OFFLINE
+    offline: req.payload.access_type === ACCESS_TYPE_OFFLINE,
+    codeChallengeMethod: req.payload.code_challenge_method,
+    codeChallenge: req.payload.code_challenge,
   }).then(function(code) {
     logger.debug('redirecting', { uri: req.payload.redirect_uri });
 
@@ -142,6 +147,20 @@ module.exports = {
         .valid(ACCESS_TYPE_OFFLINE, ACCESS_TYPE_ONLINE)
         .default(ACCESS_TYPE_ONLINE)
         .optional(),
+      code_challenge_method: Joi.string()
+        .valid(PKCE_SHA256_CHALLENGE_METHOD)
+        .when('response_type', {
+          is: CODE,
+          then: Joi.optional(),
+          otherwise: Joi.forbidden()
+        }),
+      code_challenge: Joi.string()
+        .length(PKCE_CODE_CHALLENGE_LENGTH)
+        .when('response_type', {
+          is: CODE,
+          then: Joi.optional(),
+          otherwise: Joi.forbidden()
+        })
     }
   },
   response: {
@@ -162,6 +181,7 @@ module.exports = {
     ])
   },
   handler: function authorizationEndpoint(req, reply) {
+    /*eslint complexity: [2, 13] */
     logger.debug('response_type', req.payload.response_type);
     var start = Date.now();
     var wantsGrant = req.payload.response_type === TOKEN;
@@ -192,6 +212,19 @@ module.exports = {
           if (invalidScopes.length) {
             throw AppError.invalidScopes(invalidScopes);
           }
+        }
+
+        // PKCE client enforcement
+        if (client.publicClient &&
+           (! req.payload.code_challenge_method || ! req.payload.code_challenge)) {
+          // only Public Clients support code_challenge
+          logger.info('client.missingPkceParameters');
+          throw AppError.missingPkceParameters();
+        } else if (! client.publicClient &&
+            (req.payload.code_challenge_method || req.payload.code_challenge)) {
+          // non-Public Clients do not allow code challenge
+          logger.info('client.notPublicClient');
+          throw AppError.notPublicClient({ id: req.payload.client_id });
         }
 
         var uri = req.payload.redirect_uri || client.redirectUri;

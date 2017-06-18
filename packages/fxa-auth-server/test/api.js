@@ -343,6 +343,45 @@ describe('/v1', function() {
       });
     });
 
+    describe('pkce', function() {
+      it('should fail if Public Client is not using code_challenge', function() {
+        var client = clientByName('Public Client PKCE');
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: client.id,
+            scope: 'profile profile:write profile:uid',
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
+          assert.equal(res.result.errno, 118);
+          assert.equal(res.result.error, 'PKCE parameters missing');
+        });
+      });
+
+      it('only works with Public Clients', function() {
+        var client = clientByName('Mocha');
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: client.id,
+            scope: 'profile profile:write profile:uid',
+            response_type: 'code',
+            code_challenge_method: 'S256',
+            code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
+          assert.equal(res.result.errno, 116);
+          assert.equal(res.result.message, 'Not a public client');
+        });
+      });
+    });
+
     describe('?client_id', function() {
 
       it('is required', function() {
@@ -586,6 +625,39 @@ describe('/v1', function() {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert(res.result.redirect);
+        });
+      });
+
+      it('supports PKCE - code_challenge and code_challenge_method', function() {
+        var client = clientByName('Public Client PKCE');
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: client.id,
+            response_type: 'code',
+            code_challenge_method: 'S256',
+            code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert(res.result.redirect);
+        });
+      });
+
+      it('supports code_challenge only with code response_type', function() {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            response_type: 'token',
+            code_challenge_method: 'S256',
+            code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+          assert.equal(res.result.errno, 109);
         });
       });
 
@@ -899,6 +971,70 @@ describe('/v1', function() {
             assert.equal(res.result.code, 400);
             assert.equal(res.result.message, 'Incorrect code');
             assertSecurityHeaders(res);
+          });
+
+        });
+
+
+        it('consumes code via public client (PKCE)', function() {
+          var code_verifier = 'ywZ_yiNpe-UoGYW.oW95hTjRZ8j_d2kF';
+          var code_verifier_bad = 'zwZ_yiNpe-UoGYW.oW95hTjRZ8j_d2kC';
+          var code_challenge = 'iyW5ScKr22v_QL-rcW_EGlJrDSOymJvrlXlw4j7JBiQ';
+          var secret2 = unique.secret();
+          var oauth_code;
+          var client2 = {
+            name: 'client2Public',
+            hashedSecret: encrypt.hash(secret2),
+            redirectUri: 'https://example.domain',
+            imageUri: 'https://example.foo.domain/logo.png',
+            trusted: true,
+            publicClient: true
+          };
+          return db.registerClient(client2).then(function() {
+            mockAssertion().reply(200, VERIFY_GOOD);
+            return Server.api.post({
+              url: '/authorization',
+              payload: authParams({
+                client_id: client2.id.toString('hex'),
+                response_type: 'code',
+                code_challenge_method: 'S256',
+                code_challenge: code_challenge
+              })
+            }).then(function(res) {
+              assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
+              return url.parse(res.result.redirect, true).query.code;
+            });
+          }).then(function(code) {
+            oauth_code = code;
+
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: client2.id.toString('hex'),
+                code: oauth_code,
+                code_verifier: code_verifier_bad
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 400);
+            assert.equal(res.result.errno, 117);
+            assert.equal(res.result.message, 'Incorrect code_challenge');
+          }).then(function(code) {
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: client2.id.toString('hex'),
+                code: oauth_code,
+                code_verifier: code_verifier
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert.ok(res.result.access_token);
+            assert.ok(res.result.scope);
+            assert.equal(res.result.token_type, 'bearer');
+            assert.ok(res.result.access_token);
           });
 
         });

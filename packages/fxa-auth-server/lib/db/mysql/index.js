@@ -126,8 +126,8 @@ MysqlStore.connect = function mysqlConnect(options) {
 const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients ' +
   '(id, name, imageUri, hashedSecret, hashedSecretPrevious, redirectUri,' +
-  'trusted, canGrant) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?);';
+  'trusted, canGrant, publicClient) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_DEVELOPER_INSERT =
   'INSERT INTO clientDevelopers ' +
   '(rowId, developerId, clientId) ' +
@@ -148,7 +148,7 @@ const QUERY_DEVELOPER_INSERT =
   'VALUES (?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
 const QUERY_CLIENT_LIST = 'SELECT id, name, redirectUri, imageUri, ' +
-  'canGrant, trusted ' +
+  'canGrant, publicClient, trusted ' +
   'FROM clients, clientDevelopers, developers ' +
   'WHERE clients.id = clientDevelopers.clientId AND ' +
   'developers.developerId = clientDevelopers.developerId AND ' +
@@ -162,8 +162,8 @@ const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'WHERE id=?';
 const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
-  'INSERT INTO codes (clientId, userId, email, scope, authAt, offline, code) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?)';
+  'INSERT INTO codes (clientId, userId, email, scope, authAt, offline, code, codeChallengeMethod, codeChallenge) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 const QUERY_ACCESS_TOKEN_INSERT =
   'INSERT INTO tokens (clientId, userId, email, scope, type, expiresAt, ' +
   'token) VALUES (?, ?, ?, ?, ?, ?, ?)';
@@ -240,7 +240,8 @@ MysqlStore.prototype = {
       client.hashedSecretPrevious ? buf(client.hashedSecretPrevious) : null,
       client.redirectUri,
       !!client.trusted,
-      !!client.canGrant
+      !!client.canGrant,
+      !!client.publicClient
     ]).then(function() {
       logger.debug('registerClient.success', { id: hex(id) });
       client.id = id;
@@ -364,7 +365,9 @@ MysqlStore.prototype = {
       codeObj.scope.join(' '),
       codeObj.authAt,
       !!codeObj.offline,
-      hash
+      hash,
+      codeObj.codeChallengeMethod,
+      codeObj.codeChallenge
     ]).then(function() {
       return code;
     });

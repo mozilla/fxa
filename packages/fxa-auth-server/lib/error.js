@@ -232,4 +232,36 @@ AppError.expiredToken = function expiredToken(expiredAt) {
   });
 };
 
+AppError.notPublicClient = function unknownClient(clientId) {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 116,
+    message: 'Not a public client'
+  }, {
+    clientId: clientId
+  });
+};
+
+
+AppError.mismatchCodeChallenge = function mismatchCodeChallenge(pkceHashValue) {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 117,
+    message: 'Incorrect code_challenge'
+  }, {
+    requestCodeChallenge: pkceHashValue
+  });
+};
+
+AppError.missingPkceParameters = function missingPkceParameters() {
+  return new AppError({
+    code: 400,
+    error: 'PKCE parameters missing',
+    errno: 118,
+    message: 'Public clients require PKCE OAuth parameters'
+  });
+};
+
 module.exports = AppError;
