@@ -214,6 +214,11 @@ body.settings #main-content.card {
     border: solid 1px $button-border-default-color;
     color: $message-text-color;
 
+    &:hover {
+      background: $button-background-hover-color;
+      border-color: $button-border-hover-color;
+    }
+
     &:disabled,
     &.disabled {
       background: $button-background-default-color;

@@ -44,11 +44,6 @@
       padding: 8px 0;
     }
 
-    &:hover {
-      background: $button-background-hover-color;
-      border-color: $button-border-hover-color;
-    }
-
     &:active {
       background: $button-background-active-color;
       border-color: $button-border-active-color;
