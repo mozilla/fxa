@@ -19,10 +19,12 @@ function toQueryString(obj) {
 function getOAuthInfo(action, nonce, email) {
   var oauthParams = {
     client_id: config.client_id,
+    pkce_client_id: config.pkce_client_id,
     redirect_uri: config.redirect_uri,
     state: nonce,
     scope: config.scopes,
     oauth_uri: config.oauth_uri,
+    profile_uri: config.profile_uri,
     content_uri: config.content_uri
   };
 

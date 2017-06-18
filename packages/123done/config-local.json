@@ -9,5 +9,9 @@
   "content_uri": "http://127.0.0.1:3030",
   "profile_uri": "http://127.0.0.1:1111/v1",
   "scopes": "profile",
-  "preverify_email_jku": "http://127.0.0.1:8080/.well-known/public-keys"
+  "preverify_email_jku": "http://127.0.0.1:8080/.well-known/public-keys",
+
+  "pkce_client_id": "38a6b9b3a65a1871",
+  "pkce_redirect_uri": "http://127.0.0.1:8080/?oauth_pkce_redirect=1"
+
 }
