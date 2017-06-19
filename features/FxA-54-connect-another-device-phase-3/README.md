@@ -16,6 +16,7 @@ with their email address pre-filled.
   * [Auth database](#auth-database)
   * [Mobile clients](#mobile-clients)
   * [Mock-ups](#mock-ups)
+* [Test plan/acceptance criteria](#test-planacceptance-criteria)
 * [Open questions](#open-questions)
 
 ## Ubiquitous language
@@ -66,7 +67,7 @@ To do
 
 4. User receives an SMS message
    containing a link of the form
-   `https://accounts.firefox.com/m/:signinCode`.
+   `https://<server>/m/:signinCode`.
 
 5. User clicks the link
    and is taken to the appropriate app store
@@ -135,12 +136,215 @@ To do
 * Support will be added for deep linking via Adjust.
   This includes all of the special magic
   for redirecting to the app store
-  and propogating signinCodes to the FxA sign-in screen.
+  and propagating signinCodes to the FxA sign-in screen.
 
 ### Mock-ups
 
-There is no new or changed UI
-for this feature.
+When the `/signin` page is opened with a valid signinCode, the email address
+will not be editable.
+
+<img src="./images/signin_valid_code_ios.png" alt="signin opened with valid signinCode" width="250px"/>
+
+### Test plan/acceptance criteria
+
+Reference images are below each OS section.
+
+signinCodes are disabled by default and can be enabled by opening the signup
+verification link with the `signinCodes=true` query parameter. Note, sending
+SMS is only available during the signup flow, signing into an existing account
+will not trigger the flow.
+
+#### Android
+
+##### Testing without support for deep links in Firefox for Android
+
+Support for deep linking and signinCodes has not yet landed in the release
+channels of Firefox for Android. Until support lands, we have to manually open
+the deep link.
+
+###### Sign up in Firefox desktop, send link to Android, Firefox not installed
+
+1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using a
+   mozilla or softvision address.
+2. In the same instance of Firefox desktop, open the verification link with
+   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
+3. Enter a valid phone number for an Android device, submit.
+4. Open the SMS link on an Android device. The link will be of the form `https://<server>/m/:signinCode`, write down the `signinCode`.
+5. The Google Play store will open. Click the `Install` button.
+6. Firefox should install. When complete, click `Open`.
+7.  Firefox will open to the Firefox for Android firstrun page
+6. Open Firefox, open `https://<server>/signin?context=fx_fennec_v1&service=sync&signin=<signinCode from step 4>`
+7. When opening Firefox Accounts, email address from step 1 should be filled in.
+8. Sign in with the password from step 1.
+
+###### Sign up in Firefox desktop, send link to Android, Firefox already installed.
+
+1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
+   a mozilla or softvision address.
+2. In the same instance of Firefox desktop, open the verification link with
+   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
+3. Enter a valid phone number for an Android device, submit.
+4. Open the SMS link on an Android device. The link will be of the form `https://<server>/m/:signinCode`, write down the `signinCode`.
+5. Firefox should open.
+6. Open a tab to `https://<server>/signin?context=fx_fennec_v1&service=sync&signin=<signinCode from step 4>`
+7. When opening Firefox Accounts, email address from step 1 should be filled in.
+8. Sign in with the password from step 1.
+
+##### Testing with support for deep links in Firefox for Android
+
+###### Sign up in Firefox desktop, send link to Android, Firefox not installed
+
+1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
+   a mozilla or softvision address.
+2. In the same instance of Firefox desktop, open the verification link with
+   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
+3. Enter a valid phone number for an Android device, submit.
+4. Open the SMS link on an Android device.
+5. Install Firefox from the Google Play store.
+6. Open Firefox, complete the "firstrun flow".
+7. Firefox Accounts should open, email address from step 1 should be filled in.
+8. Sign in with the password from step 1.
+
+###### Sign up in Firefox desktop, send link to Android, Firefox already installed.
+
+1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
+   a mozilla or softvision address.
+2. In the same instance of Firefox desktop, open the verification link with
+   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
+3. Enter a valid phone number for an Android device, submit.
+4. Open the SMS link on an Android device.
+5. Firefox should open to the firstrun flow. Complete the "firstrun flow".
+6. Firefox Accounts should open, email address from step 1 should be filled in.
+7. Sign in with the password from step 1.
+
+##### Reference Images
+
+###### Send SMS
+<img src="images/send_sms.png" width="250" alt="Send SMS"/>
+
+###### SMS received
+Image needed
+
+###### Install Firefox
+<img src="images/install_firefox_play_store_android.png" width="250" alt="Send SMS"/>
+
+###### Open Firefox
+<img src="images/open_firefox_play_store_android.png" width="250" alt="Send SMS"/>
+
+###### Firstrun
+Image needed
+
+##### Signin page with valid signinCode
+<img src="images/signin_valid_code_android.png" width="250" alt="Send SMS"/>
+
+#### iOS
+
+##### Testing without support for deep links in Firefox for iOS
+
+Support for deep linking and signinCodes has not yet landed in the release
+channels of Firefox for iOS. Until support lands, we have to
+manually open the deep link.
+
+###### Sign up in Firefox desktop, send link to iOS, Firefox not installed
+
+1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
+   a mozilla or softvision address.
+2. In the same instance of Firefox desktop, open the verification link with
+   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
+3. Enter a valid phone number for an iOS device, submit.
+4. Open the SMS link on an iOS device. The link will be of the form `https://<server>/m/:signinCode`, write down the `signinCode`.
+5. Safari will open and a dialog will ask `Open this page in "App Store"?` Touch `Open`.
+6. The Apple app store will open to the Firefox page. Click the install button.
+7. Firefox should install. When complete, click `Open`.
+8. Firefox will open to the Firefox for iOS firstrun page. Click `Start Browsing`.
+9. Open a tab to `https://<server>/signin?context=fx_ios_v1&service=sync&signin=<signinCode from step 4>`
+10. When opening Firefox Accounts, email address from step 1 should be filled in.
+11. Sign in with the password from step 1.
+12. The user will be unable to sign in, even if entering the correct password from
+   step 1 because Firefox for iOS will not be listening for messages from FxA.
+
+###### Sign up in Firefox desktop, send link to iOS, Firefox already installed
+
+1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
+   a mozilla or softvision address.
+2. In the same instance of Firefox desktop, open the verification link with
+   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
+3. Enter a valid phone number for an iOS device, submit.
+4. Open the SMS link on an iOS device. The link will be of the form `https://<server>/m/:signinCode`, write down the `signinCode`.
+5. Safari will open and a dialog will ask `Open this page in "App Store"?` Touch `Open`.
+6. The Apple app store will open to the Firefox page. Click `Open`.
+7. Firefox should open.
+8. Open a tab to `https://<server>/signin?context=fx_ios_v1&service=sync&signin=<signinCode from step 4>`
+9. When opening Firefox Accounts, email address from step 1 should be filled in.
+10. The user will be unable to sign in, even if entering the correct password from
+   step 1 because Firefox for iOS will not be listening for messages from FxA.
+
+##### Testing with support for deep links in Firefox for iOS
+
+###### Sign up in Firefox desktop, send link to iOS, Firefox not installed
+
+1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
+   a mozilla or softvision address.
+2. In the same instance of Firefox desktop, open the verification link with
+   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
+3. Enter a valid phone number for an iOS device, submit.
+4. Open the SMS link on an iOS device.
+5. Safari will open and a dialog will ask `Open this page in "App Store"?` Touch `Open`.
+6. The Apple app store will open to the Firefox page. Click the install button.
+7. Firefox should install. When complete, click `Open`.
+8. Firefox will open to the Firefox for iOS firstrun page. Complete the firstrun flow.
+9. Firefox Accounts should open, email address from step 1 should be filled in.
+10. Sign in with the password from step 1.
+
+###### Sign up in Firefox desktop, send link to iOS, Firefox already installed
+
+1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
+   a mozilla or softvision address.
+2. In the same instance of Firefox desktop, open the verification link with
+   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
+3. Enter a valid phone number for an iOS device, submit.
+4. Open the SMS link on an iOS device.
+5. Safari will open and a dialog will ask `Open this page in "App Store"?` Touch `Open`.
+6. The Apple app store will open to the Firefox page. Click `Open`.
+7. Firefox will open to the Firefox for iOS firstrun page. Complete the firstrun flow.
+8. Firefox Accounts should open, email address from step 1 should be filled in.
+9. Sign in with the password from step 1.
+
+##### Reference Images
+
+###### Send SMS
+<img src="images/send_sms.png" width="250" alt="Send SMS"/>
+
+###### SMS received
+<img src="images/sms_ios.png" width="250" alt="Send SMS"/>
+
+###### Adjust link in Safari
+<img src="images/adjust_in_safari_ios.png" width="250" alt="Send SMS"/>
+
+###### Install Firefox
+<img src="images/install_firefox_app_store_ios.png" width="250" alt="Send SMS"/>
+
+###### Open Firefox
+<img src="images/open_firefox_app_store_ios.png" width="250" alt="Send SMS"/>
+
+###### Firstrun
+<img src="images/firstrun_ios.png" width="250" alt="Send SMS"/>
+
+##### Signin page with valid signinCode
+<img src="images/signin_valid_code_ios.png" width="250" alt="Send SMS"/>
+
+#### Invalid signinCodes
+
+If a signinCode is modified in transit, opening the signinCode should not
+stop the user from signing in. The user will see no error message, and will
+be able to signin by entering their email and password.
+
+#### Opening a link with a signinCode twice
+
+A signinCode is single use. Attempts to re-use a signinCode will be ignored. The
+user will see no error message, and will be able to signin by entering their
+email and password.
+
 
 ## Open questions
 
