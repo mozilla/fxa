@@ -64,6 +64,12 @@ const conf = module.exports = convict({
     default: path.resolve(__dirname, '..', '..', 'cert.pem'),
     doc: 'The location of the SSL certificate in pem format'
   },
+  clientAddressDepth: {
+    default: 3,
+    doc: 'location of the client ip address in the remote address chain',
+    env: 'CLIENT_ADDRESS_DEPTH',
+    format: Number
+  },
   client_metrics: {
     stderr_collector_disabled: {
       default: false,

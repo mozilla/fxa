@@ -26,7 +26,8 @@ define([
   const req = {
     headers: {
       referer: 'testReferer',
-      'user-agent': 'testAgent'
+      'user-agent': 'testAgent',
+      'x-forwarded-for': '0.0.0.0, 1.1.1.1, 2.2.2.2'
     },
     ip: '127.0.0.1'
   };
@@ -36,7 +37,7 @@ define([
       path.join(process.cwd(), 'server', 'lib', 'logging', 'route_logging'),
       {
         '../configuration': {
-          get: configSpy
+          getProperties: configSpy
         },
         'mozlog': function() {
           return {
@@ -54,11 +55,13 @@ define([
       loggerSpy = sinon.stub();
       configSpy = sinon.stub();
       morganSpy = sinon.stub();
-      configSpy.withArgs('disable_route_logging').returns(false);
     },
 
     'it logs a string if log format is dev_fxa' () {
-      configSpy.withArgs('route_log_format').returns('dev_fxa');
+      configSpy.returns({
+        'disable_route_logging': false,
+        'route_log_format': 'dev_fxa'
+      });
       requireTestFile();
       routeLogging();
       const formatObj = morganSpy.getCall(0).args[0];
@@ -73,7 +76,10 @@ define([
     },
 
     'it logs a json blob if log format is not dev_fxa' () {
-      configSpy.withArgs('route_log_format').returns('default_fxa');
+      configSpy.returns({
+        'disable_route_logging': false,
+        'route_log_format': 'default_fxa'
+      });
       requireTestFile();
       routeLogging();
       const formatObj = morganSpy.getCall(0).args[0];
@@ -82,11 +88,12 @@ define([
       assert.equal(
         formatObjResp,
         JSON.stringify({
+          clientAddress: '127.0.0.1',
           contentLength: '1995',
           method: 'GET',
           path: 'www.mozilla.com',
           referer: 'testReferer',
-          remoteAddressChain: '127.0.0.1',
+          remoteAddressChain: ['0.0.0.0','1.1.1.1','2.2.2.2','127.0.0.1'],
           status: '200',
           t: '1337',
           'userAgent': 'testAgent'
