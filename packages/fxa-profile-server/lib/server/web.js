@@ -39,8 +39,18 @@ function trimLocale(header) {
 // This is the webserver. It's what the outside always talks to. It
 // handles the whole Profile API.
 exports.create = function createServer() {
+  var useRedis = config.serverCache.useRedis;
+  var cache = {
+    engine: useRedis ? require('catbox-redis') : require('catbox-memory')
+  };
+  if (useRedis) {
+    cache.host = config.serverCache.redis.host;
+    cache.port = config.serverCache.redis.port;
+    cache.partition = config.serverCache.redis.keyPrefix;
+  }
   var isProd = config.env === 'production';
   var server = new Hapi.Server({
+    cache: cache,
     debug: false,
     connections: {
       routes: {

@@ -34,13 +34,16 @@ module.exports = {
   },
   handler: function avatarPost(req, reply) {
     var uid = req.auth.credentials.user;
-    var payload = req.payload;
-    db.setDisplayName(uid, payload.displayName)
-      .then(function () {
-        notifyProfileUpdated(uid); // Don't wait on promise
-        return EMPTY;
-      })
-      .done(reply, reply);
+    req.server.methods.batch.cache.drop(req, function() {
+      var payload = req.payload;
+      db.setDisplayName(uid, payload.displayName)
+        .then(function () {
+          notifyProfileUpdated(uid); // Don't wait on promise
+          return EMPTY;
+        })
+        .done(reply, reply);
+    });
+
   }
 };
 

@@ -14,7 +14,10 @@ const server = require('../lib/server').create();
 
 logger.info('config', config);
 db.ping().done(function() {
-  server.start(function() {
+  server.start(function(err) {
+    if (err) {
+      logger.error('server.start', err);
+    }
     logger.info('listening', server.info.uri);
   });
   events.start();

@@ -5,6 +5,7 @@
 const AppError = require('./error');
 const logger = require('./logging')('batch');
 const P = require('./promise');
+const config = require('./config').getProperties();
 
 function inject(server, options) {
   return new P(function(resolve) {
@@ -21,8 +22,9 @@ function inject(server, options) {
 // `avatarRes`. The end result of the returned promise would then be:
 //
 // { email: emailRes['email'], avatar: avatarRes['avatar'] }
-function batch(request, map) {
+function batch(request, map, next) {
   var result = {};
+  var email;
   Object.keys(map).forEach(function(prop) {
     var url = map[prop];
     result[prop] = inject(request.server, {
@@ -33,6 +35,9 @@ function batch(request, map) {
     }).then(function(res) {
       switch (res.statusCode) {
         case 200:
+          if (prop === 'email') {
+            email = res.result.email;
+          }
           return res.result[prop];
         case 204:
         case 403:
@@ -44,17 +49,21 @@ function batch(request, map) {
           return undefined;
         default:
           logger.error(prop + '.' + res.statusCode, res.result);
-          throw AppError.from(res.result);
+          return AppError.from(res.result);
       }
     });
   });
-  return P.props(result).then(function(result) {
+  P.props(result).then(function(result) {
     Object.keys(result).forEach(function(key) {
       if (result[key] === undefined) {
         delete result[key];
+      } else if (result[key].isBoom) {
+        return next(result[key]);
       }
     });
-    return result;
+    const shouldCache = config.serverCache.enabledEmailAddresses.test(email);
+    const ttl = shouldCache ? undefined : 0;
+    return next(null, result, ttl);
   });
 }
 

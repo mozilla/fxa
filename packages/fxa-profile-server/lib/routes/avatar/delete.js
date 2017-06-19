@@ -30,7 +30,8 @@ module.exports = {
     }
   },
   handler: function deleteAvatar(req, reply) {
-    db.getAvatar(req.params.id)
+    req.server.methods.batch.cache.drop(req, function() {
+      db.getAvatar(req.params.id)
       .then(function(avatar) {
         logger.debug('avatar', avatar);
         if (!avatar) {
@@ -56,6 +57,7 @@ module.exports = {
         return EMPTY;
       })
       .done(reply, reply);
+    });
   }
 };
 

@@ -272,6 +272,52 @@ const conf = convict({
       format: Array,
       env: 'HPKP_PIN_SHA256'
     }
+  },
+  serverCache: {
+    redis: {
+      host: {
+        default: '127.0.0.1',
+        env: 'REDIS_HOST',
+        format: 'ipaddress',
+        doc: 'Url for redis host',
+      },
+      keyPrefix: {
+        default: 'fxa-profile',
+        env: 'REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'which redis key prefix to use for hapi server cache'
+      },
+      port: {
+        default: 6379,
+        env: 'REDIS_PORT',
+        format: 'port',
+        doc: 'port for redis server'
+      }
+    },
+    enabledEmailAddresses: {
+      doc: 'Only enable caching for users with email addresses matching this regex.',
+      format: RegExp,
+      default: /.+@mozilla\.com$|.+@restmail\.net$|.+@softvisioninc\.eu$|.+@softvision\.(com|ro)$/,
+      env: 'EMAILS_TO_CACHE'
+    },
+    useRedis: {
+      default: true,
+      doc: 'Enable redis cache',
+      format: Boolean,
+      env: 'USE_REDIS'
+    },
+    expiresIn: {
+      default: '1 hour',
+      format: 'duration',
+      env: 'CACHE_EXPIRES_IN',
+      doc: 'how long before cached resources expire'
+    },
+    generateTimeout: {
+      default: '2 second',
+      format: 'duration',
+      env: 'CACHE_GENERATE_TIMEOUT',
+      doc: 'how long hapi will wait for result when using cache before timing out'
+    }
   }
 });
 

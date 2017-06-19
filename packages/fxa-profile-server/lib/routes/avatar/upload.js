@@ -48,17 +48,20 @@ module.exports = {
     }
   },
   handler: function upload(req, reply) {
-    var id = img.id();
-    var url = fxaUrl(id);
-    var uid = req.auth.credentials.user;
-    workers.upload(id, req.payload, req.headers)
-      .then(function save() {
-        return db.addAvatar(id, uid, url, FXA_PROVIDER);
-      })
-      .done(function uploadDone() {
-        notifyProfileUpdated(uid); // Don't wait on promise
-        reply({ url: url, id: hex(id) }).code(201);
-      }, reply);
+    req.server.methods.batch.cache.drop(req, function() {
+      var id = img.id();
+      var url = fxaUrl(id);
+      var uid = req.auth.credentials.user;
+      workers.upload(id, req.payload, req.headers)
+        .then(function save() {
+          return db.addAvatar(id, uid, url, FXA_PROVIDER);
+        })
+        .done(function uploadDone() {
+          notifyProfileUpdated(uid); // Don't wait on promise
+          reply({ url: url, id: hex(id) }).code(201);
+        }, reply);
+    });
+
   }
 };
 

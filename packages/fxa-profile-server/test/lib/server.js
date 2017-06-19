@@ -38,3 +38,4 @@ Object.keys(exports).forEach(function(key) {
 });
 
 exports.api = api;
+exports.server = server;
