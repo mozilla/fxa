@@ -11,6 +11,8 @@ define(function (require, exports, module) {
   const Vat = require('vat');
 
   Vat.register('accessType', Vat.string().test(Validate.isAccessTypeValid));
+  Vat.register('codeChallenge', Vat.string().min(43).max(128));
+  Vat.register('codeChallengeMethod', Vat.string().valid('S256'));
   Vat.register('email', Vat.string().test(Validate.isEmailValid));
   Vat.register('hex', Vat.string().test(Validate.isHexValid));
   Vat.register('keyFetchToken', Vat.string());

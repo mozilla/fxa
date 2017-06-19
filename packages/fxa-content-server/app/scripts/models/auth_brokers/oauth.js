@@ -89,6 +89,8 @@ define(function (require, exports, module) {
           var oauthParams = {
             assertion: assertion,
             client_id: clientId, //eslint-disable-line camelcase
+            code_challenge: relier.get('codeChallenge'), //eslint-disable-line camelcase
+            code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
             scope: relier.get('scope'),
             state: relier.get('state')
           };
