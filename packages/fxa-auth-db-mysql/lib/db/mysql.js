@@ -1174,16 +1174,16 @@ module.exports = function (log, error) {
   }
 
   // Insert : signinCodes
-  // Values : hash = $1, uid = $2, createdAt = $3
-  const CREATE_SIGNIN_CODE = 'CALL createSigninCode_1(?, ?, ?)'
-  MySql.prototype.createSigninCode = function (code, uid, createdAt) {
+  // Values : hash = $1, uid = $2, createdAt = $3, flowId = $4
+  const CREATE_SIGNIN_CODE = 'CALL createSigninCode_2(?, ?, ?, ?)'
+  MySql.prototype.createSigninCode = function (code, uid, createdAt, flowId) {
     // code is hashed to thwart timing attacks
-    return this.write(CREATE_SIGNIN_CODE, [ createHash(code), uid, createdAt ])
+    return this.write(CREATE_SIGNIN_CODE, [ createHash(code), uid, createdAt, flowId ])
   }
 
   // Delete : signinCodes
   // Where : hash = $1, createdAt > now - config.signinCodesMaxAge
-  const CONSUME_SIGNIN_CODE = 'CALL consumeSigninCode_3(?, ?)'
+  const CONSUME_SIGNIN_CODE = 'CALL consumeSigninCode_4(?, ?)'
   MySql.prototype.consumeSigninCode = function (code) {
     const newerThan = Date.now() - this.options.signinCodesMaxAge
     return this.readFirstResult(CONSUME_SIGNIN_CODE, [ createHash(code), newerThan ])

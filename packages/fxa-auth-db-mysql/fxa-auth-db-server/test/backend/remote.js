@@ -1243,6 +1243,7 @@ module.exports = function(cfg, makeServer) {
       const user = fake.newUserDataHex()
       const now = Date.now()
       const signinCode = crypto.randomBytes(6).toString('hex')
+      const flowId = crypto.randomBytes(32).toString('hex')
       const goodTimestamp = now - 1
       const badTimestamp = now - cfg.signinCodesMaxAge - 1
 
@@ -1252,7 +1253,8 @@ module.exports = function(cfg, makeServer) {
           // Create a sign-in code
           return client.putThen(`/signinCodes/${signinCode}`, {
             uid: user.accountId,
-            createdAt: goodTimestamp
+            createdAt: goodTimestamp,
+            flowId
           })
         })
         .then(r => {
@@ -1261,7 +1263,8 @@ module.exports = function(cfg, makeServer) {
           // Attempt to create a duplicate sign-in code
           return client.putThen(`/signinCodes/${signinCode}`, {
             uid: user.accountId,
-            createdAt: goodTimestamp
+            createdAt: goodTimestamp,
+            flowId: crypto.randomBytes(32).toString('hex')
           })
             .then(
               () => assert(false, 'creating a duplicate sign-in code should fail'),
@@ -1274,7 +1277,10 @@ module.exports = function(cfg, makeServer) {
         })
         .then(r => {
           respOk(r)
-          assert.deepEqual(r.obj, { email: user.account.email }, 'consuming a sign-in code should return the email address')
+          assert.deepEqual(r.obj, {
+            email: user.account.email,
+            flowId
+          }, 'consuming a sign-in code should return the email address and flowId')
 
           // Attempt to consume the sign-in code again
           return client.postThen(`/signinCodes/${signinCode}/consume`)

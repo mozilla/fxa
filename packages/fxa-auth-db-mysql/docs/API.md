@@ -52,7 +52,7 @@ There are a number of methods that a DB storage backend should implement:
 * Email Bounces
     * .createEmailBounce(body)
 * Signin codes
-    * .createSigninCode(code, uid, createdAt)
+    * .createSigninCode(code, uid, createdAt, flowId)
     * .consumeSigninCode(code)
 * General
     * .ping()
@@ -592,7 +592,7 @@ Parameters:
   * bounceType: The bounce type ([`'Permanent'`, `'Transient'`, `'Complaint'`])
   * bounceSubType: The bounce sub type string
 
-## .createSigninCode(code, uid, createdAt)
+## .createSigninCode(code, uid, createdAt, flowId)
 
 Create a user-specific, time-limited, single-use code
 that can be used for expedited sign-in.
@@ -605,6 +605,8 @@ Parameters:
   The uid for the relevant user
 * `createdAt` (number):
   Creation timestamp for the code, milliseconds since the epoch
+* `flowId` (Buffer32):
+  The flow id of the originating flow.
 
 ## .consumeSigninCode(code)
 

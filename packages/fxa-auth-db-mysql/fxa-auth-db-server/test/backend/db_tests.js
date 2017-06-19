@@ -2266,14 +2266,15 @@ module.exports = function(config, DB) {
       const SIGNIN_CODES = [ hex6(), hex6(), hex6() ]
       const NOW = Date.now()
       const TIMESTAMPS = [ NOW - 1, NOW - 2, NOW - config.signinCodesMaxAge - 1 ]
+      const FLOW_IDS = [ hex32(), hex32(), hex32() ]
 
       // Create an account
       return db.createAccount(ACCOUNT.uid, ACCOUNT)
         // Create 3 sign-in codes, two fresh and the other expired
         .then(() => P.all([
-          db.createSigninCode(SIGNIN_CODES[0], ACCOUNT.uid, TIMESTAMPS[0]),
-          db.createSigninCode(SIGNIN_CODES[1], ACCOUNT.uid, TIMESTAMPS[1]),
-          db.createSigninCode(SIGNIN_CODES[2], ACCOUNT.uid, TIMESTAMPS[2])
+          db.createSigninCode(SIGNIN_CODES[0], ACCOUNT.uid, TIMESTAMPS[0], FLOW_IDS[0]),
+          db.createSigninCode(SIGNIN_CODES[1], ACCOUNT.uid, TIMESTAMPS[1], FLOW_IDS[1]),
+          db.createSigninCode(SIGNIN_CODES[2], ACCOUNT.uid, TIMESTAMPS[2], FLOW_IDS[2])
         ]))
         .then(results => {
           results.forEach(r => assert.deepEqual(r, {}, 'createSigninCode should return an empty object'))
@@ -2294,7 +2295,10 @@ module.exports = function(config, DB) {
           return db.consumeSigninCode(SIGNIN_CODES[0])
         })
         .then(result => {
-          assert.deepEqual(result, { email: ACCOUNT.email }, 'db.consumeSigninCode should return an email address for non-expired codes')
+          assert.deepEqual(result, {
+            email: ACCOUNT.email,
+            flowId: FLOW_IDS[0]
+          }, 'db.consumeSigninCode should return an email address and flowId for non-expired codes')
 
           // Attempt to re-consume the consumed code
           return db.consumeSigninCode(SIGNIN_CODES[0])

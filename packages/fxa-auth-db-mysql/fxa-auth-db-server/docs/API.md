@@ -1777,7 +1777,7 @@ curl \
     -v \
     -X PUT \
     -H "Content-Type: application/json" \
-    -d '{"uid":"fdea27c8188b3d980a28917bc1399e47","createdAt":1494253830983}' \
+    -d '{"uid":"fdea27c8188b3d980a28917bc1399e47","createdAt":1494253830983,"flowId":"e04c12c6c97d8b61f0874f5ddd3447fa7a6e89459f0878746e6f2e6aa846345a"}' \
     http://localhost:8000/signinCodes/1234567890ab
 ```
 
@@ -1789,6 +1789,7 @@ curl \
 * Params:
     * `uid` : hex128
     * `createdAt` : epoch
+    * `flowId` : hex256
 
 ### Response
 
@@ -1825,6 +1826,12 @@ curl \
     http://localhost:8000/signinCodes/1234567890ab/consume
 ```
 
+### Request
+
+* Method : `POST`
+* Path : `/signinCodes/<code>/consume`
+    * `code` : hex
+
 ### Response
 
 ```
@@ -1832,12 +1839,12 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
-{"email":"foo@example.com"}
+{"email":"foo@example.com","flowId":"e04c12c6c97d8b61f0874f5ddd3447fa7a6e89459f0878746e6f2e6aa846345a"}
 ```
 
 * Status Code : `200 OK`
     * Content-Type : `application/json`
-    * Body : `{"email":"foo@example.com"}`
+    * Body : `{"email":"foo@example.com","flowId":"e04c12c6c97d8b61f0874f5ddd3447fa7a6e89459f0878746e6f2e6aa846345a"}`
 * Status Code : 404 Not Found
     * Conditions: if the specified sign-in code doesn't exist
     * Content-Type : `application/json`
@@ -1846,10 +1853,4 @@ Content-Length: 2
     * Conditions: if something goes wrong on the server
     * Content-Type : `application/json`
     * Body : `{"code":"InternalError","message":"..."}`
-
-### Request
-
-* Method : `DELETE`
-* Path : `/signinCodes/<code>
-    * `code` : hex
 

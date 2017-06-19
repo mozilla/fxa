@@ -1083,17 +1083,14 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
-  Memory.prototype.createSigninCode = (code, uid, createdAt) => {
+  Memory.prototype.createSigninCode = (code, uid, createdAt, flowId) => {
     code = code.toString('hex')
 
     if (signinCodes[code]) {
       return P.reject(error.duplicate())
     }
 
-    signinCodes[code] = {
-      uid: uid.toString('hex'),
-      createdAt
-    }
+    signinCodes[code] = { uid, createdAt, flowId }
 
     return P.resolve({})
   }
@@ -1107,9 +1104,10 @@ module.exports = function (log, error) {
     }
 
     const email = accounts[signinCodes[code].uid.toString('hex')].email
+    const flowId = signinCodes[code].flowId
     delete signinCodes[code]
 
-    return P.resolve({ email })
+    return P.resolve({ email, flowId })
   }
 
   // UTILITY FUNCTIONS

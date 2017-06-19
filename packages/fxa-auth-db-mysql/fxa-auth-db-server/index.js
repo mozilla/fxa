@@ -56,6 +56,7 @@ function createServer(db) {
     'data',
     'deviceId',
     'emailCode',
+    'flowId',
     'id',
     'kA',
     'keyBundle',
@@ -192,7 +193,7 @@ function createServer(db) {
 
   api.put(
     '/signinCodes/:code',
-    op(req => db.createSigninCode(req.params.code, req.body.uid, req.body.createdAt))
+    op(req => db.createSigninCode(req.params.code, req.body.uid, req.body.createdAt, req.body.flowId))
   )
 
   api.post(
