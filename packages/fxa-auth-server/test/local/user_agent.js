@@ -503,17 +503,7 @@ describe('userAgent', () => {
   it(
     'recognises old Firefox-iOS user agents',
     () => {
-      parserResult = {
-        ua: {
-          family: 'Other'
-        },
-        os: {
-          family: 'iOS'
-        },
-        device: {
-          family: 'Other'
-        }
-      }
+      parserResult = null
       const context = {}
       const userAgentString = 'Firefox-iOS-FxA/5.3 (Firefox)'
       const result = userAgent.call(context, userAgentString, log)
@@ -530,48 +520,9 @@ describe('userAgent', () => {
   )
 
   it(
-    'preserves device type on old Firefox-iOS user agents',
-    () => {
-      parserResult = {
-        ua: {
-          family: 'Other'
-        },
-        os: {
-          family: 'Other'
-        },
-        device: {
-          family: 'iPad'
-        }
-      }
-      const context = {}
-      const userAgentString = 'Firefox-iOS-FxA/6.0 (Firefox)'
-      const result = userAgent.call(context, userAgentString, log)
-
-      assert.equal(result.uaBrowser, 'Firefox')
-      assert.equal(result.uaBrowserVersion, '6.0')
-      assert.equal(result.uaOS, 'iOS')
-      assert.equal(result.uaDeviceType, 'tablet')
-
-      assert.equal(log.info.callCount, 0)
-
-      uaParser.parse.reset()
-    }
-  )
-
-  it(
     'recognises new Firefox-iOS user agents',
     () => {
-      parserResult = {
-        ua: {
-          family: 'Other'
-        },
-        os: {
-          family: 'Other'
-        },
-        device: {
-          family: 'Other'
-        }
-      }
+      parserResult = null
       const context = {}
       const userAgentString = 'Firefox-iOS-FxA/6.0b42 (iPhone 6S; iPhone OS 10.3) (Nightly)'
       const result = userAgent.call(context, userAgentString, log)
@@ -589,19 +540,29 @@ describe('userAgent', () => {
   )
 
   it(
+    'recognises new Firefox-iOS user agent on iPads',
+    () => {
+      parserResult = null
+      const context = {}
+      const userAgentString = 'Firefox-iOS-FxA/6.0b42 (iPad Mini; iPhone OS 10.3) (Nightly)'
+      const result = userAgent.call(context, userAgentString, log)
+
+      assert.equal(result.uaBrowser, 'Nightly')
+      assert.equal(result.uaBrowserVersion, '6.0')
+      assert.equal(result.uaOS, 'iOS')
+      assert.equal(result.uaOSVersion, '10.3')
+      assert.equal(result.uaDeviceType, 'tablet')
+
+      assert.equal(log.info.callCount, 0)
+
+      uaParser.parse.reset()
+    }
+  )
+
+  it(
     'recognises Firefox-Android user agents',
     () => {
-      parserResult = {
-        ua: {
-          family: 'Other'
-        },
-        os: {
-          family: 'Android'
-        },
-        device: {
-          family: 'Other'
-        }
-      }
+      parserResult = null
       const context = {}
       const userAgentString = 'Firefox-Android-FxAccounts/49.0.2 (Firefox)'
       const result = userAgent.call(context, userAgentString, log)
@@ -618,25 +579,15 @@ describe('userAgent', () => {
   )
 
   it('recognises new mobile Sync library user agents on Android', () => {
-    parserResult = {
-      ua: {
-        family: 'Other'
-      },
-      os: {
-        family: 'Other'
-      },
-      device: {
-        family: 'Other'
-      }
-    }
+    parserResult = null
     const context = {}
-    const userAgentString = 'Mobile-Android-Sync/(Mobile; Android 4.4.2) (foo() bar)'
+    const userAgentString = 'Mobile-Android-Sync/(Mobile; Android 6.0) (foo() bar)'
     const result = userAgent.call(context, userAgentString, log)
 
     assert.equal(result.uaBrowser, 'foo() bar')
     assert.equal(result.uaBrowserVersion, null)
     assert.equal(result.uaOS, 'Android')
-    assert.equal(result.uaOSVersion, '4.4.2')
+    assert.equal(result.uaOSVersion, '6.0')
     assert.equal(result.uaDeviceType, 'mobile')
 
     assert.equal(log.info.callCount, 0)
@@ -645,17 +596,7 @@ describe('userAgent', () => {
   })
 
   it('recognises new mobile Sync library user agents on iOS', () => {
-    parserResult = {
-      ua: {
-        family: 'Other'
-      },
-      os: {
-        family: 'Other'
-      },
-      device: {
-        family: 'Other'
-      }
-    }
+    parserResult = null
     const context = {}
     const userAgentString = 'Mobile-iOS-Sync/(iPad Mini; iOS 10.3) (wibble)'
     const result = userAgent.call(context, userAgentString, log)

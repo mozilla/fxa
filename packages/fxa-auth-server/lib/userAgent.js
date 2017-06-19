@@ -36,25 +36,25 @@ const ELLIPSIS = '\u2026'
 const SYNC_USER_AGENT = /^(Firefox|Mobile)-(\w+)-(?:FxA(?:ccounts)?|Sync)\/([^\sb]*)(?:b\S+)? ?(?:\(([\w\s]+); [\w\s]+ ([^\s()]+)\))?(?: \((.+)\))?$/
 
 module.exports = function (userAgentString, log) {
-  const userAgentData = ua.parse(userAgentString)
+  const matches = SYNC_USER_AGENT.exec(userAgentString)
+  if (matches && matches.length > 2) {
+    // Always parse known Sync user-agents ourselves,
+    // because node-uap makes a pig's ear of it.
+    this.uaBrowser = matches[6] || matches[1]
+    this.uaBrowserVersion = matches[3] || null
+    this.uaOS = matches[2]
+    this.uaOSVersion = matches[5]
+    this.uaDeviceType = marshallFormFactor(matches[4])
+  } else {
+    const userAgentData = ua.parse(userAgentString)
 
-  this.uaBrowser = getFamily(userAgentData.ua) || null
-  this.uaBrowserVersion = getVersion(userAgentData.ua) || null
-  this.uaOS = getFamily(userAgentData.os) || null
-  this.uaOSVersion = getVersion(userAgentData.os) || null
-  this.uaDeviceType = getDeviceType(userAgentData) || null
+    this.uaBrowser = getFamily(userAgentData.ua) || null
+    this.uaBrowserVersion = getVersion(userAgentData.ua) || null
+    this.uaOS = getFamily(userAgentData.os) || null
+    this.uaOSVersion = getVersion(userAgentData.os) || null
+    this.uaDeviceType = getDeviceType(userAgentData) || null
 
-  if (! this.uaBrowser) {
-    const matches = SYNC_USER_AGENT.exec(userAgentString)
-    if (matches && matches.length > 2) {
-      this.uaBrowser = matches[6] || matches[1]
-      this.uaBrowserVersion = matches[3] || null
-      this.uaOS = matches[2]
-      this.uaOSVersion = matches[5]
-      if (! this.uaDeviceType) {
-        this.uaDeviceType = marshallFormFactor(matches[4])
-      }
-    } else if (! this.uaOS) {
+    if (! this.uaBrowser && ! this.uaOS) {
       // In the worst case, fall back to a truncated user agent string
       this.uaBrowser = truncate(userAgentString || '', log)
     }
