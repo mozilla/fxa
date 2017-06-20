@@ -2366,6 +2366,108 @@ module.exports = function(config, DB) {
         })
     })
 
+    describe('db.resetAccountTokens', () => {
+      let account, passwordChangeToken, passwordChangeTokenId, passwordForgotToken, passwordForgotTokenId,
+        accountResetToken
+
+      before(() => {
+        account = createAccount()
+        account.emailVerified = true
+        passwordChangeToken = {
+          data: hex32(),
+          uid: account.uid,
+          createdAt: now + 4
+        }
+        passwordChangeTokenId = hex32()
+        passwordForgotToken = {
+          data: hex32(),
+          uid: account.uid,
+          passCode: hex16(),
+          tries: 1,
+          createdAt: Date.now()
+        }
+        passwordForgotTokenId = hex32()
+        accountResetToken = {
+          tokenId: passwordForgotTokenId,
+          data: hex32(),
+          uid: account.uid,
+          createdAt: now + 5
+        }
+
+        return db.createAccount(account.uid, account)
+      })
+
+      it('should remove account reset tokens', () => {
+        return db.createPasswordForgotToken(passwordForgotTokenId, passwordForgotToken)
+          .then(() => {
+            // db.forgotPasswordVerified requires a passwordForgotToken to have been made
+            return db.forgotPasswordVerified(passwordForgotTokenId, accountResetToken)
+              .then(() => {
+                return db.accountResetToken(passwordForgotTokenId)
+                  .then((res) => {
+                    assert.deepEqual(res.uid, account.uid, 'token belongs to account')
+                  })
+              })
+          })
+          .then(() => {
+            return db.resetAccountTokens(account.uid)
+          })
+          .then(() => {
+            return db.accountResetToken(passwordForgotTokenId)
+              .then(() => {
+                assert.equal(false, 'should not have return account reset token token')
+              })
+              .catch((err) => {
+                assert.equal(err.errno, 116, 'did not find password change token')
+              })
+          })
+      })
+
+      it('should remove password change tokens', () => {
+        return db.createPasswordChangeToken(passwordChangeTokenId, passwordChangeToken)
+          .then(() => {
+            return db.passwordChangeToken(passwordChangeTokenId)
+              .then((res) => {
+                assert.deepEqual(res.uid, account.uid, 'token belongs to account')
+              })
+          })
+          .then(() => {
+            return db.resetAccountTokens(account.uid)
+          })
+          .then(() => {
+            return db.passwordChangeToken(passwordChangeTokenId)
+              .then(() => {
+                assert.equal(false, 'should not have return password change token')
+              })
+              .catch((err) => {
+                assert.equal(err.errno, 116, 'did not find password change token')
+              })
+          })
+      })
+
+      it('should remove password forgot tokens', () => {
+        return db.createPasswordForgotToken(passwordForgotTokenId, passwordForgotToken)
+          .then(() => {
+            return db.passwordForgotToken(passwordForgotTokenId)
+              .then((res) => {
+                assert.deepEqual(res.uid, account.uid, 'token belongs to account')
+              })
+          })
+          .then(() => {
+            return db.resetAccountTokens(account.uid)
+          })
+          .then(() => {
+            return db.passwordForgotToken(passwordForgotTokenId)
+              .then(() => {
+                assert.equal(false, 'should not have return password forgot token')
+              })
+              .catch((err) => {
+                assert.equal(err.errno, 116, 'did not find password forgot token')
+              })
+          })
+      })
+    })
+
     after(() => db.close())
   })
 }

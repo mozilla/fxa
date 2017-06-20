@@ -1189,6 +1189,16 @@ module.exports = function (log, error) {
     return this.readFirstResult(CONSUME_SIGNIN_CODE, [ createHash(code), newerThan ])
   }
 
+  // Delete : account tokens passwordChangeTokens, passwordForgotTokens and accountResetTokens
+  // Where : uid = $1
+  const ACCOUNT_RESET_TOKENS = 'CALL resetAccountTokens_1(?)'
+  MySql.prototype.resetAccountTokens = function (uid) {
+    return this.write(
+      ACCOUNT_RESET_TOKENS,
+      [uid]
+    )
+  }
+
   return MySql
 }
 

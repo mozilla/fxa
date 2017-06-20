@@ -1110,6 +1110,14 @@ module.exports = function (log, error) {
     return P.resolve({ email, flowId })
   }
 
+  Memory.prototype.resetAccountTokens = uid => {
+    uid = uid.toString('hex')
+    deleteByUid(uid, accountResetTokens)
+    deleteByUid(uid, passwordChangeTokens)
+    deleteByUid(uid, passwordForgotTokens)
+    return P.resolve({})
+  }
+
   // UTILITY FUNCTIONS
 
   Memory.prototype.ping = function () {

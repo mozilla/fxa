@@ -14,6 +14,7 @@ There are a number of methods that a DB storage backend should implement:
     * .accountEmails(uid)
     * .createEmail(uid, data)
     * .deleteEmail(uid, email)
+    * .resetTokens(uid)
 * Accounts (using `email`)
     * .emailRecord(emailBuffer)
     * .accountExists(emailBuffer)
@@ -270,6 +271,21 @@ Returns:
 
     * `uid` - (Buffer16) the uid of the account to delete emails for
     * `email` - (string) the email to delete from user account
+
+    Returns:
+
+    * resolves with:
+        * an empty object `{}`
+    * rejects with:
+        * any errors from the underlying storage engine
+        
+## .resetTokens(uid) ##
+
+    Deletes all `accountResetTokens`, `passwordChangeTokens` and `passwordForgotTokens` from the asscociated `uid`.
+
+    Parameters:
+
+    * `uid` - (Buffer16) the uid of the account to delete tokens
 
     Returns:
 
@@ -616,4 +632,3 @@ Parameters:
 
 * `code` (Buffer):
   The value of the code
-

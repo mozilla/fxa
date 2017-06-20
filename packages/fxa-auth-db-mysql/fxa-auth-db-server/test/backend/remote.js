@@ -1308,6 +1308,77 @@ module.exports = function(cfg, makeServer) {
         })
     })
 
+    describe('reset account tokens', () => {
+
+      let user
+      before(() => {
+        user = fake.newUserDataHex()
+        return client.putThen(`/account/${user.accountId}`, user.account)
+      })
+
+      it('should remove password forgot token', () => {
+        return client.putThen('/passwordForgotToken/' + user.passwordForgotTokenId, user.passwordForgotToken)
+          .then((r) => {
+            respOk(r)
+            return client.postThen(`/account/${user.accountId}/resetTokens`)
+          })
+          .then((r) => {
+            respOk(r)
+            return client.getThen('/passwordForgotToken/' + user.passwordForgotTokenId)
+          })
+          .then(() => {
+            assert(false, 'This request should have failed (instead it succeeded)')
+          }, (err) => {
+            testNotFound(err)
+          })
+      })
+
+      it('should remove password change token', () => {
+        return client.putThen('/passwordChangeToken/' + user.passwordChangeTokenId, user.passwordChangeToken)
+          .then((r) => {
+            respOk(r)
+            return client.postThen(`/account/${user.accountId}/resetTokens`)
+          })
+          .then((r) => {
+            respOk(r)
+            return client.getThen('/passwordChangeToken/' + user.passwordChangeTokenId)
+          })
+          .then(() => {
+            assert(false, 'This request should have failed (instead it succeeded)')
+          }, (err) => {
+            testNotFound(err)
+          })
+      })
+
+      it('should remove account reset token', () => {
+        return client.putThen('/passwordForgotToken/' + user.passwordForgotTokenId, user.passwordForgotToken)
+          .then((r) => {
+            respOk(r)
+            // now, verify the password (which inserts the accountResetToken)
+            return client.postThen('/passwordForgotToken/' + user.passwordForgotTokenId + '/verified', user.accountResetToken)
+          })
+          .then(function(r) {
+            respOk(r)
+            // check the accountResetToken exists
+            return client.getThen('/accountResetToken/' + user.accountResetTokenId)
+          })
+          .then((r) => {
+            respOk(r)
+            return client.postThen(`/account/${user.accountId}/resetTokens`)
+          })
+          .then(function(r) {
+            respOk(r)
+            // check the accountResetToken exists
+            return client.getThen('/accountResetToken/' + user.accountResetTokenId)
+          })
+          .then(() => {
+            assert(false, 'This request should have failed (instead it succeeded)')
+          }, (err) => {
+            testNotFound(err)
+          })
+      })
+    })
+
     it(
       'GET an unknown path',
       () => {

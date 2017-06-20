@@ -55,6 +55,7 @@ The following datatypes are used throughout this document:
     * createAccount             : `PUT /account/:id`
     * checkPassword             : `POST /account/:id/checkPassword`
     * resetAccount              : `POST /account/:id/reset`
+    * resetTokens               : `POST /account/:id/resetTokens`
     * deleteAccount             : `DELETE /account/:id`
     * verifyEmail               : `POST /account/:id/verifyEmail`
     * sessions                  : `GET /account/:id/sessions`
@@ -408,6 +409,7 @@ Content-Length: 90
     * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
 
 ## resetAccount : `POST /account/<uid>/reset`
+## resetTokens : `POST /account/<uid>/resetTokens`
 ## deleteAccount : `DELETE /account/<uid>`
 ## verifyEmail : `POST /account/<uid>/verifyEmail`
 

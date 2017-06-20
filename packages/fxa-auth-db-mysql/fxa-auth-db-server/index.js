@@ -75,6 +75,7 @@ function createServer(db) {
   api.get('/account/:id/devices', withIdAndBody(db.accountDevices))
   api.post('/account/:id/checkPassword', withIdAndBody(db.checkPassword))
   api.post('/account/:id/reset', withIdAndBody(db.resetAccount))
+  api.post('/account/:id/resetTokens', withIdAndBody(db.resetAccountTokens))
   api.post('/account/:id/verifyEmail/:emailCode',
     op(function (req) {
       return db.verifyEmail(req.params.id, req.params.emailCode)
