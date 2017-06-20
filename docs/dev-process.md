@@ -3,6 +3,23 @@
 We develop and deploy on a two-week iteration cycle.  Every two weeks we
 cut a release "train" that goes through deployment to stage and into production.
 
+* [Product planning](#product-planning)
+* [Issue management](#issue-management)
+  * [Milestones](#milestones)
+  * [Waffle columns](#waffle-columns)
+  * [Other labels](#other-labels)
+  * [Bug triage](#bug-triage)
+* [Checkin meetings](#checkin-meetings)
+  * [Mondays at 08:30](#mondays-at-0830)
+  * [Mondays at 12:30](#mondays-at-1230)
+  * [Mondays at 13:00](#mondays-at-1300)
+  * [Tuesdays at 14:00](#tuesdays-at-1400)
+  * [Thursdays at 09:00](#thursdays-at-0900)
+  * [Thursdays at 12:00](#thursdays-at-1200)
+* [Code review](#code-review)
+  * [Review Checklist](#review-checklist)
+* [Tagging releases](#tagging-releases)
+
 ## Product Planning
 
 Product-level feature planning is managed via github issues
@@ -241,3 +258,60 @@ Here are some handy questions and things to consider when reviewing code for Fir
     * If it introduces new files, ensure they're covered by the linter.
     * If you notice a stylistic issue that was *not* detected by the linter,
       consider updating the linter.
+* For fixes that are patching a train,
+  has the PR been opened against the correct train branch?
+    * If the PR is against `master`,
+      it is likely that it will mess up
+      our change logs and the git history
+      when merged.
+    * If no appropriate train branch exists,
+      one can be created at the appropriate point in history
+      and pushed.
+      After the patch has been tagged (see below),
+      the train branch can then be merged to `master`.
+      Commits should not be cherry-picked
+      between train branches and `master`.
+
+## Tagging releases
+
+Each repo has a `grunt` script
+for tagging new releases.
+This script is responsible for:
+
+* Updating the version strings
+  in `package.json` and `npm-shrinkwrap.json`.
+
+* Writing commit summaries
+  to the change log.
+
+* Committing these changes.
+
+The script will not push the tag,
+so you can always check what's changed
+before making the decision
+about whether the changes were correct
+and it's okay to push.
+
+To tag a major release, run:
+
+```
+grunt version
+```
+
+To tag a patch release, run:
+
+```
+grunt version:patch
+```
+
+Patch releases should normally be tagged
+in a specific `train-nn` branch,
+which can then be merged back to `master`.
+Doing it this way
+ensures that our change logs and the git history
+are sane with respect to the version that a commit shows up in.
+Other approaches,
+like cherry-picking between branches
+or fixing in master then uplifting to a train,
+break our history.
+
