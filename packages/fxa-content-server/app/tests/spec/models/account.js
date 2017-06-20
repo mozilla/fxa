@@ -34,6 +34,7 @@ define(function (require, exports, module) {
     var fxaClient;
     var marketingEmailClient;
     var metrics;
+    let notifier;
     var sentryMetrics;
     var oAuthClient;
     var profileClient;
@@ -68,6 +69,9 @@ define(function (require, exports, module) {
           return {};
         }
       };
+      notifier = {
+        trigger: sinon.spy()
+      };
       sentryMetrics = {
         captureException (e) {
           return e;
@@ -85,6 +89,7 @@ define(function (require, exports, module) {
         fxaClient: fxaClient,
         marketingEmailClient: marketingEmailClient,
         metrics: metrics,
+        notifier,
         oAuthClient: oAuthClient,
         oAuthClientId: CLIENT_ID,
         profileClient: profileClient,
@@ -749,6 +754,10 @@ define(function (require, exports, module) {
         it('sets the `verified` flag', function () {
           assert.isTrue(account.get('verified'));
         });
+
+        it('did not call notifier.trigger', () => {
+          assert.equal(notifier.trigger.callCount, 0);
+        });
       });
 
       describe('with email opt-in', function () {
@@ -760,7 +769,7 @@ define(function (require, exports, module) {
           });
 
           mockEmailPrefs = {
-            optIn: sinon.spy()
+            optIn: sinon.spy(() => p())
           };
 
           sinon.stub(account, 'getMarketingEmailPrefs', function () {
@@ -777,6 +786,19 @@ define(function (require, exports, module) {
 
         it('delegates to the marketing email prefs', function () {
           assert.isTrue(mockEmailPrefs.optIn.called);
+        });
+
+        it('called notifier.trigger correctly', () => {
+          assert.equal(notifier.trigger.callCount, 2);
+
+          let args = notifier.trigger.args[0];
+          assert.lengthOf(args, 1);
+          assert.equal(args[0], 'flow.initialize');
+
+          args = notifier.trigger.args[1];
+          assert.lengthOf(args, 2);
+          assert.equal(args[0], 'flow.event');
+          assert.deepEqual(args[1], { event: 'newsletter.subscribed' });
         });
       });
     });

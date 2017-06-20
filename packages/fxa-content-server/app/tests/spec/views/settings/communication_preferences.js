@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
+  const SentryMetrics = require('lib/sentry');
   const sinon = require('sinon');
   const Translator = require('lib/translator');
   const TestHelpers = require('../../../lib/helpers');
@@ -48,7 +49,7 @@ define(function (require, exports, module) {
       relier = new Relier();
       account = new Account();
       notifier = new Notifier();
-      metrics = new Metrics({ notifier });
+      metrics = new Metrics({ notifier, sentryMetrics: new SentryMetrics() });
       translator = new Translator({forceEnglish: true});
 
       emailPrefsModel = new MarketingEmailPrefs({
@@ -89,6 +90,8 @@ define(function (require, exports, module) {
       sinon.stub(view, 'checkAuthorization', function () {
         return p(true);
       });
+
+      sinon.stub(view, 'logFlowEvent', () => {});
 
       return render();
     });
@@ -216,6 +219,27 @@ define(function (require, exports, module) {
           .then(function () {
             assert.isTrue(view.navigate.calledWith('settings'));
             assert.isTrue(view.displaySuccess.called);
+
+            assert.equal(view.logFlowEvent.callCount, 1);
+            const args = view.logFlowEvent.args[0];
+            assert.lengthOf(args, 1);
+            assert.equal(args[0], 'newsletter.unsubscribed');
+          });
+      });
+
+      it('emits the subscribed event', () => {
+        sinon.stub(emailPrefsModel, 'optOut', () => {
+          return p();
+        });
+        sinon.stub(view, 'navigate', () => {});
+        sinon.stub(view, 'displaySuccess', () => {});
+
+        return view.setOptInStatus(NEWSLETTER_ID, true)
+          .then(() => {
+            assert.equal(view.logFlowEvent.callCount, 1);
+            const args = view.logFlowEvent.args[0];
+            assert.lengthOf(args, 1);
+            assert.equal(args[0], 'newsletter.subscribed');
           });
       });
 

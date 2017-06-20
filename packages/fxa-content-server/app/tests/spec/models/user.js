@@ -84,6 +84,7 @@ define(function (require, exports, module) {
       it('creates an account', function () {
         assert.equal(account.get('email'), email);
         assert.deepEqual(account.pick('email'), { email: email });
+        assert.equal(account._notifier, notifier);
       });
     });
 

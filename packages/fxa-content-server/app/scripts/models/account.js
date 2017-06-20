@@ -88,6 +88,7 @@ define(function (require, exports, module) {
       this._fxaClient = options.fxaClient;
       this._marketingEmailClient = options.marketingEmailClient;
       this._metrics = options.metrics;
+      this._notifier = options.notifier;
       this._sentryMetrics = options.sentryMetrics;
 
       /**
@@ -542,7 +543,13 @@ define(function (require, exports, module) {
           if (this.get('needsOptedInToMarketingEmail')) {
             this.unset('needsOptedInToMarketingEmail');
             var emailPrefs = this.getMarketingEmailPrefs();
-            return emailPrefs.optIn(NEWSLETTER_ID);
+            return emailPrefs.optIn(NEWSLETTER_ID)
+              .then(() => {
+                this._notifier.trigger('flow.initialize');
+                this._notifier.trigger('flow.event', {
+                  event: 'newsletter.subscribed'
+                });
+              });
           }
         });
     },

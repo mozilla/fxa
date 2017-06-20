@@ -138,6 +138,7 @@ define(function (require, exports, module) {
         fxaClient: this._fxaClient,
         marketingEmailClient: this._marketingEmailClient,
         metrics: this._metrics,
+        notifier: this._notifier,
         oAuthClient: this._oAuthClient,
         oAuthClientId: this._oAuthClientId,
         profileClient: this._profileClient,

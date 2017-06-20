@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FormView = require('views/form');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
   const Metrics = require('lib/metrics');
@@ -93,12 +94,25 @@ define(function (require, exports, module) {
     },
 
     setOptInStatus (newsletterId, isOptedIn) {
-      var method = isOptedIn ? 'optIn' : 'optOut';
+      let eventPrefix;
+      let method;
+
+      if (isOptedIn) {
+        eventPrefix = '';
+        method = 'optIn';
+      } else {
+        eventPrefix = 'un';
+        method = 'optOut';
+      }
+
       this.logViewEvent(method);
 
       return this.getMarketingEmailPrefs()[method](newsletterId)
         .then(() => {
           this.logViewEvent(method + '.success');
+          // Emit an additional flow event for consistency with
+          // the call to optIn in the account model
+          this.logFlowEvent(`newsletter.${eventPrefix}subscribed`);
 
           var successMessage = isOptedIn ?
                                   t('Subscribed successfully') :
@@ -113,7 +127,8 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    SettingsPanelMixin
+    SettingsPanelMixin,
+    FlowEventsMixin
   );
 
   module.exports = View;
