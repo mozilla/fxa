@@ -5,7 +5,9 @@
 module.exports = function (grunt) {
   grunt.config('babel', {
     options: {
-      presets: ['babel-preset-es2015-nostrict'],
+      presets: [['babel-preset-es2015', {
+        modules: false
+      }]],
       sourceMap: false
     },
     scripts: {

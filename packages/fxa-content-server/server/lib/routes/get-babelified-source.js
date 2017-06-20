@@ -12,7 +12,9 @@ module.exports = function (config) {
     path: '/scripts/*\.(js|map)',
     process: babel({
       babelOptions: {
-        presets: ['babel-preset-es2015-nostrict'],
+        presets: [['babel-preset-es2015', {
+          modules: false
+        }]],
         sourceMaps: true
       },
       cachePath: path.join(__dirname, '..', '..', '..', '.es5cache'),
