@@ -154,6 +154,8 @@ in a sign-in or sign-up flow:
 |`flow.performance.network`|`flow_time` for this event is a number that approximates the relative speed of a user's network performance (lower is faster).|
 |`flow.performance.server`|`flow_time` for this event is a number that approximates the relative speed of the server performance (lower is faster).|
 |`flow.performance.client`|`flow_time` for this event is a number that approximates the relative speed of a user's client-side performance (lower is faster).|
+|`flow.newsletter.subscribed`|A user has subscribed to the Firefox Accounts newsletter. This may occur during sign-up or later on, via the settings screen.|
+|`flow.newsletter.unsubscribed`|A user has unsubscribed from the Firefox Accounts newsletter. This only occurs via the settings screen.|
 |`account.login`|An existing account has been signed in to.|
 |`account.created`|A new account has been created.|
 |`email.confirmation.sent`|A sign-in confirmation email has been sent to a user.|
@@ -444,7 +446,13 @@ to each of the table names mentioned above:
 
 ## Significant changes
 
+### Train 90
+
+* [The `flow.newsletter.subscribed` and `flow.newsletter.unsubscribed` events
+  were implemented](https://github.com/mozilla/fxa-content-server/pull/5160).
+
 ### Train 88
+
  * [Flow events added for clicks on app store
    install links](https://github.com/mozilla/fxa-content-server/pull/5113)
    * flow.{viewName}.link.app-store.(android|ios)
