@@ -6,8 +6,9 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_fennec_v1&service=sync';
 
@@ -42,24 +43,24 @@ define([
 
     'sign up, verify same browser': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signup-header'))
+        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
-        .then(noSuchElement('#customize-sync'))
+        .then(noSuchElement(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX))
         .then(fillOutSignUp(email, PASSWORD))
 
         // user should be transitioned to the choose what to Sync page
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         // the login message is only sent after the confirm screen is shown.
         .then(noSuchBrowserNotification('fxaccounts:login'))
 
         // uncheck the passwords and history engines
-        .then(click('div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)'))
-        .then(click('div.two-col-block:nth-child(2) > div:nth-child(2) > label:nth-child(1)'))
-        .then(click('button[type=submit]'))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_PASSWORDS))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
         // user should be transitioned to the "go confirm your address" page
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
         // the login message is only sent after the sync preferences screen
         // has been cleared.
@@ -69,10 +70,10 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
-        .then(testElementExists('#fxa-connect-another-device-header'))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
         .then(closeCurrentWindow())
-        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
 

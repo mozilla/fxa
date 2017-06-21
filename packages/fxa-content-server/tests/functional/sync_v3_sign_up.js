@@ -6,27 +6,29 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'use strict';
 
-  var email;
-  var PASSWORD = '12345678';
+  const config = intern.config;
+  const PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var click = FunctionalHelpers.click;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testEmailExpected = FunctionalHelpers.testEmailExpected;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  let email;
+  const PASSWORD = '12345678';
+
+  const clearBrowserState = FunctionalHelpers.clearBrowserState;
+  const click = FunctionalHelpers.click;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  const noPageTransition = FunctionalHelpers.noPageTransition;
+  const noSuchElement = FunctionalHelpers.noSuchElement;
+  const noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
+  const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testEmailExpected = FunctionalHelpers.testEmailExpected;
+  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
   registerSuite({
     name: 'Firefox Desktop Sync v3 sign_up',
@@ -42,21 +44,26 @@ define([
 
     'sign up, verify same browser': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signup-header'))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
-        .then(noSuchElement('#suggest-sync'))
+        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {
+              ok: true
+            }
+          }
+        }))
+        .then(noSuchElement(selectors.SIGNUP.LINK_SUGGEST_SYNC))
         .then(fillOutSignUp(email, PASSWORD))
 
         // user should be transitioned to the choose what to Sync page
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(noSuchBrowserNotification('fxaccounts:login'))
 
-        .then(click('button[type=submit]'))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
         // user should be transitioned to the "go confirm your address" page
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
         // the login message is only sent after the sync preferences screen
         // has been cleared.
@@ -65,14 +72,14 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
-        .then(testElementExists('#fxa-connect-another-device-header'))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
         .then(closeCurrentWindow())
 
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.
         // Add an affordance just in case the poll happens unexpectedly.
-        .then(noPageTransition('#fxa-confirm-header', 5000))
+        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER, 5000))
 
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));

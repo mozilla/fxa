@@ -6,8 +6,9 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
   const config = intern.config;
   const PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync&forceAboutAccounts=true';
 
@@ -42,12 +43,12 @@ define([
 
     'signup, verify same browser': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signup-header'))
+        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
 
         // user should be transitioned to the choose what to Sync page
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(noSuchBrowserNotification('fxaccounts:login'))
@@ -57,12 +58,12 @@ define([
 
         // uncheck the passwords and addons engines.
         // cannot use input selectors here because labels overlay them.
-        .then(click('div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)'))
-        .then(click('div.two-col-block:nth-child(1) > div:nth-child(3) > label:nth-child(1)'))
-        .then(click('button[type=submit]'))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_PASSWORDS))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
         // user should be transitioned to the "go confirm your address" page
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
         // the login message is only sent after the sync preferences screen
         // has been cleared.
@@ -71,13 +72,13 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
-        .then(testElementExists('#fxa-connect-another-device-header'))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(closeCurrentWindow())
 
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.
         // Add an affordance just in case the poll happens unexpectedly.
-        .then(noPageTransition('#fxa-confirm-header', 5000))
+        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER, 5000))
 
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));

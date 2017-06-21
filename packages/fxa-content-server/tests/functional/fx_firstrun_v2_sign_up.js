@@ -7,26 +7,14 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors',
   'tests/functional/lib/ua-strings'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, UA_STRINGS) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, UA_STRINGS) {
   const config = intern.config;
   const PAGE_URL = config.fxaContentRoot + 'signup?context=fx_firstrun_v2&service=sync';
 
   var email;
   const PASSWORD = '12345678';
-
-  const SELECTOR_400_HEADER = '#fxa-400-header';
-  const SELECTOR_400_ERROR = '.error';
-  const SELECTOR_CHOOSE_WHAT_TO_SYNC_HEADER = '#fxa-choose-what-to-sync-header';
-  const SELECTOR_CHOOSE_WHAT_TO_SYNC_HISTORY_ENTRY = 'div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)';
-  const SELECTOR_CHOOSE_WHAT_TO_SYNC_PASSWORD_ENTRY = 'div.two-col-block:nth-child(1) > div:nth-child(3) > label:nth-child(1)';
-  const SELECTOR_CHOOSE_WHAT_TO_SYNC_SUBMIT = 'button[type=submit]';
-  const SELECTOR_CONFIRM_HEADER = '#fxa-confirm-header';
-  const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
-  const SELECTOR_SEND_SMS_HEADER = '#fxa-send-sms-header';
-  const SELECTOR_SEND_SMS_PHONE_NUMBER = 'input[type="tel"]';
-  const SELECTOR_SIGN_UP_HEADER = '#fxa-signup-header';
-  const SELECTOR_SIGN_UP_SUB_HEADER = '#fxa-signup-header .service';
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;
@@ -47,22 +35,22 @@ define([
 
   const setupTest = thenify(function (options) {
     return this.parent
-      .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER, options))
-      .then(visibleByQSA(SELECTOR_SIGN_UP_SUB_HEADER))
+      .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, options))
+      .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
 
       .then(fillOutSignUp(email, PASSWORD))
 
-      .then(testElementExists(SELECTOR_CHOOSE_WHAT_TO_SYNC_HEADER))
+      .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
       // uncheck the passwords and history engines
-      .then(click(SELECTOR_CHOOSE_WHAT_TO_SYNC_HISTORY_ENTRY))
-      .then(click(SELECTOR_CHOOSE_WHAT_TO_SYNC_PASSWORD_ENTRY))
-      .then(click(SELECTOR_CHOOSE_WHAT_TO_SYNC_SUBMIT))
+      .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
+      .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_PASSWORDS))
+      .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
       // user should be transitioned to the "go confirm your address" page
-      .then(testElementExists(SELECTOR_CONFIRM_HEADER))
+      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
       // the login message is only sent after the sync preferences screen
       // has been cleared.
       .then(testIsBrowserNotified('fxaccounts:login'));
@@ -95,12 +83,12 @@ define([
 
       // mobile users are ineligible to send an SMS, they should be redirected
       // to the "connect another device" screen
-      .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
       // switch back to the original window, user should be
       // able to send an SMS.
       .then(closeCurrentWindow())
-      .then(testElementExists(SELECTOR_SEND_SMS_HEADER));
+      .then(testElementExists(selectors.SMS_SEND.HEADER));
   });
 
   registerSuite({
@@ -126,11 +114,11 @@ define([
         .switchToWindow('newwindow')
 
         // user should see the CAD screen in both signup and verification tabs.
-        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
         // switch back to the original window, it should transition to CAD.
         .then(closeCurrentWindow())
-        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
     },
@@ -142,14 +130,14 @@ define([
         // to see how the original browser reacts. Then, use this browser to
         // synthesize what the other browser sees.
         .then(openVerificationLinkInDifferentBrowser(email, 0))
-        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
         // clear browser state to synthesize opening in a different browser
         .then(clearBrowserState({ force: true }))
         // verify the user in a different browser, they should see the
         // "connect another device" screen.
         .then(openVerificationLinkInSameTab(email, 0))
-        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'sign up, verify different browser, force SMS': function () {
@@ -166,14 +154,14 @@ define([
         // to see how the original browser reacts. Then, use this browser to
         // synthesize what the other browser sees.
         .then(openVerificationLinkInDifferentBrowser(email, 0))
-        .then(testElementExists(SELECTOR_SEND_SMS_HEADER))
+        .then(testElementExists(selectors.SMS_SEND.HEADER))
 
         // clear browser state to synthesize opening in a different browser
         .then(clearBrowserState({ force: true }))
         // verify the user in a different browser, they should see the
         // "connect another device" screen.
         .then(openVerificationLinkInSameTab(email, 0, options))
-        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'sign up, verify same browser, force SMS, force supported country': function () {
@@ -193,24 +181,24 @@ define([
         .switchToWindow('newwindow')
 
         // user should be redirected to "Send SMS" screen.
-        .then(testElementExists(SELECTOR_SEND_SMS_HEADER))
-        .then(testAttributeEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, 'data-country', 'CA'))
+        .then(testElementExists(selectors.SMS_SEND.HEADER))
+        .then(testAttributeEquals(selectors.SMS_SEND.PHONE_NUMBER, 'data-country', 'CA'))
 
         // switch back to the original window, it should transition to the verification tab.
         .then(closeCurrentWindow())
-        .then(testElementExists(SELECTOR_SEND_SMS_HEADER));
+        .then(testElementExists(selectors.SMS_SEND.HEADER));
     },
 
     'sign up, force SMS, force unsupported country in signup tab': function () {
       return this.remote
-        .then(openPage(PAGE_URL, SELECTOR_400_HEADER, {
+        .then(openPage(PAGE_URL, selectors['400'].HEADER, {
           query: {
             country: 'ZZ',
             forceExperiment: 'sendSms',
             forceExperimentGroup: 'treatment'
           }
         }))
-        .then(testElementTextInclude(SELECTOR_400_ERROR, 'country'));
+        .then(testElementTextInclude(selectors['400'].ERROR, 'country'));
     },
 
     'sign up, verify same browser, force SMS, force unsupported country in verification tab': function () {
@@ -228,13 +216,13 @@ define([
         .switchToWindow('newwindow')
 
         // user should be redirected to the 400 page, `country` is invalid
-        .then(testElementExists(SELECTOR_400_HEADER))
-        .then(testElementTextInclude(SELECTOR_400_ERROR, 'country'))
+        .then(testElementExists(selectors['400'].HEADER))
+        .then(testElementTextInclude(selectors['400'].ERROR, 'country'))
 
         // switch back to the original window, it should not transition,
         // the invalid country prevents the verification code from being sent.
         .then(closeCurrentWindow())
-        .then(testElementExists(SELECTOR_CONFIRM_HEADER));
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER));
     },
 
     'sign up, verify Chrome on Android, force SMS sends to connect_another_device': function () {

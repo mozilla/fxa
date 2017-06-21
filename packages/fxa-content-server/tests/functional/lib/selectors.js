@@ -6,6 +6,8 @@
  * Define selectors on a per-screen basis.
  */
 define([], function () {
+  'use strict';
+
   /*eslint-disable max-len*/
   return {
     '400': {
@@ -13,6 +15,8 @@ define([], function () {
       HEADER: '#fxa-400-header'
     },
     CHOOSE_WHAT_TO_SYNC: {
+      ENGINE_HISTORY: 'div.two-col-block:nth-child(1) > div:nth-child(3) > label:nth-child(1)',
+      ENGINE_PASSWORDS: 'div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)',
       HEADER: '#fxa-choose-what-to-sync-header',
       SUBMIT: 'button[type=submit]'
     },
@@ -51,7 +55,9 @@ define([], function () {
       CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync',
       EMAIL: 'input[type=email]',
       HEADER: '#fxa-signup-header',
-      LINK_SIGN_IN: 'a#have-account'
+      LINK_SIGN_IN: 'a#have-account',
+      LINK_SUGGEST_SYNC: '#suggest-sync',
+      SUB_HEADER: '#fxa-signup-header .service'
     },
     SIGNUP_COMPLETE: {
       HEADER: '#fxa-sign-up-complete-header'
