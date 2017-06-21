@@ -2489,7 +2489,8 @@ module.exports = (
             .then(
               function () {
                 return log.notifyAttachedServices('reset', request, {
-                  uid: account.uid.toString('hex') + '@' + config.domain,
+                  uid: account.uid,
+                  iss: config.domain,
                   generation: account.verifierSetAt
                 })
               }
@@ -2634,7 +2635,8 @@ module.exports = (
                   function () {
                     push.notifyAccountDestroyed(uid, devicesToNotify).catch(function () {})
                     return log.notifyAttachedServices('delete', request, {
-                      uid: uid.toString('hex') + '@' + config.domain
+                      uid: uid,
+                      iss: config.domain
                     })
                   }
                 )
