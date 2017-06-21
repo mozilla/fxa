@@ -21,6 +21,27 @@ define(function (require, exports, module) {
 
   const proto = FxSyncAuthenticationBroker.prototype;
 
+  const ALLOWED_LOGIN_FIELDS = [
+    'customizeSync',
+    'declinedSyncEngines',
+    'email',
+    'keyFetchToken',
+    'sessionToken',
+    'uid',
+    'unwrapBKey',
+    'verified'
+  ];
+
+  const REQUIRED_LOGIN_FIELDS = [
+    'customizeSync',
+    'email',
+    'keyFetchToken',
+    'sessionToken',
+    'uid',
+    'unwrapBKey',
+    'verified'
+  ];
+
   const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend({
     type: 'fx-sync-channel',
 
@@ -31,6 +52,7 @@ define(function (require, exports, module) {
      *   CAN_LINK_ACCOUNT: <specify in subclass>,
      *   CHANGE_PASSWORD: <specify in subclass>,
      *   DELETE_ACCOUNT: <specify in subclass>,
+     *   FXA_STATUS: <specify in subclass>,
      *   LOADED: <specify in subclass>,
      *   LOGIN: <specify in subclass>,
      *   VERIFIED: <specify in subclass>,
@@ -238,39 +260,19 @@ define(function (require, exports, module) {
     },
 
     _hasRequiredLoginFields (loginData) {
-      const requiredFields = FxSyncChannelAuthenticationBroker.REQUIRED_LOGIN_FIELDS;
       const loginFields = Object.keys(loginData);
-      return ! _.difference(requiredFields, loginFields).length;
+      return ! _.difference(REQUIRED_LOGIN_FIELDS, loginFields).length;
     },
 
     _getLoginData (account) {
-      const ALLOWED_FIELDS = [
-        'customizeSync',
-        'declinedSyncEngines',
-        'email',
-        'keyFetchToken',
-        'sessionToken',
-        'uid',
-        'unwrapBKey',
-        'verified'
-      ];
-
-      const loginData = account.pick(ALLOWED_FIELDS);
+      const loginData = account.pick(ALLOWED_LOGIN_FIELDS);
       loginData.verified = !! loginData.verified;
       loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkEmail;
       return loginData;
     }
 
   }, {
-    REQUIRED_LOGIN_FIELDS: [
-      'customizeSync',
-      'email',
-      'keyFetchToken',
-      'sessionToken',
-      'uid',
-      'unwrapBKey',
-      'verified'
-    ]
+    REQUIRED_LOGIN_FIELDS
   });
 
   Cocktail.mixin(
