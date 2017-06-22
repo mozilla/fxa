@@ -9,41 +9,32 @@ define([
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop',
   'tests/functional/lib/selectors',
-  'tests/functional/lib/ua-strings',
-  'intern/dojo/node!../../server/lib/configuration',
+  'tests/functional/lib/ua-strings'
 ], function (intern, registerSuite,
-  TestHelpers, FunctionalHelpers, FxDesktopHelpers, selectors, UA_STRINGS, serverConfig) {
+  TestHelpers, FunctionalHelpers, FxDesktopHelpers, selectors, UA_STRINGS) {
   'use strict';
 
   const config = intern.config;
   const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_ios_v1&service=sync`;
-  const SMS_PAGE_URL = `${config.fxaContentRoot}sms?context=fx_desktop_v1&service=sync&signinCodes=true`;
 
   let email;
   const PASSWORD = '12345678';
 
-  const testPhoneNumber = serverConfig.get('sms.testPhoneNumber');
-
   const thenify = FunctionalHelpers.thenify;
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const click = FunctionalHelpers.click;
   const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   const createUser = FunctionalHelpers.createUser;
-  const deleteAllSms = FunctionalHelpers.deleteAllSms;
   const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  const getSmsSigninCode = FunctionalHelpers.getSmsSigninCode;
   const listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   const noPageTransition = FunctionalHelpers.noPageTransition;
   const openPage = FunctionalHelpers.openPage;
   const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
   const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   const testIsBrowserNotified = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
   const testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
-  const type = FunctionalHelpers.type;
   const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   const setupTest = thenify(function (options) {
@@ -167,30 +158,6 @@ define([
         // about:accounts will take over post-unblock, no transition
         .then(noPageTransition('#fxa-signin-unblock-header'))
         .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
-    },
-
-    'signup in desktop, send an SMS, open deferred deeplink in Fx for iOS': function () {
-      if (testPhoneNumber) {
-        let signinUrlWithSigninCode;
-
-        return this.remote
-          // The phoneNumber is reused across tests, delete all
-          // if its SMS messages to ensure a clean slate.
-          .then(deleteAllSms(testPhoneNumber))
-          .then(setupTest(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
-          .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
-          .then(click(selectors.SMS_SEND.SUBMIT))
-          .then(testElementExists(selectors.SMS_SENT.HEADER))
-          .then(getSmsSigninCode(testPhoneNumber, 0))
-          .then(function (signinCode) {
-            signinUrlWithSigninCode = `${SIGNIN_PAGE_URL}&signin=${signinCode}`;
-            return this.parent
-              .then(clearBrowserState())
-              .then(openPage(signinUrlWithSigninCode, selectors.SIGNIN.HEADER))
-              .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email));
-          });
-      }
     }
   });
 });
