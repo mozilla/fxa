@@ -10,10 +10,14 @@ const mocks = require('../../mocks')
 const P = require('../../../lib/promise')
 
 describe('/signinCodes/consume:', () => {
-  let log, db, customs, routes, route, request
+  let log, db, customs, routes, route, request, response
 
   describe('success, db does not return flowId:', () => {
-    beforeEach(() => setup({ db: { email: 'foo@bar' } }))
+    beforeEach(() => setup({ db: { email: 'foo@bar' } }).then(r => response = r))
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response, { email: 'foo@bar' })
+    })
 
     it('called log.begin correctly', () => {
       assert.equal(log.begin.callCount, 1)
@@ -56,7 +60,11 @@ describe('/signinCodes/consume:', () => {
   })
 
   describe('success, db returns flowId:', () => {
-    beforeEach(() => setup({ db: { email: 'foo@bar', flowId: 'baz' } }))
+    beforeEach(() => setup({ db: { email: 'foo@bar', flowId: 'baz' } }).then(r => response = r))
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response, { email: 'foo@bar' })
+    })
 
     it('called log.begin once', () => {
       assert.equal(log.begin.callCount, 1)

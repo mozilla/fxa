@@ -56,7 +56,7 @@ module.exports = (log, db, customs) => {
                     return request.emitMetricsEvent(`flow.continued.${result.flowId}`)
                   }
                 })
-                .then(() => result)
+                .then(() => ({ email: result.email }))
             })
         }
       }
