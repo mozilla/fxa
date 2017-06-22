@@ -8,6 +8,7 @@ const checksum = require('checksum');
 
 const batch = require('../batch');
 const config = require('../config').getProperties();
+const logger = require('../logging')('routes.profile');
 
 function hasAllowedScope(scopes) {
   for (var i = 0, len = scopes.length; i < len; i++) {
@@ -87,6 +88,15 @@ module.exports = {
           rep = rep.etag(etag);
         }
         const lastModified = cached ? new Date(cached.stored) : new Date();
+        if (cached) {
+          logger.info('batch.cached', {
+            storedAt: cached.stored,
+            error: report && report.error,
+            ttl: cached.ttl,
+          });
+        } else {
+          logger.info('batch.db');
+        }
         return rep.header('last-modified', lastModified.toUTCString());
       }
     );
