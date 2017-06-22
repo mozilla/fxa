@@ -98,7 +98,7 @@ ghlib.ensureLocalRepos()
           // It's a top-level merge with reviewers, comments, etc.
           var milestone = '';
           var prInfo = commitInfo.fromPR
-          if (prInfo.milestone) {
+          if (prInfo && prInfo.milestone) {
             milestone = prInfo.milestone.title
             incr(milestonesByTitle, prInfo.milestone.title)
           }
