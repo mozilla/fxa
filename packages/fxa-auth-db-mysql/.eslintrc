@@ -1,4 +1,6 @@
-extends: fxa/server
+plugins:
+  - fxa
+extends: plugin:fxa/server
 
 rules:
   complexity: 0

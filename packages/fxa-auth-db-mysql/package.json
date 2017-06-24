@@ -41,7 +41,7 @@
     "restify-safe-json-formatter": "0.2.0"
   },
   "devDependencies": {
-    "eslint-config-fxa": "2.1.0",
+    "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
     "fxa-conventional-changelog": "1.1.0",
     "grunt": "1.0.1",
     "grunt-bump": "0.8.0",
@@ -54,8 +54,8 @@
     "mocha": "3.4.2",
     "mysql-patcher": "0.7.0",
     "nock": "8.0.0",
-    "nyc": "10.3.2",
     "npmshrink": "1.0.1",
+    "nyc": "10.3.2",
     "proxyquire": "1.7.10",
     "sinon": "1.17.5"
   },

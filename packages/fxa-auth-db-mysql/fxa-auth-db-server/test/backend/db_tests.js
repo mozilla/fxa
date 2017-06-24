@@ -161,10 +161,10 @@ module.exports = function(config, DB) {
           assert.deepEqual(account.uid, ACCOUNT.uid, 'uid')
           assert.equal(account.email, ACCOUNT.email, 'email')
           assert.deepEqual(account.emailCode, ACCOUNT.emailCode, 'emailCode')
-          assert.equal(!!account.emailVerified, ACCOUNT.emailVerified, 'emailVerified')
+          assert.equal(!! account.emailVerified, ACCOUNT.emailVerified, 'emailVerified')
           assert.deepEqual(account.kA, ACCOUNT.kA, 'kA')
           assert.deepEqual(account.wrapWrapKb, ACCOUNT.wrapWrapKb, 'wrapWrapKb')
-          assert(!account.verifyHash, 'verifyHash field should be absent')
+          assert(! account.verifyHash, 'verifyHash field should be absent')
           assert.deepEqual(account.authSalt, ACCOUNT.authSalt, 'authSalt')
           assert.equal(account.verifierVersion, ACCOUNT.verifierVersion, 'verifierVersion')
           assert.equal(account.createdAt, ACCOUNT.createdAt, 'createdAt')
@@ -198,10 +198,10 @@ module.exports = function(config, DB) {
           assert.deepEqual(account.uid, ACCOUNT.uid, 'uid')
           assert.equal(account.email, ACCOUNT.email, 'email')
           assert.deepEqual(account.emailCode, ACCOUNT.emailCode, 'emailCode')
-          assert.equal(!!account.emailVerified, ACCOUNT.emailVerified, 'emailVerified')
+          assert.equal(!! account.emailVerified, ACCOUNT.emailVerified, 'emailVerified')
           assert.deepEqual(account.kA, ACCOUNT.kA, 'kA')
           assert.deepEqual(account.wrapWrapKb, ACCOUNT.wrapWrapKb, 'wrapWrapKb')
-          assert(!account.verifyHash, 'verifyHash field should be absent')
+          assert(! account.verifyHash, 'verifyHash field should be absent')
           assert.deepEqual(account.authSalt, ACCOUNT.authSalt, 'authSalt')
           assert.equal(account.verifierVersion, ACCOUNT.verifierVersion, 'verifierVersion')
           assert.equal(account.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt')
@@ -286,7 +286,7 @@ module.exports = function(config, DB) {
             assert.equal(token.uaOSVersion, SESSION_TOKEN.uaOSVersion, 'uaOSVersion is correct')
             assert.equal(token.uaDeviceType, SESSION_TOKEN.uaDeviceType, 'uaDeviceType is correct')
             assert.equal(token.lastAccessTime, SESSION_TOKEN.createdAt, 'lastAccessTime was set')
-            assert.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
+            assert.equal(!! token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
             assert.equal(token.email, ACCOUNT.email, 'token email same as account email')
             assert.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
             assert.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
@@ -333,7 +333,7 @@ module.exports = function(config, DB) {
             assert.equal(token.uaOSVersion, '2', 'uaOSVersion is correct')
             assert.equal(token.uaDeviceType, 'baz', 'uaDeviceType is correct')
             assert.equal(token.lastAccessTime, 42, 'lastAccessTime is correct')
-            assert.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
+            assert.equal(!! token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
             assert.equal(token.email, ACCOUNT.email, 'token email same as account email')
             assert.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
             assert.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
@@ -354,12 +354,12 @@ module.exports = function(config, DB) {
             assert.equal(token.uaOSVersion, '2', 'uaOSVersion is correct')
             assert.equal(token.uaDeviceType, 'baz', 'uaDeviceType is correct')
             assert.equal(token.lastAccessTime, 42, 'lastAccessTime is correct')
-            assert.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
+            assert.equal(!! token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
             assert.equal(token.email, ACCOUNT.email, 'token email same as account email')
             assert.deepEqual(token.emailCode, ACCOUNT.emailCode, 'token emailCode same as account emailCode')
             assert.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
             assert.equal(token.accountCreatedAt, ACCOUNT.createdAt, 'accountCreatedAt is correct')
-            assert.equal(!!token.mustVerify, !!SESSION_TOKEN.mustVerify, 'mustVerify is correct')
+            assert.equal(!! token.mustVerify, !! SESSION_TOKEN.mustVerify, 'mustVerify is correct')
             assert.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
             // Create a verified session token
@@ -404,7 +404,7 @@ module.exports = function(config, DB) {
             assert.equal(token.uaOS, 'c', 'uaOS is correct')
             assert.equal(token.uaOSVersion, 'd', 'uaOSVersion is correct')
             assert.equal(token.uaDeviceType, 'e', 'uaDeviceType is correct')
-            assert.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
+            assert.equal(!! token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
             assert.equal(token.mustVerify, undefined, 'mustVerify is undefined')
             assert.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
@@ -429,7 +429,7 @@ module.exports = function(config, DB) {
             return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
           })
           .then(function (token) {
-            assert.equal(!!token.mustVerify, !!SESSION_TOKEN.mustVerify, 'mustVerify is correct')
+            assert.equal(!! token.mustVerify, !! SESSION_TOKEN.mustVerify, 'mustVerify is correct')
             assert.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
             // Attempt to verify session token with invalid uid
@@ -446,7 +446,7 @@ module.exports = function(config, DB) {
             return db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)
           })
           .then(function (token) {
-            assert.equal(!!token.mustVerify, !!SESSION_TOKEN.mustVerify, 'mustVerify is correct')
+            assert.equal(!! token.mustVerify, !! SESSION_TOKEN.mustVerify, 'mustVerify is correct')
             assert.deepEqual(token.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
             // Verify the session token
@@ -574,7 +574,7 @@ module.exports = function(config, DB) {
             assert.deepEqual(token.authKey, KEY_FETCH_TOKEN.authKey, 'authKey matches')
             assert.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
             assert.equal(token.createdAt, KEY_FETCH_TOKEN.createdAt, 'createdAt is ok')
-            assert.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'emailVerified is correct')
+            assert.equal(!! token.emailVerified, ACCOUNT.emailVerified, 'emailVerified is correct')
             // email is not returned
             // emailCode is not returned
             assert.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
@@ -587,7 +587,7 @@ module.exports = function(config, DB) {
             assert.deepEqual(token.authKey, KEY_FETCH_TOKEN.authKey, 'authKey matches')
             assert.deepEqual(token.uid, ACCOUNT.uid, 'token belongs to this account')
             assert.equal(token.createdAt, KEY_FETCH_TOKEN.createdAt, 'createdAt is ok')
-            assert.equal(!!token.emailVerified, ACCOUNT.emailVerified, 'emailVerified is correct')
+            assert.equal(!! token.emailVerified, ACCOUNT.emailVerified, 'emailVerified is correct')
             assert.equal(token.verifierSetAt, ACCOUNT.verifierSetAt, 'verifierSetAt is correct')
             assert.deepEqual(token.tokenVerificationId, KEY_FETCH_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
 
@@ -1167,7 +1167,7 @@ module.exports = function(config, DB) {
                   assert.equal(s.deviceCallbackURL, device.callbackURL, 'callbackURL')
                   assert.equal(s.deviceCallbackPublicKey, device.callbackPublicKey, 'callbackPublicKey')
                   assert.equal(s.deviceCallbackAuthKey, device.callbackAuthKey, 'callbackAuthKey')
-                  assert.equal(!!s.mustVerify, !!SESSION_TOKEN.mustVerify, 'mustVerify is correct')
+                  assert.equal(!! s.mustVerify, !! SESSION_TOKEN.mustVerify, 'mustVerify is correct')
                   assert.deepEqual(s.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
                 },
                 function (e) {
@@ -1446,9 +1446,9 @@ module.exports = function(config, DB) {
           })
           .spread(function(accountResult, emails) {
             // Account should be unverified
-            assert.equal(!!accountResult.emailVerified, false, 'email is not verified')
-            assert.equal(!!emails[0].isVerified, false, 'email is not verified')
-            assert.equal(!!emails[0].isPrimary, true, 'email is primary')
+            assert.equal(!! accountResult.emailVerified, false, 'email is not verified')
+            assert.equal(!! emails[0].isVerified, false, 'email is not verified')
+            assert.equal(!! emails[0].isPrimary, true, 'email is primary')
             assert.equal(accountResult.email, emails[0].email, 'emails should match')
 
             return db.forgotPasswordVerified(THROWAWAY_PASSWORD_FORGOT_TOKEN_ID, THROWAWAY_ACCOUNT_RESET_TOKEN)
@@ -1458,9 +1458,9 @@ module.exports = function(config, DB) {
           })
           .spread(function(accountResult, emails) {
             // Account should be verified
-            assert.equal(!!accountResult.emailVerified, true, 'email is verified')
-            assert.equal(!!emails[0].isVerified, true, 'email is verified')
-            assert.equal(!!emails[0].isPrimary, true, 'email is primary')
+            assert.equal(!! accountResult.emailVerified, true, 'email is verified')
+            assert.equal(!! emails[0].isVerified, true, 'email is verified')
+            assert.equal(!! emails[0].isPrimary, true, 'email is primary')
             assert.equal(accountResult.email, emails[0].email, 'emails should match')
           })
           .then(function() {
@@ -1640,13 +1640,13 @@ module.exports = function(config, DB) {
               assert.equal(results.length, 3, 'three events for uid and addr')
               // The most recent event is returned first.
               assert.equal(results[0].name, evC, 'correct event name')
-              assert.equal(!!results[0].verified, true, 'event without a session is already verified')
+              assert.equal(!! results[0].verified, true, 'event without a session is already verified')
               assert(results[0].createdAt < Date.now(), 'createdAt is set')
               assert.equal(results[1].name, evB, 'correct event name')
-              assert.equal(!!results[1].verified, false, 'second session is not verified yet')
+              assert.equal(!! results[1].verified, false, 'second session is not verified yet')
               assert(results[1].createdAt < results[0].createdAt, 'createdAt is lower than previous event')
               assert.equal(results[2].name, evA, 'correct event name')
-              assert.equal(!!results[2].verified, true, 'first session is already verified')
+              assert.equal(!! results[2].verified, true, 'first session is already verified')
               assert(results[2].createdAt < results[1].createdAt, 'createdAt is lower than previous event')
             }
           ),
@@ -1655,9 +1655,9 @@ module.exports = function(config, DB) {
             return verifySession(session1.tokenVerificationId, uid1)
               .then(query(uid1, addr1, function (results) {
                 assert.equal(results.length, 3, 'three events for uid and addr')
-                assert.equal(!!results[0].verified, true, 'first session verified')
-                assert.equal(!!results[1].verified, true, 'second session verified')
-                assert.equal(!!results[2].verified, true, 'third session verified')
+                assert.equal(!! results[0].verified, true, 'first session verified')
+                assert.equal(!! results[1].verified, true, 'second session verified')
+                assert.equal(!! results[2].verified, true, 'third session verified')
               }))
           },
 
@@ -1666,7 +1666,7 @@ module.exports = function(config, DB) {
             function (results) {
               assert.equal(results.length, 1, 'one event for addr2')
               assert.equal(results[0].name, evA)
-              assert.equal(!!results[0].verified, false, 'session3 not verified yet')
+              assert.equal(!! results[0].verified, false, 'session3 not verified yet')
             }
           ),
 
@@ -1675,7 +1675,7 @@ module.exports = function(config, DB) {
               .then(query(uid1, addr2, function (results) {
                 assert.equal(results.length, 1, 'one event for addr2')
                 assert.equal(results[0].name, evA)
-                assert.equal(!!results[0].verified, false, 'session3 not verified yet')
+                assert.equal(!! results[0].verified, false, 'session3 not verified yet')
               }))
           },
 
@@ -2012,8 +2012,8 @@ module.exports = function(config, DB) {
 
               // Check first email is email from accounts table
               assert.equal(result[0].email, account.email, 'matches account email')
-              assert.equal(!!result[0].isPrimary, true, 'isPrimary is true on account email')
-              assert.equal(!!result[0].isVerified, account.emailVerified, 'matches account emailVerified')
+              assert.equal(!! result[0].isPrimary, true, 'isPrimary is true on account email')
+              assert.equal(!! result[0].isVerified, account.emailVerified, 'matches account emailVerified')
 
               // Attempt to create an additional email for this user account.
               return db.createEmail(account.uid, secondEmail)
@@ -2031,13 +2031,13 @@ module.exports = function(config, DB) {
 
               // Check first email is email from accounts table
               assert.equal(result[0].email, account.email, 'matches account email')
-              assert.equal(!!result[0].isPrimary, true, 'isPrimary is true on account email')
-              assert.equal(!!result[0].isVerified, account.emailVerified, 'matches account emailVerified')
+              assert.equal(!! result[0].isPrimary, true, 'isPrimary is true on account email')
+              assert.equal(!! result[0].isVerified, account.emailVerified, 'matches account emailVerified')
 
               // Check second email is from emails table
               assert.equal(result[1].email, secondEmail.email, 'matches secondEmail email')
-              assert.equal(!!result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
-              assert.equal(!!result[1].isVerified, secondEmail.isVerified, 'matches secondEmail isVerified')
+              assert.equal(!! result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
+              assert.equal(!! result[1].isVerified, secondEmail.isVerified, 'matches secondEmail isVerified')
 
               // Get a specific email
               return db.getSecondaryEmail(secondEmail.email)
@@ -2046,8 +2046,8 @@ module.exports = function(config, DB) {
           .then(
             function(result) {
               assert.equal(result.email, secondEmail.email, 'matches secondEmail email')
-              assert.equal(!!result.isPrimary, false, 'isPrimary is false on secondEmail email')
-              assert.equal(!!result.isVerified, secondEmail.isVerified, 'matches secondEmail isVerified')
+              assert.equal(!! result.isPrimary, false, 'isPrimary is false on secondEmail email')
+              assert.equal(!! result.isVerified, secondEmail.isVerified, 'matches secondEmail isVerified')
 
               // Verify second email
               return db.verifyEmail(secondEmail.uid, secondEmail.emailCode)
@@ -2067,8 +2067,8 @@ module.exports = function(config, DB) {
 
               // Check second email is from emails table and verified
               assert.equal(result[1].email, secondEmail.email, 'matches secondEmail email')
-              assert.equal(!!result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
-              assert.equal(!!result[1].isVerified, true, 'secondEmail isVerified is true')
+              assert.equal(!! result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
+              assert.equal(!! result[1].isVerified, true, 'secondEmail isVerified is true')
 
               // Remove additional email from account
               return db.deleteEmail(secondEmail.uid, secondEmail.email)
@@ -2089,8 +2089,8 @@ module.exports = function(config, DB) {
 
               // Only email returned should be from users account
               assert.equal(result[0].email, account.email, 'matches account email')
-              assert.equal(!!result[0].isPrimary, true, 'isPrimary is true on account email')
-              assert.equal(!!result[0].isVerified, account.emailVerified, 'matches account emailVerified')
+              assert.equal(!! result[0].isPrimary, true, 'isPrimary is true on account email')
+              assert.equal(!! result[0].isVerified, account.emailVerified, 'matches account emailVerified')
 
               return P.resolve()
             }
@@ -2349,8 +2349,8 @@ module.exports = function(config, DB) {
         })
         .spread(function (emails, account) {
           assert.equal(emails[0].email, account.email, 'correct email returned')
-          assert.equal(!!emails[0].isVerified, !!account.emailVerified, 'correct email verification')
-          assert.equal(!!emails[0].isPrimary, true, 'correct email primary')
+          assert.equal(!! emails[0].isVerified, !! account.emailVerified, 'correct email verification')
+          assert.equal(!! emails[0].isPrimary, true, 'correct email primary')
 
           // Verify account email
           return db.verifyEmail(account.uid, account.emailCode)
@@ -2361,8 +2361,8 @@ module.exports = function(config, DB) {
         })
         .spread(function (emails, account) {
           assert.equal(emails[0].email, account.email, 'correct email returned')
-          assert.equal(!!emails[0].isVerified, !!account.emailVerified, 'correct email verification')
-          assert.equal(!!emails[0].isPrimary, true, 'correct email primary')
+          assert.equal(!! emails[0].isVerified, !! account.emailVerified, 'correct email verification')
+          assert.equal(!! emails[0].isPrimary, true, 'correct email primary')
         })
     })
 

@@ -50,7 +50,7 @@ module.exports = function (log, error) {
   function Memory(db) {}
 
   function getAccountByUid (uid) {
-    if (!uid) {
+    if (! uid) {
       return P.reject(error.notFound())
     }
     uid = uid.toString('hex')
@@ -119,7 +119,7 @@ module.exports = function (log, error) {
     if (sessionToken.tokenVerificationId) {
       unverifiedTokens[tokenId] = {
         tokenVerificationId: sessionToken.tokenVerificationId,
-        mustVerify: !!sessionToken.mustVerify,
+        mustVerify: !! sessionToken.mustVerify,
         uid: sessionToken.uid
       }
     }
@@ -279,7 +279,7 @@ module.exports = function (log, error) {
     Object.keys(collection).forEach(function(key) {
       var item = collection[key]
 
-      if (!item.uid) {
+      if (! item.uid) {
         throw new Error('No "uid" property in collection item')
       }
 
@@ -405,7 +405,7 @@ module.exports = function (log, error) {
 
     return getAccountByUid(uid)
       .then(function(account) {
-        if(account.verifyHash.toString('hex') === hash.verifyHash.toString('hex')) {
+        if (account.verifyHash.toString('hex') === hash.verifyHash.toString('hex')) {
           return P.resolve({uid: uid})
         }
         else {
@@ -458,7 +458,7 @@ module.exports = function (log, error) {
         break
       }
     }
-    if (!sessionTokenId) {
+    if (! sessionTokenId) {
       return P.reject(error.notFound())
     }
     return this.accountDevices(uid)
@@ -469,7 +469,7 @@ module.exports = function (log, error) {
               return d.sessionTokenId.toString('hex') === sessionTokenId
             }
           )[0]
-          if (!device) {
+          if (! device) {
             throw error.notFound()
           }
           return P.resolve({
@@ -561,7 +561,7 @@ module.exports = function (log, error) {
         }
 
         var session = {
-          tokenId: new Buffer(key, 'hex'),
+          tokenId: Buffer.from(key, 'hex'),
           uid: sessionToken.uid,
           createdAt: sessionToken.createdAt,
           uaBrowser: sessionToken.uaBrowser || null,
@@ -595,7 +595,7 @@ module.exports = function (log, error) {
   Memory.prototype.sessionToken = function (id) {
     id = id.toString('hex')
 
-    if ( !sessionTokens[id] ) {
+    if (! sessionTokens[id]) {
       return P.reject(error.notFound())
     }
 
@@ -642,7 +642,7 @@ module.exports = function (log, error) {
   Memory.prototype.keyFetchToken = function (id) {
     id = id.toString('hex')
 
-    if ( !keyFetchTokens[id] ) {
+    if (! keyFetchTokens[id]) {
       return P.reject(error.notFound())
     }
 
@@ -676,7 +676,7 @@ module.exports = function (log, error) {
   Memory.prototype.passwordForgotToken = function (id) {
     id = id.toString('hex')
 
-    if ( !passwordForgotTokens[id] ) {
+    if (! passwordForgotTokens[id]) {
       return P.reject(error.notFound())
     }
 
@@ -700,7 +700,7 @@ module.exports = function (log, error) {
   Memory.prototype.passwordChangeToken = function (id) {
     id = id.toString('hex')
 
-    if ( !passwordChangeTokens[id] ) {
+    if (! passwordChangeTokens[id]) {
       return P.reject(error.notFound())
     }
 
@@ -722,7 +722,7 @@ module.exports = function (log, error) {
   Memory.prototype.accountResetToken = function (id) {
     id = id.toString('hex')
 
-    if ( !accountResetTokens[id] ) {
+    if (! accountResetTokens[id]) {
       return P.reject(error.notFound())
     }
 
@@ -864,14 +864,14 @@ module.exports = function (log, error) {
 
   Memory.prototype.updatePasswordForgotToken = function (id, data) {
     var token = passwordForgotTokens[id.toString('hex')]
-    if (!token) { return P.reject(error.notFound()) }
+    if (! token) { return P.reject(error.notFound()) }
     token.tries = data.tries
     return P.resolve({})
   }
 
   Memory.prototype.updateSessionToken = function (id, data) {
     var token = sessionTokens[id.toString('hex')]
-    if (!token) {
+    if (! token) {
       return P.reject(error.notFound())
     }
     token.uaBrowser = data.uaBrowser
@@ -941,7 +941,7 @@ module.exports = function (log, error) {
       addr = '::' + addr
     }
 
-    var verified = !data.tokenId || !unverifiedTokens[data.tokenId.toString('hex')]
+    var verified = ! data.tokenId || ! unverifiedTokens[data.tokenId.toString('hex')]
 
     var event = {
       createdAt: Date.now(),
@@ -988,7 +988,7 @@ module.exports = function (log, error) {
 
   Memory.prototype.consumeUnblockCode = function (uid, code) {
     var row = unblockCodes[uid.toString('hex')]
-    if (!row || !row[code]) {
+    if (! row || ! row[code]) {
       return P.reject(error.notFound())
     }
     var timestamp = row[code]
@@ -999,8 +999,8 @@ module.exports = function (log, error) {
 
 
   Memory.prototype.createEmailBounce = function (data) {
-    let row = emailBounces[data.email] || (emailBounces[data.email] = [])
-    let bounce = extend({}, data)
+    const row = emailBounces[data.email] || (emailBounces[data.email] = [])
+    const bounce = extend({}, data)
     bounce.createdAt = Date.now()
     bounce.bounceType = dbUtil.mapEmailBounceType(bounce.bounceType)
     bounce.bounceSubType = dbUtil.mapEmailBounceSubType(bounce.bounceSubType)
@@ -1067,7 +1067,7 @@ module.exports = function (log, error) {
     }
 
     // No email record found, see if email is in accounts table
-    if (!emailRecord) {
+    if (! emailRecord) {
       var isPrimary = Object.keys(accounts).some(function (key) {
         var account = accounts[key]
         if (account.normalizedEmail === email) {

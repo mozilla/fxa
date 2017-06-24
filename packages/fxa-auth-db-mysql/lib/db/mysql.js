@@ -208,7 +208,7 @@ module.exports = function (log, error) {
         sessionToken.uaOSVersion,
         sessionToken.uaDeviceType,
         sessionToken.tokenVerificationId,
-        !!sessionToken.mustVerify
+        !! sessionToken.mustVerify
       ]
     )
   }
@@ -604,7 +604,7 @@ module.exports = function (log, error) {
     }
 
     var reminderData = {
-      uid: new Buffer(body.uid),
+      uid: Buffer.from(body.uid),
       type: body.type,
       createdAt: Date.now()
     }
@@ -747,7 +747,7 @@ module.exports = function (log, error) {
       CONSUME_UNBLOCK_CODE,
       [ uid, code ],
       function (result) {
-        if (result.length === 0 || result[0].length === 0 || !result[0][0].createdAt) {
+        if (result.length === 0 || result[0].length === 0 || ! result[0][0].createdAt) {
           log.error('MySql.consumeUnblockCode', { err: result })
           throw error.notFound()
         }
@@ -927,8 +927,8 @@ module.exports = function (log, error) {
     return this.read(sql, params)
       .then(function(results) {
         // instead of the result being [result], it'll be [[result...]]
-        if (!results.length) { throw error.notFound() }
-        if (!results[0].length) { throw error.notFound() }
+        if (! results.length) { throw error.notFound() }
+        if (! results[0].length) { throw error.notFound() }
         return results[0][0]
       })
   }
@@ -937,7 +937,7 @@ module.exports = function (log, error) {
     return this.read(sql, params)
       .then(function(results) {
         // instead of the result being [result], it'll be [[result...]]
-        if (!results.length) { throw error.notFound() }
+        if (! results.length) { throw error.notFound() }
         return results[0]
       })
   }

@@ -152,13 +152,13 @@ module.exports = function(cfg, makeServer) {
 
             // Verify first email is email from accounts table
             assert.equal(result[0].email, user.account.email, 'matches account email')
-            assert.equal(!!result[0].isPrimary, true, 'isPrimary is true on account email')
-            assert.equal(!!result[0].isVerified, !!user.account.emailVerified, 'matches account emailVerified')
+            assert.equal(!! result[0].isPrimary, true, 'isPrimary is true on account email')
+            assert.equal(!! result[0].isVerified, !! user.account.emailVerified, 'matches account emailVerified')
 
             // Verify second email is from emails table
             assert.equal(result[1].email, secondEmailRecord.email, 'matches secondEmail email')
-            assert.equal(!!result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
-            assert.equal(!!result[1].isVerified, false, 'matches secondEmail isVerified')
+            assert.equal(!! result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
+            assert.equal(!! result[1].isVerified, false, 'matches secondEmail isVerified')
 
             var emailCodeHex = secondEmailRecord.emailCode.toString('hex')
             return client.postThen('/account/' + user.accountId + '/verifyEmail/' + emailCodeHex)
@@ -173,8 +173,8 @@ module.exports = function(cfg, makeServer) {
             var result = r.obj
             assert.equal(result.length, 2, 'two emails returned')
             assert.equal(result[1].email, secondEmailRecord.email, 'matches secondEmail email')
-            assert.equal(!!result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
-            assert.equal(!!result[1].isVerified, true, 'matches secondEmail isVerified')
+            assert.equal(!! result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
+            assert.equal(!! result[1].isVerified, true, 'matches secondEmail isVerified')
 
             thirdEmailRecord = fake.newUserDataHex().email
             return client.postThen('/account/' + user.accountId + '/emails', thirdEmailRecord)
@@ -189,8 +189,8 @@ module.exports = function(cfg, makeServer) {
             var result = r.obj
             assert.equal(result.length, 3, 'three emails returned')
             assert.equal(result[2].email, thirdEmailRecord.email, 'matches thirdEmailRecord email')
-            assert.equal(!!result[2].isPrimary, false, 'isPrimary is false on thirdEmailRecord email')
-            assert.equal(!!result[2].isVerified, false, 'matches secondEmail thirdEmailRecord')
+            assert.equal(!! result[2].isPrimary, false, 'isPrimary is false on thirdEmailRecord email')
+            assert.equal(!! result[2].isVerified, false, 'matches secondEmail thirdEmailRecord')
 
             return client.delThen('/account/' + user.accountId + '/emails/' + secondEmailRecord.email)
           })
@@ -204,8 +204,8 @@ module.exports = function(cfg, makeServer) {
             var result = r.obj
             assert.equal(result.length, 2, 'two emails returned')
             assert.equal(result[0].email, user.account.email, 'matches account email')
-            assert.equal(!!result[0].isPrimary, true, 'isPrimary is true on account email')
-            assert.equal(!!result[0].isVerified, !!user.account.emailVerified, 'matches account emailVerified')
+            assert.equal(!! result[0].isPrimary, true, 'isPrimary is true on account email')
+            assert.equal(!! result[0].isVerified, !! user.account.emailVerified, 'matches account emailVerified')
 
             // Attempt to get a specific secondary email
             return client.getThen('/email/' + emailToHex(thirdEmailRecord.email))
@@ -215,8 +215,8 @@ module.exports = function(cfg, makeServer) {
 
             var result = r.obj
             assert.equal(result.email, thirdEmailRecord.email, 'matches email')
-            assert.equal(!!result.isPrimary, false, 'isPrimary is false on email')
-            assert.equal(!!result.isVerified, !!thirdEmailRecord.emailVerified, 'matches emailVerified')
+            assert.equal(!! result.isPrimary, false, 'isPrimary is false on email')
+            assert.equal(!! result.isVerified, !! thirdEmailRecord.emailVerified, 'matches emailVerified')
           })
       }
     )
@@ -251,8 +251,8 @@ module.exports = function(cfg, makeServer) {
             fields.forEach(function(f) {
               assert.equal(user.account[f], account[f], 'Both Fields ' + f + ' are the same')
             })
-            assert.equal(user.account.emailVerified, !!account.emailVerified, 'Both fields emailVerified are the same')
-            assert(!account.verifyHash, 'verifyHash field should be absent')
+            assert.equal(user.account.emailVerified, !! account.emailVerified, 'Both fields emailVerified are the same')
+            assert(! account.verifyHash, 'verifyHash field should be absent')
           })
           .then(function() {
             return client.headThen('/emailRecord/' + emailToHex(user.account.email))
@@ -268,8 +268,8 @@ module.exports = function(cfg, makeServer) {
             fields.forEach(function(f) {
               assert.equal(user.account[f], account[f], 'Both Fields ' + f + ' are the same')
             })
-            assert.equal(user.account.emailVerified, !!account.emailVerified, 'Both fields emailVerified are the same')
-            assert(!account.verifyHash, 'verifyHash field should be absent')
+            assert.equal(user.account.emailVerified, !! account.emailVerified, 'Both fields emailVerified are the same')
+            assert(! account.verifyHash, 'verifyHash field should be absent')
           })
           .then(function() {
             return client.delThen('/account/' + user.accountId)
@@ -371,7 +371,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion matches')
             assert.equal(token.uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
-            assert.equal(!!token.emailVerified, user.account.emailVerified, 'emailVerified same as account emailVerified')
+            assert.equal(!! token.emailVerified, user.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, user.account.email, 'token.email same as account email')
             assert.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
@@ -394,12 +394,12 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion matches')
             assert.equal(token.uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
-            assert.equal(!!token.emailVerified, user.account.emailVerified, 'emailVerified same as account emailVerified')
+            assert.equal(!! token.emailVerified, user.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, user.account.email, 'token.email same as account email')
             assert.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
             assert(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
-            assert.equal(!!token.mustVerify, !!user.sessionToken.mustVerify, 'mustVerify is correct')
+            assert.equal(!! token.mustVerify, !! user.sessionToken.mustVerify, 'mustVerify is correct')
             assert.equal(token.tokenVerificationId, user.sessionToken.tokenVerificationId, 'tokenVerificationId is correct')
 
             // Create a verified session token
@@ -423,7 +423,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaOSVersion, verifiedUser.sessionToken.uaOSVersion, 'uaOSVersion matches')
             assert.equal(token.uaDeviceType, verifiedUser.sessionToken.uaDeviceType, 'uaDeviceType matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
-            assert.equal(!!token.emailVerified, verifiedUser.account.emailVerified, 'emailVerified same as account emailVerified')
+            assert.equal(!! token.emailVerified, verifiedUser.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, verifiedUser.account.email, 'token.email same as account email')
             assert.deepEqual(token.emailCode, verifiedUser.account.emailCode, 'token emailCode same as account emailCode')
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
@@ -446,7 +446,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaOSVersion, verifiedUser.sessionToken.uaOSVersion, 'uaOSVersion matches')
             assert.equal(token.uaDeviceType, verifiedUser.sessionToken.uaDeviceType, 'uaDeviceType matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
-            assert.equal(!!token.emailVerified, verifiedUser.account.emailVerified, 'emailVerified same as account emailVerified')
+            assert.equal(!! token.emailVerified, verifiedUser.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, verifiedUser.account.email, 'token.email same as account email')
             assert.deepEqual(token.emailCode, verifiedUser.account.emailCode, 'token emailCode same as account emailCode')
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
@@ -824,7 +824,7 @@ module.exports = function(cfg, makeServer) {
             assert.deepEqual(token.authKey, user.keyFetchToken.authKey, 'authKey matches')
             assert.deepEqual(token.keyBundle, user.keyFetchToken.keyBundle, 'keyBundle matches')
             assert(token.createdAt, 'Got a createdAt')
-            assert.equal(!!token.emailVerified, user.account.emailVerified)
+            assert.equal(!! token.emailVerified, user.account.emailVerified)
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
             assert.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
 
@@ -838,7 +838,7 @@ module.exports = function(cfg, makeServer) {
             assert.deepEqual(token.authKey, user.keyFetchToken.authKey, 'authKey matches')
             assert.deepEqual(token.keyBundle, user.keyFetchToken.keyBundle, 'keyBundle matches')
             assert(token.createdAt, 'Got a createdAt')
-            assert.equal(!!token.emailVerified, user.account.emailVerified)
+            assert.equal(!! token.emailVerified, user.account.emailVerified)
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
             assert.equal(token.tokenVerificationId, user.keyFetchToken.tokenVerificationId, 'tokenVerificationId is correct')
 
@@ -1143,7 +1143,7 @@ module.exports = function(cfg, makeServer) {
           .then(function(r) {
             respOk(r)
             var account = r.obj
-            assert.equal(true, !!account.emailVerified, 'emailVerified is now true')
+            assert.equal(true, !! account.emailVerified, 'emailVerified is now true')
           })
       }
     )

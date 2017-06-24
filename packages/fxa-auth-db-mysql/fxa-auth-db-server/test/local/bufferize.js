@@ -19,7 +19,7 @@ describe('bufferize', () => {
       assert.equal(typeof bufferize.bufferizeRequest, 'function', 'bufferize exports bufferizeRequest function')
 
       var result = bufferize.unbuffer({
-        foo: new Buffer('42', 'hex'),
+        foo: Buffer.from('42', 'hex'),
         bar: '42'
       })
       assert.equal(typeof result, 'object', 'bufferize.unbuffer returned object')
