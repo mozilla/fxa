@@ -1,3 +1,20 @@
+<a name="1.90.0"></a>
+# [1.90.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.89.1...v1.90.0) (2017-06-28)
+
+
+### chore
+
+* **eslint:** update to latest eslint (#252) r=vbudhram ([1157bb2](https://github.com/mozilla/fxa-auth-db-mysql/commit/1157bb2))
+* **train:** uplift train 89 (#253), r=@philbooth ([06944e8](https://github.com/mozilla/fxa-auth-db-mysql/commit/06944e8))
+
+### Features
+
+* **db:** store flowIds with signinCodes ([3fac7d7](https://github.com/mozilla/fxa-auth-db-mysql/commit/3fac7d7))
+* **email:** Update procedures to use email table (#245), r=@philbooth, @rfk ([b896063](https://github.com/mozilla/fxa-auth-db-mysql/commit/b896063))
+* **tokens:** Add ability to reset accounts tokens (#249), r=@philbooth ([92199bc](https://github.com/mozilla/fxa-auth-db-mysql/commit/92199bc))
+
+
+
 <a name="1.89.3"></a>
 ## [1.89.3](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.89.2...v1.89.3) (2017-06-21)
 
