@@ -208,14 +208,14 @@ function mockDB (data, errors) {
     }),
     createKeyFetchToken: sinon.spy(() => {
       return P.resolve({
-        data: crypto.randomBytes(32),
+        data: crypto.randomBytes(32).toString('hex'),
         tokenId: data.keyFetchTokenId,
         uid: data.uid
       })
     }),
     createPasswordForgotToken: sinon.spy(() => {
       return P.resolve({
-        data: crypto.randomBytes(32),
+        data: crypto.randomBytes(32).toString('hex'),
         passCode: data.passCode,
         tokenId: data.passwordForgotTokenId,
         uid: data.uid,
@@ -226,7 +226,7 @@ function mockDB (data, errors) {
     }),
     createSessionToken: sinon.spy(() => {
       return P.resolve({
-        data: crypto.randomBytes(32),
+        data: crypto.randomBytes(32).toString('hex'),
         email: data.email,
         emailVerified: data.emailVerified,
         lastAuthAt: () => {
@@ -257,17 +257,17 @@ function mockDB (data, errors) {
         return P.reject(errors.emailRecord)
       }
       return P.resolve({
-        authSalt: crypto.randomBytes(32),
+        authSalt: crypto.randomBytes(32).toString('hex'),
         createdAt: data.createdAt || Date.now(),
-        data: crypto.randomBytes(32),
+        data: crypto.randomBytes(32).toString('hex'),
         email: data.email,
         emailVerified: data.emailVerified,
-        kA: crypto.randomBytes(32),
+        kA: crypto.randomBytes(32).toString('hex'),
         lastAuthAt: () => {
           return Date.now()
         },
         uid: data.uid,
-        wrapWrapKb: crypto.randomBytes(32)
+        wrapWrapKb: crypto.randomBytes(32).toString('hex')
       })
     }),
     forgotPasswordVerified: sinon.spy(() => {
@@ -313,12 +313,7 @@ function mockPush (methods) {
   // So far every push method has a uid for first argument, let's keep it simple.
   PUSH_METHOD_NAMES.forEach((name) => {
     if (! push[name]) {
-      push[name] = sinon.spy(uid => {
-        if (! (uid instanceof Uint8Array)) {
-          throw new Error('The first param –uid– of ' + name + ' must be a Buffer!')
-        }
-        return P.resolve()
-      })
+      push[name] = sinon.spy(() => P.resolve())
     }
   })
   return push
@@ -330,7 +325,7 @@ function mockDevices (data) {
   return {
     upsert: sinon.spy(() => {
       return P.resolve({
-        id: data.deviceId || crypto.randomBytes(16),
+        id: data.deviceId || crypto.randomBytes(16).toString('hex'),
         name: data.deviceName || 'mock device name',
         type: data.deviceType || 'desktop'
       })

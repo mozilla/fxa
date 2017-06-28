@@ -28,20 +28,19 @@ module.exports = function (log, db) {
         log.begin('Session.destroy', request)
         var sessionToken = request.auth.credentials
         var uid = request.auth.credentials.uid
-        var uidHex = uid.toString('hex')
 
         return P.resolve()
           .then(() => {
             if (request.payload && request.payload.customSessionToken) {
-              const customTokenHex = request.payload.customSessionToken
+              const customSessionToken = request.payload.customSessionToken
 
-              return db.sessionToken(customTokenHex)
+              return db.sessionToken(customSessionToken)
                 .then(function (tokenData) {
                   // NOTE: validate that the token belongs to the same user
-                  if (tokenData && uidHex === tokenData.uid.toString('hex')) {
+                  if (tokenData && uid === tokenData.uid) {
                     sessionToken = {
-                      id: Buffer.from(customTokenHex),
-                      uid: Buffer.from(uidHex)
+                      id: customSessionToken,
+                      uid: uid,
                     }
 
                     return sessionToken
@@ -83,7 +82,7 @@ module.exports = function (log, db) {
         const sessionToken = request.auth.credentials
         reply({
           state: sessionToken.state,
-          uid: sessionToken.uid.toString('hex')
+          uid: sessionToken.uid
         })
       }
     }

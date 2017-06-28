@@ -107,7 +107,7 @@ module.exports = function (log, config) {
 
     if (request.payload && request.payload.uid && request.payload.code) {
       return {
-        uid: Buffer(request.payload.uid, 'hex'),
+        uid: request.payload.uid,
         id: request.payload.code
       }
     }

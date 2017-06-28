@@ -99,7 +99,7 @@ module.exports = (
         var form = request.payload
         var query = request.query
         var email = form.email
-        var authPW = Buffer(form.authPW, 'hex')
+        var authPW = form.authPW
         var locale = request.app.acceptLanguage
         var userAgentString = request.headers['user-agent']
         var service = form.service || query.service
@@ -158,7 +158,7 @@ module.exports = (
                 throw error.verifiedSecondaryEmailAlreadyExists()
               }
 
-              return db.deleteEmail(Buffer.from(secondaryEmailRecord.uid, 'hex'), secondaryEmailRecord.email)
+              return db.deleteEmail(secondaryEmailRecord.uid, secondaryEmailRecord.email)
             })
             .catch((err) => {
               if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
@@ -179,14 +179,11 @@ module.exports = (
           return P.resolve()
         }
         function generateRandomValues() {
-          return random(16)
-            .then(bytes => {
-              emailCode = bytes
-              tokenVerificationId = bytes
-              return random(32)
-            })
-            .then(bytes => {
-              authSalt = bytes
+          return random.hex(16, 32)
+            .then(hexes => {
+              emailCode = hexes[0]
+              tokenVerificationId = emailCode
+              authSalt = hexes[1]
             })
         }
 
@@ -212,15 +209,15 @@ module.exports = (
             })
           }
 
-          return random(64)
-          .then(bytes => db.createAccount({
-            uid: uuid.v4('binary'),
+          return random.hex(32, 32)
+          .then(hexes => db.createAccount({
+            uid: uuid.v4('binary').toString('hex'),
             createdAt: Date.now(),
             email: email,
             emailCode: emailCode,
             emailVerified: preVerified,
-            kA: bytes.slice(0, 32), // 0..31
-            wrapWrapKb: bytes.slice(32), // 32..63
+            kA: hexes[0],
+            wrapWrapKb: hexes[1],
             accountResetToken: null,
             passwordForgotToken: null,
             authSalt: authSalt,
@@ -234,7 +231,7 @@ module.exports = (
               account = result
 
               return request.emitMetricsEvent('account.created', {
-                uid: account.uid.toString('hex')
+                uid: account.uid
               })
             }
           )
@@ -291,7 +288,7 @@ module.exports = (
                 // so stash the data against a synthesized "token" instead.
                 return request.stashMetricsContext({
                   uid: account.uid,
-                  id: account.emailCode.toString('hex')
+                  id: account.emailCode
                 })
               }
             )
@@ -320,7 +317,7 @@ module.exports = (
                   .then(function () {
                     // only create reminder if sendVerifyCode succeeds
                     verificationReminder.create({
-                      uid: account.uid.toString('hex')
+                      uid: account.uid
                     }).catch(function (err) {
                       log.error({op: 'Account.verificationReminder.create', err: err})
                     })
@@ -329,7 +326,7 @@ module.exports = (
                       // Log server-side metrics for confirming verification rates
                       log.info({
                         op: 'account.create.confirm.start',
-                        uid: account.uid.toString('hex'),
+                        uid: account.uid,
                         tokenVerificationId: tokenVerificationId
                       })
                     }
@@ -341,7 +338,7 @@ module.exports = (
                       // Log possible email bounce, used for confirming verification rates
                       log.error({
                         op: 'account.create.confirm.error',
-                        uid: account.uid.toString('hex'),
+                        uid: account.uid,
                         err: err,
                         tokenVerificationId: tokenVerificationId
                       })
@@ -385,13 +382,13 @@ module.exports = (
 
         function createResponse () {
           var response = {
-            uid: account.uid.toString('hex'),
-            sessionToken: sessionToken.data.toString('hex'),
+            uid: account.uid,
+            sessionToken: sessionToken.data,
             authAt: sessionToken.lastAuthAt()
           }
 
           if (keyFetchToken) {
-            response.keyFetchToken = keyFetchToken.data.toString('hex')
+            response.keyFetchToken = keyFetchToken.data
           }
 
           return P.resolve(response)
@@ -435,7 +432,7 @@ module.exports = (
 
         const form = request.payload
         const email = form.email
-        const authPW = Buffer(form.authPW, 'hex')
+        const authPW = form.authPW
         const service = request.payload.service || request.query.service
         const redirectTo = request.payload.redirectTo
         const resume = request.payload.resume
@@ -587,7 +584,7 @@ module.exports = (
                   if (requestNow - code.createdAt > unblockCodeLifetime) {
                     log.info({
                       op: 'Account.login.unblockCode.expired',
-                      uid: emailRecord.uid.toString('hex')
+                      uid: emailRecord.uid
                     })
                     throw error.invalidUnblockCode()
                   }
@@ -648,14 +645,14 @@ module.exports = (
 
                     log.info({
                       op: 'Account.history.verified',
-                      uid: emailRecord.uid.toString('hex'),
+                      uid: emailRecord.uid,
                       events: events.length,
                       recency: coarseRecency
                     })
                   } else {
                     log.info({
                       op: 'Account.history.unverified',
-                      uid: emailRecord.uid.toString('hex'),
+                      uid: emailRecord.uid,
                       events: events.length
                     })
                   }
@@ -667,7 +664,7 @@ module.exports = (
                 log.error({
                   op: 'Account.history.error',
                   err: err,
-                  uid: emailRecord.uid.toString('hex')
+                  uid: emailRecord.uid
                 })
               }
             )
@@ -722,7 +719,7 @@ module.exports = (
                 }
 
                 return request.emitMetricsEvent('account.login', {
-                  uid: emailRecord.uid.toString('hex')
+                  uid: emailRecord.uid
                 })
               }
             )
@@ -754,7 +751,7 @@ module.exports = (
           if (securityEventVerified && securityEventRecency < allowedRecency) {
             log.info({
               op: 'Account.ipprofiling.seenAddress',
-              uid: account.uid.toString('hex')
+              uid: account.uid
             })
             return true
           }
@@ -768,7 +765,7 @@ module.exports = (
             if (accountAge <= skipForNewAccounts.maxAge) {
               log.info({
                 op: 'account.signin.confirm.bypass.age',
-                uid: account.uid.toString('hex')
+                uid: account.uid
               })
               return true
             }
@@ -801,8 +798,8 @@ module.exports = (
           return P.resolve()
             .then(() => {
               if (needsVerificationId) {
-                return random(16).then(bytes => {
-                  tokenVerificationId = bytes
+                return random.hex(16).then(hex => {
+                  tokenVerificationId = hex
                 })
               }
             })
@@ -832,7 +829,7 @@ module.exports = (
                   // so stash the data against a synthesized "token" instead.
                   return request.stashMetricsContext({
                     uid: emailRecord.uid,
-                    id: tokenVerificationId.toString('hex')
+                    id: tokenVerificationId
                   })
                 }
               }
@@ -885,7 +882,7 @@ module.exports = (
             if (didSigninUnblock) {
               log.info({
                 op: 'Account.login.unverified.unblocked',
-                uid: emailRecord.uid.toString('hex')
+                uid: emailRecord.uid
               })
             }
 
@@ -967,7 +964,7 @@ module.exports = (
           if (doSigninConfirmation) {
             log.info({
               op: 'account.signin.confirm.start',
-              uid: emailRecord.uid.toString('hex'),
+              uid: emailRecord.uid,
               tokenVerificationId: tokenVerificationId
             })
 
@@ -1011,8 +1008,8 @@ module.exports = (
 
         function createResponse () {
           var response = {
-            uid: sessionToken.uid.toString('hex'),
-            sessionToken: sessionToken.data.toString('hex'),
+            uid: sessionToken.uid,
+            sessionToken: sessionToken.data,
             verified: sessionToken.emailVerified,
             authAt: sessionToken.lastAuthAt()
           }
@@ -1022,7 +1019,7 @@ module.exports = (
             return P.resolve(response)
           }
 
-          response.keyFetchToken = keyFetchToken.data.toString('hex')
+          response.keyFetchToken = keyFetchToken.data
 
           if (! emailRecord.emailVerified) {
             response.verified = false
@@ -1057,7 +1054,7 @@ module.exports = (
           reply({ exists: true, locale: sessionToken.locale })
         }
         else if (request.query.uid) {
-          var uid = Buffer(request.query.uid, 'hex')
+          var uid = request.query.uid
           db.account(uid)
             .then(
               function (account) {
@@ -1134,7 +1131,7 @@ module.exports = (
         if (auth.strategy === 'sessionToken') {
           uid = auth.credentials.uid
         } else {
-          uid = Buffer(auth.credentials.user, 'hex')
+          uid = auth.credentials.user
         }
         function hasProfileItemScope(item) {
           if (auth.strategy === 'sessionToken') {
@@ -1197,14 +1194,14 @@ module.exports = (
           .then(
             function () {
               return request.emitMetricsEvent('account.keyfetch', {
-                uid: keyFetchToken.uid.toString('hex')
+                uid: keyFetchToken.uid
               })
             }
           )
           .then(
             function () {
               return {
-                bundle: keyFetchToken.keyBundle.toString('hex')
+                bundle: keyFetchToken.keyBundle
               }
             }
           )
@@ -1275,7 +1272,7 @@ module.exports = (
           }
         } else if (sessionToken.deviceId) {
           // Keep the old id, which is probably from a synthesized device record
-          payload.id = sessionToken.deviceId.toString('hex')
+          payload.id = sessionToken.deviceId
         }
 
         if (payload.pushCallback && (! payload.pushPublicKey || ! payload.pushAuthKey)) {
@@ -1284,9 +1281,7 @@ module.exports = (
         }
 
         devices.upsert(request, sessionToken, payload).then(
-          function (device) {
-            reply(butil.unbuffer(device))
-          },
+          reply,
           reply
         )
 
@@ -1295,7 +1290,7 @@ module.exports = (
         // Check if anything has actually changed, and log lots metrics on what.
         function isSpuriousUpdate(payload, token) {
           var spurious = true
-          if (! token.deviceId || payload.id !== token.deviceId.toString('hex')) {
+          if (! token.deviceId || payload.id !== token.deviceId) {
             spurious = false
           }
           if (payload.name && payload.name !== token.deviceName) {
@@ -1369,19 +1364,18 @@ module.exports = (
         }
 
         var endpointAction = 'devicesNotify'
-        var stringUid = uid.toString('hex')
 
         function catchPushError(err) {
           // push may fail due to not found devices or a bad push action
           // log the error but still respond with a 200.
           log.error({
             op: 'Account.devicesNotify',
-            uid: stringUid,
+            uid: uid,
             error: err
           })
         }
 
-        return customs.checkAuthenticated(endpointAction, ip, stringUid)
+        return customs.checkAuthenticated(endpointAction, ip, uid)
           .then(function () {
             if (body.to === 'all') {
               push.pushToAllDevices(uid, endpointAction, pushOptions)
@@ -1400,12 +1394,12 @@ module.exports = (
               if (payload.data.collections.length === 1 && payload.data.collections[0] === 'clients') {
                 var deviceId = undefined
                 if  (sessionToken.deviceId) {
-                  deviceId = sessionToken.deviceId.toString('hex')
+                  deviceId = sessionToken.deviceId
                 }
                 return request.emitMetricsEvent('sync.sentTabToDevice', {
                   device_id: deviceId,
                   service: 'sync',
-                  uid: stringUid
+                  uid: uid
                 })
               }
             }
@@ -1457,7 +1451,7 @@ module.exports = (
               }
 
               device.isCurrentDevice =
-                device.sessionToken.toString('hex') === sessionToken.tokenId.toString('hex')
+                device.sessionToken === sessionToken.tokenId
 
               device.lastAccessTimeFormatted = localizeTimestamp.format(device.lastAccessTime,
                 request.headers['accept-language'])
@@ -1469,7 +1463,7 @@ module.exports = (
               delete device.uaOSVersion
               delete device.uaDeviceType
 
-              return butil.unbuffer(device)
+              return device
             }))
           },
           reply
@@ -1509,7 +1503,7 @@ module.exports = (
         db.sessions(uid).then(
           function (sessions) {
             reply(sessions.map(function (session) {
-              session.id = session.tokenId.toString('hex')
+              session.id = session.tokenId
               // if session has a device record
               session.isDevice = !! session.deviceId
 
@@ -1523,7 +1517,7 @@ module.exports = (
                 session.deviceType = session.uaDeviceType || 'desktop'
               }
 
-              session.isCurrentDevice = session.id === sessionToken.tokenId.toString('hex')
+              session.isCurrentDevice = session.id === sessionToken.tokenId
 
               session.lastAccessTimeFormatted = localizeTimestamp.format(session.lastAccessTime,
                 request.headers['accept-language'])
@@ -1541,7 +1535,7 @@ module.exports = (
               delete session.uaOSVersion
               delete session.uaDeviceType
 
-              return butil.unbuffer(session)
+              return session
             }))
           },
           reply
@@ -1582,7 +1576,7 @@ module.exports = (
             function (res) {
               result = res
               return request.emitMetricsEvent('device.deleted', {
-                uid: uid.toString('hex'),
+                uid: uid,
                 device_id: id
               })
             }
@@ -1837,9 +1831,8 @@ module.exports = (
         }
       },
       handler: function (request, reply) {
-        const uidHex = request.payload.uid
-        const uid = Buffer(uidHex, 'hex')
-        const code = Buffer(request.payload.code, 'hex')
+        const uid = request.payload.uid
+        const code = request.payload.code
         const service = request.payload.service || request.query.service
         const reminder = request.payload.reminder || request.query.reminder
         const type = request.payload.type || request.query.type
@@ -1880,11 +1873,11 @@ module.exports = (
               return db.accountEmails(account.uid)
                 .then((emails) => {
                   const isEmailVerification = emails.some((email) => {
-                    if (email.emailCode && (code.toString('hex') === email.emailCode)) {
+                    if (email.emailCode && (code === email.emailCode)) {
                       matchedEmail = email
                       log.info({
                         op: 'account.verifyEmail.secondary.started',
-                        uid: uidHex,
+                        uid: uid,
                         code: request.payload.code
                       })
                       return true
@@ -1901,7 +1894,7 @@ module.exports = (
                   if (matchedEmail.isVerified) {
                     log.info({
                       op: 'account.verifyEmail.secondary.already-verified',
-                      uid: uidHex,
+                      uid: uid,
                       code: request.payload.code
                     })
                     return P.resolve()
@@ -1911,7 +1904,7 @@ module.exports = (
                     .then(() => {
                       log.info({
                         op: 'account.verifyEmail.secondary.confirmed',
-                        uid: uidHex,
+                        uid: uid,
                         code: request.payload.code
                       })
                       return mailer.sendPostVerifySecondaryEmail(
@@ -1935,7 +1928,7 @@ module.exports = (
                     log.error({
                       op: 'Account.RecoveryEmailVerify',
                       err: err,
-                      uid: uidHex,
+                      uid: uid,
                       code: code
                     })
                   }
@@ -1958,11 +1951,11 @@ module.exports = (
                         // Don't log sign-in confirmation success for the account verification case
                         log.info({
                           op: 'account.signin.confirm.success',
-                          uid: uidHex,
+                          uid: uid,
                           code: request.payload.code
                         })
                         request.emitMetricsEvent('account.confirmed', {
-                          uid: uidHex
+                          uid: uid
                         })
                         push.notifyUpdate(uid, 'accountConfirm')
                       }
@@ -1974,7 +1967,7 @@ module.exports = (
                       }
                       log.error({
                         op: 'account.signin.confirm.invalid',
-                        uid: uidHex,
+                        uid: uid,
                         code: request.payload.code,
                         error: err
                       })
@@ -1982,7 +1975,7 @@ module.exports = (
                     })
                     .then(function () {
                       if (device) {
-                        push.notifyDeviceConnected(uid, device.name, device.id.toString('hex'))
+                        push.notifyDeviceConnected(uid, device.name, device.id)
                       }
                     })
                     .then(function () {
@@ -2005,7 +1998,7 @@ module.exports = (
                         })
                         .then(function () {
                           return request.emitMetricsEvent('account.verified', {
-                            uid: uidHex
+                            uid: uid
                           })
                         })
                         .then(function () {
@@ -2019,7 +2012,7 @@ module.exports = (
                               name: reminderOp
                             })
                             return request.emitMetricsEvent('account.reminder', {
-                              uid: uidHex
+                              uid: uid
                             })
                           }
                         })
@@ -2028,7 +2021,7 @@ module.exports = (
                           push.notifyUpdate(uid, 'accountVerify')
                           // remove verification reminders
                           verificationReminder.delete({
-                            uid: uidHex
+                            uid: uid
                           }).catch(function (err) {
                             log.error({op: 'Account.RecoveryEmailVerify', err: err})
                           })
@@ -2190,7 +2183,7 @@ module.exports = (
               // Only delete secondary email if it is unverified and does not belong
               // to the current user.
               if (! secondaryEmailRecord.isVerified && ! butil.buffersAreEqual(secondaryEmailRecord.uid, uid)) {
-                return db.deleteEmail(Buffer.from(secondaryEmailRecord.uid, 'hex'), secondaryEmailRecord.email)
+                return db.deleteEmail(secondaryEmailRecord.uid, secondaryEmailRecord.email)
               }
             })
             .catch((err) => {
@@ -2201,9 +2194,9 @@ module.exports = (
         }
 
         function generateRandomValues() {
-          return random(16)
-            .then(bytes => {
-              emailData.emailCode = bytes
+          return random.hex(16)
+            .then(hex => {
+              emailData.emailCode = hex
             })
         }
 
@@ -2374,7 +2367,7 @@ module.exports = (
         }
       },
       handler: function (request, reply) {
-        var uid = Buffer(request.payload.uid, 'hex')
+        var uid = request.payload.uid
         var code = request.payload.unblockCode.toUpperCase()
 
         log.begin('Account.RejectUnblockCode', request)
@@ -2413,7 +2406,7 @@ module.exports = (
       handler: function accountReset(request, reply) {
         log.begin('Account.reset', request)
         var accountResetToken = request.auth.credentials
-        var authPW = Buffer(request.payload.authPW, 'hex')
+        var authPW = request.payload.authPW
         var account, sessionToken, keyFetchToken, verifyHash, wrapKb, devicesToNotify
         var hasSessionToken = request.payload.sessionToken
 
@@ -2448,10 +2441,10 @@ module.exports = (
 
         function resetAccountData () {
           let authSalt, password, wrapWrapKb
-          return random(64)
-            .then(bytes => {
-              authSalt = bytes.slice(0, 32) // 0..31
-              wrapWrapKb = bytes.slice(32) // 32..63
+          return random.hex(32, 32)
+            .then(hexes => {
+              authSalt = hexes[0]
+              wrapWrapKb = hexes[1]
               password = new Password(authPW, authSalt, config.verifierVersion)
               return password.verifyHash()
             })
@@ -2482,7 +2475,7 @@ module.exports = (
               function (accountData) {
                 account = accountData
                 return request.emitMetricsEvent('account.reset', {
-                  uid: account.uid.toString('hex')
+                  uid: account.uid
                 })
               }
             )
@@ -2574,14 +2567,14 @@ module.exports = (
 
 
           var response = {
-            uid: sessionToken.uid.toString('hex'),
-            sessionToken: sessionToken.data.toString('hex'),
+            uid: sessionToken.uid,
+            sessionToken: sessionToken.data,
             verified: sessionToken.emailVerified,
             authAt: sessionToken.lastAuthAt()
           }
 
           if (requestHelper.wantsKeys(request)) {
-            response.keyFetchToken = keyFetchToken.data.toString('hex')
+            response.keyFetchToken = keyFetchToken.data
           }
 
           return response
@@ -2602,7 +2595,7 @@ module.exports = (
       handler: function accountDestroy(request, reply) {
         log.begin('Account.destroy', request)
         var form = request.payload
-        var authPW = Buffer(form.authPW, 'hex')
+        var authPW = form.authPW
         var uid
         var devicesToNotify
         customs.check(
@@ -2643,7 +2636,7 @@ module.exports = (
                 .then(
                   function () {
                     return request.emitMetricsEvent('account.deleted', {
-                      uid: uid.toString('hex')
+                      uid: uid
                     })
                   }
                 )

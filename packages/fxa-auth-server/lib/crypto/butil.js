@@ -4,11 +4,11 @@
 
 'use strict'
 
-const HEX = /^(?:[a-fA-F0-9]{2})+$/
-
 module.exports.ONES = Buffer('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'hex')
 
 module.exports.buffersAreEqual = function buffersAreEqual(buffer1, buffer2) {
+  buffer1 = Buffer.from(buffer1, 'hex')
+  buffer2 = Buffer.from(buffer2, 'hex')
   var mismatch = buffer1.length - buffer2.length
   if (mismatch) {
     return false
@@ -20,6 +20,8 @@ module.exports.buffersAreEqual = function buffersAreEqual(buffer1, buffer2) {
 }
 
 module.exports.xorBuffers = function xorBuffers(buffer1, buffer2) {
+  buffer1 = Buffer.from(buffer1, 'hex')
+  buffer2 = Buffer.from(buffer2, 'hex')
   if (buffer1.length !== buffer2.length) {
     throw new Error(
       'XOR buffers must be same length (%d != %d)',
@@ -32,47 +34,4 @@ module.exports.xorBuffers = function xorBuffers(buffer1, buffer2) {
     result[i] = buffer1[i] ^ buffer2[i]
   }
   return result
-}
-
-module.exports.unbuffer = (object, inplace) => {
-  return Object.keys(object).reduce((unbuffered, key) => {
-    unbuffered[key] = unbufferDatum.call(object, key, object[key])
-    return unbuffered
-  }, inplace ? object : {})
-}
-
-module.exports.unbufferDatum = unbufferDatum
-
-// Invoked as the `replacer` in calls to JSON.stringify.
-// If you're going to call it elsewhere, `this` must be
-// set as it would be then.
-function unbufferDatum (key, value) {
-  const unstringifiedValue = this[key]
-
-  if (Buffer.isBuffer(unstringifiedValue)) {
-    return unstringifiedValue.toString('hex')
-  }
-
-  return value
-}
-
-module.exports.bufferize = function bufferize(object, options) {
-  var keys = Object.keys(object)
-  options = options || {}
-  var copy = options.inplace ? object : {}
-  var ignore = options.ignore || []
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i]
-    var value = object[key]
-    if (
-      ignore.indexOf(key) === -1 &&
-      typeof value === 'string' &&
-      HEX.test(value)
-    ) {
-      copy[key] = Buffer(value, 'hex')
-    } else {
-      copy[key] = value
-    }
-  }
-  return copy
 }

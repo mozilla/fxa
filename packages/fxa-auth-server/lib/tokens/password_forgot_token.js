@@ -27,7 +27,7 @@ module.exports = (log, Token, lifetime) => {
       uid: details.uid,
       email: details.email
     })
-    return random(16)
+    return random.hex(16)
       .then(bytes => {
         details.passCode = bytes
         details.tries = 3

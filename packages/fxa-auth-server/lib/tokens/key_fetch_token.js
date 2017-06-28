@@ -28,7 +28,7 @@ module.exports = function (log, Token) {
           return token.bundleKeys(details.kA, details.wrapKb)
             .then(
               function (keyBundle) {
-                token.keyBundle = Buffer(keyBundle, 'hex') //TODO see if we can skip hex
+                token.keyBundle = keyBundle
                 return token
               }
             )
@@ -48,6 +48,8 @@ module.exports = function (log, Token) {
 
   KeyFetchToken.prototype.bundleKeys = function (kA, wrapKb) {
     log.trace({ op: 'keyFetchToken.bundleKeys', id: this.id })
+    kA = Buffer.from(kA, 'hex')
+    wrapKb = Buffer.from(wrapKb, 'hex')
     return this.bundle('account/keys', Buffer.concat([kA, wrapKb]))
   }
 
@@ -57,8 +59,8 @@ module.exports = function (log, Token) {
       .then(
         function (plaintext) {
           return {
-            kA: plaintext.slice(0, 32),
-            wrapKb: plaintext.slice(32, 64)
+            kA: plaintext.slice(0, 64), // strings, not buffers
+            wrapKb: plaintext.slice(64, 128)
           }
         }
       )

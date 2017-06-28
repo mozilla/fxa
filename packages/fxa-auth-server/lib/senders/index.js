@@ -61,8 +61,8 @@ module.exports = function (log, config, error, bounces, translator, sender) {
               email: primaryEmail,
               flowId: opts.flowId,
               flowBeginTime: opts.flowBeginTime,
-              uid: account.uid.toString('hex'),
-              code: opts.code.toString('hex'),
+              uid: account.uid,
+              code: opts.code,
               service: opts.service,
               redirectTo: opts.redirectTo,
               resume: opts.resume,
@@ -84,7 +84,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           .then(function (mailer) {
             return mailer.verifyLoginEmail({
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              code: opts.code.toString('hex'),
+              code: opts.code,
               ccEmails: ccEmails,
               email: primaryEmail,
               ip: opts.ip,
@@ -99,7 +99,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
               uaBrowserVersion: opts.uaBrowserVersion,
               uaOS: opts.uaOS,
               uaOSVersion: opts.uaOSVersion,
-              uid: account.uid.toString('hex')
+              uid: account.uid
             })
           })
       },
@@ -111,7 +111,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           .then(function (mailer) {
             return mailer.verifySecondaryEmail({
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              code: opts.code.toString('hex'),
+              code: opts.code,
               email: verifyEmailAddress,
               ip: opts.ip,
               location: opts.location,
@@ -123,7 +123,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
               uaBrowserVersion: opts.uaBrowserVersion,
               uaOS: opts.uaOS,
               uaOSVersion: opts.uaOSVersion,
-              uid: account.uid.toString('hex'),
+              uid: account.uid,
               primaryEmail: primaryEmail
             })
           })
@@ -139,8 +139,8 @@ module.exports = function (log, config, error, bounces, translator, sender) {
               email: primaryEmail,
               flowId: opts.flowId,
               flowBeginTime: opts.flowBeginTime,
-              token: opts.token.data.toString('hex'),
-              code: opts.code.toString('hex'),
+              token: opts.token.data,
+              code: opts.code,
               service: opts.service,
               redirectTo: opts.redirectTo,
               resume: opts.resume,
@@ -253,7 +253,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
               uaBrowserVersion: opts.uaBrowserVersion,
               uaOS: opts.uaOS,
               uaOSVersion: opts.uaOSVersion,
-              uid: account.uid.toString('hex'),
+              uid: account.uid,
               unblockCode: opts.unblockCode
             })
           })

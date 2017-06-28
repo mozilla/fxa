@@ -12,7 +12,7 @@ var mocks = require('../../mocks')
 var P = require('../../../lib/promise')
 
 describe('/certificate/sign', () => {
-  var deviceId = crypto.randomBytes(16)
+  var deviceId = crypto.randomBytes(16).toString('hex')
   var mockDevices = mocks.mockDevices({
     deviceId: deviceId
   })
@@ -24,12 +24,12 @@ describe('/certificate/sign', () => {
         return Date.now()
       },
       locale: 'en',
-      tokenId: crypto.randomBytes(16),
+      tokenId: crypto.randomBytes(16).toString('hex'),
       uaBrowser: 'Firefox',
       uaBrowserVersion: '55',
       uaOS: 'Windows',
       uaOSVersion: '10',
-      uid: uuid.v4('binary')
+      uid: uuid.v4('binary').toString('hex')
     },
     log: mockLog,
     payload: {
@@ -112,7 +112,7 @@ describe('/certificate/sign', () => {
 
   it('with deviceId', () => {
     mockRequest.query.service = 'sync'
-    mockRequest.auth.credentials.deviceId = crypto.randomBytes(16)
+    mockRequest.auth.credentials.deviceId = crypto.randomBytes(16).toString('hex')
 
     return runTest({
       devices: mockDevices,

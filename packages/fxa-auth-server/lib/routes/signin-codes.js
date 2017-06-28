@@ -32,11 +32,11 @@ module.exports = (log, db, customs) => {
         request.validateMetricsContext()
 
         customs.checkIpOnly(request, 'consumeSigninCode')
-          .then(bufferizeSigninCode)
+          .then(hexSigninCode)
           .then(consumeSigninCode)
           .then(reply, reply)
 
-        function bufferizeSigninCode () {
+        function hexSigninCode () {
           let base64 = request.payload.code.replace(/-/g, '+').replace(/_/g, '/')
 
           const padCount = base64.length % 4
@@ -44,7 +44,7 @@ module.exports = (log, db, customs) => {
             base64 += '='
           }
 
-          return Buffer.from(base64, 'base64')
+          return Buffer.from(base64, 'base64').toString('hex')
         }
 
         function consumeSigninCode (code) {

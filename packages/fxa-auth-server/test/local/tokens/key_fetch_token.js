@@ -13,8 +13,8 @@ const KeyFetchToken = tokens.KeyFetchToken
 
 const ACCOUNT = {
   uid: 'xxx',
-  kA: Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
-  wrapKb: Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
+  kA: Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex'),
+  wrapKb: Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex'),
   emailVerified: true
 }
 
@@ -76,8 +76,8 @@ describe('KeyFetchToken', () => {
     'should bundle / unbundle of keys',
     () => {
       let token = null
-      const kA = crypto.randomBytes(32)
-      const wrapKb = crypto.randomBytes(32)
+      const kA = crypto.randomBytes(32).toString('hex')
+      const wrapKb = crypto.randomBytes(32).toString('hex')
       return KeyFetchToken.create(ACCOUNT)
         .then(
           function (x) {
@@ -105,8 +105,8 @@ describe('KeyFetchToken', () => {
     () => {
       let token1 = null
       let token2 = null
-      const kA = crypto.randomBytes(32)
-      const wrapKb = crypto.randomBytes(32)
+      const kA = crypto.randomBytes(32).toString('hex')
+      const wrapKb = crypto.randomBytes(32).toString('hex')
       return KeyFetchToken.create(ACCOUNT)
         .then(
           function (x) {
@@ -146,10 +146,10 @@ describe('KeyFetchToken', () => {
         .then(
           function (x) {
             token = x
-            assert.equal(token.data.toString('hex'), tokenData)
-            assert.equal(token.id.toString('hex'), '3d0a7c02a15a62a2882f76e39b6494b500c022a8816e048625a495718998ba60')
-            assert.equal(token.authKey.toString('hex'), '87b8937f61d38d0e29cd2d5600b3f4da0aa48ac41de36a0efe84bb4a9872ceb7')
-            assert.equal(token.bundleKey.toString('hex'), '14f338a9e8c6324d9e102d4e6ee83b209796d5c74bb734a410e729e014a4a546')
+            assert.equal(token.data, tokenData)
+            assert.equal(token.id, '3d0a7c02a15a62a2882f76e39b6494b500c022a8816e048625a495718998ba60')
+            assert.equal(token.authKey, '87b8937f61d38d0e29cd2d5600b3f4da0aa48ac41de36a0efe84bb4a9872ceb7')
+            assert.equal(token.bundleKey, '14f338a9e8c6324d9e102d4e6ee83b209796d5c74bb734a410e729e014a4a546')
           }
         )
         .then(

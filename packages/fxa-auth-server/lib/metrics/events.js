@@ -189,12 +189,11 @@ function optionallySetService (data, request) {
 
 function coalesceUid (data, request) {
   if (data && data.uid) {
-    return Buffer.isBuffer(data.uid) ? data.uid.toString('hex') : data.uid
+    return data.uid
   }
 
   return request.auth &&
     request.auth.credentials &&
-    request.auth.credentials.uid &&
-    request.auth.credentials.uid.toString('hex')
+    request.auth.credentials.uid
 }
 

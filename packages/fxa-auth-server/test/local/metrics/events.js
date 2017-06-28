@@ -144,7 +144,7 @@ describe('metrics/events', () => {
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       credentials: {
-        uid: Buffer.from('deadbeef', 'hex')
+        uid: 'deadbeef'
       },
       metricsContext,
       payload: {
@@ -289,7 +289,7 @@ describe('metrics/events', () => {
         }
       }
     })
-    return events.emit.call(request, 'account.reminder', { uid: Buffer.from('deadbeef', 'hex') })
+    return events.emit.call(request, 'account.reminder', { uid: 'deadbeef' })
       .then(() => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 

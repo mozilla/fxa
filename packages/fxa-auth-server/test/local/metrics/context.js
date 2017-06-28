@@ -78,7 +78,7 @@ describe('metricsContext', () => {
     () => {
       results.set = P.resolve('wibble')
       const token = {
-        uid: Buffer.alloc(32, 'cd'),
+        uid: Array(64).fill('c').join(''),
         id: 'foo'
       }
       return metricsContext.stash.call({
@@ -107,7 +107,7 @@ describe('metricsContext', () => {
           metricsContext: 'bar'
         }
       }, {
-        uid: Buffer.alloc(32, 'cd'),
+        uid: Array(64).fill('c').join(''),
         id: 'foo'
       }).then(result => {
         assert.equal(result, undefined, 'result is undefined')
@@ -157,7 +157,7 @@ describe('metricsContext', () => {
       return metricsContext.stash.call({
         payload: {}
       }, {
-        uid: Buffer.alloc(32, 'cd'),
+        uid: Array(64).fill('c').join(''),
         id: 'foo'
       }).then(result => {
         assert.equal(result, undefined, 'result is undefined')
@@ -235,7 +235,7 @@ describe('metricsContext', () => {
     () => {
       const time = Date.now() - 1
       const token = {
-        uid: Buffer.alloc(32, '77'),
+        uid: Array(64).fill('7').join(''),
         id: 'wibble'
       }
       results.get = P.resolve({
@@ -270,7 +270,7 @@ describe('metricsContext', () => {
     'metricsContext.gather with fake token',
     () => {
       const time = Date.now() - 1
-      const uid = Buffer.alloc(32, '77')
+      const uid = Array(64).fill('7').join('')
       const id = 'wibble'
       results.get = P.resolve({
         flowId: 'flowId',
@@ -278,7 +278,7 @@ describe('metricsContext', () => {
       })
       return metricsContext.gather.call({
         payload: {
-          uid: uid.toString('hex'),
+          uid: uid,
           code: id
         }
       }, {}).then(function (result) {
@@ -306,7 +306,7 @@ describe('metricsContext', () => {
       return metricsContext.gather.call({
         auth: {
           credentials: {
-            uid: Buffer.alloc(32, 'cd')
+            uid: Array(64).fill('c').join('')
           }
         }
       }, {}).then(function (result) {
@@ -355,7 +355,7 @@ describe('metricsContext', () => {
       return metricsContext.gather.call({
         auth: {
           credentials: {
-            uid: Buffer.alloc(8, 'ff'),
+            uid: Array(16).fill('f').join(''),
             id: 'bar'
           }
         },
@@ -383,7 +383,7 @@ describe('metricsContext', () => {
       return metricsContext.gather.call({
         auth: {
           credentials: {
-            uid: Buffer.alloc(8, 'ff'),
+            uid: Array(16).fill('f').join(''),
             id: 'bar'
           }
         }
@@ -402,7 +402,7 @@ describe('metricsContext', () => {
     'metricsContext.clear with token',
     () => {
       const token = {
-        uid: Buffer.alloc(32, '77'),
+        uid: Array(64).fill('7').join(''),
         id: 'wibble'
       }
       return metricsContext.clear.call({
@@ -420,11 +420,11 @@ describe('metricsContext', () => {
   it(
     'metricsContext.clear with fake token',
     () => {
-      const uid = Buffer.alloc(32, '66')
+      const uid = Array(64).fill('6').join('')
       const id = 'blee'
       return metricsContext.clear.call({
         payload: {
-          uid: uid.toString('hex'),
+          uid: uid,
           code: id
         }
       }).then(() => {
@@ -449,7 +449,7 @@ describe('metricsContext', () => {
     'metricsContext.clear with memcached error',
     () => {
       const token = {
-        uid: Buffer.alloc(32, '77'),
+        uid: Array(64).fill('7').join(''),
         id: 'wibble'
       }
       results.del = P.reject(new Error('blee'))

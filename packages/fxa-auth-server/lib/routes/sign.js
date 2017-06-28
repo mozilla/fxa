@@ -60,7 +60,7 @@ module.exports = (log, signer, db, domain, devices) => {
           .then(
             function () {
               if (sessionToken.deviceId) {
-                deviceId = sessionToken.deviceId.toString('hex')
+                deviceId = sessionToken.deviceId
               } else if (! service || service === 'sync') {
                 // Synthesize a device record for Sync sessions that don't already have one.
                 // Include the UA info so that we can synthesize a device name
@@ -74,7 +74,7 @@ module.exports = (log, signer, db, domain, devices) => {
                 return devices.upsert(request, sessionToken, deviceInfo)
                   .then(
                     function (result) {
-                      deviceId = result.id.toString('hex')
+                      deviceId = result.id
                     }
                   )
               }
@@ -125,7 +125,7 @@ module.exports = (log, signer, db, domain, devices) => {
                   })
                 }
               }
-              uid = sessionToken.uid.toString('hex')
+              uid = sessionToken.uid
 
               return signer.sign(
                 {

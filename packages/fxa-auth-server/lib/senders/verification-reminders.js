@@ -30,8 +30,8 @@ module.exports = function (mailer, db, options) {
             // if account is not verified then send the reminder
             mailer.verificationReminderEmail({
               email: account.email,
-              uid: account.uid.toString('hex'),
-              code: account.emailCode.toString('hex'),
+              uid: account.uid,
+              code: account.emailCode,
               type: reminderData.type,
               acceptLanguage: account.locale
             })

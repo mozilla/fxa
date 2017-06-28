@@ -25,8 +25,8 @@ module.exports = function (log, db, push) {
       .then(function (device) {
         result = device
         return request.emitMetricsEvent(event, {
-          uid: sessionToken.uid.toString('hex'),
-          device_id: result.id.toString('hex'),
+          uid: sessionToken.uid,
+          device_id: result.id,
           is_placeholder: isPlaceholderDevice
         })
       })
@@ -39,7 +39,7 @@ module.exports = function (log, db, push) {
             deviceName = synthesizeName(deviceInfo)
           }
           if (sessionToken.tokenVerified) {
-            push.notifyDeviceConnected(sessionToken.uid, deviceName, result.id.toString('hex'))
+            push.notifyDeviceConnected(sessionToken.uid, deviceName, result.id)
           }
           if (isPlaceholderDevice) {
             log.info({

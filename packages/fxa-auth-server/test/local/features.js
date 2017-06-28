@@ -71,7 +71,7 @@ describe('features', () => {
   it(
     'isSampledUser',
     () => {
-      let uid = Buffer.alloc(32, 0xff)
+      let uid = Array(64).fill('f').join('')
       let sampleRate = 1
       hashResult = Array(40).fill('f').join('')
 

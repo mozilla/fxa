@@ -49,7 +49,7 @@ describe('remote verifier upgrade', function() {
             return Client.create(config.publicUrl, email, password, { preVerified: true, keys: true })
               .then(
                 function (c) {
-                  uid = Buffer(c.uid, 'hex')
+                  uid = c.uid
                   return server.stop()
                 }
               )

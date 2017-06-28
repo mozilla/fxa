@@ -272,7 +272,7 @@ module.exports = config => {
       )
       .then(
         function () {
-          this.wrapKb = butil.xorBuffers(this.kB, this.unwrapBKey)
+          this.wrapKb = butil.xorBuffers(this.kB, this.unwrapBKey).toString('hex')
           return this.api.passwordChangeFinish(this.passwordChangeToken, this.authPW, this.wrapKb, headers, sessionToken)
         }.bind(this)
       )
@@ -312,7 +312,7 @@ module.exports = config => {
         this.keyFetchToken = null
         this.kA = keys.kA
         this.wrapKb = keys.wrapKb
-        this.kB = keys.kB = butil.xorBuffers(this.wrapKb, this.unwrapBKey)
+        this.kB = keys.kB = butil.xorBuffers(this.wrapKb, this.unwrapBKey).toString('hex')
         return keys
       }.bind(this),
       function (err) {
