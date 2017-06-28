@@ -1,3 +1,51 @@
+<a name="1.90.0"></a>
+# 1.90.0 (2017-06-28)
+
+
+### Bug Fixes
+
+* **config:** remove non-existing config files before attempting to load (#5153) r=vladikoff ([15b8e82](https://github.com/mozilla/fxa-content-server/commit/15b8e82))
+* **cwts:** Remove the leftover CWTS styles. (#5166) r=vladikoff ([d6d416f](https://github.com/mozilla/fxa-content-server/commit/d6d416f))
+* **CWTS:** removed desktop-only caveat (#5165) r=vladikoff ([3367707](https://github.com/mozilla/fxa-content-server/commit/3367707))
+* **deps:** update some prod dependencies (#5137) ([366563b](https://github.com/mozilla/fxa-content-server/commit/366563b))
+* **logging:** fix request logging (#5142) r=vladikoff ([a23d5eb](https://github.com/mozilla/fxa-content-server/commit/a23d5eb)), closes [(#5142](https://github.com/(/issues/5142) [#5111](https://github.com/mozilla/fxa-content-server/issues/5111)
+* **sign-in:** Put registration links on left/top (#5123) r=@shane-tomlinson ([d12ce20](https://github.com/mozilla/fxa-content-server/commit/d12ce20))
+* **strings:** update "Why Sync multiple devices?" ([f4d138c](https://github.com/mozilla/fxa-content-server/commit/f4d138c)), closes [#5035](https://github.com/mozilla/fxa-content-server/issues/5035)
+* **strings:** update strings in confirm and unblock r=vladikoff ([5a9db37](https://github.com/mozilla/fxa-content-server/commit/5a9db37))
+* **styles:** add hover state to primary buttons (#5157) r=vladikoff ([f0502ac](https://github.com/mozilla/fxa-content-server/commit/f0502ac))
+* **tests:** add a script to be run to check resource deployment (#5147) r=vladikoff ([0246dbd](https://github.com/mozilla/fxa-content-server/commit/0246dbd))
+* **tests:** add a test to confirm that DNS hooking works (#5145) r=vladikoff ([01a2aeb](https://github.com/mozilla/fxa-content-server/commit/01a2aeb))
+* **tests:** make npm-install-deps reusable (#5146) r=vladikoff ([a3799be](https://github.com/mozilla/fxa-content-server/commit/a3799be))
+* **tests:** provide a way to pre-flight check entrained resources (#5131) r=vladikoff ([d1ebbfb](https://github.com/mozilla/fxa-content-server/commit/d1ebbfb))
+* **tests:** switch from bash to sh in teamcity tests (#5152) r=vladikoff ([6ab32e5](https://github.com/mozilla/fxa-content-server/commit/6ab32e5))
+
+### chore
+
+* **logging:** add remote address chain to fxa content server (#5155) r=vladikoff ([99534a1](https://github.com/mozilla/fxa-content-server/commit/99534a1))
+* **nvm:** nvmrc file for easier nvm usage (#5156) r=vladikoff ([1852bbf](https://github.com/mozilla/fxa-content-server/commit/1852bbf))
+* **tests:** add new server test dependency on morgan (#5154) r=vladikoff ([7c6ca0e](https://github.com/mozilla/fxa-content-server/commit/7c6ca0e))
+
+### Features
+
+* **brokers:** Add brokers for `mob_android_v1` and `mob_ios_v1` (#5084) r=@philbooth ([3cca54e](https://github.com/mozilla/fxa-content-server/commit/3cca54e))
+* **emails:** Update verification email sent string (#5135) r=vladikoff,shane-tomlinson ([5735b07](https://github.com/mozilla/fxa-content-server/commit/5735b07))
+* **experiments:** Internalize experiment rules. (#4902) r=vladikoff ([d3a5f4d](https://github.com/mozilla/fxa-content-server/commit/d3a5f4d)), closes [#4893](https://github.com/mozilla/fxa-content-server/issues/4893)
+* **metrics:** emit flow events for newsletter subscription ([d7c576f](https://github.com/mozilla/fxa-content-server/commit/d7c576f))
+* **oauth:** support PKCE oauth parameters (#5126) r=shane-tomlinson ([645b493](https://github.com/mozilla/fxa-content-server/commit/645b493))
+* **settings:** Reorder settings so display name is below account picture (#5139), r=@vbudhram ([5be33ef](https://github.com/mozilla/fxa-content-server/commit/5be33ef))
+* **sms:** Re-add "Use a distinct phone number for every SMS test." (#5150) ([e91864a](https://github.com/mozilla/fxa-content-server/commit/e91864a)), closes [#5136](https://github.com/mozilla/fxa-content-server/issues/5136)
+* **test:** Store screencaps at https://screencap.co.uk. (#5132) r=vladikoff ([058e1f1](https://github.com/mozilla/fxa-content-server/commit/058e1f1))
+
+### Refactor
+
+* **broker:** Clean up the fx-sync-channel broker. (#5163) r=vladikoff ([ccbfa6c](https://github.com/mozilla/fxa-content-server/commit/ccbfa6c))
+* **broker:** Extract `finishOAuthFlowIfOriginalTab` to share between methods. (#5141) r=@phil ([aba3a15](https://github.com/mozilla/fxa-content-server/commit/aba3a15))
+* **build:** Replace babel-preset-2015-nostrict with babel-preset-2015 (#5161) r=vladikoff ([cd013d2](https://github.com/mozilla/fxa-content-server/commit/cd013d2))
+* **experiments:** remove old config file (#5148) r=@shane-tomlinson ([c9f4a94](https://github.com/mozilla/fxa-content-server/commit/c9f4a94))
+* **test:** Update some sync_* functional tests to use selectors.js (#5164) r=vladikoff ([f546f09](https://github.com/mozilla/fxa-content-server/commit/f546f09))
+
+
+
 <a name="1.89.0"></a>
 # 1.89.0 (2017-06-13)
 
