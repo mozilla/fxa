@@ -17,31 +17,20 @@ const log = {
   trace: sinon.spy()
 }
 
-let nexmoStatus = '0'
-const sendSms = sinon.spy((from, to, message, callback) => {
-  callback(null, {
-    message_count: '1',
-    messages: [
-      {
-        to: to.substr(1),
-        'message-id': 'foo',
-        status: nexmoStatus,
-        'error-text': 'bar',
-        'remaining-balance': '42',
-        'message-price': '1',
-        'network': 'baz'
-      }
-    ]
-  })
+let snsResult = P.resolve({
+  MessageId: 'foo'
 })
-function Nexmo () {}
-Nexmo.prototype.message = { sendSms }
+const publish = sinon.spy(params => ({
+  promise: () => snsResult
+}))
+function SNS () {}
+SNS.prototype.publish = publish
 
 let mockConstructed = false
-function MockNexmo () {
+function MockSNS () {
   mockConstructed = true
 }
-MockNexmo.prototype = Nexmo.prototype
+MockSNS.prototype = SNS.prototype
 
 describe('lib/senders/sms:', () => {
   let sms
@@ -52,7 +41,7 @@ describe('lib/senders/sms:', () => {
       require(`${ROOT_DIR}/lib/senders/templates`)()
     ]).spread((translator, templates) => {
       sms = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
-        nexmo: Nexmo
+        'aws-sdk': { SNS }
       })(log, translator, templates, {
         sms: {
           apiKey: 'foo',
@@ -66,7 +55,7 @@ describe('lib/senders/sms:', () => {
   })
 
   afterEach(() => {
-    sendSms.reset()
+    publish.reset()
     log.error.reset()
     log.info.reset()
     log.trace.reset()
@@ -75,27 +64,39 @@ describe('lib/senders/sms:', () => {
 
   it('interface is correct', () => {
     assert.equal(typeof sms.send, 'function', 'sms.send is function')
-    assert.equal(sms.send.length, 5, 'sms.send expects 5 arguments')
+    assert.equal(sms.send.length, 4, 'sms.send expects 4 arguments')
 
     assert.equal(Object.keys(sms).length, 1, 'sms has no other methods')
   })
 
   it('sends a valid sms without a signinCode', () => {
-    return sms.send('+442078553000', 'Firefox', 'installFirefox', 'en')
+    return sms.send('+442078553000', 'installFirefox', 'en')
       .then(() => {
-        assert.equal(sendSms.callCount, 1, 'nexmo.message.sendSms was called once')
-        const args = sendSms.args[0]
-        assert.equal(args.length, 4, 'nexmo.message.sendSms was passed four arguments')
-        assert.equal(args[0], 'Firefox', 'nexmo.message.sendSms was passed the correct sender id')
-        assert.equal(args[1], '+442078553000', 'nexmo.message.sendSms was passed the correct phone number')
-        assert.equal(args[2], 'As requested, here is a link to install Firefox on your mobile device: https://baz/qux', 'nexmo.message.sendSms was passed the correct message')
-        assert.equal(typeof args[3], 'function', 'nexmo.message.sendSms was passed a callback function')
+        assert.equal(publish.callCount, 1, 'AWS.SNS.publish was called once')
+        assert.equal(publish.args[0].length, 1, 'AWS.SNS.publish was passed one argument')
+        assert.deepEqual(publish.args[0][0], {
+          Message: 'As requested, here is a link to install Firefox on your mobile device: https://baz/qux',
+          MessageAttributes: {
+            'AWS.SNS.SMS.MaxPrice': {
+              DataType: 'String',
+              StringValue: '1.0'
+            },
+            'AWS.SNS.SMS.SenderID': {
+              DataType: 'String',
+              StringValue: 'Firefox'
+            },
+            'AWS.SNS.SMS.SMSType': {
+              DataType: 'String',
+              StringValue: 'Promotional'
+            }
+          },
+          PhoneNumber: '+442078553000'
+        }, 'AWS.SNS.publish was passed the correct argument')
 
         assert.equal(log.trace.callCount, 1, 'log.trace was called once')
         assert.equal(log.trace.args[0].length, 1, 'log.trace was passed one argument')
         assert.deepEqual(log.trace.args[0][0], {
           op: 'sms.send',
-          senderId: 'Firefox',
           templateName: 'installFirefox',
           acceptLanguage: 'en'
         }, 'log.trace was passed the correct data')
@@ -104,9 +105,9 @@ describe('lib/senders/sms:', () => {
         assert.equal(log.info.args[0].length, 1, 'log.info was passed one argument')
         assert.deepEqual(log.info.args[0][0], {
           op: 'sms.send.success',
-          senderId: 'Firefox',
           templateName: 'installFirefox',
-          acceptLanguage: 'en'
+          acceptLanguage: 'en',
+          messageId: 'foo'
         }, 'log.info was passed the correct data')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
@@ -114,10 +115,10 @@ describe('lib/senders/sms:', () => {
   })
 
   it('sends a valid sms with a signinCode', () => {
-    return sms.send('+442078553000', 'Firefox', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
+    return sms.send('+442078553000', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
       .then(() => {
-        assert.equal(sendSms.callCount, 1, 'nexmo.message.sendSms was called once')
-        assert.equal(sendSms.args[0][2], 'As requested, here is a link to install Firefox on your mobile device: https://wibble/--__ff0', 'nexmo.message.sendSms was passed the correct message')
+        assert.equal(publish.callCount, 1, 'AWS.SNS.publish was called once')
+        assert.equal(publish.args[0][0].Message, 'As requested, here is a link to install Firefox on your mobile device: https://wibble/--__ff0', 'AWS.SNS.publish was passed the correct message')
 
         assert.equal(log.trace.callCount, 1, 'log.trace was called once')
         assert.equal(log.info.callCount, 1, 'log.info was called once')
@@ -127,7 +128,7 @@ describe('lib/senders/sms:', () => {
   })
 
   it('fails to send an sms with an invalid template name', () => {
-    return sms.send('+442078553000', 'Firefox', 'wibble', 'en', Buffer.from('++//ff0=', 'base64'))
+    return sms.send('+442078553000', 'wibble', 'en', Buffer.from('++//ff0=', 'base64'))
       .then(() => assert.fail('sms.send should have rejected'))
       .catch(error => {
         assert.equal(error.errno, 131, 'error.errno was set correctly')
@@ -142,55 +143,44 @@ describe('lib/senders/sms:', () => {
           templateName: 'wibble'
         }, 'log.error was passed the correct data')
 
-        assert.equal(sendSms.callCount, 0, 'nexmo.message.sendSms was not called')
-      })
-  })
-
-  it('fails to send an sms that is throttled by the network provider', () => {
-    nexmoStatus = '1'
-    return sms.send('+442078553000', 'Firefox', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
-      .then(() => assert.fail('sms.send should have rejected'))
-      .catch(error => {
-        assert.equal(error.errno, 114, 'error.errno was set correctly')
-        assert.equal(error.message, 'Client has sent too many requests', 'error.message was set correctly')
-
-        assert.equal(log.trace.callCount, 1, 'log.trace was called once')
-        assert.equal(log.info.callCount, 0, 'log.info was not called')
-
-        assert.equal(sendSms.callCount, 1, 'nexmo.message.sendSms was called once')
+        assert.equal(publish.callCount, 0, 'AWS.SNS.publish was not called')
       })
   })
 
   it('fails to send an sms that is rejected by the network provider', () => {
-    nexmoStatus = '2'
-    return sms.send('+442078553000', 'Firefox', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
+    snsResult = P.reject({
+      statusCode: 400,
+      code: 42,
+      message: 'this is an error'
+    })
+    return sms.send('+442078553000', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
       .then(() => assert.fail('sms.send should have rejected'))
       .catch(error => {
         assert.equal(error.errno, 132, 'error.errno was set correctly')
         assert.equal(error.message, 'Message rejected', 'error.message was set correctly')
-        assert.equal(error.output.payload.reason, 'bar', 'error.reason was set correctly')
-        assert.equal(error.output.payload.reasonCode, '2', 'error.reasonCode was set correctly')
+        assert.equal(error.output.payload.reason, 'this is an error', 'error.reason was set correctly')
+        assert.equal(error.output.payload.reasonCode, 42, 'error.reasonCode was set correctly')
 
         assert.equal(log.trace.callCount, 1, 'log.trace was called once')
         assert.equal(log.info.callCount, 0, 'log.info was not called')
 
-        assert.equal(sendSms.callCount, 1, 'nexmo.message.sendSms was called once')
+        assert.equal(publish.callCount, 1, 'AWS.SNS.publish was called once')
       })
   })
 
 
-  it('uses the Nexmo constructor if `useMock: false`', () => {
+  it('uses the SNS constructor if `useMock: false`', () => {
     assert.equal(mockConstructed, false)
   })
 
-  it('uses the NexmoMock constructor if `useMock: true`', () => {
+  it('uses the MockSNS constructor if `useMock: true`', () => {
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
       require(`${ROOT_DIR}/lib/senders/templates`)()
     ]).spread((translator, templates) => {
       sms = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
-        nexmo: Nexmo,
-        '../mock-nexmo': MockNexmo
+        'aws-sdk': { SNS },
+        '../../test/mock-sns': MockSNS
       })(log, translator, templates, {
         sms: {
           apiKey: 'foo',

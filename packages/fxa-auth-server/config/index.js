@@ -663,33 +663,23 @@ var conf = convict({
       format: Boolean,
       env: 'SMS_USE_MOCK'
     },
-    apiKey: {
-      doc: 'API key for the SMS service',
-      default: 'YOU MUST CHANGE ME',
-      format: String,
-      env: 'SMS_API_KEY'
-    },
-    apiSecret: {
-      doc: 'API secret for the SMS service',
-      default: 'YOU MUST CHANGE ME',
-      format: String,
-      env: 'SMS_API_SECRET'
-    },
     isStatusGeoEnabled: {
       doc: 'Indicates whether the status endpoint should do geo-ip lookup',
       default: true,
       format: Boolean,
       env: 'SMS_STATUS_GEO_ENABLED'
     },
-    senderIds: {
-      doc: 'Sender ids keyed by the ISO 3166-1 alpha-2 country code (region) they apply to',
-      default: {
-        CA: '16474909977',
-        GB: 'Firefox',
-        US: '15036789977'
-      },
-      format: Object,
-      env: 'SMS_SENDER_IDS'
+    apiRegion: {
+      doc: 'AWS region',
+      default: 'us-east-1',
+      format: String,
+      env: 'SMS_API_REGION'
+    },
+    countryCodes: {
+      doc: 'Allow sending SMS to these ISO 3166-1 alpha-2 country codes',
+      default: ['CA', 'GB', 'US'],
+      format: Array,
+      env: 'SMS_COUNTRY_CODES'
     },
     installFirefoxLink: {
       doc: 'Link for the installFirefox SMS template',

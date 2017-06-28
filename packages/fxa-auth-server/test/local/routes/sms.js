@@ -45,11 +45,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
     config = {
       sms: {
         enabled: true,
-        senderIds: {
-          CA: '16474909977',
-          GB: 'Firefox',
-          US: '15036789977'
-        },
+        countryCodes: [ 'CA', 'GB', 'US' ],
         isStatusGeoEnabled: true
       }
     }
@@ -107,12 +103,11 @@ describe('/sms with the signinCodes feature included in the payload', () => {
       it('called sms.send correctly', () => {
         assert.equal(sms.send.callCount, 1)
         const args = sms.send.args[0]
-        assert.equal(args.length, 5)
+        assert.equal(args.length, 4)
         assert.equal(args[0], '+18885083401')
-        assert.equal(args[1], '15036789977')
-        assert.equal(args[2], 'installFirefox')
-        assert.equal(args[3], 'en-US')
-        assert.equal(args[4], signinCode)
+        assert.equal(args[1], 'installFirefox')
+        assert.equal(args[2], 'en-US')
+        assert.equal(args[3], signinCode)
       })
 
       it('called log.flowEvent correctly', () => {
@@ -152,7 +147,6 @@ describe('/sms with the signinCodes feature included in the payload', () => {
         assert.equal(sms.send.callCount, 1)
         const args = sms.send.args[0]
         assert.equal(args[0], '+14168483114')
-        assert.equal(args[1], '16474909977')
       })
 
       it('called log.flowEvent correctly', () => {
@@ -183,7 +177,6 @@ describe('/sms with the signinCodes feature included in the payload', () => {
         assert.equal(sms.send.callCount, 1)
         const args = sms.send.args[0]
         assert.equal(args[0], '+442078553000')
-        assert.equal(args[1], 'Firefox')
       })
 
       it('called log.flowEvent correctly', () => {
@@ -323,11 +316,7 @@ describe('/sms without the signinCodes feature included in the payload', () => {
     config = {
       sms: {
         enabled: true,
-        senderIds: {
-          CA: '16474909977',
-          GB: 'Firefox',
-          US: '15036789977'
-        },
+        countryCodes: [ 'CA', 'GB', 'US' ],
         isStatusGeoEnabled: true
       }
     }
@@ -402,7 +391,7 @@ describe('/sms/status', () => {
     config = {
       sms: {
         enabled: true,
-        senderIds: { 'US': '18005551212' },
+        countryCodes: [ 'US' ],
         isStatusGeoEnabled: true
       }
     }
@@ -550,7 +539,7 @@ describe('/sms/status with disabled geo-ip lookup', () => {
     config = {
       sms: {
         enabled: true,
-        senderIds: { 'US': '18005551212' },
+        countryCodes: [ 'US' ],
         isStatusGeoEnabled: false
       }
     }
@@ -603,7 +592,7 @@ describe('/sms/status with query param and enabled geo-ip lookup', () => {
     config = {
       sms: {
         enabled: true,
-        senderIds: { 'RO': '0215555111' },
+        countryCodes: [ 'RO' ],
         isStatusGeoEnabled: true
       }
     }
@@ -648,7 +637,7 @@ describe('/sms/status with query param and disabled geo-ip lookup', () => {
     config = {
       sms: {
         enabled: true,
-        senderIds: { 'GB': '03456000000' },
+        countryCodes: [ 'GB' ],
         isStatusGeoEnabled: false
       }
     }

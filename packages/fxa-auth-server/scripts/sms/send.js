@@ -7,11 +7,6 @@
 'use strict'
 
 const config = require('../../config').getProperties()
-const NOT_SET = 'YOU MUST CHANGE ME'
-
-if (config.sms.apiKey === NOT_SET || config.sms.apiSecret === NOT_SET) {
-  fail('Come back and try again when you\'ve set SMS_API_KEY and SMS_API_SECRET.')
-}
 
 const args = parseArgs()
 const log = require('../../lib/log')(config.log.level, 'send-sms')
@@ -42,28 +37,25 @@ function fail (message) {
 }
 
 function parseArgs () {
-  let acceptLanguage, messageId, senderId, phoneNumber
+  let acceptLanguage, messageName, phoneNumber
 
   switch (process.argv.length) {
     /* eslint-disable indent, no-fallthrough */
-    case 6:
-      acceptLanguage = process.argv[5]
     case 5:
-      messageId = process.argv[4]
+      acceptLanguage = process.argv[5]
     case 4:
-      senderId = process.argv[3]
+      messageName = process.argv[4]
     case 3:
       phoneNumber = process.argv[2]
       break
     default:
-      fail(`Usage: ${process.argv[1]} phoneNumber [senderId] [messageId] [acceptLanguage]`)
+      fail(`Usage: ${process.argv[1]} phoneNumber [messageName] [acceptLanguage]`)
     /* eslint-enable indent, no-fallthrough */
   }
 
   return [
     phoneNumber,
-    senderId || 'Firefox',
-    messageId || 1,
+    messageName || 'installFirefox',
     acceptLanguage || 'en'
   ]
 }
