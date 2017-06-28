@@ -1,13 +1,26 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var test = require('tap').test
-var restify = require('restify')
-var TestServer = require('../test_server')
-var mcHelper = require('../memcache-helper')
+'use strict'
 
-var TEST_EMAIL = 'test@example.com'
-var TEST_IP = '192.0.2.1'
+const mcHelper = require('../memcache-helper')
+const Promise = require('bluebird')
+const restify = require('restify')
+const test = require('tap').test
+const TestServer = require('../test_server')
+
+const TEST_EMAIL = 'test@example.com'
+const TEST_IP = '192.0.2.1'
+const ALLOWED_EMAILS = []
+for (let i = 0; i < 3; ++i) {
+  ALLOWED_EMAILS[i] = `test.${i}@restmail.net`
+}
+const DISALLOWED_EMAILS = []
+for (let i = 0; i < 2; ++i) {
+  DISALLOWED_EMAILS[i] = `test.${i}@example.com`
+}
+
+process.env.MAX_VERIFY_CODES = '1'
 
 var config = {
   listen: {
@@ -42,6 +55,7 @@ test(
 var client = restify.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
+Promise.promisifyAll(client, { multiArgs: true })
 
 // NOTE: Leading semi-colon because ASI is funny.
 ; ['accountCreate', 'accountLogin', 'passwordChange'].forEach(function (action) {
@@ -87,6 +101,81 @@ test(
     )
   }
 )
+
+test('allowed email addresses in /check do not block subsequent requests to /checkIpOnly', t => {
+  return client.postAsync('/check', {
+    email: ALLOWED_EMAILS[0],
+    ip: TEST_IP,
+    action: 'recoveryEmailVerifyCode'
+  })
+  .spread((req, res, obj) => {
+    t.equal(res.statusCode, 200, '/check succeeded')
+    t.equal(obj.block, false, 'request was not blocked')
+
+    return client.postAsync('/check', {
+      email: ALLOWED_EMAILS[1],
+      ip: TEST_IP,
+      action: 'recoveryEmailVerifyCode'
+    })
+  })
+  .spread((req, res, obj) => {
+    t.equal(res.statusCode, 200, '/check succeeded')
+    t.equal(obj.block, false, 'request was not blocked')
+
+    return client.postAsync('/check', {
+      email: ALLOWED_EMAILS[2],
+      ip: TEST_IP,
+      action: 'recoveryEmailVerifyCode'
+    })
+  })
+  .spread((req, res, obj) => {
+    t.equal(res.statusCode, 200, '/check succeeded')
+    t.equal(obj.block, false, 'request was not blocked')
+
+    return client.postAsync('/checkIpOnly', {
+      ip: TEST_IP,
+      action: 'consumeSigninCode'
+    })
+  })
+  .spread((req, res, obj) => {
+    t.equal(res.statusCode, 200, '/checkIpOnly succeeded')
+    t.equal(obj.block, false, 'request was not blocked')
+  })
+  .catch(err => t.fail(err))
+  .then(() => t.end())
+})
+
+test('disallowed email addresses in /check do not block subsequent requests to /checkIpOnly', t => {
+  return client.postAsync('/check', {
+    email: DISALLOWED_EMAILS[0],
+    ip: TEST_IP,
+    action: 'recoveryEmailVerifyCode'
+  })
+  .spread((req, res, obj) => {
+    t.equal(res.statusCode, 200, '/check succeeded')
+
+    return client.postAsync('/check', {
+      email: DISALLOWED_EMAILS[1],
+      ip: TEST_IP,
+      action: 'recoveryEmailVerifyCode'
+    })
+  })
+  .spread((req, res, obj) => {
+    t.equal(res.statusCode, 200, '/check succeeded')
+    t.equal(obj.block, true, 'request was blocked')
+
+    return client.postAsync('/checkIpOnly', {
+      ip: TEST_IP,
+      action: 'consumeSigninCode'
+    })
+  })
+  .spread((req, res, obj) => {
+    t.equal(res.statusCode, 200, '/checkIpOnly succeeded')
+    t.equal(obj.block, false, 'request was not blocked')
+  })
+  .catch(err => t.fail(err))
+  .then(() => t.end())
+})
 
 test(
   'teardown',

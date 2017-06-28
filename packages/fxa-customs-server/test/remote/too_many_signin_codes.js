@@ -45,7 +45,7 @@ test('clear everything', t => {
   })
 })
 
-test('/checkIpOnly `signinCode`', t => {
+test(`/checkIpOnly ${ACTION}`, t => {
   return client.postAsync('/checkIpOnly', {
     ip: IP,
     action: ACTION

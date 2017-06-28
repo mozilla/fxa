@@ -258,6 +258,11 @@ module.exports = function (limits, now) {
       this.addAccountAccess()
       if (this.isOverAccountAccessLimit()) {
         this.rateLimit()
+      } else {
+        // Ignore the `rl` flag if we're not past the threshold for this action
+        // because it's sometimes set by allow-listed email addresses in /check,
+        // but we have no email address to allow-list against in this case.
+        return 0
       }
     }
 
