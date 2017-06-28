@@ -1,3 +1,12 @@
+<a name"1.90.0"></a>
+## 1.90.0 (2017-06-28)
+
+
+#### Features
+
+* **pkce:** add PKCE support to the oauth server (#466) r=seanmonstar ([ed59c0e6](https://github.com/mozilla/fxa-oauth-server/commit/ed59c0e6))
+
+
 <a name"1.89.0"></a>
 ## 1.89.0 (2017-06-14)
 
