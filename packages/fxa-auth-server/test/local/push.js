@@ -16,7 +16,7 @@ var path = require('path')
 const P = require(`${ROOT_DIR}/lib/promise`)
 const mocks = require('../mocks')
 const mockLog = mocks.mockLog
-var mockUid = Buffer.from('foo')
+var mockUid = 'deadbeef'
 var mockConfig = {}
 
 const PUSH_PAYLOADS_SCHEMA_PATH = `${ROOT_DIR}/docs/pushpayloads.schema.json`
@@ -746,7 +746,7 @@ describe('push', () => {
         version: 1,
         command: 'fxaccounts:account_destroyed',
         data: {
-          uid: mockUid.toString('hex')
+          uid: mockUid
         }
       }
       return push.notifyAccountDestroyed(mockUid, mockDevices).catch(function (err) {

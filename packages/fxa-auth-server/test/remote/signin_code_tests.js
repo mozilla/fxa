@@ -67,7 +67,6 @@ describe('remote signinCodes', function () {
             })
           })
           .then(result => assert.deepEqual(result, { email }, '/signinCodes/consume should return the email address'))
-          .catch(err => assert.fail('/signinCodes/consume should succeed'))
       })
   })
 

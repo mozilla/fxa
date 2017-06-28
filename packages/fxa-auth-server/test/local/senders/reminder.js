@@ -14,8 +14,8 @@ var TEST_EMAIL = 'test@restmail.net'
 var TEST_ACCOUNT_RECORD = {
   emailVerified: false,
   email: TEST_EMAIL,
-  emailCode: Buffer.from('foo'),
-  uid: Buffer.from('bar'),
+  emailCode: 'deadbeaf',
+  uid: 'c0ffee',
   locale: 'da, en-gb;q=0.8, en;q=0.7'
 }
 var REMINDER_TYPE = 'first'
@@ -51,12 +51,12 @@ it('_processReminder sends first reminder for unverified emails', function () {
   var mailer = new Mailer({}, {}, config.get('smtp'))
   sandbox.stub(mailer, 'send', function (vals) {
     assert.equal(vals.acceptLanguage, TEST_ACCOUNT_RECORD.locale, 'correct locale')
-    assert.equal(vals.uid, TEST_ACCOUNT_RECORD.uid.toString('hex'), 'correct uid')
+    assert.equal(vals.uid, TEST_ACCOUNT_RECORD.uid, 'correct uid')
     assert.equal(vals.email, TEST_ACCOUNT_RECORD.email, 'correct email')
     assert.equal(vals.template, 'verificationReminderFirstEmail', 'correct template')
     assert.equal(vals.subject, 'Hello again.', 'correct subject')
-    assert.equal(vals.headers['X-Verify-Code'], TEST_ACCOUNT_RECORD.emailCode.toString('hex'), 'correct code')
-    assert.ok(vals.templateValues.link.indexOf(TEST_ACCOUNT_RECORD.emailCode.toString('hex')) >= 0, 'correct link')
+    assert.equal(vals.headers['X-Verify-Code'], TEST_ACCOUNT_RECORD.emailCode, 'correct code')
+    assert.ok(vals.templateValues.link.indexOf(TEST_ACCOUNT_RECORD.emailCode) >= 0, 'correct link')
     done()
   })
 
@@ -71,8 +71,8 @@ it('_processReminder sends second reminder for unverified emails', function () {
   var mailer = new Mailer({}, {}, config.get('smtp'))
   sandbox.stub(mailer, 'send', function (vals) {
     assert.equal(vals.template, 'verificationReminderSecondEmail', 'correct template')
-    assert.equal(vals.headers['X-Verify-Code'], TEST_ACCOUNT_RECORD.emailCode.toString('hex'), 'correct code')
-    assert.ok(vals.templateValues.link.indexOf(TEST_ACCOUNT_RECORD.emailCode.toString('hex')) >= 0, 'correct link')
+    assert.equal(vals.headers['X-Verify-Code'], TEST_ACCOUNT_RECORD.emailCode, 'correct code')
+    assert.ok(vals.templateValues.link.indexOf(TEST_ACCOUNT_RECORD.emailCode) >= 0, 'correct link')
     done()
   })
 

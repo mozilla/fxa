@@ -4,4 +4,33 @@
 
 'use strict'
 
-module.exports = require('../promise').promisify(require('crypto').randomBytes)
+const randomBytes = require('../promise').promisify(require('crypto').randomBytes)
+
+function random(bytes) {
+  if (arguments.length > 1) {
+    bytes = Array.from(arguments)
+    const sum = bytes.reduce((acc, val) => acc + val, 0)
+    return randomBytes(sum).then(buf => {
+      let pos = 0
+      return bytes.map(num => {
+        const slice = buf.slice(pos, pos + num)
+        pos += num
+        return slice
+      })
+    })
+  } else {
+    return randomBytes(bytes)
+  }
+}
+
+random.hex = function hex() {
+  return random.apply(null, arguments).then(bufs => {
+    if (Array.isArray(bufs)) {
+      return bufs.map(buf => buf.toString('hex'))
+    } else {
+      return bufs.toString('hex')
+    }
+  })
+}
+
+module.exports = random

@@ -21,7 +21,7 @@ var mocks = {
   })
 }
 mocks.mozlog.config = sinon.spy()
-const log = proxyquire('../../lib/log', mocks)('foo', 'bar')
+const log = proxyquire('../../lib/log', mocks)('foo', 'test')
 
 const emitRouteFlowEvent = sinon.spy()
 
@@ -33,7 +33,7 @@ describe('log', () => {
       var args = mocks.mozlog.config.args[0]
       assert.equal(args.length, 1, 'mozlog.config was passed one argument')
       assert.equal(Object.keys(args[0]).length, 4, 'number of mozlog.config arguments was correct')
-      assert.equal(args[0].app, 'bar', 'app property was correct')
+      assert.equal(args[0].app, 'test', 'app property was correct')
       assert.equal(args[0].level, 'foo', 'level property was correct')
       assert.equal(args[0].stream, process.stderr, 'stream property was correct')
 

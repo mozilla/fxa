@@ -163,6 +163,12 @@ function main() {
       server.log.fatal(err)
       process.exit(8)
     })
+    process.on('unhandledRejection', (reason, promise) => {
+      server.log.fatal({
+        op: 'promise.unhandledRejection',
+        error: reason
+      })
+    })
     process.on('SIGINT', shutdown)
     server.log.on('error', shutdown)
 

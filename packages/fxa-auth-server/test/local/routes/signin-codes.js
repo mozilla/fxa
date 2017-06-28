@@ -45,8 +45,7 @@ describe('/signinCodes/consume:', () => {
       assert.equal(db.consumeSigninCode.callCount, 1)
       const args = db.consumeSigninCode.args[0]
       assert.equal(args.length, 1)
-      assert.ok(Buffer.isBuffer(args[0]))
-      assert.equal(args[0].toString('base64'), '++//ff0=')
+      assert.equal(args[0], 'fbefff7dfd')
     })
 
     it('called log.flowEvent correctly', () => {

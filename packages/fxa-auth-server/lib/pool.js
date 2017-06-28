@@ -6,7 +6,6 @@
 
 const P = require('./promise')
 const Poolee = require('poolee')
-const unbufferDatum = require('./crypto/butil').unbufferDatum
 
 function parseUrl(url) {
   var match = /([a-zA-Z]+):\/\/(\S+)/.exec(url)
@@ -43,7 +42,7 @@ Pool.prototype.request = function (method, path, data) {
       headers: {
         'Content-Type': 'application/json'
       },
-      data: data ? JSON.stringify(data, unbufferDatum) : undefined
+      data: data ? JSON.stringify(data) : undefined
     },
     handleResponse
   )

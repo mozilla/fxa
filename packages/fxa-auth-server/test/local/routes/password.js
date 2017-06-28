@@ -61,11 +61,11 @@ describe('/password', () => {
     '/forgot/send_code',
     () => {
       var mockCustoms = mocks.mockCustoms()
-      var uid = uuid.v4('binary')
+      var uid = uuid.v4('binary').toString('hex')
       var mockDB = mocks.mockDB({
         email: TEST_EMAIL,
         passCode: 'foo',
-        passwordForgotTokenId: crypto.randomBytes(16),
+        passwordForgotTokenId: crypto.randomBytes(16).toString('hex'),
         uid: uid
       })
       var mockMailer = mocks.mockMailer()
@@ -130,7 +130,7 @@ describe('/password', () => {
     '/forgot/resend_code',
     () => {
       var mockCustoms = mocks.mockCustoms()
-      var uid = uuid.v4('binary')
+      var uid = uuid.v4('binary').toString('hex')
       var mockDB = mocks.mockDB()
       var mockMailer = mocks.mockMailer()
       var mockMetricsContext = mocks.mockMetricsContext()
@@ -157,7 +157,7 @@ describe('/password', () => {
 
       var mockRequest = mocks.mockRequest({
         credentials: {
-          data: crypto.randomBytes(16),
+          data: crypto.randomBytes(16).toString('hex'),
           email: TEST_EMAIL,
           passCode: Buffer('abcdef', 'hex'),
           ttl: function () { return 17 },
@@ -190,15 +190,15 @@ describe('/password', () => {
     '/forgot/verify_code',
     () => {
       var mockCustoms = mocks.mockCustoms()
-      var uid = uuid.v4('binary')
+      var uid = uuid.v4('binary').toString('hex')
       var accountResetToken = {
-        data: crypto.randomBytes(16)
+        data: crypto.randomBytes(16).toString('hex')
       }
       var mockDB = mocks.mockDB({
         accountResetToken: accountResetToken,
         email: TEST_EMAIL,
         passCode: 'abcdef',
-        passwordForgotTokenId: crypto.randomBytes(16),
+        passwordForgotTokenId: crypto.randomBytes(16).toString('hex'),
         uid: uid
       })
       var mockMailer = mocks.mockMailer()
@@ -264,7 +264,7 @@ describe('/password', () => {
     it(
       'smoke',
       () => {
-        var uid = uuid.v4('binary')
+        var uid = uuid.v4('binary').toString('hex')
         var mockDB = mocks.mockDB({
           email: TEST_EMAIL,
           uid: uid
@@ -324,7 +324,7 @@ describe('/password', () => {
     it(
       'succeeds even if notification blocked',
       () => {
-        var uid = uuid.v4('binary')
+        var uid = uuid.v4('binary').toString('hex')
         var mockDB = mocks.mockDB({
           email: TEST_EMAIL,
           uid: uid

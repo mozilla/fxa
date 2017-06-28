@@ -98,7 +98,11 @@ module.exports = function (log, translator, templates, config) {
     }).text
   }
 
-  function urlSafeBase64 (buffer) {
-    return buffer.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+  function urlSafeBase64 (hex) {
+    return Buffer.from(hex, 'hex')
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '')
   }
 }

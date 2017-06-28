@@ -2,13 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var butil = require('../crypto/butil')
 var log = require('./log')('db')
 var P = require('../promise')
 var Pool = require('./pool')
 var qs = require('querystring')
-
-var bufferize = butil.bufferize
 
 module.exports = function () {
 
@@ -36,10 +33,9 @@ module.exports = function () {
   }
 
   DB.prototype.emailRecord = function (email) {
-    return this.pool.get('/emailRecord/' + Buffer(email, 'utf8').toString('hex'))
+    return this.pool.get('/emailRecord/' + Buffer.from(email, 'utf8').toString('hex'))
       .then(
-        function (body) {
-          var data = bufferize(body)
+        function (data) {
           data.emailVerified = !! data.emailVerified
           return data
         },
@@ -51,10 +47,9 @@ module.exports = function () {
 
   DB.prototype.account = function (uid) {
     log.trace({ op: 'DB.account', uid: uid })
-    return this.pool.get('/account/' + uid.toString('hex'))
+    return this.pool.get('/account/' + uid)
       .then(
-        function (body) {
-          var data = bufferize(body)
+        function (data) {
           data.emailVerified = !! data.emailVerified
           return data
         },

@@ -9,7 +9,6 @@ const P = require('./promise')
 const Pool = require('./pool')
 const userAgent = require('./userAgent')
 
-const bufferize = require('./crypto/butil').bufferize
 const random = require('./crypto/random')
 
 module.exports = (
@@ -55,7 +54,7 @@ module.exports = (
     data.createdAt = data.verifierSetAt = Date.now()
     data.normalizedEmail = data.email.toLowerCase()
     return this.pool.put(
-      '/account/' + data.uid.toString('hex'),
+      '/account/' + data.uid,
       data
     )
     .then(
@@ -177,9 +176,8 @@ module.exports = (
   // READ
 
   DB.prototype.checkPassword = function (uid, verifyHash) {
-    verifyHash = Buffer(verifyHash).toString('hex')
     log.trace({ op: 'DB.checkPassword', uid: uid, verifyHash: verifyHash })
-    return this.pool.post('/account/' + uid.toString('hex') + '/checkPassword',
+    return this.pool.post('/account/' + uid + '/checkPassword',
       {
         'verifyHash': verifyHash
       })
@@ -198,7 +196,7 @@ module.exports = (
 
   DB.prototype.accountExists = function (email) {
     log.trace({ op: 'DB.accountExists', email: email })
-    return this.pool.head('/emailRecord/' + Buffer(email, 'utf8').toString('hex'))
+    return this.pool.head('/emailRecord/' + hexEncode(email))
       .then(
         function () {
           return true
@@ -214,38 +212,14 @@ module.exports = (
 
   DB.prototype.sessions = function (uid) {
     log.trace({ op: 'DB.sessions', uid: uid })
-    return this.pool.get('/account/' + uid.toString('hex') + '/sessions')
-      .then(
-        function (body) {
-          return body.map(function (sessionToken) {
-            return bufferize(sessionToken, {
-              ignore: [
-                'uaBrowser',
-                'uaBrowserVersion',
-                'uaOS',
-                'uaOSVersion',
-                'uaDeviceType'
-              ]
-            })
-          })
-        }
-      )
+    return this.pool.get('/account/' + uid + '/sessions')
   }
 
   DB.prototype.sessionToken = function (id) {
     log.trace({ op: 'DB.sessionToken', id: id })
-    return this.pool.get('/sessionToken/' + id.toString('hex'))
+    return this.pool.get('/sessionToken/' + id)
       .then(
-        function (body) {
-          var data = bufferize(body, {
-            ignore: [
-              'uaBrowser',
-              'uaBrowserVersion',
-              'uaOS',
-              'uaOSVersion',
-              'uaDeviceType'
-            ]
-          })
+        function (data) {
           return SessionToken.fromHex(data.tokenData, data)
         },
         function (err) {
@@ -257,18 +231,9 @@ module.exports = (
 
   DB.prototype.sessionTokenWithVerificationStatus = function (id) {
     log.trace({ op: 'DB.sessionTokenWithVerificationStatus', id: id })
-    return this.pool.get('/sessionToken/' + id.toString('hex') + '/verified')
+    return this.pool.get('/sessionToken/' + id + '/verified')
       .then(
-        function (body) {
-          var data = bufferize(body, {
-            ignore: [
-              'uaBrowser',
-              'uaBrowserVersion',
-              'uaOS',
-              'uaOSVersion',
-              'uaDeviceType'
-            ]
-          })
+        function (data) {
           return SessionToken.fromHex(data.tokenData, data)
         },
         function (err) {
@@ -280,10 +245,9 @@ module.exports = (
 
   DB.prototype.keyFetchToken = function (id) {
     log.trace({ op: 'DB.keyFetchToken', id: id })
-    return this.pool.get('/keyFetchToken/' + id.toString('hex'))
+    return this.pool.get('/keyFetchToken/' + id)
       .then(
-        function (body) {
-          var data = bufferize(body)
+        function (data) {
           return KeyFetchToken.fromId(id, data)
         },
         function (err) {
@@ -295,10 +259,9 @@ module.exports = (
 
   DB.prototype.keyFetchTokenWithVerificationStatus = function (id) {
     log.trace({ op: 'DB.keyFetchTokenWithVerificationStatus', id: id })
-    return this.pool.get('/keyFetchToken/' + id.toString('hex') + '/verified')
+    return this.pool.get('/keyFetchToken/' + id + '/verified')
       .then(
-        function (body) {
-          var data = bufferize(body)
+        function (data) {
           return KeyFetchToken.fromId(id, data)
         },
         function (err) {
@@ -310,10 +273,9 @@ module.exports = (
 
   DB.prototype.accountResetToken = function (id) {
     log.trace({ op: 'DB.accountResetToken', id: id })
-    return this.pool.get('/accountResetToken/' + id.toString('hex'))
+    return this.pool.get('/accountResetToken/' + id)
       .then(
-        function (body) {
-          var data = bufferize(body)
+        function (data) {
           return AccountResetToken.fromHex(data.tokenData, data)
         },
         function (err) {
@@ -325,10 +287,9 @@ module.exports = (
 
   DB.prototype.passwordForgotToken = function (id) {
     log.trace({ op: 'DB.passwordForgotToken', id: id })
-    return this.pool.get('/passwordForgotToken/' + id.toString('hex'))
+    return this.pool.get('/passwordForgotToken/' + id)
       .then(
-        function (body) {
-          var data = bufferize(body)
+        function (data) {
           return PasswordForgotToken.fromHex(data.tokenData, data)
         },
         function (err) {
@@ -340,10 +301,9 @@ module.exports = (
 
   DB.prototype.passwordChangeToken = function (id) {
     log.trace({ op: 'DB.passwordChangeToken', id: id })
-    return this.pool.get('/passwordChangeToken/' + id.toString('hex'))
+    return this.pool.get('/passwordChangeToken/' + id)
       .then(
-        function (body) {
-          var data = bufferize(body)
+        function (data) {
           return PasswordChangeToken.fromHex(data.tokenData, data)
         },
         function (err) {
@@ -355,10 +315,9 @@ module.exports = (
 
   DB.prototype.emailRecord = function (email) {
     log.trace({ op: 'DB.emailRecord', email: email })
-    return this.pool.get('/emailRecord/' + Buffer(email, 'utf8').toString('hex'))
+    return this.pool.get('/emailRecord/' + hexEncode(email))
       .then(
-        function (body) {
-          var data = bufferize(body)
+        function (data) {
           data.emailVerified = !! data.emailVerified
           return data
         },
@@ -373,10 +332,9 @@ module.exports = (
 
   DB.prototype.account = function (uid) {
     log.trace({ op: 'DB.account', uid: uid })
-    return this.pool.get('/account/' + uid.toString('hex'))
+    return this.pool.get('/account/' + uid)
       .then(
-        function (body) {
-          var data = bufferize(body)
+        function (data) {
           data.emailVerified = !! data.emailVerified
           return data
         },
@@ -392,11 +350,11 @@ module.exports = (
   DB.prototype.devices = function (uid) {
     log.trace({ op: 'DB.devices', uid: uid })
 
-    return this.pool.get('/account/' + uid.toString('hex') + '/devices')
+    return this.pool.get('/account/' + uid + '/devices')
       .then(
         function (body) {
           return body.map(function (item) {
-            return bufferize({
+            return {
               id: item.id,
               sessionToken: item.sessionTokenId,
               lastAccessTime: marshallLastAccessTime(item.lastAccessTime, uid, item.email),
@@ -410,12 +368,7 @@ module.exports = (
               uaOS: item.uaOS,
               uaOSVersion: item.uaOSVersion,
               uaDeviceType: item.uaDeviceType
-            }, {
-              ignore: [
-                'name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey',
-                'uaBrowser', 'uaBrowserVersion', 'uaOS', 'uaOSVersion', 'uaDeviceType'
-              ]
-            })
+            }
           })
         },
         function (err) {
@@ -440,18 +393,9 @@ module.exports = (
 
   DB.prototype.sessionWithDevice = function (id) {
     log.trace({ op: 'DB.sessionWithDevice', id: id })
-    return this.pool.get('/sessionToken/' + id.toString('hex') + '/device')
+    return this.pool.get('/sessionToken/' + id + '/device')
     .then(
-      function (body) {
-        var data = bufferize(body, {
-          ignore: [
-            'uaBrowser',
-            'uaBrowserVersion',
-            'uaOS',
-            'uaOSVersion',
-            'uaDeviceType'
-          ]
-        })
+      function (data) {
         return SessionToken.fromHex(data.tokenData, data)
       },
       function (err) {
@@ -493,13 +437,13 @@ module.exports = (
   DB.prototype.createDevice = function (uid, sessionTokenId, deviceInfo) {
     log.trace({ op: 'DB.createDevice', uid: uid, id: deviceInfo.id })
 
-    return random(16)
+    return random.hex(16)
       .then(id => {
         deviceInfo.id = id
         deviceInfo.createdAt = Date.now()
         return this.pool.put(
-          '/account/' + uid.toString('hex') +
-          '/device/' + deviceInfo.id.toString('hex'),
+          '/account/' + uid +
+          '/device/' + deviceInfo.id,
           {
             sessionTokenId: sessionTokenId,
             createdAt: deviceInfo.createdAt,
@@ -524,7 +468,7 @@ module.exports = (
                 // return an appropriate error.
                 devices => {
                   const isDuplicateDeviceId = devices.reduce((is, device) => {
-                    is || device.id.toString('hex') === deviceInfo.id.toString('hex')
+                    is || device.id === deviceInfo.id
                   }, false)
 
                   if (isDuplicateDeviceId) {
@@ -543,8 +487,8 @@ module.exports = (
   DB.prototype.updateDevice = function (uid, sessionTokenId, deviceInfo) {
     log.trace({ op: 'DB.updateDevice', uid: uid, id: deviceInfo.id })
     return this.pool.post(
-      '/account/' + uid.toString('hex') +
-      '/device/' + deviceInfo.id.toString('hex') + '/update',
+      '/account/' + uid +
+      '/device/' + deviceInfo.id + '/update',
       {
         sessionTokenId: sessionTokenId,
         name: deviceInfo.name,
@@ -574,7 +518,7 @@ module.exports = (
 
   DB.prototype.deleteAccount = function (authToken) {
     log.trace({ op: 'DB.deleteAccount', uid: authToken && authToken.uid })
-    return this.pool.del('/account/' + authToken.uid.toString('hex'))
+    return this.pool.del('/account/' + authToken.uid)
   }
 
   DB.prototype.deleteSessionToken = function (sessionToken) {
@@ -641,7 +585,7 @@ module.exports = (
       }
     )
     return this.pool.del(
-      '/account/' + uid.toString('hex') + '/device/' + deviceId.toString('hex')
+      '/account/' + uid + '/device/' + deviceId
     )
     .catch(
       function (err) {
@@ -662,7 +606,7 @@ module.exports = (
       }
     )
     return this.pool.get(
-      '/account/' + uid.toString('hex') + '/tokens/' + tokenVerificationId.toString('hex') + '/device'
+      '/account/' + uid + '/tokens/' + tokenVerificationId + '/device'
     )
     .catch(
       function (err) {
@@ -680,7 +624,7 @@ module.exports = (
     log.trace({ op: 'DB.resetAccount', uid: accountResetToken && accountResetToken.uid })
     data.verifierSetAt = Date.now()
     return this.pool.post(
-      '/account/' + accountResetToken.uid.toString('hex') + '/reset',
+      '/account/' + accountResetToken.uid + '/reset',
       data
     )
   }
@@ -691,13 +635,13 @@ module.exports = (
       uid: account && account.uid,
       emailCode: emailCode
     })
-    return this.pool.post('/account/' + account.uid.toString('hex') + '/verifyEmail/' + emailCode.toString('hex'))
+    return this.pool.post('/account/' + account.uid + '/verifyEmail/' + emailCode)
   }
 
   DB.prototype.verifyTokens = function (tokenVerificationId, accountData) {
     log.trace({ op: 'DB.verifyTokens', tokenVerificationId: tokenVerificationId })
     return this.pool.post(
-      '/tokens/' + tokenVerificationId.toString('hex') + '/verify',
+      '/tokens/' + tokenVerificationId + '/verify',
       { uid: accountData.uid }
     )
     .then(
@@ -739,7 +683,7 @@ module.exports = (
   DB.prototype.updateLocale = function (uid, locale) {
     log.trace({ op: 'DB.updateLocale', uid: uid, locale: locale })
     return this.pool.post(
-      '/account/' + uid.toString('hex') + '/locale',
+      '/account/' + uid + '/locale',
       { locale: locale }
     )
   }
@@ -779,7 +723,7 @@ module.exports = (
       params: params
     })
 
-    return this.pool.get('/securityEvents/' + params.uid.toString('hex') + '/ip/' + params.ipAddr)
+    return this.pool.get('/securityEvents/' + params.uid + '/ip/' + params.ipAddr)
   }
 
   DB.prototype.createUnblockCode = function (uid) {
@@ -790,7 +734,7 @@ module.exports = (
     return UnblockCode()
       .then(
         (unblock) => {
-          return this.pool.put('/account/' + uid.toString('hex') + '/unblock/' + unblock)
+          return this.pool.put('/account/' + uid + '/unblock/' + unblock)
             .then(
               () => {
                 return unblock
@@ -818,7 +762,7 @@ module.exports = (
       op: 'DB.consumeUnblockCode',
       uid: uid
     })
-    return this.pool.del('/account/' + uid.toString('hex') + '/unblock/' + code)
+    return this.pool.del('/account/' + uid + '/unblock/' + code)
       .catch(
         function (err) {
           if (isNotFoundError(err)) {
@@ -844,7 +788,7 @@ module.exports = (
       email: email
     })
 
-    return this.pool.get('/emailBounces/' + Buffer(email, 'utf8').toString('hex'))
+    return this.pool.get('/emailBounces/' + hexEncode(email))
   }
 
   DB.prototype.accountEmails = function (uid) {
@@ -853,7 +797,7 @@ module.exports = (
       uid: uid
     })
 
-    return this.pool.get('/account/' + uid.toString('hex') + '/emails')
+    return this.pool.get('/account/' + uid + '/emails')
   }
 
   DB.prototype.getSecondaryEmail = function (email) {
@@ -862,10 +806,7 @@ module.exports = (
       email: email
     })
 
-    return this.pool.get('/email/' + Buffer(email, 'utf8').toString('hex'))
-      .then((body) => {
-        return bufferize(body)
-      })
+    return this.pool.get('/email/' + hexEncode(email))
       .catch((err) => {
         if (isNotFoundError(err)) {
           throw error.unknownSecondaryEmail()
@@ -881,7 +822,7 @@ module.exports = (
       uid: emailData.uid
     })
 
-    return this.pool.post('/account/' + uid.toString('hex') + '/emails', emailData)
+    return this.pool.post('/account/' + uid + '/emails', emailData)
       .catch(
         function (err) {
           if (isEmailAlreadyExistsError(err)) {
@@ -898,7 +839,7 @@ module.exports = (
       uid: uid
     })
 
-    return this.pool.del('/account/' + uid.toString('hex') + '/emails/' + email)
+    return this.pool.del('/account/' + uid + '/emails/' + email)
       .catch(
         function (err) {
           if (isEmailDeletePrimaryError(err)) {
@@ -912,10 +853,10 @@ module.exports = (
   DB.prototype.createSigninCode = function (uid, flowId) {
     log.trace({ op: 'DB.createSigninCode' })
 
-    return random(config.signinCodeSize)
+    return random.hex(config.signinCodeSize)
       .then(code => {
         const data = { uid, createdAt: Date.now(), flowId }
-        return this.pool.put(`/signinCodes/${code.toString('hex')}`, data)
+        return this.pool.put(`/signinCodes/${code}`, data)
           .then(() => code, err => {
             if (isRecordAlreadyExistsError(err)) {
               log.warn({ op: 'DB.createSigninCode.duplicate' })
@@ -930,7 +871,7 @@ module.exports = (
   DB.prototype.consumeSigninCode = function (code) {
     log.trace({ op: 'DB.consumeSigninCode', code })
 
-    return this.pool.post(`/signinCodes/${code.toString('hex')}/consume`)
+    return this.pool.post(`/signinCodes/${code}/consume`)
       .catch(err => {
         if (isNotFoundError(err)) {
           throw error.invalidSigninCode()
@@ -945,6 +886,10 @@ module.exports = (
       err = error.invalidToken('The authentication token could not be found')
     }
     return err
+  }
+
+  function hexEncode(str) {
+    return Buffer(str, 'utf8').toString('hex')
   }
 
   return DB

@@ -21,10 +21,10 @@ module.exports = function(log, config) {
 
   function Password(authPW, authSalt, version) {
     version = typeof(version) === 'number' ? version : 1
-    this.authPW = authPW
-    this.authSalt = authSalt
+    this.authPW = Buffer.from(authPW, 'hex')
+    this.authSalt = Buffer.from(authSalt, 'hex')
     this.version = version
-    this.stretchPromise = hashVersions[version](authPW, authSalt)
+    this.stretchPromise = hashVersions[version](this.authPW, this.authSalt)
     this.verifyHashPromise = this.stretchPromise.then(hkdfVerify)
   }
 
@@ -51,7 +51,7 @@ module.exports = function(log, config) {
         return hkdf(stretched, context, null, 32)
           .then(
             function (wrapper) {
-              return butil.xorBuffers(wrapper, wrapped)
+              return butil.xorBuffers(wrapper, wrapped).toString('hex')
             }
           )
       }
@@ -60,7 +60,7 @@ module.exports = function(log, config) {
   Password.prototype.wrap = Password.prototype.unwrap
 
   function hkdfVerify(stretched) {
-    return hkdf(stretched, 'verifyHash', null, 32)
+    return hkdf(stretched, 'verifyHash', null, 32).then(buf => buf.toString('hex'))
   }
 
   Password.stat = function () {

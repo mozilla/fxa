@@ -13,7 +13,7 @@ module.exports = function (log, error) {
   return function start(bounceQueue, db) {
 
     function accountDeleted(uid, email) {
-      log.info({ op: 'accountDeleted', uid: uid.toString('hex'), email: email })
+      log.info({ op: 'accountDeleted', uid: uid, email: email })
     }
 
     function gotError(email, err) {

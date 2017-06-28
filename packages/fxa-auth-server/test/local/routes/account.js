@@ -19,6 +19,10 @@ var log = require('../../../lib/log')
 
 var TEST_EMAIL = 'foo@gmail.com'
 
+function hexString(bytes) {
+  return crypto.randomBytes(bytes).toString('hex')
+}
+
 var makeRoutes = function (options, requireMocks) {
   options = options || {}
 
@@ -90,7 +94,7 @@ describe('/account/reset', function () {
       log: mockLog,
       metricsContext: mockMetricsContext,
       payload: {
-        authPW: crypto.randomBytes(32).toString('hex'),
+        authPW: hexString(32),
         sessionToken: true,
         metricsContext: {
           flowBeginTime: Date.now(),
@@ -101,14 +105,14 @@ describe('/account/reset', function () {
         keys: 'true'
       }
     })
-    const keyFetchTokenId = crypto.randomBytes(16)
-    const sessionTokenId = crypto.randomBytes(16)
+    const keyFetchTokenId = hexString(16)
+    const sessionTokenId = hexString(16)
     const mockDB = mocks.mockDB({
       uid: uid,
       email: TEST_EMAIL,
       keyFetchTokenId: keyFetchTokenId,
       sessionTokenId: sessionTokenId,
-      wrapWrapKb: crypto.randomBytes(32)
+      wrapWrapKb: hexString(32)
     })
     var mockCustoms = mocks.mockCustoms()
     var mockPush = mocks.mockPush()
@@ -142,7 +146,7 @@ describe('/account/reset', function () {
         event: 'account.reset',
         service: undefined,
         userAgent: 'test user-agent',
-        uid: uid.toString('hex')
+        uid: uid
       }, 'event data was correct')
 
       assert.equal(mockDB.securityEvent.callCount, 1, 'db.securityEvent was called')
@@ -195,7 +199,7 @@ describe('/account/create', () => {
       metricsContext: mockMetricsContext,
       payload: {
         email: TEST_EMAIL,
-        authPW: crypto.randomBytes(32).toString('hex'),
+        authPW: hexString(32),
         service: 'sync',
         metricsContext: {
           flowBeginTime: Date.now(),
@@ -207,9 +211,9 @@ describe('/account/create', () => {
       }
     })
     var clientAddress = mockRequest.app.clientAddress
-    var emailCode = crypto.randomBytes(16)
-    var keyFetchTokenId = crypto.randomBytes(16)
-    var sessionTokenId = crypto.randomBytes(16)
+    var emailCode = hexString(16)
+    var keyFetchTokenId = hexString(16)
+    var sessionTokenId = hexString(16)
     var uid = uuid.v4('binary')
     var mockDB = mocks.mockDB({
       email: TEST_EMAIL,
@@ -277,7 +281,7 @@ describe('/account/create', () => {
         event: 'account.created',
         service: 'sync',
         userAgent: 'test user-agent',
-        uid: uid.toString('hex')
+        uid: uid
       }, 'event data was correct')
 
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent was called once')
@@ -290,7 +294,7 @@ describe('/account/create', () => {
         flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
         locale: 'en-GB',
         time: now,
-        uid: uid.toString('hex'),
+        uid: uid,
         userAgent: 'test user-agent'
       }, 'flow event data was correct')
 
@@ -307,7 +311,7 @@ describe('/account/create', () => {
 
       args = mockMetricsContext.stash.args[1]
       assert.equal(args.length, 1, 'metricsContext.stash was passed one argument second time')
-      assert.equal(args[0].id, emailCode.toString('hex'), 'argument was synthesized token')
+      assert.equal(args[0].id, emailCode, 'argument was synthesized token')
       assert.deepEqual(args[0].uid, uid, 'token.uid was correct')
       assert.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
 
@@ -369,7 +373,7 @@ describe('/account/login', function () {
     log: mockLog,
     metricsContext: mockMetricsContext,
     payload: {
-      authPW: crypto.randomBytes(32).toString('hex'),
+      authPW: hexString(32),
       email: TEST_EMAIL,
       service: 'sync',
       reason: 'signin',
@@ -386,7 +390,7 @@ describe('/account/login', function () {
     log: mockLog,
     metricsContext: mockMetricsContext,
     payload: {
-      authPW: crypto.randomBytes(32).toString('hex'),
+      authPW: hexString(32),
       email: 'test@mozilla.com',
       service: 'dcdb5ae7add825d2',
       reason: 'signin',
@@ -402,7 +406,7 @@ describe('/account/login', function () {
     log: mockLog,
     query: {},
     payload: {
-      authPW: crypto.randomBytes(32).toString('hex'),
+      authPW: hexString(32),
       email: TEST_EMAIL,
       unblockCode: 'ABCD1234',
       service: 'dcdb5ae7add825d2',
@@ -414,8 +418,8 @@ describe('/account/login', function () {
       }
     }
   })
-  var keyFetchTokenId = crypto.randomBytes(16)
-  var sessionTokenId = crypto.randomBytes(16)
+  var keyFetchTokenId = hexString(16)
+  var sessionTokenId = hexString(16)
   var uid = uuid.v4('binary')
   var mockDB = mocks.mockDB({
     email: TEST_EMAIL,
@@ -495,7 +499,7 @@ describe('/account/login', function () {
         event: 'account.login',
         service: 'sync',
         userAgent: 'test user-agent',
-        uid: uid.toString('hex')
+        uid: uid
       }, 'event data was correct')
 
       assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
@@ -508,7 +512,7 @@ describe('/account/login', function () {
         flowCompleteSignal: 'account.signed',
         locale: 'en-US',
         time: now,
-        uid: uid.toString('hex'),
+        uid: uid,
         userAgent: 'test user-agent'
       }, 'first flow event was correct')
       args = mockLog.flowEvent.args[1]
@@ -571,20 +575,20 @@ describe('/account/login', function () {
 
   describe('sign-in unverified account', function () {
     it('sends email code', function () {
-      var emailCode = crypto.randomBytes(16)
+      var emailCode = hexString(16)
       mockDB.emailRecord = function () {
         return P.resolve({
-          authSalt: crypto.randomBytes(32),
-          data: crypto.randomBytes(32),
+          authSalt: hexString(32),
+          data: hexString(32),
           email: TEST_EMAIL,
           emailVerified: false,
           emailCode: emailCode,
-          kA: crypto.randomBytes(32),
+          kA: hexString(32),
           lastAuthAt: function () {
             return Date.now()
           },
           uid: uid,
-          wrapWrapKb: crypto.randomBytes(32)
+          wrapWrapKb: hexString(32)
         })
       }
 
@@ -612,16 +616,16 @@ describe('/account/login', function () {
 
       mockDB.emailRecord = function () {
         return P.resolve({
-          authSalt: crypto.randomBytes(32),
-          data: crypto.randomBytes(32),
+          authSalt: hexString(32),
+          data: hexString(32),
           email: TEST_EMAIL,
           emailVerified: true,
-          kA: crypto.randomBytes(32),
+          kA: hexString(32),
           lastAuthAt: function () {
             return Date.now()
           },
           uid: uid,
-          wrapWrapKb: crypto.randomBytes(32)
+          wrapWrapKb: hexString(32)
         })
       }
     })
@@ -648,16 +652,16 @@ describe('/account/login', function () {
     it('does not require verification when keys are not requested', function () {
       mockDB.emailRecord = function () {
         return P.resolve({
-          authSalt: crypto.randomBytes(32),
-          data: crypto.randomBytes(32),
+          authSalt: hexString(32),
+          data: hexString(32),
           email: 'test@mozilla.com',
           emailVerified: true,
-          kA: crypto.randomBytes(32),
+          kA: hexString(32),
           lastAuthAt: function () {
             return Date.now()
           },
           uid: uid,
-          wrapWrapKb: crypto.randomBytes(32)
+          wrapWrapKb: hexString(32)
         })
       }
 
@@ -684,16 +688,16 @@ describe('/account/login', function () {
       mockRequest.payload.email = 'test@mozilla.com'
       mockDB.emailRecord = function () {
         return P.resolve({
-          authSalt: crypto.randomBytes(32),
-          data: crypto.randomBytes(32),
+          authSalt: hexString(32),
+          data: hexString(32),
           email: mockRequest.payload.email,
           emailVerified: false,
-          kA: crypto.randomBytes(32),
+          kA: hexString(32),
           lastAuthAt: function () {
             return Date.now()
           },
           uid: uid,
-          wrapWrapKb: crypto.randomBytes(32)
+          wrapWrapKb: hexString(32)
         })
       }
 
@@ -720,17 +724,17 @@ describe('/account/login', function () {
 
         mockDB.emailRecord = function () {
           return P.resolve({
-            authSalt: crypto.randomBytes(32),
+            authSalt: hexString(32),
             createdAt: Date.now() - accountCreatedSince,
-            data: crypto.randomBytes(32),
+            data: hexString(32),
             email: mockRequest.payload.email,
             emailVerified: true,
-            kA: crypto.randomBytes(32),
+            kA: hexString(32),
             lastAuthAt: function () {
               return Date.now()
             },
             uid: uid,
-            wrapWrapKb: crypto.randomBytes(32)
+            wrapWrapKb: hexString(32)
           })
         }
 
@@ -869,7 +873,7 @@ describe('/account/login', function () {
 
         assert.equal(!! record, true, 'log.info was called for Account.history')
         assert.equal(record.op, 'Account.history.verified')
-        assert.equal(record.uid, uid.toString('hex'))
+        assert.equal(record.uid, uid)
         assert.equal(record.events, 1)
         assert.equal(record.recency, 'day')
       })
@@ -895,7 +899,7 @@ describe('/account/login', function () {
 
         assert.equal(!! record, true, 'log.info was called for Account.history')
         assert.equal(record.op, 'Account.history.unverified')
-        assert.equal(record.uid, uid.toString('hex'))
+        assert.equal(record.uid, uid)
         assert.equal(record.events, 1)
       })
     })
@@ -1068,14 +1072,14 @@ describe('/account/login', function () {
 })
 
 describe('/account/keys', function () {
-  var keyFetchTokenId = crypto.randomBytes(16)
+  var keyFetchTokenId = hexString(16)
   var uid = uuid.v4('binary')
   const mockLog = mocks.spyLog()
   const mockRequest = mocks.mockRequest({
     credentials: {
       emailVerified: true,
-      id: keyFetchTokenId.toString('hex'),
-      keyBundle: crypto.randomBytes(16),
+      id: keyFetchTokenId,
+      keyBundle: hexString(16),
       tokenId: keyFetchTokenId,
       tokenVerificationId: undefined,
       tokenVerified: true,
@@ -1092,7 +1096,7 @@ describe('/account/keys', function () {
 
   it('verified token', function () {
     return runTest(route, mockRequest, function (response) {
-      assert.deepEqual(response, {bundle: mockRequest.auth.credentials.keyBundle.toString('hex')}, 'response was correct')
+      assert.deepEqual(response, {bundle: mockRequest.auth.credentials.keyBundle}, 'response was correct')
 
       assert.equal(mockDB.deleteKeyFetchToken.callCount, 1, 'db.deleteKeyFetchToken was called once')
       var args = mockDB.deleteKeyFetchToken.args[0]
@@ -1106,7 +1110,7 @@ describe('/account/keys', function () {
         event: 'account.keyfetch',
         service: undefined,
         userAgent: 'test user-agent',
-        uid: uid.toString('hex')
+        uid: uid
       }, 'event data was correct')
     })
       .then(function () {
@@ -1116,7 +1120,7 @@ describe('/account/keys', function () {
   })
 
   it('unverified token', function () {
-    mockRequest.auth.credentials.tokenVerificationId = crypto.randomBytes(16)
+    mockRequest.auth.credentials.tokenVerificationId = hexString(16)
     mockRequest.auth.credentials.tokenVerified = false
     return runTest(route, mockRequest).then(() => assert.ok(false), response => {
       assert.equal(response.errno, 104, 'correct errno for unverified account')
@@ -1189,7 +1193,7 @@ describe('/account/destroy', function () {
         event: 'account.deleted',
         service: undefined,
         userAgent: 'test user-agent',
-        uid: uid.toString('hex')
+        uid: uid
       }, 'event data was correct')
     })
   })
@@ -1226,8 +1230,8 @@ describe('/account/sessions', function () {
 
   var mockRequest = mocks.mockRequest({
     credentials: {
-      uid: crypto.randomBytes(16),
-      tokenId: crypto.randomBytes(16)
+      uid: hexString(16),
+      tokenId: hexString(16)
     },
     payload: {}
   })

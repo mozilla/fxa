@@ -93,10 +93,10 @@ describe('remote account reset', function() {
         )
         .then(
           function (keys) {
-            assert.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
-            assert.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
-            assert.deepEqual(kA, keys.kA, 'kA was not reset')
-            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
+            assert.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            assert.equal(kA, keys.kA, 'kA was not reset')
+            assert.equal(typeof client.kB, 'string')
+            assert.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
     }
@@ -174,10 +174,10 @@ describe('remote account reset', function() {
         )
         .then(
           function (keys) {
-            assert.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
-            assert.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
-            assert.deepEqual(kA, keys.kA, 'kA was not reset')
-            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
+            assert.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            assert.equal(kA, keys.kA, 'kA was not reset')
+            assert.equal(typeof client.kB, 'string')
+            assert.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
     }

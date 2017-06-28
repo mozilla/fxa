@@ -77,7 +77,7 @@ function create(log, error, config, routes, db, translator) {
       if (! HEX_STRING.test(id)) {
         return process.nextTick(cb.bind(null, null, null)) // not found
       }
-      dbGetFn(Buffer(id, 'hex'))
+      dbGetFn(id)
         .then(
           function (token) {
             if (token.expired(Date.now())) {

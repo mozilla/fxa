@@ -134,7 +134,7 @@ module.exports = function (log, db, config) {
   function reportPushError(err, uid, deviceId) {
     log.error({
       op: LOG_OP_PUSH_TO_DEVICES,
-      uid: uid.toString('hex'),
+      uid: uid,
       deviceId: deviceId,
       err: err
     })
@@ -323,7 +323,7 @@ module.exports = function (log, db, config) {
         version: PUSH_PAYLOAD_SCHEMA_VERSION,
         command: PUSH_COMMANDS.ACCOUNT_DESTROYED,
         data: {
-          uid: uid.toString('hex')
+          uid: uid
         }
       }))
       var options = { data: data, TTL: TTL_ACCOUNT_DESTROYED }
@@ -348,7 +348,7 @@ module.exports = function (log, db, config) {
         function (devices) {
           if (options.excludedDeviceIds) {
             devices = devices.filter(function(device) {
-              return options.excludedDeviceIds.indexOf(device.id.toString('hex')) === -1
+              return options.excludedDeviceIds.indexOf(device.id) === -1
             })
           }
           var pushOptions = filterOptions(options)
@@ -372,7 +372,7 @@ module.exports = function (log, db, config) {
       return db.devices(uid).then(
         function (devices) {
           devices = devices.filter(function(device) {
-            return ids.indexOf(device.id.toString('hex')) !== -1
+            return ids.indexOf(device.id) !== -1
           })
           if (devices.length === 0) {
             return P.reject('Devices ids not found in devices')
@@ -435,7 +435,7 @@ module.exports = function (log, db, config) {
         reportPushError(new Error(ERR_TOO_MANY_DEVICES), uid, null)
       }
       return P.each(devices, function(device) {
-        var deviceId = device.id.toString('hex')
+        var deviceId = device.id
 
         log.trace({
           op: LOG_OP_PUSH_TO_DEVICES,

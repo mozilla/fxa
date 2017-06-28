@@ -6,8 +6,6 @@
 
 const assert = require('insist')
 var P = require('../../lib/promise')
-var butil = require('../../lib/crypto/butil')
-var unbuffer = butil.unbuffer
 var config = require('../../config').getProperties()
 var TestServer = require('../test_mailer_server')
 var testHelper = require('../mailer_helper')
@@ -44,7 +42,7 @@ describe('mailer reminder db', () => {
 
         return db.pool.put(
           '/account/' + accountData.uid.toString('hex'),
-          unbuffer(accountData)
+          accountData
         )
       })
       .then(function () {

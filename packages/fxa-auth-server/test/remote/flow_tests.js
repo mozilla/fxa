@@ -47,10 +47,10 @@ describe('remote flow', function() {
         )
         .then(
           function (keys) {
-            assert.ok(Buffer.isBuffer(keys.kA), 'kA exists')
-            assert.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists')
-            assert.ok(Buffer.isBuffer(keys.kB), 'kB exists')
-            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
+            assert.equal(typeof keys.kA, 'string', 'kA exists')
+            assert.equal(typeof keys.wrapKb, 'string', 'wrapKb exists')
+            assert.equal(typeof keys.kB, 'string', 'kB exists')
+            assert.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
         .then(
@@ -91,10 +91,10 @@ describe('remote flow', function() {
         )
         .then(
           function (keys) {
-            assert.ok(Buffer.isBuffer(keys.kA), 'kA exists')
-            assert.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists')
-            assert.ok(Buffer.isBuffer(keys.kB), 'kB exists')
-            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
+            assert.equal(typeof keys.kA, 'string', 'kA exists')
+            assert.equal(typeof keys.wrapKb, 'string', 'wrapKb exists')
+            assert.equal(typeof keys.kB, 'string', 'kB exists')
+            assert.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
         .then(

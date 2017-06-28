@@ -67,10 +67,6 @@ function isSampledUser (sampleRate, uid, key) {
     return false
   }
 
-  if (Buffer.isBuffer(uid)) {
-    uid = uid.toString('hex')
-  }
-
   // Extract the maximum entropy we can safely handle as a number then reduce
   // it to a value between 0 and 1 for comparison against the sample rate.
   const cohort = parseInt(

@@ -24,7 +24,7 @@ describe('devices', () => {
     beforeEach(() => {
       log = mocks.spyLog()
       deviceCreatedAt = Date.now()
-      deviceId = crypto.randomBytes(16)
+      deviceId = crypto.randomBytes(16).toString('hex')
       device = {
         name: 'foo',
         type: 'bar'
@@ -60,7 +60,7 @@ describe('devices', () => {
           log: log
         })
         sessionToken = {
-          tokenId: crypto.randomBytes(16),
+          tokenId: crypto.randomBytes(16).toString('hex'),
           uid: uuid.v4('binary'),
           tokenVerified: true
         }
@@ -92,8 +92,8 @@ describe('devices', () => {
               event: 'device.created',
               service: undefined,
               userAgent: 'test user-agent',
-              uid: sessionToken.uid.toString('hex'),
-              device_id: deviceId.toString('hex'),
+              uid: sessionToken.uid,
+              device_id: deviceId,
               is_placeholder: false
             }, 'event data was correct')
 
@@ -117,7 +117,7 @@ describe('devices', () => {
             assert.equal(args.length, 3, 'push.notifyDeviceConnected was passed three arguments')
             assert.equal(args[0], sessionToken.uid, 'first argument was uid')
             assert.equal(args[1], device.name, 'second arguent was device name')
-            assert.equal(args[2], deviceId.toString('hex'), 'third argument was device id')
+            assert.equal(args[2], deviceId, 'third argument was device id')
           })
       })
 
@@ -189,8 +189,8 @@ describe('devices', () => {
               event: 'device.updated',
               service: undefined,
               userAgent: 'test user-agent',
-              uid: sessionToken.uid.toString('hex'),
-              device_id: deviceId.toString('hex'),
+              uid: sessionToken.uid,
+              device_id: deviceId,
               is_placeholder: false
             }, 'event data was correct')
 

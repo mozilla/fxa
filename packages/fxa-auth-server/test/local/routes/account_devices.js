@@ -78,8 +78,8 @@ function runTest (route, request, assertions) {
 
 describe('/account/device', function () {
   var config = {}
-  var uid = uuid.v4('binary')
-  var deviceId = crypto.randomBytes(16)
+  var uid = uuid.v4('binary').toString('hex')
+  var deviceId = crypto.randomBytes(16).toString('hex')
   var mockRequest = mocks.mockRequest({
     credentials: {
       deviceCallbackPublicKey: '',
@@ -87,7 +87,7 @@ describe('/account/device', function () {
       deviceId: deviceId,
       deviceName: 'my awesome device',
       deviceType: 'desktop',
-      tokenId: crypto.randomBytes(16),
+      tokenId: crypto.randomBytes(16).toString('hex'),
       uid: uid
     },
     payload: {
@@ -115,7 +115,7 @@ describe('/account/device', function () {
   })
 
   it('different data', function () {
-    mockRequest.auth.credentials.deviceId = crypto.randomBytes(16)
+    mockRequest.auth.credentials.deviceId = crypto.randomBytes(16).toString('hex')
     var payload = mockRequest.payload
     payload.name = 'my even awesomer device'
     payload.type = 'phone'
@@ -164,8 +164,8 @@ describe('/account/device', function () {
 
 describe('/account/devices/notify', function () {
   var config = {}
-  var uid = uuid.v4('binary')
-  var deviceId = crypto.randomBytes(16)
+  var uid = uuid.v4('binary').toString('hex')
+  var deviceId = crypto.randomBytes(16).toString('hex')
   var mockLog = mocks.spyLog()
   var mockRequest = mocks.mockRequest({
     log: mockLog,
@@ -396,7 +396,7 @@ describe('/account/devices/notify', function () {
 
 describe('/account/device/destroy', function () {
   it('should work', () => {
-    var uid = uuid.v4('binary')
+    var uid = uuid.v4('binary').toString('hex')
     var deviceId = crypto.randomBytes(16).toString('hex')
     var mockLog = mocks.spyLog()
     var mockDB = mocks.mockDB()
@@ -452,17 +452,17 @@ describe('/account/devices', function () {
   it('should return the devices list', () => {
     var mockRequest = mocks.mockRequest({
       credentials: {
-        uid: crypto.randomBytes(16),
-        tokenId: crypto.randomBytes(16)
+        uid: crypto.randomBytes(16).toString('hex'),
+        tokenId: crypto.randomBytes(16).toString('hex')
       },
       payload: {}
     })
-    var unnamedDevice = { sessionToken: crypto.randomBytes(16) }
+    var unnamedDevice = { sessionToken: crypto.randomBytes(16).toString('hex') }
     var mockDB = mocks.mockDB({
       devices: [
         { name: 'current session', type: 'mobile', sessionToken: mockRequest.auth.credentials.tokenId },
-        { name: 'has no type', sessionToken: crypto.randomBytes(16) },
-        { name: 'has device type', sessionToken: crypto.randomBytes(16), uaDeviceType: 'wibble' },
+        { name: 'has no type', sessionToken: crypto.randomBytes(16).toString('hex') },
+        { name: 'has device type', sessionToken: crypto.randomBytes(16).toString('hex'), uaDeviceType: 'wibble' },
         unnamedDevice
       ]
     })

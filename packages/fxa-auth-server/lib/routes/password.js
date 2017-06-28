@@ -54,7 +54,7 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Password.changeStart', request)
         var form = request.payload
-        var oldAuthPW = Buffer(form.oldAuthPW, 'hex')
+        var oldAuthPW = form.oldAuthPW
 
         customs.check(
           request,
@@ -119,8 +119,8 @@ module.exports = function (
             function (tokens) {
               reply(
                 {
-                  keyFetchToken: tokens.keyFetchToken.data.toString('hex'),
-                  passwordChangeToken: tokens.passwordChangeToken.data.toString('hex'),
+                  keyFetchToken: tokens.keyFetchToken.data,
+                  passwordChangeToken: tokens.passwordChangeToken.data,
                   verified: tokens.keyFetchToken.emailVerified
                 }
               )
@@ -150,8 +150,8 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Password.changeFinish', request)
         var passwordChangeToken = request.auth.credentials
-        var authPW = Buffer(request.payload.authPW, 'hex')
-        var wrapKb = Buffer(request.payload.wrapKb, 'hex')
+        var authPW = request.payload.authPW
+        var wrapKb = request.payload.wrapKb
         var sessionTokenId = request.payload.sessionToken
         var wantsKeys = requestHelper.wantsKeys(request)
         const ip = request.app.clientAddress
@@ -169,8 +169,7 @@ module.exports = function (
 
         function getSessionVerificationStatus() {
           if (sessionTokenId) {
-            var tokenId = Buffer(sessionTokenId, 'hex')
-            return db.sessionTokenWithVerificationStatus(tokenId)
+            return db.sessionTokenWithVerificationStatus(sessionTokenId)
               .then(
                 function (tokenData) {
                   verifiedStatus = tokenData.tokenVerified
@@ -196,9 +195,9 @@ module.exports = function (
 
         function changePassword() {
           let authSalt, password
-          return random(32)
-            .then(bytes => {
-              authSalt = bytes
+          return random.hex(32)
+            .then(hex => {
+              authSalt = hex
               password = new Password(authPW, authSalt, verifierVersion)
               return db.deletePasswordChangeToken(passwordChangeToken)
             })
@@ -230,7 +229,7 @@ module.exports = function (
             .then(
               function (result) {
                 return request.emitMetricsEvent('account.changedPassword', {
-                  uid: passwordChangeToken.uid.toString('hex')
+                  uid: passwordChangeToken.uid
                 })
                 .then(
                   function () {
@@ -287,7 +286,7 @@ module.exports = function (
           return P.resolve()
             .then(() => {
               if (! verifiedStatus) {
-                return random(16)
+                return random.hex(16)
               }
             })
             .then(maybeToken => {
@@ -337,14 +336,14 @@ module.exports = function (
           }
 
           var response = {
-            uid: sessionToken.uid.toString('hex'),
-            sessionToken: sessionToken.data.toString('hex'),
+            uid: sessionToken.uid,
+            sessionToken: sessionToken.data,
             verified: sessionToken.emailVerified && sessionToken.tokenVerified,
             authAt: sessionToken.lastAuthAt()
           }
 
           if (wantsKeys) {
-            response.keyFetchToken = keyFetchToken.data.toString('hex')
+            response.keyFetchToken = keyFetchToken.data
           }
 
           return response
@@ -467,7 +466,7 @@ module.exports = function (
             function (passwordForgotToken) {
               reply(
                 {
-                  passwordForgotToken: passwordForgotToken.data.toString('hex'),
+                  passwordForgotToken: passwordForgotToken.data,
                   ttl: passwordForgotToken.ttl(),
                   codeLength: passwordForgotToken.passCode.length,
                   tries: passwordForgotToken.tries
@@ -563,7 +562,7 @@ module.exports = function (
             function () {
               reply(
                 {
-                  passwordForgotToken: passwordForgotToken.data.toString('hex'),
+                  passwordForgotToken: passwordForgotToken.data,
                   ttl: passwordForgotToken.ttl(),
                   codeLength: passwordForgotToken.passCode.length,
                   tries: passwordForgotToken.tries
@@ -596,7 +595,7 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Password.forgotVerify', request)
         var passwordForgotToken = request.auth.credentials
-        var code = Buffer(request.payload.code, 'hex')
+        var code = request.payload.code
 
         request.validateMetricsContext()
 
@@ -653,7 +652,7 @@ module.exports = function (
 
                       reply(
                         {
-                          accountResetToken: accountResetToken.data.toString('hex')
+                          accountResetToken: accountResetToken.data
                         }
                       )
                     },

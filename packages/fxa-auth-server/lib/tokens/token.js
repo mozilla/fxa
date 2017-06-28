@@ -27,6 +27,8 @@ const Bundle = require('./bundle')
 const hkdf = require('../crypto/hkdf')
 const random = require('../crypto/random')
 
+const KEYS = ['data', 'tokenId', 'authKey', 'bundleKey']
+
 module.exports = (log, config) => {
 
   // Token constructor.
@@ -35,10 +37,9 @@ module.exports = (log, config) => {
   // You probably want to call a helper rather than use this directly.
   //
   function Token(keys, details) {
-    this.data = keys.data
-    this.tokenId = keys.tokenId
-    this.authKey = keys.authKey
-    this.bundleKey = keys.bundleKey
+    KEYS.forEach(name => {
+      this[name] = keys[name] && keys[name].toString('hex')
+    })
     this.algorithm = 'sha256'
     this.uid = details.uid || null
     this.lifetime = details.lifetime || Infinity
@@ -62,7 +63,7 @@ module.exports = (log, config) => {
   // This uses known seed data to derive the keys.
   //
   Token.createTokenFromHexData = function(TokenType, hexData, details) {
-    var data = Buffer(hexData, 'hex')
+    var data = Buffer.from(hexData, 'hex')
     return Token.deriveTokenKeys(TokenType, data)
       .then(keys => new TokenType(keys, details || {}))
   }
@@ -115,7 +116,7 @@ module.exports = (log, config) => {
     Token.prototype,
     {
       id: {
-        get: function () { return this.tokenId.toString('hex') }
+        get: function () { return this.tokenId }
       },
       key: {
         get: function () { return this.authKey }

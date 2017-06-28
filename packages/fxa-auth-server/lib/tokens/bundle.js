@@ -34,6 +34,8 @@ module.exports = {
   // Encrypt the given buffer into a hex ciphertext string.
   //
   bundle(key, keyInfo, payload) {
+    key = Buffer.from(key, 'hex')
+    payload = Buffer.from(payload, 'hex')
     return deriveBundleKeys(key, keyInfo, payload.length)
       .then(
         function (keys) {
@@ -49,7 +51,8 @@ module.exports = {
   // Decrypt the given hex string into a buffer of plaintext data.
   //
   unbundle(key, keyInfo, payload) {
-    payload = Buffer(payload, 'hex')
+    key = Buffer.from(key, 'hex')
+    payload = Buffer.from(payload, 'hex')
     var ciphertext = payload.slice(0, -32)
     var expectedHmac = payload.slice(-32)
     return deriveBundleKeys(key, keyInfo, ciphertext.length)
@@ -61,7 +64,7 @@ module.exports = {
           if (! butil.buffersAreEqual(mac, expectedHmac)) {
             throw error.invalidSignature()
           }
-          return butil.xorBuffers(ciphertext, keys.xorKey)
+          return butil.xorBuffers(ciphertext, keys.xorKey).toString('hex')
         }
       )
   }

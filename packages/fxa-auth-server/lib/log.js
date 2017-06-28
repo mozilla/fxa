@@ -9,7 +9,6 @@ const util = require('util')
 const mozlog = require('mozlog')
 const config = require('../config')
 const logConfig = config.get('log')
-const unbuffer = require('./crypto/butil').unbuffer
 
 
 function Lug(options) {
@@ -110,10 +109,10 @@ Lug.prototype.summary = function (request, response) {
   if (line.code >= 500) {
     line.trace = request.app.traced
     line.stack = response.stack
-    this.error(unbuffer(line, true), response.message)
+    this.error(line, response.message)
   }
   else {
-    this.info(unbuffer(line, true))
+    this.info(line)
   }
 }
 
@@ -126,7 +125,7 @@ Lug.prototype.notifyAttachedServices = function (name, request, data) {
       metricsContextData => {
         var e = {
           event: name,
-          data: unbuffer(data)
+          data: data
         }
         e.data.metricsContext = metricsContextData
         this.notifier.send(e)
@@ -159,7 +158,6 @@ Lug.prototype.flowEvent = function (data) {
   this.logger.info('flowEvent', data)
 }
 
-var onUnhandledRejection
 module.exports = function (level, name, options) {
   if (arguments.length === 1 && typeof level === 'object') {
     options = level
@@ -180,17 +178,6 @@ module.exports = function (level, name, options) {
       }
     }
   )
-
-  if (onUnhandledRejection) {
-    process.removeListener('unhandledRejection', onUnhandledRejection)
-  }
-  onUnhandledRejection = (reason, promise) => {
-    log.fatal({
-      op: 'promise.unhandledRejection',
-      error: reason
-    })
-  }
-  process.on('unhandledRejection', onUnhandledRejection)
 
   return log
 }

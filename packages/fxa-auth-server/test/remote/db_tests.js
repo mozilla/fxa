@@ -32,8 +32,8 @@ const DB = require('../../lib/db')(
 
 var TOKEN_FRESHNESS_THRESHOLD = require('../../lib/tokens/session_token').TOKEN_FRESHNESS_THRESHOLD
 
-var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
-var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex').toString('hex')
+var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
 
 let account
 
@@ -53,7 +53,7 @@ describe('remote db', function() {
 
   beforeEach(() => {
     account = {
-      uid: uuid.v4('binary'),
+      uid: uuid.v4('binary').toString('hex'),
       email: dbServer.uniqueEmail(),
       emailCode: zeroBuffer16,
       emailVerified: false,
@@ -126,8 +126,8 @@ describe('remote db', function() {
         .then(function(sessions) {
           assert.equal(sessions.length, 1, 'sessions contains one item')
           assert.equal(Object.keys(sessions[0]).length, 16, 'session has correct number of properties')
-          assert.ok(Buffer.isBuffer(sessions[0].tokenId), 'tokenId property is buffer')
-          assert.equal(sessions[0].uid.toString('hex'), account.uid.toString('hex'), 'uid property is correct')
+          assert.equal(typeof sessions[0].tokenId, 'string', 'tokenId property is not a buffer')
+          assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
           assert.ok(sessions[0].createdAt >= account.createdAt, 'createdAt property seems correct')
           assert.equal(sessions[0].uaBrowser, 'Firefox', 'uaBrowser property is correct')
           assert.equal(sessions[0].uaBrowserVersion, '41', 'uaBrowserVersion property is correct')
@@ -219,7 +219,7 @@ describe('remote db', function() {
     () => {
       var sessionToken
       var deviceInfo = {
-        id: crypto.randomBytes(16),
+        id: crypto.randomBytes(16).toString('hex'),
         name: '',
         type: 'mobile',
         pushCallback: 'https://foo/bar',
@@ -268,7 +268,7 @@ describe('remote db', function() {
               })
           })
           .then(function (device) {
-            assert.ok(Buffer.isBuffer(device.id), 'device.id is set')
+            assert.ok(device.id, 'device.id is set')
             assert.ok(device.createdAt > 0, 'device.createdAt is set')
             assert.equal(device.name, deviceInfo.name, 'device.name is correct')
             assert.equal(device.type, deviceInfo.type, 'device.type is correct')
@@ -292,7 +292,7 @@ describe('remote db', function() {
             return devices[0]
           })
           .then(function (device) {
-            assert.ok(Buffer.isBuffer(device.id), 'device.id is set')
+            assert.ok(device.id, 'device.id is set')
             assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
             assert.equal(device.name, deviceInfo.name, 'device.name is correct')
             assert.equal(device.type, deviceInfo.type, 'device.type is correct')
@@ -658,13 +658,13 @@ describe('remote db', function() {
 
   it('signinCodes', () => {
     let previousCode
-    const flowId = crypto.randomBytes(32)
+    const flowId = crypto.randomBytes(32).toString('hex')
 
     // Create a signinCode without a flowId
     return db.createSigninCode(account.uid)
       .then(code => {
-        assert.ok(Buffer.isBuffer(code), 'db.createSigninCode should return a buffer')
-        assert.equal(code.length, config.signinCodeSize, 'db.createSigninCode should return the correct size code')
+        assert.equal(typeof code, 'string', 'db.createSigninCode should return a string')
+        assert.equal(Buffer.from(code, 'hex').length, config.signinCodeSize, 'db.createSigninCode should return the correct size code')
 
         previousCode = code
 
@@ -685,9 +685,9 @@ describe('remote db', function() {
         return db.createSigninCode(account.uid, flowId)
       })
       .then(code => {
-        assert.ok(Buffer.isBuffer(code), 'db.createSigninCode should return a buffer')
-        assert.equal(code.equals(previousCode), false, 'db.createSigninCode should not return a duplicate code')
-        assert.equal(code.length, config.signinCodeSize, 'db.createSigninCode should return the correct size code')
+        assert.equal(typeof code, 'string', 'db.createSigninCode should return a string')
+        assert.notEqual(code, previousCode, 'db.createSigninCode should not return a duplicate code')
+        assert.equal(Buffer.from(code, 'hex').length, config.signinCodeSize, 'db.createSigninCode should return the correct size code')
 
         // Consume both signinCodes
         return P.all([
@@ -700,7 +700,7 @@ describe('remote db', function() {
         assert.equal(results[1].email, account.email, 'db.consumeSigninCode should return the email address')
         if (results[1].flowId) {
           // This assertion is conditional so that tests pass regardless of db version
-          assert.equal(results[1].flowId, flowId.toString('hex'), 'db.consumeSigninCode should return the flowId')
+          assert.equal(results[1].flowId, flowId, 'db.consumeSigninCode should return the flowId')
         }
 
         // Attempt to consume a consumed signinCode
