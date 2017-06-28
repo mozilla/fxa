@@ -1,3 +1,18 @@
+<a name="1.90.0"></a>
+# [1.90.0](https://github.com/mozilla/fxa-profile-server/compare/v1.89.0...v1.90.0) (2017-06-28)
+
+
+### chore
+
+* **logs:** add logging for caching profile (#256) r=vladikoff ([28d55b7](https://github.com/mozilla/fxa-profile-server/commit/28d55b7))
+* **npm:** update newrelic to 1.40.0 (#257) r=vladikoff ([6b34c03](https://github.com/mozilla/fxa-profile-server/commit/6b34c03))
+
+### Features
+
+* **cache:** request caching for profile (#253) r=vladikoff ([814dd7f](https://github.com/mozilla/fxa-profile-server/commit/814dd7f)), closes [#242](https://github.com/mozilla/fxa-profile-server/issues/242)
+
+
+
 <a name="1.89.0"></a>
 # [1.89.0](https://github.com/mozilla/fxa-profile-server/compare/v1.88.0...v1.89.0) (2017-06-14)
 
