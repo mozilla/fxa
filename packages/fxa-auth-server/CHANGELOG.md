@@ -1,3 +1,25 @@
+<a name="1.90.0"></a>
+# [1.90.0](https://github.com/mozilla/fxa-auth-server/compare/v1.89.1...v1.90.0) (2017-06-28)
+
+
+### Bug Fixes
+
+* **ios:** only notify ios devices for collection change events (#1960) r=vladikoff ([111bfbb](https://github.com/mozilla/fxa-auth-server/commit/111bfbb))
+* **notifications:** Make data fields consistent across all notifyAttachedServices calls. (#1879); r= ([88a9fc8](https://github.com/mozilla/fxa-auth-server/commit/88a9fc8))
+* **server:** do not return flowId from consumeSigninCodes endpoint ([6fd020d](https://github.com/mozilla/fxa-auth-server/commit/6fd020d))
+* **server:** step in before node-uap parses Sync UA strings ([3f78f6e](https://github.com/mozilla/fxa-auth-server/commit/3f78f6e))
+* **test:** Make db tests more independent and update auth-db dev version ([ed4d9ad](https://github.com/mozilla/fxa-auth-server/commit/ed4d9ad))
+
+### chore
+
+* **docs:** document the newsletter flow events ([307f24c](https://github.com/mozilla/fxa-auth-server/commit/307f24c))
+
+### Features
+
+* **metrics:** emit a flow.continued event for signinCodes ([13eeab2](https://github.com/mozilla/fxa-auth-server/commit/13eeab2))
+
+
+
 <a name="1.89.1"></a>
 ## [1.89.1](https://github.com/mozilla/fxa-auth-server/compare/v1.89.0...v1.89.1) (2017-06-28)
 

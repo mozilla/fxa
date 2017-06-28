@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.89.1",
+  "version": "1.90.0",
   "dependencies": {
     "acorn": {
       "version": "5.0.3",
