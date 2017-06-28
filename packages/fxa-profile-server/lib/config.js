@@ -313,7 +313,7 @@ const conf = convict({
       doc: 'how long before cached resources expire'
     },
     generateTimeout: {
-      default: '2 second',
+      default: '2 seconds',
       format: 'duration',
       env: 'CACHE_GENERATE_TIMEOUT',
       doc: 'how long hapi will wait for result when using cache before timing out'
