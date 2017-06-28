@@ -22,8 +22,7 @@ module.exports = (log, db, config, customs, sms) => {
   }
 
   const getGeoData = require('../geodb')(log)
-  const SENDER_IDS = config.sms.senderIds
-  const REGIONS = new Set(Object.keys(SENDER_IDS))
+  const REGIONS = new Set(config.sms.countryCodes)
   const IS_STATUS_GEO_ENABLED = config.sms.isStatusGeoEnabled
 
   return [
@@ -52,12 +51,12 @@ module.exports = (log, db, config, customs, sms) => {
         const templateName = TEMPLATE_NAMES.get(request.payload.messageId)
         const acceptLanguage = request.app.acceptLanguage
 
-        let phoneNumberUtil, parsedPhoneNumber, senderId
+        let phoneNumberUtil, parsedPhoneNumber
 
         customs.check(request, sessionToken.email, 'connectDeviceSms')
           .then(parsePhoneNumber)
           .then(validatePhoneNumber)
-          .then(getRegionSpecificSenderId)
+          .then(validateRegion)
           .then(createSigninCode)
           .then(sendMessage)
           .then(logSuccess)
@@ -75,12 +74,11 @@ module.exports = (log, db, config, customs, sms) => {
           }
         }
 
-        function getRegionSpecificSenderId () {
+        function validateRegion () {
           const region = phoneNumberUtil.getRegionCodeForNumber(parsedPhoneNumber)
           request.emitMetricsEvent(`sms.region.${region}`)
 
-          senderId = SENDER_IDS[region]
-          if (! senderId) {
+          if (! REGIONS.has(region)) {
             throw error.invalidRegion(region)
           }
         }
@@ -93,7 +91,7 @@ module.exports = (log, db, config, customs, sms) => {
         }
 
         function sendMessage (signinCode) {
-          return sms.send(phoneNumber, senderId, templateName, acceptLanguage, signinCode)
+          return sms.send(phoneNumber, templateName, acceptLanguage, signinCode)
         }
 
         function logSuccess () {

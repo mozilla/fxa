@@ -4,11 +4,11 @@
 
 'use strict'
 
-/**
- * Mock out Nexmo for functional tests. `sendSms` always succeeds.
- */
+const P = require('../lib/promise')
 
-function MockNexmo(log, config) {
+module.exports = MockSNS
+
+function MockSNS (options, config) {
   const mailerOptions = {
     host: config.smtp.host,
     secure: config.smtp.secure,
@@ -24,33 +24,24 @@ function MockNexmo(log, config) {
   const mailer = require('nodemailer').createTransport(mailerOptions)
 
   return {
-    message: {
-      /**
-       * Drop message on the ground, call callback with `0` (send-OK) status.
-       */
-      sendSms: function sendSms (senderId, phoneNumber, message, options, callback) {
-        // this is the same as how the Nexmo version works.
-        if (! callback) {
-          callback = options
-          options = {}
-        }
-
-        log.info({ op: 'sms.send.mock' })
-
+    publish (params) {
+      const promise = new P(resolve => {
         // HACK: Enable remote tests to see what was sent
         mailer.sendMail({
           from: config.smtp.sender,
-          to: `sms.${phoneNumber}@restmail.net`,
-          subject: 'MockNexmo.message.sendSms',
-          text: message
+          to: `sms.${params.PhoneNumber}@restmail.net`,
+          subject: 'MockSNS.publish',
+          text: params.Message
         }, () => {
-          callback(null, {
-            messages: [{ status: '0' }]
+          resolve({
+            MessageId: 'fake message id'
           })
         })
+      })
+      return {
+        promise: () => promise
       }
     }
   }
 }
 
-module.exports = MockNexmo

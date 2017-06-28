@@ -4,28 +4,27 @@
 
 'use strict'
 
-var Nexmo = require('nexmo')
-var MockNexmo = require('../mock-nexmo')
+var AWS = require('aws-sdk')
+var MockSNS = require('../../test/mock-sns')
 var P = require('bluebird')
 var error = require('../error')
 
 module.exports = function (log, translator, templates, config) {
   var smsConfig = config.sms
-  var nexmo = smsConfig.useMock ? new MockNexmo(log, config) : new Nexmo({
-    apiKey: smsConfig.apiKey,
-    apiSecret: smsConfig.apiSecret
-  })
-
-  var sendSms = promisify('sendSms', nexmo.message)
-  var NEXMO_ERRORS = new Map([
-    [ '1', error.tooManyRequests(smsConfig.throttleWaitTime) ]
-  ])
+  var smsOptions = {
+    region: smsConfig.apiRegion
+  }
+  var SNS
+  if (smsConfig.useMock) {
+    SNS = new MockSNS(smsOptions, config)
+  } else {
+    SNS = new AWS.SNS(smsOptions)
+  }
 
   return {
-    send: function (phoneNumber, senderId, templateName, acceptLanguage, signinCode) {
+    send: function (phoneNumber, templateName, acceptLanguage, signinCode) {
       log.trace({
         op: 'sms.send',
-        senderId: senderId,
         templateName: templateName,
         acceptLanguage: acceptLanguage
       })
@@ -33,41 +32,49 @@ module.exports = function (log, translator, templates, config) {
       return P.resolve()
         .then(function () {
           var message = getMessage(templateName, acceptLanguage, signinCode)
-
-          return sendSms(senderId, phoneNumber, message.trim())
-        })
-        .then(function (result) {
-          var resultCount = result.messages && result.messages.length
-          if (resultCount !== 1) {
-            // I don't expect this condition to be entered, certainly I haven't
-            // seen it in testing. But because I'm making an assumption about
-            // the result format, I want to log an error if my assumption proves
-            // to be wrong in production.
-            log.error({ op: 'sms.send.error', err: new Error('Unexpected result count'), resultCount: resultCount })
+          var params = {
+            Message: message.trim(),
+            MessageAttributes: {
+              'AWS.SNS.SMS.MaxPrice': {
+                // The maximum amount in USD that you are willing to spend to send the SMS message.
+                DataType: 'String',
+                StringValue: '1.0'
+              },
+              'AWS.SNS.SMS.SenderID': {
+                // Up to 11 alphanumeric characters, including at least one letter and no spaces
+                DataType: 'String',
+                StringValue: 'Firefox'
+              },
+              'AWS.SNS.SMS.SMSType': {
+                // 'Promotional' for cheap marketing messages, 'Transactional' for critical transactions
+                DataType: 'String',
+                StringValue: 'Promotional'
+              }
+            },
+            PhoneNumber: phoneNumber
           }
 
-          result = result.messages[0]
-          var status = result.status
-
-          // https://docs.nexmo.com/messaging/sms-api/api-reference#status-codes
-          if (status === '0') {
-            log.info({
-              op: 'sms.send.success',
-              senderId: senderId,
-              templateName: templateName,
-              acceptLanguage: acceptLanguage
+          return SNS.publish(params).promise()
+            .then(function (result) {
+              log.info({
+                op: 'sms.send.success',
+                templateName: templateName,
+                acceptLanguage: acceptLanguage,
+                messageId: result.MessageId
+              })
             })
-          } else {
-            var reason = result['error-text']
-            log.error({ op: 'sms.send.error', reason: reason, status: status })
-            throw NEXMO_ERRORS.get(status) || error.messageRejected(reason, status)
-          }
+            .catch(function (sendError) {
+              log.error({
+                op: 'sms.send.error',
+                message: sendError.message,
+                code: sendError.code,
+                statusCode: sendError.statusCode
+              })
+
+              throw error.messageRejected(sendError.message, sendError.code)
+            })
         })
     }
-  }
-
-  function promisify (methodName, object) {
-    return P.promisify(object[methodName], { context: object })
   }
 
   function getMessage (templateName, acceptLanguage, signinCode) {

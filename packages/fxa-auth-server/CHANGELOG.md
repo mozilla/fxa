@@ -1,3 +1,13 @@
+<a name="1.89.1"></a>
+## [1.89.1](https://github.com/mozilla/fxa-auth-server/compare/v1.89.0...v1.89.1) (2017-06-28)
+
+
+### Features
+
+* **sms:** Switch to AWS SNS for SMS ([7ce5c05](https://github.com/mozilla/fxa-auth-server/commit/7ce5c05))
+
+
+
 <a name="1.89.0"></a>
 # [1.89.0](https://github.com/mozilla/fxa-auth-server/compare/v1.88.1...v1.89.0) (2017-06-14)
 
