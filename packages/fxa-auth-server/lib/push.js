@@ -410,6 +410,21 @@ module.exports = function (log, db, config) {
      */
     sendPush: function sendPush(uid, devices, reason, options) {
       options = options || {}
+      var command
+      try {
+        command = JSON.parse(options.data.toString()).command
+      } catch (e) {
+        command = false
+      }
+      // Only non collection_changed events are allowed to be sent to ios
+      // devices due to empty notifications. TODO: Remove.
+      if (command !== 'sync:collection_changed') {
+        devices = devices.filter(function(device) {
+          var deviceOS = device.uaOS && device.uaOS.toLowerCase()
+          return deviceOS !== 'ios'
+        })
+      }
+
       var events = reasonToEvents[reason]
       if (! events) {
         return P.reject('Unknown push reason: ' + reason)

@@ -49,6 +49,17 @@ var mockDevices = [
     'pushCallback': 'https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75',
     'pushPublicKey': mocks.MOCK_PUSH_KEY,
     'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong=='
+  },
+  {
+    'id': '50973923bc3e4507a0aa4e285513194a',
+    'isCurrentDevice': false,
+    'lastAccessTime': 1402149471335,
+    'name': 'My Ipad',
+    'type': null,
+    'uaOS': 'iOS',
+    'pushCallback': 'https://updates.push.services.mozilla.com/update/50973923bc3e4507a0aa4e285513194a',
+    'pushPublicKey': mocks.MOCK_PUSH_KEY,
+    'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong=='
   }
 ]
 
@@ -111,7 +122,7 @@ describe('push', () => {
     () => {
       var push = require(pushModulePath)(mockLog(), mockDbResult, mockConfig)
       sinon.stub(push, 'sendPush')
-      var excluded = [mockDevices[0].id]
+      var excluded = [mockDevices[0].id, mockDevices[2].id]
       var data = Buffer.from('foobar')
       var options = { data: data, excludedDeviceIds: excluded, TTL: TTL }
       return push.pushToAllDevices(mockUid, 'deviceConnected', options)
@@ -246,6 +257,57 @@ describe('push', () => {
       return push.sendPush(mockUid, mockDevices, 'accountVerify', options)
         .then(() => {
           assert.equal(count, 2)
+        })
+    }
+  )
+
+  it(
+    'sendPush doesn\'t push to ios devices if it is triggered with a non collection changed command',
+    () => {
+      var data = Buffer.from(JSON.stringify({command: 'randomCommand'}))
+      var endPoints = []
+      var mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            endPoints.push(sub.endpoint)
+            return P.resolve()
+          }
+        }
+      }
+
+      var push = proxyquire(pushModulePath, mocks)(mockLog(), mockDbResult, mockConfig)
+      var options = { data: data }
+      return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
+        .then(() => {
+          assert.equal(endPoints.length, 2)
+          assert.equal(endPoints[0], mockDevices[0].pushCallback)
+          assert.equal(endPoints[1], mockDevices[1].pushCallback)
+        })
+    }
+  )
+
+  it(
+    'sendPush pushes to ios devices if it is triggered with a collection changed command',
+    () => {
+      var data = Buffer.from(JSON.stringify({command: 'sync:collection_changed'}))
+      var endPoints = []
+      var mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            endPoints.push(sub.endpoint)
+            return P.resolve()
+          }
+        }
+      }
+
+      var push = proxyquire(pushModulePath, mocks)(mockLog(), mockDbResult, mockConfig)
+      var options = { data: data }
+      return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
+        .then(() => {
+          assert.equal(endPoints.length, 3)
+          assert.equal(endPoints[0], mockDevices[0].pushCallback)
+          assert.equal(endPoints[1], mockDevices[1].pushCallback)
+          assert.equal(endPoints[2], mockDevices[2].pushCallback)
         })
     }
   )
