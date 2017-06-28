@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-db-mysql",
-  "version": "1.89.1",
+  "version": "1.89.3",
   "dependencies": {
     "base64url": {
       "version": "2.0.0",

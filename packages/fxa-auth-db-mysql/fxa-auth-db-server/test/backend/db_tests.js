@@ -1786,7 +1786,7 @@ module.exports = function(config, DB) {
         var fetchQuery = {
           type: 'first',
           reminderTime: 1,
-          reminderTimeOutdated: 100,
+          reminderTimeOutdated: 3000,
           limit: 20
         }
         var account = createAccount()

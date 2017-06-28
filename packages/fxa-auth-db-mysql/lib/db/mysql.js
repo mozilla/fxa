@@ -700,7 +700,12 @@ module.exports = function (log, error) {
   // Update : accounts
   // Set    : emailVerified = true
   // Where  : uid = $4
-  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_6(?, ?, ?, ?, ?)'
+  //
+  // Step   : 4
+  // Update : emails
+  // Set    : isVerified = true
+  // Where  : isPrimary = true AND uid = $4
+  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_7(?, ?, ?, ?, ?)'
 
   MySql.prototype.forgotPasswordVerified = function (tokenId, accountResetToken) {
     return this.write(
@@ -785,7 +790,7 @@ module.exports = function (log, error) {
 
   // Select : emails
   // Values : uid = $1
-  var ACCOUNT_EMAILS = 'CALL accountEmails_3(?)'
+  var ACCOUNT_EMAILS = 'CALL accountEmails_4(?)'
   MySql.prototype.accountEmails = function (uid) {
     return this.readOneFromFirstResult(
       ACCOUNT_EMAILS,
