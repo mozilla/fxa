@@ -391,14 +391,10 @@ module.exports = function (
           flowBeginTime = request.payload.metricsContext.flowBeginTime
         }
 
-        request.emitMetricsEvent('password.forgot.send_code.start')
-          .then(
-            customs.check.bind(
-              customs,
-              request,
-              email,
-              'passwordForgotSendCode')
-          )
+        P.all([
+          request.emitMetricsEvent('password.forgot.send_code.start'),
+          customs.check(request, email, 'passwordForgotSendCode')
+        ])
           .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
@@ -520,14 +516,10 @@ module.exports = function (
           flowBeginTime = request.payload.metricsContext.flowBeginTime
         }
 
-        request.emitMetricsEvent('password.forgot.resend_code.start')
-          .then(
-            customs.check.bind(
-              customs,
-              request,
-              passwordForgotToken.email,
-              'passwordForgotResendCode')
-          )
+        P.all([
+          request.emitMetricsEvent('password.forgot.resend_code.start'),
+          customs.check(request, passwordForgotToken.email, 'passwordForgotResendCode')
+        ])
           .then(
             function () {
               const secondaryEmails = features.isSecondaryEmailEnabled(passwordForgotToken.email) ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
@@ -606,14 +598,10 @@ module.exports = function (
           flowBeginTime = request.payload.metricsContext.flowBeginTime
         }
 
-        request.emitMetricsEvent('password.forgot.verify_code.start')
-          .then(
-            customs.check.bind(
-              customs,
-              request,
-              passwordForgotToken.email,
-              'passwordForgotVerifyCode')
-          )
+        P.all([
+          request.emitMetricsEvent('password.forgot.verify_code.start'),
+          customs.check(request, passwordForgotToken.email, 'passwordForgotVerifyCode')
+        ])
           .then(
             function () {
               if (butil.buffersAreEqual(passwordForgotToken.passCode, code) &&

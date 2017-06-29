@@ -1575,19 +1575,17 @@ module.exports = (
           .then(
             function (res) {
               result = res
-              return request.emitMetricsEvent('device.deleted', {
-                uid: uid,
-                device_id: id
-              })
-            }
-          )
-          .then(
-            function () {
-              return log.notifyAttachedServices('device:delete', request, {
-                uid: uid,
-                id: id,
-                timestamp: Date.now()
-              })
+              return P.all([
+                request.emitMetricsEvent('device.deleted', {
+                  uid: uid,
+                  device_id: id
+                }),
+                log.notifyAttachedServices('device:delete', request, {
+                  uid: uid,
+                  id: id,
+                  timestamp: Date.now()
+                })
+              ])
             }
           )
           .then(function () {
@@ -1990,16 +1988,16 @@ module.exports = (
                       // Any matching code verifies the account
                       return db.verifyEmail(account, account.emailCode)
                         .then(function () {
-                          return log.notifyAttachedServices('verified', request, {
-                            email: account.email,
-                            uid: account.uid,
-                            locale: account.locale
-                          })
-                        })
-                        .then(function () {
-                          return request.emitMetricsEvent('account.verified', {
-                            uid: uid
-                          })
+                          return P.all([
+                            log.notifyAttachedServices('verified', request, {
+                              email: account.email,
+                              uid: account.uid,
+                              locale: account.locale
+                            }),
+                            request.emitMetricsEvent('account.verified', {
+                              uid: uid
+                            })
+                          ])
                         })
                         .then(function () {
                           if (reminder === 'first' || reminder === 'second') {
@@ -2474,33 +2472,23 @@ module.exports = (
             .then(
               function (accountData) {
                 account = accountData
-                return request.emitMetricsEvent('account.reset', {
-                  uid: account.uid
-                })
+                return P.all([
+                  request.emitMetricsEvent('account.reset', {
+                    uid: account.uid
+                  }),
+                  log.notifyAttachedServices('reset', request, {
+                    uid: account.uid,
+                    iss: config.domain,
+                    generation: account.verifierSetAt
+                  }),
+                  customs.reset(account.email),
+                  password.unwrap(account.wrapWrapKb)
+                ])
               }
             )
             .then(
-              function () {
-                return log.notifyAttachedServices('reset', request, {
-                  uid: account.uid,
-                  iss: config.domain,
-                  generation: account.verifierSetAt
-                })
-              }
-            )
-            .then(
-              function () {
-                return customs.reset(account.email)
-              }
-            )
-            .then(
-              function () {
-                return password.unwrap(account.wrapWrapKb)
-              }
-            )
-            .then(
-              function (wrapKbData) {
-                wrapKb = wrapKbData
+              function (results) {
+                wrapKb = results[3]
               }
             )
         }
@@ -2627,17 +2615,15 @@ module.exports = (
                 .then(
                   function () {
                     push.notifyAccountDestroyed(uid, devicesToNotify).catch(function () {})
-                    return log.notifyAttachedServices('delete', request, {
-                      uid: uid,
-                      iss: config.domain
-                    })
-                  }
-                )
-                .then(
-                  function () {
-                    return request.emitMetricsEvent('account.deleted', {
-                      uid: uid
-                    })
+                    return P.all([
+                      log.notifyAttachedServices('delete', request, {
+                        uid: uid,
+                        iss: config.domain
+                      }),
+                      request.emitMetricsEvent('account.deleted', {
+                        uid: uid
+                      })
+                    ])
                   }
                 )
                 .then(
