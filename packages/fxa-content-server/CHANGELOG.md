@@ -1,3 +1,13 @@
+<a name="1.90.1"></a>
+## 1.90.1 (2017-06-29)
+
+
+### Bug Fixes
+
+* **test:** Disable SMS sending tests on production environments. (#5185) r=@jbuck, @philboo ([e55dc57](https://github.com/mozilla/fxa-content-server/commit/e55dc57))
+
+
+
 <a name="1.90.0"></a>
 # 1.90.0 (2017-06-28)
 
