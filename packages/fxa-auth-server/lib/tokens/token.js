@@ -119,7 +119,7 @@ module.exports = (log, config) => {
         get: function () { return this.tokenId }
       },
       key: {
-        get: function () { return this.authKey }
+        get: function () { return Buffer.from(this.authKey, 'hex') }
       },
       algorithm: {
         get: function () { return 'sha256' }
