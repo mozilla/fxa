@@ -278,7 +278,7 @@ const conf = convict({
       host: {
         default: '127.0.0.1',
         env: 'REDIS_HOST',
-        format: 'ipaddress',
+        format: String,
         doc: 'Url for redis host',
       },
       keyPrefix: {
