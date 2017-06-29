@@ -535,6 +535,23 @@ define([
   });
 
   /**
+   * Tests that send an SMS should be wrapped by `disableInProd`. This will
+   * prevent the tests from running in stage/prod where we should not
+   * send SMSs to random people.
+   *
+   * @param {Function} test
+   * @returns {Function}
+   */
+  function disableInProd(test) {
+    if (intern.config.fxaProduction) {
+      return function () {
+      };
+    }
+
+    return test;
+  }
+
+  /**
    * Get SMS message `index` for `phoneNumber`.
    *
    * @param {String} phoneNumber
@@ -1868,6 +1885,7 @@ define([
     deleteAllEmails,
     deleteAllSms,
     denormalizeStoredEmail: denormalizeStoredEmail,
+    disableInProd,
     fetchAllMetrics: fetchAllMetrics,
     fillOutChangePassword: fillOutChangePassword,
     fillOutCompleteResetPassword: fillOutCompleteResetPassword,
