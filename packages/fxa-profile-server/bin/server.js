@@ -16,7 +16,8 @@ logger.info('config', config);
 db.ping().done(function() {
   server.start(function(err) {
     if (err) {
-      logger.error('server.start', err);
+      logger.critical('server.start', err);
+      process.exit(1);
     }
     logger.info('listening', server.info.uri);
   });
