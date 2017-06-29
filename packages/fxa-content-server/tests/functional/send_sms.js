@@ -30,6 +30,7 @@
    const SEND_SMS_SIGNIN_CODE_URL = `${SEND_SMS_URL}&signinCodes=true`;
    const SEND_SMS_NO_QUERY_URL = `${config.fxaContentRoot}sms`;
 
+
    let email;
    const PASSWORD = 'password';
 
@@ -39,6 +40,7 @@
    const click = FunctionalHelpers.click;
    const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
    const deleteAllSms = FunctionalHelpers.deleteAllSms;
+   const disableInProd = FunctionalHelpers.disableInProd;
    const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
    const getSms = FunctionalHelpers.getSms;
    const getSmsSigninCode = FunctionalHelpers.getSmsSigninCode;
@@ -213,7 +215,7 @@
         .then(testElementTextInclude(selectors.SMS_SEND.PHONE_NUMBER_TOOLTIP, 'invalid'));
      },
 
-     'valid phone number, back': function () {
+     'valid phone number, back': disableInProd(function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
@@ -229,9 +231,9 @@
 
         // original phone number should still be in place
         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber));
-     },
+     }),
 
-     'valid phone number, resend': function () {
+     'valid phone number, resend': disableInProd(function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
@@ -242,18 +244,18 @@
         .then(click(selectors.SMS_SENT.LINK_RESEND))
         .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
         .then(getSms(testPhoneNumber, 1));
-     },
+     }),
 
-     'valid phone number, enable signinCode': function () {
+     'valid phone number, enable signinCode': disableInProd(function () {
        return this.remote
         .then(openPage(SEND_SMS_SIGNIN_CODE_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
         .then(click(selectors.SMS_SEND.SUBMIT))
         .then(testElementExists(selectors.SMS_SENT.HEADER))
         .then(getSmsSigninCode(testPhoneNumber, 0));
-     },
+     }),
 
-     'valid phone number w/ country code of 1': function () {
+     'valid phone number w/ country code of 1': disableInProd(function () {
        return this.remote
          .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
          .then(type(selectors.SMS_SEND.PHONE_NUMBER, `1${testPhoneNumber}`))
@@ -262,9 +264,9 @@
          .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
          .then(testElementExists(selectors.SMS_SEND.LINK_MARKETING))
          .then(getSms(testPhoneNumber, 0));
-     },
+     }),
 
-     'valid phone number w/ country code of +1': function () {
+     'valid phone number w/ country code of +1': disableInProd(function () {
        return this.remote
          .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
          .then(type(selectors.SMS_SEND.PHONE_NUMBER, `+1${testPhoneNumber}`))
@@ -273,9 +275,9 @@
          .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
          .then(testElementExists(selectors.SMS_SEND.LINK_MARKETING))
          .then(getSms(testPhoneNumber, 0));
-     },
+     }),
 
-     'valid phone number (contains spaces and punctuation)': function () {
+     'valid phone number (contains spaces and punctuation)': disableInProd(function () {
        const unformattedPhoneNumber = ` ${testPhoneNumber.slice(0,3)} .,- ${testPhoneNumber.slice(3)} `;
        return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
@@ -291,7 +293,7 @@
 
         // original phone number should still be in place
         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, unformattedPhoneNumber));
-     }
+     })
    };
 
    registerSuite(suite);

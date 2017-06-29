@@ -42,6 +42,7 @@ define([
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const createUser = FunctionalHelpers.createUser;
   const deleteAllSms = FunctionalHelpers.deleteAllSms;
+  const disableInProd = FunctionalHelpers.disableInProd;
   const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   const getSmsSigninCode = FunctionalHelpers.getSmsSigninCode;
   const openPage = FunctionalHelpers.openPage;
@@ -140,7 +141,7 @@ define([
         .then(testElementValueEquals(selectors.SIGNIN.EMAIL, browserSignedInEmail));
     },
 
-    'Sync signin page w/ signin code - user signed into browser': function () {
+    'Sync signin page w/ signin code - user signed into browser': disableInProd(function () {
       const testPhoneNumber = TestHelpers.createPhoneNumber();
       let signinUrlWithSigninCode;
 
@@ -180,7 +181,7 @@ define([
             // defined so that we are ready when Fennec or iOS adds fxa_status support.
             .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail));
         });
-    },
+    }),
 
     'Non-Sync signin page - user signed into browser, no user signed in locally': function () {
       return this.remote
