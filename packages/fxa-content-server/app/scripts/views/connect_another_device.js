@@ -123,7 +123,7 @@ define(function (require, exports, module) {
       }
     },
 
-    context () {
+    setInitialContext (context) {
       const isSignedIn = this._isSignedIn();
       const canSignIn = this._canSignIn();
       const email = this.getAccount().get('email');
@@ -139,7 +139,7 @@ define(function (require, exports, module) {
       const isOtherIos = isIos && ! isFirefoxIos;
       const isOther = ! isAndroid && ! isIos && ! isFirefoxDesktop;
 
-      return {
+      context.set({
         canSignIn,
         email,
         escapedSignInUrl,
@@ -150,7 +150,7 @@ define(function (require, exports, module) {
         isOtherAndroid,
         isOtherIos,
         isSignedIn
-      };
+      });
     },
 
     /**

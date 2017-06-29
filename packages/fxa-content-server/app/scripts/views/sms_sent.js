@@ -35,14 +35,14 @@ define(function (require, exports, module) {
       }
     },
 
-    context () {
-      return {
+    setInitialContext (context) {
+      context.set({
         // The attributes are not surrounded by quotes because _.escape would
         // escape them, causing the id to be the string `"back"`, and the href
         // to be the string `"#"`.
         escapedBackLinkAttrs: _.escape('id=back href=#'),
         escapedPhoneNumber: _.escape(this._getFormattedPhoneNumber())
-      };
+      });
     },
 
     resend () {

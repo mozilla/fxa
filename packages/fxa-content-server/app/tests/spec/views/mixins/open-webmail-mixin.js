@@ -5,7 +5,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Account = require('models/account');
   const { assert } = require('chai');
   const BaseView = require('views/base');
   const Broker = require('models/auth_brokers/base');
@@ -14,8 +13,14 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const Template = require('stache!templates/test_template');
 
+  const EMAIL = 'testuser@gmail.com';
+
   const ConfirmView = BaseView.extend({
-    template: Template
+    template: Template,
+
+    setInitialContext (context) {
+      context.set('email', EMAIL);
+    }
   });
 
   Cocktail.mixin(
@@ -88,7 +93,6 @@ define(function (require, exports, module) {
     });
 
     describe('button l10n', () => {
-      const EMAIL = 'testuser@gmail.com';
       const TRANSLATED_BUTTON_TEXT = 'Ouvrir Gmail';
 
       beforeEach(() => {
@@ -102,14 +106,6 @@ define(function (require, exports, module) {
           }
         };
 
-        sinon.stub(view, 'getAccount', () => {
-          return new Account({ email: EMAIL });
-        });
-
-        sinon.stub(view, 'context', () => {
-          return { email: EMAIL };
-        });
-
         return view.render();
       });
 
@@ -121,7 +117,10 @@ define(function (require, exports, module) {
 
     describe('click on `open-webmail` button', function () {
       beforeEach(function () {
-        sinon.spy(view, 'logViewEvent');
+        sinon.stub(view, '_webmailTabOpened', (event) => {
+          // prevent default or else the test redirects
+          event.preventDefault();
+        });
 
         return view.render()
           .then(function () {
@@ -132,8 +131,21 @@ define(function (require, exports, module) {
           });
       });
 
-      it('calls logViewEvent', function () {
-        assert.isTrue(view.logViewEvent.called);
+      it('calls _webmailTabOpened', function () {
+        assert.isTrue(view._webmailTabOpened.calledOnce);
+      });
+    });
+
+    describe('_webmailTabOpened', () => {
+      it('logs the event click', () => {
+        sinon.spy(view, 'logViewEvent');
+        return view.render()
+          .then(() => {
+            const $targetEl = view.$('#open-webmail');
+            view._webmailTabOpened({ target: $targetEl });
+            assert.isTrue(view.logViewEvent.calledOnce);
+            assert.isTrue(view.logViewEvent.calledWith('gmail_clicked'));
+          });
       });
     });
   });

@@ -27,11 +27,11 @@ define(function (require, exports, module) {
       this._formPrefill = options.formPrefill;
     },
 
-    context () {
-      return {
+    setInitialContext (context) {
+      context.set({
         forceEmail: this.model.get('forceEmail'),
         serviceName: this.relier.get('serviceName')
-      };
+      });
     },
 
     beforeRender () {

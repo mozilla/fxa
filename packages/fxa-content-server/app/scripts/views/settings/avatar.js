@@ -20,11 +20,9 @@ define(function (require, exports, module) {
       this.render();
     },
 
-    context () {
+    setInitialContext (context) {
       var account = this.getSignedInAccount();
-      return {
-        avatar: account.has('profileImageUrl')
-      };
+      context.set('avatar', account.has('profileImageUrl'));
     }
 
   });

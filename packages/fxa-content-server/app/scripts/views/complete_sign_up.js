@@ -89,16 +89,16 @@ define(function (require, exports, module) {
         .fail((err) => this._handleVerificationErrors(err));
     },
 
-    context () {
+    setInitialContext (context) {
       const verificationInfo = this._verificationInfo;
-      return {
+      context.set({
         canResend: this._canResend(),
         error: this.model.get('error'),
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! verificationInfo.isValid(),
         isLinkExpired: verificationInfo.isExpired(),
         isLinkUsed: verificationInfo.isUsed()
-      };
+      });
     },
 
     /**

@@ -43,15 +43,15 @@ define(function (require, exports, module) {
       }
     },
 
-    context () {
-      return {
+    setInitialContext (context) {
+      context.set({
         buttonClass: this._hasSecondaryEmail() ? 'secondary' : 'primary',
         emails: this._emails,
         hasSecondaryEmail: this._hasSecondaryEmail(),
         hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),
         isPanelOpen: this.isPanelOpen(),
         newEmail: this.newEmail
-      };
+      });
     },
 
     beforeRender () {

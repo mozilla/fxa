@@ -139,7 +139,7 @@ define(function (require, exports, module) {
             this.model.get('bouncedEmail'), prefillEmail, prefillPassword);
     },
 
-    context () {
+    setInitialContext (context) {
       var autofocusEl = this._selectAutoFocusEl();
       var forceEmail = this.model.get('forceEmail');
       var prefillEmail = this.getPrefillEmail();
@@ -148,7 +148,7 @@ define(function (require, exports, module) {
       var relier = this.relier;
       var isSync = relier.isSync();
 
-      var context = {
+      var contextData = {
         chooseWhatToSyncCheckbox: this.broker.hasCapability('chooseWhatToSyncCheckbox'),
         email: prefillEmail,
         error: this.error,
@@ -175,9 +175,9 @@ define(function (require, exports, module) {
                 'utm_source=fx-website&utm_medium=fx-accounts&' +
                 'utm_campaign=fx-signup&utm_content=fx-sync-get-started');
       }
-      context.escapedSyncSuggestionAttrs = `data-flow-event="link.signin" href="${escapedSyncSuggestionUrl}"`;
+      contextData.escapedSyncSuggestionAttrs = `data-flow-event="link.signin" href="${escapedSyncSuggestionUrl}"`;
 
-      return context;
+      context.set(contextData);
     },
 
     beforeDestroy () {

@@ -38,11 +38,11 @@ define(function (require, exports, module) {
       this.isFormSubmitted = true;
     },
 
-    context: function () {
-      return {
+    setInitialContext (context) {
+      context.set({
         error: this.model.get('templateWrittenError'),
         success: this.model.get('templateWrittenSuccess')
-      };
+      });
     }
   });
 

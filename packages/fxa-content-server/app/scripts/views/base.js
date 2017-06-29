@@ -359,20 +359,24 @@ define(function (require, exports, module) {
       // use cached context, if available. This prevents the context()
       // function from being called multiple times per render.
       if (! this._context) {
-        this._context = this.context() || {};
+        this._context = new Backbone.Model({
+          // `t` is a Mustache helper to translate and HTML escape strings.
+          t: this.translateInTemplate.bind(this),
+          // `unsafeTranslate` is a Mustache helper that translates a
+          // string without HTML escaping. Prefer `t`
+          unsafeTranslate: this.unsafeTranslateInTemplate.bind(this)
+        });
+        this.setInitialContext(this._context);
       }
-      var ctx = this._context;
-
-      // `t` is a Mustache helper to translate and HTML escape strings.
-      ctx.t = this.translateInTemplate.bind(this);
-      // `unsafeTranslate` is a Mustache helper that translates a
-      // string without HTML escaping. Prefer `t`
-      ctx.unsafeTranslate = this.unsafeTranslateInTemplate.bind(this);
-
-      return ctx;
+      return this._context.toJSON();
     },
 
-    context () {
+    /**
+     * Update the `context` model
+     *
+     * @param {Object} context
+     */
+    setInitialContext (context) {
       // Implement in subclasses
     },
 

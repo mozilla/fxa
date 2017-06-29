@@ -68,20 +68,14 @@ define(function (require, exports, module) {
       });
     },
 
-    /**
-     * Monkey patch BaseView.prototype.getContext to return a context
-     * @method getContext
-     * @returns {Object}
-     */
-    getContext () {
-      const context = BaseView.prototype.getContext.call(this);
-      const email = context.email;
+    setInitialContext (context) {
+      const email = context.get('email');
       const isOpenWebmailButtonVisible = this.isOpenWebmailButtonVisible(email);
 
-      context.isOpenWebmailButtonVisible = isOpenWebmailButtonVisible;
+      context.set('isOpenWebmailButtonVisible', isOpenWebmailButtonVisible);
 
       if (email && isOpenWebmailButtonVisible) {
-        _.extend(context, {
+        context.set({
           escapedWebmailLink: encodeURI(this.getWebmailLink(email)),
           // function.bind is used to avoid infinite recursion.
           // getWebmailButtonText calls this.translate which calls
@@ -93,8 +87,6 @@ define(function (require, exports, module) {
           webmailType: this.getWebmailType(email)
         });
       }
-
-      return context;
     },
 
     getWebmailLink (email) {

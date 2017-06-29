@@ -49,7 +49,7 @@ define(function (require, exports, module) {
       return this.model.get('account') || this.user.getSignedInAccount();
     },
 
-    context () {
+    setInitialContext (context) {
       const escapedLearnMoreAttributes =
           `id="learn-more" href="${encodeURI(View.LEARN_MORE_LINK)}" target="_learn-more" data-flow-event="link.learn_more"`;
 
@@ -70,11 +70,11 @@ define(function (require, exports, module) {
         phoneNumber = prefix;
       }
 
-      return {
+      context.set({
         country,
         escapedLearnMoreAttributes,
         phoneNumber
-      };
+      });
     },
 
     showChildView (ChildView, options = {}) {

@@ -105,11 +105,9 @@ define(function (require, exports, module) {
       // regression test for #1216
       it('does not show service name if service is defined but serviceName is not', function () {
         createView(VerificationReasons.SIGN_UP);
-        view.context = function () {
-          return {
-            service: 'sync'
-          };
-        };
+        sinon.stub(view, 'setInitialContext', (context) => {
+          context.set('service', 'sync');
+        });
 
         return view.render()
           .then(function () {

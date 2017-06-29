@@ -24,11 +24,9 @@ define(function (require, exports, module) {
     className: 'change-password',
     viewName: 'settings.change-password',
 
-    context () {
+    setInitialContext (context) {
       const account = this.getSignedInAccount();
-      return {
-        email: account.get('email')
-      };
+      context.set('email', account.get('email'));
     },
 
     submit () {

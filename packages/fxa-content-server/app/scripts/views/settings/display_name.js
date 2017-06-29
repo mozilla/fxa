@@ -24,10 +24,8 @@ define(function (require, exports, module) {
       this.render();
     },
 
-    context () {
-      return {
-        displayName: this._displayName
-      };
+    setInitialContext (context) {
+      context.set('displayName', this._displayName);
     },
 
     events: {

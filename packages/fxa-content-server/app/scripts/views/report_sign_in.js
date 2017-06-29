@@ -39,17 +39,17 @@ define(function (require, exports, module) {
         .then(() => this.navigate('signin_reported'));
     },
 
-    context () {
+    setInitialContext (context) {
       const isLinkDamaged = ! this._signInToReport.isValid();
       const isLinkValid = ! isLinkDamaged;
       const supportLink = this._getSupportLink();
 
-      return {
+      context.set({
         escapedSupportLink: encodeURI(supportLink),
         hasSupportLink: !! supportLink,
         isLinkDamaged,
         isLinkValid
-      };
+      });
     },
 
     /**

@@ -67,8 +67,8 @@ define(function (require, exports, module) {
       this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
     },
 
-    context () {
-      return {
+    setInitialContext (context) {
+      context.set({
         headerId: this._getHeaderId(),
         headerTitle: this._getHeaderTitle(),
         isSync: this.relier.isSync(),
@@ -77,7 +77,7 @@ define(function (require, exports, module) {
         secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
         service: this.relier.get('service'),
         serviceName: this.relier.get('serviceName')
-      };
+      });
     },
 
     _getHeaderId () {

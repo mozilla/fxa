@@ -148,15 +148,15 @@ define(function (require, exports, module) {
       });
     },
 
-    context () {
+    setInitialContext (context) {
       /// submit button
       const buttonSignInText = this.translate(t('Sign in'), { msgctxt: 'submit button' });
 
-      return {
+      context.set({
         buttonSignInText,
         email: this.relier.get('email'),
         password: this._formPrefill.get('password')
-      };
+      });
     },
 
     events: _.extend({}, SignInView.prototype.events, {

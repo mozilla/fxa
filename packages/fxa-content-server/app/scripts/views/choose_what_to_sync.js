@@ -52,10 +52,10 @@ define(function (require, exports, module) {
       return proto.destroy.call(this, ...args);
     },
 
-    context () {
+    setInitialContext (context) {
       var account = this.getAccount();
 
-      return {
+      context.set({
         email: account.get('email'),
         hasBookmarkSupport: this._isEngineSupported('bookmarks'),
         hasDesktopAddonSupport: this._isEngineSupported('desktop-addons'),
@@ -63,7 +63,7 @@ define(function (require, exports, module) {
         hasHistorySupport: this._isEngineSupported('history'),
         hasPasswordSupport: this._isEngineSupported('passwords'),
         hasTabSupport: this._isEngineSupported('tabs')
-      };
+      });
     },
 
     submit () {

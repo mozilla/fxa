@@ -125,9 +125,10 @@ define(function (require, exports, module) {
     describe('context', () => {
       it('has props', () => {
         view.beforeRender();
-        assert.ok(view.context().deviceName);
-        assert.notOk(view.context().reasonHelp);
-        assert.notOk(view.context().hasDisconnected, false);
+        const context = view.getContext();
+        assert.ok(context.deviceName);
+        assert.notOk(context.reasonHelp);
+        assert.notOk(context.hasDisconnected);
       });
     });
 

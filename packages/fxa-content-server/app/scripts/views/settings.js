@@ -110,13 +110,13 @@ define(function (require, exports, module) {
       });
     },
 
-    context () {
+    setInitialContext (context) {
       const account = this.getSignedInAccount();
 
-      return {
+      context.set({
         showSignOut: ! account.isFromSync(),
         unsafeHeaderHTML: this._getHeaderHTML(account)
-      };
+      });
     },
 
     events: {

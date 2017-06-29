@@ -35,10 +35,10 @@ define(function (require, exports, module) {
     className: 'avatar-camera',
     viewName: 'settings.avatar.camera',
 
-    context () {
-      return {
+    setInitialContext (context) {
+      context.set({
         streaming: this.streaming
-      };
+      });
     },
 
     initialize (options) {

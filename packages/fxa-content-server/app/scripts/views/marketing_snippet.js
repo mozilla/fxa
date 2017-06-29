@@ -84,7 +84,7 @@ define(function (require, exports, module) {
       'click .marketing-link': '_onMarketingClick'
     },
 
-    context () {
+    setInitialContext (context) {
       const showSignUpMarketing = this._shouldShowSignUpMarketing();
       const isIos = this._isIos();
       const isAndroid = this._isAndroid();
@@ -98,7 +98,7 @@ define(function (require, exports, module) {
       const isAutumn2016 = marketingId === Constants.MARKETING_ID_AUTUMN_2016;
       const isSpring2015 = marketingId === Constants.MARKETING_ID_SPRING_2015;
 
-      return {
+      context.set({
         appStoreImage,
         downloadLinkAndroid,
         downloadLinkIos,
@@ -110,7 +110,7 @@ define(function (require, exports, module) {
         marketingId,
         playStoreImage,
         showSignUpMarketing
-      };
+      });
     },
 
     afterRender () {

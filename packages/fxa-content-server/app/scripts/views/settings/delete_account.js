@@ -22,10 +22,8 @@ define(function (require, exports, module) {
     className: 'delete-account',
     viewName: 'settings.delete-account',
 
-    context () {
-      return {
-        email: this.getSignedInAccount().get('email')
-      };
+    setInitialContext (context) {
+      context.set('email', this.getSignedInAccount().get('email'));
     },
 
     submit () {

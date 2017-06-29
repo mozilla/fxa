@@ -12,10 +12,8 @@ define(function (require, exports, module) {
     template: CannotCreateAccountTemplate,
     className: 'cannot-create-account',
 
-    context () {
-      return {
-        isSync: this.relier.isSync()
-      };
+    setInitialContext (context) {
+      context.set('isSync', this.relier.isSync());
     }
 
   });

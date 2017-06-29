@@ -46,11 +46,11 @@ define(function (require, exports, module) {
       }
     },
 
-    context () {
+    setInitialContext (context) {
       var account = this.getSignedInAccount();
-      return {
+      context.set({
         'hasProfileImage': account.has('profileImageUrl')
-      };
+      });
     },
 
     afterVisible () {

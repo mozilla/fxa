@@ -82,10 +82,10 @@ define(function (require, exports, module) {
       });
     },
 
-    context () {
+    setInitialContext (context) {
       const clients = this._attachedClients.toJSON();
 
-      return {
+      context.set({
         areWebSessionsVisible: this._areWebSessionsVisible(),
         clients: this._formatAccessTimeAndScope(clients),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
@@ -93,7 +93,7 @@ define(function (require, exports, module) {
         linkAndroid: FIREFOX_ANDROID_DOWNLOAD_LINK,
         linkIOS: FIREFOX_IOS_DOWNLOAD_LINK,
         showMobileApps: this._showMobileApps(clients)
-      };
+      });
     },
 
     events: {

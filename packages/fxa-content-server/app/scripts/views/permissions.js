@@ -71,16 +71,16 @@ define(function (require, exports, module) {
       return this._account;
     },
 
-    context () {
+    setInitialContext (context) {
       var account = this.getAccount();
       var requestedPermissions = this.relier.get('permissions');
       var applicablePermissions =
         this._getApplicablePermissions(account, requestedPermissions);
 
-      return {
+      context.set({
         serviceName: this.relier.get('serviceName'),
         unsafePermissionsHTML: this._getPermissionsHTML(account, applicablePermissions)
-      };
+      });
     },
 
     /**

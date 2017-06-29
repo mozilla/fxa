@@ -85,7 +85,7 @@ define(function (require, exports, module) {
         suggestedAccount.get('email') : this.getPrefillEmail();
     },
 
-    context () {
+    setInitialContext (context) {
       var suggestedAccount = this.getAccount();
       var hasSuggestedAccount = suggestedAccount.get('email');
       var email = this.getEmail();
@@ -96,7 +96,7 @@ define(function (require, exports, module) {
       /// header text
       const headerSignInText = this.translate(t('Sign in'), { msgctxt: 'header text' });
 
-      return {
+      context.set({
         buttonSignInText,
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         email: email,
@@ -107,7 +107,7 @@ define(function (require, exports, module) {
         password: this._formPrefill.get('password'),
         serviceName: this.relier.get('serviceName'),
         suggestedAccount: hasSuggestedAccount
-      };
+      });
     },
 
     events: {

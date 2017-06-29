@@ -50,17 +50,15 @@ define(function (require, exports, module) {
       this.client = clients.get(clientId);
     },
 
-    context () {
-      var context = {
+    setInitialContext (context) {
+      context.set({
         hasDisconnected: this.hasDisconnected,
         reasonHelp: this.reasonHelp
-      };
+      });
 
       if (! this.hasDisconnected) {
-        context.deviceName = this.client.get('name');
+        context.set('deviceName', this.client.get('name'));
       }
-
-      return context;
     },
 
     onChangeRadioButton() {

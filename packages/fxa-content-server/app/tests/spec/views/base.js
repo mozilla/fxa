@@ -47,11 +47,11 @@ define(function (require, exports, module) {
       },
       layoutClassName: 'layout',
       template: Template,
-      context: function () {
-        return {
+      setInitialContext (context) {
+        context.set({
           error: this.model.get('templateWrittenError'),
           success: this.model.get('templateWrittenSuccess')
-        };
+        });
       },
 
       _onRequiredClick () {
@@ -965,16 +965,16 @@ define(function (require, exports, module) {
       it('multiple calls to `getContext` only call `context` once', function () {
         view._context = null;
 
-        sinon.spy(view, 'context');
+        sinon.spy(view, 'setInitialContext');
 
         view.getContext();
         view.getContext();
 
-        assert.equal(view.context.callCount, 1);
+        assert.equal(view.setInitialContext.callCount, 1);
       });
 
       it('the context cache is cleared each time `render` is called', function () {
-        sinon.spy(view, 'context');
+        sinon.spy(view, 'setInitialContext');
 
         return view.render()
           .then(function () {
@@ -984,7 +984,7 @@ define(function (require, exports, module) {
             return view.render();
           })
           .then(function () {
-            assert.equal(view.context.callCount, 3);
+            assert.equal(view.setInitialContext.callCount, 3);
           });
       });
     });

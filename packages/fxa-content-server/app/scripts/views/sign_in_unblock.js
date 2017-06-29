@@ -32,16 +32,16 @@ define(function (require, exports, module) {
       }
     },
 
-    context () {
+    setInitialContext (context) {
       const email = this.getAccount().get('email');
       const supportLink = this._getSupportLink();
 
-      return {
+      context.set({
         email,
         escapedSupportLink: encodeURI(supportLink),
         hasSupportLink: !! supportLink,
         unblockCodeLength: Constants.UNBLOCK_CODE_LENGTH
-      };
+      });
     },
 
     submit () {

@@ -25,22 +25,10 @@ define(function (require, exports, module) {
       'keyup #back': BaseView.preventDefaultThen('backOnEnter')
     },
 
-    /**
-     * Monkey patch BaseView.prototype.getContext to return a
-     * context with the `canGoBack` field. Note, this unfortunately
-     * means the mixed-in class cannot override `canGoBack`.
-     *
-     * @method getContext
-     * @returns {Object}
-     */
-    getContext () {
-      var context = BaseView.prototype.getContext.call(this);
-
-      if (! ('canGoBack' in context)) {
-        context.canGoBack = this.canGoBack();
+    setInitialContext (context) {
+      if (! context.has('canGoBack')) {
+        context.set('canGoBack', this.canGoBack());
       }
-
-      return context;
     },
 
     /**

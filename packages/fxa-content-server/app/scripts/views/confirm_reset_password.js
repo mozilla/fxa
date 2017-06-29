@@ -31,16 +31,16 @@ define(function (require, exports, module) {
         options.verificationPollMS || VERIFICATION_POLL_IN_MS;
     },
 
-    context () {
+    setInitialContext (context) {
       var email = this.model.get('email');
       var isSignInEnabled = this.relier.get('resetPasswordConfirm');
 
-      return {
+      context.set({
         email: email,
         encodedEmail: encodeURIComponent(email),
         forceAuth: this.broker.isForceAuth(),
         isSignInEnabled: isSignInEnabled
-      };
+      });
     },
 
     beforeRender () {
