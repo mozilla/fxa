@@ -1,3 +1,13 @@
+<a name="1.90.1"></a>
+## [1.90.1](https://github.com/mozilla/fxa-profile-server/compare/v1.90.0...v1.90.1) (2017-06-29)
+
+
+### Bug Fixes
+
+* **cache:** fix cache config ([e786768](https://github.com/mozilla/fxa-profile-server/commit/e786768))
+
+
+
 <a name="1.90.0"></a>
 # [1.90.0](https://github.com/mozilla/fxa-profile-server/compare/v1.89.0...v1.90.0) (2017-06-28)
 
