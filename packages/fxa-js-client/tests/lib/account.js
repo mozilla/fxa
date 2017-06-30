@@ -289,10 +289,12 @@ define([
       });
 
       test('#accountStatus with no uid', function () {
-
-        assert.throws(function() {
-          client.accountStatus();
-        }, 'Missing uid');
+        return client.accountStatus()
+          .then(function () {
+            assert.fail('client.accountStatus should reject if uid is missing');
+          }, function (err) {
+            assert.equal(err.message, 'Missing uid');
+          });
       });
 
       test('#accountStatusByEmail', function () {
@@ -322,10 +324,12 @@ define([
       });
 
       test('#accountStatusByEmail with no email', function () {
-
-        assert.throws(function() {
-          client.accountStatusByEmail();
-        }, 'Missing email');
+        return client.accountStatusByEmail()
+          .then(function () {
+            assert.fail('client.accountStatusByEmail should reject if email is missing');
+          }, function (err) {
+            assert.equal(err.message, 'Missing email');
+          });
       });
 
       test('#login unblock accept', function () {

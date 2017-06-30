@@ -32,7 +32,7 @@ define([
         test('consumeSigninCode with invalid signinCode', function () {
           return client.consumeSigninCode(SIGNIN_CODE, FLOW_ID, FLOW_BEGIN_TIME)
             .then(function () {
-              assert.fail('client.consumeSigninCode should throw if signinCode is invalid');
+              assert.fail('client.consumeSigninCode should reject if signinCode is invalid');
             }, function (err) {
               assert.ok(err, 'client.consumeSigninCode should return an error');
               assert.equal(err.code, 400, 'client.consumeSigninCode should return a 400 response');
@@ -49,37 +49,31 @@ define([
       }
 
 
-      test('consumeSigninCode with missing signinCode', function () {
-        var completed = false;
-        try {
-          client.consumeSigninCode(null, FLOW_ID, FLOW_BEGIN_TIME);
-          completed = true;
-        } catch (err) {
-          assert.ok(err);
-        }
-        assert.notOk(completed, 'client.consumeSigninCode should throw if signinCode is missing');
+      test('consumeSigninCode with missing code', function () {
+        return client.consumeSigninCode(null, FLOW_ID, FLOW_BEGIN_TIME)
+          .then(function () {
+            assert.fail('client.consumeSigninCode should reject if code is missing');
+          }, function (err) {
+            assert.equal(err.message, 'Missing code');
+          });
       });
 
       test('consumeSigninCode with missing flowId', function () {
-        var completed = false;
-        try {
-          client.consumeSigninCode(SIGNIN_CODE, null, FLOW_BEGIN_TIME);
-          completed = true;
-        } catch (err) {
-          assert.ok(err);
-        }
-        assert.notOk(completed, 'client.consumeSigninCode should throw if flowId is missing');
+        return client.consumeSigninCode(SIGNIN_CODE, null, FLOW_BEGIN_TIME)
+          .then(function () {
+            assert.fail('client.consumeSigninCode should reject if flowId is missing');
+          }, function (err) {
+            assert.equal(err.message, 'Missing flowId');
+          });
       });
 
       test('consumeSigninCode with missing flowBeginTime', function () {
-        var completed = false;
-        try {
-          client.consumeSigninCode(SIGNIN_CODE, FLOW_ID, null);
-          completed = true;
-        } catch (err) {
-          assert.ok(err);
-        }
-        assert.notOk(completed, 'client.consumeSigninCode should throw if flowBeginTime is missing');
+        return client.consumeSigninCode(SIGNIN_CODE, FLOW_ID, null)
+          .then(function () {
+            assert.fail('client.consumeSigninCode should reject if flowBeginTime is missing');
+          }, function (err) {
+            assert.equal(err.message, 'Missing flowBeginTime');
+          });
       });
     });
   }
