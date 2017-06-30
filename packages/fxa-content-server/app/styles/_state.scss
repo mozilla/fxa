@@ -241,12 +241,12 @@ div + .error {
 #suggest-sync {
   .dismiss {
     position: absolute;
-    top: 6px;
+    top: 4px;
     cursor: pointer;
   }
 
   html[dir='ltr'] & {
-    text-align: left;
+    text-align: center;
     padding-left: 10px;
     padding-right: 25px;
 
@@ -256,7 +256,7 @@ div + .error {
   }
 
   html[dir='rtl'] & {
-    text-align: right;
+    text-align: center;
     padding-left: 25px;
     padding-right: 10px;
 
