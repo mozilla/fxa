@@ -3,12 +3,12 @@
     "enabled": false
   },
   "public_url": "http://127.0.0.1:3030",
-  "fxaccount_url": "https://fxa-ci.dev.lcip.org/auth",
+  "fxaccount_url": "https://fxaci.dev.lcip.org/auth",
   "oauth_client_id": "98e6508e88680e1a",
-  "oauth_url": "https://oauth-fxa-ci.dev.lcip.org",
-  "profile_url": "https://fxa-ci.dev.lcip.org/profile",
-  "profile_images_url": "https://fxa-ci.dev.lcip.org/profile",
-  "allowed_parent_origins": ["https://123done-fxa-ci.dev.lcip.org"],
+  "oauth_url": "https://oauth-fxaci.dev.lcip.org",
+  "profile_url": "https://fxaci.dev.lcip.org/profile",
+  "profile_images_url": "https://fxaci.dev.lcip.org/profile",
+  "allowed_parent_origins": ["https://123done-fxaci.dev.lcip.org"],
   "use_https": false,
   "i18n": {
     "supportedLanguages": ["en"]
