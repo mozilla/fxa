@@ -29,11 +29,11 @@
 
     <div class="links">
       {{^canGoBack}}
-        <a id="resend" class="delayed-fadein" href="#">{{#t}}Didn't arrive and not in spam folder? Resend{{/t}}</a>
+        <a id="resend" class="delayed-fadein" href="#">{{#t}}Not in inbox or spam folder? Resend{{/t}}</a>
       {{/canGoBack}}
       {{#canGoBack}}
-        <a id="back" class="left delayed-fadein" href="#">{{#t}}Back{{/t}}</a>
-        <a id="resend" class="right delayed-fadein" href="#">{{#t}}Didn't arrive and not in spam folder? Resend{{/t}}</a>
+        <a id="resend" class="left delayed-fadein" href="#">{{#t}}Not in inbox or spam folder? Resend{{/t}}</a>
+        <a id="back" class="right delayed-fadein" href="#">{{#t}}Back{{/t}}</a>
       {{/canGoBack}}
     </div>
   </section>
