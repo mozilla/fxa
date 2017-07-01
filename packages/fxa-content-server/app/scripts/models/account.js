@@ -59,6 +59,7 @@ define(function (require, exports, module) {
     customizeSync: undefined,
     declinedSyncEngines: undefined,
     keyFetchToken: undefined,
+    offeredSyncEngines: undefined,
     // password field intentionally omitted to avoid unintentional leaks
     unwrapBKey: undefined,
     verificationMethod: undefined,

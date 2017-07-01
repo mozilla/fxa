@@ -54,27 +54,25 @@ define(function (require, exports, module) {
 
     setInitialContext (context) {
       var account = this.getAccount();
+      const engines = this._getOfferedEngines();
 
       context.set({
         email: account.get('email'),
-        hasBookmarkSupport: this._isEngineSupported('bookmarks'),
-        hasDesktopAddonSupport: this._isEngineSupported('desktop-addons'),
-        hasDesktopPreferencesSupport: this._isEngineSupported('desktop-preferences'),
-        hasHistorySupport: this._isEngineSupported('history'),
-        hasPasswordSupport: this._isEngineSupported('passwords'),
-        hasTabSupport: this._isEngineSupported('tabs')
+        engines
       });
     },
 
     submit () {
-      var account = this.getAccount();
-      var declinedEngines = this._getDeclinedEngines();
+      const account = this.getAccount();
+      const declinedSyncEngines = this._getDeclinedEngineIds();
+      const offeredSyncEngines = this._getOfferedEngineIds();
 
-      this._trackUncheckedEngines(declinedEngines);
+      this._trackDeclinedEngineIds(declinedSyncEngines);
 
       account.set({
         customizeSync: true,
-        declinedSyncEngines: declinedEngines
+        declinedSyncEngines,
+        offeredSyncEngines
       });
 
       return this.user.setAccount(account)
@@ -82,26 +80,37 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Check whether a Sync engine is supported
+     * Get a list of displayed Sync engine configs that can be used
+     * for display.
      *
-     * @param {String} engineName
-     * @returns {Boolean}
-     * @private
+     * @returns {Object[]}
      */
-    _isEngineSupported (engineName) {
-      var supportedEngines =
-                this.broker.getCapability('chooseWhatToSyncWebV1').engines;
-      return supportedEngines.indexOf(engineName) > -1;
+    _getOfferedEngines () {
+      return this.broker.get('chooseWhatToSyncWebV1Engines').toJSON().map((syncEngine, index) => {
+        const engineWithTabIndex = Object.create(syncEngine);
+        engineWithTabIndex.tabindex = (index + 1) * 5;
+        engineWithTabIndex.text = this.translate(engineWithTabIndex.text, {});
+        return engineWithTabIndex;
+      });
     },
 
+    /**
+     * Get a list of engineIds that are displayed to the user.
+     *
+     * @returns {String[]}
+     */
+    _getOfferedEngineIds () {
+      return this._getOfferedEngines()
+        .map((syncEngine) => syncEngine.id);
+    },
 
     /**
-     * Get sync engines that were declined by unchecked checkboxes
+     * Get sync engines that were declined.
      *
-     * @returns {Array}
+     * @returns {String[]}
      * @private
      */
-    _getDeclinedEngines () {
+    _getDeclinedEngineIds () {
       var uncheckedEngineEls =
             this.$el.find('input[name=sync-content]').not(':checked');
 
@@ -113,13 +122,13 @@ define(function (require, exports, module) {
     /**
      * Keep track of what sync engines the user declines
      *
-     * @param {Array} declinedEngines
+     * @param {String[]} declinedEngineIds
      * @private
      */
-    _trackUncheckedEngines (declinedEngines) {
-      if (_.isArray(declinedEngines)) {
-        declinedEngines.forEach((engine) => {
-          this.logViewEvent('engine-unchecked.' + engine);
+    _trackDeclinedEngineIds (declinedEngineIds) {
+      if (_.isArray(declinedEngineIds)) {
+        declinedEngineIds.forEach((engineId) => {
+          this.logViewEvent(`engine-unchecked.${engineId}`);
         });
       }
     }

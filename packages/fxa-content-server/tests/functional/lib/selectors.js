@@ -15,8 +15,10 @@ define([], function () {
       HEADER: '#fxa-400-header'
     },
     CHOOSE_WHAT_TO_SYNC: {
-      ENGINE_HISTORY: 'div.two-col-block:nth-child(1) > div:nth-child(3) > label:nth-child(1)',
-      ENGINE_PASSWORDS: 'div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)',
+      ENGINE_ADDRESSES: '#sync-engine-addresses',
+      ENGINE_CREDIT_CARDS: '#sync-engine-creditcards',
+      ENGINE_HISTORY: '#sync-engine-history',
+      ENGINE_PASSWORDS: '#sync-engine-passwords',
       HEADER: '#fxa-choose-what-to-sync-header',
       SUBMIT: 'button[type=submit]'
     },

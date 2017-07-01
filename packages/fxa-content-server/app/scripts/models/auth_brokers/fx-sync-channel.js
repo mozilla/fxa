@@ -26,6 +26,7 @@ define(function (require, exports, module) {
     'declinedSyncEngines',
     'email',
     'keyFetchToken',
+    'offeredSyncEngines',
     'sessionToken',
     'uid',
     'unwrapBKey',

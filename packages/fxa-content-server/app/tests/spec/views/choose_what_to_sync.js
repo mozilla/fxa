@@ -9,28 +9,50 @@ define(function (require, exports, module) {
   const Account = require('models/account');
   const { assert } = require('chai');
   const Backbone = require('backbone');
-  const Broker = require('models/auth_brokers/fx-fennec-v1');
+  const Broker = require('models/auth_brokers/base');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const sinon = require('sinon');
+  const SyncEngines = require('models/sync-engines');
   const TestHelpers = require('../../lib/helpers');
   const User = require('models/user');
   const View = require('views/choose_what_to_sync');
+  const WindowMock = require('../../mocks/window');
 
   describe('views/choose_what_to_sync', () => {
-    var account;
-    var broker;
-    var email;
-    var model;
-    var metrics;
-    var notifier;
-    var onSubmitComplete;
-    var user;
-    var view;
+    let account;
+    let broker;
+    let email;
+    let model;
+    let metrics;
+    let notifier;
+    let onSubmitComplete;
+    let syncEngines;
+    let user;
+    let view;
+    let windowMock;
+
+    const DISPLAYED_ENGINE_IDS = [
+      'tabs',
+      'bookmarks',
+      'addons',
+      'passwords',
+      'history',
+      'prefs',
+      'creditcards'
+    ];
 
     beforeEach(() => {
-      broker = new Broker();
+      windowMock = new WindowMock();
+
+      syncEngines = new SyncEngines(null, {
+        engines: DISPLAYED_ENGINE_IDS,
+        window: windowMock
+      });
+      broker = new Broker({
+        chooseWhatToSyncWebV1Engines: syncEngines
+      });
       email = TestHelpers.createEmail();
       model = new Backbone.Model();
       notifier = new Notifier();
@@ -52,9 +74,11 @@ define(function (require, exports, module) {
 
     afterEach(() => {
       metrics.destroy();
+      metrics = null;
+
       view.remove();
       view.destroy();
-      view = metrics = null;
+      view = null;
     });
 
     function initView () {
@@ -69,10 +93,7 @@ define(function (require, exports, module) {
 
       sinon.spy(view, 'navigate');
 
-      return view.render()
-        .then(() => {
-          $('#container').html(view.el);
-        });
+      return view.render();
     }
 
     describe('renders', () => {
@@ -90,6 +111,8 @@ define(function (require, exports, module) {
             assert.include(view.$('.success-email-created').text(), email,
               'email is in the view');
             assert.isTrue($('body').hasClass(View.SCREEN_CLASS));
+            const $rowEls = view.$('.choose-what-to-sync-row');
+            assert.lengthOf($rowEls, DISPLAYED_ENGINE_IDS.length);
           });
       });
     });
@@ -109,50 +132,69 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_getDeclinedEngines', () => {
+    describe('_getOfferedEngines', () => {
+      it('gets a list of offered engines, suitable for displaying', () => {
+        return initView()
+          .then(() => {
+            const offeredEngines = view._getOfferedEngines();
+            assert.lengthOf(offeredEngines, DISPLAYED_ENGINE_IDS.length);
+            offeredEngines.forEach((offeredEngine) => {
+              assert.ok(offeredEngine.tabindex);
+              assert.ok(offeredEngine.text);
+            });
+          });
+      });
+    });
+
+    describe('_getDeclinedEngineIds', () => {
       it('returns an array of declined engines', () => {
         return initView()
           .then(() => {
+            $('#container').html(view.el);
             //decline the first engine
             $('.customize-sync').first().click();
-            var declined = view._getDeclinedEngines();
-            assert.equal(declined.length, 1, 'has declined engines');
-            assert.equal(declined[0], 'tabs', 'has engine value');
+            const declined = view._getDeclinedEngineIds();
+            assert.sameMembers(declined, ['tabs', 'creditcards']);
+          });
+      });
+    });
+
+    describe('_getOfferedEngineIds', () => {
+      it('returns an array of offered engine ids', () => {
+        return initView()
+          .then(() => {
+            const offered = view._getOfferedEngineIds();
+            assert.sameMembers(offered, DISPLAYED_ENGINE_IDS);
           });
       });
     });
 
     describe('submit', () => {
       beforeEach(() => {
-        sinon.stub(user, 'setAccount', () => {
-          return p(account);
-        });
+        sinon.stub(user, 'setAccount', () => p(account));
 
         return initView()
           .then(() => {
+            $('#container').html(view.el);
             $('.customize-sync').first().click();
 
             return view.validateAndSubmit();
           });
       });
 
-      it('sets declinedSyncEngines', () => {
-        var declined = account.get('declinedSyncEngines');
-        assert.equal(declined.length, 1, 'has declined engines');
-        assert.equal(declined[0], 'tabs', 'has engine value');
-      });
+      it('updates and saves the account, logs metrics, calls onSubmitComplete', () => {
+        const declined = account.get('declinedSyncEngines');
+        assert.sameMembers(declined, ['tabs', 'creditcards']);
 
-      it('calls onSubmitComplete with the account', () => {
+        const offered = account.get('offeredSyncEngines');
+        assert.sameMembers(offered, DISPLAYED_ENGINE_IDS);
+
+        assert.isTrue(user.setAccount.calledWith(account));
+
         assert.isTrue(view.onSubmitComplete.calledOnce);
         assert.instanceOf(view.onSubmitComplete.args[0][0], Account);
-      });
 
-      it('logs the expected metrics', () => {
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'choose-what-to-sync.engine-unchecked.tabs'));
-      });
-
-      it('saves the account', () => {
-        assert.isTrue(user.setAccount.calledWith(account));
       });
     });
   });

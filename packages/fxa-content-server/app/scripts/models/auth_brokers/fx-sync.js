@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const BaseAuthenticationBroker = require('models/auth_brokers/base');
   const ConnectAnotherDeviceBehavior = require('views/behaviors/connect-another-device');
+  const SyncEngines = require('models/sync-engines');
 
   const proto = BaseAuthenticationBroker.prototype;
 
@@ -26,8 +27,42 @@ define(function (require, exports, module) {
     type: 'fx-sync',
 
     initialize (options = {}) {
-      this._metrics = options.metrics;
       proto.initialize.call(this, options);
+
+      if (this.hasCapability('chooseWhatToSyncWebV1')) {
+        const syncEngines = new SyncEngines(null, { window: this.window });
+        this.set('chooseWhatToSyncWebV1Engines', syncEngines);
+      }
+
+      if (this.hasCapability('fxaStatus')) {
+        this.on('fxa_status', (response) => this.onFxaStatus(response));
+      }
+    },
+
+    /**
+     * Handle a response to the `fxa_status` message.
+     *
+     * @param {any} [response={}]
+     * @private
+     */
+    onFxaStatus (response = {}) {
+      const syncEngines = this.get('chooseWhatToSyncWebV1Engines');
+      const additionalEngineIds = response.capabilities && response.capabilities.engines;
+      if (syncEngines && additionalEngineIds) {
+        this.addAdditionalSyncEngines(additionalEngineIds);
+      }
+    },
+
+    /**
+     * Add `additionalEngineIds` to `chooseWhatToSyncWebV1Engines`.
+     *
+     * @param {String[]} additionalEngineIds
+     */
+    addAdditionalSyncEngines (additionalEngineIds) {
+      const syncEngines = this.get('chooseWhatToSyncWebV1Engines');
+      if (syncEngines) {
+        additionalEngineIds.forEach((engineId) => syncEngines.addById(engineId));
+      }
     },
 
     afterSignUpConfirmationPoll (account) {

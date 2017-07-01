@@ -7,12 +7,16 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'tests/functional/lib/selectors',
+  'tests/functional/lib/ua-strings'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, uaStrings) {
   'use strict';
 
   const config = intern.config;
-  const PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
+  const SIGNUP_FX_55_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&` +
+                                `forceUA=${uaStrings.desktop_firefox_55}&automatedBrowser=true`;
+  const SIGNUP_FX_56_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&` +
+                                `forceUA=${uaStrings.desktop_firefox_56}&automatedBrowser=true`;
 
   let email;
   const PASSWORD = '12345678';
@@ -42,19 +46,22 @@ define([
       return this.remote.then(clearBrowserState());
     },
 
-    'sign up, verify same browser': function () {
+    'Fx <= 55, verify same browser': function () {
       return this.remote
-        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(SIGNUP_FX_55_PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
             'fxaccounts:can_link_account': {
               ok: true
+            },
+            'fxaccounts:fxa_status': {
+              signedInUser: null
             }
           }
         }))
         .then(noSuchElement(selectors.SIGNUP.LINK_SUGGEST_SYNC))
         .then(fillOutSignUp(email, PASSWORD))
 
-        // user should be transitioned to the choose what to Sync page
+        // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -83,6 +90,72 @@ define([
 
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
+    },
+
+    'Fx >= 56, engines not supported': function () {
+      return this.remote
+        .then(openPage(SIGNUP_FX_56_PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {
+              ok: true
+            },
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
+          }
+        }))
+        .then(fillOutSignUp(email, PASSWORD))
+
+        // user should be transitioned to /choose_what_to_sync
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
+        .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS));
+    },
+
+    'Fx >= 56, `creditcards` not supported': function () {
+      return this.remote
+        .then(openPage(SIGNUP_FX_56_PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {
+              ok: true
+            },
+            'fxaccounts:fxa_status': {
+              capabilities: {
+                engines: []
+              },
+              signedInUser: null
+            }
+          }
+        }))
+        .then(fillOutSignUp(email, PASSWORD))
+
+        // user should be transitioned to /choose_what_to_sync
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
+        .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS));
+    },
+
+    'Fx >= 56, `creditcards` supported': function () {
+      return this.remote
+        .then(openPage(SIGNUP_FX_56_PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {
+              ok: true
+            },
+            'fxaccounts:fxa_status': {
+              capabilities: {
+                engines: ['creditcards', 'addresses']
+              },
+              signedInUser: null
+            },
+          }
+        }))
+        .then(fillOutSignUp(email, PASSWORD))
+
+        // user should be transitioned to /choose_what_to_sync
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS));
     }
   });
 });

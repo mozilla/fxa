@@ -102,14 +102,6 @@ define(function (require, exports, module) {
     CLIENT_TYPE_WEB_SESSION: 'webSession',
 
     DEFAULT_XHR_TIMEOUT_MS: 2500,
-    DEFAULT_DECLINED_ENGINES: [
-      'bookmarks',
-      'history',
-      'passwords',
-      'tabs',
-      'desktop-addons',
-      'desktop-preferences'
-    ],
 
     // Login delay for iOS broker
     IOS_V1_LOGIN_MESSAGE_DELAY_MS: 5000,

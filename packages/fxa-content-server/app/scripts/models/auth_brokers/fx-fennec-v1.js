@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Constants = require('lib/constants');
   const FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
   const NavigateBehavior = require('views/behaviors/navigate');
 
@@ -25,9 +24,7 @@ define(function (require, exports, module) {
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
-      chooseWhatToSyncWebV1: {
-        engines: Constants.DEFAULT_DECLINED_ENGINES
-      },
+      chooseWhatToSyncWebV1: true,
       emailVerificationMarketingSnippet: false
     }),
 

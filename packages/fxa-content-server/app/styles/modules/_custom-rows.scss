@@ -235,15 +235,10 @@ ul.permission-links {
 }
 
 .two-col-items {
-  display: flex;
-  flex-wrap: wrap;
+  column-width: 160px;
   margin: 20px 0 10px 0;
 
-  .two-col-block {
-    min-width: 49%;
-
-    > div {
-      margin-bottom: 10px;
-    }
+  .choose-what-to-sync-row {
+    margin-bottom: 10px;
   }
 }

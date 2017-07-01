@@ -13,79 +13,21 @@
     <div class="success"></div>
 
     <form id="choose-what-to-sync" novalidate>
-        <div class="two-col-items">
-          <div class="two-col-block">
-            {{#hasTabSupport}}
-              <div class="input-row choose-what-to-sync-row">
-                <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="tabs" tabindex="5">
+      <div class="two-col-items">
+        {{#engines}}
+          <div class="input-row choose-what-to-sync-row">
+            <label class="fxa-checkbox">
+              <input name="sync-content" type="checkbox" class="customize-sync" {{#checked}}checked="checked"{{/checked}} value="{{id}}" id="sync-engine-{{id}}" tabindex="{{tabindex}}">
               <span class="fxa-checkbox__label">
-                {{#t}}Open tabs{{/t}}
+                {{text}}
               </span>
-                </label>
-              </div>
-            {{/hasTabSupport}}
-
-            {{#hasBookmarkSupport}}
-              <div class="input-row choose-what-to-sync-row">
-                <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="bookmarks" tabindex="10">
-              <span class="fxa-checkbox__label">
-                {{#t}}Bookmarks{{/t}}
-              </span>
-                </label>
-              </div>
-            {{/hasBookmarkSupport}}
-
-            {{#hasDesktopAddonSupport}}
-              <div class="input-row choose-what-to-sync-row">
-                <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="addons" tabindex="15">
-                <span class="fxa-checkbox__label">
-                  {{#t}}Add-ons{{/t}}
-                </span>
-                </label>
-              </div>
-            {{/hasDesktopAddonSupport}}
+            </label>
           </div>
-          <div class="two-col-block">
-            {{#hasPasswordSupport}}
-              <div class="input-row choose-what-to-sync-row">
-                <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="passwords" tabindex="20">
-              <span class="fxa-checkbox__label">
-                {{#t}}Passwords{{/t}}
-              </span>
-                </label>
-              </div>
-            {{/hasPasswordSupport}}
-
-            {{#hasHistorySupport}}
-              <div class="input-row choose-what-to-sync-row">
-                <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="history" tabindex="25">
-              <span class="fxa-checkbox__label">
-                {{#t}}History{{/t}}
-              </span>
-                </label>
-              </div>
-            {{/hasHistorySupport}}
-
-            {{#hasDesktopPreferencesSupport}}
-              <div class="input-row choose-what-to-sync-row">
-                <label class="fxa-checkbox">
-                  <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="prefs" tabindex="30">
-                <span class="fxa-checkbox__label">
-                  {{#t}}Preferences{{/t}}
-                </span>
-                </label>
-              </div>
-            {{/hasDesktopPreferencesSupport}}
-          </div>
-        </div>
-        <div class="button-row">
-          <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Save settings{{/t}}</button>
-        </div>
+        {{/engines}}
+      </div>
+      <div class="button-row">
+        <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Save settings{{/t}}</button>
+      </div>
     </form>
 
     <div class="links">

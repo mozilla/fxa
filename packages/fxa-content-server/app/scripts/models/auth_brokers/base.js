@@ -141,6 +141,8 @@ define(function (require, exports, module) {
           this.set('browserSignedInAccount', response.signedInUser);
           // In the future, additional data will be returned
           // in the response, handle it here.
+
+          this.trigger('fxa_status', response);
         }, (err) => {
           // The browser is not configured to accept WebChannel messages from
           // this FxA server. fxaStatus is not supported. Error has

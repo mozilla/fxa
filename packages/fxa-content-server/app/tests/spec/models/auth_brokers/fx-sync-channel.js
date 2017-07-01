@@ -51,9 +51,15 @@ define(function (require, exports, module) {
 
       user = new User();
       account = user.initAccount({
+        customizeSync: true,
+        declinedSyncEngines: ['addons'],
         email: 'testuser@testuser.com',
         keyFetchToken: 'key-fetch-token',
-        unwrapBKey: 'unwrap-b-key'
+        offeredSyncEngines: ['tabs', 'addons', 'creditcards', 'addresses'],
+        sessionToken: 'session-token',
+        uid: 'uid',
+        unwrapBKey: 'unwrap-b-key',
+        verified: false
       });
 
       createAuthBroker();
@@ -165,8 +171,13 @@ define(function (require, exports, module) {
             assert.isTrue(channelMock.send.calledWith('login'));
 
             const data = channelMock.send.args[0][1];
+            assert.isTrue(data.customizeSync);
+            assert.sameMembers(data.declinedSyncEngines, ['addons']);
             assert.equal(data.email, 'testuser@testuser.com');
             assert.equal(data.keyFetchToken, 'key-fetch-token');
+            assert.sameMembers(data.offeredSyncEngines, ['tabs', 'addons', 'creditcards', 'addresses']);
+            assert.equal(data.sessionToken, 'session-token');
+            assert.equal(data.uid, 'uid');
             assert.equal(data.unwrapBKey, 'unwrap-b-key');
             assert.isFalse(data.verified);
             assert.isFalse(data.verifiedCanLinkAccount);

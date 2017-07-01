@@ -105,15 +105,21 @@ define(function (require, exports, module) {
 
     describe('_fetchFxaStatus', () => {
       describe('success', () => {
-        it('sets `browserSignedInAccount', () => {
+        it('sets `browserSignedInAccount, triggers an `fxa_status` message with the response', () => {
           const signedInUser = {
             email: 'testuser@testuser.com'
           };
-          sinon.stub(notificationChannel, 'request', () => p({ signedInUser }));
+          const response = {
+            engines: ['creditcards'],
+            signedInUser
+          };
+          sinon.stub(notificationChannel, 'request', () => p(response));
+          sinon.spy(broker, 'trigger');
 
           return broker._fetchFxaStatus()
             .then(() => {
               assert.deepEqual(broker.get('browserSignedInAccount'), signedInUser);
+              assert.isTrue(broker.trigger.calledWith('fxa_status', response));
             });
         });
       });

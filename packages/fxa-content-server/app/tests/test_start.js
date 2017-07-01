@@ -108,6 +108,7 @@ function (Translator, Session) {
     '../tests/spec/models/reliers/relier',
     '../tests/spec/models/reliers/sync',
     '../tests/spec/models/resume-token',
+    '../tests/spec/models/sync-engines',
     '../tests/spec/models/unique-user-id',
     '../tests/spec/models/user',
     '../tests/spec/models/verification/base',

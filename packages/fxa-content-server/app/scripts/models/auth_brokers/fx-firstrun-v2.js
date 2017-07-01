@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Constants = require('lib/constants');
   const FxFirstrunV1AuthenticationBroker = require('./fx-firstrun-v1');
 
   var proto = FxFirstrunV1AuthenticationBroker.prototype;
@@ -23,9 +22,7 @@ define(function (require, exports, module) {
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
-      chooseWhatToSyncWebV1: {
-        engines: Constants.DEFAULT_DECLINED_ENGINES
-      }
+      chooseWhatToSyncWebV1: true
     }),
 
     notifications: _.extend({}, proto.notifications, {

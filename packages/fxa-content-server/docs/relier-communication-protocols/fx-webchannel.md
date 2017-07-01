@@ -34,10 +34,12 @@ Returns a `signedInUser` field which is the Account currently signed into the br
 ##### response data
 ```js
 {
+  capabilities: <capabilities>
   signedInUser: <signed in user> || null
 }
 ```
 
+* `capabilities` - A list of capabilities supported by the browser. See [capabilities](#capabilities).
 * `signedInUser` - the user currently signed into Sync on the browser. See [signedInUser](#signedInUser).
 
 ##### support
@@ -151,9 +153,10 @@ expected.
 ```js
 {
   customizeSync: (true|false),
-  declinedSyncEngines [<array of declined sync engines>],
+  declinedSyncEngines: [<array of declined sync engines>],
   email: <email>,
   keyFetchToken: <key fetch token>,
+  offeredSyncEngines: [<array of displayed sync engines>],
   sessionToken: <session token>,
   uid: <user id>,
   unwrapBKey: <unwrap b key>,
@@ -163,23 +166,45 @@ expected.
 ```
 
 * `customizeSync` - Should the user be shown the browser's `Customize Sync` dialog?
-* `declinedSyncEngines` - An array of Sync engines the user has deselected.  See [declinedSyncEngines](#declinedSyncEngines).
+* `declinedSyncEngines` - An array of Sync engines the user has deselected. See [declinedSyncEngines, offeredSyncEngines](#declinedSyncEngines-offeredSyncEngines).
 * `email` - User's email address.
 * `keyFetchToken` -
+* `offeredSyncEngines` - An array of Sync engines that were displayed to the user. See [declinedSyncEngines, offeredSyncEngines](#declinedSyncEngines-offeredSyncEngines).
 * `sessionToken` - The current session token that can be used to interact with FxA's auth server.
 * `uid` - The user identifier.
 * `unwrapBKey` - The key used to encrypt and decrypt the user's sync data.
 * `verified` - Is the user verified?
 * `verifiedCanLinkAccount` - Has the user verified they want to link accounts, if signing into a different account than previously signed in to?
 
-#### declinedSyncEngines
+#### capabilities
+An object containing browser supported capabilities. Only available with browser support.
 
-* bookmarks
-* history
-* passwords
-* tabs
-* desktop-addons
-* desktop-preferences
+```js
+{
+  engines: [<list of optional supported engines>]
+}
+```
+
+* `engines` A list of optional supported engines.
+
+##### engines
+A list of optional supported engines. If we are unsure whether an optional engine should be displayed, it will only be displayed if the engine is in the list.
+
+###### Possible values
+
+* `addresses`
+* `creditcards`
+
+#### declinedSyncEngines, offeredSyncEngines
+
+* `addons`
+* `addresses`
+* `bookmarks`
+* `creditcards`
+* `history`
+* `passwords`
+* `preferences`
+* `tabs`
 
 #### signedInUser
 
