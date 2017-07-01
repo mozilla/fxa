@@ -38,6 +38,7 @@ define([
         testValidMetricsEvent('type', 'error.unknown context.auth.108'),
     'valid error-type (signin-permissions.checkbox.change.profile:display_name.unchecked)':
       testValidMetricsEvent('type', 'signin-permissions.checkbox.change.profile:display_name.unchecked'),
+    'valid initialView': testValidMetricsField('initialView', 'az_-'),
     'valid lang (pt)': testValidMetricsField('lang', 'pt'),
     'valid lang (pt-BR)': testValidMetricsField('lang', 'pt-BR'),
     'valid lang (pt-br)': testValidMetricsField('lang', 'pt-br'),
@@ -71,6 +72,7 @@ define([
     'invalid flowBeginTime (asdf)': testInvalidMetricsField('flowBeginTime', 'asdf'),
     'invalid flowId (deadbeef)': testInvalidMetricsField('flowId', 'deadbeef'),
     'invalid flushTime (<script>)': testInvalidMetricsField('flushTime', '<script>'),
+    'invalid initialView': testInvalidMetricsField('initialView', 'A'),
     'invalid isSampledUser (no)': testInvalidMetricsField('isSampledUser', 'no'),
     'invalid lang (es:ES)': testInvalidMetricsField('lang', 'es:ES'),
     'invalid marketing ({})': testInvalidMetricsField('marketing', {}),

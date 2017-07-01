@@ -137,6 +137,7 @@ define([
           events: [
             { offset: 2000, type: 'loaded' }
           ],
+          initialView: 'signup'
         }, 2000);
       },
 
@@ -146,28 +147,28 @@ define([
 
       'first call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[0][0]);
-        assert.equal(arg.event, 'flow.performance');
+        assert.equal(arg.event, 'flow.performance.auth');
         assert.equal(arg.time, new Date(mocks.time).toISOString());
         assert.equal(arg.flow_time, 2000);
       },
 
       'second call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[1][0]);
-        assert.equal(arg.event, 'flow.performance.network');
+        assert.equal(arg.event, 'flow.performance.auth.network');
         assert.equal(arg.time, new Date(mocks.time - 2000 + 300).toISOString());
         assert.equal(arg.flow_time, 300);
       },
 
       'third call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[2][0]);
-        assert.equal(arg.event, 'flow.performance.server');
+        assert.equal(arg.event, 'flow.performance.auth.server');
         assert.equal(arg.time, new Date(mocks.time - 2000 + 100).toISOString());
         assert.equal(arg.flow_time, 100);
       },
 
       'fourth call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[3][0]);
-        assert.equal(arg.event, 'flow.performance.client');
+        assert.equal(arg.event, 'flow.performance.auth.client');
         assert.equal(arg.time, new Date(mocks.time - 2000 + 200).toISOString());
         assert.equal(arg.flow_time, 200);
       }
@@ -713,6 +714,7 @@ define([
             // The value of offset here puts the loaded event in the distant future
             { offset: 31536000000, type: 'loaded' }
           ],
+          initialView: 'settings'
         }, 1000);
       },
 
@@ -722,17 +724,17 @@ define([
 
       'second call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[0][0]);
-        assert.equal(arg.event, 'flow.performance.network');
+        assert.equal(arg.event, 'flow.performance.other.network');
       },
 
       'third call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[1][0]);
-        assert.equal(arg.event, 'flow.performance.server');
+        assert.equal(arg.event, 'flow.performance.other.server');
       },
 
       'fourth call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[2][0]);
-        assert.equal(arg.event, 'flow.performance.client');
+        assert.equal(arg.event, 'flow.performance.other.client');
       }
     },
 
@@ -743,6 +745,7 @@ define([
           events: [
             { offset: 1000, type: 'loaded' }
           ],
+          initialView: 'reset-password'
         // The last arg here puts the navtiming events in the distant future
         }, 1000, false, 31536000000);
       },
@@ -753,7 +756,7 @@ define([
 
       'first call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[0][0]);
-        assert.equal(arg.event, 'flow.performance');
+        assert.equal(arg.event, 'flow.performance.other');
       }
     },
 
@@ -764,13 +767,14 @@ define([
           events: [
             { offset: 2000, type: 'loaded' }
           ],
+          initialView: 'signin'
         }, 2000, true);
       },
 
       'process.stderr.write was called correctly': () => {
         assert.equal(process.stderr.write.callCount, 1);
         const arg = JSON.parse(process.stderr.write.args[0][0]);
-        assert.equal(arg.event, 'flow.performance');
+        assert.equal(arg.event, 'flow.performance.auth');
       }
     }
   });
@@ -787,6 +791,7 @@ define([
         flowBeginTime,
         flowId: data.flowId || '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
         flushTime: flowBeginTime,
+        initialView: data.initialView || 'signup',
         migration: data.migration || 'sync11',
         navigationTiming: clobberNavigationTiming ? null : {
           /*eslint-disable sorting/sort-object-props*/

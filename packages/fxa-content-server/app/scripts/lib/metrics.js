@@ -46,6 +46,7 @@ define(function (require, exports, module) {
     'flowBeginTime',
     'flowId',
     'flushTime',
+    'initialView',
     'isSampledUser',
     'lang',
     'marketing',
@@ -136,19 +137,6 @@ define(function (require, exports, module) {
     this.initialize(options);
   }
 
-  /**
-   * Log an event once. Use in the `notifications` hash to
-   * log an event whenever a notification is triggered.
-   *
-   * @param  {String} eventName name of event to log
-   * @return {Function} function that does logging.
-   */
-  function logEventOnce(eventName) {
-    return function () {
-      this.logEventOnce(eventName);
-    };
-  }
-
   _.extend(Metrics.prototype, Backbone.Events, {
     ALLOWED_FIELDS: ALLOWED_FIELDS,
 
@@ -180,7 +168,7 @@ define(function (require, exports, module) {
        * first screen is rendered and the user can interact
        * with FxA. Similar to window.onload, but FxA specific.
        */
-      'view-shown': logEventOnce('loaded')
+      'once!view-shown': '_setInitialView'
       /* eslint-enable sorting/sort-object-props */
     },
 
@@ -234,6 +222,16 @@ define(function (require, exports, module) {
       } else {
         this.logEvent(eventName);
       }
+    },
+
+    /**
+     * Set the initial view name and emit the loaded event.
+     *
+     * @param {View} view
+     */
+    _setInitialView (view) {
+      this._initialViewName = view.viewName;
+      this.logEventOnce('loaded');
     },
 
     /**
@@ -335,6 +333,7 @@ define(function (require, exports, module) {
         flowBeginTime: flowData.flowBeginTime,
         flowId: flowData.flowId,
         flushTime: Date.now(),
+        initialView: this._initialViewName,
         isSampledUser: this._isSampledUser,
         lang: this._lang,
         marketing: flattenHashIntoArrayOfObjects(this._marketingImpressions),

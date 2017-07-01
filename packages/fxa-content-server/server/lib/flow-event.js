@@ -78,6 +78,8 @@ const PERFORMANCE_TIMINGS = [
   }
 ];
 
+const AUTH_VIEWS = new Set([ 'force-auth', 'signin', 'signup' ]);
+
 module.exports = (req, metrics, requestReceivedTime) => {
   if (IS_DISABLED || ! isValidFlowData(metrics, requestReceivedTime)) {
     return;
@@ -85,11 +87,12 @@ module.exports = (req, metrics, requestReceivedTime) => {
 
   let emitPerformanceEvents = false;
   const events = metrics.events || [];
+  const performanceCategory = AUTH_VIEWS.has(metrics.initialView) ? 'auth' : 'other';
   const flowEvents = events.map(event => {
     if (event.type === 'loaded') {
       emitPerformanceEvents = true;
       return Object.assign({}, event, {
-        type: 'flow.performance'
+        type: `flow.performance.${performanceCategory}`
       });
     }
 
@@ -143,7 +146,7 @@ module.exports = (req, metrics, requestReceivedTime) => {
         logFlowEvent({
           flowTime: relativeTime,
           time: absoluteTime,
-          type: `flow.performance.${item.event}`
+          type: `flow.performance.${performanceCategory}.${item.event}`
         }, metrics, req);
       }
     });
