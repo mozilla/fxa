@@ -235,12 +235,14 @@ describe('the /unsubscribe route', function () {
       .post('/unsubscribe')
       .set('authorization', 'Bearer TOKEN')
       .send({ newsletters: NEWSLETTERS })
-      .expect(400, {
-        status: 'error',
-        code: 99,
-        desc: 'SyntaxError: Unexpected token <'
-      })
-      .end(done);
+      .end(function (err, res) {
+        var body = res.body;
+        assert.equal(res.status, 400);
+        assert.equal(body.status, 'error');
+        assert.equal(body.code, '99');
+        assert.ok(/^SyntaxError:/.test(body.desc));
+        done();
+      });
   });
 
 });
