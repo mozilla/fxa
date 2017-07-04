@@ -22,7 +22,6 @@ module.exports = function (
   const idp = require('./idp')(log, serverPublicKeys)
   const checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
   const push = require('../push')(log, db, config)
-  const devices = require('../devices')(log, db, push)
   const account = require('./account')(
     log,
     db,
@@ -32,9 +31,10 @@ module.exports = function (
     config,
     customs,
     checkPassword,
-    push,
-    devices
+    push
   )
+  const devicesImpl = require('../devices')(log, db, push)
+  const devicesSessions = require('./devices-sessions')(log, db, config, customs, push, devicesImpl)
   const password = require('./password')(
     log,
     db,
@@ -48,7 +48,7 @@ module.exports = function (
     config
   )
   const session = require('./session')(log, db)
-  const sign = require('./sign')(log, signer, db, config.domain, devices)
+  const sign = require('./sign')(log, signer, db, config.domain, devicesImpl)
   const signinCodes = require('./signin-codes')(log, db, customs)
   const smsRoute = require('./sms')(log, db, config, customs, smsImpl)
   const util = require('./util')(
@@ -62,6 +62,7 @@ module.exports = function (
 
   const v1Routes = [].concat(
     account,
+    devicesSessions,
     password,
     session,
     signinCodes,

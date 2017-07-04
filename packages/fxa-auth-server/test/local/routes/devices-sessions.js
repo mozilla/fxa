@@ -4,25 +4,21 @@
 
 'use strict'
 
-var sinon = require('sinon')
-
 const assert = require('insist')
-var mocks = require('../../mocks')
-var getRoute = require('../../routes_helpers').getRoute
-var proxyquire = require('proxyquire')
-
-var P = require('../../../lib/promise')
-var uuid = require('uuid')
-var crypto = require('crypto')
-var error = require('../../../lib/error')
-
+const crypto = require('crypto')
+const error = require('../../../lib/error')
+const getRoute = require('../../routes_helpers').getRoute
 const isA = require('joi')
+const mocks = require('../../mocks')
+const P = require('../../../lib/promise')
+const proxyquire = require('proxyquire')
+const sinon = require('sinon')
+const uuid = require('uuid')
 
-var makeRoutes = function (options, requireMocks) {
+function makeRoutes (options, requireMocks) {
   options = options || {}
 
-  var config = options.config || {}
-  config.verifierVersion = config.verifierVersion || 0
+  const config = options.config || {}
   config.smtp = config.smtp ||  {}
   config.memcached = config.memcached || {
     address: '127.0.0.1:1121',
@@ -33,31 +29,18 @@ var makeRoutes = function (options, requireMocks) {
     supportedLanguages: ['en'],
     defaultLanguage: 'en'
   }
-  config.lastAccessTimeUpdates = {}
-  config.signinConfirmation = config.signinConfirmation || {}
-  config.signinUnblock = config.signinUnblock || {}
   config.push = {
     allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
   }
 
-  var log = options.log || mocks.mockLog()
-  var Password = options.Password || require('../../../lib/crypto/password')(log, config)
-  var db = options.db || mocks.mockDB()
-  var customs = options.customs || {
+  const log = options.log || mocks.mockLog()
+  const db = options.db || mocks.mockDB()
+  const customs = options.customs || {
     check: function () { return P.resolve(true) }
   }
-  var checkPassword = options.checkPassword || require('../../../lib/routes/utils/password_check')(log, config, Password, customs, db)
-  var push = options.push || require('../../../lib/push')(log, db, {})
-  return proxyquire('../../../lib/routes/account', requireMocks || {})(
-    log,
-    db,
-    mocks.mockBounces(),
-    options.mailer || {},
-    Password,
-    config,
-    customs,
-    checkPassword,
-    push,
+  const push = options.push || require('../../../lib/push')(log, db, {})
+  return proxyquire('../../../lib/routes/devices-sessions', requireMocks || {})(
+    log, db, config, customs, push,
     options.devices || require('../../../lib/devices')(log, db, push)
   )
 }
@@ -74,6 +57,10 @@ function runTest (route, request, assertions) {
     })
   })
     .then(assertions)
+}
+
+function hexString (bytes) {
+  return crypto.randomBytes(bytes).toString('hex')
 }
 
 describe('/account/device', function () {
@@ -517,3 +504,58 @@ describe('/account/devices', function () {
     isA.assert(res, route.config.response.schema)
   })
 })
+
+describe('/account/sessions', () => {
+  const session = {
+    tokenId: 'foo',
+    uid: '010',
+    createdAt: Date.now(),
+    uaOS: 'Windows',
+    uaOSVersion: '10',
+    uaDeviceType: 'desktop',
+    lastAccessTime: Date.now(),
+    uaBrowser: 'Firefox',
+    uaBrowserVersion: '50',
+    deviceId: 'deviceId',
+    deviceName: 'deviceName',
+    deviceType: 'desktop',
+    deviceCreatedAt: Date.now(),
+    devicePushCallback: 'foo',
+    devicePushPublicKey: 'bar',
+    devicePushAuthKey: 'authKey',
+  }
+  const db = mocks.mockDB({
+    sessions: [ Object.assign({}, session) ]
+  })
+  const accountRoutes = makeRoutes({ db })
+  const request = mocks.mockRequest({
+    credentials: {
+      uid: hexString(16),
+      tokenId: hexString(16)
+    },
+    payload: {}
+  })
+
+  it('should list account sessions', () => {
+    const route = getRoute(accountRoutes, '/account/sessions')
+
+    return runTest(route, request, result => {
+      assert.equal(result.length, 1)
+      const s = result[0]
+      assert.equal(Object.keys(s).length, 13)
+      assert.equal(s.id, session.tokenId)
+      assert.equal(s.deviceName, session.deviceName)
+      assert.equal(s.deviceType, session.deviceType)
+      assert.equal(s.devicePushCallback, session.devicePushCallback)
+      assert.equal(s.devicePushPublicKey, session.devicePushPublicKey)
+      assert.equal(s.devicePushAuthKey, session.devicePushAuthKey)
+      assert.equal(s.id, session.tokenId)
+      assert.equal(s.isCurrentDevice, false)
+      assert.equal(s.isDevice, true)
+      assert.equal(s.lastAccessTimeFormatted, 'a few seconds ago')
+      assert.equal(s.userAgent, 'Firefox 50')
+      assert.equal(s.os, 'Windows')
+    })
+  })
+})
+
