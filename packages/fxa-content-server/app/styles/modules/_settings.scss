@@ -606,7 +606,8 @@ section.modal-panel {
 .client-oAuthApp {
   background-image: url('/images/icon-client-default.svg');
 
-  &[data-name='Add-ons'], &[data-name='Firefox Add-ons Frontend'] {
+  &[data-name='Add-ons'], 
+  &[data-name='Firefox Add-ons Frontend'] {
     background-image: url('/images/icon-service-addon.svg');
   }
 
