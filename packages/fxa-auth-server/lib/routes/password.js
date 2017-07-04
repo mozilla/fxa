@@ -156,7 +156,7 @@ module.exports = function (
         var wantsKeys = requestHelper.wantsKeys(request)
         const ip = request.app.clientAddress
         var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
-          devicesToNotify
+          devicesToNotify, originatingDeviceId
 
         getSessionVerificationStatus()
           .then(fetchDevicesToNotify)
@@ -169,10 +169,13 @@ module.exports = function (
 
         function getSessionVerificationStatus() {
           if (sessionTokenId) {
-            return db.sessionTokenWithVerificationStatus(sessionTokenId)
+            return db.sessionWithDevice(sessionTokenId)
               .then(
                 function (tokenData) {
                   verifiedStatus = tokenData.tokenVerified
+                  if (tokenData.deviceId) {
+                    originatingDeviceId = tokenData.deviceId
+                  }
                 }
               )
           } else {
@@ -189,6 +192,12 @@ module.exports = function (
             .then(
               function(devices) {
                 devicesToNotify = devices
+                // If the originating sessionToken belongs to a device,
+                // do not send the notification to that device. It will
+                // get informed about the change via WebChannel message.
+                if (originatingDeviceId) {
+                  devicesToNotify = devicesToNotify.filter(d => ! d.id.equals(originatingDeviceId))
+                }
               }
             )
         }

@@ -295,6 +295,23 @@ function mockDB (data, errors) {
         uaDeviceType: data.uaDeviceType
       })
     }),
+    sessionWithDevice: sinon.spy(() => {
+      var res = {
+        tokenVerified: true,
+        uaBrowser: data.uaBrowser,
+        uaBrowserVersion: data.uaBrowserVersion,
+        uaOS: data.uaOS,
+        uaOSVersion: data.uaOSVersion,
+        uaDeviceType: data.uaDeviceType
+      }
+      if (data.devices && data.devices.length > 0) {
+        Object.keys(data.devices[0]).forEach(key => {
+          var keyOnSession = 'device' + key.charAt(0).toUpperCase() + key.substr(1)
+          res[keyOnSession] = data.devices[0][key]
+        })
+      }
+      return P.resolve(res)
+    }),
     verifyTokens: optionallyThrow(errors, 'verifyTokens')
   })
 }

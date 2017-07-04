@@ -265,9 +265,14 @@ describe('/password', () => {
       'smoke',
       () => {
         var uid = uuid.v4('binary').toString('hex')
+        var devices = [
+          { uid: uid, id: crypto.randomBytes(16) },
+          { uid: uid, id: crypto.randomBytes(16) }
+        ]
         var mockDB = mocks.mockDB({
           email: TEST_EMAIL,
-          uid: uid
+          uid: uid,
+          devices: devices
         })
         var mockPush = mocks.mockPush()
         var mockMailer = mocks.mockMailer()
@@ -298,8 +303,9 @@ describe('/password', () => {
           assert.equal(mockDB.deletePasswordChangeToken.callCount, 1)
           assert.equal(mockDB.resetAccount.callCount, 1)
 
-          assert.equal(mockPush.notifyPasswordChanged.callCount, 1)
-          assert.deepEqual(mockPush.notifyPasswordChanged.firstCall.args[0], uid)
+          assert.equal(mockPush.notifyPasswordChanged.callCount, 1, 'sent a push notification of the change')
+          assert.deepEqual(mockPush.notifyPasswordChanged.firstCall.args[0], uid, 'notified the correct uid')
+          assert.deepEqual(mockPush.notifyPasswordChanged.firstCall.args[1], [devices[1]], 'notified only the second device')
 
           assert.equal(mockDB.account.callCount, 1)
           assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1)
