@@ -225,6 +225,10 @@ body.settings #main-content.card {
       border: solid 1px $button-border-disabled-color;
       color: $button-disabled-color;
     }
+
+    &:focus {
+      box-shadow: 0 0 0 2px $button-box-shadow-color;
+    }
   }
 
   &.secondary {
@@ -606,7 +610,7 @@ section.modal-panel {
 .client-oAuthApp {
   background-image: url('/images/icon-client-default.svg');
 
-  &[data-name='Add-ons'], 
+  &[data-name='Add-ons'],
   &[data-name='Firefox Add-ons Frontend'] {
     background-image: url('/images/icon-service-addon.svg');
   }
