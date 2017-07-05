@@ -267,7 +267,7 @@ module.exports = function (
                           ip: ip,
                           location: geoData.location,
                           timeZone: geoData.timeZone
-                        }, request.headers['user-agent'], log)
+                        }, request.headers['user-agent'])
                       )
                       .catch(e => {
                         // If we couldn't email them, no big deal. Log
@@ -448,7 +448,7 @@ module.exports = function (
                       ip: ip,
                       location: geoData.location,
                       timeZone: geoData.timeZone
-                    }, request.headers['user-agent'], log)
+                    }, request.headers['user-agent'])
                   )
                 })
                 .then(
@@ -549,7 +549,7 @@ module.exports = function (
                       ip: ip,
                       location: geoData.location,
                       timeZone: geoData.timeZone
-                    }, request.headers['user-agent'], log)
+                    }, request.headers['user-agent'])
                   )
                 })
             }
