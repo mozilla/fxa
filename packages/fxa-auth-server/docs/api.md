@@ -28,11 +28,6 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [POST /account/status](#post-accountstatus)
     * [GET /account/profile (:lock::unlock: sessionToken, oauthToken)](#get-accountprofile)
     * [GET /account/keys (:lock: keyFetchToken)](#get-accountkeys)
-    * [POST /account/device (:lock: sessionToken)](#post-accountdevice)
-    * [POST /account/devices/notify (:lock: sessionToken)](#post-accountdevicesnotify)
-    * [GET /account/devices (:lock: sessionToken)](#get-accountdevices)
-    * [GET /account/sessions (:lock: sessionToken)](#get-accountsessions)
-    * [POST /account/device/destroy (:lock: sessionToken)](#post-accountdevicedestroy)
     * [GET /recovery_email/check_can_add_secondary_address (:lock: sessionToken)](#get-recovery_emailcheck_can_add_secondary_address)
     * [GET /recovery_email/status (:lock: sessionToken)](#get-recovery_emailstatus)
     * [POST /recovery_email/resend_code (:lock: sessionToken)](#post-recovery_emailresend_code)
@@ -46,6 +41,12 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [POST /account/login/reject_unblock_code](#post-accountloginreject_unblock_code)
     * [POST /account/reset (:lock: accountResetToken)](#post-accountreset)
     * [POST /account/destroy](#post-accountdestroy)
+  * [Devices sessions](#devices-sessions)
+    * [POST /account/device (:lock: sessionToken)](#post-accountdevice)
+    * [POST /account/devices/notify (:lock: sessionToken)](#post-accountdevicesnotify)
+    * [GET /account/devices (:lock: sessionToken)](#get-accountdevices)
+    * [GET /account/sessions (:lock: sessionToken)](#get-accountsessions)
+    * [POST /account/device/destroy (:lock: sessionToken)](#post-accountdevicedestroy)
   * [Password](#password)
     * [POST /password/change/start](#post-passwordchangestart)
     * [POST /password/change/finish (:lock: passwordChangeToken)](#post-passwordchangefinish)
@@ -267,6 +268,9 @@ include additional response properties:
 * `errno: 126`: email
 * `errno: 130`: region
 * `errno: 132`: reason, reasonCode
+* `errno: 133`: bouncedAt
+* `errno: 134`: bouncedAt
+* `errno: 135`: bouncedAt
 * `errno: 201`: retryAfter
 * `errno: 202`: retryAfter
 
@@ -681,366 +685,6 @@ by the following errors
 
 * `code: 400, errno: 104`:
   Unverified account
-
-
-#### POST /account/device
-
-:lock: HAWK-authenticated with session token
-<!--begin-route-post-accountdevice-->
-Either:
-
-* Registers a new device for this session
-  if no device id is specified, or;
-
-* Updates existing device details for this session
-  if a device id is specified.
-
-If no device id is specified,
-both `name` and `type` must be provided.
-If a device id is specified,
-at least one of `name`, `type`, `pushCallback`
-or the tuple `{ pushCallback, pushPublicKey, pushAuthKey }`
-must be present.
-Beware that if you provide `pushCallback`
-without the pair `{ pushPublicKey, pushAuthKey }`,
-both of those keys will be reset
-to the empty string.
-
-Devices should register with this endpoint
-before attempting to obtain a signed certificate
-and perform their first sync,
-so that an appropriate device name
-can be made available to other connected devices.
-<!--end-route-post-accountdevice-->
-
-##### Request body
-
-* `id`: *string, length(32), regex(HEX_STRING), required*
-
-  <!--begin-request-body-post-accountdevice-id-->
-  
-  <!--end-request-body-post-accountdevice-id-->
-
-* `name`: *string, max(255), regex(DISPLAY_SAFE_UNICODE), optional*;<br />or *string, max(255), regex(DISPLAY_SAFE_UNICODE), required*
-
-  <!--begin-request-body-post-accountdevice-name-->
-  
-  <!--end-request-body-post-accountdevice-name-->
-
-* `type`: *string, max(16), optional*;<br />or *string, max(16), required*
-
-  <!--begin-request-body-post-accountdevice-type-->
-  
-  <!--end-request-body-post-accountdevice-type-->
-
-* `pushCallback`: *string, uri({ scheme: 'https' }), regex(PUSH_SERVER_REGEX), max(255), optional, allow('')*
-
-  <!--begin-request-body-post-accountdevice-pushCallback-->
-  
-  <!--end-request-body-post-accountdevice-pushCallback-->
-
-* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow('')*
-
-  <!--begin-request-body-post-accountdevice-pushPublicKey-->
-  
-  <!--end-request-body-post-accountdevice-pushPublicKey-->
-
-* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow('')*
-
-  <!--begin-request-body-post-accountdevice-pushAuthKey-->
-  
-  <!--end-request-body-post-accountdevice-pushAuthKey-->
-
-##### Response body
-
-* `id`: *string, length(32), regex(HEX_STRING), required*
-
-  <!--begin-response-body-post-accountdevice-id-->
-  
-  <!--end-response-body-post-accountdevice-id-->
-
-* `createdAt`: *number, positive, optional*
-
-  <!--begin-response-body-post-accountdevice-createdAt-->
-  
-  <!--end-response-body-post-accountdevice-createdAt-->
-
-* `name`: *string, max(255), optional*
-
-  <!--begin-response-body-post-accountdevice-name-->
-  
-  <!--end-response-body-post-accountdevice-name-->
-
-* `type`: *string, max(16), optional*
-
-  <!--begin-response-body-post-accountdevice-type-->
-  
-  <!--end-response-body-post-accountdevice-type-->
-
-* `pushCallback`: *string, uri({ scheme: 'https' }), max(255), optional, allow('')*
-
-  <!--begin-response-body-post-accountdevice-pushCallback-->
-  
-  <!--end-response-body-post-accountdevice-pushCallback-->
-
-* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow('')*
-
-  <!--begin-response-body-post-accountdevice-pushPublicKey-->
-  
-  <!--end-response-body-post-accountdevice-pushPublicKey-->
-
-* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow('')*
-
-  <!--begin-response-body-post-accountdevice-pushAuthKey-->
-  
-  <!--end-response-body-post-accountdevice-pushAuthKey-->
-
-##### Error responses
-
-Failing requests may be caused
-by the following errors
-(this is not an exhaustive list):
-
-* `code: 400, errno: 107`:
-  Invalid parameter in request body
-
-* `code: 503, errno: 202`:
-  Feature not enabled
-
-
-#### POST /account/devices/notify
-
-:lock: HAWK-authenticated with session token
-<!--begin-route-post-accountdevicesnotify-->
-Notifies a set of devices associated with the user's account
-of an event by sending a browser push notification.
-A typical use case would be
-to send a notification to another device
-after sending a tab with Sync,
-so it can sync too
-and display the tab in a timely manner.
-<!--end-route-post-accountdevicesnotify-->
-
-##### Request body
-
-* `to`: *string, valid('all'), required*;<br />or *array, items(string, length(32), regex(HEX_STRING)), required*
-
-  <!--begin-request-body-post-accountdevicesnotify-to-->
-  Devices to notify.
-  May be the string `'all'`
-  or an array
-  containing the relevant device ids.
-  <!--end-request-body-post-accountdevicesnotify-to-->
-
-* `excluded`: *array, items(string, length(32), regex(HEX_STRING)), optional*
-
-  <!--begin-request-body-post-accountdevicesnotify-excluded-->
-  Array of device ids
-  to exclude from the notification.
-  Ignored unless `to:"all"` is specified.
-  <!--end-request-body-post-accountdevicesnotify-excluded-->
-
-* `payload`: *object, required*
-
-  <!--begin-request-body-post-accountdevicesnotify-payload-->
-  Push payload,
-  validated against [`pushpayloads.schema.json`](pushpayloads.schema.json).
-  <!--end-request-body-post-accountdevicesnotify-payload-->
-
-* `TTL`: *number, integer, min(0), optional*
-
-  <!--begin-request-body-post-accountdevicesnotify-TTL-->
-  Push notification TTL,
-  defaults to `0`.
-  <!--end-request-body-post-accountdevicesnotify-TTL-->
-
-##### Error responses
-
-Failing requests may be caused
-by the following errors
-(this is not an exhaustive list):
-
-* `code: 503, errno: 202`:
-  Feature not enabled
-
-* `code: 400, errno: 107`:
-  Invalid parameter in request body
-
-
-#### GET /account/devices
-
-:lock: HAWK-authenticated with session token
-<!--begin-route-get-accountdevices-->
-Returns an array
-of registered device objects
-for the authenticated user.
-<!--end-route-get-accountdevices-->
-
-##### Response body
-
-* `id`: *string, length(32), regex(HEX_STRING), required*
-
-  <!--begin-response-body-get-accountdevices-id-->
-  
-  <!--end-response-body-get-accountdevices-id-->
-
-* `isCurrentDevice`: *boolean, required*
-
-  <!--begin-response-body-get-accountdevices-isCurrentDevice-->
-  
-  <!--end-response-body-get-accountdevices-isCurrentDevice-->
-
-* `lastAccessTime`: *number, min(0), required, allow(null)*
-
-  <!--begin-response-body-get-accountdevices-lastAccessTime-->
-  
-  <!--end-response-body-get-accountdevices-lastAccessTime-->
-
-* `lastAccessTimeFormatted`: *string, optional, allow('')*
-
-  <!--begin-response-body-get-accountdevices-lastAccessTimeFormatted-->
-  
-  <!--end-response-body-get-accountdevices-lastAccessTimeFormatted-->
-
-* `name`: *string, max(255), required, allow('')*
-
-  <!--begin-response-body-get-accountdevices-name-->
-  
-  <!--end-response-body-get-accountdevices-name-->
-
-* `type`: *string, max(16), required*
-
-  <!--begin-response-body-get-accountdevices-type-->
-  
-  <!--end-response-body-get-accountdevices-type-->
-
-* `pushCallback`: *string, uri({ scheme: 'https' }), max(255), optional, allow(''), allow(null)*
-
-  <!--begin-response-body-get-accountdevices-pushCallback-->
-  
-  <!--end-response-body-get-accountdevices-pushCallback-->
-
-* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
-
-  <!--begin-response-body-get-accountdevices-pushPublicKey-->
-  
-  <!--end-response-body-get-accountdevices-pushPublicKey-->
-
-* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
-
-  <!--begin-response-body-get-accountdevices-pushAuthKey-->
-  
-  <!--end-response-body-get-accountdevices-pushAuthKey-->
-
-
-#### GET /account/sessions
-
-:lock: HAWK-authenticated with session token
-<!--begin-route-get-accountsessions-->
-Returns an array
-of session objects
-for the authenticated user.
-<!--end-route-get-accountsessions-->
-
-##### Response body
-
-* `id`: *string, regex(HEX_STRING), required*
-
-  <!--begin-response-body-get-accountsessions-id-->
-  
-  <!--end-response-body-get-accountsessions-id-->
-
-* `lastAccessTime`: *number, min(0), required, allow(null)*
-
-  <!--begin-response-body-get-accountsessions-lastAccessTime-->
-  
-  <!--end-response-body-get-accountsessions-lastAccessTime-->
-
-* `lastAccessTimeFormatted`: *string, optional, allow('')*
-
-  <!--begin-response-body-get-accountsessions-lastAccessTimeFormatted-->
-  
-  <!--end-response-body-get-accountsessions-lastAccessTimeFormatted-->
-
-* `userAgent`: *string, max(255), required, allow('')*
-
-  <!--begin-response-body-get-accountsessions-userAgent-->
-  
-  <!--end-response-body-get-accountsessions-userAgent-->
-
-* `os`: *string, max(255), allow(''), allow(null)*
-
-  <!--begin-response-body-get-accountsessions-os-->
-  
-  <!--end-response-body-get-accountsessions-os-->
-
-* `deviceId`: *string, regex(HEX_STRING), allow(null)*
-
-  <!--begin-response-body-get-accountsessions-deviceId-->
-  
-  <!--end-response-body-get-accountsessions-deviceId-->
-
-* `deviceName`: *string, max(255), required, allow(''), allow(null)*
-
-  <!--begin-response-body-get-accountsessions-deviceName-->
-  
-  <!--end-response-body-get-accountsessions-deviceName-->
-
-* `deviceType`: *string, max(16), required, allow(null)*
-
-  <!--begin-response-body-get-accountsessions-deviceType-->
-  
-  <!--end-response-body-get-accountsessions-deviceType-->
-
-* `deviceCallbackURL`: *string, uri({ scheme: 'https' }), max(255), optional, allow(''), allow(null)*
-
-  <!--begin-response-body-get-accountsessions-deviceCallbackURL-->
-  
-  <!--end-response-body-get-accountsessions-deviceCallbackURL-->
-
-* `deviceCallbackPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
-
-  <!--begin-response-body-get-accountsessions-deviceCallbackPublicKey-->
-  
-  <!--end-response-body-get-accountsessions-deviceCallbackPublicKey-->
-
-* `deviceCallbackAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
-
-  <!--begin-response-body-get-accountsessions-deviceCallbackAuthKey-->
-  
-  <!--end-response-body-get-accountsessions-deviceCallbackAuthKey-->
-
-* `isDevice`: *boolean, required*
-
-  <!--begin-response-body-get-accountsessions-isDevice-->
-  
-  <!--end-response-body-get-accountsessions-isDevice-->
-
-* `isCurrentDevice`: *boolean, required*
-
-  <!--begin-response-body-get-accountsessions-isCurrentDevice-->
-  
-  <!--end-response-body-get-accountsessions-isCurrentDevice-->
-
-
-#### POST /account/device/destroy
-
-:lock: HAWK-authenticated with session token
-<!--begin-route-post-accountdevicedestroy-->
-Destroys a device record
-and the associated `sessionToken`
-for the authenticated user.
-The identified device must sign in again
-to use the API after this request has succeeded.
-<!--end-route-post-accountdevicedestroy-->
-
-##### Request body
-
-* `id`: *string, length(32), regex(HEX_STRING), required*
-
-  <!--begin-request-body-post-accountdevicedestroy-id-->
-  
-  <!--end-request-body-post-accountdevicedestroy-id-->
 
 
 #### GET /recovery_email/check_can_add_secondary_address
@@ -1544,6 +1188,368 @@ by the following errors
 
 * `code: 400, errno: 103`:
   Incorrect password
+
+
+### Devices sessions
+
+#### POST /account/device
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-accountdevice-->
+Either:
+
+* Registers a new device for this session
+  if no device id is specified, or;
+
+* Updates existing device details for this session
+  if a device id is specified.
+
+If no device id is specified,
+both `name` and `type` must be provided.
+If a device id is specified,
+at least one of `name`, `type`, `pushCallback`
+or the tuple `{ pushCallback, pushPublicKey, pushAuthKey }`
+must be present.
+Beware that if you provide `pushCallback`
+without the pair `{ pushPublicKey, pushAuthKey }`,
+both of those keys will be reset
+to the empty string.
+
+Devices should register with this endpoint
+before attempting to obtain a signed certificate
+and perform their first sync,
+so that an appropriate device name
+can be made available to other connected devices.
+<!--end-route-post-accountdevice-->
+
+##### Request body
+
+* `id`: *string, length(32), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-accountdevice-id-->
+  
+  <!--end-request-body-post-accountdevice-id-->
+
+* `name`: *string, max(255), regex(DISPLAY_SAFE_UNICODE), optional*;<br />or *string, max(255), regex(DISPLAY_SAFE_UNICODE), required*
+
+  <!--begin-request-body-post-accountdevice-name-->
+  
+  <!--end-request-body-post-accountdevice-name-->
+
+* `type`: *string, max(16), optional*;<br />or *string, max(16), required*
+
+  <!--begin-request-body-post-accountdevice-type-->
+  
+  <!--end-request-body-post-accountdevice-type-->
+
+* `pushCallback`: *string, uri({ scheme: 'https' }), regex(PUSH_SERVER_REGEX), max(255), optional, allow('')*
+
+  <!--begin-request-body-post-accountdevice-pushCallback-->
+  
+  <!--end-request-body-post-accountdevice-pushCallback-->
+
+* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow('')*
+
+  <!--begin-request-body-post-accountdevice-pushPublicKey-->
+  
+  <!--end-request-body-post-accountdevice-pushPublicKey-->
+
+* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow('')*
+
+  <!--begin-request-body-post-accountdevice-pushAuthKey-->
+  
+  <!--end-request-body-post-accountdevice-pushAuthKey-->
+
+##### Response body
+
+* `id`: *string, length(32), regex(HEX_STRING), required*
+
+  <!--begin-response-body-post-accountdevice-id-->
+  
+  <!--end-response-body-post-accountdevice-id-->
+
+* `createdAt`: *number, positive, optional*
+
+  <!--begin-response-body-post-accountdevice-createdAt-->
+  
+  <!--end-response-body-post-accountdevice-createdAt-->
+
+* `name`: *string, max(255), optional*
+
+  <!--begin-response-body-post-accountdevice-name-->
+  
+  <!--end-response-body-post-accountdevice-name-->
+
+* `type`: *string, max(16), optional*
+
+  <!--begin-response-body-post-accountdevice-type-->
+  
+  <!--end-response-body-post-accountdevice-type-->
+
+* `pushCallback`: *string, uri({ scheme: 'https' }), max(255), optional, allow('')*
+
+  <!--begin-response-body-post-accountdevice-pushCallback-->
+  
+  <!--end-response-body-post-accountdevice-pushCallback-->
+
+* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow('')*
+
+  <!--begin-response-body-post-accountdevice-pushPublicKey-->
+  
+  <!--end-response-body-post-accountdevice-pushPublicKey-->
+
+* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow('')*
+
+  <!--begin-response-body-post-accountdevice-pushAuthKey-->
+  
+  <!--end-response-body-post-accountdevice-pushAuthKey-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 107`:
+  Invalid parameter in request body
+
+* `code: 503, errno: 202`:
+  Feature not enabled
+
+
+#### POST /account/devices/notify
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-accountdevicesnotify-->
+Notifies a set of devices associated with the user's account
+of an event by sending a browser push notification.
+A typical use case would be
+to send a notification to another device
+after sending a tab with Sync,
+so it can sync too
+and display the tab in a timely manner.
+<!--end-route-post-accountdevicesnotify-->
+
+##### Request body
+
+* `to`: *string, valid('all'), required*;<br />or *array, items(string, length(32), regex(HEX_STRING)), required*
+
+  <!--begin-request-body-post-accountdevicesnotify-to-->
+  Devices to notify.
+  May be the string `'all'`
+  or an array
+  containing the relevant device ids.
+  <!--end-request-body-post-accountdevicesnotify-to-->
+
+* `excluded`: *array, items(string, length(32), regex(HEX_STRING)), optional*
+
+  <!--begin-request-body-post-accountdevicesnotify-excluded-->
+  Array of device ids
+  to exclude from the notification.
+  Ignored unless `to:"all"` is specified.
+  <!--end-request-body-post-accountdevicesnotify-excluded-->
+
+* `payload`: *object, required*
+
+  <!--begin-request-body-post-accountdevicesnotify-payload-->
+  Push payload,
+  validated against [`pushpayloads.schema.json`](pushpayloads.schema.json).
+  <!--end-request-body-post-accountdevicesnotify-payload-->
+
+* `TTL`: *number, integer, min(0), optional*
+
+  <!--begin-request-body-post-accountdevicesnotify-TTL-->
+  Push notification TTL,
+  defaults to `0`.
+  <!--end-request-body-post-accountdevicesnotify-TTL-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 503, errno: 202`:
+  Feature not enabled
+
+* `code: 400, errno: 107`:
+  Invalid parameter in request body
+
+
+#### GET /account/devices
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-accountdevices-->
+Returns an array
+of registered device objects
+for the authenticated user.
+<!--end-route-get-accountdevices-->
+
+##### Response body
+
+* `id`: *string, length(32), regex(HEX_STRING), required*
+
+  <!--begin-response-body-get-accountdevices-id-->
+  
+  <!--end-response-body-get-accountdevices-id-->
+
+* `isCurrentDevice`: *boolean, required*
+
+  <!--begin-response-body-get-accountdevices-isCurrentDevice-->
+  
+  <!--end-response-body-get-accountdevices-isCurrentDevice-->
+
+* `lastAccessTime`: *number, min(0), required, allow(null)*
+
+  <!--begin-response-body-get-accountdevices-lastAccessTime-->
+  
+  <!--end-response-body-get-accountdevices-lastAccessTime-->
+
+* `lastAccessTimeFormatted`: *string, optional, allow('')*
+
+  <!--begin-response-body-get-accountdevices-lastAccessTimeFormatted-->
+  
+  <!--end-response-body-get-accountdevices-lastAccessTimeFormatted-->
+
+* `name`: *string, max(255), required, allow('')*
+
+  <!--begin-response-body-get-accountdevices-name-->
+  
+  <!--end-response-body-get-accountdevices-name-->
+
+* `type`: *string, max(16), required*
+
+  <!--begin-response-body-get-accountdevices-type-->
+  
+  <!--end-response-body-get-accountdevices-type-->
+
+* `pushCallback`: *string, uri({ scheme: 'https' }), max(255), optional, allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountdevices-pushCallback-->
+  
+  <!--end-response-body-get-accountdevices-pushCallback-->
+
+* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountdevices-pushPublicKey-->
+  
+  <!--end-response-body-get-accountdevices-pushPublicKey-->
+
+* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountdevices-pushAuthKey-->
+  
+  <!--end-response-body-get-accountdevices-pushAuthKey-->
+
+
+#### GET /account/sessions
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-accountsessions-->
+Returns an array
+of session objects
+for the authenticated user.
+<!--end-route-get-accountsessions-->
+
+##### Response body
+
+* `id`: *string, regex(HEX_STRING), required*
+
+  <!--begin-response-body-get-accountsessions-id-->
+  
+  <!--end-response-body-get-accountsessions-id-->
+
+* `lastAccessTime`: *number, min(0), required, allow(null)*
+
+  <!--begin-response-body-get-accountsessions-lastAccessTime-->
+  
+  <!--end-response-body-get-accountsessions-lastAccessTime-->
+
+* `lastAccessTimeFormatted`: *string, optional, allow('')*
+
+  <!--begin-response-body-get-accountsessions-lastAccessTimeFormatted-->
+  
+  <!--end-response-body-get-accountsessions-lastAccessTimeFormatted-->
+
+* `userAgent`: *string, max(255), required, allow('')*
+
+  <!--begin-response-body-get-accountsessions-userAgent-->
+  
+  <!--end-response-body-get-accountsessions-userAgent-->
+
+* `os`: *string, max(255), allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-os-->
+  
+  <!--end-response-body-get-accountsessions-os-->
+
+* `deviceId`: *string, regex(HEX_STRING), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceId-->
+  
+  <!--end-response-body-get-accountsessions-deviceId-->
+
+* `deviceName`: *string, max(255), required, allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceName-->
+  
+  <!--end-response-body-get-accountsessions-deviceName-->
+
+* `deviceType`: *string, max(16), required, allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceType-->
+  
+  <!--end-response-body-get-accountsessions-deviceType-->
+
+* `deviceCallbackURL`: *string, uri({ scheme: 'https' }), max(255), optional, allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceCallbackURL-->
+  
+  <!--end-response-body-get-accountsessions-deviceCallbackURL-->
+
+* `deviceCallbackPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceCallbackPublicKey-->
+  
+  <!--end-response-body-get-accountsessions-deviceCallbackPublicKey-->
+
+* `deviceCallbackAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
+
+  <!--begin-response-body-get-accountsessions-deviceCallbackAuthKey-->
+  
+  <!--end-response-body-get-accountsessions-deviceCallbackAuthKey-->
+
+* `isDevice`: *boolean, required*
+
+  <!--begin-response-body-get-accountsessions-isDevice-->
+  
+  <!--end-response-body-get-accountsessions-isDevice-->
+
+* `isCurrentDevice`: *boolean, required*
+
+  <!--begin-response-body-get-accountsessions-isCurrentDevice-->
+  
+  <!--end-response-body-get-accountsessions-isCurrentDevice-->
+
+
+#### POST /account/device/destroy
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-accountdevicedestroy-->
+Destroys a device record
+and the associated `sessionToken`
+for the authenticated user.
+The identified device must sign in again
+to use the API after this request has succeeded.
+<!--end-route-post-accountdevicedestroy-->
+
+##### Request body
+
+* `id`: *string, length(32), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-accountdevicedestroy-id-->
+  
+  <!--end-request-body-post-accountdevicedestroy-id-->
 
 
 ### Password
