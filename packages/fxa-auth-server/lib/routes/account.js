@@ -908,8 +908,7 @@ module.exports = (
             && ! doSigninConfirmation
             && emailRecord.emailVerified
           if (shouldSendNewDeviceLoginEmail) {
-            const secondaryEmails = features.isSecondaryEmailEnabled(emailRecord.email) ? db.accountEmails(sessionToken.uid) : P.resolve([])
-            return P.all([getGeoData(ip), secondaryEmails])
+            return P.all([getGeoData(ip), db.accountEmails(sessionToken.uid)])
               .spread((geoData, emails) => {
                 // New device notifications are always sent to the primary account email (emailRecord.email)
                 // and CCed to all secondary email if enabled.
@@ -950,8 +949,7 @@ module.exports = (
               tokenVerificationId: tokenVerificationId
             })
 
-            const secondaryEmails = features.isSecondaryEmailEnabled(emailRecord.email) ? db.accountEmails(sessionToken.uid) : P.resolve([])
-            return P.all([getGeoData(ip), secondaryEmails])
+            return P.all([getGeoData(ip), db.accountEmails(sessionToken.uid)])
               .spread((geoData, emails) => {
                 return mailer.sendVerifyLoginEmail(
                   emails,
@@ -1362,8 +1360,7 @@ module.exports = (
           )
 
         function setVerifyCode() {
-          const secondaryEmails = features.isSecondaryEmailEnabled(sessionToken.email) ? db.accountEmails(sessionToken.uid) : P.resolve([])
-          return secondaryEmails
+          return db.accountEmails(sessionToken.uid)
             .then((emailData) => {
               if (email) {
                 // If an email address is specified in payload, this is a request to verify

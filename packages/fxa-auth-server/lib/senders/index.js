@@ -6,6 +6,7 @@
 
 var createMailer = require('./email')
 var createSms = require('./sms')
+var P = require('../promise')
 
 module.exports = function (log, config, error, bounces, translator, sender) {
   var defaultLanguage = config.i18n.defaultLanguage
@@ -42,6 +43,43 @@ module.exports = function (log, config, error, bounces, translator, sender) {
         })
     }
 
+    function getSafeMailerWithEmails(emails) {
+      var ungatedEmails = []
+      var gatedEmailErrors = []
+
+      // Filter down to emails to only ones that are not gated
+      return P.map(emails, function (email) {
+        return getSafeMailer(email.email)
+          .then(function () {
+            ungatedEmails.push(email)
+          }, function (err) {
+            gatedEmailErrors.push(err)
+          })
+      })
+        .then(function () {
+          // There are no ungated emails, lets throw the first bounce error so that
+          // we don't hurt our email scores.
+          if (ungatedEmails.length === 0 && gatedEmailErrors.length > 0) {
+            throw gatedEmailErrors[0]
+          }
+
+          var ungatedPrimaryEmail = getPrimaryEmail(ungatedEmails)
+          var ungatedCcEmails = getVerifiedSecondaryEmails(ungatedEmails)
+
+          // This user is having a bad time, their primary email is bouncing.
+          // Send emails to ungated secondary emails
+          if (! ungatedPrimaryEmail) {
+            ungatedPrimaryEmail = ungatedCcEmails[0]
+          }
+
+          return {
+            ungatedMailer: ungatedMailer,
+            ungatedPrimaryEmail: ungatedPrimaryEmail,
+            ungatedCcEmails: ungatedCcEmails
+          }
+        })
+    }
+
     // Returns an array of only emails that are verified.
     // This returns only the email and not the email object.
     function getVerifiedSecondaryEmails(emails) {
@@ -50,6 +88,18 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       }).map(function (email) {
         return email.email
       })
+    }
+
+    function getPrimaryEmail(emails) {
+      var primaryEmail
+      for (var i=0; i<emails.length; i++) {
+        if (emails[i].isPrimary) {
+          primaryEmail = emails[i]
+          break
+        }
+      }
+
+      return primaryEmail && primaryEmail.email
     }
 
     senders.email = {
@@ -77,11 +127,12 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           })
       },
       sendVerifyLoginEmail: function (emails, account, opts) {
-        var primaryEmail = account.email
-        var ccEmails = getVerifiedSecondaryEmails(emails)
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            var mailer = result.ungatedMailer
+            var primaryEmail = result.ungatedPrimaryEmail
+            var ccEmails = result.ungatedCcEmails
 
-        return getSafeMailer(primaryEmail)
-          .then(function (mailer) {
             return mailer.verifyLoginEmail({
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
               code: opts.code,
@@ -129,11 +180,12 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           })
       },
       sendRecoveryCode: function (emails, account, opts) {
-        var primaryEmail = account.email
-        var ccEmails = getVerifiedSecondaryEmails(emails)
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            var mailer = result.ungatedMailer
+            var primaryEmail = result.ungatedPrimaryEmail
+            var ccEmails = result.ungatedCcEmails
 
-        return getSafeMailer(primaryEmail)
-          .then(function (mailer) {
             return mailer.recoveryEmail({
               ccEmails: ccEmails,
               email: primaryEmail,
@@ -156,11 +208,12 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           })
       },
       sendPasswordChangedNotification: function (emails, account, opts) {
-        var primaryEmail = account.email
-        var ccEmails = getVerifiedSecondaryEmails(emails)
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            var mailer = result.ungatedMailer
+            var primaryEmail = result.ungatedPrimaryEmail
+            var ccEmails = result.ungatedCcEmails
 
-        return getSafeMailer(primaryEmail)
-          .then(function (mailer) {
             return mailer.passwordChangedEmail({
               email: primaryEmail,
               ccEmails: ccEmails,
@@ -175,11 +228,12 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           })
       },
       sendPasswordResetNotification: function (emails, account, opts) {
-        var primaryEmail = account.email
-        var ccEmails = getVerifiedSecondaryEmails(emails)
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            var mailer = result.ungatedMailer
+            var primaryEmail = result.ungatedPrimaryEmail
+            var ccEmails = result.ungatedCcEmails
 
-        return getSafeMailer(primaryEmail)
-          .then(function (mailer) {
             return mailer.passwordResetEmail({
               ccEmails: ccEmails,
               email: primaryEmail,
@@ -190,11 +244,12 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           })
       },
       sendNewDeviceLoginNotification: function (emails, account, opts) {
-        var primaryEmail = account.email
-        var ccEmails = getVerifiedSecondaryEmails(emails)
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            var mailer = result.ungatedMailer
+            var primaryEmail = result.ungatedPrimaryEmail
+            var ccEmails = result.ungatedCcEmails
 
-        return getSafeMailer(primaryEmail)
-          .then(function (mailer) {
             return mailer.newDeviceLoginEmail({
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
               flowId: opts.flowId,
@@ -235,11 +290,12 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           })
       },
       sendUnblockCode: function (emails, account, opts) {
-        var primaryEmail = account.email
-        var ccEmails = getVerifiedSecondaryEmails(emails)
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            var mailer = result.ungatedMailer
+            var primaryEmail = result.ungatedPrimaryEmail
+            var ccEmails = result.ungatedCcEmails
 
-        return getSafeMailer(primaryEmail)
-          .then(function (mailer) {
             return mailer.unblockCodeEmail({
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
               flowId: opts.flowId,

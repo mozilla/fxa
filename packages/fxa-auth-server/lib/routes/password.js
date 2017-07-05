@@ -259,7 +259,7 @@ module.exports = function (
             .then(
               function (accountData) {
                 account = accountData
-                return features.isSecondaryEmailEnabled(account.email) ? db.accountEmails(passwordChangeToken.uid) : P.resolve([])
+                return db.accountEmails(passwordChangeToken.uid)
               }
             )
             .then(
@@ -434,8 +434,7 @@ module.exports = function (
           )
           .then(
             function (passwordForgotToken) {
-              const secondaryEmails = features.isSecondaryEmailEnabled(email) ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
-              return P.all([getGeoData(ip), secondaryEmails])
+              return P.all([getGeoData(ip), db.accountEmails(passwordForgotToken.uid)])
                 .spread((geoData, emails) => {
                   return mailer.sendRecoveryCode(
                     emails,
@@ -531,8 +530,7 @@ module.exports = function (
         ])
           .then(
             function () {
-              const secondaryEmails = features.isSecondaryEmailEnabled(passwordForgotToken.email) ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
-              return P.all([getGeoData(ip), secondaryEmails])
+              return P.all([getGeoData(ip), db.accountEmails(passwordForgotToken.uid)])
                 .spread((geoData, emails) => {
                   return mailer.sendRecoveryCode(
                     emails,
@@ -618,8 +616,7 @@ module.exports = function (
                 db.forgotPasswordVerified(passwordForgotToken)
                   .then(
                     function (accountResetToken) {
-                      const secondaryEmails = features.isSecondaryEmailEnabled(passwordForgotToken.email) ? db.accountEmails(passwordForgotToken.uid) : P.resolve([])
-                      return secondaryEmails
+                      return db.accountEmails(passwordForgotToken.uid)
                         .then((emails) => {
                           return mailer.sendPasswordResetNotification(
                             emails,
