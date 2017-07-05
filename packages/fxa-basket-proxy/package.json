@@ -51,7 +51,7 @@
     "travis-cov": "0.2.5"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=6"
   },
   "config": {
     "travis-cov": {
