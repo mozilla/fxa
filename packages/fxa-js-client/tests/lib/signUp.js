@@ -255,6 +255,29 @@ define([
           assert.notOk
         );
       });
+
+      test('#with marketingOptIn', function () {
+        var email = 'test' + new Date().getTime() + '@restmail.net';
+        var password = 'iliketurtles';
+
+        return respond(
+          client.signUp(email, password, {
+            marketingOptIn: true
+          }),
+          RequestMocks.signUp
+        )
+        .then(
+          function (resp) {
+            assert.ok(resp);
+
+            assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
+            assert.include(xhrOpen.args[0][1], '/account/create', 'path is correct');
+            var sentData = JSON.parse(xhrSend.args[0][0]);
+            assert.equal(sentData.marketingOptIn, true);
+          },
+          assert.notOk
+        );
+      });
     });
   }
 });
