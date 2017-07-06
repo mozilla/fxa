@@ -61,7 +61,7 @@ describe('cache:', () => {
 
     describe('del:', () => {
       beforeEach(() => {
-        return cache.del(token)
+        return cache.del(digest)
       })
 
       it('calls memcached.delAsync correctly', () => {
@@ -76,28 +76,11 @@ describe('cache:', () => {
       })
     })
 
-    describe('del with bad token:', () => {
-      let error
-
-      beforeEach(() => {
-        return cache.del({ id: token.id })
-          .catch(e => error = e)
-      })
-
-      it('rejects correctly', () => {
-        assert.equal(error.message, 'Invalid token')
-      })
-
-      it('does not call memcached.delAsync', () => {
-        assert.equal(Memcached.prototype.delAsync.callCount, 0)
-      })
-    })
-
     describe('get:', () => {
       let result
 
       beforeEach(() => {
-        return cache.get(token)
+        return cache.get(digest)
           .then(r => result = r)
       })
 
@@ -117,26 +100,9 @@ describe('cache:', () => {
       })
     })
 
-    describe('get with bad token:', () => {
-      let error
-
-      beforeEach(() => {
-        return cache.get({ uid: token.uid })
-          .catch(e => error = e)
-      })
-
-      it('rejects correctly', () => {
-        assert.equal(error.message, 'Invalid token')
-      })
-
-      it('does not call memcached.getAsync', () => {
-        assert.equal(Memcached.prototype.getAsync.callCount, 0)
-      })
-    })
-
     describe('set:', () => {
       beforeEach(() => {
-        return cache.set(token, 'wibble')
+        return cache.set(digest, 'wibble')
       })
 
       it('calls memcached.setAsync correctly', () => {
@@ -152,23 +118,6 @@ describe('cache:', () => {
         assert.equal(log.error.callCount, 0)
       })
     })
-
-    describe('set with bad token:', () => {
-      let error
-
-      beforeEach(() => {
-        return cache.set({ id: token.id }, {})
-          .catch(e => error = e)
-      })
-
-      it('rejects correctly', () => {
-        assert.equal(error.message, 'Invalid token')
-      })
-
-      it('does not call memcached.setAsync', () => {
-        assert.equal(Memcached.prototype.setAsync.callCount, 0)
-      })
-    })
   })
 
   describe('memcached rejects:', () => {
@@ -182,7 +131,7 @@ describe('cache:', () => {
       let error
 
       beforeEach(() => {
-        return cache.del(token)
+        return cache.del(digest)
           .catch(e => error = e)
       })
 
@@ -195,7 +144,7 @@ describe('cache:', () => {
       let error
 
       beforeEach(() => {
-        return cache.get(token)
+        return cache.get(digest)
           .catch(e => error = e)
       })
 
@@ -208,7 +157,7 @@ describe('cache:', () => {
       let error
 
       beforeEach(() => {
-        return cache.set(token, 'wibble')
+        return cache.set(digest, 'wibble')
           .catch(e => error = e)
       })
 
