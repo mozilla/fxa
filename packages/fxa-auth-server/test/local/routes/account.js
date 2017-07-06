@@ -30,7 +30,7 @@ var makeRoutes = function (options, requireMocks) {
   config.verifierVersion = config.verifierVersion || 0
   config.smtp = config.smtp ||  {}
   config.memcached = config.memcached || {
-    address: '127.0.0.1:1121',
+    address: 'none',
     idle: 500,
     lifetime: 30
   }
@@ -173,7 +173,8 @@ describe('/account/reset', function () {
 })
 
 describe('/account/create', () => {
-  it('should create an account', () => {
+
+  function setup() {
     const mockLog = log('ERROR', 'test')
     mockLog.activityEvent = sinon.spy(() => {
       return P.resolve()
@@ -202,12 +203,12 @@ describe('/account/create', () => {
         keys: 'true'
       }
     })
-    var clientAddress = mockRequest.app.clientAddress
-    var emailCode = hexString(16)
-    var keyFetchTokenId = hexString(16)
-    var sessionTokenId = hexString(16)
-    var uid = uuid.v4('binary')
-    var mockDB = mocks.mockDB({
+    const clientAddress = mockRequest.app.clientAddress
+    const emailCode = hexString(16)
+    const keyFetchTokenId = hexString(16)
+    const sessionTokenId = hexString(16)
+    const uid = uuid.v4('binary')
+    const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       emailCode: emailCode,
       emailVerified: false,
@@ -223,9 +224,15 @@ describe('/account/create', () => {
     }, {
       emailRecord: new error.unknownAccount()
     })
-    var mockMailer = mocks.mockMailer()
-    var mockPush = mocks.mockPush()
-    var accountRoutes = makeRoutes({
+    const mockMailer = mocks.mockMailer()
+    const mockPush = mocks.mockPush()
+    const mockMarketingCache = {
+      set: sinon.spy(() => P.resolve())
+    }
+    const requireMocks = {
+      '../cache': () => mockMarketingCache
+    }
+    const accountRoutes = makeRoutes({
       config: {
         securityHistory: {
           enabled: true
@@ -245,8 +252,40 @@ describe('/account/create', () => {
         }
       },
       push: mockPush
-    })
-    var route = getRoute(accountRoutes, '/account/create')
+    }, requireMocks)
+    const route = getRoute(accountRoutes, '/account/create')
+
+    return {
+      clientAddress,
+      emailCode,
+      keyFetchTokenId,
+      mockDB,
+      mockLog,
+      mockMailer,
+      mockMarketingCache,
+      mockMetricsContext,
+      mockRequest,
+      route,
+      sessionTokenId,
+      uid
+    }
+  }
+
+  it('should create an account', () => {
+    const mocked = setup()
+    const clientAddress = mocked.clientAddress
+    const emailCode = mocked.emailCode
+    const keyFetchTokenId = mocked.keyFetchTokenId
+    const mockMarketingCache = mocked.mockMarketingCache
+    const mockDB = mocked.mockDB
+    const mockLog = mocked.mockLog
+    const mockMailer = mocked.mockMailer
+    const mockMetricsContext = mocked.mockMetricsContext
+    const mockRequest = mocked.mockRequest
+    const route = mocked.route
+    const sessionTokenId = mocked.sessionTokenId
+    const uid = mocked.uid
+
 
     const now = Date.now()
     sinon.stub(Date, 'now', () => now)
@@ -265,6 +304,8 @@ describe('/account/create', () => {
         flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
         time: now
       }, 'it contained the correct metrics context metadata')
+
+      assert.equal(mockMarketingCache.set.callCount, 0)
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       var args = mockLog.activityEvent.args[0]
@@ -337,6 +378,22 @@ describe('/account/create', () => {
 
       assert.equal(mockLog.error.callCount, 0)
     }).finally(() => Date.now.restore())
+  })
+
+  it('should set cache if marketingOptIn is set', () => {
+    const mocked = setup()
+    const mockMarketingCache = mocked.mockMarketingCache
+    const mockRequest = mocked.mockRequest
+    const route = mocked.route
+    const uid = mocked.uid
+
+    mockRequest.payload.marketingOptIn = true
+
+    return runTest(route, mockRequest, () => {
+      assert.equal(mockMarketingCache.set.callCount, 1)
+      assert.equal(mockMarketingCache.set.args[0][0], uid)
+      assert.equal(mockMarketingCache.set.args[0][1], true)
+    })
   })
 })
 

@@ -4,7 +4,6 @@
 
 'use strict'
 
-const crypto = require('crypto')
 const Memcached = require('memcached')
 const P = require('./promise')
 
@@ -26,40 +25,40 @@ module.exports = (log, config, namespace) => {
 
   return {
     /**
-     * Delete data from the cache, keyed by a hash of
-     * `token.uid` and `token.id`. Fails silently if
-     * the cache is not enabled.
+     * Delete data from the cache, keyed by a string.
      *
-     * @param token
+     * Fails silently if the cache is not enabled.
+     *
+     * @param {string} key
      */
-    del (token) {
+    del (key) {
       return getCache()
-        .then(cache => cache.delAsync(getKey(token)))
+        .then(cache => cache.delAsync(key))
     },
 
     /**
-     * Fetch data from the cache, keyed by a hash of
-     * `token.uid` and `token.id`. Fails silently if
-     * the cache is not enabled.
+     * Fetch data from the cache, keyed by a string.
      *
-     * @param token
+     * Fails silently if the cache is not enabled.
+     *
+     * @param {string} key
      */
-    get (token) {
+    get (key) {
       return getCache()
-        .then(cache => cache.getAsync(getKey(token)))
+        .then(cache => cache.getAsync(key))
     },
 
     /**
-     * Fetch data from the cache, keyed by a hash of
-     * `token.uid` and `token.id`. Fails silently if
-     * the cache is not enabled.
+     * Fetch data from the cache, keyed by a string.
      *
-     * @param token
+     * Fails silently if the cache is not enabled.
+     *
+     * @param {string} key
      * @param data
      */
-    set (token, data) {
+    set (key, data) {
       return getCache()
-        .then(cache => cache.setAsync(getKey(token), data, CACHE_LIFETIME))
+        .then(cache => cache.setAsync(key, data, CACHE_LIFETIME))
     }
   }
 
@@ -91,17 +90,3 @@ module.exports = (log, config, namespace) => {
       })
   }
 }
-
-function getKey (token) {
-  if (! token || ! token.uid || ! token.id) {
-    const err = new Error('Invalid token')
-    throw err
-  }
-
-  const hash = crypto.createHash('sha256')
-  hash.update(token.uid)
-  hash.update(token.id)
-
-  return hash.digest('base64')
-}
-

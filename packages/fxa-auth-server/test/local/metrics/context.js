@@ -7,6 +7,7 @@
 const ROOT_DIR = '../../..'
 
 const assert = require('insist')
+const crypto = require('crypto')
 const proxyquire = require('proxyquire')
 const sinon = require('sinon')
 const mocks = require('../../mocks')
@@ -14,6 +15,14 @@ const P = require(`${ROOT_DIR}/lib/promise`)
 
 const modulePath = `${ROOT_DIR}/lib/metrics/context`
 const metricsContextModule = require(modulePath)
+
+function hashToken (token) {
+  const hash = crypto.createHash('sha256')
+  hash.update(token.uid)
+  hash.update(token.id)
+
+  return hash.digest('base64')
+}
 
 describe('metricsContext', () => {
   let results, cache, cacheFactory, log, config, metricsContext
@@ -90,7 +99,7 @@ describe('metricsContext', () => {
 
         assert.equal(cache.set.callCount, 1, 'cache.set was called once')
         assert.equal(cache.set.args[0].length, 2, 'cache.set was passed two arguments')
-        assert.equal(cache.set.args[0][0], token, 'first argument was correct')
+        assert.equal(cache.set.args[0][0], hashToken(token), 'first argument was correct')
         assert.equal(cache.set.args[0][1], 'bar', 'second argument was correct')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
@@ -128,7 +137,6 @@ describe('metricsContext', () => {
   it(
     'metricsContext.stash with bad token',
     () => {
-      results.set = P.reject(new Error('Invalid token'))
       return metricsContext.stash.call({
         payload: {
           metricsContext: 'bar'
@@ -146,7 +154,7 @@ describe('metricsContext', () => {
         assert.strictEqual(log.error.args[0][0].hasId, true, 'hasId property was correct')
         assert.strictEqual(log.error.args[0][0].hasUid, false, 'hasUid property was correct')
 
-        assert.equal(cache.set.callCount, 1, 'cache.set was called once')
+        assert.equal(cache.set.callCount, 0, 'cache.set was not called')
       })
     }
   )
@@ -250,7 +258,7 @@ describe('metricsContext', () => {
       }, {}).then(function (result) {
         assert.equal(cache.get.callCount, 1, 'cache.get was called once')
         assert.equal(cache.get.args[0].length, 1, 'cache.get was passed one argument')
-        assert.equal(cache.get.args[0][0], token, 'cache.get argument was correct')
+        assert.equal(cache.get.args[0][0], hashToken(token), 'cache.get argument was correct')
 
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
@@ -284,7 +292,7 @@ describe('metricsContext', () => {
       }, {}).then(function (result) {
         assert.equal(cache.get.callCount, 1, 'cache.get was called once')
         assert.equal(cache.get.args[0].length, 1, 'cache.get was passed one argument')
-        assert.deepEqual(cache.get.args[0][0], { uid, id }, 'cache.get argument was correct')
+        assert.deepEqual(cache.get.args[0][0], hashToken({ uid, id }), 'cache.get argument was correct')
 
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
@@ -302,7 +310,6 @@ describe('metricsContext', () => {
   it(
     'metricsContext.gather with bad token',
     () => {
-      results.get = P.reject(new Error('Invalid token'))
       return metricsContext.gather.call({
         auth: {
           credentials: {
@@ -412,7 +419,7 @@ describe('metricsContext', () => {
       }).then(() => {
         assert.equal(cache.del.callCount, 1, 'cache.del was called once')
         assert.equal(cache.del.args[0].length, 1, 'cache.del was passed one argument')
-        assert.equal(cache.del.args[0][0], token, 'cache.del argument was correct')
+        assert.equal(cache.del.args[0][0], hashToken(token), 'cache.del argument was correct')
       })
     }
   )
@@ -430,7 +437,7 @@ describe('metricsContext', () => {
       }).then(() => {
         assert.equal(cache.del.callCount, 1, 'cache.del was called once')
         assert.equal(cache.del.args[0].length, 1, 'cache.del was passed one argument')
-        assert.deepEqual(cache.del.args[0][0], { uid, id }, 'cache.del argument was correct')
+        assert.deepEqual(cache.del.args[0][0], hashToken({ uid, id }), 'cache.del argument was correct')
       })
     }
   )

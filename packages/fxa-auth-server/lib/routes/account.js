@@ -38,15 +38,15 @@ module.exports = (
   push
   ) => {
 
-  var verificationReminder = require('../verification-reminders')(log, db)
-  var getGeoData = require('../geodb')(log)
-
+  const getGeoData = require('../geodb')(log)
   const features = require('../features')(config)
+  const marketingCache = require('../cache')(log, config, 'fxa-marketing~')
+  const verificationReminder = require('../verification-reminders')(log, db)
 
   const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
   const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 0
 
-  var routes = [
+  const routes = [
     {
       method: 'POST',
       path: '/account/create',
@@ -63,7 +63,8 @@ module.exports = (
             service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
-            metricsContext: METRICS_CONTEXT_SCHEMA
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            marketingOptIn: isA.boolean()
           }
         },
         response: {
@@ -78,16 +79,17 @@ module.exports = (
       handler: function accountCreate(request, reply) {
         log.begin('Account.create', request)
 
-        var form = request.payload
-        var query = request.query
-        var email = form.email
-        var authPW = form.authPW
-        var locale = request.app.acceptLanguage
-        var userAgentString = request.headers['user-agent']
-        var service = form.service || query.service
-        var preVerified = !! form.preVerified
+        const form = request.payload
+        const query = request.query
+        const email = form.email
+        const authPW = form.authPW
+        const locale = request.app.acceptLanguage
+        const userAgentString = request.headers['user-agent']
+        const service = form.service || query.service
+        const preVerified = !! form.preVerified
         const ip = request.app.clientAddress
-        var password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, authSalt
+        const marketingOptIn = form.marketingOptIn
+        let password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, authSalt
 
         request.validateMetricsContext()
 
@@ -223,8 +225,16 @@ module.exports = (
                 return log.notifyAttachedServices('verified', request, {
                   email: account.email,
                   uid: account.uid,
-                  locale: account.locale
+                  locale: account.locale,
+                  marketingOptIn: marketingOptIn,
                 })
+              } else if (marketingOptIn) {
+                return marketingCache.set(account.uid, true)
+                  .catch(err => log.error({
+                    op: 'marketingCache.set',
+                    err: err,
+                    uid: account.uid
+                  }))
               }
             }
           )
@@ -363,7 +373,7 @@ module.exports = (
         }
 
         function createResponse () {
-          var response = {
+          const response = {
             uid: account.uid,
             sessionToken: sessionToken.data,
             authAt: sessionToken.lastAuthAt()
@@ -1582,11 +1592,23 @@ module.exports = (
                       return db.verifyEmail(account, account.emailCode)
                         .then(function () {
                           return P.all([
-                            log.notifyAttachedServices('verified', request, {
-                              email: account.email,
-                              uid: account.uid,
-                              locale: account.locale
-                            }),
+                            marketingCache.get(account.uid)
+                              .catch(err => {
+                                log.error({
+                                  op: 'marketingCache.get',
+                                  err: err,
+                                  uid: account.uid
+                                })
+                                return false
+                              })
+                              .then(optedIn => {
+                                log.notifyAttachedServices('verified', request, {
+                                  email: account.email,
+                                  uid: account.uid,
+                                  locale: account.locale,
+                                  marketingOptIn: optedIn ? true : undefined
+                                })
+                              }),
                             request.emitMetricsEvent('account.verified', {
                               uid: uid
                             })

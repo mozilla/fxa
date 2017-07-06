@@ -406,6 +406,13 @@ if the url has a query parameter of `keys=true`.
   
   <!--end-request-body-post-accountcreate-metricsContext-->
 
+* `marketingOptIn`: *boolean*
+
+  <!--begin-request-body-post-accountcreate-marketingOptIn-->
+  Set to true if the user has opted-in to our marketing. When verified,
+  the auth-server will notify Basket.
+  <!--end-request-body-post-accountcreate-marketingOptIn-->
+
 ##### Response body
 
 * `uid`: *string, regex(HEX_STRING), required*

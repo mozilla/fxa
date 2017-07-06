@@ -28,7 +28,7 @@ var makeRoutes = function (options, requireMocks) {
   config.verifierVersion = config.verifierVersion || 0
   config.smtp = config.smtp ||  {}
   config.memcached = config.memcached || {
-    address: '127.0.0.1:1121',
+    address: 'none',
     idle: 500,
     lifetime: 30
   }
@@ -359,7 +359,7 @@ describe('/recovery_email/resend_code', () => {
 })
 
 describe('/recovery_email/verify_code', function () {
-  var uid = uuid.v4('binary').toString('hex')
+  const uid = uuid.v4('binary').toString('hex')
   const mockLog = mocks.spyLog()
   const mockRequest = mocks.mockRequest({
     log: mockLog,
@@ -385,7 +385,8 @@ describe('/recovery_email/verify_code', function () {
     emailCode: Buffer(mockRequest.payload.code, 'hex'),
     emailVerified: false,
     secondEmail: 'test@email.com',
-    secondEmailCode: crypto.randomBytes(16).toString('hex')
+    secondEmailCode: crypto.randomBytes(16).toString('hex'),
+    uid: uid
   }
   var dbErrors = {
     verifyTokens: error.invalidVerificationCode({})
@@ -394,6 +395,13 @@ describe('/recovery_email/verify_code', function () {
   var mockMailer = mocks.mockMailer()
   const mockPush = mocks.mockPush()
   var mockCustoms = mocks.mockCustoms()
+  let marketingOptIn = false
+  const mockMarketingCache = {
+    get: sinon.spy(() => P.resolve(marketingOptIn))
+  }
+  const requireMocks = {
+    '../cache': () => mockMarketingCache
+  }
   var accountRoutes = makeRoutes({
     checkPassword: function () {
       return P.resolve(true)
@@ -409,7 +417,7 @@ describe('/recovery_email/verify_code', function () {
     log: mockLog,
     mailer: mockMailer,
     push: mockPush
-  })
+  }, requireMocks)
   var route = getRoute(accountRoutes, '/recovery_email/verify_code')
   describe('verifyTokens rejects with INVALID_VERIFICATION_CODE', function () {
 
@@ -418,12 +426,17 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(mockDB.verifyTokens.callCount, 1, 'calls verifyTokens')
         assert.equal(mockDB.verifyEmail.callCount, 1, 'calls verifyEmail')
         assert.equal(mockCustoms.check.callCount, 1, 'calls customs.check')
+
         assert.equal(mockLog.notifyAttachedServices.callCount, 1, 'logs verified')
+        let args = mockLog.notifyAttachedServices.args[0]
+        assert.equal(args[0], 'verified')
+        assert.equal(args[2].uid, uid)
+        assert.equal(args[2].marketingOptIn, undefined)
 
         assert.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
 
         assert.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once')
-        let args = mockLog.activityEvent.args[0]
+        args = mockLog.activityEvent.args[0]
         assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
         assert.deepEqual(args[0], {
           event: 'account.verified',
@@ -445,6 +458,29 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(JSON.stringify(response), '{}')
       })
         .then(function () {
+          mockDB.verifyTokens.reset()
+          mockDB.verifyEmail.reset()
+          mockLog.activityEvent.reset()
+          mockLog.flowEvent.reset()
+          mockLog.notifyAttachedServices.reset()
+          mockMailer.sendPostVerifyEmail.reset()
+          mockPush.notifyUpdate.reset()
+        })
+    })
+
+    it('with marketingOptIn', () => {
+      marketingOptIn = true
+      return runTest(route, mockRequest, function (response) {
+        assert.equal(mockLog.notifyAttachedServices.callCount, 1, 'logs verified')
+        const args = mockLog.notifyAttachedServices.args[0]
+        assert.equal(args[0], 'verified')
+        assert.equal(args[2].uid, uid)
+        assert.equal(args[2].marketingOptIn, true)
+
+        assert.equal(JSON.stringify(response), '{}')
+      })
+        .then(function () {
+          marketingOptIn = false
           mockDB.verifyTokens.reset()
           mockDB.verifyEmail.reset()
           mockLog.activityEvent.reset()

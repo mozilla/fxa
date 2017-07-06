@@ -46,7 +46,7 @@ module.exports = function (log, config) {
     }
 
     return P.resolve()
-      .then(() => cache.set(token, metadata))
+      .then(() => cache.set(getKey(token), metadata))
       .catch(err => log.error({
         op: 'metricsContext.stash',
         err: err,
@@ -79,7 +79,7 @@ module.exports = function (log, config) {
 
         token = getToken(this)
         if (token) {
-          return cache.get(token)
+          return cache.get(getKey(token))
         }
       })
       .then(metadata => {
@@ -124,7 +124,7 @@ module.exports = function (log, config) {
       .then(() => {
         const token = getToken(this)
         if (token) {
-          return cache.del(token)
+          return cache.del(getKey(token))
         }
       })
   }
@@ -231,6 +231,19 @@ function calculateFlowTime (time, flowBeginTime) {
   }
 
   return time - flowBeginTime
+}
+
+function getKey (token) {
+  if (! token || ! token.uid || ! token.id) {
+    const err = new Error('Invalid token')
+    throw err
+  }
+
+  const hash = crypto.createHash('sha256')
+  hash.update(token.uid)
+  hash.update(token.id)
+
+  return hash.digest('base64')
 }
 
 // HACK: Force the API docs to expand SCHEMA inline
