@@ -32,8 +32,8 @@ define([
         user2Email = user2 + '@restmail.net';
       });
 
-      function recoveryEmailCreate() {
-        return accountHelper.newVerifiedAccount()
+      function newVerifiedAccount(emailDomain) {
+        return accountHelper.newVerifiedAccount(emailDomain)
           .then(function (res) {
             account = res;
             // signin confirmation flow
@@ -43,19 +43,84 @@ define([
             var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
 
             return respond(client.verifyCode(account.signIn.uid, code), RequestMocks.verifyCode);
-          })
-          .then(function () {
-            return respond(client.recoveryEmailCreate(
-              account.signIn.sessionToken,
-              user2Email
-            ), RequestMocks.recoveryEmailCreate);
           });
+      }
+
+      function recoveryEmailCreate() {
+        return newVerifiedAccount()
+          .then(
+            function () {
+              return respond(client.recoveryEmailCreate(
+                account.signIn.sessionToken,
+                user2Email
+              ), RequestMocks.recoveryEmailCreate);
+            },
+            handleError
+          );
       }
 
       function handleError(err) {
         console.log(err);
         assert.notOk();
       }
+
+      test('#recoveryEmailSecondaryEmailEnabled enabled for valid email and verified session', function () {
+        return newVerifiedAccount()
+          .then(
+            function () {
+              return respond(client.recoveryEmailSecondaryEmailEnabled(
+                account.signIn.sessionToken
+              ), RequestMocks.recoveryEmailSecondaryEmailEnabledTrue);
+            },
+            handleError
+          )
+          .then(
+            function (res) {
+              assert.ok(res);
+              assert.equal(res.ok, true, 'secondary emails enabled for verified session and valid email');
+            },
+            handleError
+          );
+      });
+
+      test('#recoveryEmailSecondaryEmailEnabled disabled for valid email and unverified session', function () {
+        // accountHelper.newVerifiedAccount helper creates account with unverified session
+        return accountHelper.newVerifiedAccount()
+          .then(
+            function (res) {
+              return respond(client.recoveryEmailSecondaryEmailEnabled(
+                res.signIn.sessionToken
+              ), RequestMocks.recoveryEmailSecondaryEmailEnabledFalse);
+            },
+            handleError
+          )
+          .then(
+            function (res) {
+              assert.ok(res);
+              assert.equal(res.ok, false, 'secondary emails disabled for unverified session and valid email');
+            },
+            handleError
+          );
+      });
+
+      test('#recoveryEmailSecondaryEmailEnabled disabled for invalid email', function () {
+        return newVerifiedAccount('@featurenotenabledforthisdomain.com')
+          .then(
+            function () {
+              return respond(client.recoveryEmailSecondaryEmailEnabled(
+                account.signIn.sessionToken
+              ), RequestMocks.recoveryEmailSecondaryEmailEnabledFalse);
+            },
+            handleError
+          )
+          .then(
+            function (res) {
+              assert.ok(res);
+              assert.equal(res.ok, false, 'secondary emails disabled for invalid email');
+            },
+            handleError
+          );
+      });
 
       test('#recoveryEmailCreate', function () {
         return recoveryEmailCreate()

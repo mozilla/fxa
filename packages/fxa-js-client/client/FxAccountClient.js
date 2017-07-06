@@ -1452,6 +1452,26 @@ define([
   };
 
   /**
+   * Check to see if the secondary email feature is enabled for this user.
+   *
+   * @method recoveryEmailSecondaryEmailEnabled
+   * @param {String} sessionToken SessionToken obtained from signIn
+   */
+  FxAccountClient.prototype.recoveryEmailSecondaryEmailEnabled = function (sessionToken) {
+    var request = this.request;
+
+    return P()
+      .then(function () {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE);
+      })
+      .then(function(creds) {
+        return request.send('/recovery_email/check_can_add_secondary_address', 'GET', creds);
+      });
+  };
+
+  /**
    * Check for a required argument. Exposed for unit testing.
    *
    * @param {Value} val - value to check

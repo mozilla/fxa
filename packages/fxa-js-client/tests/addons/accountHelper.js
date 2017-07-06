@@ -13,10 +13,13 @@ define([
     this.mail = mail;
     this.respond = respond;
   }
+  AccountHelper.prototype.newVerifiedAccount = function (emailDomain) {
+    if (! emailDomain) {
+      emailDomain = '@restmail.net';
+    }
 
-  AccountHelper.prototype.newVerifiedAccount = function () {
     var user = 'testHelp1' + new Date().getTime();
-    var email = user + '@restmail.net';
+    var email = user + emailDomain;
     var password = 'iliketurtles';
     var respond = this.respond;
     var mail = this.mail;
@@ -55,9 +58,13 @@ define([
       });
   };
 
-  AccountHelper.prototype.newUnverifiedAccount = function () {
+  AccountHelper.prototype.newUnverifiedAccount = function (emailDomain) {
+    if (! emailDomain) {
+      emailDomain = '@restmail.net';
+    }
+
     var user = 'testHelp2' + new Date().getTime();
-    var email = user + '@restmail.net';
+    var email = user + emailDomain;
     var password = 'iliketurtles';
     var respond = this.respond;
     var client = this.client;
