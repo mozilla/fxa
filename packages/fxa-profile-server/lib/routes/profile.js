@@ -6,8 +6,6 @@ const Boom = require('boom');
 const Joi = require('joi');
 const checksum = require('checksum');
 
-const batch = require('../batch');
-const config = require('../config').getProperties();
 const logger = require('../logging')('routes.profile');
 
 function hasAllowedScope(scopes) {
@@ -27,18 +25,6 @@ function computeEtag(profile) {
     return checksum(JSON.stringify(profile));
   }
   return false;
-}
-
-function createServerMethod(server, req) {
-  server.method('batch', batch, {
-    generateKey: function(req) {
-      return req.auth.credentials.user;
-    },
-    cache: {
-      expiresIn: config.serverCache.expiresIn,
-      generateTimeout: config.serverCache.generateTimeout
-    }
-  });
 }
 
 module.exports = {
@@ -64,9 +50,6 @@ module.exports = {
       return reply(Boom.forbidden());
     }
 
-    if (!server.methods.batch) {
-      createServerMethod(server, req);
-    }
     server.methods.batch(
       req,
       {
