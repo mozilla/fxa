@@ -146,6 +146,11 @@ will be tracked by charts on the following dashboard:
   This includes all of the special magic
   for redirecting to the app store
   and propagating signinCodes to the FxA sign-in screen.
+  Both mobile clients will use the following URL scheme:
+
+  ```
+  firefox://fxa-signin?signin=<signinCode>&entrypoint=<entryPoint>&utm_*=<value>
+  ```
 
 ### Mock-ups
 
@@ -313,11 +318,9 @@ manually open the deep link.
    the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
 3. Enter a valid phone number for an iOS device, submit.
 4. Open the SMS link on an iOS device.
-5. Safari will open and a dialog will ask `Open this page in "App Store"?` Touch `Open`.
-6. The Apple app store will open to the Firefox page. Click `Open`.
-7. Firefox will open to the Firefox for iOS firstrun page. Complete the firstrun flow.
-8. Firefox Accounts should open, email address from step 1 should be filled in.
-9. Sign in with the password from step 1.
+5. Firefox will open to the Firefox for iOS firstrun page. Complete the firstrun flow.
+6. Firefox Accounts should open, email address from step 1 should be filled in.
+7. Sign in with the password from step 1.
 
 ##### Reference Images
 
