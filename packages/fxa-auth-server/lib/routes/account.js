@@ -40,7 +40,6 @@ module.exports = (
 
   const getGeoData = require('../geodb')(log)
   const features = require('../features')(config)
-  const marketingCache = require('../cache')(log, config, 'fxa-marketing~')
   const verificationReminder = require('../verification-reminders')(log, db)
 
   const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
@@ -64,7 +63,6 @@ module.exports = (
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
-            marketingOptIn: isA.boolean()
           }
         },
         response: {
@@ -88,7 +86,6 @@ module.exports = (
         const service = form.service || query.service
         const preVerified = !! form.preVerified
         const ip = request.app.clientAddress
-        const marketingOptIn = form.marketingOptIn
         let password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, authSalt
 
         request.validateMetricsContext()
@@ -225,16 +222,8 @@ module.exports = (
                 return log.notifyAttachedServices('verified', request, {
                   email: account.email,
                   uid: account.uid,
-                  locale: account.locale,
-                  marketingOptIn: marketingOptIn,
+                  locale: account.locale
                 })
-              } else if (marketingOptIn) {
-                return marketingCache.set(account.uid, true)
-                  .catch(err => log.error({
-                    op: 'marketingCache.set',
-                    err: err,
-                    uid: account.uid
-                  }))
               }
             }
           )
@@ -1427,7 +1416,8 @@ module.exports = (
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
             service: validators.service,
             reminder: isA.string().max(32).alphanum().optional(),
-            type: isA.string().max(32).alphanum().optional()
+            type: isA.string().max(32).alphanum().optional(),
+            marketingOptIn: isA.boolean()
           }
         }
       },
@@ -1437,6 +1427,7 @@ module.exports = (
         const service = request.payload.service || request.query.service
         const reminder = request.payload.reminder || request.query.reminder
         const type = request.payload.type || request.query.type
+        const marketingOptIn = request.payload.marketingOptIn
 
         log.begin('Account.RecoveryEmailVerify', request)
 
@@ -1592,23 +1583,12 @@ module.exports = (
                       return db.verifyEmail(account, account.emailCode)
                         .then(function () {
                           return P.all([
-                            marketingCache.get(account.uid)
-                              .catch(err => {
-                                log.error({
-                                  op: 'marketingCache.get',
-                                  err: err,
-                                  uid: account.uid
-                                })
-                                return false
-                              })
-                              .then(optedIn => {
-                                log.notifyAttachedServices('verified', request, {
-                                  email: account.email,
-                                  uid: account.uid,
-                                  locale: account.locale,
-                                  marketingOptIn: optedIn ? true : undefined
-                                })
-                              }),
+                            log.notifyAttachedServices('verified', request, {
+                              email: account.email,
+                              uid: account.uid,
+                              locale: account.locale,
+                              marketingOptIn: marketingOptIn ? true : undefined
+                            }),
                             request.emitMetricsEvent('account.verified', {
                               uid: uid
                             })
