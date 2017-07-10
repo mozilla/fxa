@@ -26,33 +26,34 @@ module.exports = {
       id: Joi.string()
         .length(32)
         .regex(validate.hex)
-        .required()
+        .optional()
     }
   },
   handler: function deleteAvatar(req, reply) {
     req.server.methods.batch.cache.drop(req, function() {
-      db.getAvatar(req.params.id)
-      .then(function(avatar) {
-        logger.debug('avatar', avatar);
-        if (!avatar) {
-          throw AppError.notFound();
-        } else if (hex(avatar.userId) !== req.auth.credentials.user) {
-          throw AppError.unauthorized('Avatar not owned by user');
-        } else {
-          return P.all([
-            db.deleteAvatar(req.params.id),
-            db.getProviderById(avatar.providerId)
-          ]);
-        }
+      const uid = req.auth.credentials.user;
+      var avatar, lookup;
+
+      if (req.params.id) {
+        lookup = getAvatar(req.params.id, uid);
+      } else {
+        lookup = getSelectedAvatar(uid);
+      }
+
+      return lookup.then(function(av) {
+        avatar = av;
+        return P.all([
+          db.deleteAvatar(avatar.id),
+          db.getProviderById(avatar.providerId)
+        ]);
       })
       .spread(function(_, provider) {
         logger.debug('provider', provider);
         if (provider.name === FXA_PROVIDER) {
-          return workers.delete(req.params.id);
+          return workers.delete(avatar.id);
         }
       })
-      .then(function () {
-        var uid = req.auth.credentials.user;
+      .then(function() {
         notifyProfileUpdated(uid); // Don't wait on promise
         return EMPTY;
       })
@@ -61,4 +62,25 @@ module.exports = {
   }
 };
 
+function getAvatar(id, uid) {
+  return db.getAvatar(id).then(function(avatar) {
+    logger.debug('avatar', avatar);
+    if (!avatar) {
+      throw AppError.notFound();
+    } else if (hex(avatar.userId) !== uid) {
+      throw AppError.unauthorized('Avatar not owned by user');
+    } else {
+      return avatar;
+    }
+  });
+}
 
+function getSelectedAvatar(uid) {
+  return db.getSelectedAvatar(uid).then(function(avatar) {
+    if (avatar) {
+      return avatar;
+    } else {
+      throw AppError.notFound();
+    }
+  });
+}

@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*global describe,it,before,after,afterEach*/
+'use strict';
+
+/*global describe,it,before,after,afterEach,beforeEach*/
 
 const crypto = require('crypto');
 const fs = require('fs');
@@ -692,7 +694,7 @@ describe('/avatar', function() {
     describe('uploaded', function() {
       var s3url;
       var id;
-      before(function() {
+      beforeEach(function() {
         mock.token({
           user: user,
           scope: ['profile:avatar:write']
@@ -721,6 +723,31 @@ describe('/avatar', function() {
         mock.deleteImage();
         return Server.api.delete({
           url: '/avatar/' + id,
+          headers: {
+            authorization: 'Bearer ' + tok,
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          return db.getAvatar(id);
+        }).then(function(avatar) {
+          assert.equal(avatar, undefined);
+          return P.all(SIZE_SUFFIXES).map(function(suffix) {
+            return Static.get(s3url + suffix);
+          }).map(function(res) {
+            assert.equal(res.statusCode, 404, res.raw.req.url);
+          });
+        });
+      });
+
+      it('should be able to delete without id parameter', function() {
+        mock.token({
+          user: user,
+          scope: ['profile:avatar:write']
+        });
+        mock.deleteImage();
+        return Server.api.delete({
+          url: '/avatar',
           headers: {
             authorization: 'Bearer ' + tok,
           }
