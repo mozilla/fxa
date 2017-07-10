@@ -837,6 +837,14 @@ define(function (require, exports, module) {
     resendEmailCode: createClientDelegate('recoveryEmailResendCode'),
 
     deleteEmail: createClientDelegate('deleteEmail'),
+
+    /**
+     * Responds with whether or not secondary emails is enabled for a user.
+     *
+     * @param {String} sessionToken User session token
+     * @return {Promise} resolves when complete
+     */
+    recoveryEmailSecondaryEmailEnabled: createClientDelegate('recoveryEmailSecondaryEmailEnabled')
   };
 
   module.exports = FxaClientWrapper;

@@ -22,8 +22,6 @@ define(function (require, exports, module) {
   const EMAIL_REFRESH_SELECTOR = 'button.settings-button.email-refresh';
   const EMAIL_REFRESH_DELAYMS = 350;
 
-  const EMAIL_ENABLED_REGEX = /.+@mozilla\.com$|.+@restmail\.net$|.+@softvisioninc\.eu$|.+@softvision\.(com|ro)$/;
-
   var View = FormView.extend({
     template: Template,
     className: 'emails',
@@ -70,18 +68,9 @@ define(function (require, exports, module) {
       // Only show secondary email panel if the user is in a verified session and feature is enabled.
       const account = this.getSignedInAccount();
 
-      // This matches the enable feature flag for secondary emails, on the auth-server
-      // https://github.com/mozilla/fxa-auth-server/blob/master/config/index.js#L762
-      // By adding the check here, we do not have to issue a request to the auth-server and risk
-      // getting a 502/502 response. While this solution works, a longer term fix
-      // should be in place for handling feature rollouts.
-      if (! EMAIL_ENABLED_REGEX.test(account.get('email'))) {
-        return this.remove();
-      }
-
-      return account.sessionVerificationStatus()
-        .then((res) => {
-          if (! res.sessionVerified) {
+      return account.recoveryEmailSecondaryEmailEnabled()
+        .then((isEnabled) => {
+          if (! isEnabled) {
             return this.remove();
           }
 
