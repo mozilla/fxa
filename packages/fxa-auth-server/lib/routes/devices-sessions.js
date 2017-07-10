@@ -339,41 +339,41 @@ module.exports = (log, db, config, customs, push, devices) => {
         db.sessions(uid)
           .then(sessions => {
             reply(sessions.map(session => {
-              session.id = session.tokenId
-              // if session has a device record
-              session.isDevice = !! session.deviceId
+              const deviceId = session.deviceId
+              const isDevice = !! deviceId
 
-              if (! session.deviceName) {
-                session.deviceName = devices.synthesizeName(session)
+              let deviceName = session.deviceName
+              if (! deviceName) {
+                deviceName = devices.synthesizeName(session)
               }
 
-              session.userAgent = (session.uaBrowser + ' ' + session.uaBrowserVersion).trim()
-
-              if (! session.deviceType) {
-                session.deviceType = session.uaDeviceType || 'desktop'
+              let userAgent
+              if (! session.uaBrowser) {
+                userAgent = ''
+              } else if (! session.uaBrowserVersion) {
+                userAgent = session.uaBrowser
+              } else {
+                userAgent = `${session.uaBrowser} ${session.uaBrowserVersion}`
               }
 
-              session.isCurrentDevice = session.id === sessionToken.tokenId
-
-              session.lastAccessTimeFormatted = localizeTimestamp.format(
-                session.lastAccessTime,
-                request.headers['accept-language']
-              )
-
-              session.os = session.uaOS
-
-              delete session.tokenId
-              delete session.uid
-              delete session.createdAt
-              delete session.deviceCreatedAt
-              delete session.sessionToken
-              delete session.uaBrowser
-              delete session.uaBrowserVersion
-              delete session.uaOS
-              delete session.uaOSVersion
-              delete session.uaDeviceType
-
-              return session
+              return {
+                deviceId,
+                deviceName,
+                deviceType: session.uaDeviceType || 'desktop',
+                deviceCallbackURL: session.deviceCallbackURL,
+                deviceCallbackPublicKey: session.deviceCallbackPublicKey,
+                deviceCallbackAuthKey: session.deviceCallbackAuthKey,
+                id: session.tokenId,
+                isCurrentDevice: session.tokenId === sessionToken.tokenId,
+                isDevice,
+                lastAccessTime: session.lastAccessTime,
+                lastAccessTimeFormatted: localizeTimestamp.format(
+                  session.lastAccessTime,
+                  request.headers['accept-language']
+                ),
+                os: session.uaOS,
+                userAgent
+              }
             }))
           },
           reply

@@ -506,32 +506,35 @@ describe('/account/devices', function () {
 })
 
 describe('/account/sessions', () => {
-  const session = {
-    tokenId: 'foo',
-    uid: '010',
-    createdAt: Date.now(),
-    uaOS: 'Windows',
-    uaOSVersion: '10',
-    uaDeviceType: 'desktop',
-    lastAccessTime: Date.now(),
-    uaBrowser: 'Firefox',
-    uaBrowserVersion: '50',
-    deviceId: 'deviceId',
-    deviceName: 'deviceName',
-    deviceType: 'desktop',
-    deviceCreatedAt: Date.now(),
-    devicePushCallback: 'foo',
-    devicePushPublicKey: 'bar',
-    devicePushAuthKey: 'authKey',
-  }
-  const db = mocks.mockDB({
-    sessions: [ Object.assign({}, session) ]
-  })
+  const now = Date.now()
+  const times = [ now, now + 1, now + 2, now + 3, now + 4, now + 5, now + 6, now + 7, now + 8 ]
+  const tokenIds = [ 'foo', 'bar', 'baz' ]
+  const sessions = [
+    {
+      tokenId: tokenIds[0], uid: 'qux', createdAt: times[0], lastAccessTime: times[1],
+      uaBrowser: 'Firefox', uaBrowserVersion: '50', uaOS: 'Windows', uaOSVersion: '10',
+      uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2],
+      deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey'
+    },
+    {
+      tokenId: tokenIds[1], uid: 'wibble', createdAt: times[3], lastAccessTime: times[4],
+      uaBrowser: 'Nightly', uaBrowserVersion: null, uaOS: 'Android', uaOSVersion: '6',
+      uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[5],
+      deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null
+    },
+    {
+      tokenId: tokenIds[2], uid: 'blee', createdAt: times[6], lastAccessTime: times[7],
+      uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
+      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8],
+      deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey'
+    }
+  ]
+  const db = mocks.mockDB({ sessions })
   const accountRoutes = makeRoutes({ db })
   const request = mocks.mockRequest({
     credentials: {
-      uid: hexString(16),
-      tokenId: hexString(16)
+      tokenId: tokenIds[0],
+      uid: hexString(16)
     },
     payload: {}
   })
@@ -540,21 +543,55 @@ describe('/account/sessions', () => {
     const route = getRoute(accountRoutes, '/account/sessions')
 
     return runTest(route, request, result => {
-      assert.equal(result.length, 1)
-      const s = result[0]
-      assert.equal(Object.keys(s).length, 13)
-      assert.equal(s.id, session.tokenId)
-      assert.equal(s.deviceName, session.deviceName)
-      assert.equal(s.deviceType, session.deviceType)
-      assert.equal(s.devicePushCallback, session.devicePushCallback)
-      assert.equal(s.devicePushPublicKey, session.devicePushPublicKey)
-      assert.equal(s.devicePushAuthKey, session.devicePushAuthKey)
-      assert.equal(s.id, session.tokenId)
-      assert.equal(s.isCurrentDevice, false)
-      assert.equal(s.isDevice, true)
-      assert.equal(s.lastAccessTimeFormatted, 'a few seconds ago')
-      assert.equal(s.userAgent, 'Firefox 50')
-      assert.equal(s.os, 'Windows')
+      assert.ok(Array.isArray(result))
+      assert.equal(result.length, 3)
+      assert.deepEqual(result, [
+        {
+          deviceId: null,
+          deviceName: 'Firefox 50, Windows 10',
+          deviceType: 'desktop',
+          deviceCallbackURL: 'callback',
+          deviceCallbackPublicKey: 'publicKey',
+          deviceCallbackAuthKey: 'authKey',
+          id: 'foo',
+          isCurrentDevice: true,
+          isDevice: false,
+          lastAccessTime: times[1],
+          lastAccessTimeFormatted: 'a few seconds ago',
+          os: 'Windows',
+          userAgent: 'Firefox 50'
+        },
+        {
+          deviceId: 'deviceId',
+          deviceName: 'Nightly, Android 6',
+          deviceType: 'mobile',
+          deviceCallbackURL: null,
+          deviceCallbackPublicKey: null,
+          deviceCallbackAuthKey: null,
+          id: 'bar',
+          isCurrentDevice: false,
+          isDevice: true,
+          lastAccessTime: times[4],
+          lastAccessTimeFormatted: 'a few seconds ago',
+          os: 'Android',
+          userAgent: 'Nightly'
+        },
+        {
+          deviceId: 'deviceId',
+          deviceName: '',
+          deviceType: 'tablet',
+          deviceCallbackURL: 'callback',
+          deviceCallbackPublicKey: 'publicKey',
+          deviceCallbackAuthKey: 'authKey',
+          id: 'baz',
+          isCurrentDevice: false,
+          isDevice: true,
+          lastAccessTime: times[7],
+          lastAccessTimeFormatted: 'a few seconds ago',
+          os: null,
+          userAgent: ''
+        },
+      ])
     })
   })
 })
