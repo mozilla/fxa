@@ -9,6 +9,7 @@
 const joi = require('joi');
 
 const PATTERNS = {
+  ADJUST_CHANNEL_APP_ID: /^(beta|nightly|release)$/,
   BASE64: /^[A-Za-z0-9\/+]+={0,2}$/,
   BASE64_URL_SAFE: /^[A-Za-z0-9_-]+$/,
   BROKER: /^[0-9a-z-]+$/,
@@ -23,6 +24,7 @@ const PATTERNS = {
 };
 
 const TYPES = {
+  ADJUST_CHANNEL_APP_ID: joi.string().regex(PATTERNS.ADJUST_CHANNEL_APP_ID),
   BOOLEAN: joi.boolean(),
   DIMENSION: joi.number().integer().min(0),
   INTEGER: joi.number().integer(),

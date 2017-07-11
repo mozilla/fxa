@@ -10,11 +10,12 @@ define([
   'intern/dojo/node!../../server/lib/csp',
   'intern/dojo/node!htmlparser2',
   'intern/dojo/node!got',
+  'intern/dojo/node!lodash',
   'intern/dojo/node!url',
   'intern/browser_modules/dojo/Promise',
   'tests/server/helpers/routesHelpers'
 ], function (intern, registerSuite, assert, config, csp,
-  htmlparser2, got, url, Promise, routesHelpers) {
+  htmlparser2, got, _, url, Promise, routesHelpers) {
 
   var checkHeaders = routesHelpers.checkHeaders;
   var extractAndCheckUrls = routesHelpers.extractAndCheckUrls;
@@ -114,7 +115,10 @@ define([
 
   var redirectedRoutes = {
     '/m/12345678': {
-      location: config.get('sms.redirect.targetLink') + '&signin=12345678',
+      location: _.template(config.get('sms.redirect.targetURITemplate'))({
+        channel: config.get('sms.redirect.channels.release'),
+        signinCode: '12345678'
+      }),
       statusCode: 302
     },
     '/reset_password_complete': {

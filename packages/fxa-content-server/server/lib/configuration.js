@@ -440,10 +440,31 @@ const conf = module.exports = convict({
   },
   sms: {
     redirect: {
-      targetLink: {
-        default: 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&adgroup=sms&creative=link',
-        doc: 'Target URL for redirection',
-        format: 'url'
+      channels: {
+        beta: {
+          default: 'c71cw4',
+          doc: 'Adjust Firefox beta channel app ID',
+          env: 'SMS_ADJUST_BETA_CHANNEL_APP_ID',
+          format: String
+        },
+        nightly: {
+          default: '8jy086',
+          doc: 'Adjust Firefox nightly channel app ID',
+          env: 'SMS_ADJUST_NIGHTLY_CHANNEL_APP_ID',
+          format: String
+        },
+        release: {
+          default: '2uo1qc',
+          doc: 'Adjust Firefox release channel app ID',
+          env: 'SMS_ADJUST_RELEASE_CHANNEL_APP_ID',
+          format: String
+        }
+      },
+      targetURITemplate: {
+        default: 'https://app.adjust.com/${ channel }?campaign=fxa-conf-page&adgroup=sms&creative=link&deep_link=firefox%3A%2F%2Ffxa-signin%3Futm_source%3Dsms%26signin%3D${ signinCode }', //eslint-disable-line max-len
+        doc: 'Redirect URI - ES6 format template string. The variables `channel` and `signinCode` are interpolated',
+        env: 'SMS_REDIRECT_TARGET_URI_TEMPLATE',
+        format: String
       }
     }
   },

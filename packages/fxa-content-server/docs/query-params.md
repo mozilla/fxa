@@ -83,13 +83,26 @@ Specify an alternate style for Firefox Accounts.
 #### When to specify
 When authenticating a user with OAuth and an alternate style is needed.
 
-## Firefox/Sync parameters
-
 #### When to specify
 
 * /signin
 * /signup
 * /force_auth
+
+## Firefox/Sync parameters
+
+### `channel`
+Force which Firefox release channel should be installed
+after redirecting from `/m/:signinCode`.
+
+#### Options
+* `beta`
+* `nightly`
+* `release`
+
+#### When to specify
+
+* /m/:signinCode
 
 ### `country`
 Force a country to be used when testing the SMS feature.

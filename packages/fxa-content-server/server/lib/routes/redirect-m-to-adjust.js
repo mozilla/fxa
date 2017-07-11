@@ -4,10 +4,15 @@
 
 'use strict';
 
-const SIGNIN_CODE = require('../validation').TYPES.SIGNIN_CODE;
+const _ = require('lodash');
+const validationTypes = require('../validation').TYPES;
+
+const ADJUST_CHANNEL_APP_ID = validationTypes.ADJUST_CHANNEL_APP_ID;
+const SIGNIN_CODE = validationTypes.SIGNIN_CODE;
 
 module.exports = function (config) {
-  const targetUrl = config.get('sms.redirect.targetLink');
+  const channels = config.get('sms.redirect.channels');
+  const targetURITemplate = _.template(config.get('sms.redirect.targetURITemplate'));
 
   return {
     method: 'get',
@@ -15,12 +20,24 @@ module.exports = function (config) {
     validate: {
       params: {
         signinCode: SIGNIN_CODE
+      },
+      query: {
+        // Allows the caller to specify which Firefox release
+        // channel should be installed.
+        channel: ADJUST_CHANNEL_APP_ID
       }
     },
     process: function (req, res) {
-      // The signinCode is already URL safe if it has validated correctly,
+      const channelName = req.query.channel || 'release';
+      const channel = channels[channelName];
+      const signinCode = req.params.signinCode;
+      // channel and signinCode are already URL safe if they have validated correctly,
       // so encodeURIComponent is not called.
-      res.redirect(302, `${targetUrl}&signin=${req.params.signinCode}`);
+      const targetUrl = targetURITemplate({
+        channel,
+        signinCode
+      });
+      res.redirect(302, targetUrl);
     }
   };
 };
