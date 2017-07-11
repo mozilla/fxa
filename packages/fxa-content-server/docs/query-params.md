@@ -83,8 +83,6 @@ Specify an alternate style for Firefox Accounts.
 #### When to specify
 When authenticating a user with OAuth and an alternate style is needed.
 
-#### When to specify
-
 * /signin
 * /signup
 * /force_auth
