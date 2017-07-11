@@ -24,8 +24,6 @@ define(function (require, exports, module) {
   const UserAgent = require('lib/user-agent');
   const vat = require('lib/vat');
 
-  var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
-
   // Account attributes that can be persisted
   var PERSISTENT = {
     displayName: undefined,
@@ -33,6 +31,12 @@ define(function (require, exports, module) {
     grantedPermissions: undefined,
     hadProfileImageSetBefore: undefined,
     lastLogin: undefined,
+    // starting with train-91, needsOptedInToMarketing is store in the
+    // ResumeToken. After a train, we can stop persisting this field to
+    // localStorage. However, we need to be sure that hydrating from
+    // localStorage can still load this field, in case we haven't seen
+    // the user since. Is it enough to just move this field to the
+    // 'defaults'?
     needsOptedInToMarketingEmail: undefined,
     // password field intentionally omitted to avoid unintentional leaks
     permissions: undefined,
@@ -106,10 +110,11 @@ define(function (require, exports, module) {
       this.on('change', this._boundOnChange);
     },
 
-    resumeTokenFields: ['email'],
+    resumeTokenFields: ['email', 'needsOptedInToMarketingEmail'],
 
     resumeTokenSchema: {
-      email: vat.email()
+      email: vat.email(),
+      needsOptedInToMarketingEmail: vat.boolean()
     },
 
     // Hydrate the account
@@ -551,11 +556,18 @@ define(function (require, exports, module) {
      * @returns {Promise} - resolves when complete
      */
     verifySignUp (code, options = {}) {
+      const marketingOptIn = this.get('needsOptedInToMarketingEmail');
       return p()
         .then(() => {
           if (options.serverVerificationStatus !== 'verified') {
             // if server verification was not present or not successful
             // then attempt client verification
+
+            if (marketingOptIn) {
+              this.unset('needsOptedInToMarketingEmail');
+              options.marketingOptIn = true;
+            }
+
             return this._fxaClient.verifyCode(
               this.get('uid'),
               code,
@@ -566,16 +578,11 @@ define(function (require, exports, module) {
         .then(() => {
           this.set('verified', true);
 
-          if (this.get('needsOptedInToMarketingEmail')) {
-            this.unset('needsOptedInToMarketingEmail');
-            var emailPrefs = this.getMarketingEmailPrefs();
-            return emailPrefs.optIn(NEWSLETTER_ID)
-              .then(() => {
-                this._notifier.trigger('flow.initialize');
-                this._notifier.trigger('flow.event', {
-                  event: 'newsletter.subscribed'
-                });
-              });
+          if (marketingOptIn) {
+            this._notifier.trigger('flow.initialize');
+            this._notifier.trigger('flow.event', {
+              event: 'newsletter.subscribed'
+            });
           }
         });
     },
