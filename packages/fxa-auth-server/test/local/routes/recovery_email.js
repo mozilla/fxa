@@ -395,13 +395,6 @@ describe('/recovery_email/verify_code', function () {
   var mockMailer = mocks.mockMailer()
   const mockPush = mocks.mockPush()
   var mockCustoms = mocks.mockCustoms()
-  let marketingOptIn = false
-  const mockMarketingCache = {
-    get: sinon.spy(() => P.resolve(marketingOptIn))
-  }
-  const requireMocks = {
-    '../cache': () => mockMarketingCache
-  }
   var accountRoutes = makeRoutes({
     checkPassword: function () {
       return P.resolve(true)
@@ -417,7 +410,7 @@ describe('/recovery_email/verify_code', function () {
     log: mockLog,
     mailer: mockMailer,
     push: mockPush
-  }, requireMocks)
+  })
   var route = getRoute(accountRoutes, '/recovery_email/verify_code')
   describe('verifyTokens rejects with INVALID_VERIFICATION_CODE', function () {
 
@@ -469,7 +462,7 @@ describe('/recovery_email/verify_code', function () {
     })
 
     it('with marketingOptIn', () => {
-      marketingOptIn = true
+      mockRequest.payload.marketingOptIn = true
       return runTest(route, mockRequest, function (response) {
         assert.equal(mockLog.notifyAttachedServices.callCount, 1, 'logs verified')
         const args = mockLog.notifyAttachedServices.args[0]
@@ -480,7 +473,7 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(JSON.stringify(response), '{}')
       })
         .then(function () {
-          marketingOptIn = false
+          delete mockRequest.payload.marketingOptIn
           mockDB.verifyTokens.reset()
           mockDB.verifyEmail.reset()
           mockLog.activityEvent.reset()

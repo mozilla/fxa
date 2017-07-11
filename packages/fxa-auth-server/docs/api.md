@@ -406,13 +406,6 @@ if the url has a query parameter of `keys=true`.
   
   <!--end-request-body-post-accountcreate-metricsContext-->
 
-* `marketingOptIn`: *boolean*
-
-  <!--begin-request-body-post-accountcreate-marketingOptIn-->
-  Set to true if the user has opted-in to our marketing. When verified,
-  the auth-server will notify Basket.
-  <!--end-request-body-post-accountcreate-marketingOptIn-->
-
 ##### Response body
 
 * `uid`: *string, regex(HEX_STRING), required*
@@ -910,6 +903,13 @@ not just the one being attached to the Firefox account.
   <!--begin-request-body-post-recovery_emailverify_code-type-->
   The type of code being verified.
   <!--end-request-body-post-recovery_emailverify_code-type-->
+
+* `marketingOptIn`: *boolean*
+
+  <!--begin-request-body-post-recovery_emailverify_code-marketingOptIn-->
+  Set to true if the user has opted-in to our marketing. When verified,
+  the auth-server will notify Basket.
+  <!--end-request-body-post-recovery_emailverify_code-marketingOptIn-->
 
 ##### Error responses
 

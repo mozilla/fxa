@@ -226,12 +226,6 @@ describe('/account/create', () => {
     })
     const mockMailer = mocks.mockMailer()
     const mockPush = mocks.mockPush()
-    const mockMarketingCache = {
-      set: sinon.spy(() => P.resolve())
-    }
-    const requireMocks = {
-      '../cache': () => mockMarketingCache
-    }
     const accountRoutes = makeRoutes({
       config: {
         securityHistory: {
@@ -252,7 +246,7 @@ describe('/account/create', () => {
         }
       },
       push: mockPush
-    }, requireMocks)
+    })
     const route = getRoute(accountRoutes, '/account/create')
 
     return {
@@ -262,7 +256,6 @@ describe('/account/create', () => {
       mockDB,
       mockLog,
       mockMailer,
-      mockMarketingCache,
       mockMetricsContext,
       mockRequest,
       route,
@@ -276,7 +269,6 @@ describe('/account/create', () => {
     const clientAddress = mocked.clientAddress
     const emailCode = mocked.emailCode
     const keyFetchTokenId = mocked.keyFetchTokenId
-    const mockMarketingCache = mocked.mockMarketingCache
     const mockDB = mocked.mockDB
     const mockLog = mocked.mockLog
     const mockMailer = mocked.mockMailer
@@ -304,8 +296,6 @@ describe('/account/create', () => {
         flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
         time: now
       }, 'it contained the correct metrics context metadata')
-
-      assert.equal(mockMarketingCache.set.callCount, 0)
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       var args = mockLog.activityEvent.args[0]
@@ -378,22 +368,6 @@ describe('/account/create', () => {
 
       assert.equal(mockLog.error.callCount, 0)
     }).finally(() => Date.now.restore())
-  })
-
-  it('should set cache if marketingOptIn is set', () => {
-    const mocked = setup()
-    const mockMarketingCache = mocked.mockMarketingCache
-    const mockRequest = mocked.mockRequest
-    const route = mocked.route
-    const uid = mocked.uid
-
-    mockRequest.payload.marketingOptIn = true
-
-    return runTest(route, mockRequest, () => {
-      assert.equal(mockMarketingCache.set.callCount, 1)
-      assert.equal(mockMarketingCache.set.args[0][0], uid)
-      assert.equal(mockMarketingCache.set.args[0][1], true)
-    })
   })
 })
 
