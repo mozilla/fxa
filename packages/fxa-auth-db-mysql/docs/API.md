@@ -17,8 +17,10 @@ There are a number of methods that a DB storage backend should implement:
     * .resetTokens(uid)
 * Accounts (using `email`)
     * .emailRecord(emailBuffer)
+    * .accountRecord(emailBuffer)
     * .accountExists(emailBuffer)
     * .getSecondaryEmail(emailBuffer)
+    * .setPrimaryEmail(uid, emailBuffer)
 * Session Tokens
     * .createSessionToken(tokenId, sessionToken)
     * .updateSessionToken(tokenId, sessionToken)
@@ -296,6 +298,9 @@ Returns:
 
 ## .emailRecord(emailBuffer) ##
 
+Note: Using this method will emit a deprecation warning, please use `.accountRecord` instead.
+This method only reads from the account table whereas `.accountRecord` checks the emails table and returns correct account record.
+
 Gets the account record related to this (normalized) email address. The email is provided in a Buffer.
 
 Parameters:
@@ -318,6 +323,36 @@ Returns:
         * verifyHash - (Buffer32)
         * authSalt - (Buffer32)
         * verifierSetAt - (number) an epoch
+* rejects: with one of:
+    * `error.notFound()` if no account exists for this email address
+    * any error from the underlying storage engine
+    
+## .accountRecord(emailBuffer) ##
+
+Gets the account record related to this (normalized) email address by checking for email on emails table. 
+The email is provided in a Buffer.
+
+Parameters:
+
+* emailBuffer: the email address will be a hex encoded string, which is converted back to a string, then
+  `.toLowerCase()`. In the MySql backend we use `LOWER(?)` which uses the current locale for case-folding.
+
+Returns:
+
+* resolves with:
+    * `account` - consisting of:
+        * uid - (Buffer16)
+        * email - (string)
+        * normalizedEmail - (string)
+        * emailVerified - 0|1
+        * emailCode - (Buffer16)
+        * kA - (Buffer32)
+        * wrapWrapKb - (Buffer32)
+        * verifierVersion - (number)
+        * verifyHash - (Buffer32)
+        * authSalt - (Buffer32)
+        * verifierSetAt - (number) an epoch
+        * primaryEmail - (string)
 * rejects: with one of:
     * `error.notFound()` if no account exists for this email address
     * any error from the underlying storage engine
@@ -363,6 +398,23 @@ Returns:
     * `error.notFound()` if no email address exists on emails table
     * any error from the underlying storage engine
 
+## .setPrimaryEmail(uid, emailBuffer) ##
+
+Sets the primary email address as `emailBuffer` for account with `uid`.
+
+Parameters:
+
+* uid: the uid of the account
+* email: the normalized email address that will be the new primary email
+
+Returns:
+
+* resolves with:
+    * an empty object `{}`
+* rejects: with one of:
+    * `error.notFound()` if no email address exists on emails table
+    * any error from the underlying storage engine
+    
 ## Tokens ##
 
 All tokens (sessionTokens, keyFetchTokens, passwordForgotTokens, passwordChangeTokens, accountResetTokens) have three

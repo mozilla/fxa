@@ -1467,6 +1467,67 @@ module.exports = function(cfg, makeServer) {
       }
     )
 
+    describe(
+      'add account, add email, change email',
+      () => {
+        let user, secondEmailRecord
+
+        before(() => {
+          user = fake.newUserDataHex()
+          secondEmailRecord = user.email
+
+          // Create account
+          return client.putThen('/account/' + user.accountId, user.account)
+            .then(function (r) {
+              respOkEmpty(r)
+              // Create secondary email
+              return client.postThen('/account/' + user.accountId + '/emails', user.email)
+            })
+            .then(function (r) {
+              respOk(r)
+              const emailCodeHex = secondEmailRecord.emailCode.toString('hex')
+              // Verify secondary email
+              return client.postThen('/account/' + user.accountId + '/verifyEmail/' + emailCodeHex)
+            })
+            .then(function (r) {
+              respOkEmpty(r)
+              return client.getThen('/account/' + user.accountId + '/emails')
+            })
+            .then(function (r) {
+              respOk(r)
+              const result = r.obj
+              assert.equal(result[0].email, user.account.email, 'matches account email')
+              assert.equal(!! result[0].isPrimary, true, 'isPrimary is true on account email')
+              assert.equal(!! result[0].isVerified, !! user.account.emailVerified, 'matches account emailVerified')
+
+              assert.equal(result[1].email, secondEmailRecord.email, 'matches secondEmail email')
+              assert.equal(!! result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
+              assert.equal(!! result[1].isVerified, true, 'matches secondEmail isVerified')
+            })
+        })
+
+        it('should change email', () => {
+          return client.postThen('/email/' + emailToHex(secondEmailRecord.email) + '/account/' + user.accountId)
+            .then((r) => {
+              respOkEmpty(r)
+              return client.getThen('/account/' + user.accountId + '/emails')
+            })
+            .then(function (r) {
+              respOk(r)
+              const result = r.obj
+
+              assert.equal(result[0].email, secondEmailRecord.email, 'matches secondEmail email')
+              assert.equal(!! result[0].isPrimary, true, 'isPrimary is true on secondEmail email')
+              assert.equal(!! result[0].isVerified, true, 'matches secondEmail isVerified')
+
+              assert.equal(result[1].email, user.account.email, 'matches account email')
+              assert.equal(!! result[1].isPrimary, false, 'isPrimary is false on account email')
+              assert.equal(!! result[1].isVerified, !! user.account.emailVerified, 'matches account emailVerified')
+            })
+        })
+      }
+    )
+
     after(() => server.close())
 
   })

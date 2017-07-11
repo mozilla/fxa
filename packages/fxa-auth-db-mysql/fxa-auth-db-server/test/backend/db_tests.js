@@ -44,7 +44,7 @@ function createEmail(data) {
     email: ('' + Math.random()).substr(2) + '@bar.com',
     uid: data.uid,
     emailCode: data.emailCode || crypto.randomBytes(16),
-    isVerified: false,
+    isVerified: data.isVerified || false,
     isPrimary: false,
     createdAt: Date.now()
   }
@@ -118,6 +118,23 @@ const ACCOUNT_RESET_TOKEN = {
   data : hex32(),
   uid : ACCOUNT.uid,
   createdAt: now + 5
+}
+
+function makeMockSessionToken(uid) {
+  var sessionToken = {
+    data : hex32(),
+    uid : uid,
+    createdAt : now + 1,
+    uaBrowser : 'mock browser',
+    uaBrowserVersion : 'mock browser version',
+    uaOS : 'mock OS',
+    uaOSVersion : 'mock OS version',
+    uaDeviceType : 'mock device type',
+    mustVerify: true,
+    tokenVerificationId : hex16()
+  }
+
+  return sessionToken
 }
 
 // To run these tests from a new backend, pass the config and an already created
@@ -2464,6 +2481,79 @@ module.exports = function(config, DB) {
               .catch((err) => {
                 assert.equal(err.errno, 116, 'did not find password forgot token')
               })
+          })
+      })
+    })
+
+    describe('change email', () => {
+      let account, secondEmail
+
+      before(() => {
+        account = createAccount()
+        account.emailVerified = true
+        secondEmail = createEmail({
+          uid: account.uid,
+          isVerified: true
+        })
+        return db.createAccount(account.uid, account)
+          .then(function () {
+            return db.createEmail(account.uid, secondEmail)
+          })
+          .then(function (result) {
+            assert.deepEqual(result, {}, 'Returned an empty object on email creation')
+            return db.accountEmails(account.uid)
+          })
+          .then(function (res) {
+            assert.deepEqual(res.length, 2, 'Returns correct amount of emails')
+            assert.equal(res[0].email, account.email, 'primary email is the address that was used to create account')
+            assert.deepEqual(res[0].emailCode, account.emailCode, 'correct emailCode')
+            assert.equal(!! res[0].isVerified, true, 'correct verification set')
+            assert.equal(!! res[0].isPrimary, true, 'isPrimary is true')
+
+            assert.equal(res[1].email, secondEmail.email, 'primary email is the address that was used to create account')
+            assert.deepEqual(res[1].emailCode, secondEmail.emailCode, 'correct emailCode')
+            assert.equal(!! res[1].isVerified, true, 'correct verification set')
+            assert.equal(!! res[1].isPrimary, false, 'isPrimary is false')
+          })
+      })
+
+      it('should change a user\'s email', () => {
+        return db.setPrimaryEmail(account.uid, secondEmail.email)
+          .then(function (res) {
+            assert.deepEqual(res, {}, 'Returned an empty object on email change')
+            return db.accountEmails(account.uid)
+          })
+          .then(function (res) {
+            assert.deepEqual(res.length, 2, 'Returns correct amount of emails')
+
+            assert.equal(res[0].email, secondEmail.email, 'primary email is the secondary email address')
+            assert.deepEqual(res[0].emailCode, secondEmail.emailCode, 'correct emailCode')
+            assert.equal(!! res[0].isVerified, secondEmail.isVerified, 'correct verification set')
+            assert.equal(!! res[0].isPrimary, true, 'isPrimary is true')
+
+            assert.equal(res[1].email, account.email, 'should equal account email')
+            assert.deepEqual(res[1].emailCode, account.emailCode, 'correct emailCode')
+            assert.equal(!! res[1].isVerified, account.emailVerified, 'correct verification set')
+            assert.equal(!! res[1].isPrimary, false, 'isPrimary is false')
+
+            // Verify correct email set in session
+            const sessionToken = makeMockSessionToken(account.uid)
+            return db.createSessionToken(SESSION_TOKEN_ID, sessionToken)
+              .then(() => {
+                return P.all([db.sessionToken(SESSION_TOKEN_ID), db.sessionTokenWithVerificationStatus(SESSION_TOKEN_ID)])
+              })
+          })
+          .then((res) => {
+            res.forEach((session) => {
+              assert.equal(session.email, secondEmail.email, 'should equal new primary email')
+              assert.deepEqual(session.emailCode, secondEmail.emailCode, 'should equal new primary emailCode')
+              assert.deepEqual(session.uid, account.uid, 'should equal account uid')
+            })
+            return P.all([db.accountRecord(secondEmail.email), db.accountRecord(account.email)])
+          })
+          .then((res) => {
+            assert.deepEqual(res[0], res[1], 'should return the same account record regardless of email used')
+            assert.deepEqual(res[0].primaryEmail, secondEmail.email, 'primary email should be set to update email')
           })
       })
     })

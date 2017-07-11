@@ -11,6 +11,7 @@ const P = require('../promise')
 
 const patch = require('./patch')
 const dbUtil = require('./util')
+const nodeUtil = require('util')
 
 // http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
 const ER_TOO_MANY_CONNECTIONS = 1040
@@ -466,9 +467,9 @@ module.exports = function (log, error) {
   // Where  : accounts.normalizedEmail = LOWER($1)
   var EMAIL_RECORD = 'CALL emailRecord_4(?)'
 
-  MySql.prototype.emailRecord = function (emailBuffer) {
+  MySql.prototype.emailRecord = nodeUtil.deprecate(function (emailBuffer) {
     return this.readFirstResult(EMAIL_RECORD, [emailBuffer.toString('utf8')])
-  }
+  }, 'DeprecationWarning for mysql.emailRecord: Use mysql.accountRecord')
 
   // Select : accounts
   // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, locale, lockedAt
@@ -788,6 +789,14 @@ module.exports = function (log, error) {
     return this.readFirstResult(GET_SECONDARY_EMAIL, [emailBuffer.toString('utf8')])
   }
 
+  // Select : accounts
+  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, lockedAt, primaryEmail
+  // Where  : emails.normalizedEmail = LOWER($1)
+  var GET_ACCOUNT_RECORD = 'CALL accountRecord_1(?)'
+  MySql.prototype.accountRecord = function (emailBuffer) {
+    return this.readFirstResult(GET_ACCOUNT_RECORD, [emailBuffer.toString('utf8')])
+  }
+
   // Select : emails
   // Values : uid = $1
   var ACCOUNT_EMAILS = 'CALL accountEmails_4(?)'
@@ -796,6 +805,19 @@ module.exports = function (log, error) {
       ACCOUNT_EMAILS,
       [
         uid
+      ]
+    )
+  }
+
+  // Update : emails
+  // Values : uid = $1, email = $2
+  var SET_PRIMARY_EMAIL = 'CALL setPrimaryEmail_1(?, ?)'
+  MySql.prototype.setPrimaryEmail = function (uid, email) {
+    return this.write(
+      SET_PRIMARY_EMAIL,
+      [
+        uid,
+        email
       ]
     )
   }

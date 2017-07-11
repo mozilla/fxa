@@ -9,6 +9,7 @@ const extend = require('util')._extend
 const ip = require('ip')
 const dbUtil = require('./util')
 const config = require('../../config')
+const nodeUtil = require('util')
 
 // our data stores
 var accounts = {}
@@ -536,13 +537,13 @@ module.exports = function (log, error) {
   // Returns:
   //   - the account if found
   //   - throws 'notFound' if not found
-  Memory.prototype.emailRecord = function (email) {
+  Memory.prototype.emailRecord = nodeUtil.deprecate(function (email) {
     email = email.toString('utf8').toLowerCase()
     return getAccountByUid(uidByNormalizedEmail[email])
       .then(function (account) {
         return filterAccount(account)
       })
-  }
+  }, 'DeprecationWarning for mem.emailRecord: Use mem.accountRecord')
 
   Memory.prototype.sessions = function (uid) {
     return this.accountDevices(uid).then(function (devices) {
@@ -613,14 +614,27 @@ module.exports = function (log, error) {
 
     var accountId = sessionTokens[id].uid.toString('hex')
     var account = accounts[accountId]
-    item.emailVerified = account.emailVerified
-    item.email = account.email
-    item.emailCode = account.emailCode
+
     item.verifierSetAt = account.verifierSetAt
     item.locale = account.locale
     item.accountCreatedAt = account.createdAt
 
-    return P.resolve(item)
+    return this.accountEmails(accountId)
+      .then((emails) => {
+
+        // Set the primary email on the sessionToken, which
+        // could be different from the email on the account object
+        emails.some((email) => {
+          if (email.isPrimary) {
+            item.emailVerified = email.isVerified
+            item.email = email.email
+            item.emailCode = email.emailCode
+            return true
+          }
+        })
+
+        return item
+      })
   }
 
   Memory.prototype.sessionTokenWithVerificationStatus = function (tokenId) {
@@ -1042,6 +1056,28 @@ module.exports = function (log, error) {
     }
   }
 
+  Memory.prototype.accountRecord = function (emailBuffer) {
+    const normalizedEmail = emailBuffer.toString('utf8').toLowerCase()
+
+    if (! emails[normalizedEmail]) {
+      return P.reject(error.notFound())
+    }
+
+    const uid = emails[normalizedEmail].uid
+    return P.all([this.accountEmails(uid), this.account(uid)])
+      .spread((emails, account) => {
+
+        Object.keys(emails).some((key) => {
+          var emailRecord = emails[key]
+          if (emailRecord.uid.toString('hex') === uid.toString('hex') && emailRecord.isPrimary) {
+            account.primaryEmail = emailRecord.normalizedEmail
+          }
+        })
+
+        return account
+      })
+  }
+
   Memory.prototype.accountEmails = function (uid) {
     const userEmails = []
 
@@ -1052,7 +1088,29 @@ module.exports = function (log, error) {
       }
     })
 
+    // Sort emails so that primary email is first
+    userEmails.sort((a, b) => {
+      return b.isPrimary - a.isPrimary
+    })
+
     return P.resolve(userEmails)
+  }
+
+  Memory.prototype.setPrimaryEmail = function (uid, email) {
+    if (! emails[email]) {
+      return P.reject(error.notFound())
+    }
+
+    Object.keys(emails).forEach(function (key) {
+      var emailRecord = emails[key]
+      if (emailRecord.uid.toString('hex') === uid.toString('hex') && emailRecord.isPrimary) {
+        emailRecord.isPrimary = false
+      }
+    })
+
+    emails[email].isPrimary = true
+
+    return P.resolve({})
   }
 
   Memory.prototype.deleteEmail = function (uid, email) {
