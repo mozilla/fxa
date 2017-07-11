@@ -96,8 +96,6 @@ define([
    *   @param {Object} [options.metricsContext={}] Metrics context metadata
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
-   *   @param {Boolean} [options.marketingOptIn]
-   *   If `true`, sends opt-in desire for when account is verified.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signUp = function (email, password, options) {
@@ -150,10 +148,6 @@ define([
 
             if (options.metricsContext) {
               data.metricsContext = metricsContext.marshall(options.metricsContext);
-            }
-
-            if (options.marketingOptIn) {
-              data.marketingOptIn = true;
             }
           }
 
@@ -278,6 +272,8 @@ define([
    *   Reminder that was used to verify the account
    *   @param {String} [options.type]
    *   Type of code being verified, only supports `secondary` otherwise will verify account/sign-in
+   *   @param {Boolean} [options.marketingOptIn]
+   *   If `true`, notifies marketing of opt-in intent.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.verifyCode = function(uid, code, options) {
@@ -304,6 +300,10 @@ define([
 
           if (options.type) {
             data.type = options.type;
+          }
+
+          if (options.marketingOptIn) {
+            data.marketingOptIn = true;
           }
         }
 

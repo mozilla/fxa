@@ -5,8 +5,9 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
-  'tests/addons/environment'
-], function (tdd, assert, Environment) {
+  'tests/addons/environment',
+  'tests/addons/sinon'
+], function (tdd, assert, Environment, sinon) {
 
   with (tdd) {
     suite('verifyCode', function () {
@@ -14,6 +15,9 @@ define([
       var mail;
       var client;
       var RequestMocks;
+      var xhr;
+      var xhrOpen;
+      var xhrSend;
 
       beforeEach(function () {
         var env = new Environment();
@@ -21,6 +25,14 @@ define([
         mail = env.mail;
         client = env.client;
         RequestMocks = env.RequestMocks;
+        xhr = env.xhr;
+        xhrOpen = sinon.spy(xhr.prototype, 'open');
+        xhrSend = sinon.spy(xhr.prototype, 'send');
+      });
+
+      afterEach(function () {
+        xhrOpen.restore();
+        xhrSend.restore();
       });
 
       test('#verifyEmail', function () {
@@ -147,6 +159,38 @@ define([
           .then(
             function (result) {
               assert.ok(result);
+            },
+            assert.notOk
+          );
+      });
+
+      test('#verifyEmail with marketingOptIn param', function () {
+        var user = 'test7' + new Date().getTime();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
+        var uid;
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function (result) {
+            uid = result.uid;
+            assert.ok(uid, 'uid is returned');
+
+            return respond(mail.wait(user), RequestMocks.mail);
+          })
+          .then(function (emails) {
+            var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+            assert.ok(code, 'code is returned');
+
+            return respond(client.verifyCode(uid, code, { marketingOptIn: true }),
+              RequestMocks.verifyCode);
+          })
+          .then(
+            function (result) {
+              assert.ok(result);
+              assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
+              assert.include(xhrOpen.args[2][1], '/recovery_email/verify_code', 'path is correct');
+              var sentData = JSON.parse(xhrSend.args[2][0]);
+              assert.equal(sentData.marketingOptIn, true);
             },
             assert.notOk
           );

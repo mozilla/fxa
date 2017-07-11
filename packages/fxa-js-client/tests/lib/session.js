@@ -83,7 +83,6 @@ define([
               assert.equal(res.length, 2);
               var s = res[0];
               assert.ok(s.id);
-              assert.ok(s.userAgent);
               assert.ok(s.deviceName);
               assert.ok(s.deviceType);
               assert.equal(s.isDevice, false);
