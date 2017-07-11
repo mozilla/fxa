@@ -792,7 +792,7 @@ module.exports = function (log, error) {
   // Select : accounts
   // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, lockedAt, primaryEmail
   // Where  : emails.normalizedEmail = LOWER($1)
-  var GET_ACCOUNT_RECORD = 'CALL accountRecord_1(?)'
+  var GET_ACCOUNT_RECORD = 'CALL accountRecord_2(?)'
   MySql.prototype.accountRecord = function (emailBuffer) {
     return this.readFirstResult(GET_ACCOUNT_RECORD, [emailBuffer.toString('utf8')])
   }

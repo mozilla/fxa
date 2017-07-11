@@ -2554,6 +2554,8 @@ module.exports = function(config, DB) {
           .then((res) => {
             assert.deepEqual(res[0], res[1], 'should return the same account record regardless of email used')
             assert.deepEqual(res[0].primaryEmail, secondEmail.email, 'primary email should be set to update email')
+            assert.ok(res[0].createdAt, 'should set createdAt')
+            assert.deepEqual(res[0].createdAt, res[1].createdAt, 'account records should have the same createdAt')
           })
       })
     })
