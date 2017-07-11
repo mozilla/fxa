@@ -79,7 +79,7 @@ define([
         // second session is the node.js session from test setup
         .then(testElementTextEquals(
           '.client-webSession:nth-child(2) .client-name',
-          'Web Session, node-XMLHttpRequest null'
+          'Web Session, node-XMLHttpRequest'
         ))
 
         // clicking disconnect on the second session should update the list
