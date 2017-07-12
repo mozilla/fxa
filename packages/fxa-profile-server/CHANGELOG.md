@@ -1,3 +1,22 @@
+<a name="1.91.0"></a>
+# [1.91.0](https://github.com/mozilla/fxa-profile-server/compare/v1.90.0...v1.91.0) (2017-07-12)
+
+
+### Bug Fixes
+
+* **cache:** fix cache config ([ce13b92](https://github.com/mozilla/fxa-profile-server/commit/ce13b92))
+* **cache:** register server method on server creation ([29ce561](https://github.com/mozilla/fxa-profile-server/commit/29ce561))
+* **nodejs:** upgrade to 6.11.1 for security fixes ([1cc9ca6](https://github.com/mozilla/fxa-profile-server/commit/1cc9ca6))
+* **startup:** exit if server.start() returns an error ([b46d879](https://github.com/mozilla/fxa-profile-server/commit/b46d879))
+
+### Features
+
+* **avatar:** allow deleting the default avatar by not sending an id (#267) r=vladikoff ([41c4e78](https://github.com/mozilla/fxa-profile-server/commit/41c4e78))
+* **config:** fix generateTimeout default setting in profile caching (#260) r=jbuck ([f46888c](https://github.com/mozilla/fxa-profile-server/commit/f46888c)), closes [(#260](https://github.com/(/issues/260)
+* **node:** upgrade to Node 6 ([d4c8ec3](https://github.com/mozilla/fxa-profile-server/commit/d4c8ec3))
+
+
+
 <a name="1.90.2"></a>
 ## [1.90.2](https://github.com/mozilla/fxa-profile-server/compare/v1.90.0...v1.90.2) (2017-07-10)
 
