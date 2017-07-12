@@ -68,13 +68,6 @@ module.exports = function createServer(config, log) {
 
   var handleBan = P.promisify(require('./bans/handler')(config.memcache.recordLifetimeSeconds, mc, EmailRecord, IpRecord, log))
 
-  // optional SQS-based IP/email banning API
-  if (config.bans.region && config.bans.queueUrl) {
-    var bans = require('./bans')(log)
-    bans(config.bans, mc)
-    log.info({ op: 'listeningSQS', sqsRegion: config.bans.region, sqsQueueUrl: config.bans.queueUrl })
-  }
-
   var api = restify.createServer({
     formatters: {
       'application/json; q=0.9': safeJsonFormatter

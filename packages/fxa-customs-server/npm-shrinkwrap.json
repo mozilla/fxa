@@ -2,40 +2,6 @@
   "name": "fxa-customs-server",
   "version": "1.91.0",
   "dependencies": {
-    "aws-sdk": {
-      "version": "2.3.3",
-      "from": "aws-sdk@2.3.3",
-      "resolved": "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.3.3.tgz",
-      "dependencies": {
-        "sax": {
-          "version": "1.1.5",
-          "from": "sax@1.1.5",
-          "resolved": "https://registry.npmjs.org/sax/-/sax-1.1.5.tgz"
-        },
-        "xml2js": {
-          "version": "0.4.15",
-          "from": "xml2js@0.4.15",
-          "resolved": "https://registry.npmjs.org/xml2js/-/xml2js-0.4.15.tgz"
-        },
-        "xmlbuilder": {
-          "version": "2.6.2",
-          "from": "xmlbuilder@2.6.2",
-          "resolved": "https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-2.6.2.tgz",
-          "dependencies": {
-            "lodash": {
-              "version": "3.5.0",
-              "from": "lodash@>=3.5.0 <3.6.0",
-              "resolved": "https://registry.npmjs.org/lodash/-/lodash-3.5.0.tgz"
-            }
-          }
-        },
-        "jmespath": {
-          "version": "0.15.0",
-          "from": "jmespath@0.15.0",
-          "resolved": "https://registry.npmjs.org/jmespath/-/jmespath-0.15.0.tgz"
-        }
-      }
-    },
     "bl": {
       "version": "1.1.2",
       "from": "bl@1.1.2",

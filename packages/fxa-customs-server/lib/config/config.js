@@ -167,20 +167,6 @@ module.exports = function (fs, path, url, convict) {
         env: 'RECORD_LIFETIME_SECONDS'
       }
     },
-    bans: {
-      region: {
-        doc: 'The region where the queues live, most likely the same region we are sending email e.g. us-east-1, us-west-2, ap-southeast-2',
-        format: String,
-        default: '',
-        env: 'BANS_REGION'
-      },
-      queueUrl: {
-        doc: 'The bounce queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
-        format: String,
-        default: '',
-        env: 'BANS_QUEUE_URL'
-      }
-    },
     allowedIPs: {
       doc: 'An array of IPs that will not be blocked or rate-limited.',
       format: Array,
