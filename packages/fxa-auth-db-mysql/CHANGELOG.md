@@ -1,3 +1,15 @@
+<a name="1.91.0"></a>
+# [1.91.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.90.0...v1.91.0) (2017-07-12)
+
+
+### Features
+
+* **email:** Add change email (#254), r=@philbooth ([7253d09](https://github.com/mozilla/fxa-auth-db-mysql/commit/7253d09))
+* **email:** correctly return `createdAt` when using accountRecord (#256), r=@philbooth ([70a1a39](https://github.com/mozilla/fxa-auth-db-mysql/commit/70a1a39))
+* **schema:** add a uaFormFactor column to sessionTokens ([e99bc19](https://github.com/mozilla/fxa-auth-db-mysql/commit/e99bc19))
+
+
+
 <a name="1.90.0"></a>
 # [1.90.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.89.1...v1.90.0) (2017-06-28)
 
