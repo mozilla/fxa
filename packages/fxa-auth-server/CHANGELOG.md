@@ -1,3 +1,17 @@
+<a name"1.91.0"></a>
+## 1.91.0 (2017-07-12)
+
+
+#### Bug Fixes
+
+* **nodejs:** update to 6.11.1 for security fixes ([a0520c0c](https://github.com/mozilla/fxa-oauth-server/commit/a0520c0c))
+
+
+#### Features
+
+* **node:** upgrade to node 6 ([57c61ab1](https://github.com/mozilla/fxa-oauth-server/commit/57c61ab1))
+
+
 <a name"1.90.0"></a>
 ## 1.90.0 (2017-06-28)
 
