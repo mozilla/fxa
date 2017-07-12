@@ -92,6 +92,12 @@ will be tracked by charts on the following dashboard:
 
 8. User signs in and their device is connected to Sync.
 
+Step `7` represents the substantive difference
+introduced by this feature.
+The control group flow
+does not pre-fill the user's email address
+on the sign-in screen.
+
 ## Implementation
 
 ### Content server
