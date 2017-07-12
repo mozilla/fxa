@@ -1,3 +1,43 @@
+<a name="1.91.0"></a>
+# 1.91.0 (2017-07-12)
+
+
+### Bug Fixes
+
+* **devices:** support the new Add-ons client in the devices view (#5206) r=philbooth ([1d5438a](https://github.com/mozilla/fxa-content-server/commit/1d5438a)), closes [#4835](https://github.com/mozilla/fxa-content-server/issues/4835)
+* **docs:** Remove the extra "When to specify" header. (#5223) r=vladikoff ([2ffdc21](https://github.com/mozilla/fxa-content-server/commit/2ffdc21))
+* **lint:** fix sasslint warning for the settings module ([d9e063c](https://github.com/mozilla/fxa-content-server/commit/d9e063c))
+* **metrics:** categorise the performance flow events ([cfa3870](https://github.com/mozilla/fxa-content-server/commit/cfa3870))
+* **scssFile:** fixes padding mismatch of client name (#5200) r=vladikoff ([11c1202](https://github.com/mozilla/fxa-content-server/commit/11c1202)), closes [(#5200](https://github.com/(/issues/5200)
+* **settings:** add primary button box-shadow (#5208) r=philbooth ([6298cad](https://github.com/mozilla/fxa-content-server/commit/6298cad)), closes [#5179](https://github.com/mozilla/fxa-content-server/issues/5179)
+* **sms:** Adjust redirect endpoint enhancements. (#5221) r=philbooth,vladikoff ([2b337c7](https://github.com/mozilla/fxa-content-server/commit/2b337c7)), closes [#5218](https://github.com/mozilla/fxa-content-server/issues/5218)
+* **styles:** match the radio button style with Firefox Desktop (#5207)  r=philbooth ([9bc4821](https://github.com/mozilla/fxa-content-server/commit/9bc4821)), closes [#5143](https://github.com/mozilla/fxa-content-server/issues/5143)
+* **test:** Fix the broken "settings clients - sessions" test. (#5227) r=philbooth,vladikoff ([cb9d50b](https://github.com/mozilla/fxa-content-server/commit/cb9d50b)), closes [(#5227](https://github.com/(/issues/5227) [#5226](https://github.com/mozilla/fxa-content-server/issues/5226)
+
+### chore
+
+* **text:** Centered blue message (#5191) r=@shane-tomlinson ([a779203](https://github.com/mozilla/fxa-content-server/commit/a779203))
+* **text:** Put Back link on bottom (#5184) r=@shane-tomlinson ([e80b558](https://github.com/mozilla/fxa-content-server/commit/e80b558))
+* **text:** Remove unneeded periods (#5187) r=@shane-tomlinson ([078f103](https://github.com/mozilla/fxa-content-server/commit/078f103))
+* **text:** Removed click here (#5189) r=vladikoff ([b04e2a0](https://github.com/mozilla/fxa-content-server/commit/b04e2a0))
+* **text:** Removed fake bold and a period (#5182) r=vladikoff ([2ba1290](https://github.com/mozilla/fxa-content-server/commit/2ba1290))
+* **text:** Removed pad class (#5190) r=vladikoff ([723a296](https://github.com/mozilla/fxa-content-server/commit/723a296))
+* **text:** Removed stray period and underline (#5183) r=vladikoff ([4517cde](https://github.com/mozilla/fxa-content-server/commit/4517cde))
+
+### Features
+
+* **docker:** switch to docker based fxa ci box (#5162) r=@shane-tomlinson ([08c8904](https://github.com/mozilla/fxa-content-server/commit/08c8904))
+* **emails:** Check with auth-server to ensure secondary emails is enabled for user (#5214), r ([359e45f](https://github.com/mozilla/fxa-content-server/commit/359e45f))
+* **node:** upgrade to Node 6 (#5173) r=@shane-tomlinson ([de067d3](https://github.com/mozilla/fxa-content-server/commit/de067d3))
+* **sms:** Re-add the SMS deeplink tests. (#5167) r=@philbooth ([7f9aa9e](https://github.com/mozilla/fxa-content-server/commit/7f9aa9e)), closes [#5136](https://github.com/mozilla/fxa-content-server/issues/5136)
+* **sync:** Add support for creditcards and addresses as sync engines. (#5158) r=@vladikoff ([93f2db2](https://github.com/mozilla/fxa-content-server/commit/93f2db2)), closes [#5087](https://github.com/mozilla/fxa-content-server/issues/5087)
+
+### Refactor
+
+* **client:** Fix "context" data setting w/ mixins (#5174) r=@philbooth ([8f1ddd1](https://github.com/mozilla/fxa-content-server/commit/8f1ddd1)), closes [(#5174](https://github.com/(/issues/5174)
+
+
+
 <a name="1.90.1"></a>
 ## 1.90.1 (2017-06-29)
 
