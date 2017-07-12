@@ -433,7 +433,7 @@ Parameters.
 Each token takes the following fields for it's create method respectively:
 
 * sessionToken : data, uid, createdAt, uaBrowser, uaBrowserVersion, uaOS, uaOSVersion, uaDeviceType,
-                 mustVerify, tokenVerificationId
+                 uaFormFactor, mustVerify, tokenVerificationId
 * keyFetchToken : authKey, uid, keyBundle, createdAt, tokenVerificationId
 * passwordChangeToken : data, uid, createdAt
 * passwordForgotToken : data, uid, passCode, createdAt, triesxb
@@ -477,11 +477,11 @@ These fields are represented as
 `ut.*` for a field from `unverifiedTokens`.
 
 * sessionToken : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
-                 t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
+                 t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
                  a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
                  a.createdAt AS accountCreatedAt
 * sessionTokenWithVerificationStatus : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
-                                       t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
+                                       t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
                                        a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
                                        a.createdAt AS accountCreatedAt, ut.mustVerify, ut.tokenVerificationId
 * keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
@@ -608,7 +608,7 @@ These fields are represented as
 The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 strings, you can learn more about their format [here](https://developers.google.com/web/updates/2016/03/web-push-encryption).
 
 * sessionToken : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
-                 t.uaOS, t.uaOSVersion, t.uaDeviceType, t.lastAccessTime,
+                 t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
                  a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
                  a.createdAt AS accountCreatedAt, d.id AS deviceId,
                  d.name AS deviceName, d.type AS deviceType,
