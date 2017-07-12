@@ -125,7 +125,7 @@ describe('remote db', function() {
         })
         .then(function(sessions) {
           assert.equal(sessions.length, 1, 'sessions contains one item')
-          assert.equal(Object.keys(sessions[0]).length, 16, 'session has correct number of properties')
+          assert.equal(Object.keys(sessions[0]).length, 17, 'session has correct number of properties')
           assert.equal(typeof sessions[0].tokenId, 'string', 'tokenId property is not a buffer')
           assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
           assert.ok(sessions[0].createdAt >= account.createdAt, 'createdAt property seems correct')
@@ -134,6 +134,7 @@ describe('remote db', function() {
           assert.equal(sessions[0].uaOS, 'Mac OS X', 'uaOS property is correct')
           assert.equal(sessions[0].uaOSVersion, '10.10', 'uaOSVersion property is correct')
           assert.equal(sessions[0].uaDeviceType, null, 'uaDeviceType property is correct')
+          assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is correct')
           assert.equal(sessions[0].lastAccessTime, sessions[0].createdAt, 'lastAccessTime property is correct')
           return db.sessionToken(tokenId)
         })
@@ -144,6 +145,7 @@ describe('remote db', function() {
           assert.equal(sessionToken.uaOS, 'Mac OS X')
           assert.equal(sessionToken.uaOSVersion, '10.10')
           assert.equal(sessionToken.uaDeviceType, null)
+          assert.equal(sessionToken.uaFormFactor, null)
           assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt)
           assert.deepEqual(sessionToken.uid, account.uid)
           assert.equal(sessionToken.email, account.email)
@@ -304,6 +306,7 @@ describe('remote db', function() {
             assert.equal(device.uaOS, 'Android', 'device.uaOS is correct')
             assert.equal(device.uaOSVersion, '4.4', 'device.uaOSVersion is correct')
             assert.equal(device.uaDeviceType, 'mobile', 'device.uaDeviceType is correct')
+            assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
             deviceInfo.id = device.id
             deviceInfo.name = 'wibble'
             deviceInfo.type = 'desktop'
