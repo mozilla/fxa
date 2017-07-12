@@ -1,3 +1,13 @@
+<a name="1.91.1"></a>
+## [1.91.1](https://github.com/mozilla/fxa-auth-server/compare/v1.91.0...v1.91.1) (2017-07-12)
+
+
+### Bug Fixes
+
+* **nodejs:** update to 6.11.1 for security fixes ([b653e4c](https://github.com/mozilla/fxa-auth-server/commit/b653e4c))
+
+
+
 <a name="1.91.0"></a>
 # [1.91.0](https://github.com/mozilla/fxa-auth-server/compare/v1.90.2...v1.91.0) (2017-07-12)
 
