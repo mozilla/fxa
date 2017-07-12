@@ -1,3 +1,13 @@
+<a name="1.91.1"></a>
+## [1.91.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.91.0...v1.91.1) (2017-07-12)
+
+
+### Bug Fixes
+
+* **nodejs:** upgrade to 4.8.4 for security fixes ([450e931](https://github.com/mozilla/fxa-auth-db-mysql/commit/450e931))
+
+
+
 <a name="1.91.0"></a>
 # [1.91.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.90.0...v1.91.0) (2017-07-12)
 
