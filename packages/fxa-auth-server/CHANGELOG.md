@@ -1,3 +1,19 @@
+<a name="1.90.2"></a>
+## [1.90.2](https://github.com/mozilla/fxa-auth-server/compare/v1.90.1...v1.90.2) (2017-07-06)
+
+
+
+
+<a name="1.90.1"></a>
+## [1.90.1](https://github.com/mozilla/fxa-auth-server/compare/v1.90.0...v1.90.1) (2017-07-05)
+
+
+### Bug Fixes
+
+* **server:** stop using raw user agent string for browser name ([14f0bf9](https://github.com/mozilla/fxa-auth-server/commit/14f0bf9))
+
+
+
 <a name="1.90.0"></a>
 # [1.90.0](https://github.com/mozilla/fxa-auth-server/compare/v1.89.1...v1.90.0) (2017-06-28)
 

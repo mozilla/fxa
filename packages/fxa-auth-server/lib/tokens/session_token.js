@@ -70,7 +70,7 @@ module.exports = (log, Token, config) => {
 
       var freshData = userAgent.call({
         lastAccessTime: Date.now()
-      }, userAgentString, log)
+      }, userAgentString)
 
       if (this.isFresh(freshData)) {
         return false

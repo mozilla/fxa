@@ -1943,7 +1943,7 @@ module.exports = (
                 ip: ip,
                 location: geoData.location,
                 timeZone: geoData.timeZone
-              }, request.headers['user-agent'], log))
+              }, request.headers['user-agent']))
             })
         }
       }

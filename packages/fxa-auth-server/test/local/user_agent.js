@@ -5,11 +5,9 @@
 'use strict'
 
 const assert = require('insist')
-var mocks = require('../mocks')
 var proxyquire = require('proxyquire')
 var sinon = require('sinon')
 
-var ELLIPSIS = '\u2026'
 var parserResult
 
 var uaParser = {
@@ -22,14 +20,12 @@ var userAgent = proxyquire('../../lib/userAgent', {
   'node-uap': uaParser
 })
 
-var log = mocks.spyLog()
-
 describe('userAgent', () => {
   it(
     'exports function',
     () => {
       assert.equal(typeof userAgent, 'function')
-      assert.equal(userAgent.length, 2)
+      assert.equal(userAgent.length, 1)
     }
   )
 
@@ -52,7 +48,7 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, 'qux', log)
+      var result = userAgent.call(context, 'qux')
 
       assert.equal(uaParser.parse.callCount, 1)
       assert.ok(uaParser.parse.calledWithExactly('qux'))
@@ -64,8 +60,6 @@ describe('userAgent', () => {
       assert.equal(result.uaOS, 'bar')
       assert.equal(result.uaOSVersion, '2')
       assert.equal(result.uaDeviceType, 'mobile')
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -90,27 +84,18 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, 'wibble', log)
+      var result = userAgent.call(context, 'wibble')
 
       assert.equal(uaParser.parse.callCount, 1)
       assert.ok(uaParser.parse.calledWithExactly('wibble'))
 
       assert.equal(result, context)
       assert.equal(Object.keys(result).length, 5)
-      assert.equal(result.uaBrowser, 'wibble')
+      assert.equal(result.uaBrowser, null)
       assert.equal(result.uaOS, null)
       assert.equal(result.uaDeviceType, null)
 
-      assert.equal(log.info.callCount, 1)
-      var args = log.info.args[0]
-      assert.equal(args.length, 1)
-      assert.deepEqual(args[0], {
-        op: 'userAgent:truncate',
-        userAgent: 'wibble'
-      })
-
       uaParser.parse.reset()
-      log.info.reset()
     }
   )
 
@@ -133,12 +118,10 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, log)
+      var result = userAgent.call(context)
 
       assert.equal(result.uaBrowserVersion, '1.1')
       assert.equal(result.uaOSVersion, '2.34567')
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -163,11 +146,9 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, log)
+      var result = userAgent.call(context)
 
       assert.equal(result.uaDeviceType, 'mobile')
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -192,11 +173,9 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, log)
+      var result = userAgent.call(context)
 
       assert.equal(result.uaDeviceType, 'mobile')
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -221,11 +200,9 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, log)
+      var result = userAgent.call(context)
 
       assert.equal(result.uaDeviceType, 'mobile')
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -250,11 +227,9 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, log)
+      var result = userAgent.call(context)
 
       assert.equal(result.uaDeviceType, 'mobile')
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -279,11 +254,9 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, log)
+      var result = userAgent.call(context)
 
       assert.equal(result.uaDeviceType, 'mobile')
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -308,11 +281,9 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, log)
+      var result = userAgent.call(context)
 
       assert.equal(result.uaDeviceType, null)
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -337,11 +308,9 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, log)
+      var result = userAgent.call(context)
 
       assert.equal(result.uaDeviceType, null)
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -366,11 +335,9 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, log)
+      var result = userAgent.call(context)
 
       assert.equal(result.uaDeviceType, null)
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -396,7 +363,7 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, log)
+      var result = userAgent.call(context)
 
       assert.equal(result.uaDeviceType, 'tablet')
 
@@ -425,78 +392,11 @@ describe('userAgent', () => {
         }
       }
       var context = {}
-      var result = userAgent.call(context, log)
+      var result = userAgent.call(context)
 
       assert.equal(result.uaDeviceType, 'tablet')
 
       uaParser.parse.reset()
-    }
-  )
-
-  it(
-    'uaBrowser falls back to truncated user agent string',
-    () => {
-      parserResult = {
-        ua: {
-          family: 'Other'
-        },
-        os: {
-          family: 'Other'
-        },
-        device: {
-          family: 'Other'
-        }
-      }
-      var context = {}
-      var userAgentString = new Array(201).join('x')
-      var result = userAgent.call(context, userAgentString, log)
-
-      assert.equal(result.uaBrowser, new Array(61).join('x') + ELLIPSIS)
-
-      assert.equal(log.info.callCount, 1)
-      var args = log.info.args[0]
-      assert.equal(args.length, 1)
-      assert.deepEqual(args[0], {
-        op: 'userAgent:truncate',
-        userAgent: userAgentString
-      })
-
-      uaParser.parse.reset()
-      log.info.reset()
-    }
-  )
-
-  it(
-    'truncated fallback is relaxed for parentheses',
-    () => {
-      parserResult = {
-        ua: {
-          family: 'Other'
-        },
-        os: {
-          family: 'Other'
-        },
-        device: {
-          family: 'Other'
-        }
-      }
-      var context = {}
-      var expected = new Array(11).join('x') + ' (' + new Array(61).join('y') + ')'
-      var userAgentString = expected + new Array(101).join('z')
-      var result = userAgent.call(context, userAgentString, log)
-
-      assert.equal(result.uaBrowser, expected + ELLIPSIS)
-
-      assert.equal(log.info.callCount, 1)
-      var args = log.info.args[0]
-      assert.equal(args.length, 1)
-      assert.deepEqual(args[0], {
-        op: 'userAgent:truncate',
-        userAgent: userAgentString
-      })
-
-      uaParser.parse.reset()
-      log.info.reset()
     }
   )
 
@@ -506,14 +406,12 @@ describe('userAgent', () => {
       parserResult = null
       const context = {}
       const userAgentString = 'Firefox-iOS-FxA/5.3 (Firefox)'
-      const result = userAgent.call(context, userAgentString, log)
+      const result = userAgent.call(context, userAgentString)
 
       assert.equal(result.uaBrowser, 'Firefox')
       assert.equal(result.uaBrowserVersion, '5.3')
       assert.equal(result.uaOS, 'iOS')
       assert.equal(result.uaDeviceType, 'mobile')
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -525,15 +423,13 @@ describe('userAgent', () => {
       parserResult = null
       const context = {}
       const userAgentString = 'Firefox-iOS-FxA/6.0b42 (iPhone 6S; iPhone OS 10.3) (Nightly)'
-      const result = userAgent.call(context, userAgentString, log)
+      const result = userAgent.call(context, userAgentString)
 
       assert.equal(result.uaBrowser, 'Nightly')
       assert.equal(result.uaBrowserVersion, '6.0')
       assert.equal(result.uaOS, 'iOS')
       assert.equal(result.uaOSVersion, '10.3')
       assert.equal(result.uaDeviceType, 'mobile')
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -545,15 +441,13 @@ describe('userAgent', () => {
       parserResult = null
       const context = {}
       const userAgentString = 'Firefox-iOS-FxA/6.0b42 (iPad Mini; iPhone OS 10.3) (Nightly)'
-      const result = userAgent.call(context, userAgentString, log)
+      const result = userAgent.call(context, userAgentString)
 
       assert.equal(result.uaBrowser, 'Nightly')
       assert.equal(result.uaBrowserVersion, '6.0')
       assert.equal(result.uaOS, 'iOS')
       assert.equal(result.uaOSVersion, '10.3')
       assert.equal(result.uaDeviceType, 'tablet')
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -565,14 +459,12 @@ describe('userAgent', () => {
       parserResult = null
       const context = {}
       const userAgentString = 'Firefox-Android-FxAccounts/49.0.2 (Firefox)'
-      const result = userAgent.call(context, userAgentString, log)
+      const result = userAgent.call(context, userAgentString)
 
       assert.equal(result.uaBrowser, 'Firefox')
       assert.equal(result.uaBrowserVersion, '49.0.2')
       assert.equal(result.uaOS, 'Android')
       assert.equal(result.uaDeviceType, 'mobile')
-
-      assert.equal(log.info.callCount, 0)
 
       uaParser.parse.reset()
     }
@@ -582,15 +474,13 @@ describe('userAgent', () => {
     parserResult = null
     const context = {}
     const userAgentString = 'Mobile-Android-Sync/(Mobile; Android 6.0) (foo() bar)'
-    const result = userAgent.call(context, userAgentString, log)
+    const result = userAgent.call(context, userAgentString)
 
     assert.equal(result.uaBrowser, 'foo() bar')
     assert.equal(result.uaBrowserVersion, null)
     assert.equal(result.uaOS, 'Android')
     assert.equal(result.uaOSVersion, '6.0')
     assert.equal(result.uaDeviceType, 'mobile')
-
-    assert.equal(log.info.callCount, 0)
 
     uaParser.parse.reset()
   })
@@ -599,15 +489,13 @@ describe('userAgent', () => {
     parserResult = null
     const context = {}
     const userAgentString = 'Mobile-iOS-Sync/(iPad Mini; iOS 10.3) (wibble)'
-    const result = userAgent.call(context, userAgentString, log)
+    const result = userAgent.call(context, userAgentString)
 
     assert.equal(result.uaBrowser, 'wibble')
     assert.equal(result.uaBrowserVersion, null)
     assert.equal(result.uaOS, 'iOS')
     assert.equal(result.uaOSVersion, '10.3')
     assert.equal(result.uaDeviceType, 'tablet')
-
-    assert.equal(log.info.callCount, 0)
 
     uaParser.parse.reset()
   })
