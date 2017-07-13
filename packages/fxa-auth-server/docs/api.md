@@ -264,6 +264,7 @@ include additional response properties:
 * `errno: 111`: serverTime
 * `errno: 114`: retryAfter, retryAfterLocalized, verificationMethod, verificationReason
 * `errno: 120`: email
+* `errno: 124`: deviceId
 * `errno: 125`: verificationMethod, verificationReason
 * `errno: 126`: email
 * `errno: 130`: region

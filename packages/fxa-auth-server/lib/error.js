@@ -479,15 +479,13 @@ AppError.unknownDevice = function () {
   )
 }
 
-AppError.deviceSessionConflict = function () {
-  return new AppError(
-    {
-      code: 400,
-      error: 'Bad Request',
-      errno: ERRNO.DEVICE_CONFLICT,
-      message: 'Session already registered by another device'
-    }
-  )
+AppError.deviceSessionConflict = function (deviceId) {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.DEVICE_CONFLICT,
+    message: 'Session already registered by another device'
+  }, { deviceId })
 }
 
 AppError.invalidUnblockCode = function () {

@@ -467,15 +467,23 @@ module.exports = (
                 // the problem was caused by the unique sessionToken constraint so
                 // return an appropriate error.
                 devices => {
+                  let conflictingDeviceId
+
                   const isDuplicateDeviceId = devices.reduce((is, device) => {
-                    is || device.id === deviceInfo.id
+                    if (is || device.id === deviceInfo.id) {
+                      return true
+                    }
+
+                    if (device.sessionToken === sessionTokenId) {
+                      conflictingDeviceId = device.id
+                    }
                   }, false)
 
                   if (isDuplicateDeviceId) {
                     return this.createDevice(uid, sessionTokenId, deviceInfo)
                   }
 
-                  throw error.deviceSessionConflict()
+                  throw error.deviceSessionConflict(conflictingDeviceId)
                 }
               )
           }
@@ -499,15 +507,25 @@ module.exports = (
       }
     )
     .then(
-      function (result) {
-        return deviceInfo
-      },
-      function (err) {
+      () => deviceInfo,
+      err => {
         if (isNotFoundError(err)) {
           throw error.unknownDevice()
         }
         if (isRecordAlreadyExistsError(err)) {
-          throw error.deviceSessionConflict()
+          // Identify the conflicting device in the error response,
+          // to save a server round-trip for the client.
+          return this.devices(uid)
+            .then(devices => {
+              let conflictingDeviceId
+              devices.some(device => {
+                if (device.sessionToken === sessionTokenId) {
+                  conflictingDeviceId = device.id
+                  return true
+                }
+              })
+              throw error.deviceSessionConflict(conflictingDeviceId)
+            })
         }
         throw err
       }
