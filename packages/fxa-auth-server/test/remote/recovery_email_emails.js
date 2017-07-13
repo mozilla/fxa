@@ -25,6 +25,8 @@ describe('remote emails', function () {
       enabledEmailAddresses: /\w/
     }
     config.securityHistory.ipProfiling = {}
+    config.signinConfirmation.skipForNewAccounts.enabled = false
+
     return TestServer.start(config)
       .then(s => {
         server = s

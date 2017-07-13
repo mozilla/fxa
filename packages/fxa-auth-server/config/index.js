@@ -545,7 +545,7 @@ var conf = convict({
     skipForNewAccounts: {
       enabled: {
         doc: 'Skip sign-in confirmation for newly-created accounts.',
-        default: false,
+        default: true,
         env: 'SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS'
       },
       maxAge: {

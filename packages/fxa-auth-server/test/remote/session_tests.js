@@ -170,7 +170,7 @@ describe('remote session', function() {
           .then(
             function (x) {
               assert.deepEqual(x, {
-                state: 'unverified',
+                state: 'verified',
                 uid: uid
               })
             }

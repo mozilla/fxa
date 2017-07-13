@@ -90,7 +90,7 @@ describe('remote password forgot', function() {
         )
         .then( // make sure we can still login after password reset
           function () {
-            return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
+            return Client.login(config.publicUrl, email, newPassword, {keys:true})
           }
         )
         .then(

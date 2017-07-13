@@ -25,6 +25,8 @@ describe('remote password change', function() {
   let server
   before(() => {
     config.securityHistory.ipProfiling.allowedRecency = 0
+    config.signinConfirmation.skipForNewAccounts.enabled = false
+
     return TestServer.start(config)
       .then(s => {
         server = s
