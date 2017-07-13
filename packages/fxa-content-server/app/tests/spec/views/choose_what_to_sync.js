@@ -108,9 +108,13 @@ define(function (require, exports, module) {
       it('renders email info, adds SCREEN_CLASS to body', () => {
         return initView()
           .then(() => {
-            assert.include(view.$('.success-email-created').text(), email,
-              'email is in the view');
+            assert.include(
+              view.$('.success-email-created').text(), email);
+            const $backEls = view.$('#back');
+            assert.lengthOf($backEls, 1);
+
             assert.isTrue($('body').hasClass(View.SCREEN_CLASS));
+
             const $rowEls = view.$('.choose-what-to-sync-row');
             assert.lengthOf($rowEls, DISPLAYED_ENGINE_IDS.length);
           });

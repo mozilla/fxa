@@ -1,5 +1,5 @@
 <div id="main-content" class="card">
-  <div class="success visible success-email-created">{{#t}}%(email)s created{{/t}}</div>
+  <div class="success visible success-email-created">{{#unsafeTranslate}}%(escapedEmail)s registered. <a %(escapedBackLinkParams)s>Mistyped email?</a>{{/unsafeTranslate}}</div>
   <div id="choose-what-to-sync-graphic"></div>
 
   <header>
@@ -29,10 +29,5 @@
         <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Save settings{{/t}}</button>
       </div>
     </form>
-
-    <div class="links">
-      <a href="#" id="back">{{#t}}Back{{/t}}</a>
-    </div>
-
   </section>
 </div>
