@@ -515,11 +515,9 @@ define(function (require, exports, module) {
           });
       });
 
-      it('properly sets the title according to scope', () => {
+      it('properly sets the title', () => {
         return initView()
           .then(() => {
-            $('#container').html(view.el);
-
             const formatted = view._formatAccessTimeAndScope([
               {
                 clientType: 'oAuthApp',
@@ -543,6 +541,22 @@ define(function (require, exports, module) {
                 lastAccessTime: Date.now(),
                 lastAccessTimeFormatted: 'a month ago',
                 name: 'Add-ons'
+              },
+              {
+                deviceName: 'User\'s Web Session',
+                id: 'session-1',
+                isWebSession: true,
+                lastAccessTime: Date.now(),
+                lastAccessTimeFormatted: '12 minutes ago',
+                userAgent: 'Firefox 40'
+              },
+              {
+                deviceName: 'User\'s Second Web Session',
+                id: 'session-2',
+                isWebSession: true,
+                lastAccessTime: Date.now(),
+                lastAccessTimeFormatted: '18 minutes ago',
+                userAgent: ''
               }
             ]);
 
@@ -550,6 +564,8 @@ define(function (require, exports, module) {
             assert.equal(formatted[0].lastAccessTimeFormatted, 'last active a few seconds ago');
             assert.equal(formatted[1].title, 'Pocket - profile,profile:write');
             assert.equal(formatted[2].title, 'Add-ons');
+            assert.equal(formatted[3].title, 'Web Session, Firefox 40');
+            assert.equal(formatted[4].title, 'Web Session');
           });
       });
     });

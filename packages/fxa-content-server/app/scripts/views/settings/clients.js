@@ -59,8 +59,12 @@ define(function (require, exports, module) {
         if (item.lastAccessTimeFormatted) {
 
           if (item.isWebSession) {
-            item.title = this.translate(
-              t('Web Session, %(userAgent)s'), {userAgent: item.userAgent});
+            if (item.userAgent) {
+              item.title = this.translate(
+                t('Web Session, %(userAgent)s'), {userAgent: item.userAgent });
+            } else {
+              item.title = t('Web Session');
+            }
             item.lastAccessTimeFormatted = this.translate(
               t('%(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
           }
