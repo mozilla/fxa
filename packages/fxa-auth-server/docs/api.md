@@ -28,13 +28,6 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [POST /account/status](#post-accountstatus)
     * [GET /account/profile (:lock::unlock: sessionToken, oauthToken)](#get-accountprofile)
     * [GET /account/keys (:lock: keyFetchToken)](#get-accountkeys)
-    * [GET /recovery_email/check_can_add_secondary_address (:lock: sessionToken)](#get-recovery_emailcheck_can_add_secondary_address)
-    * [GET /recovery_email/status (:lock: sessionToken)](#get-recovery_emailstatus)
-    * [POST /recovery_email/resend_code (:lock: sessionToken)](#post-recovery_emailresend_code)
-    * [POST /recovery_email/verify_code](#post-recovery_emailverify_code)
-    * [GET /recovery_emails (:lock: sessionToken)](#get-recovery_emails)
-    * [POST /recovery_email (:lock: sessionToken)](#post-recovery_email)
-    * [POST /recovery_email/destroy (:lock: sessionToken)](#post-recovery_emaildestroy)
     * [POST /account/unlock/resend_code](#post-accountunlockresend_code)
     * [POST /account/unlock/verify_code](#post-accountunlockverify_code)
     * [POST /account/login/send_unblock_code](#post-accountloginsend_unblock_code)
@@ -47,6 +40,14 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [GET /account/devices (:lock: sessionToken)](#get-accountdevices)
     * [GET /account/sessions (:lock: sessionToken)](#get-accountsessions)
     * [POST /account/device/destroy (:lock: sessionToken)](#post-accountdevicedestroy)
+  * [Emails](#emails)
+    * [GET /recovery_email/check_can_add_secondary_address (:lock: sessionToken)](#get-recovery_emailcheck_can_add_secondary_address)
+    * [GET /recovery_email/status (:lock: sessionToken)](#get-recovery_emailstatus)
+    * [POST /recovery_email/resend_code (:lock: sessionToken)](#post-recovery_emailresend_code)
+    * [POST /recovery_email/verify_code](#post-recovery_emailverify_code)
+    * [GET /recovery_emails (:lock: sessionToken)](#get-recovery_emails)
+    * [POST /recovery_email (:lock: sessionToken)](#post-recovery_email)
+    * [POST /recovery_email/destroy (:lock: sessionToken)](#post-recovery_emaildestroy)
   * [Password](#password)
     * [POST /password/change/start](#post-passwordchangestart)
     * [POST /password/change/finish (:lock: passwordChangeToken)](#post-passwordchangefinish)
@@ -688,355 +689,6 @@ by the following errors
   Unverified account
 
 
-#### GET /recovery_email/check_can_add_secondary_address
-
-:lock: HAWK-authenticated with session token
-<!--begin-route-get-recovery_emailcheck_can_add_secondary_address-->
-Returns whether or not secondary emails is enabled for a user.
-<!--end-route-get-recovery_emailcheck_can_add_secondary_address-->
-
-
-#### GET /recovery_email/status
-
-:lock: HAWK-authenticated with session token
-<!--begin-route-get-recovery_emailstatus-->
-Returns the "verified" status
-for the account's recovery email address.
-
-Currently, each account is associated
-with exactly one email address.
-This address must be verified
-before the account can be used
-(specifically, `POST /certificate/sign` and `GET /account/keys`
-will return errors until the address is verified).
-In the future, this may be expanded to include multiple addresses,
-and/or alternate types of recovery methods (e.g. SMS).
-A new API will be provided for this extra functionality.
-
-This call is used to determine the current state
-(verified or unverified)
-of the account.
-During account creation,
-until the address is verified,
-the agent can poll this method
-to discover when it should proceed
-with `POST /certificate/sign` and `GET /account/keys`.
-<!--end-route-get-recovery_emailstatus-->
-
-##### Query parameters
-
-* `reason`: *string, max(16), optional*
-
-  <!--begin-query-param-get-recovery_emailstatus-reason-->
-  
-  <!--end-query-param-get-recovery_emailstatus-reason-->
-
-##### Response body
-
-* `email`: *string, required*
-
-  <!--begin-response-body-get-recovery_emailstatus-email-->
-  
-  <!--end-response-body-get-recovery_emailstatus-email-->
-
-* `verified`: *boolean, required*
-
-  <!--begin-response-body-get-recovery_emailstatus-verified-->
-  
-  <!--end-response-body-get-recovery_emailstatus-verified-->
-
-* `sessionVerified`: *boolean, optional*
-
-  <!--begin-response-body-get-recovery_emailstatus-sessionVerified-->
-  
-  <!--end-response-body-get-recovery_emailstatus-sessionVerified-->
-
-* `emailVerified`: *boolean, optional*
-
-  <!--begin-response-body-get-recovery_emailstatus-emailVerified-->
-  
-  <!--end-response-body-get-recovery_emailstatus-emailVerified-->
-
-##### Error responses
-
-Failing requests may be caused
-by the following errors
-(this is not an exhaustive list):
-
-* `code: 401, errno: 110`:
-  Invalid authentication token in request signature
-
-
-#### POST /recovery_email/resend_code
-
-:lock: HAWK-authenticated with session token
-<!--begin-route-post-recovery_emailresend_code-->
-Re-sends a verification code
-to the account's recovery email address.
-The code is first sent when the account is created,
-but if the user thinks the message was lost
-or accidentally deleted,
-they can request a new message to be sent
-via this endpoint.
-The new message will contain the same code
-as the original message.
-When this code is provided to `/v1/recovery_email/verify_code`,
-the email will be marked as "verified".
-
-This endpoint may send a verification email to the user.
-Callers may optionally provide
-the `service` parameter to indicate
-what identity-attached service
-they're acting on behalf of.
-This is an opaque alphanumeric token
-that will be embedded
-in the verification link
-as a query parameter.
-<!--end-route-post-recovery_emailresend_code-->
-
-##### Query parameters
-
-* `service`: *validators.service*
-
-  <!--begin-query-param-post-recovery_emailresend_code-service-->
-  Opaque alphanumeric token to be included in verification links.
-  <!--end-query-param-post-recovery_emailresend_code-service-->
-
-##### Request body
-
-* `email`: *validators.email.optional*
-
-  <!--begin-request-body-post-recovery_emailresend_code-email-->
-  
-  <!--end-request-body-post-recovery_emailresend_code-email-->
-
-* `service`: *validators.service*
-
-  <!--begin-request-body-post-recovery_emailresend_code-service-->
-  Opaque alphanumeric token to be included in verification links.
-  <!--end-request-body-post-recovery_emailresend_code-service-->
-
-* `redirectTo`: *validators.redirectTo(config.smtp.redirectDomain).optional*
-
-  <!--begin-request-body-post-recovery_emailresend_code-redirectTo-->
-  
-  <!--end-request-body-post-recovery_emailresend_code-redirectTo-->
-
-* `resume`: *string, max(2048), optional*
-
-  <!--begin-request-body-post-recovery_emailresend_code-resume-->
-  Opaque URL-encoded string to be included in the verification link as a query parameter.
-  <!--end-request-body-post-recovery_emailresend_code-resume-->
-
-* `metricsContext`: *metricsContext.schema*
-
-  <!--begin-request-body-post-recovery_emailresend_code-metricsContext-->
-  
-  <!--end-request-body-post-recovery_emailresend_code-metricsContext-->
-
-
-#### POST /recovery_email/verify_code
-<!--begin-route-post-recovery_emailverify_code-->
-Verify tokens and/or recovery emails for an account.
-If a valid token code is detected,
-the account email and tokens will be set to verified.
-If a valid email code is detected,
-the email will be marked as verified.
-
-The verification code will be a random token,
-delivered in the fragment identifier of a URL
-sent to the user's email address.
-Navigating to the URL opens a page
-that extracts the code from the fragment identifier
-and performs a POST to `/recovery_email/verify_code`.
-The link can be clicked from any browser,
-not just the one being attached to the Firefox account.
-<!--end-route-post-recovery_emailverify_code-->
-
-##### Query parameters
-
-* `service`: *validators.service*
-
-  <!--begin-query-param-post-recovery_emailverify_code-service-->
-  Opaque alphanumeric token to be included in verification links.
-  <!--end-query-param-post-recovery_emailverify_code-service-->
-
-* `reminder`: *string, max(32), alphanum, optional*
-
-  <!--begin-query-param-post-recovery_emailverify_code-reminder-->
-  The reminder email associated with the code.
-  <!--end-query-param-post-recovery_emailverify_code-reminder-->
-
-* `type`: *string, max(32), alphanum, optional*
-
-  <!--begin-query-param-post-recovery_emailverify_code-type-->
-  The type of code being verified.
-  <!--end-query-param-post-recovery_emailverify_code-type-->
-
-##### Request body
-
-* `uid`: *string, max(32), regex(HEX_STRING), required*
-
-  <!--begin-request-body-post-recovery_emailverify_code-uid-->
-  
-  <!--end-request-body-post-recovery_emailverify_code-uid-->
-
-* `code`: *string, min(32), max(32), regex(HEX_STRING), required*
-
-  <!--begin-request-body-post-recovery_emailverify_code-code-->
-  
-  <!--end-request-body-post-recovery_emailverify_code-code-->
-
-* `service`: *validators.service*
-
-  <!--begin-request-body-post-recovery_emailverify_code-service-->
-  Opaque alphanumeric token to be included in verification links.
-  <!--end-request-body-post-recovery_emailverify_code-service-->
-
-* `reminder`: *string, max(32), alphanum, optional*
-
-  <!--begin-request-body-post-recovery_emailverify_code-reminder-->
-  The reminder email associated with the code.
-  <!--end-request-body-post-recovery_emailverify_code-reminder-->
-
-* `type`: *string, max(32), alphanum, optional*
-
-  <!--begin-request-body-post-recovery_emailverify_code-type-->
-  The type of code being verified.
-  <!--end-request-body-post-recovery_emailverify_code-type-->
-
-* `marketingOptIn`: *boolean*
-
-  <!--begin-request-body-post-recovery_emailverify_code-marketingOptIn-->
-  Set to true if the user has opted-in to our marketing. When verified,
-  the auth-server will notify Basket.
-  <!--end-request-body-post-recovery_emailverify_code-marketingOptIn-->
-
-##### Error responses
-
-Failing requests may be caused
-by the following errors
-(this is not an exhaustive list):
-
-* `code: 400, errno: 105`:
-  Invalid verification code
-
-
-#### GET /recovery_emails
-
-:lock: HAWK-authenticated with session token
-<!--begin-route-get-recovery_emails-->
-Returns an array of objects
-containing details of the email addresses
-associated with the logged-in user.
-Currently,
-the primary email address
-is always the one
-from the `accounts` table.
-<!--end-route-get-recovery_emails-->
-
-##### Response body
-
-* `verified`: *boolean, required*
-
-  <!--begin-response-body-get-recovery_emails-verified-->
-  
-  <!--end-response-body-get-recovery_emails-verified-->
-
-* `isPrimary`: *boolean, required*
-
-  <!--begin-response-body-get-recovery_emails-isPrimary-->
-  
-  <!--end-response-body-get-recovery_emails-isPrimary-->
-
-* `email`: *validators.email.required*
-
-  <!--begin-response-body-get-recovery_emails-email-->
-  
-  <!--end-response-body-get-recovery_emails-email-->
-
-##### Error responses
-
-Failing requests may be caused
-by the following errors
-(this is not an exhaustive list):
-
-* `code: 503, errno: 202`:
-  Feature not enabled
-
-
-#### POST /recovery_email
-
-:lock: HAWK-authenticated with session token
-<!--begin-route-post-recovery_email-->
-Add a secondary email address
-to the logged-in account.
-The created address will be unverified
-and will not replace the primary email address.
-<!--end-route-post-recovery_email-->
-
-##### Request body
-
-* `email`: *validators.email.required*
-
-  <!--begin-request-body-post-recovery_email-email-->
-  The email address to add to the account.
-  <!--end-request-body-post-recovery_email-email-->
-
-##### Error responses
-
-Failing requests may be caused
-by the following errors
-(this is not an exhaustive list):
-
-* `code: 503, errno: 202`:
-  Feature not enabled
-
-* `code: 400, errno: 104`:
-  Unverified account
-
-* `code: 400, errno: 138`:
-  Unverified session
-
-* `code: 400, errno: 139`:
-  Can not add secondary email that is same as your primary
-
-* `code: 400, errno: 140`:
-  Email already exists
-
-* `code: 400, errno: 141`:
-  Email already exists
-
-
-#### POST /recovery_email/destroy
-
-:lock: HAWK-authenticated with session token
-<!--begin-route-post-recovery_emaildestroy-->
-Delete an email address
-associated with the logged-in user.
-<!--end-route-post-recovery_emaildestroy-->
-
-##### Request body
-
-* `email`: *validators.email.required*
-
-  <!--begin-request-body-post-recovery_emaildestroy-email-->
-  The email address to delete.
-  <!--end-request-body-post-recovery_emaildestroy-email-->
-
-##### Error responses
-
-Failing requests may be caused
-by the following errors
-(this is not an exhaustive list):
-
-* `code: 503, errno: 202`:
-  Feature not enabled
-
-* `code: 400, errno: 138`:
-  Unverified session
-
-
 #### POST /account/unlock/resend_code
 <!--begin-route-post-accountunlockresend_code-->
 This endpoint is deprecated.
@@ -1558,6 +1210,357 @@ to use the API after this request has succeeded.
   <!--begin-request-body-post-accountdevicedestroy-id-->
   
   <!--end-request-body-post-accountdevicedestroy-id-->
+
+
+### Emails
+
+#### GET /recovery_email/check_can_add_secondary_address
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-recovery_emailcheck_can_add_secondary_address-->
+Returns whether or not secondary emails is enabled for a user.
+<!--end-route-get-recovery_emailcheck_can_add_secondary_address-->
+
+
+#### GET /recovery_email/status
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-recovery_emailstatus-->
+Returns the "verified" status
+for the account's recovery email address.
+
+Currently, each account is associated
+with exactly one email address.
+This address must be verified
+before the account can be used
+(specifically, `POST /certificate/sign` and `GET /account/keys`
+will return errors until the address is verified).
+In the future, this may be expanded to include multiple addresses,
+and/or alternate types of recovery methods (e.g. SMS).
+A new API will be provided for this extra functionality.
+
+This call is used to determine the current state
+(verified or unverified)
+of the account.
+During account creation,
+until the address is verified,
+the agent can poll this method
+to discover when it should proceed
+with `POST /certificate/sign` and `GET /account/keys`.
+<!--end-route-get-recovery_emailstatus-->
+
+##### Query parameters
+
+* `reason`: *string, max(16), optional*
+
+  <!--begin-query-param-get-recovery_emailstatus-reason-->
+  
+  <!--end-query-param-get-recovery_emailstatus-reason-->
+
+##### Response body
+
+* `email`: *string, required*
+
+  <!--begin-response-body-get-recovery_emailstatus-email-->
+  
+  <!--end-response-body-get-recovery_emailstatus-email-->
+
+* `verified`: *boolean, required*
+
+  <!--begin-response-body-get-recovery_emailstatus-verified-->
+  
+  <!--end-response-body-get-recovery_emailstatus-verified-->
+
+* `sessionVerified`: *boolean, optional*
+
+  <!--begin-response-body-get-recovery_emailstatus-sessionVerified-->
+  
+  <!--end-response-body-get-recovery_emailstatus-sessionVerified-->
+
+* `emailVerified`: *boolean, optional*
+
+  <!--begin-response-body-get-recovery_emailstatus-emailVerified-->
+  
+  <!--end-response-body-get-recovery_emailstatus-emailVerified-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 401, errno: 110`:
+  Invalid authentication token in request signature
+
+
+#### POST /recovery_email/resend_code
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-recovery_emailresend_code-->
+Re-sends a verification code
+to the account's recovery email address.
+The code is first sent when the account is created,
+but if the user thinks the message was lost
+or accidentally deleted,
+they can request a new message to be sent
+via this endpoint.
+The new message will contain the same code
+as the original message.
+When this code is provided to `/v1/recovery_email/verify_code`,
+the email will be marked as "verified".
+
+This endpoint may send a verification email to the user.
+Callers may optionally provide
+the `service` parameter to indicate
+what identity-attached service
+they're acting on behalf of.
+This is an opaque alphanumeric token
+that will be embedded
+in the verification link
+as a query parameter.
+<!--end-route-post-recovery_emailresend_code-->
+
+##### Query parameters
+
+* `service`: *validators.service*
+
+  <!--begin-query-param-post-recovery_emailresend_code-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-query-param-post-recovery_emailresend_code-service-->
+
+##### Request body
+
+* `email`: *validators.email.optional*
+
+  <!--begin-request-body-post-recovery_emailresend_code-email-->
+  
+  <!--end-request-body-post-recovery_emailresend_code-email-->
+
+* `service`: *validators.service*
+
+  <!--begin-request-body-post-recovery_emailresend_code-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-request-body-post-recovery_emailresend_code-service-->
+
+* `redirectTo`: *validators.redirectTo(config.smtp.redirectDomain).optional*
+
+  <!--begin-request-body-post-recovery_emailresend_code-redirectTo-->
+  
+  <!--end-request-body-post-recovery_emailresend_code-redirectTo-->
+
+* `resume`: *string, max(2048), optional*
+
+  <!--begin-request-body-post-recovery_emailresend_code-resume-->
+  Opaque URL-encoded string to be included in the verification link as a query parameter.
+  <!--end-request-body-post-recovery_emailresend_code-resume-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-recovery_emailresend_code-metricsContext-->
+  
+  <!--end-request-body-post-recovery_emailresend_code-metricsContext-->
+
+
+#### POST /recovery_email/verify_code
+<!--begin-route-post-recovery_emailverify_code-->
+Verify tokens and/or recovery emails for an account.
+If a valid token code is detected,
+the account email and tokens will be set to verified.
+If a valid email code is detected,
+the email will be marked as verified.
+
+The verification code will be a random token,
+delivered in the fragment identifier of a URL
+sent to the user's email address.
+Navigating to the URL opens a page
+that extracts the code from the fragment identifier
+and performs a POST to `/recovery_email/verify_code`.
+The link can be clicked from any browser,
+not just the one being attached to the Firefox account.
+<!--end-route-post-recovery_emailverify_code-->
+
+##### Query parameters
+
+* `service`: *validators.service*
+
+  <!--begin-query-param-post-recovery_emailverify_code-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-query-param-post-recovery_emailverify_code-service-->
+
+* `reminder`: *string, max(32), alphanum, optional*
+
+  <!--begin-query-param-post-recovery_emailverify_code-reminder-->
+  The reminder email associated with the code.
+  <!--end-query-param-post-recovery_emailverify_code-reminder-->
+
+* `type`: *string, max(32), alphanum, optional*
+
+  <!--begin-query-param-post-recovery_emailverify_code-type-->
+  The type of code being verified.
+  <!--end-query-param-post-recovery_emailverify_code-type-->
+
+##### Request body
+
+* `uid`: *string, max(32), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-recovery_emailverify_code-uid-->
+  
+  <!--end-request-body-post-recovery_emailverify_code-uid-->
+
+* `code`: *string, min(32), max(32), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-recovery_emailverify_code-code-->
+  
+  <!--end-request-body-post-recovery_emailverify_code-code-->
+
+* `service`: *validators.service*
+
+  <!--begin-request-body-post-recovery_emailverify_code-service-->
+  Opaque alphanumeric token to be included in verification links.
+  <!--end-request-body-post-recovery_emailverify_code-service-->
+
+* `reminder`: *string, max(32), alphanum, optional*
+
+  <!--begin-request-body-post-recovery_emailverify_code-reminder-->
+  The reminder email associated with the code.
+  <!--end-request-body-post-recovery_emailverify_code-reminder-->
+
+* `type`: *string, max(32), alphanum, optional*
+
+  <!--begin-request-body-post-recovery_emailverify_code-type-->
+  The type of code being verified.
+  <!--end-request-body-post-recovery_emailverify_code-type-->
+
+* `marketingOptIn`: *boolean*
+
+  <!--begin-request-body-post-recovery_emailverify_code-marketingOptIn-->
+  Set to true if the user has opted-in to our marketing. When verified,
+  the auth-server will notify Basket.
+  <!--end-request-body-post-recovery_emailverify_code-marketingOptIn-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 105`:
+  Invalid verification code
+
+
+#### GET /recovery_emails
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-recovery_emails-->
+Returns an array of objects
+containing details of the email addresses
+associated with the logged-in user.
+Currently,
+the primary email address
+is always the one
+from the `accounts` table.
+<!--end-route-get-recovery_emails-->
+
+##### Response body
+
+* `verified`: *boolean, required*
+
+  <!--begin-response-body-get-recovery_emails-verified-->
+  
+  <!--end-response-body-get-recovery_emails-verified-->
+
+* `isPrimary`: *boolean, required*
+
+  <!--begin-response-body-get-recovery_emails-isPrimary-->
+  
+  <!--end-response-body-get-recovery_emails-isPrimary-->
+
+* `email`: *validators.email.required*
+
+  <!--begin-response-body-get-recovery_emails-email-->
+  
+  <!--end-response-body-get-recovery_emails-email-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 503, errno: 202`:
+  Feature not enabled
+
+
+#### POST /recovery_email
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-recovery_email-->
+Add a secondary email address
+to the logged-in account.
+The created address will be unverified
+and will not replace the primary email address.
+<!--end-route-post-recovery_email-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-recovery_email-email-->
+  The email address to add to the account.
+  <!--end-request-body-post-recovery_email-email-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 503, errno: 202`:
+  Feature not enabled
+
+* `code: 400, errno: 104`:
+  Unverified account
+
+* `code: 400, errno: 138`:
+  Unverified session
+
+* `code: 400, errno: 139`:
+  Can not add secondary email that is same as your primary
+
+* `code: 400, errno: 140`:
+  Email already exists
+
+* `code: 400, errno: 141`:
+  Email already exists
+
+
+#### POST /recovery_email/destroy
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-recovery_emaildestroy-->
+Delete an email address
+associated with the logged-in user.
+<!--end-route-post-recovery_emaildestroy-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-recovery_emaildestroy-email-->
+  The email address to delete.
+  <!--end-request-body-post-recovery_emaildestroy-email-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 503, errno: 202`:
+  Feature not enabled
+
+* `code: 400, errno: 138`:
+  Unverified session
 
 
 ### Password

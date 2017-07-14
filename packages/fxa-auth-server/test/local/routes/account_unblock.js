@@ -45,7 +45,6 @@ var makeRoutes = function (options, requireMocks) {
   return proxyquire('../../../lib/routes/account', requireMocks || {})(
     log,
     db,
-    mocks.mockBounces(),
     options.mailer || {},
     Password,
     config,

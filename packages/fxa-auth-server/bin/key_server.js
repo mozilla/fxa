@@ -99,7 +99,6 @@ function run(config) {
               serverPublicKeys,
               signer,
               db,
-              bounces,
               senders.email,
               senders.sms,
               Password,

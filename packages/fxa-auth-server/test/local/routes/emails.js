@@ -45,24 +45,18 @@ var makeRoutes = function (options, requireMocks) {
   }
 
   var log = options.log || mocks.mockLog()
-  var Password = options.Password || require('../../../lib/crypto/password')(log, config)
   var db = options.db || mocks.mockDB()
   var customs = options.customs || {
     check: function () { return P.resolve(true) }
   }
-  var checkPassword = options.checkPassword || require('../../../lib/routes/utils/password_check')(log, config, Password, customs, db)
   var push = options.push || require('../../../lib/push')(log, db, {})
-  return proxyquire('../../../lib/routes/account', requireMocks || {})(
+  return proxyquire('../../../lib/routes/emails', requireMocks || {})(
     log,
     db,
-    mocks.mockBounces(),
     options.mailer || {},
-    Password,
     config,
     customs,
-    checkPassword,
-    push,
-    options.devices || require('../../../lib/devices')(log, db, push)
+    push
   )
 }
 

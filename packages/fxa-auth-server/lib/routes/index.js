@@ -11,7 +11,6 @@ module.exports = function (
   serverPublicKeys,
   signer,
   db,
-  bounces,
   mailer,
   smsImpl,
   Password,
@@ -25,7 +24,6 @@ module.exports = function (
   const account = require('./account')(
     log,
     db,
-    bounces,
     mailer,
     Password,
     config,
@@ -35,6 +33,7 @@ module.exports = function (
   )
   const devicesImpl = require('../devices')(log, db, push)
   const devicesSessions = require('./devices-sessions')(log, db, config, customs, push, devicesImpl)
+  const emails = require('./emails')(log, db, mailer, config, customs, push)
   const password = require('./password')(
     log,
     db,
@@ -63,6 +62,7 @@ module.exports = function (
   const v1Routes = [].concat(
     account,
     devicesSessions,
+    emails,
     password,
     session,
     signinCodes,
