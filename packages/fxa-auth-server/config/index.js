@@ -596,7 +596,7 @@ var conf = convict({
     enabled: {
       doc: 'enable updates to the lastAccessTime session token property',
       format: Boolean,
-      default: false,
+      default: true,
       env: 'LASTACCESSTIME_UPDATES_ENABLED'
     },
     sampleRate: {
