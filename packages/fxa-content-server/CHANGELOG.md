@@ -1,3 +1,16 @@
+<a name="1.91.1"></a>
+## 1.91.1 (2017-07-14)
+
+
+### Bug Fixes
+
+* **cwts:** Success message updates. (#5224) r=vladikoff ([8481957](https://github.com/mozilla/fxa-content-server/commit/8481957))
+* **devices:** Correctly print a session's name if no userAgent is sent. (#5231) r=vladikoff ([eccb6aa](https://github.com/mozilla/fxa-content-server/commit/eccb6aa)), closes [#5230](https://github.com/mozilla/fxa-content-server/issues/5230)
+* **nodejs:** upgrade to 6.11.1 for security fixes (#5232) r=vladikoff ([29255e7](https://github.com/mozilla/fxa-content-server/commit/29255e7)), closes [(#5232](https://github.com/(/issues/5232)
+* **tests:** handle new Firefox Sync website in tests (#5240) ([2ac4c0f](https://github.com/mozilla/fxa-content-server/commit/2ac4c0f))
+
+
+
 <a name="1.91.0"></a>
 # 1.91.0 (2017-07-12)
 
