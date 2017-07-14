@@ -44,7 +44,7 @@ define([
   const SELECTOR_SUGGEST_SYNC = '#suggest-sync';
   const SELECTOR_SUGGEST_SYNC_LINK = '#suggest-sync a';
   const SELECTOR_SYNC_SIGNUP_HEADER = '#fxa-signup-header .service';
-  const SELECTOR_MOZILLA_ORG_SYNC_HEADER = '#firefox-sync';
+  const SELECTOR_MOZILLA_ORG_SYNC_HEADER = '.header-content';
 
   var SIGNUP_ENTRYPOINT = 'entrypoint=' + encodeURIComponent('fxa:signup');
   var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
