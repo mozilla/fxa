@@ -8,7 +8,7 @@ const assert = require('insist')
 var TestServer = require('../test_server')
 const Client = require('../client')()
 var createDBServer = require('fxa-auth-db-mysql')
-var log = { trace() {} }
+var log = { trace() {}, info() {} }
 
 var config = require('../../config').getProperties()
 

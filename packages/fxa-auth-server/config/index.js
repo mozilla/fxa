@@ -334,6 +334,32 @@ var conf = convict({
       env: 'SUPPORTED_LANGS'
     }
   },
+  redis: {
+    enabled: {
+      default: true,
+      doc: 'Enable redis cache',
+      format: Boolean,
+      env: 'USE_REDIS'
+    },
+    host: {
+      default: '127.0.0.1',
+      env: 'REDIS_HOST',
+      format: String,
+      doc: 'url for redis host',
+    },
+    port: {
+      default: 6379,
+      env: 'REDIS_PORT',
+      format: 'port',
+      doc: 'port for redis server'
+    },
+    sessionsKeyPrefix: {
+      default: 'fxa-auth-session',
+      env: 'SESSIONS_REDIS_KEY_PREFIX',
+      format: String,
+      doc: 'which key prefix to store sessions in redis under'
+    }
+  },
   tokenLifetimes: {
     accountResetToken: {
       format: 'duration',
@@ -576,14 +602,8 @@ var conf = convict({
     sampleRate: {
       doc: 'sample rate for updates to the lastAccessTime session token property, in the range 0..1',
       format: Number,
-      default: 1,
+      default: 0.3,
       env: 'LASTACCESSTIME_UPDATES_SAMPLE_RATE'
-    },
-    enabledEmailAddresses: {
-      doc: 'regex matching enabled email addresses for updates to the lastAccessTime session token property',
-      format: RegExp,
-      default: /.+@mozilla\.com$/,
-      env: 'LASTACCESSTIME_UPDATES_EMAIL_ADDRESSES'
     }
   },
   signinUnblock: {

@@ -10,6 +10,10 @@ const Pool = require('./pool')
 const userAgent = require('./userAgent')
 
 const random = require('./crypto/random')
+const redis = require('redis')
+
+P.promisifyAll(redis.RedisClient.prototype)
+P.promisifyAll(redis.Multi.prototype)
 
 module.exports = (
   config,
@@ -27,6 +31,18 @@ module.exports = (
 
   function DB(options) {
     this.pool = new Pool(options.url)
+    if (config.redis.enabled) {
+      const redisConfig = {
+        host: config.redis.host,
+        port: config.redis.port,
+        prefix: config.redis.sessionsKeyPrefix
+      }
+      log.info({op: 'db.redis.enabled', config: redisConfig})
+      this.redis = redis.createClient(redisConfig)
+    } else {
+      this.redis = false
+      log.info({op: 'db.redis.disabled'})
+    }
   }
 
   DB.connect = function (options) {
@@ -212,7 +228,31 @@ module.exports = (
 
   DB.prototype.sessions = function (uid) {
     log.trace({ op: 'DB.sessions', uid: uid })
-    return this.pool.get('/account/' + uid + '/sessions')
+    const promises = [
+      this.pool.get('/account/' + uid + '/sessions')
+    ]
+
+    if (this.redis) {
+      promises.push(this.redis.getAsync(uid))
+    }
+
+    return P.all(promises)
+      .spread((mysqlSessionTokens, redisTokens) => {
+        // for each db session token, if there is a matching redis token
+        // overwrite the properties of the db token with the redis token values
+        const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : []
+        const sessions = mysqlSessionTokens.map((sessionToken) => {
+          const redisToken = redisSessionTokens.find(tok => tok.tokenId === sessionToken.tokenId)
+          const mergedToken = Object.assign({}, sessionToken, redisToken)
+          return mergedToken
+        })
+        log.info({
+          op: 'db.sessions.count',
+          mysql: mysqlSessionTokens.length,
+          redis: redisSessionTokens.length
+        })
+        return sessions
+      })
   }
 
   DB.prototype.sessionToken = function (id) {
@@ -349,46 +389,49 @@ module.exports = (
 
   DB.prototype.devices = function (uid) {
     log.trace({ op: 'DB.devices', uid: uid })
+    const promises = [
+      this.pool.get('/account/' + uid + '/devices')
+    ]
 
-    return this.pool.get('/account/' + uid + '/devices')
-      .then(
-        function (body) {
-          return body.map(function (item) {
-            return {
-              id: item.id,
-              sessionToken: item.sessionTokenId,
-              lastAccessTime: marshallLastAccessTime(item.lastAccessTime, uid, item.email),
-              name: item.name,
-              type: item.type,
-              pushCallback: item.callbackURL,
-              pushPublicKey: item.callbackPublicKey,
-              pushAuthKey: item.callbackAuthKey,
-              uaBrowser: item.uaBrowser,
-              uaBrowserVersion: item.uaBrowserVersion,
-              uaOS: item.uaOS,
-              uaOSVersion: item.uaOSVersion,
-              uaDeviceType: item.uaDeviceType
-            }
-          })
-        },
-        function (err) {
-          if (isNotFoundError(err)) {
-            throw error.unknownAccount()
-          }
-          throw err
-        }
-      )
-  }
-
-  function marshallLastAccessTime (lastAccessTime, uid, email) {
-    // Updating lastAccessTime on session tokens may not be enabled.
-    // If it isn't, return null instead of the timestamp so that the
-    // content server knows not to display it to users.
-    if (features.isLastAccessTimeEnabledForUser(uid, email)) {
-      return lastAccessTime
+    if (this.redis) {
+      promises.push(this.redis.getAsync(uid))
     }
-
-    return null
+    return P.all(promises)
+      .spread((devices, redisTokens) => {
+        const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : []
+        log.info({
+          op: 'db.devices.redisSessionTokens',
+          hasRedisTokens: !! redisSessionTokens.length,
+          numRedisTokens: redisSessionTokens.length
+        })
+        // for each device, if there is a redis token with a matching tokenId
+        // overwrite device's ua properties and lastAccessTime with redis token values
+        return devices.map(device => {
+          const token = redisSessionTokens.find(tok => tok.tokenId === device.sessionTokenId)
+          const mergedInfo = Object.assign({}, device, token)
+          return {
+            id: device.id,
+            sessionToken: device.sessionTokenId,
+            lastAccessTime: mergedInfo.lastAccessTime,
+            name: device.name,
+            type: device.type,
+            pushCallback: device.callbackURL,
+            pushPublicKey: device.callbackPublicKey,
+            pushAuthKey: device.callbackAuthKey,
+            uaBrowser: mergedInfo.uaBrowser,
+            uaBrowserVersion: mergedInfo.uaBrowserVersion,
+            uaOS: mergedInfo.uaOS,
+            uaOSVersion: mergedInfo.uaOSVersion,
+            uaDeviceType: mergedInfo.uaDeviceType
+          }
+        })
+      })
+      .catch(err =>{
+        if (isNotFoundError(err)) {
+          throw error.unknownAccount()
+        }
+        throw err
+      })
   }
 
   DB.prototype.sessionWithDevice = function (id) {
@@ -420,18 +463,38 @@ module.exports = (
   DB.prototype.updateSessionToken = function (token, userAgentString) {
     log.trace({ op: 'DB.updateSessionToken', uid: token && token.uid })
 
-    if (! token.update(userAgentString)) {
+    const uid = token.uid
+    if (! this.redis || ! features.isLastAccessTimeEnabledForUser(uid)) {
       return P.resolve()
     }
 
-    return this.pool.post('/sessionToken/' + token.id + '/update', {
+    token.update(userAgentString)
+    const newToken = [{
+      tokenId: token.id,
+      uid: uid,
       uaBrowser: token.uaBrowser,
       uaBrowserVersion: token.uaBrowserVersion,
       uaOS: token.uaOS,
       uaOSVersion: token.uaOSVersion,
       uaDeviceType: token.uaDeviceType,
-      lastAccessTime: token.lastAccessTime
+      lastAccessTime: token.lastAccessTime,
+      createdAt: token.createdAt
+    }]
+    let sessionTokens = []
+    // get the array of session tokens associated with the given uid
+    return this.redis.getAsync(uid)
+    .then(res => {
+      if (res) {
+        res = JSON.parse(res)
+        // remove the token that we want to update from the array
+        const filteredRes = res.filter(tok => tok.tokenId !== token.id)
+        sessionTokens = sessionTokens.concat(filteredRes)
+      }
+      // add new updated token into array, and set the resulting array as the new value
+      sessionTokens = sessionTokens.concat(newToken)
+      return this.redis.setAsync(uid, JSON.stringify(sessionTokens))
     })
+    .then(() => sessionTokens)
   }
 
   DB.prototype.createDevice = function (uid, sessionTokenId, deviceInfo) {
@@ -536,18 +599,33 @@ module.exports = (
 
   DB.prototype.deleteAccount = function (authToken) {
     log.trace({ op: 'DB.deleteAccount', uid: authToken && authToken.uid })
-    return this.pool.del('/account/' + authToken.uid)
+    const promises = [this.pool.del('/account/' + authToken.uid)]
+    if (this.redis) {
+      promises.push(this.redis.del(authToken.uid))
+    }
+    return P.all(promises)
   }
 
   DB.prototype.deleteSessionToken = function (sessionToken) {
+    const uid = sessionToken && sessionToken.uid
     log.trace(
       {
         op: 'DB.deleteSessionToken',
         id: sessionToken && sessionToken.id,
-        uid: sessionToken && sessionToken.uid
+        uid: uid
       }
     )
-    return this.pool.del('/sessionToken/' + sessionToken.id)
+    const promises = [this.pool.del('/sessionToken/' + sessionToken.id)]
+    if (this.redis) {
+      promises.push(this.redis.getAsync(uid))
+    }
+    return P.all(promises)
+      .spread((deleteRes, redisTokens) => {
+        const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : []
+        const tokenToDeleteIndex = redisSessionTokens.findIndex((tok) => tok.tokenId === sessionToken.id)
+        redisSessionTokens.splice(tokenToDeleteIndex, 1)
+        return this.redis.setAsync(uid, JSON.stringify(redisSessionTokens))
+      })
   }
 
   DB.prototype.deleteKeyFetchToken = function (keyFetchToken) {
@@ -641,10 +719,14 @@ module.exports = (
   DB.prototype.resetAccount = function (accountResetToken, data) {
     log.trace({ op: 'DB.resetAccount', uid: accountResetToken && accountResetToken.uid })
     data.verifierSetAt = Date.now()
-    return this.pool.post(
+    const promises = [this.pool.post(
       '/account/' + accountResetToken.uid + '/reset',
       data
-    )
+    )]
+    if (this.redis) {
+      promises.push(this.redis.del(accountResetToken.uid))
+    }
+    return P.all(promises)
   }
 
   DB.prototype.verifyEmail = function (account, emailCode) {

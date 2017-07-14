@@ -10,6 +10,7 @@ const Client = require('../client')()
 var jwtool = require('fxa-jwtool')
 
 var config = require('../../config').getProperties()
+config.redis.enabled = false
 var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile)
 
 var publicKey = {

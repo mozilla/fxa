@@ -9,6 +9,8 @@ var uuid = require('uuid')
 var crypto = require('crypto')
 var base64url = require('base64url')
 const sinon = require('sinon')
+var proxyquire = require('proxyquire')
+
 const log = { trace () {}, info () {}, error () {} }
 
 var config = require('../../config').getProperties()
@@ -23,14 +25,22 @@ const lastAccessTimeUpdates = {
 const Token = require('../../lib/tokens')(log, {
   lastAccessTimeUpdates: lastAccessTimeUpdates
 })
-const DB = require('../../lib/db')(
-  { lastAccessTimeUpdates, signinCodeSize: config.signinCodeSize },
+const redisGetSpy = sinon.stub()
+const redisSetSpy = sinon.stub()
+const redisDelSpy = sinon.stub()
+
+const DB = proxyquire('../../lib/db', { redis: {
+  createClient: () => ({
+    getAsync: redisGetSpy,
+    setAsync: redisSetSpy,
+    del: redisDelSpy
+  })
+}})(
+  { lastAccessTimeUpdates, signinCodeSize: config.signinCodeSize , redis: { enabled: true }},
   log,
   Token,
   UnblockCode
 )
-
-var TOKEN_FRESHNESS_THRESHOLD = require('../../lib/tokens/session_token').TOKEN_FRESHNESS_THRESHOLD
 
 var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex').toString('hex')
 var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
@@ -121,6 +131,7 @@ describe('remote db', function() {
         .then(function(sessionToken) {
           assert.deepEqual(sessionToken.uid, account.uid)
           tokenId = sessionToken.tokenId
+          redisGetSpy.returns(P.resolve(null))
           return db.sessions(account.uid)
         })
         .then(function(sessions) {
@@ -154,31 +165,40 @@ describe('remote db', function() {
           return sessionToken
         })
         .then(function(sessionToken) {
-          sessionToken.lastAccessTime -= 59 * 60 * 1000
-          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+          // override lastAccessTimeUpdates flag
+          lastAccessTimeUpdates.enabled = false
+          return db.updateSessionToken(sessionToken)
         })
-        .then(function() {
+        .then(function(result) {
+          assert.equal(undefined, result)
+          assert.equal(redisSetSpy.lastCall, null, 'session token was not updated if lastAccessTimeUpdates flag is false')
+          // reset lastAccessTimeUpdates flag
+          lastAccessTimeUpdates.enabled = true
           return db.sessionToken(tokenId)
         })
         .then(function(sessionToken) {
-          assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt, 'session token was not updated')
-          return sessionToken
-        })
-        .then(function(sessionToken) {
-          sessionToken.lastAccessTime -= TOKEN_FRESHNESS_THRESHOLD
           return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
         })
-        .then(function() {
+        .then(function(sessionTokens) {
+          assert.equal(redisSetSpy.lastCall.args[0], account.uid)
+
+          const redisSetArgs = JSON.parse(redisSetSpy.lastCall.args[1])
+          const token = redisSetArgs[0]
+          assert.equal(token.tokenId, tokenId)
+          assert.equal(token.uid, account.uid)
+          assert.equal(token.uaBrowser, 'Firefox')
+          assert.equal(token.uaBrowserVersion, '41')
+          assert.equal(token.uaOS, 'Mac OS X')
+          assert.equal(token.uaOSVersion, '10.10')
+          assert.ok(token.lastAccessTime)
+          assert.ok(token.createdAt)
           return db.sessionToken(tokenId)
-        })
-        .then(function(sessionToken) {
-          assert.ok(sessionToken.lastAccessTime > sessionToken.createdAt, 'session token was updated')
-          return sessionToken
         })
         .then(function(sessionToken) {
           return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0')
         })
-        .then(function() {
+        .then(function(tokens) {
+          redisGetSpy.returns(P.resolve(JSON.stringify(tokens)))
           return db.sessions(account.uid)
         })
         .then(function(sessions) {
@@ -191,19 +211,31 @@ describe('remote db', function() {
           return db.sessionToken(tokenId)
         })
         .then(function(sessionToken) {
-          assert.equal(sessionToken.uaBrowser, 'Firefox Mobile')
+          // this returns previously stored data since sessionToken doesnt read from cache
+          assert.equal(sessionToken.uaBrowser, 'Firefox')
           assert.equal(sessionToken.uaBrowserVersion, '41')
-          assert.equal(sessionToken.uaOS, 'Android')
-          assert.equal(sessionToken.uaOSVersion, '4.4')
-          assert.equal(sessionToken.uaDeviceType, 'mobile')
+          assert.equal(sessionToken.uaOS, 'Mac OS X')
+          assert.equal(sessionToken.uaOSVersion, '10.10')
           assert.ok(sessionToken.lastAccessTime >= sessionToken.createdAt)
           assert.ok(sessionToken.lastAccessTime <= Date.now())
           return sessionToken
         })
         .then(function(sessionToken) {
+          const mockTokens = JSON.stringify([{
+            uid: sessionToken.uid,
+            id: 'idToNotDelete'
+          }, {
+            uid: sessionToken.uid,
+            id: sessionToken.id
+          }])
+          redisGetSpy.returns(P.resolve(mockTokens))
           return db.deleteSessionToken(sessionToken)
         })
         .then(function() {
+          const redisSetArgs = JSON.parse(redisSetSpy.lastCall.args[1])
+          assert.equal(redisSetArgs.length, 1)
+          assert.equal(redisSetArgs[0].id, 'idToNotDelete')
+
           return db.sessionToken(tokenId)
           .then(function(sessionToken) {
             assert(false, 'The above sessionToken() call should fail, since the sessionToken has been deleted')
@@ -219,6 +251,7 @@ describe('remote db', function() {
   it(
     'device registration',
     () => {
+      redisGetSpy.returns(P.resolve(null))
       let sessionToken, anotherSessionToken
       const deviceInfo = {
         id: crypto.randomBytes(16).toString('hex'),
@@ -327,7 +360,9 @@ describe('remote db', function() {
                 assert(false, 'updating a new device or existing session token should not have failed')
               })
           })
-          .then(() =>{
+          .then(results => {
+            redisGetSpy.returns(P.resolve(JSON.stringify(results[1])))
+
             // Create another session token
             return db.createSessionToken(sessionToken, 'Mozilla/5.0 (Android 7.1.2; Mobile; rv:56.0) Gecko/56.0 Firefox/56.0')
           })
@@ -371,17 +406,6 @@ describe('remote db', function() {
             assert.equal(device.uaOS, 'Mac OS X', 'device.uaOS is correct')
             assert.equal(device.uaOSVersion, '10.10', 'device.uaOSVersion is correct')
             assert.equal(device.uaDeviceType, null, 'device.uaDeviceType is correct')
-            // Disable the lastAccessTime property
-            lastAccessTimeUpdates.enabled = false
-            // Fetch all of the devices for the account
-            return db.devices(account.uid)
-          })
-          .then(function(devices) {
-            assert.equal(devices.length, 2, 'devices array still contains two items')
-            assert.equal(devices[0].lastAccessTime, null, 'device.lastAccessTime should be null')
-            assert.equal(devices[1].lastAccessTime, null, 'device.lastAccessTime should be null')
-            // Reinstate the lastAccessTime property
-            lastAccessTimeUpdates.enabled = true
             // Delete the devices
             return P.all([
               db.deleteDevice(account.uid, deviceInfo.id),
@@ -591,6 +615,8 @@ describe('remote db', function() {
           return db.resetAccount(accountResetToken, account)
         })
         .then(function() {
+          assert.equal(redisDelSpy.lastCall.args[0], account.uid)
+          redisDelSpy.reset()
           // account should STILL exist for this email address
           return db.accountExists(account.email)
         })
@@ -759,6 +785,8 @@ describe('remote db', function() {
           return db.deleteAccount(emailRecord)
         })
         .then(function() {
+          assert.equal(redisDelSpy.lastCall.args[0], account.uid)
+          redisDelSpy.reset()
           // account should no longer exist for this email address
           return db.accountExists(account.email)
         })

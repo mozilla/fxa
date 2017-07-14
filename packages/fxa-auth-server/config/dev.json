@@ -27,5 +27,12 @@
   },
   "secondaryEmail": {
     "enabled": true
+  },
+  "lastAccessTimeUpdates": {
+    "enabled": true,
+    "sampleRate": 1
+  },
+  "redis": {
+    "enabled": true
   }
 }

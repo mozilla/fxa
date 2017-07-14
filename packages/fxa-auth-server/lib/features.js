@@ -21,11 +21,9 @@ module.exports = config => {
      * @param uid   Buffer or String
      * @param email String
      */
-    isLastAccessTimeEnabledForUser (uid, email) {
-      return lastAccessTimeUpdates.enabled && (
-        isSampledUser(lastAccessTimeUpdates.sampleRate, uid, 'lastAccessTimeUpdates') ||
-        lastAccessTimeUpdates.enabledEmailAddresses.test(email)
-      )
+    isLastAccessTimeEnabledForUser (uid) {
+      return lastAccessTimeUpdates.enabled &&
+        isSampledUser(lastAccessTimeUpdates.sampleRate, uid, 'lastAccessTimeUpdates')
     },
 
     /**

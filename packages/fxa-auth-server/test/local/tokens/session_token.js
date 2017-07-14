@@ -19,8 +19,6 @@ const config = {
 const tokens = require('../../../lib/tokens/index')(log, config)
 const SessionToken = tokens.SessionToken
 
-const TOKEN_FRESHNESS_THRESHOLD = require('../../../lib/tokens/session_token').TOKEN_FRESHNESS_THREADHOLD
-
 const TOKEN = {
   createdAt: Date.now(),
   uid: 'xxx',
@@ -38,7 +36,6 @@ describe('SessionToken', () => {
         .then(token => {
           assert.equal(typeof token.lastAuthAt, 'function', 'lastAuthAt method is defined')
           assert.equal(typeof token.update, 'function', 'update method is defined')
-          assert.equal(typeof token.isFresh, 'function', 'isFresh method is defined')
           assert.equal(typeof token.setUserAgentInfo, 'function', 'setUserAgentInfo method is defined')
           assert.equal(Object.getOwnPropertyDescriptor(token, 'state'), undefined, 'state property is undefined')
           assert.equal(
@@ -170,159 +167,10 @@ describe('SessionToken', () => {
   )
 
   it(
-    'SessionToken.isFresh with lastAccessTime updates enabled',
-    () => {
-      config.lastAccessTimeUpdates.enabled = true
-      config.lastAccessTimeUpdates.sampleRate = 1
-      config.lastAccessTimeUpdates.enabledEmailAddresses = /.+/
-      return SessionToken.create({
-        uaBrowser: 'foo',
-        uaBrowserVersion: 'bar',
-        uaOS: 'baz',
-        uaOSVersion: 'qux',
-        uaDeviceType: 'wibble',
-        lastAccessTime: 0
-      }).then(token => {
-        assert.equal(token.isFresh({
-          uaBrowser: 'foo',
-          uaBrowserVersion: 'bar',
-          uaOS: 'baz',
-          uaOSVersion: 'qux',
-          uaDeviceType: 'wibble',
-          lastAccessTime: 0
-        }), true, 'returns true when all fields are the same')
-        assert.equal(token.isFresh({
-          uaBrowser: 'Foo',
-          uaBrowserVersion: 'bar',
-          uaOS: 'baz',
-          uaOSVersion: 'qux',
-          uaDeviceType: 'wibble',
-          lastAccessTime: 0
-        }), false, 'returns false when uaBrowser is different')
-        assert.equal(token.isFresh({
-          uaBrowser: 'foo',
-          uaBrowserVersion: 'baR',
-          uaOS: 'baz',
-          uaOSVersion: 'qux',
-          uaDeviceType: 'wibble',
-          lastAccessTime: 0
-        }), false, 'returns false when uaBrowserVersion is different')
-        assert.equal(token.isFresh({
-          uaBrowser: 'foo',
-          uaBrowserVersion: 'bar',
-          uaOS: 'foo',
-          uaOSVersion: 'qux',
-          uaDeviceType: 'wibble',
-          lastAccessTime: 0
-        }), false, 'returns false when uaOS is different')
-        assert.equal(token.isFresh({
-          uaBrowser: 'foo',
-          uaBrowserVersion: 'bar',
-          uaOS: 'baz',
-          uaOSVersion: 'QUX',
-          uaDeviceType: 'wibble',
-          lastAccessTime: 0
-        }), false, 'returns false when uaOSVersion is different')
-        assert.equal(token.isFresh({
-          uaBrowser: 'foo',
-          uaBrowserVersion: 'bar',
-          uaOS: 'baz',
-          uaOSVersion: 'qux',
-          uaDeviceType: 'wobble',
-          lastAccessTime: 0
-        }), false, 'returns false when uaDeviceType is different')
-        assert.equal(token.isFresh({
-          uaBrowser: 'foo',
-          uaBrowserVersion: 'bar',
-          uaOS: 'baz',
-          uaOSVersion: 'qux',
-          uaDeviceType: 'wibble',
-          lastAccessTime: TOKEN_FRESHNESS_THRESHOLD
-        }), false, 'returns false when lastAccessTime is TOKEN_FRESHNESS_THRESHOLD milliseconds newer')
-        assert.equal(token.isFresh({
-          uaBrowser: 'foo',
-          uaBrowserVersion: 'bar',
-          uaOS: 'baz',
-          uaOSVersion: 'qux',
-          uaDeviceType: 'wibble',
-          lastAccessTime: 3599999
-        }), true, 'returns true when lastAccessTime is 3,599,999 milliseconds newer')
-      })
-    }
-  )
-
-  it(
-    'SessionToken.isFresh with lastAccessTime updates disabled',
-    () => {
-      config.lastAccessTimeUpdates.enabled = false
-      return SessionToken.create({
-        uaBrowser: 'foo',
-        uaBrowserVersion: 'bar',
-        uaOS: 'baz',
-        uaOSVersion: 'qux',
-        uaDeviceType: 'wibble',
-        lastAccessTime: 0
-      }).then(token => {
-        assert.equal(token.isFresh({
-          uaBrowser: 'foo',
-          uaBrowserVersion: 'bar',
-          uaOS: 'baz',
-          uaOSVersion: 'qux',
-          uaDeviceType: 'wibble',
-          lastAccessTime: TOKEN_FRESHNESS_THRESHOLD
-        }), true, 'returns true when lastAccessTime is TOKEN_FRESHNESS_THRESHOLD milliseconds newer')
-      })
-    }
-  )
-
-  it(
-    'SessionToken.update on fresh token',
-    () => {
-      return SessionToken.create(
-      ).then(function (token) {
-        sinon.stub(SessionToken.prototype, 'isFresh', function () {
-          return true
-        })
-        sinon.spy(SessionToken.prototype, 'setUserAgentInfo')
-
-        assert.equal(
-          token.update(
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0'
-          ), false, 'returns'
-        )
-
-        assert.equal(SessionToken.prototype.isFresh.callCount, 1, 'isFresh was called once')
-        assert.equal(SessionToken.prototype.isFresh.thisValues[0], token, 'isFresh context was token')
-        var isFreshArgs = SessionToken.prototype.isFresh.args[0]
-        assert.equal(isFreshArgs.length, 1, 'isFresh was passed one argument')
-        var isFreshData = isFreshArgs[0]
-        assert.equal(typeof isFreshData, 'object', 'isFresh was passed an object')
-        assert.equal(Object.keys(isFreshData).length, 6, 'isFresh data had six properties')
-        assert.equal(isFreshData.uaBrowser, 'Firefox', 'uaBrowser was correct')
-        assert.equal(isFreshData.uaBrowserVersion, '41', 'uaBrowserVersion was correct')
-        assert.equal(isFreshData.uaOS, 'Mac OS X', 'uaOS was correct')
-        assert.equal(isFreshData.uaOSVersion, '10.10', 'uaOSVersion was correct')
-        assert.equal(isFreshData.uaDeviceType, null, 'uaDeviceType was correct')
-        assert.ok(isFreshData.lastAccessTime > Date.now() - 10000, 'lastAccessTime was greater than 10 seconds ago')
-        assert.ok(isFreshData.lastAccessTime < Date.now(), 'lastAccessTime was less then Date.now()')
-
-        assert.equal(SessionToken.prototype.setUserAgentInfo.callCount, 0, 'setUserAgentInfo was not called')
-      })
-      .finally(function () {
-        SessionToken.prototype.isFresh.restore()
-        SessionToken.prototype.setUserAgentInfo.restore()
-      })
-    }
-  )
-
-  it(
-    'SessionToken.update on stale token',
+    'SessionToken.update on a token',
     () => {
       return SessionToken.create()
         .then(function (token) {
-          sinon.stub(SessionToken.prototype, 'isFresh', function () {
-            return false
-          })
           sinon.spy(SessionToken.prototype, 'setUserAgentInfo')
 
           assert.equal(
@@ -331,18 +179,12 @@ describe('SessionToken', () => {
             ), true, 'returns true'
           )
 
-          assert.equal(SessionToken.prototype.isFresh.callCount, 1, 'isFresh was called once')
-          var isFreshArgs = SessionToken.prototype.setUserAgentInfo.args[0]
-          assert.equal(isFreshArgs.length, 1, 'isFresh was passed one argument')
-
           assert.equal(SessionToken.prototype.setUserAgentInfo.callCount, 1, 'setUserAgentInfo called once')
           assert.equal(SessionToken.prototype.setUserAgentInfo.thisValues[0], token, 'setUserAgentInfo context was token')
           var setUserAgentInfoArgs = SessionToken.prototype.setUserAgentInfo.args[0]
           assert.equal(setUserAgentInfoArgs.length, 1, 'setUserAgentInfo was passed one argument')
-          assert.deepEqual(setUserAgentInfoArgs[0], isFreshArgs[0], 'setUserAgentInfo was passed correct argument')
         })
         .finally(function () {
-          SessionToken.prototype.isFresh.restore()
           SessionToken.prototype.setUserAgentInfo.restore()
         })
     }

@@ -8,6 +8,7 @@ const assert = require('insist')
 var TestServer = require('../test_server')
 const Client = require('../client')()
 var config = require('../../config').getProperties()
+config.redis.enabled = false
 var url = require('url')
 var jwtool = require('fxa-jwtool')
 var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile)

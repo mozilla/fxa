@@ -167,11 +167,6 @@ describe('features', () => {
 
       config.lastAccessTimeUpdates.enabled = true
       config.lastAccessTimeUpdates.sampleRate = 0
-      config.lastAccessTimeUpdates.enabledEmailAddresses = /.+@mozilla\.com$/
-      assert.equal(features.isLastAccessTimeEnabledForUser(uid, email), true, 'should return true when email address matches')
-
-      config.lastAccessTimeUpdates.enabledEmailAddresses = /.+@mozilla\.org$/
-      assert.equal(features.isLastAccessTimeEnabledForUser(uid, email), false, 'should return false when email address does not match')
 
       config.lastAccessTimeUpdates.sampleRate = 0.03
       assert.equal(features.isLastAccessTimeEnabledForUser(uid, email), true, 'should return true when sample rate matches')
@@ -181,7 +176,6 @@ describe('features', () => {
 
       config.lastAccessTimeUpdates.enabled = false
       config.lastAccessTimeUpdates.sampleRate = 0.03
-      config.lastAccessTimeUpdates.enabledEmailAddresses = /.+@mozilla\.com$/
       assert.equal(features.isLastAccessTimeEnabledForUser(uid, email), false, 'should return false when feature is disabled')
     }
   )

@@ -5,15 +5,8 @@
 'use strict'
 
 const userAgent = require('../userAgent')
-const ONE_HOUR = 60 * 60 * 1000
-
-// setting to "forever" to eliminate ~99% of the updates to sessionToken
-// (A small percentage do qualify as "fresh" due to changes in UA).
-// See https://github.com/mozilla/fxa-auth-server/pull/1169
-const TOKEN_FRESHNESS_THRESHOLD = 50 * 365 * 24 * ONE_HOUR // 50 years or post Y2038 ;-)
 
 module.exports = (log, Token, config) => {
-  const features = require('../features')(config)
 
   class SessionToken extends Token {
 
@@ -56,14 +49,7 @@ module.exports = (log, Token, config) => {
       }
     }
 
-    // Parse the user agent string, then check the result to see whether
-    // the session token needs updating.
-    //
-    // If the session token has not changed, allowing up to an hour of
-    // leeway for lastAccessTime, return false.
-    //
-    // Otherwise, update properties on this then return true.
-    //
+    // Parse the user agent string, then update properties on this
     // It is the caller's responsibility to update the database.
     update(userAgentString) {
       log.trace({ op: 'SessionToken.update', uid: this.uid })
@@ -72,34 +58,9 @@ module.exports = (log, Token, config) => {
         lastAccessTime: Date.now()
       }, userAgentString)
 
-      if (this.isFresh(freshData)) {
-        return false
-      }
-
       this.setUserAgentInfo(freshData)
 
       return true
-    }
-
-    isFresh(freshData) {
-      var result = this.uaBrowser === freshData.uaBrowser &&
-        this.uaBrowserVersion === freshData.uaBrowserVersion &&
-        this.uaOS === freshData.uaOS &&
-        this.uaOSVersion === freshData.uaOSVersion &&
-        this.uaDeviceType === freshData.uaDeviceType &&
-        (
-          ! features.isLastAccessTimeEnabledForUser(this.uid, this.email) ||
-          this.lastAccessTime + TOKEN_FRESHNESS_THRESHOLD > freshData.lastAccessTime
-        )
-
-      log.info({
-        op: 'SessionToken.isFresh',
-        uid: this.uid,
-        tokenAge: freshData.lastAccessTime - this.lastAccessTime,
-        fresh: result
-      })
-
-      return result
     }
 
     setUserAgentInfo(data) {
@@ -126,5 +87,3 @@ module.exports = (log, Token, config) => {
   return SessionToken
 }
 
-// For use by the tests.
-module.exports.TOKEN_FRESHNESS_THRESHOLD = TOKEN_FRESHNESS_THRESHOLD
