@@ -32,6 +32,7 @@
     "lodash": "4.16.2",
     "minimist": "1.1.1",
     "pm2": "2.2.3",
-    "replace-in-file": "0.2.1"
+    "replace-in-file": "0.2.1",
+    "redis-server": "1.1.0"
   }
 }

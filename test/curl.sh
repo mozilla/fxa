@@ -21,6 +21,21 @@ function check() {
   exit 1
 }
 
+function check_redis() {
+  RETRY=12
+  for i in $(eval echo "{1..$RETRY}"); do
+    if echo PING | nc localhost 6379 | grep -q 'PONG'; then
+      return
+    else
+      if [ $i -lt $RETRY ]; then
+        sleep 10
+      fi
+    fi
+  done
+
+  exit 1
+}
+
 # content
 check 127.0.0.1:3030
 check 127.0.0.1:1114
@@ -47,3 +62,6 @@ check 127.0.0.1:5050 405
 # sync server
 # address of the endpoint have to be the same as a public_url in settings
 check localhost:5000
+
+# redis server
+check_redis
