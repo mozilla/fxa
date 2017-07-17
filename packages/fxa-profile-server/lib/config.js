@@ -313,10 +313,10 @@ const conf = convict({
       doc: 'how long before cached resources expire'
     },
     generateTimeout: {
-      default: '2 seconds',
+      default: '11 seconds',
       format: 'duration',
       env: 'CACHE_GENERATE_TIMEOUT',
-      doc: 'how long hapi will wait for result when using cache before timing out'
+      doc: 'how long catbox will wait for a value from db to cache before timing out'
     }
   }
 });
