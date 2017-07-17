@@ -480,7 +480,6 @@ Content-Length: 371
         "uaOS":"Mac OS X",
         "uaOSVersion":"10.10",
         "uaDeviceType":null,
-        "uaFormFactor":null,
         "lastAccessTime":1441874852627
     }
 ]
@@ -516,7 +515,6 @@ curl \
         "uaOS" : Mac OS X,
         "uaOSVersion" : 10.10,
         "uaDeviceType" : null,
-        "uaFormFactor" : null,
         "mustVerify":true,
         "tokenVerificationId" : "5680a81ba029af7b829afb4aa6dbc23f"
     }' \
@@ -537,7 +535,6 @@ curl \
     * uaOS : string
     * uaOSVersion : string
     * uaDeviceType : string
-    * uaFormFactor : string
     * mustVerify : boolean,
     * tokenVerificationId : hex128
 
@@ -662,7 +659,6 @@ Content-Type: application/json
         "uaOS": "Android",
         "uaOSVersion": "5.1",
         "uaDeviceType": "mobile",
-        "uaFormFactor": null,
         "lastAccessTime": 1437992394186,
         "email": "foo@example.org"
     }
@@ -931,7 +927,6 @@ Content-Length: 285
     "uaOS":"Mac OS X",
     "uaOSVersion":"10.10",
     "uaDeviceType":null,
-    "uaFormFactor":null,
     "lastAccessTime":1460548810011
     "emailVerified":0,
     "email":"foo@example.com",
@@ -990,7 +985,6 @@ Content-Length: 285
     "uaOS":"Mac OS X",
     "uaOSVersion":"10.10",
     "uaDeviceType":null,
-    "uaFormFactor":null,
     "lastAccessTime":1460548810011
     "emailVerified":0,
     "email":"foo@example.com",
