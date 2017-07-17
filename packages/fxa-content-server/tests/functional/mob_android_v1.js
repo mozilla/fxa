@@ -30,6 +30,7 @@ define([
   let email;
   const PASSWORD = '12345678';
 
+  const cleanMemory = FunctionalHelpers.cleanMemory;
   const createUser = FunctionalHelpers.createUser;
   const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
@@ -56,6 +57,7 @@ define([
 
     'signup, verify different browser': function () {
       return this.remote
+        .then(cleanMemory())
         .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
             [COMMAND_CAN_LINK_ACCOUNT]: { ok: true }

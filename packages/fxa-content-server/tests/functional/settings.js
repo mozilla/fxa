@@ -14,6 +14,7 @@ define([
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
 
+  var cleanMemory = FunctionalHelpers.cleanMemory;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
@@ -40,6 +41,7 @@ define([
       email = TestHelpers.createEmail();
 
       return this.remote
+        .then(cleanMemory())
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
         .then(function (result) {
           accountData = result;

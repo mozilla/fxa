@@ -11,6 +11,7 @@ define([
   var SIGNUP_URL = intern.config.fxaContentRoot + 'signup' + AUTOMATED;
   var SIGNIN_URL = intern.config.fxaContentRoot + 'signin' + AUTOMATED;
 
+  var cleanMemory = FunctionalHelpers.cleanMemory;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var openPage = FunctionalHelpers.openPage;
   var testAreEventsLogged = FunctionalHelpers.testAreEventsLogged;
@@ -26,6 +27,7 @@ define([
 
     'refreshing the signup screen': function () {
       return this.remote
+        .then(cleanMemory())
         .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
 
         .refresh()

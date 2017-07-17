@@ -12,6 +12,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
+  var cleanMemory = FunctionalHelpers.cleanMemory;
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
@@ -70,6 +71,7 @@ define([
 
     'verified - about:accounts, verify same browser': function () {
       return this.remote
+        .then(cleanMemory())
         .then(setupTest({ forceAboutAccounts: true, preVerified: true }))
 
         .then(openVerificationLinkInNewTab(email, 0))
