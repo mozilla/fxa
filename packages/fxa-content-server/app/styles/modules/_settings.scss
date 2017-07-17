@@ -618,6 +618,10 @@ section.modal-panel {
   &[data-name='Pocket'] {
     background-image: url('/images/icon-service-pocket.svg');
   }
+
+  &[data-name='Firefox Notes'] {
+    background-image: url('/images/icon-service-firefox-notes.svg');
+  }
 }
 
 .client-webSession {
