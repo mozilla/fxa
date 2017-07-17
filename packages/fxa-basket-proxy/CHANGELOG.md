@@ -1,3 +1,13 @@
+<a name="1.91.0"></a>
+# [1.91.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.75.0...v1.91.0) (2017-07-17)
+
+
+### Bug Fixes
+
+* **tests:** make tests work in node 4 and 6 ([e917f6e](https://github.com/mozilla/fxa-basket-proxy/commit/e917f6e)), closes [#38](https://github.com/mozilla/fxa-basket-proxy/issues/38)
+
+
+
 <a name="1.75.0"></a>
 # [1.75.0](https://github.com/mozilla/fxa-basket-proxy/compare/v0.74.0...v1.75.0) (2017-05-24)
 
