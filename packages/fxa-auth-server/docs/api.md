@@ -48,6 +48,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [GET /recovery_emails (:lock: sessionToken)](#get-recovery_emails)
     * [POST /recovery_email (:lock: sessionToken)](#post-recovery_email)
     * [POST /recovery_email/destroy (:lock: sessionToken)](#post-recovery_emaildestroy)
+    * [POST /recovery_email/set_primary (:lock: sessionToken)](#post-recovery_emailset_primary)
   * [Password](#password)
     * [POST /password/change/start](#post-passwordchangestart)
     * [POST /password/change/finish (:lock: passwordChangeToken)](#post-passwordchangefinish)
@@ -245,6 +246,10 @@ for `code` and `errno` are:
   Reset password with this email type is not currently supported
 * `code: 400, errno: 146`:
   Invalid signin code
+* `code: 400, errno: 147`:
+  Can not change primary email to an unverified email
+* `code: 400, errno: 148`:
+  Can not change primary email to an email that does not belong to this account
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -516,6 +521,12 @@ Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
   
   <!--end-request-body-post-accountlogin-metricsContext-->
 
+* `originalLoginEmail`: *validators.email.optional*
+
+  <!--begin-request-body-post-accountlogin-originalLoginEmail-->
+  This parameter is the original email used to login with. Typically, it is specified after a user logins with a different email case, or changed their primary email address.
+  <!--end-request-body-post-accountlogin-originalLoginEmail-->
+
 ##### Response body
 
 * `uid`: *string, regex(HEX_STRING), required*
@@ -572,11 +583,11 @@ by the following errors
 * `code: 400, errno: 142`:
   Sign in with this email type is not currently supported
 
-* `code: 400, errno: 103`:
-  Incorrect password
-
 * `code: 400, errno: 127`:
   Invalid unblock code
+
+* `code: 400, errno: 103`:
+  Incorrect password
 
 
 #### GET /account/status
@@ -1561,6 +1572,41 @@ by the following errors
 
 * `code: 400, errno: 138`:
   Unverified session
+
+
+#### POST /recovery_email/set_primary
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-recovery_emailset_primary-->
+This endpoint changes a user's primary email address. This email address must
+belong to the user and be verified.
+<!--end-route-post-recovery_emailset_primary-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-recovery_emailset_primary-email-->
+  The new primary email address of the user.
+  <!--end-request-body-post-recovery_emailset_primary-email-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 503, errno: 202`:
+  Feature not enabled
+
+* `code: 400, errno: 138`:
+  Unverified session
+
+* `code: 400, errno: 148`:
+  Can not change primary email to an email that does not belong to this account
+
+* `code: 400, errno: 147`:
+  Can not change primary email to an unverified email
 
 
 ### Password

@@ -139,8 +139,8 @@ module.exports = function (log) {
     return linkAttributes(this.createSupportLink(templateName))
   }
 
-  Mailer.prototype._passwordResetLinkAttributes = function (email, templateName) {
-    return linkAttributes(this.createPasswordResetLink(email, templateName))
+  Mailer.prototype._passwordResetLinkAttributes = function (email, templateName, emailToHashWith) {
+    return linkAttributes(this.createPasswordResetLink(email, templateName, emailToHashWith))
   }
 
   Mailer.prototype._passwordChangeLinkAttributes = function (email, templateName) {
@@ -522,6 +522,7 @@ module.exports = function (log) {
     if (message.service) { query.service = message.service }
     if (message.redirectTo) { query.redirectTo = message.redirectTo }
     if (message.resume) { query.resume = message.resume }
+    if (message.emailToHashWith) { query.emailToHashWith = message.emailToHashWith }
 
     var links = this._generateLinks(this.passwordResetUrl, message.email, query, templateName)
 
@@ -882,8 +883,8 @@ module.exports = function (log) {
     links['passwordChangeLink'] = this.createPasswordChangeLink(email, templateName)
     links['passwordChangeLinkAttributes'] = this._passwordChangeLinkAttributes(email, templateName)
 
-    links['resetLink'] = this.createPasswordResetLink(email, templateName)
-    links['resetLinkAttributes'] = this._passwordResetLinkAttributes(email, templateName)
+    links['resetLink'] = this.createPasswordResetLink(email, templateName, query.emailToHashWith)
+    links['resetLinkAttributes'] = this._passwordResetLinkAttributes(email, templateName, query.emailToHashWith)
 
     links['androidLink'] = this._generateUTMLink(this.androidUrl, query, templateName, 'connect-android')
     links['iosLink'] = this._generateUTMLink(this.iosUrl, query, templateName, 'connect-ios')
@@ -901,16 +902,16 @@ module.exports = function (log) {
     return links
   }
 
-  Mailer.prototype.createPasswordResetLink = function (email, templateName) {
+  Mailer.prototype.createPasswordResetLink = function (email, templateName, emailToHashWith) {
     // Default `reset_password_confirm` to false, to show warnings about
     // resetting password and sync data
-    var query = { email: email, reset_password_confirm: false }
+    var query = { email: email, reset_password_confirm: false, email_to_hash_with : emailToHashWith}
 
     return this._generateUTMLink(this.initiatePasswordResetUrl, query, templateName, 'reset-password')
   }
 
   Mailer.prototype.createPasswordChangeLink = function (email, templateName) {
-    var query = { email: email }
+    var query = {email: email}
 
     return this._generateUTMLink(this.initiatePasswordChangeUrl, query, templateName, 'change-password')
   }

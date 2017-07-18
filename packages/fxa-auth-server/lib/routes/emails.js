@@ -556,7 +556,6 @@ module.exports = (log, db, mailer, config, customs, push) => {
 
         customs.check(request, primaryEmail, 'createEmail')
           .then(deleteAccountIfUnverified)
-          .then(deleteSecondaryEmailIfUnverified)
           .then(generateRandomValues)
           .then(createEmail)
           .then(sendEmailVerification)
@@ -565,35 +564,23 @@ module.exports = (log, db, mailer, config, customs, push) => {
             reply
           )
 
-        function deleteAccountIfUnverified () {
-          return db.emailRecord(email)
-            .then((emailRecord) => {
-              if (emailRecord.emailVerified) {
-                throw error.verifiedPrimaryEmailAlreadyExists()
-              }
-
-              // Check to see if this account has been unverified for longer than
-              // a day, if so, delete account so another user can add it as a
-              // secondary email
-              const msSinceCreated = Date.now() - emailRecord.createdAt
-              const minUnverifiedAccountTime = config.secondaryEmail.minUnverifiedAccountTime
-              if (msSinceCreated >= minUnverifiedAccountTime) {
-                return db.deleteAccount(emailRecord)
-              }
-
-              throw error.unverifiedPrimaryEmailNewlyCreated()
-            })
-            .catch((err) => {
-              // Email does not exist in primary account table, carry on
-              if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
-                throw err
-              }
-            })
-        }
-
-        function deleteSecondaryEmailIfUnverified () {
+        function deleteAccountIfUnverified() {
           return db.getSecondaryEmail(email)
             .then((secondaryEmailRecord) => {
+              if (secondaryEmailRecord.isPrimary) {
+                if (secondaryEmailRecord.isVerified) {
+                  throw error.verifiedPrimaryEmailAlreadyExists()
+                }
+
+                const msSinceCreated = Date.now() - secondaryEmailRecord.createdAt
+                const minUnverifiedAccountTime = config.secondaryEmail.minUnverifiedAccountTime
+                if (msSinceCreated >= minUnverifiedAccountTime) {
+                  return db.deleteAccount(secondaryEmailRecord)
+                } else {
+                  throw error.unverifiedPrimaryEmailNewlyCreated()
+                }
+              }
+
               // Only delete secondary email if it is unverified and does not belong
               // to the current user.
               if (! secondaryEmailRecord.isVerified && ! butil.buffersAreEqual(secondaryEmailRecord.uid, uid)) {
@@ -677,6 +664,62 @@ module.exports = (log, db, mailer, config, customs, push) => {
 
         function deleteEmail () {
           return db.deleteEmail(uid, email.toLowerCase())
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/recovery_email/set_primary',
+      config: {
+        auth: {
+          strategy: 'sessionTokenWithVerificationStatus'
+        },
+        validate: {
+          payload: {
+            email: validators.email().required()
+          }
+        },
+        response: {}
+      },
+      handler: function (request, reply) {
+        const sessionToken = request.auth.credentials
+        const uid = sessionToken.uid
+        const primaryEmail = sessionToken.email
+        const email = request.payload.email
+
+        log.begin('Account.RecoveryEmailSetPrimary', request)
+
+        if (! features.isSecondaryEmailEnabled(primaryEmail)) {
+          return reply(error.featureNotEnabled())
+        }
+
+        if (sessionToken.tokenVerificationId) {
+          return reply(error.unverifiedSession())
+        }
+
+        customs.check(request, primaryEmail, 'setPrimaryEmail')
+          .then(setPrimaryEmail)
+          .done(() => {
+            reply({})
+          }, reply)
+
+        function setPrimaryEmail() {
+          return db.getSecondaryEmail(email)
+            .then((email) => {
+              if (email.uid !== uid) {
+                throw error.cannotChangeEmailToUnownedEmail()
+              }
+
+              if (! email.isVerified) {
+                throw error.cannotChangeEmailToUnverifiedEmail()
+              }
+
+              if (email.isPrimary) {
+                return
+              }
+
+              return db.setPrimaryEmail(uid, email.normalizedEmail)
+            })
         }
       }
     }

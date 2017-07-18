@@ -141,7 +141,8 @@ module.exports = config => {
         resume: opts.resume || undefined,
         reason: opts.reason || undefined,
         device: opts.device || undefined,
-        metricsContext: opts.metricsContext || undefined
+        metricsContext: opts.metricsContext || undefined,
+        originalLoginEmail: opts.originalLoginEmail || undefined
       },
       {
         'accept-language': opts.lang
@@ -651,6 +652,22 @@ module.exports = config => {
         return this.doRequest(
           'POST',
           this.baseURL + '/recovery_email/destroy',
+          token,
+          {
+            email: email
+          }
+        )
+      }.bind(this)
+    )
+  }
+
+  ClientApi.prototype.setPrimaryEmail = function (sessionTokenHex, email) {
+    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null)
+    return o.then(
+      function (token) {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/recovery_email/set_primary',
           token,
           {
             email: email

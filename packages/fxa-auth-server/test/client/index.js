@@ -436,6 +436,10 @@ module.exports = config => {
     return this.api.deleteEmail(this.sessionToken, email)
   }
 
+  Client.prototype.setPrimaryEmail = function (email) {
+    return this.api.setPrimaryEmail(this.sessionToken, email)
+  }
+
   Client.prototype.sendUnblockCode = function (email) {
     return this.api.sendUnblockCode(email)
   }
@@ -444,8 +448,17 @@ module.exports = config => {
     if (! this.accountResetToken) {
       throw new Error('call verifyPasswordResetCode before calling resetPassword')
     }
-    // this will generate a new wrapKb on the server
-    return this.setupCredentials(this.email, newPassword)
+
+    // With introduction of change email, the client can choose what to hash the password with.
+    // To keep consistency, we hash with the email used to originally create the account.
+    // This will generate a new wrapKb on the server
+    var email = this.email
+
+    if (options && options.emailToHashWith) {
+      email = options.emailToHashWith
+    }
+
+    return this.setupCredentials(email, newPassword)
       .then(
         function (/* bundle */) {
           return this.api.accountReset(

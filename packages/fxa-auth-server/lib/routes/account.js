@@ -27,7 +27,6 @@ const MS_ONE_MONTH = MS_ONE_DAY * 30
 
 module.exports = (log, db, mailer, Password, config, customs, checkPassword, push) => {
   const getGeoData = require('../geodb')(log)
-  const features = require('../features')(config)
   const verificationReminder = require('../verification-reminders')(log, db)
 
   const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
@@ -86,8 +85,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         }
 
         customs.check(request, email, 'accountCreate')
-          .then(db.emailRecord.bind(db, email))
-          .then(deleteAccountIfUnverified, checkAccountError)
+          .then(deleteAccountIfUnverified)
           .then(setMetricsFlowCompleteSignal)
           .then(generateRandomValues)
           .then(createPassword)
@@ -99,35 +97,25 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           .then(createResponse)
           .then(reply, reply)
 
-        function deleteAccountIfUnverified (emailRecord) {
-          if (emailRecord.emailVerified) {
-            throw error.accountExists(emailRecord.email)
-          }
 
-          request.app.accountRecreated = true
-          return db.deleteAccount(emailRecord)
-        }
-
-        function checkAccountError (err) {
-          if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-            // Even though the email is not on the account table, it could be on the emails table.
-            // Delete the unverified secondary email if it exists and proceed with account creation.
-            return deleteSecondaryEmailIfUnverified()
-          }
-
-          throw err
-        }
-
-        function deleteSecondaryEmailIfUnverified() {
+        function deleteAccountIfUnverified() {
           return db.getSecondaryEmail(email)
             .then((secondaryEmailRecord) => {
               // Currently, users can not create an account from a verified
               // secondary email address
-              if (secondaryEmailRecord.isVerified) {
-                throw error.verifiedSecondaryEmailAlreadyExists()
-              }
+              if (secondaryEmailRecord.isPrimary) {
+                if (secondaryEmailRecord.isVerified) {
+                  throw error.accountExists(secondaryEmailRecord.email)
+                }
+                request.app.accountRecreated = true
+                return db.deleteAccount(secondaryEmailRecord)
+              } else {
+                if (secondaryEmailRecord.isVerified) {
+                  throw error.verifiedSecondaryEmailAlreadyExists()
+                }
 
-              return db.deleteEmail(secondaryEmailRecord.uid, secondaryEmailRecord.email)
+                return db.deleteEmail(secondaryEmailRecord.uid, secondaryEmailRecord.email)
+              }
             })
             .catch((err) => {
               if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
@@ -381,7 +369,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             resume: isA.string().optional(),
             reason: isA.string().max(16).optional(),
             unblockCode: isA.string().regex(BASE_36).length(unblockCodeLen).optional(),
-            metricsContext: METRICS_CONTEXT_SCHEMA
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            originalLoginEmail: validators.email().optional()
           }
         },
         response: {
@@ -407,9 +396,10 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         const resume = request.payload.resume
         const ip = request.app.clientAddress
         const requestNow = Date.now()
+        const originalLoginEmail = request.payload.originalLoginEmail
 
         let needsVerificationId = true
-        let emailRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation,
+        let accountRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation,
           unblockCode, customsErr, didSigninUnblock, tokenVerificationId
 
         let securityEventRecency = Infinity, securityEventVerified = false
@@ -477,56 +467,37 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           throw e
         }
 
-        function checkSecondaryEmail() {
-          log.trace({op: 'Account.login.checkSecondaryEmail'})
-          if (! features.isSecondaryEmailEnabled(email)) {
-            return P.resolve()
-          }
-
-          // Currently, we only allow emails on the account table to log a user in.
-          // If the email being used is a secondary email, fail fast and let the user
-          // know that this can not be used to login.
-          return db.getSecondaryEmail(email)
-            .then((email) => {
-              if (email) {
-                throw error.cannotLoginWithSecondaryEmail()
-              }
-            }, (err) => {
-              // No secondary email exists for this, continue with the regular login flow
-              if (err.errno === error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
-                log.trace({op: 'Account.login.checkSecondaryEmail.noconflict'})
-                return P.resolve()
-              }
-              throw err
-            })
-        }
-
         function readEmailRecord () {
-          return db.emailRecord(email)
+          return db.accountRecord(email)
             .then(
               function (result) {
 
-                // If the incorrect email case is used, the password check cannot possibly succeed,
-                // and the client will retry automatically with the correct capitalization.
-                // Don't tell customs-server this was a failed login attempt, to avoid penalizing the user twice.
-                if (email !== result.email) {
-                  throw error.incorrectPassword(result.email, email)
+                let usingPrimaryEmail = false
+                const normalizedEmail = email.toLowerCase()
+                if (result.primaryEmail.normalizedEmail === normalizedEmail) {
+                  usingPrimaryEmail = true
                 }
 
-                emailRecord = result
+                if (! usingPrimaryEmail && originalLoginEmail === undefined) {
+                  throw error.cannotLoginWithSecondaryEmail()
+                }
+
+                accountRecord = result
               },
               function (err) {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
 
-                  // Check to see if this email exists on the emails table. `checkSecondaryEmail` throws
-                  // a custom error if user is attempting to login with a secondary email, otherwise we
-                  // flag the request and throw account unknown error.
-                  return checkSecondaryEmail()
-                    .then(() => {
+                  // Lets check account table `just in case` the user
+                  // deleted the original email they signed up with
+                  return db.emailRecord(email)
+                    .then((emailRecord) => {
+                      accountRecord = emailRecord
+                    }, () => {
                       customs.flag(request.app.clientAddress, {
                         email: email,
                         errno: err.errno
                       })
+
                       // We rate-limit attempts to check whether an account exists, so
                       // we have to be careful to re-throw any customs-server errors here.
                       // We also have to be careful not to leak info about whether the account
@@ -547,13 +518,13 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
 
         function checkUnblockCode() {
           if (unblockCode) {
-            return db.consumeUnblockCode(emailRecord.uid, unblockCode)
+            return db.consumeUnblockCode(accountRecord.uid, unblockCode)
               .then(
                 (code) => {
                   if (requestNow - code.createdAt > unblockCodeLifetime) {
                     log.info({
                       op: 'Account.login.unblockCode.expired',
-                      uid: emailRecord.uid
+                      uid: accountRecord.uid
                     })
                     throw error.invalidUnblockCode()
                   }
@@ -584,7 +555,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
 
         function checkSecurityHistory () {
           return db.securityEvents({
-            uid: emailRecord.uid,
+            uid: accountRecord.uid,
             ipAddr: request.app.clientAddress
           })
             .then(
@@ -614,14 +585,14 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
 
                     log.info({
                       op: 'Account.history.verified',
-                      uid: emailRecord.uid,
+                      uid: accountRecord.uid,
                       events: events.length,
                       recency: coarseRecency
                     })
                   } else {
                     log.info({
                       op: 'Account.history.unverified',
-                      uid: emailRecord.uid,
+                      uid: accountRecord.uid,
                       events: events.length
                     })
                   }
@@ -633,7 +604,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                 log.error({
                   op: 'Account.history.error',
                   err: err,
-                  uid: emailRecord.uid
+                  uid: accountRecord.uid
                 })
               }
             )
@@ -647,8 +618,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           // decide whether to consider the session pre-verified.  Some accounts
           // get excluded from this process, e.g. testing accounts where we want
           // to know for sure what flow they're going to see.
-          if (! forceTokenVerification(request, emailRecord)) {
-            if (skipTokenVerification(request, emailRecord)) {
+          if (! forceTokenVerification(request, accountRecord)) {
+            if (skipTokenVerification(request, accountRecord)) {
               needsVerificationId = false
             }
           }
@@ -668,7 +639,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
 
           // If the email itself is unverified, we'll re-send the "verify your account email" and
           // that will suffice to confirm the sign-in.  No need for a separate confirmation email.
-          doSigninConfirmation = mustVerifySession && emailRecord.emailVerified
+          doSigninConfirmation = mustVerifySession && accountRecord.primaryEmail.isVerified
 
           let flowCompleteSignal
           if (service === 'sync') {
@@ -680,15 +651,15 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           }
           request.setMetricsFlowCompleteSignal(flowCompleteSignal)
 
-          return checkPassword(emailRecord, authPW, request.app.clientAddress)
+          return checkPassword(accountRecord, authPW, request.app.clientAddress)
             .then(
               function (match) {
                 if (! match) {
-                  throw error.incorrectPassword(emailRecord.email, email)
+                  throw error.incorrectPassword(accountRecord.email, email)
                 }
 
                 return request.emitMetricsEvent('account.login', {
-                  uid: emailRecord.uid
+                  uid: accountRecord.uid
                 })
               }
             )
@@ -744,7 +715,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         }
 
         function checkNumberOfActiveSessions () {
-          return db.sessions(emailRecord.uid)
+          return db.sessions(accountRecord.uid)
             .then(
               function (s) {
                 sessions = s
@@ -754,7 +725,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                   // For now, just log metrics about it.
                   log.error({
                     op: 'Account.login',
-                    uid: emailRecord.uid,
+                    uid: accountRecord.uid,
                     userAgent: request.headers['user-agent'],
                     numSessions: sessions.length
                   })
@@ -774,11 +745,11 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             })
             .then(() => {
               const sessionTokenOptions = {
-                uid: emailRecord.uid,
-                email: emailRecord.email,
-                emailCode: emailRecord.emailCode,
-                emailVerified: emailRecord.emailVerified,
-                verifierSetAt: emailRecord.verifierSetAt,
+                uid: accountRecord.uid,
+                email: accountRecord.primaryEmail.email,
+                emailCode: accountRecord.primaryEmail.emailCode,
+                emailVerified: accountRecord.primaryEmail.isVerified,
+                verifierSetAt: accountRecord.verifierSetAt,
                 mustVerify: mustVerifySession,
                 tokenVerificationId: tokenVerificationId
               }
@@ -797,7 +768,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                   // There is no session token when we emit account.confirmed
                   // so stash the data against a synthesized "token" instead.
                   return request.stashMetricsContext({
-                    uid: emailRecord.uid,
+                    uid: accountRecord.uid,
                     id: tokenVerificationId
                   })
                 }
@@ -809,18 +780,18 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           if (requestHelper.wantsKeys(request)) {
             var password = new Password(
               authPW,
-              emailRecord.authSalt,
-              emailRecord.verifierVersion
+              accountRecord.authSalt,
+              accountRecord.verifierVersion
             )
 
-            return password.unwrap(emailRecord.wrapWrapKb)
+            return password.unwrap(accountRecord.wrapWrapKb)
               .then(
                 function (wrapKb) {
                   return db.createKeyFetchToken({
-                    uid: emailRecord.uid,
-                    kA: emailRecord.kA,
+                    uid: accountRecord.uid,
+                    kA: accountRecord.kA,
                     wrapKb: wrapKb,
-                    emailVerified: emailRecord.emailVerified,
+                    emailVerified: accountRecord.primaryEmail.isVerified,
                     tokenVerificationId: tokenVerificationId
                   })
                   .then(
@@ -838,8 +809,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           if (service === 'sync' && request.payload.reason === 'signin') {
             return log.notifyAttachedServices('login', request, {
               service: 'sync',
-              uid: emailRecord.uid,
-              email: emailRecord.email,
+              uid: accountRecord.uid,
+              email: accountRecord.primaryEmail.email,
               deviceCount: sessions.length,
               userAgent: request.headers['user-agent']
             })
@@ -847,22 +818,22 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         }
 
         function sendVerifyAccountEmail() {
-          if (! emailRecord.emailVerified) {
+          if (! accountRecord.primaryEmail.isVerified) {
             if (didSigninUnblock) {
               log.info({
                 op: 'Account.login.unverified.unblocked',
-                uid: emailRecord.uid
+                uid: accountRecord.uid
               })
             }
 
             // Only use tokenVerificationId if it is set, otherwise use the corresponding email code
             // This covers the cases where sign-in confirmation is disabled or not needed.
-            var emailCode = tokenVerificationId ? tokenVerificationId : emailRecord.emailCode
+            var emailCode = tokenVerificationId ? tokenVerificationId : accountRecord.primaryEmail.emailCode
 
             return getGeoData(ip)
               .then(
                 function (geoData) {
-                  return mailer.sendVerifyCode([], emailRecord, {
+                  return mailer.sendVerifyCode([], accountRecord, {
                     code: emailCode,
                     service: service,
                     redirectTo: redirectTo,
@@ -893,7 +864,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           var shouldSendNewDeviceLoginEmail = config.newLoginNotificationEnabled
             && requestHelper.wantsKeys(request)
             && ! doSigninConfirmation
-            && emailRecord.emailVerified
+            && accountRecord.primaryEmail.isVerified
           if (shouldSendNewDeviceLoginEmail) {
             return P.all([getGeoData(ip), db.accountEmails(sessionToken.uid)])
               .spread((geoData, emails) => {
@@ -901,7 +872,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                 // and CCed to all secondary email if enabled.
                 mailer.sendNewDeviceLoginNotification(
                   emails,
-                  emailRecord,
+                  accountRecord,
                   {
                     acceptLanguage: request.app.acceptLanguage,
                     flowId: flowId,
@@ -932,7 +903,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           if (doSigninConfirmation) {
             log.info({
               op: 'account.signin.confirm.start',
-              uid: emailRecord.uid,
+              uid: accountRecord.uid,
               tokenVerificationId: tokenVerificationId
             })
 
@@ -940,7 +911,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
               .spread((geoData, emails) => {
                 return mailer.sendVerifyLoginEmail(
                   emails,
-                  emailRecord,
+                  accountRecord,
                   {
                     acceptLanguage: request.app.acceptLanguage,
                     code: tokenVerificationId,
@@ -967,7 +938,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         function recordSecurityEvent() {
           db.securityEvent({
             name: 'account.login',
-            uid: emailRecord.uid,
+            uid: accountRecord.uid,
             ipAddr: request.app.clientAddress,
             tokenId: sessionToken && sessionToken.tokenId
           })
@@ -988,7 +959,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
 
           response.keyFetchToken = keyFetchToken.data
 
-          if (! emailRecord.emailVerified) {
+          if (! accountRecord.primaryEmail.isVerified) {
             response.verified = false
             response.verificationMethod = 'email'
             response.verificationReason = 'signup'
@@ -1379,11 +1350,13 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                 push.notifyPasswordReset(accountResetToken.uid, devicesToNotify)
 
                 return db.account(accountResetToken.uid)
+                  .then((accountData) => {
+                    account = accountData
+                  })
               }
             )
             .then(
-              function (accountData) {
-                account = accountData
+              function () {
                 return P.all([
                   request.emitMetricsEvent('account.reset', {
                     uid: account.uid
@@ -1411,9 +1384,9 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             // link from the user's email, we create a verified sessionToken
             var sessionTokenOptions = {
               uid: account.uid,
-              email: account.email,
-              emailCode: account.emailCode,
-              emailVerified: account.emailVerified,
+              email: account.primaryEmail.email,
+              emailCode: account.primaryEmail.emailCode,
+              emailVerified: account.primaryEmail.isVerified,
               verifierSetAt: account.verifierSetAt
             }
 
@@ -1438,7 +1411,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
               uid: account.uid,
               kA: account.kA,
               wrapKb: wrapKb,
-              emailVerified: account.emailVerified
+              emailVerified: account.primaryEmail.isVerified
             })
             .then(
               function (result) {

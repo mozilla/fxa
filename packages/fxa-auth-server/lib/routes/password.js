@@ -31,7 +31,6 @@ module.exports = function (
   ) {
 
   const getGeoData = require('../geodb')(log)
-  const features = require('../features')(config)
 
   function failVerifyAttempt(passwordForgotToken) {
     return (passwordForgotToken.failAttempt()) ?
@@ -60,7 +59,7 @@ module.exports = function (
           request,
           form.email,
           'passwordChange')
-          .then(db.emailRecord.bind(db, form.email))
+          .then(db.accountRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
               return checkPassword(emailRecord, oldAuthPW, request.app.clientAddress)
@@ -196,7 +195,7 @@ module.exports = function (
                 // do not send the notification to that device. It will
                 // get informed about the change via WebChannel message.
                 if (originatingDeviceId) {
-                  devicesToNotify = devicesToNotify.filter(d => ! d.id.equals(originatingDeviceId))
+                  devicesToNotify = devicesToNotify.filter(d => (d.id !== originatingDeviceId))
                 }
               }
             )
@@ -404,32 +403,16 @@ module.exports = function (
           request.emitMetricsEvent('password.forgot.send_code.start'),
           customs.check(request, email, 'passwordForgotSendCode')
         ])
-          .then(db.emailRecord.bind(db, email))
+          .then(db.accountRecord.bind(db, email))
           .then(
-            function (emailRecord) {
+            function (accountRecord) {
+              if (accountRecord.primaryEmail.normalizedEmail !== email.toLowerCase()) {
+                throw error.cannotResetPasswordWithSecondaryEmail()
+              }
               // The token constructor sets createdAt from its argument.
               // Clobber the timestamp to prevent prematurely expired tokens.
-              emailRecord.createdAt = undefined
-              return db.createPasswordForgotToken(emailRecord)
-            },
-            (err) => {
-              // If account was not found, ensure that this is not a secondary email and
-              // throw the correct error if it is.
-              if (features.isSecondaryEmailEnabled(email) && err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                return db.getSecondaryEmail(email)
-                  .then(() => {
-                    throw error.cannotResetPasswordWithSecondaryEmail()
-                  })
-                  .catch((emailErr) => {
-                    // If no secondary email exists, we want to throw the original account unknown
-                    // error because the user could potentially create this account.
-                    if (emailErr.errno === error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
-                      throw err
-                    }
-                    throw emailErr
-                  })
-              }
-              throw err
+              accountRecord.createdAt = undefined
+              return db.createPasswordForgotToken(accountRecord)
             }
           )
           .then(

@@ -54,6 +54,8 @@ var ERRNO = {
   VERIFIED_SECONDARY_EMAIL_EXISTS: 144,
   RESET_PASSWORD_WITH_SECONDARY_EMAIL: 145,
   INVALID_SIGNIN_CODE: 146,
+  CHANGE_EMAIL_TO_UNVERIFIED_EMAIL: 147,
+  CHANGE_EMAIL_TO_UNOWNED_EMAIL: 148,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -670,6 +672,24 @@ AppError.invalidSigninCode = function () {
     error: 'Bad Request',
     errno: ERRNO.INVALID_SIGNIN_CODE,
     message: 'Invalid signin code'
+  })
+}
+
+AppError.cannotChangeEmailToUnverifiedEmail = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.CHANGE_EMAIL_TO_UNVERIFIED_EMAIL,
+    message: 'Can not change primary email to an unverified email'
+  })
+}
+
+AppError.cannotChangeEmailToUnownedEmail = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.CHANGE_EMAIL_TO_UNOWNED_EMAIL,
+    message: 'Can not change primary email to an email that does not belong to this account'
   })
 }
 

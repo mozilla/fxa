@@ -189,6 +189,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
             return mailer.recoveryEmail({
               ccEmails: ccEmails,
               email: primaryEmail,
+              emailToHashWith: account.email,
               flowId: opts.flowId,
               flowBeginTime: opts.flowBeginTime,
               token: opts.token.data,

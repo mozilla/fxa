@@ -29,6 +29,25 @@ module.exports = (
   const PasswordForgotToken = Token.PasswordForgotToken
   const PasswordChangeToken = Token.PasswordChangeToken
 
+  function setAccountEmails(account) {
+    return this.accountEmails(account.uid)
+      .then((emails) => {
+        account.emails = emails
+
+        // Set primary email on account object
+        account.emails.forEach((item) => {
+          item.isVerified = !! item.isVerified
+          item.isPrimary = !! item.isPrimary
+
+          if (item.isPrimary) {
+            account.primaryEmail = item
+          }
+        })
+
+        return account
+      })
+  }
+
   function DB(options) {
     this.pool = new Pool(options.url)
     if (config.redis.enabled) {
@@ -357,9 +376,40 @@ module.exports = (
     log.trace({ op: 'DB.emailRecord', email: email })
     return this.pool.get('/emailRecord/' + hexEncode(email))
       .then(
-        function (data) {
-          data.emailVerified = !! data.emailVerified
-          return data
+        (body) => {
+          return setAccountEmails.call(this, body)
+        },
+        (err) => {
+          if (isNotFoundError(err)) {
+            err = error.unknownAccount(email)
+          }
+          throw err
+        }
+      )
+  }
+
+  DB.prototype.accountRecord = function (email) {
+    log.trace({op: 'DB.accountFromEmail', email: email})
+    return this.pool.get('/email/' + hexEncode(email) + '/account')
+      .then(
+        (body) => {
+          return setAccountEmails.call(this, body)
+        },
+        (err) => {
+          if (isNotFoundError(err)) {
+            err = error.unknownAccount(email)
+          }
+          throw err
+        }
+      )
+  }
+
+  DB.prototype.setPrimaryEmail = function (uid, email) {
+    log.trace({op: 'DB.accountFromEmail', email: email})
+    return this.pool.post('/email/' + Buffer(email, 'utf8').toString('hex') + '/account/' + uid)
+      .then(
+        function (body) {
+          return body
         },
         function (err) {
           if (isNotFoundError(err)) {
@@ -371,20 +421,18 @@ module.exports = (
   }
 
   DB.prototype.account = function (uid) {
-    log.trace({ op: 'DB.account', uid: uid })
+    log.trace({op: 'DB.account', uid: uid})
     return this.pool.get('/account/' + uid)
-      .then(
-        function (data) {
-          data.emailVerified = !! data.emailVerified
-          return data
-        },
-        function (err) {
-          if (isNotFoundError(err)) {
-            err = error.unknownAccount()
-          }
-          throw err
+      .then((body) => {
+        body.emailVerified = !! body.emailVerified
+
+        return setAccountEmails.call(this, body)
+      }, (err) => {
+        if (isNotFoundError(err)) {
+          err = error.unknownAccount()
         }
-      )
+        throw err
+      })
   }
 
   DB.prototype.devices = function (uid) {

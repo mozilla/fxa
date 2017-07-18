@@ -105,7 +105,7 @@ describe('/password', () => {
       })
       return runRoute(passwordRoutes, '/password/forgot/send_code', mockRequest)
       .then(function(response) {
-        assert.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called once')
+        assert.equal(mockDB.accountRecord.callCount, 1, 'db.emailRecord was called once')
 
         assert.equal(mockDB.createPasswordForgotToken.callCount, 1, 'db.createPasswordForgotToken was called once')
         var args = mockDB.createPasswordForgotToken.args[0]

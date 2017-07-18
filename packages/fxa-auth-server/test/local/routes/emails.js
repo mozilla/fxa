@@ -656,8 +656,8 @@ describe('/recovery_email', () => {
 
   describe('/recovery_email', () => {
     beforeEach(() => {
-      mockDB.emailRecord = sinon.spy(() => {
-        return P.reject(error.unknownAccount())
+      mockDB.getSecondaryEmail = sinon.spy(() => {
+        return P.reject(error.unknownSecondaryEmail())
       })
     })
 
@@ -703,9 +703,11 @@ describe('/recovery_email', () => {
     })
 
     it('creates secondary email if another user unverified primary more than day old, deletes unverified account', () => {
-      mockDB.emailRecord = sinon.spy(() => {
+      mockDB.getSecondaryEmail = sinon.spy(() => {
         return P.resolve({
-          emailVerified: false,
+          isVerified: false,
+          isPrimary: true,
+          normalizedEmail: TEST_EMAIL,
           createdAt: Date.now() - MS_IN_DAY,
           uid: crypto.randomBytes(16)
         })
@@ -728,9 +730,11 @@ describe('/recovery_email', () => {
     })
 
     it('fails create email if another user unverified primary less than day old', () => {
-      mockDB.emailRecord = sinon.spy(() => {
+      mockDB.getSecondaryEmail = sinon.spy(() => {
         return P.resolve({
-          emailVerified: false,
+          isVerified: false,
+          isPrimary: true,
+          normalizedEmail: TEST_EMAIL,
           createdAt: Date.now(),
           uid: crypto.randomBytes(16)
         })

@@ -45,7 +45,7 @@ const DB = proxyquire('../../lib/db', { redis: {
 var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex').toString('hex')
 var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
 
-let account
+let account, secondEmail
 
 describe('remote db', function() {
   this.timeout(20000)
@@ -78,6 +78,17 @@ describe('remote db', function() {
     return db.createAccount(account)
       .then((account) => {
         assert.deepEqual(account.uid, account.uid, 'account.uid is the same as the input account.uid')
+
+        secondEmail = dbServer.uniqueEmail()
+        const emailData = {
+          email: secondEmail,
+          emailCode: crypto.randomBytes(16).toString('hex'),
+          normalizedEmail: secondEmail.toLowerCase(),
+          isVerified: true,
+          isPrimary: false,
+          uid: account.uid
+        }
+        return db.createEmail(account.uid, emailData)
       })
   })
 
@@ -792,6 +803,49 @@ describe('remote db', function() {
         })
     }
   )
+
+  describe('account record', () => {
+    it('can retrieve account from account email', () => {
+      return P.all([db.emailRecord(account.email), db.accountRecord(account.email)])
+        .spread(function (emailRecord, accountRecord) {
+          assert.equal(emailRecord.email, accountRecord.email, 'original account and email records should be equal')
+          assert.deepEqual(emailRecord.emails, accountRecord.emails, 'emails should be equal')
+          assert.deepEqual(emailRecord.primaryEmail, accountRecord.primaryEmail, 'primary emails should be equal')
+        })
+    })
+
+    it('can retrieve account from secondary email', () => {
+      return P.all([db.accountRecord(account.email), db.accountRecord(secondEmail)])
+        .spread(function (accountRecord, accountRecordFromSecondEmail) {
+          assert.equal(accountRecordFromSecondEmail.email, accountRecord.email, 'original account and email records should be equal')
+          assert.deepEqual(accountRecordFromSecondEmail.emails, accountRecord.emails, 'emails should be equal')
+          assert.deepEqual(accountRecordFromSecondEmail.primaryEmail, accountRecord.primaryEmail, 'primary emails should be equal')
+        })
+    })
+
+    it('returns unknown account', () => {
+      return db.accountRecord('idontexist@email.com')
+        .then(function () {
+          assert.fail('should not have retrieved non-existent account')
+        })
+        .catch((err) => {
+          assert.equal(err.errno, 102, 'unknown account error code')
+        })
+    })
+  })
+
+  describe('set primary email', () => {
+    it('can set primary email address', () => {
+      return db.setPrimaryEmail(account.uid, secondEmail)
+        .then(function (res) {
+          assert.ok(res, 'ok response')
+          return db.accountRecord(secondEmail)
+        })
+        .then(function (accountRecord) {
+          assert.equal(accountRecord.primaryEmail.email, secondEmail, 'primary email set')
+        })
+    })
+  })
 
   after(() => {
     return TestServer.stop(dbServer)

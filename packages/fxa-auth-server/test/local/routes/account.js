@@ -475,6 +475,7 @@ describe('/account/login', function () {
   var route = getRoute(accountRoutes, '/account/login')
 
   const defaultEmailRecord = mockDB.emailRecord
+  const defaultEmailAccountRecord = mockDB.accountRecord
 
   afterEach(() => {
     mockLog.activityEvent.reset()
@@ -489,6 +490,8 @@ describe('/account/login', function () {
     mockMetricsContext.setFlowCompleteSignal.reset()
     mockDB.emailRecord = defaultEmailRecord
     mockDB.emailRecord.reset()
+    mockDB.accountRecord = defaultEmailAccountRecord
+    mockDB.accountRecord.reset()
     mockDB.getSecondaryEmail = sinon.spy(() => P.reject(error.unknownSecondaryEmail()))
     mockDB.getSecondaryEmail.reset()
     mockRequest.payload.email = TEST_EMAIL
@@ -499,7 +502,7 @@ describe('/account/login', function () {
     sinon.stub(Date, 'now', () => now)
 
     return runTest(route, mockRequest, function (response) {
-      assert.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called')
+      assert.equal(mockDB.accountRecord.callCount, 1, 'db.emailRecord was called')
       assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
 
       assert.equal(mockLog.notifier.send.callCount, 1, 'an sqs event was logged')
@@ -598,13 +601,14 @@ describe('/account/login', function () {
   describe('sign-in unverified account', function () {
     it('sends email code', function () {
       var emailCode = hexString(16)
-      mockDB.emailRecord = function () {
+      mockDB.accountRecord = function () {
         return P.resolve({
           authSalt: hexString(32),
           data: hexString(32),
           email: TEST_EMAIL,
           emailVerified: false,
           emailCode: emailCode,
+          primaryEmail: {normalizedEmail: TEST_EMAIL.toLowerCase(), email: TEST_EMAIL, isVerified: false, isPrimary: true},
           kA: hexString(32),
           lastAuthAt: function () {
             return Date.now()
@@ -636,12 +640,13 @@ describe('/account/login', function () {
     before(() => {
       config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.com$/
 
-      mockDB.emailRecord = function () {
+      mockDB.accountRecord = function () {
         return P.resolve({
           authSalt: hexString(32),
           data: hexString(32),
           email: TEST_EMAIL,
           emailVerified: true,
+          primaryEmail: {normalizedEmail: TEST_EMAIL.toLowerCase(), email: TEST_EMAIL, isVerified: true, isPrimary: true},
           kA: hexString(32),
           lastAuthAt: function () {
             return Date.now()
@@ -672,12 +677,14 @@ describe('/account/login', function () {
     })
 
     it('does not require verification when keys are not requested', function () {
-      mockDB.emailRecord = function () {
+      const email = 'test@mozilla.com'
+      mockDB.accountRecord = function () {
         return P.resolve({
           authSalt: hexString(32),
           data: hexString(32),
           email: 'test@mozilla.com',
           emailVerified: true,
+          primaryEmail: {normalizedEmail: email.toLowerCase(), email: email, isVerified: true, isPrimary: true},
           kA: hexString(32),
           lastAuthAt: function () {
             return Date.now()
@@ -707,13 +714,15 @@ describe('/account/login', function () {
     })
 
     it('unverified account gets account confirmation email', function () {
-      mockRequest.payload.email = 'test@mozilla.com'
-      mockDB.emailRecord = function () {
+      const email = 'test@mozilla.com'
+      mockRequest.payload.email = email
+      mockDB.accountRecord = function () {
         return P.resolve({
           authSalt: hexString(32),
           data: hexString(32),
           email: mockRequest.payload.email,
           emailVerified: false,
+          primaryEmail: {normalizedEmail: email.toLowerCase(), email: email, isVerified: false, isPrimary: true},
           kA: hexString(32),
           lastAuthAt: function () {
             return Date.now()
@@ -744,13 +753,16 @@ describe('/account/login', function () {
           maxAge: 5
         }
 
-        mockDB.emailRecord = function () {
+        const email = mockRequest.payload.email
+
+        mockDB.accountRecord = function () {
           return P.resolve({
             authSalt: hexString(32),
             createdAt: Date.now() - accountCreatedSince,
             data: hexString(32),
-            email: mockRequest.payload.email,
+            email: email,
             emailVerified: true,
+            primaryEmail: {normalizedEmail: email.toLowerCase(), email: email, isVerified: true, isPrimary: true},
             kA: hexString(32),
             lastAuthAt: function () {
               return Date.now()
@@ -1024,6 +1036,7 @@ describe('/account/login', function () {
           })
 
           it('unknown account', () => {
+            mockDB.accountRecord = () => P.reject(new error.unknownAccount())
             mockDB.emailRecord = () => P.reject(new error.unknownAccount())
             return runTest(route, mockRequestWithUnblockCode).then(() => assert(false), err => {
               assert.equal(err.errno, error.ERRNO.REQUEST_BLOCKED)
@@ -1075,19 +1088,17 @@ describe('/account/login', function () {
     })
   })
 
-  it('fails login with secondary email', function () {
+  it('fails login with non primary email', function () {
+    const email = 'foo@mail.com'
     config.secondaryEmail.enabled = true
     config.secondaryEmail.enabledEmailAddresses = /\w/
-    mockDB.emailRecord = sinon.spy(function () {
-      return P.reject(error.unknownAccount())
-    })
-    mockDB.getSecondaryEmail = sinon.spy(function (email) {
+    mockDB.accountRecord = sinon.spy(function () {
       return P.resolve({
-        email: email
+        primaryEmail: {normalizedEmail: email.toLowerCase(), email: email, isVerified: true, isPrimary: false},
       })
     })
     return runTest(route, mockRequest).then(() => assert.ok(false), (err) => {
-      assert.equal(mockDB.getSecondaryEmail.callCount, 1, 'db.getSecondaryEmail was called')
+      assert.equal(mockDB.accountRecord.callCount, 1, 'db.accountRecord was called')
       assert.equal(err.errno, 142, 'correct errno called')
     })
   })

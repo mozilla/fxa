@@ -24,6 +24,7 @@ const CUSTOMS_METHOD_NAMES = [
 const DB_METHOD_NAMES = [
   'account',
   'accountEmails',
+  'accountRecord',
   'accountResetToken',
   'consumeUnblockCode',
   'consumeSigninCode',
@@ -155,6 +156,7 @@ function mockDB (data, errors) {
         email: data.email,
         emailCode: data.emailCode,
         emailVerified: data.emailVerified,
+        primaryEmail: {normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true},
         uid: data.uid,
         verifierSetAt: Date.now(),
         wrapWrapKb: data.wrapWrapKb
@@ -177,6 +179,25 @@ function mockDB (data, errors) {
           isPrimary: false
         }
       ])
+    }),
+    accountRecord: sinon.spy(() => {
+      if (errors.emailRecord) {
+        return P.reject(errors.emailRecord)
+      }
+      return P.resolve({
+        authSalt: crypto.randomBytes(32),
+        createdAt: data.createdAt || Date.now(),
+        data: crypto.randomBytes(32),
+        email: data.email,
+        emailVerified: data.emailVerified,
+        primaryEmail: {normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true},
+        kA: crypto.randomBytes(32),
+        lastAuthAt: () => {
+          return Date.now()
+        },
+        uid: data.uid,
+        wrapWrapKb: crypto.randomBytes(32)
+      })
     }),
     consumeSigninCode: sinon.spy(() => {
       if (errors.consumeSigninCode) {
@@ -262,6 +283,7 @@ function mockDB (data, errors) {
         data: crypto.randomBytes(32).toString('hex'),
         email: data.email,
         emailVerified: data.emailVerified,
+        primaryEmail: {normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true},
         kA: crypto.randomBytes(32).toString('hex'),
         lastAuthAt: () => {
           return Date.now()

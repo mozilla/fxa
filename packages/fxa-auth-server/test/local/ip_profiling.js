@@ -135,12 +135,13 @@ var mockCustoms = {
   flag: () => P.resolve()
 }
 
-mockDB.emailRecord = function () {
+mockDB.accountRecord = function () {
   return P.resolve({
     authSalt: crypto.randomBytes(32),
     data: crypto.randomBytes(32),
     email: TEST_EMAIL,
     emailVerified: true,
+    primaryEmail: {normalizedEmail: TEST_EMAIL, email: TEST_EMAIL, isVerified: true, isPrimary: true},
     kA: crypto.randomBytes(32),
     lastAuthAt: function () {
       return Date.now()
@@ -244,12 +245,13 @@ describe('IP Profiling', () => {
         uid: uid
       })
 
-      mockDB.emailRecord = function () {
+      mockDB.accountRecord = function () {
         return P.resolve({
           authSalt: crypto.randomBytes(32),
           data: crypto.randomBytes(32),
           email: forceSigninEmail,
           emailVerified: true,
+          primaryEmail: {normalizedEmail: forceSigninEmail, email: forceSigninEmail, isVerified: true, isPrimary: true},
           kA: crypto.randomBytes(32),
           lastAuthAt: function () {
             return Date.now()
@@ -309,12 +311,13 @@ describe('IP Profiling', () => {
         uid: uid
       })
 
-      mockDB.emailRecord = function () {
+      mockDB.accountRecord = function () {
         return P.resolve({
           authSalt: crypto.randomBytes(32),
           data: crypto.randomBytes(32),
           email: TEST_EMAIL,
           emailVerified: true,
+          primaryEmail: {normalizedEmail: TEST_EMAIL, email: TEST_EMAIL, isVerified: true, isPrimary: true},
           kA: crypto.randomBytes(32),
           lastAuthAt: function () {
             return Date.now()
