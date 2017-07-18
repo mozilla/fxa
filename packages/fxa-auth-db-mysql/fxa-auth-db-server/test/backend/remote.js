@@ -345,7 +345,7 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
             var sessions = r.obj
             assert.equal(sessions.length, 1, 'sessions contains one item')
-            assert.equal(Object.keys(sessions[0]).length, 17, 'session has correct properties')
+            assert.equal(Object.keys(sessions[0]).length, 16, 'session has correct properties')
             assert.equal(sessions[0].tokenId, user.sessionTokenId, 'tokenId is correct')
             assert.equal(sessions[0].uid, user.accountId, 'uid is correct')
             assert.equal(sessions[0].createdAt, user.sessionToken.createdAt, 'createdAt is correct')
@@ -354,7 +354,6 @@ module.exports = function(cfg, makeServer) {
             assert.equal(sessions[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')
             assert.equal(sessions[0].uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion is correct')
             assert.equal(sessions[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
-            assert.equal(sessions[0].uaFormFactor, user.sessionToken.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(sessions[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
 
             // Fetch the session token
@@ -371,7 +370,6 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaOS, user.sessionToken.uaOS, 'uaOS matches')
             assert.equal(token.uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion matches')
             assert.equal(token.uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType matches')
-            assert.equal(token.uaFormFactor, user.sessionToken.uaFormFactor, 'uaFormFactor matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
             assert.equal(!! token.emailVerified, user.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, user.account.email, 'token.email same as account email')
@@ -395,7 +393,6 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaOS, user.sessionToken.uaOS, 'uaOS matches')
             assert.equal(token.uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion matches')
             assert.equal(token.uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType matches')
-            assert.equal(token.uaFormFactor, user.sessionToken.uaFormFactor, 'uaFormFactor matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
             assert.equal(!! token.emailVerified, user.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, user.account.email, 'token.email same as account email')
@@ -425,7 +422,6 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaOS, verifiedUser.sessionToken.uaOS, 'uaOS matches')
             assert.equal(token.uaOSVersion, verifiedUser.sessionToken.uaOSVersion, 'uaOSVersion matches')
             assert.equal(token.uaDeviceType, verifiedUser.sessionToken.uaDeviceType, 'uaDeviceType matches')
-            assert.equal(token.uaFormFactor, verifiedUser.sessionToken.uaFormFactor, 'uaFormFactor matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
             assert.equal(!! token.emailVerified, verifiedUser.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, verifiedUser.account.email, 'token.email same as account email')
@@ -449,7 +445,6 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaOS, verifiedUser.sessionToken.uaOS, 'uaOS matches')
             assert.equal(token.uaOSVersion, verifiedUser.sessionToken.uaOSVersion, 'uaOSVersion matches')
             assert.equal(token.uaDeviceType, verifiedUser.sessionToken.uaDeviceType, 'uaDeviceType matches')
-            assert.equal(token.uaFormFactor, verifiedUser.sessionToken.uaFormFactor, 'uaFormFactor matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
             assert.equal(!! token.emailVerified, verifiedUser.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, verifiedUser.account.email, 'token.email same as account email')
@@ -590,7 +585,6 @@ module.exports = function(cfg, makeServer) {
             assert(s.uaBrowser)
             assert(s.uaBrowserVersion)
             assert(s.uaDeviceType)
-            assert(s.uaFormFactor)
             assert(s.uaOS)
             assert(s.uaOSVersion)
             assert(s.uid)
@@ -624,7 +618,7 @@ module.exports = function(cfg, makeServer) {
             return client.getThen('/sessionToken/' + user.sessionTokenId)
               .then(
                 () => assert(false, 'Fetching the non-existant sessionToken should have failed'),
-                () => assert('Fetching the non-existant sessionToken failed as expected')
+                err => testNotFound(err)
               )
           })
       }
@@ -660,7 +654,7 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
             var devices = r.obj
             assert.equal(devices.length, 1, 'devices contains one item')
-            assert.equal(Object.keys(devices[0]).length, 17, 'device has seventeen properties')
+            assert.equal(Object.keys(devices[0]).length, 16, 'device has sixteen properties')
             assert.equal(devices[0].uid, user.accountId, 'uid is correct')
             assert.equal(devices[0].id, user.deviceId, 'id is correct')
             assert.equal(devices[0].sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
@@ -675,7 +669,6 @@ module.exports = function(cfg, makeServer) {
             assert.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')
             assert.equal(devices[0].uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion is correct')
             assert.equal(devices[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
-            assert.equal(devices[0].uaFormFactor, user.sessionToken.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(devices[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
             assert.equal(devices[0].email, user.account.email, 'email is correct')
           })
@@ -723,7 +716,6 @@ module.exports = function(cfg, makeServer) {
             assert.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')
             assert.equal(devices[0].uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion is correct')
             assert.equal(devices[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
-            assert.equal(devices[0].uaFormFactor, user.sessionToken.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(devices[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
             assert.equal(devices[0].email, user.account.email, 'email is correct')
 

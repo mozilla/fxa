@@ -1,3 +1,13 @@
+<a name="1.91.2"></a>
+## [1.91.2](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.91.1...v1.91.2) (2017-07-17)
+
+
+### Features
+
+* **schema:** drop the uaFormFactor column from sessionTokens (#262), r=@vbudhram ([f23098a](https://github.com/mozilla/fxa-auth-db-mysql/commit/f23098a))
+
+
+
 <a name="1.91.1"></a>
 ## [1.91.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.91.0...v1.91.1) (2017-07-12)
 
