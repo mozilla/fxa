@@ -63,6 +63,12 @@ var conf = module.exports = convict({
       },
       env: 'BASKET_NEWSLETTER_CAMPAIGNS'
     },
+    newsletter_id_register: {
+      doc: 'Newsletter ID to subscribe new registrations who opted in.',
+      format: String,
+      default: 'firefox-accounts-journey',
+      env: 'BASKET_NEWSLETTER_ID_REGISTER'
+    },
     source_url: {
       doc: 'The source_url value to report to basket in subscription requests',
       format: String,

@@ -24,6 +24,9 @@ var CAMPAIGN_NEWSLETTER_CONTEXT = {
 };
 var CAMPAIGN_NEWSLETTER_SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=fxa-embedded-form-moz&utm_source=firstrun';
 
+var NEWSLETTER_ID_REGISTER = 'firefox-accounts-journey';
+var SOURCE_URL_REGISTER = 'https://accounts.firefox.com/';
+
 
 describe('the handleEvent() function', function () {
 
@@ -46,6 +49,43 @@ describe('the handleEvent() function', function () {
       email: EMAIL,
       locale: LOCALE,
       del: function () {
+        done();
+      }
+    });
+  });
+
+  it('calls /subscribe for verifications events when user opts in', function (done)  {
+    var subscribe = mocks.mockBasketResponse().post('/subscribe/', function (body) {
+      assert.deepEqual(body, {
+        email: EMAIL,
+        newsletters: NEWSLETTER_ID_REGISTER,
+        source_url: SOURCE_URL_REGISTER
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok',
+    });
+    var register = mocks.mockBasketResponse({
+      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+    }).post('/fxa-register/', function (body) {
+      assert.deepEqual(body, {
+        fxa_id: UID,
+        email: EMAIL,
+        accept_lang: LOCALE
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok'
+    });
+    events.handleEvent({
+      event: 'verified',
+      uid: UID,
+      email: EMAIL,
+      locale: LOCALE,
+      marketingOptIn: true,
+      del: function () {
+        subscribe.done();
+        register.done();
         done();
       }
     });

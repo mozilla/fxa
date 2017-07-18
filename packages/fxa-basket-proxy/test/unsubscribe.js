@@ -223,6 +223,12 @@ describe('the /unsubscribe route', function () {
   it('returns an error if the token lookup request returns invalid JSON', function (done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
+    var desc;
+    try {
+      JSON.parse('<');
+    } catch (ex) {
+      desc = String(ex);
+    }
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
       scope: 'basket:write'
@@ -235,14 +241,12 @@ describe('the /unsubscribe route', function () {
       .post('/unsubscribe')
       .set('authorization', 'Bearer TOKEN')
       .send({ newsletters: NEWSLETTERS })
-      .end(function (err, res) {
-        var body = res.body;
-        assert.equal(res.status, 400);
-        assert.equal(body.status, 'error');
-        assert.equal(body.code, '99');
-        assert.ok(/^SyntaxError:/.test(body.desc));
-        done();
-      });
+      .expect(400, {
+        status: 'error',
+        code: 99,
+        desc: desc
+      })
+      .end(done);
   });
 
 });

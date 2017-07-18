@@ -13,7 +13,7 @@ var config = require('../config');
 // are used to indicate a newsletter campaign, and cause us to
 // auto-subscribe the user to a particular newsletter.
 var NEWSLETTER_CAMPAIGNS = config.get('basket.newsletter_campaigns');
-
+var NEWSLETTER_ID_REGISTER = config.get('basket.newsletter_id_register');
 var SOURCE_URL_BASE = config.get('basket.source_url');
 
 
@@ -41,18 +41,54 @@ module.exports.handleEvent = function handleEvent(message) {
 
 // For each new verified account, register it with basket.
 function onVerified (message) {
-  return forwardEvent(message, '/fxa-register/', {
+  // Ignore email addresses that are clearly from dev testing.
+  if (shouldIgnoreEmail(message.email)) {
+    message.del();
+    return Promise.resolve();
+  }
+
+  var params = {
     fxa_id: message.uid,
     email: message.email,
     // Basket won't accept empty or null `accept_lang` field,
     // so we default to en-US.  This should only happen if
     // the user has not sent an explicit Accept-Language header.
     accept_lang: message.locale || 'en-US'
-  }, 'form');
+  };
+
+  if (message.marketingOptIn) {
+    return basketPromise(message, '/fxa-register/', params, 'form')
+      .then(function () {
+        var metrics = message.metricsContext || {};
+        // We don't look for a newsletter campaign this time around. We
+        // specifically want to subcribe to the default newletter. If
+        // there is a utm_campaign parameter, we'll hear about it in the
+        // 'login' event later.
+        var source_url = url.parse(SOURCE_URL_BASE, true);
+        for (var key in metrics) {
+          if (key.indexOf('utm_') === 0) {
+            source_url.query[key] = metrics[key];
+          }
+        }
+        var params = {
+          email: message.email,
+          newsletters: NEWSLETTER_ID_REGISTER,
+          source_url: url.format(source_url)
+        };
+        return forwardEvent(message, '/subscribe/', params, 'form');
+      });
+  } else {
+    return forwardEvent(message, '/fxa-register/', params, 'form');
+  }
 }
 
 // For each new login, inform basket so it can build up a user model.
 function onLogin (message) {
+  // Ignore email addresses that are clearly from dev testing.
+  if (shouldIgnoreEmail(message.email)) {
+    message.del();
+    return Promise.resolve();
+  }
   var metrics = message.metricsContext || {};
   return Promise.resolve().then(function () {
     // If utm_campaign indicates it's a newsletter campaign, flag it by
@@ -71,29 +107,7 @@ function onLogin (message) {
         source_url: url.format(source_url)
       };
       logger.info('campaign-subscribe', params);
-      return new Promise(function (resolve, reject) {
-        var req = {
-          method: 'post',
-          form: params
-        };
-        basket.request('/subscribe/', req, function (err, res, body) {
-          // Reject on network-level errors, causing the event to be retried.
-          if (err) {
-            message.err = err;
-            logger.error('campaign-subscribe.error.network', message);
-            return reject(err);
-          }
-          // If the request was received and understood by basket,
-          // but got rejected, then log it and ignore.  There's no
-          // point retrying it as we'd just get the same result again.
-          if (res.statusCode < 200 || res.statusCode >= 300) {
-            message.status = res.statusCode;
-            message.body = body;
-            logger.error('campaign-subscribe.error.http', message);
-          }
-          return resolve();
-        });
-      });
+      return basketPromise(message, '/subscribe/', params, 'form');
     }
   }).then(function () {
     // Pass on all logins to basket, for metrics and analysis purposes.
@@ -111,23 +125,23 @@ function onLogin (message) {
 /* eslint-enable camelcase */
 
 function forwardEvent (message, endpoint, data, dataFormat) {
-  return new Promise(function (resolve, reject) {
-    // Ignore email addresses that are clearly from dev testing.
-    if (shouldIgnoreEmail(message.email)) {
-      message.del(resolve);
-      return;
-    }
+  // Forward all others to basket API.
+  return basketPromise(message, endpoint, data, dataFormat)
+    .then(function () {
+      message.del();
+    });
+}
 
-    // Forward all others to basket API.
+function basketPromise (message, endpoint, data, dataFormat) {
+  return new Promise(function (resolve, reject) {
     var options = { method: 'POST' };
     options[dataFormat] = data;
     basket.request(endpoint, options, function (err, res, body) {
       message.endpoint = endpoint;
-
       // Log network-level errors, and leave event in queue for retry.
       if (err) {
         message.err = err;
-        logger.error('forward-event.error.network', message);
+        logger.error('event.request.error.network', message);
         return reject(err);
       }
 
@@ -136,16 +150,14 @@ function forwardEvent (message, endpoint, data, dataFormat) {
 
       // Log at error level for HTTP-level errors, info level otherwise.
       if (res.statusCode < 200 || res.statusCode >= 300) {
-        logger.error('forward-event.error.http', message);
+        logger.error('event.request.error.http', message);
       } else {
-        logger.info('forward-event', message);
+        logger.info('event.request', message);
       }
-
-      message.del(resolve);
+      resolve();
     });
   });
 }
-
 
 function shouldIgnoreEmail (email) {
   if (email.match(/@restmail.net$/)) {
