@@ -644,6 +644,7 @@ define(function (require, exports, module) {
     describe('signUp', function () {
       beforeEach(function () {
         account.set('customizeSync', true);
+        account.set('needsOptedInToMarketingEmail', true);
         sinon.stub(fxaClient, 'signUp', function () {
           return p({ sessionToken: SESSION_TOKEN, verified: false });
         });
@@ -748,7 +749,10 @@ define(function (require, exports, module) {
         });
 
         it('delegates to the fxaClient', function () {
-          assert.isTrue(fxaClient.verifyCode.calledWith(UID, 'CODE'));
+          const options = sinon.match({
+            marketingOptIn: sinon.match.typeOf('undefined')
+          });
+          assert.isTrue(fxaClient.verifyCode.calledWith(UID, 'CODE', options));
         });
 
         it('sets the `verified` flag', function () {
@@ -784,8 +788,13 @@ define(function (require, exports, module) {
           return account.verifySignUp('CODE');
         });
 
-        it('delegates to the marketing email prefs', function () {
-          assert.isTrue(mockEmailPrefs.optIn.called);
+        it('delegates to the fxaClient', function () {
+          const options = sinon.match.has('marketingOptIn', true);
+          assert.isTrue(fxaClient.verifyCode.calledWith(UID, 'CODE', options));
+        });
+
+        it('does not use MarketingEmailPrefs', function () {
+          assert.isFalse(mockEmailPrefs.optIn.called);
         });
 
         it('called notifier.trigger correctly', () => {

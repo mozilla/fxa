@@ -19,6 +19,7 @@ define(function (require, exports, module) {
       entrypoint: undefined,
       flowBegin: undefined,
       flowId: undefined,
+      needsOptedInToMarketingEmail: undefined,
       resetPasswordConfirm: undefined,
       uniqueUserId: undefined,
       utmCampaign: null,
