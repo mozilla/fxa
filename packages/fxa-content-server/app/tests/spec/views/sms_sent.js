@@ -122,7 +122,7 @@
 
      it('resend success, displays the success message', () => {
        sinon.stub(account, 'sendSms', () => p());
-       sinon.spy(view, 'displaySuccess');
+       sinon.spy(view, 'render');
        sinon.stub(view, 'getSmsFeatures', () => ['signinCodes']);
 
        return view.resend()
@@ -131,8 +131,8 @@
            assert.isTrue(account.sendSms.calledWith('+11234567890', FIREFOX_MOBILE_INSTALL, { features: ['signinCodes']}));
 
            assert.isTrue(view.getSmsFeatures.calledOnce);
-           assert.isTrue(view.displaySuccess.calledOnce);
-           const successText = view.displaySuccess.args[0][0];
+           assert.isTrue(view.render.calledOnce);
+           const successText = view.$('.success').text();
            assert.include(successText, 'resent');
            assert.include(successText, '123-456-7890');
          });

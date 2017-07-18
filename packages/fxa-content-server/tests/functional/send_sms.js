@@ -243,7 +243,14 @@
 
         .then(click(selectors.SMS_SENT.LINK_RESEND))
         .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
-        .then(getSms(testPhoneNumber, 1));
+        .then(getSms(testPhoneNumber, 1))
+
+        // user realizes they made a mistake
+        .then(click(selectors.SMS_SENT.LINK_BACK))
+        .then(testElementExists(selectors.SMS_SEND.HEADER))
+
+        // original phone number should still be in place
+        .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber));
      }),
 
      'valid phone number, enable signinCode': disableInProd(function () {

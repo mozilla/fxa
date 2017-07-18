@@ -21,10 +21,6 @@ define(function (require, exports, module) {
   const SmsMixin = require('views/mixins/sms-mixin');
   const Template = require('stache!templates/sms_sent');
 
-  const t = msg => msg;
-
-  const UNTRANSLATED_RESENT_MESSAGE = t('App link resent to %(phoneNumber)s');
-
   const View = BaseView.extend({
     template: Template,
     mustAuth: true,
@@ -41,7 +37,8 @@ define(function (require, exports, module) {
         // escape them, causing the id to be the string `"back"`, and the href
         // to be the string `"#"`.
         escapedBackLinkAttrs: _.escape('id=back href=#'),
-        escapedPhoneNumber: _.escape(this._getFormattedPhoneNumber())
+        escapedPhoneNumber: _.escape(this._getFormattedPhoneNumber()),
+        isResend: this.model.get('isResend')
       });
     },
 
@@ -52,9 +49,8 @@ define(function (require, exports, module) {
         features: this.getSmsFeatures()
       })
       .then(() => {
-        this.displaySuccess(this.translate(UNTRANSLATED_RESENT_MESSAGE, {
-          phoneNumber: this._getFormattedPhoneNumber()
-        }));
+        this.model.set('isResend', true);
+        return this.render();
       });
     },
 
