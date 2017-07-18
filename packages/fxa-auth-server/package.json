@@ -77,7 +77,7 @@
     "acorn": "5.0.3",
     "commander": "2.9.0",
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
-    "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
+    "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#train-91",
     "fxa-conventional-changelog": "1.1.0",
     "grunt": "1.0.1",
     "grunt-bump": "0.8.0",
