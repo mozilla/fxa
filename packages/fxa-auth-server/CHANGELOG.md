@@ -1,3 +1,13 @@
+<a name="1.91.2"></a>
+## [1.91.2](https://github.com/mozilla/fxa-auth-server/compare/v1.91.1...v1.91.2) (2017-07-18)
+
+
+### Bug Fixes
+
+* **tests:** update tests to match recent db changes (#1995), r=@vbudhram ([c059518](https://github.com/mozilla/fxa-auth-server/commit/c059518))
+
+
+
 <a name="1.91.1"></a>
 ## [1.91.1](https://github.com/mozilla/fxa-auth-server/compare/v1.91.0...v1.91.1) (2017-07-12)
 
