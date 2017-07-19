@@ -494,7 +494,7 @@ define(function (require, exports, module) {
           .then(() => {
             view.translator = {
               get: (untranslatedText) => {
-                if (untranslatedText === 'started syncing %(translatedTimeAgo)s') {
+                if (untranslatedText === 'first sync %(translatedTimeAgo)s') {
                   return 'Translated %(translatedTimeAgo)s';
                 }
 
@@ -512,6 +512,36 @@ define(function (require, exports, module) {
 
             assert.equal(formatted[0].lastAccessTimeFormatted, 'Translated %(translatedTimeAgo)s');
             assert.equal(formatted[0].name, 'client-1');
+          });
+      });
+
+      it('supports isMemoryToken formatting', () => {
+        return initView()
+          .then(() => {
+            const formatted = view._formatAccessTimeAndScope([
+              {
+                clientType: 'device',
+                id: 'device-1',
+                isCurrentDevice: false,
+                isDevice: true,
+                lastAccessTime: Date.now(),
+                lastAccessTimeFormatted: '32 minutes ago',
+                type: 'desktop'
+              },
+              {
+                clientType: 'device',
+                id: 'device-2',
+                isCurrentDevice: false,
+                isDevice: true,
+                isMemoryToken: true,
+                lastAccessTime: Date.now(),
+                lastAccessTimeFormatted: '30 minutes ago',
+                type: 'mobile'
+              }
+            ]);
+
+            assert.equal(formatted[0].lastAccessTimeFormatted, 'first sync 32 minutes ago');
+            assert.equal(formatted[1].lastAccessTimeFormatted, 'last sync 30 minutes ago');
           });
       });
 

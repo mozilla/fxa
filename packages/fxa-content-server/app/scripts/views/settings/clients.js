@@ -70,8 +70,13 @@ define(function (require, exports, module) {
           }
 
           if (item.isDevice) {
-            item.lastAccessTimeFormatted = this.translate(
-              t('started syncing %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+            if (item.isMemoryToken) {
+              item.lastAccessTimeFormatted = this.translate(
+                t('last sync %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+            } else {
+              item.lastAccessTimeFormatted = this.translate(
+                t('first sync %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+            }
           }
 
           if (item.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
