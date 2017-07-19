@@ -263,7 +263,8 @@ module.exports = (log, db, config, customs, push, devices) => {
             type: isA.string().max(16).required(),
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
             pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
-            pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('').allow(null)
+            pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
+            isMemoryToken: isA.boolean().required()
           }).and('pushPublicKey', 'pushAuthKey'))
         }
       },
@@ -290,7 +291,6 @@ module.exports = (log, db, config, customs, push, devices) => {
                 device.lastAccessTime,
                 request.headers['accept-language']
               )
-
               delete device.sessionToken
               delete device.uaBrowser
               delete device.uaBrowserVersion
@@ -326,7 +326,8 @@ module.exports = (log, db, config, customs, push, devices) => {
             deviceCallbackPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
             deviceCallbackAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
             isDevice: isA.boolean().required(),
-            isCurrentDevice: isA.boolean().required()
+            isCurrentDevice: isA.boolean().required(),
+            isMemoryToken: isA.boolean().required()
           }))
         }
       },
@@ -372,7 +373,8 @@ module.exports = (log, db, config, customs, push, devices) => {
                   request.headers['accept-language']
                 ),
                 os: session.uaOS,
-                userAgent
+                userAgent,
+                isMemoryToken: session.isMemoryToken || false
               }
             }))
           },

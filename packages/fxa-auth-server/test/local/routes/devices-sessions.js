@@ -447,9 +447,9 @@ describe('/account/devices', function () {
     var unnamedDevice = { sessionToken: crypto.randomBytes(16).toString('hex') }
     var mockDB = mocks.mockDB({
       devices: [
-        { name: 'current session', type: 'mobile', sessionToken: mockRequest.auth.credentials.tokenId },
-        { name: 'has no type', sessionToken: crypto.randomBytes(16).toString('hex') },
-        { name: 'has device type', sessionToken: crypto.randomBytes(16).toString('hex'), uaDeviceType: 'wibble' },
+        { name: 'current session', type: 'mobile', sessionToken: mockRequest.auth.credentials.tokenId, isMemoryToken: true },
+        { name: 'has no type', sessionToken: crypto.randomBytes(16).toString('hex'), isMemoryToken: false },
+        { name: 'has device type', sessionToken: crypto.randomBytes(16).toString('hex'), uaDeviceType: 'wibble', isMemoryToken: false },
         unnamedDevice
       ]
     })
@@ -468,11 +468,13 @@ describe('/account/devices', function () {
       assert.equal(response[0].type, 'mobile')
       assert.equal(response[0].sessionToken, undefined)
       assert.equal(response[0].isCurrentDevice, true)
+      assert.equal(response[0].isMemoryToken, true)
 
       assert.equal(response[1].name, 'has no type')
       assert.equal(response[1].type, 'desktop')
       assert.equal(response[1].sessionToken, undefined)
       assert.equal(response[1].isCurrentDevice, false)
+      assert.equal(response[1].isMemoryToken, false)
 
       assert.equal(response[2].name, 'has device type')
       assert.equal(response[2].type, 'wibble')
@@ -498,7 +500,8 @@ describe('/account/devices', function () {
         isCurrentDevice: true,
         lastAccessTime: 0,
         name: 'test',
-        type: 'test'
+        type: 'test',
+        isMemoryToken: false
       }
     ]
     isA.assert(res, route.config.response.schema)
@@ -514,13 +517,15 @@ describe('/account/sessions', () => {
       tokenId: tokenIds[0], uid: 'qux', createdAt: times[0], lastAccessTime: times[1],
       uaBrowser: 'Firefox', uaBrowserVersion: '50', uaOS: 'Windows', uaOSVersion: '10',
       uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2],
-      deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey'
+      deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
+      isMemoryToken: true
     },
     {
       tokenId: tokenIds[1], uid: 'wibble', createdAt: times[3], lastAccessTime: times[4],
       uaBrowser: 'Nightly', uaBrowserVersion: null, uaOS: 'Android', uaOSVersion: '6',
       uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[5],
-      deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null
+      deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null,
+      isMemoryToken: true
     },
     {
       tokenId: tokenIds[2], uid: 'blee', createdAt: times[6], lastAccessTime: times[7],
@@ -559,7 +564,8 @@ describe('/account/sessions', () => {
           lastAccessTime: times[1],
           lastAccessTimeFormatted: 'a few seconds ago',
           os: 'Windows',
-          userAgent: 'Firefox 50'
+          userAgent: 'Firefox 50',
+          isMemoryToken: true
         },
         {
           deviceId: 'deviceId',
@@ -574,7 +580,8 @@ describe('/account/sessions', () => {
           lastAccessTime: times[4],
           lastAccessTimeFormatted: 'a few seconds ago',
           os: 'Android',
-          userAgent: 'Nightly'
+          userAgent: 'Nightly',
+          isMemoryToken: true
         },
         {
           deviceId: 'deviceId',
@@ -589,7 +596,8 @@ describe('/account/sessions', () => {
           lastAccessTime: times[7],
           lastAccessTimeFormatted: 'a few seconds ago',
           os: null,
-          userAgent: ''
+          userAgent: '',
+          isMemoryToken: false
         },
       ])
     })

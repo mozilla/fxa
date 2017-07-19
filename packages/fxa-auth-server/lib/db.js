@@ -470,7 +470,8 @@ module.exports = (
             uaBrowserVersion: mergedInfo.uaBrowserVersion,
             uaOS: mergedInfo.uaOS,
             uaOSVersion: mergedInfo.uaOSVersion,
-            uaDeviceType: mergedInfo.uaDeviceType
+            uaDeviceType: mergedInfo.uaDeviceType,
+            isMemoryToken: mergedInfo.isMemoryToken || false
           }
         })
       })
@@ -526,7 +527,8 @@ module.exports = (
       uaOSVersion: token.uaOSVersion,
       uaDeviceType: token.uaDeviceType,
       lastAccessTime: token.lastAccessTime,
-      createdAt: token.createdAt
+      createdAt: token.createdAt,
+      isMemoryToken: true
     }]
     let sessionTokens = []
     // get the array of session tokens associated with the given uid
