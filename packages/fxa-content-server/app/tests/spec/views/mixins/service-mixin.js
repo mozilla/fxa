@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const { assert } = require('chai');
+  const Backbone = require('backbone');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const NullBroker = require('models/auth_brokers/base');
@@ -55,6 +56,18 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
+    });
+
+    describe('setInitialContext', () => {
+      it('sets `service`, `serviceName` from the relier', () => {
+        relier.set('service', 'sync');
+        relier.set('serviceName', 'Firefox Sync');
+
+        const context = new Backbone.Model({});
+        view.setInitialContext(context);
+        assert.equal(context.get('service'), 'sync');
+        assert.equal(context.get('serviceName'), 'Firefox Sync');
+      });
     });
 
     describe('render', () => {

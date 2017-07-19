@@ -74,9 +74,7 @@ define(function (require, exports, module) {
         isSync: this.relier.isSync(),
         readyToSyncText: this._getReadyToSyncText(),
         redirectUri: this.relier.get('redirectUri'),
-        secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
-        service: this.relier.get('service'),
-        serviceName: this.relier.get('serviceName')
+        secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null
       });
     },
 

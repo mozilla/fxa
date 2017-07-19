@@ -160,7 +160,6 @@ define(function (require, exports, module) {
         isSync: isSync,
         isSyncMigration: this.isSyncMigration(),
         password: prefillPassword,
-        serviceName: relier.get('serviceName'),
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
         showSyncSuggestion: this.isSyncSuggestionEnabled()

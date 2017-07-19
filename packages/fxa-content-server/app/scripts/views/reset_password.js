@@ -29,8 +29,7 @@ define(function (require, exports, module) {
 
     setInitialContext (context) {
       context.set({
-        forceEmail: this.model.get('forceEmail'),
-        serviceName: this.relier.get('serviceName')
+        forceEmail: this.model.get('forceEmail')
       });
     },
 

@@ -105,7 +105,6 @@ define(function (require, exports, module) {
         isAmoMigration: this.isAmoMigration(),
         isSyncMigration: this.isSyncMigration(),
         password: this._formPrefill.get('password'),
-        serviceName: this.relier.get('serviceName'),
         suggestedAccount: hasSuggestedAccount
       });
     },

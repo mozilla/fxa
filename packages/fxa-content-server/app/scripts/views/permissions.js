@@ -78,7 +78,6 @@ define(function (require, exports, module) {
         this._getApplicablePermissions(account, requestedPermissions);
 
       context.set({
-        serviceName: this.relier.get('serviceName'),
         unsafePermissionsHTML: this._getPermissionsHTML(account, applicablePermissions)
       });
     },

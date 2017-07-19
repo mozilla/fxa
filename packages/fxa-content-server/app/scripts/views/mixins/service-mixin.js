@@ -16,6 +16,10 @@ define(function (require, exports, module) {
       this.transformLinks();
     },
 
+    setInitialContext (context) {
+      context.set(this.relier.pick('service', 'serviceName'));
+    },
+
     transformLinks () {
       // need to add /oauth to urls, but also maintain the existing query params
       const $linkEls = this.$('a[href^="/signin"],a[href^="/signup"],a[href^="/reset_password"]');
