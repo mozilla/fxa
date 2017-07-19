@@ -296,15 +296,19 @@ define([
     },
     recoveryEmails: {
       status: 200,
-      body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}]'
+      body: '[{"email": "a@b.com", "verified": true, "isPrimary": true}]'
     },
     recoveryEmailsUnverified: {
       status: 200,
-      body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}, {"email": "another@email.com", "verified": false, "isPrimary": false}]'
+      body: '[{"email": "a@b.com", "verified": true, "isPrimary": true}, {"email": "another@email.com", "verified": false, "isPrimary": false}]'
     },
     recoveryEmailsVerified: {
       status: 200,
-      body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}, {"email": "another@email.com", "verified": true, "isPrimary": false}]'
+      body: '[{"email": "a@b.com", "verified": true, "isPrimary": true}, {"email": "another@email.com", "verified": true, "isPrimary": false}]'
+    },
+    recoveryEmailsSetPrimaryVerified: {
+      status: 200,
+      body: '[{"email": "anotherEmail@email.com", "verified": true, "isPrimary": true}, {"email": "a@a.com", "verified": true, "isPrimary": false}]'
     },
     recoveryEmailCreate: {
       status: 200,
@@ -321,6 +325,10 @@ define([
     recoveryEmailSecondaryEmailEnabledFalse: {
       status: 200,
       body: '{"ok":false}'
+    },
+    recoveryEmailSetPrimaryEmail: {
+      status: 200,
+      body: '{}'
     }
   };
 });

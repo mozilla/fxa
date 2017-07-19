@@ -239,6 +239,10 @@ define([
             data.unblockCode = options.unblockCode;
           }
 
+          if (options.originalLoginEmail) {
+            data.originalLoginEmail = options.originalLoginEmail;
+          }
+
           return self.request.send(endpoint, 'POST', null, data)
             .then(
               function(accountData) {
@@ -250,6 +254,7 @@ define([
               function(error) {
                 if (error && error.email && error.errno === ERRORS.INCORRECT_EMAIL_CASE && !options.skipCaseError) {
                   options.skipCaseError = true;
+                  options.originalLoginEmail = email;
 
                   return self.signIn(error.email, password, options);
                 } else {
@@ -1474,6 +1479,29 @@ define([
       })
       .then(function(creds) {
         return request.send('/recovery_email/check_can_add_secondary_address', 'GET', creds);
+      });
+  };
+
+  /**
+   * Changes user's primary email address.
+   *
+   * @method recoveryEmailSetPrimaryEmail
+   * @param {String} sessionToken SessionToken obtained from signIn
+   * @param {String} email Email that will be the new primary email for user
+   */
+  FxAccountClient.prototype.recoveryEmailSetPrimaryEmail = function (sessionToken, email) {
+    var request = this.request;
+    return P()
+      .then(function () {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE);
+      })
+      .then(function(creds) {
+        var data = {
+          email: email
+        };
+        return request.send('/recovery_email/set_primary', 'POST', creds, data);
       });
   };
 

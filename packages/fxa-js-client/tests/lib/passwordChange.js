@@ -69,13 +69,6 @@ define([
           })
           .then(function(result) {
             account = result;
-            // signin confirmation flow
-            return respond(mail.wait(user, 2), RequestMocks.mailUnverifiedSignin);
-          })
-          .then(function (emails) {
-            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
-
-            return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
           })
           .then(function () {
             return respond(client.accountKeys(account.keyFetchToken, account.unwrapBKey), RequestMocks.accountKeys);
@@ -159,13 +152,6 @@ define([
           .then(function(result) {
             sessionToken = result.sessionToken;
             account = result;
-            // signin confirmation flow
-            return respond(mail.wait(user, 2), RequestMocks.mailUnverifiedSignin);
-          })
-          .then(function (emails) {
-            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
-
-            return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
           })
           .then(function () {
 

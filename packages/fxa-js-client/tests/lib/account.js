@@ -56,20 +56,8 @@ define([
       });
 
       test('#keys', function () {
-        var account;
-
         return accountHelper.newVerifiedAccount()
-          .then(function(res) {
-            account = res;
-            // signin confirmation flow
-            return respond(mail.wait(account.input.user, 2), RequestMocks.mailUnverifiedSignin);
-          })
-          .then(function (emails) {
-            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
-
-            return respond(client.verifyCode(account.signIn.uid, code), RequestMocks.verifyCode);
-          })
-          .then(function () {
+          .then(function (account) {
             return respond(client.accountKeys(account.signIn.keyFetchToken, account.signIn.unwrapBKey), RequestMocks.accountKeys);
           })
           .then(

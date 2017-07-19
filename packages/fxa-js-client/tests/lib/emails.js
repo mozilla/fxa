@@ -32,24 +32,11 @@ define([
         user2Email = user2 + '@restmail.net';
       });
 
-      function newVerifiedAccount(emailDomain) {
-        return accountHelper.newVerifiedAccount(emailDomain)
-          .then(function (res) {
-            account = res;
-            // signin confirmation flow
-            return respond(mail.wait(account.input.user, 2), RequestMocks.mailUnverifiedSignin);
-          })
-          .then(function (emails) {
-            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
-
-            return respond(client.verifyCode(account.signIn.uid, code), RequestMocks.verifyCode);
-          });
-      }
-
       function recoveryEmailCreate() {
-        return newVerifiedAccount()
+        return accountHelper.newVerifiedAccount()
           .then(
-            function () {
+            function (res) {
+              account = res;
               return respond(client.recoveryEmailCreate(
                 account.signIn.sessionToken,
                 user2Email
@@ -65,9 +52,10 @@ define([
       }
 
       test('#recoveryEmailSecondaryEmailEnabled enabled for valid email and verified session', function () {
-        return newVerifiedAccount()
+        return accountHelper.newVerifiedAccount()
           .then(
-            function () {
+            function (res) {
+              account = res;
               return respond(client.recoveryEmailSecondaryEmailEnabled(
                 account.signIn.sessionToken
               ), RequestMocks.recoveryEmailSecondaryEmailEnabledTrue);
@@ -84,12 +72,12 @@ define([
       });
 
       test('#recoveryEmailSecondaryEmailEnabled disabled for valid email and unverified session', function () {
-        // accountHelper.newVerifiedAccount helper creates account with unverified session
-        return accountHelper.newVerifiedAccount()
+        return accountHelper.newVerifiedAccount({username: 'confirm.'})
           .then(
             function (res) {
+              account = res;
               return respond(client.recoveryEmailSecondaryEmailEnabled(
-                res.signIn.sessionToken
+                account.signIn.sessionToken
               ), RequestMocks.recoveryEmailSecondaryEmailEnabledFalse);
             },
             handleError
@@ -104,9 +92,10 @@ define([
       });
 
       test('#recoveryEmailSecondaryEmailEnabled disabled for invalid email', function () {
-        return newVerifiedAccount('@featurenotenabledforthisdomain.com')
+        return accountHelper.newVerifiedAccount({domain: '@featurenotenabledforthisdomain.net'})
           .then(
-            function () {
+            function (res) {
+              account = res;
               return respond(client.recoveryEmailSecondaryEmailEnabled(
                 account.signIn.sessionToken
               ), RequestMocks.recoveryEmailSecondaryEmailEnabledFalse);
@@ -227,6 +216,58 @@ define([
             function (res) {
               assert.ok(res);
               assert.equal(res.length, 1, 'returned one email');
+            },
+            handleError
+          );
+      });
+
+      test('#recoveryEmailSetPrimaryEmail', function () {
+        return recoveryEmailCreate()
+          .then(
+            function (res) {
+              assert.ok(res);
+
+              return respond(mail.wait(user2, 1), RequestMocks.mailUnverifiedEmail);
+            },
+            handleError
+          )
+          .then(function (emails) {
+            var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+
+            return respond(client.verifyCode(account.signIn.uid, code, {type: 'secondary'}), RequestMocks.verifyCode);
+          })
+          .then(
+            function (res) {
+              assert.ok(res);
+
+              return respond(client.recoveryEmailSetPrimaryEmail(
+                account.signIn.sessionToken,
+                user2Email
+              ), RequestMocks.recoveryEmailSetPrimaryEmail);
+            },
+            handleError
+          )
+          .then(
+            function (res) {
+              assert.ok(res);
+
+              return respond(client.recoveryEmails(
+                account.signIn.sessionToken
+              ), RequestMocks.recoveryEmailsSetPrimaryVerified);
+            },
+            handleError
+          )
+          .then(
+            function (res) {
+              assert.ok(res);
+              assert.equal(res.length, 2, 'returned two emails');
+
+              assert.equal(true, res[0].email.indexOf('anotherEmail') > -1, 'returned correct primary email');
+              assert.equal(res[0].verified, true, 'returned verified');
+              assert.equal(res[0].isPrimary, true, 'returned isPrimary true');
+
+              assert.equal(res[1].verified, true, 'returned verified');
+              assert.equal(res[1].isPrimary, false, 'returned isPrimary false');
             },
             handleError
           );
