@@ -587,6 +587,24 @@ define(function (require, exports, module) {
                 lastAccessTime: Date.now(),
                 lastAccessTimeFormatted: '18 minutes ago',
                 userAgent: ''
+              },
+              {
+                clientType: 'device',
+                id: 'device-1',
+                isCurrentDevice: false,
+                isDevice: true,
+                isMemoryToken: true,
+                lastAccessTime: Date.now(),
+                lastAccessTimeFormatted: '30 minutes ago',
+                type: 'mobile'
+              },
+              {
+                clientType: 'device',
+                id: 'device-1',
+                isCurrentDevice: false,
+                isDevice: true,
+                isMemoryToken: true,
+                type: 'mobile'
               }
             ]);
 
@@ -596,6 +614,8 @@ define(function (require, exports, module) {
             assert.equal(formatted[2].title, 'Add-ons');
             assert.equal(formatted[3].title, 'Web Session, Firefox 40');
             assert.equal(formatted[4].title, 'Web Session');
+            assert.equal(formatted[5].lastAccessTimeFormatted, 'last sync 30 minutes ago');
+            assert.equal(formatted[6].lastAccessTimeFormatted, 'last sync time unknown');
           });
       });
     });

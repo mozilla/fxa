@@ -84,8 +84,12 @@ define(function (require, exports, module) {
               t('last active %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
           }
         } else {
-          // unknown lastAccessTimeFormatted or not possible to format.
-          item.lastAccessTimeFormatted = '';
+          if (item.isDevice) {
+            item.lastAccessTimeFormatted = t('last sync time unknown');
+          } else {
+            // unknown lastAccessTimeFormatted or not possible to format.
+            item.lastAccessTimeFormatted = '';
+          }
         }
         return item;
       });
