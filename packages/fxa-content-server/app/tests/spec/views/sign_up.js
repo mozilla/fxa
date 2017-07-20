@@ -244,104 +244,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('sync suggestion', function () {
-
-      it('displays sync suggestion message if no migration', function () {
-        createView();
-        relier.set('service', null);
-
-        sinon.spy(view.metrics, 'logEvent');
-
-        return view.render()
-          .then(function () {
-            assert.lengthOf(view.$('#suggest-sync'), 1);
-
-            const $suggestSyncEl = view.$('#suggest-sync');
-            assert.include($suggestSyncEl.text(), 'Looking for Firefox Sync?');
-            assert.include($suggestSyncEl.text(), 'Get started here');
-
-            const $getStartedEl = $suggestSyncEl.find('a');
-            assert.equal($getStartedEl.attr('rel'), 'noopener noreferrer');
-
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signup.sync-suggest.visible'), 'enrolled');
-          });
-      });
-
-      it('does not have sync auth supported', function () {
-        createView();
-        relier.set('service', null);
-        sinon.stub(view, 'isSyncAuthSupported', () => false);
-        return view.render()
-          .then(function () {
-            const $getStartedEl = view.$('#suggest-sync').find('a');
-            assert.equal($getStartedEl.attr('href'),
-              'https://mozilla.org/firefox/sync?' +
-              'utm_source=fx-website&utm_medium=fx-accounts&' +
-              'utm_campaign=fx-signup&utm_content=fx-sync-get-started');
-          });
-      });
-
-      it('has sync auth supported on Firefox for Desktop', function () {
-        createView();
-        relier.set('service', null);
-        sinon.stub(view, 'isSyncAuthSupported', () => true);
-        sinon.stub(view, 'getUserAgent', () => {
-          return {
-            isFirefoxAndroid: () => false,
-            isFirefoxDesktop: () => true,
-          };
-        });
-        return view.render()
-          .then(function () {
-            const $getStartedEl = view.$('#suggest-sync').find('a');
-            assert.equal($getStartedEl.attr('href'),
-              view.window.location.origin +
-              '/signup?context=fx_desktop_v3&entrypoint=fxa%3Asignup&service=sync');
-          });
-      });
-
-      it('has sync auth supported on Firefox for Android', function () {
-        createView();
-        relier.set('service', null);
-        sinon.stub(view, 'isSyncAuthSupported', () => true);
-        sinon.stub(view, 'getUserAgent', () => {
-          return {
-            isFirefoxAndroid: () => true,
-            isFirefoxDesktop: () => false,
-          };
-        });
-        return view.render()
-          .then(function () {
-            const $getStartedEl = view.$('#suggest-sync').find('a');
-            assert.equal($getStartedEl.attr('href'),
-              view.window.location.origin +
-              '/signup?context=fx_fennec_v1&entrypoint=fxa%3Asignup&service=sync');
-          });
-      });
-
-      it('can be dismissed', function () {
-        createView();
-        relier.set('service', null);
-
-        return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-            assert.isTrue(view.$('#suggest-sync').is(':visible'), 'visible');
-            view.onSuggestSyncDismiss();
-            assert.isFalse(view.$('#suggest-sync').is(':visible'), 'hidden');
-          });
-      });
-
-      it('does not display sync suggestion message if there is a relier service', function () {
-        relier.set('service', 'sync');
-
-        return view.render()
-          .then(function () {
-            assert.lengthOf(view.$('#suggest-sync'), 0);
-          });
-      });
-    });
-
     describe('migration', function () {
       it('does not display migration message if no migration', function () {
         return view.render()
@@ -1341,20 +1243,6 @@ define(function (require, exports, module) {
         view.enableForm();
         view.$('#submit-btn').click();
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.submit'));
-      });
-
-      it('logs the link.signin event', () => {
-        // Without the _flusthMetricsThenRedirect override, the test
-        // causes the page to redirect.
-        sinon.stub(view, 'isSyncSuggestionEnabled', () => true);
-        sinon.stub(view, '_flushMetricsThenRedirect', () => p());
-        return view.render()
-          .then(() => {
-            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.link.signin'));
-            assert.lengthOf(view.$('a[data-flow-event="link.signin"]'), 1);
-            view.$('a[data-flow-event="link.signin"]').click();
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.link.signin'));
-          });
       });
     });
   });

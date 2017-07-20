@@ -169,6 +169,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/signup-mixin',
     '../tests/spec/views/mixins/sms-mixin',
     '../tests/spec/views/mixins/sync-auth-mixin',
+    '../tests/spec/views/mixins/sync-suggestion-mixin',
     '../tests/spec/views/mixins/timer-mixin',
     '../tests/spec/views/mixins/verification-reason-mixin',
     '../tests/spec/views/oauth_index',

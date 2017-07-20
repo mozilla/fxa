@@ -118,7 +118,7 @@ define(function (require, exports, module) {
     });
 
     describe('renderTemplate', () => {
-      it('invokes the template with merged `context` and `additionalContext`', () => {
+      it('invokes the template with merged `context` and `additionalContext` and translation helpers', () => {
         const template = sinon.spy();
         const additionalContext = {
           baz: 'buz'
@@ -130,7 +130,11 @@ define(function (require, exports, module) {
         view.renderTemplate(template, additionalContext);
 
         assert.isTrue(template.calledOnce);
-        assert.isTrue(template.calledWith({ baz: 'buz', foo: 'bar' }));
+        const args = template.args[0][0];
+        assert.equal(args.baz, 'buz');
+        assert.equal(args.foo, 'bar');
+        assert.isFunction(args.t);
+        assert.isFunction(args.unsafeTranslate);
       });
     });
 

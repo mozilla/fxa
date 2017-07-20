@@ -243,7 +243,7 @@ define(function (require, exports, module) {
 
     /**
      * Render a template using view's own context combined with
-     * any additional passed in context.
+     * `additionalContext`.
      *
      * @param {Function} template - template function
      * @param {Object} [additionalContext] - additional context to pass to
@@ -251,7 +251,17 @@ define(function (require, exports, module) {
      * @returns {String} - rendered template
      */
     renderTemplate (template, additionalContext = {}) {
-      const context = _.extend({}, this.getContext(), additionalContext);
+      // `t` and `unsafeTranslate` are helper functions used by
+      // the template for translation. `context` is passed to
+      // each to propagate values from `additionalContext`.
+      const context = _.extend({}, this.getContext(), {
+        // `t` is a Mustache helper to translate and HTML escape strings.
+        t: (msg) => this.translateInTemplate(msg, context),
+        // `unsafeTranslate` is a Mustache helper that translates a
+        // string without HTML escaping. Prefer `t`
+        unsafeTranslate: (msg) => this.unsafeTranslateInTemplate(msg, context)
+      }, additionalContext);
+
       return template(context);
     },
 
@@ -359,13 +369,7 @@ define(function (require, exports, module) {
       // use cached context, if available. This prevents the context()
       // function from being called multiple times per render.
       if (! this._context) {
-        this._context = new Backbone.Model({
-          // `t` is a Mustache helper to translate and HTML escape strings.
-          t: this.translateInTemplate.bind(this),
-          // `unsafeTranslate` is a Mustache helper that translates a
-          // string without HTML escaping. Prefer `t`
-          unsafeTranslate: this.unsafeTranslateInTemplate.bind(this)
-        });
+        this._context = new Backbone.Model({});
         this.setInitialContext(this._context);
       }
       return this._context.toJSON();
@@ -423,11 +427,12 @@ define(function (require, exports, module) {
      * Return a Mustache helper that translates a string.
      * Translations are HTML escaped.
      *
-     * @param {String} [text] - string to translate
+     * @param {String} [text] to translate
+     * @param {Object} [context] passed to translation function
      * @returns {Function}
      */
-    translateInTemplate (text) {
-      return innerText => this.translate(text || innerText);
+    translateInTemplate (text, context) {
+      return innerText => this.translate(text || innerText, context);
     },
 
     /**
@@ -437,11 +442,12 @@ define(function (require, exports, module) {
      *
      * ** WARNING ** DOES NOT HTML ESCAPE
      *
-     * @param {string} [text] - string to translate
+     * @param {string} [text] string to translate
+     * @param {Object} [context] passed to translation function
      * @returns {function}
      */
-    unsafeTranslateInTemplate (text) {
-      return innerText => this.unsafeTranslate(text || innerText);
+    unsafeTranslateInTemplate (text, context) {
+      return innerText => this.unsafeTranslate(text || innerText, context);
     },
 
     /**

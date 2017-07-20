@@ -113,7 +113,9 @@ define(function (require, exports, module) {
     MARKETING_ID_AUTUMN_2016: 'autumn-2016-connect-another-device',
 
     DOWNLOAD_LINK_TEMPLATE_ANDROID: 'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=android',
-    DOWNLOAD_LINK_TEMPLATE_IOS: 'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=ios&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8' //eslint-disable-line max-len
+    DOWNLOAD_LINK_TEMPLATE_IOS: 'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=ios&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8', //eslint-disable-line max-len
+
+    MOZ_ORG_SYNC_GET_STARTED_LINK: 'https://mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started', //eslint-disable-line max-len
   };
   /*eslint-enable sorting/sort-object-props*/
 });

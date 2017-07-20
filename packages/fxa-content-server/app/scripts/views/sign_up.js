@@ -21,7 +21,7 @@ define(function (require, exports, module) {
   const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
   const SignInMixin = require('views/mixins/signin-mixin');
   const SignUpMixin = require('views/mixins/signup-mixin');
-  const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
+  const SyncSuggestionMixin = require('views/mixins/sync-suggestion-mixin');
   const Template = require('stache!templates/sign_up');
 
   var t = BaseView.t;
@@ -117,8 +117,7 @@ define(function (require, exports, module) {
 
     events: {
       'blur input.email': 'onEmailBlur',
-      'click #amo-migration a': 'onAmoSignIn',
-      'click #suggest-sync .dismiss': 'onSuggestSyncDismiss'
+      'click #amo-migration a': 'onAmoSignIn'
     },
 
     getPrefillEmail () {
@@ -145,7 +144,7 @@ define(function (require, exports, module) {
       var relier = this.relier;
       var isSync = relier.isSync();
 
-      var contextData = {
+      context.set({
         chooseWhatToSyncCheckbox: this.broker.hasCapability('chooseWhatToSyncCheckbox'),
         email: prefillEmail,
         error: this.error,
@@ -158,22 +157,8 @@ define(function (require, exports, module) {
         isSyncMigration: this.isSyncMigration(),
         password: prefillPassword,
         shouldFocusEmail: autofocusEl === 'email',
-        shouldFocusPassword: autofocusEl === 'password',
-        showSyncSuggestion: this.isSyncSuggestionEnabled()
-      };
-
-      let escapedSyncSuggestionUrl;
-      if (this.isSyncAuthSupported()) {
-        escapedSyncSuggestionUrl = this.getEscapedSyncUrl('signup', View.ENTRYPOINT);
-      } else {
-        escapedSyncSuggestionUrl = encodeURI(
-                'https://mozilla.org/firefox/sync?' +
-                'utm_source=fx-website&utm_medium=fx-accounts&' +
-                'utm_campaign=fx-signup&utm_content=fx-sync-get-started');
-      }
-      contextData.escapedSyncSuggestionAttrs = `data-flow-event="link.signin" href="${escapedSyncSuggestionUrl}"`;
-
-      context.set(contextData);
+        shouldFocusPassword: autofocusEl === 'password'
+      });
     },
 
     beforeDestroy () {
@@ -315,10 +300,6 @@ define(function (require, exports, module) {
       mailcheck(this.$el.find('.email'), this);
     },
 
-    onSuggestSyncDismiss () {
-      this.$('#suggest-sync').hide();
-    },
-
     onAmoSignIn () {
       // The user has chosen to sign in with a different email, clear the
       // email from the relier so it's not used again on the signin page.
@@ -398,7 +379,11 @@ define(function (require, exports, module) {
     SignInMixin,
     SignUpMixin,
     SignedInNotificationMixin,
-    SyncAuthMixin
+    SyncSuggestionMixin({
+      entrypoint: View.ENTRYPOINT,
+      flowEvent: 'link.signin',
+      pathname: 'signup'
+    })
   );
 
   module.exports = View;
