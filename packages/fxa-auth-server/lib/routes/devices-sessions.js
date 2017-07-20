@@ -36,7 +36,7 @@ module.exports = (log, db, config, customs, push, devices) => {
       path: '/account/device',
       config: {
         auth: {
-          strategy: 'sessionTokenWithDevice'
+          strategy: 'sessionToken'
         },
         validate: {
           payload: isA.alternatives().try(
@@ -141,7 +141,7 @@ module.exports = (log, db, config, customs, push, devices) => {
       path: '/account/devices/notify',
       config: {
         auth: {
-          strategy: 'sessionTokenWithDevice'
+          strategy: 'sessionToken'
         },
         validate: {
           payload: isA.alternatives().try(

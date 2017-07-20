@@ -28,6 +28,7 @@ module.exports = (
   const AccountResetToken = Token.AccountResetToken
   const PasswordForgotToken = Token.PasswordForgotToken
   const PasswordChangeToken = Token.PasswordChangeToken
+  const MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice
 
   function setAccountEmails(account) {
     return this.accountEmails(account.uid)
@@ -257,6 +258,16 @@ module.exports = (
 
     return P.all(promises)
       .spread((mysqlSessionTokens, redisTokens) => {
+        if (MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
+          // Filter out any expired sessions
+          mysqlSessionTokens = mysqlSessionTokens.filter(sessionToken => {
+            if (sessionToken.deviceId) {
+              return true
+            }
+
+            return sessionToken.createdAt > Date.now() - MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE
+          })
+        }
         // for each db session token, if there is a matching redis token
         // overwrite the properties of the db token with the redis token values
         const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : []
@@ -272,34 +283,6 @@ module.exports = (
         })
         return sessions
       })
-  }
-
-  DB.prototype.sessionToken = function (id) {
-    log.trace({ op: 'DB.sessionToken', id: id })
-    return this.pool.get('/sessionToken/' + id)
-      .then(
-        function (data) {
-          return SessionToken.fromHex(data.tokenData, data)
-        },
-        function (err) {
-          err = wrapTokenNotFoundError(err)
-          throw err
-        }
-      )
-  }
-
-  DB.prototype.sessionTokenWithVerificationStatus = function (id) {
-    log.trace({ op: 'DB.sessionTokenWithVerificationStatus', id: id })
-    return this.pool.get('/sessionToken/' + id + '/verified')
-      .then(
-        function (data) {
-          return SessionToken.fromHex(data.tokenData, data)
-        },
-        function (err) {
-          err = wrapTokenNotFoundError(err)
-          throw err
-        }
-      )
   }
 
   DB.prototype.keyFetchToken = function (id) {
@@ -483,8 +466,8 @@ module.exports = (
       })
   }
 
-  DB.prototype.sessionWithDevice = function (id) {
-    log.trace({ op: 'DB.sessionWithDevice', id: id })
+  DB.prototype.sessionToken = function (id) {
+    log.trace({ op: 'DB.sessionToken', id: id })
     return this.pool.get('/sessionToken/' + id + '/device')
     .then(
       function (data) {

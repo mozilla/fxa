@@ -23,7 +23,10 @@ const lastAccessTimeUpdates = {
   sampleRate: 1
 }
 const Token = require('../../lib/tokens')(log, {
-  lastAccessTimeUpdates: lastAccessTimeUpdates
+  lastAccessTimeUpdates: lastAccessTimeUpdates,
+  tokenLifetimes: {
+    sessionTokenWithoutDevice: 2419200000
+  }
 })
 const redisGetSpy = sinon.stub()
 const redisSetSpy = sinon.stub()
@@ -36,7 +39,12 @@ const DB = proxyquire('../../lib/db', { redis: {
     del: redisDelSpy
   })
 }})(
-  { lastAccessTimeUpdates, signinCodeSize: config.signinCodeSize , redis: { enabled: true }},
+  {
+    lastAccessTimeUpdates,
+    signinCodeSize: config.signinCodeSize,
+    redis: { enabled: true },
+    tokenLifetimes: {}
+  },
   log,
   Token,
   UnblockCode
@@ -160,18 +168,19 @@ describe('remote db', function() {
           assert.equal(sessions[0].isMemoryToken, undefined, 'isMemoryToken property is correct')
           return db.sessionToken(tokenId)
         })
-        .then(function(sessionToken) {
-          assert.deepEqual(sessionToken.tokenId, tokenId, 'token id matches')
+        .then(sessionToken => {
+          assert.equal(sessionToken.tokenId, tokenId, 'token id matches')
           assert.equal(sessionToken.uaBrowser, 'Firefox')
           assert.equal(sessionToken.uaBrowserVersion, '41')
           assert.equal(sessionToken.uaOS, 'Mac OS X')
           assert.equal(sessionToken.uaOSVersion, '10.10')
           assert.equal(sessionToken.uaDeviceType, null)
           assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt)
-          assert.deepEqual(sessionToken.uid, account.uid)
+          assert.equal(sessionToken.uid, account.uid)
           assert.equal(sessionToken.email, account.email)
-          assert.deepEqual(sessionToken.emailCode, account.emailCode)
+          assert.equal(sessionToken.emailCode, account.emailCode)
           assert.equal(sessionToken.emailVerified, account.emailVerified)
+          assert.equal(sessionToken.lifetime < Infinity, true)
           return sessionToken
         })
         .then(function(sessionToken) {
@@ -325,6 +334,11 @@ describe('remote db', function() {
             assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
             assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
             assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+            // Fetch the session token
+            return db.sessionToken(sessionToken.tokenId)
+          })
+          .then(sessionToken => {
+            assert.equal(sessionToken.lifetime, Infinity)
             // Attempt to create a device with a duplicate session token
             return db.createDevice(account.uid, sessionToken.tokenId, conflictingDeviceInfo)
               .then(function () {

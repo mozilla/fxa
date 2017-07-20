@@ -7,11 +7,17 @@
 const userAgent = require('../userAgent')
 
 module.exports = (log, Token, config) => {
+  const MAX_AGE_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice
 
   class SessionToken extends Token {
 
     constructor(keys, details) {
       super(keys, details)
+
+      if (MAX_AGE_WITHOUT_DEVICE && ! details.deviceId) {
+        this.lifetime = MAX_AGE_WITHOUT_DEVICE
+      }
+
       this.setUserAgentInfo(details)
       this.setDeviceInfo(details)
       this.email = details.email || null

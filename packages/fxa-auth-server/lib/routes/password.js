@@ -168,7 +168,7 @@ module.exports = function (
 
         function getSessionVerificationStatus() {
           if (sessionTokenId) {
-            return db.sessionWithDevice(sessionTokenId)
+            return db.sessionToken(sessionTokenId)
               .then(
                 function (tokenData) {
                   verifiedStatus = tokenData.tokenVerified

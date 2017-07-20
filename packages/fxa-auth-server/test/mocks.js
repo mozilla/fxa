@@ -60,8 +60,6 @@ const DB_METHOD_NAMES = [
   'securityEvents',
   'sessions',
   'sessionToken',
-  'sessionTokenWithVerificationStatus',
-  'sessionWithDevice',
   'updateDevice',
   'updateLocale',
   'updateSessionToken',
@@ -307,17 +305,7 @@ function mockDB (data, errors) {
     updateDevice: sinon.spy((uid, sessionTokenId, device) => {
       return P.resolve(device)
     }),
-    sessionTokenWithVerificationStatus: sinon.spy(() => {
-      return P.resolve({
-        tokenVerified: true,
-        uaBrowser: data.uaBrowser,
-        uaBrowserVersion: data.uaBrowserVersion,
-        uaOS: data.uaOS,
-        uaOSVersion: data.uaOSVersion,
-        uaDeviceType: data.uaDeviceType
-      })
-    }),
-    sessionWithDevice: sinon.spy(() => {
+    sessionToken: sinon.spy(() => {
       var res = {
         tokenVerified: true,
         uaBrowser: data.uaBrowser,

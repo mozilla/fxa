@@ -25,7 +25,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
       path: '/recovery_email/check_can_add_secondary_address',
       config: {
         auth: {
-          strategy: 'sessionTokenWithVerificationStatus'
+          strategy: 'sessionToken'
         }
       },
       handler (request, reply) {
@@ -47,7 +47,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
       path: '/recovery_email/status',
       config: {
         auth: {
-          strategy: 'sessionTokenWithVerificationStatus'
+          strategy: 'sessionToken'
         },
         validate: {
           query: {
@@ -131,7 +131,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
       path: '/recovery_email/resend_code',
       config: {
         auth: {
-          strategy: 'sessionTokenWithVerificationStatus'
+          strategy: 'sessionToken'
         },
         validate: {
           query: {
@@ -513,7 +513,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
       path: '/recovery_email',
       config: {
         auth: {
-          strategy: 'sessionTokenWithVerificationStatus'
+          strategy: 'sessionToken'
         },
         validate: {
           payload: {
@@ -630,7 +630,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
       path: '/recovery_email/destroy',
       config: {
         auth: {
-          strategy: 'sessionTokenWithVerificationStatus'
+          strategy: 'sessionToken'
         },
         validate: {
           payload: {
@@ -672,7 +672,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
       path: '/recovery_email/set_primary',
       config: {
         auth: {
-          strategy: 'sessionTokenWithVerificationStatus'
+          strategy: 'sessionToken'
         },
         validate: {
           payload: {

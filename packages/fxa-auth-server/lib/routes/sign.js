@@ -19,7 +19,7 @@ module.exports = (log, signer, db, domain, devices) => {
       path: '/certificate/sign',
       config: {
         auth: {
-          strategy: 'sessionTokenWithDevice',
+          strategy: 'sessionToken',
           payload: 'required'
         },
         validate: {

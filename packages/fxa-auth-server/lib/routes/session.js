@@ -68,7 +68,7 @@ module.exports = function (log, db) {
       path: '/session/status',
       config: {
         auth: {
-          strategy: 'sessionTokenWithVerificationStatus'
+          strategy: 'sessionToken'
         },
         response: {
           schema: {

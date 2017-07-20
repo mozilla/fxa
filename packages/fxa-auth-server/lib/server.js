@@ -180,28 +180,10 @@ function create(log, error, config, routes, db, translator) {
     }
 
     server.auth.strategy(
-      'sessionTokenWithDevice',
-      'hawk',
-      {
-        getCredentialsFunc: makeCredentialFn(db.sessionWithDevice.bind(db)),
-        hawk: hawkOptions
-      }
-    )
-    server.auth.strategy(
       'sessionToken',
       'hawk',
       {
         getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
-        hawk: hawkOptions
-      }
-    )
-    server.auth.strategy(
-      // This strategy fetches the sessionToken with its
-      // verification state. It doesn't check that state.
-      'sessionTokenWithVerificationStatus',
-      'hawk',
-      {
-        getCredentialsFunc: makeCredentialFn(db.sessionTokenWithVerificationStatus.bind(db)),
         hawk: hawkOptions
       }
     )
