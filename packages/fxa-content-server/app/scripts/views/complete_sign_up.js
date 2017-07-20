@@ -23,15 +23,12 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
   const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
-  const ExperimentMixin = require('views/mixins/experiment-mixin');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
   const p = require('lib/promise');
   const ResendMixin = require('views/mixins/resend-mixin')();
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const t = BaseView.t;
-  const UserAgentMixin = require('lib/user-agent-mixin');
   const VerificationInfo = require('models/verification/sign-up');
-  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   const CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,
@@ -289,11 +286,8 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     CompleteSignUpView,
     ConnectAnotherDeviceMixin,
-    ExperimentMixin,
     ResendMixin,
-    ResumeTokenMixin,
-    UserAgentMixin,
-    VerificationReasonMixin
+    ResumeTokenMixin
   );
 
   module.exports = CompleteSignUpView;

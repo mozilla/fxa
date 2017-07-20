@@ -11,9 +11,10 @@ define((require, exports, module) => {
 
   describe('views/mixins/flow-begin-mixin', () => {
     it('exports correct interface', () => {
-      assert.lengthOf(Object.keys(flowBeginMixin), 1);
+      assert.lengthOf(Object.keys(flowBeginMixin), 2);
       assert.isFunction(flowBeginMixin.afterRender);
       assert.lengthOf(flowBeginMixin.afterRender, 0);
+      assert.isArray(flowBeginMixin.dependsOn);
     });
 
     describe('afterRender', () => {

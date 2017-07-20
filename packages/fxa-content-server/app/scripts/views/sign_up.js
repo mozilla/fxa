@@ -12,20 +12,17 @@ define(function (require, exports, module) {
   const CoppaAgeInput = require('views/coppa/coppa-age-input');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FormView = require('views/form');
   const mailcheck = require('lib/mailcheck');
   const MigrationMixin = require('views/mixins/migration-mixin');
   const p = require('lib/promise');
   const PasswordMixin = require('views/mixins/password-mixin');
-  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
   const SignInMixin = require('views/mixins/signin-mixin');
   const SignUpMixin = require('views/mixins/signup-mixin');
   const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
   const Template = require('stache!templates/sign_up');
-  const UserAgentMixin = require('lib/user-agent-mixin');
 
   var t = BaseView.t;
 
@@ -394,18 +391,14 @@ define(function (require, exports, module) {
     AccountResetMixin,
     CheckboxMixin,
     ExperimentMixin,
-    // FlowEventsMixin must be mixed in before FlowBeginMixin
-    FlowEventsMixin,
     FlowBeginMixin,
     MigrationMixin,
     PasswordMixin,
-    ResumeTokenMixin,
     ServiceMixin,
     SignInMixin,
     SignUpMixin,
     SignedInNotificationMixin,
-    SyncAuthMixin,
-    UserAgentMixin
+    SyncAuthMixin
   );
 
   module.exports = View;

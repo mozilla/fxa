@@ -10,11 +10,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const _ = require('underscore');
   const SearchParamMixin = require('lib/search-param-mixin');
   const Transform = require('lib/transform');
 
-  module.exports = _.extend({
+  module.exports = {
+    dependsOn: [ SearchParamMixin ],
+
     /**
      * Import search parameters defined in the schema. Parameters are
      * transformed and validated based on the rules defined in the `schema`.
@@ -36,5 +37,5 @@ define(function (require, exports, module) {
       var result = Transform.transformUsingSchema(params, schema, Errors);
       this.set(result);
     }
-  }, SearchParamMixin);
+  };
 });

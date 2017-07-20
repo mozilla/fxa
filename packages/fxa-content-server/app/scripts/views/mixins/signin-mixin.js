@@ -9,10 +9,13 @@ define(function (require, exports, module) {
 
   const AuthErrors = require('lib/auth-errors');
   const p = require('lib/promise');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const VerificationMethods = require('lib/verification-methods');
   const VerificationReasons = require('lib/verification-reasons');
 
   module.exports = {
+    dependsOn: [ ResumeTokenMixin ],
+
     /**
      * Sign in a user
      *

@@ -10,15 +10,12 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const AvatarMixin = require('views/mixins/avatar-mixin');
   const Cocktail = require('cocktail');
-  const ExperimentMixin = require('views/mixins/experiment-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const FormView = require('views/form');
   const MigrationMixin = require('views/mixins/migration-mixin');
   const PasswordMixin = require('views/mixins/password-mixin');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const { preventDefaultThen, t } = require('views/base');
-  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Session = require('lib/session');
   const showProgressIndicator = require('views/decorators/progress_indicator');
@@ -282,14 +279,10 @@ define(function (require, exports, module) {
     View,
     AccountResetMixin,
     AvatarMixin,
-    ExperimentMixin,
-    // FlowEventsMixin must be mixed in before FlowBeginMixin
-    FlowEventsMixin,
     FlowBeginMixin,
     MigrationMixin,
     PasswordMixin,
     PasswordResetMixin,
-    ResumeTokenMixin,
     ServiceMixin,
     SignInMixin,
     SignedInNotificationMixin

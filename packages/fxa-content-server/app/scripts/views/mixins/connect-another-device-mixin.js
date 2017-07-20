@@ -25,8 +25,17 @@ define((require, exports, module) => {
   'use strict';
 
   const p = require('lib/promise');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const UserAgentMixin = require('lib/user-agent-mixin');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   return {
+    dependsOn: [
+      ExperimentMixin,
+      UserAgentMixin,
+      VerificationReasonMixin
+    ],
+
     /**
      * Is `account` eligible for connect another device?
      *

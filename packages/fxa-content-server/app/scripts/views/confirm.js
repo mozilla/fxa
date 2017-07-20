@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
   const Constants = require('lib/constants');
-  const ExperimentMixin = require('views/mixins/experiment-mixin');
   const OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
   const p = require('lib/promise');
   const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
@@ -20,8 +19,6 @@ define(function (require, exports, module) {
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/confirm');
-  const UserAgentMixin = require('lib/user-agent-mixin');
-  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   const proto = BaseView.prototype;
   const View = BaseView.extend({
@@ -163,14 +160,11 @@ define(function (require, exports, module) {
     View,
     BackMixin,
     ConnectAnotherDeviceMixin,
-    ExperimentMixin,
     OpenConfirmationEmailMixin,
     PulseGraphicMixin,
     ResendMixin,
     ResumeTokenMixin,
-    ServiceMixin,
-    UserAgentMixin,
-    VerificationReasonMixin
+    ServiceMixin
   );
 
   module.exports = View;

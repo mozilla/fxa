@@ -27,6 +27,7 @@ function (Translator, Session) {
     '../tests/spec/lib/channels/senders/fx-desktop-v1',
     '../tests/spec/lib/channels/senders/web-channel',
     '../tests/spec/lib/channels/web',
+    '../tests/spec/lib/cocktail',
     '../tests/spec/lib/config-loader',
     '../tests/spec/lib/cropper',
     '../tests/spec/lib/country-telephone-info',

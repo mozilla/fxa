@@ -23,10 +23,11 @@ define(function (require, exports, module) {
   describe('views/mixins/signin-mixin', function () {
     it('exports correct interface', function () {
       assert.isObject(SignInMixin);
-      assert.lengthOf(Object.keys(SignInMixin), 3);
+      assert.lengthOf(Object.keys(SignInMixin), 4);
       assert.isFunction(SignInMixin.signIn);
       assert.isFunction(SignInMixin.onSignInBlocked);
       assert.isFunction(SignInMixin.onSignInSuccess);
+      assert.isArray(SignInMixin.dependsOn);
     });
 
     describe('signIn', function () {

@@ -12,10 +12,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const _ = require('underscore');
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
 
-  module.exports = _.extend({
+  module.exports = {
+    dependsOn: [ ResumeTokenMixin ],
+
     /**
      * Initiate a password reset. If successful, redirects to
      * `confirm_reset_password`.
@@ -53,5 +54,5 @@ define(function (require, exports, module) {
         resume: this.getStringifiedResumeToken(account)
       });
     }
-  }, ResumeTokenMixin);
+  };
 });

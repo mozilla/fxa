@@ -3,12 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Tells the server to emit the `flow.${viewName}.begin` event.
-// THIS MUST BE MIXED IN *AFTER* views/mixins/flow-events-mixin.
 
 define(function (require, exports, module) {
   'use strict';
 
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
+
   module.exports = {
+    dependsOn: [ FlowEventsMixin ],
+
     afterRender () {
       this.logFlowEventOnce('begin');
     }

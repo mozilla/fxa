@@ -7,7 +7,10 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+
   module.exports = {
+    dependsOn: [ ResumeTokenMixin ],
 
     /*anchor tag present in both signin and signup views*/
     events: {
