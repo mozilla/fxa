@@ -196,7 +196,7 @@ module.exports = function (
                 // do not send the notification to that device. It will
                 // get informed about the change via WebChannel message.
                 if (originatingDeviceId) {
-                  devicesToNotify = devicesToNotify.filter(d => ! d.id.equals(originatingDeviceId))
+                  devicesToNotify = devicesToNotify.filter(d => (d.id !== originatingDeviceId))
                 }
               }
             )
