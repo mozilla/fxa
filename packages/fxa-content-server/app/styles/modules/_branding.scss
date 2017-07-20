@@ -84,7 +84,7 @@
 
 .choose-what-to-sync {
   #choose-what-to-sync-graphic {
-    @include hidpi-background-image('choose_what_to_sync_devices', 200px 91px, 'jpg');
+    background: image-url('choose_what_to_sync_devices.svg');
     background-position: center top;
     background-repeat: no-repeat;
     height: 100px;
