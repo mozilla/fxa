@@ -447,9 +447,9 @@ describe('/account/devices', function () {
     var unnamedDevice = { sessionToken: crypto.randomBytes(16).toString('hex') }
     var mockDB = mocks.mockDB({
       devices: [
-        { name: 'current session', type: 'mobile', sessionToken: mockRequest.auth.credentials.tokenId, isMemoryToken: true },
-        { name: 'has no type', sessionToken: crypto.randomBytes(16).toString('hex'), isMemoryToken: false },
-        { name: 'has device type', sessionToken: crypto.randomBytes(16).toString('hex'), uaDeviceType: 'wibble', isMemoryToken: false },
+        { name: 'current session', type: 'mobile', sessionToken: mockRequest.auth.credentials.tokenId },
+        { name: 'has no type', sessionToken: crypto.randomBytes(16).toString('hex' )},
+        { name: 'has device type', sessionToken: crypto.randomBytes(16).toString('hex'), uaDeviceType: 'wibble' },
         unnamedDevice
       ]
     })
@@ -468,13 +468,11 @@ describe('/account/devices', function () {
       assert.equal(response[0].type, 'mobile')
       assert.equal(response[0].sessionToken, undefined)
       assert.equal(response[0].isCurrentDevice, true)
-      assert.equal(response[0].isMemoryToken, true)
 
       assert.equal(response[1].name, 'has no type')
       assert.equal(response[1].type, 'desktop')
       assert.equal(response[1].sessionToken, undefined)
       assert.equal(response[1].isCurrentDevice, false)
-      assert.equal(response[1].isMemoryToken, false)
 
       assert.equal(response[2].name, 'has device type')
       assert.equal(response[2].type, 'wibble')
@@ -500,8 +498,7 @@ describe('/account/devices', function () {
         isCurrentDevice: true,
         lastAccessTime: 0,
         name: 'test',
-        type: 'test',
-        isMemoryToken: false
+        type: 'test'
       }
     ]
     isA.assert(res, route.config.response.schema)
@@ -517,15 +514,13 @@ describe('/account/sessions', () => {
       tokenId: tokenIds[0], uid: 'qux', createdAt: times[0], lastAccessTime: times[1],
       uaBrowser: 'Firefox', uaBrowserVersion: '50', uaOS: 'Windows', uaOSVersion: '10',
       uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2],
-      deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
-      isMemoryToken: true
+      deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey'
     },
     {
       tokenId: tokenIds[1], uid: 'wibble', createdAt: times[3], lastAccessTime: times[4],
       uaBrowser: 'Nightly', uaBrowserVersion: null, uaOS: 'Android', uaOSVersion: '6',
       uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[5],
-      deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null,
-      isMemoryToken: true
+      deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null
     },
     {
       tokenId: tokenIds[2], uid: 'blee', createdAt: times[6], lastAccessTime: times[7],
@@ -563,9 +558,10 @@ describe('/account/sessions', () => {
           isDevice: false,
           lastAccessTime: times[1],
           lastAccessTimeFormatted: 'a few seconds ago',
+          createdTime: times[0],
+          createdTimeFormatted: 'a few seconds ago',
           os: 'Windows',
-          userAgent: 'Firefox 50',
-          isMemoryToken: true
+          userAgent: 'Firefox 50'
         },
         {
           deviceId: 'deviceId',
@@ -579,9 +575,10 @@ describe('/account/sessions', () => {
           isDevice: true,
           lastAccessTime: times[4],
           lastAccessTimeFormatted: 'a few seconds ago',
+          createdTime: times[3],
+          createdTimeFormatted: 'a few seconds ago',
           os: 'Android',
-          userAgent: 'Nightly',
-          isMemoryToken: true
+          userAgent: 'Nightly'
         },
         {
           deviceId: 'deviceId',
@@ -595,9 +592,10 @@ describe('/account/sessions', () => {
           isDevice: true,
           lastAccessTime: times[7],
           lastAccessTimeFormatted: 'a few seconds ago',
+          createdTime: times[6],
+          createdTimeFormatted: 'a few seconds ago',
           os: null,
-          userAgent: '',
-          isMemoryToken: false
+          userAgent: ''
         },
       ])
     })

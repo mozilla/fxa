@@ -165,7 +165,6 @@ describe('remote db', function() {
           assert.equal(sessions[0].uaOSVersion, '10.10', 'uaOSVersion property is correct')
           assert.equal(sessions[0].uaDeviceType, null, 'uaDeviceType property is correct')
           assert.equal(sessions[0].lastAccessTime, sessions[0].createdAt, 'lastAccessTime property is correct')
-          assert.equal(sessions[0].isMemoryToken, undefined, 'isMemoryToken property is correct')
           return db.sessionToken(tokenId)
         })
         .then(sessionToken => {
@@ -209,7 +208,6 @@ describe('remote db', function() {
           assert.equal(token.uaBrowserVersion, '41')
           assert.equal(token.uaOS, 'Mac OS X')
           assert.equal(token.uaOSVersion, '10.10')
-          assert.equal(token.isMemoryToken, true)
           assert.ok(token.lastAccessTime)
           assert.ok(token.createdAt)
           return db.sessionToken(tokenId)

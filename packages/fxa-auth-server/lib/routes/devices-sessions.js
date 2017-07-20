@@ -264,7 +264,6 @@ module.exports = (log, db, config, customs, push, devices) => {
             pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
             pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
             pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
-            isMemoryToken: isA.boolean().required()
           }).and('pushPublicKey', 'pushAuthKey'))
         }
       },
@@ -317,6 +316,8 @@ module.exports = (log, db, config, customs, push, devices) => {
             id: isA.string().regex(HEX_STRING).required(),
             lastAccessTime: isA.number().min(0).required().allow(null),
             lastAccessTimeFormatted: isA.string().optional().allow(''),
+            createdTime: isA.number().min(0).required().allow(null),
+            createdTimeFormatted: isA.string().optional().allow(''),
             userAgent: isA.string().max(255).required().allow(''),
             os: isA.string().max(255).allow('').allow(null),
             deviceId: isA.string().regex(HEX_STRING).allow(null),
@@ -326,8 +327,7 @@ module.exports = (log, db, config, customs, push, devices) => {
             deviceCallbackPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
             deviceCallbackAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
             isDevice: isA.boolean().required(),
-            isCurrentDevice: isA.boolean().required(),
-            isMemoryToken: isA.boolean().required()
+            isCurrentDevice: isA.boolean().required()
           }))
         }
       },
@@ -372,9 +372,13 @@ module.exports = (log, db, config, customs, push, devices) => {
                   session.lastAccessTime,
                   request.headers['accept-language']
                 ),
+                createdTime: session.createdAt,
+                createdTimeFormatted: localizeTimestamp.format(
+                  session.createdAt,
+                  request.headers['accept-language']
+                ),
                 os: session.uaOS,
-                userAgent,
-                isMemoryToken: session.isMemoryToken || false
+                userAgent
               }
             }))
           },

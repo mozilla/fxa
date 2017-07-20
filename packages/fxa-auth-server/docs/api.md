@@ -1112,12 +1112,6 @@ for the authenticated user.
   
   <!--end-response-body-get-accountdevices-pushAuthKey-->
 
-* `isMemoryToken`: *boolean, required*
-
-  <!--begin-response-body-get-accountdevices-isMemoryToken-->
-  Signifies whether the token was received from redis (i.e an up to date token) if true, or from db if false.
-  <!--end-response-body-get-accountdevices-isMemoryToken-->
-
 
 #### GET /account/sessions
 
@@ -1147,6 +1141,18 @@ for the authenticated user.
   <!--begin-response-body-get-accountsessions-lastAccessTimeFormatted-->
   
   <!--end-response-body-get-accountsessions-lastAccessTimeFormatted-->
+
+* `createdTime`: *number, min(0), required, allow(null)*
+
+  <!--begin-response-body-get-accountsessions-createdTime-->
+  
+  <!--end-response-body-get-accountsessions-createdTime-->
+
+* `createdTimeFormatted`: *string, optional, allow('')*
+
+  <!--begin-response-body-get-accountsessions-createdTimeFormatted-->
+  
+  <!--end-response-body-get-accountsessions-createdTimeFormatted-->
 
 * `userAgent`: *string, max(255), required, allow('')*
 
@@ -1207,12 +1213,6 @@ for the authenticated user.
   <!--begin-response-body-get-accountsessions-isCurrentDevice-->
   
   <!--end-response-body-get-accountsessions-isCurrentDevice-->
-
-* `isMemoryToken`: *boolean, required*
-
-  <!--begin-response-body-get-accountsessions-isMemoryToken-->
-  Signifies whether the token was received from redis (i.e an up to date token) if true, or from db if false.
-  <!--end-response-body-get-accountsessions-isMemoryToken-->
 
 
 #### POST /account/device/destroy
