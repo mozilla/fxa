@@ -35,16 +35,21 @@ define([], function () {
       EMAIL: 'input[type=email]',
       HEADER: '#fxa-force-auth-header'
     },
+    MOZILLA_ORG_SYNC: {
+      HEADER: '.header-content'
+    },
     SETTINGS: {
       HEADER: '#fxa-settings-header',
       PROFILE_HEADER: '#fxa-settings-profile-header .card-header',
-      PROFILE_SUB_HEADER: '#fxa-settings-profile-header .card-subheader'
+      PROFILE_SUB_HEADER: '#fxa-settings-profile-header .card-subheader',
+      SIGNOUT: '#signout'
     },
     SIGNIN: {
       EMAIL: 'input[type=email]',
       EMAIL_NOT_EDITABLE: '.prefillEmail',
       HEADER: '#fxa-signin-header',
-      PASSWORD: 'input[type=password]'
+      PASSWORD: 'input[type=password]',
+      SUBMIT: 'button[type=submit]'
     },
     SIGNIN_COMPLETE: {
       HEADER: '#fxa-sign-in-complete-header'
@@ -54,12 +59,17 @@ define([], function () {
       HEADER: '#fxa-signin-unblock-header'
     },
     SIGNUP: {
+      AGE: '#age',
       CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync',
       EMAIL: 'input[type=email]',
       HEADER: '#fxa-signup-header',
       LINK_SIGN_IN: 'a#have-account',
-      LINK_SUGGEST_SYNC: '#suggest-sync',
-      SUB_HEADER: '#fxa-signup-header .service'
+      LINK_SUGGEST_SIGN_IN: '.error a[href="/signin"]',
+      LINK_SUGGEST_SYNC: '#suggest-sync a',
+      PASSWORD: 'input[type=password]',
+      SUB_HEADER: '#fxa-signup-header .service',
+      SUGGEST_SIGN_IN: '.error',
+      SUGGEST_SYNC: '#suggest-sync',
     },
     SIGNUP_COMPLETE: {
       HEADER: '#fxa-sign-up-complete-header'
