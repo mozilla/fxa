@@ -9,7 +9,7 @@
     "shrinkwrap": "npmshrink:prod",
     "start": "node scripts/check-local-config && grunt server",
     "start-production": "grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
-    "start-remote": "node scripts/check-local-config && CONFIG_FILES=server/config/local.json,server/config/content.json grunt server",
+    "start-remote": "scripts/run_remote_dev.sh",
     "test": "intern-runner config=tests/intern",
     "test-circle": "intern-runner config=tests/intern_functional_circle fxaAuthRoot=https://fxaci.dev.lcip.org/auth fxaEmailRoot=http://restmail.net fxaOauthApp=https://oauth-fxaci.dev.lcip.org fxaUntrustedOauthApp=https://321done-fxaci.dev.lcip.org fxaProduction=true bailAfterFirstFailure=true",
     "test-functional": "intern-runner config=tests/intern_functional",
