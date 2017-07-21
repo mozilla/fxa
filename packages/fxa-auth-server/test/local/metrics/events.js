@@ -623,15 +623,17 @@ describe('metrics/events', () => {
           flowId: 'bar',
           flowBeginTime: time - 1000
         }
-      }
+      },
+      received: time - 42
     })
     return events.emitRouteFlowEvent.call(request, { statusCode: 200 })
       .then(() => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
-        const args = log.flowEvent.args[0]
-        assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
+        assert.equal(log.flowEvent.callCount, 2, 'log.flowEvent was called twice')
+
+        let args = log.flowEvent.args[0]
+        assert.equal(args.length, 1, 'log.flowEvent was passed one argument first time')
         assert.deepEqual(args[0], {
           event: 'route./account/create.200',
           flow_id: 'bar',
@@ -640,7 +642,19 @@ describe('metrics/events', () => {
           locale: 'en-US',
           time,
           userAgent: 'test user-agent'
-        }, 'argument was event data')
+        }, 'argument was route summary event data')
+
+        args = log.flowEvent.args[1]
+        assert.equal(args.length, 1, 'log.flowEvent was passed one argument second time')
+        assert.deepEqual(args[0], {
+          event: 'route.performance./account/create',
+          flow_id: 'bar',
+          flow_time: 42,
+          flowCompleteSignal: undefined,
+          locale: 'en-US',
+          time,
+          userAgent: 'test user-agent'
+        }, 'argument was performance event data')
 
         assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
         assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')

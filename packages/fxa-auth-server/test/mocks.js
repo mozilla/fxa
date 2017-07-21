@@ -465,6 +465,9 @@ function mockRequest (data) {
     headers: data.headers || {
       'user-agent': 'test user-agent'
     },
+    info: {
+      received: data.received || Date.now() - 1
+    },
     path: data.path,
     payload: data.payload,
     query: data.query || {},

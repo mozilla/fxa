@@ -98,6 +98,7 @@ module.exports = log => {
         }
 
         return emitFlowEvent(event, request, data)
+          .then(() => {})
       })
     },
 
@@ -130,6 +131,13 @@ module.exports = log => {
       }
 
       return emitFlowEvent(`route.${path}.${status}`, request)
+        .then(data => {
+          if (status >= 200 && status < 300) {
+            // Limit to success responses so that short-cut logic (e.g. errors, 304s)
+            // doesn't skew distribution of the performance data
+            return emitPerformanceEvent(path, request, data)
+          }
+        })
     }
   }
 
@@ -173,7 +181,16 @@ module.exports = log => {
       } else if (! OPTIONAL_FLOW_EVENTS[event]) {
         log.error({ op: 'metricsEvents.emitFlowEvent', event, missingFlowId: true })
       }
+
+      return data
     })
+  }
+
+  function emitPerformanceEvent (path, request, data) {
+    return log.flowEvent(Object.assign({}, data, {
+      event: `route.performance.${path}`,
+      flow_time: Date.now() - request.info.received
+    }))
   }
 }
 
