@@ -1012,6 +1012,12 @@ module.exports = (
       })
   }
 
+  DB.prototype.resetAccountTokens = function (uid) {
+    log.trace({ op: 'DB.resetAccountTokens', uid })
+
+    return this.pool.post(`/account/${uid}/resetTokens`)
+  }
+
   function wrapTokenNotFoundError (err) {
     if (isNotFoundError(err)) {
       err = error.invalidToken('The authentication token could not be found')

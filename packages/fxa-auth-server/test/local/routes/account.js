@@ -123,6 +123,7 @@ describe('/account/reset', function () {
     var clientAddress = mockRequest.app.clientAddress
     return runTest(route, mockRequest, function (res) {
       assert.equal(mockDB.resetAccount.callCount, 1)
+      assert.equal(mockDB.resetAccountTokens.callCount, 1)
 
       assert.equal(mockPush.notifyPasswordReset.callCount, 1)
       assert.deepEqual(mockPush.notifyPasswordReset.firstCall.args[0], uid)

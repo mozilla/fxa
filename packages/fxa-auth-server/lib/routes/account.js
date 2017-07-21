@@ -1346,6 +1346,13 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             )
             .then(
               function () {
+                // Delete all passwordChangeTokens, passwordForgotTokens and
+                // accountResetTokens associated with this uid
+                return db.resetAccountTokens(accountResetToken.uid)
+              }
+            )
+            .then(
+              function () {
                 // Notify the devices that the account has changed.
                 push.notifyPasswordReset(accountResetToken.uid, devicesToNotify)
 

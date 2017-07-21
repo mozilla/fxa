@@ -56,6 +56,7 @@ const DB_METHOD_NAMES = [
   'passwordChangeToken',
   'passwordForgotToken',
   'resetAccount',
+  'resetAccountTokens',
   'securityEvent',
   'securityEvents',
   'sessions',

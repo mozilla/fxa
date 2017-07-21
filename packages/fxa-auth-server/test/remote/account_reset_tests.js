@@ -225,6 +225,52 @@ describe('remote account reset', function() {
     }
   )
 
+  it(
+    'account reset deletes tokens',
+    () => {
+      const email = server.uniqueEmail()
+      const password = 'allyourbasearebelongtous'
+      const newPassword = 'ez'
+      let client = null
+      let originalCode = null
+      const opts = {
+        keys: true
+      }
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, opts)
+        .then((x) => {
+          client = x
+
+          return client.forgotPassword()
+        })
+        .then(() => server.mailbox.waitForCode(email))
+        .then((code) => {
+          // Stash original reset code then attempt to use it after another reset
+          originalCode = code
+
+          return client.forgotPassword()
+        })
+        .then(() => server.mailbox.waitForCode(email))
+        .then((code) => {
+          assert.throws(() => client.resetPassword(newPassword))
+
+          return resetPassword(client, code, newPassword, undefined, opts)
+        })
+        .then(() => server.mailbox.waitForEmail(email))
+        .then((emailData) => {
+          const templateName = emailData.headers['x-template-name']
+          assert.equal(templateName, 'passwordResetEmail')
+
+          return resetPassword(client, originalCode, newPassword, undefined, opts)
+            .then(() => assert.fail('Should not have succeeded password reset'),
+              (err) => {
+                // Ensure that password reset fails with unknown token error codes
+                assert.equal(err.code, 401)
+                assert.equal(err.errno, 110)
+              })
+        })
+    }
+  )
+
   after(() => {
     return TestServer.stop(server)
   })
