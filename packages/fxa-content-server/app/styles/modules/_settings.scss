@@ -226,6 +226,11 @@ body.settings #main-content.card {
       color: $button-disabled-color;
     }
 
+    &:active {
+      background: $button-background-active-color;
+      border-color: $button-border-active-color;
+    }
+
     &:focus {
       box-shadow: 0 0 0 2px $button-box-shadow-color;
     }
