@@ -515,16 +515,19 @@ define(function (require, exports, module) {
           });
       });
 
-      it('supports isMemoryToken formatting', () => {
+      it('supports first sync formatting', () => {
         return initView()
           .then(() => {
+            const now = Date.now();
             const formatted = view._formatAccessTimeAndScope([
               {
                 clientType: 'device',
+                createdTime: now,
+                createdTimeFormatted: '32 minutes ago',
                 id: 'device-1',
                 isCurrentDevice: false,
                 isDevice: true,
-                lastAccessTime: Date.now(),
+                lastAccessTime: now,
                 lastAccessTimeFormatted: '32 minutes ago',
                 type: 'desktop'
               },
@@ -533,7 +536,6 @@ define(function (require, exports, module) {
                 id: 'device-2',
                 isCurrentDevice: false,
                 isDevice: true,
-                isMemoryToken: true,
                 lastAccessTime: Date.now(),
                 lastAccessTimeFormatted: '30 minutes ago',
                 type: 'mobile'
@@ -593,7 +595,6 @@ define(function (require, exports, module) {
                 id: 'device-1',
                 isCurrentDevice: false,
                 isDevice: true,
-                isMemoryToken: true,
                 lastAccessTime: Date.now(),
                 lastAccessTimeFormatted: '30 minutes ago',
                 type: 'mobile'
@@ -603,7 +604,6 @@ define(function (require, exports, module) {
                 id: 'device-1',
                 isCurrentDevice: false,
                 isDevice: true,
-                isMemoryToken: true,
                 type: 'mobile'
               }
             ]);

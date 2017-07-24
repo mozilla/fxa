@@ -70,12 +70,12 @@ define(function (require, exports, module) {
           }
 
           if (item.isDevice) {
-            if (item.isMemoryToken) {
+            if (item.lastAccessTime === item.createdTime) {
               item.lastAccessTimeFormatted = this.translate(
-                t('last sync %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+                t('first sync %(translatedTimeAgo)s'), {translatedTimeAgo: item.createdTimeFormatted});
             } else {
               item.lastAccessTimeFormatted = this.translate(
-                t('first sync %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+                t('last sync %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
             }
           }
 

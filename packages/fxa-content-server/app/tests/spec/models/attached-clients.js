@@ -59,6 +59,12 @@ define(function (require, exports, module) {
           },
           {
             clientType: Constants.CLIENT_TYPE_DEVICE,
+            isCurrentDevice: false,
+            lastAccessTime: null,
+            name: 'phi'
+          },
+          {
+            clientType: Constants.CLIENT_TYPE_DEVICE,
             isCurrentDevice: true,
             lastAccessTime: now - 20,
             name: 'zeta'
@@ -91,6 +97,11 @@ define(function (require, exports, module) {
             clientType: Constants.CLIENT_TYPE_OAUTH_APP,
             lastAccessTime: null,
             name: 'an oauth'
+          },
+          {
+            clientType: Constants.CLIENT_TYPE_WEB_SESSION,
+            lastAccessTime: now,
+            name: 'an oauth'
           }
         ]));
       });
@@ -99,18 +110,32 @@ define(function (require, exports, module) {
         assert.equal(attachedClients.at(0).get('name'), 'zeta');
       });
 
-      it('sorts those with lastAccessTime next, by access time (descending)', function () {
+      it('sorts those with lastAccessTime next, by access time (descending) grouped by clientType', function () {
         assert.equal(attachedClients.at(1).get('name'), 'sigma');
         assert.equal(attachedClients.at(2).get('name'), 'tau');
-        assert.equal(attachedClients.at(3).get('name'), 'mu');
-        assert.equal(attachedClients.at(4).get('name'), 'theta');
-
+        assert.equal(attachedClients.at(3).get('name'), 'theta');
       });
 
-      it('sorts the rest alphabetically', function () {
-        assert.equal(attachedClients.at(5).get('name'), 'an oauth');
+      it('sorts the rest alphabetically grouped by clientType', function () {
+        assert.equal(attachedClients.at(4).get('name'), 'phi');
+        assert.equal(attachedClients.at(5).get('name'), 'xi');
         assert.equal(attachedClients.at(6).get('name'), 'xi');
-        assert.equal(attachedClients.at(7).get('name'), 'xi');
+        assert.equal(attachedClients.at(7).get('name'), 'mu');
+        assert.equal(attachedClients.at(8).get('name'), 'an oauth');
+      });
+
+      it('groups by clientType', () => {
+        const types = attachedClients.map(cl => cl.get('clientType'));
+        assert.equal(types[0], Constants.CLIENT_TYPE_DEVICE);
+        assert.equal(types[1], Constants.CLIENT_TYPE_DEVICE);
+        assert.equal(types[2], Constants.CLIENT_TYPE_DEVICE);
+        assert.equal(types[3], Constants.CLIENT_TYPE_DEVICE);
+        assert.equal(types[4], Constants.CLIENT_TYPE_DEVICE);
+        assert.equal(types[5], Constants.CLIENT_TYPE_DEVICE);
+        assert.equal(types[6], Constants.CLIENT_TYPE_DEVICE);
+        assert.equal(types[7], Constants.CLIENT_TYPE_OAUTH_APP);
+        assert.equal(types[8], Constants.CLIENT_TYPE_OAUTH_APP);
+        assert.equal(types[9], Constants.CLIENT_TYPE_WEB_SESSION);
       });
     });
 
