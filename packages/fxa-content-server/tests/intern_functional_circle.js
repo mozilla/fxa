@@ -8,6 +8,8 @@ define([
 ], function (intern, selectCircleTests) {
 
   intern.functionalSuites = selectCircleTests([
+    'tests/functional/sync_v3_sign_up',
+    'tests/functional/fx_desktop_handshake',
     'tests/functional/settings_secondary_emails.js',
     // flaky tests go above here.
     'tests/functional/avatar',
@@ -21,7 +23,6 @@ define([
     'tests/functional/cookies_disabled',
     'tests/functional/delete_account',
     'tests/functional/force_auth',
-    'tests/functional/fx_desktop_handshake',
     'tests/functional/fx_fennec_v1_force_auth',
     'tests/functional/fx_fennec_v1_sign_in',
     'tests/functional/fx_fennec_v1_sign_up',
@@ -52,7 +53,6 @@ define([
     'tests/functional/sync_v3_force_auth',
     'tests/functional/sync_v3_settings',
     'tests/functional/sync_v3_sign_in',
-    'tests/functional/sync_v3_sign_up',
   ]);
 
   return intern;

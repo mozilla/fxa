@@ -129,7 +129,7 @@ define(function (require, exports, module) {
      * @private
      */
     _fetchFxaStatus () {
-      const TEST_REQUEST_DELAY_MS = this.isAutomatedBrowser() ? 200 : 0;
+      const TEST_REQUEST_DELAY_MS = this.isAutomatedBrowser() ? 500 : 0;
 
       const channel = this._notificationChannel;
       return p().delay(TEST_REQUEST_DELAY_MS)
