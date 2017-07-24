@@ -17,6 +17,9 @@ with their email address pre-filled.
   * [Mobile clients](#mobile-clients)
   * [Mock-ups](#mock-ups)
 * [Test plan/acceptance criteria](#test-planacceptance-criteria)
+  * [Notes for testers](#notes-for-testers)
+  * [Android](#android)
+  * [iOS](#ios)
 * [Open questions](#open-questions)
 
 ## Ubiquitous language
@@ -169,186 +172,127 @@ will not be editable.
 
 Reference images are below each OS section.
 
-signinCodes are disabled by default and can be enabled by opening the signup
-verification link with the `signinCodes=true` query parameter. Note, sending
-SMS is only available during the signup flow, signing into an existing account
+#### Notes for testers
+
+* signinCodes are disabled by default and can be enabled by opening the signup
+verification link adding the `signinCodes=true` query parameter.
+* Sending SMS is only available during the signup flow, signing into an existing account
 will not trigger the flow.
+* A signinCode is a single use code. Attempts to re-use the code will behave as if
+the code were invalid (it will be ignored). A new code must be set for each test.
+* Adjust.io's deeplink engine ignores previously seen devices - a new advertising ID
+is required for each test for the deep link to be followed. Instructions for clearing
+the advertising ID are in each section.
 
 #### Android
 
-##### Testing without support for deep links in Firefox for Android
+Deep links are not supported in Firefox 54 for Android. E2E tests of the
+deep link feature requires testing using Firefox 55 (Beta) for Android.
+Instructions are included to force the installation of Firefox 55.
 
-Support for deep linking and signinCodes has not yet landed in the release
-channels of Firefox for Android. Until support lands, we have to manually open
-the deep link.
+##### To reset the advertising ID:
+System settings->Google->Ads->Reset advertising ID
 
-###### Sign up in Firefox desktop, send link to Android, Firefox not installed
-
-1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using a
-   mozilla or softvision address.
-2. In the same instance of Firefox desktop, open the verification link with
-   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
-3. Enter a valid phone number for an Android device, submit.
-4. Open the SMS link on an Android device. The link will be of the form `https://<server>/m/:signinCode`, write down the `signinCode`.
-5. The Google Play store will open. Click the `Install` button.
-6. Firefox should install. When complete, click `Open`.
-7.  Firefox will open to the Firefox for Android firstrun page
-6. Open Firefox, open `https://<server>/signin?context=fx_fennec_v1&service=sync&signin=<signinCode from step 4>`
-7. When opening Firefox Accounts, email address from step 1 should be filled in.
-8. Sign in with the password from step 1.
-
-###### Sign up in Firefox desktop, send link to Android, Firefox already installed.
+##### Sign up in Firefox desktop, send link to Android, Firefox not installed
 
 1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
    a mozilla or softvision address.
-2. In the same instance of Firefox desktop, open the verification link with
-   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
-3. Enter a valid phone number for an Android device, submit.
-4. Open the SMS link on an Android device. The link will be of the form `https://<server>/m/:signinCode`, write down the `signinCode`.
-5. Firefox should open.
-6. Open a tab to `https://<server>/signin?context=fx_fennec_v1&service=sync&signin=<signinCode from step 4>`
-7. When opening Firefox Accounts, email address from step 1 should be filled in.
-8. Sign in with the password from step 1.
-
-##### Testing with support for deep links in Firefox for Android
-
-###### Sign up in Firefox desktop, send link to Android, Firefox not installed
-
-1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
-   a mozilla or softvision address.
-2. In the same instance of Firefox desktop, open the verification link with
-   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
-3. Enter a valid phone number for an Android device, submit.
-4. Open the SMS link on an Android device.
-5. Install Firefox from the Google Play store.
-6. Open Firefox, complete the "firstrun flow".
-7. Firefox Accounts should open, email address from step 1 should be filled in.
-8. Sign in with the password from step 1.
-
-###### Sign up in Firefox desktop, send link to Android, Firefox already installed.
-
-1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
-   a mozilla or softvision address.
-2. In the same instance of Firefox desktop, open the verification link with
-   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
-3. Enter a valid phone number for an Android device, submit.
-4. Open the SMS link on an Android device.
-5. Firefox should open to the firstrun flow. Complete the "firstrun flow".
-6. Firefox Accounts should open, email address from step 1 should be filled in.
+2. In the same instance of Firefox desktop, open the verification link adding
+   the `forceExperimentGroup=treatment&signinCodes=true` query parameters.
+3. [Enter a valid phone number for an Android device, submit](#send-sms-to-android).
+4. [Open the SMS link on an Android device](#sms-received-on-android).
+ To install Firefox Beta, open the verification link in Chrome and add the `channel=beta` query parameter.
+5. [Install Firefox from the Google Play store](#install-firefox-from-play-store).
+6. [Open Firefox](#open-firefox-from-play-store), [Firefox Accounts should open, email address from step 1 should be filled in](#signin-page-with-valid-signincode).
 7. Sign in with the password from step 1.
+
+##### Sign up in Firefox desktop, send link to Android, Firefox already installed.
+
+1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
+   a mozilla or softvision address.
+2. In the same instance of Firefox desktop, open the verification link adding
+   the `forceExperimentGroup=treatment&signinCodes=true` query parameters.
+3. [Enter a valid phone number for an Android device, submit](#send-sms-to-android).
+4. [Open the SMS link on an Android device](#sms-received-on-android).
+ To open Firefox Beta, open the verification link in Chrome and add the `channel=beta` query parameter.
+5. Firefox should open to Firefox Accounts, [email address from step 1 should be filled in](#signin-page-with-valid-signincode).
+6. Sign in with the password from step 1.
 
 ##### Reference Images
 
-###### Send SMS
+###### Send SMS to Android
 <img src="images/send_sms.png" width="250" alt="Send SMS"/>
 
-###### SMS received
-Image needed
+###### SMS received on Android
+<img src="images/sms_android.png" width="250" alt="Send SMS"/>
 
-###### Install Firefox
+###### Install Firefox from Play Store
 <img src="images/install_firefox_play_store_android.png" width="250" alt="Send SMS"/>
 
-###### Open Firefox
+###### Open Firefox from Play Store
 <img src="images/open_firefox_play_store_android.png" width="250" alt="Send SMS"/>
-
-###### Firstrun
-Image needed
 
 ##### Signin page with valid signinCode
 <img src="images/signin_valid_code_android.png" width="250" alt="Send SMS"/>
 
 #### iOS
 
-##### Testing without support for deep links in Firefox for iOS
+##### To reset the advertising ID:
+System settings->Privacy->Advertising->Reset Advertising Identifier
 
-Support for deep linking and signinCodes has not yet landed in the release
-channels of Firefox for iOS. Until support lands, we have to
-manually open the deep link.
-
-###### Sign up in Firefox desktop, send link to iOS, Firefox not installed
+##### Sign up in Firefox desktop, send link to iOS, Firefox not installed
 
 1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
    a mozilla or softvision address.
-2. In the same instance of Firefox desktop, open the verification link with
-   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
-3. Enter a valid phone number for an iOS device, submit.
-4. Open the SMS link on an iOS device. The link will be of the form `https://<server>/m/:signinCode`, write down the `signinCode`.
-5. Safari will open and a dialog will ask `Open this page in "App Store"?` Touch `Open`.
-6. The Apple app store will open to the Firefox page. Click the install button.
-7. Firefox should install. When complete, click `Open`.
-8. Firefox will open to the Firefox for iOS firstrun page. Click `Start Browsing`.
-9. Open a tab to `https://<server>/signin?context=fx_ios_v1&service=sync&signin=<signinCode from step 4>`
-10. When opening Firefox Accounts, email address from step 1 should be filled in.
-11. Sign in with the password from step 1.
-12. The user will be unable to sign in, even if entering the correct password from
-   step 1 because Firefox for iOS will not be listening for messages from FxA.
-
-###### Sign up in Firefox desktop, send link to iOS, Firefox already installed
-
-1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
-   a mozilla or softvision address.
-2. In the same instance of Firefox desktop, open the verification link with
-   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
-3. Enter a valid phone number for an iOS device, submit.
-4. Open the SMS link on an iOS device. The link will be of the form `https://<server>/m/:signinCode`, write down the `signinCode`.
-5. Safari will open and a dialog will ask `Open this page in "App Store"?` Touch `Open`.
-6. The Apple app store will open to the Firefox page. Click `Open`.
-7. Firefox should open.
-8. Open a tab to `https://<server>/signin?context=fx_ios_v1&service=sync&signin=<signinCode from step 4>`
-9. When opening Firefox Accounts, email address from step 1 should be filled in.
-10. The user will be unable to sign in, even if entering the correct password from
-   step 1 because Firefox for iOS will not be listening for messages from FxA.
-
-##### Testing with support for deep links in Firefox for iOS
-
-###### Sign up in Firefox desktop, send link to iOS, Firefox not installed
-
-1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
-   a mozilla or softvision address.
-2. In the same instance of Firefox desktop, open the verification link with
-   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
-3. Enter a valid phone number for an iOS device, submit.
-4. Open the SMS link on an iOS device.
-5. Safari will open and a dialog will ask `Open this page in "App Store"?` Touch `Open`.
-6. The Apple app store will open to the Firefox page. Click the install button.
-7. Firefox should install. When complete, click `Open`.
-8. Firefox will open to the Firefox for iOS firstrun page. Complete the firstrun flow.
-9. Firefox Accounts should open, email address from step 1 should be filled in.
+2. In the same instance of Firefox desktop, open the verification link adding
+   the `forceExperimentGroup=treatment&signinCodes=true` query parameters.
+3. [Enter a valid phone number for an iOS device, submit](#send-sms-to-ios).
+4. [Open the SMS link on an iOS device](#sms-received-on-ios).
+5. Safari will open and a dialog will ask [`Open this page in "App Store"?` Touch `Open`](#adjust-link-in-safari).
+6. [Install Firefox from the Apple app store](#install-firefox-from-app-store).
+7. [Open Firefox](#open-firefox-from-app-store), Firefox will open to the firstrun flow.
+8. Click through the firstrun flow to the end, click "Sign in".
+9. Firefox Accounts will open, [the email address from step 1 should be filled in](#signin-page-with-valid-signincode-in-firefox-for-ios).
 10. Sign in with the password from step 1.
 
-###### Sign up in Firefox desktop, send link to iOS, Firefox already installed
+##### Sign up in Firefox desktop, send link to iOS, Firefox already installed
+
 
 1. Using Firefox desktop, sign in to Sync by creating a new Firefox Account using
    a mozilla or softvision address.
-2. In the same instance of Firefox desktop, open the verification link with
-   the `&signinCodes=true&forceExperimentGroup=treatment` query parameters.
-3. Enter a valid phone number for an iOS device, submit.
-4. Open the SMS link on an iOS device.
-5. Firefox will open to the Firefox for iOS firstrun page. Complete the firstrun flow.
-6. Firefox Accounts should open, email address from step 1 should be filled in.
-7. Sign in with the password from step 1.
+2. In the same instance of Firefox desktop, open the verification link adding
+   the `forceExperimentGroup=treatment&signinCodes=true` query parameters.
+3. [Enter a valid phone number for an iOS device, submit](#send-sms-to-ios).
+4. [Open the SMS link on an iOS device](#sms-received-on-ios).
+5. Firefox will open. Until universal links are enabled, the flow will stop here. See below.
+
+Universal are not yet supported in Firefox 8 for iOS. Full E2E tests that
+check whether the email address is prefilled are for users that already have
+Firefox for iOS installed are not yet possible. This functionality will
+be available in Firefox 8.1 for iOS.
+
+See:
+* https://github.com/mozilla-mobile/firefox-ios/pull/2965
+* https://bugzilla.mozilla.org/show_bug.cgi?id=1383407
 
 ##### Reference Images
 
-###### Send SMS
+###### Send SMS to iOS
 <img src="images/send_sms.png" width="250" alt="Send SMS"/>
 
-###### SMS received
+###### SMS received on iOS
 <img src="images/sms_ios.png" width="250" alt="Send SMS"/>
 
 ###### Adjust link in Safari
 <img src="images/adjust_in_safari_ios.png" width="250" alt="Send SMS"/>
 
-###### Install Firefox
+###### Install Firefox from App Store
 <img src="images/install_firefox_app_store_ios.png" width="250" alt="Send SMS"/>
 
-###### Open Firefox
+###### Open Firefox from App Store
 <img src="images/open_firefox_app_store_ios.png" width="250" alt="Send SMS"/>
 
-###### Firstrun
-<img src="images/firstrun_ios.png" width="250" alt="Send SMS"/>
-
-##### Signin page with valid signinCode
+##### Signin page with valid signinCode in Firefox for iOS
 <img src="images/signin_valid_code_ios.png" width="250" alt="Send SMS"/>
 
 #### Invalid signinCodes
@@ -362,7 +306,6 @@ be able to signin by entering their email and password.
 A signinCode is single use. Attempts to re-use a signinCode will be ignored. The
 user will see no error message, and will be able to signin by entering their
 email and password.
-
 
 ## Open questions
 
