@@ -51,8 +51,8 @@ define(function (require, exports, module) {
           });
         })
         .then((account) => {
-          if (this._formPrefill) {
-            this._formPrefill.clear();
+          if (this.formPrefill) {
+            this.formPrefill.clear();
           }
 
           if (this.relier.accountNeedsPermissions(account)) {

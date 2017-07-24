@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const CoppaAgeInput = require('views/coppa/coppa-age-input');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
+  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const FormView = require('views/form');
   const mailcheck = require('lib/mailcheck');
   const MigrationMixin = require('views/mixins/migration-mixin');
@@ -44,7 +45,6 @@ define(function (require, exports, module) {
     initialize (options = {}) {
       this._coppa = options.coppa;
       this._experimentGroupingRules = options.experimentGroupingRules;
-      this._formPrefill = options.formPrefill;
     },
 
     beforeRender () {
@@ -69,7 +69,7 @@ define(function (require, exports, module) {
       var autofocusEl = this._selectAutoFocusEl();
       var coppaOptions = {
         el: this.$('#coppa'),
-        formPrefill: this._formPrefill,
+        formPrefill: this.formPrefill,
         metrics: this.metrics,
         notifier: this.notifier,
         shouldFocus: autofocusEl === null,
@@ -124,12 +124,12 @@ define(function (require, exports, module) {
       // formPrefill.email comes first because users can edit the email,
       // go to another view, edit the email again, and come back here. We
       // want the last used email.
-      return this._formPrefill.get('email') || this.relier.get('email');
+      return this.formPrefill.get('email') || this.relier.get('email');
     },
 
     _selectAutoFocusEl () {
       var prefillEmail = this.model.get('forceEmail') || this.getPrefillEmail();
-      var prefillPassword = this._formPrefill.get('password');
+      var prefillPassword = this.formPrefill.get('password');
 
       return selectAutoFocusEl(
             this.model.get('bouncedEmail'), prefillEmail, prefillPassword);
@@ -139,7 +139,6 @@ define(function (require, exports, module) {
       var autofocusEl = this._selectAutoFocusEl();
       var forceEmail = this.model.get('forceEmail');
       var prefillEmail = this.getPrefillEmail();
-      var prefillPassword = this._formPrefill.get('password');
 
       var relier = this.relier;
       var isSync = relier.isSync();
@@ -155,16 +154,9 @@ define(function (require, exports, module) {
         isSignInEnabled: ! forceEmail,
         isSync: isSync,
         isSyncMigration: this.isSyncMigration(),
-        password: prefillPassword,
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password'
       });
-    },
-
-    beforeDestroy () {
-      var formPrefill = this._formPrefill;
-      formPrefill.set('email', this.getElementValue('.email'));
-      formPrefill.set('password', this.getElementValue('.password'));
     },
 
     isValidEnd () {
@@ -373,6 +365,7 @@ define(function (require, exports, module) {
     CheckboxMixin,
     ExperimentMixin,
     FlowBeginMixin,
+    FormPrefillMixin,
     MigrationMixin,
     PasswordMixin,
     ServiceMixin,

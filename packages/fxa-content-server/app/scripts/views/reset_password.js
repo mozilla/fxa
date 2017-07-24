@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const FormView = require('views/form');
   const FlowEventsMixin = require('views/mixins/flow-events-mixin');
+  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Session = require('lib/session');
@@ -20,12 +21,6 @@ define(function (require, exports, module) {
   var View = FormView.extend({
     template: Template,
     className: 'reset_password',
-
-    initialize (options) {
-      options = options || {};
-
-      this._formPrefill = options.formPrefill;
-    },
 
     setInitialContext (context) {
       context.set({
@@ -45,10 +40,6 @@ define(function (require, exports, module) {
       }
 
       return FormView.prototype.beforeRender.call(this);
-    },
-
-    beforeDestroy () {
-      this._formPrefill.set('email', this.getElementValue('.email'));
     },
 
     submit () {
@@ -77,6 +68,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     FlowEventsMixin,
+    FormPrefillMixin,
     PasswordResetMixin,
     ServiceMixin
   );

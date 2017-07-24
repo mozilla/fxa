@@ -37,12 +37,12 @@
           <input type="email" class="email hidden tooltip-below" value="{{ forceEmail }}" disabled />
         {{/forceEmail}}
         {{^forceEmail}}
-          <input type="email" class="email tooltip-below" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" spellcheck="false" {{#shouldFocusEmail}}autofocus{{/shouldFocusEmail}} required />
+          <input name="email" type="email" class="email tooltip-below" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" spellcheck="false" {{#shouldFocusEmail}}autofocus{{/shouldFocusEmail}} required />
         {{/forceEmail}}
       </div>
 
       <div class="input-row password-row">
-        <input id="password" type="password" class="password check-password tooltip-below" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#shouldFocusPassword}}autofocus{{/shouldFocusPassword}} />
+        <input id="password" type="password" class="password check-password tooltip-below" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#shouldFocusPassword}}autofocus{{/shouldFocusPassword}} />
         <div class="input-help input-help-focused input-help-signup">{{#t}}A strong, unique password will keep your Firefox data safe from intruders.{{/t}}</div>
       </div>
 

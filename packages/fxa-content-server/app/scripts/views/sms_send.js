@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   const CountryTelephoneInfo = require('lib/country-telephone-info');
   const { FIREFOX_MOBILE_INSTALL } = require('lib/sms-message-ids');
   const FlowEventsMixin = require('views/mixins/flow-events-mixin');
+  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const FormView = require('views/form');
   const { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } = require('lib/constants');
   const MarketingMixin = require('views/mixins/marketing-mixin');
@@ -33,15 +34,6 @@ define(function (require, exports, module) {
       proto.initialize.call(this, options);
 
       this._createView = options.createView;
-      this._formPrefill = options.formPrefill;
-    },
-
-    beforeDestroy() {
-      // Save phoneNumber to formPrefill in case the user
-      // enters an incorrect phone number and then returns.
-      // save the number as the user entered it, if they come back
-      // to this screen it will display as they entered it.
-      this._formPrefill.set('phoneNumber', this.$(SELECTOR_PHONE_NUMBER).__val());
     },
 
     getAccount () {
@@ -57,7 +49,7 @@ define(function (require, exports, module) {
       // user submits a phone number, sees the incorrect
       // number in the success message on /sms/sent, and
       // clicks "Mistyped number?"
-      let phoneNumber = this._formPrefill.get('phoneNumber');
+      let phoneNumber = this.formPrefill.get('phoneNumber');
       let country = this._getCountry();
       if (! CountryTelephoneInfo[country]) {
         // this shouldn't be possible because only the Sync relier imports
@@ -176,6 +168,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     FlowEventsMixin,
+    FormPrefillMixin,
     MarketingMixin({
       marketingId: MARKETING_ID_AUTUMN_2016,
       // This screen is only shown to Sync users. The service is always Sync,

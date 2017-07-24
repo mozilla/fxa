@@ -171,7 +171,7 @@ define(function (require, exports, module) {
             type: 'keyup',
             which: 9
           });
-          assert.ok(view.$('.email-add.primary:not(.disabled)').length, 1);
+          assert.lengthOf(view.$('.email-add.primary:not(.disabled)'), 1);
         });
       });
 

@@ -150,6 +150,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/floating-placeholder-mixin',
     '../tests/spec/views/mixins/flow-begin-mixin',
     '../tests/spec/views/mixins/flow-events-mixin',
+    '../tests/spec/views/mixins/form-prefill-mixin',
     '../tests/spec/views/mixins/loading-mixin',
     '../tests/spec/views/mixins/marketing-mixin',
     '../tests/spec/views/mixins/migration-mixin',

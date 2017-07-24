@@ -22,7 +22,6 @@ define(function (require, exports, module) {
 
   require('views/elements/jquery-plugin');
 
-  const $ = require('jquery');
   const _ = require('underscore');
   const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   const AuthErrors = require('lib/auth-errors');
@@ -119,19 +118,30 @@ define(function (require, exports, module) {
      */
     getFormValues () {
       var values = {};
-      var inputEls = this.$('input,textarea,select');
 
-      for (var i = 0, length = inputEls.length; i < length; ++i) {
-        var el = $(inputEls[i]);
-        // elements that have data-novalue (like password show fields)
-        // are not added to the values.
-        if (typeof el.attr('data-novalue') === 'undefined') {
-          var name = el.attr('name') || el.attr('id');
-          values[name] = this.getElementValue(el);
-        }
-      }
+      this.getFormElements().each((index, el) => {
+        const $el = this.$(el);
+        // If the element has neither a name nor id, use the index as key
+        const key = $el.attr('name') || $el.attr('id') || index;
+        values[key] = this.getElementValue($el);
+      });
 
       return values;
+    },
+
+    /**
+     * Get a list of form elements that do not have the `data-novalue` attribute.
+     *
+     * @method getFormElements
+     * @returns {Object}
+     */
+    getFormElements () {
+      return this.$('input,textarea,select').filter((index, el) => {
+        const $el = this.$(el);
+        // elements that have data-novalue (like password show fields)
+        // are not added to the values.
+        return _.isUndefined($el.attr('data-novalue'));
+      });
     },
 
     /**

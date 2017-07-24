@@ -154,18 +154,13 @@ define(function (require, exports, module) {
 
       context.set({
         buttonSignInText,
-        email: this.relier.get('email'),
-        password: this._formPrefill.get('password')
+        email: this.relier.get('email')
       });
     },
 
     events: _.extend({}, SignInView.prototype.events, {
       'click a[href="/reset_password"]': cancelEventThen('_navigateToForceResetPassword')
     }),
-
-    beforeDestroy () {
-      this._formPrefill.set('password', this.getElementValue('.password'));
-    },
 
     onSignInError (account, password, error) {
       if (AuthErrors.is(error, 'UNKNOWN_ACCOUNT')) {

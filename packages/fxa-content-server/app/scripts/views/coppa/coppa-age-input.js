@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const Cocktail = require('cocktail');
   const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const FormView = require('views/form');
   const KeyCodes = require('lib/key-codes');
   const Template = require('stache!templates/partial/coppa-age-input');
@@ -16,14 +17,9 @@ define(function (require, exports, module) {
   const AGE_SIZE_LIMIT = 3;
   const CUTOFF_AGE = 13;
 
-  const proto = FormView.prototype;
   const View = FormView.extend({
     template: Template,
     className: 'coppa-age-input',
-
-    initialize (options = {}) {
-      this._formPrefill = options.formPrefill;
-    },
 
     events: {
       'input': 'onInput',
@@ -78,11 +74,6 @@ define(function (require, exports, module) {
       }
     },
 
-    afterRender () {
-      this._selectPrefillAge('age');
-      return proto.afterRender.call(this);
-    },
-
     /**
      * Called by the parent view to show any validation errors.
      *
@@ -111,25 +102,13 @@ define(function (require, exports, module) {
 
     _getAge () {
       return parseInt(this.$(AGE_ELEMENT).val(), 10);
-    },
-
-    _selectPrefillAge (context) {
-      var prefillYear = this._formPrefill.get(context);
-      if (prefillYear) {
-        var ageEl = this.$(AGE_ELEMENT);
-        ageEl.val(prefillYear);
-        this.showFloatingPlaceholder(ageEl);
-      }
-    },
-
-    beforeDestroy () {
-      this._formPrefill.set('age', this.$(AGE_ELEMENT).val());
     }
   });
 
   Cocktail.mixin(
     View,
-    FloatingPlaceholderMixin
+    FloatingPlaceholderMixin,
+    FormPrefillMixin
   );
 
   module.exports = View;

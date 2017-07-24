@@ -54,9 +54,11 @@ define(function (require, exports, module) {
       it('works', function () {
         createView();
 
+        formPrefill.set('age', 12);
+
         return view.render()
           .then(function () {
-            assert.equal(view.$('#age').val(), '');
+            assert.equal(view.$('#age').val(), '12');
           });
       });
     });
@@ -172,14 +174,6 @@ define(function (require, exports, module) {
 
       it('hasValue returns false', function () {
         assert.isFalse(view.hasValue());
-      });
-    });
-
-    describe('_selectPrefillAge', function () {
-      it('recovers data from formPrefill', function () {
-        formPrefill.set('age', '11');
-        view._selectPrefillAge('age');
-        assert.equal(view.$('#age').val(), '11');
       });
     });
 

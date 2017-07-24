@@ -41,10 +41,10 @@ define(function (require, exports, module) {
         };
 
         view = {
-          _formPrefill: {
+          broker,
+          formPrefill: {
             clear: sinon.spy()
           },
-          broker,
           getStringifiedResumeToken: sinon.spy(() => 'resume token'),
           invokeBrokerMethod: sinon.spy(function () {
             return p();
@@ -156,8 +156,8 @@ define(function (require, exports, module) {
           assert.equal(view.logFlowEvent.args[0][1], 'signup');
         });
 
-        it('calls view._formPrefill.clear', function () {
-          assert.equal(view._formPrefill.clear.callCount, 1);
+        it('calls view.formPrefill.clear', function () {
+          assert.equal(view.formPrefill.clear.callCount, 1);
         });
 
         it('calls view.invokeBrokerMethod correctly', function () {
@@ -204,9 +204,9 @@ define(function (require, exports, module) {
           assert.isTrue(view.logViewEvent.calledWith('signup.success'));
         });
 
-        it('calls view._formPrefill.clear correctly', function () {
-          assert.equal(view._formPrefill.clear.callCount, 1);
-          assert.lengthOf(view._formPrefill.clear.args[0], 0);
+        it('calls view.formPrefill.clear correctly', function () {
+          assert.equal(view.formPrefill.clear.callCount, 1);
+          assert.lengthOf(view.formPrefill.clear.args[0], 0);
         });
 
         it('calls view.invokeBrokerMethod correctly', function () {
@@ -234,9 +234,9 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('_formPrefill undefined', function () {
+      describe('formPrefill undefined', function () {
         beforeEach(function () {
-          view._formPrefill = undefined;
+          view.formPrefill = undefined;
         });
 
         it('does not throw', function () {

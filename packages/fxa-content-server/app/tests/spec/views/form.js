@@ -436,6 +436,18 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('getFormElements', () => {
+      it('gets a list of form fields that do not have the `data-novalue` attribute', function () {
+        var $els = view.getFormElements();
+        assert.lengthOf($els, 12);
+
+        $els.each((index, el) => {
+          const $el = view.$(el);
+          assert.isUndefined($el.attr('data-novalue'));
+        });
+      });
+    });
+
     describe('getFormValues', function () {
       it('gets the value of form fields that do not have the `data-novalue` attribute', function () {
         view.$('#focusMe').val('the value');

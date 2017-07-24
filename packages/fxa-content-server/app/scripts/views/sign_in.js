@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const AvatarMixin = require('views/mixins/avatar-mixin');
   const Cocktail = require('cocktail');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
+  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const FormView = require('views/form');
   const MigrationMixin = require('views/mixins/migration-mixin');
   const PasswordMixin = require('views/mixins/password-mixin');
@@ -29,8 +30,6 @@ define(function (require, exports, module) {
     className: 'sign-in',
 
     initialize (options = {}) {
-      this._formPrefill = options.formPrefill;
-
       // The number of stored accounts is logged to see if we can simplify
       // the User model. User grew a lot of complexity to support a user
       // being able to sign in using more than one email address, and we
@@ -72,7 +71,7 @@ define(function (require, exports, module) {
       // formPrefill.email comes first because users can edit the email,
       // go to another view, edit the email again, and come back here. We
       // want the last used email.
-      return this._formPrefill.get('email') || this.relier.get('email');
+      return this.formPrefill.get('email') || this.relier.get('email');
     },
 
     getEmail () {
@@ -101,7 +100,7 @@ define(function (require, exports, module) {
         headerSignInText,
         isAmoMigration: this.isAmoMigration(),
         isSyncMigration: this.isSyncMigration(),
-        password: this._formPrefill.get('password'),
+        password: this.formPrefill.get('password'),
         suggestedAccount: hasSuggestedAccount
       });
     },
@@ -109,11 +108,6 @@ define(function (require, exports, module) {
     events: {
       'click .use-different': 'useDifferentAccount',
       'click .use-logged-in': 'useLoggedInAccount'
-    },
-
-    beforeDestroy () {
-      this._formPrefill.set('email', this.getElementValue('.email'));
-      this._formPrefill.set('password', this.getElementValue('.password'));
     },
 
     submit () {
@@ -195,7 +189,7 @@ define(function (require, exports, module) {
       // only clear the current account.
       this.user.removeAllAccounts();
       Session.clear();
-      this._formPrefill.clear();
+      this.formPrefill.clear();
       this.logViewEvent('use-different-account');
 
       return this.render();
@@ -280,6 +274,7 @@ define(function (require, exports, module) {
     AccountResetMixin,
     AvatarMixin,
     FlowBeginMixin,
+    FormPrefillMixin,
     MigrationMixin,
     PasswordMixin,
     PasswordResetMixin,

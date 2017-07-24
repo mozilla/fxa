@@ -36,7 +36,7 @@
             <input type="email" class="email hidden" value="{{ email }}" />
 
             <div class="input-row password-row">
-              <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" required pattern=".{8,}" autofocus />
+              <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" required pattern=".{8,}" autofocus />
             </div>
 
             <div class="button-row">
@@ -64,11 +64,11 @@
       {{^suggestedAccount}}
         <form novalidate>
         <div class="input-row">
-          <input type="email" class="email{{#email}} prefilled{{/email}}" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" spellcheck="false" {{^email}}autofocus{{/email}}>
+          <input name="email" type="email" class="email{{#email}} prefilled{{/email}}" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" spellcheck="false" {{^email}}autofocus{{/email}}>
         </div>
 
         <div class="input-row password-row">
-          <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#email}}autofocus{{/email}} />
+          <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#email}}autofocus{{/email}} />
         </div>
 
         <div class="button-row">

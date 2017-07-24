@@ -58,7 +58,6 @@ define(function (require, exports, module) {
 
       this._experimentGroupingRules = options.experimentGroupingRules;
       this._subPanels = options.subPanels || this._initializeSubPanels(options);
-      this._formPrefill = options.formPrefill;
 
       var uid = this.relier.get('uid');
 

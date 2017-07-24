@@ -52,7 +52,7 @@ define(function (require, exports, module) {
         view = {
           _clickLink: SignInMixin._clickLink,
           _engageSignInForm: SignInMixin._engageSignInForm,
-          _formPrefill: {
+          formPrefill: {
             clear: sinon.spy()
           },
           _submitSignInForm: SignInMixin._submitSignInForm,
@@ -132,9 +132,9 @@ define(function (require, exports, module) {
             assert.isTrue(view.logEvent.calledWith('signin.success.skip-confirm'));
           });
 
-          it('calls view._formPrefill.clear correctly', function () {
-            assert.equal(view._formPrefill.clear.callCount, 1);
-            assert.lengthOf(view._formPrefill.clear.args[0], 0);
+          it('calls view.formPrefill.clear correctly', function () {
+            assert.equal(view.formPrefill.clear.callCount, 1);
+            assert.lengthOf(view.formPrefill.clear.args[0], 0);
           });
 
           it('calls view.invokeBrokerMethod correctly', function () {
@@ -319,9 +319,9 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('_formPrefill undefined', function () {
+      describe('formPrefill undefined', function () {
         beforeEach(function () {
-          view._formPrefill = undefined;
+          view.formPrefill = undefined;
         });
 
         it('does not throw', function () {

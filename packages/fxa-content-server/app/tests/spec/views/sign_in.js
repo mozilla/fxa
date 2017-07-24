@@ -725,7 +725,9 @@ define(function (require, exports, module) {
       it('logs the begin event', () => {
         assert.isTrue(isEventLogged(metrics, 'flow.begin'));
       });
+    });
 
+    describe('flowEvents', () => {
       it('logs the engage event (click)', () => {
         assert.isFalse(isEventLogged(metrics, 'flow.signin.engage'));
         view.$('input').trigger('click');
