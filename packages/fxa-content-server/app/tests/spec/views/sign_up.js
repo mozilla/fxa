@@ -850,26 +850,25 @@ define(function (require, exports, module) {
 
         describe('signup succeeds', function () {
           beforeEach(function () {
-            sinon.stub(view, 'signUp', function () {
-              return p();
-            });
+            sinon.stub(view, 'signUp', () => p());
+            sinon.stub(view, 'hasOptedInToMarketingEmail', () => true);
 
             return view.submit();
           });
 
-          it('does not call view.signIn', function () {
+          it('calls view.signUp correctly, does not display any errors', function () {
             assert.isFalse(view.signIn.called);
-          });
-
-          it('calls view.signUp correctly', function () {
             assert.equal(view.signUp.callCount, 1);
 
             var args = view.signUp.args[0];
-            assert.instanceOf(args[0], Account);
-            assert.equal(args[1], 'password');
-          });
+            const account = args[0];
+            assert.instanceOf(account, Account);
+            assert.equal(account.get('email'), email);
+            assert.isTrue(account.get('needsOptedInToMarketingEmail'));
+            assert.isFalse(account.get('customizeSync'));
 
-          it('does not display any errors', function () {
+            assert.equal(args[1], 'password');
+
             assert.isFalse(view.displayError.called);
             assert.isFalse(view.unsafeDisplayError.called);
           });
