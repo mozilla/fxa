@@ -96,8 +96,11 @@ TestServer.prototype.stop = function () {
   }
 }
 
-TestServer.prototype.uniqueEmail = function () {
-  return crypto.randomBytes(10).toString('hex') + '@restmail.net'
+TestServer.prototype.uniqueEmail = function (domain) {
+  if (! domain) {
+    domain = '@restmail.net'
+  }
+  return crypto.randomBytes(10).toString('hex') + domain
 }
 
 TestServer.prototype.uniqueUnicodeEmail = function () {

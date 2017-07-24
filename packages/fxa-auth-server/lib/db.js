@@ -380,7 +380,9 @@ module.exports = (
         },
         (err) => {
           if (isNotFoundError(err)) {
-            err = error.unknownAccount(email)
+            // There is a possibility that this email exists on the account table (ex. deleted from emails table)
+            // Lets check before throwing account not found.
+            return this.emailRecord(email)
           }
           throw err
         }

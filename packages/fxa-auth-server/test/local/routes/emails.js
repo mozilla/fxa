@@ -754,10 +754,9 @@ describe('/recovery_email', () => {
     it('should get all account emails', () => {
       route = getRoute(accountRoutes, '/recovery_emails')
       return runTest(route, mockRequest, (response) => {
-        assert.equal(response.length, 2, 'should return two emails')
+        assert.equal(response.length, 1, 'should return account email')
         assert.equal(response[0].email, dbData.email, 'should return users email')
-        assert.equal(response[1].email, dbData.secondEmail, 'should return users email')
-        assert.equal(mockDB.accountEmails.callCount, 1, 'call db.accountEmails')
+        assert.equal(mockDB.account.callCount, 1, 'call db.account')
       })
         .then(function () {
           mockDB.accountEmails.reset()
@@ -830,7 +829,13 @@ describe('/recovery_email', () => {
   })
 
   describe('can check feature enable flag', () => {
-    beforeEach(() => {
+    function setupTest(options) {
+      dbData = {
+        email: options.email,
+        uid: uid,
+        secondEmail: TEST_EMAIL_ADDITIONAL
+      }
+      mockDB = mocks.mockDB(dbData)
       accountRoutes = makeRoutes({
         checkPassword: function () {
           return P.resolve(true)
@@ -847,30 +852,28 @@ describe('/recovery_email', () => {
         mailer: mockMailer,
         push: mockPush
       })
-    })
+      route = getRoute(accountRoutes, '/recovery_email/check_can_add_secondary_address')
+    }
 
     it('/recovery_email/check_can_add_secondary_address disabled with unverified session', () => {
-      route = getRoute(accountRoutes, '/recovery_email/check_can_add_secondary_address')
+      setupTest({email: 'asdf@mozilla.com'})
       mockRequest.auth.credentials.tokenVerified = false
-      mockRequest.auth.credentials.email = 'asdf@mozilla.com'
       return runTest(route, mockRequest, (res) => {
         assert.equal(res.ok, false, 'return ok `false` when feature is not enabled for user')
       })
     })
 
     it('/recovery_email/check_can_add_secondary_address disabled with invalid email', () => {
-      route = getRoute(accountRoutes, '/recovery_email/check_can_add_secondary_address')
+      setupTest({email: 'email@notvalid.com'})
       mockRequest.auth.credentials.tokenVerified = true
-      mockRequest.auth.credentials.email = 'email@notvalid.com'
       return runTest(route, mockRequest, (res) => {
         assert.equal(res.ok, false, 'return ok `false` when feature is not enabled for user')
       })
     })
 
     it('/recovery_email/check_can_add_secondary_address enabled with verified session', () => {
-      route = getRoute(accountRoutes, '/recovery_email/check_can_add_secondary_address')
+      setupTest({email: 'asdf@mozilla.com'})
       mockRequest.auth.credentials.tokenVerified = true
-      mockRequest.auth.credentials.email = 'asdf@mozilla.com'
       return runTest(route, mockRequest, (res) => {
         assert.equal(res.ok, true, 'return ok `true` when feature is enabled for user')
       })

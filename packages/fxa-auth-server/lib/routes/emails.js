@@ -34,12 +34,15 @@ module.exports = (log, db, mailer, config, customs, push) => {
         const sessionToken = request.auth.credentials
         let isEnabled = false
 
-        // Secondary emails are enabled if email address matches config and the session is verified
-        if (features.isSecondaryEmailEnabled(sessionToken.email) && sessionToken.tokenVerified) {
-          isEnabled = true
-        }
+        return db.account(sessionToken.uid)
+          .then((account) =>{
+            // Secondary emails are enabled if email address matches config and the session is verified
+            if (features.isSecondaryEmailEnabled(account.email) && sessionToken.tokenVerified) {
+              isEnabled = true
+            }
 
-        return reply({ ok: isEnabled })
+            return reply({ ok: isEnabled })
+          })
       }
     },
     {
@@ -491,12 +494,15 @@ module.exports = (log, db, mailer, config, customs, push) => {
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
 
-        if (! features.isSecondaryEmailEnabled(sessionToken.email)) {
-          return reply(error.featureNotEnabled())
-        }
+        return db.account(uid)
+          .then((account) => {
 
-        db.accountEmails(uid)
-          .then(createResponse)
+            if (! features.isSecondaryEmailEnabled(account.email)) {
+              throw error.featureNotEnabled()
+            }
+
+            return createResponse(account.emails)
+          })
           .done(reply, reply)
 
         function createResponse (emails) {
@@ -538,23 +544,27 @@ module.exports = (log, db, mailer, config, customs, push) => {
           uid: uid
         }
 
-        if (! features.isSecondaryEmailEnabled(primaryEmail)) {
-          return reply(error.featureNotEnabled())
-        }
-
-        if (! sessionToken.emailVerified) {
-          return reply(error.unverifiedAccount())
-        }
-
-        if (sessionToken.tokenVerificationId) {
-          return reply(error.unverifiedSession())
-        }
-
-        if (sessionToken.email.toLowerCase() === email.toLowerCase()) {
-          return reply(error.yourPrimaryEmailExists())
-        }
-
         customs.check(request, primaryEmail, 'createEmail')
+          .then(() => {
+            return db.account(uid)
+          })
+          .then((account) => {
+            if (! features.isSecondaryEmailEnabled(account.email)) {
+              return reply(error.featureNotEnabled())
+            }
+
+            if (! sessionToken.emailVerified) {
+              throw error.unverifiedAccount()
+            }
+
+            if (sessionToken.tokenVerificationId) {
+              throw error.unverifiedSession()
+            }
+
+            if (sessionToken.email.toLowerCase() === email.toLowerCase()) {
+              throw error.yourPrimaryEmailExists()
+            }
+          })
           .then(deleteAccountIfUnverified)
           .then(generateRandomValues)
           .then(createEmail)
@@ -647,15 +657,19 @@ module.exports = (log, db, mailer, config, customs, push) => {
         const primaryEmail = sessionToken.email
         const email = request.payload.email
 
-        if (! features.isSecondaryEmailEnabled(primaryEmail)) {
-          return reply(error.featureNotEnabled())
-        }
-
-        if (sessionToken.tokenVerificationId) {
-          return reply(error.unverifiedSession())
-        }
-
         customs.check(request, primaryEmail, 'deleteEmail')
+          .then(() => {
+            return db.account(uid)
+          })
+          .then((account) => {
+            if (! features.isSecondaryEmailEnabled(account.email)) {
+              throw error.featureNotEnabled()
+            }
+
+            if (sessionToken.tokenVerificationId) {
+              throw error.unverifiedSession()
+            }
+          })
           .then(deleteEmail)
           .then(
             () => reply({}),
@@ -689,15 +703,22 @@ module.exports = (log, db, mailer, config, customs, push) => {
 
         log.begin('Account.RecoveryEmailSetPrimary', request)
 
-        if (! features.isSecondaryEmailEnabled(primaryEmail)) {
-          return reply(error.featureNotEnabled())
-        }
-
-        if (sessionToken.tokenVerificationId) {
-          return reply(error.unverifiedSession())
-        }
-
         customs.check(request, primaryEmail, 'setPrimaryEmail')
+          .then(() => {
+            return db.account(uid)
+          })
+          .then((account) => {
+            // If a user changes their primary email, then they will still
+            // have access to secondary emails because we check against the original
+            // account email.
+            if (! features.isSecondaryEmailEnabled(account.email)) {
+              throw error.featureNotEnabled()
+            }
+
+            if (sessionToken.tokenVerificationId) {
+              throw error.unverifiedSession()
+            }
+          })
           .then(setPrimaryEmail)
           .done(() => {
             reply({})

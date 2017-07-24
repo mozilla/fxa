@@ -56,6 +56,7 @@ var ERRNO = {
   INVALID_SIGNIN_CODE: 146,
   CHANGE_EMAIL_TO_UNVERIFIED_EMAIL: 147,
   CHANGE_EMAIL_TO_UNOWNED_EMAIL: 148,
+  LOGIN_WITH_INVALID_EMAIL: 149,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -690,6 +691,15 @@ AppError.cannotChangeEmailToUnownedEmail = function () {
     error: 'Bad Request',
     errno: ERRNO.CHANGE_EMAIL_TO_UNOWNED_EMAIL,
     message: 'Can not change primary email to an email that does not belong to this account'
+  })
+}
+
+AppError.cannotLoginWithEmail = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.LOGIN_WITH_INVALID_EMAIL,
+    message: 'This email can not currently be used to login'
   })
 }
 

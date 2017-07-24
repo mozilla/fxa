@@ -18,7 +18,7 @@ describe('remote change email', function () {
     config = require('../../config').getProperties()
     config.secondaryEmail = {
       enabled: true,
-      enabledEmailAddresses: /\w/
+      enabledEmailAddresses: /@restmail.net/
     }
     config.securityHistory.ipProfiling = {}
     return TestServer.start(config)
@@ -29,7 +29,7 @@ describe('remote change email', function () {
 
   beforeEach(() => {
     email = server.uniqueEmail()
-    secondEmail = server.uniqueEmail()
+    secondEmail = server.uniqueEmail('@notrestmail.com')
     return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
       .then(function (x) {
         client = x
@@ -185,6 +185,81 @@ describe('remote change email', function () {
         })
     })
   })
+
+  describe('change primary email, deletes old primary', () => {
+    beforeEach(() => {
+      return client.setPrimaryEmail(secondEmail)
+        .then((res) => {
+          assert.ok(res, 'ok response')
+          return client.deleteEmail(email)
+        })
+        .then((res) => {
+          assert.ok(res, 'ok response')
+          return client.accountEmails()
+        })
+        .then((res) => {
+          assert.equal(res.length, 1, 'returns number of emails')
+          assert.equal(res[0].email, secondEmail, 'returns correct email')
+          assert.equal(res[0].isPrimary, true, 'returns correct isPrimary')
+          assert.equal(res[0].verified, true, 'returns correct verified')
+        })
+    })
+
+    it('can login', () => {
+      // Verify account can still login with new primary email
+      return Client.login(config.publicUrl, secondEmail, password)
+        .then(() => {
+          assert.fail(new Error('Should have returned correct email for user to login'))
+        })
+        .catch((err) => {
+          // Login should fail for this user and return the normalizedEmail used when
+          // the account was created. We then attempt to re-login with this email and pass
+          // the original email used to login
+          assert.equal(err.code, 400, 'correct error code')
+          assert.equal(err.errno, 120, 'correct errno code')
+          assert.equal(err.email, email, 'correct hashed email returned')
+
+          return Client.login(config.publicUrl, err.email, password, {originalLoginEmail: secondEmail})
+        })
+        .then((res) => {
+          assert.ok(res, 'ok response')
+        })
+    })
+
+    it('can change password', () => {
+      return Client.login(config.publicUrl, email, password, {originalLoginEmail: secondEmail})
+        .then((res) => {
+          client = res
+          return client.changePassword(newPassword)
+        })
+        .then((res) => {
+          assert.ok(res, 'ok response')
+          return Client.login(config.publicUrl, email, newPassword, {originalLoginEmail: secondEmail})
+        })
+        .then((res) => {
+          assert.ok(res, 'ok response')
+        })
+    })
+
+    it('can reset password', () => {
+      client.email = secondEmail
+      return client.forgotPassword()
+        .then(() => {
+          return server.mailbox.waitForCode(secondEmail)
+        })
+        .then((code) => {
+          assert.ok(code, 'code is set')
+          return resetPassword(client, code, newPassword, undefined, {emailToHashWith: email})
+        }).then((res) => {
+          assert.ok(res, 'ok response')
+          return Client.login(config.publicUrl, email, newPassword, {originalLoginEmail: secondEmail})
+        })
+        .then((res) => {
+          assert.ok(res, 'ok response')
+        })
+    })
+  })
+
 
   after(() => {
     return TestServer.stop(server)

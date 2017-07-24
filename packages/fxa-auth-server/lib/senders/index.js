@@ -279,7 +279,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           })
       },
       sendPostVerifySecondaryEmail: function (emails, account, opts) {
-        var primaryEmail = account.email
+        var primaryEmail = account.primaryEmail.email
 
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {

@@ -472,13 +472,31 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             .then(
               function (result) {
 
-                let usingPrimaryEmail = false
-                const normalizedEmail = email.toLowerCase()
-                if (result.primaryEmail.normalizedEmail === normalizedEmail) {
-                  usingPrimaryEmail = true
-                }
+                // The `originalLoginEmail` param is specified in the login request if the user has
+                // changed their primary email address. This param must match the current primary
+                // email address of the user before the login can succeed.
+                if (originalLoginEmail) {
+                  if (originalLoginEmail.toLowerCase() !== result.primaryEmail.normalizedEmail) {
+                    throw error.cannotLoginWithSecondaryEmail()
+                  }
 
-                if (! usingPrimaryEmail && originalLoginEmail === undefined) {
+                  // Emails are considered valid if that email exists in the `account.emails` property.
+                  // This block covers an edge case where the user deletes the original email they
+                  // created the account with and then attempts to login with that email.
+                  let usingValidEmail = false
+                  result.emails.some((emailData) => {
+                    if (emailData.normalizedEmail === originalLoginEmail.toLowerCase()) {
+                      usingValidEmail = true
+                      return true
+                    }
+                  })
+
+                  // This error will not give the user an option to create an account from
+                  // this email.
+                  if (! usingValidEmail) {
+                    throw error.cannotLoginWithEmail()
+                  }
+                } else if (email.toLowerCase() !== result.primaryEmail.normalizedEmail) {
                   throw error.cannotLoginWithSecondaryEmail()
                 }
 
@@ -486,30 +504,22 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
               },
               function (err) {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+                  customs.flag(request.app.clientAddress, {
+                    email: email,
+                    errno: err.errno
+                  })
 
-                  // Lets check account table `just in case` the user
-                  // deleted the original email they signed up with
-                  return db.emailRecord(email)
-                    .then((emailRecord) => {
-                      accountRecord = emailRecord
-                    }, () => {
-                      customs.flag(request.app.clientAddress, {
-                        email: email,
-                        errno: err.errno
-                      })
+                  // We rate-limit attempts to check whether an account exists, so
+                  // we have to be careful to re-throw any customs-server errors here.
+                  // We also have to be careful not to leak info about whether the account
+                  // existed, for example by saying sign-in unblock is unavailable on
+                  // accounts that don't exist. We pass a fake uid into the feature-flag
+                  // test to mask whether the account existed.
+                  if (customsErr) {
+                    throw customsErr
+                  }
 
-                      // We rate-limit attempts to check whether an account exists, so
-                      // we have to be careful to re-throw any customs-server errors here.
-                      // We also have to be careful not to leak info about whether the account
-                      // existed, for example by saying sign-in unblock is unavailable on
-                      // accounts that don't exist. We pass a fake uid into the feature-flag
-                      // test to mask whether the account existed.
-                      if (customsErr) {
-                        throw customsErr
-                      }
-
-                      throw err
-                    })
+                  throw err
                 }
                 throw err
               }
@@ -675,7 +685,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           // we should force token verification.
           if (config.signinConfirmation) {
             if (config.signinConfirmation.forcedEmailAddresses) {
-              if (config.signinConfirmation.forcedEmailAddresses.test(account.email)) {
+              if (config.signinConfirmation.forcedEmailAddresses.test(account.primaryEmail.email)) {
                 return true
               }
             }
@@ -1096,7 +1106,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           .then(
             function (account) {
               reply({
-                email: hasProfileItemScope('email') ? account.email : undefined,
+                email: hasProfileItemScope('email') ? account.primaryEmail.email : undefined,
                 locale: hasProfileItemScope('locale') ? account.locale : undefined
               })
             },

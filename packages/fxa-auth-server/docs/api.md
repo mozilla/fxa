@@ -250,6 +250,8 @@ for `code` and `errno` are:
   Can not change primary email to an unverified email
 * `code: 400, errno: 148`:
   Can not change primary email to an email that does not belong to this account
+* `code: 400, errno: 149`:
+  This email can not currently be used to login
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -582,6 +584,9 @@ by the following errors
 
 * `code: 400, errno: 142`:
   Sign in with this email type is not currently supported
+
+* `code: 400, errno: 149`:
+  This email can not currently be used to login
 
 * `code: 400, errno: 127`:
   Invalid unblock code

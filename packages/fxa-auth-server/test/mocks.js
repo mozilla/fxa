@@ -156,6 +156,7 @@ function mockDB (data, errors) {
         emailCode: data.emailCode,
         emailVerified: data.emailVerified,
         primaryEmail: {normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true},
+        emails: [{normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true}],
         uid: data.uid,
         verifierSetAt: Date.now(),
         wrapWrapKb: data.wrapWrapKb
@@ -190,6 +191,7 @@ function mockDB (data, errors) {
         email: data.email,
         emailVerified: data.emailVerified,
         primaryEmail: {normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true},
+        emails: [{normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true}],
         kA: crypto.randomBytes(32),
         lastAuthAt: () => {
           return Date.now()
@@ -283,6 +285,7 @@ function mockDB (data, errors) {
         email: data.email,
         emailVerified: data.emailVerified,
         primaryEmail: {normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true},
+        emails: [{normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true}],
         kA: crypto.randomBytes(32).toString('hex'),
         lastAuthAt: () => {
           return Date.now()
