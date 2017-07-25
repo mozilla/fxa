@@ -488,7 +488,7 @@ define(function (require, exports, module) {
           });
 
           it('re-tries with the normalized email, updates model with normalized email', function () {
-            const expectedOptions = {
+            const firstExpectedOptions = {
               metricsContext: {
                 baz: 'qux',
                 foo: 'bar'
@@ -499,11 +499,23 @@ define(function (require, exports, module) {
               unblockCode: 'unblock code'
             };
 
+            const secondExpectedOptions = {
+              metricsContext: {
+                baz: 'qux',
+                foo: 'bar'
+              },
+              originalLoginEmail: upperCaseEmail,
+              reason: SignInReasons.SIGN_IN,
+              resume: 'resume token',
+              skipCaseError: true,
+              unblockCode: 'unblock code'
+            };
+
             assert.equal(fxaClient.signIn.callCount, 2);
             assert.isTrue(
-              fxaClient.signIn.calledWith(upperCaseEmail, PASSWORD, relier, expectedOptions));
+              fxaClient.signIn.calledWith(upperCaseEmail, PASSWORD, relier, firstExpectedOptions));
             assert.isTrue(
-                fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier, expectedOptions));
+                fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier, secondExpectedOptions));
 
             assert.equal(account.get('email'), EMAIL);
           });

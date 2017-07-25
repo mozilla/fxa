@@ -268,6 +268,10 @@ define(function (require, exports, module) {
         signInOptions.skipCaseError = options.skipCaseError;
       }
 
+      if (options.originalLoginEmail) {
+        signInOptions.originalLoginEmail = options.originalLoginEmail;
+      }
+
       setMetricsContext(signInOptions, options);
 
       return client.signIn(email, password, signInOptions)
@@ -472,6 +476,9 @@ define(function (require, exports, module) {
      * @param {String} code
      * @param {Object} relier
      * @param {Object} [options={}]
+     *   @param {String} [options.emailToHashWith]
+     *   If specified, the password is hashed with this email address, otherwise
+     *   the user's password is hashed with their current email.
      * @return {Promise} resolves when complete
      */
     completePasswordReset: withClient((client, originalEmail, newPassword, token, code, relier, options = {}) => {
@@ -488,7 +495,18 @@ define(function (require, exports, module) {
 
       return client.passwordForgotVerifyCode(code, token, passwordVerifyCodeOptions)
         .then(result => {
-          return client.accountReset(email,
+          let emailToHashWith = email;
+
+          // The `emailToHashWith` option is returned by the auth-server to let the content-server
+          // know what to hash the new password with. This is important in the scenario where a user
+          // has changed their primary email address. In this case, they must still hash with the
+          // account's original email because this will maintain backwards compatibility with
+          // how account password hashing works previously.
+          if (options.emailToHashWith) {
+            emailToHashWith = trim(options.emailToHashWith);
+          }
+
+          return client.accountReset(emailToHashWith,
             newPassword,
             result.accountResetToken,
             accountResetOptions
@@ -844,7 +862,16 @@ define(function (require, exports, module) {
      * @param {String} sessionToken User session token
      * @return {Promise} resolves when complete
      */
-    recoveryEmailSecondaryEmailEnabled: createClientDelegate('recoveryEmailSecondaryEmailEnabled')
+    recoveryEmailSecondaryEmailEnabled: createClientDelegate('recoveryEmailSecondaryEmailEnabled'),
+
+    /**
+     * Set the new primary email address for a user.
+     *
+     * @param {String} sessionToken User session token
+     * @param {String} email The new primary email address
+     * @return {Promise} resolves when complete
+     */
+    recoveryEmailSetPrimaryEmail: createClientDelegate('recoveryEmailSetPrimaryEmail')
   };
 
   module.exports = FxaClientWrapper;

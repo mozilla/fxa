@@ -57,6 +57,7 @@ define(function (require, exports, module) {
       translator = new Translator({forceEnglish: true});
       user = new User();
       windowMock = new WindowMock();
+      windowMock.location.search = '?canChangeEmail=true';
 
       account = user.initAccount({
         email: email,
@@ -148,6 +149,11 @@ define(function (require, exports, module) {
         sinon.stub(account, 'resendEmailCode', () => {
           return p();
         });
+
+        sinon.stub(account, 'setPrimaryEmail', (newEmail) => {
+          email = newEmail;
+          return p();
+        });
       });
 
       describe('with no secondary email', () => {
@@ -197,21 +203,24 @@ define(function (require, exports, module) {
 
         it('can render', () => {
           assert.equal(view.$('.email-address').length, 1);
-          assert.equal(view.$('.email-address .address').length, 1);
-          assert.equal(view.$('.email-address .address')[0].innerHTML, 'another@one.com');
+          assert.lengthOf(view.$('.email-address .address'), 1);
+          assert.equal(view.$('.email-address .address').html(), 'another@one.com');
           assert.equal(view.$('.email-address .details .not-verified').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').attr('data-id'), 'another@one.com');
+          assert.equal(view.$('.email-address .settings-button.secondary.set-primary').length, 0);
+
         });
 
         it('can disconnect email and navigate to /emails', (done) => {
           $('.email-address .settings-button.warning.email-disconnect').click();
           setTimeout(function () {
-            assert.isTrue(view.navigate.calledOnce);
-            const args = view.navigate.args[0];
-            assert.equal(args.length, 1);
-            assert.equal(args[0], '/settings/emails');
-            done();
+            TestHelpers.wrapAssertion(() => {
+              assert.isTrue(view.navigate.calledOnce);
+              const args = view.navigate.args[0];
+              assert.equal(args.length, 1);
+              assert.equal(args[0], '/settings/emails');
+            }, done);
           }, 150);
         });
 
@@ -219,8 +228,9 @@ define(function (require, exports, module) {
           $('.email-refresh').click();
           sinon.spy(view, 'render');
           setTimeout(function () {
-            assert.isTrue(view.render.calledOnce);
-            done();
+            TestHelpers.wrapAssertion(() => {
+              assert.isTrue(view.render.calledOnce);
+            }, done);
           }, 450); // Delay is higher here because refresh has a min delay of 350
         });
 
@@ -228,11 +238,12 @@ define(function (require, exports, module) {
           $('.resend').click();
           sinon.spy(view, 'render');
           setTimeout(function () {
-            assert.isTrue(view.navigate.calledOnce);
-            const args = view.navigate.args[0];
-            assert.equal(args.length, 1);
-            assert.equal(args[0], '/settings/emails');
-            done();
+            TestHelpers.wrapAssertion(() => {
+              assert.isTrue(view.navigate.calledOnce);
+              const args = view.navigate.args[0];
+              assert.equal(args.length, 1);
+              assert.equal(args[0], '/settings/emails');
+            }, done);
           }, 150);
         });
 
@@ -263,8 +274,8 @@ define(function (require, exports, module) {
 
         it('can render', () => {
           assert.equal(view.$('.email-address').length, 1);
-          assert.equal(view.$('.email-address .address').length, 1);
-          assert.equal(view.$('.email-address .address')[0].innerHTML, 'another@one.com');
+          assert.lengthOf(view.$('.email-address .address'), 1);
+          assert.equal(view.$('.email-address .address').html(), 'another@one.com');
           assert.equal(view.$('.email-address .details .verified').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').attr('data-id'), 'another@one.com');
@@ -273,11 +284,12 @@ define(function (require, exports, module) {
         it('can disconnect email and navigate to /emails', (done) => {
           $('.email-address .settings-button.warning.email-disconnect').click();
           setTimeout(() => {
-            assert.isTrue(view.navigate.calledOnce);
-            const args = view.navigate.args[0];
-            assert.equal(args.length, 1);
-            assert.equal(args[0], '/settings/emails');
-            done();
+            TestHelpers.wrapAssertion(() => {
+              assert.isTrue(view.navigate.calledOnce);
+              const args = view.navigate.args[0];
+              assert.equal(args.length, 1);
+              assert.equal(args[0], '/settings/emails');
+            }, done);
           }, 150);
         });
 
@@ -285,6 +297,82 @@ define(function (require, exports, module) {
           assert.equal(view.isPanelOpen(), false);
         });
       });
+
+      describe('does not show change email when `canChangeEmail` not set', () => {
+        const newEmail = 'secondary@email.com';
+        beforeEach(() => {
+          emails = [{
+            email: 'primary@email.com',
+            isPrimary: true,
+            verified: true
+          }, {
+            email: newEmail,
+            isPrimary: false,
+            verified: true
+          }];
+
+          windowMock.location.search = '';
+
+          return initView()
+            .then(function () {
+              // click events require the view to be in the DOM
+              $('#container').html(view.el);
+            });
+        });
+
+        it('can render', () => {
+          assert.equal(view.$('.email-address').length, 1);
+          assert.lengthOf(view.$('.email-address .address'), 1);
+          assert.equal(view.$('.email-address .address').html(), 'secondary@email.com');
+          assert.equal(view.$('.email-address .details .verified').length, 1);
+          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').length, 1);
+          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').attr('data-id'), 'secondary@email.com');
+          assert.equal(view.$('.email-address .settings-button.secondary.set-primary').length, 0);
+        });
+      });
+
+
+      describe('can change email', () => {
+        const newEmail = 'secondary@email.com';
+        beforeEach(() => {
+          emails = [{
+            email: 'primary@email.com',
+            isPrimary: true,
+            verified: true
+          }, {
+            email: newEmail,
+            isPrimary: false,
+            verified: true
+          }];
+
+          return initView()
+            .then(function () {
+              // click events require the view to be in the DOM
+              $('#container').html(view.el);
+            });
+        });
+
+        it('can render', () => {
+          assert.equal(view.$('.email-address').length, 1);
+          assert.lengthOf(view.$('.email-address .address'), 1);
+          assert.equal(view.$('.email-address .address').html(), 'secondary@email.com');
+          assert.equal(view.$('.email-address .details .verified').length, 1);
+          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').length, 1);
+          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').attr('data-id'), 'secondary@email.com');
+          assert.equal(view.$('.email-address .settings-button.secondary.set-primary').length, 1);
+          assert.equal(view.$('.email-address .settings-button.secondary.set-primary').attr('data-id'), 'secondary@email.com');
+        });
+
+        it('can change email', (done) => {
+          $('.email-address .settings-button.secondary.set-primary').click();
+          setTimeout(() => {
+            TestHelpers.wrapAssertion(() => {
+              assert.equal(account.get('email'), newEmail, 'account email updated');
+            }, done);
+          }, 150);
+        });
+      });
+
     });
   });
 });

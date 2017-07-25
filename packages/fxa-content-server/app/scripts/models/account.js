@@ -462,15 +462,15 @@ define(function (require, exports, module) {
      *   @param {String} [options.resume] - Resume token to send
      *   in verification email if user is unverified.
      *   @param {String} [options.unblockCode] - Unblock code.
+     *   @param {String} [options.originalLoginEmail] - Login used to login with originally.
      * @returns {Promise} - resolves when complete
      */
     signIn (password, relier, options = {}) {
+      var email = this.get('email');
       return p().then(() => {
-        var email = this.get('email');
         var sessionToken = this.get('sessionToken');
-
         if (password) {
-          return this._fxaClient.signIn(email, password, relier, {
+          const signinOptions = {
             metricsContext: this._metrics.getFlowEventMetadata(),
             reason: options.reason || SignInReasons.SIGN_IN,
             resume: options.resume,
@@ -478,7 +478,16 @@ define(function (require, exports, module) {
             // can be updated with the correct case.
             skipCaseError: true,
             unblockCode: options.unblockCode
-          });
+          };
+
+          // `originalLoginEmail` is specified when the account's primary email has changed.
+          // This param lets the auth-server known that it should check that this email
+          // is the current primary for the account.
+          if (options.originalLoginEmail) {
+            signinOptions.originalLoginEmail = options.originalLoginEmail;
+          }
+
+          return this._fxaClient.signIn(email, password, relier, signinOptions);
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
           // The result includes the latest verified state
@@ -488,11 +497,27 @@ define(function (require, exports, module) {
         }
       })
       .then((updatedSessionData) => {
+        // If a different email case or primary email was used to login,
+        // the session won't have correct email. Update the session to use the one
+        // originally used for login.
+        if (options.originalLoginEmail && email.toLowerCase() !== options.originalLoginEmail.toLowerCase()) {
+          updatedSessionData.email = options.originalLoginEmail;
+        }
+
         this.set(updatedSessionData);
         return updatedSessionData;
       })
       .fail((err) => {
+        // The `INCORRECT_EMAIL_CASE` can be returned if a user is attempting to login with a different
+        // email case than what the account was created with or if they changed their primary email address.
+        // In both scenarios, the content-server needs to know the original account email to hash
+        // the user's password with.
         if (AuthErrors.is(err, 'INCORRECT_EMAIL_CASE')) {
+
+          // Save the original email that was used for login so that the auth-server
+          // can verify that this is the accounts primary email address.
+          options.originalLoginEmail = email;
+
           // The server will respond with the canonical email
           // for this account. Use it hereafter.
           this.set('email', err.email);
@@ -1202,7 +1227,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Associates a new email to a users account.
+     * Deletes an email from a users account.
      *
      * @param {String} email
      *
@@ -1210,6 +1235,20 @@ define(function (require, exports, module) {
      */
     deleteEmail (email) {
       return this._fxaClient.deleteEmail(
+        this.get('sessionToken'),
+        email
+      );
+    },
+
+    /**
+     * Sets the primary email address of the user.
+     *
+     * @param {String} email
+     *
+     * @returns {Promise}
+     */
+    setPrimaryEmail (email) {
+      return this._fxaClient.recoveryEmailSetPrimaryEmail(
         this.get('sessionToken'),
         email
       );

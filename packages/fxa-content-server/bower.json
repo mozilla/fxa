@@ -10,7 +10,7 @@
     "cocktail": "0.5.9",
     "easteregg": "https://github.com/mozilla/fxa-easter-egg.git#ab20cd517cf8ae9feee115e48745189d28e13bc3",
     "fxa-checkbox": "mozilla/fxa-checkbox#7f856afffd394a144f718e28e6fb79092d6ccddd",
-    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.60",
+    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.61",
     "html5shiv": "3.7.2",
     "jquery": "3.1.0",
     "jquery-modal": "https://github.com/shane-tomlinson/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",

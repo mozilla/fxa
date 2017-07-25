@@ -14,6 +14,9 @@ define([], function () {
       ERROR: '.error',
       HEADER: '#fxa-400-header'
     },
+    CHANGE_PASSWORD: {
+      MENU_BUTTON: '#change-password .settings-unit-toggle'
+    },
     CHOOSE_WHAT_TO_SYNC: {
       ENGINE_ADDRESSES: '#sync-engine-addresses',
       ENGINE_CREDIT_CARDS: '#sync-engine-creditcards',
@@ -21,6 +24,12 @@ define([], function () {
       ENGINE_PASSWORDS: '#sync-engine-passwords',
       HEADER: '#fxa-choose-what-to-sync-header',
       SUBMIT: 'button[type=submit]'
+    },
+    COMPLETE_RESET_PASSWORD: {
+      HEADER: '#fxa-complete-reset-password-header'
+    },
+    CONFIRM_RESET_PASSWORD: {
+      HEADER: '#fxa-confirm-reset-password-header'
     },
     CONFIRM_SIGNIN: {
       HEADER: '#fxa-confirm-signin-header'
@@ -30,6 +39,15 @@ define([], function () {
     },
     CONNECT_ANOTHER_DEVICE: {
       HEADER: '#fxa-connect-another-device-header'
+    },
+    EMAIL: {
+      ADDRESS_LABEL: '#emails .address',
+      ADD_BUTTON: '.email-add:not(.disabled)',
+      INPUT: '.new-email',
+      MENU_BUTTON: '#emails .settings-unit-stub button',
+      NOT_VERIFIED_LABEL: '.not-verified',
+      SET_PRIMARY_EMAIL_BUTTON: '.email-address .set-primary',
+      VERIFIED_LABEL: '.verified'
     },
     FORCE_AUTH: {
       EMAIL: 'input[type=email]',
@@ -49,7 +67,8 @@ define([], function () {
       EMAIL_NOT_EDITABLE: '.prefillEmail',
       HEADER: '#fxa-signin-header',
       PASSWORD: 'input[type=password]',
-      SUBMIT: 'button[type=submit]'
+      SUBMIT: 'button[type=submit]',
+      TOOLTIP: '.tooltip',
     },
     SIGNIN_COMPLETE: {
       HEADER: '#fxa-sign-in-complete-header'

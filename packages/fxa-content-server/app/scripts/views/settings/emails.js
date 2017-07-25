@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const Email = require('models/email');
@@ -13,6 +14,8 @@ define(function (require, exports, module) {
   const FormView = require('views/form');
   const preventDefaultThen = require('views/base').preventDefaultThen;
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const SearchParamMixin = require('lib/search-param-mixin');
+  const Strings = require('lib/strings');
   const showProgressIndicator = require('views/decorators/progress_indicator');
   const Template = require('stache!templates/settings/emails');
 
@@ -30,7 +33,8 @@ define(function (require, exports, module) {
     events: {
       'click .email-disconnect': preventDefaultThen('_onDisconnectEmail'),
       'click .email-refresh.enabled': preventDefaultThen('refresh'),
-      'click .resend': preventDefaultThen('resend')
+      'click .resend': preventDefaultThen('resend'),
+      'click .set-primary': preventDefaultThen('setPrimary')
     },
 
     initialize (options) {
@@ -44,6 +48,7 @@ define(function (require, exports, module) {
     setInitialContext (context) {
       context.set({
         buttonClass: this._hasSecondaryEmail() ? 'secondary' : 'primary',
+        canChangePrimaryEmail: this._canChangePrimaryEmail(),
         emails: this._emails,
         hasSecondaryEmail: this._hasSecondaryEmail(),
         hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),
@@ -62,6 +67,14 @@ define(function (require, exports, module) {
       if (this._hasSecondaryEmail() && ! this._hasSecondaryVerifiedEmail()) {
         this.openPanel();
       }
+    },
+
+    _canChangePrimaryEmail () {
+      if (this.getSearchParam('canChangeEmail')) {
+        return true;
+      }
+
+      return false;
     },
 
     _isSecondaryEmailEnabled () {
@@ -120,7 +133,7 @@ define(function (require, exports, module) {
     resend (event) {
       const email = $(event.currentTarget).data('id');
       const account = this.getSignedInAccount();
-      return account.resendEmailCode(email)
+      return account.resendEmailCode({ email })
         .then(() => {
           this.displaySuccess(t('Verification email sent'), {
             closePanel: false
@@ -143,12 +156,28 @@ define(function (require, exports, module) {
           .fail((err) => this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err));
       }
     },
+
+    setPrimary (event) {
+      const email = $(event.currentTarget).data('id');
+      const account = this.getSignedInAccount();
+      return account.setPrimaryEmail(email)
+        .then(() => {
+          this.updateDisplayEmail(email);
+          this.displaySuccess(Strings.interpolate(t('Primary email set to %(email)s'), { email }), {
+            closePanel: false
+          });
+          this.render();
+        });
+    }
+
   });
 
   Cocktail.mixin(
     View,
+    AvatarMixin,
     SettingsPanelMixin,
-    FloatingPlaceholderMixin
+    FloatingPlaceholderMixin,
+    SearchParamMixin
   );
 
   module.exports = View;

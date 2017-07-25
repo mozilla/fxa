@@ -50,6 +50,7 @@ define([
   './functional/settings',
   './functional/settings_clients',
   './functional/settings_common',
+  './functional/settings_change_email.js',
   './functional/settings_secondary_emails.js',
   './functional/sync_settings',
   './functional/change_password',

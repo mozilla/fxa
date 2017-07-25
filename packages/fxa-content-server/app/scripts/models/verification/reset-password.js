@@ -22,6 +22,7 @@ define(function (require, exports, module) {
     validation: {
       code: Vat.verificationCode().required(),
       email: Vat.email().required(),
+      emailToHashWith: Vat.email().optional(),
       token: Vat.token().required()
     }
   });

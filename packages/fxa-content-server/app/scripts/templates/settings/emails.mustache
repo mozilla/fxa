@@ -28,13 +28,38 @@
                                         <div class="not-verified">{{#t}}verification required{{/t}}</div>
                                     {{/verified}}
                                 </div>
-                                <button class="settings-button warning email-disconnect" data-id="{{email}}">
-                                    {{#t}}Remove{{/t}}
-                                </button>
+                                <div class="settings-button-group">
+                                    {{#verified}}
+                                        {{#canChangePrimaryEmail }}
+                                            <button class="settings-button secondary set-primary" data-id="{{email}}">
+                                                {{#t}}Make primary{{/t}}
+                                            </button>
+                                        {{/canChangePrimaryEmail }}
+                                    {{/verified}}
+                                    <button class="settings-button warning email-disconnect" data-id="{{email}}">
+                                        {{#t}}Remove{{/t}}
+                                    </button>
+                                </div>
                             </li>
+                            <li class="email-options">
+                                <div class="settings-button-group">
+                                    {{#verified}}
+                                        {{#canChangePrimaryEmail }}
+                                        <button class="settings-button secondary set-primary" data-id="{{email}}">
+                                            {{#t}}Make primary{{/t}}
+                                        </button>
+                                        {{/canChangePrimaryEmail }}
+                                    {{/verified}}
+                                    <button class="settings-button warning email-disconnect unpaired" data-id="{{email}}">
+                                        {{#t}}Remove{{/t}}
+                                    </button>
+                                </div>
+                            </li>
+
                             {{^verified}}
                                 <a class="resend" data-id="{{email}}">{{#t}}Not in inbox or spam folder? Resend?{{/t}}</a>
                             {{/verified}}
+
                         {{/isPrimary}}
                     {{/emails}}
                 </ul>

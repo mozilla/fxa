@@ -78,6 +78,17 @@ define(function (require, exports, module) {
         assert.isFalse(model.isValid());
       });
 
+      it('returns false if emailToHasWith is invalid', function () {
+        var model = new Model({
+          code: validCode,
+          email: validEmail,
+          emailToHashWith: invalidEmail,
+          token: validToken
+        });
+
+        assert.isFalse(model.isValid());
+      });
+
       it('returns true otherwise', function () {
         var model = new Model({
           code: validCode,

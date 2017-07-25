@@ -183,7 +183,14 @@ define(function (require, exports, module) {
       var account = this.getSignedInAccount();
       account.set('displayName', displayName);
       return this.user.setAccount(account)
-        .then(_.bind(this._notifyProfileUpdate, this, account.get('uid')));
+        .then(() => this._notifyProfileUpdate(account.get('uid')));
+    },
+
+    updateDisplayEmail (email) {
+      var account = this.getSignedInAccount();
+      account.set('email', email);
+      return this.user.setAccount(account)
+        .then(() => this._notifyProfileUpdate(account.get('uid')));
     },
 
     _notifyProfileUpdate (uid) {

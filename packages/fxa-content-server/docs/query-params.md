@@ -340,3 +340,25 @@ Used to skip the confirmation form to reset a password
 #### When to use
 Should not be used by reliers.
 Should only be used for accounts that must be reset.
+
+### `emailToHashWith`
+Allows you to override the default email that a reset password is hashed with.
+
+#### Options
+* user's current primary email (default)
+
+#### When to use
+After a user has changed their primary email you need to hash with the original account email
+if they perform a reset password.
+
+## Secondary email parameters
+
+### `canChangeEmail`
+Shows the option to change a user's primary email address.
+
+#### Options
+* `true` 
+* `false` (default)
+
+#### When to specify
+* /settings/emails

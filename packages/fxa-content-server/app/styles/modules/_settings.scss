@@ -655,67 +655,121 @@ section.modal-panel {
 }
 
 .email-list {
-    padding: 0;
-}
+  padding: 0;
 
-.email-address {
+  .email-address {
     height: 40px;
     list-style: none;
     margin: 10px 0;
     position: relative;
 
     html[dir='ltr'] & {
-        background-position: left 2px;
+      background-position: left 2px;
     }
 
     html[dir='rtl'] & {
-        background-position: right 2px;
+      background-position: right 2px;
     }
 
     .address {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        width: calc(95% - 95px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: calc(95% - 95px);
     }
 
     .details {
-        color: $color-grey;
-        font-size: 12px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        width: calc(95% - 95px);
+      color: $color-grey;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: calc(95% - 95px);
 
-        & .not-verified {
-            color: $color-red;
-        }
+      & .not-verified {
+        color: $color-red;
+      }
 
-        & .verified {
-            color: $color-green;
-        }
+      & .verified {
+        color: $color-green;
+      }
     }
 
-    .settings-button {
+    @media screen and (max-width: 400px) {
+      .settings-button-group {
+        /*!important is used here because on small screens these options are displayed*/
+        /*in another area of the panel. They are to the right of the email.*/
+        display: none !important;
+      }
+    }
+
+    .settings-button-group {
+      position: absolute;
+      top: 0;
+
+      html[dir='ltr'] & {
+        right: 0;
+      }
+
+      html[dir='rtl'] & {
+        left: 0;
+      }
+
+      .settings-button {
         height: 35px;
+        margin-left: 10px;
         /*minimum width required for the button to look good without occupying too much space*/
         /*is also the default computed width on desktop screen*/
         min-width: 100px;
-        position: absolute;
         text-align: center;
-        top: 0;
         width: 20%;
+      }
+    }
+  }
 
-        html[dir='ltr'] & {
-            right: 0;
-        }
+  @media screen and (min-width: 400px) {
+    .email-options {
+      /*!important is used here because on large screens these options are not displayed.*/
+      /*They sit below the email address.*/
+      display: none !important;
+    }
+  }
 
-        html[dir='rtl'] & {
-            left: 0;
-        }
+  .email-options {
+    height: 40px;
+    list-style: none;
+    margin: 10px 0;
+    position: relative;
+
+    html[dir='ltr'] & {
+      background-position: left 2px;
     }
 
-    a.settings-button {
-        padding-top: 8px;
+    html[dir='rtl'] & {
+      background-position: right 2px;
     }
+
+    .settings-button-group {
+      position: absolute;
+      top: 0;
+
+      html[dir='ltr'] & {
+        left: 0;
+      }
+
+      html[dir='rtl'] & {
+        right: 0;
+      }
+
+      .settings-button {
+        height: 35px;
+        margin-left: 10px;
+        /*minimum width required for the button to look good without occupying too much space*/
+        /*is also the default computed width on desktop screen*/
+        min-width: 100px;
+        text-align: center;
+        width: 20%;
+      }
+    }
+  }
 }
