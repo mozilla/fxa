@@ -2,3 +2,4 @@ site
 node_modules
 .*.swp
 repos
+.DS_Store
