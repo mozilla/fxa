@@ -40,6 +40,8 @@ define(function (require, exports, module) {
     }
   }
 
+  const proto = FormView.prototype;
+
   var View = FormView.extend({
     template: Template,
     className: 'sign-up',
@@ -54,12 +56,14 @@ define(function (require, exports, module) {
         error.forceMessage = t('Account no longer exists. Recreate it?');
       }
 
-      return FormView.prototype.beforeRender.call(this);
+      return proto.beforeRender.call(this);
     },
 
     afterRender () {
       const autofocusEl = this._selectAutoFocusEl();
       this.$(autofocusEl).attr('autofocus', 'autofocus');
+
+      return proto.afterRender.call(this);
     },
 
     afterVisible () {
@@ -76,7 +80,7 @@ define(function (require, exports, module) {
         }.bind(this));
       }
 
-      return FormView.prototype.afterVisible.call(this);
+      return proto.afterVisible.call(this);
     },
 
     events: {
