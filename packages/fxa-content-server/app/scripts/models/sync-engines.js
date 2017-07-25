@@ -60,7 +60,7 @@ define((require, exports, module) => {
       text: t('Preferences')
     },
     {
-      checked: false,
+      checked: true,
       id: 'addresses',
       // We know addresses will be available in Firefox 56, even before
       // the capabilities code has landed in the browser. This check can be
@@ -72,7 +72,7 @@ define((require, exports, module) => {
       text: t('Addresses')
     },
     {
-      checked: false,
+      checked: true,
       id: 'creditcards',
       // credit cards will only be available via capabilities.
       test: () => false,
