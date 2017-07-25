@@ -1,3 +1,46 @@
+<a name="1.92.0"></a>
+# 1.92.0 (2017-07-25)
+
+
+### Bug Fixes
+
+* **clients:** add 'last sync time unknown' (#5257) r=shane-tomlinson ([9a8369c](https://github.com/mozilla/fxa-content-server/commit/9a8369c)), closes [#4988](https://github.com/mozilla/fxa-content-server/issues/4988)
+* **clients:** update strings to support first and last sync isMemoryToken values (#5256) r=uda ([89e0d6a](https://github.com/mozilla/fxa-content-server/commit/89e0d6a)), closes [#3908](https://github.com/mozilla/fxa-content-server/issues/3908)
+* **cwts:** Check addresses and creditcards by default. (#5282) r=shane-tomlinson ([413d65c](https://github.com/mozilla/fxa-content-server/commit/413d65c)), closes [#5269](https://github.com/mozilla/fxa-content-server/issues/5269)
+* **settings:** fix typo in iPad device css (#5266) r=vbudhram ([b3d92fd](https://github.com/mozilla/fxa-content-server/commit/b3d92fd)), closes [(#5266](https://github.com/(/issues/5266) [#5051](https://github.com/mozilla/fxa-content-server/issues/5051)
+* **signup:** Focus the age input if email/password prefilled (#5281) r=philbooth,vladikoff ([deb16e3](https://github.com/mozilla/fxa-content-server/commit/deb16e3))
+* **sms:** Allow the user to go back after resending an SMS. (#5246) r=vladikoff,philbooth ([75d8c4b](https://github.com/mozilla/fxa-content-server/commit/75d8c4b)), closes [#5244](https://github.com/mozilla/fxa-content-server/issues/5244)
+* **strings:** update OAuth Apps with a "Revoke" string (#5263) r=ryanfeeley ([9625526](https://github.com/mozilla/fxa-content-server/commit/9625526)), closes [#5036](https://github.com/mozilla/fxa-content-server/issues/5036)
+* **styles:** add active styles to primary buttons in settings (#5267), r=@vbudhram ([dff0aea](https://github.com/mozilla/fxa-content-server/commit/dff0aea))
+* **styles:** add new CWTS image (#5259) r=ryanfeeley,shane-tomlinson ([8ea6907](https://github.com/mozilla/fxa-content-server/commit/8ea6907)), closes [#5098](https://github.com/mozilla/fxa-content-server/issues/5098)
+* **test:** Increase automatedBrowser timeout to fetch fxaStatus. (#5274) r=vladikoff ([59f014e](https://github.com/mozilla/fxa-content-server/commit/59f014e))
+* **tests:** add memory clean up helper for functional tests (#5192) ([86438e2](https://github.com/mozilla/fxa-content-server/commit/86438e2))
+
+### chore
+
+* **scripts:** fix up npm start-remote script, switch to fxaci box (#5265) ([95c16fb](https://github.com/mozilla/fxa-content-server/commit/95c16fb)), closes [(#5265](https://github.com/(/issues/5265)
+
+### Features
+
+* **clients:** add new Firefox Notes icon (#5245) r=vbudhram ([f86a8c2](https://github.com/mozilla/fxa-content-server/commit/f86a8c2))
+* **clientsList:** order by type and time, and correct text (#5264) r=vladikoff ([91e98e8](https://github.com/mozilla/fxa-content-server/commit/91e98e8))
+* **email:** add new email graphic, switch to SVG (#5124) r=ryanfeeley ([2a49cf6](https://github.com/mozilla/fxa-content-server/commit/2a49cf6)), closes [#5105](https://github.com/mozilla/fxa-content-server/issues/5105)
+* **emails:** Add support for change email (#5242) r=shane-tomlinson,vladikoff ([39bb771](https://github.com/mozilla/fxa-content-server/commit/39bb771))
+* **oauth:** Add tests for OAuth w/ desktop handshake (#5248) r=vladikoff ([0496e09](https://github.com/mozilla/fxa-content-server/commit/0496e09))
+* **signin:** send `marketingOptIn` parameter to server ([eb2e973](https://github.com/mozilla/fxa-content-server/commit/eb2e973)), closes [#5195](https://github.com/mozilla/fxa-content-server/issues/5195)
+* **sync:** Extract the Sync Suggestion logic into a mixin to be shared. (#5253) r=philbooth ([42a3219](https://github.com/mozilla/fxa-content-server/commit/42a3219))
+
+### Refactor
+
+* **client:** Extract a form-prefill-mixin. (#5258) r=vladikoff,seanmonstar ([294a3f6](https://github.com/mozilla/fxa-content-server/commit/294a3f6))
+* **client:** ServiceMixin sets `service`, `serviceName` in setInitialContext. (#5250) r=@phil ([5f13252](https://github.com/mozilla/fxa-content-server/commit/5f13252))
+* **coppa:** Make the COPPA view a mixin for easier reuse. (#5261) r=@philbooth ([808a814](https://github.com/mozilla/fxa-content-server/commit/808a814))
+* **email-opt-in:** Extract the email-opt-in frontend logic for re-use. (#5275) r=@vbudhram ([8fafad7](https://github.com/mozilla/fxa-content-server/commit/8fafad7))
+* **mixins:** Mixins can now declare other mixins as dependencies. (#5251) r=@shane-tomlinson ([b5942ae](https://github.com/mozilla/fxa-content-server/commit/b5942ae))
+* **test:** Update the `sign_up` functional test to use selectors.js (#5260) r=vladikoff ([79de14e](https://github.com/mozilla/fxa-content-server/commit/79de14e))
+
+
+
 <a name="1.91.1"></a>
 ## 1.91.1 (2017-07-14)
 
