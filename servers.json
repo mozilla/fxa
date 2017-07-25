@@ -1,15 +1,6 @@
 {
   "apps": [
     {
-      "name": "redis PORT 6379",
-      "script": "_scripts/redis.js",
-      "env": {
-        "PORT": "6379"
-      },
-      "max_restarts": "1",
-      "min_uptime": "2m"
-    },
-    {
       "name": "auth-server local mail helper",
       "script": "test/mail_helper.js",
       "cwd": "fxa-auth-server",
@@ -179,6 +170,15 @@
       "cwd": "fxa-auth-server",
       "env": {
         "NODE_ENV": "dev"
+      },
+      "max_restarts": "1",
+      "min_uptime": "2m"
+    },
+    {
+      "name": "redis PORT 6379",
+      "script": "_scripts/redis.js",
+      "env": {
+        "PORT": "6379"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
