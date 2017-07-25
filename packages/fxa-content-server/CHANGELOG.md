@@ -1,3 +1,14 @@
+<a name="1.92.1"></a>
+## 1.92.1 (2017-07-25)
+
+
+### Bug Fixes
+
+* **firstrun:** Fix styles in firstrun. (#5283) r=vladikoff ([d8f2aa4](https://github.com/mozilla/fxa-content-server/commit/d8f2aa4)), closes [(#5283](https://github.com/(/issues/5283) [#5273](https://github.com/mozilla/fxa-content-server/issues/5273)
+* **sign_up:** Ensure `beforeRender` calls FormView's `beforeRender` (#5284) r=vladikoff ([16045ba](https://github.com/mozilla/fxa-content-server/commit/16045ba))
+
+
+
 <a name="1.92.0"></a>
 # 1.92.0 (2017-07-25)
 
