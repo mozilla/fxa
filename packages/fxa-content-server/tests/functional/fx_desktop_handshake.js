@@ -20,6 +20,7 @@ define([
   const SYNC_FORCE_AUTH_PAGE_URL = `${FORCE_AUTH_PAGE_URL}&service=sync`;
 
   const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
+  const OAUTH_SIGNIN_PAGE_URL = `${config.fxaContentRoot}oauth/signin?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}&client_id=dcdb5ae7add825d2&state=asdf&scope=profile`; //eslint-disable-line max-len
   const SYNC_SIGNIN_PAGE_URL = `${SIGNIN_PAGE_URL}&service=sync`;
 
   const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
@@ -213,6 +214,51 @@ define([
         // Then, sign in the user again, synthesizing the user having signed
         // into Sync after the initial sign in.
         .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
+            }
+          }
+        }))
+        // browsers version of the world is ignored for non-Sync signins if another
+        // user has already signed in.
+        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, otherEmail))
+        // normal email element is in the DOM to help password managers.
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, otherEmail))
+        .then(testElementExists(selectors.SIGNIN.PASSWORD));
+    },
+
+    'OAuth signin page - user signed into browser, no user signed in locally': function () {
+      return this.remote
+        .then(openPage(OAUTH_SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
+            }
+          }
+        }))
+        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail))
+        // User can sign in with cached credentials, no password needed.
+        .then(noSuchElement(selectors.SIGNIN.PASSWORD))
+        .sleep(15000);
+    },
+
+    'OAuth signin page - user signed into browser, user signed in locally': function () {
+      return this.remote
+        // First, sign in the user to populate localStorage
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
+          }
+        }))
+        .then(fillOutSignIn(otherEmail, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+
+        // Then, sign in the user again, synthesizing the user having signed
+        // into Sync after the initial sign in.
+        .then(openPage(OAUTH_SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
           webChannelResponses: {
             'fxaccounts:fxa_status': {
               signedInUser: browserSignedInAccount
