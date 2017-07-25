@@ -298,11 +298,27 @@ define(function (require, exports, module) {
     });
 
     describe('autofocus behavior', () => {
-      it('focuses the email element by default', () => {
-        $('html').addClass('no-touch');
+      it('focuses the email element if not pre-filled', () => {
         return view.render()
           .then(() => {
             assert.ok(view.$('input[type="email"]').attr('autofocus'));
+          });
+      });
+
+      it('focuses the password element if email is pre-filled', () => {
+        formPrefill.set('email', 'testuser@testuser.com');
+        return view.render()
+          .then(() => {
+            assert.ok(view.$('input[type="password"]').attr('autofocus'));
+          });
+      });
+
+      it('focuses the age element if email and password are both pre-filled', () => {
+        formPrefill.set('email', 'testuser@testuser.com');
+        formPrefill.set('password', 'password');
+        return view.render()
+          .then(() => {
+            assert.ok(view.$('#age').attr('autofocus'));
           });
       });
     });

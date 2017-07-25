@@ -30,13 +30,14 @@ define(function (require, exports, module) {
 
   function selectAutoFocusEl(bouncedEmail, email, password) {
     if (bouncedEmail) {
-      return 'email';
+      return 'input[type=email]';
     } else if (! email) {
-      return 'email';
+      return 'input[type=email]';
     } else if (! password) {
-      return 'password';
+      return 'input[type=password]';
+    } else {
+      return '#age';
     }
-    return null;
   }
 
   var View = FormView.extend({
@@ -54,6 +55,11 @@ define(function (require, exports, module) {
       }
 
       return FormView.prototype.beforeRender.call(this);
+    },
+
+    afterRender () {
+      const autofocusEl = this._selectAutoFocusEl();
+      this.$(autofocusEl).attr('autofocus', 'autofocus');
     },
 
     afterVisible () {
@@ -94,7 +100,6 @@ define(function (require, exports, module) {
     },
 
     setInitialContext (context) {
-      var autofocusEl = this._selectAutoFocusEl();
       var forceEmail = this.model.get('forceEmail');
       var prefillEmail = this.getPrefillEmail();
 
@@ -110,9 +115,7 @@ define(function (require, exports, module) {
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isSignInEnabled: ! forceEmail,
         isSync: isSync,
-        isSyncMigration: this.isSyncMigration(),
-        shouldFocusEmail: autofocusEl === 'email',
-        shouldFocusPassword: autofocusEl === 'password'
+        isSyncMigration: this.isSyncMigration()
       });
     },
 
