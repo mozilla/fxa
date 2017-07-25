@@ -86,6 +86,10 @@ ul.links {
 .marketing-email-optin-row {
   color: $input-placeholder-color;
 
+  @include respond-to('trustedUI') {
+     font-size: 12px;
+  }
+
   @include respond-to('small') {
     margin: 10px 0;
   }
@@ -97,7 +101,6 @@ ul.links {
   .fxa-checkbox {
     line-height: 18px;
   }
-
 }
 
 .choose-what-to-sync-row,
