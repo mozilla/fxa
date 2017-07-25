@@ -38,6 +38,7 @@ define(function (require, exports, module) {
 
     this.document = {
       body: window.document.body,
+      cookie: '',
       documentElement: {
         className: '',
         clientHeight: window.document.documentElement.clientHeight

@@ -9,7 +9,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const CheckboxMixin = require('views/mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
-  const CoppaAgeInput = require('views/coppa/coppa-age-input');
+  const CoppaMixin = require('views/mixins/coppa-mixin');
   const EmailOptInMixin = require('views/mixins/email-opt-in-mixin');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
@@ -44,56 +44,16 @@ define(function (require, exports, module) {
     className: 'sign-up',
 
     initialize (options = {}) {
-      this._coppa = options.coppa;
       this._experimentGroupingRules = options.experimentGroupingRules;
     },
 
     beforeRender () {
-      if (document.cookie.indexOf('tooyoung') > -1) {
-        this.navigate('cannot_create_account');
-        return p(false);
-      }
-
       var error = this.model.get('error');
       if (error && AuthErrors.is(error, 'DELETED_ACCOUNT')) {
         error.forceMessage = t('Account no longer exists. Recreate it?');
       }
 
       return FormView.prototype.beforeRender.call(this);
-    },
-
-    _createCoppaView () {
-      if (this._coppa) {
-        return p();
-      }
-
-      var autofocusEl = this._selectAutoFocusEl();
-      var coppaOptions = {
-        el: this.$('#coppa'),
-        formPrefill: this.formPrefill,
-        metrics: this.metrics,
-        notifier: this.notifier,
-        shouldFocus: autofocusEl === null,
-        viewName: this.getViewName()
-      };
-
-      var coppaView = new CoppaAgeInput(coppaOptions);
-
-      return coppaView.render()
-        .then(() => {
-          this.trackChildView(coppaView);
-          // CoppaAgeInput inherits from FormView, which cancels submit events.
-          // Explicitly propagate submit events from the COPPA input so that the
-          // rest of our event-handling, e.g. the flow.engage event, works.
-          coppaView.on('submit', () => this.trigger('submit'));
-
-          this._coppa = coppaView;
-        });
-    },
-
-    afterRender () {
-      return this._createCoppaView()
-        .then(() => FormView.prototype.afterRender.call(this));
     },
 
     afterVisible () {
@@ -203,7 +163,7 @@ define(function (require, exports, module) {
         var account = this._initAccount();
         var password = this.getElementValue('.password');
 
-        if (this._isUserOldEnough()) {
+        if (this.isUserOldEnough()) {
           // User filled out COPPA, attempt a signup.
           // If user already exists, they will be signed in.
           return this._signUp(account, password);
@@ -270,9 +230,8 @@ define(function (require, exports, module) {
         // attempting to sign in. If the account is unknown,
         // something is up with COPPA. Print the
         // appropriate message.
-        if (this._coppa.hasValue()) {
-          this.notifier.trigger('signup.tooyoung');
-          return this._cannotCreateAccount();
+        if (this.coppaHasValue()) {
+          return this.tooYoung();
         } else {
           this.showValidationError(this.$('#age'), AuthErrors.toError('AGE_REQUIRED'));
           return;
@@ -303,28 +262,12 @@ define(function (require, exports, module) {
              bouncedEmail === this.getElementValue('input[type=email]');
     },
 
-    _isUserOldEnough () {
-      return this._coppa.isUserOldEnough();
-    },
-
     _isEmailFirefoxDomain () {
       var email = this.getElementValue('.email');
 
       // "@firefox" or "@firefox.com" email addresses are not valid
       // at this time, therefore block the attempt.
       return /@firefox(\.com)?$/.test(email);
-    },
-
-    _cannotCreateAccount () {
-      // this is a session cookie. It will go away once:
-      // 1. the user closes the tab
-      // and
-      // 2. the user closes the browser
-      // Both of these have to happen or else the cookie
-      // hangs around like a bad smell.
-      document.cookie = 'tooyoung=1;';
-
-      this.navigate('cannot_create_account');
     },
 
     _initAccount () {
@@ -354,6 +297,7 @@ define(function (require, exports, module) {
     View,
     AccountResetMixin,
     CheckboxMixin,
+    CoppaMixin({ required: false }),
     EmailOptInMixin,
     ExperimentMixin,
     FlowBeginMixin,

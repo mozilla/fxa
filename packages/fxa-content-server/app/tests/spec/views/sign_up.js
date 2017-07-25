@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const Broker = require('models/auth_brokers/base');
-  const CoppaAgeInput = require('views/coppa/coppa-age-input');
   const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
   const ExperimentInterface = require('lib/experiment');
   const FormPrefill = require('models/form-prefill');
@@ -31,7 +30,6 @@ define(function (require, exports, module) {
 
   describe('views/sign_up', function () {
     var broker;
-    var coppa;
     var email;
     var experimentGroupingRules;
     var formPrefill;
@@ -56,7 +54,6 @@ define(function (require, exports, module) {
 
       var viewOpts = {
         broker: broker,
-        coppa: coppa,
         experimentGroupingRules: options.experimentGroupingRules || experimentGroupingRules,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
@@ -86,7 +83,6 @@ define(function (require, exports, module) {
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
 
       experimentGroupingRules = new ExperimentGroupingRules();
-      coppa = new CoppaAgeInput();
       email = TestHelpers.createEmail();
       formPrefill = new FormPrefill();
       fxaClient = new FxaClient();
@@ -114,10 +110,7 @@ define(function (require, exports, module) {
       $('body').attr('data-flow-id', 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103');
       $('body').attr('data-flow-begin', '42');
 
-      return view.render()
-        .then(function () {
-          $('#container').html(view.el);
-        });
+      return view.render();
     });
 
     afterEach(function () {
@@ -197,14 +190,8 @@ define(function (require, exports, module) {
           });
       });
 
-      it('uses input COPPA', function () {
-        view._coppa = null;
-        return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          }).then(function () {
-            assert.ok(view.$el.find('#age').length);
-          });
+      it('renders COPPA', function () {
+        assert.ok(view.$el.find('#age').length);
       });
 
       it('shows serviceName', function () {
@@ -308,20 +295,15 @@ define(function (require, exports, module) {
             }, 50);
           });
       });
+    });
 
-      it('focuses the email element by default', function (done) {
+    describe('autofocus behavior', () => {
+      it('focuses the email element by default', () => {
         $('html').addClass('no-touch');
-        TestHelpers.requiresFocus(function () {
-          view.render()
-            .then(function () {
-
-              view.$('input[type="email"]').one('focus', function () {
-                done();
-              });
-
-              view.afterVisible();
-            });
-        }, done);
+        return view.render()
+          .then(() => {
+            assert.ok(view.$('input[type="email"]').attr('autofocus'));
+          });
       });
     });
 
@@ -507,15 +489,6 @@ define(function (require, exports, module) {
         view.showValidationErrors();
         assert.isTrue(view.showValidationError.called);
       });
-
-      it('does not call coppa\'s showValidationErrors if no other errors', function () {
-        fillOutSignUp('testuser@testuser.com', 'password');
-
-        sinon.spy(coppa, 'showValidationError');
-        view.showValidationErrors();
-
-        assert.isFalse(coppa.showValidationError.called);
-      });
     });
 
     describe('submit', function () {
@@ -543,20 +516,13 @@ define(function (require, exports, module) {
         beforeEach(function () {
           fillOutSignUp(email, 'password');
 
-          sandbox.stub(coppa, 'isUserOldEnough', function () {
-            return false;
-          });
-
-          sandbox.stub(view, 'signUp', function () {
-            return p();
-          });
+          sandbox.stub(view, 'isUserOldEnough', () => false);
+          sandbox.stub(view, 'signUp', () => p());
         });
 
         describe('signin succeeds', function () {
           beforeEach(function () {
-            sandbox.stub(view, 'signIn', function () {
-              return p();
-            });
+            sandbox.stub(view, 'signIn', () => p());
 
             return view.submit();
           });
@@ -595,10 +561,8 @@ define(function (require, exports, module) {
 
           describe('COPPA has no value', function () {
             beforeEach(function () {
-              sandbox.stub(coppa, 'hasValue', function () {
-                return false;
-              });
-              sandbox.stub(view, 'showValidationError', function () { });
+              sandbox.stub(view, 'coppaHasValue', () => false);
+              sandbox.stub(view, 'showValidationError', () => {});
               return view.submit();
             });
 
@@ -628,9 +592,7 @@ define(function (require, exports, module) {
 
           describe('COPPA is too young', function () {
             beforeEach(function () {
-              sandbox.stub(coppa, 'hasValue', function () {
-                return true;
-              });
+              sandbox.stub(view, 'coppaHasValue', () => true);
 
               return view.submit();
             });
@@ -667,29 +629,6 @@ define(function (require, exports, module) {
             it('does not display any errors', function () {
               assert.isFalse(view.displayError.called);
               assert.isFalse(view.unsafeDisplayError.called);
-            });
-
-            describe('when the user revisits', function () {
-              var revisitView;
-              beforeEach(function () {
-                revisitView = new View({
-                  experimentGroupingRules: experimentGroupingRules,
-                  fxaClient: fxaClient,
-                  notifier: notifier,
-                  relier: relier
-                });
-
-                sinon.spy(revisitView, 'navigate');
-
-                // simulate user re-visiting the /signup
-                // page after being rejected
-                return revisitView.render();
-              });
-
-              it('immediately sends them to `cannot_create_account`', function () {
-                assert.isTrue(revisitView.navigate.calledOnce);
-                assert.isTrue(revisitView.navigate.calledWith('cannot_create_account'));
-              });
             });
           });
         });
@@ -839,13 +778,8 @@ define(function (require, exports, module) {
         beforeEach(function () {
           fillOutSignUp(email, 'password');
 
-          sandbox.stub(coppa, 'isUserOldEnough', function () {
-            return true;
-          });
-
-          sinon.stub(view, 'signIn', function () {
-            return p();
-          });
+          sandbox.stub(view, 'isUserOldEnough', () => true);
+          sinon.stub(view, 'signIn', () => p());
         });
 
         describe('signup succeeds', function () {
@@ -996,9 +930,7 @@ define(function (require, exports, module) {
             .then(function () {
               fillOutSignUp(email, 'password');
 
-              sinon.stub(coppa, 'isUserOldEnough', function () {
-                return true;
-              });
+              sinon.stub(view, 'isUserOldEnough', () => true);
 
               return view.submit();
             });
@@ -1114,9 +1046,7 @@ define(function (require, exports, module) {
         });
 
         sinon.spy(view, 'navigate');
-        sinon.stub(coppa, 'isUserOldEnough', function () {
-          return true;
-        });
+        sinon.stub(view, 'isUserOldEnough', () => true);
 
         return view.submit()
           .then(function () {
@@ -1132,6 +1062,7 @@ define(function (require, exports, module) {
       });
 
       it('suggests emails via a tooltip', function () {
+        $('#container').html(view.el);
         view.$('.email').val('testuser@gnail.com');
         view.onEmailBlur();
         // wait for tooltip
@@ -1237,6 +1168,7 @@ define(function (require, exports, module) {
       });
 
       it('logs the submit event', () => {
+        $('#container').html(view.el);
         view.$('#submit-btn').click();
         assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.submit'));
         view.enableForm();

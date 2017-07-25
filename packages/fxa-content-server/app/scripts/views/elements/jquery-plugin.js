@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const _ = require('underscore');
   const checkboxInput = require('views/elements/checkbox-input');
+  const coppaAgeInput = require('views/elements/coppa-age-input');
   const defaultElement = require('views/elements/default');
   const emailInput = require('views/elements/email-input');
   const passwordInput = require('views/elements/password-input');
@@ -24,6 +25,7 @@ define(function (require, exports, module) {
 
   const elementHelpers = [
     checkboxInput,
+    coppaAgeInput,
     emailInput,
     passwordInput,
     unblockCodeInput,
