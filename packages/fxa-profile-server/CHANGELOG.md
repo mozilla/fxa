@@ -1,3 +1,17 @@
+<a name="1.92.0"></a>
+# [1.92.0](https://github.com/mozilla/fxa-profile-server/compare/v1.91.0...v1.92.0) (2017-07-26)
+
+
+### Bug Fixes
+
+* **timeout:** bump generateTimeout to 11 seconds (#274) r=vladikoff ([7b5ed1b](https://github.com/mozilla/fxa-profile-server/commit/7b5ed1b))
+
+### chore
+
+* **config:** update cache emails to support yahoo (#272) r=vladikoff ([b01ab7a](https://github.com/mozilla/fxa-profile-server/commit/b01ab7a))
+
+
+
 <a name="1.91.0"></a>
 # [1.91.0](https://github.com/mozilla/fxa-profile-server/compare/v1.90.0...v1.91.0) (2017-07-12)
 
