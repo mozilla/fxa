@@ -190,7 +190,7 @@ Deep links are not supported in Firefox 54 for Android. E2E tests of the
 deep link feature requires testing using Firefox 55 (Beta) for Android.
 Instructions are included to force the installation of Firefox 55.
 
-##### To reset the advertising ID:
+##### Forget the device with Adjust
 System settings->Google->Ads->Reset advertising ID
 
 ##### Sign up in Firefox desktop, send link to Android, Firefox not installed
@@ -237,8 +237,10 @@ System settings->Google->Ads->Reset advertising ID
 
 #### iOS
 
-##### To reset the advertising ID:
-System settings->Privacy->Advertising->Reset Advertising Identifier
+##### Forget the device with Adjust
+1. Download an app from the App store called the "Identifiers"
+2. Open the Identifiers, note the device ID.
+3. Load http://app.adjust.com/forget_device?app_token=gqrwnbypw28p&idfa=XXXXX-XXX-XXXX-XXXX-XXXXXXX where XXXXX-* is the device ID from step 2.
 
 ##### Sign up in Firefox desktop, send link to iOS, Firefox not installed
 
