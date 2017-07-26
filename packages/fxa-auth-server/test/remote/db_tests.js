@@ -31,20 +31,24 @@ const Token = require('../../lib/tokens')(log, {
 const redisGetSpy = sinon.stub()
 const redisSetSpy = sinon.stub()
 const redisDelSpy = sinon.stub()
+const getGeoDataSpy = sinon.stub()
+getGeoDataSpy.returns(P.resolve({}))
 
-const DB = proxyquire('../../lib/db', { redis: {
-  createClient: () => ({
-    getAsync: redisGetSpy,
-    setAsync: redisSetSpy,
-    del: redisDelSpy
-  })
-}})(
-  {
-    lastAccessTimeUpdates,
-    signinCodeSize: config.signinCodeSize,
-    redis: { enabled: true },
-    tokenLifetimes: {}
-  },
+const DB = proxyquire('../../lib/db', {
+  '../lib/geodb': () => getGeoDataSpy,
+  redis: {
+    createClient: () => ({
+      getAsync: redisGetSpy,
+      setAsync: redisSetSpy,
+      del: redisDelSpy
+    })
+  }
+})({
+  lastAccessTimeUpdates,
+  signinCodeSize: config.signinCodeSize,
+  redis: { enabled: true },
+  tokenLifetimes: {}
+},
   log,
   Token,
   UnblockCode
@@ -195,7 +199,8 @@ describe('remote db', function() {
           return db.sessionToken(tokenId)
         })
         .then(function(sessionToken) {
-          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+          getGeoDataSpy.returns(P.resolve({location: {state: 'Mordor', country: 'ME'}}))
+          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0', '1.1.1.1')
         })
         .then(function(sessionTokens) {
           assert.equal(redisSetSpy.lastCall.args[0], account.uid)
@@ -208,12 +213,15 @@ describe('remote db', function() {
           assert.equal(token.uaBrowserVersion, '41')
           assert.equal(token.uaOS, 'Mac OS X')
           assert.equal(token.uaOSVersion, '10.10')
+          assert.equal(token.location.state, 'Mordor', 'state is correct')
+          assert.equal(token.location.country, 'ME', 'country is correct')
           assert.ok(token.lastAccessTime)
           assert.ok(token.createdAt)
           return db.sessionToken(tokenId)
         })
         .then(function(sessionToken) {
-          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0')
+          getGeoDataSpy.returns(P.reject())
+          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0', '1.1.1.1')
         })
         .then(function(tokens) {
           redisGetSpy.returns(P.resolve(JSON.stringify(tokens)))
@@ -226,6 +234,7 @@ describe('remote db', function() {
           assert.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct')
           assert.equal(sessions[0].uaOSVersion, '4.4', 'uaOSVersion property is correct')
           assert.equal(sessions[0].uaDeviceType, 'mobile', 'uaDeviceType property is correct')
+          assert.equal(sessions[0].location, null, 'location property is correct')
           return db.sessionToken(tokenId)
         })
         .then(function(sessionToken) {
@@ -374,6 +383,7 @@ describe('remote db', function() {
             deviceInfo.pushPublicKey = ''
             deviceInfo.pushAuthKey = ''
             // Update the device and the session token
+            getGeoDataSpy.returns(P.resolve({location: {state: 'Mordor', country: 'ME'}}))
             return P.all([
               db.updateDevice(account.uid, sessionToken.tokenId, deviceInfo),
               db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:44.0) Gecko/20100101 Firefox/44.0')

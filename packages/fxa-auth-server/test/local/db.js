@@ -120,3 +120,94 @@ describe('db, session tokens do not expire:', () => {
   })
 })
 
+describe('db with redis disabled', () => {
+
+  const tokenLifetimes = {
+    sessionTokenWithoutDevice: 2419200000
+  }
+
+  let results, pool, redis, log, tokens, db
+
+  beforeEach(() => {
+    results = {}
+    pool = {
+      get: sinon.spy(() => P.resolve(results.pool)),
+      post: sinon.spy(() => P.resolve()),
+      del: sinon.spy(() => P.resolve())
+    }
+
+    redis = {
+      getAsync: sinon.spy(() => P.resolve(results.redis)),
+      setAsync: sinon.spy(() => P.resolve()),
+      del: sinon.spy(() => P.resolve())
+    }
+
+    log = mocks.spyLog()
+    tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes })
+    const DB = proxyquire(`${LIB_DIR}/db`, {
+      './pool': function () { return pool },
+      redis: { createClient: () => redis }
+    })({ tokenLifetimes, redis: {enabled: false} }, log, tokens, {})
+    return DB.connect({})
+      .then(result => db = result)
+  })
+
+  afterEach(() => {
+    pool.get.reset()
+    pool.post.reset()
+    pool.del.reset()
+
+    redis.getAsync.reset()
+    redis.setAsync.reset()
+    redis.del.reset()
+  })
+
+  it('should not call redis when reading sessions', () => {
+    results.pool = []
+    return db.sessions('fakeUid')
+      .then(result => {
+        assert.equal(pool.get.lastCall.args[0], '/account/fakeUid/sessions')
+        assert.equal(redis.getAsync.lastCall, null)
+        assert.deepEqual(result, [])
+      })
+  })
+
+  it('should not call redis when reading devices', () => {
+    results.pool = []
+    return db.devices('fakeUid')
+      .then(result => {
+        assert.equal(pool.get.lastCall.args[0], '/account/fakeUid/devices')
+        assert.equal(redis.getAsync.lastCall, null)
+        assert.deepEqual(result, [])
+      })
+  })
+
+  it('should not call redis when deleting account', () => {
+    results.pool = []
+    return db.deleteAccount({uid: 'fakeUid'})
+      .then(() => {
+        assert.equal(pool.del.lastCall.args[0], '/account/fakeUid')
+        assert.equal(redis.del.lastCall, null)
+      })
+  })
+
+  it('should not call redis when deleting sessionTokens', () => {
+    results.pool = []
+    return db.deleteSessionToken({id: 'fakeId'})
+      .then(() => {
+        assert.equal(pool.del.lastCall.args[0], '/sessionToken/fakeId')
+        assert.equal(redis.getAsync.lastCall, null)
+        assert.equal(redis.setAsync.lastCall, null)
+      })
+  })
+
+  it('should not call redis when resetting account', () => {
+    results.pool = []
+    return db.resetAccount({uid: 'fakeUid'}, {})
+      .then(() => {
+        assert.equal(pool.post.lastCall.args[0], '/account/fakeUid/reset')
+        assert.equal(redis.del.lastCall, null)
+      })
+  })
+})
+

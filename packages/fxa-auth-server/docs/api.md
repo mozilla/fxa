@@ -1159,6 +1159,12 @@ for the authenticated user.
   
   <!--end-response-body-get-accountsessions-createdTimeFormatted-->
 
+* `location`: *object({ state: string, allow(null), country: string, allow(null) })*
+
+  <!--begin-response-body-get-accountsessions-location-->
+  Object containing the client's state and country
+  <!--end-response-body-get-accountsessions-location-->
+
 * `userAgent`: *string, max(255), required, allow('')*
 
   <!--begin-response-body-get-accountsessions-userAgent-->

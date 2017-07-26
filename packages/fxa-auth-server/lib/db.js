@@ -11,6 +11,7 @@ const userAgent = require('./userAgent')
 
 const random = require('./crypto/random')
 const redis = require('redis')
+const geodb = require('../lib/geodb')
 
 P.promisifyAll(redis.RedisClient.prototype)
 P.promisifyAll(redis.Multi.prototype)
@@ -28,6 +29,7 @@ module.exports = (
   const AccountResetToken = Token.AccountResetToken
   const PasswordForgotToken = Token.PasswordForgotToken
   const PasswordChangeToken = Token.PasswordChangeToken
+  const getGeoData = geodb(log)
   const MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice
 
   function setAccountEmails(account) {
@@ -493,7 +495,7 @@ module.exports = (
     )
   }
 
-  DB.prototype.updateSessionToken = function (token, userAgentString) {
+  DB.prototype.updateSessionToken = function (token, userAgentString, ip) {
     log.trace({ op: 'DB.updateSessionToken', uid: token && token.uid })
 
     const uid = token.uid
@@ -502,7 +504,7 @@ module.exports = (
     }
 
     token.update(userAgentString)
-    const newToken = [{
+    const newToken = {
       tokenId: token.id,
       uid: uid,
       uaBrowser: token.uaBrowser,
@@ -512,19 +514,30 @@ module.exports = (
       uaDeviceType: token.uaDeviceType,
       lastAccessTime: token.lastAccessTime,
       createdAt: token.createdAt
-    }]
+    }
     let sessionTokens = []
+    return getGeoData(ip)
+    .then((res) => {
+      const state = res.location && res.location.state
+      const country = res.location && res.location.country
+      newToken.location = {state, country}
+    })
+    .catch(err => {
+      newToken.location = null
+    })
     // get the array of session tokens associated with the given uid
-    return this.redis.getAsync(uid)
+    .then(() => this.redis.getAsync(uid))
     .then(res => {
       if (res) {
         res = JSON.parse(res)
         // remove the token that we want to update from the array
-        const filteredRes = res.filter(tok => tok.tokenId !== token.id)
-        sessionTokens = sessionTokens.concat(filteredRes)
+        const filteredTokens = res.filter(tok => tok.tokenId !== token.id)
+        sessionTokens = sessionTokens.concat(filteredTokens)
       }
-      // add new updated token into array, and set the resulting array as the new value
-      sessionTokens = sessionTokens.concat(newToken)
+    })
+    // add new updated token into array, and set the resulting array as the new value
+    .then(() => {
+      sessionTokens.push(newToken)
       return this.redis.setAsync(uid, JSON.stringify(sessionTokens))
     })
     .then(() => sessionTokens)
@@ -654,10 +667,13 @@ module.exports = (
     }
     return P.all(promises)
       .spread((deleteRes, redisTokens) => {
-        const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : []
-        const tokenToDeleteIndex = redisSessionTokens.findIndex((tok) => tok.tokenId === sessionToken.id)
-        redisSessionTokens.splice(tokenToDeleteIndex, 1)
-        return this.redis.setAsync(uid, JSON.stringify(redisSessionTokens))
+        if (this.redis) {
+          const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : []
+          const tokenToDeleteIndex = redisSessionTokens.findIndex((tok) => tok.tokenId === sessionToken.id)
+          redisSessionTokens.splice(tokenToDeleteIndex, 1)
+          return this.redis.setAsync(uid, JSON.stringify(redisSessionTokens))
+        }
+        return deleteRes
       })
   }
 

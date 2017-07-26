@@ -47,10 +47,16 @@ module.exports = (log, signer, db, domain, devices) => {
         var publicKey = request.payload.publicKey
         var duration = request.payload.duration
         var service = request.query.service
+        var clientIp = request.app.clientAddress
         var deviceId, uid, certResult
-
         // No need to wait for a response, update in the background.
-        db.updateSessionToken(sessionToken, request.headers['user-agent'])
+        if (request.headers['user-agent']) {
+          db.updateSessionToken(sessionToken, request.headers['user-agent'], clientIp)
+        } else {
+          log.warn({
+            op: 'signer.updateSessionToken', message: 'no user agent string, session token not updated'
+          })
+        }
 
         if (! sessionToken.emailVerified) {
           return reply(error.unverifiedAccount())

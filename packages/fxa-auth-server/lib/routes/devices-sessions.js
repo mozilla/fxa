@@ -318,6 +318,10 @@ module.exports = (log, db, config, customs, push, devices) => {
             lastAccessTimeFormatted: isA.string().optional().allow(''),
             createdTime: isA.number().min(0).required().allow(null),
             createdTimeFormatted: isA.string().optional().allow(''),
+            location: isA.object({
+              state: isA.string().allow(null),
+              country: isA.string().allow(null)
+            }),
             userAgent: isA.string().max(255).required().allow(''),
             os: isA.string().max(255).allow('').allow(null),
             deviceId: isA.string().regex(HEX_STRING).allow(null),
@@ -367,6 +371,10 @@ module.exports = (log, db, config, customs, push, devices) => {
                 id: session.tokenId,
                 isCurrentDevice: session.tokenId === sessionToken.tokenId,
                 isDevice,
+                location: {
+                  state: session.location && session.location.state,
+                  country: session.location && session.location.country
+                },
                 lastAccessTime: session.lastAccessTime,
                 lastAccessTimeFormatted: localizeTimestamp.format(
                   session.lastAccessTime,

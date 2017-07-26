@@ -514,19 +514,22 @@ describe('/account/sessions', () => {
       tokenId: tokenIds[0], uid: 'qux', createdAt: times[0], lastAccessTime: times[1],
       uaBrowser: 'Firefox', uaBrowserVersion: '50', uaOS: 'Windows', uaOSVersion: '10',
       uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2],
-      deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey'
+      deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
+      location: { country: 'Canada', state: 'ON' }
     },
     {
       tokenId: tokenIds[1], uid: 'wibble', createdAt: times[3], lastAccessTime: times[4],
       uaBrowser: 'Nightly', uaBrowserVersion: null, uaOS: 'Android', uaOSVersion: '6',
       uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[5],
-      deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null
+      deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null,
+      location: { country: 'England', state: 'AB' }
     },
     {
       tokenId: tokenIds[2], uid: 'blee', createdAt: times[6], lastAccessTime: times[7],
       uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
       uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8],
-      deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey'
+      deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
+      location: null
     }
   ]
   const db = mocks.mockDB({ sessions })
@@ -561,7 +564,8 @@ describe('/account/sessions', () => {
           createdTime: times[0],
           createdTimeFormatted: 'a few seconds ago',
           os: 'Windows',
-          userAgent: 'Firefox 50'
+          userAgent: 'Firefox 50',
+          location: { country: 'Canada', state: 'ON' }
         },
         {
           deviceId: 'deviceId',
@@ -578,7 +582,8 @@ describe('/account/sessions', () => {
           createdTime: times[3],
           createdTimeFormatted: 'a few seconds ago',
           os: 'Android',
-          userAgent: 'Nightly'
+          userAgent: 'Nightly',
+          location: { country: 'England', state: 'AB' }
         },
         {
           deviceId: 'deviceId',
@@ -595,7 +600,8 @@ describe('/account/sessions', () => {
           createdTime: times[6],
           createdTimeFormatted: 'a few seconds ago',
           os: null,
-          userAgent: ''
+          userAgent: '',
+          location: { country: null, state: null}
         },
       ])
     })
