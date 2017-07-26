@@ -1,3 +1,13 @@
+<a name="1.92.0"></a>
+# [1.92.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.91.0...v1.92.0) (2017-07-26)
+
+
+### Features
+
+* **sqs:** look for `marketingOptIn` on 'verified' events (#41) r=vladikoff ([df6bddd](https://github.com/mozilla/fxa-basket-proxy/commit/df6bddd)), closes [#40](https://github.com/mozilla/fxa-basket-proxy/issues/40)
+
+
+
 <a name="1.91.0"></a>
 # [1.91.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.75.0...v1.91.0) (2017-07-17)
 
