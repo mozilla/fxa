@@ -17,14 +17,6 @@ define(function (require, exports, module) {
       'click #suggest-sync a': 'onSuggestSyncClick'
     },
 
-    isSyncSuggestionEnabled () {
-      if (! this.relier.get('service')) {
-        this.logViewEvent('sync-suggest.visible');
-        return true;
-      }
-      return false;
-    },
-
     /**
      * Sign up a user
      *
