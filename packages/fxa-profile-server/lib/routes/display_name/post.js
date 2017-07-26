@@ -29,7 +29,7 @@ module.exports = {
   },
   validate: {
     payload: {
-      displayName: Joi.string().required().allow('').regex(ALLOWED_DISPLAY_NAME_CHARS)
+      displayName: Joi.string().max(256).required().allow('').regex(ALLOWED_DISPLAY_NAME_CHARS)
     }
   },
   handler: function avatarPost(req, reply) {

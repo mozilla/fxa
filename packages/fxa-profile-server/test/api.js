@@ -892,6 +892,26 @@ describe('/display_name', function() {
       });
     });
 
+    it('should fail post if display name longer than 256 chars', function() {
+      var NAME = Array.from('x'.repeat('257')).join('');
+      mock.token({
+        user: USERID,
+        scope: ['profile:display_name:write']
+      });
+      return Server.api.post({
+        url: '/display_name',
+        payload: {
+          displayName: NAME
+        },
+        headers: {
+          authorization: 'Bearer ' + tok
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 400);
+        assertSecurityHeaders(res);
+      });
+    });
+
     it('should require :write scope', function() {
       var NAME = 'Spock';
       mock.token({
