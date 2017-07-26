@@ -1,3 +1,33 @@
+<a name="1.92.0"></a>
+# [1.92.0](https://github.com/mozilla/fxa-auth-server/compare/v1.91.3...v1.92.0) (2017-07-26)
+
+
+### Bug Fixes
+
+* **config:** set token updates to true by default (#1994) r=udaraweerasinghege ([bdf7db6](https://github.com/mozilla/fxa-auth-server/commit/bdf7db6))
+* **emails:** check against original account email (#2011), r=@philbooth ([76aedd2](https://github.com/mozilla/fxa-auth-server/commit/76aedd2))
+* **tokens:** add is memory token property to sessions (#2004) r=vladikoff ([1f57821](https://github.com/mozilla/fxa-auth-server/commit/1f57821))
+
+### chore
+
+* **timestamps:** add two timestamps to sessions and devices (#2009) r=vladikoff ([516826b](https://github.com/mozilla/fxa-auth-server/commit/516826b))
+
+### Features
+
+* **emails:** Add ability to change email (#1983), r=@philbooth ([0541f13](https://github.com/mozilla/fxa-auth-server/commit/0541f13))
+* **errors:** include conflicting device id in errno 124 response ([0217750](https://github.com/mozilla/fxa-auth-server/commit/0217750))
+* **metrics:** emit route performance events ([50c55f1](https://github.com/mozilla/fxa-auth-server/commit/50c55f1))
+* **signin:** Skip signin confirmation for new accounts by default (#1992) r=vladikoff ([9900c42](https://github.com/mozilla/fxa-auth-server/commit/9900c42)), closes [#1991](https://github.com/mozilla/fxa-auth-server/issues/1991)
+* **style:** update to new device image (#2014) r=ryanfeeley ([9568c70](https://github.com/mozilla/fxa-auth-server/commit/9568c70)), closes [#1914](https://github.com/mozilla/fxa-auth-server/issues/1914)
+* **tokens:** delete account all reset tokens on password reset (#1979) r=vladikoff ([310e199](https://github.com/mozilla/fxa-auth-server/commit/310e199))
+* **tokens:** expire session tokens that have no device record ([4941dd5](https://github.com/mozilla/fxa-auth-server/commit/4941dd5))
+
+### Refactor
+
+* **server:** extract email-related routes to a separate module (#1989), r=@vbudhram ([2903609](https://github.com/mozilla/fxa-auth-server/commit/2903609))
+
+
+
 <a name="1.91.2"></a>
 ## [1.91.2](https://github.com/mozilla/fxa-auth-server/compare/v1.91.1...v1.91.2) (2017-07-18)
 
