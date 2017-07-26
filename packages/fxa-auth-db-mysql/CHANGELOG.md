@@ -1,3 +1,14 @@
+<a name="1.92.0"></a>
+# [1.92.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.91.2...v1.92.0) (2017-07-26)
+
+
+### chore
+
+* **scripts:** add a script to generate migration boilerplate (#261) r=vladikoff ([45949c5](https://github.com/mozilla/fxa-auth-db-mysql/commit/45949c5))
+* **tests:** don't make eslint a prerequisite for the tests (#258), r=@vbudhram ([ddae438](https://github.com/mozilla/fxa-auth-db-mysql/commit/ddae438))
+
+
+
 <a name="1.91.2"></a>
 ## [1.91.2](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.91.1...v1.91.2) (2017-07-17)
 
