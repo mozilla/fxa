@@ -1,4 +1,8 @@
 
+v1.92.0:
+  * fix(docs): document the dependency on memcached (#211) r=vladikoff
+  * fix(server): remove mozdef integration (#209)
+
 v1.86.8:
   *  feat(actions): add consumeSigninCode as an ACCOUNT_ACCESS_ACTION; r=vbudhram
   *  feat(docker): add custom feature branch (#202) r=jrgm
