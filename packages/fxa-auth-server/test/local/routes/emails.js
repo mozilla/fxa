@@ -20,6 +20,7 @@ var TEST_EMAIL = 'foo@gmail.com'
 var TEST_EMAIL_ADDITIONAL = 'foo2@gmail.com'
 var TEST_EMAIL_INVALID = 'example@dotless-domain'
 const MS_IN_DAY = 1000 * 60 * 60 * 24
+const MS_IN_TWO_MONTHS = MS_IN_DAY * 60
 
 var makeRoutes = function (options, requireMocks) {
   options = options || {}
@@ -105,11 +106,15 @@ describe('/recovery_email/status', function () {
   })
 
   describe('invalid email', function () {
-    var mockRequest = mocks.mockRequest({
-      credentials: {
-        email: TEST_EMAIL_INVALID
-      }
+    var mockRequest
+    beforeEach(() => {
+      mockRequest = mocks.mockRequest({
+        credentials: {
+          email: TEST_EMAIL_INVALID
+        }
+      })
     })
+
 
     it('unverified account', function () {
       mockRequest.auth.credentials.emailVerified = false
@@ -118,6 +123,47 @@ describe('/recovery_email/status', function () {
         assert.equal(mockDB.deleteAccount.callCount, 1)
         assert.equal(mockDB.deleteAccount.firstCall.args[0].email, TEST_EMAIL_INVALID)
         assert.equal(response.errno, error.ERRNO.INVALID_TOKEN)
+      })
+        .then(function () {
+          mockDB.deleteAccount.reset()
+        })
+    })
+
+    it('unverified account - stale session token', () => {
+      const log = {
+        info: sinon.spy(),
+        begin: sinon.spy()
+      }
+      const db = mocks.mockDB()
+      config.emailStatusPollingTimeout = MS_IN_TWO_MONTHS
+      const routes = makeRoutes({
+        config,
+        db,
+        log
+      })
+
+      mockRequest = mocks.mockRequest({
+        credentials: {
+          email: TEST_EMAIL_INVALID
+        }
+      })
+      const route = getRoute(routes, '/recovery_email/status')
+
+      const date = new Date()
+      date.setMonth(date.getMonth() - 2)
+
+      mockRequest.auth.credentials.createdAt = date.getTime()
+      mockRequest.auth.credentials.hello = 'mytest'
+      mockRequest.auth.credentials.emailVerified = false
+      mockRequest.auth.credentials.uaBrowser = 'Firefox'
+      mockRequest.auth.credentials.uaBrowserVersion = '57'
+
+      return runTest(route, mockRequest).then(() => assert.ok(false), function (response) {
+        const args = log.info.secondCall.args[0]
+        assert.equal(args.op, 'recovery_email.status.stale')
+        assert.equal(args.email, TEST_EMAIL_INVALID)
+        assert.equal(args.createdAt, date.getTime())
+        assert.equal(args.browser, 'Firefox 57')
       })
         .then(function () {
           mockDB.deleteAccount.reset()

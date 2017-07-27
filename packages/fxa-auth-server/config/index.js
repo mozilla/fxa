@@ -751,6 +751,12 @@ var conf = convict({
     default: 6,
     format: 'nat',
     env: 'SIGNIN_CODE_SIZE'
+  },
+  emailStatusPollingTimeout: {
+    doc: 'how long before emails status polling is considered stale',
+    default: '1 month',
+    format: 'duration',
+    env: 'EMAIL_STATUS_POLLING_TIMEOUT'
   }
 })
 

@@ -80,17 +80,30 @@ module.exports = (log, db, mailer, config, customs, push) => {
             name: 'recovery_email_reason.push'
           })
         }
-
         cleanUpIfAccountInvalid()
           .then(createResponse)
           .then(reply, reply)
 
         function cleanUpIfAccountInvalid () {
-          // Some historical bugs mean we've allowed creation
-          // of accounts with invalid email addresses. These
-          // can never be verified, so the best we can do is
-          // to delete them so the browser will stop polling.
+          const now = new Date().getTime()
+          const staleTime = now - config.emailStatusPollingTimeout
+
+          if (sessionToken.createdAt < staleTime) {
+            log.info({
+              op: 'recovery_email.status.stale',
+              email: sessionToken.email,
+              createdAt: sessionToken.createdAt,
+              lifeTime: sessionToken.lifetime,
+              emailVerified: sessionToken.emailVerified,
+              tokenVerified: sessionToken.tokenVerified,
+              browser: `${sessionToken.uaBrowser} ${sessionToken.uaBrowserVersion}`
+            })
+          }
           if (! sessionToken.emailVerified) {
+            // Some historical bugs mean we've allowed creation
+            // of accounts with invalid email addresses. These
+            // can never be verified, so the best we can do is
+            // to delete them so the browser will stop polling.
             if (! validators.isValidEmailAddress(sessionToken.email)) {
               return db.deleteAccount(sessionToken)
                 .then(() => {
