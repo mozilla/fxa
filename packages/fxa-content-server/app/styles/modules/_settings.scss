@@ -219,13 +219,6 @@ body.settings #main-content.card {
       border-color: $button-border-hover-color;
     }
 
-    &:disabled,
-    &.disabled {
-      background: $button-background-default-color;
-      border: solid 1px $button-border-disabled-color;
-      color: $button-disabled-color;
-    }
-
     &:active {
       background: $button-background-active-color;
       border-color: $button-border-active-color;
@@ -233,6 +226,13 @@ body.settings #main-content.card {
 
     &:focus {
       box-shadow: 0 0 0 2px $button-box-shadow-color;
+    }
+
+    &:disabled,
+    &.disabled {
+      background: $button-background-default-color;
+      border: solid 1px $button-border-disabled-color;
+      color: $button-disabled-color;
     }
   }
 

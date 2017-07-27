@@ -10,7 +10,8 @@
  * 3. Change `this.name` from `CHANGE_ME` in the constructor.
  * 4. Fill in the `choose` function.
  * 5. Include the new rule file in index.js.
- * 6. Access in views via `this.experiments.choose('name from 3')` or `this.isInExperimentGroup('name from 3)`.
+ * 6. Access in views via `this.experiments.choose('name from 3')`
+ *    or `this.isInExperimentGroup('name from 3', 'group name')`.
  */
 define((require, exports, module) => {
   'use strict';

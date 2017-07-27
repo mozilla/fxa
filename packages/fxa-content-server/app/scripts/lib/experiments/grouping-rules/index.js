@@ -13,11 +13,13 @@ define((require, exports, module) => {
 
   const ExperimentGroupingRules = [
     require('./communication-prefs'),
+    require('./disabled-button-state'),
     require('./is-sampled-user'),
     require('./send-sms-enabled-for-country'),
     require('./send-sms-install-link'),
     require('./sentry'),
-    require('./sessions')
+    require('./sessions'),
+    require('./q3-form-changes')
   ];
 
   module.exports = class ExperimentChoiceIndex {

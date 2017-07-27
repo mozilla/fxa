@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const FormView = require('views/form');
   const MigrationMixin = require('views/mixins/migration-mixin');
+  const NoDisabledSubmitExperimentMixin = require('views/mixins/no-disabled-submit-experiment-mixin');
   const PasswordMixin = require('views/mixins/password-mixin');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const { preventDefaultThen, t } = require('views/base');
@@ -273,6 +274,7 @@ define(function (require, exports, module) {
     View,
     AccountResetMixin,
     AvatarMixin,
+    NoDisabledSubmitExperimentMixin,
     FlowBeginMixin,
     FormPrefillMixin,
     MigrationMixin,
