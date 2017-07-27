@@ -52,14 +52,8 @@ define((require, exports, module) => {
     });
 
     describe('getSupportedEngineIds', () => {
-      it('Fx Desktop <= 55 returns the expected list', () => {
+      it('returns the expected list', () => {
         assert.deepEqual(syncEngines.getSupportedEngineIds(), DEFAULT_SYNC_ENGINE_IDS);
-      });
-
-      it('Fx Desktop >= 56 returns the expected list', () => {
-        windowMock.navigator.userAgent = FIREFOX_56_USER_AGENT_STRING;
-        assert.deepEqual(
-          syncEngines.getSupportedEngineIds(), DEFAULT_SYNC_ENGINE_IDS.concat('addresses'));
       });
     });
 
@@ -84,9 +78,9 @@ define((require, exports, module) => {
         assert.isFalse(syncEngines.isEngineSupportedByUA('creditcards', fx56UserAgent));
       });
 
-      it('returns true for `addresses` for Fx Desktop >= 56', () => {
+      it('always returns `false` for `addresses', () => {
         assert.isFalse(syncEngines.isEngineSupportedByUA('addresses', fx55UserAgent));
-        assert.isTrue(syncEngines.isEngineSupportedByUA('addresses', fx56UserAgent));
+        assert.isFalse(syncEngines.isEngineSupportedByUA('addresses', fx56UserAgent));
       });
     });
 
