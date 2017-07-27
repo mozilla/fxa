@@ -26,10 +26,14 @@ define([], function () {
       SUBMIT: 'button[type=submit]'
     },
     COMPLETE_RESET_PASSWORD: {
-      HEADER: '#fxa-complete-reset-password-header'
+      DAMAGED_LINK_HEADER: '#fxa-reset-link-damaged-header',
+      EXPIRED_LINK_HEADER: '#fxa-reset-link-expired-header',
+      HEADER: '#fxa-complete-reset-password-header',
     },
     CONFIRM_RESET_PASSWORD: {
-      HEADER: '#fxa-confirm-reset-password-header'
+      HEADER: '#fxa-confirm-reset-password-header',
+      LINK_RESEND: '#resend',
+      RESEND_SUCCESS: '.success'
     },
     CONFIRM_SIGNIN: {
       HEADER: '#fxa-confirm-signin-header'
@@ -56,6 +60,17 @@ define([], function () {
     MOZILLA_ORG_SYNC: {
       HEADER: '.header-content'
     },
+    RESET_PASSWORD: {
+      BACK: '#back',
+      EMAIL: 'input[type=email]',
+      ERROR: '.error',
+      HEADER: '#fxa-reset-password-header',
+      LINK_ERROR_SIGNUP: '.error a[href="/signup"]',
+      LINK_LEARN_HOW_SYNC_WORKS: 'a[href="https://support.mozilla.org/products/firefox/sync"]',
+      LINK_SIGNIN: 'a[href="/signin"]',
+      SUBMIT: 'button[type="submit"]',
+      SUCCESS: '.success'
+    },
     SETTINGS: {
       HEADER: '#fxa-settings-header',
       PROFILE_HEADER: '#fxa-settings-profile-header .card-header',
@@ -67,6 +82,7 @@ define([], function () {
       EMAIL_NOT_EDITABLE: '.prefillEmail',
       HEADER: '#fxa-signin-header',
       PASSWORD: 'input[type=password]',
+      RESET_PASSWORD: 'a[href="/reset_password"]',
       SUBMIT: 'button[type=submit]',
       TOOLTIP: '.tooltip',
     },
