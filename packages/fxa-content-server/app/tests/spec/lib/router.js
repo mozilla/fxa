@@ -88,6 +88,8 @@ define(function (require, exports, module) {
 
       it('calls `navigate` correctly', function () {
         assert.isTrue(router.navigate.calledWith('signin', {
+          key: 'value'
+        }, {
           clearQueryParams: true,
           trigger: true
         }));
@@ -167,7 +169,7 @@ define(function (require, exports, module) {
 
       describe('navigate with clearQueryParams option set', function () {
         beforeEach(function () {
-          router.navigate('/forgot', { clearQueryParams: true });
+          router.navigate('/forgot', {}, { clearQueryParams: true });
         });
 
         it('clears the query params if clearQueryString option is set', function () {
@@ -180,12 +182,85 @@ define(function (require, exports, module) {
     describe('navigateBack', function () {
       beforeEach(function () {
         sinon.spy(windowMock.history, 'back');
+        sinon.stub(router, 'canGoBack', () => true);
 
         router.navigateBack();
       });
 
       it('calls `window.history.back`', function () {
         assert.isTrue(windowMock.history.back.called);
+      });
+    });
+
+    describe('navigate/navigateBack', () => {
+      beforeEach(() => {
+        sinon.stub(router, 'canGoBack', () => true);
+      });
+
+      it('passes the correct model to the correct view', () => {
+        // url1 -> url2 -> url3 -> back (url2) -> back (url1) -> url4 ->
+        // back (url1) -> url5 -> replace (url6) -> back (url1)
+        router.navigate('url1', { key1: 'value1' });
+        const view1Model = router.getCurrentViewModel();
+        assert.deepEqual(view1Model.toJSON(), { key1: 'value1' });
+        view1Model.set({ key2: 'value2' });
+
+        router.navigate('url2', { key3: 'value3' });
+        const view2Model = router.getCurrentViewModel();
+        assert.deepEqual(view2Model.toJSON(), { key3: 'value3' });
+
+        router.navigate('url3', { key4: 'value4' });
+        const view3Model = router.getCurrentViewModel();
+        assert.deepEqual(view3Model.toJSON(), { key4: 'value4' });
+
+        router.navigateBack({ key5: 'value5' });
+        const back1Model = router.getCurrentViewModel();
+        assert.strictEqual(back1Model, view2Model);
+        assert.deepEqual(back1Model.toJSON(), {
+          key3: 'value3',
+          key5: 'value5',
+        });
+
+        router.navigateBack({ key6: 'value6' });
+        const back2Model = router.getCurrentViewModel();
+        assert.strictEqual(back2Model, view1Model);
+        assert.deepEqual(back2Model.toJSON(), {
+          key1: 'value1',
+          key2: 'value2',
+          key6: 'value6',
+        });
+
+        router.navigate('url4', { key7: 'value7' });
+        const view4Model = router.getCurrentViewModel();
+        assert.deepEqual(view4Model.toJSON(), { key7: 'value7' });
+
+        router.navigateBack({ key8: 'value8' });
+        const back3Model = router.getCurrentViewModel();
+        assert.strictEqual(back3Model, view1Model);
+        assert.deepEqual(back3Model.toJSON(), {
+          key1: 'value1',
+          key2: 'value2',
+          key6: 'value6',
+          key8: 'value8',
+        });
+
+        router.navigate('url5', { key9: 'value9' });
+        const view5Model = router.getCurrentViewModel();
+        assert.deepEqual(view5Model.toJSON(), { key9: 'value9' });
+
+        router.navigate('url6', { key10: 'value10' }, { replace: true });
+        const view6Model = router.getCurrentViewModel();
+        assert.deepEqual(view6Model.toJSON(), { key10: 'value10' });
+
+        router.navigateBack();
+        const back4Model = router.getCurrentViewModel();
+        assert.strictEqual(back4Model, view1Model);
+        assert.deepEqual(back4Model.toJSON(), {
+          key1: 'value1',
+          key2: 'value2',
+          key6: 'value6',
+          key8: 'value8',
+        });
       });
     });
 

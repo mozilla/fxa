@@ -125,6 +125,7 @@ define(function (require, exports, module) {
       this.relier = options.relier;
       this.user = options.user;
       this.window = options.window || window;
+      this._viewModelStack = [];
 
       this.notifier.once('view-shown', this._afterFirstViewHasRendered.bind(this));
       this.notifier.on('navigate', this.onNavigate.bind(this));
@@ -138,17 +139,30 @@ define(function (require, exports, module) {
         return this.navigateAway(event.url);
       }
 
-      this._nextViewModel = createViewModel(event.nextViewData);
-      this.navigate(event.url, event.routerOptions);
+      this.navigate(event.url, event.nextViewData, event.routerOptions);
     },
 
     onNavigateBack (event) {
-      this._nextViewModel = createViewModel(event.nextViewData);
-      this.navigateBack();
+      this.navigateBack(event.nextViewData);
     },
 
-    navigate (url, options) {
-      options = options || {};
+    /**
+     * Navigate to `url` using `nextViewData` as the data for the view's model.
+     *
+     * @param {String} url
+     * @param {Object} [nextViewData={}]
+     * @param {Object} [options={}]
+     *   @param {Boolean} [options.clearQueryParams=false] Clear the query parameters?
+     *   @param {Boolean} [options.replace=false] Replace the current view?
+     *   @param {Boolean} [options.trigger=true] Show the new view?
+     * @returns {any}
+     */
+    navigate (url, nextViewData = {}, options = {}) {
+      if (options.replace && this._viewModelStack.length) {
+        this._viewModelStack[this._viewModelStack.length - 1] = createViewModel(nextViewData);
+      } else {
+        this._viewModelStack.push(createViewModel(nextViewData));
+      }
 
       if (! options.hasOwnProperty('trigger')) {
         options.trigger = true;
@@ -178,8 +192,33 @@ define(function (require, exports, module) {
         });
     },
 
-    navigateBack () {
-      this.window.history.back();
+    /**
+     * Go back one URL, combining the previous view's viewModel
+     * with the data in `previousViewData`.
+     *
+     * @param {Object} [previousViewData={}]
+     */
+    navigateBack (previousViewData = {}) {
+      if (this.canGoBack()) {
+        // ditch the current view's model, go back to the previous view's model.
+        this._viewModelStack.pop();
+        const viewModel = this.getCurrentViewModel();
+        if (viewModel) {
+          viewModel.set(previousViewData);
+        }
+        this.window.history.back();
+      }
+    },
+
+    /**
+     * Get the current viewModel, if one is available.
+     *
+     * @returns {Object}
+     */
+    getCurrentViewModel () {
+      if (this._viewModelStack.length) {
+        return this._viewModelStack[this._viewModelStack.length - 1];
+      }
     },
 
     /**
@@ -194,11 +233,16 @@ define(function (require, exports, module) {
       return _.extend({
         canGoBack: this.canGoBack(),
         currentPage: this.getCurrentPage(),
-        model: this._nextViewModel,
+        model: this.getCurrentViewModel(),
         viewName: this.getCurrentViewName()
       }, options);
     },
 
+    /**
+     * Is it possible to go back?
+     *
+     * @returns {Boolean}
+     */
     canGoBack () {
       return !! this.storage.get('canGoBack');
     },
