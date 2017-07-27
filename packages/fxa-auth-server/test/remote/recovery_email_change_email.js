@@ -202,6 +202,13 @@ describe('remote change email', function () {
           assert.equal(res[0].email, secondEmail, 'returns correct email')
           assert.equal(res[0].isPrimary, true, 'returns correct isPrimary')
           assert.equal(res[0].verified, true, 'returns correct verified')
+
+          // Primary account is notified that secondary email has been removed
+          return server.mailbox.waitForEmail(secondEmail)
+        })
+        .then((emailData) => {
+          const templateName = emailData['headers']['x-template-name']
+          assert.equal(templateName, 'postRemoveSecondaryEmail', 'email template name set')
         })
     })
 

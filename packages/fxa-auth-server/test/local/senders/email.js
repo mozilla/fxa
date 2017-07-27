@@ -39,6 +39,7 @@ var typesContainSupportLinks = [
   'newDeviceLoginEmail',
   'passwordChangedEmail',
   'passwordResetEmail',
+  'postRemoveSecondaryEmail',
   'postVerifyEmail',
   'postVerifySecondaryEmail',
   'recoveryEmail',

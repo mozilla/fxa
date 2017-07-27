@@ -84,6 +84,7 @@ const MAILER_METHOD_NAMES = [
   'sendNewDeviceLoginNotification',
   'sendPasswordChangedNotification',
   'sendPasswordResetNotification',
+  'sendPostRemoveSecondaryEmail',
   'sendPostVerifyEmail',
   'sendPostVerifySecondaryEmail',
   'sendUnblockCode',

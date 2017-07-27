@@ -278,6 +278,21 @@ module.exports = function (log, config, error, bounces, translator, sender) {
             })
           })
       },
+      sendPostRemoveSecondaryEmail: function (emails, account, opts) {
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            var mailer = result.ungatedMailer
+            var primaryEmail = result.ungatedPrimaryEmail
+            var ccEmails = result.ungatedCcEmails
+
+            return mailer.postRemoveSecondaryEmail({
+              email: primaryEmail,
+              ccEmails: ccEmails,
+              secondaryEmail: opts.secondaryEmail,
+              acceptLanguage: opts.acceptLanguage || defaultLanguage
+            })
+          })
+      },
       sendPostVerifySecondaryEmail: function (emails, account, opts) {
         var primaryEmail = account.primaryEmail.email
 

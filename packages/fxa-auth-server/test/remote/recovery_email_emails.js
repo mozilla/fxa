@@ -382,6 +382,13 @@ describe('remote emails', function () {
             assert.equal(res[0].email, email, 'returns correct email')
             assert.equal(res[0].isPrimary, true, 'returns correct isPrimary')
             assert.equal(res[0].verified, true, 'returns correct verified')
+
+            // Primary account is notified that secondary email has been removed
+            return server.mailbox.waitForEmail(email)
+          })
+          .then((emailData) => {
+            const templateName = emailData['headers']['x-template-name']
+            assert.equal(templateName, 'postRemoveSecondaryEmail', 'email template name set')
           })
       }
     )
@@ -609,6 +616,38 @@ describe('remote emails', function () {
             assert.equal(res[2].email, thirdEmail, 'returns correct email')
             assert.equal(res[2].isPrimary, false, 'returns correct isPrimary')
             assert.equal(res[2].verified, false, 'returns correct verified')
+          })
+      }
+    )
+
+    it(
+      'receives secondary email removed notification',
+      () => {
+        const fourthEmail = server.uniqueEmail()
+        return client.createEmail(fourthEmail)
+          .then((res) => {
+            assert.ok(res, 'ok response')
+            return server.mailbox.waitForEmail(fourthEmail)
+          })
+          .then((emailData) => {
+            const emailCode = emailData['headers']['x-verify-code']
+            return client.verifySecondaryEmail(emailCode, fourthEmail)
+          })
+          .then(() => {
+            // Clear email added template
+            return server.mailbox.waitForEmail(email)
+          })
+          .then(() => {
+            return client.deleteEmail(fourthEmail)
+          })
+          .then(() => {
+            return server.mailbox.waitForEmail(email)
+          })
+          .then((emailData) => {
+            const templateName = emailData['headers']['x-template-name']
+            assert.equal(templateName, 'postRemoveSecondaryEmail', 'email template name set')
+            assert.equal(emailData.cc.length, 1)
+            assert.equal(emailData.cc[0].address, secondEmail)
           })
       }
     )

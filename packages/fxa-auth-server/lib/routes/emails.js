@@ -656,12 +656,15 @@ module.exports = (log, db, mailer, config, customs, push) => {
         const uid = sessionToken.uid
         const primaryEmail = sessionToken.email
         const email = request.payload.email
+        let account
 
         customs.check(request, primaryEmail, 'deleteEmail')
           .then(() => {
             return db.account(uid)
           })
-          .then((account) => {
+          .then((result) => {
+            account = result
+
             if (! features.isSecondaryEmailEnabled(account.email)) {
               throw error.featureNotEnabled()
             }
@@ -671,6 +674,16 @@ module.exports = (log, db, mailer, config, customs, push) => {
             }
           })
           .then(deleteEmail)
+          .then(() => {
+            // Don't notify the secondary email that it has been removed from the account.
+            // We only want the primary email and all *other* verified emails to get this.
+            const emails = account.emails.filter((item) => {
+              if (item.normalizedEmail !== email.toLowerCase()) {
+                return item
+              }
+            })
+            return mailer.sendPostRemoveSecondaryEmail(emails, account, {secondaryEmail: email})
+          })
           .then(
             () => reply({}),
             reply

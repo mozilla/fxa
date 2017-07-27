@@ -60,6 +60,7 @@ module.exports = function () {
       'password_changed',
       'password_reset',
       'password_reset_required',
+      'post_remove_secondary',
       'post_verify',
       'post_verify_secondary',
       'recovery',

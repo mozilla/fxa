@@ -24,6 +24,7 @@ module.exports = function (log) {
     'passwordResetRequiredEmail': 'password-reset-required',
     'passwordChangedEmail': 'password-changed-success',
     'passwordResetEmail': 'password-reset-success',
+    'postRemoveSecondaryEmail': 'account-email-removed',
     'postVerifyEmail': 'account-verified',
     'postVerifySecondaryEmail': 'account-email-verified',
     'recoveryEmail': 'forgot-password',
@@ -44,6 +45,7 @@ module.exports = function (log) {
     'passwordChangedEmail': 'password-change',
     'passwordResetEmail': 'password-reset',
     'passwordResetRequiredEmail': 'password-reset',
+    'postRemoveSecondaryEmail': 'account-email-removed',
     'postVerifyEmail': 'connect-device',
     'postVerifySecondaryEmail': 'manage-account',
     'recoveryEmail': 'reset-password',
@@ -773,6 +775,45 @@ module.exports = function (log) {
       email: message.email,
       headers: headers,
       subject: gettext('Secondary Firefox Account email added'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        supportUrl: links.supportUrl,
+        secondaryEmail: message.secondaryEmail,
+        supportLinkAttributes: links.supportLinkAttributes
+      },
+      uid: message.uid
+    })
+  }
+
+  Mailer.prototype.postRemoveSecondaryEmail = function (message) {
+    log.trace({ op: 'mailer.postRemoveSecondaryEmail', email: message.email, uid: message.uid })
+
+    var templateName = 'postRemoveSecondaryEmail'
+    var links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+
+    var headers = {
+      'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    if (message.flowBeginTime && message.flowId) {
+      headers['X-Flow-Id'] = message.flowId
+      headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
+    return this.send({
+      acceptLanguage: message.acceptLanguage,
+      email: message.email,
+      ccEmails: message.ccEmails,
+      headers: headers,
+      subject: gettext('Secondary Firefox Account email removed'),
       template: templateName,
       templateValues: {
         androidLink: links.androidLink,
