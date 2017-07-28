@@ -75,7 +75,7 @@ describe('lib/senders/sms:', () => {
         assert.equal(publish.callCount, 1, 'AWS.SNS.publish was called once')
         assert.equal(publish.args[0].length, 1, 'AWS.SNS.publish was passed one argument')
         assert.deepEqual(publish.args[0][0], {
-          Message: 'As requested, here is a link to install Firefox on your mobile device: https://baz/qux',
+          Message: 'Thanks for choosing Firefox! You can install Firefox for mobile here: https://baz/qux',
           MessageAttributes: {
             'AWS.SNS.SMS.MaxPrice': {
               DataType: 'String',
@@ -118,7 +118,7 @@ describe('lib/senders/sms:', () => {
     return sms.send('+442078553000', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
       .then(() => {
         assert.equal(publish.callCount, 1, 'AWS.SNS.publish was called once')
-        assert.equal(publish.args[0][0].Message, 'As requested, here is a link to install Firefox on your mobile device: https://wibble/--__ff0', 'AWS.SNS.publish was passed the correct message')
+        assert.equal(publish.args[0][0].Message, 'Thanks for choosing Firefox! You can install Firefox for mobile here: https://wibble/--__ff0', 'AWS.SNS.publish was passed the correct message')
 
         assert.equal(log.trace.callCount, 1, 'log.trace was called once')
         assert.equal(log.info.callCount, 1, 'log.info was called once')

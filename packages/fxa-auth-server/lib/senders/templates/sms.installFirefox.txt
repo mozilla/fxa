@@ -1,1 +1,1 @@
-{{t "As requested, here is a link to install Firefox on your mobile device: %(link)s"}}
+{{t "Thanks for choosing Firefox! You can install Firefox for mobile here: %(link)s"}}
