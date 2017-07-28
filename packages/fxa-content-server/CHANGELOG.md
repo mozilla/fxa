@@ -1,3 +1,15 @@
+<a name="1.92.2"></a>
+## 1.92.2 (2017-07-28)
+
+
+### Bug Fixes
+
+* **sms:** Ensure SMS can be sent on Fx 55+. (#5301) r=@philbooth ([22f3838](https://github.com/mozilla/fxa-content-server/commit/22f3838))
+* **sync:** Only show `addresses` if the browser says it's supported. (#5296) r=@philbooth ( ([e3d9cc0](https://github.com/mozilla/fxa-content-server/commit/e3d9cc0)), closes [#5292](https://github.com/mozilla/fxa-content-server/issues/5292)
+* **test:** Fix the OAuth with handshake tests on latest/stage/prod. ([c658662](https://github.com/mozilla/fxa-content-server/commit/c658662)), closes [#5300](https://github.com/mozilla/fxa-content-server/issues/5300)
+
+
+
 <a name="1.92.1"></a>
 ## 1.92.1 (2017-07-25)
 

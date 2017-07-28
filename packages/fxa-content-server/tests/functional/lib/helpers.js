@@ -859,6 +859,56 @@ define([
       .then(testElementExists('.attached' + attachedId));
   });
 
+  /**
+   * Store the data sent for a WebChannel event into sessionStorage.
+   *
+   * @param {string} expectedCommand command to store data for.
+   * @returns {promise}
+   */
+  const storeWebChannelMessageData = thenify(function (expectedCommand) {
+    return this.parent
+      .executeAsync(function (expectedCommand, callback) {
+        function listener(e) {
+          var command = e.detail.message.command;
+          if (command === expectedCommand) {
+            const storedEvents = JSON.parse(sessionStorage.getItem('webChannelEventData')) || {};
+            storedEvents[command] = e.detail.message;
+            sessionStorage.setItem('webChannelEventData', JSON.stringify(storedEvents));
+            removeEventListener('WebChannelMessageToChrome', listener);
+          }
+        }
+
+        function startListening() {
+          try {
+            addEventListener('WebChannelMessageToChrome', listener);
+            callback();
+          } catch (e) {
+            // problem adding the listener, window may not be
+            // ready, try again.
+            removeEventListener('WebChannelMessageToChrome', listener);
+            setTimeout(startListening, 0);
+          }
+        }
+
+        startListening();
+      }, [ expectedCommand ]);
+  });
+
+  /**
+   * Get the data stored for a WebChannel message. Data is only stored
+   * if the message is listened for using `storeWebChannelMessageData`
+   *
+   * @param {string} command
+   * @returns {object}
+   */
+  const getWebChannelMessageData = thenify(function (command) {
+    return this.parent
+      .execute(function (command) {
+        const storedEvents = JSON.parse(sessionStorage.getItem('webChannelEventData')) || {};
+        return storedEvents[command];
+      }, [command]);
+  });
+
   function openWindow (url, name) {
     var newWindow = window.open(url, name || 'newwindow');
 
@@ -1343,6 +1393,7 @@ define([
     return this.parent
       .execute(function (command, done) {
         sessionStorage.removeItem('webChannelEvents');
+        sessionStorage.removeItem('webChannelEventData');
       });
   });
 
@@ -1919,6 +1970,7 @@ define([
     getStoredAccountByEmail: getStoredAccountByEmail,
     getUnblockInfo: getUnblockInfo,
     getVerificationLink: getVerificationLink,
+    getWebChannelMessageData,
     imageLoadedByQSA: imageLoadedByQSA,
     mousedown: mousedown,
     mouseevent: mouseevent,
@@ -1947,6 +1999,7 @@ define([
     pollUntilGoneByQSA: pollUntilGoneByQSA,
     reOpenWithAdditionalQueryParams: reOpenWithAdditionalQueryParams,
     respondToWebChannelMessage: respondToWebChannelMessage,
+    storeWebChannelMessageData,
     switchToWindow: switchToWindow,
     takeScreenshot: takeScreenshot,
     testAreEventsLogged: testAreEventsLogged,

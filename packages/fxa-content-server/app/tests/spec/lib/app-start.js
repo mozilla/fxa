@@ -490,7 +490,9 @@ define(function (require, exports, module) {
 
       it('creates a user, sets the uniqueUserId, populates from the browser', () => {
         return appStart.initializeUser()
-          .then(() => {
+          .then((result) => {
+            assert.isTrue(result);
+
             assert.isDefined(appStart._user);
             assert.isDefined(appStart._user.get('uniqueUserId'));
 

@@ -25,6 +25,9 @@ define([
   const click = FunctionalHelpers.click;
   const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  const getVerificationLink = FunctionalHelpers.getVerificationLink;
+  const getWebChannelMessageData = FunctionalHelpers.getWebChannelMessageData;
+  const storeWebChannelMessageData = FunctionalHelpers.storeWebChannelMessageData;
   const noPageTransition = FunctionalHelpers.noPageTransition;
   const noSuchElement = FunctionalHelpers.noSuchElement;
   const noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
@@ -92,6 +95,70 @@ define([
 
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
+    },
+
+    'Fx >= 55, verify same browser, force SMS': function () {
+      let accountInfo;
+      return this.remote
+        .then(openPage(SIGNUP_FX_55_PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {
+              ok: true
+            },
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
+          }
+        }))
+        .then(storeWebChannelMessageData('fxaccounts:login'))
+        .then(noSuchElement(selectors.SIGNUP.LINK_SUGGEST_SYNC))
+        .then(fillOutSignUp(email, PASSWORD))
+
+        // user should be transitioned to /choose_what_to_sync
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(noSuchBrowserNotification('fxaccounts:login'))
+
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+
+        // user should be transitioned to the "go confirm your address" page
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+
+        // the login message is only sent after the sync preferences screen
+        // has been cleared.
+        .then(testIsBrowserNotified('fxaccounts:login'))
+        // verify the user
+        .then(getWebChannelMessageData('fxaccounts:login'))
+        .then(function (message) {
+          accountInfo = message.data;
+        })
+        .then(getVerificationLink(email, 0))
+        .then(function (verificationLink) {
+          return this.parent
+            .then(openPage(verificationLink, selectors.SMS_SEND.HEADER, {
+              query: {
+                automatedBrowser: true,
+                country: 'US',
+                forceExperiment: 'sendSms',
+                forceExperimentGroup: 'treatment',
+                forceUA: uaStrings.desktop_firefox_55
+              },
+              webChannelResponses: {
+                'fxaccounts:can_link_account': {
+                  ok: true
+                },
+                'fxaccounts:fxa_status': {
+                  signedInUser: {
+                    email: accountInfo.email,
+                    sessionToken: accountInfo.sessionToken,
+                    uid: accountInfo.uid,
+                    verified: accountInfo.verified
+                  }
+                }
+              }
+            }));
+        });
     },
 
     'Fx >= 56, engines not supported': function () {

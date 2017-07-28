@@ -388,7 +388,7 @@ define(function (require, exports, module) {
 
             const browserAccountData  = this._authenticationBroker.get('browserSignedInAccount');
             if (user.shouldSetSignedInAccountFromBrowser(this._relier.get('service'))) {
-              user.setSignedInAccountFromBrowserAccountData(browserAccountData);
+              return user.setSignedInAccountFromBrowserAccountData(browserAccountData);
             }
           });
       }
