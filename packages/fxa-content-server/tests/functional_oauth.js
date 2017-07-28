@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  './functional/oauth_handshake',
   './functional/amo_sign_up',
   './functional/oauth_choose_redirect',
   './functional/oauth_query_param_validation',
