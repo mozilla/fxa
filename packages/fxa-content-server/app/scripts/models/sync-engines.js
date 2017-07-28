@@ -18,8 +18,6 @@ define((require, exports, module) => {
 
   const t = msg => msg;
 
-  const MIN_FIREFOX_VERSION_FOR_ADDRESS = 56;
-
   /**
    * Fields available in each engine:
    * - `checked` whether the item should be checked when CWTS opens.
@@ -62,13 +60,8 @@ define((require, exports, module) => {
     {
       checked: true,
       id: 'addresses',
-      // We know addresses will be available in Firefox 56, even before
-      // the capabilities code has landed in the browser. This check can be
-      // removed when capabilities have landed.
-      test: (userAgent) => {
-        return userAgent.isFirefoxDesktop() &&
-               userAgent.parseVersion().major >= MIN_FIREFOX_VERSION_FOR_ADDRESS;
-      },
+      // addresses will only be available via capabilities.
+      test: () => false,
       text: t('Addresses')
     },
     {

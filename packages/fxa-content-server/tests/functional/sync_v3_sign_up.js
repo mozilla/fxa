@@ -66,6 +66,8 @@ define([
 
         // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
+        .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(noSuchBrowserNotification('fxaccounts:login'))
@@ -175,11 +177,11 @@ define([
 
         // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
+        .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
         .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS));
     },
 
-    'Fx >= 56, `creditcards` not supported': function () {
+    'Fx >= 56, neither `creditcards` nor `addresses` supported': function () {
       return this.remote
         .then(openPage(SIGNUP_FX_56_PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
@@ -198,11 +200,11 @@ define([
 
         // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
+        .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
         .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS));
     },
 
-    'Fx >= 56, `creditcards` supported': function () {
+    'Fx >= 56, `creditcards` and `addresses` supported': function () {
       return this.remote
         .then(openPage(SIGNUP_FX_56_PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
