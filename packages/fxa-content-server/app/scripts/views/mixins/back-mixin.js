@@ -5,24 +5,28 @@
 /**
  * View mixin to handle an in-content back button.
  *
- * @class BackMixin
+ * Adds `canGoBack` to context.
+ *
+ * Hooks up click and key handlers on elements w/
+ * the selectors `#back` and `.back`.
+ *
+ * @mixin BackMixin
  */
 
 define(function (require, exports, module) {
   'use strict';
 
-  const BaseView = require('views/base');
+  const { preventDefaultThen } = require('views/base');
   const KeyCodes = require('lib/key-codes');
 
   module.exports = {
-    _canGoBack: false,
     initialize (options = {}) {
-      this._canGoBack = options.canGoBack;
+      this._canGoBack = !! options.canGoBack;
     },
 
     events: {
-      'click #back': 'back',
-      'keyup #back': BaseView.preventDefaultThen('backOnEnter')
+      'click #back,.back': preventDefaultThen('back'),
+      'keyup #back,.back': 'backOnEnter'
     },
 
     setInitialContext (context) {
@@ -56,6 +60,8 @@ define(function (require, exports, module) {
      */
     backOnEnter (event) {
       if (event.which === KeyCodes.ENTER) {
+        event.preventDefault();
+
         this.back();
       }
     },

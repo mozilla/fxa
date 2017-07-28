@@ -12,10 +12,9 @@ define(function (require, exports, module) {
   const KeyCodes = require('lib/key-codes');
   const Notifier = require('lib/channels/notifier');
   const sinon = require('sinon');
-  const TestTemplate = require('stache!templates/test_template');
 
   const View = BaseView.extend({
-    template: TestTemplate
+    template: (context) => '<a href="#" id="back">Back</a>'
   });
 
   Cocktail.mixin(
@@ -66,24 +65,42 @@ define(function (require, exports, module) {
         assert.isTrue(view.logViewEvent.calledOnce);
         assert.isTrue(view.logViewEvent.calledWith('back'));
       });
+
+      describe('clicks on `#back`', () => {
+        it('calls `event.preventDefault`', () => {
+          $('#container').html(view.el);
+
+          const clickEvent = $.Event('click');
+          clickEvent.currentTarget = $('a#back');
+
+          view.$('#back').trigger(clickEvent);
+          assert.isTrue(clickEvent.isDefaultPrevented());
+        });
+      });
     });
 
     describe('backOnEnter', function () {
-      it('calls back if user presses ENTER key', function () {
-        sinon.spy(view, 'back');
+      let preventDefaultSpy;
 
-        view.backOnEnter({ which: KeyCodes.ENTER });
-        assert.isTrue(view.back.called);
+      beforeEach(() => {
+        sinon.spy(view, 'back');
+        preventDefaultSpy = sinon.spy();
+      });
+
+      it('calls back if user presses ENTER key', function () {
+        view.backOnEnter({ preventDefault: preventDefaultSpy, which: KeyCodes.ENTER });
+
+        assert.isTrue(view.back.calledOnce);
+        assert.isTrue(preventDefaultSpy.calledOnce);
       });
 
       it('does not call back if user presses any key besides ENTER', function () {
-        sinon.stub(view, 'canGoBack', function () {
-          return true;
-        });
-        sinon.spy(view, 'back');
+        sinon.stub(view, 'canGoBack', () => true);
 
-        view.backOnEnter({ which: KeyCodes.ENTER + 1});
+        view.backOnEnter({ preventDefault: preventDefaultSpy, which: KeyCodes.ENTER + 1});
+
         assert.isFalse(view.back.called);
+        assert.isFalse(preventDefaultSpy.called);
       });
     });
 
