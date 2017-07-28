@@ -1130,14 +1130,14 @@ define([
    * @param   {string} waitForSelector query selector that indicates load is complete
    * @returns {promise} resolves when complete.
    */
-  const reOpenWithAdditionalQueryParams = thenify(function (additionalQueryParams, waitForSelector) {
+  const reOpenWithAdditionalQueryParams = thenify(function (additionalQueryParams, waitForSelector, options) {
     return this.parent
       .getCurrentUrl()
       .then(function (url) {
         var urlToOpen = addQueryParamsToLink(url, additionalQueryParams);
 
         return this.parent
-          .then(openPage(urlToOpen, waitForSelector));
+          .then(openPage(urlToOpen, waitForSelector, options));
       });
   });
 
@@ -1176,7 +1176,7 @@ define([
             return;
           }
           return this.parent
-            .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
+            .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader, options));
         });
     }
 
@@ -1191,7 +1191,7 @@ define([
       .then(function () {
         if (Object.keys(queryParams).length) {
           return this.parent
-            .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
+            .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader, options));
         }
       });
   });

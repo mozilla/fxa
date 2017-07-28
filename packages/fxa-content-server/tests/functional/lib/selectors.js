@@ -10,6 +10,9 @@ define([], function () {
 
   /*eslint-disable max-len*/
   return {
+    '123DONE': {
+      LOGOUT: '#logout'
+    },
     '400': {
       ERROR: '.error',
       HEADER: '#fxa-400-header'
