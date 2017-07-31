@@ -25,6 +25,7 @@ define([
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   const fillOutChangePassword = FunctionalHelpers.fillOutChangePassword;
   const fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   const fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
@@ -60,11 +61,11 @@ define([
         .then(type(selectors.EMAIL.INPUT, secondaryEmail))
         .then(click(selectors.EMAIL.ADD_BUTTON))
         .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
-        .then(openVerificationLinkInSameTab(secondaryEmail, 0))
-
-        .then(click(selectors.SETTINGS.SIGNOUT))
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
+        .then(openVerificationLinkInSameTab(secondaryEmail, 0, {
+          query: {
+            canChangeEmail: true
+          }
+        }))
 
         // set new primary email
         .then(click(selectors.EMAIL.MENU_BUTTON ))
@@ -81,6 +82,7 @@ define([
       return this.remote
         // sign out
         .then(click(selectors.SETTINGS.SIGNOUT))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
 
         // sign in and does not show change primary email button
         .then(openPage(SIGNIN_URL_NO_CHANGE_EMAIL, selectors.SIGNIN.HEADER))
@@ -94,6 +96,7 @@ define([
       return this.remote
         // sign out
         .then(click(selectors.SETTINGS.SIGNOUT))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
 
         // sign in with old primary email fails
         .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
@@ -133,6 +136,7 @@ define([
     'can change primary email, reset password and login': function () {
       return this.remote
         .then(click(selectors.SETTINGS.SIGNOUT))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
 
         // reset password
         .then(fillOutResetPassword(secondaryEmail))
@@ -141,20 +145,21 @@ define([
 
         // complete the reset password in the new tab
         .switchToWindow('newwindow')
-        .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
-        .then(fillOutCompleteResetPassword(NEW_PASSWORD, NEW_PASSWORD))
+          .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
+          .then(fillOutCompleteResetPassword(NEW_PASSWORD, NEW_PASSWORD))
 
-        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))
+          .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))
 
-        // sign out and fails login with old password
-        .then(click(selectors.SETTINGS.SIGNOUT))
-        .then(testElementExists(selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(secondaryEmail, PASSWORD))
-        .then(visibleByQSA(selectors.SIGNIN.TOOLTIP))
+          // sign out and fails login with old password
+          .then(click(selectors.SETTINGS.SIGNOUT))
+          .then(testElementExists(selectors.SIGNIN.HEADER))
+          .then(fillOutSignIn(secondaryEmail, PASSWORD))
+          .then(visibleByQSA(selectors.SIGNIN.TOOLTIP))
 
-        // sign in with new password succeeds
-        .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
-        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail));
+          // sign in with new password succeeds
+          .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
+          .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))
+        .then(closeCurrentWindow());
     }
   });
 });
