@@ -272,9 +272,9 @@ module.exports = (
         }
         // for each db session token, if there is a matching redis token
         // overwrite the properties of the db token with the redis token values
-        const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : []
+        const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : {}
         const sessions = mysqlSessionTokens.map((sessionToken) => {
-          const redisToken = redisSessionTokens.find(tok => tok.tokenId === sessionToken.tokenId)
+          const redisToken = redisSessionTokens[sessionToken.tokenId]
           const mergedToken = Object.assign({}, sessionToken, redisToken)
           return mergedToken
         })
@@ -433,7 +433,7 @@ module.exports = (
     }
     return P.all(promises)
       .spread((devices, redisTokens) => {
-        const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : []
+        const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : {}
         log.info({
           op: 'db.devices.redisSessionTokens',
           hasRedisTokens: !! redisSessionTokens.length,
@@ -442,7 +442,7 @@ module.exports = (
         // for each device, if there is a redis token with a matching tokenId
         // overwrite device's ua properties and lastAccessTime with redis token values
         return devices.map(device => {
-          const token = redisSessionTokens.find(tok => tok.tokenId === device.sessionTokenId)
+          const token = redisSessionTokens[device.sessionTokenId]
           const mergedInfo = Object.assign({}, device, token)
           return {
             id: device.id,
@@ -515,7 +515,7 @@ module.exports = (
       lastAccessTime: token.lastAccessTime,
       createdAt: token.createdAt
     }
-    let sessionTokens = []
+    let sessionTokens
     return getGeoData(ip)
     .then((res) => {
       const state = res.location && res.location.state
@@ -525,19 +525,16 @@ module.exports = (
     .catch(err => {
       newToken.location = null
     })
-    // get the array of session tokens associated with the given uid
+    // get the object of session tokens associated with the given uid
     .then(() => this.redis.getAsync(uid))
     .then(res => {
-      if (res) {
-        res = JSON.parse(res)
-        // remove the token that we want to update from the array
-        const filteredTokens = res.filter(tok => tok.tokenId !== token.id)
-        sessionTokens = sessionTokens.concat(filteredTokens)
-      }
+      // update the hash with the new token
+      sessionTokens = res ? JSON.parse(res) : {}
+      sessionTokens[token.id] = newToken
+      return sessionTokens
     })
     // add new updated token into array, and set the resulting array as the new value
     .then(() => {
-      sessionTokens.push(newToken)
       return this.redis.setAsync(uid, JSON.stringify(sessionTokens))
     })
     .then(() => sessionTokens)
@@ -668,9 +665,8 @@ module.exports = (
     return P.all(promises)
       .spread((deleteRes, redisTokens) => {
         if (this.redis) {
-          const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : []
-          const tokenToDeleteIndex = redisSessionTokens.findIndex((tok) => tok.tokenId === sessionToken.id)
-          redisSessionTokens.splice(tokenToDeleteIndex, 1)
+          const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : {}
+          delete redisSessionTokens[sessionToken.id]
           return this.redis.setAsync(uid, JSON.stringify(redisSessionTokens))
         }
         return deleteRes

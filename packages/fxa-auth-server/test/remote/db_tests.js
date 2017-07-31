@@ -206,7 +206,7 @@ describe('remote db', function() {
           assert.equal(redisSetSpy.lastCall.args[0], account.uid)
 
           const redisSetArgs = JSON.parse(redisSetSpy.lastCall.args[1])
-          const token = redisSetArgs[0]
+          const token = redisSetArgs[tokenId]
           assert.equal(token.tokenId, tokenId)
           assert.equal(token.uid, account.uid)
           assert.equal(token.uaBrowser, 'Firefox')
@@ -248,20 +248,23 @@ describe('remote db', function() {
           return sessionToken
         })
         .then(function(sessionToken) {
-          const mockTokens = JSON.stringify([{
-            uid: sessionToken.uid,
-            id: 'idToNotDelete'
-          }, {
-            uid: sessionToken.uid,
-            id: sessionToken.id
-          }])
+          const mockTokens = JSON.stringify({
+            idToNotDelete: {
+              uid: sessionToken.uid,
+              id: 'idToNotDelete'
+            },
+            [sessionToken.id]: {
+              uid: sessionToken.uid,
+              id: sessionToken.id
+            }
+          })
           redisGetSpy.returns(P.resolve(mockTokens))
           return db.deleteSessionToken(sessionToken)
         })
         .then(function() {
           const redisSetArgs = JSON.parse(redisSetSpy.lastCall.args[1])
-          assert.equal(redisSetArgs.length, 1)
-          assert.equal(redisSetArgs[0].id, 'idToNotDelete')
+          assert.equal(Object.keys(redisSetArgs).length, 1)
+          assert.ok(redisSetArgs.idToNotDelete)
 
           return db.sessionToken(tokenId)
           .then(function(sessionToken) {
@@ -393,7 +396,8 @@ describe('remote db', function() {
               })
           })
           .then(results => {
-            redisGetSpy.returns(P.resolve(JSON.stringify(results[1])))
+            const tokenToReturn = results[1][sessionToken.tokenId]
+            redisGetSpy.returns(P.resolve(JSON.stringify({[sessionToken.tokenId]: tokenToReturn})))
 
             // Create another session token
             return db.createSessionToken(sessionToken, 'Mozilla/5.0 (Android 7.1.2; Mobile; rv:56.0) Gecko/56.0 Firefox/56.0')
