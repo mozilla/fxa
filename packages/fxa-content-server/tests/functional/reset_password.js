@@ -128,18 +128,38 @@ define([
     },
 
     'open /reset_password page from /signin': function () {
+      const updatedEmail = TestHelpers.createEmail();
       return this.remote
         .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER))
         .then(type(selectors.SIGNIN.EMAIL, email))
         .then(click(selectors.SIGNIN.RESET_PASSWORD))
 
         .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
-        // ensure there is a signin button
-        .then(testElementExists(selectors.RESET_PASSWORD.LINK_SIGNIN))
         // ensure there is a link to `Learn how Sync works`
         .then(testElementExists(selectors.RESET_PASSWORD.LINK_LEARN_HOW_SYNC_WORKS))
         // email should not be pre-filled
         .then(testElementValueEquals(selectors.RESET_PASSWORD.EMAIL, ''))
+        // go back, ensure the email address is still pre-filled on the signin page.
+        .then(click(selectors.RESET_PASSWORD.LINK_SIGNIN))
+
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
+        .then(click(selectors.SIGNIN.RESET_PASSWORD))
+
+        // update the email in the reset_password form, go back, ensure the
+        // change is reflected in the /signin page
+        .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
+        .then(testElementValueEquals(selectors.RESET_PASSWORD.EMAIL, ''))
+        .then(type(selectors.RESET_PASSWORD.EMAIL, updatedEmail))
+        .then(click(selectors.RESET_PASSWORD.LINK_SIGNIN))
+
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, updatedEmail))
+        .then(click(selectors.SIGNIN.RESET_PASSWORD))
+
+        .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
+        .then(testElementValueEquals(selectors.RESET_PASSWORD.EMAIL, ''))
+
         .then(fillOutResetPassword(email))
 
         .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER));

@@ -6,27 +6,36 @@ define(function (require, exports, module) {
   'use strict';
 
   const AuthErrors = require('lib/auth-errors');
-  const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const FormView = require('views/form');
   const FlowEventsMixin = require('views/mixins/flow-events-mixin');
-  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Session = require('lib/session');
   const Template = require('stache!templates/reset_password');
 
-  var t = BaseView.t;
+  const t = (msg) => msg;
 
-  var View = FormView.extend({
-    template: Template,
-    className: 'reset_password',
+  class ResetPasswordView extends FormView {
+    initialize (options) {
+      this.template = Template;
+      this.className = 'reset_password';
+
+      // The form-prefill-mixin is not used, otherwise a blank email
+      // address clears the email field in the formPrefill model if
+      // the user doesn't enter an address. See comment in beforeDestroy
+      this._formPrefill = options.formPrefill;
+
+      super.initialize(options);
+    }
 
     setInitialContext (context) {
+      super.setInitialContext(context);
+
       context.set({
         forceEmail: this.model.get('forceEmail')
       });
-    },
+    }
 
     beforeRender () {
       var email = this.relier.get('email');
@@ -39,12 +48,26 @@ define(function (require, exports, module) {
           });
       }
 
-      return FormView.prototype.beforeRender.call(this);
-    },
+      return super.beforeRender();
+    }
+
+    beforeDestroy () {
+      const email = this.getElementValue('.email');
+      // The email field is not pre-filled for the reset_password page,
+      // but if the user enters an email address, the entered email
+      // address should be propagated back to the signin page. If
+      // the user enters no email and instead clicks "Remember password?"
+      // immediately, the /signin page should have the original email.
+      // See https://github.com/mozilla/fxa/tree/master/features/FxA-72-reset-password
+      // and #5293
+      if (email) {
+        this._formPrefill.set({ email });
+      }
+    }
 
     submit () {
       return this._resetPassword(this.getElementValue('.email'));
-    },
+    }
 
     _resetPassword (email) {
       return this.resetPassword(email)
@@ -63,15 +86,14 @@ define(function (require, exports, module) {
           throw err;
         });
     }
-  });
+  }
 
   Cocktail.mixin(
-    View,
+    ResetPasswordView,
     FlowEventsMixin,
-    FormPrefillMixin,
     PasswordResetMixin,
     ServiceMixin
   );
 
-  module.exports = View;
+  module.exports = ResetPasswordView;
 });

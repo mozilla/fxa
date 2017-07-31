@@ -230,7 +230,12 @@ define(function (require, exports, module) {
     });
 
     describe('beforeDestroy', function () {
-      it('saves the form email to formPrefill', function () {
+      it('saves the form email to formPrefill if filled out', function () {
+        formPrefill.set('email', 'originalEmail@testuser.com');
+        view.$('.email').val('');
+        view.beforeDestroy();
+        assert.equal(formPrefill.get('email'), 'originalEmail@testuser.com');
+
         view.$('.email').val('testuser@testuser.com');
         view.beforeDestroy();
         assert.equal(formPrefill.get('email'), 'testuser@testuser.com');
