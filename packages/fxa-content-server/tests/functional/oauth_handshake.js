@@ -31,6 +31,7 @@ define([
   const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
   const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   const thenify = FunctionalHelpers.thenify;
+  const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   const ensureUsers = thenify(function () {
     return this.parent
@@ -107,7 +108,13 @@ define([
           }
         }))
         .then(fillOutSignIn(otherEmail, PASSWORD))
-        .then(click(selectors['123DONE'].LOGOUT))
+        .then(click(selectors['123DONE'].LINK_LOGOUT))
+
+        // Wait for the signin button to be visible before
+        // attempting to refresh the page. If the refresh is
+        // done before signout has completed, 123done shows
+        // an alert box which blocks the rest of the text.
+        .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
 
         // Then, sign in the user again, synthesizing the user having signed
         // into Sync after the initial sign in.

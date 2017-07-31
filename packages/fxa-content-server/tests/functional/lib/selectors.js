@@ -11,7 +11,9 @@ define([], function () {
   /*eslint-disable max-len*/
   return {
     '123DONE': {
-      LOGOUT: '#logout'
+      BUTTON_SIGNIN: '.sign-in-button.signin',
+      BUTTON_SIGNUP: '.sign-in-button.signup',
+      LINK_LOGOUT: '#logout'
     },
     '400': {
       ERROR: '.error',
