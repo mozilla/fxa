@@ -485,7 +485,10 @@ function findPullRequestForIssue(gh, repo, issueNumber, commit) {
       }
     }).then(function() {
       // If referenced by precisely one PR, that's the one.
-      if (refedBy.length === 1) {
+      if (refedBy.length >= 1) {
+        if (refedBy.length > 1) {
+          console.warn('Warning: found multiple PRs for issue #' + issueNumber + ', arbitrarily picking the first');
+        }
         return refedBy[0];
       }
       if (! commit) { return null; }
@@ -509,7 +512,7 @@ function findPullRequestForCommit(gh, repo, commit) {
       return refs[0]
     }
     if (refs.length > 1) {
-      console.log('Warning: found multiple PRs for commit ' + commit);
+      console.warn('Warning: found multiple PRs for commit ' + commit);
     }
     return null;
   });

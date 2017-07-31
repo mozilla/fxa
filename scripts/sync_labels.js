@@ -30,6 +30,10 @@ var STANDARD_LABELS = {
   'waffle:active': { color: COLORS.STATUS },
   'waffle:review': { color: COLORS.STATUS },
   'waffle:blocked': { color: COLORS.ALERT },
+  'P1': { color: COLORS.STATUS },
+  'P2': { color: COLORS.STATUS },
+  'P3': { color: COLORS.STATUS },
+  'P5': { color: COLORS.STATUS },
   // Issue deathcycle management labels, for reporting purposes.
   'resolved:fixed': { color: COLORS.RESOLUTION },
   'resolved:wontfix': { color: COLORS.RESOLUTION },
@@ -68,7 +72,10 @@ var OBSOLETE_LABELS = {
   'good first bug': 'good-first-bug',
   'strings': null,
   'waffle:now': 'waffle:active',
-  'waffle:progress': 'waffle:active'
+  'P1:now': 'P1',
+  'P2:next': 'P2',
+  'P3:backlog': 'P3',
+  'P5:wishlist': 'P5'
 }
 
 

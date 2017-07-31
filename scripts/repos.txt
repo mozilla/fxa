@@ -39,3 +39,4 @@ grunt-l10n-lint
 fxa-activity-metrics
 mozlog
 mozilla-services/fxa-testing-e2e
+fxa-sprint-planning
