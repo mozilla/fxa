@@ -58,14 +58,14 @@ define((require, exports, module) => {
       text: t('Preferences')
     },
     {
-      checked: true,
+      checked: false,
       id: 'addresses',
       // addresses will only be available via capabilities.
       test: () => false,
       text: t('Addresses')
     },
     {
-      checked: true,
+      checked: false,
       id: 'creditcards',
       // credit cards will only be available via capabilities.
       test: () => false,
