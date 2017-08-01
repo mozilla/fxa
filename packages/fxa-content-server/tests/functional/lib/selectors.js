@@ -72,7 +72,7 @@ define([], function () {
       HEADER: '#fxa-reset-password-header',
       LINK_ERROR_SIGNUP: '.error a[href="/signup"]',
       LINK_LEARN_HOW_SYNC_WORKS: 'a[href="https://support.mozilla.org/products/firefox/sync"]',
-      LINK_SIGNIN: 'a[href="/signin"]',
+      LINK_SIGNIN: '#back',
       SUBMIT: 'button[type="submit"]',
       SUCCESS: '.success'
     },

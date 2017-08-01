@@ -6,10 +6,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const Broker = require('models/auth_brokers/base');
-  const chai = require('chai');
   const FormPrefill = require('models/form-prefill');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
@@ -20,7 +20,6 @@ define(function (require, exports, module) {
   const TestHelpers = require('../../lib/helpers');
   const View = require('views/reset_password');
 
-  var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/reset_password', function () {
@@ -78,12 +77,12 @@ define(function (require, exports, module) {
         assert.ok($('#fxa-reset-password-header').length);
       });
 
-      it('shows the signin button', function () {
+      it('shows the back button', function () {
         view = createView();
 
         return view.render()
-          .then(function () {
-            assert.equal(view.$('a[href="/signin"]').length, 1);
+          .then(() => {
+            assert.lengthOf(view.$('#back'), 1);
           });
       });
 
@@ -272,7 +271,6 @@ define(function (require, exports, module) {
     afterEach(() => {
       view.destroy();
       view = null;
-      $('#container').empty();
     });
 
     it('does not pre-fills email address', () => {
@@ -298,6 +296,7 @@ define(function (require, exports, module) {
 
       view = new View({
         broker,
+        canGoBack: true,
         formPrefill,
         model,
         notifier,
@@ -315,24 +314,47 @@ define(function (require, exports, module) {
       $('#container').empty();
     });
 
-    it('shows a readonly email', () => {
+    it('shows a readonly email, has a back link, does not submit address automatically', () => {
       const $emailInputEl = view.$('[type=email]');
       assert.equal($emailInputEl.val(), email);
       assert.isTrue($emailInputEl.hasClass('hidden'));
 
       assert.equal(view.$('.prefillEmail').text(), email);
-    });
+      assert.lengthOf(view.$('#back'), 1);
 
-    it('has a link back to /force_auth', () => {
-      assert.ok(view.$('a[href="/force_auth"]').length);
-    });
-
-    it('does not submit the email address automatically', () => {
       assert.isFalse(view._resetPassword.called);
     });
+  });
 
-    it('removes the back button - the user probably browsed here directly', () => {
-      assert.equal(view.$('#back').length, 0);
+  describe('views/reset_password with `canGoBack: false`', () => {
+    let formPrefill;
+    let notifier;
+    let relier;
+    let view;
+
+    beforeEach(() => {
+      formPrefill = new FormPrefill();
+      notifier = new Notifier();
+      relier = new Relier();
+
+      view = new View({
+        canGoBack: false,
+        formPrefill,
+        notifier,
+        relier
+      });
+
+      sinon.spy(view, '_resetPassword');
+
+      return view.render();
+    });
+
+    afterEach(() => {
+      view.destroy();
+    });
+
+    it('does not show the back button', () => {
+      assert.lengthOf(view.$('#back'), 0);
     });
   });
 

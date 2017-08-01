@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const AuthErrors = require('lib/auth-errors');
+  const BackMixin = require('views/mixins/back-mixin');
   const Cocktail = require('cocktail');
   const FormView = require('views/form');
   const FlowEventsMixin = require('views/mixins/flow-events-mixin');
@@ -90,6 +91,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     ResetPasswordView,
+    BackMixin,
     FlowEventsMixin,
     PasswordResetMixin,
     ServiceMixin
