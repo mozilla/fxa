@@ -27,6 +27,7 @@ function Pool(url, options) {
     [parsedUrl.host],
     {
       timeout: options.timeout || 5000,
+      maxPending: options.maxPending || 1000,
       keepAlive: true,
       maxRetries: 0
     }

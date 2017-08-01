@@ -52,7 +52,12 @@ module.exports = (
   }
 
   function DB(options) {
-    this.pool = new Pool(options.url)
+    let pooleeOptions = {}
+    if (config && config.db && config.db.poolee) {
+      pooleeOptions = config.db.poolee
+    }
+
+    this.pool = new Pool(options.url, pooleeOptions)
     if (config.redis.enabled) {
       const redisConfig = {
         host: config.redis.host,

@@ -115,6 +115,20 @@ var conf = convict({
       env: 'DB_CONNECTION_TIMEOUT',
       doc: 'Timeout in milliseconds after which the mailer will stop trying to connect to the database',
       format: 'duration'
+    },
+    poolee: {
+      timeout: {
+        default: '5 seconds',
+        format: 'duration',
+        env: 'DB_POOLEE_TIMEOUT',
+        doc: 'Time in milliseconds to wait for db query completion'
+      },
+      maxPending: {
+        default: 1000,
+        format: 'int',
+        env: 'DB_POOLEE_MAX_PENDING',
+        doc: 'Number of pending requests to auth-db-mysql to allow'
+      }
     }
   },
   httpdb: {
