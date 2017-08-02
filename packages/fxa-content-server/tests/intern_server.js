@@ -30,6 +30,7 @@ define([
     'tests/server/configuration',
     'tests/server/statsd-collector',
     'tests/server/raven',
+    'tests/server/routes/get-apple-app-site-association',
     'tests/server/routes/get-config',
     'tests/server/routes/get-verify-email',
     'tests/server/routes/get-fxa-client-configuration',
