@@ -174,6 +174,9 @@ Reference images are below each OS section.
 
 #### Notes for testers
 
+* Sending an SMS requires a Firefox Accounts session token. The verification link
+must be opened in the same Firefox instance used to sign up.
+* Sending an SMS in Romania is limited to @softvision.ro, @softvision.com, @mozilla.com, and @mozilla.org email addresses. This restriction will be lifted after testing.
 * signinCodes are disabled by default and can be enabled by opening the signup
 verification link adding the `signinCodes=true` query parameter.
 * Sending SMS is only available during the signup flow, signing into an existing account
@@ -183,6 +186,7 @@ the code were invalid (it will be ignored). A new code must be set for each test
 * Adjust.io's deeplink engine ignores previously seen devices - a new advertising ID
 is required for each test for the deep link to be followed. Instructions for clearing
 the advertising ID are in each section.
+* Deep links are not yet in the release channel of Firefox for Android, however, they are enabled in Firefox Beta for Android. To test with Firefox Beta, open the link in the SMS message with `?release=beta`.
 
 #### Android
 
@@ -201,7 +205,7 @@ System settings->Google->Ads->Reset advertising ID
    the `forceExperimentGroup=treatment&signinCodes=true` query parameters.
 3. [Enter a valid phone number for an Android device, submit](#send-sms-to-android).
 4. [Open the SMS link on an Android device](#sms-received-on-android).
- To install Firefox Beta, open the verification link in Chrome and add the `channel=beta` query parameter.
+ To install Firefox Beta, open the verification link in Chrome for Android and add the `?channel=beta` query parameter.
 5. [Install Firefox from the Google Play store](#install-firefox-from-play-store).
 6. [Open Firefox](#open-firefox-from-play-store), [Firefox Accounts should open, email address from step 1 should be filled in](#signin-page-with-valid-signincode).
 7. Sign in with the password from step 1.
@@ -214,7 +218,7 @@ System settings->Google->Ads->Reset advertising ID
    the `forceExperimentGroup=treatment&signinCodes=true` query parameters.
 3. [Enter a valid phone number for an Android device, submit](#send-sms-to-android).
 4. [Open the SMS link on an Android device](#sms-received-on-android).
- To open Firefox Beta, open the verification link in Chrome and add the `channel=beta` query parameter.
+ To open Firefox Beta, open the verification link in Chrome for Android and add the `?channel=beta` query parameter.
 5. Firefox should open to Firefox Accounts, [email address from step 1 should be filled in](#signin-page-with-valid-signincode).
 6. Sign in with the password from step 1.
 
