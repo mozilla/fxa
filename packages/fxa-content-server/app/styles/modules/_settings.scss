@@ -769,6 +769,10 @@ section.modal-panel {
         min-width: 100px;
         text-align: center;
         width: 20%;
+
+        &.set-primary {
+          margin-left: 0;
+        }
       }
     }
   }
