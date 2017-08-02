@@ -53,6 +53,13 @@ Other
 
 `docker restart [NAME]` - restart a container.
 
+Shell into containers
+
+```
+sudo docker exec -i -t [container_name] /bin/sh
+```
+
+Example: `sudo docker exec -i -t redis /bin/sh`
 
 ### MySQL SSH Access
 
