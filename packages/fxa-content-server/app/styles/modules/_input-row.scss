@@ -59,6 +59,12 @@
         border-color: $error-background-color;
         box-shadow: 0 0 0 2px rgba(lighten($error-background-color, 15), .75);
       }
+
+      &:disabled {
+        border-color: $input-row-border-color;
+        color: $input-disabled-color;
+        cursor: not-allowed;
+      }
     }
 
     html[dir='ltr'] & {

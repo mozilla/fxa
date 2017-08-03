@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const Translator = require('lib/translator');
   const WindowMock = require('../../../mocks/window');
 
+  const ACTION = 'email';
   const CONTEXT = 'fx_desktop_v1';
   const COUNTRY = 'RO';
   const SYNC_MIGRATION = 'sync11';
@@ -45,6 +46,7 @@ define(function (require, exports, module) {
     describe('fetch', () => {
       it('populates model from the search parameters', () => {
         windowMock.location.search = TestHelpers.toSearchString({
+          action: ACTION,
           context: CONTEXT,
           country: COUNTRY,
           customizeSync: 'true',
@@ -55,6 +57,7 @@ define(function (require, exports, module) {
 
         return relier.fetch()
           .then(() => {
+            assert.equal(relier.get('action'), ACTION);
             assert.equal(relier.get('context'), CONTEXT);
             assert.equal(relier.get('country'), COUNTRY);
             assert.equal(relier.get('migration'), SYNC_MIGRATION);
@@ -62,6 +65,43 @@ define(function (require, exports, module) {
             assert.isTrue(relier.get('customizeSync'));
             assert.equal(relier.get('signinCode'), 'signin-code');
           });
+      });
+
+      describe('action query parameter', () => {
+        describe('missing', () => {
+          beforeEach(() => {
+            windowMock.location.search = TestHelpers.toSearchString({});
+
+            return relier.fetch();
+          });
+
+          it('uses default action', () => {
+            assert.equal(relier.get('action'), 'signup');
+          });
+        });
+
+        ['signin', 'signup', 'email'].forEach((action) => {
+          it(`accepts action=\`${action}\``, () => {
+            windowMock.location.search = TestHelpers.toSearchString({ action });
+
+            return relier.fetch()
+              .then(() => {
+                assert.equal(relier.get('action'), action);
+              });
+          });
+        });
+
+        ['', ' ', 'reset_password'].forEach((action) => {
+          it(`errors for action=\`${action}\``, () => {
+            windowMock.location.search = TestHelpers.toSearchString({ action });
+
+            return fetchExpectError()
+              .then(() => {
+                assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+                assert.equal(err.param, 'action');
+              });
+          });
+        });
       });
 
       describe('context query parameter', () => {

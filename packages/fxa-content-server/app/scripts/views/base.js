@@ -802,6 +802,16 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Replace the current page with `url`.
+     *
+     * @param {String} url - url of screen
+     * @param {Object} [nextViewData={}] - data to pass to the next view
+     */
+    replaceCurrentPage (url, nextViewData = {}) {
+      this.navigate(url, nextViewData, { replace: true, trigger: true });
+    },
+
+    /**
      * Focus the element with the [autofocus] attribute, if not a touch device.
      * Focusing an element on a touch device causes the virtual keyboard to
      * be displayed, which hides part of the screen.

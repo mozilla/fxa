@@ -38,10 +38,12 @@ define(function (require, exports, module) {
   const ResetPasswordView = require('../views/reset_password');
   const SettingsView = require('../views/settings');
   const SignInBouncedView = require('views/sign_in_bounced');
+  const SignInPasswordView = require('../views/sign_in_password');
   const SignInReportedView = require('views/sign_in_reported');
   const SignInUnblockView = require('../views/sign_in_unblock');
   const SignInView = require('../views/sign_in');
   const SignUpView = require('../views/sign_up');
+  const SignUpPasswordView = require('../views/sign_up_password');
   const SmsSendView = require('../views/sms_send');
   const SmsSentView = require('../views/sms_sent');
   const Storage = require('./storage');
@@ -103,14 +105,14 @@ define(function (require, exports, module) {
       'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
       'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
-      'signin(/)': createViewHandler(SignInView),
+      'signin(/)': 'onSignIn',
       'signin_bounced(/)': createViewHandler(SignInBouncedView),
       'signin_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),
       'signin_reported(/)': createViewHandler(SignInReportedView),
       'signin_unblock(/)': createViewHandler(SignInUnblockView),
       'signin_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
-      'signup(/)': createViewHandler(SignUpView),
+      'signup(/)': 'onSignUp',
       'signup_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
       'signup_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_UP }),
       'signup_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
@@ -132,8 +134,19 @@ define(function (require, exports, module) {
       this.notifier.once('view-shown', this._afterFirstViewHasRendered.bind(this));
       this.notifier.on('navigate', this.onNavigate.bind(this));
       this.notifier.on('navigate-back', this.onNavigateBack.bind(this));
+      this.notifier.on('email-first-flow', () => this._isEmailFirstFlow = true);
 
       this.storage = Storage.factory('sessionStorage', this.window);
+    },
+
+    onSignUp () {
+      const View = this._isEmailFirstFlow ? SignUpPasswordView : SignUpView;
+      return this.showView(View);
+    },
+
+    onSignIn () {
+      const View = this._isEmailFirstFlow ? SignInPasswordView : SignInView;
+      return this.showView(View);
     },
 
     onNavigate (event) {

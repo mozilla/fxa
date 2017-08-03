@@ -89,6 +89,18 @@ When authenticating a user with OAuth and an alternate style is needed.
 
 ## Firefox/Sync parameters
 
+### `action`
+Specify which page unauthenticated users at `/` should be redirected to.
+
+#### Options
+* `email`
+* `signin`
+* `signup`
+
+#### When to specify
+
+* /
+
 ### `channel`
 Force which Firefox release channel should be installed
 after redirecting from `/m/:signinCode`.

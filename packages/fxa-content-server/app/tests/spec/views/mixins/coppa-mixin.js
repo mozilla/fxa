@@ -58,7 +58,9 @@ define(function (require, exports, module) {
 
         return view.render()
           .then(function () {
-            assert.equal(view.$('#age').val(), '12');
+            const $ageEl = view.$('#age');
+            assert.equal($ageEl.val(), '12');
+            assert.ok($ageEl.prop('required'));
           });
       });
 

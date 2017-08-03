@@ -47,10 +47,6 @@ define(function (require, exports, module) {
     template: Template,
     className: 'sign-up',
 
-    initialize (options = {}) {
-      this._experimentGroupingRules = options.experimentGroupingRules;
-    },
-
     beforeRender () {
       var error = this.model.get('error');
       if (error && AuthErrors.is(error, 'DELETED_ACCOUNT')) {

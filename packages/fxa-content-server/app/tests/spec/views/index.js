@@ -5,46 +5,204 @@
 define((require, exports, module) => {
   'use strict';
 
+  const $ = require('jquery');
   const { assert } = require('chai');
+  const AuthBroker = require('models/auth_brokers/base');
+  const FormPrefill = require('models/form-prefill');
   const IndexView = require('views/index');
   const Notifier = require('lib/channels/notifier');
-  const User = require('models/user');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
+  const User = require('models/user');
+  const WindowMock = require('../../mocks/window');
+
+  const EMAIL = 'testuser@testuser.com';
 
   describe('views/index', () => {
+    let broker;
+    let formPrefill;
+    let notifier;
+    let relier;
     let user;
     let view;
+    let windowMock;
 
     beforeEach(() => {
+      broker = new AuthBroker();
+      formPrefill = new FormPrefill();
+      notifier = new Notifier();
+      relier = new Relier();
+      windowMock = new WindowMock();
+
       user = new User();
+
       view = new IndexView({
-        notifier: new Notifier(),
-        user
+        broker,
+        formPrefill,
+        notifier,
+        relier,
+        user,
+        viewName: 'email',
+        window: windowMock
       });
 
-      sinon.spy(view, 'navigate');
+      $('body').attr('data-flow-id', 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103');
+      $('body').attr('data-flow-begin', '42');
     });
 
-    it('navigates to the signup page if there is no current account', function () {
-      sinon.stub(user, 'getSignedInAccount', () => user.initAccount({}));
+    afterEach(() => {
+      view.remove();
+      view.destroy();
 
-      return view.render()
-        .then(() => {
-          assert.isTrue(view.navigate.calledOnce);
-          assert.isTrue(view.navigate.calledWith('signup', {}, { replace: true, trigger: true }));
-        });
+      view = null;
     });
 
-    it('navigates to the settings page if there is a current account', function () {
-      const signedInAccount = user.initAccount({
-        sessionToken: 'token'
+
+    describe('render', () => {
+      beforeEach(() => {
+        sinon.spy(notifier, 'trigger');
+        sinon.spy(view, 'navigate');
+        sinon.spy(view, 'replaceCurrentPage');
       });
-      sinon.stub(user, 'getSignedInAccount', () => signedInAccount);
-      return view.render()
-        .then(() => {
-          assert.isTrue(view.navigate.calledOnce);
-          assert.isTrue(view.navigate.calledWith('settings', {}, { replace: true, trigger: true }));
+
+      describe('user is too young', () => {
+        it('redirects to `/cannot_create_account`', () => {
+          windowMock.document.cookie = 'tooyoung; 1';
+
+          return view.render()
+            .then(() => {
+              assert.isTrue(view.navigate.calledOnce);
+              assert.isTrue(view.navigate.calledWith('cannot_create_account'));
+              assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
+            });
         });
+      });
+
+      describe('current account', () => {
+        it('replaces current page with to `/settings`', function () {
+          const signedInAccount = user.initAccount({
+            sessionToken: 'token'
+          });
+          sinon.stub(user, 'getSignedInAccount', () => signedInAccount);
+          return view.render()
+            .then(() => {
+              assert.isTrue(view.replaceCurrentPage.calledOnce);
+              assert.isTrue(view.replaceCurrentPage.calledWith('settings'));
+              assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
+            });
+        });
+      });
+
+      describe('no current account', () => {
+        describe('relier.action set, != email', () => {
+          it('replaces current page with page specified by `action`', () => {
+            relier.set('action', 'signin');
+            return view.render()
+              .then(() => {
+                assert.isTrue(view.replaceCurrentPage.calledOnce);
+                assert.isTrue(view.replaceCurrentPage.calledWith('signin'));
+                assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
+              });
+          });
+        });
+
+        describe('relier.action not set', () => {
+          it('redirects to page specified by `action`', () => {
+            relier.unset('action');
+            return view.render()
+              .then(() => {
+                assert.isTrue(view.replaceCurrentPage.calledOnce);
+                assert.isTrue(view.replaceCurrentPage.calledWith('signup'));
+                assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
+              });
+          });
+        });
+
+        describe('action === `email`', () => {
+          beforeEach(() => {
+            relier.set({
+              action: 'email',
+              service: 'sync',
+              serviceName: 'Firefox Sync'
+            });
+          });
+
+          it('renders as expected, starts the flow metrics', () => {
+            sinon.spy(view, 'logFlowEventOnce');
+            return view.render()
+              .then(() => {
+                assert.lengthOf(view.$('input[type=email]'), 1);
+                assert.lengthOf(view.$('#fxa-tos'), 1);
+                assert.lengthOf(view.$('#fxa-pp'), 1);
+                assert.include(view.$('.service').text(), 'Firefox Sync');
+
+                assert.isTrue(view.logFlowEventOnce.calledOnce);
+                assert.isTrue(view.logFlowEventOnce.calledWith('begin'));
+
+                assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
+              });
+          });
+        });
+      });
+    });
+
+    describe('submit', () => {
+      it('checks the entered email', () => {
+        sinon.stub(view, 'checkEmail', () => p());
+
+        return view.render()
+          .then(() => {
+            view.$('input[type=email]').val(EMAIL);
+          })
+          .then(() => view.submit())
+          .then(() => {
+            assert.isTrue(view.checkEmail.calledOnce);
+            assert.isTrue(view.checkEmail.calledWith(EMAIL));
+          });
+      });
+    });
+
+    describe('checkEmail', () => {
+      beforeEach(() => {
+        relier.set('action', 'email');
+        sinon.stub(view, 'navigate', () => {});
+        sinon.stub(broker, 'beforeSignIn', () => p());
+
+        return view.render();
+      });
+
+      describe('email is registered', () => {
+        it('navigates to signin', () => {
+          sinon.stub(user, 'checkAccountEmailExists', () => p(true));
+          return view.checkEmail(EMAIL)
+            .then(() => {
+              assert.isTrue(view.navigate.calledOnce);
+              assert.isTrue(view.navigate.calledWith('signin'));
+              const { account } = view.navigate.args[0][1];
+              assert.equal(account.get('email'), EMAIL);
+
+              assert.isTrue(broker.beforeSignIn.calledOnce);
+              assert.isTrue(broker.beforeSignIn.calledWith(account));
+            });
+        });
+      });
+
+      describe('email is not registered', () => {
+        it('navigates to signup', () => {
+          sinon.stub(user, 'checkAccountEmailExists', () => p(false));
+          return view.checkEmail(EMAIL)
+            .then(() => {
+              assert.isTrue(view.navigate.calledOnce);
+              assert.isTrue(view.navigate.calledWith('signup'));
+              const { account } = view.navigate.args[0][1];
+              assert.equal(account.get('email'), EMAIL);
+
+              assert.isTrue(broker.beforeSignIn.calledOnce);
+              assert.isTrue(broker.beforeSignIn.calledWith(account));
+            });
+        });
+      });
     });
   });
 });

@@ -692,6 +692,18 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('replaceCurrentPage', () => {
+      it('calls this.nagivate with router options to replace', () => {
+        sinon.spy(view, 'navigate');
+
+        const nextViewData = { key: 'value' };
+        view.replaceCurrentPage('newUrl', nextViewData);
+
+        assert.isTrue(view.navigate.calledOnce);
+        assert.isTrue(view.navigate.calledWith('newUrl', nextViewData, { replace: true, trigger: true }));
+      });
+    });
+
     describe('focus', () => {
       beforeEach(() => {
         $('#container').html(view.el);

@@ -43,7 +43,7 @@ define(function (require, exports, module) {
       },
 
       setInitialContext (context) {
-        const coppaHTML = this.renderTemplate(Template);
+        const coppaHTML = this.renderTemplate(Template, { required: config.required });
 
         context.set({
           coppaHTML

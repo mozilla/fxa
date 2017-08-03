@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  './functional/mailcheck',
+  './functional/sync_v3_email_first',
+  './functional/fx_firstrun_v2_email_first',
+  // new and flaky tests above here
   './functional/sign_in',
   './functional/sign_in_cached',
   './functional/sign_in_blocked',
@@ -19,14 +23,16 @@ define([
   './functional/sync_v2_reset_password',
   './functional/sync_v2_settings',
   './functional/sync_v2_force_auth',
-  './functional/sync_v3_sign_up',
-  './functional/sync_v3_sign_in',
-  './functional/sync_v3_settings',
+  './functional/sync_v3_email_first',
   './functional/sync_v3_force_auth',
+  './functional/sync_v3_settings',
+  './functional/sync_v3_sign_in',
+  './functional/sync_v3_sign_up',
   './functional/fx_desktop_handshake',
   './functional/fx_firstrun_v1_sign_up',
   './functional/fx_firstrun_v1_sign_in',
   './functional/fx_firstrun_v1_settings',
+  './functional/fx_firstrun_v2_email_first',
   './functional/fx_firstrun_v2_sign_up',
   './functional/fx_firstrun_v2_settings',
   './functional/fx_ios_v1_sign_in',
@@ -37,7 +43,6 @@ define([
   './functional/fx_fennec_v1_settings',
   './functional/mob_android_v1',
   './functional/mob_ios_v1',
-  './functional/mailcheck',
   './functional/bounced_email',
   './functional/legal',
   './functional/tos',

@@ -138,21 +138,56 @@ define([
       });
   });
 
-
   /**
-   * Click an element
+   * Check to ensure an element exists
    *
    * @param {string} selector
+   * @returns {promise} rejects if element does not exist
+   */
+  const testElementExists = thenify(function (selector) {
+    var findError;
+    return this.parent
+      .findByCssSelector(selector)
+      .then(null, function (err) {
+        // The error has to be swallowed before a screenshot
+        // can be taken or else takeScreenshot is never called
+        // because `this.parent` is a promise that has already
+        // been rejected.
+        findError = err;
+      })
+      .then(function () {
+        if (findError) {
+          return this.parent.then(takeScreenshot())
+            .then(() => {
+              throw findError;
+            });
+        }
+      })
+      .end();
+  });
+
+  /**
+   * Click an element defined by `selector`, wait for an optional `readySelector`
+   * to be displayed.
+   *
+   * @param {string} selector
+   * @param {string} [readySelector]
    * @returns {promise}
    */
-  const click = thenify(function (selector) {
+  const click = thenify(function (selector, readySelector) {
     return this.parent
       .findByCssSelector(selector)
         // Ensure the element is visible and not animating before attempting to click.
         // Sometimes clicks do not register if the element is in the middle of an animation.
         .then(visibleByQSA(selector))
         .click()
-      .end();
+      .end()
+      .then(function () {
+        if (readySelector) {
+          return this.parent
+            .then(testElementExists(readySelector));
+        }
+      });
   });
 
   /**
@@ -232,34 +267,6 @@ define([
           }
         })
 
-      .end();
-  });
-
-  /**
-   * Check to ensure an element exists
-   *
-   * @param {string} selector
-   * @returns {promise} rejects if element does not exist
-   */
-  const testElementExists = thenify(function (selector) {
-    var findError;
-    return this.parent
-      .findByCssSelector(selector)
-      .then(null, function (err) {
-        // The error has to be swallowed before a screenshot
-        // can be taken or else takeScreenshot is never called
-        // because `this.parent` is a promise that has already
-        // been rejected.
-        findError = err;
-      })
-      .then(function () {
-        if (findError) {
-          return this.parent.then(takeScreenshot())
-            .then(() => {
-              throw findError;
-            });
-        }
-      })
       .end();
   });
 

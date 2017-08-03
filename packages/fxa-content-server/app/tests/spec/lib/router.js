@@ -15,6 +15,10 @@ define(function (require, exports, module) {
   const Relier = require('models/reliers/relier');
   const Router = require('lib/router');
   const SettingsView = require('views/settings');
+  const SignInView = require('views/sign_in');
+  const SignInPasswordView = require('views/sign_in_password');
+  const SignUpView = require('views/sign_up');
+  const SignUpPasswordView = require('views/sign_up_password');
   const sinon = require('sinon');
   const User = require('models/user');
   const WindowMock = require('../../mocks/window');
@@ -401,6 +405,54 @@ define(function (require, exports, module) {
 
         assert.isTrue(router.showChildView.calledWith(
             ChildView, ParentView, viewConstructorOptions));
+      });
+    });
+
+    describe('signup flow', () => {
+      beforeEach(() => {
+        sinon.stub(router, 'showView', () => {});
+      });
+
+      describe('default flow', () => {
+        it('shows the SignUpView', () => {
+          sinon.stub(router, 'getCurrentViewModel', () => new Backbone.Model());
+          router.onSignUp();
+          assert.isTrue(router.showView.calledOnce);
+          assert.isTrue(router.showView.calledWith(SignUpView));
+        });
+      });
+
+      describe('email-first flow', () => {
+        it('shows the SignUpPasswordView', () => {
+          notifier.trigger('email-first-flow');
+          router.onSignUp();
+          assert.isTrue(router.showView.calledOnce);
+          assert.isTrue(router.showView.calledWith(SignUpPasswordView));
+        });
+      });
+    });
+
+    describe('signin flow', () => {
+      beforeEach(() => {
+        sinon.stub(router, 'showView', () => {});
+      });
+
+      describe('default flow', () => {
+        it('shows the SignInView', () => {
+          sinon.stub(router, 'getCurrentViewModel', () => new Backbone.Model());
+          router.onSignIn();
+          assert.isTrue(router.showView.calledOnce);
+          assert.isTrue(router.showView.calledWith(SignInView));
+        });
+      });
+
+      describe('email-first flow', () => {
+        it('shows the SignInPasswordView', () => {
+          notifier.trigger('email-first-flow');
+          router.onSignIn();
+          assert.isTrue(router.showView.calledOnce);
+          assert.isTrue(router.showView.calledWith(SignInPasswordView));
+        });
       });
     });
   });

@@ -8,6 +8,8 @@ define([
 ], function (intern, selectCircleTests) {
 
   intern.functionalSuites = selectCircleTests([
+    'tests/functional/sync_v3_email_first',
+    'tests/functional/fx_firstrun_v2_email_first',
     'tests/functional/sync_v3_sign_up',
     'tests/functional/fx_desktop_handshake',
     'tests/functional/settings_secondary_emails.js',
