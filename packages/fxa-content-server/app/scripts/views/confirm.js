@@ -118,7 +118,11 @@ define(function (require, exports, module) {
       // The user's email may have bounced because it was invalid.
       // Redirect them to the sign up page with an error notice.
       if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
-        this._bouncedEmailSignup();
+        if (this.isSignUp()) {
+          this._bouncedEmailSignup();
+        } else {
+          this.navigate('signin_bounced', { email: this.getAccount().get('email') });
+        }
       } else if (AuthErrors.is(err, 'UNEXPECTED_ERROR')) {
         // Hide the error from the user if it is an unexpected error.
         // an error may happen here if the status api is overloaded or

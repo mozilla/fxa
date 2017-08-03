@@ -57,6 +57,7 @@ define([
     'settings/delete_account',
     'settings/display_name',
     'signin',
+    'signin_bounced',
     'signin_confirmed',
     'signin_complete', // redirects to signin_verified
     'signin_permissions',

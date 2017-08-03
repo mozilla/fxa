@@ -245,11 +245,20 @@ define(function (require, exports, module) {
     });
 
     describe('_onConfirmationError', () => {
-      it('displays an error message allowing the user to re-signup if their email bounces', function () {
+      it('displays an error message allowing the user to re-signup if their email bounces on signup', () => {
+        sinon.stub(view, 'isSignUp', () => true);
         sinon.spy(view, 'navigate');
         view._onConfirmationError(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
 
         assert.isTrue(view.navigate.calledWith('signup', { bouncedEmail: 'a@a.com' }));
+      });
+
+      it('navigates to the signin-bounced screen if their email bounces on signin', () => {
+        sinon.stub(view, 'isSignUp', () => false);
+        sinon.spy(view, 'navigate');
+        view._onConfirmationError(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
+
+        assert.isTrue(view.navigate.calledWith('signin_bounced', { email: 'a@a.com' }));
       });
 
       it('displays an error when an unknown error occurs', function () {

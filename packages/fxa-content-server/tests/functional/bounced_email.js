@@ -5,27 +5,35 @@
 define([
   'intern',
   'intern!object',
-  'intern/browser_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
-
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
   var bouncedEmail;
   var deliveredEmail;
-  var PASSWORD = '12345678';
+  const PASSWORD = '12345678';
+  const SIGNIN_URL = `${intern.config.fxaContentRoot}signin`;
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var openPage = FunctionalHelpers.openPage;
+  const clearBrowserState = FunctionalHelpers.clearBrowserState;
+  const click = FunctionalHelpers.click;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  const createUser = FunctionalHelpers.createUser;
+  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  const getFxaClient = FunctionalHelpers.getFxaClient;
+  const openPage = FunctionalHelpers.openPage;
+  const pollUntil = FunctionalHelpers.pollUntil;
+  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  const switchToWindow = FunctionalHelpers.switchToWindow;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const thenify = FunctionalHelpers.thenify;
 
   registerSuite({
     name: 'sign_up with an email that bounces',
 
-    beforeEach: function () {
+    beforeEach () {
       bouncedEmail = TestHelpers.createEmail();
       deliveredEmail = TestHelpers.createEmail();
       return this.remote
@@ -33,18 +41,16 @@ define([
         // ensure a fresh signup page is loaded. If this suite is
         // run after a Sync suite, these tests try to use a Sync broker
         // which results in a channel timeout.
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'));
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER));
 
     },
 
-    afterEach: function () {
+    afterEach () {
       return this.remote.then(clearBrowserState());
     },
 
     'sign up, bounce email, allow user to restart flow but force a different email': function () {
-      var client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
+      const client = getFxaClient();
 
       return this.remote
         .then(fillOutSignUp(bouncedEmail, PASSWORD))
@@ -93,5 +99,61 @@ define([
         .end();
     }
 
+  });
+
+  const setUpBouncedSignIn = thenify(function (email) {
+    const client = getFxaClient();
+    email = email || TestHelpers.createEmail('sync{id}');
+
+    return this.parent
+      .then(clearBrowserState({ force: true }))
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(openPage(`${SIGNIN_URL}?context=fx_desktop_v2&service=sync`, selectors.SIGNIN.HEADER))
+      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
+      .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+      .then(testIsBrowserNotified('fxaccounts:login'))
+      .then(() => client.accountDestroy(email, PASSWORD))
+      .then(testElementExists(selectors.SIGNIN_BOUNCED.HEADER))
+      .then(testElementExists(selectors.SIGNIN_BOUNCED.CREATE_ACCOUNT))
+      .then(testElementExists(selectors.SIGNIN_BOUNCED.BACK))
+      .then(testElementExists(selectors.SIGNIN_BOUNCED.SUPPORT));
+  });
+
+  registerSuite({
+    name: 'sign_in with an email that bounces',
+
+    afterEach () {
+      return this.remote.then(clearBrowserState());
+    },
+
+    'click create-account': function () {
+      return this.remote
+        .then(setUpBouncedSignIn())
+        .then(click(selectors.SIGNIN_BOUNCED.CREATE_ACCOUNT))
+        .then(testElementExists(selectors.SIGNUP.HEADER))
+        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, ''))
+        .then(testElementValueEquals(selectors.SIGNUP.PASSWORD, ''));
+    },
+
+    'click back': function () {
+      const email = TestHelpers.createEmail('sync{id}');
+      return this.remote
+        .then(setUpBouncedSignIn(email))
+        .then(click(selectors.SIGNIN_BOUNCED.BACK))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
+        .then(testElementValueEquals(selectors.SIGNIN.PASSWORD, PASSWORD));
+    },
+
+    'click support': function () {
+      return this.remote
+        .then(setUpBouncedSignIn())
+        .then(click(selectors.SIGNIN_BOUNCED.SUPPORT))
+        .then(switchToWindow(1))
+        .then(pollUntil(() => window.location.href.startsWith('https://support.mozilla.org/')))
+        .then(closeCurrentWindow());
+    }
   });
 });

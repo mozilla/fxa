@@ -74,6 +74,7 @@ define([
     '/settings/delete_account': { statusCode: 200 },
     '/settings/display_name': { statusCode: 200 },
     '/signin': { statusCode: 200 },
+    '/signin_bounced': { statusCode: 200 },
     '/signin_confirmed': { statusCode: 200 },
     '/signin_permissions': { statusCode: 200 },
     '/signin_reported': { statusCode: 200 },

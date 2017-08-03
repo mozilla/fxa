@@ -37,6 +37,7 @@ define(function (require, exports, module) {
   const ReportSignInView = require('views/report_sign_in');
   const ResetPasswordView = require('../views/reset_password');
   const SettingsView = require('../views/settings');
+  const SignInBouncedView = require('views/sign_in_bounced');
   const SignInReportedView = require('views/sign_in_reported');
   const SignInUnblockView = require('../views/sign_in_unblock');
   const SignInView = require('../views/sign_in');
@@ -103,6 +104,7 @@ define(function (require, exports, module) {
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
       'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
       'signin(/)': createViewHandler(SignInView),
+      'signin_bounced(/)': createViewHandler(SignInBouncedView),
       'signin_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),
       'signin_reported(/)': createViewHandler(SignInReportedView),

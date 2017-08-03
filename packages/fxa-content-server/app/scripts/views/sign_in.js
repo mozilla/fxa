@@ -149,6 +149,7 @@ define(function (require, exports, module) {
       } else if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
         return this.showValidationError(this.$('#password'), err);
       }
+
       // re-throw error, it will be handled at a lower level.
       throw err;
     },

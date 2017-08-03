@@ -72,6 +72,11 @@ define(function (require, exports, module) {
             return this.onSignInBlocked(account, password, err);
           }
 
+          if (AuthErrors.is(err, 'EMAIL_HARD_BOUNCE') ||
+              AuthErrors.is(err, 'EMAIL_SENT_COMPLAINT')) {
+            return this.navigate('signin_bounced', { email: account.get('email') });
+          }
+
           // re-throw error, it'll be handled elsewhere.
           throw err;
         });

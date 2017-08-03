@@ -91,6 +91,12 @@ define([], function () {
       SUBMIT: 'button[type=submit]',
       TOOLTIP: '.tooltip',
     },
+    SIGNIN_BOUNCED: {
+      BACK: '#back',
+      CREATE_ACCOUNT: '#create-account',
+      HEADER: '#fxa-signin-bounced-header',
+      SUPPORT: '#support'
+    },
     SIGNIN_COMPLETE: {
       HEADER: '#fxa-sign-in-complete-header'
     },

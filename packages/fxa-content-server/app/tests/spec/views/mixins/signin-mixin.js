@@ -319,6 +319,79 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('hard email bounce error', () => {
+        let succeeded, failed;
+
+        beforeEach(() => {
+          user.signInAccount.restore();
+          sinon.stub(user, 'signInAccount', () => {
+            return p.reject(AuthErrors.toError('EMAIL_HARD_BOUNCE'));
+          });
+
+          return view.signIn(account, 'password')
+            .then(() => succeeded = true, () => failed = true);
+        });
+
+        it('succeeded', () => {
+          assert.isTrue(succeeded);
+          assert.isUndefined(failed);
+        });
+
+        it('navigated to the signin-bounced screen', () => {
+          assert.equal(view.navigate.callCount, 1);
+          assert.equal(view.navigate.args[0][0], 'signin_bounced');
+          assert.deepEqual(view.navigate.args[0][1], { email: account.get('email') });
+        });
+      });
+
+      describe('soft email bounce error', () => {
+        let succeeded, err;
+
+        beforeEach(() => {
+          user.signInAccount.restore();
+          sinon.stub(user, 'signInAccount', () => {
+            return p.reject(AuthErrors.toError('EMAIL_SOFT_BOUNCE'));
+          });
+
+          return view.signIn(account, 'password')
+            .then(() => succeeded = true, e => err = e);
+        });
+
+        it('failed', () => {
+          assert.isTrue(AuthErrors.is(err, 'EMAIL_SOFT_BOUNCE'));
+          assert.isUndefined(succeeded);
+        });
+
+        it('did not navigate', () => {
+          assert.equal(view.navigate.callCount, 0);
+        });
+      });
+
+      describe('email complaint error', () => {
+        let succeeded, failed;
+
+        beforeEach(() => {
+          user.signInAccount.restore();
+          sinon.stub(user, 'signInAccount', () => {
+            return p.reject(AuthErrors.toError('EMAIL_SENT_COMPLAINT'));
+          });
+
+          return view.signIn(account, 'password')
+            .then(() => succeeded = true, e => failed = true);
+        });
+
+        it('succeeded', () => {
+          assert.isTrue(succeeded);
+          assert.isUndefined(failed);
+        });
+
+        it('navigated to the signin-bounced screen', () => {
+          assert.equal(view.navigate.callCount, 1);
+          assert.equal(view.navigate.args[0][0], 'signin_bounced');
+          assert.deepEqual(view.navigate.args[0][1], { email: account.get('email') });
+        });
+      });
+
       describe('formPrefill undefined', function () {
         beforeEach(function () {
           view.formPrefill = undefined;
