@@ -37,7 +37,10 @@ define(function (require, exports, module) {
         createExperiment: sinon.spy(() => {
           return {};
         }),
-        destroy () {}
+        destroy () {},
+        getExperimentGroup: sinon.spy(),
+        isInExperiment: sinon.spy(),
+        isInExperimentGroup: sinon.spy()
       };
 
       notifier = {
@@ -82,12 +85,29 @@ define(function (require, exports, module) {
         assert.isTrue(experiments.createExperiment.calledOnce);
         assert.isTrue(experiments.createExperiment.calledWith('experimentName', 'control'));
       });
+
+      it('does nothing if the view has been destroyed', () => {
+        view.destroy();
+        assert.notOk(view.createExperiment('experimentName', 'control'));
+      });
     });
 
-    it('contains delegate functions', () => {
-      assert.isFunction(view.getExperimentGroup);
-      assert.isFunction(view.isInExperiment);
-      assert.isFunction(view.isInExperimentGroup);
+    describe('delegate methods', () => {
+      const delegateMethods = ['getExperimentGroup', 'isInExperiment', 'isInExperimentGroup'];
+      delegateMethods.forEach((methodName) => {
+        it(`delegates ${methodName} correctly`, () => {
+          assert.isFunction(view[methodName]);
+
+          view[methodName]('foo', 'bar', 'baz');
+          assert.isTrue(experiments[methodName].calledOnce);
+          assert.isTrue(experiments[methodName].calledWith('foo', 'bar', 'baz'));
+
+          view.destroy();
+          view[methodName]('foo', 'bar', 'baz');
+          // the view is destroyed, can no longer delegate to experiments.
+          assert.isTrue(experiments[methodName].calledOnce);
+        });
+      });
     });
   });
 });

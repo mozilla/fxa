@@ -43,11 +43,13 @@ define(function (require, exports, module) {
      * @returns {Object} experiment object, if created.
      */
     createExperiment (...args) {
-      // force the flow model to be initialized so that
-      // the experiment is logged.
-      this.notifier.trigger('flow.initialize');
+      if (this.experiments) {
+        // force the flow model to be initialized so that
+        // the experiment is logged.
+        this.notifier.trigger('flow.initialize');
 
-      return this.experiments.createExperiment(...args);
+        return this.experiments.createExperiment(...args);
+      }
     }
   };
 
@@ -58,7 +60,9 @@ define(function (require, exports, module) {
     'isInExperimentGroup'
   ].forEach((methodName) => {
     module.exports[methodName] = function (...args) {
-      return this.experiments[methodName](...args);
+      if (this.experiments) {
+        return this.experiments[methodName](...args);
+      }
     };
   });
 });
