@@ -316,10 +316,8 @@ Should not be used by reliers. Should only be used by functional tests.
 Force a particular AB test.
 
 #### Options
-* `connectAnotherDevice` - the "connect another device" experiment that
-    encourages users to set up multiple devices.
-* `mailcheck` - provide a tooltip to correct common domain name errors in the
-    email.
+* `disabledButtonState` - Are the submit buttons on signin/signup disabled?
+* `sendSms` - Allow users to send an SMS containing a Firefox Mobile installation link
 
 ### `forceExperimentGroup`
 Force the user into a particular AB test experiment group.
@@ -327,6 +325,8 @@ Force the user into a particular AB test experiment group.
 #### Options
 * `control` - default behavior.
 * `treatment` - new behavior.
+* `signinCodes` - a second treatment group, only used for the `sendSms` experiment.
+  When sending an SMS, the install link contains a signinCode that helps the user sign in more easily on the second device.
 
 ## Reset Password parameters
 
@@ -357,7 +357,7 @@ if they perform a reset password.
 Shows the option to change a user's primary email address.
 
 #### Options
-* `true` 
+* `true`
 * `false` (default)
 
 #### When to specify

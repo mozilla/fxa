@@ -24,7 +24,9 @@ define(function (require, exports, module) {
 
   describe('views/mixins/experiment-mixin', () => {
     let experiments;
+    let metrics;
     let notifier;
+    let translator;
     let view;
     let windowMock;
 
@@ -43,20 +45,77 @@ define(function (require, exports, module) {
         isInExperimentGroup: sinon.spy()
       };
 
+      metrics = {};
+
       notifier = {
         trigger: sinon.spy()
       };
+
+      translator = {};
+
       windowMock = new WindowMock();
 
       view = new View({
         experiments,
+        metrics,
         notifier,
+        translator,
         window: windowMock
       });
     });
 
     afterEach(() => {
       return view.destroy();
+    });
+
+    describe('_createExperimentInterface', () => {
+      const experimentGroupingRules = {};
+      const notifier = {};
+      const user = {};
+
+      const getAccountAccount = { uid: 'get-account-account' };
+      const _accountAccount = { uid: '_account-account' };
+
+      describe('view has `this.getAccount', () => {
+        it('creates ExperimentInterface with account returned by this.getAccount', () => {
+          view.getAccount = sinon.spy(() => getAccountAccount);
+          view._account = _accountAccount;
+
+          const experimentInterface = view._createExperimentInterface({
+            experimentGroupingRules,
+            notifier,
+            user
+          });
+
+          assert.strictEqual(experimentInterface.account, getAccountAccount);
+          assert.strictEqual(experimentInterface.experimentGroupingRules, experimentGroupingRules);
+          assert.strictEqual(experimentInterface.notifier, notifier);
+          assert.strictEqual(experimentInterface.metrics, metrics);
+          assert.strictEqual(experimentInterface.translator, translator);
+          assert.strictEqual(experimentInterface.user, user);
+          assert.strictEqual(experimentInterface.window, windowMock);
+        });
+      });
+
+      describe('view does not have this.getAccount, has this._account', () => {
+        it('creates ExperimentInterface with this._account', () => {
+          view._account = _accountAccount;
+
+          const experimentInterface = view._createExperimentInterface({
+            experimentGroupingRules,
+            notifier,
+            user
+          });
+
+          assert.strictEqual(experimentInterface.account, _accountAccount);
+          assert.strictEqual(experimentInterface.experimentGroupingRules, experimentGroupingRules);
+          assert.strictEqual(experimentInterface.notifier, notifier);
+          assert.strictEqual(experimentInterface.metrics, metrics);
+          assert.strictEqual(experimentInterface.translator, translator);
+          assert.strictEqual(experimentInterface.user, user);
+          assert.strictEqual(experimentInterface.window, windowMock);
+        });
+      });
     });
 
     describe('initialize', () => {

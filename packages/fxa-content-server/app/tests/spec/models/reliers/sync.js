@@ -50,8 +50,7 @@ define(function (require, exports, module) {
           customizeSync: 'true',
           migration: SYNC_MIGRATION,
           service: SYNC_SERVICE,
-          signin: 'signin-code',
-          signinCodes: 'true'
+          signin: 'signin-code'
         });
 
         return relier.fetch()
@@ -62,7 +61,6 @@ define(function (require, exports, module) {
             assert.equal(relier.get('service'), SYNC_SERVICE);
             assert.isTrue(relier.get('customizeSync'));
             assert.equal(relier.get('signinCode'), 'signin-code');
-            assert.isTrue(relier.get('enableSigninCodes'));
           });
       });
 
@@ -290,100 +288,6 @@ define(function (require, exports, module) {
 
           it('succeeds', () => {
             assert.equal(relier.get('signinCode'), 'signin-code');
-          });
-        });
-      });
-
-      describe('signinCodes query parameter', () => {
-        describe('missing', () => {
-          beforeEach(() => {
-            windowMock.location.search = TestHelpers.toSearchString({
-              context: CONTEXT
-            });
-
-            return relier.fetch();
-          });
-
-          it('succeeds', () => {
-            assert.isFalse(relier.get('enableSigninCodes'));
-          });
-        });
-
-        describe('emtpy', () => {
-          beforeEach(() => {
-            windowMock.location.search = TestHelpers.toSearchString({
-              context: CONTEXT,
-              signinCodes: ''
-            });
-
-            return fetchExpectError();
-          });
-
-          it('errors correctly', () => {
-            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-            assert.equal(err.param, 'signinCodes');
-          });
-        });
-
-        describe('whitespace', () => {
-          beforeEach(() => {
-            windowMock.location.search = TestHelpers.toSearchString({
-              context: CONTEXT,
-              signinCodes: ' '
-            });
-
-            return fetchExpectError();
-          });
-
-          it('errors correctly', () => {
-            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-            assert.equal(err.param, 'signinCodes');
-          });
-        });
-
-        describe('not a boolean', () => {
-          beforeEach(() => {
-            windowMock.location.search = TestHelpers.toSearchString({
-              context: CONTEXT,
-              signinCodes: 'not a boolean'
-            });
-
-            return fetchExpectError();
-          });
-
-          it('errors correctly', () => {
-            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-            assert.equal(err.param, 'signinCodes');
-          });
-        });
-
-        describe('true', () => {
-          beforeEach(() => {
-            windowMock.location.search = TestHelpers.toSearchString({
-              context: CONTEXT,
-              signinCodes: 'true'
-            });
-
-            return relier.fetch();
-          });
-
-          it('succeeds', () => {
-            assert.isTrue(relier.get('enableSigninCodes'));
-          });
-        });
-
-        describe('false', () => {
-          beforeEach(() => {
-            windowMock.location.search = TestHelpers.toSearchString({
-              context: CONTEXT,
-              signinCodes: 'false'
-            });
-
-            return relier.fetch();
-          });
-
-          it('succeeds', () => {
-            assert.isFalse(relier.get('enableSigninCodes'));
           });
         });
       });

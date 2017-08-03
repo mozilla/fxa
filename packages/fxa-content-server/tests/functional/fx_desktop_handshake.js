@@ -28,7 +28,7 @@ define([
   const SETTINGS_PAGE_URL = `${config.fxaContentRoot}settings?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
   const SYNC_SETTINGS_PAGE_URL = `${SETTINGS_PAGE_URL}&service=sync`;
 
-  const SYNC_SMS_PAGE_URL = `${config.fxaContentRoot}sms?automatedBrowser=true&service=sync&signinCodes=true&forceUA=${encodeURIComponent(userAgent)}`;
+  const SYNC_SMS_PAGE_URL = `${config.fxaContentRoot}sms?automatedBrowser=true&service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes&forceUA=${encodeURIComponent(userAgent)}`;  //eslint-disable-line max-len
 
   var browserSignedInEmail;
   let browserSignedInAccount;

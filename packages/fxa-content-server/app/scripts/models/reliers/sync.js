@@ -32,16 +32,13 @@ define(function (require, exports, module) {
     // because users that open the verification link with an
     // invalid signinCode should still be able to sign in.
     // The error will be logged and the signinCode ignored.
-    signin: Vat.string().empty('').renameTo('signinCode'),
-    // allow relier to enable signinCodes, used for testing.
-    signinCodes: Vat.boolean().renameTo('enableSigninCodes')
+    signin: Vat.string().empty('').renameTo('signinCode')
   };
   /*eslint-enable camelcase*/
 
   module.exports = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
       customizeSync: false,
-      enableSigninCodes: false,
       signinCode: undefined
     }),
 

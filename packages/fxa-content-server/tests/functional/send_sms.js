@@ -27,7 +27,7 @@
 
 
    const SEND_SMS_URL = `${config.fxaContentRoot}sms?service=sync&country=US`;
-   const SEND_SMS_SIGNIN_CODE_URL = `${SEND_SMS_URL}&signinCodes=true`;
+   const SEND_SMS_SIGNIN_CODE_URL = `${SEND_SMS_URL}&forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
    const SEND_SMS_NO_QUERY_URL = `${config.fxaContentRoot}sms`;
 
 

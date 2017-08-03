@@ -4,13 +4,18 @@
 
 /**
  * Get the features that should be enabled when sending an SMS.
- * Requires the SeachParamMixin
+ *
+ * @mixin SmsMixin
  */
 
 define((require, exports, module) => {
   'use strict';
 
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+
   module.exports = {
+    dependsOn: [ ExperimentMixin ],
+
     /**
      * Get the features that should be enabled when sending an SMS
      *
@@ -18,7 +23,7 @@ define((require, exports, module) => {
      */
     getSmsFeatures () {
       const features = [];
-      if (this.relier.get('enableSigninCodes')) {
+      if (this.isInExperimentGroup('sendSms', 'signinCodes')) {
         features.push('signinCodes');
       }
       return features;

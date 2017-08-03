@@ -25,23 +25,23 @@ define(function (require, exports, module) {
         assert.isFalse(experiment.choose({ uniqueUserId: 'user-id' }));
       });
 
-      describe('forceExperimentGroup set', () => {
+      describe('forceExperiment, forceExperimentGroup set', () => {
         it('returns `treatment`', () => {
           account.set('email', 'testuser@testuser.com');
-          assert.equal(experiment.choose({ account, forceExperimentGroup: 'treatment', uniqueUserId: 'user-id' }), 'treatment');
+          assert.equal(experiment.choose({ account, forceExperiment: 'sendSms', forceExperimentGroup: 'treatment', uniqueUserId: 'user-id' }), 'treatment');
         });
       });
 
-      describe('email forces treatment', () => {
+      describe('email forces `signinCodes`', () => {
         it('returns true', () => {
           account.set('email', 'testuser@softvision.com');
-          assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'treatment');
+          assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'signinCodes');
           account.set('email', 'testuser@softvision.ro');
-          assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'treatment');
+          assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'signinCodes');
           account.set('email', 'testuser@mozilla.com');
-          assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'treatment');
+          assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'signinCodes');
           account.set('email', 'testuser@mozilla.org');
-          assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'treatment');
+          assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'signinCodes');
         });
       });
 
@@ -52,7 +52,7 @@ define(function (require, exports, module) {
 
           assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'control');
           assert.isTrue(experiment.uniformChoice.calledOnce);
-          assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment'], 'user-id'));
+          assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment', 'signinCodes'], 'user-id'));
         });
       });
     });

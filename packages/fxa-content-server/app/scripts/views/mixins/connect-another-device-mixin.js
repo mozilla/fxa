@@ -74,9 +74,9 @@ define((require, exports, module) => {
             const group = this.getExperimentGroup('sendSms', { account });
             this.createExperiment('sendSms', group);
 
-            if (group === 'treatment') {
+            if (group === 'treatment' || group === 'signinCodes') {
               this.navigate('sms', { account, country });
-            } else { // there are only two groups, by default, this is the control
+            } else { // there are only three groups, by default, this is the control
               this.navigate('connect_another_device', { account });
             }
           } else {

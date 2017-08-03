@@ -16,7 +16,7 @@ define([
 
   const config = intern.config;
   const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_ios_v1&service=sync`;
-  const SMS_PAGE_URL = `${config.fxaContentRoot}sms?context=fx_desktop_v1&service=sync&signinCodes=true`;
+  const SMS_PAGE_URL = `${config.fxaContentRoot}sms?context=fx_desktop_v1&service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
 
   let email;
   const PASSWORD = '12345678';

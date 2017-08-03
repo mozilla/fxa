@@ -10,9 +10,9 @@ define((require, exports, module) => {
 
   const BaseGroupingRule = require('./base');
 
-  const GROUPS = ['control', 'treatment'];
+  const GROUPS = ['control', 'treatment', 'signinCodes'];
 
-  function isEmailInTreatment (email) {
+  function isEmailInSigninCodesGroup (email) {
     return /@softvision\.(com|ro)$/.test(email) ||
            /@mozilla\.(com|org)$/.test(email);
   }
@@ -30,10 +30,10 @@ define((require, exports, module) => {
 
       let choice;
 
-      if (subject.forceExperimentGroup) {
+      if (subject.forceExperiment === this.name && subject.forceExperimentGroup) {
         choice = subject.forceExperimentGroup;
-      } else if (isEmailInTreatment(subject.account.get('email'))) {
-        choice = 'treatment';
+      } else if (isEmailInSigninCodesGroup(subject.account.get('email'))) {
+        choice = 'signinCodes';
       } else {
         choice = this.uniformChoice(GROUPS, subject.uniqueUserId);
       }
