@@ -158,7 +158,7 @@ define(function (require, exports, module) {
             //decline the first engine
             $('.customize-sync').first().click();
             const declined = view._getDeclinedEngineIds();
-            assert.sameMembers(declined, ['tabs', 'creditcards']);
+            assert.sameMembers(declined, ['tabs']);
           });
       });
     });
@@ -188,7 +188,7 @@ define(function (require, exports, module) {
 
       it('updates and saves the account, logs metrics, calls onSubmitComplete', () => {
         const declined = account.get('declinedSyncEngines');
-        assert.sameMembers(declined, ['tabs', 'creditcards']);
+        assert.sameMembers(declined, ['tabs']);
 
         const offered = account.get('offeredSyncEngines');
         assert.sameMembers(offered, DISPLAYED_ENGINE_IDS);
