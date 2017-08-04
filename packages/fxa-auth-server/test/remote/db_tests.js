@@ -214,6 +214,23 @@ describe('remote db', function() {
           return db.sessionToken(tokenId)
         })
         .then(sessionToken => {
+          // Simulate an error on redis.set
+          redisSetSpy.returns(P.reject({}))
+
+          // Attempt to update the session token
+          return db.updateSessionToken(sessionToken)
+            .then(
+              () => assert(false, 'db.updateSessionToken should have failed'),
+              () => assert('db.updateSessionToken failed correctly')
+            )
+        })
+        .then(() => {
+          redisSetSpy.returns(P.resolve())
+
+          // Fetch the session token
+          return db.sessionToken(tokenId)
+        })
+        .then(sessionToken => {
           getGeoDataSpy.returns(P.resolve({location: {state: 'Mordor', country: 'ME'}}))
 
           // Update the session token
@@ -259,6 +276,17 @@ describe('remote db', function() {
           assert.equal(sessions[0].uaDeviceType, 'mobile', 'uaDeviceType property is correct')
           assert.equal(sessions[0].location, null, 'location property is correct')
 
+          // Simulate an error on redis.get
+          redisGetSpy.returns(P.reject({}))
+
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+            .then(
+              () => assert(false, 'db.sessions should have failed'),
+              () => assert('db.sessions failed correctly')
+            )
+        })
+        .then(() => {
           // Fetch the session token
           return db.sessionToken(tokenId)
         })
