@@ -6,7 +6,6 @@
 const flowMetrics = require('../flow-metrics');
 
 module.exports = function (config) {
-  const ALLOWED_PARENT_ORIGINS = config.get('allowed_parent_origins');
   const AUTH_SERVER_URL = config.get('fxaccount_url');
   const CLIENT_ID = config.get('oauth_client_id');
   const ENV = config.get('env');
@@ -20,7 +19,6 @@ module.exports = function (config) {
   const RELEASE = require('../../../package.json').version;
 
   const serializedConfig = encodeURIComponent(JSON.stringify({
-    allowedParentOrigins: ALLOWED_PARENT_ORIGINS,
     authServerUrl: AUTH_SERVER_URL,
     env: ENV,
     marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,

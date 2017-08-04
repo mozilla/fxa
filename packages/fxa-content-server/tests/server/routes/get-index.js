@@ -62,8 +62,6 @@ define([
           assert.isString(renderParams.config);
           var sentConfig = JSON.parse(decodeURIComponent(renderParams.config));
 
-          assert.deepEqual(sentConfig.allowedParentOrigins,
-                           config.get('allowed_parent_origins'));
           assert.equal(sentConfig.authServerUrl, config.get('fxaccount_url'));
           assert.equal(sentConfig.env, config.get('env'));
           assert.equal(sentConfig.marketingEmailPreferencesUrl,
