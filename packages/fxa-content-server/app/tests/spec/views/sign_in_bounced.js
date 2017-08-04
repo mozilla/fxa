@@ -33,6 +33,31 @@ define((require, exports, module) => {
       assert.strictEqual(view.template, template);
     });
 
+    describe('beforeRender', () => {
+      beforeEach(() => {
+        view.navigate = sinon.spy();
+        view.beforeRender();
+      });
+
+      it('did not call navigate', () => {
+        assert.equal(view.navigate.callCount, 0);
+      });
+    });
+
+    describe('beforeRender, this.model.has(\'email\') === false', () => {
+      beforeEach(() => {
+        model.unset('email');
+        view.navigate = sinon.spy();
+        view.beforeRender();
+      });
+
+      it('called navigate correctly', () => {
+        assert.equal(view.navigate.callCount, 1);
+        assert.lengthOf(view.navigate.args[0], 1);
+        assert.equal(view.navigate.args[0][0], 'signin');
+      });
+    });
+
     describe('setInitialContext', () => {
       let context;
 

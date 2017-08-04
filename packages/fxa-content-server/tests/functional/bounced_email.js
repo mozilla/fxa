@@ -154,6 +154,13 @@ define([
         .then(switchToWindow(1))
         .then(pollUntil(() => window.location.href.startsWith('https://support.mozilla.org/')))
         .then(closeCurrentWindow());
+    },
+
+    'refresh': function () {
+      return this.remote
+        .then(setUpBouncedSignIn())
+        .refresh()
+        .then(testElementExists(selectors.SIGNIN.HEADER));
     }
   });
 });

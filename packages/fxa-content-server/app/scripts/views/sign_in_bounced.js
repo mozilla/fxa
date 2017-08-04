@@ -26,6 +26,15 @@ define(function (require, exports, module) {
       this._formPrefill = options.formPrefill;
     },
 
+    beforeRender () {
+      if (! this.model.has('email')) {
+        // This may occur if the user has refreshed the page. In that case,
+        // we have no context for properly rendering the view, so kick them
+        // out to /signin where they can start again.
+        this.navigate('signin');
+      }
+    },
+
     setInitialContext (context) {
       context.set({
         email: this.model.get('email'),
