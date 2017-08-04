@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
+
+const _ = require('lodash');
 const config = require('../configuration');
 const flowEvent = require('../flow-event');
 const GACollector = require('../ga-collector');
@@ -12,7 +14,9 @@ const MetricsCollector = require('../metrics-collector-stderr');
 const StatsDCollector = require('../statsd-collector');
 const validation = require('../validation');
 
-const DISABLE_CLIENT_METRICS_STDERR = config.get('client_metrics').stderr_collector_disabled;
+const clientMetricsConfig = config.get('client_metrics');
+const DISABLE_CLIENT_METRICS_STDERR = clientMetricsConfig.stderr_collector_disabled;
+const MAX_EVENT_OFFSET = clientMetricsConfig.max_event_offset;
 
 const BROKER_PATTERN = validation.PATTERNS.BROKER;
 const CONTEXT_PATTERN = validation.PATTERNS.CONTEXT;
@@ -44,7 +48,7 @@ const BODY_SCHEMA = {
   entryPoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   events: joi.array().items(joi.object().keys({
-    offset: OFFSET_TYPE.required(),
+    offset: OFFSET_TYPE.max(MAX_EVENT_OFFSET).required(),
     type: STRING_TYPE.regex(EVENT_TYPE_PATTERN).required()
   })).required(),
   experiments: joi.array().items(joi.object().keys({
@@ -135,12 +139,19 @@ module.exports = function () {
     },
     process: function (req, res) {
       const requestReceivedTime = Date.now();
+      const metrics = req.body || {};
+
+      const maxOffset = metrics.flushTime - metrics.startTime;
+      const invalidEvent = findInvalidEventOffsets(metrics.events, maxOffset);
+      if (invalidEvent) {
+        const error = new MaxOffsetError(invalidEvent.offset, maxOffset);
+        return res.status(400).json(error);
+      }
 
       // don't wait around to send a response.
       res.json({ success: true });
 
       process.nextTick(() => {
-        const metrics = req.body || {};
 
         metrics.agent = req.get('user-agent');
 
@@ -158,3 +169,18 @@ module.exports = function () {
     }
   };
 };
+
+function findInvalidEventOffsets (events, maxOffset) {
+  return _.find(events, event => event.offset > maxOffset);
+}
+
+function MaxOffsetError(offset, maxOffset) {
+  return {
+    error: 'Bad Request',
+    message: `offset ${offset} > maxiumum possible of ${maxOffset}`,
+    statusCode: 400,
+    validation: {
+      keys: ['offset']
+    }
+  };
+}

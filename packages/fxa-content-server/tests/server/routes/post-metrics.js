@@ -25,6 +25,7 @@ define([
               /*eslint-disable indent*/
               case 'client_metrics':
                 return {
+                  max_event_offset: 1024, //eslint-disable-line camelcase
                   stderr_collector_disabled: false //eslint-disable-line camelcase
                 };
               case 'flow_id_key':

@@ -200,6 +200,7 @@ define([
         '../configuration': {
           get: function () {
             return {
+              'max_event_offset': 1024,
               'stderr_collector_disabled': false
             };
           }

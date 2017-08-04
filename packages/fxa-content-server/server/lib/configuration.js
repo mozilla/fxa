@@ -71,6 +71,12 @@ const conf = module.exports = convict({
     format: Number
   },
   client_metrics: {
+    max_event_offset: {
+      default: '2 days',
+      doc: 'Maximum event offset',
+      env: 'CLIENT_METRICS_MAX_EVENT_OFFSET',
+      format: 'duration'
+    },
     stderr_collector_disabled: {
       default: false,
       doc: 'disable client metrics output to stderr',

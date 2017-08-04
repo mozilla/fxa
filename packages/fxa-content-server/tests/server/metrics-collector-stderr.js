@@ -26,6 +26,8 @@ define([
     return;
   }
 
+  const MAX_EVENT_OFFSET = 1000 * 60 * 60 * 24; // say one day for the tests.
+
   var metricsCollector = new StdErrCollector();
 
   var mockMetricsRequest = {
@@ -138,6 +140,7 @@ define([
       '../configuration': {
         get: function () {
           return {
+            'max_event_offset': MAX_EVENT_OFFSET,
             'stderr_collector_disabled': DISABLE_CLIENT_METRICS_STDERR
           };
         }
@@ -164,6 +167,7 @@ define([
       '../configuration': {
         get: function () {
           return {
+            'max_event_offset': MAX_EVENT_OFFSET,
             'stderr_collector_disabled': DISABLE_CLIENT_METRICS_STDERR
           };
         }
