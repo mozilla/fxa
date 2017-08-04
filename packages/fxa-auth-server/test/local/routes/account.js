@@ -1197,8 +1197,8 @@ describe('/account/destroy', function () {
     var route = getRoute(accountRoutes, '/account/destroy')
 
     return runTest(route, mockRequest, function () {
-      assert.equal(mockDB.emailRecord.callCount, 1, 'db.emailRecord was called once')
-      var args = mockDB.emailRecord.args[0]
+      assert.equal(mockDB.accountRecord.callCount, 1, 'db.emailRecord was called once')
+      var args = mockDB.accountRecord.args[0]
       assert.equal(args.length, 2, 'db.emailRecord was passed two arguments')
       assert.equal(args[0], email, 'first argument was email address')
       assert.equal(args[1], true, 'second argument was customs.check result')

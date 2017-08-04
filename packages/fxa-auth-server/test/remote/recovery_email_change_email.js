@@ -184,6 +184,24 @@ describe('remote change email', function () {
           assert.ok(res, 'ok response')
         })
     })
+
+    it('can delete account', () => {
+      return client.setPrimaryEmail(secondEmail)
+        .then((res) => {
+          assert.ok(res, 'ok response')
+          return client.destroyAccount()
+        })
+        .then(() => {
+          return Client.login(config.publicUrl, email, newPassword, {originalLoginEmail: secondEmail})
+            .then(() => {
+              assert.fail('Should not have been able to login after deleting account')
+            })
+            .catch((err) => {
+              assert.equal(err.errno, 102, 'unknown account error code')
+              assert.equal(err.email, email, 'returns correct email')
+            })
+        })
+    })
   })
 
   describe('change primary email, deletes old primary', () => {
@@ -265,8 +283,21 @@ describe('remote change email', function () {
           assert.ok(res, 'ok response')
         })
     })
-  })
 
+    it('can delete account', () => {
+      return client.destroyAccount()
+        .then(() => {
+          return Client.login(config.publicUrl, email, newPassword, {originalLoginEmail: secondEmail})
+            .then(() => {
+              assert.fail('Should not have been able to login after deleting account')
+            })
+            .catch((err) => {
+              assert.equal(err.errno, 102, 'unknown account error code')
+              assert.equal(err.email, email, 'returns correct email')
+            })
+        })
+    })
+  })
 
   after(() => {
     return TestServer.stop(server)

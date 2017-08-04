@@ -1492,7 +1492,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           request,
           form.email,
           'accountDestroy')
-          .then(db.emailRecord.bind(db, form.email))
+          .then(db.accountRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
               uid = emailRecord.uid
