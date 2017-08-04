@@ -16,9 +16,12 @@ define(function (require, exports, module) {
 
   const BAD_EMAIL = 'something@gnail.com';
   const CORRECTED_EMAIL = 'something@gmail.com';
+
+  const DISMISS_SELECTOR = '.tooltip-suggest .dismiss';
   const MAILCHECK_ID = 'mailcheck-test';
   const MAILCHECK_SELECTOR = '#' + MAILCHECK_ID;
   const RESULT_TEXT = 'Did you mean gmail.com?✕';
+  const SUGGESTION_SELECTOR = '#email-suggestion';
   const TOOLTIP_SELECTOR = '.tooltip-suggest';
 
   describe('lib/mailcheck', function () {
@@ -66,7 +69,7 @@ define(function (require, exports, module) {
         .delay(50)
         .then(() => {
           assert.equal($(TOOLTIP_SELECTOR).text(), RESULT_TEXT);
-          $(TOOLTIP_SELECTOR).find('span').first().click();
+          $(SUGGESTION_SELECTOR).click();
           // email should be corrected
           assert.equal($(MAILCHECK_SELECTOR).val(), CORRECTED_EMAIL);
           assert.equal(mockView.logEvent.callCount, 3, 'called logEvent thrice');
@@ -86,7 +89,7 @@ define(function (require, exports, module) {
         .delay(50)
         .then(() => {
           assert.equal($(TOOLTIP_SELECTOR).text(), RESULT_TEXT);
-          $(TOOLTIP_SELECTOR).find('span').eq(1).click();
+          $(DISMISS_SELECTOR).click();
           // email should NOT be corrected
           assert.equal($(MAILCHECK_SELECTOR).val(), BAD_EMAIL);
           assert.notEqual(mockView.logEvent.callCount, 3, 'called logEvent thrice');

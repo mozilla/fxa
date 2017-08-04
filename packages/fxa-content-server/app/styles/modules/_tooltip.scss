@@ -49,9 +49,9 @@
       background-color: $button-background-color;
     }
 
-    > span {
+    > #email-suggestion,
+    > .dismiss {
       cursor: pointer;
-      text-decoration: underline;
 
       &:focus {
         border-color: $color-white;
@@ -59,11 +59,14 @@
         border-width: 1px;
         color: $color-white;
       }
+    }
 
-      &.dismiss {
-        margin-left: 5px;
-        text-decoration: none;
-      }
+    > #email-suggestion {
+      text-decoration: underline;
+    }
+
+    > .dismiss {
+      margin-left: 5px;
     }
   }
 

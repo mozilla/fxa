@@ -22,7 +22,7 @@ define(function (require, exports, module) {
   const TOP_LEVEL_DOMAINS = [];
   const MIN_CHARS = 5; // start suggesting email correction after MIN_CHARS
 
-  const DID_YOU_MEAN_TEXT = t('Did you mean <span tabindex="1">%(escapedDomain)s</span>?');
+  const DID_YOU_MEAN_TEXT = t('Did you mean <span %(escapedEmailSuggestionAttrs)s>%(escapedDomain)s</span>?');
 
 
   /**
@@ -54,7 +54,8 @@ define(function (require, exports, module) {
           // user got a suggestion to check their email input
           view.logEvent('mailcheck.suggested');
           const message = view.unsafeTranslate(DID_YOU_MEAN_TEXT, {
-            escapedDomain: _.escape(suggestion.domain)
+            escapedDomain: _.escape(suggestion.domain),
+            escapedEmailSuggestionAttrs: 'id="email-suggestion" tabindex="1"',
           });
 
           let tooltip = new Tooltip({

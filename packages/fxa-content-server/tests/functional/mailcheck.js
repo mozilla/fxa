@@ -5,8 +5,9 @@
 define([
   'intern',
   'intern!object',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, FunctionalHelpers, selectors) {
   var EXP_MAILCHECK_URL = intern.config.fxaContentRoot + 'signup?automatedBrowser=true';
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
@@ -31,12 +32,12 @@ define([
       var CORRECTED_EMAIL = 'something@gmail.com';
 
       return this.remote
-        .then(openPage(EXP_MAILCHECK_URL, '#fxa-signup-header'))
-        .then(type('.email', BAD_EMAIL))
-        .then(click('#password'))
-        .then(click('.tooltip-suggest > span:nth-child(1)'))
+        .then(openPage(EXP_MAILCHECK_URL, selectors.SIGNUP.HEADER))
+        .then(type(selectors.SIGNUP.EMAIL, BAD_EMAIL))
+        .then(click(selectors.SIGNUP.PASSWORD, selectors.SIGNUP.SUGGEST_EMAIL_DOMAIN_CORRECTION))
+        .then(click(selectors.SIGNUP.LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION))
 
-        .then(testElementValueEquals('input[type=email]', CORRECTED_EMAIL));
+        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, CORRECTED_EMAIL));
     }
   });
 });
