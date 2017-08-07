@@ -61,6 +61,7 @@ const DB_METHOD_NAMES = [
   'securityEvents',
   'sessions',
   'sessionToken',
+  'setPrimaryEmail',
   'updateDevice',
   'updateLocale',
   'updateSessionToken',
@@ -108,6 +109,7 @@ const PUSH_METHOD_NAMES = [
   'notifyPasswordChanged',
   'notifyPasswordReset',
   'notifyAccountDestroyed',
+  'notifyProfileUpdated',
   'notifyUpdate',
   'pushToAllDevices',
   'pushToDevices'

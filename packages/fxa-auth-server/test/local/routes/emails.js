@@ -723,12 +723,9 @@ describe('/recovery_email', () => {
     it('should fail with unverified primary email', () => {
       route = getRoute(accountRoutes, '/recovery_email')
       mockRequest.auth.credentials.emailVerified = false
-      return runTest(route, mockRequest, () => {
-        assert.fail(new Error('Should have failed adding secondary email with unverified primary email'))
-      })
-        .catch((err) => {
-          assert.equal(err.errno, 104, 'unverified account')
-        })
+      return runTest(route, mockRequest).then(
+        () => assert.fail('Should have failed adding secondary email with unverified primary email'),
+        err => assert.equal(err.errno, 104, 'unverified account'))
         .then(function () {
           mockDB.createEmail.reset()
         })
@@ -737,12 +734,10 @@ describe('/recovery_email', () => {
     it('should fail when adding secondary email that is same as primary', () => {
       route = getRoute(accountRoutes, '/recovery_email')
       mockRequest.payload.email = TEST_EMAIL
-      return runTest(route, mockRequest, () => {
-        assert.fail(new Error('Should have failed when adding secondary email that is same as primary'))
-      })
-        .catch((err) => {
-          assert.equal(err.errno, 139, 'cannot add secondary email, same as primary')
-        })
+
+      return runTest(route, mockRequest).then(
+        () => assert.fail('Should have failed when adding secondary email that is same as primary'),
+        err => assert.equal(err.errno, 139, 'cannot add secondary email, same as primary'))
         .then(function () {
           mockDB.createEmail.reset()
         })
@@ -787,12 +782,10 @@ describe('/recovery_email', () => {
       })
       route = getRoute(accountRoutes, '/recovery_email')
       mockRequest.payload.email = TEST_EMAIL_ADDITIONAL
-      return runTest(route, mockRequest, () => {
-        assert.fail(new Error('Should have failed when creating email'))
-      })
-        .catch((err) => {
-          assert.equal(err.errno, 141, 'cannot add secondary email, newly created primary account')
-        })
+
+      return runTest(route, mockRequest).then(
+        () => assert.fail('Should have failed when creating email'),
+        err => assert.equal(err.errno, 141, 'cannot add secondary email, newly created primary account'))
     })
   })
 
@@ -823,6 +816,60 @@ describe('/recovery_email', () => {
     })
   })
 
+  describe('/recovery_email/set_primary', () => {
+
+    it('should set primary email on account', () => {
+      mockDB.getSecondaryEmail = sinon.spy(() => {
+        return P.resolve({
+          uid: mockRequest.auth.credentials.uid,
+          isVerified: true,
+          isPrimary: false
+        })
+      })
+
+      route = getRoute(accountRoutes, '/recovery_email/set_primary')
+      return runTest(route, mockRequest, (response) => {
+        assert.ok(response)
+        assert.equal(mockDB.setPrimaryEmail.callCount, 1, 'call db.setPrimaryEmail')
+        assert.equal(mockPush.notifyProfileUpdated.callCount, 1, 'call db.notifyProfileUpdated')
+      })
+        .then(function () {
+          mockDB.setPrimaryEmail.reset()
+          mockPush.notifyProfileUpdated.reset()
+        })
+    })
+
+    it('should fail when setting email to email user does not own', () => {
+      mockDB.getSecondaryEmail = sinon.spy(() => {
+        return P.resolve({
+          uid: uuid.v4('binary').toString('hex'),
+          isVerified: true,
+          isPrimary: false
+        })
+      })
+
+      route = getRoute(accountRoutes, '/recovery_email/set_primary')
+      return runTest(route, mockRequest).then(
+        () => assert.fail('should have errored'),
+        err => assert.equal(err.errno, 148, 'correct errno changing email to non account email'))
+    })
+
+    it('should fail when setting email is unverified', () => {
+      mockDB.getSecondaryEmail = sinon.spy(() => {
+        return P.resolve({
+          uid: mockRequest.auth.credentials.uid,
+          isVerified: false,
+          isPrimary: false
+        })
+      })
+
+      route = getRoute(accountRoutes, '/recovery_email/set_primary')
+      return runTest(route, mockRequest).then(
+        () => assert.fail('should have errored'),
+        err => assert.equal(err.errno, 147, 'correct errno changing email to unverified email'))
+    })
+  })
+
   describe('can disable feature', () => {
     beforeEach(() => {
       accountRoutes = makeRoutes({
@@ -845,32 +892,23 @@ describe('/recovery_email', () => {
 
     it('/recovery_email/destroy disabled', () => {
       route = getRoute(accountRoutes, '/recovery_email/destroy')
-      return runTest(route, mockRequest, () => {
-        assert.fail(new Error('Should have failed accessing endpoint'))
-      })
-        .catch((err) => {
-          assert.equal(err.errno, 202, 'correct errno feature disabled')
-        })
+      return runTest(route, mockRequest).then(
+        () => assert.fail('Should have failed accessing endpoint'),
+        err => assert.equal(err.errno, 202, 'correct errno feature disabled'))
     })
 
     it('/recovery_email disabled', () => {
       route = getRoute(accountRoutes, '/recovery_email')
-      return runTest(route, mockRequest, () => {
-        assert.fail(new Error('Should have failed accessing endpoint'))
-      })
-        .catch((err) => {
-          assert.equal(err.errno, 202, 'correct errno feature disabled')
-        })
+      return runTest(route, mockRequest).then(
+        () => assert.fail('Should have failed accessing endpoint'),
+        err => assert.equal(err.errno, 202, 'correct errno feature disabled'))
     })
 
     it('/recovery_emails disabled', () => {
       route = getRoute(accountRoutes, '/recovery_emails')
-      return runTest(route, mockRequest, () => {
-        assert.fail(new Error('Should have failed accessing endpoint'))
-      })
-        .catch((err) => {
-          assert.equal(err.errno, 202, 'correct errno feature disabled')
-        })
+      return runTest(route, mockRequest).then(
+        () => assert.fail('Should have failed accessing endpoint'),
+        err => assert.equal(err.errno, 202, 'correct errno feature disabled'))
     })
   })
 

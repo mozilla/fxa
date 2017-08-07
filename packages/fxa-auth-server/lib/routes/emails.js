@@ -767,6 +767,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
 
               return db.setPrimaryEmail(uid, email.normalizedEmail)
             })
+            .then(() => {
+              push.notifyProfileUpdated(uid)
+            })
         }
       }
     }
