@@ -178,7 +178,7 @@ Reference images are below each OS section.
 must be opened in the same Firefox instance used to sign up.
 * Sending an SMS in Romania is limited to @softvision.ro, @softvision.com, @mozilla.com, and @mozilla.org email addresses. This restriction will be lifted after testing.
 * signinCodes are disabled by default and can be enabled by opening the signup
-verification link adding the `signinCodes=true` query parameter.
+verification link adding the `&signinCodes=true` query parameter.
 * Sending SMS is only available during the signup flow, signing into an existing account
 will not trigger the flow.
 * A signinCode is a single use code. Attempts to re-use the code will behave as if
@@ -186,13 +186,9 @@ the code were invalid (it will be ignored). A new code must be set for each test
 * Adjust.io's deeplink engine ignores previously seen devices - a new advertising ID
 is required for each test for the deep link to be followed. Instructions for clearing
 the advertising ID are in each section.
-* Deep links are not yet in the release channel of Firefox for Android, however, they are enabled in Firefox Beta for Android. To test with Firefox Beta, open the link in the SMS message with `?release=beta`.
+* Deep links are not yet in the release channel (Firefox 54) of Firefox for Android, however, they are enabled in Firefox Beta (Firefox 55) for Android. To test with Firefox Beta, open the link in the SMS message with `?release=beta`.
 
 #### Android
-
-Deep links are not supported in Firefox 54 for Android. E2E tests of the
-deep link feature requires testing using Firefox 55 (Beta) for Android.
-Instructions are included to force the installation of Firefox 55.
 
 ##### Forget the device with Adjust
 System settings->Google->Ads->Reset advertising ID
