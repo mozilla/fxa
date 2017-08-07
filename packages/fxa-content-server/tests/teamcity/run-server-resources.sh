@@ -30,13 +30,10 @@ echo "FXA_OAUTH_VERSION   $FXA_OAUTH_VERSION"
 echo "FXA_PROFILE_VERSION $FXA_PROFILE_VERSION"
 echo "FXA_AUTH_VERSION    $FXA_AUTH_VERSION"
 
-echo ""
-echo "Server versions:"
-check_version $FXA_CONTENT_VERSION
-echo ""
-
 set -o xtrace # echo the following commands
 
+cd /app
+/bin/rm -rf ./node_modules
 ./tests/teamcity/install-npm-deps.sh
 
 ./node_modules/.bin/intern-client \
