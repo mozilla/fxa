@@ -26,14 +26,16 @@ metrics queries in redash:
   * [Success event names](#success-event-names)
     * [View names](#view-names)
     * [Action names](#action-names)
-    * [Connect method names](#connect-method-names)
+    * [Link names](#link-names)
     * [Experiment names](#experiment-names)
+    * [Connect method names](#connect-method-names)
     * [Template names](#template-names)
   * [Error event names](#error-event-names)
 * [Activity events](#activity-events)
   * [`activity_events`](#activity_events)
   * [`daily_activity_per_device`](#daily_activity_per_device)
   * [`daily_multi_device_users`](#daily_multi_device_users)
+  * [`strict_daily_multi_device_users`](#strict_daily_multi_device_users)
   * [Event names](#event-names)
 * [Email events](#email-events)
   * [`email_events`](#email_events)
@@ -140,11 +142,8 @@ in a sign-in or sign-up flow:
 |`flow.${viewName}.have-account`|A user has clicked on the 'Already have an account?' link.|
 |`flow.${viewName}.create-account`|A user has clicked on the 'Create an account' link.|
 |`flow.${viewName}.forgot-password`|A user has clicked on the 'Forgot password?' link.|
-|`flow.${viewName}.install_from.${connectMethod}`|Suggested 'connect another device' method.|
-|`flow.${viewName}.link.app-store(android|ios)`|A user has clicked on an app store link.|
-|`flow.${viewName}.link.maybe_later`|A user has clicked on the 'Maybe later' link.|
-|`flow.${viewName}.link.signin`|A user has clicked on the 'Sign in' link.|
-|`flow.${viewName}.link.why`|A user has clicked on the 'Why is this required?' link.|
+|`flow.${viewName}.install_from.${connectMethod}`|A user has been shown a suggested 'connect another device' method.|
+|`flow.${viewName}.link.${linkName}`|A user has clicked on a link.|
 |`flow.${viewName}.signedin.(true|false)`|Is the user signed in during the connect another device flow?.|
 |`flow.${viewName}.signin.eligible`|A user is eligible to sign in during the connect another device flow.|
 |`flow.${viewName}.signin.ineligible`|A user is not eligible to sign in during the connect another device flow.|
@@ -198,13 +197,13 @@ View name|Description
 `signin`|The sign-in form
 `confirm-signin`|Displayed while awaiting sign-in confirmation
 `signin-confirmed`|The tab the user signed in from, after sign-in confirmation
-`verify-email`|The tab the user attempted to verify a signup in, before verification
-`complete-signin`|The tab the user attempted to verify a signin in, before verification
+`complete-signin`|The tab the user attempted to verify a signin in, before sign-in confirmation
 `reset-password`|The reset password form
 `confirm-reset-password`|The tab the user initiated the password reset from, before verification
 `reset-password-confirmed`|The tab the user initiated the password reset from, after verification
-`reset-password-verified`|The tab the user has verified the password reset from, after verification
+`reset-password-verified`|The tab the user has verified the password reset in, after verification
 `complete-reset-password`|The tab the user attempted to verify the password reset in, before verification
+`signin-bounced`|Displayed to the user after sign-in, if their email receives a hard bounce or complaint
 `signin-unblock`|The sign-in unblock screen
 `choose-what-to-sync`|Choose what to Sync
 `connect-another-device`|Connect another device, phase 1
@@ -221,7 +220,31 @@ Action name|Description
 `signup`|Create an account, i.e. `/account/create`
 `signin`|Sign in to an existing account, i.e. `/account/login`
 
-#### Connect method names ####
+#### Link names
+
+Possible values for `${linkName}` are:
+
+Link name|Description
+---------|-----------
+`app-store.android`|A Google Play Store link
+`app-store.ios`|An iOS App Store link
+`maybe_later`|'Maybe later' link
+`signin`|'Sign in' link
+`why`|'Why is this required?' link
+`create-account`|'Create an account' link
+`back`|'Back' link
+`support`|A SUMO link
+
+#### Experiment names
+
+Possible values for `${experiment}` are:
+
+Experiment name|Description
+---------------|-----------
+`connectAnotherDevice`|Connect another device, phase 1
+`sendSms`|Connect another device, phases 2 and 3
+
+#### Connect method names
 
 Possible values for `${connectMethod}` are:
 
@@ -235,15 +258,6 @@ Connect method name|Description
 `install_from.other_android`|User has verified a non-Firefox browser for Android, and should install Firefox on their mobile device.
 `install_from.other_ios`|User has verified a non-Firefox browser for iOS, and should install Firefox on their mobile device.
 `install_from.other`|User has verified in a non-firefox browser, and should install Firefox on another mobile device.
-
-#### Experiment names
-
-Possible values for `${experiment}` are:
-
-Experiment name|Description
----------------|-----------
-`connectAnotherDevice`|Connect another device, phase 1
-`sendSms`|Connect another device, phase 2
 
 #### Template names
 
@@ -275,7 +289,7 @@ at the user level.
 The data is stored
 in the [`activity_events` table](#activity_events).
 
-Two further tables
+Three further tables
 summarise daily activity
 for Sync-connected devices:
 
@@ -287,6 +301,14 @@ for Sync-connected devices:
   contains data for users
   with multiple active devices
   within a five-day period.
+
+* [`strict_daily_multi_device_users`](#strict_daily_multi_device_users),
+  filters `daily_multi_device_users` to disregard users
+  for whom the second active device
+  shows no activity before the first active device.
+  The intention here is to ignore false positives
+  from users who are forced to sign in repeatedly,
+  leaving behind zombie device records in the database.
 
 ### activity_events
 
@@ -328,6 +350,11 @@ contains the following fields:
 |----|-----------|
 |`day`|The date of the activity.|
 |`uid`|The HMACed user id.|
+
+### strict_daily_multi_device_users
+
+The `strict_daily_multi_device_users` table
+has the same schema as `daily_multi_device_users`.
 
 ### Event names
 
