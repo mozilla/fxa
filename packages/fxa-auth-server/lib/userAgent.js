@@ -42,7 +42,8 @@ module.exports = function (userAgentString) {
     this.uaBrowserVersion = matches[3] || null
     this.uaOS = matches[2]
     this.uaOSVersion = matches[5]
-    this.uaDeviceType = marshallFormFactor(matches[4])
+    this.uaDeviceType = marshallDeviceType(matches[4])
+    this.uaFormFactor = matches[4] || null
   } else {
     const userAgentData = ua.parse(userAgentString)
 
@@ -51,6 +52,7 @@ module.exports = function (userAgentString) {
     this.uaOS = getFamily(userAgentData.os) || null
     this.uaOSVersion = getVersion(userAgentData.os) || null
     this.uaDeviceType = getDeviceType(userAgentData) || null
+    this.uaFormFactor = getFormFactor(userAgentData) || null
   }
 
   return this
@@ -84,6 +86,12 @@ function getDeviceType (data) {
   }
 }
 
+function getFormFactor (data) {
+  if (data.device && data.device.brand !== 'Generic') {
+    return getFamily(data.device)
+  }
+}
+
 function isMobileOS (os) {
   return MOBILE_OS_FAMILIES.has(os.family)
 }
@@ -91,8 +99,9 @@ function isMobileOS (os) {
 function isTablet(data) {
   // 'tablets' are iPads and Android devices with no word 'Mobile' in them.
   // Ref: https://webmasters.googleblog.com/2011/03/mo-better-to-also-detect-mobile-user.html
-  if (getFamily(data.device)) {
-    if (data.device.family === 'iPad' ||
+  const deviceFamily = getFamily(data.device)
+  if (deviceFamily) {
+    if (/iPad/.test(deviceFamily) ||
        (data.os && data.os.family === 'Android' && data.userAgent.indexOf('Mobile') === -1)
     ) {
       return true
@@ -102,7 +111,7 @@ function isTablet(data) {
   return false
 }
 
-function marshallFormFactor (formFactor) {
+function marshallDeviceType (formFactor) {
   if (/iPad/.test(formFactor) || /tablet/i.test(formFactor)) {
     return 'tablet'
   }

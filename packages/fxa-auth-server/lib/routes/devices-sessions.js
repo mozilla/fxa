@@ -276,28 +276,20 @@ module.exports = (log, db, config, customs, push, devices) => {
         db.devices(uid)
           .then(deviceArray => {
             reply(deviceArray.map(device => {
-              if (! device.name) {
-                device.name = devices.synthesizeName(device)
+              return {
+                id: device.id,
+                isCurrentDevice: device.sessionToken === sessionToken.tokenId,
+                lastAccessTime: device.lastAccessTime,
+                lastAccessTimeFormatted: localizeTimestamp.format(
+                  device.lastAccessTime,
+                  request.headers['accept-language']
+                ),
+                name: device.name || devices.synthesizeName(device),
+                type: device.type || device.uaDeviceType || 'desktop',
+                pushCallback: device.pushCallback,
+                pushPublicKey: device.pushPublicKey,
+                pushAuthKey: device.pushAuthKey
               }
-
-              if (! device.type) {
-                device.type = device.uaDeviceType || 'desktop'
-              }
-
-              device.isCurrentDevice = device.sessionToken === sessionToken.tokenId
-
-              device.lastAccessTimeFormatted = localizeTimestamp.format(
-                device.lastAccessTime,
-                request.headers['accept-language']
-              )
-              delete device.sessionToken
-              delete device.uaBrowser
-              delete device.uaBrowserVersion
-              delete device.uaOS
-              delete device.uaOSVersion
-              delete device.uaDeviceType
-
-              return device
             }))
           },
           reply

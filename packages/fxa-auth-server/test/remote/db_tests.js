@@ -247,6 +247,8 @@ describe('remote db', function() {
           assert.equal(token.uaBrowserVersion, '41')
           assert.equal(token.uaOS, 'Mac OS X')
           assert.equal(token.uaOSVersion, '10.10')
+          assert.equal(token.uaDeviceType, null)
+          assert.equal(token.uaFormFactor, null)
           assert.equal(token.location.state, 'Mordor', 'state is correct')
           assert.equal(token.location.country, 'ME', 'country is correct')
           assert.ok(token.lastAccessTime)
@@ -274,7 +276,30 @@ describe('remote db', function() {
           assert.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct')
           assert.equal(sessions[0].uaOSVersion, '4.4', 'uaOSVersion property is correct')
           assert.equal(sessions[0].uaDeviceType, 'mobile', 'uaDeviceType property is correct')
+          assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is correct')
           assert.equal(sessions[0].location, null, 'location property is correct')
+
+          // Fetch the session token
+          return db.sessionToken(tokenId)
+        })
+        .then(sessionToken => {
+          // Update the session token
+          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (iPad; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4', '1.1.1.1')
+        })
+        .then(tokens => {
+          redisGetSpy.returns(P.resolve(JSON.stringify(tokens)))
+
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+        })
+        .then(sessions => {
+          assert.equal(sessions.length, 1, 'sessions still contains one item')
+          assert.equal(sessions[0].uaBrowser, 'Firefox iOS', 'uaBrowser property is correct')
+          assert.equal(sessions[0].uaBrowserVersion, '1', 'uaBrowserVersion property is correct')
+          assert.equal(sessions[0].uaOS, 'iOS', 'uaOS property is correct')
+          assert.equal(sessions[0].uaOSVersion, '8.3', 'uaOSVersion property is correct')
+          assert.equal(sessions[0].uaDeviceType, 'tablet', 'uaDeviceType property is correct')
+          assert.equal(sessions[0].uaFormFactor, 'iPad', 'uaFormFactor property is correct')
 
           // Simulate an error on redis.get
           redisGetSpy.returns(P.reject({}))
@@ -433,6 +458,7 @@ describe('remote db', function() {
             assert.equal(device.uaOS, 'Android', 'device.uaOS is correct')
             assert.equal(device.uaOSVersion, '4.4', 'device.uaOSVersion is correct')
             assert.equal(device.uaDeviceType, 'mobile', 'device.uaDeviceType is correct')
+            assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
             deviceInfo.id = device.id
             deviceInfo.name = 'wibble'
             deviceInfo.type = 'desktop'
@@ -496,6 +522,7 @@ describe('remote db', function() {
             assert.equal(device.uaOS, 'Mac OS X', 'device.uaOS is correct')
             assert.equal(device.uaOSVersion, '10.10', 'device.uaOSVersion is correct')
             assert.equal(device.uaDeviceType, null, 'device.uaDeviceType is correct')
+            assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
             // Delete the devices
             return P.all([
               db.deleteDevice(account.uid, deviceInfo.id),

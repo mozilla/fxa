@@ -462,7 +462,8 @@ module.exports = (
             uaBrowserVersion: mergedInfo.uaBrowserVersion,
             uaOS: mergedInfo.uaOS,
             uaOSVersion: mergedInfo.uaOSVersion,
-            uaDeviceType: mergedInfo.uaDeviceType
+            uaDeviceType: mergedInfo.uaDeviceType,
+            uaFormFactor: mergedInfo.uaFormFactor
           }
         })
       })
@@ -517,6 +518,7 @@ module.exports = (
       uaOS: token.uaOS,
       uaOSVersion: token.uaOSVersion,
       uaDeviceType: token.uaDeviceType,
+      uaFormFactor: token.uaFormFactor,
       lastAccessTime: token.lastAccessTime,
       createdAt: token.createdAt
     }

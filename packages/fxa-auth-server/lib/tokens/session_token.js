@@ -75,6 +75,7 @@ module.exports = (log, Token, config) => {
       this.uaOS = data.uaOS
       this.uaOSVersion = data.uaOSVersion
       this.uaDeviceType = data.uaDeviceType
+      this.uaFormFactor = data.uaFormFactor
       this.lastAccessTime = data.lastAccessTime
     }
 

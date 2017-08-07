@@ -4,14 +4,11 @@
 
 'use strict'
 
-module.exports = function (log, db, push) {
-  return {
-    upsert: upsert,
-    synthesizeName: synthesizeName
-  }
+module.exports = (log, db, push) => {
+  return { upsert, synthesizeName }
 
   function upsert (request, sessionToken, deviceInfo) {
-    var operation, event, result
+    let operation, event, result
     if (deviceInfo.id) {
       operation = 'updateDevice'
       event = 'device.updated'
@@ -19,10 +16,10 @@ module.exports = function (log, db, push) {
       operation = 'createDevice'
       event = 'device.created'
     }
-    var isPlaceholderDevice = ! deviceInfo.id && ! deviceInfo.name && ! deviceInfo.type
+    const isPlaceholderDevice = ! deviceInfo.id && ! deviceInfo.name && ! deviceInfo.type
 
     return db[operation](sessionToken.uid, sessionToken.tokenId, deviceInfo)
-      .then(function (device) {
+      .then(device => {
         result = device
         return request.emitMetricsEvent(event, {
           uid: sessionToken.uid,
@@ -30,11 +27,11 @@ module.exports = function (log, db, push) {
           is_placeholder: isPlaceholderDevice
         })
       })
-      .then(function () {
+      .then(() => {
         if (operation === 'createDevice') {
           // Clients expect this notification to always include a name,
           // so try to synthesize one if necessary.
-          var deviceName = result.name
+          let deviceName = result.name
           if (! deviceName) {
             deviceName = synthesizeName(deviceInfo)
           }
@@ -63,30 +60,40 @@ module.exports = function (log, db, push) {
   }
 
   function synthesizeName (device) {
-    var browserPart = part('uaBrowser')
-    var osPart = part('uaOS')
+    const uaBrowser = device.uaBrowser
+    const uaBrowserVersion = device.uaBrowserVersion
+    const uaOS = device.uaOS
+    const uaOSVersion = device.uaOSVersion
+    const uaFormFactor = device.uaFormFactor
+    let result = ''
 
-    if (browserPart) {
-      if (osPart) {
-        return browserPart + ', ' + osPart
+    if (uaBrowser) {
+      if (uaBrowserVersion) {
+        result = `${uaBrowser} ${uaBrowserVersion}`
+      } else {
+        result = uaBrowser
       }
 
-      return browserPart
-    }
-
-    return osPart || ''
-
-    function part (key) {
-      if (device[key]) {
-        var versionKey = key + 'Version'
-
-        if (device[versionKey]) {
-          return device[key] + ' ' + device[versionKey]
-        }
-
-        return device[key]
+      if (uaOS || uaFormFactor) {
+        result += ', '
       }
     }
+
+    if (uaOS) {
+      result += uaOS
+
+      if (uaFormFactor) {
+        result += ' '
+      } else if (uaOSVersion) {
+        result += ` ${uaOSVersion}`
+      }
+    }
+
+    if (uaFormFactor) {
+      result += uaFormFactor
+    }
+
+    return result
   }
 }
 
