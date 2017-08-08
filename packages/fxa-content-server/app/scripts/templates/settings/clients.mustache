@@ -20,8 +20,9 @@
               <li class="client {{type}} client-device {{#isCurrentDevice}}client-current{{/isCurrentDevice}}"
                 {{#genericOS}}data-os="{{genericOS}}"{{/genericOS}}
                 data-name="{{name}}"
+                title="{{title}}"
                 id="{{id}}">
-                <div class="client-name" title="{{title}}">{{name}}</div>
+                <div class="client-name">{{name}}</div>
                 {{#isCurrentDevice}}
                     <div class="device-current">{{#t}}current device{{/t}}</div>
                 {{/isCurrentDevice}}

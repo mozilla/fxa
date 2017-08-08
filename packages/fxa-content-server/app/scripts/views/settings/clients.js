@@ -53,6 +53,15 @@ define(function (require, exports, module) {
     _formatAccessTimeAndScope (items) {
       return _.map(items, (item) => {
         item.title = item.name;
+
+        if (item.location) {
+          if (item.location.country && item.location.state) {
+            item.title += ' - ' + item.location.state + ', ' + item.location.country;
+          } else if (item.location.country) {
+            item.title += ' - ' + item.location.country;
+          }
+        }
+
         if (item.scope) {
           item.title += ' - ' + item.scope;
         }

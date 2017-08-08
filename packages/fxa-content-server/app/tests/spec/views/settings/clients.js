@@ -597,13 +597,19 @@ define(function (require, exports, module) {
                 isDevice: true,
                 lastAccessTime: Date.now(),
                 lastAccessTimeFormatted: '30 minutes ago',
+                location: {
+                  country: 'Canada',
+                  state: 'Ontario'
+                },
+                name: 'device-1',
                 type: 'mobile'
               },
               {
                 clientType: 'device',
-                id: 'device-1',
+                id: 'device-2',
                 isCurrentDevice: false,
                 isDevice: true,
+                name: 'device-2',
                 type: 'mobile'
               }
             ]);
@@ -614,7 +620,9 @@ define(function (require, exports, module) {
             assert.equal(formatted[2].title, 'Add-ons');
             assert.equal(formatted[3].title, 'Web Session, Firefox 40');
             assert.equal(formatted[4].title, 'Web Session');
+            assert.equal(formatted[5].title, 'device-1 - Ontario, Canada');
             assert.equal(formatted[5].lastAccessTimeFormatted, 'last sync 30 minutes ago');
+            assert.equal(formatted[6].title, 'device-2');
             assert.equal(formatted[6].lastAccessTimeFormatted, 'last sync time unknown');
           });
       });
