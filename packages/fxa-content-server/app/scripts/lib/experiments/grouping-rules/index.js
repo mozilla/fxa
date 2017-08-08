@@ -15,11 +15,12 @@ define((require, exports, module) => {
     require('./communication-prefs'),
     require('./disabled-button-state'),
     require('./is-sampled-user'),
+    require('./q3-form-changes'),
     require('./send-sms-enabled-for-country'),
     require('./send-sms-install-link'),
     require('./sentry'),
     require('./sessions'),
-    require('./q3-form-changes')
+    require('./signup-password-confirm')
   ];
 
   module.exports = class ExperimentChoiceIndex {

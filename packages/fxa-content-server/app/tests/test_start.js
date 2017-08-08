@@ -46,6 +46,7 @@ function (Translator, Session) {
     '../tests/spec/lib/experiments/grouping-rules/send-sms-install-link',
     '../tests/spec/lib/experiments/grouping-rules/sentry',
     '../tests/spec/lib/experiments/grouping-rules/sessions',
+    '../tests/spec/lib/experiments/grouping-rules/signup-password-confirm',
     '../tests/spec/lib/fxa-client',
     '../tests/spec/lib/height-observer',
     '../tests/spec/lib/image-loader',

@@ -20,7 +20,7 @@ define((require, exports, module) => {
      * @returns {Any}
      */
     choose (subject) {
-      const EXPERIMENTS = ['disabledButtonState'];
+      const EXPERIMENTS = ['disabledButtonState', 'signupPasswordConfirm'];
 
       if (! subject || ! subject.uniqueUserId) {
         return false;

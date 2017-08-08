@@ -435,6 +435,47 @@ define([
         .then(testSuccessWasShown());
     },
 
+    'signup experiment passwordConfirm, non matching passwords': function () {
+      const DROWSSAP = 'drowssap';
+      return this.remote
+        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceExperiment: 'signupPasswordConfirm',
+            forceExperimentGroup: 'treatment'
+          }
+        }))
+        .then(fillOutSignUp(email, PASSWORD, { vpassword: DROWSSAP }))
+        // wait five seconds to allow any errant navigation to occur
+        .then(noPageTransition(selectors.SIGNUP.HEADER, 5000))
+        // the validation tooltip should be visible
+        .then(visibleByQSA('.error'));
+    },
+
+    'signup experiment passwordConfirm, matching passwords': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceExperiment: 'signupPasswordConfirm',
+            forceExperimentGroup: 'treatment'
+          }
+        }))
+        .then(fillOutSignUp(email, PASSWORD, { vpassword: PASSWORD }))
+        .then(testAtConfirmScreen(email));
+    },
+
+    'signup experiment passwordConfirm control': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceExperiment: 'signupPasswordConfirm',
+            forceExperimentGroup: 'control'
+          }
+        }))
+        .then(noSuchElement(selectors.SIGNUP.VPASSWORD))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testAtConfirmScreen(email));
+    },
+
     'data-flow-begin attribute is set': function () {
       return this.remote
         .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))

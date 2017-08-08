@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const CoppaMixin = require('views/mixins/coppa-mixin');
   const EmailOptInMixin = require('views/mixins/email-opt-in-mixin');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
   const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const FormView = require('views/form');
@@ -59,6 +60,7 @@ define(function (require, exports, module) {
     afterRender () {
       const autofocusEl = this._selectAutoFocusEl();
       this.$(autofocusEl).attr('autofocus', 'autofocus');
+      this.logViewEvent(`password-confirm.visible.${this._isPasswordConfirmEnabled()}`);
 
       return proto.afterRender.call(this);
     },
@@ -116,11 +118,16 @@ define(function (require, exports, module) {
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isSignInEnabled: ! forceEmail,
         isSync: isSync,
-        isSyncMigration: this.isSyncMigration()
+        isSyncMigration: this.isSyncMigration(),
+        showPasswordConfirm: this._isPasswordConfirmEnabled()
       });
     },
 
     isValidEnd () {
+      if (! this._doPasswordsMatch()) {
+        return false;
+      }
+
       if (this._isEmailSameAsBouncedEmail()) {
         return false;
       }
@@ -136,7 +143,9 @@ define(function (require, exports, module) {
     },
 
     showValidationErrorsEnd () {
-      if (this._isEmailSameAsBouncedEmail()) {
+      if (! this._doPasswordsMatch()) {
+        this.displayError(AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'));
+      } else if (this._isEmailSameAsBouncedEmail()) {
         this.showValidationError('input[type=email]',
                 AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED'));
       } else if (this._isEmailFirefoxDomain()) {
@@ -165,7 +174,7 @@ define(function (require, exports, module) {
        */
       return p().then(() => {
         var account = this._initAccount();
-        var password = this.getElementValue('.password');
+        var password = this.getElementValue('#password');
 
         if (this.isUserOldEnough()) {
           // User filled out COPPA, attempt a signup.
@@ -274,6 +283,18 @@ define(function (require, exports, module) {
       return /@firefox(\.com)?$/.test(email);
     },
 
+    _isPasswordConfirmEnabled () {
+      return !! this.isInExperimentGroup('signupPasswordConfirm', 'treatment');
+    },
+
+    _doPasswordsMatch() {
+      if (this._isPasswordConfirmEnabled()) {
+        return this.getElementValue('#password') === this.getElementValue('#vpassword');
+      } else {
+        return true;
+      }
+    },
+
     _initAccount () {
       var account = this.user.initAccount({
         customizeSync: this.$('.customize-sync').is(':checked'),
@@ -304,6 +325,7 @@ define(function (require, exports, module) {
     CoppaMixin({ required: false }),
     EmailOptInMixin,
     ExperimentMixin,
+    FloatingPlaceholderMixin,
     FlowBeginMixin,
     FormPrefillMixin,
     MigrationMixin,

@@ -26,13 +26,13 @@ define((require, exports, module) => {
         return false;
       }
 
-      if (! subject.experimentGroupingRules || ! subject.experimentGroupingRules.choose('q3FormChanges', subject)) {
+      if (! subject.experimentGroupingRules || subject.experimentGroupingRules.choose('q3FormChanges', subject) !== this.name) {
         return false;
       }
 
       let choice;
 
-      if (subject.forceExperimentGroup) {
+      if (subject.forceExperiment === this.name && subject.forceExperimentGroup) {
         choice = subject.forceExperimentGroup;
       } else {
         choice = this.uniformChoice(GROUPS, subject.uniqueUserId);

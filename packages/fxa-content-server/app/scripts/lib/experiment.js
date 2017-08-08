@@ -18,7 +18,8 @@ define(function (require, exports, module) {
    */
   const STARTUP_EXPERIMENTS = {
     'disabledButtonState': BaseExperiment,
-    'q3FormChanges': BaseExperiment
+    'q3FormChanges': BaseExperiment,
+    'signupPasswordConfirm': BaseExperiment
   };
 
   /**

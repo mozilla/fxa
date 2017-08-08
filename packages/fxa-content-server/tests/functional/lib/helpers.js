@@ -7,6 +7,7 @@ define([
   'require',
   'tests/lib/restmail',
   'tests/lib/helpers',
+  'tests/functional/lib/selectors',
   'intern/dojo/node!leadfoot/helpers/pollUntil',
   'intern/browser_modules/dojo/node!url',
   'intern/browser_modules/dojo/node!querystring',
@@ -14,7 +15,7 @@ define([
   'intern/chai!assert',
   'app/bower_components/fxa-js-client/fxa-client',
   'intern/dojo/node!got'
-], function (intern, require, restmail, TestHelpers, pollUntil,
+], function (intern, require, restmail, TestHelpers, selectors, pollUntil,
   Url, Querystring, nodeXMLHttpRequest, assert, FxaClient, got) {
   const config = intern.config;
 
@@ -1255,6 +1256,7 @@ define([
     var optInToMarketingEmail = options.optInToMarketingEmail || false;
     var age = options.age || 24;
     var submit = options.submit !== false;
+    const vpassword = options.vpassword;
 
     return this.parent
       .getCurrentUrl()
@@ -1271,26 +1273,31 @@ define([
 
       .then(function () {
         if (enterEmail) {
-          return type('input[type=email]', email).call(this);
+          return type(selectors.SIGNUP.EMAIL, email).call(this);
         }
       })
-      .then(type('input[type=password]', password))
-      .then(type('#age', age || '24'))
+      .then(type(selectors.SIGNUP.PASSWORD, password))
+      .then(() => {
+        if (vpassword) {
+          return type(selectors.SIGNUP.VPASSWORD, vpassword).call(this);
+        }
+      })
+      .then(type(selectors.SIGNUP.AGE, age))
 
       .then(function () {
         if (customizeSync) {
-          return click('form input.customize-sync').call(this);
+          return click(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX).call(this);
         }
       })
 
       .then(function () {
         if (optInToMarketingEmail) {
-          return click('form input.marketing-email-optin').call(this);
+          return click(selectors.SIGNUP.MARKETING_EMAIL_OPTIN).call(this);
         }
       })
       .then(function () {
         if (submit) {
-          return click('button[type="submit"]').call(this);
+          return click(selectors.SIGNUP.SUBMIT).call(this);
         }
       });
   });

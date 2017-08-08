@@ -127,11 +127,14 @@ define([], function () {
       LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION: '#email-suggestion',
       LINK_SUGGEST_SIGN_IN: '.error a[href="/signin"]',
       LINK_SUGGEST_SYNC: '#suggest-sync a',
-      PASSWORD: 'input[type=password]',
+      MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin',
+      PASSWORD: '#password',
+      SUBMIT: 'button[type="submit"]',
       SUB_HEADER: '#fxa-signup-header .service',
       SUGGEST_EMAIL_DOMAIN_CORRECTION: '.tooltip-suggest',
       SUGGEST_SIGN_IN: '.error',
       SUGGEST_SYNC: '#suggest-sync',
+      VPASSWORD: '#vpassword'
     },
     SIGNUP_COMPLETE: {
       HEADER: '#fxa-sign-up-complete-header'

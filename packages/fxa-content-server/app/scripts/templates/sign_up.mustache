@@ -42,9 +42,16 @@
       </div>
 
       <div class="input-row password-row">
-        <input id="password" type="password" class="password check-password tooltip-below" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required />
+        <input id="password" type="password" class="password check-password tooltip-below" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#showPasswordConfirm}}data-synchronize-show="true"{{/showPasswordConfirm}} />
         <div class="input-help input-help-focused input-help-signup">{{#t}}A strong, unique password will keep your Firefox data safe from intruders.{{/t}}</div>
       </div>
+
+      {{#showPasswordConfirm}}
+      <div class="input-row password-row">
+        <label class="label-helper"></label>
+        <input id="vpassword" type="password" class="password check-password tooltip-below" placeholder="{{#t}}Repeat password{{/t}}" pattern=".{8,}" required data-synchronize-show="true" />
+      </div>
+      {{/showPasswordConfirm}}
 
       {{{ coppaHTML }}}
 

@@ -27,6 +27,7 @@ define(function (require, exports, module) {
       it('returns experiment if forceExperiment', () => {
         assert.equal(experiment.choose({
           account,
+          forceExperiment: 'disabledButtonState',
           forceExperimentGroup: 'control',
           uniqueUserId: 'user-id'
         }), 'disabledButtonState');
