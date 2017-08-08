@@ -1,3 +1,49 @@
+<a name="1.93.0"></a>
+# 1.93.0 (2017-08-08)
+
+
+### Bug Fixes
+
+* **back:** Clicks on the hash button no longer append # to the URL. (#5303) r=vladikoff ([a9178e9](https://github.com/mozilla/fxa-content-server/commit/a9178e9))
+* **change_email:** Fix the change_email functional tests. (#5306) r=vladikoff ([6de395c](https://github.com/mozilla/fxa-content-server/commit/6de395c)), closes [(#5306](https://github.com/(/issues/5306) [#5304](https://github.com/mozilla/fxa-content-server/issues/5304)
+* **css:** remove left margin (#5327) r=vladikoff ([074c8d7](https://github.com/mozilla/fxa-content-server/commit/074c8d7))
+* **experiments:** Do not delegate to `experiments` methods after view.destroy (#5333) r=@philbooth ([0cf878a](https://github.com/mozilla/fxa-content-server/commit/0cf878a)), closes [#5324](https://github.com/mozilla/fxa-content-server/issues/5324)
+* **handshake:** Fix the OAuth handshake test against latest. (#5308) r=vladikoff ([db660b0](https://github.com/mozilla/fxa-content-server/commit/db660b0)), closes [(#5308](https://github.com/(/issues/5308) [#5307](https://github.com/mozilla/fxa-content-server/issues/5307)
+* **mailcheck:** Fix the flaky mailcheck test (#5340) r=vladikoff ([11d10d8](https://github.com/mozilla/fxa-content-server/commit/11d10d8)), closes [(#5340](https://github.com/(/issues/5340) [#5309](https://github.com/mozilla/fxa-content-server/issues/5309)
+* **metrics:** Cap the max user submitted event offset to 2 days. (#5310) ([1581490](https://github.com/mozilla/fxa-content-server/commit/1581490))
+* **reset_password:** Update formPrefill only if user enters an email address (#5295) r=@vladikoff ([f91075e](https://github.com/mozilla/fxa-content-server/commit/f91075e)), closes [#5293](https://github.com/mozilla/fxa-content-server/issues/5293)
+* **router:** Fix model management when going "back" through history. (#5288) r=@philbooth ([78658f0](https://github.com/mozilla/fxa-content-server/commit/78658f0)), closes [(#5288](https://github.com/(/issues/5288)
+* **signin:** redirect to signin if bounced screen has no email ([4e03b36](https://github.com/mozilla/fxa-content-server/commit/4e03b36))
+* **signup:** Remove `isSyncSuggestionEnabled` from signup-mixin. (#5286) r=philbooth,vladikof ([3c14509](https://github.com/mozilla/fxa-content-server/commit/3c14509))
+* **styles:** adjust max zoom on mobile devices (#5312) r=shane-tomlinson ([48c2534](https://github.com/mozilla/fxa-content-server/commit/48c2534)), closes [#5234](https://github.com/mozilla/fxa-content-server/issues/5234)
+* **sync:** Only show `addresses` if the browser says it's supported. (#5296) r=@philbooth ([228b8f0](https://github.com/mozilla/fxa-content-server/commit/228b8f0)), closes [#5292](https://github.com/mozilla/fxa-content-server/issues/5292)
+* **test:** Fix the fx_firstrun_v2 signup tests in Fx 54. (#5331) r=vladikoff ([a334ce0](https://github.com/mozilla/fxa-content-server/commit/a334ce0)), closes [(#5331](https://github.com/(/issues/5331) [#5330](https://github.com/mozilla/fxa-content-server/issues/5330)
+* **test:** Fix the OAuth with handshake tests on latest/stage/prod. (#5302) r=@philbooth ([74795e9](https://github.com/mozilla/fxa-content-server/commit/74795e9)), closes [(#5302](https://github.com/(/issues/5302) [#5300](https://github.com/mozilla/fxa-content-server/issues/5300)
+* **test:** remove call to non-existent check_version(); clobber node_modules ([a83ee6d](https://github.com/mozilla/fxa-content-server/commit/a83ee6d))
+
+### Features
+
+* **CAD:** ABC test for CAD phase 3 (deep link) (#5332) r=@philbooth ([84d5709](https://github.com/mozilla/fxa-content-server/commit/84d5709)), closes [#5278](https://github.com/mozilla/fxa-content-server/issues/5278)
+* **client:** email first flow (#5177) ([5db6d32](https://github.com/mozilla/fxa-content-server/commit/5db6d32)), closes [#5194](https://github.com/mozilla/fxa-content-server/issues/5194)
+* **clients:** add location information, update title hover location (#5329) r=udaraweerasinghe ([bb4f757](https://github.com/mozilla/fxa-content-server/commit/bb4f757)), closes [#5291](https://github.com/mozilla/fxa-content-server/issues/5291)
+* **forms:** add non-disabled button experiment (#5268) r=shane-tomlinson ([fdf724e](https://github.com/mozilla/fxa-content-server/commit/fdf724e))
+* **signin:** add a sign-in bounced email screen ([8c844a5](https://github.com/mozilla/fxa-content-server/commit/8c844a5))
+* **signup:** add a Confirm Password field (#5249) r=@shane-tomlinson ([c977f07](https://github.com/mozilla/fxa-content-server/commit/c977f07))
+* **verification:** Add apple association file (#5287) r=vladikoff,rfk,shane-tomlinson ([59247b5](https://github.com/mozilla/fxa-content-server/commit/59247b5))
+
+### Refactor
+
+* **config:** remove allowedParentOrigins from front-end config (#5338) r=@shane-tomlinson ([745b1dc](https://github.com/mozilla/fxa-content-server/commit/745b1dc))
+* **reset_password:** Use back-mixin in reset_password (#5316) r=vladikoff,philbooth ([f9f7f10](https://github.com/mozilla/fxa-content-server/commit/f9f7f10))
+* **test:** Convert reset_password functional tests to use selectors.js (#5294) r=vladikoff ([316a337](https://github.com/mozilla/fxa-content-server/commit/316a337))
+
+### Reverts
+
+* **cwts:** Revert "Check addresses and creditcards by default." (#5315) r=vladikoff ([b76d67b](https://github.com/mozilla/fxa-content-server/commit/b76d67b)), closes [#5314](https://github.com/mozilla/fxa-content-server/issues/5314)
+* **cwts:** Revert the revert - re-check addresses and creditcards. (#5337) r=vladikoff ([adb8a71](https://github.com/mozilla/fxa-content-server/commit/adb8a71))
+
+
+
 <a name="1.92.2"></a>
 ## 1.92.2 (2017-07-28)
 
