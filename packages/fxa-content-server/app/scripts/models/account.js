@@ -307,46 +307,6 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Wait for the session to become verified.
-     *
-     * @param {Number} pollIntervalInMs
-     * @returns {Promise}
-     */
-    waitForSessionVerification (pollIntervalInMs) {
-      return this.sessionStatus()
-        .then((result) => {
-          if (result.verified) {
-            return;
-          }
-
-          return p()
-            .delay(pollIntervalInMs)
-            .then(() => this.waitForSessionVerification(pollIntervalInMs));
-        })
-        .fail((err) => {
-          // The user's email may have bounced because it's invalid. Check
-          // if the account still exists, if it doesn't, it means the email
-          // bounced. Show a message allowing the user to sign up again.
-          //
-          // This makes the huge assumption that a confirmation email
-          // was sent.
-          if (AuthErrors.is(err, 'INVALID_TOKEN') && this.has('uid')) {
-            return this.checkUidExists()
-              .then((accountExists) => {
-                if (! accountExists) {
-                  throw AuthErrors.toError('SIGNUP_EMAIL_BOUNCE');
-                }
-
-                // account exists, but sessionToken has been invalidated.
-                throw err;
-              });
-          }
-
-          throw err;
-        });
-    },
-
-    /**
      * Check to see if secondary emails is enabled for this user, using support email
      * domain and is in a verified session.
      *

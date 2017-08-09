@@ -11,13 +11,12 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
-  const Constants = require('lib/constants');
   const OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
-  const p = require('lib/promise');
   const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
   const ResendMixin = require('views/mixins/resend-mixin')();
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
+  const SessionVerificationPollMixin = require('views/mixins/session-verification-poll-mixin');
   const Template = require('stache!templates/confirm');
 
   const proto = BaseView.prototype;
@@ -25,10 +24,7 @@ define(function (require, exports, module) {
     template: Template,
     className: 'confirm',
 
-    // used by unit tests
-    VERIFICATION_POLL_IN_MS: Constants.VERIFICATION_POLL_IN_MS,
-
-    initialize () {
+    initialize (options = {}) {
       // Account data is passed in from sign up and sign in flows.
       // It's important for Sync flows where account data holds
       // ephemeral properties like unwrapBKey and keyFetchToken
@@ -59,12 +55,6 @@ define(function (require, exports, module) {
       });
     },
 
-    _bouncedEmailSignup () {
-      this.navigate('signup', {
-        bouncedEmail: this.getAccount().get('email')
-      });
-    },
-
     _getMissingSessionTokenScreen () {
       var screenUrl = this.isSignUp() ? 'signup' : 'signin';
       return this.broker.transformLink(screenUrl);
@@ -87,11 +77,14 @@ define(function (require, exports, module) {
         .then(() =>
           this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
         )
-        .then(() => this._startPolling());
+        .then(() =>
+          this.waitForSessionVerification(account, () => this._gotoNextScreen())
+        );
     },
 
-    _startPolling () {
-      return this._waitForConfirmation()
+    _gotoNextScreen () {
+      const account = this.getAccount();
+      return this.user.setAccount(account)
         .then(() => {
           this.logViewEvent('verification.success');
           this.notifier.trigger('verification.success');
@@ -101,45 +94,8 @@ define(function (require, exports, module) {
             'afterSignUpConfirmationPoll' :
             'afterSignInConfirmationPoll';
 
-          return this.invokeBrokerMethod(brokerMethod, this.getAccount());
-        })
-        .fail((err) => this._onConfirmationError(err));
-    },
-
-    _waitForConfirmation () {
-      const account = this.getAccount();
-      return account.waitForSessionVerification(this.VERIFICATION_POLL_IN_MS)
-        .then(() => {
-          this.user.setAccount(account);
+          return this.invokeBrokerMethod(brokerMethod, account);
         });
-    },
-
-    _onConfirmationError (err) {
-      // The user's email may have bounced because it was invalid.
-      // Redirect them to the sign up page with an error notice.
-      if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
-        if (this.isSignUp()) {
-          this._bouncedEmailSignup();
-        } else {
-          this.navigate('signin_bounced', { email: this.getAccount().get('email') });
-        }
-      } else if (AuthErrors.is(err, 'UNEXPECTED_ERROR')) {
-        // Hide the error from the user if it is an unexpected error.
-        // an error may happen here if the status api is overloaded or
-        // if the user is switching networks.
-        // Report a known error to Sentry, but not the user.
-        // Details: github.com/mozilla/fxa-content-server/issues/2638.
-        this.logError(AuthErrors.toError('POLLING_FAILED'));
-        var deferred = p.defer();
-
-        this.setTimeout(() => {
-          deferred.resolve(this._startPolling());
-        }, this.VERIFICATION_POLL_IN_MS);
-
-        return deferred.promise;
-      } else {
-        this.displayError(err);
-      }
     },
 
     resend () {
@@ -168,7 +124,8 @@ define(function (require, exports, module) {
     PulseGraphicMixin,
     ResendMixin,
     ResumeTokenMixin,
-    ServiceMixin
+    ServiceMixin,
+    SessionVerificationPollMixin
   );
 
   module.exports = View;
