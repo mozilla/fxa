@@ -1,3 +1,13 @@
+<a name="1.93.0"></a>
+# [1.93.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.92.0...v1.93.0) (2017-08-09)
+
+
+### Features
+
+* **docker:** update to node 6 (#266) r=jbuck ([7b13cea](https://github.com/mozilla/fxa-auth-db-mysql/commit/7b13cea))
+
+
+
 <a name="1.92.0"></a>
 # [1.92.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.91.2...v1.92.0) (2017-07-26)
 
