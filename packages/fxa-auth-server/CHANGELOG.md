@@ -1,3 +1,31 @@
+<a name="1.93.0"></a>
+# [1.93.0](https://github.com/mozilla/fxa-auth-server/compare/v1.92.0...v1.93.0) (2017-08-09)
+
+
+### Bug Fixes
+
+* **db:** expose config options for Poolee timeout and maxPending (#2027) ([bfecf6d](https://github.com/mozilla/fxa-auth-server/commit/bfecf6d))
+* **email:** Fix issue where you couldn't delete account after changing email (#2036) r=vladi ([5eca134](https://github.com/mozilla/fxa-auth-server/commit/5eca134)), closes [#2036](https://github.com/mozilla/fxa-auth-server/issues/2036)
+* **email:** Notify all verified emails when a secondary email is removed (#2016) r=vladikoff ([4c394cf](https://github.com/mozilla/fxa-auth-server/commit/4c394cf)), closes [#1948](https://github.com/mozilla/fxa-auth-server/issues/1948)
+* **push:** Send push notification to devices when email has changed (#2038), r=@philbooth ([26f6104](https://github.com/mozilla/fxa-auth-server/commit/26f6104))
+* **redisSessions:** improve redis session lookup performance (#2026) r=vladikoff,rfk ([10e8310](https://github.com/mozilla/fxa-auth-server/commit/10e8310)), closes [#2025](https://github.com/mozilla/fxa-auth-server/issues/2025)
+* **sms:** make the sms copy friendlier ([1d80d81](https://github.com/mozilla/fxa-auth-server/commit/1d80d81))
+* **tests:** add coverage for failing redis requests ([3cced62](https://github.com/mozilla/fxa-auth-server/commit/3cced62))
+
+### chore
+
+* **docs:** regular maintenance for the metrics doc ([8e0af2e](https://github.com/mozilla/fxa-auth-server/commit/8e0af2e))
+* **docs:** update AUTHORS list (#2024) ([4143efc](https://github.com/mozilla/fxa-auth-server/commit/4143efc))
+* **logs:** add log when stale emails hit recovery endpoint (#2020) r=vladikoff ([b58e822](https://github.com/mozilla/fxa-auth-server/commit/b58e822))
+* **tests:** tidy up the remote db session token tests ([3031098](https://github.com/mozilla/fxa-auth-server/commit/3031098))
+
+### Features
+
+* **devices:** include form factor in synthesized device name ([5a59afa](https://github.com/mozilla/fxa-auth-server/commit/5a59afa))
+* **session:** add location to sessions query (#1993) r=vladikoff,philbooth ([27ca0e4](https://github.com/mozilla/fxa-auth-server/commit/27ca0e4))
+
+
+
 <a name="1.92.0"></a>
 # [1.92.0](https://github.com/mozilla/fxa-auth-server/compare/v1.91.3...v1.92.0) (2017-07-26)
 
