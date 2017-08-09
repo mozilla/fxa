@@ -1,3 +1,13 @@
+<a name="1.93.0"></a>
+# [1.93.0](https://github.com/mozilla/fxa-profile-server/compare/v1.92.0...v1.93.0) (2017-08-09)
+
+
+### Bug Fixes
+
+* **displayName:** length validation in post (#275) r=vladikoff ([21ca175](https://github.com/mozilla/fxa-profile-server/commit/21ca175))
+
+
+
 <a name="1.92.0"></a>
 # [1.92.0](https://github.com/mozilla/fxa-profile-server/compare/v1.91.0...v1.92.0) (2017-07-26)
 
