@@ -105,6 +105,27 @@ define([
         .then(clearBrowserState());
     },
 
+    'sign up, user verifies at CWTS': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': { ok: true }
+          }
+        }))
+        .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
+
+        .then(fillOutSignUp(email, PASSWORD))
+
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+
+        // user should be transitioned straight to the "your address is confirmed"
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
+        // the login message is sent automatically.
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
+
     'sign up, verify same browser': function () {
       return this.remote
         .then(setupTest())

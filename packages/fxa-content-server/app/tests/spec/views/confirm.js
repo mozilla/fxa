@@ -215,7 +215,7 @@ define(function (require, exports, module) {
           sinon.stub(view, 'isSignUp', () => true);
           sinon.stub(view, 'isSignIn', () => false);
 
-          return testgotoNextScreen('afterSignUpConfirmationPoll');
+          return testGotoNextScreen('afterSignUpConfirmationPoll');
         });
       });
 
@@ -224,11 +224,11 @@ define(function (require, exports, module) {
           sinon.stub(view, 'isSignUp', () => false);
           sinon.stub(view, 'isSignIn', () => true);
 
-          return testgotoNextScreen('afterSignInConfirmationPoll');
+          return testGotoNextScreen('afterSignInConfirmationPoll');
         });
       });
 
-      function testgotoNextScreen(expectedBrokerCall) {
+      function testGotoNextScreen(expectedBrokerCall) {
         const notifySpy = sinon.spy(view.notifier, 'trigger');
 
         sinon.stub(broker, expectedBrokerCall, () => p());

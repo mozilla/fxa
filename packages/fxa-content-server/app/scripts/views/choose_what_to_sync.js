@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   const CheckboxMixin = require('views/mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
   const FormView = require('views/form');
+  const SessionVerificationPollMixin = require('views/mixins/session-verification-poll-mixin');
   const Template = require('stache!templates/choose_what_to_sync');
 
   const SCREEN_CLASS = 'screen-choose-what-to-sync';
@@ -19,7 +20,7 @@ define(function (require, exports, module) {
     template: Template,
     className: 'choose-what-to-sync',
 
-    initialize () {
+    initialize (options = {}) {
       // Account data is passed in from sign up flow.
       this._account = this.user.initAccount(this.model.get('account'));
 
@@ -45,6 +46,15 @@ define(function (require, exports, module) {
       // where we want to hide the logo and not animate it
       // it uses `!important` to avoid the fade-in effect and inline styles.
       $('body').addClass(SCREEN_CLASS);
+    },
+
+    afterVisible () {
+      this.waitForSessionVerification(
+        this.getAccount(),
+        () => this.validateAndSubmit()
+      );
+
+      return proto.afterVisible.call(this);
     },
 
     destroy (...args) {
@@ -142,7 +152,8 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     BackMixin,
-    CheckboxMixin
+    CheckboxMixin,
+    SessionVerificationPollMixin
   );
 
   module.exports = View;

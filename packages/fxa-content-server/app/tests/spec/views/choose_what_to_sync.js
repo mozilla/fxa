@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const sinon = require('sinon');
+  const SessionVerificationPoll = require('models/polls/session-verification');
   const SyncEngines = require('models/sync-engines');
   const TestHelpers = require('../../lib/helpers');
   const User = require('models/user');
@@ -28,6 +29,7 @@ define(function (require, exports, module) {
     let metrics;
     let notifier;
     let onSubmitComplete;
+    let sessionVerificationPoll;
     let syncEngines;
     let user;
     let view;
@@ -70,6 +72,12 @@ define(function (require, exports, module) {
         account: account,
         onSubmitComplete: onSubmitComplete
       });
+
+      sessionVerificationPoll = new SessionVerificationPoll({}, {
+        account,
+        pollIntervalInMS: 2,
+        window: windowMock
+      });
     });
 
     afterEach(() => {
@@ -83,11 +91,12 @@ define(function (require, exports, module) {
 
     function initView () {
       view = new View({
-        broker: broker,
-        metrics: metrics,
-        model: model,
-        notifier: notifier,
-        user: user,
+        broker,
+        metrics,
+        model,
+        notifier,
+        sessionVerificationPoll,
+        user,
         viewName: 'choose-what-to-sync'
       });
 
@@ -117,6 +126,26 @@ define(function (require, exports, module) {
 
             const $rowEls = view.$('.choose-what-to-sync-row');
             assert.lengthOf($rowEls, DISPLAYED_ENGINE_IDS.length);
+          });
+      });
+    });
+
+    describe('session verification polling', () => {
+      it('invokes `validateAndSubmit` on verification', () => {
+
+        return initView()
+          .then(() => {
+            sinon.spy(view, 'waitForSessionVerification');
+            sinon.stub(view, 'validateAndSubmit', () => {});
+            sinon.stub(sessionVerificationPoll, 'start', () => {});
+            view.afterVisible();
+          })
+          .then(() => {
+            assert.isTrue(sessionVerificationPoll.start.calledOnce);
+
+            assert.isFalse(view.validateAndSubmit.called);
+            sessionVerificationPoll.trigger('verified');
+            assert.isTrue(view.validateAndSubmit.calledOnce);
           });
       });
     });

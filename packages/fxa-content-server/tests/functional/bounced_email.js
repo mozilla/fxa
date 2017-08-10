@@ -12,7 +12,8 @@ define([
   var bouncedEmail;
   var deliveredEmail;
   const PASSWORD = '12345678';
-  const SIGNIN_URL = `${intern.config.fxaContentRoot}signin`;
+  const SIGNIN_URL = `${intern.config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
+  const SIGNUP_URL = `${intern.config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync`;
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;
@@ -29,6 +30,8 @@ define([
   const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   const thenify = FunctionalHelpers.thenify;
+  const type = FunctionalHelpers.type;
+  const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'sign_up with an email that bounces',
@@ -41,64 +44,69 @@ define([
         // ensure a fresh signup page is loaded. If this suite is
         // run after a Sync suite, these tests try to use a Sync broker
         // which results in a channel timeout.
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER));
-
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }));
     },
 
     afterEach () {
       return this.remote.then(clearBrowserState());
     },
 
-    'sign up, bounce email, allow user to restart flow but force a different email': function () {
+    'sign up, bounce email at /choose_what_to_sync, allow user to restart flow but force a different email': function () {
       const client = getFxaClient();
 
       return this.remote
         .then(fillOutSignUp(bouncedEmail, PASSWORD))
-        .findById('fxa-confirm-header')
-        .end()
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
-        .then(function () {
-          return client.accountDestroy(bouncedEmail, PASSWORD);
-        })
+        .then(() => client.accountDestroy(bouncedEmail, PASSWORD))
 
-        .findById('fxa-signup-header')
-        .end()
-
+        .then(testElementExists(selectors.SIGNUP.HEADER))
+        // The first can_link_account handler is removed, hook up another.
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
         // expect an error message to already be present on redirect
-        .then(FunctionalHelpers.visibleByQSA('.tooltip'))
-
+        .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
         // submit button should be disabled.
-        .findByCssSelector('button[type="submit"].disabled')
-        .end()
-
-        .findByCssSelector('input[type="email"]')
-          .clearValue()
-          .click()
-          .type(bouncedEmail)
-        .end()
-
+        .then(testElementExists(selectors.SIGNUP.SUBMIT_DISABLED))
+        .then(type(selectors.SIGNUP.EMAIL, bouncedEmail))
         // user must change the email address
-        .findByCssSelector('button[type="submit"].disabled')
-          .click()
-        .end()
-
+        .then(click(selectors.SIGNUP.SUBMIT_DISABLED))
         // error message should still be around
-        .then(FunctionalHelpers.visibleByQSA('.tooltip'))
+        .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
+        .then(type(selectors.SIGNUP.EMAIL, deliveredEmail))
+        .then(click(selectors.SIGNUP.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
-        .findByCssSelector('input[type="email"]')
-          .clearValue()
-          .click()
-          .type(deliveredEmail)
-        .end()
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER));
+    },
 
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+    'sign up, bounce email at /confirm': function () {
+      const client = getFxaClient();
 
-        .findById('fxa-confirm-header')
-        .end();
+      return this.remote
+        .then(fillOutSignUp(bouncedEmail, PASSWORD))
+
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
+
+        .then(() => client.accountDestroy(bouncedEmail, PASSWORD))
+
+        .then(testElementExists(selectors.SIGNUP.HEADER))
+        // The first can_link_account handler is removed, hook up another.
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
+        // expect an error message to already be present on redirect
+        .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
+        // submit button should be disabled.
+        .then(testElementExists(selectors.SIGNUP.SUBMIT_DISABLED))
+        .then(type(selectors.SIGNUP.EMAIL, bouncedEmail))
+        // user must change the email address
+        .then(click(selectors.SIGNUP.SUBMIT_DISABLED))
+        // error message should still be around
+        .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
+        .then(type(selectors.SIGNUP.EMAIL, deliveredEmail))
+        .then(click(selectors.SIGNUP.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER));
     }
-
   });
 
   const setUpBouncedSignIn = thenify(function (email) {
@@ -108,7 +116,7 @@ define([
     return this.parent
       .then(clearBrowserState({ force: true }))
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openPage(`${SIGNIN_URL}?context=fx_desktop_v2&service=sync`, selectors.SIGNIN.HEADER))
+      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
       .then(fillOutSignIn(email, PASSWORD))
       .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))

@@ -130,11 +130,13 @@ define([], function () {
       MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin',
       PASSWORD: '#password',
       SUBMIT: 'button[type="submit"]',
+      SUBMIT_DISABLED: 'button[type="submit"].disabled',
       SUB_HEADER: '#fxa-signup-header .service',
       SUGGEST_EMAIL_DOMAIN_CORRECTION: '.tooltip-suggest',
       SUGGEST_SIGN_IN: '.error',
       SUGGEST_SYNC: '#suggest-sync',
-      VPASSWORD: '#vpassword'
+      TOOLTIP_BOUNCED_EMAIL: '.tooltip',
+      VPASSWORD: '#vpassword',
     },
     SIGNUP_COMPLETE: {
       HEADER: '#fxa-sign-up-complete-header'

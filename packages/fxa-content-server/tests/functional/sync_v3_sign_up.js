@@ -32,10 +32,12 @@ define([
   const noSuchElement = FunctionalHelpers.noSuchElement;
   const noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   const testElementExists = FunctionalHelpers.testElementExists;
   const testEmailExpected = FunctionalHelpers.testEmailExpected;
   const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'Firefox Desktop Sync v3 sign_up',
@@ -47,6 +49,32 @@ define([
 
     afterEach: function () {
       return this.remote.then(clearBrowserState());
+    },
+
+    'sign up, user verifies at CWTS': function () {
+      return this.remote
+        .then(openPage(SIGNUP_FX_55_PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {
+              ok: true
+            },
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
+          }
+        }))
+        .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
+
+        .then(fillOutSignUp(email, PASSWORD))
+
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+
+        // about:accounts takes over, so no screen transition
+        .then(noPageTransition(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        // but the login message is sent automatically.
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
     'Fx <= 55, verify same browser': function () {
