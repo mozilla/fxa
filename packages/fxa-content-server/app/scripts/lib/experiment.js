@@ -27,6 +27,7 @@ define(function (require, exports, module) {
    * after the app has started.
    */
   const MANUAL_EXPERIMENTS = {
+    'emailFirst': BaseExperiment,
     // For now, the send SMS experiment only needs to log "enrolled", so
     // no special experiment is created.
     'sendSms': BaseExperiment

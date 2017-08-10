@@ -89,7 +89,9 @@ define(function (require, exports, module) {
     },
 
     initializeExperimentGroupingRules () {
-      this._experimentGroupingRules = new ExperimentGroupingRules();
+      this._experimentGroupingRules = new ExperimentGroupingRules({
+        env: this._config.env
+      });
     },
 
     initializeConfig () {

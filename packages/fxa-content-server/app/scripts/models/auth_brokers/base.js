@@ -412,6 +412,10 @@ define(function (require, exports, module) {
        */
       convertExternalLinksToText: false,
       /**
+       * Is the email-first flow supported?
+       */
+      emailFirst: false,
+      /**
        * should the *_complete pages show the marketing snippet?
        */
       emailVerificationMarketingSnippet: true,

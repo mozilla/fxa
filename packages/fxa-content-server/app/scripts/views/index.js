@@ -13,6 +13,7 @@ define(function (require, exports, module) {
 
   const Cocktail = require('cocktail');
   const CoppaMixin = require('views/mixins/coppa-mixin');
+  const EmailFirstExperimentMixin = require('views/mixins/email-first-experiment-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
   const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const FormView = require('views/form');
@@ -28,16 +29,20 @@ define(function (require, exports, module) {
     }
 
     afterRender () {
-      // COPPA checks whether the user is too young in beforeRender.
+      // 1. COPPA checks whether the user is too young in beforeRender.
       // So that COPPA takes precedece, do all other checks afterwards.
-      const action = this.relier.get('action') || 'signup';
+      // 2. action=email is specified by the firstrun page to specify
+      // the email-first flow.
+      const action = this.relier.get('action');
       if (this.user.getSignedInAccount().get('sessionToken')) {
         this.replaceCurrentPage('settings');
-      } else if (action !== 'email') {
+      } else if (action && action !== 'email') {
         this.replaceCurrentPage(action);
-      } else {
-        // notifies the router that the user is in the email-first flow.
+      } else if (this.isInEmailFirstExperimentGroup('treatment') || action === 'email') {
+        // let's the router know to use the email-first signin/signup page
         this.notifier.trigger('email-first-flow');
+      } else {
+        this.replaceCurrentPage('signup');
       }
     }
 
@@ -73,6 +78,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     IndexView,
     CoppaMixin({}),
+    EmailFirstExperimentMixin(),
     FlowBeginMixin,
     FormPrefillMixin,
     SearchParamMixin,

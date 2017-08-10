@@ -27,6 +27,7 @@ define(function (require, exports, module) {
         };
 
         experimentGroupingRules = new ExperimentGroupingRules({
+          env: 'development',
           experimentGroupingRules: [
             rule1,
             rule2
@@ -39,7 +40,7 @@ define(function (require, exports, module) {
       });
 
       it('delegates to the experimentGroupingRule', () => {
-        const subject = { uniqueUserId: 'user-id' };
+        const subject = { env: 'development', uniqueUserId: 'user-id' };
 
         assert.isTrue(experimentGroupingRules.choose('rule1', subject));
         assert.isTrue(rule1.choose.calledOnce);

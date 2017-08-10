@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   const CheckboxMixin = require('views/mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
   const CoppaMixin = require('views/mixins/coppa-mixin');
+  const EmailFirstExperimentMixin = require('views/mixins/email-first-experiment-mixin');
   const EmailOptInMixin = require('views/mixins/email-opt-in-mixin');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
@@ -323,6 +324,7 @@ define(function (require, exports, module) {
     AccountResetMixin,
     CheckboxMixin,
     CoppaMixin({ required: false }),
+    EmailFirstExperimentMixin({ treatmentPathname: '/' }),
     EmailOptInMixin,
     ExperimentMixin,
     FloatingPlaceholderMixin,

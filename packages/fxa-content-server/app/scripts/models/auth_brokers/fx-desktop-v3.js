@@ -19,7 +19,8 @@ define(function (require, exports, module) {
 
   var FxDesktopV3AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      allowUidChange: true
+      allowUidChange: true,
+      emailFirst: true
     }),
 
     type: 'fx-desktop-v3'

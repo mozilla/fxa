@@ -12,7 +12,11 @@ define([
   'use strict';
 
   const config = intern.config;
-  const PAGE_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true&action=email`;
+
+  const QUERY_PARAMS = '?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true&forceExperiment=emailFirst&forceExperimentGroup=treatment'; //eslint-disable-line max-len
+  const INDEX_PAGE_URL = `${config.fxaContentRoot}${QUERY_PARAMS}`;
+  const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup${QUERY_PARAMS}`;
+  const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin${QUERY_PARAMS}`;
 
   let email;
   const PASSWORD = '12345678';
@@ -42,9 +46,44 @@ define([
         .then(clearBrowserState({ force: true }));
     },
 
+    'open directly to /signup page, refresh on the /signup page': function () {
+      return this.remote
+        // redirected immediately to the / page
+        .then(openPage(SIGNUP_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': { ok: true }
+          }
+        }))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+
+        .refresh()
+
+        // refresh sends the user back to the first step
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
+    },
+
+    'open directly to /signin page, refresh on the /signin page': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        // redirected immediately to the / page
+        .then(openPage(SIGNIN_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': { ok: true }
+          }
+        }))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
+
+        .refresh()
+
+        // refresh sends the user back to the first step
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
+    },
+
     'signup': function () {
       return this.remote
-        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           webChannelResponses: {
             'fxaccounts:can_link_account': { ok: true }
           }
@@ -85,7 +124,7 @@ define([
     'signin - merge cancelled': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           webChannelResponses: {
             'fxaccounts:can_link_account': { ok: false }
           }
@@ -101,7 +140,7 @@ define([
     'signin verified': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           webChannelResponses: {
             'fxaccounts:can_link_account': { ok: true }
           }
@@ -131,7 +170,7 @@ define([
     'signin unverified': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: false }))
-        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           webChannelResponses: {
             'fxaccounts:can_link_account': { ok: true }
           }

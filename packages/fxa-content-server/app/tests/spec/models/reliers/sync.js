@@ -75,8 +75,8 @@ define(function (require, exports, module) {
             return relier.fetch();
           });
 
-          it('uses default action', () => {
-            assert.equal(relier.get('action'), 'signup');
+          it('none is set', () => {
+            assert.isFalse(relier.has('action'));
           });
         });
 

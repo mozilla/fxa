@@ -14,6 +14,7 @@ define((require, exports, module) => {
   const ExperimentGroupingRules = [
     require('./communication-prefs'),
     require('./disabled-button-state'),
+    require('./email-first'),
     require('./is-sampled-user'),
     require('./q3-form-changes'),
     require('./send-sms-enabled-for-country'),
@@ -25,6 +26,7 @@ define((require, exports, module) => {
 
   module.exports = class ExperimentChoiceIndex {
     constructor (options = {}) {
+      this._env = options.env;
       this._experimentGroupingRules = options.experimentGroupingRules || ExperimentGroupingRules.map((ExperimentChoice) => new ExperimentChoice());
     }
 
@@ -45,6 +47,7 @@ define((require, exports, module) => {
         // and the children.
         // A copy of subject is used so the original isn't modified.
         const subjectCopy = Object.create(subject);
+        subjectCopy.env = subject.env || this._env;
         subjectCopy.experimentGroupingRules = this;
         return experiment.choose(subjectCopy);
       }

@@ -39,7 +39,7 @@ define(function (require, exports, module) {
 
   module.exports = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
-      action: 'signup',
+      action: undefined,
       customizeSync: false,
       signinCode: undefined
     }),

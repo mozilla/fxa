@@ -1,0 +1,71 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/**
+ * An EmailFirstExperimentMixin factory.
+ *
+ * EmailFirstMixin is consumed by views that deal with the email-first experiment.
+ *
+ * @mixin EmailFirstExperimentMixin
+ */
+define(function (require, exports, module) {
+  'use strict';
+
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const EXPERIMENT_NAME = require('lib/experiments/grouping-rules/email-first').name;
+
+  /**
+   * Creates the mixin
+   *
+   * @param {Object} [options={}]
+   *   @param {String} [treatmentPathname] pathname to redirect to if the user is in `treatment`
+   * @returns {Object} mixin
+   */
+  module.exports = (options = {}) => {
+    return {
+      dependsOn: [ ExperimentMixin ],
+
+      beforeRender () {
+        if (this.isInEmailFirstExperiment()) {
+          this.createExperiment(EXPERIMENT_NAME);
+          if (this.isInEmailFirstExperimentGroup('treatment') && options.treatmentPathname) {
+            this.replaceCurrentPage(options.treatmentPathname);
+          }
+        }
+      },
+
+      /**
+       * Is the user in the email-first experiment?
+       *
+       * @returns {Boolean}
+       */
+      isInEmailFirstExperiment () {
+        return this.isInExperiment(EXPERIMENT_NAME, this._getEmailFirstExperimentSubject());
+      },
+
+      /**
+       * Is the user in email-first experiment's `groupName` group?
+       *
+       * @param {String} groupName
+       * @returns {Boolean}
+       */
+      isInEmailFirstExperimentGroup (groupName) {
+        return this.isInExperimentGroup(EXPERIMENT_NAME, groupName, this._getEmailFirstExperimentSubject());
+      },
+
+      /**
+       * Get the email-first experiment choice subject
+       *
+       * @returns {Object}
+       * @private
+       */
+      _getEmailFirstExperimentSubject () {
+        const subject = {
+          isEmailFirstSupported: this.broker.getCapability('emailFirst')
+        };
+        return subject;
+      }
+    };
+  };
+});

@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const AvatarMixin = require('views/mixins/avatar-mixin');
   const Cocktail = require('cocktail');
+  const EmailFirstExperimentMixin = require('views/mixins/email-first-experiment-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
   const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const FormView = require('views/form');
@@ -275,10 +276,11 @@ define(function (require, exports, module) {
     View,
     AccountResetMixin,
     AvatarMixin,
-    NoDisabledSubmitExperimentMixin,
     FlowBeginMixin,
+    EmailFirstExperimentMixin({ treatmentPathname: '/' }),
     FormPrefillMixin,
     MigrationMixin,
+    NoDisabledSubmitExperimentMixin,
     PasswordMixin,
     PasswordResetMixin,
     ServiceMixin,

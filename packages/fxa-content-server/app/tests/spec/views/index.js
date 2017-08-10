@@ -95,7 +95,7 @@ define((require, exports, module) => {
       });
 
       describe('no current account', () => {
-        describe('relier.action set, != email', () => {
+        describe('relier.action set, !== email', () => {
           it('replaces current page with page specified by `action`', () => {
             relier.set('action', 'signin');
             return view.render()
@@ -107,40 +107,78 @@ define((require, exports, module) => {
           });
         });
 
-        describe('relier.action not set', () => {
-          it('redirects to page specified by `action`', () => {
-            relier.unset('action');
-            return view.render()
-              .then(() => {
-                assert.isTrue(view.replaceCurrentPage.calledOnce);
-                assert.isTrue(view.replaceCurrentPage.calledWith('signup'));
-                assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
-              });
-          });
-        });
-
-        describe('action === `email`', () => {
-          beforeEach(() => {
+        describe('relier.action set, === email', () => {
+          it('replaces current page with page specified by `action`', () => {
             relier.set({
               action: 'email',
               service: 'sync',
               serviceName: 'Firefox Sync'
             });
-          });
 
-          it('renders as expected, starts the flow metrics', () => {
+            sinon.stub(view, 'isInEmailFirstExperimentGroup', () => false);
             sinon.spy(view, 'logFlowEventOnce');
+
             return view.render()
               .then(() => {
+                assert.isFalse(view.replaceCurrentPage.called);
+
+                assert.lengthOf(view.$('#fxa-enter-email-header'), 1);
                 assert.lengthOf(view.$('input[type=email]'), 1);
                 assert.lengthOf(view.$('#fxa-tos'), 1);
                 assert.lengthOf(view.$('#fxa-pp'), 1);
                 assert.include(view.$('.service').text(), 'Firefox Sync');
 
+                assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
+
                 assert.isTrue(view.logFlowEventOnce.calledOnce);
                 assert.isTrue(view.logFlowEventOnce.calledWith('begin'));
+              });
+          });
+        });
+
+        describe('user is in EmailFirstExperiment `treatment` group', () => {
+          it('renders as expected, starts the flow metrics', () => {
+            relier.set({
+              service: 'sync',
+              serviceName: 'Firefox Sync'
+            });
+
+            sinon.spy(view, 'logFlowEventOnce');
+            sinon.stub(view, 'isInEmailFirstExperimentGroup', () => true);
+
+            return view.render()
+              .then(() => {
+                assert.isFalse(view.replaceCurrentPage.called);
+                assert.isFalse(view.replaceCurrentPage.called);
+
+                assert.isTrue(view.isInEmailFirstExperimentGroup.calledOnce);
+                assert.isTrue(view.isInEmailFirstExperimentGroup.calledWith('treatment'));
+
+                assert.lengthOf(view.$('#fxa-enter-email-header'), 1);
+                assert.lengthOf(view.$('input[type=email]'), 1);
+                assert.lengthOf(view.$('#fxa-tos'), 1);
+                assert.lengthOf(view.$('#fxa-pp'), 1);
+                assert.include(view.$('.service').text(), 'Firefox Sync');
 
                 assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
+
+                assert.isTrue(view.logFlowEventOnce.calledOnce);
+                assert.isTrue(view.logFlowEventOnce.calledWith('begin'));
+              });
+          });
+        });
+
+        describe('user is not in EmailFirstExperiment `treatment` group', () => {
+          it('redirects to `/signup`', () => {
+            sinon.stub(view, 'isInEmailFirstExperimentGroup', () => false);
+
+            return view.render()
+              .then(() => {
+                assert.isTrue(view.isInEmailFirstExperimentGroup.calledOnce);
+                assert.isTrue(view.isInEmailFirstExperimentGroup.calledWith('treatment'));
+
+                assert.isTrue(view.replaceCurrentPage.calledOnce);
+                assert.isTrue(view.replaceCurrentPage.calledWith('signup'));
               });
           });
         });
@@ -168,6 +206,7 @@ define((require, exports, module) => {
         relier.set('action', 'email');
         sinon.stub(view, 'navigate', () => {});
         sinon.stub(broker, 'beforeSignIn', () => p());
+        sinon.stub(view, 'afterRender', () => p());
 
         return view.render();
       });
