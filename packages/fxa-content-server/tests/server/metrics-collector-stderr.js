@@ -6,11 +6,10 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'intern/dojo/node!./helpers/init-logging',
   'intern/dojo/node!../../server/lib/metrics-collector-stderr',
   'intern/dojo/node!path',
   'intern/dojo/node!proxyquire'
-], function (intern, registerSuite, assert, initLogging, StdErrCollector, path, proxyquire) {
+], function (intern, registerSuite, assert, StdErrCollector, path, proxyquire) {
   // ensure we don't get any module from the cache, but to load it fresh every time
   proxyquire.noPreserveCache();
 

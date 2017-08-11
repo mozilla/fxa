@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var mozlog = require('mozlog');
-var config = require('../../../server/lib/configuration');
+'use strict';
 
-mozlog.config(config.get('logging'));
+const config = require('../configuration').getProperties();
+
+module.exports = require('mozlog')(config.logging);

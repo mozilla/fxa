@@ -6,7 +6,6 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'intern/dojo/node!../helpers/init-logging',
   'intern/dojo/node!fs',
   'intern/dojo/node!path',
   'intern/dojo/node!../../../server/lib/configuration',
@@ -14,7 +13,7 @@ define([
   'intern/dojo/node!sinon',
   'intern/dojo/node!got',
   'tests/lib/helpers'
-], function (intern, registerSuite, assert, initLogging, fs, path, config,
+], function (intern, registerSuite, assert, fs, path, config,
   proxyquire, sinon, got, TestHelpers) {
 
   const REPORT_URL = intern.config.fxaContentRoot.replace(/\/$/, '') + '/_/csp-violation';

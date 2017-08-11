@@ -19,7 +19,7 @@
 
 'use strict';
 const path = require('path');
-const logger = require('mozlog')('route.get-terms-privacy');
+const logger = require('../logging/log')('route.get-terms-privacy');
 const config = require('../configuration');
 
 const PAGE_TEMPLATE_DIRECTORY = path.join(config.get('page_template_root'), 'dist');

@@ -39,7 +39,7 @@ define([
         '../configuration': {
           getProperties: configSpy
         },
-        'mozlog': function() {
+        './log': function() {
           return {
             info: loggerSpy
           };

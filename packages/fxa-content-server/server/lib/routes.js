@@ -4,7 +4,7 @@
 
 'use strict';
 const celebrate = require('celebrate');
-const logger = require('mozlog')('server.routes');
+const logger = require('./logging/log')('server.routes');
 
 /**
  * Each route has 3 attributes: `method`, `path` and `process`.

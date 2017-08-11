@@ -14,7 +14,6 @@ const express = require('express');
 const fs = require('fs');
 const helmet = require('helmet');
 const https = require('https');
-const mozlog = require('mozlog');
 const path = require('path');
 const serveStatic = require('serve-static');
 
@@ -28,10 +27,7 @@ if (isMain) {
   process.chdir(path.dirname(__dirname));
 }
 
-mozlog.config(config.get('logging'));
-
-const logger = require('mozlog')('server.main');
-
+const logger = require('../lib/logging/log')('server.main');
 
 const i18n = require('../lib/i18n')(config.get('i18n'));
 const routes = require('../lib/routes')(config, i18n);

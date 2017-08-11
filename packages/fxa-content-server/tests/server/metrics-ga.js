@@ -6,12 +6,11 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'intern/dojo/node!./helpers/init-logging',
   'intern/dojo/node!fs',
   'intern/dojo/node!path',
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/node!proxyquire'
-], function (intern, registerSuite, assert, initLogging, fs, path, config, proxyquire) {
+], function (intern, registerSuite, assert, fs, path, config, proxyquire) {
   var suite = {
     name: 'ga metrics'
   };

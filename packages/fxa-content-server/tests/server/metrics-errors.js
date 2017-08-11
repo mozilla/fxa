@@ -8,12 +8,11 @@ define([
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/node!got',
-  'intern/dojo/node!./helpers/init-logging',
   'intern/dojo/node!fs',
   'intern/dojo/node!path',
   'intern/dojo/node!proxyquire',
   'intern/dojo/node!url'
-], function (intern, registerSuite, assert, config, got, initLogging, fs, path, proxyquire, url) {
+], function (intern, registerSuite, assert, config, got, fs, path, proxyquire, url) {
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {

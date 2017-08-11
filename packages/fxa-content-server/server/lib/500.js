@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-const logger = require('mozlog')('route.500');
+const logger = require('./logging/log')('route.500');
 
 // It's a 500 server error response.
 

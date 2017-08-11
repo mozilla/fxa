@@ -22,7 +22,7 @@
 const cp = require('child_process');
 const path = require('path');
 const Promise = require('bluebird');
-const logger = require('mozlog')('server.version');
+const logger = require('./logging/log')('server.version');
 
 const UNKNOWN = 'unknown';
 

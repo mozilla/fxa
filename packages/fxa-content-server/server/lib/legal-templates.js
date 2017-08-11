@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const Promise = require('bluebird');
-const logger = require('mozlog')('legal-templates');
+const logger = require('./logging/log')('legal-templates');
 
 module.exports = function (i18n, root) {
 

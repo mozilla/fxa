@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-const logger = require('mozlog')('server.statsd');
+const logger = require('./logging/log')('server.statsd');
 const StatsD = require('node-statsd');
 const uaParser = require('node-uap');
 

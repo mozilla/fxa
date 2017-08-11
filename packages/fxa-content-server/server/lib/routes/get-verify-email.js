@@ -4,7 +4,7 @@
 
 const url = require('url');
 const got = require('got');
-const logger = require('mozlog')('server.get-verify-email');
+const logger = require('../logging/log')('server.get-verify-email');
 const config = require('../configuration');
 const ravenClient = require('../../lib/raven').ravenMiddleware;
 const joi = require('joi');

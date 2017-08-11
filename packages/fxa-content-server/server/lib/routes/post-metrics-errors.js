@@ -4,7 +4,7 @@
 
 'use strict';
 const _ = require('lodash');
-const logger = require('mozlog')('server.metrics-errors');
+const logger = require('../logging/log')('server.metrics-errors');
 const got = require('got');
 const joi = require('joi');
 const querystring = require('querystring');

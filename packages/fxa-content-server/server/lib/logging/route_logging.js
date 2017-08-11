@@ -5,7 +5,7 @@
 
 // Middleware to log the requests
 
-const logger = require('mozlog')('server.requests');
+const logger = require('./log')('server.requests');
 const morgan = require('morgan');
 const config = require('../configuration').getProperties();
 

@@ -7,12 +7,11 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/Promise',
-  'intern/dojo/node!./helpers/init-logging',
   'intern/dojo/node!fs',
   'intern/dojo/node!dgram',
   'intern/dojo/node!path',
   'intern/dojo/node!../../server/lib/statsd-collector'
-], function (intern, registerSuite, assert, Promise, initLogging, fs, dgram, path, StatsDCollector) {
+], function (intern, registerSuite, assert, Promise, fs, dgram, path, StatsDCollector) {
   var STATSD_PORT = 8125;
   var STATSD_HOST = '127.0.0.1';
   var EXPECTED_DATA_ROOT = path.join('tests', 'server', 'expected');

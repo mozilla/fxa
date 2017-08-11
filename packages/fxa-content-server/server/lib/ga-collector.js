@@ -5,7 +5,7 @@
 'use strict';
 const extend = require('extend');
 const universalAnalytics = require('universal-analytics');
-const logger = require('mozlog')('server.ga');
+const logger = require('./logging/log')('server.ga');
 const config = require('./configuration');
 
 const PUBLIC_URL = config.get('public_url');

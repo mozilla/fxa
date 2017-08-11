@@ -8,9 +8,8 @@ define([
   'intern/dojo/node!lodash',
   'intern/dojo/node!path',
   'intern/dojo/node!proxyquire',
-  'intern/dojo/node!sinon',
-  'intern/dojo/node!../helpers/init-logging'
-], function (registerSuite, assert, _, path, proxyquire, sinon, initLogging) {
+  'intern/dojo/node!sinon'
+], function (registerSuite, assert, _, path, proxyquire, sinon) {
   var mocks, route, instance, sandbox;
 
   registerSuite({
@@ -66,7 +65,7 @@ define([
           '../statsd-collector': function () {
             return mocks.statsdCollector;
           },
-          'mozlog': function () {
+          '../logging/log': function () {
             return mocks.mozlog;
           }
         }

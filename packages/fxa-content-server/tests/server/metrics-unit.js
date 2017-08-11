@@ -6,11 +6,10 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'intern/dojo/node!./helpers/init-logging',
   'intern/dojo/node!path',
   'intern/dojo/node!proxyquire',
   'intern/dojo/node!sinon'
-], function (intern, registerSuite, assert, initLogging, path, proxyquire, sinon) {
+], function (intern, registerSuite, assert, path, proxyquire, sinon) {
   // ensure we don't get any module from the cache, but to load it fresh every time
   proxyquire.noPreserveCache();
   var suite = {};
@@ -194,7 +193,7 @@ define([
     return {
       callbacks: callbacks,
       metrics: proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'), {
-        mozlog: function () {
+        '../logging/log': function () {
           return mocks.logger;
         },
         '../configuration': {
