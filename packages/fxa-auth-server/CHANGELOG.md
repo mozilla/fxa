@@ -1,3 +1,13 @@
+<a name="1.93.1"></a>
+## [1.93.1](https://github.com/mozilla/fxa-auth-server/compare/v1.93.0...v1.93.1) (2017-08-11)
+
+
+### Bug Fixes
+
+* **devices:** ditch OS in synthesized name if form factor is present (#2047) r=vladikoff ([d96f299](https://github.com/mozilla/fxa-auth-server/commit/d96f299))
+
+
+
 <a name="1.93.0"></a>
 # [1.93.0](https://github.com/mozilla/fxa-auth-server/compare/v1.92.0...v1.93.0) (2017-08-09)
 
