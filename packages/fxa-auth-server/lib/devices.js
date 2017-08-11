@@ -79,18 +79,16 @@ module.exports = (log, db, push) => {
       }
     }
 
+    if (uaFormFactor) {
+      return `${result}${uaFormFactor}`
+    }
+
     if (uaOS) {
       result += uaOS
 
-      if (uaFormFactor) {
-        result += ' '
-      } else if (uaOSVersion) {
+      if (uaOSVersion) {
         result += ` ${uaOSVersion}`
       }
-    }
-
-    if (uaFormFactor) {
-      result += uaFormFactor
     }
 
     return result
