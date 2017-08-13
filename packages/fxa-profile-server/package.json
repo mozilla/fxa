@@ -29,7 +29,7 @@
     "mozlog": "2.0.5",
     "mysql": "2.11.1",
     "mysql-patcher": "0.7.0",
-    "newrelic": "1.40.0",
+    "newrelic": "2.1.0",
     "poolee": "1.0.0",
     "request": "2.79.0",
     "stream-to-array": "2.3.0"
