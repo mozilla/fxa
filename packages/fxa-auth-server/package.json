@@ -38,6 +38,7 @@
     "mozlog": "^2.0.3",
     "mysql": "^2.5.5",
     "mysql-patcher": "^0.7.0",
+    "newrelic": "2.1.0",
     "request": "^2.74.0",
     "urijs": "^1.16.1"
   },
