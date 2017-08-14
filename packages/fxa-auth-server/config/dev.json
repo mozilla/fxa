@@ -34,6 +34,18 @@
       "canGrant": false
     },
     {
+      "id": "c6d74070a481bc10",
+      "name": "Firefox Notes Dev",
+      "hashedSecret": "9c716ed2927c96cdc0fb7efe57d5f124fb4161066c1ff7f4263069822256ec3f",
+      "redirectUri": "https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org",
+      "imageUri": "",
+      "canGrant": false,
+      "termsUri": "",
+      "privacyUri": "",
+      "trusted": true,
+      "publicClient": true
+    },
+    {
       "id": "98e6508e88680e1a",
       "hashedSecret": "ba5cfb370fd782f7eae1807443ab816288c101a54c0d80a09063273c86d3c435",
       "name": "Firefox Accounts Settings",
