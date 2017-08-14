@@ -11,7 +11,6 @@ const P = require('../promise')
 
 const patch = require('./patch')
 const dbUtil = require('./util')
-const nodeUtil = require('util')
 
 // http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
 const ER_TOO_MANY_CONNECTIONS = 1040
@@ -467,9 +466,9 @@ module.exports = function (log, error) {
   // Where  : accounts.normalizedEmail = LOWER($1)
   var EMAIL_RECORD = 'CALL emailRecord_4(?)'
 
-  MySql.prototype.emailRecord = nodeUtil.deprecate(function (emailBuffer) {
+  MySql.prototype.emailRecord = function (emailBuffer) {
     return this.readFirstResult(EMAIL_RECORD, [emailBuffer.toString('utf8')])
-  }, 'DeprecationWarning for mysql.emailRecord: Use mysql.accountRecord')
+  }
 
   // Select : accounts
   // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, locale, lockedAt

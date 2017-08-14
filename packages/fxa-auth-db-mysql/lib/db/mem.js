@@ -9,7 +9,6 @@ const extend = require('util')._extend
 const ip = require('ip')
 const dbUtil = require('./util')
 const config = require('../../config')
-const nodeUtil = require('util')
 
 // our data stores
 var accounts = {}
@@ -537,13 +536,13 @@ module.exports = function (log, error) {
   // Returns:
   //   - the account if found
   //   - throws 'notFound' if not found
-  Memory.prototype.emailRecord = nodeUtil.deprecate(function (email) {
+  Memory.prototype.emailRecord = function (email) {
     email = email.toString('utf8').toLowerCase()
     return getAccountByUid(uidByNormalizedEmail[email])
       .then(function (account) {
         return filterAccount(account)
       })
-  }, 'DeprecationWarning for mem.emailRecord: Use mem.accountRecord')
+  }
 
   Memory.prototype.sessions = function (uid) {
     return this.accountDevices(uid).then(function (devices) {
