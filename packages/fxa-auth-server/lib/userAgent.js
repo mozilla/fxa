@@ -14,6 +14,7 @@ const MOBILE_OS_FAMILIES = new Set([
   'Brew MP',
   'Firefox OS',
   'iOS',
+  'Kindle',
   'Maemo',
   'MeeGo',
   'Symbian OS',
@@ -86,29 +87,36 @@ function getDeviceType (data) {
   }
 }
 
-function getFormFactor (data) {
-  if (data.device && data.device.brand !== 'Generic') {
-    return getFamily(data.device)
-  }
-}
-
 function isMobileOS (os) {
   return MOBILE_OS_FAMILIES.has(os.family)
 }
 
 function isTablet(data) {
-  // 'tablets' are iPads and Android devices with no word 'Mobile' in them.
-  // Ref: https://webmasters.googleblog.com/2011/03/mo-better-to-also-detect-mobile-user.html
-  const deviceFamily = getFamily(data.device)
-  if (deviceFamily) {
-    if (/iPad/.test(deviceFamily) ||
-       (data.os && data.os.family === 'Android' && data.userAgent.indexOf('Mobile') === -1)
-    ) {
-      return true
-    }
-  }
+  return isIpad(data) || isAndroidTablet(data) || isKindle(data) || isGenericTablet(data)
+}
 
-  return false
+function isIpad (data) {
+  return /iPad/.test(data.device.family)
+}
+
+function isAndroidTablet (data) {
+  return data.os.family === 'Android' &&
+    data.userAgent.indexOf('Mobile') === -1 &&
+    data.userAgent.indexOf('AndroidSync') === -1
+}
+
+function isKindle (data) {
+  return /Kindle/.test(data.device.family)
+}
+
+function isGenericTablet (data) {
+  return data.device.brand === 'Generic' && data.device.model === 'Tablet'
+}
+
+function getFormFactor (data) {
+  if (data.device.brand !== 'Generic') {
+    return getFamily(data.device)
+  }
 }
 
 function marshallDeviceType (formFactor) {

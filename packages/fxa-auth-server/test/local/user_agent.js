@@ -129,6 +129,7 @@ describe('userAgent', () => {
     'recognises Android phones as a mobile OS',
     () => {
       parserResult = {
+        userAgent: 'Mozilla/5.0 (Android 7.1.2; Mobile; rv:56.0) Gecko/56.0 Firefox/56.0',
         ua: {
           family: 'foo',
           major: '1',
@@ -379,6 +380,54 @@ describe('userAgent', () => {
     }
   )
 
+  it('recognises FirefoxOS mobiles as mobiles', () => {
+    parserResult = {
+      userAgent: 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0',
+      ua: {
+        family: 'Firefox Mobile',
+        major: '26',
+        minor: '0'
+      },
+      os: {
+        family: 'Firefox OS',
+        major: '1',
+        minor: '2'
+      },
+      device: {
+        family: 'Generic Smartphone',
+        brand: 'Generic',
+        model: 'Smartphone'
+      }
+    }
+    const result = userAgent.call({})
+
+    assert.equal(result.uaDeviceType, 'mobile')
+  })
+
+  it('recognises FirefoxOS tablets as tablets', () => {
+    parserResult = {
+      userAgent: 'Mozilla/5.0 (Tablet; rv:26.0) Gecko/26.0 Firefox/26.0',
+      ua: {
+        family: 'Firefox Mobile',
+        major: '26',
+        minor: '0'
+      },
+      os: {
+        family: 'Firefox OS',
+        major: '1',
+        minor: '2'
+      },
+      device: {
+        family: 'Generic Tablet',
+        brand: 'Generic',
+        model: 'Tablet'
+      }
+    }
+    const result = userAgent.call({})
+
+    assert.equal(result.uaDeviceType, 'tablet')
+  })
+
   it('ignores form factor for generic devices', () => {
     parserResult = {
       userAgent: 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0',
@@ -469,6 +518,30 @@ describe('userAgent', () => {
     }
   )
 
+  it('recognises old Android Sync user agents', () => {
+    parserResult = {
+      userAgent: 'Firefox AndroidSync 1.51.0.0 (Firefox)',
+      ua: {
+        family: 'Other'
+      },
+      os: {
+        family: 'Android'
+      },
+      device: {
+        family: 'Generic Smartphone',
+        brand: 'Generic',
+        model: 'Smartphone'
+      }
+    }
+    const result = userAgent.call({}, 'Firefox AndroidSync 1.51.0.0 (Firefox)')
+
+    assert.equal(result.uaBrowser, null)
+    assert.equal(result.uaBrowserVersion, null)
+    assert.equal(result.uaOS, 'Android')
+    assert.equal(result.uaDeviceType, 'mobile')
+    assert.equal(result.uaFormFactor, null)
+  })
+
   it('recognises new mobile Sync library user agents on Android', () => {
     parserResult = null
     const context = {}
@@ -495,6 +568,60 @@ describe('userAgent', () => {
     assert.equal(result.uaOSVersion, '10.3')
     assert.equal(result.uaDeviceType, 'tablet')
     assert.equal(result.uaFormFactor, 'iPad Mini')
+  })
+
+  it('recognises old Kindle user agents', () => {
+    parserResult = {
+      userAgent: 'Mozilla/5.0 (Linux; U; en-US) AppleWebKit/528.5+ (KHTML, like Gecko, Safari/528.5+) Version/4.0 Kindle/3.0 (screen 600×800; rotate)',
+      ua: {
+        family: 'Kindle'
+      },
+      os: {
+        family: 'Kindle'
+      },
+      device: {
+        family: 'Kindle',
+        brand: 'Amazon',
+        model: 'Kindle 3.0'
+      }
+    }
+    const result = userAgent.call({})
+
+    assert.equal(result.uaBrowser, 'Kindle')
+    assert.equal(result.uaBrowserVersion, null)
+    assert.equal(result.uaOS, 'Kindle')
+    assert.equal(result.uaDeviceType, 'tablet')
+    assert.equal(result.uaFormFactor, 'Kindle')
+  })
+
+  it('recognises Kindle Fire user agents', () => {
+    parserResult = {
+      userAgent: 'Mozilla/5.0 (Linux; U; Android 2.3.4; en-us; Kindle Fire Build/GINGERBREAD) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
+      ua: {
+        family: 'Android',
+        major: '2',
+        minor: '3',
+        patch: '4'
+      },
+      os: {
+        family: 'Android',
+        major: '2',
+        minor: '3',
+        patch: '4'
+      },
+      device: {
+        family: 'Kindle',
+        brand: 'Amazon',
+        model: 'Kindle Fire'
+      }
+    }
+    const result = userAgent.call({})
+
+    assert.equal(result.uaBrowser, 'Android')
+    assert.equal(result.uaBrowserVersion, '2.3')
+    assert.equal(result.uaOS, 'Android')
+    assert.equal(result.uaDeviceType, 'tablet')
+    assert.equal(result.uaFormFactor, 'Kindle')
   })
 })
 
