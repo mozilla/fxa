@@ -79,6 +79,7 @@
     "node-statsd": "0.1.1",
     "node-uap": "git://github.com/vladikoff/node-uap.git#9cdd16247",
     "on-headers": "1.0.1",
+    "photon-colors": "1.0.3",
     "raven": "0.12.3",
     "serve-static": "1.12.3",
     "time-grunt": "1.4.0",
