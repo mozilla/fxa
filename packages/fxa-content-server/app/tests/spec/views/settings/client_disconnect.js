@@ -105,9 +105,11 @@ define(function (require, exports, module) {
     describe('render', () => {
       it('renders initial view', () => {
         return view.render().then(() => {
+          sinon.spy(view, 'enableForm');
           assert.ok($(view.el).find('.intro').length, 'intro text');
           assert.ok($(view.el).find('.disconnect-reasons').length, 'radio');
           assert.notOk($(view.el).find('.reason-help').length, 'help');
+          assert.ok($(view.el).find('input[name=disconnect-reasons][value=no]').prop('checked'), 'Rather not Say');
         });
       });
 
@@ -132,24 +134,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('selectOption event', () => {
-      it('select disables form properly', () => {
-        sinon.spy(view, 'disableForm');
-        sinon.spy(view, 'enableForm');
-
-        return view.render().then(() => {
-          assert.ok(view.disableForm.calledOnce);
-          assert.notOk(view.enableForm.calledOnce);
-          assert.ok($(view.el).find('.warning.disabled').length, 'has disabled class');
-
-          // choose an option
-          $(view.el).find('input[name=disconnect-reasons][value=no]').prop('checked', true).change();
-          assert.notOk($(view.el).find('.warning.disabled').length, 'no disabled button');
-          assert.ok(view.disableForm.calledOnce);
-          assert.ok(view.enableForm.calledOnce);
-        });
-      });
-    });
 
     describe('_returnToClientListAfterDisconnect event', () => {
       it('does not navigate if not disconnected', () => {
