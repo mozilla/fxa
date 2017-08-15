@@ -11,7 +11,7 @@ module.exports = function (grunt) {
         pattern: 'This Source Code Form is subject to the terms of the Mozilla'
       },
       src: [
-        '<%= eslint.files %>'
+        '<%= eslint.app.src %>'
       ]
     }
   })
