@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "precommit": "node scripts/write-api-docs && git add docs/api.md",
+    "precommit": "grunt newer:doc && git add docs/api.md",
     "prepush": "grunt quicklint && grunt templates && git status -s | (! grep 'M lib/senders/templates/')",
     "postinstall": "scripts/download_l10n.sh",
     "shrinkwrap": "npmshrink && npm run postinstall",

@@ -42,35 +42,50 @@ const SESSION_TOKEN_STRATEGY = /^sessionToken/
 const KEY_FETCH_TOKEN_STRATEGY = /^keyFetchToken/
 const NOT_ERRORS = new Set([ 'toString', 'header', 'backtrace', 'translate' ])
 
-const args = parseArgs()
 
-P.all([
-  parseDocs(args.path),
-  parseErrors()
-])
-.spread((docs, errors) => P.all([
-  parseRoutes().then(routes => marshallRouteData(docs, errors.definitionsMap, routes)),
-  parseValidators(),
-  parseMetricsContext(),
-  parseFeatures(),
-  docs,
-  errors
-]))
-.spread((modules, validators, metricsContext, features, docs, errors) => writeOutput(Object.assign({
-  modules,
-  validators,
-  metricsContext,
-  features,
-  errors: errors.definitions,
-  additionalErrorParams: errors.additionalErrorParams
-}, docs), args.path))
-.then(() => {
-  console.log(`API docs updated at ${args.path}`)
-})
-.catch(error => {
-  console.error(error.stack)
-  process.exit(1)
-})
+function main() {
+  const args = parseArgs()
+  doc(args)
+    .catch(err => {
+      process.exit(1)
+    })
+}
+
+if (require.main === module) {
+  main()
+} else {
+  module.exports = doc
+}
+
+function doc(args) {
+  return P.all([
+    parseDocs(args.path),
+    parseErrors()
+  ])
+  .spread((docs, errors) => P.all([
+    parseRoutes().then(routes => marshallRouteData(docs, errors.definitionsMap, routes)),
+    parseValidators(),
+    parseMetricsContext(),
+    parseFeatures(),
+    docs,
+    errors
+  ]))
+  .spread((modules, validators, metricsContext, features, docs, errors) => writeOutput(Object.assign({
+    modules,
+    validators,
+    metricsContext,
+    features,
+    errors: errors.definitions,
+    additionalErrorParams: errors.additionalErrorParams
+  }, docs), args.path))
+  .then(() => {
+    console.log(`API docs updated at ${args.path}`)
+  })
+  .catch(error => {
+    console.error(error.stack)
+  })
+
+}
 
 function parseArgs () {
   let outputPath
