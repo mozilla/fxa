@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// XXX: ES6 features aren't currently allowed in this file.
+'use strict'
 
-var createMailer = require('./email')
-var createSms = require('./sms')
-var P = require('../promise')
+const createMailer = require('./email')
+const createSms = require('./sms')
+const P = require('../promise')
 
-module.exports = function (log, config, error, bounces, translator, sender) {
-  var defaultLanguage = config.i18n.defaultLanguage
+module.exports = (log, config, error, bounces, translator, sender) => {
+  const defaultLanguage = config.i18n.defaultLanguage
 
   function createSenders() {
-    var Mailer = createMailer(log)
+    const Mailer = createMailer(log)
     return require('./templates')()
       .then(function (templates) {
         return {
@@ -24,17 +24,17 @@ module.exports = function (log, config, error, bounces, translator, sender) {
 
   return createSenders()
   .then(function (senders) {
-    var ungatedMailer = senders.email
+    const ungatedMailer = senders.email
 
     function getSafeMailer(email) {
       return bounces.check(email)
         .return(ungatedMailer)
         .catch(function (e) {
-          var info = {
+          const info = {
             op: 'mailer.blocked',
             errno: e.errno
           }
-          var bouncedAt = e.output && e.output.payload && e.output.payload.bouncedAt
+          const bouncedAt = e.output && e.output.payload && e.output.payload.bouncedAt
           if (bouncedAt) {
             info.bouncedAt = bouncedAt
           }
@@ -44,8 +44,8 @@ module.exports = function (log, config, error, bounces, translator, sender) {
     }
 
     function getSafeMailerWithEmails(emails) {
-      var ungatedEmails = []
-      var gatedEmailErrors = []
+      const ungatedEmails = []
+      const gatedEmailErrors = []
 
       // Filter down to emails to only ones that are not gated
       return P.map(emails, function (email) {
@@ -63,8 +63,8 @@ module.exports = function (log, config, error, bounces, translator, sender) {
             throw gatedEmailErrors[0]
           }
 
-          var ungatedPrimaryEmail = getPrimaryEmail(ungatedEmails)
-          var ungatedCcEmails = getVerifiedSecondaryEmails(ungatedEmails)
+          let ungatedPrimaryEmail = getPrimaryEmail(ungatedEmails)
+          const ungatedCcEmails = getVerifiedSecondaryEmails(ungatedEmails)
 
           // This user is having a bad time, their primary email is bouncing.
           // Send emails to ungated secondary emails
@@ -104,7 +104,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
 
     senders.email = {
       sendVerifyCode: function (emails, account, opts) {
-        var primaryEmail = account.email
+        const primaryEmail = account.email
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {
             return mailer.verifyEmail({
@@ -129,9 +129,9 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       sendVerifyLoginEmail: function (emails, account, opts) {
         return getSafeMailerWithEmails(emails)
           .then(function (result) {
-            var mailer = result.ungatedMailer
-            var primaryEmail = result.ungatedPrimaryEmail
-            var ccEmails = result.ungatedCcEmails
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
 
             return mailer.verifyLoginEmail({
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
@@ -155,8 +155,8 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           })
       },
       sendVerifySecondaryEmail: function (emails, account, opts) {
-        var primaryEmail = account.email
-        var verifyEmailAddress = emails[0].email
+        const primaryEmail = account.email
+        const verifyEmailAddress = emails[0].email
 
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {
@@ -182,9 +182,9 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       sendRecoveryCode: function (emails, account, opts) {
         return getSafeMailerWithEmails(emails)
           .then(function (result) {
-            var mailer = result.ungatedMailer
-            var primaryEmail = result.ungatedPrimaryEmail
-            var ccEmails = result.ungatedCcEmails
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
 
             return mailer.recoveryEmail({
               ccEmails: ccEmails,
@@ -211,9 +211,9 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       sendPasswordChangedNotification: function (emails, account, opts) {
         return getSafeMailerWithEmails(emails)
           .then(function (result) {
-            var mailer = result.ungatedMailer
-            var primaryEmail = result.ungatedPrimaryEmail
-            var ccEmails = result.ungatedCcEmails
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
 
             return mailer.passwordChangedEmail({
               email: primaryEmail,
@@ -231,9 +231,9 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       sendPasswordResetNotification: function (emails, account, opts) {
         return getSafeMailerWithEmails(emails)
           .then(function (result) {
-            var mailer = result.ungatedMailer
-            var primaryEmail = result.ungatedPrimaryEmail
-            var ccEmails = result.ungatedCcEmails
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
 
             return mailer.passwordResetEmail({
               ccEmails: ccEmails,
@@ -247,9 +247,9 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       sendNewDeviceLoginNotification: function (emails, account, opts) {
         return getSafeMailerWithEmails(emails)
           .then(function (result) {
-            var mailer = result.ungatedMailer
-            var primaryEmail = result.ungatedPrimaryEmail
-            var ccEmails = result.ungatedCcEmails
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
 
             return mailer.newDeviceLoginEmail({
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
@@ -268,7 +268,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           })
       },
       sendPostVerifyEmail: function (emails, account, opts) {
-        var primaryEmail = account.email
+        const primaryEmail = account.email
 
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {
@@ -281,9 +281,9 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       sendPostRemoveSecondaryEmail: function (emails, account, opts) {
         return getSafeMailerWithEmails(emails)
           .then(function (result) {
-            var mailer = result.ungatedMailer
-            var primaryEmail = result.ungatedPrimaryEmail
-            var ccEmails = result.ungatedCcEmails
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
 
             return mailer.postRemoveSecondaryEmail({
               email: primaryEmail,
@@ -294,7 +294,7 @@ module.exports = function (log, config, error, bounces, translator, sender) {
           })
       },
       sendPostVerifySecondaryEmail: function (emails, account, opts) {
-        var primaryEmail = account.primaryEmail.email
+        const primaryEmail = account.primaryEmail.email
 
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {
@@ -308,9 +308,9 @@ module.exports = function (log, config, error, bounces, translator, sender) {
       sendUnblockCode: function (emails, account, opts) {
         return getSafeMailerWithEmails(emails)
           .then(function (result) {
-            var mailer = result.ungatedMailer
-            var primaryEmail = result.ungatedPrimaryEmail
-            var ccEmails = result.ungatedCcEmails
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
 
             return mailer.unblockCodeEmail({
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
