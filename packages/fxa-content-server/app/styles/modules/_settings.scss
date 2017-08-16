@@ -627,6 +627,10 @@ section.modal-panel {
   &[data-name='Firefox Notes'] {
     background-image: url('/images/icon-service-firefox-notes.svg');
   }
+
+  &[data-name='Pontoon'] {
+    background-image: url('/images/icon-service-pontoon.svg');
+  }
 }
 
 .client-webSession {
