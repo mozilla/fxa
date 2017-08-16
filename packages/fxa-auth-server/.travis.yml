@@ -46,7 +46,7 @@ script:
   - COVERALLS_REPO_TOKEN=vKN3jjhAOwxkv9HG0VBX4EYIlWLPwiJ9d npm run test-ci
   - npm run test-e2e
   # Test fxa-auth-mailer
-  - grunt templates
+  - grunt templates && git status -s | (! grep 'M lib/senders/templates/')
   - grunt l10n-extract
   # NSP check
   - grunt nsp

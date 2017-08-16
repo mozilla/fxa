@@ -10,7 +10,6 @@
   },
   "scripts": {
     "precommit": "grunt newer:doc && git add docs/api.md",
-    "prepush": "grunt quicklint && grunt templates && git status -s | (! grep 'M lib/senders/templates/')",
     "postinstall": "scripts/download_l10n.sh",
     "shrink": "npmshrink && npm run postinstall",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",
