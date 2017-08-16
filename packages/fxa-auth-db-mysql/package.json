@@ -12,7 +12,7 @@
   },
   "scripts": {
     "outdated": "npm outdated --depth 0",
-    "shrinkwrap": "npmshrink",
+    "shrink": "npmshrink",
     "start": "node ./bin/db_patcher.js >/dev/null && node ./bin/server.js",
     "start-mem": "node ./bin/mem",
     "test": "npm run test-mysql && npm run test-mem && npm run test-server",

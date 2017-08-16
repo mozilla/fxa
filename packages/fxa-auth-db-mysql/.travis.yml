@@ -1,12 +1,10 @@
 language: node_js
 
 node_js:
- - "4"
  - "6"
  - "stable"
 
 dist: trusty
-sudo: required
 
 addons:
   apt:
@@ -30,7 +28,6 @@ notifications:
     skip_join: false
 
 before_install:
-  - if [ "$TRAVIS_NODE_VERSION" == "0.10" ]; then npm install -g npm@2; fi
   - npm config set spin false
 
 before_script:
