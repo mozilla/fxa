@@ -1,18 +1,15 @@
 language: node_js
 
 node_js:
- - "4"
  - "6"
 
 dist: trusty
-sudo: required
 
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - g++-4.8
     - mysql-server-5.6
     - mysql-client-core-5.6
     - mysql-client-5.6
@@ -36,10 +33,6 @@ notifications:
 
 before_install:
   - npm config set spin false
-
-install:
-  # use c++-11 with node4, default compiler on downlevel versions
-  - if [ $TRAVIS_NODE_VERSION == "4" ]; then CXX=g++-4.8 npm install; else npm install; fi
 
 script:
   - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
