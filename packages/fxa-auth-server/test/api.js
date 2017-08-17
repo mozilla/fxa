@@ -86,10 +86,11 @@ var badSecret;
 var clientId;
 var AN_ASSERTION;
 
-function authParams(params) {
+function authParams(params, options) {
+  options = options || {};
   var defaults = {
     assertion: AN_ASSERTION,
-    client_id: clientId,
+    client_id: options.clientId || clientId,
     state: '1',
     scope: 'a'
   };
@@ -101,22 +102,23 @@ function authParams(params) {
   return defaults;
 }
 
-function newToken(payload) {
+function newToken(payload, options) {
   payload = payload || {};
+  options = options || {};
   var ttl = payload.ttl || MAX_TTL_S;
   delete payload.ttl;
   mockAssertion().reply(200, VERIFY_GOOD);
   return Server.api.post({
     url: '/authorization',
-    payload: authParams(payload)
+    payload: authParams(payload, options)
   }).then(function(res) {
     assert.equal(res.statusCode, 200);
     assertSecurityHeaders(res);
     return Server.api.post({
       url: '/token',
       payload: {
-        client_id: clientId,
-        client_secret: secret,
+        client_id: options.clientId || clientId,
+        client_secret: options.secret || secret,
         code: url.parse(res.result.redirect, true).query.code,
         ttl: ttl
       }
@@ -1220,6 +1222,50 @@ describe('/v1', function() {
           }).then(function(res) {
             assertInvalidRequestParam(res.result, 'refresh_token');
             assertSecurityHeaders(res);
+          });
+        });
+
+        it('can refresh a token as a Public (PKCE) Client', function() {
+          var clientId = '38a6b9b3a65a1871';
+          var clientSecret = 'd914ea58d579ec907a1a40b19fb3f3a631461fe00e494521d41c0496f49d288f';
+          var refresh;
+          return newToken({
+            access_type: 'offline',
+            response_type: 'code',
+            code_challenge_method: 'S256',
+            code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM'
+          }, {
+            clientId: clientId,
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            refresh = res.result.refresh_token;
+            assert(refresh);
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: clientSecret,
+                grant_type: 'refresh_token',
+                refresh_token: refresh
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 400, 'client_secret must not be set');
+            assert.equal(res.result.errno, 109);
+            assert.equal(res.result.refresh_token, undefined);
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                grant_type: 'refresh_token',
+                refresh_token: refresh
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert(res.result.expires_in);
+            assert(res.result.access_token);
+            assert.equal(res.result.refresh_token, undefined);
           });
         });
 

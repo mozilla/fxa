@@ -62,6 +62,10 @@ const PAYLOAD_SCHEMA = Joi.object({
     .when('code_verifier', {
       is: Joi.string().required(), // if (typeof code_verifier === 'string') {
       then: Joi.forbidden()
+    })
+    .when('grant_type', {
+      is: GRANT_REFRESH_TOKEN,
+      then: Joi.optional()
     }),
 
   code_verifier: validators.codeVerifier
@@ -121,7 +125,7 @@ const PAYLOAD_SCHEMA = Joi.object({
 //
 // 1. Confirm grant credentials.
 //    - If grant type is authorization code or refresh token, first
-//      confirm the client credentials in `confirmClient()`.
+//      confirm the client credentials in `confirmClientSecret()`.
 //      - If grant type is authorization code, proceed to `confirmCode()`.
 //      - If grant type is refresh token, proceed to `confirmRefreshToken()`.
 //    - If grant type is a JWT, all information is in the JWT. So jump
@@ -162,22 +166,38 @@ module.exports = {
   handler: function tokenEndpoint(req, reply) {
     var params = req.payload;
     P.try(function() {
+      var clientId = params.client_id;
+
       if (params.grant_type === GRANT_AUTHORIZATION_CODE) {
-        if (params.code_verifier) {
-          return confirmPkceClient(params.client_id)
-            .then(function() {
-              return confirmPkceCode(params.client_id, params.code, params.code_verifier);
-            });
-        } else {
-          return confirmClient(params.client_id, params.client_secret)
-            .then(function() {
+        return getClientById(clientId).then(function(client) {
+          if (params.code_verifier && validPublicClient(client)) {
+            return confirmPkceCode(params.code, params.code_verifier);
+          } else {
+            return confirmClientSecret(client, params.client_secret).then(function() {
               return confirmCode(params.client_id, params.code);
             });
-        }
+          }
+        });
       } else if (params.grant_type === GRANT_REFRESH_TOKEN) {
-        return confirmClient(params.client_id, params.client_secret)
-        .then(function() {
-          return confirmRefreshToken(params);
+        // If the client has a client_secret, check that it's provided and valid in the refresh request
+        // If the client does not have client_secret, check that one was not provided in the refresh request
+        return getClientById(clientId).then(function(client) {
+          var confirmClientPromise;
+
+          if (client.publicClient && validPublicClient(client)) {
+            if (params.client_secret) {
+              throw new AppError.invalidRequestParameter('client_secret');
+            }
+
+            confirmClientPromise = P.resolve();
+          } else {
+            confirmClientPromise = confirmClientSecret(client, params.client_secret);
+          }
+
+          return confirmClientPromise
+            .then(function() {
+              return confirmRefreshToken(params);
+            });
         });
       } else if (params.grant_type === GRANT_JWT) {
         return confirmJwt(params);
@@ -207,7 +227,27 @@ function pkceHash(input) {
   return util.base64URLEncode(crypto.createHash('sha256').update(input).digest());
 }
 
-function confirmPkceCode(id, code, pkceVerifier) {
+function validPublicClient(client) {
+  if (!client.publicClient) {
+    logger.debug('client.notPublicClient', { id: client.id });
+    throw AppError.notPublicClient(client.id);
+  }
+
+  return true;
+}
+
+function getClientById(clientId) {
+  return db.getClient(buf(clientId)).then(function(client) {
+    if (! client) {
+      logger.debug('client.notFound', { id: clientId });
+      throw AppError.unknownClient(clientId);
+    }
+
+    return client;
+  });
+}
+
+function confirmPkceCode(code, pkceVerifier) {
   return db.getCode(buf(code)).then(function(codeObj) {
     if (!codeObj) {
       logger.debug('code.notFound', { code: code });
@@ -227,29 +267,9 @@ function confirmPkceCode(id, code, pkceVerifier) {
   });
 }
 
-function confirmPkceClient(id) {
-  return db.getClient(buf(id)).then(function(client) {
-    if (!client) {
-      logger.debug('client.notFound', { id: id });
-      throw AppError.unknownClient(id);
-    }
-
-    if (!client.publicClient) {
-      logger.debug('client.notPublicClient', { id: id });
-      throw AppError.notPublicClient(id);
-    }
-
-    return client;
-  });
-}
-
-function confirmClient(id, secret) {
-  return db.getClient(buf(id)).then(function(client) {
-    if (!client) {
-      logger.debug('client.notFound', { id: id });
-      throw AppError.unknownClient(id);
-    }
-
+function confirmClientSecret(client, secret) {
+  return P.resolve().then(function() {
+    var id = client.id;
     var submitted = hex(encrypt.hash(buf(secret)));
     var stored = hex(client.hashedSecret);
 

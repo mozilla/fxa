@@ -378,7 +378,8 @@ particular user.
     - `code`: A string that was received from the [authorization][] endpoint.
   - If `refresh_token`:
     - `client_id`: The id returned from client registration.
-    - `client_secret`: The secret returned from client registration.
+    - `client_secret`: The secret returned from client registration. 
+      This must not be set if the client is a public (PKCE) client.
     - `refresh_token`: A string that received from the [token][]
       endpoint specifically as a refresh token.
     - `scope`: (optional) A subset of scopes provided to this
