@@ -153,9 +153,14 @@ describe('remote db', function() {
         .then(emailRecord => {
           emailRecord.createdAt = Date.now()
           emailRecord.tokenVerificationId = account.tokenVerificationId
+          emailRecord.uaBrowser = 'Firefox'
+          emailRecord.uaBrowserVersion = '41'
+          emailRecord.uaOS = 'Mac OS X'
+          emailRecord.uaOSVersion = '10.10'
+          emailRecord.uaDeviceType = emailRecord.uaFormFactor = null
 
           // Create a session token
-          return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+          return db.createSessionToken(emailRecord)
         })
         .then(sessionToken => {
           assert.deepEqual(sessionToken.uid, account.uid)
@@ -234,7 +239,7 @@ describe('remote db', function() {
           getGeoDataSpy.returns(P.resolve({location: {state: 'Mordor', country: 'ME'}}))
 
           // Update the session token
-          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0', '1.1.1.1')
+          return db.updateSessionToken(sessionToken)
         })
         .then(() => {
           assert.equal(redisSetSpy.lastCall.args[0], account.uid)
@@ -261,7 +266,14 @@ describe('remote db', function() {
           getGeoDataSpy.returns(P.reject())
 
           // Update the session token
-          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0', '1.1.1.1')
+          return db.updateSessionToken(Object.assign({}, sessionToken, {
+            uaBrowser: 'Firefox Mobile',
+            uaBrowserVersion: '42',
+            uaOS: 'Android',
+            uaOSVersion: '4.4',
+            uaDeviceType: 'mobile',
+            uaFormFactor: null
+          }))
         })
         .then(tokens => {
           redisGetSpy.returns(P.resolve(JSON.stringify(tokens)))
@@ -272,34 +284,12 @@ describe('remote db', function() {
         .then(sessions => {
           assert.equal(sessions.length, 1, 'sessions still contains one item')
           assert.equal(sessions[0].uaBrowser, 'Firefox Mobile', 'uaBrowser property is correct')
-          assert.equal(sessions[0].uaBrowserVersion, '41', 'uaBrowserVersion property is correct')
+          assert.equal(sessions[0].uaBrowserVersion, '42', 'uaBrowserVersion property is correct')
           assert.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct')
           assert.equal(sessions[0].uaOSVersion, '4.4', 'uaOSVersion property is correct')
           assert.equal(sessions[0].uaDeviceType, 'mobile', 'uaDeviceType property is correct')
           assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is correct')
           assert.equal(sessions[0].location, null, 'location property is correct')
-
-          // Fetch the session token
-          return db.sessionToken(tokenId)
-        })
-        .then(sessionToken => {
-          // Update the session token
-          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (iPad; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4', '1.1.1.1')
-        })
-        .then(tokens => {
-          redisGetSpy.returns(P.resolve(JSON.stringify(tokens)))
-
-          // Fetch all sessions for the account
-          return db.sessions(account.uid)
-        })
-        .then(sessions => {
-          assert.equal(sessions.length, 1, 'sessions still contains one item')
-          assert.equal(sessions[0].uaBrowser, 'Firefox iOS', 'uaBrowser property is correct')
-          assert.equal(sessions[0].uaBrowserVersion, '1', 'uaBrowserVersion property is correct')
-          assert.equal(sessions[0].uaOS, 'iOS', 'uaOS property is correct')
-          assert.equal(sessions[0].uaOSVersion, '8.3', 'uaOSVersion property is correct')
-          assert.equal(sessions[0].uaDeviceType, 'tablet', 'uaDeviceType property is correct')
-          assert.equal(sessions[0].uaFormFactor, 'iPad', 'uaFormFactor property is correct')
 
           // Simulate an error on redis.get
           redisGetSpy.returns(P.reject({}))
@@ -377,8 +367,15 @@ describe('remote db', function() {
       return db.emailRecord(account.email)
           .then(function (emailRecord) {
             emailRecord.tokenVerificationId = account.tokenVerificationId
+            emailRecord.uaBrowser = 'Firefox Mobile'
+            emailRecord.uaBrowserVersion = '41'
+            emailRecord.uaOS = 'Android'
+            emailRecord.uaOSVersion = '4.4'
+            emailRecord.uaDeviceType = 'mobile'
+            emailRecord.uaFormFactor = null
+
             // Create a session token
-            return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0')
+            return db.createSessionToken(emailRecord)
           })
           .then(function (result) {
             sessionToken = result
@@ -465,11 +462,16 @@ describe('remote db', function() {
             deviceInfo.pushCallback = ''
             deviceInfo.pushPublicKey = ''
             deviceInfo.pushAuthKey = ''
+            sessionToken.uaBrowser = 'Firefox'
+            sessionToken.uaBrowserVersion = '44'
+            sessionToken.uaOS = 'Mac OS X'
+            sessionToken.uaOSVersion = '10.10'
+            sessionToken.uaDeviceType = sessionToken.uaFormFactor = null
             // Update the device and the session token
             getGeoDataSpy.returns(P.resolve({location: {state: 'Mordor', country: 'ME'}}))
             return P.all([
               db.updateDevice(account.uid, sessionToken.tokenId, deviceInfo),
-              db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:44.0) Gecko/20100101 Firefox/44.0')
+              db.updateSessionToken(sessionToken)
             ])
               .catch(function (err) {
                 assert(false, 'updating a new device or existing session token should not have failed')
@@ -480,7 +482,7 @@ describe('remote db', function() {
             redisGetSpy.returns(P.resolve(JSON.stringify({[sessionToken.tokenId]: tokenToReturn})))
 
             // Create another session token
-            return db.createSessionToken(sessionToken, 'Mozilla/5.0 (Android 7.1.2; Mobile; rv:56.0) Gecko/56.0 Firefox/56.0')
+            return db.createSessionToken(sessionToken)
           })
           .then(result =>{
             anotherSessionToken = result
@@ -723,7 +725,12 @@ describe('remote db', function() {
       return db.emailRecord(account.email)
         .then(function(emailRecord) {
           emailRecord.tokenVerificationId = account.tokenVerificationId
-          return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+          emailRecord.uaBrowser = 'Firefox'
+          emailRecord.uaBrowserVersion = '41'
+          emailRecord.uaOS = 'Mac OS X'
+          emailRecord.uaOSVersion = '10.10'
+          emailRecord.uaDeviceType = emailRecord.uaFormFactor = null
+          return db.createSessionToken(emailRecord)
         })
         .then(function(sessionToken) {
           return db.forgotPasswordVerified(sessionToken)

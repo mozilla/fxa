@@ -39,24 +39,25 @@ module.exports = function (userAgentString) {
   if (matches && matches.length > 2) {
     // Always parse known Sync user-agents ourselves,
     // because node-uap makes a pig's ear of it.
-    this.uaBrowser = matches[6] || matches[1]
-    this.uaBrowserVersion = matches[3] || null
-    this.uaOS = matches[2]
-    this.uaOSVersion = matches[5]
-    this.uaDeviceType = marshallDeviceType(matches[4])
-    this.uaFormFactor = matches[4] || null
-  } else {
-    const userAgentData = ua.parse(userAgentString)
-
-    this.uaBrowser = getFamily(userAgentData.ua) || null
-    this.uaBrowserVersion = getVersion(userAgentData.ua) || null
-    this.uaOS = getFamily(userAgentData.os) || null
-    this.uaOSVersion = getVersion(userAgentData.os) || null
-    this.uaDeviceType = getDeviceType(userAgentData) || null
-    this.uaFormFactor = getFormFactor(userAgentData) || null
+    return {
+      browser: matches[6] || matches[1],
+      browserVersion: matches[3] || null,
+      os: matches[2],
+      osVersion: matches[5],
+      deviceType: marshallDeviceType(matches[4]),
+      formFactor: matches[4] || null
+    }
   }
 
-  return this
+  const userAgentData = ua.parse(userAgentString)
+  return {
+    browser: getFamily(userAgentData.ua) || null,
+    browserVersion: getVersion(userAgentData.ua) || null,
+    os: getFamily(userAgentData.os) || null,
+    osVersion: getVersion(userAgentData.os) || null,
+    deviceType: getDeviceType(userAgentData) || null,
+    formFactor: getFormFactor(userAgentData) || null
+  }
 }
 
 function getFamily (data) {

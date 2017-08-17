@@ -7,7 +7,6 @@
 const error = require('./error')
 const P = require('./promise')
 const Pool = require('./pool')
-const userAgent = require('./userAgent')
 
 const random = require('./crypto/random')
 const redis = require('redis')
@@ -113,9 +112,9 @@ module.exports = (
     )
   }
 
-  DB.prototype.createSessionToken = function (authToken, userAgentString) {
+  DB.prototype.createSessionToken = function (authToken) {
     log.trace({ op: 'DB.createSessionToken', uid: authToken && authToken.uid })
-    return SessionToken.create(userAgent.call(authToken, userAgentString))
+    return SessionToken.create(authToken)
       .then(
         function (sessionToken) {
           return this.pool.put(
@@ -501,7 +500,7 @@ module.exports = (
     )
   }
 
-  DB.prototype.updateSessionToken = function (token, userAgentString, ip) {
+  DB.prototype.updateSessionToken = function (token, ip) {
     log.trace({ op: 'DB.updateSessionToken', uid: token && token.uid })
 
     const uid = token.uid
@@ -509,9 +508,8 @@ module.exports = (
       return P.resolve()
     }
 
-    token.update(userAgentString)
     const newToken = {
-      tokenId: token.id,
+      tokenId: token.tokenId,
       uid: uid,
       uaBrowser: token.uaBrowser,
       uaBrowserVersion: token.uaBrowserVersion,
@@ -537,7 +535,7 @@ module.exports = (
     .then(res => {
       // update the hash with the new token
       sessionTokens = res ? JSON.parse(res) : {}
-      sessionTokens[token.id] = newToken
+      sessionTokens[token.tokenId] = newToken
       return sessionTokens
     })
     // add new updated token into array, and set the resulting array as the new value

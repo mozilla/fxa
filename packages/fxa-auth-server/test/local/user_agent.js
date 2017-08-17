@@ -49,20 +49,18 @@ describe('userAgent', () => {
           family: 'baz'
         }
       }
-      var context = {}
-      var result = userAgent.call(context, 'qux')
+      const result = userAgent('qux')
 
       assert.equal(uaParser.parse.callCount, 1)
       assert.ok(uaParser.parse.calledWithExactly('qux'))
 
-      assert.equal(result, context)
       assert.equal(Object.keys(result).length, 6)
-      assert.equal(result.uaBrowser, 'foo')
-      assert.equal(result.uaBrowserVersion, '1')
-      assert.equal(result.uaOS, 'bar')
-      assert.equal(result.uaOSVersion, '2')
-      assert.equal(result.uaDeviceType, 'mobile')
-      assert.equal(result.uaFormFactor, 'baz')
+      assert.equal(result.browser, 'foo')
+      assert.equal(result.browserVersion, '1')
+      assert.equal(result.os, 'bar')
+      assert.equal(result.osVersion, '2')
+      assert.equal(result.deviceType, 'mobile')
+      assert.equal(result.formFactor, 'baz')
     }
   )
 
@@ -84,18 +82,16 @@ describe('userAgent', () => {
           family: 'Other'
         }
       }
-      var context = {}
-      var result = userAgent.call(context, 'wibble')
+      const result = userAgent('wibble')
 
       assert.equal(uaParser.parse.callCount, 1)
       assert.ok(uaParser.parse.calledWithExactly('wibble'))
 
-      assert.equal(result, context)
       assert.equal(Object.keys(result).length, 6)
-      assert.equal(result.uaBrowser, null)
-      assert.equal(result.uaOS, null)
-      assert.equal(result.uaDeviceType, null)
-      assert.equal(result.uaFormFactor, null)
+      assert.equal(result.browser, null)
+      assert.equal(result.os, null)
+      assert.equal(result.deviceType, null)
+      assert.equal(result.formFactor, null)
     }
   )
 
@@ -117,11 +113,10 @@ describe('userAgent', () => {
           family: 'baz'
         }
       }
-      var context = {}
-      var result = userAgent.call(context)
+      const result = userAgent()
 
-      assert.equal(result.uaBrowserVersion, '1.1')
-      assert.equal(result.uaOSVersion, '2.34567')
+      assert.equal(result.browserVersion, '1.1')
+      assert.equal(result.osVersion, '2.34567')
     }
   )
 
@@ -144,11 +139,10 @@ describe('userAgent', () => {
           family: 'Other'
         }
       }
-      var context = {}
-      var result = userAgent.call(context)
+      const result = userAgent()
 
-      assert.equal(result.uaDeviceType, 'mobile')
-      assert.equal(result.uaFormFactor, null)
+      assert.equal(result.deviceType, 'mobile')
+      assert.equal(result.formFactor, null)
     }
   )
 
@@ -170,10 +164,10 @@ describe('userAgent', () => {
           family: 'iPhone 7'
         }
       }
-      const result = userAgent.call({})
+      const result = userAgent()
 
-      assert.equal(result.uaDeviceType, 'mobile')
-      assert.equal(result.uaFormFactor, 'iPhone 7')
+      assert.equal(result.deviceType, 'mobile')
+      assert.equal(result.formFactor, 'iPhone 7')
     }
   )
 
@@ -195,10 +189,9 @@ describe('userAgent', () => {
           family: 'Other'
         }
       }
-      var context = {}
-      var result = userAgent.call(context)
+      const result = userAgent()
 
-      assert.equal(result.uaDeviceType, 'mobile')
+      assert.equal(result.deviceType, 'mobile')
     }
   )
 
@@ -220,10 +213,9 @@ describe('userAgent', () => {
           family: 'Other'
         }
       }
-      var context = {}
-      var result = userAgent.call(context)
+      const result = userAgent()
 
-      assert.equal(result.uaDeviceType, 'mobile')
+      assert.equal(result.deviceType, 'mobile')
     }
   )
 
@@ -245,10 +237,9 @@ describe('userAgent', () => {
           family: 'Other'
         }
       }
-      var context = {}
-      var result = userAgent.call(context)
+      const result = userAgent()
 
-      assert.equal(result.uaDeviceType, 'mobile')
+      assert.equal(result.deviceType, 'mobile')
     }
   )
 
@@ -270,10 +261,9 @@ describe('userAgent', () => {
           family: 'Other'
         }
       }
-      var context = {}
-      var result = userAgent.call(context)
+      const result = userAgent()
 
-      assert.equal(result.uaDeviceType, null)
+      assert.equal(result.deviceType, null)
     }
   )
 
@@ -295,10 +285,9 @@ describe('userAgent', () => {
           family: 'Other'
         }
       }
-      var context = {}
-      var result = userAgent.call(context)
+      const result = userAgent()
 
-      assert.equal(result.uaDeviceType, null)
+      assert.equal(result.deviceType, null)
     }
   )
 
@@ -320,10 +309,9 @@ describe('userAgent', () => {
           family: 'Other'
         }
       }
-      var context = {}
-      var result = userAgent.call(context)
+      const result = userAgent()
 
-      assert.equal(result.uaDeviceType, null)
+      assert.equal(result.deviceType, null)
     }
   )
 
@@ -346,10 +334,10 @@ describe('userAgent', () => {
           family: 'iPad Pro'
         }
       }
-      const result = userAgent.call({})
+      const result = userAgent()
 
-      assert.equal(result.uaDeviceType, 'tablet')
-      assert.equal(result.uaFormFactor, 'iPad Pro')
+      assert.equal(result.deviceType, 'tablet')
+      assert.equal(result.formFactor, 'iPad Pro')
     }
   )
 
@@ -372,11 +360,10 @@ describe('userAgent', () => {
           family: 'Nexus 7'
         }
       }
-      var context = {}
-      var result = userAgent.call(context)
+      const result = userAgent()
 
-      assert.equal(result.uaDeviceType, 'tablet')
-      assert.equal(result.uaFormFactor, 'Nexus 7')
+      assert.equal(result.deviceType, 'tablet')
+      assert.equal(result.formFactor, 'Nexus 7')
     }
   )
 
@@ -399,9 +386,9 @@ describe('userAgent', () => {
         model: 'Smartphone'
       }
     }
-    const result = userAgent.call({})
+    const result = userAgent()
 
-    assert.equal(result.uaDeviceType, 'mobile')
+    assert.equal(result.deviceType, 'mobile')
   })
 
   it('recognises FirefoxOS tablets as tablets', () => {
@@ -423,9 +410,9 @@ describe('userAgent', () => {
         model: 'Tablet'
       }
     }
-    const result = userAgent.call({})
+    const result = userAgent()
 
-    assert.equal(result.uaDeviceType, 'tablet')
+    assert.equal(result.deviceType, 'tablet')
   })
 
   it('ignores form factor for generic devices', () => {
@@ -446,25 +433,23 @@ describe('userAgent', () => {
         brand: 'Generic'
       }
     }
-    const result = userAgent.call({})
+    const result = userAgent()
 
-    assert.equal(result.uaDeviceType, 'mobile')
-    assert.equal(result.uaFormFactor, null)
+    assert.equal(result.deviceType, 'mobile')
+    assert.equal(result.formFactor, null)
   })
 
   it(
     'recognises old Firefox-iOS user agents',
     () => {
       parserResult = null
-      const context = {}
-      const userAgentString = 'Firefox-iOS-FxA/5.3 (Firefox)'
-      const result = userAgent.call(context, userAgentString)
+      const result = userAgent('Firefox-iOS-FxA/5.3 (Firefox)')
 
-      assert.equal(result.uaBrowser, 'Firefox')
-      assert.equal(result.uaBrowserVersion, '5.3')
-      assert.equal(result.uaOS, 'iOS')
-      assert.equal(result.uaDeviceType, 'mobile')
-      assert.equal(result.uaFormFactor, null)
+      assert.equal(result.browser, 'Firefox')
+      assert.equal(result.browserVersion, '5.3')
+      assert.equal(result.os, 'iOS')
+      assert.equal(result.deviceType, 'mobile')
+      assert.equal(result.formFactor, null)
     }
   )
 
@@ -472,16 +457,14 @@ describe('userAgent', () => {
     'recognises new Firefox-iOS user agents',
     () => {
       parserResult = null
-      const context = {}
-      const userAgentString = 'Firefox-iOS-FxA/6.0b42 (iPhone 6S; iPhone OS 10.3) (Nightly)'
-      const result = userAgent.call(context, userAgentString)
+      const result = userAgent('Firefox-iOS-FxA/6.0b42 (iPhone 6S; iPhone OS 10.3) (Nightly)')
 
-      assert.equal(result.uaBrowser, 'Nightly')
-      assert.equal(result.uaBrowserVersion, '6.0')
-      assert.equal(result.uaOS, 'iOS')
-      assert.equal(result.uaOSVersion, '10.3')
-      assert.equal(result.uaDeviceType, 'mobile')
-      assert.equal(result.uaFormFactor, 'iPhone 6S')
+      assert.equal(result.browser, 'Nightly')
+      assert.equal(result.browserVersion, '6.0')
+      assert.equal(result.os, 'iOS')
+      assert.equal(result.osVersion, '10.3')
+      assert.equal(result.deviceType, 'mobile')
+      assert.equal(result.formFactor, 'iPhone 6S')
     }
   )
 
@@ -489,16 +472,14 @@ describe('userAgent', () => {
     'recognises new Firefox-iOS user agent on iPads',
     () => {
       parserResult = null
-      const context = {}
-      const userAgentString = 'Firefox-iOS-FxA/6.0b42 (iPad Mini; iPhone OS 10.3) (Nightly)'
-      const result = userAgent.call(context, userAgentString)
+      const result = userAgent('Firefox-iOS-FxA/6.0b42 (iPad Mini; iPhone OS 10.3) (Nightly)')
 
-      assert.equal(result.uaBrowser, 'Nightly')
-      assert.equal(result.uaBrowserVersion, '6.0')
-      assert.equal(result.uaOS, 'iOS')
-      assert.equal(result.uaOSVersion, '10.3')
-      assert.equal(result.uaDeviceType, 'tablet')
-      assert.equal(result.uaFormFactor, 'iPad Mini')
+      assert.equal(result.browser, 'Nightly')
+      assert.equal(result.browserVersion, '6.0')
+      assert.equal(result.os, 'iOS')
+      assert.equal(result.osVersion, '10.3')
+      assert.equal(result.deviceType, 'tablet')
+      assert.equal(result.formFactor, 'iPad Mini')
     }
   )
 
@@ -506,15 +487,13 @@ describe('userAgent', () => {
     'recognises Firefox-Android user agents',
     () => {
       parserResult = null
-      const context = {}
-      const userAgentString = 'Firefox-Android-FxAccounts/49.0.2 (Firefox)'
-      const result = userAgent.call(context, userAgentString)
+      const result = userAgent('Firefox-Android-FxAccounts/49.0.2 (Firefox)')
 
-      assert.equal(result.uaBrowser, 'Firefox')
-      assert.equal(result.uaBrowserVersion, '49.0.2')
-      assert.equal(result.uaOS, 'Android')
-      assert.equal(result.uaDeviceType, 'mobile')
-      assert.equal(result.uaFormFactor, null)
+      assert.equal(result.browser, 'Firefox')
+      assert.equal(result.browserVersion, '49.0.2')
+      assert.equal(result.os, 'Android')
+      assert.equal(result.deviceType, 'mobile')
+      assert.equal(result.formFactor, null)
     }
   )
 
@@ -533,41 +512,37 @@ describe('userAgent', () => {
         model: 'Smartphone'
       }
     }
-    const result = userAgent.call({}, 'Firefox AndroidSync 1.51.0.0 (Firefox)')
+    const result = userAgent('Firefox AndroidSync 1.51.0.0 (Firefox)')
 
-    assert.equal(result.uaBrowser, null)
-    assert.equal(result.uaBrowserVersion, null)
-    assert.equal(result.uaOS, 'Android')
-    assert.equal(result.uaDeviceType, 'mobile')
-    assert.equal(result.uaFormFactor, null)
+    assert.equal(result.browser, null)
+    assert.equal(result.browserVersion, null)
+    assert.equal(result.os, 'Android')
+    assert.equal(result.deviceType, 'mobile')
+    assert.equal(result.formFactor, null)
   })
 
   it('recognises new mobile Sync library user agents on Android', () => {
     parserResult = null
-    const context = {}
-    const userAgentString = 'Mobile-Android-Sync/(Mobile; Android 6.0) (foo() bar)'
-    const result = userAgent.call(context, userAgentString)
+    const result = userAgent('Mobile-Android-Sync/(Mobile; Android 6.0) (foo() bar)')
 
-    assert.equal(result.uaBrowser, 'foo() bar')
-    assert.equal(result.uaBrowserVersion, null)
-    assert.equal(result.uaOS, 'Android')
-    assert.equal(result.uaOSVersion, '6.0')
-    assert.equal(result.uaDeviceType, 'mobile')
-    assert.equal(result.uaFormFactor, 'Mobile')
+    assert.equal(result.browser, 'foo() bar')
+    assert.equal(result.browserVersion, null)
+    assert.equal(result.os, 'Android')
+    assert.equal(result.osVersion, '6.0')
+    assert.equal(result.deviceType, 'mobile')
+    assert.equal(result.formFactor, 'Mobile')
   })
 
   it('recognises new mobile Sync library user agents on iOS', () => {
     parserResult = null
-    const context = {}
-    const userAgentString = 'Mobile-iOS-Sync/(iPad Mini; iOS 10.3) (wibble)'
-    const result = userAgent.call(context, userAgentString)
+    const result = userAgent('Mobile-iOS-Sync/(iPad Mini; iOS 10.3) (wibble)')
 
-    assert.equal(result.uaBrowser, 'wibble')
-    assert.equal(result.uaBrowserVersion, null)
-    assert.equal(result.uaOS, 'iOS')
-    assert.equal(result.uaOSVersion, '10.3')
-    assert.equal(result.uaDeviceType, 'tablet')
-    assert.equal(result.uaFormFactor, 'iPad Mini')
+    assert.equal(result.browser, 'wibble')
+    assert.equal(result.browserVersion, null)
+    assert.equal(result.os, 'iOS')
+    assert.equal(result.osVersion, '10.3')
+    assert.equal(result.deviceType, 'tablet')
+    assert.equal(result.formFactor, 'iPad Mini')
   })
 
   it('recognises old Kindle user agents', () => {
@@ -585,13 +560,13 @@ describe('userAgent', () => {
         model: 'Kindle 3.0'
       }
     }
-    const result = userAgent.call({})
+    const result = userAgent()
 
-    assert.equal(result.uaBrowser, 'Kindle')
-    assert.equal(result.uaBrowserVersion, null)
-    assert.equal(result.uaOS, 'Kindle')
-    assert.equal(result.uaDeviceType, 'tablet')
-    assert.equal(result.uaFormFactor, 'Kindle')
+    assert.equal(result.browser, 'Kindle')
+    assert.equal(result.browserVersion, null)
+    assert.equal(result.os, 'Kindle')
+    assert.equal(result.deviceType, 'tablet')
+    assert.equal(result.formFactor, 'Kindle')
   })
 
   it('recognises Kindle Fire user agents', () => {
@@ -615,13 +590,13 @@ describe('userAgent', () => {
         model: 'Kindle Fire'
       }
     }
-    const result = userAgent.call({})
+    const result = userAgent()
 
-    assert.equal(result.uaBrowser, 'Android')
-    assert.equal(result.uaBrowserVersion, '2.3')
-    assert.equal(result.uaOS, 'Android')
-    assert.equal(result.uaDeviceType, 'tablet')
-    assert.equal(result.uaFormFactor, 'Kindle')
+    assert.equal(result.browser, 'Android')
+    assert.equal(result.browserVersion, '2.3')
+    assert.equal(result.os, 'Android')
+    assert.equal(result.deviceType, 'tablet')
+    assert.equal(result.formFactor, 'Kindle')
   })
 })
 

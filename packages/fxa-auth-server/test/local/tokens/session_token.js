@@ -39,7 +39,6 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
       return SessionToken.create(TOKEN)
         .then(token => {
           assert.equal(typeof token.lastAuthAt, 'function', 'lastAuthAt method is defined')
-          assert.equal(typeof token.update, 'function', 'update method is defined')
           assert.equal(typeof token.setUserAgentInfo, 'function', 'setUserAgentInfo method is defined')
           assert.equal(Object.getOwnPropertyDescriptor(token, 'state'), undefined, 'state property is undefined')
           assert.equal(
@@ -209,25 +208,20 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
   )
 
   it(
-    'SessionToken.update on a token',
+    'SessionToken.setUserAgentInfo without lastAccessTime',
     () => {
-      return SessionToken.create()
+      return SessionToken.create(TOKEN)
         .then(function (token) {
-          sinon.spy(SessionToken.prototype, 'setUserAgentInfo')
-
-          assert.equal(
-            token.update(
-              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0'
-            ), true, 'returns true'
-          )
-
-          assert.equal(SessionToken.prototype.setUserAgentInfo.callCount, 1, 'setUserAgentInfo called once')
-          assert.equal(SessionToken.prototype.setUserAgentInfo.thisValues[0], token, 'setUserAgentInfo context was token')
-          var setUserAgentInfoArgs = SessionToken.prototype.setUserAgentInfo.args[0]
-          assert.equal(setUserAgentInfoArgs.length, 1, 'setUserAgentInfo was passed one argument')
-        })
-        .finally(function () {
-          SessionToken.prototype.setUserAgentInfo.restore()
+          token.lastAccessTime = 'foo'
+          token.setUserAgentInfo({
+            uaBrowser: 'foo',
+            uaBrowserVersion: 'bar',
+            uaOS: 'baz',
+            uaOSVersion: 'qux',
+            uaDeviceType: 'wibble',
+            uaFormFactor: 'blee'
+          })
+          assert.notEqual(token.lastAccessTime, undefined, 'lastAccessTime was not clobbered')
         })
     }
   )

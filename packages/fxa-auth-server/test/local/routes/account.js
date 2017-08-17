@@ -94,7 +94,11 @@ describe('/account/reset', function () {
       },
       query: {
         keys: 'true'
-      }
+      },
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '57',
+      uaOS: 'Mac OS X',
+      uaOSVersion: '10.11'
     })
     const keyFetchTokenId = hexString(16)
     const sessionTokenId = hexString(16)
@@ -168,6 +172,16 @@ describe('/account/reset', function () {
       assert.deepEqual(args[0].tokenId, keyFetchTokenId, 'argument was key fetch token')
       assert.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
       assert.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
+
+      assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called once')
+      args = mockDB.createSessionToken.args[0]
+      assert.equal(args.length, 1, 'db.createSessionToken was passed one argument')
+      assert.equal(args[0].uaBrowser, 'Firefox', 'db.createSessionToken was passed correct browser')
+      assert.equal(args[0].uaBrowserVersion, '57', 'db.createSessionToken was passed correct browser version')
+      assert.equal(args[0].uaOS, 'Mac OS X', 'db.createSessionToken was passed correct os')
+      assert.equal(args[0].uaOSVersion, '10.11', 'db.createSessionToken was passed correct os version')
+      assert.equal(args[0].uaDeviceType, null, 'db.createSessionToken was passed correct device type')
+      assert.equal(args[0].uaFormFactor, null, 'db.createSessionToken was passed correct form factor')
     })
   })
 })
@@ -201,7 +215,13 @@ describe('/account/create', () => {
       },
       query: {
         keys: 'true'
-      }
+      },
+      uaBrowser: 'Firefox Mobile',
+      uaBrowserVersion: '9',
+      uaOS: 'iOS',
+      uaOSVersion: '11',
+      uaDeviceType: 'tablet',
+      uaFormFactor: 'iPad'
     })
     const clientAddress = mockRequest.app.clientAddress
     const emailCode = hexString(16)
@@ -285,6 +305,16 @@ describe('/account/create', () => {
     return runTest(route, mockRequest, () => {
       assert.equal(mockDB.createAccount.callCount, 1, 'createAccount was called')
 
+      assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called once')
+      let args = mockDB.createSessionToken.args[0]
+      assert.equal(args.length, 1, 'db.createSessionToken was passed one argument')
+      assert.equal(args[0].uaBrowser, 'Firefox Mobile', 'db.createSessionToken was passed correct browser')
+      assert.equal(args[0].uaBrowserVersion, '9', 'db.createSessionToken was passed correct browser version')
+      assert.equal(args[0].uaOS, 'iOS', 'db.createSessionToken was passed correct os')
+      assert.equal(args[0].uaOSVersion, '11', 'db.createSessionToken was passed correct os version')
+      assert.equal(args[0].uaDeviceType, 'tablet', 'db.createSessionToken was passed correct device type')
+      assert.equal(args[0].uaFormFactor, 'iPad', 'db.createSessionToken was passed correct form factor')
+
       assert.equal(mockLog.notifier.send.callCount, 1, 'an sqs event was logged')
       var eventData = mockLog.notifier.send.getCall(0).args[0]
       assert.equal(eventData.event, 'login', 'it was a login event')
@@ -298,7 +328,7 @@ describe('/account/create', () => {
       }, 'it contained the correct metrics context metadata')
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-      var args = mockLog.activityEvent.args[0]
+      args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
         event: 'account.created',
@@ -407,7 +437,12 @@ describe('/account/login', function () {
     },
     query: {
       keys: 'true'
-    }
+    },
+    uaBrowser: 'Firefox',
+    uaBrowserVersion: '50',
+    uaOS: 'Android',
+    uaOSVersion: '6',
+    uaDeviceType: 'mobile'
   })
   const mockRequestNoKeys = mocks.mockRequest({
     log: mockLog,
@@ -504,10 +539,19 @@ describe('/account/login', function () {
 
     return runTest(route, mockRequest, function (response) {
       assert.equal(mockDB.accountRecord.callCount, 1, 'db.emailRecord was called')
-      assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called')
+
+      assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called once')
+      let args = mockDB.createSessionToken.args[0]
+      assert.equal(args.length, 1, 'db.createSessionToken was passed one argument')
+      assert.equal(args[0].uaBrowser, 'Firefox', 'db.createSessionToken was passed correct browser')
+      assert.equal(args[0].uaBrowserVersion, '50', 'db.createSessionToken was passed correct browser version')
+      assert.equal(args[0].uaOS, 'Android', 'db.createSessionToken was passed correct os')
+      assert.equal(args[0].uaOSVersion, '6', 'db.createSessionToken was passed correct os version')
+      assert.equal(args[0].uaDeviceType, 'mobile', 'db.createSessionToken was passed correct device type')
+      assert.equal(args[0].uaFormFactor, null, 'db.createSessionToken was passed correct form factor')
 
       assert.equal(mockLog.notifier.send.callCount, 1, 'an sqs event was logged')
-      var eventData = mockLog.notifier.send.getCall(0).args[0]
+      const eventData = mockLog.notifier.send.getCall(0).args[0]
       assert.equal(eventData.event, 'login', 'it was a login event')
       assert.equal(eventData.data.service, 'sync', 'it was for sync')
       assert.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
@@ -519,7 +563,7 @@ describe('/account/login', function () {
       }, 'metrics context was correct')
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-      let args = mockLog.activityEvent.args[0]
+      args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
         event: 'account.login',

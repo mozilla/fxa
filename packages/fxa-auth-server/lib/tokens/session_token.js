@@ -4,8 +4,6 @@
 
 'use strict'
 
-const userAgent = require('../userAgent')
-
 module.exports = (log, Token, config) => {
   const MAX_AGE_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice
 
@@ -55,20 +53,6 @@ module.exports = (log, Token, config) => {
       }
     }
 
-    // Parse the user agent string, then update properties on this
-    // It is the caller's responsibility to update the database.
-    update(userAgentString) {
-      log.trace({ op: 'SessionToken.update', uid: this.uid })
-
-      var freshData = userAgent.call({
-        lastAccessTime: Date.now()
-      }, userAgentString)
-
-      this.setUserAgentInfo(freshData)
-
-      return true
-    }
-
     setUserAgentInfo(data) {
       this.uaBrowser = data.uaBrowser
       this.uaBrowserVersion = data.uaBrowserVersion
@@ -76,7 +60,9 @@ module.exports = (log, Token, config) => {
       this.uaOSVersion = data.uaOSVersion
       this.uaDeviceType = data.uaDeviceType
       this.uaFormFactor = data.uaFormFactor
-      this.lastAccessTime = data.lastAccessTime
+      if (data.lastAccessTime) {
+        this.lastAccessTime = data.lastAccessTime
+      }
     }
 
     setDeviceInfo(data) {

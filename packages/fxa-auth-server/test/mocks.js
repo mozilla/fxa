@@ -460,7 +460,15 @@ function mockRequest (data) {
       acceptLanguage: 'en-US',
       clientAddress: data.clientAddress || '63.245.221.32',
       locale: data.locale || 'en-US',
-      features: new Set(data.features)
+      features: new Set(data.features),
+      ua: {
+        browser: data.uaBrowser || 'Firefox',
+        browserVersion: data.uaBrowserVersion || '57.0',
+        os: data.uaOS || 'Mac OS X',
+        osVersion: data.uaOSVersion || '10.13',
+        deviceType: data.uaDeviceType || null,
+        formFactor: data.uaFormFactor || null
+      }
     },
     auth: {
       credentials: data.credentials

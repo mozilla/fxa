@@ -289,7 +289,11 @@ describe('/password', () => {
           query: {
             keys: 'true'
           },
-          log: mockLog
+          log: mockLog,
+          uaBrowser: 'Firefox',
+          uaBrowserVersion: '57',
+          uaOS: 'Mac OS X',
+          uaOSVersion: '10.11'
         })
         var passwordRoutes = makeRoutes({
           db: mockDB,
@@ -323,6 +327,16 @@ describe('/password', () => {
             uid: uid.toString('hex'),
             userAgent: 'test user-agent'
           }, 'argument was event data')
+
+          assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called once')
+          args = mockDB.createSessionToken.args[0]
+          assert.equal(args.length, 1, 'db.createSessionToken was passed one argument')
+          assert.equal(args[0].uaBrowser, 'Firefox', 'db.createSessionToken was passed correct browser')
+          assert.equal(args[0].uaBrowserVersion, '57', 'db.createSessionToken was passed correct browser version')
+          assert.equal(args[0].uaOS, 'Mac OS X', 'db.createSessionToken was passed correct os')
+          assert.equal(args[0].uaOSVersion, '10.11', 'db.createSessionToken was passed correct os version')
+          assert.equal(args[0].uaDeviceType, null, 'db.createSessionToken was passed correct device type')
+          assert.equal(args[0].uaFormFactor, null, 'db.createSessionToken was passed correct form factor')
         })
       }
     )

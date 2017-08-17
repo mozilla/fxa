@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var fs = require('fs')
-var path = require('path')
-var url = require('url')
-var Hapi = require('hapi')
+const fs = require('fs')
+const path = require('path')
+const url = require('url')
+const Hapi = require('hapi')
+const userAgent = require('./userAgent')
 
-var HEX_STRING = require('./routes/validators').HEX_STRING
+const HEX_STRING = require('./routes/validators').HEX_STRING
 
 function trimLocale(header) {
   if (! header) {
@@ -270,6 +271,17 @@ function create(log, error, config, routes, db, translator) {
       const acceptLanguage = trimLocale(request.headers['accept-language'])
       request.app.acceptLanguage = acceptLanguage
       request.app.locale = translator.getLocale(acceptLanguage)
+
+      let ua
+      Object.defineProperty(request.app, 'ua', {
+        get () {
+          if (! ua) {
+            ua = userAgent(request.headers['user-agent'])
+          }
+
+          return ua
+        }
+      })
 
       if (request.headers.authorization) {
         // Log some helpful details for debugging authentication problems.

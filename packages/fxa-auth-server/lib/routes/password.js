@@ -11,7 +11,6 @@ const butil = require('../crypto/butil')
 const error = require('../error')
 const isA = require('joi')
 const P = require('../promise')
-const userAgent = require('../userAgent')
 const random = require('../crypto/random')
 const requestHelper = require('../routes/utils/request_helper')
 
@@ -266,16 +265,25 @@ module.exports = function (
                 return getGeoData(ip)
                   .then(
                     function (geoData) {
-                      return mailer.sendPasswordChangedNotification(
-                        emails,
-                        account,
-                        userAgent.call({
-                          acceptLanguage: request.app.acceptLanguage,
-                          ip: ip,
-                          location: geoData.location,
-                          timeZone: geoData.timeZone
-                        }, request.headers['user-agent'])
-                      )
+                      const {
+                        browser: uaBrowser,
+                        browserVersion: uaBrowserVersion,
+                        os: uaOS,
+                        osVersion: uaOSVersion,
+                        deviceType: uaDeviceType
+                      } = request.app.ua
+
+                      return mailer.sendPasswordChangedNotification(emails, account, {
+                        acceptLanguage: request.app.acceptLanguage,
+                        ip: ip,
+                        location: geoData.location,
+                        timeZone: geoData.timeZone,
+                        uaBrowser,
+                        uaBrowserVersion,
+                        uaOS,
+                        uaOSVersion,
+                        uaDeviceType
+                      })
                       .catch(e => {
                         // If we couldn't email them, no big deal. Log
                         // and pretend everything worked.
@@ -298,6 +306,15 @@ module.exports = function (
               }
             })
             .then(maybeToken => {
+              const {
+                browser: uaBrowser,
+                browserVersion: uaBrowserVersion,
+                os: uaOS,
+                osVersion: uaOSVersion,
+                deviceType: uaDeviceType,
+                formFactor: uaFormFactor
+              } = request.app.ua
+
               // Create a sessionToken with the verification status of the current session
               const sessionTokenOptions = {
                 uid: account.uid,
@@ -306,10 +323,16 @@ module.exports = function (
                 emailVerified: account.emailVerified,
                 verifierSetAt: account.verifierSetAt,
                 mustVerify: wantsKeys,
-                tokenVerificationId: maybeToken
+                tokenVerificationId: maybeToken,
+                uaBrowser,
+                uaBrowserVersion,
+                uaOS,
+                uaOSVersion,
+                uaDeviceType,
+                uaFormFactor
               }
 
-              return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+              return db.createSessionToken(sessionTokenOptions)
             })
             .then(
               function (result) {
@@ -419,23 +442,32 @@ module.exports = function (
             function (passwordForgotToken) {
               return P.all([getGeoData(ip), db.accountEmails(passwordForgotToken.uid)])
                 .spread((geoData, emails) => {
-                  return mailer.sendRecoveryCode(
-                    emails,
-                    passwordForgotToken,
-                    userAgent.call({
-                      token: passwordForgotToken,
-                      code: passwordForgotToken.passCode,
-                      service: service,
-                      redirectTo: request.payload.redirectTo,
-                      resume: request.payload.resume,
-                      acceptLanguage: request.app.acceptLanguage,
-                      flowId: flowId,
-                      flowBeginTime: flowBeginTime,
-                      ip: ip,
-                      location: geoData.location,
-                      timeZone: geoData.timeZone
-                    }, request.headers['user-agent'])
-                  )
+                  const {
+                    browser: uaBrowser,
+                    browserVersion: uaBrowserVersion,
+                    os: uaOS,
+                    osVersion: uaOSVersion,
+                    deviceType: uaDeviceType
+                  } = request.app.ua
+
+                  return mailer.sendRecoveryCode(emails, passwordForgotToken, {
+                    token: passwordForgotToken,
+                    code: passwordForgotToken.passCode,
+                    service: service,
+                    redirectTo: request.payload.redirectTo,
+                    resume: request.payload.resume,
+                    acceptLanguage: request.app.acceptLanguage,
+                    flowId: flowId,
+                    flowBeginTime: flowBeginTime,
+                    ip: ip,
+                    location: geoData.location,
+                    timeZone: geoData.timeZone,
+                    uaBrowser,
+                    uaBrowserVersion,
+                    uaOS,
+                    uaOSVersion,
+                    uaDeviceType
+                  })
                 })
                 .then(
                   function () {
@@ -515,23 +547,32 @@ module.exports = function (
             function () {
               return P.all([getGeoData(ip), db.accountEmails(passwordForgotToken.uid)])
                 .spread((geoData, emails) => {
-                  return mailer.sendRecoveryCode(
-                    emails,
-                    passwordForgotToken,
-                    userAgent.call({
-                      code: passwordForgotToken.passCode,
-                      token: passwordForgotToken,
-                      service: service,
-                      redirectTo: request.payload.redirectTo,
-                      resume: request.payload.resume,
-                      acceptLanguage: request.app.acceptLanguage,
-                      flowId: flowId,
-                      flowBeginTime: flowBeginTime,
-                      ip: ip,
-                      location: geoData.location,
-                      timeZone: geoData.timeZone
-                    }, request.headers['user-agent'])
-                  )
+                  const {
+                    browser: uaBrowser,
+                    browserVersion: uaBrowserVersion,
+                    os: uaOS,
+                    osVersion: uaOSVersion,
+                    deviceType: uaDeviceType
+                  } = request.app.ua
+
+                  return mailer.sendRecoveryCode(emails, passwordForgotToken, {
+                    code: passwordForgotToken.passCode,
+                    token: passwordForgotToken,
+                    service: service,
+                    redirectTo: request.payload.redirectTo,
+                    resume: request.payload.resume,
+                    acceptLanguage: request.app.acceptLanguage,
+                    flowId: flowId,
+                    flowBeginTime: flowBeginTime,
+                    ip: ip,
+                    location: geoData.location,
+                    timeZone: geoData.timeZone,
+                    uaBrowser,
+                    uaBrowserVersion,
+                    uaOS,
+                    uaOSVersion,
+                    uaDeviceType
+                  })
                 })
             }
           )

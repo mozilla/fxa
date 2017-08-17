@@ -100,7 +100,8 @@ describe('lib/server', () => {
           response = 'ok'
           return instance.inject({
             headers: {
-              'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5'
+              'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
+              'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:57.0) Gecko/20100101 Firefox/57.0'
             },
             method: 'POST',
             url: '/account/create',
@@ -142,6 +143,46 @@ describe('lib/server', () => {
           assert.equal(typeof request.app.features.has, 'function')
           assert.equal(request.app.features.has('signinCodes'), true)
         })
+
+        it('parsed user agent correctly', () => {
+          assert.ok(request.app.ua)
+          assert.equal(request.app.ua.browser, 'Firefox')
+          assert.equal(request.app.ua.browserVersion, '57')
+          assert.equal(request.app.ua.os, 'Mac OS X')
+          assert.equal(request.app.ua.osVersion, '10.11')
+          assert.equal(request.app.ua.deviceType, null)
+          assert.equal(request.app.ua.formFactor, null)
+        })
+
+        describe('another request:', () => {
+          let secondRequest
+
+          beforeEach(() => {
+            response = 'ok'
+            return instance.inject({
+              headers: {
+                'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
+                'user-agent': 'Firefox-Android-FxAccounts/34.0a1 (Nightly)'
+              },
+              method: 'POST',
+              url: '/account/create',
+              payload: {
+                features: [ 'signinCodes' ]
+              }
+            }).then(response => secondRequest = response.request)
+          })
+
+          it('second request has its own user agent info', () => {
+            assert.notEqual(request, secondRequest)
+            assert.notEqual(request.app.ua, secondRequest.app.ua)
+            assert.equal(secondRequest.app.ua.browser, 'Nightly')
+            assert.equal(secondRequest.app.ua.browserVersion, '34.0a1')
+            assert.equal(secondRequest.app.ua.os, 'Android')
+            assert.equal(secondRequest.app.ua.osVersion, null)
+            assert.equal(secondRequest.app.ua.deviceType, 'mobile')
+            assert.equal(secondRequest.app.ua.formFactor, null)
+          })
+        })
       })
 
       describe('successful request, unacceptable locale, no features enabled:', () => {
@@ -151,7 +192,8 @@ describe('lib/server', () => {
           response = 'ok'
           return instance.inject({
             headers: {
-              'accept-language': 'fr-CH, fr;q=0.9'
+              'accept-language': 'fr-CH, fr;q=0.9',
+              'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1'
             },
             method: 'POST',
             url: '/account/create',
@@ -163,6 +205,12 @@ describe('lib/server', () => {
           assert.equal(log.begin.callCount, 1)
           const args = log.begin.args[0]
           assert.equal(args[1].app.locale, 'en')
+          assert.equal(args[1].app.ua.browser, 'Chrome Mobile iOS')
+          assert.equal(args[1].app.ua.browserVersion, '56')
+          assert.equal(args[1].app.ua.os, 'iOS')
+          assert.equal(args[1].app.ua.osVersion, '10.3')
+          assert.equal(args[1].app.ua.deviceType, 'mobile')
+          assert.equal(args[1].app.ua.formFactor, 'iPhone')
         })
 
         it('called log.summary once', () => {

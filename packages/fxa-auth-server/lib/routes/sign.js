@@ -49,9 +49,25 @@ module.exports = (log, signer, db, domain, devices) => {
         var service = request.query.service
         var clientIp = request.app.clientAddress
         var deviceId, uid, certResult
-        // No need to wait for a response, update in the background.
         if (request.headers['user-agent']) {
-          db.updateSessionToken(sessionToken, request.headers['user-agent'], clientIp)
+          const {
+            browser: uaBrowser,
+            browserVersion: uaBrowserVersion,
+            os: uaOS,
+            osVersion: uaOSVersion,
+            deviceType: uaDeviceType,
+            formFactor: uaFormFactor
+          } = request.app.ua
+          sessionToken.setUserAgentInfo({
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uaFormFactor
+          })
+          // No need to wait for a response, update in the background.
+          db.updateSessionToken(sessionToken, clientIp)
         } else {
           log.warn({
             op: 'signer.updateSessionToken', message: 'no user agent string, session token not updated'

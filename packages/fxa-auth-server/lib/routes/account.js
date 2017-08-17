@@ -10,7 +10,6 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 const P = require('../promise')
 const random = require('../crypto/random')
 const requestHelper = require('../routes/utils/request_helper')
-const userAgent = require('../userAgent')
 const uuid = require('uuid')
 const validators = require('./validators')
 
@@ -211,7 +210,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                   uid: account.uid,
                   email: account.email,
                   deviceCount: 1,
-                  userAgent: request.headers['user-agent']
+                  userAgent: userAgentString
                 })
               }
             }
@@ -224,6 +223,15 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             tokenVerificationId = undefined
           }
 
+          const {
+            browser: uaBrowser,
+            browserVersion: uaBrowserVersion,
+            os: uaOS,
+            osVersion: uaOSVersion,
+            deviceType: uaDeviceType,
+            formFactor: uaFormFactor
+          } = request.app.ua
+
           return db.createSessionToken({
             uid: account.uid,
             email: account.email,
@@ -231,8 +239,14 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             emailVerified: account.emailVerified,
             verifierSetAt: account.verifierSetAt,
             mustVerify: requestHelper.wantsKeys(request),
-            tokenVerificationId: tokenVerificationId
-          }, userAgentString)
+            tokenVerificationId: tokenVerificationId,
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uaFormFactor
+          })
             .then(
               function (result) {
                 sessionToken = result
@@ -754,6 +768,15 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
               }
             })
             .then(() => {
+              const {
+                browser: uaBrowser,
+                browserVersion: uaBrowserVersion,
+                os: uaOS,
+                osVersion: uaOSVersion,
+                deviceType: uaDeviceType,
+                formFactor: uaFormFactor
+              } = request.app.ua
+
               const sessionTokenOptions = {
                 uid: accountRecord.uid,
                 email: accountRecord.primaryEmail.email,
@@ -761,10 +784,16 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                 emailVerified: accountRecord.primaryEmail.isVerified,
                 verifierSetAt: accountRecord.verifierSetAt,
                 mustVerify: mustVerifySession,
-                tokenVerificationId: tokenVerificationId
+                tokenVerificationId: tokenVerificationId,
+                uaBrowser,
+                uaBrowserVersion,
+                uaOS,
+                uaOSVersion,
+                uaDeviceType,
+                uaFormFactor
               }
 
-              return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+              return db.createSessionToken(sessionTokenOptions)
             })
             .then(
               function (result) {
@@ -1233,15 +1262,28 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         function mailUnblockCode(code) {
           return P.all([getGeoData(ip), db.accountEmails(emailRecord.uid)])
             .spread((geoData, emails) => {
-              return mailer.sendUnblockCode(emails, emailRecord, userAgent.call({
+              const {
+                browser: uaBrowser,
+                browserVersion: uaBrowserVersion,
+                os: uaOS,
+                osVersion: uaOSVersion,
+                deviceType: uaDeviceType
+              } = request.app.ua
+
+              return mailer.sendUnblockCode(emails, emailRecord, {
                 acceptLanguage: request.app.acceptLanguage,
                 unblockCode: code,
                 flowId: flowId,
                 flowBeginTime: flowBeginTime,
                 ip: ip,
                 location: geoData.location,
-                timeZone: geoData.timeZone
-              }, request.headers['user-agent']))
+                timeZone: geoData.timeZone,
+                uaBrowser,
+                uaBrowserVersion,
+                uaOS,
+                uaOSVersion,
+                uaDeviceType
+              })
             })
         }
       }
@@ -1397,17 +1439,32 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
 
         function createSessionToken () {
           if (hasSessionToken) {
+            const {
+              browser: uaBrowser,
+              browserVersion: uaBrowserVersion,
+              os: uaOS,
+              osVersion: uaOSVersion,
+              deviceType: uaDeviceType,
+              formFactor: uaFormFactor
+            } = request.app.ua
+
             // Since the only way to reach this point is clicking a
             // link from the user's email, we create a verified sessionToken
-            var sessionTokenOptions = {
+            const sessionTokenOptions = {
               uid: account.uid,
               email: account.primaryEmail.email,
               emailCode: account.primaryEmail.emailCode,
               emailVerified: account.primaryEmail.isVerified,
-              verifierSetAt: account.verifierSetAt
+              verifierSetAt: account.verifierSetAt,
+              uaBrowser,
+              uaBrowserVersion,
+              uaOS,
+              uaOSVersion,
+              uaDeviceType,
+              uaFormFactor
             }
 
-            return db.createSessionToken(sessionTokenOptions, request.headers['user-agent'])
+            return db.createSessionToken(sessionTokenOptions)
               .then(
                 function (result) {
                   sessionToken = result

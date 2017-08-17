@@ -4,52 +4,89 @@
 
 'use strict'
 
+const ROOT_DIR = '../../..'
+
 const assert = require('insist')
-var crypto = require('crypto')
-var uuid = require('uuid')
-var getRoute = require('../../routes_helpers').getRoute
-var mocks = require('../../mocks')
-var P = require('../../../lib/promise')
+const crypto = require('crypto')
+const uuid = require('uuid')
+const getRoute = require('../../routes_helpers').getRoute
+const mocks = require('../../mocks')
+const P = require(`${ROOT_DIR}/lib/promise`)
 
 describe('/certificate/sign', () => {
-  var deviceId = crypto.randomBytes(16).toString('hex')
-  var mockDevices = mocks.mockDevices({
-    deviceId: deviceId
-  })
-  const mockLog = mocks.spyLog()
-  const mockRequest = mocks.mockRequest({
-    credentials: {
-      emailVerified: true,
-      lastAuthAt: function () {
-        return Date.now()
-      },
-      locale: 'en',
-      tokenId: crypto.randomBytes(16).toString('hex'),
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '55',
-      uaOS: 'Windows',
-      uaOSVersion: '10',
-      uid: uuid.v4('binary').toString('hex')
-    },
-    log: mockLog,
-    payload: {
-      duration: 0,
-      publicKey: {
-        algorithm: 'RS',
-        n: 'bar',
-        e: 'baz'
+  let db, deviceId, mockDevices, mockLog, sessionToken, mockRequest
+
+  before(() => {
+    db = mocks.mockDB()
+    deviceId = crypto.randomBytes(16).toString('hex')
+    mockDevices = mocks.mockDevices({
+      deviceId: deviceId
+    })
+    mockLog = mocks.spyLog()
+    const Token = require(`${ROOT_DIR}/lib/tokens/token`)(mockLog)
+    const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(mockLog, Token, {
+      tokenLifetimes: {
+        sessionTokenWithoutDevice: 2419200000
       }
-    },
-    query: {}
+    })
+    return SessionToken.create({
+      uid: uuid.v4('binary').toString('hex'),
+      email: 'foo@example.com',
+      emailVerified: true,
+      locale: 'en',
+      uaBrowser: 'should be overridden by the request data',
+      uaBrowserVersion: '42',
+      uaOS: 'foo',
+      uaOSVersion: 'bar',
+      uaDeviceType: 'baz',
+      uaFormFactor: 'qux'
+    })
+    .then(result => {
+      sessionToken = result
+      mockRequest = mocks.mockRequest({
+        credentials: sessionToken,
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55.0'
+        },
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '55',
+        uaOS: 'Windows',
+        uaOSVersion: '10',
+        log: mockLog,
+        payload: {
+          duration: 0,
+          publicKey: {
+            algorithm: 'RS',
+            n: 'bar',
+            e: 'baz'
+          }
+        },
+        query: {}
+      })
+    })
   })
 
   it('without service', function () {
     return runTest({
+      db,
       devices: mockDevices,
       log: mockLog
     }, mockRequest, function () {
+      assert.equal(db.updateSessionToken.callCount, 1, 'db.updateSessionToken was called once')
+      let args = db.updateSessionToken.args[0]
+      assert.equal(args.length, 2, 'db.updateSessionToken was passed one argument')
+      assert.equal(args[0].uid, sessionToken.uid, 'first argument uid property was correct')
+      assert.equal(args[0].email, sessionToken.email, 'first argument email property was correct')
+      assert.equal(args[0].uaBrowser, 'Firefox', 'first argument uaBrowser property was correct')
+      assert.equal(args[0].uaBrowserVersion, '55', 'first argument uaBrowserVersion property was correct')
+      assert.equal(args[0].uaOS, 'Windows', 'first argument uaOS property was correct')
+      assert.equal(args[0].uaOSVersion, '10', 'first argument uaOSVersion property was correct')
+      assert.equal(args[0].uaDeviceType, null, 'first argument uaDeviceType property was null')
+      assert.equal(args[0].uaFormFactor, null, 'first argument uaFormFactor property was null')
+      assert.equal(args[1], mockRequest.app.clientAddress, 'second argument was correct')
+
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
-      var args = mockDevices.upsert.args[0]
+      args = mockDevices.upsert.args[0]
       assert.equal(args.length, 3, 'devices.upsert was passed one argument')
       assert.equal(args[0], mockRequest, 'first argument was request object')
       assert.equal(args[1], mockRequest.auth.credentials, 'second argument was sessionToken')
@@ -68,7 +105,7 @@ describe('/certificate/sign', () => {
         event: 'account.signed',
         service: undefined,
         uid: mockRequest.auth.credentials.uid.toString('hex'),
-        userAgent: 'test user-agent'
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55.0'
       }, 'argument was event data')
     })
     .finally(function () {
