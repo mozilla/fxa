@@ -226,6 +226,11 @@ module.exports = function (log) {
 
     var localized = this.localize(message)
 
+    if (message.flowBeginTime && message.flowId) {
+      message.headers['X-Flow-Id'] = message.flowId
+      message.headers['X-Flow-Begin-Time'] = message.flowBeginTime
+    }
+
     var emailConfig = {
       sender: this.sender,
       from: this.sender,
@@ -317,11 +322,6 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     if (message.service === 'sync') {
       subject = gettext('Confirm your email and start to sync!')
       templateName = 'verifySyncEmail'
@@ -330,6 +330,8 @@ module.exports = function (log) {
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: subject,
       template: templateName,
@@ -371,15 +373,12 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: gettext('Firefox Account authorization code'),
       template: templateName,
@@ -424,15 +423,12 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: gettext('Confirm new sign-in to Firefox'),
       template: templateName,
@@ -482,14 +478,11 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: gettext('Verify email for Firefox Accounts'),
       template: templateName,
@@ -537,15 +530,12 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: gettext('Reset your Firefox Account password'),
       template: templateName,
@@ -578,15 +568,12 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: gettext('Your Firefox Account password has been changed'),
       template: templateName,
@@ -617,15 +604,12 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: gettext('Your Firefox Account password has been reset'),
       template: templateName,
@@ -652,14 +636,11 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: gettext('Firefox Account password reset required'),
       template: templateName,
@@ -685,15 +666,12 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: gettext('New sign-in to Firefox'),
       template: templateName,
@@ -726,14 +704,11 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: gettext('Firefox Account verified'),
       template: templateName,
@@ -765,14 +740,11 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: gettext('Secondary Firefox Account email added'),
       template: templateName,
@@ -803,15 +775,12 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    if (message.flowBeginTime && message.flowId) {
-      headers['X-Flow-Id'] = message.flowId
-      headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
-
     return this.send({
       acceptLanguage: message.acceptLanguage,
       email: message.email,
       ccEmails: message.ccEmails,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: gettext('Secondary Firefox Account email removed'),
       template: templateName,
