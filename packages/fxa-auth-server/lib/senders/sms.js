@@ -4,17 +4,17 @@
 
 'use strict'
 
-var AWS = require('aws-sdk')
-var MockSNS = require('../../test/mock-sns')
-var P = require('bluebird')
-var error = require('../error')
+const AWS = require('aws-sdk')
+const MockSNS = require('../../test/mock-sns')
+const P = require('bluebird')
+const error = require('../error')
 
-module.exports = function (log, translator, templates, config) {
-  var smsConfig = config.sms
-  var smsOptions = {
+module.exports = (log, translator, templates, config) => {
+  const smsConfig = config.sms
+  const smsOptions = {
     region: smsConfig.apiRegion
   }
-  var SNS
+  let SNS
   if (smsConfig.useMock) {
     SNS = new MockSNS(smsOptions, config)
   } else {
@@ -22,17 +22,13 @@ module.exports = function (log, translator, templates, config) {
   }
 
   return {
-    send: function (phoneNumber, templateName, acceptLanguage, signinCode) {
-      log.trace({
-        op: 'sms.send',
-        templateName: templateName,
-        acceptLanguage: acceptLanguage
-      })
+    send (phoneNumber, templateName, acceptLanguage, signinCode) {
+      log.trace({ op: 'sms.send', templateName, acceptLanguage })
 
       return P.resolve()
-        .then(function () {
-          var message = getMessage(templateName, acceptLanguage, signinCode)
-          var params = {
+        .then(() => {
+          const message = getMessage(templateName, acceptLanguage, signinCode)
+          const params = {
             Message: message.trim(),
             MessageAttributes: {
               'AWS.SNS.SMS.MaxPrice': {
@@ -55,47 +51,40 @@ module.exports = function (log, translator, templates, config) {
           }
 
           return SNS.publish(params).promise()
-            .then(function (result) {
+            .then(result => {
               log.info({
                 op: 'sms.send.success',
-                templateName: templateName,
-                acceptLanguage: acceptLanguage,
+                templateName,
+                acceptLanguage,
                 messageId: result.MessageId
               })
             })
-            .catch(function (sendError) {
-              log.error({
-                op: 'sms.send.error',
-                message: sendError.message,
-                code: sendError.code,
-                statusCode: sendError.statusCode
-              })
+            .catch(sendError => {
+              const { message, code, statusCode } = sendError
+              log.error({ op: 'sms.send.error', message, code, statusCode })
 
-              throw error.messageRejected(sendError.message, sendError.code)
+              throw error.messageRejected(message, code)
             })
         })
     }
   }
 
   function getMessage (templateName, acceptLanguage, signinCode) {
-    var template = templates['sms.' + templateName]
+    const template = templates[`sms.${templateName}`]
 
     if (! template) {
-      log.error({ op: 'sms.getMessage.error', templateName: templateName })
+      log.error({ op: 'sms.getMessage.error', templateName })
       throw error.invalidMessageId()
     }
 
-    var link
+    let link
     if (signinCode) {
-      link = smsConfig.installFirefoxWithSigninCodeBaseUri + '/' + urlSafeBase64(signinCode)
+      link = `${smsConfig.installFirefoxWithSigninCodeBaseUri}/${urlSafeBase64(signinCode)}`
     } else {
-      link = smsConfig[templateName + 'Link']
+      link = smsConfig[`${templateName}Link`]
     }
 
-    return template({
-      link: link,
-      translator: translator.getTranslator(acceptLanguage)
-    }).text
+    return template({ link, translator: translator.getTranslator(acceptLanguage) }).text
   }
 
   function urlSafeBase64 (hex) {
