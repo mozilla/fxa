@@ -19,23 +19,26 @@ define(function (require, exports, module) {
       super(options);
 
       this.template = Template;
-      this._account = this.model.get('account');
+    }
+
+    getAccount () {
+      return this.model.get('account');
     }
 
     beforeRender () {
-      if (! this._account) {
-        this.navigate('email');
+      if (! this.getAccount()) {
+        this.navigate('/');
       }
     }
 
     setInitialContext (context) {
-      context.set(this._account.pick('email'));
+      context.set(this.getAccount().pick('email'));
     }
 
     submit () {
       const password = this.getElementValue('input[type=password]');
 
-      return this.signIn(this._account, password);
+      return this.signIn(this.getAccount(), password);
     }
   }
 

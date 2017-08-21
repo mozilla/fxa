@@ -24,17 +24,20 @@ define(function (require, exports, module) {
       super(options);
 
       this.template = Template;
-      this._account = this.model.get('account');
+    }
+
+    getAccount () {
+      return this.model.get('account');
     }
 
     beforeRender () {
-      if (! this._account) {
-        this.navigate('email');
+      if (! this.getAccount()) {
+        this.navigate('/');
       }
     }
 
     setInitialContext (context) {
-      context.set(this._account.pick('email'));
+      context.set(this.getAccount().pick('email'));
     }
 
     isValidEnd () {
@@ -53,8 +56,9 @@ define(function (require, exports, module) {
           return this.tooYoung();
         }
 
-        this._account.set('needsOptedInToMarketingEmail', this.hasOptedInToMarketingEmail());
-        return this.signUp(this._account, this._getPassword());
+        const account = this.getAccount();
+        account.set('needsOptedInToMarketingEmail', this.hasOptedInToMarketingEmail());
+        return this.signUp(account, this._getPassword());
       });
     }
 

@@ -58,6 +58,29 @@ define(function (require, exports, module) {
       view = null;
     });
 
+    describe('beforeRender', () => {
+      beforeEach(() => {
+        sinon.spy(view, 'navigate');
+      });
+
+      it('redirects to `/` if no account', () => {
+        sinon.stub(view, 'getAccount', () => null);
+
+        view.beforeRender();
+
+        assert.isTrue(view.navigate.calledOnce);
+        assert.isTrue(view.navigate.calledWith('/'));
+      });
+
+      it('does nothing if an account passed in', () => {
+        sinon.stub(view, 'getAccount', () => account);
+
+        view.beforeRender();
+
+        assert.isFalse(view.navigate.called);
+      });
+    });
+
     describe('render', () => {
       it('renders as expected', () => {
         assert.include(view.$('.service').text(), 'Firefox Sync');
