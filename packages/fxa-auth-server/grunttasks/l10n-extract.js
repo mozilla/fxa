@@ -31,9 +31,9 @@ module.exports = function (grunt) {
 
     var walker = extract({
       'input-dir': path.join(pkgroot, 'lib/senders/templates'),
-      'output-dir': pkgroot,
+      outputDir: pkgroot,
       'output': 'server.pot',
-      'join-existing': true,
+      joinExisting: true,
       'keyword': ['t'],
       parsers: {
         '.txt': 'handlebars',
@@ -44,9 +44,9 @@ module.exports = function (grunt) {
     walker.on('end', function () {
       var jsWalker = extract({
         'input-dir': path.join(pkgroot, 'lib/senders'),
-        'output-dir': pkgroot,
+        outputDir: pkgroot,
         'output': 'server.pot',
-        'join-existing': true,
+        joinExisting: true,
         'keyword': ['gettext'],
         parsers: {
           '.js': 'javascript'
