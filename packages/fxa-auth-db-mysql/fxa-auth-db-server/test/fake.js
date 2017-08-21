@@ -57,6 +57,7 @@ module.exports.newUserDataHex = function() {
     uaOS: 'fake OS',
     uaOSVersion: 'fake OS version',
     uaDeviceType: 'fake device type',
+    uaFormFactor: 'fake form factor',
     mustVerify: true,
     tokenVerificationId: hex16()
   }

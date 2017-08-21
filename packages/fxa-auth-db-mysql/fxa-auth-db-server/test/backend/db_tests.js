@@ -83,6 +83,7 @@ const SESSION_TOKEN = {
   uaOS : 'mock OS',
   uaOSVersion : 'mock OS version',
   uaDeviceType : 'mock device type',
+  uaFormFactor : 'mock form factor',
   mustVerify: true,
   tokenVerificationId : hex16()
 }
@@ -257,6 +258,7 @@ module.exports = function(config, DB) {
           uaOS: 'baz',
           uaOSVersion: 'qux',
           uaDeviceType: 'wibble',
+          uaFormFactor: 'blee',
           mustVerify: false,
           tokenVerificationId: hex16()
         }
@@ -278,7 +280,7 @@ module.exports = function(config, DB) {
           })
           .then(function (sessions) {
             assert.equal(sessions.length, 1, 'sessions contains one item')
-            assert.equal(Object.keys(sessions[0]).length, 16, 'session has correct properties')
+            assert.equal(Object.keys(sessions[0]).length, 17, 'session has correct properties')
             assert.equal(sessions[0].tokenId.toString('hex'), SESSION_TOKEN_ID.toString('hex'), 'tokenId is correct')
             assert.equal(sessions[0].uid.toString('hex'), ACCOUNT.uid.toString('hex'), 'uid is correct')
             assert.equal(sessions[0].createdAt, SESSION_TOKEN.createdAt, 'createdAt is correct')
@@ -287,6 +289,7 @@ module.exports = function(config, DB) {
             assert.equal(sessions[0].uaOS, SESSION_TOKEN.uaOS, 'uaOS is correct')
             assert.equal(sessions[0].uaOSVersion, SESSION_TOKEN.uaOSVersion, 'uaOSVersion is correct')
             assert.equal(sessions[0].uaDeviceType, SESSION_TOKEN.uaDeviceType, 'uaDeviceType is correct')
+            assert.equal(sessions[0].uaFormFactor, SESSION_TOKEN.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(sessions[0].lastAccessTime, SESSION_TOKEN.createdAt, 'lastAccessTime is correct')
 
             // Fetch the session token
@@ -302,6 +305,7 @@ module.exports = function(config, DB) {
             assert.equal(token.uaOS, SESSION_TOKEN.uaOS, 'uaOS is correct')
             assert.equal(token.uaOSVersion, SESSION_TOKEN.uaOSVersion, 'uaOSVersion is correct')
             assert.equal(token.uaDeviceType, SESSION_TOKEN.uaDeviceType, 'uaDeviceType is correct')
+            assert.equal(token.uaFormFactor, SESSION_TOKEN.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(token.lastAccessTime, SESSION_TOKEN.createdAt, 'lastAccessTime was set')
             assert.equal(!! token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
             assert.equal(token.email, ACCOUNT.email, 'token email same as account email')
@@ -335,6 +339,7 @@ module.exports = function(config, DB) {
             assert.equal(sessions[0].uaOS, 'bar', 'uaOS is correct')
             assert.equal(sessions[0].uaOSVersion, '2', 'uaOSVersion is correct')
             assert.equal(sessions[0].uaDeviceType, 'baz', 'uaDeviceType is correct')
+            assert.equal(sessions[0].uaFormFactor, SESSION_TOKEN.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(sessions[0].lastAccessTime, 42, 'lastAccessTime is correct')
 
             // Fetch the session token
@@ -349,6 +354,7 @@ module.exports = function(config, DB) {
             assert.equal(token.uaOS, 'bar', 'uaOS is correct')
             assert.equal(token.uaOSVersion, '2', 'uaOSVersion is correct')
             assert.equal(token.uaDeviceType, 'baz', 'uaDeviceType is correct')
+            assert.equal(token.uaFormFactor, SESSION_TOKEN.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(token.lastAccessTime, 42, 'lastAccessTime is correct')
             assert.equal(!! token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
             assert.equal(token.email, ACCOUNT.email, 'token email same as account email')
@@ -370,6 +376,7 @@ module.exports = function(config, DB) {
             assert.equal(token.uaOS, 'bar', 'uaOS is correct')
             assert.equal(token.uaOSVersion, '2', 'uaOSVersion is correct')
             assert.equal(token.uaDeviceType, 'baz', 'uaDeviceType is correct')
+            assert.equal(token.uaFormFactor, SESSION_TOKEN.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(token.lastAccessTime, 42, 'lastAccessTime is correct')
             assert.equal(!! token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
             assert.equal(token.email, ACCOUNT.email, 'token email same as account email')
@@ -388,7 +395,8 @@ module.exports = function(config, DB) {
               uaBrowserVersion: 'b',
               uaOS: 'c',
               uaOSVersion: 'd',
-              uaDeviceType: 'e'
+              uaDeviceType: 'e',
+              uaFormFactor: 'f'
             })
           })
           .then(function (result) {
@@ -410,6 +418,7 @@ module.exports = function(config, DB) {
             assert.equal(sessions[index].uaOS, 'c', 'uaOS is correct')
             assert.equal(sessions[index].uaOSVersion, 'd', 'uaOSVersion is correct')
             assert.equal(sessions[index].uaDeviceType, 'e', 'uaDeviceType is correct')
+            assert.equal(sessions[index].uaFormFactor, 'f', 'uaFormFactor is correct')
 
             // Fetch the verified session token
             return db.sessionToken(VERIFIED_SESSION_TOKEN_ID)
@@ -421,6 +430,7 @@ module.exports = function(config, DB) {
             assert.equal(token.uaOS, 'c', 'uaOS is correct')
             assert.equal(token.uaOSVersion, 'd', 'uaOSVersion is correct')
             assert.equal(token.uaDeviceType, 'e', 'uaDeviceType is correct')
+            assert.equal(token.uaFormFactor, 'f', 'uaFormFactor is correct')
             assert.equal(!! token.emailVerified, ACCOUNT.emailVerified, 'token emailVerified is same as account emailVerified')
             assert.equal(token.mustVerify, undefined, 'mustVerify is undefined')
             assert.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')

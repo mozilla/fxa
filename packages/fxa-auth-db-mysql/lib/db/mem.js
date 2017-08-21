@@ -42,6 +42,7 @@ var SESSION_FIELDS = [
   'uaOS',
   'uaOSVersion',
   'uaDeviceType',
+  'uaFormFactor',
   'lastAccessTime'
 ]
 
@@ -113,6 +114,7 @@ module.exports = function (log, error) {
       uaOS: sessionToken.uaOS,
       uaOSVersion: sessionToken.uaOSVersion,
       uaDeviceType: sessionToken.uaDeviceType,
+      uaFormFactor: sessionToken.uaFormFactor,
       lastAccessTime: sessionToken.createdAt
     }
 
@@ -569,6 +571,7 @@ module.exports = function (log, error) {
           uaOS: sessionToken.uaOS || null,
           uaOSVersion: sessionToken.uaOSVersion || null,
           uaDeviceType: sessionToken.uaDeviceType || null,
+          uaFormFactor: sessionToken.uaFormFactor || null,
           lastAccessTime: sessionToken.lastAccessTime,
           // device information
           deviceId: deviceInfo.id || null,
@@ -609,6 +612,7 @@ module.exports = function (log, error) {
     item.uaOS = sessionTokens[id].uaOS || null
     item.uaOSVersion = sessionTokens[id].uaOSVersion || null
     item.uaDeviceType = sessionTokens[id].uaDeviceType || null
+    item.uaFormFactor = sessionTokens[id].uaFormFactor || null
     item.lastAccessTime = sessionTokens[id].lastAccessTime
 
     var accountId = sessionTokens[id].uid.toString('hex')
