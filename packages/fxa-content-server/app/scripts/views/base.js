@@ -197,7 +197,8 @@ define(function (require, exports, module) {
      * * afterRender - called after the rendering occurs. Can be used
      *   to print an error message after the view is already rendered.
      *
-     * @returns {Promise}
+     * @returns {Promise} resolves to `true` if the view should be
+     * displayed, `false` if not.
      */
     render () {
       if (this.layoutClassName) {
@@ -219,25 +220,23 @@ define(function (require, exports, module) {
             return false;
           }
 
-          return p().then(() => {
-            this.destroyChildViews();
+          this.destroyChildViews();
 
-            // force a re-load of the context every time the
-            // view is rendered or else stale data may
-            // be returned.
-            this._context = null;
-            this.$el.html(this.renderTemplate(this.template.bind(this)));
+          // force a re-load of the context every time the
+          // view is rendered or else stale data may
+          // be returned.
+          this._context = null;
+          this.$el.html(this.renderTemplate(this.template.bind(this)));
 
-            // Track whether status messages were made visible via the template.
-            this._isErrorVisible = this.$('.error').hasClass('visible');
-            this._isSuccessVisible = this.$('.success').hasClass('visible');
-          })
-          .then(_.bind(this.afterRender, this))
-          .then(() => {
-            this.trigger('rendered');
+          // Track whether status messages were made visible via the template.
+          this._isErrorVisible = this.$('.error').hasClass('visible');
+          this._isSuccessVisible = this.$('.success').hasClass('visible');
 
-            return true;
-          });
+          return p(this.afterRender())
+            .then(() => this.trigger('rendered'));
+        })
+        .then((shouldDisplay) => {
+          return shouldDisplay !== false && ! this._hasNavigated;
         });
     },
 

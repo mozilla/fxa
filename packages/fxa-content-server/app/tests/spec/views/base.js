@@ -194,17 +194,31 @@ define(function (require, exports, module) {
             });
       });
 
-      it('does not render if the view has already navigated', () => {
+      it('does not render, returns `false` if the view navigates in `beforeRender`', () => {
         sinon.spy(view, 'renderTemplate');
         sinon.spy(view, 'navigate');
-        sinon.stub(view, 'beforeRender', function () {
-          this.navigate('signin');
-        });
+        sinon.stub(view, 'beforeRender', () => view.navigate('signin'));
 
         return view.render()
-          .then(() => {
-            assert.isTrue(view.navigate.called);
+          .then((shouldDisplay) => {
+            assert.isFalse(shouldDisplay);
+            assert.isTrue(view.navigate.calledOnce);
+            assert.isTrue(view.navigate.calledWith('signin'));
             assert.isFalse(view.renderTemplate.called);
+          });
+      });
+
+      it('returns `false` if the view navigates in `afterRender`', () => {
+        sinon.spy(view, 'renderTemplate');
+        sinon.spy(view, 'navigate');
+        sinon.stub(view, 'afterRender', () => view.navigate('signin'));
+
+        return view.render()
+          .then((shouldDisplay) => {
+            assert.isFalse(shouldDisplay);
+            assert.isTrue(view.navigate.calledOnce);
+            assert.isTrue(view.navigate.calledWith('signin'));
+            assert.isTrue(view.renderTemplate.calledOnce);
           });
       });
 
