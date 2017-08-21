@@ -28,9 +28,13 @@ define(function (require, exports, module) {
       this.template = Template;
     }
 
+    get viewName () {
+      return 'enter-email';
+    }
+
     afterRender () {
       // 1. COPPA checks whether the user is too young in beforeRender.
-      // So that COPPA takes precedece, do all other checks afterwards.
+      // So that COPPA takes precedence, do all other checks afterwards.
       // 2. action=email is specified by the firstrun page to specify
       // the email-first flow.
       const action = this.relier.get('action');
