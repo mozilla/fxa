@@ -1,3 +1,18 @@
+<a name="1.94.0"></a>
+# [1.94.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.93.0...v1.94.0) (2017-08-21)
+
+
+### chore
+
+* **ci:** remove node4 test targets from travis-ci (#270) r=vladikoff ([9523d02](https://github.com/mozilla/fxa-auth-db-mysql/commit/9523d02))
+* **email:** Remove emailRecord depreciation (#269), r=@philbooth ([0a7c2c6](https://github.com/mozilla/fxa-auth-db-mysql/commit/0a7c2c6))
+
+### Features
+
+* **schema:** add a uaFormFactor column to sessionTokens (#271) r=vladikoff ([774b6c1](https://github.com/mozilla/fxa-auth-db-mysql/commit/774b6c1))
+
+
+
 <a name="1.93.0"></a>
 # [1.93.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.92.0...v1.93.0) (2017-08-09)
 
