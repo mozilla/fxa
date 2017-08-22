@@ -6,7 +6,7 @@
     "build-production": "grunt build",
     "postinstall": "bower update --allow-root --config.interactive=false -s && scripts/download_l10n.sh",
     "prepush": "grunt quicklint",
-    "shrinkwrap": "npmshrink:prod",
+    "shrink": "npmshrink:prod",
     "start": "node scripts/check-local-config && grunt server",
     "start-production": "grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
