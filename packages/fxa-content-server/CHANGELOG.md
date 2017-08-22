@@ -1,3 +1,31 @@
+<a name="1.94.0"></a>
+# 1.94.0 (2017-08-22)
+
+
+### Bug Fixes
+
+* **cwts:** Handle bounced emails and confirmations while on CWTS. (#5343) r=@philbooth ([5e3bc73](https://github.com/mozilla/fxa-content-server/commit/5e3bc73)), closes [#4193](https://github.com/mozilla/fxa-content-server/issues/4193)
+* **email-first:** Navigate to `/`, not `/email` if no account. (#5371) r=@philbooth ([89d33bd](https://github.com/mozilla/fxa-content-server/commit/89d33bd))
+* **experiments:** Replace crc with md5 as the hashing function. (#5380) r=vladikoff ([ce4b911](https://github.com/mozilla/fxa-content-server/commit/ce4b911)), closes [#5378](https://github.com/mozilla/fxa-content-server/issues/5378)
+* **form:** On device disconnect,"Rather not say" is selected by default (#5289) r=vladikoff ([274103a](https://github.com/mozilla/fxa-content-server/commit/274103a))
+* **metrics:** Do not log views that navigate in afterRender. (#5377) r=@philbooth ([e8a9af8](https://github.com/mozilla/fxa-content-server/commit/e8a9af8)), closes [#5375](https://github.com/mozilla/fxa-content-server/issues/5375)
+* **metrics:** Use `enter-email` as the viewName for `/`. (#5376) r=@philbooth ([1fdf6e9](https://github.com/mozilla/fxa-content-server/commit/1fdf6e9)), closes [#5372](https://github.com/mozilla/fxa-content-server/issues/5372)
+* **signup:** Stop polling after leaving the /confirm page. (#5342) r=@vbudhram ([aee366c](https://github.com/mozilla/fxa-content-server/commit/aee366c)), closes [#5325](https://github.com/mozilla/fxa-content-server/issues/5325)
+* **styles:** update to new Photon colours (#5344) ([05f9ffb](https://github.com/mozilla/fxa-content-server/commit/05f9ffb))
+* **test:** Reduce the number of tests run on circle. (#5370) r=vladikoff ([71d9460](https://github.com/mozilla/fxa-content-server/commit/71d9460)), closes [#5355](https://github.com/mozilla/fxa-content-server/issues/5355)
+
+### chore
+
+* **dependencies:** upgrade away from deprecated mozlog usage (#5349) r=vladikoff ([c316ad3](https://github.com/mozilla/fxa-content-server/commit/c316ad3))
+
+### Features
+
+* **devices:** add Pontoon to client list (#5366), r=@vbudhram ([1acf7ae](https://github.com/mozilla/fxa-content-server/commit/1acf7ae))
+* **email-first:** A/B test for email-first. (#5351) r=@philbooth ([f022a24](https://github.com/mozilla/fxa-content-server/commit/f022a24)), closes [#5335](https://github.com/mozilla/fxa-content-server/issues/5335)
+* **email-first:** Handle relier specified emails in email-first flow. (#5381) r=@philbooth ([1d23bce](https://github.com/mozilla/fxa-content-server/commit/1d23bce)), closes [#5353](https://github.com/mozilla/fxa-content-server/issues/5353)
+
+
+
 <a name="1.93.0"></a>
 # 1.93.0 (2017-08-08)
 
