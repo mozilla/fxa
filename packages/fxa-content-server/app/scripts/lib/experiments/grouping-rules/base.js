@@ -5,7 +5,7 @@
 define((require, exports, module) => {
   'use strict';
 
-  const { crc32 } = require('crc');
+  const md5 = require('md5');
 
   module.exports = class BaseGroupingRule {
     /**
@@ -15,8 +15,8 @@ define((require, exports, module) => {
      * @returns {Number}
      */
     hash (key) {
-      // crc32 returns an 8 byte string, convert to an Integer.
-      const hash = crc32(`${this.name || ''}:${key}`);
+      // md5 returns 32 hex bytes, we want 32 bits. 32bits = 8 hex bytes.
+      const hash = md5(`${this.name || ''}:${key}`).substr(0, 8);
       return parseInt(hash, 16);
     }
 

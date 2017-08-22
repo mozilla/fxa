@@ -17,7 +17,7 @@
     "jquery-simulate": "1.0.1",
     "jquery-ui": "1.11.0",
     "jquery-ui-touch-punch": "https://github.com/zaach/jquery-ui-touch-punch.git#89e5a9159494de37df1e09cccf9036dda5429830",
-    "js-crc": "0.2.0",
+    "js-md5": "md5#0.6.0",
     "mailcheck": "https://github.com/mailcheck/mailcheck.git#d995fcc1d02c124a893c2cb0fce2e0ce5f36bce4",
     "mocha": "1.18.2",
     "mocha-blanketjs-adapter": "1.0.0",

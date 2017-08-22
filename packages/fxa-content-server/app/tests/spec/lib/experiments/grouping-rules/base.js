@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const { assert } = require('chai');
   const BaseExperiment = require('lib/experiments/grouping-rules/base');
+  const uuid = require('uuid');
 
   describe('lib/experiments/grouping-rules/base', () => {
     let experiment;
@@ -111,6 +112,102 @@ define(function (require, exports, module) {
           experiment.choose();
         }, 'choose must be overridden');
       });
+    });
+
+    describe('one experiment choose another', () => {
+      /**
+       * See #5378. This test is to ensure the hashing function has a uniform distribution
+       * when one experiment chooses another. We originally chose crc32 as the hashing
+       * function. This worked fine when experiment.choose for two experiments were
+       * called independently, but when one experiment was used to choose another,
+       * *all* users of the chosen experiment were placed into the same bucket. md5
+       * doesn't suffer from this problem.
+       */
+      class Experiment1 extends BaseExperiment {
+        constructor () {
+          super();
+          this.name = 'experiment1';
+        }
+
+        choose (subject) {
+          if (subject.experimentChooser.choose(subject) !== this.name) {
+            return false;
+          }
+
+          const GROUPS = ['control', 'treatment'];
+          return this.uniformChoice(GROUPS, subject.uuid);
+        }
+      }
+
+      class Experiment2 extends BaseExperiment {
+        constructor () {
+          super();
+          this.name = 'experiment2';
+        }
+
+        choose (subject) {
+          if (subject.experimentChooser.choose(subject) !== this.name) {
+            return false;
+          }
+
+          const GROUPS = ['control', 'treatment'];
+          return this.uniformChoice(GROUPS, subject.uuid);
+        }
+      }
+
+      class ExperimentChooser extends BaseExperiment {
+        constructor () {
+          super();
+          this.name = 'chooserExperiment';
+        }
+
+        choose (subject) {
+          const experiments = ['experiment1', 'experiment2'];
+          return this.uniformChoice(experiments, subject.uuid);
+        }
+      }
+
+      function checkExperimentDistribution(name, experiment) {
+        it(`allocates ~ 1/2 to experiment, distributes uniformly amongst treatment/control groups. - ${name}`, () => {
+          const counts = {
+            control: 0,
+            'false': 0,
+            treatment: 0
+          };
+
+          const experimentChooser = new ExperimentChooser();
+
+          for (let i = 0; i < ITERATIONS; ++i) {
+            const choice = experiment.choose({
+              experimentChooser,
+              uuid: uuid.v4()
+            });
+
+            counts[choice]++;
+          }
+
+          const leeway = Math.floor(ITERATIONS * (LEEWAY_PERCENTAGE / 100));
+          const fiftyPercent = Math.round(ITERATIONS / 2);
+          const fiftyPercentMin = fiftyPercent - leeway;
+          const fiftyPercentMax = fiftyPercent + leeway;
+          assert.ok(fiftyPercentMin <= counts.false && counts.false <= fiftyPercentMax, `${counts.false} is too far from ${fiftyPercent}`);
+
+
+          const twentyFivePercent = Math.round(ITERATIONS / 4);
+          const twentyFivePercentMin = twentyFivePercent - leeway;
+          const twentyFivePercentMax = twentyFivePercent + leeway;
+          assert.ok(twentyFivePercentMin <= counts.control && counts.control <= twentyFivePercentMax,
+            `${counts.control} is too far from ${twentyFivePercent}`);
+          assert.ok(twentyFivePercentMin <= counts.treatment && counts.treatment <= twentyFivePercentMax,
+            `${counts.treatment} is too far from ${twentyFivePercent}`);
+
+          assert.equal(counts.false + counts.control + counts.treatment, ITERATIONS);
+
+        });
+      }
+
+      checkExperimentDistribution('Experiment1', new Experiment1());
+      checkExperimentDistribution('Experiment2', new Experiment2());
     });
   });
 });
