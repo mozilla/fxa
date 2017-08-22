@@ -1,3 +1,13 @@
+<a name="1.94.0"></a>
+# [1.94.0](https://github.com/mozilla/fxa-profile-server/compare/v1.93.0...v1.94.0) (2017-08-22)
+
+
+### Bug Fixes
+
+* **newrelic:** update to v2.1.0 ([0b32bbb](https://github.com/mozilla/fxa-profile-server/commit/0b32bbb))
+
+
+
 <a name="1.93.0"></a>
 # [1.93.0](https://github.com/mozilla/fxa-profile-server/compare/v1.92.0...v1.93.0) (2017-08-09)
 
