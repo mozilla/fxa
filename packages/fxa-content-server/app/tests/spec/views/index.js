@@ -109,8 +109,8 @@ define((require, exports, module) => {
           });
         });
 
-        describe('relier.action set, === email', () => {
-          it('replaces current page with page specified by `action`', () => {
+        describe('relier.action === email', () => {
+          it('renders as expected, starts the flow metrics', () => {
             relier.set({
               action: 'email',
               service: 'sync',
@@ -134,6 +134,24 @@ define((require, exports, module) => {
 
                 assert.isTrue(view.logFlowEventOnce.calledOnce);
                 assert.isTrue(view.logFlowEventOnce.calledWith('begin'));
+              });
+          });
+
+          it('handles relier specified emails', () => {
+            relier.set({
+              action: 'email',
+              email: 'testuser@testuser.com',
+              service: 'sync',
+              serviceName: 'Firefox Sync'
+            });
+
+            sinon.stub(view, 'isInEmailFirstExperimentGroup', () => false);
+            sinon.stub(view, 'checkEmail', () => p());
+
+            return view.render()
+              .then(() => {
+                assert.isTrue(view.checkEmail.calledOnce);
+                assert.isTrue(view.checkEmail.calledWith('testuser@testuser.com'));
               });
           });
         });

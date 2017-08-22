@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
   const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const FormView = require('views/form');
+  const p = require('lib/promise');
   const SearchParamMixin = require('lib/search-param-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/index');
@@ -45,6 +46,13 @@ define(function (require, exports, module) {
       } else if (this.isInEmailFirstExperimentGroup('treatment') || action === 'email') {
         // let's the router know to use the email-first signin/signup page
         this.notifier.trigger('email-first-flow');
+        const email = this.relier.get('email');
+        if (email) {
+          const TEST_REQUEST_DELAY_MS = this.broker.isAutomatedBrowser() ? 500 : 0;
+          // The delay is to give the functional tests time to hook up
+          // WebChannel message response listeners.
+          return p().delay(TEST_REQUEST_DELAY_MS).then(() => this.checkEmail(email));
+        }
       } else {
         this.replaceCurrentPage('signup');
       }

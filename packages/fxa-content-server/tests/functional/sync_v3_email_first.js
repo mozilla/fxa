@@ -197,6 +197,33 @@ define([
           .then(closeCurrentWindow())
 
         .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
-    }
+    },
+
+    'email specified by relier, not registered': function () {
+      return this.remote
+      .then(openPage(INDEX_PAGE_URL, selectors.SIGNUP_PASSWORD.HEADER, {
+        query: {
+          email
+        },
+        webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true }
+        }
+      }))
+      .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email));
+    },
+
+    'email specified by relier, registered': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(INDEX_PAGE_URL, selectors.SIGNIN_PASSWORD.HEADER, {
+          query: {
+            email
+          },
+          webChannelResponses: {
+            'fxaccounts:can_link_account': { ok: true }
+          }
+        }))
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
+    },
   });
 });
