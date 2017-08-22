@@ -832,6 +832,14 @@ describe('/recovery_email', () => {
         assert.ok(response)
         assert.equal(mockDB.setPrimaryEmail.callCount, 1, 'call db.setPrimaryEmail')
         assert.equal(mockPush.notifyProfileUpdated.callCount, 1, 'call db.notifyProfileUpdated')
+        assert.equal(mockLog.notifyAttachedServices.callCount, 1, 'call db.notifyAttachedServices')
+
+        const args = mockLog.notifyAttachedServices.args[0]
+        assert.equal(args.length, 3, 'log.notifyAttachedServices was passed three arguments')
+        assert.equal(args[0], 'primaryEmailChanged', 'first argument was event name')
+        assert.equal(args[1], mockRequest, 'second argument was request object')
+        assert.equal(args[2].uid, uid, 'third argument was event data with a uid')
+        assert.equal(args[2].email, TEST_EMAIL_ADDITIONAL, 'third argument was event data with new email')
       })
         .then(function () {
           mockDB.setPrimaryEmail.reset()

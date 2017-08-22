@@ -726,6 +726,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
         const uid = sessionToken.uid
         const primaryEmail = sessionToken.email
         const email = request.payload.email
+        let account
 
         log.begin('Account.RecoveryEmailSetPrimary', request)
 
@@ -733,7 +734,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
           .then(() => {
             return db.account(uid)
           })
-          .then((account) => {
+          .then((result) => {
+            account = result
+
             // If a user changes their primary email, then they will still
             // have access to secondary emails because we check against the original
             // account email.
@@ -769,6 +772,10 @@ module.exports = (log, db, mailer, config, customs, push) => {
             })
             .then(() => {
               push.notifyProfileUpdated(uid)
+              log.notifyAttachedServices('primaryEmailChanged', request, {
+                uid: account.uid,
+                email: email
+              })
             })
         }
       }
