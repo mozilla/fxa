@@ -1,3 +1,17 @@
+<a name"1.94.0"></a>
+## 1.94.0 (2017-08-23)
+
+
+#### Bug Fixes
+
+* **newrelic:** update to v2.1.0 ([87a3aeee](https://github.com/mozilla/fxa-oauth-server/commit/87a3aeee))
+
+
+#### Features
+
+* **pkce:** add ability for PKCE clients to use refresh_tokens (#476) r=seanmonstar ([7b401ebf](https://github.com/mozilla/fxa-oauth-server/commit/7b401ebf), closes [#472](https://github.com/mozilla/fxa-oauth-server/issues/472))
+
+
 <a name"1.92.0"></a>
 ## 1.92.0 (2017-07-26)
 
