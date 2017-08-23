@@ -136,17 +136,6 @@
       "min_uptime": "2m"
     },
     {
-      "name": "fxa-oauth-console PORT 10137",
-      "script": "scripts/run_dev.js",
-      "cwd": "fxa-oauth-console",
-      "env": {
-        "NODE_ENV": "dev",
-        "HOST": "0.0.0.0"
-      },
-      "max_restarts": "1",
-      "min_uptime": "2m"
-    },
-    {
       "name": "browserid-verifier PORT 5050",
       "script": "server.js",
       "cwd": "browserid-verifier",

@@ -2,6 +2,8 @@
 
 # Update all projects
 
+git pull https://github.com/mozilla/fxa-local-dev.git master
+
 (cd fxa-content-server && git checkout master && git pull origin master && npm i && cd ..) || echo "fxa-content-server update failed"
 (cd fxa-auth-server && git checkout master && git pull origin master && npm i && cd ..) || echo "fxa-auth-server update failed"
 

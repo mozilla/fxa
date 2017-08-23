@@ -42,8 +42,6 @@ cd browserid-verifier; npm i; npm i vladikoff/browserid-local-verify#http; cd ..
 
 cd fxa-oauth-server; npm i; cd ..
 
-cd fxa-oauth-console; npm i; cd ..
-
 cd fxa-profile-server; npm i; mkdir -p var/public/; cd ..
 
 cd fxa-basket-proxy; npm i; cd ..
