@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const Constants = require('lib/constants');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const Cocktail = require('cocktail');
+  const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
@@ -38,29 +39,32 @@ define(function (require, exports, module) {
 
   describe('views/mixins/connect-another-device-mixin', () => {
     let account;
+    let notifier;
     let relier;
     let user;
     let view;
 
     beforeEach(() => {
+      notifier = new Notifier();
       relier = new Relier();
       user = new User();
 
       view = new View({
+        notifier,
         relier,
         user
+      });
+
+      sinon.stub(view, 'logFlowEvent', () => {});
+
+      account = user.initAccount({
+        email: 'a@a.com',
+        sessionToken: 'foo',
+        uid: VALID_UID
       });
     });
 
     describe('isEligibleForConnectAnotherDevice', () => {
-      beforeEach(() => {
-        account = user.initAccount({
-          email: 'a@a.com',
-          sessionToken: 'foo',
-          uid: VALID_UID
-        });
-      });
-
       describe('user is completing sign-in', () => {
         beforeEach(() => {
           sinon.stub(user, 'getSignedInAccount', () => {
@@ -123,12 +127,6 @@ define(function (require, exports, module) {
 
     describe('_isEligibleForSms', () => {
       beforeEach(() => {
-        account = user.initAccount({
-          email: 'a@a.com',
-          sessionToken: 'foo',
-          uid: VALID_UID
-        });
-
         relier.set('country', 'US');
       });
 
@@ -259,6 +257,8 @@ define(function (require, exports, module) {
 
         it('returns `false', () => {
           assert.isFalse(view._areSmsRequirementsMet(account));
+          assert.isTrue(view.logFlowEvent.calledOnce);
+          assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.signin'));
         });
       });
 
@@ -277,6 +277,8 @@ define(function (require, exports, module) {
 
         it('returns `false', () => {
           assert.isFalse(view._areSmsRequirementsMet(account));
+          assert.isTrue(view.logFlowEvent.calledOnce);
+          assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.android'));
         });
       });
 
@@ -295,6 +297,29 @@ define(function (require, exports, module) {
 
         it('returns `false', () => {
           assert.isFalse(view._areSmsRequirementsMet(account));
+          assert.isTrue(view.logFlowEvent.calledOnce);
+          assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.ios'));
+        });
+      });
+
+      describe('no session', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'isSignUp', () => true);
+          sinon.stub(view, 'isInExperiment', () => true);
+          sinon.stub(view, 'getUserAgent', () => {
+            return {
+              isAndroid: () => false,
+              isIos: () => false
+            };
+          });
+          account.unset('sessionToken');
+          sinon.stub(user, 'isAnotherAccountSignedIn', () => true);
+        });
+
+        it('returns `false', () => {
+          assert.isFalse(view._areSmsRequirementsMet(account));
+          assert.isTrue(view.logFlowEvent.calledOnce);
+          assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.no_session'));
         });
       });
 
@@ -313,10 +338,12 @@ define(function (require, exports, module) {
 
         it('returns `false', () => {
           assert.isFalse(view._areSmsRequirementsMet(account));
+          assert.isTrue(view.logFlowEvent.calledOnce);
+          assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.other_user_signed_in'));
         });
       });
 
-      describe('user is not part of treatment group', () => {
+      describe('user is not part of experiment', () => {
         beforeEach(() => {
           sinon.stub(view, 'isSignUp', () => true);
           sinon.stub(view, 'isInExperiment', () => false);
@@ -331,6 +358,8 @@ define(function (require, exports, module) {
 
         it('returns `false', () => {
           assert.isFalse(view._areSmsRequirementsMet(account));
+          assert.isTrue(view.logFlowEvent.calledOnce);
+          assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.not_in_experiment'));
         });
       });
 
@@ -353,17 +382,70 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('navigateToConnectAnotherDeviceScreen', () => {
-      let account;
+    describe('_smsCountry', () => {
+      it('resolves to the country on success', () => {
+        sinon.stub(account, 'smsStatus', () => p({ country: 'GB', ok: true }));
+        sinon.stub(view, 'isInExperiment', () => true);
 
-      beforeEach(() => {
-        account = user.initAccount({
-          email: 'a@a.com',
-          sessionToken: 'foo',
-          uid: VALID_UID
-        });
+        return view._smsCountry(account)
+          .then((country) => {
+            assert.equal(country, 'GB');
+
+            assert.isTrue(view.logFlowEvent.calledOnce);
+            assert.isTrue(view.logFlowEvent.calledWith('sms.status.country.GB'));
+          });
       });
 
+      it('resolves to `undefined` if auth-server responds ok: false', () => {
+        sinon.stub(account, 'smsStatus', () => p({ country: 'AZ', ok: false }));
+
+        return view._smsCountry(account)
+          .then((country) => {
+            assert.isUndefined(country);
+
+            assert.isTrue(view.logFlowEvent.calledTwice);
+            assert.isTrue(view.logFlowEvent.calledWith('sms.status.country.AZ'));
+            assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.unsupported_country'));
+          });
+      });
+
+      it('resolves to `undefined` if auth-server reported country is not supported', () => {
+        sinon.stub(account, 'smsStatus', () => p({ country: 'AZ', ok: true }));
+        sinon.stub(view, 'isInExperiment', () => false);
+
+        return view._smsCountry(account)
+          .then((country) => {
+            assert.isUndefined(country);
+
+            assert.isTrue(view.isInExperiment.calledOnce);
+            assert.isTrue(view.isInExperiment.calledWith('sendSmsEnabledForCountry', { country: 'AZ' }));
+
+            assert.isTrue(view.logFlowEvent.calledTwice);
+            assert.isTrue(view.logFlowEvent.calledWith('sms.status.country.AZ'));
+            assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.unsupported_country'));
+          });
+      });
+
+      it('handles XHR errors', () => {
+        const err = AuthErrors.toError('UNEXPECTED_ERROR');
+
+        sinon.stub(account, 'smsStatus', () => p.reject(err));
+        sinon.stub(view, 'logError', () => {});
+
+        return view._smsCountry(account)
+          .then((country) => {
+            assert.isUndefined(country);
+
+            assert.isTrue(view.logError.calledOnce);
+            assert.isTrue(view.logError.calledWith(err));
+
+            assert.isTrue(view.logFlowEvent.calledOnce);
+            assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.xhr_error'));
+          });
+      });
+    });
+
+    describe('navigateToConnectAnotherDeviceScreen', () => {
       describe('not eligible for CAD', () => {
         it('rejects with an error', () => {
           sinon.stub(view, 'isEligibleForConnectAnotherDevice', () => false);
@@ -379,6 +461,7 @@ define(function (require, exports, module) {
           sinon.stub(view, 'isEligibleForConnectAnotherDevice', () => true);
           sinon.stub(view, 'navigate', () => {});
           sinon.stub(view, 'createExperiment', () => {});
+          sinon.spy(notifier, 'trigger');
         });
 
         describe('not eligible for SMS', () => {
@@ -388,6 +471,9 @@ define(function (require, exports, module) {
             return view.navigateToConnectAnotherDeviceScreen(account)
               .then(() => {
                 assert.isFalse(view.createExperiment.called);
+
+                assert.isTrue(notifier.trigger.calledOnce);
+                assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
 
                 assert.isTrue(view.navigate.calledOnce);
                 assert.isTrue(view.navigate.calledWith('connect_another_device', { account }));
@@ -424,6 +510,9 @@ define(function (require, exports, module) {
 
                   assert.isTrue(view.navigate.calledOnce);
                   assert.isTrue(view.navigate.calledWith('connect_another_device', { account }));
+
+                  assert.isTrue(view.logFlowEvent.calledOnce);
+                  assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.control_group'));
                 });
             });
           });

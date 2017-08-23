@@ -29,6 +29,16 @@ define((require, exports, module) => {
   const UserAgentMixin = require('lib/user-agent-mixin');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
+  const REASON_ANDROID = 'sms.ineligible.android';
+  const REASON_CONTROL_GROUP = 'sms.ineligible.control_group';
+  const REASON_IOS = 'sms.ineligible.ios';
+  const REASON_NOT_IN_EXPERIMENT = 'sms.ineligible.not_in_experiment';
+  const REASON_NO_SESSION = 'sms.ineligible.no_session';
+  const REASON_OTHER_USER_SIGNED_IN = 'sms.ineligible.other_user_signed_in';
+  const REASON_SIGNIN = 'sms.ineligible.signin';
+  const REASON_UNSUPPORTED_COUNTRY = 'sms.ineligible.unsupported_country';
+  const REASON_XHR_ERROR = 'sms.ineligible.xhr_error';
+
   return {
     dependsOn: [
       ExperimentMixin,
@@ -66,6 +76,11 @@ define((require, exports, module) => {
         return p.reject(new Error('chooseConnectAnotherDeviceScreen can only be called if user is eligible to connect another device'));
       }
 
+      // Initialize the flow metrics so any flow events are logged.
+      // The flow-events-mixin, even if it were mixed in, does this in
+      // `afterRender` whereas this method can be called in `beforeRender`
+      this.notifier.trigger('flow.initialize');
+
       return this._isEligibleForSms(account)
         .then(({ ok, country }) => {
           if (ok) {
@@ -74,10 +89,12 @@ define((require, exports, module) => {
             const group = this.getExperimentGroup('sendSms', { account });
             this.createExperiment('sendSms', group);
 
-            if (group === 'treatment' || group === 'signinCodes') {
-              this.navigate('sms', { account, country });
-            } else { // there are only three groups, by default, this is the control
+            if (group === 'control') {
+              this.logFlowEvent(REASON_CONTROL_GROUP);
               this.navigate('connect_another_device', { account });
+            } else {
+              // all non-control groups go to the sms page.
+              this.navigate('sms', { account, country });
             }
           } else {
             this.navigate('connect_another_device', { account });
@@ -108,22 +125,37 @@ define((require, exports, module) => {
     },
 
     /**
-     * Check if the requirements are met to send an SMS.
+     * Check if the requirements are met to send an SMS, if not, log why.
      *
      * @param {Object} account
      * @returns {Boolean}
      * @private
      */
     _areSmsRequirementsMet (account) {
-      return this.isSignUp() &&
+      let reason;
+
+      if (! this.isSignUp()) {
+        reason = REASON_SIGNIN;
+      } else if (this.getUserAgent().isAndroid()) {
         // If already on a mobile device, doesn't make sense to send an SMS.
-        ! this.getUserAgent().isAndroid() &&
-        ! this.getUserAgent().isIos() &&
+        reason = REASON_ANDROID;
+      } else if (this.getUserAgent().isIos()) {
+        reason = REASON_IOS;
+      } else if (! (account && account.get('sessionToken'))) {
+        reason = REASON_NO_SESSION;
+      } else if (this.user.isAnotherAccountSignedIn(account)) {
         // If a user is already signed in to Sync which is different to the
         // user that just verified, show them the old "Account verified!" screen.
-        ! this.user.isAnotherAccountSignedIn(account) &&
-        // Does able say we are eligible for the experiment?
-        this.isInExperiment('sendSms', { account });
+        reason = REASON_OTHER_USER_SIGNED_IN;
+      } else if (! this.isInExperiment('sendSms', { account })) {
+        reason = REASON_NOT_IN_EXPERIMENT;
+      }
+
+      if (reason) {
+        this.logFlowEvent(reason);
+      }
+
+      return ! reason;
     },
 
     /**
@@ -147,11 +179,17 @@ define((require, exports, module) => {
           // that SMS is enabled for Romania, though it's only enabled
           // for testing and not for the public at large. Experiment choices are used
           // for this because it's the logic most likely to change.
+          if (resp.country) {
+            this.logFlowEvent(`sms.status.country.${resp.country}`);
+          }
 
           // If geo-lookup is disabled, no country is returned, assume US
           const country = resp.country || 'US';
           if (resp.ok && this.isInExperiment('sendSmsEnabledForCountry', { country })) {
             return country;
+          } else {
+            // It's a big assumption, but assume ok: false means an unsupported country.
+            this.logFlowEvent(REASON_UNSUPPORTED_COUNTRY);
           }
         }, (err) => {
           // Add `.smsStatus` to the context so we can differentiate between errors
@@ -161,6 +199,7 @@ define((require, exports, module) => {
           // prevent verification from completing. Send the user to
           // /connect_another_device instead. See #5109
           this.logError(err);
+          this.logFlowEvent(REASON_XHR_ERROR);
         });
     }
   };

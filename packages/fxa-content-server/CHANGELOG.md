@@ -1,3 +1,13 @@
+<a name="1.94.1"></a>
+## 1.94.1 (2017-08-23)
+
+
+### Features
+
+* **sms:** Log why users are ineligible for the SMS experiment. (#5385) r=@philbooth ([765b2b4](https://github.com/mozilla/fxa-content-server/commit/765b2b4)), closes [#5382](https://github.com/mozilla/fxa-content-server/issues/5382)
+
+
+
 <a name="1.94.0"></a>
 # 1.94.0 (2017-08-22)
 
