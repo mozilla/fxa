@@ -1,3 +1,45 @@
+<a name="1.94.2"></a>
+## [1.94.2](https://github.com/mozilla/fxa-auth-server/compare/v1.93.1...v1.94.2) (2017-08-23)
+
+
+### Bug Fixes
+
+* **deps:** update shrinkwrap ([4694cd1](https://github.com/mozilla/fxa-auth-server/commit/4694cd1))
+* **devices:** saner mobile/tablet recognition for devices (#2051), r=@vbudhram ([3e5859f](https://github.com/mozilla/fxa-auth-server/commit/3e5859f))
+* **l10n:** fix l10n updates ([2d3c4ab](https://github.com/mozilla/fxa-auth-server/commit/2d3c4ab))
+* **senders:** update gettext dependency that can parse es6 syntax (#2057) r=vladikoff ([12dd0fe](https://github.com/mozilla/fxa-auth-server/commit/12dd0fe))
+* **strings:** change "to" to "for" for verify secondary email (#2048), r=@vbudhram ([742be75](https://github.com/mozilla/fxa-auth-server/commit/742be75))
+* **tests:** update remote db tests for uaFormFactor column ([c4d1e50](https://github.com/mozilla/fxa-auth-server/commit/c4d1e50))
+
+### chore
+
+* **ci:** remove node4 test target from travis-ci (#2054) r=vladikoff ([e1de16d](https://github.com/mozilla/fxa-auth-server/commit/e1de16d))
+* **docs:** update precommit doc script to use grunt-newer ([fd62a8d](https://github.com/mozilla/fxa-auth-server/commit/fd62a8d))
+* **eslint:** fix eslint task config so newer works (#2055) r=vladikoff ([12a14fc](https://github.com/mozilla/fxa-auth-server/commit/12a14fc)), closes [#2055](https://github.com/mozilla/fxa-auth-server/issues/2055)
+* **git:** remove prepush git hook (#2058) r=vladikoff ([8e1de31](https://github.com/mozilla/fxa-auth-server/commit/8e1de31))
+
+### Features
+
+* **email:** Notify services when user changes primary email (#2066) r=vladikoff,rfk ([7bbdd44](https://github.com/mozilla/fxa-auth-server/commit/7bbdd44))
+* **server:** add parsed user agent info to the request object (#2061), r=@vbudhram ([cc69b36](https://github.com/mozilla/fxa-auth-server/commit/cc69b36))
+
+### Refactor
+
+* **email:** extract common flow id boilerplate (#2065) r=vladikoff ([8d5f2b0](https://github.com/mozilla/fxa-auth-server/commit/8d5f2b0))
+* **sms:** unleash es6 in senders/sms (#2064), r=@vbudhram ([a37589c](https://github.com/mozilla/fxa-auth-server/commit/a37589c))
+
+
+
+<a name="1.94.1"></a>
+## [1.94.1](https://github.com/mozilla/fxa-auth-server/compare/v1.94.0...v1.94.1) (2017-08-23)
+
+
+### Bug Fixes
+
+* **deps:** update shrinkwrap ([4694cd1](https://github.com/mozilla/fxa-auth-server/commit/4694cd1))
+
+
+
 <a name="1.94.0"></a>
 # [1.94.0](https://github.com/mozilla/fxa-auth-server/compare/v1.93.1...v1.94.0) (2017-08-22)
 
