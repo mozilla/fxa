@@ -15,7 +15,7 @@ try {
   var info = require('../../config/version.json');
   commitHash = info.version.hash;
   source = info.version.source;
-} catch(e) {
+} catch (e) {
   /* ignore */
 }
 

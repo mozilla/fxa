@@ -11,7 +11,7 @@ const logger = require('../logging')('img.aws');
 const PUBLIC_BUCKET = config.get('img.uploads.dest.public');
 const CONTENT_TYPE_PNG = 'image/png';
 
-if (!/^[a-zA-Z0-9_\-]+$/.test(PUBLIC_BUCKET)) {
+if (! /^[a-zA-Z0-9_\-]+$/.test(PUBLIC_BUCKET)) {
   throw new Error('Illegal Bucket Name: ' + PUBLIC_BUCKET);
 }
 

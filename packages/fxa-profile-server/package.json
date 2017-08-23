@@ -37,18 +37,16 @@
   "devDependencies": {
     "blanket": "1.1.6",
     "commander": "2.9.0",
-    "eslint-config-fxa": "2.1.0",
+    "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#41504c9dd30e8b52900c15b524946aa0428aef95",
     "fxa-conventional-changelog": "1.1.0",
     "grunt": "1.0.1",
     "grunt-bump": "0.8.0",
     "grunt-conventional-changelog": "5.0.0",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",
-    "grunt-jscs": "3.0.1",
     "grunt-mocha-test": "0.12.7",
     "grunt-nsp": "2.3.1",
     "insist": "1.0.0",
-    "jscs-jsdoc": "2.0.0",
     "load-grunt-tasks": "3.5.0",
     "mkdirp": "0.5.1",
     "mocha-text-cov": "0.1.1",
@@ -68,7 +66,7 @@
   "homepage": "https://github.com/mozilla/fxa-profile-server",
   "author": "Sean McArthur <sean.monstar@gmail.com>",
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=6"
   },
   "license": "MPL-2.0"
 }

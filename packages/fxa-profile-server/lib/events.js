@@ -17,7 +17,7 @@ exports.onData = function onData(message) {
   logger.verbose('data', message);
   if (message.event === 'delete') {
     var userId = message.uid.split('@')[0];
-    if (!HEX_STRING.test(userId)) {
+    if (! HEX_STRING.test(userId)) {
       message.del();
       return logger.warn('badDelete', { userId: userId });
     }
@@ -52,7 +52,7 @@ exports.onError = function onError(err) {
 };
 
 exports.start = function start() {
-  if (!config.events.region || !config.events.queueUrl) {
+  if (! config.events.region || ! config.events.queueUrl) {
     if (env.isProdLike()) {
       throw new Error('config.events must be included in prod');
     } else {

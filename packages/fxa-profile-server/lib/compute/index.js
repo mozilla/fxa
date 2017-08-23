@@ -91,7 +91,7 @@ exports.image = function image(id, payload) {
         }
       }
 
-      if (!validSignature) {
+      if (! validSignature) {
         return reject(AppError.processingError('unknown file signature'));
       }
 

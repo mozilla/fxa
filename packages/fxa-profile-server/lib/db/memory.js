@@ -39,7 +39,7 @@ const P = require('../promise');
  * }
  */
 function MemoryStore() {
-  if (!(this instanceof MemoryStore)) {
+  if (! (this instanceof MemoryStore)) {
     return new MemoryStore();
   }
   this.avatars = {};
