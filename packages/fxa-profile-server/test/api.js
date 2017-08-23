@@ -770,43 +770,6 @@ describe('/avatar', function() {
   });
 });
 
-describe('/avatars', function() {
-  var tok = token();
-  var user = uid();
-
-  var PROVIDER = 'gravatar';
-
-  before(function() {
-    var grav1 = GRAVATAR.slice(0, -1) + '1';
-    return db.addAvatar(avatarId(), user, grav1, PROVIDER)
-      .then(function() {
-        // replace grav1 as selected
-        return db.addAvatar(avatarId(), user, GRAVATAR, PROVIDER);
-      }).then(function() {
-        // other user!
-        return db.addAvatar(avatarId(), uid(), grav1, PROVIDER);
-      });
-  });
-
-  it('should return a deprecated status', function() {
-    mock.token({
-      user: user,
-      scope: ['profile:avatar:write']
-    });
-    return Server.api.get({
-      url: '/avatars',
-      headers: {
-        authorization: 'Bearer ' + tok
-      }
-    }).then(function(res) {
-      assert.equal(res.statusCode, 410);
-      assert.equal(res.result.error, 'Gone');
-      assert.equal(res.result.message, 'This endpoint is no longer supported');
-      assertSecurityHeaders(res);
-    });
-  });
-});
-
 describe('/display_name', function() {
   var tok = token();
 
