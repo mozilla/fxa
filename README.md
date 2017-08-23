@@ -103,25 +103,25 @@ sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick redis-s
 
 #### Installing Node.js
 
-> NOTE: If you are experienced with Node.js: Use [nvm](https://github.com/creationix/nvm) to force node 4.5.0+
-just for `fxa-local-dev` using `nvm use 4`. (Install it first with `nvm install 4`)
+> NOTE: If you are experienced with Node.js: Use [nvm](https://github.com/creationix/nvm) to force node 6
+just for `fxa-local-dev` using `nvm use 6`. (Install it first with `nvm install 6`)
 
 ##### OS X
-Use this if you do not rely on other node.js programs on your system: Find the latest Node 4 LTS `.pkg` download at [nodejs.org/en/download/](https://nodejs.org/en/download/) and install it.
+Use this if you do not rely on other node.js programs on your system: Find the latest Node 6 LTS `.pkg` download at [nodejs.org/en/download/](https://nodejs.org/en/download/) and install it.
 
 ##### Ubuntu / Debian:
 
 ```
 # Using Ubuntu
-curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 # Using Debian, as root
-curl -sL https://deb.nodesource.com/setup_4.x | bash -
+curl -sL https://deb.nodesource.com/setup_6.x | bash -
 apt-get install -y nodejs
 ```
 
-> NOTE: Node 4 and greater require C++11, that [does not come by default on Ubuntu 12](https://github.com/nodesource/distributions/blob/master/OLDER_DISTROS.md).
+> NOTE: Node 6 and greater require C++11, that [does not come by default on Ubuntu 12](https://github.com/nodesource/distributions/blob/master/OLDER_DISTROS.md).
 
 #### Installing Java
 
@@ -175,7 +175,7 @@ You can test sync locally in Firefox for Android using an emulator or a device o
 *  Install Firefox on the device or emulator.
 *  Run `npm run start-android` this will: stop all local FxA servers, create a local PM2 configuration and rerun the servers.
 
-The script will tell you which IP to use to work with FxA. 
+The script will tell you which IP to use to work with FxA.
 
 Follow the instructions of the script to update values in `about:config`.
 
