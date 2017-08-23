@@ -1,3 +1,13 @@
+<a name="1.94.1"></a>
+## [1.94.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.94.0...v1.94.1) (2017-08-23)
+
+
+### Features
+
+* **db:** add utf8mb4 support (#267) r=rfk ([549d39f](https://github.com/mozilla/fxa-auth-db-mysql/commit/549d39f))
+
+
+
 <a name="1.94.0"></a>
 # [1.94.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.93.0...v1.94.0) (2017-08-21)
 
