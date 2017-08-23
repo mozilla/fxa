@@ -26,6 +26,22 @@ describe('MySQL', () => {
   })
 
   it(
+    'forces REQUIRED_CHARSET for connections',
+    () => {
+      const configCharset = Object.assign({}, config)
+      configCharset.charset = 'wat'
+
+      return DB.connect(configCharset)
+        .then(
+          assert.fail,
+          err => {
+            assert.equal(err.message, 'You cannot use any charset besides UTF8MB4_BIN')
+          }
+        )
+    }
+  )
+
+  it(
     'a select on an unknown table should result in an error',
     () => {
       var query = 'SELECT mumble as id FROM mumble.mumble WHERE mumble = ?'
@@ -281,9 +297,8 @@ describe('MySQL', () => {
         .then(
           function(config) {
             assert.equal(typeof config, 'object')
-            // slightly opinionated
             assert.equal(config.protocol41, true, 'protocol41 is true')
-            assert.equal(config.charsetNumber, 33, 'charsetNumber should be 33 (utf8)')
+            assert.equal(config.charsetNumber, 46, 'charsetNumber must be 46 (UTF8MB4_BIN)')
             assert.equal(config.multipleStatements, false, 'multipleStatements should normally be false')
           }
         )
@@ -297,9 +312,10 @@ describe('MySQL', () => {
         .then(
           function(vars) {
             assert.equal(typeof vars, 'object')
-            // Not doing a hardcore enumeration (yet) (or utfmb4)
-            assert.equal(vars['character_set_client'], 'utf8', 'character_set_connection is utf8')
-            assert.equal(vars['character_set_connection'], 'utf8', 'character_set_client is utf8')
+            assert.equal(vars['character_set_client'], 'utf8mb4', 'character_set_connection is utf8mb4')
+            assert.equal(vars['character_set_connection'], 'utf8mb4', 'character_set_client is utf8mb4')
+            assert.equal(vars['character_set_results'], 'utf8mb4', 'character_set_results is utf8mb4')
+            assert.equal(vars['collation_connection'], 'utf8mb4_bin', 'collation_connection is utf8mb4_bin')
           }
         )
     }
@@ -344,6 +360,62 @@ describe('MySQL', () => {
         )
     }
   )
+
+  it('writes and reads non-BMP characters', () => {
+    function checkDeviceName (name) {
+      if (! name) {
+        throw new Error('No device name provided')
+      }
+
+      const uid = crypto.randomBytes(16).toString('hex')
+      const id = crypto.randomBytes(16).toString('hex')
+      const sessionToken = crypto.randomBytes(32).toString('hex')
+      const brokenName = 'name'
+      const nameUtf8 = name
+
+      const query = `CALL createDevice_3(
+        X'${uid}',
+        X'${id}',
+        X'${sessionToken}',
+        '${brokenName}',
+        '${nameUtf8}',
+        'desktop',
+        1503411408753,
+        'https://updates.push.services.mozilla.com/wpush/v1/foo',
+        'BFZcu6Sa-IP6xVjHH3cIDP2GGOO3MkXG9Da6QoU2ehzoAFSuZ73Rz3naZCGzhgpi8_kccLbURjAqYexaQed5FHA',
+        'jrLebP8XXzzPD6ylenInQQ')`
+      return db.write(query, [])
+        .then(
+          function(result) {
+            assert.deepEqual(result, {}, 'Returned an empty on success')
+
+            const query = `SELECT * FROM devices WHERE id = X'${id}'`
+            return db.read(query)
+              .then(
+                function(result) {
+                  const row = result[0]
+                  assert.equal(row.name, brokenName)
+                  assert.equal(row.nameUtf8, nameUtf8)
+                },
+                function(err) {
+                  assert.fail(err)
+                }
+              )
+          },
+          function(err) {
+            assert.fail(err)
+          }
+        )
+    }
+
+    return P.all([
+      checkDeviceName('name 🍓'),
+      checkDeviceName('User 在 home 上的 Nightly'),
+      checkDeviceName('𝌆 cool name'),
+      checkDeviceName('advanced emoji ✋🏼'),
+      checkDeviceName('Й,К,Л,М,Н,О,П,Р,С,Т,У,Ф,Х,Ц,Ч,Ш,Щ,Ъ,Ы,Ь,Э,Ю,Я'),
+    ])
+  })
 
   after(() => db.close())
 

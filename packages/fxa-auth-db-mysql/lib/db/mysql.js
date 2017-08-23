@@ -12,6 +12,8 @@ const P = require('../promise')
 const patch = require('./patch')
 const dbUtil = require('./util')
 
+const REQUIRED_CHARSET = 'UTF8MB4_BIN'
+
 // http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
 const ER_TOO_MANY_CONNECTIONS = 1040
 const ER_DUP_ENTRY = 1062
@@ -50,6 +52,16 @@ module.exports = function (log, error) {
         canRetry: false
       }
     )
+
+    if (options.charset && options.charset !== REQUIRED_CHARSET) {
+      log.error('createPoolCluster.invalidCharset', { charset: options.charset })
+      throw new Error('You cannot use any charset besides ' + REQUIRED_CHARSET)
+    } else {
+      options.charset = REQUIRED_CHARSET
+    }
+
+    options.master.charset = options.charset
+    options.slave.charset = options.charset
 
     // Use separate pools for master and slave connections.
     this.poolCluster.add('MASTER', options.master)
@@ -112,31 +124,33 @@ module.exports = function (log, error) {
 
   // this will be called from outside this file
   MySql.connect = function(options) {
-    // check that the database patch level is what we expect (or one above)
-    var mysql = new MySql(options)
+    return P.resolve().then(() => {
+      // check that the database patch level is what we expect (or one above)
+      var mysql = new MySql(options)
 
-    // Select : dbMetadata
-    // Fields : value
-    // Where  : name = $1
-    var DB_METADATA = 'CALL dbMetadata_1(?)'
+      // Select : dbMetadata
+      // Fields : value
+      // Where  : name = $1
+      var DB_METADATA = 'CALL dbMetadata_1(?)'
 
-    return mysql.readFirstResult(DB_METADATA, [options.patchKey])
-      .then(
-        function (result) {
-          mysql.patchLevel = +result.value
+      return mysql.readFirstResult(DB_METADATA, [options.patchKey])
+        .then(
+          function (result) {
+            mysql.patchLevel = +result.value
 
-          log.info('connect', {
-            patchLevel: mysql.patchLevel,
-            patchLevelRequired: patch.level
-          })
+            log.info('connect', {
+              patchLevel: mysql.patchLevel,
+              patchLevelRequired: patch.level
+            })
 
-          if ( mysql.patchLevel >= patch.level ) {
-            return mysql
+            if ( mysql.patchLevel >= patch.level ) {
+              return mysql
+            }
+
+            throw new Error('dbIncorrectPatchLevel')
           }
-
-          throw new Error('dbIncorrectPatchLevel')
-        }
-      )
+        )
+    })
   }
 
   MySql.prototype.close = function () {
@@ -268,7 +282,7 @@ module.exports = function (log, error) {
     )
   }
 
-  var CREATE_DEVICE = 'CALL createDevice_2(?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  var CREATE_DEVICE = 'CALL createDevice_3(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createDevice = function (uid, deviceId, deviceInfo) {
     return this.write(
@@ -278,6 +292,7 @@ module.exports = function (log, error) {
         deviceId,
         deviceInfo.sessionTokenId,
         deviceInfo.name,
+        deviceInfo.name, // inNameUtf8
         deviceInfo.type,
         deviceInfo.createdAt,
         deviceInfo.callbackURL,
@@ -287,7 +302,7 @@ module.exports = function (log, error) {
     )
   }
 
-  var UPDATE_DEVICE = 'CALL updateDevice_2(?, ?, ?, ?, ?, ?, ?, ?)'
+  var UPDATE_DEVICE = 'CALL updateDevice_3(?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.updateDevice = function (uid, deviceId, deviceInfo) {
     return this.write(
@@ -297,6 +312,7 @@ module.exports = function (log, error) {
         deviceId,
         deviceInfo.sessionTokenId,
         deviceInfo.name,
+        deviceInfo.name, // inNameUtf8
         deviceInfo.type,
         deviceInfo.callbackURL,
         deviceInfo.callbackPublicKey,
@@ -1015,10 +1031,28 @@ module.exports = function (log, error) {
   }
 
   MySql.prototype.getConnection = function (name) {
-    return retryable(
-      this.getClusterConnection.bind(this, name),
-      [ER_TOO_MANY_CONNECTIONS, 'ECONNREFUSED', 'ETIMEDOUT', 'ECONNRESET']
-    )
+    return new P((resolve, reject) => {
+      retryable(
+        this.getClusterConnection.bind(this, name),
+        [ER_TOO_MANY_CONNECTIONS, 'ECONNREFUSED', 'ETIMEDOUT', 'ECONNRESET']
+      ).then((connection) => {
+
+        if (connection._fxa_initialized) {
+          return resolve(connection)
+        }
+
+        connection.query('SET NAMES utf8mb4 COLLATE utf8mb4_bin;', (err) => {
+          if (err) {
+            return reject(err)
+          }
+
+          connection._fxa_initialized = true
+
+          resolve(connection)
+        })
+
+      })
+    })
   }
 
   function query(connection, sql, params) {
