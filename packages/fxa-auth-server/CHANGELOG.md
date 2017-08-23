@@ -1,3 +1,13 @@
+<a name="1.94.1"></a>
+## [1.94.1](https://github.com/mozilla/fxa-auth-server/compare/v1.94.0...v1.94.1) (2017-08-23)
+
+
+### Bug Fixes
+
+* **deps:** update shrinkwrap ([4694cd1](https://github.com/mozilla/fxa-auth-server/commit/4694cd1))
+
+
+
 <a name="1.94.0"></a>
 # [1.94.0](https://github.com/mozilla/fxa-auth-server/compare/v1.93.1...v1.94.0) (2017-08-22)
 
