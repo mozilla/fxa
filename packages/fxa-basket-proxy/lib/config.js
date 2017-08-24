@@ -59,7 +59,11 @@ var conf = module.exports = convict({
       format: Object,
       default: {
         'fxa-embedded-form-moz': 'mozilla-welcome',
-        'fxa-embedded-form-fx': 'firefox-welcome'
+        'fxa-embedded-form-fx': 'firefox-welcome',
+        'membership-idealo': 'member-idealo',
+        'membership-comm': 'member-comm',
+        'membership-tech': 'member-tech',
+        'membership-tk': 'member-tk'
       },
       env: 'BASKET_NEWSLETTER_CAMPAIGNS'
     },
