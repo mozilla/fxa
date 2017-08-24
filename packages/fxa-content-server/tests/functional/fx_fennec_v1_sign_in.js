@@ -46,7 +46,7 @@ define([
     return this.parent
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER))
+      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, { query: options.query }))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutSignIn(email, PASSWORD))
       .then(testElementExists(successSelector))
@@ -60,19 +60,33 @@ define([
   });
 
   registerSuite({
-    name: 'Fx Fennec Sync v1 sign_in',
+    name: 'Fx Fennec Sync v1 signin',
 
     beforeEach: function () {
       email = TestHelpers.createEmail('sync{id}');
     },
 
-    'verified, verify same browser': function () {
+    'verified, verify same browser - control': function () {
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' };
       return this.remote
-        .then(setupTest(selectors.CONFIRM_SIGNIN.HEADER, { preVerified: true }))
+        .then(setupTest(selectors.CONFIRM_SIGNIN.HEADER, { preVerified: true, query }))
 
-        .then(openVerificationLinkInNewTab(email, 0))
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
         .switchToWindow('newwindow')
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(closeCurrentWindow())
+
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+    },
+
+    'verified, verify same browser - treatment': function () {
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment' };
+      return this.remote
+        .then(setupTest(selectors.CONFIRM_SIGNIN.HEADER, { preVerified: true, query }))
+
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
+        .switchToWindow('newwindow')
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));

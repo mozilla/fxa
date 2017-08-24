@@ -6,7 +6,12 @@
     <section>
       <div class="graphic graphic-connect-another-device">{{#t}}Success{{/t}}</div>
 
-      <p>{{#t}}Send Firefox directly to your smartphone and sign in to complete set-up{{/t}}</p>
+      <p class="instructions">
+        {{#isSignIn}}
+          {{#t}}Still adding devices?{{/t}}
+        {{/isSignIn}}
+        {{#t}}Send Firefox directly to your smartphone and sign in to complete set-up{{/t}}
+      </p>
 
       <form novalidate>
         <div class="input-row sms-row">
@@ -20,7 +25,7 @@
       {{#unsafeTranslate}}SMS service only available in certain countries. SMS &amp; data rates may apply. The intended recipient of the email or SMS must have consented. <a %(escapedLearnMoreAttributes)s>Learn more</a>{{/unsafeTranslate}}
     </div>
     <div class="links">
-      <a href="/sms/why" data-flow-event="link.why" class="left">{{#t}}Why is this required?{{/t}}</a>
+      <a href="/sms/why" data-flow-event="link.why" class="left">{{#t}}Why is more than one device required?{{/t}}</a>
       <a id="maybe-later" href="/connect_another_device" data-flow-event="link.maybe_later" class="right">{{#t}}Maybe later{{/t}}</a>
     </div>
     <aside class="child-view"></aside>

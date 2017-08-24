@@ -810,6 +810,7 @@ define(function (require, exports, module) {
         server: true,
         url
       });
+      this._hasNavigated = true;
     },
 
     /**
@@ -820,6 +821,15 @@ define(function (require, exports, module) {
      */
     replaceCurrentPage (url, nextViewData = {}) {
       this.navigate(url, nextViewData, { replace: true, trigger: true });
+    },
+
+    /**
+     * Has the view already navigated?
+     *
+     * @returns {Boolean}
+     */
+    hasNavigated () {
+      return !! this._hasNavigated;
     },
 
     /**

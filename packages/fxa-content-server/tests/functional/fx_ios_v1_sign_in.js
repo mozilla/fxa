@@ -79,9 +79,9 @@ define([
         .then(clearBrowserState({ force: true }));
     },
 
-    'verified, verify same browser': function () {
+    'verified, verify same browser - control': function () {
       const forceUA = UA_STRINGS['ios_firefox_6_1'];
-      const query = { forceUA };
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control', forceUA };
 
       return this.remote
         .then(setupTest({ preVerified: true, query }))
@@ -89,6 +89,21 @@ define([
         .then(openVerificationLinkInNewTab(email, 0, { query }))
         .switchToWindow('newwindow')
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(closeCurrentWindow())
+
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+    },
+
+    'verified, verify same browser - treatment': function () {
+      const forceUA = UA_STRINGS['ios_firefox_6_1'];
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment', forceUA };
+
+      return this.remote
+        .then(setupTest({ preVerified: true, query }))
+
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
+        .switchToWindow('newwindow')
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));

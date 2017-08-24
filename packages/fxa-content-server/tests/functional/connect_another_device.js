@@ -140,9 +140,9 @@ define([
         .then(testUrlInclude(CONNECT_ANOTHER_DEVICE_ENTRYPOINT));
     },
 
-    'signin Fx Desktop, verify same browser': function () {
+    'signin Fx Desktop, verify same browser - control': function () {
       const forceUA = UA_STRINGS['desktop_firefox'];
-      const query = { forceUA };
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control', forceUA };
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query }))
@@ -155,6 +155,23 @@ define([
           .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+    },
+
+    'signin Fx Desktop, verify same browser - treatment': function () {
+      const forceUA = UA_STRINGS['desktop_firefox'];
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment', forceUA };
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query }))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
+        .switchToWindow('newwindow')
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(closeCurrentWindow())
+
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'signup Fx Desktop, verify different Fx Desktop with another user already signed in': function () {

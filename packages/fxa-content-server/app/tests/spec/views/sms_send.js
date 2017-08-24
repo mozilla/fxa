@@ -133,6 +133,14 @@
              assert.lengthOf(view.$('.marketing-link'), 2);
            });
        });
+
+       it('for signin, renders extra text', () => {
+         sinon.stub(view, 'isSignIn').callsFake(() => true);
+         return view.render()
+           .then(() => {
+             assert.include(view.$('.instructions').text().toLowerCase(), 'still adding devices');
+           });
+       });
      });
 
      describe('submit', () => {

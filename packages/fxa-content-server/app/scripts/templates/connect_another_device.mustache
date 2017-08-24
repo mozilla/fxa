@@ -4,13 +4,18 @@
     <div class="success success-authenticated visible">{{#t}}This Firefox is connected{{/t}}</div>
   {{/isSignedIn}}
   {{^isSignedIn}}
-    <div class="success success-not-authenticated visible">{{#t}}Email verified{{/t}}</div>
+    {{#isSignUp}}
+      <div class="success success-not-authenticated visible">{{#t}}Email verified{{/t}}</div>
+    {{/isSignUp}}
+    {{#isSignIn}}
+      <div class="success success-not-authenticated visible">{{#t}}Signin confirmed{{/t}}</div>
+    {{/isSignIn}}
   {{/isSignedIn}}
   <section>
     <div class="graphic graphic-connect-another-device">{{#t}}Success{{/t}}</div>
 
     {{#canSignIn}}
-      <p>
+      <p class="instructions">
         {{#t}}Sign in to this Firefox to complete set-up{{/t}}
       </p>
 
@@ -25,36 +30,45 @@
         <!-- User verified in Fx for Android - they are using an old Fennec
         or are already signed in. Ignore old browsers, assume already signed in.
         Encourage installation on another device. -->
-        <p id="connect-other-firefox-from-android">
+        <p id="connect-other-firefox-from-android" class="instructions">
+          {{#isSignIn}}
+            {{#t}}Still adding devices?{{/t}}
+          {{/isSignIn}}
           {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
         </p>
       {{/isFirefoxAndroid}}
       {{#isFirefoxDesktop}}
-        <p id="install-mobile-firefox-desktop">
+        <p id="install-mobile-firefox-desktop" class="instructions">
+          {{#isSignIn}}
+            {{#t}}Still adding devices?{{/t}}
+          {{/isSignIn}}
           {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
         </p>
       {{/isFirefoxDesktop}}
       {{#isFirefoxIos}}
         <!-- user verifies in Fx for iOS, assume they are not signed in -->
-        <p id="signin-fxios">
+        <p id="signin-fxios" class="instructions">
           {{#t}}Open settings and select Sign in to Firefox to complete set-up{{/t}}
         </p>
       {{/isFirefoxIos}}
       {{#isOtherAndroid}}
         <!-- Another android browser, encourage Fx for Android installation -->
-        <p id="install-mobile-firefox-android">
+        <p id="install-mobile-firefox-android" class="instructions">
           {{#t}}Sign in to Firefox for Android to complete set-up{{/t}}
         </p>
       {{/isOtherAndroid}}
       {{#isOtherIos}}
         <!-- Safari or Chrome for iOS, encourage installation of Fx -->
-        <p id="install-mobile-firefox-ios">
+        <p id="install-mobile-firefox-ios" class="instructions">
           {{#t}}Sign in to Firefox for iOS to complete set-up{{/t}}
         </p>
       {{/isOtherIos}}
       {{#isOther}}
         <!-- probably some desktop browser -->
-        <p id="install-mobile-firefox-other">
+        <p id="install-mobile-firefox-other" class="instructions">
+          {{#isSignIn}}
+            {{#t}}Still adding devices?{{/t}}
+          {{/isSignIn}}
           {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
         </p>
       {{/isOther}}
@@ -64,7 +78,7 @@
       {{/isFirefoxIos}}
     {{/canSignIn}}
     <div class="links">
-      <a data-flow-event="link.why" href="/connect_another_device/why">{{#t}}Why is this required?{{/t}}</a>
+      <a data-flow-event="link.why" href="/connect_another_device/why">{{#t}}Why is more than one device required?{{/t}}</a>
     </div>
     <aside class="child-view"></aside>
   </section>

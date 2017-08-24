@@ -7,7 +7,8 @@
  * connect-another-device screen. If ineligible, fallback
  * to `defaultBehavior`.
  *
- * Do not use for a signin flow, instead use "connect-another-device-on-signin".
+ * Should only be used for signin flows, a side effect
+ * is to create/initialize CAD on signin experiments.
  *
  * Requires the view to mixin the ConnectAnotherDeviceMixin
  */
@@ -18,7 +19,7 @@ define((require, exports, module) => {
   const p = require('lib/promise');
 
   /**
-   * Create a ConnectAnotherDevice behavior.
+   * Create a ConnectAnotherDeviceOnSignin behavior.
    *
    * @param {Object} defaultBehavior - behavior to invoke if ineligible
    *   for ConnectAnotherDevice
@@ -27,8 +28,8 @@ define((require, exports, module) => {
   module.exports = function (defaultBehavior) {
     const behavior = function (view, account) {
       return p().then(() => {
-        if (view.isEligibleForConnectAnotherDevice(account)) {
-          return view.navigateToConnectAnotherDeviceScreen(account);
+        if (view.isEligibleForConnectAnotherDeviceOnSignin(account)) {
+          return view.navigateToConnectAnotherDeviceOnSigninScreen(account);
         }
       })
       .then(() => {
@@ -43,7 +44,7 @@ define((require, exports, module) => {
       });
     };
 
-    behavior.type = 'connect-another-device';
+    behavior.type = 'connect-another-device-on-signin';
 
     return behavior;
   };

@@ -74,11 +74,26 @@ define([
         .then(clearBrowserState());
     },
 
-    'verified, verify same browser, new tab\'s P.O.V.': function () {
-      return this.remote
-        .then(setupTest({ preVerified: true }))
+    'verified, verify same browser, new tab\'s P.O.V - control': function () {
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' };
 
-        .then(openVerificationLinkInNewTab(email, 0))
+      return this.remote
+        .then(setupTest({ preVerified: true, query }))
+
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
+        .switchToWindow('newwindow')
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(closeCurrentWindow());
+        // tests for the original tab are below.
+    },
+
+    'verified, verify same browser, new tab\'s P.O.V - treatment': function () {
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' };
+
+      return this.remote
+        .then(setupTest({ preVerified: true, query }))
+
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
         .switchToWindow('newwindow')
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow());

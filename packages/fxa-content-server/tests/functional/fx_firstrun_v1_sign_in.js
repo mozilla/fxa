@@ -62,21 +62,43 @@ define([
         }));
     },
 
-    'verified, verify same browser': function () {
+    'verified, verify same browser - control': function () {
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' };
+
       return this.remote
-        .then(setupTest({ preVerified: true }))
+        .then(setupTest({ preVerified: true, query }))
 
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
 
-        .then(openVerificationLinkInNewTab(email, 0))
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
         .switchToWindow('newwindow')
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(noSuchBrowserNotification('fxaccounts:login'));
+    },
+
+    'verified, verify same browser - treatment': function () {
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment' };
+
+      return this.remote
+        .then(setupTest({ preVerified: true, query }))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+
+        .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(clearBrowserNotifications())
+
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
+        .switchToWindow('newwindow')
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(closeCurrentWindow())
+
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 

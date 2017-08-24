@@ -28,22 +28,21 @@ define([
   const PASSWORD = 'password';
   let email;
 
-  const setupTest = thenify(function (options) {
-    options = options || {};
-
+  const setupTest = thenify(function (options = {}) {
     const successSelector = options.blocked ? selectors.SIGNIN_UNBLOCK.HEADER :
                             options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
                             selectors.CONFIRM_SIGNUP.HEADER;
 
+    const query = Object.assign({
+      context: 'fx_fennec_v1',
+      email: email,
+      service: 'sync'
+    }, options.query || {});
 
     return this.parent
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-      .then(openForceAuth({ query: {
-        context: 'fx_fennec_v1',
-        email: email,
-        service: 'sync'
-      }}))
+      .then(openForceAuth({ query }))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutForceAuth(PASSWORD))
 
@@ -64,13 +63,29 @@ define([
       email = TestHelpers.createEmail('sync{id}');
     },
 
-    'verified, verify same browser': function () {
-      return this.remote
-        .then(setupTest({ preVerified: true }))
+    'verified, verify same browser - control': function () {
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' };
 
-        .then(openVerificationLinkInNewTab(email, 0))
+      return this.remote
+        .then(setupTest({ preVerified: true, query }))
+
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
         .switchToWindow('newwindow')
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(closeCurrentWindow())
+
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+    },
+
+    'verified, verify same browser - treatment': function () {
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment' };
+
+      return this.remote
+        .then(setupTest({ preVerified: true, query }))
+
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
+        .switchToWindow('newwindow')
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));

@@ -24,6 +24,7 @@ define(function (require, exports, module) {
   const SmsErrors = require('lib/sms-errors');
   const SmsMixin = require('views/mixins/sms-mixin');
   const Template = require('stache!templates/sms_send');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   class SmsSendView extends FormView {
     initialize (options) {
@@ -61,9 +62,12 @@ define(function (require, exports, module) {
         phoneNumber = prefix;
       }
 
+      const isSignIn = this.isSignIn();
+
       context.set({
         country,
         escapedLearnMoreAttributes,
+        isSignIn,
         phoneNumber,
       });
     }
@@ -178,7 +182,8 @@ define(function (require, exports, module) {
       service: SYNC_SERVICE
     }),
     PulseGraphicMixin,
-    SmsMixin
+    SmsMixin,
+    VerificationReasonMixin
   );
 
   module.exports = SmsSendView;

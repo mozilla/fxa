@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
   const Template = require('stache!templates/connect_another_device');
   const UserAgentMixin = require('lib/user-agent-mixin');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   class ConnectAnotherDeviceView extends FormView {
     initialize (options = {}) {
@@ -137,6 +138,8 @@ define(function (require, exports, module) {
       const isOtherAndroid = isAndroid && ! isFirefoxAndroid;
       const isOtherIos = isIos && ! isFirefoxIos;
       const isOther = ! isAndroid && ! isIos && ! isFirefoxDesktop;
+      const isSignIn = this.isSignIn();
+      const isSignUp = this.isSignUp();
 
       context.set({
         canSignIn,
@@ -148,6 +151,8 @@ define(function (require, exports, module) {
         isOther,
         isOtherAndroid,
         isOtherIos,
+        isSignIn,
+        isSignUp,
         isSignedIn
       });
     }
@@ -203,7 +208,8 @@ define(function (require, exports, module) {
       service: SYNC_SERVICE
     }),
     SyncAuthMixin,
-    UserAgentMixin
+    UserAgentMixin,
+    VerificationReasonMixin
   );
 
   module.exports = ConnectAnotherDeviceView;

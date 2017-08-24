@@ -13,6 +13,7 @@ define((require, exports, module) => {
 
   const ExperimentGroupingRules = [
     require('./communication-prefs'),
+    require('./connect-another-device-on-signin'),
     require('./disabled-button-state'),
     require('./email-first'),
     require('./is-sampled-user'),

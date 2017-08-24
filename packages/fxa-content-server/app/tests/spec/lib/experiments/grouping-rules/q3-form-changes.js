@@ -24,15 +24,6 @@ define(function (require, exports, module) {
         assert.isFalse(experiment.choose({}));
       });
 
-      it('returns experiment if forceExperiment', () => {
-        assert.equal(experiment.choose({
-          account,
-          forceExperiment: 'disabledButtonState',
-          forceExperimentGroup: 'control',
-          uniqueUserId: 'user-id'
-        }), 'disabledButtonState');
-      });
-
       it('returns chooses some group ', () => {
         assert.ok(experiment.choose({
           account,
