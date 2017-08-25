@@ -67,17 +67,21 @@ function doc(args) {
     parseValidators(),
     parseMetricsContext(),
     parseFeatures(),
+    parseDevices(),
     docs,
     errors
   ]))
-  .spread((modules, validators, metricsContext, features, docs, errors) => writeOutput(Object.assign({
-    modules,
-    validators,
-    metricsContext,
-    features,
-    errors: errors.definitions,
-    additionalErrorParams: errors.additionalErrorParams
-  }, docs), args.path))
+  .spread((modules, validators, metricsContext, features, devices, docs, errors) =>
+    writeOutput(Object.assign({
+      modules,
+      validators,
+      metricsContext,
+      features,
+      devices,
+      errors: errors.definitions,
+      additionalErrorParams: errors.additionalErrorParams
+    }, docs), args.path)
+  )
   .then(() => {
     console.log(`API docs updated at ${args.path}`)
   })
@@ -768,6 +772,7 @@ function marshallValidation (validation) {
   // HACK: Assumes single quotes, specific paths
   validation = validation.replace(/require\('\.\.\/metrics\/context'\)/g, 'metricsContext')
   validation = validation.replace(/require\('\.\.\/features'\)/g, 'features')
+  validation = validation.replace(/require\('\.\.\/devices'\)/g, 'devices')
 
   // HACK: Assumes we always import joi as `isA`
   if (! /^isA\./.test(validation)) {
@@ -798,6 +803,21 @@ function parseFeatures () {
   return parseModuleExports('../lib/features')
     .then(features => features.map(item => {
       item.value = marshallValidation(item.value)
+      return item
+    }))
+}
+
+function parseDevices () {
+  // HACK: Assumes the location of lib/devices.js
+  return parseModuleExports('../lib/devices')
+    .then(devices => devices.map(item => {
+      item.value = marshallValidation(
+        item.value
+          .replace('{ ', '{\n    * `')
+          .replace(/ }$/, '\n\n  }')
+          .replace(/(, [a-zA-Z]+):/g, '$1`:')
+          .replace(/, /g, '\n    * `')
+      )
       return item
     }))
 }

@@ -14,8 +14,7 @@ const path = require('path')
 const validators = require('./validators')
 
 const HEX_STRING = validators.HEX_STRING
-const DISPLAY_SAFE_UNICODE = validators.DISPLAY_SAFE_UNICODE
-const URL_SAFE_BASE_64 = validators.URL_SAFE_BASE_64
+const DEVICES_SCHEMA = require('../devices').schema
 const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(__dirname, '../../docs/pushpayloads.schema.json')
 
 module.exports = (log, db, config, customs, push, devices) => {
@@ -28,8 +27,6 @@ module.exports = (log, db, config, customs, push, devices) => {
     defaultLanguage: config.i18n.defaultLanguage
   })
 
-  const PUSH_SERVER_REGEX = config.push && config.push.allowedServerRegex
-
   return [
     {
       method: 'POST',
@@ -41,33 +38,31 @@ module.exports = (log, db, config, customs, push, devices) => {
         validate: {
           payload: isA.alternatives().try(
             isA.object({
-              id: isA.string().length(32).regex(HEX_STRING).required(),
-              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).optional(),
-              type: isA.string().max(16).optional(),
-              pushCallback: isA.string().uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).optional().allow(''),
-              pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow(''),
-              pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('')
+              id: DEVICES_SCHEMA.id.required(),
+              name: DEVICES_SCHEMA.name.optional(),
+              type: DEVICES_SCHEMA.type.optional(),
+              pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
+              pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
+              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional()
             }).or('name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey').and('pushPublicKey', 'pushAuthKey'),
             isA.object({
-              name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE).required(),
-              type: isA.string().max(16).required(),
-              pushCallback: isA.string().uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).optional().allow(''),
-              pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow(''),
-              pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('')
+              name: DEVICES_SCHEMA.name.required(),
+              type: DEVICES_SCHEMA.type.required(),
+              pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
+              pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
+              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional()
             }).and('pushPublicKey', 'pushAuthKey')
           )
         },
         response: {
           schema: isA.object({
-            id: isA.string().length(32).regex(HEX_STRING).required(),
+            id: DEVICES_SCHEMA.id.required(),
             createdAt: isA.number().positive().optional(),
-            // We previously allowed devices to register with arbitrary unicode names,
-            // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
-            name: isA.string().max(255).optional(),
-            type: isA.string().max(16).optional(),
-            pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow(''),
-            pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow(''),
-            pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('')
+            name: DEVICES_SCHEMA.nameResponse.optional(),
+            type: DEVICES_SCHEMA.type.optional(),
+            pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
+            pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
+            pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional()
           }).and('pushPublicKey', 'pushAuthKey')
         }
       },
@@ -253,17 +248,15 @@ module.exports = (log, db, config, customs, push, devices) => {
         },
         response: {
           schema: isA.array().items(isA.object({
-            id: isA.string().length(32).regex(HEX_STRING).required(),
+            id: DEVICES_SCHEMA.id.required(),
             isCurrentDevice: isA.boolean().required(),
             lastAccessTime: isA.number().min(0).required().allow(null),
             lastAccessTimeFormatted: isA.string().optional().allow(''),
-            // We previously allowed devices to register with arbitrary unicode names,
-            // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
-            name: isA.string().max(255).required().allow(''),
-            type: isA.string().max(16).required(),
-            pushCallback: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
-            pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
-            pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
+            name: DEVICES_SCHEMA.nameResponse.allow('').required(),
+            type: DEVICES_SCHEMA.type.required(),
+            pushCallback: DEVICES_SCHEMA.pushCallback.allow(null).optional(),
+            pushPublicKey: DEVICES_SCHEMA.pushPublicKey.allow(null).optional(),
+            pushAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).optional()
           }).and('pushPublicKey', 'pushAuthKey'))
         }
       },
@@ -316,12 +309,12 @@ module.exports = (log, db, config, customs, push, devices) => {
             }),
             userAgent: isA.string().max(255).required().allow(''),
             os: isA.string().max(255).allow('').allow(null),
-            deviceId: isA.string().regex(HEX_STRING).allow(null),
-            deviceName: isA.string().max(255).required().allow('').allow(null),
-            deviceType: isA.string().max(16).required().allow(null),
-            deviceCallbackURL: isA.string().uri({ scheme: 'https' }).max(255).optional().allow('').allow(null),
-            deviceCallbackPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
-            deviceCallbackAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).optional().allow('').allow(null),
+            deviceId: DEVICES_SCHEMA.id.allow(null).required(),
+            deviceName: DEVICES_SCHEMA.nameResponse.allow('').allow(null).required(),
+            deviceType: DEVICES_SCHEMA.type.allow(null).required(),
+            deviceCallbackURL: DEVICES_SCHEMA.pushCallback.allow(null).required(),
+            deviceCallbackPublicKey: DEVICES_SCHEMA.pushPublicKey.allow(null).required(),
+            deviceCallbackAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).required(),
             isDevice: isA.boolean().required(),
             isCurrentDevice: isA.boolean().required()
           }))
@@ -395,7 +388,7 @@ module.exports = (log, db, config, customs, push, devices) => {
         },
         validate: {
           payload: {
-            id: isA.string().length(32).regex(HEX_STRING).required()
+            id: DEVICES_SCHEMA.id.required()
           }
         },
         response: {

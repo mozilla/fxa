@@ -4,6 +4,26 @@
 
 'use strict'
 
+const isA = require('joi')
+const {
+  DISPLAY_SAFE_UNICODE,
+  HEX_STRING,
+  URL_SAFE_BASE_64
+} = require('./routes/validators')
+const PUSH_SERVER_REGEX = require('../config').get('push.allowedServerRegex')
+
+const SCHEMA = {
+  id: isA.string().length(32).regex(HEX_STRING),
+  name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE),
+  // We previously allowed devices to register with arbitrary unicode names,
+  // so we can't assert DISPLAY_SAFE_UNICODE in the response schema.
+  nameResponse: isA.string().max(255),
+  type: isA.string().max(16),
+  pushCallback: isA.string().uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
+  pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).allow(''),
+  pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).allow('')
+}
+
 module.exports = (log, db, push) => {
   return { upsert, synthesizeName }
 
@@ -94,4 +114,6 @@ module.exports = (log, db, push) => {
     return result
   }
 }
+
+module.exports.schema = SCHEMA
 

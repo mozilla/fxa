@@ -12,9 +12,11 @@ const mocks = require('../mocks')
 const modulePath = '../../lib/devices'
 
 describe('devices', () => {
-  it('should be an exported function', () => {
+  it('should export the correct interface', () => {
     assert.equal(typeof require(modulePath), 'function', 'require returns function')
     assert.equal(require(modulePath).length, 3, 'returned function expects three arguments')
+    assert.equal(typeof require(modulePath).schema, 'object', 'devices.schema is object')
+    assert.notEqual(require(modulePath).schema, null, 'devices.schema is not null')
   })
 
   describe('instance', () => {

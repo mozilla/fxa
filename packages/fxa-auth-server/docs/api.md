@@ -331,6 +331,19 @@ those common validations are defined here.
 
 * `schema`: array, items(string), optional
 
+#### lib/devices
+
+* `schema`: {
+    * `id: isA.string.length(32).regex(HEX_STRING)
+    * `name`: isA.string.max(255).regex(DISPLAY_SAFE_UNICODE)
+    * `nameResponse`: isA.string.max(255)
+    * `type`: isA.string.max(16)
+    * `pushCallback`: isA.string.uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')
+    * `pushPublicKey`: isA.string.max(88).regex(URL_SAFE_BASE_64).allow('')
+    * `pushAuthKey`: isA.string.max(24).regex(URL_SAFE_BASE_64).allow('')
+
+  }
+
 ## API endpoints
 
 ### Account
@@ -900,37 +913,37 @@ can be made available to other connected devices.
 
 ##### Request body
 
-* `id`: *string, length(32), regex(HEX_STRING), required*
+* `id`: *DEVICES_SCHEMA.id.required*
 
   <!--begin-request-body-post-accountdevice-id-->
   
   <!--end-request-body-post-accountdevice-id-->
 
-* `name`: *string, max(255), regex(DISPLAY_SAFE_UNICODE), optional*;<br />or *string, max(255), regex(DISPLAY_SAFE_UNICODE), required*
+* `name`: *DEVICES_SCHEMA.name.optional*;<br />or *DEVICES_SCHEMA.name.required*
 
   <!--begin-request-body-post-accountdevice-name-->
   
   <!--end-request-body-post-accountdevice-name-->
 
-* `type`: *string, max(16), optional*;<br />or *string, max(16), required*
+* `type`: *DEVICES_SCHEMA.type.optional*;<br />or *DEVICES_SCHEMA.type.required*
 
   <!--begin-request-body-post-accountdevice-type-->
   
   <!--end-request-body-post-accountdevice-type-->
 
-* `pushCallback`: *string, uri({ scheme: 'https' }), regex(PUSH_SERVER_REGEX), max(255), optional, allow('')*
+* `pushCallback`: *DEVICES_SCHEMA.pushCallback.optional*
 
   <!--begin-request-body-post-accountdevice-pushCallback-->
   
   <!--end-request-body-post-accountdevice-pushCallback-->
 
-* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow('')*
+* `pushPublicKey`: *DEVICES_SCHEMA.pushPublicKey.optional*
 
   <!--begin-request-body-post-accountdevice-pushPublicKey-->
   
   <!--end-request-body-post-accountdevice-pushPublicKey-->
 
-* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow('')*
+* `pushAuthKey`: *DEVICES_SCHEMA.pushAuthKey.optional*
 
   <!--begin-request-body-post-accountdevice-pushAuthKey-->
   
@@ -938,7 +951,7 @@ can be made available to other connected devices.
 
 ##### Response body
 
-* `id`: *string, length(32), regex(HEX_STRING), required*
+* `id`: *DEVICES_SCHEMA.id.required*
 
   <!--begin-response-body-post-accountdevice-id-->
   
@@ -950,31 +963,31 @@ can be made available to other connected devices.
   
   <!--end-response-body-post-accountdevice-createdAt-->
 
-* `name`: *string, max(255), optional*
+* `name`: *DEVICES_SCHEMA.nameResponse.optional*
 
   <!--begin-response-body-post-accountdevice-name-->
   
   <!--end-response-body-post-accountdevice-name-->
 
-* `type`: *string, max(16), optional*
+* `type`: *DEVICES_SCHEMA.type.optional*
 
   <!--begin-response-body-post-accountdevice-type-->
   
   <!--end-response-body-post-accountdevice-type-->
 
-* `pushCallback`: *string, uri({ scheme: 'https' }), max(255), optional, allow('')*
+* `pushCallback`: *DEVICES_SCHEMA.pushCallback.optional*
 
   <!--begin-response-body-post-accountdevice-pushCallback-->
   
   <!--end-response-body-post-accountdevice-pushCallback-->
 
-* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow('')*
+* `pushPublicKey`: *DEVICES_SCHEMA.pushPublicKey.optional*
 
   <!--begin-response-body-post-accountdevice-pushPublicKey-->
   
   <!--end-response-body-post-accountdevice-pushPublicKey-->
 
-* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow('')*
+* `pushAuthKey`: *DEVICES_SCHEMA.pushAuthKey.optional*
 
   <!--begin-response-body-post-accountdevice-pushAuthKey-->
   
@@ -1063,7 +1076,7 @@ for the authenticated user.
 
 ##### Response body
 
-* `id`: *string, length(32), regex(HEX_STRING), required*
+* `id`: *DEVICES_SCHEMA.id.required*
 
   <!--begin-response-body-get-accountdevices-id-->
   
@@ -1087,31 +1100,31 @@ for the authenticated user.
   
   <!--end-response-body-get-accountdevices-lastAccessTimeFormatted-->
 
-* `name`: *string, max(255), required, allow('')*
+* `name`: *DEVICES_SCHEMA.nameResponse.allow('').required*
 
   <!--begin-response-body-get-accountdevices-name-->
   
   <!--end-response-body-get-accountdevices-name-->
 
-* `type`: *string, max(16), required*
+* `type`: *DEVICES_SCHEMA.type.required*
 
   <!--begin-response-body-get-accountdevices-type-->
   
   <!--end-response-body-get-accountdevices-type-->
 
-* `pushCallback`: *string, uri({ scheme: 'https' }), max(255), optional, allow(''), allow(null)*
+* `pushCallback`: *DEVICES_SCHEMA.pushCallback.allow(null).optional*
 
   <!--begin-response-body-get-accountdevices-pushCallback-->
   
   <!--end-response-body-get-accountdevices-pushCallback-->
 
-* `pushPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
+* `pushPublicKey`: *DEVICES_SCHEMA.pushPublicKey.allow(null).optional*
 
   <!--begin-response-body-get-accountdevices-pushPublicKey-->
   
   <!--end-response-body-get-accountdevices-pushPublicKey-->
 
-* `pushAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
+* `pushAuthKey`: *DEVICES_SCHEMA.pushAuthKey.allow(null).optional*
 
   <!--begin-response-body-get-accountdevices-pushAuthKey-->
   
@@ -1177,37 +1190,37 @@ for the authenticated user.
   
   <!--end-response-body-get-accountsessions-os-->
 
-* `deviceId`: *string, regex(HEX_STRING), allow(null)*
+* `deviceId`: *DEVICES_SCHEMA.id.allow(null).required*
 
   <!--begin-response-body-get-accountsessions-deviceId-->
   
   <!--end-response-body-get-accountsessions-deviceId-->
 
-* `deviceName`: *string, max(255), required, allow(''), allow(null)*
+* `deviceName`: *DEVICES_SCHEMA.nameResponse.allow('').allow(null).required*
 
   <!--begin-response-body-get-accountsessions-deviceName-->
   
   <!--end-response-body-get-accountsessions-deviceName-->
 
-* `deviceType`: *string, max(16), required, allow(null)*
+* `deviceType`: *DEVICES_SCHEMA.type.allow(null).required*
 
   <!--begin-response-body-get-accountsessions-deviceType-->
   
   <!--end-response-body-get-accountsessions-deviceType-->
 
-* `deviceCallbackURL`: *string, uri({ scheme: 'https' }), max(255), optional, allow(''), allow(null)*
+* `deviceCallbackURL`: *DEVICES_SCHEMA.pushCallback.allow(null).required*
 
   <!--begin-response-body-get-accountsessions-deviceCallbackURL-->
   
   <!--end-response-body-get-accountsessions-deviceCallbackURL-->
 
-* `deviceCallbackPublicKey`: *string, max(88), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
+* `deviceCallbackPublicKey`: *DEVICES_SCHEMA.pushPublicKey.allow(null).required*
 
   <!--begin-response-body-get-accountsessions-deviceCallbackPublicKey-->
   
   <!--end-response-body-get-accountsessions-deviceCallbackPublicKey-->
 
-* `deviceCallbackAuthKey`: *string, max(24), regex(URL_SAFE_BASE_64), optional, allow(''), allow(null)*
+* `deviceCallbackAuthKey`: *DEVICES_SCHEMA.pushAuthKey.allow(null).required*
 
   <!--begin-response-body-get-accountsessions-deviceCallbackAuthKey-->
   
@@ -1239,7 +1252,7 @@ to use the API after this request has succeeded.
 
 ##### Request body
 
-* `id`: *string, length(32), regex(HEX_STRING), required*
+* `id`: *DEVICES_SCHEMA.id.required*
 
   <!--begin-request-body-post-accountdevicedestroy-id-->
   
