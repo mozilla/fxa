@@ -288,6 +288,7 @@ describe('/recovery_email/resend_code', () => {
       metricsContext: mockMetricsContext,
       credentials: {
         uid: uuid.v4('binary').toString('hex'),
+        deviceId: 'wibble',
         email: TEST_EMAIL,
         emailVerified: false,
         tokenVerified: false,
@@ -298,6 +299,7 @@ describe('/recovery_email/resend_code', () => {
       },
       query: {},
       payload: {
+        service: 'sync',
         metricsContext: {
           flowBeginTime: Date.now(),
           flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
@@ -316,6 +318,11 @@ describe('/recovery_email/resend_code', () => {
       assert.equal(args[2].uaOS, 'Mac OS X')
       assert.equal(args[2].uaOSVersion, '10.10')
       assert.strictEqual(args[2].uaDeviceType, undefined)
+      assert.equal(args[2].deviceId, mockRequest.auth.credentials.deviceId)
+      assert.equal(args[2].flowId, mockRequest.payload.metricsContext.flowId)
+      assert.equal(args[2].flowBeginTime, mockRequest.payload.metricsContext.flowBeginTime)
+      assert.equal(args[2].service, mockRequest.payload.service)
+      assert.equal(args[2].uid, mockRequest.auth.credentials.uid)
     })
       .then(() => {
         mockMailer.sendVerifyCode.reset()
@@ -329,6 +336,7 @@ describe('/recovery_email/resend_code', () => {
       metricsContext: mockMetricsContext,
       credentials: {
         uid: uuid.v4('binary').toString('hex'),
+        deviceId: uuid.v4('binary').toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         tokenVerified: false,
@@ -338,7 +346,9 @@ describe('/recovery_email/resend_code', () => {
         uaOSVersion: '6',
         uaDeviceType: 'tablet'
       },
-      query: {},
+      query: {
+        service: 'foo'
+      },
       payload: {
         email : 'secondEmail@email.com'
       }
@@ -346,6 +356,12 @@ describe('/recovery_email/resend_code', () => {
 
     return runTest(route, mockRequest, response => {
       assert.equal(mockMailer.sendVerifySecondaryEmail.callCount, 1)
+      assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].deviceId, mockRequest.auth.credentials.deviceId)
+      assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].flowId, mockMetricsContext.flowId)
+      assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].flowBeginTime, mockMetricsContext.flowBeginTime)
+      assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].service, 'foo')
+      assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].uid, mockRequest.auth.credentials.uid)
+
       assert.equal(mockMailer.sendVerifyCode.callCount, 0)
       assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0)
       const args = mockMailer.sendVerifySecondaryEmail.getCall(0).args
@@ -363,6 +379,7 @@ describe('/recovery_email/resend_code', () => {
       metricsContext: mockMetricsContext,
       credentials: {
         uid: uuid.v4('binary').toString('hex'),
+        deviceId: uuid.v4('binary').toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         tokenVerified: false,
@@ -374,6 +391,7 @@ describe('/recovery_email/resend_code', () => {
       },
       query: {},
       payload: {
+        service: 'foo',
         metricsContext: {
           flowBeginTime: Date.now(),
           flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
@@ -393,6 +411,11 @@ describe('/recovery_email/resend_code', () => {
       assert.equal(args[2].uaOS, 'Android')
       assert.equal(args[2].uaOSVersion, '6')
       assert.strictEqual(args[2].uaDeviceType, 'tablet')
+      assert.equal(args[2].deviceId, mockRequest.auth.credentials.deviceId)
+      assert.equal(args[2].flowId, mockRequest.payload.metricsContext.flowId)
+      assert.equal(args[2].flowBeginTime, mockRequest.payload.metricsContext.flowBeginTime)
+      assert.equal(args[2].service, mockRequest.payload.service)
+      assert.equal(args[2].uid, mockRequest.auth.credentials.uid)
     })
   })
 
@@ -467,6 +490,8 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(args[2].marketingOptIn, undefined)
 
         assert.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
+        assert.equal(mockMailer.sendPostVerifyEmail.args[0][2].service, mockRequest.payload.service)
+        assert.equal(mockMailer.sendPostVerifyEmail.args[0][2].uid, uid)
 
         assert.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once')
         args = mockLog.activityEvent.args[0]
@@ -643,6 +668,8 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(args.length, 3, 'mockMailer.sendPostVerifySecondaryEmail was passed correct arguments')
         assert.equal(args[1].email, dbData.email, 'correct account primary email was passed')
         assert.equal(args[2].secondaryEmail, dbData.secondEmail, 'correct secondary email was passed')
+        assert.equal(args[2].service, mockRequest.payload.service)
+        assert.equal(args[2].uid, uid)
       })
         .then(function () {
           mockDB.verifyEmail.reset()
@@ -666,6 +693,7 @@ describe('/recovery_email', () => {
     mockRequest = mocks.mockRequest({
       credentials: {
         uid: uuid.v4('binary').toString('hex'),
+        deviceId: uuid.v4('binary').toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         normalizedEmail: TEST_EMAIL.toLowerCase()
@@ -713,6 +741,8 @@ describe('/recovery_email', () => {
         assert.ok(response)
         assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail')
         assert.equal(mockMailer.sendVerifySecondaryEmail.callCount, 1, 'call db.sendVerifySecondaryEmail')
+        assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].deviceId, mockRequest.auth.credentials.deviceId)
+        assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].uid, mockRequest.auth.credentials.uid)
       })
         .then(function () {
           mockDB.createEmail.reset()

@@ -158,6 +158,15 @@ Lug.prototype.flowEvent = function (data) {
   this.logger.info('flowEvent', data)
 }
 
+Lug.prototype.amplitudeEvent = function (data) {
+  if (! data || ! data.event_type) {
+    this.error({ op: 'log.amplitudeEvent', data })
+    return
+  }
+
+  this.logger.info('amplitudeEvent', data)
+}
+
 module.exports = function (level, name, options) {
   if (arguments.length === 1 && typeof level === 'object') {
     options = level

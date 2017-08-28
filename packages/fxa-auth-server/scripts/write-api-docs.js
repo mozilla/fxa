@@ -789,10 +789,10 @@ function parseMetricsContext () {
     .then(metricsContext => metricsContext.map(item => {
       item.value = marshallValidation(
         item.value
-          .replace(/{ /g, '{\n    * `')
-          .replace(/ }/g, '\n\n  }')
-          .replace(/, /, '\n    * `')
-          .replace(/:/g, '`:')
+          .replace('{ ', '{\n    * ')
+          .replace(/ }/, '\n\n  }')
+          .replace(/, ([a-zA-Z]+):/g, '\n    * $1:')
+          .replace(/([a-zA-Z]+):/g, '`$1`:')
       )
       return item
     }))

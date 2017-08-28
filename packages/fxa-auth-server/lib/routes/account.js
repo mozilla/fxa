@@ -130,7 +130,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           } else {
             flowCompleteSignal = 'account.verified'
           }
-          request.setMetricsFlowCompleteSignal(flowCompleteSignal)
+          request.setMetricsFlowCompleteSignal(flowCompleteSignal, 'registration')
 
           return P.resolve()
         }
@@ -283,7 +283,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                   uaBrowserVersion: sessionToken.uaBrowserVersion,
                   uaOS: sessionToken.uaOS,
                   uaOSVersion: sessionToken.uaOSVersion,
-                  uaDeviceType: sessionToken.uaDeviceType
+                  uaDeviceType: sessionToken.uaDeviceType,
+                  uid: sessionToken.uid
                 })
                   .then(function () {
                     // only create reminder if sendVerifyCode succeeds
@@ -673,7 +674,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           } else {
             flowCompleteSignal = 'account.login'
           }
-          request.setMetricsFlowCompleteSignal(flowCompleteSignal)
+          request.setMetricsFlowCompleteSignal(flowCompleteSignal, 'login')
 
           return checkPassword(accountRecord, authPW, request.app.clientAddress)
             .then(
@@ -886,7 +887,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                     uaBrowserVersion: sessionToken.uaBrowserVersion,
                     uaOS: sessionToken.uaOS,
                     uaOSVersion: sessionToken.uaOSVersion,
-                    uaDeviceType: sessionToken.uaDeviceType
+                    uaDeviceType: sessionToken.uaDeviceType,
+                    uid: sessionToken.uid
                   })
                 }
               )
@@ -918,12 +920,14 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                     flowBeginTime: flowBeginTime,
                     ip: ip,
                     location: geoData.location,
+                    service,
                     timeZone: geoData.timeZone,
                     uaBrowser: sessionToken.uaBrowser,
                     uaBrowserVersion: sessionToken.uaBrowserVersion,
                     uaOS: sessionToken.uaOS,
                     uaOSVersion: sessionToken.uaOSVersion,
-                    uaDeviceType: sessionToken.uaDeviceType
+                    uaDeviceType: sessionToken.uaDeviceType,
+                    uid: sessionToken.uid
                   }
                 )
                   .catch(e => {
@@ -966,7 +970,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                     uaBrowserVersion: sessionToken.uaBrowserVersion,
                     uaOS: sessionToken.uaOS,
                     uaOSVersion: sessionToken.uaOSVersion,
-                    uaDeviceType: sessionToken.uaDeviceType
+                    uaDeviceType: sessionToken.uaDeviceType,
+                    uid: sessionToken.uid
                   }
                 )
               })
@@ -1282,7 +1287,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                 uaBrowserVersion,
                 uaOS,
                 uaOSVersion,
-                uaDeviceType
+                uaDeviceType,
+                uid: emailRecord.uid
               })
             })
         }

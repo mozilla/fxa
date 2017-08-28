@@ -13,6 +13,11 @@ const P = require('../promise')
 const FLOW_ID_LENGTH = 64
 
 const SCHEMA = isA.object({
+  // The metrics context device id is a client-generated property
+  // that is entirely separate to the devices table in our db.
+  // All clients can generate a metrics context device id, whereas
+  // only Sync creates records in the devices table.
+  deviceId: isA.string().length(32).regex(HEX_STRING).optional(),
   flowId: isA.string().length(64).regex(HEX_STRING).optional(),
   flowBeginTime: isA.number().integer().positive().optional()
 })
@@ -23,11 +28,11 @@ module.exports = function (log, config) {
   const cache = require('../cache')(log, config, 'fxa-metrics~')
 
   return {
-    stash: stash,
-    gather: gather,
-    clear: clear,
-    validate: validate,
-    setFlowCompleteSignal: setFlowCompleteSignal
+    stash,
+    gather,
+    clear,
+    validate,
+    setFlowCompleteSignal
   }
 
   /**
@@ -85,9 +90,12 @@ module.exports = function (log, config) {
       .then(metadata => {
         if (metadata) {
           data.time = Date.now()
+          data.device_id = metadata.deviceId
           data.flow_id = metadata.flowId
           data.flow_time = calculateFlowTime(data.time, metadata.flowBeginTime)
+          data.flowBeginTime = metadata.flowBeginTime
           data.flowCompleteSignal = metadata.flowCompleteSignal
+          data.flowType = metadata.flowType
         }
       })
       .catch(err => log.error({
@@ -218,9 +226,10 @@ module.exports = function (log, config) {
    * @this request
    * @param {String} flowCompleteSignal
    */
-  function setFlowCompleteSignal (flowCompleteSignal) {
+  function setFlowCompleteSignal (flowCompleteSignal, flowType) {
     if (this.payload && this.payload.metricsContext) {
       this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal
+      this.payload.metricsContext.flowType = flowType
     }
   }
 }

@@ -71,6 +71,7 @@ const DB_METHOD_NAMES = [
 
 const LOG_METHOD_NAMES = [
   'activityEvent',
+  'amplitudeEvent',
   'begin',
   'error',
   'flowEvent',
@@ -415,7 +416,9 @@ function mockMetricsContext (methods) {
               time: time,
               flow_id: this.payload.metricsContext.flowId,
               flow_time: time - this.payload.metricsContext.flowBeginTime,
-              flowCompleteSignal: this.payload.metricsContext.flowCompleteSignal
+              flowBeginTime: this.payload.metricsContext.flowBeginTime,
+              flowCompleteSignal: this.payload.metricsContext.flowCompleteSignal,
+              flowType: this.payload.metricsContext.flowType
             })
           }
 
@@ -484,7 +487,7 @@ function mockRequest (data) {
       received: data.received || Date.now() - 1
     },
     path: data.path,
-    payload: data.payload,
+    payload: data.payload || {},
     query: data.query || {},
     setMetricsFlowCompleteSignal: metricsContext.setFlowCompleteSignal,
     stashMetricsContext: metricsContext.stash,

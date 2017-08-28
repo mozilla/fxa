@@ -55,7 +55,11 @@ describe('log', () => {
       assert.equal(typeof log.begin, 'function', 'log.begin method was exported')
       assert.equal(typeof log.notifyAttachedServices, 'function', 'log.notifyAttachedServices method was exported')
       assert.equal(typeof log.activityEvent, 'function', 'log.activityEvent method was exported')
+      assert.equal(log.activityEvent.length, 1, 'log.activityEvent expects 1 argument')
       assert.equal(typeof log.flowEvent, 'function', 'log.flowEvent method was exported')
+      assert.equal(log.flowEvent.length, 1, 'log.flowEvent expects 1 argument')
+      assert.equal(typeof log.amplitudeEvent, 'function', 'log.amplitudeEvent method was exported')
+      assert.equal(log.amplitudeEvent.length, 1, 'log.amplitudeEvent expects 1 argument')
       assert.equal(typeof log.summary, 'function', 'log.summary method was exported')
     }
   )
@@ -339,6 +343,63 @@ describe('log', () => {
       logger.error.reset()
     }
   )
+
+  it('.amplitudeEvent', () => {
+    log.amplitudeEvent({ event_type: 'foo' })
+
+    assert.equal(logger.info.callCount, 1, 'logger.info was called once')
+    const args = logger.info.args[0]
+    assert.equal(args.length, 2, 'logger.info was passed two arguments')
+    assert.equal(args[0], 'amplitudeEvent', 'first argument was correct')
+    assert.deepEqual(args[1], { event_type: 'foo' }, 'second argument was event data')
+
+    assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    assert.equal(logger.error.callCount, 0, 'logger.error was not called')
+    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+    logger.info.reset()
+  })
+
+  it('.amplitudeEvent with missing data', () => {
+    log.amplitudeEvent()
+
+    assert.equal(logger.error.callCount, 1, 'logger.error was called once')
+    const args = logger.error.args[0]
+    assert.equal(args.length, 2, 'logger.error was passed two arguments')
+    assert.equal(args[0], 'log.amplitudeEvent', 'first argument was function name')
+    assert.deepEqual(args[1], {
+      op: 'log.amplitudeEvent',
+      data: undefined
+    }, 'second argument was correct')
+
+    assert.equal(logger.info.callCount, 0, 'logger.info was not called')
+    assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+    logger.error.reset()
+  })
+
+  it('.amplitudeEvent with missing event_type', () => {
+    log.amplitudeEvent({})
+
+    assert.equal(logger.error.callCount, 1, 'logger.error was called once')
+    const args = logger.error.args[0]
+    assert.equal(args.length, 2, 'logger.error was passed two arguments')
+    assert.equal(args[0], 'log.amplitudeEvent', 'first argument was function name')
+    assert.deepEqual(args[1], {
+      op: 'log.amplitudeEvent',
+      data: {}
+    }, 'second argument was correct')
+
+    assert.equal(logger.info.callCount, 0, 'logger.info was not called')
+    assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
+    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
+    assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
+
+    logger.error.reset()
+  })
 
   it(
     '.error removes PII from error objects',

@@ -226,10 +226,18 @@ module.exports = function (log) {
 
     var localized = this.localize(message)
 
-    if (message.flowBeginTime && message.flowId) {
-      message.headers['X-Flow-Id'] = message.flowId
-      message.headers['X-Flow-Begin-Time'] = message.flowBeginTime
-    }
+    const headers = Object.assign(
+      {
+        'Content-Language': localized.language,
+        'X-Template-Name': message.template
+      },
+      message.headers,
+      optionalHeader('X-Device-Id', message.deviceId),
+      optionalHeader('X-Flow-Id', message.flowId),
+      optionalHeader('X-Flow-Begin-Time', message.flowBeginTime),
+      optionalHeader('X-Service-Id', message.service),
+      optionalHeader('X-Uid', message.uid)
+    )
 
     var emailConfig = {
       sender: this.sender,
@@ -239,10 +247,7 @@ module.exports = function (log) {
       text: localized.text,
       html: localized.html,
       xMailer: false,
-      headers: extend({
-        'Content-Language': localized.language,
-        'X-Template-Name': message.template
-      }, message.headers)
+      headers
     }
 
     // Utilize nodemailer's cc ability to send to multiple addresses
@@ -313,8 +318,6 @@ module.exports = function (log) {
 
     var headers = {
       'X-Link': links.link,
-      'X-Service-ID': message.service,
-      'X-Uid': message.uid,
       'X-Verify-Code': message.code
     }
 
@@ -329,10 +332,12 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
+      deviceId: message.deviceId,
       email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: subject,
       template: templateName,
       templateValues: {
@@ -364,7 +369,6 @@ module.exports = function (log) {
     var links = this._generateLinks(null, message.email, query, templateName)
 
     var headers = {
-      'X-Uid': message.uid,
       'X-Unblock-Code': message.unblockCode,
       'X-Report-SignIn-Link': links.reportSignInLink
     }
@@ -376,10 +380,12 @@ module.exports = function (log) {
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
+      deviceId: message.deviceId,
       email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: gettext('Firefox Account authorization code'),
       template: templateName,
       templateValues: {
@@ -414,8 +420,6 @@ module.exports = function (log) {
 
     var headers = {
       'X-Link': links.link,
-      'X-Service-ID': message.service,
-      'X-Uid': message.uid,
       'X-Verify-Code': message.code
     }
 
@@ -426,10 +430,12 @@ module.exports = function (log) {
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
+      deviceId: message.deviceId,
       email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: gettext('Confirm new sign-in to Firefox'),
       template: templateName,
       templateValues: {
@@ -469,8 +475,6 @@ module.exports = function (log) {
 
     var headers = {
       'X-Link': links.link,
-      'X-Service-ID': message.service,
-      'X-Uid': message.uid,
       'X-Verify-Code': message.code
     }
 
@@ -480,10 +484,12 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
+      deviceId: message.deviceId,
       email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: gettext('Verify email for Firefox Accounts'),
       template: templateName,
       templateValues: {
@@ -533,10 +539,12 @@ module.exports = function (log) {
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
+      deviceId: message.deviceId,
       email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: gettext('Reset your Firefox Account password'),
       template: templateName,
       templateValues: {
@@ -571,10 +579,12 @@ module.exports = function (log) {
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
+      deviceId: message.deviceId,
       email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: gettext('Your Firefox Account password has been changed'),
       template: templateName,
       templateValues: {
@@ -607,10 +617,12 @@ module.exports = function (log) {
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
+      deviceId: message.deviceId,
       email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: gettext('Your Firefox Account password has been reset'),
       template: templateName,
       templateValues: {
@@ -638,10 +650,12 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
+      deviceId: message.deviceId,
       email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: gettext('Firefox Account password reset required'),
       template: templateName,
       templateValues: {
@@ -669,10 +683,12 @@ module.exports = function (log) {
     return this.send({
       acceptLanguage: message.acceptLanguage,
       ccEmails: message.ccEmails,
+      deviceId: message.deviceId,
       email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: gettext('New sign-in to Firefox'),
       template: templateName,
       templateValues: {
@@ -706,10 +722,12 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
+      deviceId: message.deviceId,
       email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: gettext('Firefox Account verified'),
       template: templateName,
       templateValues: {
@@ -742,10 +760,12 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
+      deviceId: message.deviceId,
       email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: gettext('Secondary Firefox Account email added'),
       template: templateName,
       templateValues: {
@@ -777,11 +797,13 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage,
-      email: message.email,
       ccEmails: message.ccEmails,
+      deviceId: message.deviceId,
+      email: message.email,
       flowId: message.flowId,
       flowBeginTime: message.flowBeginTime,
       headers: headers,
+      service: message.service,
       subject: gettext('Secondary Firefox Account email removed'),
       template: templateName,
       templateValues: {
@@ -825,7 +847,6 @@ module.exports = function (log) {
 
     var headers = {
       'X-Link': links.link,
-      'X-Uid': message.uid,
       'X-Verify-Code': message.code
     }
 
@@ -835,9 +856,13 @@ module.exports = function (log) {
 
     return this.send({
       acceptLanguage: message.acceptLanguage || 'en',
+      deviceId: message.deviceId,
       email: message.email,
+      flowId: message.flowId,
+      flowBeginTime: message.flowBeginTime,
       headers: headers,
       subject: subject,
+      service: message.service,
       template: templateName,
       templateValues: {
         email: message.email,
@@ -948,3 +973,10 @@ module.exports = function (log) {
 
   return Mailer
 }
+
+function optionalHeader (key, value) {
+  if (value) {
+    return { [key]: value }
+  }
+}
+

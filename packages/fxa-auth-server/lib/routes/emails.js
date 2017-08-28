@@ -175,6 +175,8 @@ module.exports = (log, db, mailer, config, customs, push) => {
         let verifyFunction
         let event
         let emails = []
+        let flowId
+        let flowBeginTime
 
         // Return immediately if this session or token is already verified. Only exception
         // is if the email param has been specified, which means that this is
@@ -183,13 +185,21 @@ module.exports = (log, db, mailer, config, customs, push) => {
           return reply({})
         }
 
+        if (request.payload.metricsContext) {
+          flowId = request.payload.metricsContext.flowId
+          flowBeginTime = request.payload.metricsContext.flowBeginTime
+        }
+
         customs.check(request, sessionToken.email, 'recoveryEmailResendCode')
           .then(setVerifyCode)
           .then(setVerifyFunction)
           .then(() => {
             const mailerOpts = {
-              code: code,
-              service: service,
+              code,
+              deviceId: sessionToken.deviceId,
+              flowId,
+              flowBeginTime,
+              service,
               timestamp: Date.now(),
               redirectTo: request.payload.redirectTo,
               resume: request.payload.resume,
@@ -198,7 +208,8 @@ module.exports = (log, db, mailer, config, customs, push) => {
               uaBrowserVersion: sessionToken.uaBrowserVersion,
               uaOS: sessionToken.uaOS,
               uaOSVersion: sessionToken.uaOSVersion,
-              uaDeviceType: sessionToken.uaDeviceType
+              uaDeviceType: sessionToken.uaDeviceType,
+              uid: sessionToken.uid
             }
 
             return verifyFunction(emails, sessionToken, mailerOpts)
@@ -351,7 +362,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
 
                       return mailer.sendPostVerifySecondaryEmail([], account, {
                         acceptLanguage: request.app.acceptLanguage,
-                        secondaryEmail: matchedEmail.email
+                        secondaryEmail: matchedEmail.email,
+                        service,
+                        uid
                       })
                     })
                 })
@@ -473,7 +486,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
                     // so only send it if we're sure this is for sync.
                     if (service === 'sync') {
                       return mailer.sendPostVerifyEmail([], account, {
-                        acceptLanguage: request.app.acceptLanguage
+                        acceptLanguage: request.app.acceptLanguage,
+                        service,
+                        uid
                       })
                     }
                   })
@@ -633,6 +648,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             .then((geoData) => {
               return mailer.sendVerifySecondaryEmail([emailData], sessionToken, {
                 code: emailData.emailCode,
+                deviceId: sessionToken.deviceId,
                 acceptLanguage: request.app.acceptLanguage,
                 email: emailData.email,
                 primaryEmail: primaryEmail,
@@ -643,6 +659,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                 uaBrowserVersion: sessionToken.uaBrowserVersion,
                 uaOS: sessionToken.uaOS,
                 uaOSVersion: sessionToken.uaOSVersion,
+                uid
               })
             })
         }
@@ -695,7 +712,11 @@ module.exports = (log, db, mailer, config, customs, push) => {
                 return item
               }
             })
-            return mailer.sendPostRemoveSecondaryEmail(emails, account, {secondaryEmail: email})
+            return mailer.sendPostRemoveSecondaryEmail(emails, account, {
+              deviceId: sessionToken.deviceId,
+              secondaryEmail: email,
+              uid
+            })
           })
           .then(
             () => reply({}),

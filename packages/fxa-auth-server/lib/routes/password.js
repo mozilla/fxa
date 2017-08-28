@@ -282,7 +282,8 @@ module.exports = function (
                         uaBrowserVersion,
                         uaOS,
                         uaOSVersion,
-                        uaDeviceType
+                        uaDeviceType,
+                        uid: passwordChangeToken.uid
                       })
                       .catch(e => {
                         // If we couldn't email them, no big deal. Log
@@ -466,7 +467,8 @@ module.exports = function (
                     uaBrowserVersion,
                     uaOS,
                     uaOSVersion,
-                    uaDeviceType
+                    uaDeviceType,
+                    uid: passwordForgotToken.uid
                   })
                 })
                 .then(
@@ -571,7 +573,8 @@ module.exports = function (
                     uaBrowserVersion,
                     uaOS,
                     uaOSVersion,
-                    uaDeviceType
+                    uaDeviceType,
+                    uid: passwordForgotToken.uid
                   })
                 })
             }
@@ -649,7 +652,8 @@ module.exports = function (
                               code: code,
                               acceptLanguage: request.app.acceptLanguage,
                               flowId: flowId,
-                              flowBeginTime: flowBeginTime
+                              flowBeginTime: flowBeginTime,
+                              uid: passwordForgotToken.uid
                             }
                           )
                         })

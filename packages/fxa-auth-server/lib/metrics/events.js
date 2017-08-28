@@ -64,6 +64,8 @@ const FLOW_EVENT_ROUTES = new Set([
 const PATH_PREFIX = /^\/v1/
 
 module.exports = log => {
+  const amplitude = require('./amplitude')(log)
+
   return {
     /**
      * Asynchronously emit a flow event and/or an activity event.
@@ -98,7 +100,15 @@ module.exports = log => {
         }
 
         return emitFlowEvent(event, request, data)
-          .then(() => {})
+      })
+      .then(metricsContext => {
+        amplitude(event, request, data, metricsContext)
+
+        if (metricsContext && event === metricsContext.flowCompleteSignal) {
+          log.flowEvent(Object.assign({}, metricsContext, { event: 'flow.complete' }))
+          amplitude('flow.complete', request, data, metricsContext)
+          request.clearMetricsContext()
+        }
       })
     },
 
@@ -170,14 +180,6 @@ module.exports = log => {
         }
 
         log.flowEvent(data)
-
-        if (event === data.flowCompleteSignal) {
-          log.flowEvent(Object.assign({}, data, {
-            event: 'flow.complete'
-          }))
-
-          request.clearMetricsContext()
-        }
       } else if (! OPTIONAL_FLOW_EVENTS[event]) {
         log.error({ op: 'metricsEvents.emitFlowEvent', event, missingFlowId: true })
       }

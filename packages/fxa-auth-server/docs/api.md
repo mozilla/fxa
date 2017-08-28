@@ -320,6 +320,7 @@ those common validations are defined here.
 #### lib/metrics/context
 
 * `SCHEMA`: object({
+    * `deviceId`: string, length(32), regex(HEX_STRING), optional
     * `flowId`: string, length(64), regex(HEX_STRING), optional
     * `flowBeginTime`: number, integer, positive, optional
 

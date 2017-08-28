@@ -12,9 +12,10 @@ var sinon = require('sinon')
 var P = require('bluebird')
 
 var mockLog = {
-  trace: function () {},
+  amplitudeEvent () {},
+  trace () {},
   info: sinon.spy(),
-  error: function () {}
+  error () {}
 }
 
 var config = require(`${ROOT_DIR}/config`)
@@ -125,6 +126,7 @@ describe(
       function (type) {
         var message = {
           code: 'abc123',
+          deviceId: 'foo',
           email: 'a@b.com',
           locations: [],
           service: 'sync',
@@ -158,21 +160,17 @@ describe(
           }
         )
 
-        it(
-          'Contains flow headers for ' + type,
-          function () {
-            if (type !== 'verificationReminderEmail') {
-              mailer.mailer.sendMail = function (emailConfig) {
-                var flowIdHeader = emailConfig.headers['X-Flow-Id']
-                assert.equal(flowIdHeader, message.flowId)
-
-                var flowBeginHeader = emailConfig.headers['X-Flow-Begin-Time']
-                assert.equal(flowBeginHeader, message.flowBeginTime)
-              }
-              mailer[type](message)
-            }
+        it(`Contains device, flow, service and uid headers for ${type}`, () => {
+          mailer.mailer.sendMail = emailConfig => {
+            const headers = emailConfig.headers
+            assert.equal(headers['X-Device-Id'], message.deviceId, 'device id header is correct')
+            assert.equal(headers['X-Flow-Id'], message.flowId, 'flow id header is correct')
+            assert.equal(headers['X-Flow-Begin-Time'], message.flowBeginTime, 'flow begin time header is correct')
+            assert.equal(headers['X-Service-Id'], message.service, 'service id header is correct')
+            assert.equal(headers['X-Uid'], message.uid, 'uid header is correct')
           }
-        )
+          mailer[type](message)
+        })
 
         it(
           'test privacy link is in email template output for ' + type,

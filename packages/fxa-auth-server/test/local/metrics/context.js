@@ -68,7 +68,7 @@ describe('metricsContext', () => {
       assert.equal(metricsContext.validate.length, 0, 'metricsContext.validate expects no arguments')
 
       assert.equal(typeof metricsContext.setFlowCompleteSignal, 'function', 'metricsContext.setFlowCompleteSignal is function')
-      assert.equal(metricsContext.setFlowCompleteSignal.length, 1, 'metricsContext.setFlowCompleteSignal expects 1 argument')
+      assert.equal(metricsContext.setFlowCompleteSignal.length, 2, 'metricsContext.setFlowCompleteSignal expects 2 arguments')
 
     }
   )
@@ -187,9 +187,11 @@ describe('metricsContext', () => {
       return metricsContext.gather.call({
         payload: {
           metricsContext: {
+            deviceId: 'mock device id',
             flowId: 'mock flow id',
             flowBeginTime: time,
             flowCompleteSignal: 'mock flow complete signal',
+            flowType: 'mock flow type',
             context: 'mock context',
             entrypoint: 'mock entry point',
             migration: 'mock migration',
@@ -205,12 +207,15 @@ describe('metricsContext', () => {
       }, {}).then(function (result) {
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 4, 'result has 4 properties')
+        assert.equal(Object.keys(result).length, 7, 'result has 7 properties')
         assert.ok(result.time > time, 'result.time seems correct')
+        assert.equal(result.device_id, 'mock device id', 'result.device_id is correct')
         assert.equal(result.flow_id, 'mock flow id', 'result.flow_id is correct')
         assert.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
         assert.ok(result.flow_time < time, 'result.flow_time is less than the current time')
+        assert.equal(result.flowBeginTime, time, 'result.flowBeginTime is correct')
         assert.equal(result.flowCompleteSignal, 'mock flow complete signal', 'result.flowCompleteSignal is correct')
+        assert.equal(result.flowType, 'mock flow type', 'result.flowType is correct')
 
         assert.equal(cache.get.callCount, 0, 'cache.get was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
@@ -247,9 +252,11 @@ describe('metricsContext', () => {
         id: 'wibble'
       }
       results.get = P.resolve({
+        deviceId: 'deviceId',
         flowId: 'flowId',
         flowBeginTime: time,
-        flowCompleteSignal: 'flowCompleteSignal'
+        flowCompleteSignal: 'flowCompleteSignal',
+        flowType: 'flowType'
       })
       return metricsContext.gather.call({
         auth: {
@@ -262,12 +269,15 @@ describe('metricsContext', () => {
 
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 4, 'result has 4 properties')
+        assert.equal(Object.keys(result).length, 7, 'result has 7 properties')
         assert.ok(result.time > time, 'result.time seems correct')
+        assert.equal(result.device_id, 'deviceId', 'result.device_id is correct')
         assert.equal(result.flow_id, 'flowId', 'result.flow_id is correct')
         assert.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
         assert.ok(result.flow_time < time, 'result.flow_time is less than the current time')
+        assert.equal(result.flowBeginTime, time, 'result.flowBeginTime is correct')
         assert.equal(result.flowCompleteSignal, 'flowCompleteSignal', 'result.flowCompleteSignal is correct')
+        assert.equal(result.flowType, 'flowType', 'result.flowType is correct')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
       })
@@ -296,7 +306,7 @@ describe('metricsContext', () => {
 
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 4, 'result has 4 properties')
+        assert.equal(Object.keys(result).length, 7, 'result has 7 properties')
         assert.ok(result.time > time, 'result.time seems correct')
         assert.equal(result.flow_id, 'flowId', 'result.flow_id is correct')
         assert.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
@@ -356,26 +366,29 @@ describe('metricsContext', () => {
     () => {
       const time = Date.now() - 1
       results.get = P.resolve({
-        flowId: 'foo',
-        flowBeginTime: time
+        deviceId: 'foo',
+        flowId: 'bar',
+        flowBeginTime: time - 1
       })
       return metricsContext.gather.call({
         auth: {
           credentials: {
             uid: Array(16).fill('f').join(''),
-            id: 'bar'
+            id: 'baz'
           }
         },
         payload: {
           metricsContext: {
-            flowId: 'baz',
+            deviceId: 'qux',
+            flowId: 'wibble',
             flowBeginTime: time
           }
         }
       }, {}).then(function (result) {
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
-        assert.equal(result.flow_id, 'baz', 'result.flow_id is correct')
+        assert.equal(result.device_id, 'qux', 'result.device_id is correct')
+        assert.equal(result.flow_id, 'wibble', 'result.flow_id is correct')
 
         assert.equal(cache.get.callCount, 0, 'cache.get was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
@@ -896,8 +909,11 @@ describe('metricsContext', () => {
           metricsContext: {}
         }
       }
-      metricsContext.setFlowCompleteSignal.call(request, 'wibble')
-      assert.deepEqual(request.payload.metricsContext, { flowCompleteSignal: 'wibble' }, 'flowCompleteSignal was set correctly')
+      metricsContext.setFlowCompleteSignal.call(request, 'wibble', 'blee')
+      assert.deepEqual(request.payload.metricsContext, {
+        flowCompleteSignal: 'wibble',
+        flowType: 'blee'
+      }, 'flowCompleteSignal and flowType were set correctly')
     }
   )
 
@@ -907,8 +923,8 @@ describe('metricsContext', () => {
       const request = {
         payload: {}
       }
-      metricsContext.setFlowCompleteSignal.call(request, 'wibble')
-      assert.deepEqual(request.payload, {}, 'flowCompleteSignal was not set')
+      metricsContext.setFlowCompleteSignal.call(request, 'wibble', 'blee')
+      assert.deepEqual(request.payload, {}, 'flowCompleteSignal and flowType were not set')
     }
   )
 
