@@ -25,7 +25,7 @@ describe('server', function() {
         };
 
         Object.keys(res.headers).forEach(function(header) {
-          assert.ok(!other[header.toLowerCase()]);
+          assert.ok(! other[header.toLowerCase()]);
         });
       }).done(done, done);
     };

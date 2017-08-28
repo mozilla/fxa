@@ -20,7 +20,7 @@ function set(arr) {
 }
 
 function trimLocale(header) {
-  if (!header) {
+  if (! header) {
     return header;
   }
   if (header.length < 256) {
@@ -106,7 +106,7 @@ exports.create = function createServer() {
         var auth = req.headers.authorization;
         var url = config.oauth.url + '/verify';
         logger.debug('auth', auth);
-        if (!auth || auth.indexOf('Bearer') !== 0) {
+        if (! auth || auth.indexOf('Bearer') !== 0) {
           return reply(AppError.unauthorized('Bearer token not provided'));
         }
         var token = auth.split(' ')[1];
@@ -159,7 +159,7 @@ exports.create = function createServer() {
   // make sure all `read` scopes include `write`, and all include `profile`
   routes.forEach(function(route) {
     var scopes = route.config.auth && route.config.auth.scope;
-    if (!scopes) {
+    if (! scopes) {
       return;
     }
     var profileScope = route.method === 'GET' ? 'profile' : 'profile:write';

@@ -104,12 +104,12 @@ function startUpload() {
             'show detailed logs for every upload/download')
     .parse(process.argv);
 
-  if (!options.bearer) {
+  if (! options.bearer) {
     log('Missing option "--bearer". Required option!');
     process.exit(1);
   }
 
-  if (!/^[a-fA-F0-9]{64}$/.test(options.bearer)) {
+  if (! /^[a-fA-F0-9]{64}$/.test(options.bearer)) {
     log('Invalid Bearer token!: %s', options.bearer);
     process.exit(1);
   }

@@ -46,7 +46,7 @@ module.exports = {
     const server = req.server;
     const creds = req.auth.credentials;
 
-    if (!hasAllowedScope(creds.scope || [])) {
+    if (! hasAllowedScope(creds.scope || [])) {
       return reply(Boom.forbidden());
     }
 

@@ -56,7 +56,7 @@ module.exports = {
         }));
       }
 
-      if (!body || !body.email) {
+      if (! body || ! body.email) {
         return reply(
           new AppError('email field missing from auth response')
         );

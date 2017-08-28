@@ -34,22 +34,22 @@ function batch(request, map, next) {
       credentials: request.auth.credentials
     }).then(function(res) {
       switch (res.statusCode) {
-        case 200:
-          if (prop === 'email') {
-            email = res.result.email;
-          }
-          return res.result[prop];
-        case 204:
-        case 403:
-        case 404:
-          logger.debug(prop + '.' + res.statusCode, {
-            scope: request.auth.credentials.scope,
-            response: res.result
-          });
-          return undefined;
-        default:
-          logger.error(prop + '.' + res.statusCode, res.result);
-          return AppError.from(res.result);
+      case 200:
+        if (prop === 'email') {
+          email = res.result.email;
+        }
+        return res.result[prop];
+      case 204:
+      case 403:
+      case 404:
+        logger.debug(prop + '.' + res.statusCode, {
+          scope: request.auth.credentials.scope,
+          response: res.result
+        });
+        return undefined;
+      default:
+        logger.error(prop + '.' + res.statusCode, res.result);
+        return AppError.from(res.result);
       }
     });
   });

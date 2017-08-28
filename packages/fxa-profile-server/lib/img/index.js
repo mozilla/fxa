@@ -18,7 +18,7 @@ exports.SIZES = Object.seal({
 });
 
 function unique() {
-  return crypto.randomBytes(16).toString('hex');
+  return crypto.randomBytes(16).toString('hex'); // eslint-disable-line fxa/async-crypto-random
 }
 
 var driver;

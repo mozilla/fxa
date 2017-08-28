@@ -17,7 +17,7 @@ module.exports = function (logger) {
   }
 
   SQSSender.prototype.send = function (body) {
-    if (!this.sqs) {
+    if (! this.sqs) {
       return;
     }
     return new P(function (resolve, reject) {

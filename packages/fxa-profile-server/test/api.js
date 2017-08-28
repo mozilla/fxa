@@ -809,7 +809,7 @@ describe('/display_name', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 204);
-        assert(!res.payload);
+        assert(! res.payload);
         assertSecurityHeaders(res);
       });
     });

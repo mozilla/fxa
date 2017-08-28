@@ -1,7 +1,7 @@
-extends: fxa/server
+plugins:
+  - fxa
+extends: plugin:fxa/server
 
 rules:
-  curly: 0
-  semi: [2, always]
-  strict: 0
-  indent: [2, 2, {"SwitchCase": 1}]
+  handle-callback-err: 0
+  semi: [2, "always"]

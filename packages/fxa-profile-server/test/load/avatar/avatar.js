@@ -16,7 +16,7 @@ var SIZES = require('../../../lib/img').SIZES;
 function jsonParse(content) {
   try {
     return JSON.parse(content);
-  } catch(e) {
+  } catch (e) {
     return { error: e };
   }
 }
@@ -46,10 +46,10 @@ function Avatar(options) {
 
   this.verbose = options.verbose;
 
-  if (!options.bearer) throw new Error('option "bearer" is required');
+  if (! options.bearer) throw new Error('option "bearer" is required');
   this.bearer = options.bearer;
 
-  if (!options.host) throw new Error('option "host" is required');
+  if (! options.host) throw new Error('option "host" is required');
   this.host = options.host;
 
   this.image = options.image ||
@@ -58,7 +58,7 @@ function Avatar(options) {
 util.inherits(Avatar, events.EventEmitter);
 
 Avatar.prototype.log = function avatarLog(/* format, values... */) {
-  if (!this.verbose) return;
+  if (! this.verbose) return;
 
   var args = Array.prototype.slice.call(arguments);
   var timestamp = new Date().toISOString();
