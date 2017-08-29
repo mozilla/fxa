@@ -22,10 +22,10 @@ cut a release "train" that goes through deployment to stage and into production.
 
 ## Product Planning
 
-Product-level feature planning is managed via github issues
-in a special "features waffleboard":
+Product-level feature planning is managed
+in a separate tool called "Projects":
 
-* [The fxa-features waffleboard](https://waffle.io/mozilla/fxa-features)
+* [The fxa features board](https://projects-beta.growthhackers.com/u/orgs/mozilla-corporation/projects/FAAS/notebook)
 
 ## Issue management
 
