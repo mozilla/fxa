@@ -316,38 +316,6 @@ describe('metrics/amplitude', () => {
       })
     })
 
-    describe('password.forgot.resend_code.completed', () => {
-      beforeEach(() => {
-        amplitude('password.forgot.resend_code.completed', mocks.mockRequest({}))
-      })
-
-      it('did not call log.error', () => {
-        assert.equal(log.error.callCount, 0)
-      })
-
-      it('called log.amplitudeEvent correctly', () => {
-        assert.equal(log.amplitudeEvent.callCount, 1)
-        const args = log.amplitudeEvent.args[0]
-        assert.equal(args[0].event_type, 'fxa_login - forgot_sent')
-      })
-    })
-
-    describe('password.forgot.send_code.completed', () => {
-      beforeEach(() => {
-        amplitude('password.forgot.send_code.completed', mocks.mockRequest({}))
-      })
-
-      it('did not call log.error', () => {
-        assert.equal(log.error.callCount, 0)
-      })
-
-      it('called log.amplitudeEvent correctly', () => {
-        assert.equal(log.amplitudeEvent.callCount, 1)
-        const args = log.amplitudeEvent.args[0]
-        assert.equal(args[0].event_type, 'fxa_login - forgot_sent')
-      })
-    })
-
     describe('sms.installFirefox.sent', () => {
       beforeEach(() => {
         amplitude('sms.installFirefox.sent', mocks.mockRequest({}))

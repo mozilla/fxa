@@ -61,14 +61,6 @@ const EVENTS = {
     group: (request, data, metricsContext) => GROUPS[metricsContext.flowType],
     event: 'complete'
   },
-  'password.forgot.resend_code.completed': {
-    group: GROUPS.login,
-    event: 'forgot_sent'
-  },
-  'password.forgot.send_code.completed': {
-    group: GROUPS.login,
-    event: 'forgot_sent'
-  },
   'sms.installFirefox.sent': {
     group: GROUPS.sms,
     event: 'sent'
