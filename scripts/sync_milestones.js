@@ -70,14 +70,21 @@ module.exports = {
             })
           }
         } else {
+          // unfortunately some milestones wound up with duplicate
+          // feature numbers, so check if we found the right thing.
+          if (theirMilestone.title !== ourMilestone.title) {
+            if (theirs[ourMilestone.title]) {
+              return
+            }
+          }
           // It already exists, see if we need to update it. 
           for (var k in {title: 1, due_on: 1, description: 1, state: 1}) {
             if (theirMilestone[k] !== ourMilestone[k]) {
-              console.log("Updating '" + title + "' in " + repo.name)
               if (theirMilestone.title !== ourMilestone.title) {
                 ours[theirMilestone.title] = ourMilestone
                 delete ours[ourMilestone.title]
               }
+              console.log("Updating '" + title + "' in " + repo.name, ourMilestone, theirMilestone)
               return gh.issues.updateMilestone({
                 repo: repo.name,
                 number: ourMilestone.number,
@@ -120,6 +127,9 @@ module.exports = {
   // otherwise falls back to a simple string compare.
 
   findMatchingMilestone: function findMatchingMilestone(title, milestones) {
+    if (milestones[title]) {
+      return milestones[title]
+    }
     var featureRE = /(FxA-\d+):.*/
     var featureMatch = featureRE.exec(title)
     if (!featureMatch) {
