@@ -109,7 +109,9 @@ define(function (require, exports, module) {
 
     beforeSignIn (account) {
       const email = account.get('email');
-      if (this._verifiedCanLinkEmail === email) {
+      const uid = account.get('uid');
+      if (this._verifiedCanLinkEmail === email &&
+          this._verifiedCanLinkUid === uid) {
         // This user has already been asked and responded that
         // they want to link the account. Do not ask again or
         // else the user sees the "can link account" browser
@@ -121,13 +123,14 @@ define(function (require, exports, module) {
       // we should cancel the login to sync or not based on Desktop
       // specific checks and dialogs. It throws an error with
       // message='USER_CANCELED_LOGIN' and errno=1001 if that's the case.
-      return this.request(this.getCommand('CAN_LINK_ACCOUNT'), { email })
+      return this.request(this.getCommand('CAN_LINK_ACCOUNT'), { email, uid })
         .then((response) => {
           if (response && ! response.ok) {
             throw AuthErrors.toError('USER_CANCELED_LOGIN');
           }
 
           this._verifiedCanLinkEmail = email;
+          this._verifiedCanLinkUid = uid;
           return proto.beforeSignIn.call(this, account);
         }, (err) => {
           this._logger.error('beforeSignIn failed with', err);
@@ -268,7 +271,8 @@ define(function (require, exports, module) {
     _getLoginData (account) {
       const loginData = account.pick(ALLOWED_LOGIN_FIELDS);
       loginData.verified = !! loginData.verified;
-      loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkEmail;
+      loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkEmail &&
+                                         !! this._verifiedCanLinkUid;
       return loginData;
     }
 

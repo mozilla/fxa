@@ -112,7 +112,7 @@ define(function (require, exports, module) {
           });
         });
 
-        return channel.request('can_link_account', { email: 'testuser@testuser.com' })
+        return channel.request('can_link_account', { email: 'testuser@testuser.com', uid: 'uid' })
           .then(function (response) {
             assert.isTrue(response.ok);
           });
