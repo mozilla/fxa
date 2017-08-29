@@ -330,15 +330,9 @@ module.exports = function (log) {
       templateName = 'verifySyncEmail'
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
-      subject: subject,
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject,
       template: templateName,
       templateValues: {
         device: this._formatUserAgentInfo(message),
@@ -351,9 +345,8 @@ module.exports = function (log) {
         sync: message.service,
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.unblockCodeEmail = function (message) {
@@ -377,15 +370,8 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      ccEmails: message.ccEmails,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
+    return this.send(Object.assign({}, message, {
+      headers,
       subject: gettext('Firefox Account authorization code'),
       template: templateName,
       templateValues: {
@@ -398,9 +384,8 @@ module.exports = function (log) {
         reportSignInLinkAttributes: links.reportSignInLinkAttributes,
         timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage),
         unblockCode: message.unblockCode
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.verifyLoginEmail = function (message) {
@@ -427,15 +412,8 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      ccEmails: message.ccEmails,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
+    return this.send(Object.assign({}, message, {
+      headers,
       subject: gettext('Confirm new sign-in to Firefox'),
       template: templateName,
       templateValues: {
@@ -451,9 +429,8 @@ module.exports = function (log) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.verifySecondaryEmail = function (message) {
@@ -482,14 +459,8 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
+    return this.send(Object.assign({}, message, {
+      headers,
       subject: gettext('Verify email for Firefox Accounts'),
       template: templateName,
       templateValues: {
@@ -508,9 +479,8 @@ module.exports = function (log) {
         supportUrl: links.supportUrl,
         timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage),
         primaryEmail: message.primaryEmail
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.recoveryEmail = function (message) {
@@ -536,15 +506,8 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      ccEmails: message.ccEmails,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
+    return this.send(Object.assign({}, message, {
+      headers,
       subject: gettext('Reset your Firefox Account password'),
       template: templateName,
       templateValues: {
@@ -558,9 +521,8 @@ module.exports = function (log) {
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.passwordChangedEmail = function (message) {
@@ -576,15 +538,8 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      ccEmails: message.ccEmails,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
+    return this.send(Object.assign({}, message, {
+      headers,
       subject: gettext('Your Firefox Account password has been changed'),
       template: templateName,
       templateValues: {
@@ -597,9 +552,8 @@ module.exports = function (log) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.passwordResetEmail = function (message) {
@@ -614,15 +568,8 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      ccEmails: message.ccEmails,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
+    return this.send(Object.assign({}, message, {
+      headers,
       subject: gettext('Your Firefox Account password has been reset'),
       template: templateName,
       templateValues: {
@@ -631,9 +578,8 @@ module.exports = function (log) {
         resetLinkAttributes: links.resetLinkAttributes,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.passwordResetRequiredEmail = function (message) {
@@ -648,23 +594,16 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
+    return this.send(Object.assign({}, message, {
+      headers,
       subject: gettext('Firefox Account password reset required'),
       template: templateName,
       templateValues: {
         passwordManagerInfoUrl: links.passwordManagerInfoUrl,
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.newDeviceLoginEmail = function (message) {
@@ -680,15 +619,8 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      ccEmails: message.ccEmails,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
+    return this.send(Object.assign({}, message, {
+      headers,
       subject: gettext('New sign-in to Firefox'),
       template: templateName,
       templateValues: {
@@ -701,9 +633,8 @@ module.exports = function (log) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.postVerifyEmail = function (message) {
@@ -720,14 +651,8 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
+    return this.send(Object.assign({}, message, {
+      headers,
       subject: gettext('Firefox Account verified'),
       template: templateName,
       templateValues: {
@@ -739,9 +664,8 @@ module.exports = function (log) {
         privacyUrl: links.privacyUrl,
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.postVerifySecondaryEmail = function (message) {
@@ -758,14 +682,8 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
+    return this.send(Object.assign({}, message, {
+      headers,
       subject: gettext('Secondary Firefox Account email added'),
       template: templateName,
       templateValues: {
@@ -776,9 +694,8 @@ module.exports = function (log) {
         supportUrl: links.supportUrl,
         secondaryEmail: message.secondaryEmail,
         supportLinkAttributes: links.supportLinkAttributes
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.postRemoveSecondaryEmail = function (message) {
@@ -795,15 +712,8 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
-      acceptLanguage: message.acceptLanguage,
-      ccEmails: message.ccEmails,
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      service: message.service,
+    return this.send(Object.assign({}, message, {
+      headers,
       subject: gettext('Secondary Firefox Account email removed'),
       template: templateName,
       templateValues: {
@@ -814,9 +724,8 @@ module.exports = function (log) {
         supportUrl: links.supportUrl,
         secondaryEmail: message.secondaryEmail,
         supportLinkAttributes: links.supportLinkAttributes
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype.verificationReminderEmail = function (message) {
@@ -854,15 +763,10 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send({
+    return this.send(Object.assign({}, message, {
       acceptLanguage: message.acceptLanguage || 'en',
-      deviceId: message.deviceId,
-      email: message.email,
-      flowId: message.flowId,
-      flowBeginTime: message.flowBeginTime,
-      headers: headers,
-      subject: subject,
-      service: message.service,
+      headers,
+      subject,
       template: templateName,
       templateValues: {
         email: message.email,
@@ -871,9 +775,8 @@ module.exports = function (log) {
         privacyUrl: links.privacyUrl,
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes
-      },
-      uid: message.uid
-    })
+      }
+    }))
   }
 
   Mailer.prototype._generateUTMLink = function (link, query, templateName, content) {

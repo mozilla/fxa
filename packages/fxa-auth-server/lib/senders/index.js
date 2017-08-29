@@ -107,23 +107,11 @@ module.exports = (log, config, error, bounces, translator, sender) => {
         const primaryEmail = account.email
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {
-            return mailer.verifyEmail({
-              email: primaryEmail,
-              flowId: opts.flowId,
-              flowBeginTime: opts.flowBeginTime,
-              uid: account.uid,
-              code: opts.code,
-              service: opts.service,
-              redirectTo: opts.redirectTo,
-              resume: opts.resume,
+            return mailer.verifyEmail(Object.assign({}, opts, {
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ip: opts.ip,
-              location: opts.location,
-              uaBrowser: opts.uaBrowser,
-              uaBrowserVersion: opts.uaBrowserVersion,
-              uaOS: opts.uaOS,
-              uaOSVersion: opts.uaOSVersion
-            })
+              email: primaryEmail,
+              uid: account.uid
+            }))
           })
       },
       sendVerifyLoginEmail: function (emails, account, opts) {
@@ -133,25 +121,12 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             const primaryEmail = result.ungatedPrimaryEmail
             const ccEmails = result.ungatedCcEmails
 
-            return mailer.verifyLoginEmail({
+            return mailer.verifyLoginEmail(Object.assign({}, opts, {
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              code: opts.code,
-              ccEmails: ccEmails,
+              ccEmails,
               email: primaryEmail,
-              ip: opts.ip,
-              flowId: opts.flowId,
-              flowBeginTime: opts.flowBeginTime,
-              location: opts.location,
-              redirectTo: opts.redirectTo,
-              resume: opts.resume,
-              service: opts.service,
-              timeZone: opts.timeZone,
-              uaBrowser: opts.uaBrowser,
-              uaBrowserVersion: opts.uaBrowserVersion,
-              uaOS: opts.uaOS,
-              uaOSVersion: opts.uaOSVersion,
               uid: account.uid
-            })
+            }))
           })
       },
       sendVerifySecondaryEmail: function (emails, account, opts) {
@@ -160,23 +135,12 @@ module.exports = (log, config, error, bounces, translator, sender) => {
 
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {
-            return mailer.verifySecondaryEmail({
+            return mailer.verifySecondaryEmail(Object.assign({}, opts, {
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              code: opts.code,
               email: verifyEmailAddress,
-              ip: opts.ip,
-              location: opts.location,
-              redirectTo: opts.redirectTo,
-              resume: opts.resume,
-              service: opts.service,
-              timeZone: opts.timeZone,
-              uaBrowser: opts.uaBrowser,
-              uaBrowserVersion: opts.uaBrowserVersion,
-              uaOS: opts.uaOS,
-              uaOSVersion: opts.uaOSVersion,
-              uid: account.uid,
-              primaryEmail: primaryEmail
-            })
+              primaryEmail,
+              uid: account.uid
+            }))
           })
       },
       sendRecoveryCode: function (emails, account, opts) {
@@ -186,26 +150,13 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             const primaryEmail = result.ungatedPrimaryEmail
             const ccEmails = result.ungatedCcEmails
 
-            return mailer.recoveryEmail({
-              ccEmails: ccEmails,
+            return mailer.recoveryEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
               email: primaryEmail,
               emailToHashWith: account.email,
-              flowId: opts.flowId,
-              flowBeginTime: opts.flowBeginTime,
-              token: opts.token.data,
-              code: opts.code,
-              service: opts.service,
-              redirectTo: opts.redirectTo,
-              resume: opts.resume,
-              acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ip: opts.ip,
-              location: opts.location,
-              timeZone: opts.timeZone,
-              uaBrowser: opts.uaBrowser,
-              uaBrowserVersion: opts.uaBrowserVersion,
-              uaOS: opts.uaOS,
-              uaOSVersion: opts.uaOSVersion
-            })
+              token: opts.token.data
+            }))
           })
       },
       sendPasswordChangedNotification: function (emails, account, opts) {
@@ -215,17 +166,11 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             const primaryEmail = result.ungatedPrimaryEmail
             const ccEmails = result.ungatedCcEmails
 
-            return mailer.passwordChangedEmail({
-              email: primaryEmail,
-              ccEmails: ccEmails,
+            return mailer.passwordChangedEmail(Object.assign({}, opts, {
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              ip: opts.ip,
-              location: opts.location,
-              uaBrowser: opts.uaBrowser,
-              uaBrowserVersion: opts.uaBrowserVersion,
-              uaOS: opts.uaOS,
-              uaOSVersion: opts.uaOSVersion
-            })
+              ccEmails,
+              email: primaryEmail
+            }))
           })
       },
       sendPasswordResetNotification: function (emails, account, opts) {
@@ -235,13 +180,11 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             const primaryEmail = result.ungatedPrimaryEmail
             const ccEmails = result.ungatedCcEmails
 
-            return mailer.passwordResetEmail({
-              ccEmails: ccEmails,
-              email: primaryEmail,
+            return mailer.passwordResetEmail(Object.assign({}, opts, {
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              flowId: opts.flowId,
-              flowBeginTime: opts.flowBeginTime
-            })
+              ccEmails,
+              email: primaryEmail
+            }))
           })
       },
       sendNewDeviceLoginNotification: function (emails, account, opts) {
@@ -251,20 +194,11 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             const primaryEmail = result.ungatedPrimaryEmail
             const ccEmails = result.ungatedCcEmails
 
-            return mailer.newDeviceLoginEmail({
+            return mailer.newDeviceLoginEmail(Object.assign({}, opts, {
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              flowId: opts.flowId,
-              flowBeginTime: opts.flowBeginTime,
-              ccEmails: ccEmails,
-              email: primaryEmail,
-              ip: opts.ip,
-              location: opts.location,
-              timeZone: opts.timeZone,
-              uaBrowser: opts.uaBrowser,
-              uaBrowserVersion: opts.uaBrowserVersion,
-              uaOS: opts.uaOS,
-              uaOSVersion: opts.uaOSVersion
-            })
+              ccEmails,
+              email: primaryEmail
+            }))
           })
       },
       sendPostVerifyEmail: function (emails, account, opts) {
@@ -272,10 +206,10 @@ module.exports = (log, config, error, bounces, translator, sender) => {
 
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {
-            return mailer.postVerifyEmail({
-              email: primaryEmail,
-              acceptLanguage: opts.acceptLanguage || defaultLanguage
-            })
+            return mailer.postVerifyEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              email: primaryEmail
+            }))
           })
       },
       sendPostRemoveSecondaryEmail: function (emails, account, opts) {
@@ -285,12 +219,11 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             const primaryEmail = result.ungatedPrimaryEmail
             const ccEmails = result.ungatedCcEmails
 
-            return mailer.postRemoveSecondaryEmail({
-              email: primaryEmail,
-              ccEmails: ccEmails,
-              secondaryEmail: opts.secondaryEmail,
-              acceptLanguage: opts.acceptLanguage || defaultLanguage
-            })
+            return mailer.postRemoveSecondaryEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
+              email: primaryEmail
+            }))
           })
       },
       sendPostVerifySecondaryEmail: function (emails, account, opts) {
@@ -298,11 +231,10 @@ module.exports = (log, config, error, bounces, translator, sender) => {
 
         return getSafeMailer(primaryEmail)
           .then(function (mailer) {
-            return mailer.postVerifySecondaryEmail({
-              email: primaryEmail,
-              secondaryEmail: opts.secondaryEmail,
-              acceptLanguage: opts.acceptLanguage || defaultLanguage
-            })
+            return mailer.postVerifySecondaryEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              email: primaryEmail
+            }))
           })
       },
       sendUnblockCode: function (emails, account, opts) {
@@ -312,22 +244,12 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             const primaryEmail = result.ungatedPrimaryEmail
             const ccEmails = result.ungatedCcEmails
 
-            return mailer.unblockCodeEmail({
+            return mailer.unblockCodeEmail(Object.assign({}, opts, {
               acceptLanguage: opts.acceptLanguage || defaultLanguage,
-              flowId: opts.flowId,
-              flowBeginTime: opts.flowBeginTime,
-              ccEmails: ccEmails,
+              ccEmails,
               email: primaryEmail,
-              ip: opts.ip,
-              location: opts.location,
-              timeZone: opts.timeZone,
-              uaBrowser: opts.uaBrowser,
-              uaBrowserVersion: opts.uaBrowserVersion,
-              uaOS: opts.uaOS,
-              uaOSVersion: opts.uaOSVersion,
-              uid: account.uid,
-              unblockCode: opts.unblockCode
-            })
+              uid: account.uid
+            }))
           })
       },
       translator: function () {
