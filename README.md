@@ -59,7 +59,6 @@ git push origin/master
 
 ### Adding new milestones
 
-* Create an issue card in the [fxa-features waffleboard](https://waffle.io/mozilla/fxa-features)
-* Move it into "designing" or further to the right
+* Add the milestone by hand on the mozilla/fxa repo
 * Get a [GitHub access token](https://github.com/settings/tokens), set `GITHUB_USERNAME` and `GITHUB_API_KEY`
-* Run `scripts/sync_milestones.js` to create a corresponding milestone in all the repos
+* Run `scripts/sync_milestones.js` to propagate it to the other repos
