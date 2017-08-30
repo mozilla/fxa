@@ -6,45 +6,48 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'use strict';
 
-  var FIRST_PASSWORD = 'password';
-  var SECOND_PASSWORD = 'new_password';
-  var email;
+  const config = intern.config;
+  const SIGNIN_URL = config.fxaContentRoot + 'signin';
 
-  var ANIMATION_DELAY_MS = 500;
+  const ANIMATION_DELAY_MS = 500;
+  const FIRST_PASSWORD = 'password';
+  const SECOND_PASSWORD = 'new_password';
 
-  var thenify = FunctionalHelpers.thenify;
+  let email;
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var click = FunctionalHelpers.click;
-  var createUser = FunctionalHelpers.createUser;
-  var denormalizeStoredEmail = FunctionalHelpers.denormalizeStoredEmail;
-  var fillOutChangePassword = FunctionalHelpers.fillOutChangePassword;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
-  var openPage = FunctionalHelpers.openPage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
-  var type = FunctionalHelpers.type;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    click,
+    createUser,
+    denormalizeStoredEmail,
+    fillOutChangePassword,
+    fillOutSignIn,
+    noSuchElementDisplayed,
+    openPage,
+    testElementExists,
+    testElementTextEquals,
+    testSuccessWasShown,
+    thenify,
+    type,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
-  var setupTest = thenify(function (options) {
-    options = options || {};
-    var signUpEmail = options.signUpEmail || email;
-    var signInEmail = options.signInEmail || email;
+  const setupTest = thenify(function (options = {}) {
+    const signUpEmail = options.signUpEmail || email;
+    const signInEmail = options.signInEmail || email;
 
     return this.parent
       .then(createUser(signUpEmail, FIRST_PASSWORD, { preVerified: true }))
       .then(clearBrowserState())
       .then(fillOutSignIn(signInEmail, FIRST_PASSWORD))
 
-      .then(testElementExists('#fxa-settings-header'))
-      .then(testElementTextEquals('.card-header', signUpEmail));
+      .then(testElementExists(selectors.SETTINGS.HEADER))
+      .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, signUpEmail));
   });
 
   registerSuite({
@@ -63,24 +66,24 @@ define([
         .then(setupTest())
 
         // Go to change password screen
-        .then(click('#change-password .settings-unit-toggle'))
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
         .then(fillOutChangePassword('INCORRECT', SECOND_PASSWORD))
         // the validation tooltip should be visible
-        .then(visibleByQSA('.tooltip'))
+        .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
 
         // click the show button, the error should not be hidden.
-        .then(click('[for=show-old_password]'))
-        .then(visibleByQSA('.tooltip'))
+        .then(click(selectors.CHANGE_PASSWORD.OLD_PASSWORD_SHOW))
+        .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
 
         // Change form so that it is valid, error should be hidden.
-        .then(type('#old_password', FIRST_PASSWORD))
+        .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, FIRST_PASSWORD))
 
         // Since the test is to see if the error is hidden,
         // .findByClass cannot be used. We want the opposite of
         // .findByClass.
         .sleep(ANIMATION_DELAY_MS)
 
-        .then(noSuchElementDisplayed('#change-password .error'));
+        .then(noSuchElementDisplayed(selectors.CHANGE_PASSWORD.ERROR));
     },
 
     'sign in, change password, sign in with new password': function () {
@@ -88,17 +91,17 @@ define([
         .then(setupTest())
 
         // Go to change password screen
-        .then(click('#change-password .settings-unit-toggle'))
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testElementExists('#fxa-settings-header'))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
 
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(click('.use-different'))
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
         .then(fillOutSignIn(email, SECOND_PASSWORD))
 
-        .then(testElementExists('#fxa-settings-header'));
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
     'sign in with an unnormalized email, change password, sign in with new password': function () {
@@ -106,17 +109,17 @@ define([
         .then(setupTest({ signInEmail: email.toUpperCase(), signUpEmail: email }))
 
         // Go to change password screen
-        .then(click('#change-password .settings-unit-toggle'))
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testElementExists('#fxa-settings-header'))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
 
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(click('.use-different'))
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
         .then(fillOutSignIn(email, SECOND_PASSWORD))
 
-        .then(testElementExists('#fxa-settings-header'));
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
     'cached unnormalized email, change password, sign in with new password': function () {
@@ -128,19 +131,19 @@ define([
         // refresh to load denormalized email from localStorage
         .refresh()
         // email should be normalized on refresh!
-        .then(testElementTextEquals('.card-header', email))
+        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, email))
 
-        .then(click('#change-password .settings-unit-toggle'))
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testElementExists('#fxa-settings-header'))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
 
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(click('.use-different'))
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
         .then(fillOutSignIn(email, SECOND_PASSWORD))
 
-        .then(testElementExists('#fxa-settings-header'));
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
 
@@ -149,10 +152,10 @@ define([
         .then(setupTest())
 
         // Go to change password screen
-        .then(click('#change-password .settings-unit-toggle'))
-        .then(click('.reset-password'))
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+        .then(click(selectors.CHANGE_PASSWORD.LINK_RESET_PASSWORD))
 
-        .then(testElementExists('#fxa-reset-password-header'));
+        .then(testElementExists(selectors.RESET_PASSWORD.HEADER));
     }
   });
 });

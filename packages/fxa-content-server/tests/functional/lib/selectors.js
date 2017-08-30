@@ -20,7 +20,12 @@ define([], function () {
       HEADER: '#fxa-400-header'
     },
     CHANGE_PASSWORD: {
-      MENU_BUTTON: '#change-password .settings-unit-toggle'
+      ERROR: '#change-password .error',
+      LINK_RESET_PASSWORD: '.reset-password',
+      MENU_BUTTON: '#change-password .settings-unit-toggle',
+      OLD_PASSWORD: '#old_password',
+      OLD_PASSWORD_SHOW: '[for=show-old_password]',
+      TOOLTIP: '.tooltip',
     },
     CHOOSE_WHAT_TO_SYNC: {
       ENGINE_ADDRESSES: '#sync-engine-addresses',
@@ -94,6 +99,7 @@ define([], function () {
       EMAIL: 'input[type=email]',
       EMAIL_NOT_EDITABLE: '.prefillEmail',
       HEADER: '#fxa-signin-header',
+      LINK_USE_DIFFERENT: '.use-different',
       PASSWORD: 'input[type=password]',
       RESET_PASSWORD: 'a[href="/reset_password"]',
       SUBMIT: 'button[type=submit]',
