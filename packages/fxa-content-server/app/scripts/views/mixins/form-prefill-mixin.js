@@ -25,20 +25,27 @@ define(function (require, exports, module) {
     return ! $el.__val() &&
            $el.attr('autocomplete') !== 'off' &&
            key &&
-           formPrefill.has(key);
+           !! formPrefill.get(key);
   }
 
   module.exports = {
     initialize (options = {}) {
       this.formPrefill = options.formPrefill;
+
+      // NOTE: this assumes `rendered` will be triggered after
+      // the view has been rendered, but before `afterRender`.
+      // `afterRender` takes care of seeding the model that tracks
+      // whether form values have changed and enabling the form
+      // if valid.
+      this.on('rendered', () => this.fillPrefillableValues());
     },
 
-    afterRender () {
+    fillPrefillableValues () {
       this.getFormElements().each((index, el) => {
         const $el = this.$(el);
         if (isElementFillable($el, this.formPrefill)) {
           const key = getKey($el);
-          $el.val(this.formPrefill.get(key)).trigger('input');
+          $el.val(this.formPrefill.get(key));
         }
       });
     },

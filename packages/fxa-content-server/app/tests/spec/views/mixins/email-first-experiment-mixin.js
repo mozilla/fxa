@@ -58,9 +58,10 @@ define((require, exports, module) => {
 
     it('exposes the expected interface', () => {
       const mixin = EmailFirstExperimentMixin();
-      assert.lengthOf(Object.keys(mixin), 5);
+      assert.lengthOf(Object.keys(mixin), 6);
       assert.isArray(mixin.dependsOn);
       assert.isFunction(mixin.beforeRender);
+      assert.isFunction(mixin.getEmailFirstExperimentGroup);
       assert.isFunction(mixin.isInEmailFirstExperiment);
       assert.isFunction(mixin.isInEmailFirstExperimentGroup);
       assert.isFunction(mixin._getEmailFirstExperimentSubject);
@@ -122,31 +123,26 @@ define((require, exports, module) => {
 
       it('creates the experiment for users in the control group, does not redirect', () => {
         sandbox.stub(view, 'isInEmailFirstExperiment', () => true);
-        sandbox.stub(view, 'isInEmailFirstExperimentGroup', () => false);
+        sandbox.stub(view, 'getEmailFirstExperimentGroup', () => 'control');
 
         view.beforeRender();
 
         assert.isTrue(view.isInEmailFirstExperiment.calledOnce);
 
-        assert.isTrue(view.isInEmailFirstExperimentGroup.calledOnce);
-        assert.isTrue(view.isInEmailFirstExperimentGroup.calledWith('treatment'));
-
         assert.isTrue(view.createExperiment.calledOnce);
-        assert.isTrue(view.createExperiment.calledWith('emailFirst'));
+        assert.isTrue(view.createExperiment.calledWith('emailFirst', 'control'));
 
         assert.isFalse(view.replaceCurrentPage.called);
       });
 
       it('creates the experiment for users in the treatment group, redirects if treatmentPathname specified', () => {
         sandbox.stub(view, 'isInEmailFirstExperiment', () => true);
-        sandbox.stub(view, 'isInEmailFirstExperimentGroup', () => true);
+        sandbox.stub(view, 'getEmailFirstExperimentGroup', () => 'treatment');
 
         view.beforeRender();
 
-        assert.isTrue(view.isInEmailFirstExperiment.calledOnce);
-
         assert.isTrue(view.createExperiment.calledOnce);
-        assert.isTrue(view.createExperiment.calledWith('emailFirst'));
+        assert.isTrue(view.createExperiment.calledWith('emailFirst', 'treatment'));
 
         assert.isTrue(view.replaceCurrentPage.calledOnce);
         assert.isTrue(view.replaceCurrentPage.calledWith('/'));

@@ -227,13 +227,13 @@ define(function (require, exports, module) {
           // be returned.
           this._context = null;
           this.$el.html(this.renderTemplate(this.template.bind(this)));
+          this.trigger('rendered');
 
           // Track whether status messages were made visible via the template.
           this._isErrorVisible = this.$('.error').hasClass('visible');
           this._isSuccessVisible = this.$('.success').hasClass('visible');
 
-          return p(this.afterRender())
-            .then(() => this.trigger('rendered'));
+          return this.afterRender();
         })
         .then((shouldDisplay) => {
           return shouldDisplay !== false && ! this._hasNavigated;

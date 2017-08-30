@@ -1,3 +1,14 @@
+<a name="1.94.2"></a>
+## 1.94.2 (2017-08-30)
+
+
+### Bug Fixes
+
+* **metrics:** `engaged` flow events should only be triggered if the user engages! (#5401) r=@p ([968b7a8](https://github.com/mozilla/fxa-content-server/commit/968b7a8)), closes [#5388](https://github.com/mozilla/fxa-content-server/issues/5388)
+* **metrics:** Ensure emailFirst experiment metrics are reported. (#5402) r=vladikoff ([1e4cf29](https://github.com/mozilla/fxa-content-server/commit/1e4cf29)), closes [#5397](https://github.com/mozilla/fxa-content-server/issues/5397)
+
+
+
 <a name="1.94.1"></a>
 ## 1.94.1 (2017-08-23)
 
