@@ -115,7 +115,7 @@
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
   "engines": {
-    "node": ">=4.8.0"
+    "node": ">=6"
   },
   "readmeFilename": "README.md"
 }
