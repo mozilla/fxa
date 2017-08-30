@@ -33,7 +33,8 @@ var DEVICE_FIELDS = [
   'createdAt',
   'callbackURL',
   'callbackPublicKey',
-  'callbackAuthKey'
+  'callbackAuthKey',
+  'callbackIsExpired'
 ]
 
 var SESSION_FIELDS = [
@@ -207,6 +208,7 @@ module.exports = function (log, error) {
             uid: uid,
             id: deviceId
           }
+          deviceInfo.callbackIsExpired = false // mimic the db behavior assigning a default false value
           account.devices[deviceKey] = updateDeviceRecord(device, deviceInfo, deviceKey)
           return {}
         }
@@ -482,6 +484,7 @@ module.exports = function (log, error) {
             callbackURL: device.callbackURL,
             callbackPublicKey: device.callbackPublicKey,
             callbackAuthKey: device.callbackAuthKey,
+            callbackIsExpired: device.callbackIsExpired
           })
         }
       )
@@ -507,6 +510,7 @@ module.exports = function (log, error) {
                   session.deviceCallbackURL = device.callbackURL
                   session.deviceCallbackPublicKey = device.callbackPublicKey
                   session.deviceCallbackAuthKey = device.callbackAuthKey
+                  session.deviceCallbackIsExpired = device.callbackIsExpired
                 }
                 return session
               }
@@ -581,6 +585,7 @@ module.exports = function (log, error) {
           deviceCallbackURL: deviceInfo.callbackURL || null,
           deviceCallbackPublicKey: deviceInfo.callbackPublicKey || null,
           deviceCallbackAuthKey: deviceInfo.callbackAuthKey || null,
+          deviceCallbackIsExpired: deviceInfo.callbackIsExpired !== undefined ? deviceInfo.callbackIsExpired : null,
         }
 
         return session

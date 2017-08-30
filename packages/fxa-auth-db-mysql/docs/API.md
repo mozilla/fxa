@@ -611,7 +611,9 @@ The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 
                  d.name AS deviceName, d.type AS deviceType,
                  d.createdAt AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL,
                  d.callbackPublicKey AS deviceCallbackPublicKey,
-                 d.callbackAuthKey AS deviceCallbackAuthKey, ut.mustVerify, ut.tokenVerificationId
+                 d.callbackAuthKey AS deviceCallbackAuthKey,
+                 d.callbackIsExpired AS deviceCallbackIsExpired,
+                 ut.mustVerify, ut.tokenVerificationId
 
 ## .createVerificationReminder(body) ##
 

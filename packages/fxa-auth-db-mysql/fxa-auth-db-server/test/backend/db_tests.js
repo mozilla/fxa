@@ -280,7 +280,7 @@ module.exports = function(config, DB) {
           })
           .then(function (sessions) {
             assert.equal(sessions.length, 1, 'sessions contains one item')
-            assert.equal(Object.keys(sessions[0]).length, 17, 'session has correct properties')
+            assert.equal(Object.keys(sessions[0]).length, 18, 'session has correct properties')
             assert.equal(sessions[0].tokenId.toString('hex'), SESSION_TOKEN_ID.toString('hex'), 'tokenId is correct')
             assert.equal(sessions[0].uid.toString('hex'), ACCOUNT.uid.toString('hex'), 'uid is correct')
             assert.equal(sessions[0].createdAt, SESSION_TOKEN.createdAt, 'createdAt is correct')
@@ -506,7 +506,8 @@ module.exports = function(config, DB) {
               createdAt: Date.now(),
               callbackURL: 'https://push.server',
               callbackPublicKey: 'foo',
-              callbackAuthKey: 'bar'
+              callbackAuthKey: 'bar',
+              callbackIsExpired: false
             })
           })
           .then(function() {
@@ -534,6 +535,7 @@ module.exports = function(config, DB) {
             assert.equal(sessions[0].deviceCallbackURL, 'https://push.server')
             assert.equal(sessions[0].deviceCallbackPublicKey, 'foo')
             assert.equal(sessions[0].deviceCallbackAuthKey, 'bar')
+            assert.equal(sessions[0].deviceCallbackIsExpired, false)
             assert.equal(sessions[1].deviceId, null)
             assert.equal(sessions[2].deviceId, null)
 
@@ -1121,7 +1123,8 @@ module.exports = function(config, DB) {
           type: 'mobile',
           callbackURL: 'https://foo/bar',
           callbackPublicKey: base64_65(),
-          callbackAuthKey: base64_16()
+          callbackAuthKey: base64_16(),
+          callbackIsExpired: false
         }
         var newDeviceId = newUuid()
         var newSessionTokenId = hex32()
@@ -1178,6 +1181,7 @@ module.exports = function(config, DB) {
             assert.equal(device.callbackURL, null, 'callbackURL')
             assert.equal(device.callbackPublicKey, null, 'callbackPublicKey')
             assert.equal(device.callbackAuthKey, null, 'callbackAuthKey')
+            assert.equal(device.callbackIsExpired, false, 'callbackIsExpired')
             assert(device.lastAccessTime > 0, 'has a lastAccessTime')
             assert.equal(device.email, ACCOUNT.email, 'email should be account email')
 
@@ -1193,6 +1197,7 @@ module.exports = function(config, DB) {
                   assert.equal(s.deviceCallbackURL, device.callbackURL, 'callbackURL')
                   assert.equal(s.deviceCallbackPublicKey, device.callbackPublicKey, 'callbackPublicKey')
                   assert.equal(s.deviceCallbackAuthKey, device.callbackAuthKey, 'callbackAuthKey')
+                  assert.equal(s.deviceCallbackIsExpired, device.callbackIsExpired, 'callbackIsExpired')
                   assert.equal(!! s.mustVerify, !! SESSION_TOKEN.mustVerify, 'mustVerify is correct')
                   assert.deepEqual(s.tokenVerificationId, SESSION_TOKEN.tokenVerificationId, 'tokenVerificationId is correct')
                 },
@@ -1235,6 +1240,7 @@ module.exports = function(config, DB) {
             assert.equal(device.callbackURL, deviceInfo.callbackURL, 'callbackURL')
             assert.equal(device.callbackPublicKey, deviceInfo.callbackPublicKey, 'callbackPublicKey')
             assert.equal(device.callbackAuthKey, deviceInfo.callbackAuthKey, 'callbackAuthKey')
+            assert.equal(device.callbackIsExpired, deviceInfo.callbackIsExpired, 'callbackIsExpired')
             assert(device.lastAccessTime > 0, 'has a lastAccessTime')
             assert.equal(device.email, ACCOUNT.email, 'email should be account email')
 
@@ -1264,13 +1270,15 @@ module.exports = function(config, DB) {
             assert.equal(device.callbackURL, deviceInfo.callbackURL, 'callbackURL unchanged')
             assert.equal(device.callbackPublicKey, deviceInfo.callbackPublicKey, 'callbackPublicKey unchanged')
             assert.equal(device.callbackAuthKey, deviceInfo.callbackAuthKey, 'callbackAuthKey unchanged')
+            assert.equal(device.callbackIsExpired, deviceInfo.callbackIsExpired, 'callbackIsExpired unchanged')
 
             // Update the device type and callback params
             return db.updateDevice(ACCOUNT.uid, deviceId, {
               type: 'desktop',
               callbackURL: '',
               callbackPublicKey: '',
-              callbackAuthKey: ''
+              callbackAuthKey: '',
+              callbackIsExpired: true
             })
           })
           .then(function (result) {
@@ -1288,6 +1296,7 @@ module.exports = function(config, DB) {
             assert.equal(device.callbackURL, '', 'callbackURL updated')
             assert.equal(device.callbackPublicKey, '', 'callbackPublicKey updated')
             assert.equal(device.callbackAuthKey, '', 'callbackAuthKey updated')
+            assert.equal(device.callbackIsExpired, true, 'callbackIsExpired updated')
 
             // Make the device a zombie, by giving it a non-existent session token
             return db.updateDevice(ACCOUNT.uid, deviceId, {
@@ -1321,7 +1330,8 @@ module.exports = function(config, DB) {
               type: 'desktop',
               callbackURL: 'https://foo/bar',
               callbackPublicKey: base64_65(),
-              callbackAuthKey: base64_16()
+              callbackAuthKey: base64_16(),
+              callbackIsExpired: false
             })
             .then(function () {
               assert(false, 'adding a second device should have failed when the session token is already registered')
@@ -1345,7 +1355,8 @@ module.exports = function(config, DB) {
               type: 'desktop',
               callbackURL: 'https://foo/bar',
               callbackPublicKey: base64_65(),
-              callbackAuthKey: base64_16()
+              callbackAuthKey: base64_16(),
+              callbackIsExpired: false
             })
             .then(function () {
             }, function (err) {

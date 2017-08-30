@@ -345,7 +345,7 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
             var sessions = r.obj
             assert.equal(sessions.length, 1, 'sessions contains one item')
-            assert.equal(Object.keys(sessions[0]).length, 17, 'session has correct properties')
+            assert.equal(Object.keys(sessions[0]).length, 18, 'session has correct properties')
             assert.equal(sessions[0].tokenId, user.sessionTokenId, 'tokenId is correct')
             assert.equal(sessions[0].uid, user.accountId, 'uid is correct')
             assert.equal(sessions[0].createdAt, user.sessionToken.createdAt, 'createdAt is correct')
@@ -581,6 +581,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(s.deviceCallbackAuthKey.length, 22)
             assert(s.deviceCallbackPublicKey)
             assert.equal(s.deviceCallbackURL, 'fake callback URL')
+            assert.equal(s.deviceCallbackIsExpired, false)
             assert(s.deviceCreatedAt)
             assert(s.deviceId)
             assert.equal(s.deviceName, 'fake device name')
@@ -660,7 +661,7 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
             var devices = r.obj
             assert.equal(devices.length, 1, 'devices contains one item')
-            assert.equal(Object.keys(devices[0]).length, 17, 'device has seventeen properties')
+            assert.equal(Object.keys(devices[0]).length, 18, 'device has eighteen properties')
             assert.equal(devices[0].uid, user.accountId, 'uid is correct')
             assert.equal(devices[0].id, user.deviceId, 'id is correct')
             assert.equal(devices[0].sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
@@ -670,6 +671,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(devices[0].callbackURL, user.device.callbackURL, 'callbackURL is correct')
             assert.equal(devices[0].callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
             assert.equal(devices[0].callbackAuthKey, user.device.callbackAuthKey, 'callbackAuthKey is correct')
+            assert.equal(devices[0].callbackIsExpired, user.device.callbackIsExpired, 'callbackIsExpired is correct')
             assert.equal(devices[0].uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser is correct')
             assert.equal(devices[0].uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion is correct')
             assert.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')
@@ -692,13 +694,15 @@ module.exports = function(cfg, makeServer) {
             assert.equal(device.callbackURL, user.device.callbackURL, 'callbackURL is correct')
             assert.equal(device.callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
             assert.equal(device.callbackAuthKey, user.device.callbackAuthKey, 'callbackAuthKey is correct')
+            assert.equal(device.callbackIsExpired, user.device.callbackIsExpired, 'callbackIsExpired is correct')
 
             return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
               name: 'wibble',
               type: 'mobile',
               callbackURL: '',
               callbackPublicKey: null,
-              callbackAuthKey: null
+              callbackAuthKey: null,
+              callbackIsExpired: null
             })
           })
           .then(function(r) {
@@ -718,6 +722,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(devices[0].callbackURL, '', 'callbackURL is correct')
             assert.equal(devices[0].callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
             assert.equal(devices[0].callbackAuthKey, user.device.callbackAuthKey, 'callbackAuthKey is correct')
+            assert.equal(devices[0].callbackIsExpired, false, 'callbackIsExpired is correct')
             assert.equal(devices[0].uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser is correct')
             assert.equal(devices[0].uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion is correct')
             assert.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')

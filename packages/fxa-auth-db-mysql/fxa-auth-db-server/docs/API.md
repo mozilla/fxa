@@ -657,6 +657,7 @@ Content-Type: application/json
         "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
         "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
         "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
+        "callbackIsExpired": false,
         "uaBrowser": "Firefox",
         "uaBrowserVersion": "42",
         "uaOS": "Android",
@@ -713,7 +714,8 @@ Content-Type: application/json
     "createdAt": 1437992394186,
     "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
     "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
-    "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong"
+    "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
+    "callbackIsExpired": false
 }
 ```
 
@@ -747,7 +749,8 @@ curl \
       "createdAt": 1437992394186,
       "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
       "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
-      "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong"
+      "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
+      "callbackIsExpired": false
     }'
 ```
 
@@ -790,7 +793,8 @@ curl \
       "createdAt": 1437992394186,
       "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
       "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
-      "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong"
+      "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
+      "callbackIsExpired": false
     }'
 ```
 
@@ -1003,6 +1007,7 @@ Content-Length: 285
     "deviceCreatedAt":1460548810011,
     "deviceCallbackURL":null,
     "deviceCallbackPublicKey":null,
+    "deviceCallbackIsExpired":false,
     "mustVerify":true,
     "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
 }

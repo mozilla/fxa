@@ -302,7 +302,7 @@ module.exports = function (log, error) {
     )
   }
 
-  var UPDATE_DEVICE = 'CALL updateDevice_3(?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  var UPDATE_DEVICE = 'CALL updateDevice_4(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.updateDevice = function (uid, deviceId, deviceInfo) {
     return this.write(
@@ -316,7 +316,8 @@ module.exports = function (log, error) {
         deviceInfo.type,
         deviceInfo.callbackURL,
         deviceInfo.callbackPublicKey,
-        deviceInfo.callbackAuthKey
+        deviceInfo.callbackAuthKey,
+        deviceInfo.callbackIsExpired
       ],
       function (result) {
         if (result.affectedRows === 0) {
@@ -360,11 +361,11 @@ module.exports = function (log, error) {
 
   // Select : devices d, sessionTokens s, accounts a
   // Fields : d.uid, d.id, d.sessionTokenId, d.name, d.type, d.createdAt, d.callbackURL,
-  //          d.callbackPublicKey, d.callbackAuthKey, s.uaBrowser, s.uaBrowserVersion,
-  //          s.uaOS, s.uaOSVersion, s.uaDeviceType, s.uaFormFactor, s.lastAccessTime,
-  //          a.email
+  //          d.callbackPublicKey, d.callbackAuthKey, d.callbackIsExpired,
+  //          s.uaBrowser, s.uaBrowserVersion, s.uaOS, s.uaOSVersion, s.uaDeviceType,
+  //          s.uaFormFactor, s.lastAccessTime, a.email
   // Where  : d.uid = $1
-  var ACCOUNT_DEVICES = 'CALL accountDevices_10(?)'
+  var ACCOUNT_DEVICES = 'CALL accountDevices_11(?)'
 
   MySql.prototype.accountDevices = function (uid) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
@@ -373,10 +374,11 @@ module.exports = function (log, error) {
   // Select : devices d, unverifiedTokens u
   // Fields : d.id AS deviceId, d.name AS deviceName, d.type AS deviceType, d.createdAt
   //          AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL, d.callbackPublicKey
-  //          AS deviceCallbackPublicKey, d.callbackAuthKey AS deviceCallbackAuthKey
+  //          AS deviceCallbackPublicKey, d.callbackAuthKey AS deviceCallbackAuthKey,
+  //          d.callbackIsExpired AS deviceCallbackIsExpired
   // Where  : u.uid = $1 AND u.tokenVerificationId = $2 AND
   //          u.tokenId = d.sessionTokenId AND u.uid = d.uid
-  var DEVICE_FROM_TOKEN_VERIFICATION_ID = 'CALL deviceFromTokenVerificationId_1(?, ?)'
+  var DEVICE_FROM_TOKEN_VERIFICATION_ID = 'CALL deviceFromTokenVerificationId_2(?, ?)'
 
   MySql.prototype.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
     return this.readFirstResult(DEVICE_FROM_TOKEN_VERIFICATION_ID, [uid, tokenVerificationId])
@@ -389,10 +391,11 @@ module.exports = function (log, error) {
   //          d.id AS deviceId, d.name AS deviceName, d.type AS deviceType, d.createdAt
   //          AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL, d.callbackPublicKey
   //          AS deviceCallbackPublicKey, d.callbackAuthKey AS deviceCallbackAuthKey,
+  //          d.callbackIsExpired AS deviceCallbackIsExpired,
   //          ut.tokenVerificationId, ut.mustVerify
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSION_DEVICE = 'CALL sessionWithDevice_8(?)'
+  var SESSION_DEVICE = 'CALL sessionWithDevice_9(?)'
 
   MySql.prototype.sessionWithDevice = function (id) {
     return this.readFirstResult(SESSION_DEVICE, [id])
@@ -402,10 +405,10 @@ module.exports = function (log, error) {
   // Fields : tokenId, uid, createdAt, uaBrowser, uaBrowserVersion,
   //          uaOS, uaOSVersion, uaDeviceType, uaFormFactor, lastAccessTime,
   //          deviceId, deviceName, deviceType, deviceCreatedAt, deviceCallbackURL,
-  //          deviceCallbackPublicKey, deviceCallbackAuthKey
+  //          deviceCallbackPublicKey, deviceCallbackAuthKey, deviceCallbackIsExpired
   // Where  : t.uid = $1 AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSIONS = 'CALL sessions_5(?)'
+  var SESSIONS = 'CALL sessions_6(?)'
 
   MySql.prototype.sessions = function (uid) {
     return this.readOneFromFirstResult(SESSIONS, [uid])
