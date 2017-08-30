@@ -28,11 +28,21 @@ define(function (require, exports, module) {
 
       beforeRender () {
         if (this.isInEmailFirstExperiment()) {
-          this.createExperiment(EXPERIMENT_NAME);
-          if (this.isInEmailFirstExperimentGroup('treatment') && options.treatmentPathname) {
+          const experimentGroup = this.getEmailFirstExperimentGroup();
+          this.createExperiment(EXPERIMENT_NAME, experimentGroup);
+          if (experimentGroup === 'treatment' && options.treatmentPathname) {
             this.replaceCurrentPage(options.treatmentPathname);
           }
         }
+      },
+
+      /**
+       * Get the email first experiment group
+       *
+       * @returns {String}
+       */
+      getEmailFirstExperimentGroup () {
+        return this.getExperimentGroup(EXPERIMENT_NAME, this._getEmailFirstExperimentSubject());
       },
 
       /**
