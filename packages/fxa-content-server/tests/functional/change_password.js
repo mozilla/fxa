@@ -44,6 +44,7 @@ define([
     return this.parent
       .then(createUser(signUpEmail, FIRST_PASSWORD, { preVerified: true }))
       .then(clearBrowserState())
+      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
       .then(fillOutSignIn(signInEmail, FIRST_PASSWORD))
 
       .then(testElementExists(selectors.SETTINGS.HEADER))
