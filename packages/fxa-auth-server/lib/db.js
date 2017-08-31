@@ -457,6 +457,7 @@ module.exports = (
             pushCallback: device.callbackURL,
             pushPublicKey: device.callbackPublicKey,
             pushAuthKey: device.callbackAuthKey,
+            pushEndpointExpired: device.callbackIsExpired,
             uaBrowser: mergedInfo.uaBrowser,
             uaBrowserVersion: mergedInfo.uaBrowserVersion,
             uaOS: mergedInfo.uaOS,
@@ -567,7 +568,10 @@ module.exports = (
         )
       })
       .then(
-        () => deviceInfo,
+        () => {
+          deviceInfo.pushEndpointExpired = false
+          return deviceInfo
+        },
         err => {
           if (isRecordAlreadyExistsError(err)) {
             return this.devices(uid)
@@ -614,7 +618,8 @@ module.exports = (
         type: deviceInfo.type,
         callbackURL: deviceInfo.pushCallback,
         callbackPublicKey: deviceInfo.pushPublicKey,
-        callbackAuthKey: deviceInfo.pushAuthKey
+        callbackAuthKey: deviceInfo.pushAuthKey,
+        callbackIsExpired: deviceInfo.pushEndpointExpired
       }
     )
     .then(

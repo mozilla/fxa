@@ -62,7 +62,8 @@ module.exports = (log, db, config, customs, push, devices) => {
             type: DEVICES_SCHEMA.type.optional(),
             pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
             pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
-            pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional()
+            pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
+            pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional()
           }).and('pushPublicKey', 'pushAuthKey')
         }
       },
@@ -93,9 +94,17 @@ module.exports = (log, db, config, customs, push, devices) => {
           payload.id = sessionToken.deviceId
         }
 
-        if (payload.pushCallback && (! payload.pushPublicKey || ! payload.pushAuthKey)) {
-          payload.pushPublicKey = ''
-          payload.pushAuthKey = ''
+        const pushEndpointOk = ! payload.id || // New device.
+                               (payload.id && payload.pushCallback &&
+                                payload.pushCallback !== sessionToken.deviceCallbackURL) // Updating the pushCallback
+        if (pushEndpointOk) {
+          payload.pushEndpointExpired = false
+        }
+        if (payload.pushCallback) {
+          if (! payload.pushPublicKey || ! payload.pushAuthKey) {
+            payload.pushPublicKey = ''
+            payload.pushAuthKey = ''
+          }
         }
 
         devices.upsert(request, sessionToken, payload)
@@ -256,7 +265,8 @@ module.exports = (log, db, config, customs, push, devices) => {
             type: DEVICES_SCHEMA.type.required(),
             pushCallback: DEVICES_SCHEMA.pushCallback.allow(null).optional(),
             pushPublicKey: DEVICES_SCHEMA.pushPublicKey.allow(null).optional(),
-            pushAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).optional()
+            pushAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).optional(),
+            pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional()
           }).and('pushPublicKey', 'pushAuthKey'))
         }
       },
@@ -281,7 +291,8 @@ module.exports = (log, db, config, customs, push, devices) => {
                 type: device.type || device.uaDeviceType || 'desktop',
                 pushCallback: device.pushCallback,
                 pushPublicKey: device.pushPublicKey,
-                pushAuthKey: device.pushAuthKey
+                pushAuthKey: device.pushAuthKey,
+                pushEndpointExpired: device.pushEndpointExpired
               }
             }))
           },
@@ -315,6 +326,7 @@ module.exports = (log, db, config, customs, push, devices) => {
             deviceCallbackURL: DEVICES_SCHEMA.pushCallback.allow(null).required(),
             deviceCallbackPublicKey: DEVICES_SCHEMA.pushPublicKey.allow(null).required(),
             deviceCallbackAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).required(),
+            deviceCallbackIsExpired: DEVICES_SCHEMA.pushEndpointExpired.allow(null).required(),
             isDevice: isA.boolean().required(),
             isCurrentDevice: isA.boolean().required()
           }))
@@ -353,6 +365,7 @@ module.exports = (log, db, config, customs, push, devices) => {
                 deviceCallbackURL: session.deviceCallbackURL,
                 deviceCallbackPublicKey: session.deviceCallbackPublicKey,
                 deviceCallbackAuthKey: session.deviceCallbackAuthKey,
+                deviceCallbackIsExpired: session.deviceCallbackIsExpired,
                 id: session.tokenId,
                 isCurrentDevice: session.tokenId === sessionToken.tokenId,
                 isDevice,

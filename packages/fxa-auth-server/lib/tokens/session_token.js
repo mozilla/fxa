@@ -73,6 +73,7 @@ module.exports = (log, Token, config) => {
       this.callbackURL = data.callbackURL
       this.callbackPublicKey = data.callbackPublicKey
       this.callbackAuthKey = data.callbackAuthKey
+      this.callbackIsExpired = data.callbackIsExpired
     }
   }
 

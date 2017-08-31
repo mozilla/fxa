@@ -342,6 +342,7 @@ those common validations are defined here.
     * `pushCallback`: isA.string.uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')
     * `pushPublicKey`: isA.string.max(88).regex(URL_SAFE_BASE_64).allow('')
     * `pushAuthKey`: isA.string.max(24).regex(URL_SAFE_BASE_64).allow('')
+    * `pushEndpointExpired`: isA.boolean
 
   }
 
@@ -905,6 +906,9 @@ without the pair `{ pushPublicKey, pushAuthKey }`,
 both of those keys will be reset
 to the empty string.
 
+`pushEndpointExpired` will be reset to false on update if the tuple
+`{ pushCallback, pushPublicKey, pushAuthKey }` is specified.
+
 Devices should register with this endpoint
 before attempting to obtain a signed certificate
 and perform their first sync,
@@ -993,6 +997,12 @@ can be made available to other connected devices.
   <!--begin-response-body-post-accountdevice-pushAuthKey-->
   
   <!--end-response-body-post-accountdevice-pushAuthKey-->
+
+* `pushEndpointExpired`: *boolean, required*
+
+  <!--begin-response-body-post-accountdevice-pushEndpointExpired-->
+  
+  <!--end-response-body-post-accountdevice-pushEndpointExpired-->
 
 ##### Error responses
 
@@ -1131,6 +1141,12 @@ for the authenticated user.
   
   <!--end-response-body-get-accountdevices-pushAuthKey-->
 
+* `pushEndpointExpired`: *boolean, required*
+
+  <!--begin-response-body-get-accountdevices-pushEndpointExpired-->
+  
+  <!--end-response-body-get-accountdevices-pushEndpointExpired-->
+
 
 #### GET /account/sessions
 
@@ -1226,6 +1242,12 @@ for the authenticated user.
   <!--begin-response-body-get-accountsessions-deviceCallbackAuthKey-->
   
   <!--end-response-body-get-accountsessions-deviceCallbackAuthKey-->
+
+* `deviceCallbackIsExpired`: *boolean, required*
+
+  <!--begin-response-body-get-accountsessions-deviceCallbackIsExpired-->
+  
+  <!--end-response-body-get-accountsessions-deviceCallbackIsExpired-->
 
 * `isDevice`: *boolean, required*
 

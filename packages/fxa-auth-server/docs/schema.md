@@ -96,4 +96,5 @@
 * pushCallback
 * pushPublicKey
 * pushAuthKey
+* pushEndpointExpired
 

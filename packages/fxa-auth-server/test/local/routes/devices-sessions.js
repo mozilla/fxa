@@ -71,6 +71,7 @@ describe('/account/device', function () {
     credentials: {
       deviceCallbackPublicKey: '',
       deviceCallbackURL: '',
+      deviceCallbackIsExpired: false,
       deviceId: deviceId,
       deviceName: 'my awesome device',
       deviceType: 'desktop',
@@ -146,6 +147,60 @@ describe('/account/device', function () {
         assert.equal(err.output.statusCode, 503, 'correct status code is returned')
         assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
       })
+  })
+
+  it('removes the push endpoint expired flag on callback URL update', function () {
+    var mockDevices = mocks.mockDevices()
+    var route = getRoute(makeRoutes({devices: mockDevices}), '/account/device')
+
+    var mockRequest = mocks.mockRequest({
+      credentials: {
+        deviceCallbackPublicKey: '',
+        deviceCallbackURL: 'https://updates.push.services.mozilla.com/update/50973923bc3e4507a0aa4e285513194a',
+        deviceCallbackIsExpired: true,
+        deviceId: deviceId,
+        deviceName: 'my awesome device',
+        deviceType: 'desktop',
+        tokenId: crypto.randomBytes(16).toString('hex'),
+        uid: uid
+      },
+      payload: {
+        id: deviceId.toString('hex'),
+        pushCallback: 'https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75'
+      }
+    })
+
+    return runTest(route, mockRequest, function (response) {
+      assert.equal(mockDevices.upsert.callCount, 1, 'mockDevices.upsert was called')
+      assert.equal(mockDevices.upsert.args[0][2].pushEndpointExpired, false, 'pushEndpointExpired is updated to false')
+    })
+  })
+
+  it('should not remove the push endpoint expired flag on any other property update', function () {
+    var mockDevices = mocks.mockDevices()
+    var route = getRoute(makeRoutes({devices: mockDevices}), '/account/device')
+
+    var mockRequest = mocks.mockRequest({
+      credentials: {
+        deviceCallbackPublicKey: '',
+        deviceCallbackURL: 'https://updates.push.services.mozilla.com/update/50973923bc3e4507a0aa4e285513194a',
+        deviceCallbackIsExpired: true,
+        deviceId: deviceId,
+        deviceName: 'my awesome device',
+        deviceType: 'desktop',
+        tokenId: crypto.randomBytes(16).toString('hex'),
+        uid: uid
+      },
+      payload: {
+        id: deviceId.toString('hex'),
+        name: 'beep beep'
+      }
+    })
+
+    return runTest(route, mockRequest, function (response) {
+      assert.equal(mockDevices.upsert.callCount, 1, 'mockDevices.upsert was called')
+      assert.equal(mockDevices.upsert.args[0][2].pushEndpointExpired, undefined, 'pushEndpointExpired is not updated')
+    })
   })
 })
 
@@ -498,7 +553,8 @@ describe('/account/devices', function () {
         isCurrentDevice: true,
         lastAccessTime: 0,
         name: 'test',
-        type: 'test'
+        type: 'test',
+        pushEndpointExpired: false
       }
     ]
     isA.assert(res, route.config.response.schema)
@@ -515,6 +571,7 @@ describe('/account/sessions', () => {
       uaBrowser: 'Firefox', uaBrowserVersion: '50', uaOS: 'Windows', uaOSVersion: '10',
       uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
+      deviceCallbackIsExpired: false,
       location: { country: 'Canada', state: 'ON' }
     },
     {
@@ -522,6 +579,7 @@ describe('/account/sessions', () => {
       uaBrowser: 'Nightly', uaBrowserVersion: null, uaOS: 'Android', uaOSVersion: '6',
       uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[5],
       deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null,
+      deviceCallbackIsExpired: false,
       location: { country: 'England', state: 'AB' }
     },
     {
@@ -529,6 +587,7 @@ describe('/account/sessions', () => {
       uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
       uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
+      deviceCallbackIsExpired: false,
       location: null
     }
   ]
@@ -556,6 +615,7 @@ describe('/account/sessions', () => {
           deviceCallbackURL: 'callback',
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',
+          deviceCallbackIsExpired: false,
           id: 'foo',
           isCurrentDevice: true,
           isDevice: false,
@@ -574,6 +634,7 @@ describe('/account/sessions', () => {
           deviceCallbackURL: null,
           deviceCallbackPublicKey: null,
           deviceCallbackAuthKey: null,
+          deviceCallbackIsExpired: false,
           id: 'bar',
           isCurrentDevice: false,
           isDevice: true,
@@ -592,6 +653,7 @@ describe('/account/sessions', () => {
           deviceCallbackURL: 'callback',
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',
+          deviceCallbackIsExpired: false,
           id: 'baz',
           isCurrentDevice: false,
           isDevice: true,

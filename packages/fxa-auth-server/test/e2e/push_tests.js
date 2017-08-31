@@ -39,7 +39,8 @@ describe('e2e/push', () => {
                 'type': 'mobile',
                 'pushCallback': subscription.endpoint,
                 'pushPublicKey': 'BBXOKjUb84pzws1wionFpfCBjDuCh4-s_1b52WA46K5wYL2gCWEOmFKWn_NkS5nmJwTBuO8qxxdjAIDtNeklvQc',
-                'pushAuthKey': 'GSsIiaD2Mr83iPqwFNK4rw'
+                'pushAuthKey': 'GSsIiaD2Mr83iPqwFNK4rw',
+                'pushEndpointExpired': false
               }
             ])
           },

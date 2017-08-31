@@ -446,6 +446,7 @@
   * pushCallback
   * pushPublicKey
   * pushAuthKey
+  * pushEndpointExpired
 * db-write
   * Devices
 
@@ -460,6 +461,7 @@
     * pushCallback
     * pushPublicKey
     * pushAuthKey
+    * pushEndpointExpired
 
 ## /account/device
 

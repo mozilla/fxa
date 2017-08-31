@@ -60,6 +60,7 @@ describe('remote device', function() {
                   assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
                   assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
                   assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+                  assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
                 }
               )
               .then(
@@ -75,6 +76,7 @@ describe('remote device', function() {
                   assert.equal(devices[0].pushCallback, '', 'devices returned empty pushCallback')
                   assert.equal(devices[0].pushPublicKey, '', 'devices returned correct pushPublicKey')
                   assert.equal(devices[0].pushAuthKey, '', 'devices returned correct pushAuthKey')
+                  assert.equal(devices[0].pushEndpointExpired, '', 'devices returned correct pushEndpointExpired')
                   return client.destroyDevice(devices[0].id)
                 }
               )
@@ -111,6 +113,7 @@ describe('remote device', function() {
                   assert.equal(device.pushCallback, undefined, 'device.pushCallback is undefined')
                   assert.equal(device.pushPublicKey, undefined, 'device.pushPublicKey is undefined')
                   assert.equal(device.pushAuthKey, undefined, 'device.pushAuthKey is undefined')
+                  assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is false')
                 }
               )
               .then(
@@ -126,6 +129,7 @@ describe('remote device', function() {
                   assert.equal(devices[0].pushCallback, null, 'devices returned undefined pushCallback')
                   assert.equal(devices[0].pushPublicKey, null, 'devices returned undefined pushPublicKey')
                   assert.equal(devices[0].pushAuthKey, null, 'devices returned undefined pushAuthKey')
+                  assert.equal(devices[0].pushEndpointExpired, false, 'devices returned false pushEndpointExpired')
                   return client.destroyDevice(devices[0].id)
                 }
               )
@@ -494,6 +498,7 @@ describe('remote device', function() {
                 assert.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')
                 assert.equal(devices[0].pushPublicKey, deviceInfo.pushPublicKey, 'devices returned correct pushPublicKey')
                 assert.equal(devices[0].pushAuthKey, deviceInfo.pushAuthKey, 'devices returned correct pushAuthKey')
+                assert.equal(devices[0].pushEndpointExpired, false, 'devices returned correct pushEndpointExpired')
                 return client.updateDevice({
                   id: client.device.id,
                   pushCallback: 'https://updates.push.services.mozilla.com/foo'
@@ -510,6 +515,7 @@ describe('remote device', function() {
                 assert.equal(devices[0].pushCallback, 'https://updates.push.services.mozilla.com/foo', 'devices returned correct pushCallback')
                 assert.equal(devices[0].pushPublicKey, '', 'devices returned newly empty pushPublicKey')
                 assert.equal(devices[0].pushAuthKey, '', 'devices returned newly empty pushAuthKey')
+                assert.equal(devices[0].pushEndpointExpired, false, 'devices returned false pushEndpointExpired')
               }
             )
         }

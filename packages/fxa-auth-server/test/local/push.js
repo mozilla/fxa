@@ -38,7 +38,8 @@ var mockDevices = [
     'type': 'mobile',
     'pushCallback': 'https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef',
     'pushPublicKey': mocks.MOCK_PUSH_KEY,
-    'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong=='
+    'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong==',
+    'pushEndpointExpired': false
   },
   {
     'id': '3a45e6d0dae543qqdKyqjuvAiEupsnOd',
@@ -48,7 +49,8 @@ var mockDevices = [
     'type': null,
     'pushCallback': 'https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75',
     'pushPublicKey': mocks.MOCK_PUSH_KEY,
-    'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong=='
+    'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong==',
+    'pushEndpointExpired': false
   },
   {
     'id': '50973923bc3e4507a0aa4e285513194a',
@@ -59,7 +61,8 @@ var mockDevices = [
     'uaOS': 'iOS',
     'pushCallback': 'https://updates.push.services.mozilla.com/update/50973923bc3e4507a0aa4e285513194a',
     'pushPublicKey': mocks.MOCK_PUSH_KEY,
-    'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong=='
+    'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong==',
+    'pushEndpointExpired': false
   }
 ]
 
@@ -329,7 +332,8 @@ describe('push', () => {
         'id': 'foo',
         'name': 'My Phone',
         'pushCallback': 'https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef',
-        'pushAuthKey': 'bogus'
+        'pushAuthKey': 'bogus',
+        'pushEndpointExpired': false
       }]
 
       var push = require(pushModulePath)(thisMockLog, mockDbResult, mockConfig)

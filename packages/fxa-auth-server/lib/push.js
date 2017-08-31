@@ -444,7 +444,7 @@ module.exports = function (log, db, config) {
           pushCallback: device.pushCallback
         })
 
-        if (device.pushCallback) {
+        if (device.pushCallback && ! device.pushEndpointExpired) {
           // send the push notification
           incrementPushAction(events.send)
           var pushSubscription = { endpoint: device.pushCallback }
@@ -484,11 +484,9 @@ module.exports = function (log, db, config) {
               // the push settings need to be reset.
               // the clients will check this and re-register push endpoints
               if (err.statusCode === 404 || err.statusCode === 410 || keyWasInvalid) {
-                // reset device push configuration
+                // set the push endpoint expired flag
                 // Warning: this method is called without any session tokens or auth validation.
-                device.pushCallback = ''
-                device.pushPublicKey = ''
-                device.pushAuthKey = ''
+                device.pushEndpointExpired = true
                 return db.updateDevice(uid, null, device).catch(function (err) {
                   reportPushError(err, uid, deviceId)
                 }).then(function() {

@@ -174,7 +174,7 @@ describe('remote db', function() {
         })
         .then(sessions => {
           assert.equal(sessions.length, 1, 'sessions contains one item')
-          assert.equal(Object.keys(sessions[0]).length, 17, 'session has correct number of properties')
+          assert.equal(Object.keys(sessions[0]).length, 18, 'session has correct number of properties')
           assert.equal(typeof sessions[0].tokenId, 'string', 'tokenId property is not a buffer')
           assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
           assert.ok(sessions[0].createdAt >= account.createdAt, 'createdAt property seems correct')
@@ -421,6 +421,7 @@ describe('remote db', function() {
             assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
             assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
             assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+            assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
             // Fetch the session token
             return db.sessionToken(sessionToken.tokenId)
           })
@@ -451,6 +452,7 @@ describe('remote db', function() {
             assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
             assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
             assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+            assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
             assert.equal(device.uaBrowser, 'Firefox Mobile', 'device.uaBrowser is correct')
             assert.equal(device.uaBrowserVersion, '41', 'device.uaBrowserVersion is correct')
             assert.equal(device.uaOS, 'Android', 'device.uaOS is correct')
@@ -520,6 +522,7 @@ describe('remote db', function() {
             assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
             assert.equal(device.pushPublicKey, '', 'device.pushPublicKey is correct')
             assert.equal(device.pushAuthKey, '', 'device.pushAuthKey is correct')
+            assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
             assert.equal(device.uaBrowser, 'Firefox', 'device.uaBrowser is correct')
             assert.equal(device.uaBrowserVersion, '44', 'device.uaBrowserVersion is correct')
             assert.equal(device.uaOS, 'Mac OS X', 'device.uaOS is correct')

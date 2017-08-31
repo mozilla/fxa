@@ -73,7 +73,8 @@ describe('remote push db', function() {
         type: 'mobile',
         pushCallback: 'https://foo/bar',
         pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
-        pushAuthKey: base64url(crypto.randomBytes(16))
+        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushEndpointExpired: false
       }
       // two tests below, first for unknown 400 level error the device push info will stay the same
       // second, for a known 400 error we reset the device
@@ -132,6 +133,7 @@ describe('remote push db', function() {
             assert.equal(device.pushCallback, deviceInfo.pushCallback)
             assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
             assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+            assert.equal(device.pushEndpointExpired, deviceInfo.pushEndpointExpired, 'device.pushEndpointExpired is correct')
           })
 
           .then(function () {
@@ -144,9 +146,7 @@ describe('remote push db', function() {
           .then(function (devices) {
             var device = devices[0]
             assert.equal(device.name, deviceInfo.name)
-            assert.equal(device.pushCallback, '')
-            assert.equal(device.pushPublicKey, '', 'device.pushPublicKey is correct')
-            assert.equal(device.pushAuthKey, '', 'device.pushAuthKey is correct')
+            assert.equal(device.pushEndpointExpired, true, 'device.pushEndpointExpired is correct')
           })
     }
   )
