@@ -158,7 +158,6 @@ define(function (require, exports, module) {
         };
         return view.render()
             .then(function () {
-              $('#container').html(view.el);
               assert.equal(view.titleFromView(), 'Main title: Sub title');
             });
       });
@@ -366,28 +365,6 @@ define(function (require, exports, module) {
         assert.equal(view.$('.error').text(), 'error message');
       });
 
-      it('adds `centered` class to `.links` if any child has width >= half of `.links` width', function () {
-        var link1 = '<a href="/reset_password" class="left reset-password">Forgot password?</a>';
-        var link2 = '<a href="/signup" class="right sign-up">Create an account with really really looooooooooooooong text</a>';
-        $('#container').html(view.el);
-        $('.links').html(link1 + link2);
-        // force the width to be 50%
-        $('.links > .right').css({'display': 'inline-block', 'width': '50%'});
-        view.afterVisible();
-        assert.isTrue($('.links').hasClass('centered'));
-      });
-
-      it('does not add `centered` class to `.links` if all children have width < half of `.links` width', function () {
-        var link1 = '<a href="/reset_password" class="left reset-password">Forgot password?</a>';
-        var link2 = '<a href="/signup" class="right sign-up">Create an account</a>';
-        $('#container').html(view.el);
-        $('.links').html(link1 + link2);
-        // force the widths of all children to be less than 50%
-        $('.links').children().css({'display': 'inline-block', 'width': '49%'});
-        view.afterVisible();
-        assert.isFalse($('.links').hasClass('centered'));
-      });
-
       it('focuses descendent element containing `autofocus` if html has `no-touch` class', function (done) {
         requiresFocus(function () {
           $('#container').html(view.el);
@@ -418,6 +395,38 @@ define(function (require, exports, module) {
 
           view.afterVisible();
         }, done);
+      });
+    });
+
+    describe('stackWideLinks', () => {
+      beforeEach(() => {
+        $('#container').html(view.el);
+      });
+
+      it('adds `centered` class to `.links` if any child has width >= half of `.links` width', () => {
+        const link1 = '<a href="/reset_password" class="left reset-password">Forgot password?</a>';
+        const link2 = '<a href="/signup" class="right sign-up">Create an account with really really looooooooooooooong text</a>';
+        $('.links:nth(0)').html(link1 + link2);
+        // force the width to be 50%
+        $('.links:nth(0) > .right').css({'display': 'inline-block', 'width': '50%'});
+        view.stackWideLinks();
+        assert.isTrue($('.links:nth(0)').hasClass('centered'));
+        // only affects the links with the wide elements
+        assert.isFalse($('.links:nth(1)').hasClass('centered'));
+
+        assert.lengthOf($('.links:nth(0) > .left'), 0);
+        assert.lengthOf($('.links:nth(0) > .right'), 0);
+      });
+
+      it('does not add `centered` class to `.links` if all children have width < half of `.links` width', () => {
+        var link1 = '<a href="/reset_password" class="left reset-password">Forgot password?</a>';
+        var link2 = '<a href="/signup" class="right sign-up">Create an account</a>';
+        $('.links:nth(0)').html(link1 + link2);
+        // force the widths of all children to be less than 50%
+        $('.links:nth(0)').children().css({'display': 'inline-block', 'width': '49%'});
+        view.stackWideLinks();
+        assert.isFalse($('.links:nth(0)').hasClass('centered'));
+        assert.isFalse($('.links:nth(1)').hasClass('centered'));
       });
     });
 

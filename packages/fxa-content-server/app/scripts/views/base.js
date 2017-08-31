@@ -478,31 +478,43 @@ define(function (require, exports, module) {
       // jQuery 3.x requires the view to be visible
       // before animating the status messages.
       this.displayStatusMessages();
+      this.stackWideLinks();
+      this.focusAutofocusElement();
 
-      // restyle side-by-side links to stack if they are too long
-      // to fit on one line
-      var linkContainer = this.$el.find('.links');
-      if (linkContainer.length > 0) {
-        // takes care of odd number widths
-        var halfContainerWidth = Math.floor(linkContainer.width() / 2);
-        var shouldResetLinkSize = false;
+      return p();
+    },
 
-        linkContainer.children('a').each(function (i, item) {
-          var linkWidth = linkContainer.find(item).width();
-          // if any link is equal to or more than half its parent's width,
-          // make *all* links in the same parent to be stacked
-          if (linkWidth >= halfContainerWidth) {
-            shouldResetLinkSize = true;
-          }
+
+    /**
+     * Stack side-by-side links if they are too long to fit on one line
+     */
+    stackWideLinks () {
+      const $links = this.$('.links');
+      $links.each((index, linkContainer) => {
+        const $linkContainer = this.$(linkContainer);
+        const $links = $linkContainer.children('a');
+        // Math.floor takes care of odd number widths
+        const maxLinkWidthWithoutStacking = Math.floor($linkContainer.width() / $links.length);
+
+        // if any link is equal to or more than half its parent's width,
+        // make *all* links in the same parent to be stacked
+        const $tooWideLinks = $links.filter((i, item) => {
+          const $item = this.$(item);
+          // disable wrapping and width constraints to get the natural width of the element
+          $item.css('max-width', '100%');
+          $item.css('white-space', 'nowrap');
+          const isTooWide = $item.outerWidth() >= maxLinkWidthWithoutStacking;
+          // re-enable wrapping
+          $item.css('white-space', '');
+          $item.css('max-width', '');
+          return isTooWide;
         });
 
-        if (shouldResetLinkSize === true) {
-          linkContainer.addClass('centered');
+        if ($tooWideLinks.length) {
+          $linkContainer.addClass('centered');
+          $links.removeClass('left').removeClass('right');
         }
-      }
-
-      this.focusAutofocusElement();
-      return p();
+      });
     },
 
     destroy (remove) {
