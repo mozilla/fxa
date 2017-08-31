@@ -46,8 +46,8 @@ module.exports = {
       name: payload.name,
       redirectUri: payload.redirect_uri,
       imageUri: payload.image_uri || '',
-      canGrant: !!payload.can_grant,
-      trusted: !!payload.trusted
+      canGrant: !! payload.can_grant,
+      trusted: !! payload.trusted
     };
     var developerEmail = req.auth.credentials.email;
     var developerId = null;

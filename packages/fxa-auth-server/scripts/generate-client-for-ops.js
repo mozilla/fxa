@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 if (process.argv.length !== 4) {
-  console.error(`Usage: node generate-client-for-ops.js "client-name" "client-redirect-url"`);
+  console.error('Usage: node generate-client-for-ops.js "client-name" "client-redirect-url"');
   process.exit(1);
 }
 

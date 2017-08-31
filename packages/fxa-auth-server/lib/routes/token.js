@@ -228,7 +228,7 @@ function pkceHash(input) {
 }
 
 function validPublicClient(client) {
-  if (!client.publicClient) {
+  if (! client.publicClient) {
     logger.debug('client.notPublicClient', { id: client.id });
     throw AppError.notPublicClient(client.id);
   }
@@ -249,7 +249,7 @@ function getClientById(clientId) {
 
 function confirmPkceCode(code, pkceVerifier) {
   return db.getCode(buf(code)).then(function(codeObj) {
-    if (!codeObj) {
+    if (! codeObj) {
       logger.debug('code.notFound', { code: code });
       throw AppError.unknownCode(code);
     }
@@ -299,7 +299,7 @@ function confirmClientSecret(client, secret) {
 
 function confirmCode(id, code) {
   return db.getCode(buf(code)).then(function(codeObj) {
-    if (!codeObj) {
+    if (! codeObj) {
       logger.debug('code.notFound', { code: code });
       throw AppError.unknownCode(code);
     } else if (hex(codeObj.clientId) !== hex(id)) {
@@ -325,7 +325,7 @@ function confirmCode(id, code) {
 function confirmRefreshToken(params) {
   return db.getRefreshToken(encrypt.hash(params.refresh_token))
   .then(function(tokObj) {
-    if (!tokObj) {
+    if (! tokObj) {
       logger.debug('refresh_token.notFound', params.refresh_token);
       throw AppError.invalidToken();
     } else if (hex(tokObj.clientId) !== hex(params.client_id)) {
@@ -334,7 +334,7 @@ function confirmRefreshToken(params) {
         code: tokObj.clientId
       });
       throw AppError.invalidToken();
-    } else if (!Scope(tokObj.scope).has(params.scope)) {
+    } else if (! Scope(tokObj.scope).has(params.scope)) {
       logger.debug('refresh_token.invalidScopes', {
         allowed: tokObj.scope,
         requested: params.scope
@@ -380,7 +380,7 @@ function confirmJwt(params) {
       throw AppError.invalidAssertion();
     }
 
-    if (!Scope(client.scope).has(payload.scope)) {
+    if (! Scope(client.scope).has(payload.scope)) {
       logger.debug('jwt.invalid.scopes', {
         allowed: client.scope,
         requested: payload.scope
@@ -412,11 +412,11 @@ function confirmJwt(params) {
 }
 
 function _validateJwtSub(sub) {
-  if (!sub) {
+  if (! sub) {
     logger.debug('jwt.invalid.sub.missing');
     throw AppError.invalidAssertion();
   }
-  if (sub.length !== 32 || !HEX_STRING.test(sub)) {
+  if (sub.length !== 32 || ! HEX_STRING.test(sub)) {
     logger.debug('jwt.invalid.sub', sub);
     throw AppError.invalidAssertion();
   }

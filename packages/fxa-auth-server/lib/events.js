@@ -11,7 +11,7 @@ const HEX_STRING = require('./validators').HEX_STRING;
 
 var fxaEvents;
 
-if (!config.events.region || !config.events.queueUrl) {
+if (! config.events.region || ! config.events.queueUrl) {
   fxaEvents = {
     start: function start() {
       if (env.isProdLike()) {
@@ -28,7 +28,7 @@ if (!config.events.region || !config.events.queueUrl) {
     logger.verbose('data', message);
     if (message.event === 'delete') {
       var userId = message.uid.split('@')[0];
-      if (!HEX_STRING.test(userId)) {
+      if (! HEX_STRING.test(userId)) {
         message.del();
         return logger.warn('badDelete', { userId: userId });
       }

@@ -36,7 +36,7 @@ module.exports = {
     if (! err) {
       delete req.query.action;
 
-      if (req.query.login_hint && !req.query.email) {
+      if (req.query.login_hint && ! req.query.email) {
         req.query.email = req.query.login_hint;
         delete req.query.login_hint;
       }

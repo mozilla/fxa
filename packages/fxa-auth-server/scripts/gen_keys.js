@@ -30,7 +30,7 @@ const oldKeyPath = './config/oldKey.json';
 
 try {
   var keysExist = fs.existsSync(keyPath) && fs.existsSync(oldKeyPath);
-  assert(!keysExist, 'keys already exists');
+  assert(! keysExist, 'keys already exists');
 } catch (e) {
   process.exit();
 }

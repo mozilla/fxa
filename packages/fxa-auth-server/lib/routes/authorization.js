@@ -190,7 +190,7 @@ module.exports = {
     P.all([
       verify(req.payload.assertion).then(function(claims) {
         logger.info('time.browserid_verify', { ms: Date.now() - start });
-        if (!claims) {
+        if (! claims) {
           exitEarly = true;
           throw AppError.invalidAssertion();
         }
@@ -202,10 +202,10 @@ module.exports = {
           // assertion was invalid, we can just stop here
           return;
         }
-        if (!client) {
+        if (! client) {
           logger.debug('notFound', { id: req.payload.client_id });
           throw AppError.unknownClient(req.payload.client_id);
-        } else if (!client.trusted) {
+        } else if (! client.trusted) {
           var invalidScopes = detectInvalidScopes(scope.values(),
                                 UNTRUSTED_CLIENT_ALLOWED_SCOPES);
 
@@ -243,7 +243,7 @@ module.exports = {
 
         }
 
-        if (wantsGrant && !client.canGrant) {
+        if (wantsGrant && ! client.canGrant) {
           logger.warn('implicitGrant.notAllowed', {
             id: req.payload.client_id
           });

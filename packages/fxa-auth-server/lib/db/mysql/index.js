@@ -239,9 +239,9 @@ MysqlStore.prototype = {
       buf(client.hashedSecret),
       client.hashedSecretPrevious ? buf(client.hashedSecretPrevious) : null,
       client.redirectUri,
-      !!client.trusted,
-      !!client.canGrant,
-      !!client.publicClient
+      !! client.trusted,
+      !! client.canGrant,
+      !! client.publicClient
     ]).then(function() {
       logger.debug('registerClient.success', { id: hex(id) });
       client.id = id;
@@ -249,7 +249,7 @@ MysqlStore.prototype = {
     });
   },
   registerClientDeveloper: function regClientDeveloper(developerId, clientId) {
-    if (!developerId || !clientId) {
+    if (! developerId || ! clientId) {
       var err = new Error('Owner registration requires user and developer id');
       return P.reject(err);
     }
@@ -319,7 +319,7 @@ MysqlStore.prototype = {
     });
   },
   updateClient: function updateClient(client) {
-    if (!client.id) {
+    if (! client.id) {
       return P.reject(new Error('Update client needs an id'));
     }
     var secret = client.hashedSecret;
@@ -364,7 +364,7 @@ MysqlStore.prototype = {
       codeObj.email,
       codeObj.scope.join(' '),
       codeObj.authAt,
-      !!codeObj.offline,
+      !! codeObj.offline,
       hash,
       codeObj.codeChallengeMethod,
       codeObj.codeChallenge
@@ -650,7 +650,7 @@ MysqlStore.prototype = {
               needToSetMode = true;
             }
           });
-          if (!needToSetMode) {
+          if (! needToSetMode) {
             conn._fxa_initialized = true;
             return resolve(conn);
           }

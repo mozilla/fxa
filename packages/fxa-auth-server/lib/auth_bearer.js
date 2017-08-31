@@ -21,12 +21,12 @@ exports.strategy = function() {
       var auth = req.headers.authorization;
 
       logger.debug(authName + '.check', { header: auth });
-      if (!auth || auth.indexOf('Bearer ') !== 0) {
+      if (! auth || auth.indexOf('Bearer ') !== 0) {
         return reply(AppError.unauthorized('Bearer token not provided'));
       }
       var tok = auth.split(' ')[1];
 
-      if (!validators.HEX_STRING.test(tok)) {
+      if (! validators.HEX_STRING.test(tok)) {
         return reply(AppError.unauthorized('Illegal Bearer token'));
       }
 

@@ -34,7 +34,7 @@ module.exports = {
     }
 
     db[getToken](token).then(function(tok) {
-      if (!tok) {
+      if (! tok) {
         throw AppError.invalidToken();
       }
       return db[removeToken](token);

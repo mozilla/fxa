@@ -36,14 +36,14 @@ describe('Scope', function() {
       var s1 = Scope('foo bar');
       assert(s1.has('foo'));
       assert(s1.has('bar'));
-      assert(!s1.has('baz'));
+      assert(! s1.has('baz'));
     });
 
     it('should work with another Scope object', function() {
       var s1 = Scope('foo bar');
       var s2 = Scope('bar');
       assert(s1.has(s2));
-      assert(!s2.has(s1));
+      assert(! s2.has(s1));
     });
 
     it('should allow sub-scopes', function() {
@@ -51,23 +51,23 @@ describe('Scope', function() {
       assert(s1.has('foo:dee'));
       assert(s1.has('bar:baz'));
       assert(s1.has('foo:mah:pa bar:baz:quux'));
-      assert(!s1.has('bar'));
+      assert(! s1.has('bar'));
 
-      assert(!s1.has('foo:write'));
-      assert(!s1.has('foo:dee:write'));
+      assert(! s1.has('foo:write'));
+      assert(! s1.has('foo:dee:write'));
 
       var s2 = Scope('foo bar baz:quux:write');
       assert(s2.has('foo bar baz:quux'));
 
-      assert(!s2.has('baz:write'));
-      assert(!s2.has('foo bar baz'));
+      assert(! s2.has('baz:write'));
+      assert(! s2.has('foo bar baz'));
 
       var s3 = Scope('foo:write');
       assert(s3.has('foo:bar'));
       assert(s3.has('foo:bar:write'));
 
-      assert(!s3.has('foo::write'));
-      assert(!s3.has('foo:write:::'));
+      assert(! s3.has('foo::write'));
+      assert(! s3.has('foo:write:::'));
 
     });
 

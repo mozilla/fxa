@@ -65,7 +65,7 @@ module.exports = function verifyAssertion(assertion) {
       d.reject(AppError.invalidAssertion());
     }
 
-    if (!body || body.status !== 'okay') {
+    if (! body || body.status !== 'okay') {
       return error('non-okay response', body);
     }
     var email = body.email;
@@ -84,7 +84,7 @@ module.exports = function verifyAssertion(assertion) {
     }
 
     var claims = body.idpClaims;
-    if (!claims || !claims['fxa-verifiedEmail']) {
+    if (! claims || ! claims['fxa-verifiedEmail']) {
       return error('incorrect idpClaims', claims);
     }
 

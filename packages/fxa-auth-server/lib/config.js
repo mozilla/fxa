@@ -383,7 +383,7 @@ if (Object.keys(oldKey).length) {
     'openid.key.kid must differ from oldKey');
   assert(oldKey.n, 'openid.oldKey.n is required');
   assert(oldKey.e, 'openid.oldKey.e is required');
-  assert(!oldKey.d, 'openid.oldKey.d is forbidden');
+  assert(! oldKey.d, 'openid.oldKey.d is forbidden');
 }
 
 module.exports = conf;

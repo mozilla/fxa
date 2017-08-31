@@ -1130,7 +1130,7 @@ describe('/v1', function() {
               assertSecurityHeaders(res);
               assert.equal(res.result.token_type, 'bearer');
               assert(res.result.access_token);
-              assert(!res.result.refresh_token);
+              assert(! res.result.refresh_token);
               assert.equal(res.result.access_token.length,
                 config.get('unique.token') * 2);
               assert.equal(res.result.scope, 'foo bar');
@@ -2398,7 +2398,7 @@ describe('/v1', function() {
         var key = res.result.keys[0];
         assert(key.n);
         assert(key.e);
-        assert(!key.d);
+        assert(! key.d);
       });
     });
 
@@ -2411,7 +2411,7 @@ describe('/v1', function() {
 
         var keys = res.result.keys;
         assert.equal(keys.length, 2);
-        assert(!keys[1].d);
+        assert(! keys[1].d);
         assert.notEqual(keys[0].kid, keys[1].kid);
       });
     });

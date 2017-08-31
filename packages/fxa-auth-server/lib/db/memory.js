@@ -80,7 +80,7 @@ const MAX_TTL = config.get('expiration.accessToken');
  * }
  */
 function MemoryStore() {
-  if (!(this instanceof MemoryStore)) {
+  if (! (this instanceof MemoryStore)) {
     return new MemoryStore();
   }
   this.clients = {};
@@ -96,7 +96,7 @@ MemoryStore.connect = function memoryConnect() {
 };
 
 function clone(obj) {
-  if (!obj) {
+  if (! obj) {
     return obj;
   }
   var clone = {};
@@ -131,19 +131,19 @@ MemoryStore.prototype = {
     client.createdAt = new Date();
     client.imageUri = client.imageUri || '';
     client.redirectUri = client.redirectUri || '';
-    client.canGrant = !!client.canGrant;
-    client.trusted = !!client.trusted;
+    client.canGrant = !! client.canGrant;
+    client.trusted = !! client.trusted;
     this.clients[hex] = client;
     client.hashedSecret = client.hashedSecret;
     client.hashedSecretPrevious = client.hashedSecretPrevious || '';
     return P.resolve(client);
   },
   updateClient: function updateClient(client) {
-    if (!client.id) {
+    if (! client.id) {
       return P.reject(new Error('Update client needs an id'));
     }
     var hex = unbuf(client.id);
-    if (!this.clients[hex]) {
+    if (! this.clients[hex]) {
       return P.reject(new Error('Client does not exist'));
     }
     var old = this.clients[hex];
@@ -316,11 +316,11 @@ MemoryStore.prototype = {
     return P.resolve(clone(this.refreshTokens[unbuf(token)]));
   },
   usedRefreshToken: function usedRefreshToken(token) {
-    if (!token) {
+    if (! token) {
       return P.reject(new Error('Update needs a token'));
     }
     var hex = unbuf(token);
-    if (!this.refreshTokens[hex]) {
+    if (! this.refreshTokens[hex]) {
       return P.reject(new Error('Token does not exist'));
     }
     var old = this.refreshTokens[hex];

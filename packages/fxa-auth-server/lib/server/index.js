@@ -70,7 +70,7 @@ exports.create = function createServer() {
   routes.forEach(function(route) {
     var method = route.method.toUpperCase();
     if (method !== 'GET' && method !== 'HEAD') {
-      if (!route.config.payload) {
+      if (! route.config.payload) {
         route.config.payload = {
           allow: ['application/json', 'application/x-www-form-urlencoded']
         };

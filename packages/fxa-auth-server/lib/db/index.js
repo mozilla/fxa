@@ -38,7 +38,7 @@ function convertClientToConfigFormat(client) {
     if (key === 'hashedSecret' || key === 'hashedSecretPrevious') {
       out[key] = unbuf(client[key]);
     } else if (key === 'trusted' || key === 'canGrant') {
-      out[key] = !!client[key]; // db stores booleans as 0 or 1.
+      out[key] = !! client[key]; // db stores booleans as 0 or 1.
     } else if (typeof client[key] !== 'function') {
       out[key] = unbuf(client[key]);
     }
@@ -66,7 +66,7 @@ function preClients() {
       var REQUIRED_CLIENTS_KEYS = [ 'id', 'hashedSecret', 'name', 'imageUri',
                                     'redirectUri', 'trusted', 'canGrant' ];
       REQUIRED_CLIENTS_KEYS.forEach(function(key) {
-        if (!(key in c)) {
+        if (! (key in c)) {
           var data = { key: key, name: c.name || 'unknown' };
           logger.error('client.missing.keys', data);
           err = new Error('Client config has missing keys');
@@ -77,13 +77,13 @@ function preClients() {
       }
 
       // ensure booleans are boolean and not undefined
-      c.trusted = !!c.trusted;
-      c.canGrant = !!c.canGrant;
-      c.publicClient = !!c.publicClient;
+      c.trusted = !! c.trusted;
+      c.canGrant = !! c.canGrant;
+      c.publicClient = !! c.publicClient;
 
       // Modification of the database at startup in production and stage is
       // not preferred. This option will be set to false on those stacks.
-      if (!config.get('db.autoUpdateClients')) {
+      if (! config.get('db.autoUpdateClients')) {
         return P.resolve();
       }
 

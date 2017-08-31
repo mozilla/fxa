@@ -36,7 +36,7 @@ program
 
 program.parse(process.argv);
 
-if (!program.config) {
+if (! program.config) {
   program.config = 'dev';
 }
 
@@ -45,7 +45,7 @@ process.env.NODE_ENV = program.config;
 const db = require('../lib/db');
 const logger = require('../lib/logging')('bin.purge_expired_tokens');
 
-if (!program.pocketId) {
+if (! program.pocketId) {
   logger.error('invalid', { message: 'Required pocket client id!' });
   process.exit(1);
 }

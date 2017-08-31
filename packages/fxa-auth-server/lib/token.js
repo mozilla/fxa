@@ -15,7 +15,7 @@ const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 exports.verify = function verify(token) {
   return db.getAccessToken(encrypt.hash(token))
   .then(function(token) {
-    if (!token) {
+    if (! token) {
       throw AppError.invalidToken();
     } else if (+token.expiresAt < Date.now()) {
       // We dug ourselves a bit of a hole with token expiry,

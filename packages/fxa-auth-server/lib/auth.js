@@ -22,19 +22,19 @@ exports.strategy = function() {
     authenticate: function dogfoodStrategy(req, reply) {
       var auth = req.headers.authorization;
       logger.debug('check.auth', { header: auth });
-      if (!auth || auth.indexOf('Bearer ') !== 0) {
+      if (! auth || auth.indexOf('Bearer ') !== 0) {
         return reply(AppError.unauthorized('Bearer token not provided'));
       }
       var tok = auth.split(' ')[1];
 
-      if (!validators.HEX_STRING.test(tok)) {
+      if (! validators.HEX_STRING.test(tok)) {
         return reply(AppError.unauthorized('Illegal Bearer token'));
       }
 
       token.verify(tok).done(function tokenFound(details) {
         if (details.scope.indexOf(exports.SCOPE_CLIENT_MANAGEMENT) !== -1) {
           logger.debug('check.whitelist');
-          var blocked = !WHITELIST.some(function(re) {
+          var blocked = ! WHITELIST.some(function(re) {
             return re.test(details.email);
           });
           if (blocked) {

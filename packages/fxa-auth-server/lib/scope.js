@@ -6,10 +6,10 @@
 function Scope(arr) {
   if (arr instanceof Scope) {
     return arr;
-  } else if (!(this instanceof Scope)) {
+  } else if (! (this instanceof Scope)) {
     return new Scope(arr);
   }
-  if (!arr) {
+  if (! arr) {
     arr = [];
   } else if (typeof arr === 'string') {
     arr = arr.split(/\s+/);
@@ -27,7 +27,7 @@ Scope.prototype = {
 
   has: function has(scope) {
     return Scope(scope).values().every(function(word) {
-      if (!word || word.lastIndexOf(':') === word.length - 1) {
+      if (! word || word.lastIndexOf(':') === word.length - 1) {
         return false;
       } else if (word in this._values || word + ':write' in this._values) {
         return true;
