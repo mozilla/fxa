@@ -22,14 +22,13 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/connect_another_device');
   const UserAgentMixin = require('lib/user-agent-mixin');
 
-  const proto = FormView.prototype;
-  const View = FormView.extend({
-    template: Template,
-
+  class ConnectAnotherDeviceView extends FormView {
     initialize (options = {}) {
       this._createView = options.createView;
-      return proto.initialize.call(this, options);
-    },
+      this.template = Template;
+
+      return super.initialize(options);
+    }
 
     showChildView (ChildView, options = {}) {
       // an extra element is needed to attach the child view to, the extra element
@@ -40,7 +39,7 @@ define(function (require, exports, module) {
       const childView = this._createView(ChildView, options);
       return childView.render()
         .then(() => this.trackChildView(childView));
-    },
+    }
 
     afterRender () {
       const options = {
@@ -54,13 +53,13 @@ define(function (require, exports, module) {
       }
 
       return this.createMarketingSnippet(options);
-    },
+    }
 
     afterVisible () {
       this._logViewMetrics();
 
-      return proto.afterVisible.call(this);
-    },
+      return super.afterVisible();
+    }
 
     getAccount () {
       if (! this.model.get('account')) {
@@ -68,7 +67,7 @@ define(function (require, exports, module) {
       }
 
       return this.model.get('account');
-    },
+    }
 
     /**
      * Log view related metrics.
@@ -121,7 +120,7 @@ define(function (require, exports, module) {
       if (connectMethod) {
         this.logFlowEvent(connectMethod);
       }
-    },
+    }
 
     setInitialContext (context) {
       const isSignedIn = this._isSignedIn();
@@ -151,7 +150,7 @@ define(function (require, exports, module) {
         isOtherIos,
         isSignedIn
       });
-    },
+    }
 
     /**
      * Check if the current user is already signed in.
@@ -161,7 +160,7 @@ define(function (require, exports, module) {
      */
     _isSignedIn () {
       return this.user.isSignedInAccount(this.getAccount());
-    },
+    }
 
     /**
      * Check if the current user can sign in.
@@ -172,7 +171,7 @@ define(function (require, exports, module) {
     _canSignIn () {
       // Only users that are not signed in can do so.
       return ! this._isSignedIn() && this.isSyncAuthSupported();
-    },
+    }
 
     /**
      * Get an escaped sign in URL.
@@ -183,14 +182,16 @@ define(function (require, exports, module) {
      * @private
      */
     _getEscapedSignInUrl (email) {
-      return this.getEscapedSyncUrl('signin', View.ENTRYPOINT, { email: email });
+      return this.getEscapedSyncUrl('signin', ConnectAnotherDeviceView.ENTRYPOINT, { email: email });
     }
-  }, {
-    ENTRYPOINT: 'fxa:connect_another_device'
-  });
+
+    static get ENTRYPOINT () {
+      return 'fxa:connect_another_device';
+    }
+  }
 
   Cocktail.mixin(
-    View,
+    ConnectAnotherDeviceView,
     ExperimentMixin,
     FlowEventsMixin,
     MarketingMixin({
@@ -205,5 +206,5 @@ define(function (require, exports, module) {
     UserAgentMixin
   );
 
-  module.exports = View;
+  module.exports = ConnectAnotherDeviceView;
 });

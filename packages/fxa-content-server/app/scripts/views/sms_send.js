@@ -25,25 +25,24 @@ define(function (require, exports, module) {
   const SmsMixin = require('views/mixins/sms-mixin');
   const Template = require('stache!templates/sms_send');
 
-  const proto = FormView.prototype;
-  const View = FormView.extend({
-    template: Template,
-    mustAuth: true,
-
+  class SmsSendView extends FormView {
     initialize (options) {
-      proto.initialize.call(this, options);
+      super.initialize(options);
+
+      this.mustAuth = true;
+      this.template = Template;
 
       this._createView = options.createView;
-    },
+    }
 
     getAccount () {
       // TODO - remove the `|| ...` when done with development
       return this.model.get('account') || this.user.getSignedInAccount();
-    },
+    }
 
     setInitialContext (context) {
       const escapedLearnMoreAttributes =
-          `id="learn-more" href="${encodeURI(View.LEARN_MORE_LINK)}" target="_learn-more" data-flow-event="link.learn_more"`;
+          `id="learn-more" href="${encodeURI(SmsSendView.LEARN_MORE_LINK)}" target="_learn-more" data-flow-event="link.learn_more"`;
 
       // phoneNumber comes from formPrefill if the
       // user submits a phone number, sees the incorrect
@@ -65,9 +64,9 @@ define(function (require, exports, module) {
       context.set({
         country,
         escapedLearnMoreAttributes,
-        phoneNumber
+        phoneNumber,
       });
-    },
+    }
 
     showChildView (ChildView, options = {}) {
       // TODO remove the duplication between here and connect_another_device
@@ -80,11 +79,11 @@ define(function (require, exports, module) {
       const childView = this._createView(ChildView, options);
       return childView.render()
         .then(() => this.trackChildView(childView));
-    },
+    }
 
     submit () {
       return this._sendSms(this._getNormalizedPhoneNumber(), FIREFOX_MOBILE_INSTALL);
-    },
+    }
 
     /**
      * Return the country to use.
@@ -98,7 +97,7 @@ define(function (require, exports, module) {
       // testers and functional tests to force a country even if geo-lookup
       // is enabled on the auth server.
       return this.relier.get('country') || this.model.get('country') || 'US';
-    },
+    }
 
     /**
      * Send an SMS with a Firefox Mobile install link to `normalizedPhoneNumber`
@@ -114,7 +113,7 @@ define(function (require, exports, module) {
       })
       .then(() => this._onSendSmsSuccess())
       .fail((err) => this._onSendSmsError(err));
-    },
+    }
 
     /**
      * Normalized the user entered phone number. Adds country code prefix,
@@ -126,7 +125,7 @@ define(function (require, exports, module) {
       const country = this._getCountry();
       const phoneNumber = this.getElementValue(SELECTOR_PHONE_NUMBER);
       return CountryTelephoneInfo[country].normalize(phoneNumber);
-    },
+    }
 
     /**
      * SMS successfully sent
@@ -139,7 +138,7 @@ define(function (require, exports, module) {
         country: this._getCountry(),
         normalizedPhoneNumber: this._getNormalizedPhoneNumber()
       });
-    },
+    }
 
     /**
      * Sending an SMS failed with error `err`. Certain
@@ -161,12 +160,14 @@ define(function (require, exports, module) {
       // all other errors are handled at a higher level.
       throw err;
     }
-  }, {
-    LEARN_MORE_LINK: 'https://www.mozilla.org/en-US/privacy/websites/#campaigns'
-  });
+
+    static get LEARN_MORE_LINK () {
+      return 'https://www.mozilla.org/en-US/privacy/websites/#campaigns';
+    }
+  }
 
   Cocktail.mixin(
-    View,
+    SmsSendView,
     FlowEventsMixin,
     FormPrefillMixin,
     MarketingMixin({
@@ -180,5 +181,5 @@ define(function (require, exports, module) {
     SmsMixin
   );
 
-  module.exports = View;
+  module.exports = SmsSendView;
 });
