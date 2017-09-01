@@ -18,26 +18,27 @@ define([
   let email;
   const PASSWORD = '12345678';
 
-  const thenify = FunctionalHelpers.thenify;
-
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const click = FunctionalHelpers.click;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const createUser = FunctionalHelpers.createUser;
-  const deleteAllSms = FunctionalHelpers.deleteAllSms;
-  const disableInProd = FunctionalHelpers.disableInProd;
-  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  const getSmsSigninCode = FunctionalHelpers.getSmsSigninCode;
-  const openPage = FunctionalHelpers.openPage;
-  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  const type = FunctionalHelpers.type;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    createUser,
+    deleteAllSms,
+    disableInProd,
+    fillOutSignIn,
+    fillOutSignInUnblock,
+    getSmsSigninCode,
+    openPage,
+    openVerificationLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    respondToWebChannelMessage,
+    testElementExists,
+    testElementTextEquals,
+    testElementTextInclude,
+    testIsBrowserNotified,
+    thenify,
+    type,
+  } = FunctionalHelpers;
 
   const setupTest = thenify(function (successSelector, options) {
     options = options || {};
@@ -67,50 +68,50 @@ define([
 
     'verified, verify same browser': function () {
       return this.remote
-        .then(setupTest('#fxa-confirm-signin-header', { preVerified: true }))
+        .then(setupTest(selectors.CONFIRM_SIGNIN.HEADER, { preVerified: true }))
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-sign-in-complete-header'));
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     },
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(setupTest('#fxa-confirm-signin-header', { preVerified: true }))
+        .then(setupTest(selectors.CONFIRM_SIGNIN.HEADER, { preVerified: true }))
 
         .then(openVerificationLinkInDifferentBrowser(email))
 
-        .then(testElementExists('#fxa-sign-in-complete-header'));
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     },
 
     'unverified': function () {
       return this.remote
-        .then(setupTest('#fxa-confirm-header', { preVerified: false }))
+        .then(setupTest(selectors.CONFIRM_SIGNUP.HEADER, { preVerified: false }))
 
         // email 0 - initial sign up email
         // email 1 - sign in w/ unverified address email
         // email 2 - "You have verified your Firefox Account"
         .then(openVerificationLinkInNewTab(email, 1))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-connect-another-device-header'))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-sign-up-complete-header'));
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
     },
 
     'blocked, valid code entered': function () {
       email = TestHelpers.createEmail('block{id}');
 
       return this.remote
-        .then(setupTest('#fxa-signin-unblock-header', { blocked: true, preVerified: true }))
+        .then(setupTest(selectors.SIGNIN_UNBLOCK.HEADER, { blocked: true, preVerified: true }))
 
-        .then(testElementTextInclude('.verification-email-message', email))
+        .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 

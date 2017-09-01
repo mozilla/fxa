@@ -5,31 +5,35 @@
 define([
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (registerSuite, TestHelpers, FunctionalHelpers) {
-  var thenify = FunctionalHelpers.thenify;
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'use strict';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var openForceAuth = FunctionalHelpers.openForceAuth;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const {
+    clearBrowserState,
+    closeCurrentWindow,
+    createUser,
+    fillOutForceAuth,
+    fillOutSignInUnblock,
+    openForceAuth,
+    openVerificationLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    respondToWebChannelMessage,
+    testElementExists,
+    testIsBrowserNotified,
+    thenify,
+  } = FunctionalHelpers;
 
-  var PASSWORD = 'password';
-  var email;
+  const PASSWORD = 'password';
+  let email;
 
-  var setupTest = thenify(function (options) {
+  const setupTest = thenify(function (options) {
     options = options || {};
 
-    const successSelector = options.blocked ? '#fxa-signin-unblock-header' :
-                            options.preVerified ? '#fxa-confirm-signin-header' :
-                            '#fxa-confirm-header';
+    const successSelector = options.blocked ? selectors.SIGNIN_UNBLOCK.HEADER :
+                            options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
+                            selectors.CONFIRM_SIGNUP.HEADER;
 
 
     return this.parent
@@ -66,10 +70,10 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-sign-in-complete-header'));
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     },
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
@@ -78,7 +82,7 @@ define([
 
         .then(openVerificationLinkInDifferentBrowser(email))
 
-        .then(testElementExists('#fxa-sign-in-complete-header'));
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     },
 
     'unverified': function () {
@@ -94,7 +98,7 @@ define([
 
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });
