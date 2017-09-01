@@ -39,14 +39,16 @@ define(function (require, exports, module) {
   t('IP address: %(ip)s');
   t('For added security, please confirm this sign-in to begin syncing with this device:');
 
-  // The words "Web Session" are coming soon to the device & apps view, see #4585.
-  t('Web Session');
-
   // For #3128, PR #4916 - We added a 'msgctxt' comment to these buttons
-  // to allow the l10n team differntiate between headers and buttons. This
+  // to allow the l10n team differentiate between headers and buttons. This
   // string is kept and used as a fallback for locales that have it
   // translated but have not yet translated the contextualized variant.
   t('Sign in');
+
+  // PR #5408 has these strings
+  t('Signin confirmed');
+  t('Still adding devices?');
+  t('Why is more than one device required?');
 
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
