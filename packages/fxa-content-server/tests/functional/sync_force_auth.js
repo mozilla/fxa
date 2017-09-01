@@ -6,33 +6,38 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop'
-], function (registerSuite, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
-  var thenify = FunctionalHelpers.thenify;
+  'tests/functional/lib/fx-desktop',
+  'tests/functional/lib/selectors'
+], function (registerSuite, TestHelpers, FunctionalHelpers, FxDesktopHelpers, selectors) {
+  'use strict';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
-  var openForceAuth = FunctionalHelpers.openForceAuth;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testIsBrowserNotified = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
+  const {
+    clearBrowserState,
+    closeCurrentWindow,
+    createUser,
+    fillOutForceAuth,
+    fillOutSignInUnblock,
+    noPageTransition,
+    openForceAuth,
+    openVerificationLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    testElementExists,
+    thenify,
+  } = FunctionalHelpers;
 
-  var PASSWORD = 'password';
-  var email;
+  const {
+    listenForFxaCommands,
+    testIsBrowserNotifiedOfLogin,
+    testIsBrowserNotifiedOfMessage: testIsBrowserNotified,
+  } = FxDesktopHelpers;
 
-  var setupTest = thenify(function (options) {
-    options = options || {};
+  const PASSWORD = 'password';
+  let email;
 
-    const successSelector = options.blocked ? '#fxa-signin-unblock-header' :
-                            options.preVerified ? '#fxa-confirm-signin-header' :
-                            '#fxa-confirm-header';
+  const setupTest = thenify(function (options = {}) {
+    const successSelector = options.blocked ? selectors.SIGNIN_UNBLOCK.HEADER :
+                            options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
+                            selectors.CONFIRM_SIGNUP.HEADER;
 
     return this.parent
       .then(clearBrowserState())
@@ -67,11 +72,11 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-confirm-signin-header'));
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
     },
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
@@ -81,7 +86,7 @@ define([
         .then(openVerificationLinkInDifferentBrowser(email))
 
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-confirm-signin-header'));
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
     },
 
     'unverified': function () {
@@ -98,7 +103,7 @@ define([
         .then(fillOutSignInUnblock(email, 0))
 
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-signin-unblock-header'))
+        .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
     }
   });

@@ -5,28 +5,33 @@
 define([
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (registerSuite, TestHelpers, FunctionalHelpers) {
-  var email;
-  var PASSWORD = '12345678';
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'use strict';
 
-  var click = FunctionalHelpers.click;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
-  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  var openForceAuth = FunctionalHelpers.openForceAuth;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementDisabled = FunctionalHelpers.testElementDisabled;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  let email;
+  const PASSWORD = '12345678';
+
+  const {
+    click,
+    closeCurrentWindow,
+    createUser,
+    fillOutForceAuth,
+    fillOutSignInUnblock,
+    fillOutSignUp,
+    noPageTransition,
+    noSuchBrowserNotification,
+    openForceAuth,
+    openVerificationLinkInNewTab,
+    respondToWebChannelMessage,
+    testElementDisabled,
+    testElementExists,
+    testElementTextInclude,
+    testElementValueEquals,
+    testIsBrowserNotified,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'Firefox Desktop Sync v3 force_auth',
@@ -51,17 +56,17 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
-        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-confirm-signin-header'));
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
     },
 
     'with a registered email, registered uid, verify same browser': function () {
@@ -81,18 +86,18 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
-        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-confirm-signin-header'));
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
     },
 
     'with a registered email, unregistered uid, verify same browser': function () {
@@ -111,18 +116,18 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
-        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-confirm-signin-header'));
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
     },
 
     'with an unregistered email, no uid': function () {
@@ -131,7 +136,7 @@ define([
           // user should be automatically redirected to the
           // signup page where they can signup with the
           // specified email
-          header: '#fxa-signup-header',
+          header: selectors.SIGNUP.HEADER,
           query: {
             context: 'fx_desktop_v3',
             email: email,
@@ -140,20 +145,20 @@ define([
           }
         }))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
-        .then(visibleByQSA('.error'))
-        .then(testElementTextInclude('.error', 'recreate'))
+        .then(visibleByQSA(selectors.SIGNUP.ERROR))
+        .then(testElementTextInclude(selectors.SIGNUP.ERROR, 'recreate'))
         // ensure the email is filled in, and not editible.
-        .then(testElementValueEquals('input[type=email]', email))
-        .then(testElementDisabled('input[type=email]'))
+        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
+        .then(testElementDisabled(selectors.SIGNUP.EMAIL))
         .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
 
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
         // the default behavior of not transitioning to the confirm
         // screen is overridden because the user is signing up outside
         // of about:accounts.
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
@@ -167,7 +172,7 @@ define([
             // user should be automatically redirected to the
             // signup page where they can signup with the
             // specified email
-            header: '#fxa-signup-header',
+            header: selectors.SIGNUP.HEADER,
             query: {
               context: 'fx_desktop_v3',
               email: unregisteredEmail,
@@ -177,11 +182,11 @@ define([
             }
           }).call(this);
         })
-        .then(visibleByQSA('.error'))
-        .then(testElementTextInclude('.error', 'recreate'))
+        .then(visibleByQSA(selectors.SIGNUP.ERROR))
+        .then(testElementTextInclude(selectors.SIGNUP.ERROR, 'recreate'))
         // ensure the email is filled in, and not editible.
-        .then(testElementValueEquals('input[type=email]', unregisteredEmail))
-        .then(testElementDisabled('input[type=email]'));
+        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, unregisteredEmail))
+        .then(testElementDisabled(selectors.SIGNUP.EMAIL));
     },
 
     'with an unregistered email, unregistered uid': function () {
@@ -190,7 +195,7 @@ define([
           // user should be automatically redirected to the
           // signup page where they can signup with the
           // specified email
-          header: '#fxa-signup-header',
+          header: selectors.SIGNUP.HEADER,
           query: {
             context: 'fx_desktop_v3',
             email: email,
@@ -199,11 +204,11 @@ define([
             uid: TestHelpers.createUID()
           }
         }))
-        .then(visibleByQSA('.error'))
-        .then(testElementTextInclude('.error', 'recreate'))
+        .then(visibleByQSA(selectors.SIGNUP.ERROR))
+        .then(testElementTextInclude(selectors.SIGNUP.ERROR, 'recreate'))
         // ensure the email is filled in, and not editible.
-        .then(testElementValueEquals('input[type=email]', email))
-        .then(testElementDisabled('input[type=email]'));
+        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
+        .then(testElementDisabled(selectors.SIGNUP.EMAIL));
     },
 
     'verified, blocked': function () {
@@ -224,12 +229,12 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutForceAuth(PASSWORD))
 
-        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(fillOutSignInUnblock(email, 0))
 
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-signin-unblock-header'))
+        .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });

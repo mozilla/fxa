@@ -5,31 +5,34 @@
 define([
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (registerSuite, TestHelpers, FunctionalHelpers) {
-  var email;
-  var PASSWORD = '12345678';
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'use strict';
 
-  var thenify = FunctionalHelpers.thenify;
+  let email;
+  const PASSWORD = '12345678';
 
-  var cleanMemory = FunctionalHelpers.cleanMemory;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
-  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  var openForceAuth = FunctionalHelpers.openForceAuth;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const {
+    cleanMemory,
+    clearBrowserState,
+    closeCurrentWindow,
+    createUser,
+    fillOutForceAuth,
+    fillOutSignInUnblock,
+    noPageTransition,
+    noSuchBrowserNotification,
+    openForceAuth,
+    openVerificationLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    respondToWebChannelMessage,
+    testElementExists,
+    testIsBrowserNotified,
+    thenify,
+  } = FunctionalHelpers;
 
-  var setupTest = thenify(function (options) {
-    options = options || {};
-    var forceAuthOptions = { query: {
+  const setupTest = thenify(function (options = {}) {
+    const forceAuthOptions = { query: {
       context: 'fx_desktop_v2',
       email: email,
       service: 'sync'
@@ -39,9 +42,9 @@ define([
       forceAuthOptions.query.forceAboutAccounts = 'true';
     }
 
-    const successSelector = options.blocked ? '#fxa-signin-unblock-header' :
-                            options.preVerified ? '#fxa-confirm-signin-header' :
-                            '#fxa-confirm-header';
+    const successSelector = options.blocked ? selectors.SIGNIN_UNBLOCK.HEADER :
+                            options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
+                            selectors.CONFIRM_SIGNUP.HEADER;
 
     return this.parent
       .then(clearBrowserState())
@@ -76,11 +79,11 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-confirm-signin-header'));
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
     },
 
     'verified - about:accounts, verify, from original tab\'s P.O.V.': function () {
@@ -89,7 +92,7 @@ define([
 
         .then(openVerificationLinkInDifferentBrowser(email))
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-confirm-signin-header'));
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
     },
 
     'unverified - about:accounts': function () {
@@ -107,7 +110,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInDifferentBrowser(email))
-        .then(testElementExists('#fxa-sign-in-complete-header'));
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     },
 
     'unverified - web flow, verify, from original tab\'s P.O.V.': function () {
@@ -117,7 +120,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInDifferentBrowser(email, 1))
-        .then(testElementExists('#fxa-sign-up-complete-header'));
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
     },
 
     'verified, blocked': function () {
@@ -127,7 +130,7 @@ define([
         .then(setupTest({ blocked: true, forceAboutAccounts: true, preVerified: true }))
         .then(fillOutSignInUnblock(email, 0))
         // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-signin-unblock-header'))
+        .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });

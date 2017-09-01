@@ -128,6 +128,7 @@ define([], function () {
       AGE: '#age',
       CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync',
       EMAIL: 'input[type=email]',
+      ERROR: '.error',
       HEADER: '#fxa-signup-header',
       LINK_SIGN_IN: 'a#have-account',
       LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION: '#email-suggestion',
