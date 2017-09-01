@@ -8,47 +8,55 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop',
-  'tests/functional/lib/ua-strings'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, FxDesktopHelpers, UA_STRINGS) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_ios_v1&service=sync';
+  'tests/functional/lib/ua-strings',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, FxDesktopHelpers, UA_STRINGS, selectors) {
+  'use strict';
 
-  var email;
-  var PASSWORD = '12345678';
+  const config = intern.config;
+  const PAGE_URL = `${config.fxaContentRoot}signup?context=fx_ios_v1&service=sync`;
 
-  var thenify = FunctionalHelpers.thenify;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testEmailExpected = FunctionalHelpers.testEmailExpected;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
+  let email;
+  const PASSWORD = '12345678';
+
+  const {
+    clearBrowserState,
+    closeCurrentWindow,
+    fillOutSignUp,
+    noPageTransition,
+    noSuchElement,
+    openPage,
+    openVerificationLinkInNewTab,
+    testElementExists,
+    testEmailExpected,
+    thenify,
+  } = FunctionalHelpers;
+
+  const {
+    listenForFxaCommands,
+    testIsBrowserNotifiedOfLogin,
+  } = FxDesktopHelpers;
 
   const setupTest = thenify(function (userAgent) {
     return this.parent
-      .then(openPage(PAGE_URL, '#fxa-signup-header', {
+      .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
         query: {
           forceUA: userAgent
         }
       }))
       .execute(listenForFxaCommands)
-      .then(noSuchElement('#customize-sync'))
+      .then(noSuchElement(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX))
       .then(fillOutSignUp(email, PASSWORD))
 
-      .then(testElementExists('#fxa-confirm-header'))
+      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
       .then(testIsBrowserNotifiedOfLogin(email))
 
       // verify the user
       .then(openVerificationLinkInNewTab(email, 0))
       .switchToWindow('newwindow')
 
-      .then(testElementExists('#fxa-connect-another-device-header'))
-      .then(closeCurrentWindow());
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow());
   });
 
   registerSuite({
@@ -69,7 +77,7 @@ define([
         .then(setupTest(UA_STRINGS['ios_firefox_6_0']))
 
         // no screen transition, no polling even, in Fx <= 6.0
-        .then(noPageTransition('#fxa-confirm-header'))
+        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER))
 
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
@@ -81,7 +89,7 @@ define([
 
         // In Fx for iOS >= 6.1, user should redirect to the signup-complete
         // page after verification.
-        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
 
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
