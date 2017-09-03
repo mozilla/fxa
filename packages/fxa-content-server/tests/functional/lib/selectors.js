@@ -52,7 +52,23 @@ define([], function () {
       HEADER: '#fxa-confirm-header'
     },
     CONNECT_ANOTHER_DEVICE: {
-      HEADER: '#fxa-connect-another-device-header'
+      HEADER: '#fxa-connect-another-device-header',
+      LINK_INSTALL_ANDROID: '.marketing-link-android',
+      LINK_INSTALL_IOS: '.marketing-link-ios',
+      LINK_WHY_IS_THIS_REQUIRED: 'a[href="/connect_another_device/why"]',
+      SIGNIN_BUTTON: 'form div a',
+      SUCCESS_DIFFERENT_BROWSER: '.success-not-authenticated',
+      SUCCESS_SAME_BROWSER: '.success-authenticated',
+      TEXT_INSTALL_FROM_OTHER: '#install-mobile-firefox-other',
+      TEXT_INSTALL_FX_ANDROID: '#install-mobile-firefox-android',
+      TEXT_INSTALL_FX_DESKTOP: '#install-mobile-firefox-desktop',
+      TEXT_INSTALL_FX_FROM_FX_ANDROID: '#connect-other-firefox-from-android',
+      TEXT_INSTALL_FX_IOS: '#install-mobile-firefox-ios',
+      TEXT_SIGNIN_FXIOS: '#signin-fxios',
+    },
+    CONNECT_ANOTHER_DEVICE_WHY_IS_THIS_REQUIRED: {
+      CLOSE: '.connect-another-device button[type="submit"]',
+      HEADER: '#fxa-why-connect-another-device-header',
     },
     EMAIL: {
       ADDRESS_LABEL: '#emails .address',
