@@ -59,6 +59,8 @@ define(function (require, exports, module) {
   const UserAgent = require('lib/user-agent');
   const WebChannel = require('lib/channels/web');
 
+  const AUTOMATED_BROWSER_STARTUP_DELAY = 750;
+
   function Start(options = {}) {
     this._authenticationBroker = options.broker;
     this._configLoader = new ConfigLoader();
@@ -77,7 +79,10 @@ define(function (require, exports, module) {
 
   Start.prototype = {
     startApp () {
-      return p()
+      // The delay is to give the functional tests time to hook up
+      // WebChannel message response listeners.
+      const START_DELAY_MS = this._isAutomatedBrowser() ? AUTOMATED_BROWSER_STARTUP_DELAY : 0;
+      return p().delay(START_DELAY_MS)
         .then(this.initializeDeps.bind(this))
         .then(this.testLocalStorage.bind(this))
         .then(this.allResourcesReady.bind(this))

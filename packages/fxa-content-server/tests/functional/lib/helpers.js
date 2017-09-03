@@ -831,34 +831,39 @@ define([
     var attachedId = Math.floor(Math.random() * 10000);
     return this.parent
       .execute(function (expectedCommand, response, attachedId) {
-        function startListening() {
-          try {
-            addEventListener('WebChannelMessageToChrome', function listener(e) {
-              var command = e.detail.message.command;
-              var messageId = e.detail.message.messageId;
+        function listener(e) {
+          var command = e.detail.message.command;
+          var messageId = e.detail.message.messageId;
 
-              if (command === expectedCommand) {
-                removeEventListener('WebChannelMessageToChrome', listener);
-                var event = new CustomEvent('WebChannelMessageToContent', {
-                  detail: {
-                    id: 'account_updates',
-                    message: {
-                      command: command,
-                      data: response,
-                      messageId: messageId
-                    }
-                  }
-                });
-
-                dispatchEvent(event);
+          if (command === expectedCommand) {
+            removeEventListener('WebChannelMessageToChrome', listener);
+            var event = new CustomEvent('WebChannelMessageToContent', {
+              detail: {
+                id: 'account_updates',
+                message: {
+                  command: command,
+                  data: response,
+                  messageId: messageId
+                }
               }
             });
-            $('body').append('<div>').addClass('attached' + attachedId);
+
+            dispatchEvent(event);
+          }
+        }
+
+        function startListening() {
+          try {
+            addEventListener('WebChannelMessageToChrome', listener);
           } catch (e) {
             // problem adding the listener, window may not be
             // ready, try again.
             setTimeout(startListening, 0);
           }
+
+          const el = document.createElement('div');
+          el.classList.add(`attached${attachedId}`);
+          document.body.appendChild(el);
         }
 
         startListening();
