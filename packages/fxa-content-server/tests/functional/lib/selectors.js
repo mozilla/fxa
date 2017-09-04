@@ -146,7 +146,9 @@ define([], function () {
     },
     SIGNUP: {
       AGE: '#age',
-      CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync',
+      // The original checkbox is not clickable after the material conversion. The span
+      // next to the element holds the label text, click it instead. See #5425
+      CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync + span',
       EMAIL: 'input[type=email]',
       ERROR: '.error',
       HEADER: '#fxa-signup-header',
