@@ -22,25 +22,27 @@ define([
   let email;
   let secondaryEmail;
 
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const click = FunctionalHelpers.click;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const createUser = FunctionalHelpers.createUser;
-  const fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
-  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  const getUnblockInfo = FunctionalHelpers.getUnblockInfo;
-  const openPage = FunctionalHelpers.openPage;
-  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  const testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
-  const type = FunctionalHelpers.type;
-  const visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    createUser,
+    fillOutResetPassword,
+    fillOutSignIn,
+    fillOutSignUp,
+    getUnblockInfo,
+    openPage,
+    openVerificationLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    openVerificationLinkInSameTab,
+    respondToWebChannelMessage,
+    testElementExists,
+    testElementTextEquals,
+    testElementTextInclude,
+    testErrorTextInclude,
+    type,
+    visibleByQSA
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'settings secondary emails',
@@ -62,35 +64,39 @@ define([
         // sign up via the UI, we need a verified session to use secondary email
         .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(click('#emails .settings-unit-stub button'))
+        .then(click(selectors.EMAIL.MENU_BUTTON))
 
         // attempt to the same email as primary
-        .then(type('.new-email', email))
-        .then(click('.email-add:not(.disabled)'))
-        .then(visibleByQSA('.tooltip'))
+        .then(type(selectors.EMAIL.INPUT, email))
+        .then(click(selectors.EMAIL.ADD_BUTTON))
+        .then(visibleByQSA(selectors.EMAIL.TOOLTIP))
 
         // add secondary email, resend and remove
-        .then(type('.new-email', TestHelpers.createEmail()))
-        .then(click('.email-add:not(.disabled)'))
-        .then(testElementExists('.not-verified'))
-        .then(click('.email-address .settings-button.warning.email-disconnect'))
+        .then(type(selectors.EMAIL.INPUT, TestHelpers.createEmail()))
+        .then(click(selectors.EMAIL.ADD_BUTTON))
+        .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
+
+        .then(click(selectors.EMAIL.REMOVE_BUTTON))
+        .waitForDeletedByCssSelector(selectors.EMAIL.REMOVE_BUTTON)
+
+        .then(click(selectors.EMAIL.MENU_BUTTON))
 
         // add secondary email, verify
-        .then(type('.new-email', secondaryEmail))
-        .then(click('.email-add:not(.disabled)'))
-        .then(testElementExists('.not-verified'))
+        .then(type(selectors.EMAIL.INPUT, secondaryEmail))
+        .then(click(selectors.EMAIL.ADD_BUTTON))
+        .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
         .then(openVerificationLinkInSameTab(secondaryEmail, 0))
 
-        .then(click('#emails .settings-unit-stub button'))
+        .then(click(selectors.EMAIL.MENU_BUTTON))
 
-        .then(testElementTextEquals('#emails .address', secondaryEmail))
-        .then(testElementExists('.verified'))
+        .then(testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail))
+        .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
 
         // sign out, try to sign in with secondary
-        .then(click('#signout'))
+        .then(click(selectors.SETTINGS.SIGNOUT))
         .then(testElementExists(selectors.SIGNIN.HEADER))
         .then(fillOutSignIn(secondaryEmail, PASSWORD))
         .then(testErrorTextInclude('primary account email required'))
@@ -116,17 +122,17 @@ define([
 
         .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(unverifiedAccountEmail, PASSWORD))
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
         // sign up and verify
         .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
-        .then(click('#emails .settings-unit-stub button'))
-        .then(type('.new-email', unverifiedAccountEmail))
-        .then(click('.email-add:not(.disabled)'))
-        .then(visibleByQSA('.tooltip'));
+        .then(click(selectors.EMAIL.MENU_BUTTON))
+        .then(type(selectors.EMAIL.INPUT, unverifiedAccountEmail))
+        .then(click(selectors.EMAIL.ADD_BUTTON))
+        .then(visibleByQSA(selectors.EMAIL.TOOLTIP));
     },
 
     'signin and signup with existing secondary email': function () {
@@ -134,19 +140,19 @@ define([
         // sign up via the UI, we need a verified session to use secondary email
         .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(click('#emails .settings-unit-stub button'))
+        .then(click(selectors.EMAIL.MENU_BUTTON))
 
-        .then(type('.new-email', secondaryEmail))
-        .then(click('.email-add:not(.disabled)'))
-        .then(testElementExists('.not-verified'))
+        .then(type(selectors.EMAIL.INPUT, secondaryEmail))
+        .then(click(selectors.EMAIL.ADD_BUTTON))
+        .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
         .then(openVerificationLinkInSameTab(secondaryEmail, 0))
 
-        .then(click('#emails .settings-unit-stub button'))
-        .then(testElementExists('.verified'))
-        .then(click('#signout'))
+        .then(click(selectors.EMAIL.MENU_BUTTON))
+        .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+        .then(click(selectors.SETTINGS.SIGNOUT))
         .then(testElementExists(selectors.SIGNIN.HEADER))
         // try to signin with the secondary email
         .then(fillOutSignIn(secondaryEmail, PASSWORD))
@@ -154,7 +160,7 @@ define([
         // try to signup with the secondary email
         .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists('#fxa-settings-content'));
+        .then(testElementExists(selectors.SETTINGS.CONTENT));
     },
 
     'unblock code is sent to secondary emails': function () {
@@ -173,13 +179,13 @@ define([
           return this.parent
             .then(type('#unblock_code', '   ' + unblockInfo.unblockCode));
         })
-        .then(click('button[type=submit]'))
+        .then(click(selectors.SIGNIN_UNBLOCK.SUBMIT))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(openVerificationLinkInSameTab(secondaryEmail, 0))
-        .then(click('#emails .settings-unit-stub button'))
-        .then(testElementExists('.verified'))
-        .then(click('#signout'))
+        .then(click(selectors.EMAIL.MENU_BUTTON))
+        .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+        .then(click(selectors.SETTINGS.SIGNOUT))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
         .then(getUnblockInfo(email, 0))
@@ -192,7 +198,7 @@ define([
           return this.parent
             .then(type('#unblock_code', '   ' + unblockInfo.unblockCode));
         })
-        .then(click('button[type=submit]'))
+        .then(click(selectors.SIGNIN_UNBLOCK.SUBMIT))
 
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
@@ -213,7 +219,7 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
 
-        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(openVerificationLinkInDifferentBrowser(email))
 
         // wait until account data is in localstorage before redirecting
@@ -225,19 +231,19 @@ define([
         .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(openVerificationLinkInSameTab(secondaryEmail, 0))
-        .then(click('#emails .settings-unit-stub button'))
-        .then(testElementExists('.verified'))
+        .then(click(selectors.EMAIL.MENU_BUTTON))
+        .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
 
         .then(clearBrowserState())
 
         .then(openPage(PAGE_SIGNIN_DESKTOP, selectors.SIGNIN.HEADER))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
         .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
 
         .then(openVerificationLinkInNewTab(secondaryEmail, 1))
         .switchToWindow('newwindow')
-        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
         .then(closeCurrentWindow());
     }
   });

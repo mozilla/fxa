@@ -198,6 +198,7 @@ define(function (require, exports, module) {
               // click events require the view to be in the DOM
               $('#container').html(view.el);
               sinon.spy(view, 'navigate');
+              sinon.spy(view, 'displaySuccess');
             });
         });
 
@@ -219,7 +220,8 @@ define(function (require, exports, module) {
               assert.isTrue(view.navigate.calledOnce);
               const args = view.navigate.args[0];
               assert.equal(args.length, 1);
-              assert.equal(args[0], '/settings/emails');
+              assert.equal(args[0], '/settings');
+              assert.equal(view.displaySuccess.callCount, 1);
             }, done);
           }, 150);
         });
@@ -269,6 +271,7 @@ define(function (require, exports, module) {
               // click events require the view to be in the DOM
               $('#container').html(view.el);
               sinon.spy(view, 'navigate');
+              sinon.spy(view, 'displaySuccess');
             });
         });
 
@@ -288,7 +291,8 @@ define(function (require, exports, module) {
               assert.isTrue(view.navigate.calledOnce);
               const args = view.navigate.args[0];
               assert.equal(args.length, 1);
-              assert.equal(args[0], '/settings/emails');
+              assert.equal(args[0], '/settings');
+              assert.equal(view.displaySuccess.callCount, 1);
             }, done);
           }, 150);
         });

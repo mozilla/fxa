@@ -111,7 +111,10 @@ define(function (require, exports, module) {
         .then(()=> {
           return this.render()
             .then(()=> {
-              this.navigate('/settings/emails');
+              this.displaySuccess(t('Secondary email removed'), {
+                closePanel: true
+              });
+              this.navigate('/settings');
             });
         });
     },

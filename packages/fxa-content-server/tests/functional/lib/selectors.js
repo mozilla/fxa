@@ -76,7 +76,9 @@ define([], function () {
       INPUT: '.new-email',
       MENU_BUTTON: '#emails .settings-unit-stub button',
       NOT_VERIFIED_LABEL: '.not-verified',
+      REMOVE_BUTTON: '.email-address .settings-button.warning.email-disconnect',
       SET_PRIMARY_EMAIL_BUTTON: '.email-address .set-primary',
+      TOOLTIP: '.tooltip',
       VERIFIED_LABEL: '.verified'
     },
     ENTER_EMAIL: {
@@ -106,6 +108,7 @@ define([], function () {
       SUCCESS: '.success'
     },
     SETTINGS: {
+      CONTENT: '#fxa-settings-content',
       HEADER: '#fxa-settings-header',
       PROFILE_HEADER: '#fxa-settings-profile-header .card-header',
       PROFILE_SUB_HEADER: '#fxa-settings-profile-header .card-subheader',
@@ -138,7 +141,8 @@ define([], function () {
     },
     SIGNIN_UNBLOCK: {
       EMAIL_FIELD: '.verification-email-message',
-      HEADER: '#fxa-signin-unblock-header'
+      HEADER: '#fxa-signin-unblock-header',
+      SUBMIT: 'button[type="submit"]',
     },
     SIGNUP: {
       AGE: '#age',
