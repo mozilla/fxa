@@ -52,6 +52,7 @@ function (intern, topic, firefoxProfile) {
       marionette: true
     }],
     excludeInstrumentation: true,
+    filterErrorStack: true,
     fixSessionCapabilities: false,
     functionalSuites: [
       'tests/functional/mocha',
