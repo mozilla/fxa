@@ -19,17 +19,22 @@
       width: 120px;
     }
 
+    img,
+    .change-avatar {
+        display: block;
+        height: 120px;
+        width: 120px;
+    }
+
     @include respond-to('trustedUI') {
       background-size: 100px auto;
       height: 100px;
       width: 100px;
-    }
 
-    img,
-    .change-avatar {
-      display: block;
-      height: 120px;
-      width: 120px;
+      img {
+        height: 100px;
+        width: 100px;
+      }
     }
 
     small {
