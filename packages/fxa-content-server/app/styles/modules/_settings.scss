@@ -129,7 +129,7 @@ body.settings #main-content.card {
     background-color: $settings-success-background-color;
     border-color: $settings-success-border-color;
     border-style: solid;
-    color: $text-color;
+    color: $success-text-color;
     margin: 0 auto;
     text-align: center;
     top: 0;
@@ -145,7 +145,7 @@ body.settings #main-content.card {
     }
 
     a {
-      color: $text-color;
+      color: $success-text-color;
     }
   }
 }
