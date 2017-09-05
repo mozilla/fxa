@@ -825,7 +825,7 @@ define(function (require, exports, module) {
         });
       });
 
-      it('multiple sequential OAuth token fetches for a signle sessionToken causes a single assertion to be generated', function () {
+      it('multiple sequential OAuth token fetches for a single sessionToken causes a single assertion to be generated', function () {
         return account.createOAuthToken('scope1')
           .then(function () {
             return account.createOAuthToken('scope2');
@@ -846,6 +846,19 @@ define(function (require, exports, module) {
           });
       });
 
+      it('generates a new assertion if assertion is expired', function () {
+        return account.createOAuthToken('scope1')
+          .then(function () {
+            sinon.stub(account, '_isAssertionValid').callsFake(function () {
+              return false;
+            });
+            return account.createOAuthToken('scope2');
+          })
+          .then(function () {
+            assert.equal(assertion.generate.callCount, 2);
+            account._isAssertionValid.restore();
+          });
+      });
 
       it('fails to if bad assertion', function () {
         assertion.generate.restore();

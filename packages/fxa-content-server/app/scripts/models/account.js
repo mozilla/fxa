@@ -196,19 +196,28 @@ define(function (require, exports, module) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
-      // assertions live for 25 years, they can be cached and reused while
-      // this browser tab is open.
       var existingAssertionPromise = this._assertionPromises[sessionToken];
 
-      if (existingAssertionPromise) {
+      if (this._isAssertionValid(existingAssertionPromise)) {
         return existingAssertionPromise;
       }
 
       var assertionPromise = this._assertion.generate(sessionToken);
+      assertionPromise.__createdAt = Date.now();
 
       this._assertionPromises[sessionToken] = assertionPromise;
 
       return assertionPromise;
+    },
+
+    _isAssertionValid (assertionPromise) {
+      // assertions live for about 6 hours.
+      // reuse the same assertion if created in the past hour
+      const expiredAt = new Date();
+      expiredAt.setHours(expiredAt.getHours() + 1);
+      return (assertionPromise &&
+        assertionPromise.__createdAt &&
+        assertionPromise.__createdAt < expiredAt.getTime());
     },
 
     createOAuthToken (scope) {
