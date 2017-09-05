@@ -10,8 +10,7 @@ module.exports = function (log) {
 
     function handleProfileUpdated(message) {
       return new P(resolve => {
-        const uid = Buffer.from(message.uid, 'hex')
-        resolve(push.notifyProfileUpdated(uid))
+        resolve(push.notifyProfileUpdated(message.uid))
       })
       .catch(function(err) {
         log.error({ op: 'handleProfileUpdated', err: err })

@@ -120,7 +120,7 @@ const mockRequest = mocks.mockRequest({
 })
 var keyFetchTokenId = crypto.randomBytes(16)
 var sessionTokenId = crypto.randomBytes(16)
-var uid = uuid.v4('binary')
+var uid = uuid.v4('binary').toString('hex')
 var mockDB = mocks.mockDB({
   email: TEST_EMAIL,
   emailVerified: true,

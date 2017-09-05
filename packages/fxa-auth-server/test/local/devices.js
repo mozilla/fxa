@@ -63,7 +63,7 @@ describe('devices', () => {
         })
         sessionToken = {
           tokenId: crypto.randomBytes(16).toString('hex'),
-          uid: uuid.v4('binary'),
+          uid: uuid.v4('binary').toString('hex'),
           tokenVerified: true
         }
       })

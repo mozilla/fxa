@@ -128,7 +128,7 @@ module.exports = function (log, db, config) {
    * Reports push errors to logs
    *
    * @param {Error} err
-   * @param {Buffer} uid
+   * @param {String} uid
    * @param {String} deviceId
    */
   function reportPushError(err, uid, deviceId) {
@@ -216,7 +216,7 @@ module.exports = function (log, db, config) {
     /**
      * Notifies all devices that there was an update to the account
      *
-     * @param {Buffer} uid
+     * @param {String} uid
      * @param {String} reason
      * @promise
      */
@@ -228,7 +228,7 @@ module.exports = function (log, db, config) {
     /**
      * Notifies all devices (except the one who joined) that a new device joined the account
      *
-     * @param {Buffer} uid
+     * @param {String} uid
      * @param {String} deviceName
      * @param {String} currentDeviceId
      * @promise
@@ -248,7 +248,7 @@ module.exports = function (log, db, config) {
     /**
      * Notifies a device that it is now disconnected from the account
      *
-     * @param {Buffer} uid
+     * @param {String} uid
      * @param {String} idToDisconnect
      * @promise
      */
@@ -267,7 +267,7 @@ module.exports = function (log, db, config) {
     /**
      * Notifies all devices that a the profile attached to the account was updated
      *
-     * @param {Buffer} uid
+     * @param {String} uid
      * @promise
      */
     notifyProfileUpdated: function notifyProfileUpdated(uid) {
@@ -282,7 +282,7 @@ module.exports = function (log, db, config) {
     /**
      * Notifies a set of devices that the password was changed
      *
-     * @param {Buffer} uid
+     * @param {String} uid
      * @param {Device[]} devices
      * @promise
      */
@@ -298,7 +298,7 @@ module.exports = function (log, db, config) {
     /**
      * Notifies a set of devices that the password was reset
      *
-     * @param {Buffer} uid
+     * @param {String} uid
      * @param {Device[]} devices
      * @promise
      */
@@ -314,7 +314,7 @@ module.exports = function (log, db, config) {
     /**
      * Notifies a set of devices that the account no longer exists
      *
-     * @param {Buffer} uid
+     * @param {String} uid
      * @param {Device[]} devices
      * @promise
      */
@@ -333,7 +333,7 @@ module.exports = function (log, db, config) {
     /**
      * Send a push notification with or without data to all the devices in the account (except the ones in the excludedDeviceIds)
      *
-     * @param {Buffer} uid
+     * @param {String} uid
      * @param {String} reason
      * @param {Object} options
      * @param {String} options.excludedDeviceIds
@@ -359,7 +359,7 @@ module.exports = function (log, db, config) {
     /**
      * Send a push notification with or without data to a set of devices in the account
      *
-     * @param {Buffer} uid
+     * @param {String} uid
      * @param {String[]} ids
      * @param {String} reason
      * @param {Object} options
@@ -385,7 +385,7 @@ module.exports = function (log, db, config) {
     /**
      * Send a push notification with or without data to one device in the account
      *
-     * @param {Buffer} uid
+     * @param {String} uid
      * @param {String} id
      * @param {String} reason
      * @param {Object} options
@@ -400,7 +400,7 @@ module.exports = function (log, db, config) {
     /**
      * Send a push notification with or without data to a list of devices
      *
-     * @param {Buffer} uid
+     * @param {String} uid
      * @param {Device[]} devices
      * @param {String} reason
      * @param {Object} options

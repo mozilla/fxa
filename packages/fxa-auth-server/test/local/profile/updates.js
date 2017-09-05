@@ -20,7 +20,8 @@ function mockMessage(msg) {
 
 var pushShouldThrow = false
 const mockPush = {
-  notifyProfileUpdated: sinon.spy(() => {
+  notifyProfileUpdated: sinon.spy((uid) => {
+    assert.ok(typeof uid === 'string')
     if (pushShouldThrow) {
       throw new Error('oops')
     }
@@ -60,7 +61,7 @@ describe('profile updates', () => {
         assert.equal(mockLog.messages.length, 0)
         assert.equal(mockPush.notifyProfileUpdated.callCount, 2)
         var args = mockPush.notifyProfileUpdated.getCall(1).args
-        assert.deepEqual(args[0], Buffer.from(uid, 'hex'))
+        assert.equal(args[0], uid)
       })
     }
   )

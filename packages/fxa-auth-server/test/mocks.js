@@ -6,6 +6,7 @@
  * Shared helpers for mocking things out in the tests.
  */
 
+const assert = require('assert')
 const sinon = require('sinon')
 const extend = require('util')._extend
 const P = require('../lib/promise')
@@ -154,7 +155,8 @@ function mockDB (data, errors) {
   errors = errors || {}
 
   return mockObject(DB_METHOD_NAMES)({
-    account: sinon.spy(() => {
+    account: sinon.spy((uid) => {
+      assert.ok(typeof uid === 'string')
       return P.resolve({
         email: data.email,
         emailCode: data.emailCode,
@@ -166,7 +168,8 @@ function mockDB (data, errors) {
         wrapWrapKb: data.wrapWrapKb
       })
     }),
-    accountEmails: sinon.spy(() => {
+    accountEmails: sinon.spy((uid) => {
+      assert.ok(typeof uid === 'string')
       return P.resolve([
         {
           email: data.email || 'primary@email.com',
@@ -223,7 +226,8 @@ function mockDB (data, errors) {
         wrapWrapKb: data.wrapWrapKb
       })
     }),
-    createDevice: sinon.spy(() => {
+    createDevice: sinon.spy((uid) => {
+      assert.ok(typeof uid === 'string')
       return P.resolve(Object.keys(data.device).reduce((result, key) => {
         result[key] = data.device[key]
         return result
@@ -269,10 +273,13 @@ function mockDB (data, errors) {
         uid: data.uid
       })
     }),
-    createSigninCode: sinon.spy(() => {
+    createSigninCode: sinon.spy((uid, flowId) => {
+      assert.ok(typeof uid === 'string')
+      assert.ok(typeof flowId === 'string')
       return P.resolve(data.signinCode || [])
     }),
-    devices: sinon.spy(() => {
+    devices: sinon.spy((uid) => {
+      assert.ok(typeof uid === 'string')
       return P.resolve(data.devices || [])
     }),
     deleteSessionToken: sinon.spy(() => {
@@ -307,10 +314,12 @@ function mockDB (data, errors) {
     securityEvents: sinon.spy(() => {
       return P.resolve([])
     }),
-    sessions: sinon.spy(() => {
+    sessions: sinon.spy((uid) => {
+      assert.ok(typeof uid === 'string')
       return P.resolve(data.sessions || [])
     }),
     updateDevice: sinon.spy((uid, sessionTokenId, device) => {
+      assert.ok(typeof uid === 'string')
       return P.resolve(device)
     }),
     sessionToken: sinon.spy(() => {

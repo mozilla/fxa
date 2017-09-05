@@ -75,7 +75,7 @@ function runTest (route, request, assertions) {
 
 describe('/account/reset', function () {
   it('should do things', () => {
-    var uid = uuid.v4('binary')
+    var uid = uuid.v4('binary').toString('hex')
     const mockLog = mocks.spyLog()
     const mockMetricsContext = mocks.mockMetricsContext()
     const mockRequest = mocks.mockRequest({
@@ -227,7 +227,7 @@ describe('/account/create', () => {
     const emailCode = hexString(16)
     const keyFetchTokenId = hexString(16)
     const sessionTokenId = hexString(16)
-    const uid = uuid.v4('binary')
+    const uid = uuid.v4('binary').toString('hex')
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       emailCode: emailCode,
@@ -485,7 +485,7 @@ describe('/account/login', function () {
   })
   var keyFetchTokenId = hexString(16)
   var sessionTokenId = hexString(16)
-  var uid = uuid.v4('binary')
+  var uid = uuid.v4('binary').toString('hex')
   var mockDB = mocks.mockDB({
     email: TEST_EMAIL,
     emailVerified: true,
@@ -1173,7 +1173,7 @@ describe('/account/login', function () {
 
 describe('/account/keys', function () {
   var keyFetchTokenId = hexString(16)
-  var uid = uuid.v4('binary')
+  var uid = uuid.v4('binary').toString('hex')
   const mockLog = mocks.spyLog()
   const mockRequest = mocks.mockRequest({
     credentials: {
@@ -1235,7 +1235,7 @@ describe('/account/keys', function () {
 describe('/account/destroy', function () {
   it('should delete the account', () => {
     var email = 'foo@example.com'
-    var uid = uuid.v4('binary')
+    var uid = uuid.v4('binary').toString('hex')
     var mockDB = mocks.mockDB({
       email: email,
       uid: uid
