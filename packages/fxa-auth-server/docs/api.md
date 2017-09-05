@@ -998,7 +998,7 @@ can be made available to other connected devices.
   
   <!--end-response-body-post-accountdevice-pushAuthKey-->
 
-* `pushEndpointExpired`: *boolean, required*
+* `pushEndpointExpired`: *DEVICES_SCHEMA.pushEndpointExpired.optional*
 
   <!--begin-response-body-post-accountdevice-pushEndpointExpired-->
   
@@ -1141,7 +1141,7 @@ for the authenticated user.
   
   <!--end-response-body-get-accountdevices-pushAuthKey-->
 
-* `pushEndpointExpired`: *boolean, required*
+* `pushEndpointExpired`: *DEVICES_SCHEMA.pushEndpointExpired.optional*
 
   <!--begin-response-body-get-accountdevices-pushEndpointExpired-->
   
@@ -1243,7 +1243,7 @@ for the authenticated user.
   
   <!--end-response-body-get-accountsessions-deviceCallbackAuthKey-->
 
-* `deviceCallbackIsExpired`: *boolean, required*
+* `deviceCallbackIsExpired`: *DEVICES_SCHEMA.pushEndpointExpired.allow(null).required*
 
   <!--begin-response-body-get-accountsessions-deviceCallbackIsExpired-->
   
