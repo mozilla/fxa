@@ -73,7 +73,7 @@ define(function (require, exports, module) {
     describe('render', () => {
       describe('broker modifies links', () => {
         beforeEach(() => {
-          sinon.stub(broker, 'transformLink', (link) => `/oauth${link}`);
+          sinon.stub(broker, 'transformLink').callsFake((link) => `/oauth${link}`);
           return view.render();
         });
 
@@ -100,7 +100,7 @@ define(function (require, exports, module) {
     describe('unsafeDisplayError', () => {
       describe('broker modifies links', () => {
         beforeEach(() => {
-          sinon.stub(broker, 'transformLink', (link) => `/oauth${link}`);
+          sinon.stub(broker, 'transformLink').callsFake((link) => `/oauth${link}`);
           return view.render();
         });
 

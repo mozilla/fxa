@@ -29,7 +29,7 @@
     "requirejs": "2.2.0",
     "requirejs-mustache": "https://github.com/jfparadis/requirejs-mustache.git#5fb8c0a3e8560526e8f9617a689e2924a8532d0a",
     "requirejs-text": "2.0.10",
-    "sinon": "1.17.5",
+    "sinon": "http://sinonjs.org/releases/sinon-3.2.1.js",
     "speed-trap": "0.0.5",
     "tos-pp": "https://github.com/mozilla/legal-docs.git",
     "ua-parser-js": "https://github.com/vladikoff/ua-parser-js.git#643d1698aef5bed095e1264ae258902bf346175c",

@@ -150,7 +150,7 @@ define(function (require, exports, module) {
   function stubbedProfileClient () {
     var profileClientMock = new ProfileMock();
 
-    sinon.stub(profileClientMock, 'getAvatar', function () {
+    sinon.stub(profileClientMock, 'getAvatar').callsFake(function () {
       return p({});
     });
 

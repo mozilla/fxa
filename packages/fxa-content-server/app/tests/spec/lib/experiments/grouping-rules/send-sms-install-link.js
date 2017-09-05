@@ -47,7 +47,7 @@ define(function (require, exports, module) {
 
       describe('others', () => {
         it('delegates to uniformChoice', () => {
-          sinon.stub(experiment, 'uniformChoice', () => 'control');
+          sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
           account.set('email', 'testuser@testuser.com');
 
           assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'control');

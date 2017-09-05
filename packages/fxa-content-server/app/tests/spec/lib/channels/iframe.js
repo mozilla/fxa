@@ -36,7 +36,7 @@ define(function (require, exports, module) {
 
     describe('send', function () {
       it('sends a message to the parent, at specified origin', function () {
-        sinon.stub(parentMock, 'postMessage', sinon.spy());
+        sinon.stub(parentMock, 'postMessage').callsFake(sinon.spy());
 
         return channel.send('ping', { key: 'value' })
           .then(function () {
@@ -54,7 +54,7 @@ define(function (require, exports, module) {
       });
 
       it('can send a message with no data', function () {
-        sinon.stub(parentMock, 'postMessage', sinon.spy());
+        sinon.stub(parentMock, 'postMessage').callsFake(sinon.spy());
 
         return channel.send('ping')
           .then(function () {
@@ -73,14 +73,14 @@ define(function (require, exports, module) {
     describe('request', function () {
       it('prints a message to the console if there is no response', function () {
         // drop the message on the ground.
-        sinon.stub(parentMock, 'postMessage', sinon.spy());
+        sinon.stub(parentMock, 'postMessage').callsFake(sinon.spy());
 
-        sinon.stub(windowMock, 'setTimeout', function (callback) {
+        sinon.stub(windowMock, 'setTimeout').callsFake(function (callback) {
           // force the wait timeout to expire immediately.
           callback();
         });
 
-        sinon.stub(windowMock.console, 'error', sinon.spy());
+        sinon.stub(windowMock.console, 'error').callsFake(sinon.spy());
 
         return channel.request('wait-for-response', {}).timeout(10)
           .fail(function () {
@@ -135,7 +135,7 @@ define(function (require, exports, module) {
 
     describe('the full cycle', function () {
       it('calls the callback with the data received from the parentWindow', function () {
-        sinon.stub(windowMock.parent, 'postMessage', function (message) {
+        sinon.stub(windowMock.parent, 'postMessage').callsFake(function (message) {
           var parsed = JSON.parse(message);
           channel.receiveEvent({
             data: JSON.stringify({

@@ -37,7 +37,7 @@ define(function (require, exports, module) {
 
     describe('addTouchEventStyles', function () {
       it('adds `touch` if the UA supports touch events', function () {
-        sinon.stub(environment, 'hasTouchEvents', function () {
+        sinon.stub(environment, 'hasTouchEvents').callsFake(function () {
           return true;
         });
 
@@ -47,7 +47,7 @@ define(function (require, exports, module) {
       });
 
       it('adds `no-touch` if the UA does not support touch events', function () {
-        sinon.stub(environment, 'hasTouchEvents', function () {
+        sinon.stub(environment, 'hasTouchEvents').callsFake(function () {
           return false;
         });
 
@@ -58,7 +58,7 @@ define(function (require, exports, module) {
 
     describe('addPasswordRevealerStyles', function () {
       it('adds `reveal-pw` if the UA has its own password revealer', function () {
-        sinon.stub(environment, 'hasPasswordRevealer', function () {
+        sinon.stub(environment, 'hasPasswordRevealer').callsFake(function () {
           return true;
         });
 
@@ -68,7 +68,7 @@ define(function (require, exports, module) {
       });
 
       it('adds `no-reveal-pw` if UA has no password revealer', function () {
-        sinon.stub(environment, 'hasPasswordRevealer', function () {
+        sinon.stub(environment, 'hasPasswordRevealer').callsFake(function () {
           return false;
         });
 
@@ -79,7 +79,7 @@ define(function (require, exports, module) {
 
     describe('addIframeStyles', function () {
       it('adds `iframe` if window is iframed and not framed by browser chrome', function () {
-        sinon.stub(environment, 'isFramed', function () {
+        sinon.stub(environment, 'isFramed').callsFake(function () {
           return true;
         });
 
@@ -88,7 +88,7 @@ define(function (require, exports, module) {
       });
 
       it('does not add `iframe` if window is not iframed', function () {
-        sinon.stub(environment, 'isFramed', function () {
+        sinon.stub(environment, 'isFramed').callsFake(function () {
           return false;
         });
 
@@ -128,7 +128,7 @@ define(function (require, exports, module) {
     describe('addFxiOSSyncStyles', function () {
       it('adds the `fx-ios-sync` style if service=sync and on Fx for iOS', function () {
         windowMock.location.search = '?service=sync';
-        sinon.stub(environment, 'isFxiOS', function () {
+        sinon.stub(environment, 'isFxiOS').callsFake(function () {
           return true;
         });
 
@@ -138,7 +138,7 @@ define(function (require, exports, module) {
 
       it('does not add `fx-ios-sync` style if service!==sync', function () {
         windowMock.location.search = '?service=not-sync';
-        sinon.stub(environment, 'isFxiOS', function () {
+        sinon.stub(environment, 'isFxiOS').callsFake(function () {
           return true;
         });
 
@@ -148,7 +148,7 @@ define(function (require, exports, module) {
 
       it('does not add `fx-ios-sync` style if service=sync and not on Fx for iOS', function () {
         windowMock.location.search = '?service=not-sync';
-        sinon.stub(environment, 'isFxiOS', function () {
+        sinon.stub(environment, 'isFxiOS').callsFake(function () {
           return false;
         });
 
@@ -159,7 +159,7 @@ define(function (require, exports, module) {
 
     describe('addGetUserMediaStyles', function () {
       it('adds `getusermedia` if UA supports getUserMedia', function () {
-        sinon.stub(environment, 'hasGetUserMedia', function () {
+        sinon.stub(environment, 'hasGetUserMedia').callsFake(function () {
           return true;
         });
 
@@ -169,7 +169,7 @@ define(function (require, exports, module) {
       });
 
       it('adds `no-getusermedia` if UA does not support getUserMedia', function () {
-        sinon.stub(environment, 'hasGetUserMedia', function () {
+        sinon.stub(environment, 'hasGetUserMedia').callsFake(function () {
           return false;
         });
 

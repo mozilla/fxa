@@ -43,7 +43,7 @@
          viewName: 'sms-sent'
        });
 
-       sinon.stub(view, 'checkAuthorization', () => p(true));
+       sinon.stub(view, 'checkAuthorization').callsFake(() => p(true));
      });
 
      afterEach(() => {
@@ -121,9 +121,9 @@
      });
 
      it('resend success, displays the success message', () => {
-       sinon.stub(account, 'sendSms', () => p());
+       sinon.stub(account, 'sendSms').callsFake(() => p());
        sinon.spy(view, 'render');
-       sinon.stub(view, 'getSmsFeatures', () => ['signinCodes']);
+       sinon.stub(view, 'getSmsFeatures').callsFake(() => ['signinCodes']);
 
        return view.resend()
          .then(() => {
@@ -139,9 +139,9 @@
      });
 
      it('resend failure, displays the error message', () => {
-       sinon.stub(account, 'sendSms', () => p.reject(SmsErrors.toError('THROTTLED')));
+       sinon.stub(account, 'sendSms').callsFake(() => p.reject(SmsErrors.toError('THROTTLED')));
        sinon.spy(view, 'displayError');
-       sinon.stub(view, 'getSmsFeatures', () => ['signinCodes']);
+       sinon.stub(view, 'getSmsFeatures').callsFake(() => ['signinCodes']);
 
        // _resend is called instead of resend to test resend-mixin integration.
        return view._resend()

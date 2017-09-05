@@ -127,7 +127,7 @@ define(function (require, exports, module) {
       });
 
       it('shows a prefilled email and password field of cached session', () => {
-        sinon.stub(view, 'getAccount', () => {
+        sinon.stub(view, 'getAccount').callsFake(() => {
           return user.initAccount({
             email: 'a@a.com',
             sessionToken: 'abc123'
@@ -162,8 +162,8 @@ define(function (require, exports, module) {
             sessionTokenContext: Constants.SYNC_SERVICE
           });
 
-          sinon.stub(view, '_suggestedAccount', () => account);
-          sinon.stub(view, 'displayAccountProfileImage', () => p());
+          sinon.stub(view, '_suggestedAccount').callsFake(() => account);
+          sinon.stub(view, 'displayAccountProfileImage').callsFake(() => p());
           sinon.spy(view, 'render');
 
           return view.render()
@@ -197,8 +197,8 @@ define(function (require, exports, module) {
           sessionTokenContext: Constants.SYNC_SERVICE
         });
 
-        sinon.stub(view, '_suggestedAccount', () => account);
-        sinon.stub(view, 'displayAccountProfileImage', () => p());
+        sinon.stub(view, '_suggestedAccount').callsFake(() => account);
+        sinon.stub(view, 'displayAccountProfileImage').callsFake(() => p());
         sinon.spy(view, 'render');
 
         return view.render()
@@ -230,7 +230,7 @@ define(function (require, exports, module) {
 
       it('displays migration message if isSyncMigration returns true', () => {
         initView();
-        sinon.stub(view, 'isSyncMigration', () => true);
+        sinon.stub(view, 'isSyncMigration').callsFake(() => true);
 
         return view.render()
           .then(() => {
@@ -241,7 +241,7 @@ define(function (require, exports, module) {
 
       it('does not display migration message if isSyncMigration returns false', () => {
         initView();
-        sinon.stub(view, 'isSyncMigration', () => false);
+        sinon.stub(view, 'isSyncMigration').callsFake(() => false);
 
         return view.render()
           .then(() => {
@@ -281,7 +281,7 @@ define(function (require, exports, module) {
 
       describe('with a user that successfully signs in', () => {
         beforeEach(() => {
-          sinon.stub(view, 'signIn', () => p());
+          sinon.stub(view, 'signIn').callsFake(() => p());
 
           return view.submit();
         });
@@ -299,7 +299,7 @@ define(function (require, exports, module) {
 
       describe('with a reset account', () => {
         beforeEach(() => {
-          sinon.stub(view, 'signIn', () => {
+          sinon.stub(view, 'signIn').callsFake(() => {
             return p.reject(AuthErrors.toError('ACCOUNT_RESET'));
           });
 
@@ -318,7 +318,7 @@ define(function (require, exports, module) {
 
       describe('with a user that cancels login', () => {
         beforeEach(() => {
-          sinon.stub(view, 'signIn', () => {
+          sinon.stub(view, 'signIn').callsFake(() => {
             return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
           });
 
@@ -335,7 +335,7 @@ define(function (require, exports, module) {
         beforeEach(() => {
           broker.setCapability('signup', true);
 
-          sinon.stub(view, 'signIn', () => {
+          sinon.stub(view, 'signIn').callsFake(() => {
             return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
           });
 
@@ -355,7 +355,7 @@ define(function (require, exports, module) {
         let err;
 
         beforeEach(() => {
-          sinon.stub(view, 'signIn', () => {
+          sinon.stub(view, 'signIn').callsFake(() => {
             return p.reject(AuthErrors.toError('INVALID_JSON'));
           });
 
@@ -405,7 +405,7 @@ define(function (require, exports, module) {
 
     describe('useLoggedInAccount', () => {
       it('shows an error if session is expired', () => {
-        sinon.stub(view, 'getAccount', () => {
+        sinon.stub(view, 'getAccount').callsFake(() => {
           return user.initAccount({
             email: 'a@a.com',
             sessionToken: 'abc123',
@@ -429,8 +429,8 @@ define(function (require, exports, module) {
           email: 'a@a.com',
           sessionToken: 'abc123'
         });
-        sinon.stub(view, 'getAccount', () => account);
-        sinon.stub(user, 'signInAccount', (account) => {
+        sinon.stub(view, 'getAccount').callsFake(() => account);
+        sinon.stub(user, 'signInAccount').callsFake((account) => {
           account.set('verified', true);
           return p(account);
         });
@@ -451,8 +451,8 @@ define(function (require, exports, module) {
           sessionToken: 'abc123',
           uid: 'foo'
         });
-        sinon.stub(view, 'getAccount', () => account);
-        sinon.stub(user, 'removeAllAccounts', () => {
+        sinon.stub(view, 'getAccount').callsFake(() => account);
+        sinon.stub(user, 'removeAllAccounts').callsFake(() => {
           account = user.initAccount();
         });
 
@@ -476,7 +476,7 @@ define(function (require, exports, module) {
       it('can suggest the user based on session variables', () => {
         let chooserAccount = user.initAccount({});
 
-        sinon.stub(user, 'getChooserAccount', () => chooserAccount);
+        sinon.stub(user, 'getChooserAccount').callsFake(() => chooserAccount);
 
         assert.isTrue(view._suggestedAccount().isDefault(), 'null when no account set');
 
@@ -494,7 +494,7 @@ define(function (require, exports, module) {
           email: 'a@a.com',
           sessionToken: 'abc123'
         });
-        sinon.stub(user, 'getChooserAccount', () => account);
+        sinon.stub(user, 'getChooserAccount').callsFake(() => account);
 
         return view.render()
           .then(() => {
@@ -514,12 +514,12 @@ define(function (require, exports, module) {
 
         const imgUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
-        sinon.stub(user, 'getChooserAccount', () => account);
+        sinon.stub(user, 'getChooserAccount').callsFake(() => account);
 
         metrics.events.clear();
         return view.render()
           .then(() => {
-            sinon.stub(account, 'getAvatar', () => p({ avatar: imgUrl, id: 'bar' }));
+            sinon.stub(account, 'getAvatar').callsFake(() => p({ avatar: imgUrl, id: 'bar' }));
             return view.afterVisible();
           })
           .then(() => {
@@ -543,7 +543,7 @@ define(function (require, exports, module) {
           verified: true
         });
 
-        sinon.stub(user, 'getChooserAccount', () => account);
+        sinon.stub(user, 'getChooserAccount').callsFake(() => account);
 
         return view.render()
           .then(() => {
@@ -554,10 +554,10 @@ define(function (require, exports, module) {
       });
 
       it('does not show if the relier overrules cached credentials', () => {
-        sinon.stub(relier, 'allowCachedCredentials', () => false);
+        sinon.stub(relier, 'allowCachedCredentials').callsFake(() => false);
         relier.set('email', 'a@a.com');
 
-        sinon.stub(user, 'getChooserAccount', () => {
+        sinon.stub(user, 'getChooserAccount').callsFake(() => {
           return user.initAccount({
             accessToken: 'foo',
             email: 'a@a.com',
@@ -586,8 +586,8 @@ define(function (require, exports, module) {
           verified: true
         });
 
-        sinon.stub(view, 'getAccount', () => account);
-        sinon.stub(relier, 'wantsKeys', () => true);
+        sinon.stub(view, 'getAccount').callsFake(() => account);
+        sinon.stub(relier, 'wantsKeys').callsFake(() => true);
 
         return view.render()
           .then(() => {
@@ -606,7 +606,7 @@ define(function (require, exports, module) {
           verified: true
         });
 
-        sinon.stub(view, 'getAccount', () => account);
+        sinon.stub(view, 'getAccount').callsFake(() => account);
         relier.set('service', 'loop');
 
         return view.render()
@@ -625,7 +625,7 @@ define(function (require, exports, module) {
           verified: true
         });
 
-        sinon.stub(view, 'getAccount', () => account);
+        sinon.stub(view, 'getAccount').callsFake(() => account);
         relier.set('service', 'loop');
 
         return view.render()
@@ -645,8 +645,8 @@ define(function (require, exports, module) {
           verified: true
         });
 
-        sinon.stub(view, 'getAccount', () => account);
-        sinon.stub(view, 'getPrefillEmail', () => 'b@b.com');
+        sinon.stub(view, 'getAccount').callsFake(() => account);
+        sinon.stub(view, 'getPrefillEmail').callsFake(() => 'b@b.com');
         relier.set('service', 'loop');
 
         return view.render()
@@ -666,7 +666,7 @@ define(function (require, exports, module) {
           verified: true
         });
 
-        sinon.stub(view, 'getAccount', () => account);
+        sinon.stub(view, 'getAccount').callsFake(() => account);
         relier.set('service', 'loop');
 
         view.chooserAskForPassword = true;
@@ -775,7 +775,7 @@ define(function (require, exports, module) {
     });
 
     it('logs the number of stored accounts on creation', () => {
-      sinon.stub(user, 'logNumStoredAccounts', () => {});
+      sinon.stub(user, 'logNumStoredAccounts').callsFake(() => {});
 
       initView();
 

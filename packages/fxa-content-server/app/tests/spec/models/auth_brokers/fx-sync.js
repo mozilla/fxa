@@ -94,8 +94,8 @@ define((require, exports, module) => {
             email: 'testuser@testuser.com'
           }
         };
-        sinon.stub(notificationChannel, 'request', () => p(response));
-        sinon.stub(notificationChannel, 'isFxaStatusSupported', () => true);
+        sinon.stub(notificationChannel, 'request').callsFake(() => p(response));
+        sinon.stub(notificationChannel, 'isFxaStatusSupported').callsFake(() => true);
       });
 
       describe('chooseWhatToSyncWebV1 not supported', () => {

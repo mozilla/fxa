@@ -66,11 +66,11 @@ define(function (require, exports, module) {
         uid: 'uid'
       });
 
-      sinon.stub(user, 'setAccount', function () {
+      sinon.stub(user, 'setAccount').callsFake(function () {
         return p(account);
       });
 
-      sinon.stub(account, 'fetchProfile', function () {
+      sinon.stub(account, 'fetchProfile').callsFake(function () {
         return p();
       });
 

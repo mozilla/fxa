@@ -47,7 +47,7 @@ define(function (require, exports, module) {
       });
 
       it('catches init errors', function () {
-        sinon.stub(Raven, 'config', function () {
+        sinon.stub(Raven, 'config').callsFake(function () {
           throw new Error('Config error');
         });
 
@@ -242,7 +242,7 @@ define(function (require, exports, module) {
         var sandbox = sinon.sandbox.create();
         // do not call the real captureException,
         // no need to make network requests.
-        sandbox.stub(Raven, 'captureException', function () {});
+        sandbox.stub(Raven, 'captureException').callsFake(function () {});
         var release = '0.1.0';
         var sentry = new SentryMetrics(host, release);
 
@@ -272,7 +272,7 @@ define(function (require, exports, module) {
 
       it('reports the error even if release version is not set', function () {
         var sandbox = sinon.sandbox.create();
-        sandbox.stub(Raven, 'captureException', function () {});
+        sandbox.stub(Raven, 'captureException').callsFake(function () {});
         var sentry = new SentryMetrics(host);
 
         var err = new Error('uh oh');

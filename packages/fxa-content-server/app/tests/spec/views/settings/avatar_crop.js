@@ -69,7 +69,7 @@ define(function (require, exports, module) {
 
     describe('with session', function () {
       beforeEach(function () {
-        sinon.stub(view, 'checkAuthorization',  function () {
+        sinon.stub(view, 'checkAuthorization').callsFake(function () {
           return p(true);
         });
         account = user.initAccount({
@@ -77,7 +77,7 @@ define(function (require, exports, module) {
           email: 'a@a.com',
           verified: true
         });
-        sinon.stub(view, 'getSignedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount').callsFake(function () {
           return account;
         });
       });
@@ -116,13 +116,13 @@ define(function (require, exports, module) {
           view.isUserAuthorized = function () {
             return p(true);
           };
-          sinon.stub(view, 'getSignedInAccount', function () {
+          sinon.stub(view, 'getSignedInAccount').callsFake(function () {
             return account;
           });
-          sinon.stub(account, 'profileClient', function () {
+          sinon.stub(account, 'profileClient').callsFake(function () {
             return p(profileClientMock);
           });
-          sinon.stub(view, 'updateProfileImage', function () {
+          sinon.stub(view, 'updateProfileImage').callsFake(function () {
             return p();
           });
         });
@@ -139,7 +139,7 @@ define(function (require, exports, module) {
         });
 
         it('submits an image', function () {
-          sinon.stub(profileClientMock, 'uploadAvatar', function () {
+          sinon.stub(profileClientMock, 'uploadAvatar').callsFake(function () {
             return p({
               id: 'foo',
               url: 'test'
@@ -169,7 +169,7 @@ define(function (require, exports, module) {
         it('properly tracks avatar change events', function () {
           // set the account to have an existing profile image id
           account.set('hadProfileImageSetBefore', true);
-          sinon.stub(profileClientMock, 'uploadAvatar', function () {
+          sinon.stub(profileClientMock, 'uploadAvatar').callsFake(function () {
             return p({
               id: 'foo'
             });

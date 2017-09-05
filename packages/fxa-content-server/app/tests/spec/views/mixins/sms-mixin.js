@@ -33,14 +33,14 @@ define(function (require, exports, module) {
     describe('getSmsFeatures', () => {
       describe('user in `signinCodes` experiment group', () => {
         it('returns an array with `signinCodes`', () => {
-          sinon.stub(view, 'isInExperimentGroup', () => true);
+          sinon.stub(view, 'isInExperimentGroup').callsFake(() => true);
           assert.isTrue(view.getSmsFeatures().indexOf('signinCodes') > -1);
         });
       });
 
       describe('user not in `signinCodes` experiment group', () => {
         it('returns an empty array', () => {
-          sinon.stub(view, 'isInExperimentGroup', () => false);
+          sinon.stub(view, 'isInExperimentGroup').callsFake(() => false);
           assert.deepEqual(view.getSmsFeatures(), []);
         });
       });

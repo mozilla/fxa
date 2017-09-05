@@ -95,7 +95,7 @@ define(function (require, exports, module) {
       });
 
       it('does not call back if user presses any key besides ENTER', function () {
-        sinon.stub(view, 'canGoBack', () => true);
+        sinon.stub(view, 'canGoBack').callsFake(() => true);
 
         view.backOnEnter({ preventDefault: preventDefaultSpy, which: KeyCodes.ENTER + 1});
 

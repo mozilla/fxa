@@ -87,7 +87,7 @@ require.config({
     mustache: '../bower_components/mustache/mustache',
     'p-promise': '../bower_components/p/p',
     raven: '../bower_components/raven-js/dist/raven',
-    sinon: '../bower_components/sinon/lib/sinon',
+    sinon: '../bower_components/sinon/index',
     speedTrap: '../bower_components/speed-trap/dist/speed-trap',
     stache: '../bower_components/requirejs-mustache/stache',
     text: '../bower_components/requirejs-text/text',

@@ -97,7 +97,7 @@ define(function (require, exports, module) {
 
       it('_resend displays returned errors', () => {
         const err = AuthErrors.toError('UNEXPECTED_ERROR');
-        sinon.stub(view, 'resend', () => p.reject(err));
+        sinon.stub(view, 'resend').callsFake(() => p.reject(err));
         sinon.spy(view, 'displayError');
 
         return view._resend()

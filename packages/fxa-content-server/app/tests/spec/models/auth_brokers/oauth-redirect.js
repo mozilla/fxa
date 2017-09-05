@@ -45,7 +45,7 @@ define(function (require, exports, module) {
       });
       broker.DELAY_BROKER_RESPONSE_MS = 0;
 
-      sinon.stub(broker, 'finishOAuthFlow', () => {
+      sinon.stub(broker, 'finishOAuthFlow').callsFake(() => {
         return p();
       });
     });
@@ -137,11 +137,11 @@ define(function (require, exports, module) {
       it('clears the original tab marker', () => {
         broker.finishOAuthFlow.restore();
 
-        sinon.stub(broker, 'getOAuthResult', () => {
+        sinon.stub(broker, 'getOAuthResult').callsFake(() => {
           return p({});
         });
 
-        sinon.stub(broker, 'sendOAuthResultToRelier', () => {
+        sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(() => {
           return p();
         });
 

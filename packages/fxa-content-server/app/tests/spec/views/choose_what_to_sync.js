@@ -136,8 +136,8 @@ define(function (require, exports, module) {
         return initView()
           .then(() => {
             sinon.spy(view, 'waitForSessionVerification');
-            sinon.stub(view, 'validateAndSubmit', () => {});
-            sinon.stub(sessionVerificationPoll, 'start', () => {});
+            sinon.stub(view, 'validateAndSubmit').callsFake(() => {});
+            sinon.stub(sessionVerificationPoll, 'start').callsFake(() => {});
             view.afterVisible();
           })
           .then(() => {
@@ -204,7 +204,7 @@ define(function (require, exports, module) {
 
     describe('submit', () => {
       beforeEach(() => {
-        sinon.stub(user, 'setAccount', () => p(account));
+        sinon.stub(user, 'setAccount').callsFake(() => p(account));
 
         return initView()
           .then(() => {

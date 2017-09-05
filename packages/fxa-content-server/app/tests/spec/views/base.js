@@ -123,7 +123,7 @@ define(function (require, exports, module) {
         const additionalContext = {
           baz: 'buz'
         };
-        sinon.stub(view, 'getContext', () => {
+        sinon.stub(view, 'getContext').callsFake(() => {
           return { foo: 'bar' };
         });
 
@@ -196,7 +196,7 @@ define(function (require, exports, module) {
       it('does not render, returns `false` if the view navigates in `beforeRender`', () => {
         sinon.spy(view, 'renderTemplate');
         sinon.spy(view, 'navigate');
-        sinon.stub(view, 'beforeRender', () => view.navigate('signin'));
+        sinon.stub(view, 'beforeRender').callsFake(() => view.navigate('signin'));
 
         return view.render()
           .then((shouldDisplay) => {
@@ -210,7 +210,7 @@ define(function (require, exports, module) {
       it('returns `false` if the view navigates in `afterRender`', () => {
         sinon.spy(view, 'renderTemplate');
         sinon.spy(view, 'navigate');
-        sinon.stub(view, 'afterRender', () => view.navigate('signin'));
+        sinon.stub(view, 'afterRender').callsFake(() => view.navigate('signin'));
 
         return view.render()
           .then((shouldDisplay) => {
@@ -222,7 +222,7 @@ define(function (require, exports, module) {
       });
 
       it('redirects to `/signin` if the user is not authenticated', function () {
-        sinon.stub(user, 'sessionStatus', () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
+        sinon.stub(user, 'sessionStatus').callsFake(() => p.reject(AuthErrors.toError('INVALID_TOKEN')));
         sinon.spy(view, 'navigate');
 
         view.mustAuth = true;
@@ -239,7 +239,7 @@ define(function (require, exports, module) {
       it('redirects to `/force_auth` if the user is not authenticated and the relier specifies an email', function () {
         relier.set('email', 'a@a.com');
 
-        sinon.stub(user, 'sessionStatus', () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
+        sinon.stub(user, 'sessionStatus').callsFake(() => p.reject(AuthErrors.toError('INVALID_TOKEN')));
         sinon.spy(view, 'navigate');
 
         view.mustAuth = true;
@@ -263,7 +263,7 @@ define(function (require, exports, module) {
           verificationReason: VerificationReasons.SIGN_UP,
           verified: false
         });
-        sinon.stub(user, 'sessionStatus', () => p(account));
+        sinon.stub(user, 'sessionStatus').callsFake(() => p(account));
 
         sinon.spy(view, 'navigate');
         return view.render()
@@ -282,7 +282,7 @@ define(function (require, exports, module) {
           verificationReason: VerificationReasons.SIGN_IN,
           verified: false
         });
-        sinon.stub(user, 'sessionStatus', () => p(account));
+        sinon.stub(user, 'sessionStatus').callsFake(() => p(account));
 
         sinon.spy(view, 'navigate');
         return view.render()
@@ -298,7 +298,7 @@ define(function (require, exports, module) {
           sessionToken: 'abc123',
           uid: 'uid'
         });
-        sinon.stub(user, 'sessionStatus', () => {
+        sinon.stub(user, 'sessionStatus').callsFake(() => {
           account.set('verified', true);
           return p(account);
         });
@@ -317,7 +317,7 @@ define(function (require, exports, module) {
           uid: 'uid',
           verified: true
         });
-        sinon.stub(user, 'sessionStatus', () => p(account));
+        sinon.stub(user, 'sessionStatus').callsFake(() => p(account));
 
         return view.render()
           .then(function (result) {
@@ -565,7 +565,7 @@ define(function (require, exports, module) {
       it('does not log an already logged error', function () {
         var error = AuthErrors.toError('UNEXPECTED_ERROR');
         error.logged = true;
-        sinon.stub(metrics, 'logError', function () { });
+        sinon.stub(metrics, 'logError').callsFake(function () { });
         view.displayError(error);
         assert.isFalse(metrics.logError.called);
       });
@@ -1032,7 +1032,7 @@ define(function (require, exports, module) {
       it('invokes the broker method, passing along any extra parameters, invokes the value returned from the broker if a function', function () {
         var behavior = sinon.spy();
 
-        sinon.stub(broker, 'afterSignIn', function () {
+        sinon.stub(broker, 'afterSignIn').callsFake(function () {
           return behavior;
         });
 
@@ -1045,7 +1045,7 @@ define(function (require, exports, module) {
       });
 
       it('does not explode if the value returned from the broker is not a function', function () {
-        sinon.stub(broker, 'afterSignIn', function () {
+        sinon.stub(broker, 'afterSignIn').callsFake(function () {
           return {};
         });
 

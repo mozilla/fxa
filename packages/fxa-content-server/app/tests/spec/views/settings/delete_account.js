@@ -75,14 +75,14 @@ define(function (require, exports, module) {
           uid: UID,
           verified: true
         });
-        sinon.stub(account, 'isSignedIn', function () {
+        sinon.stub(account, 'isSignedIn').callsFake(function () {
           return p(true);
         });
 
-        sinon.stub(view, 'getSignedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount').callsFake(function () {
           return account;
         });
-        sinon.stub(notifier, 'trigger', function () { });
+        sinon.stub(notifier, 'trigger').callsFake(function () { });
 
         return view.render()
           .then(function () {
@@ -137,7 +137,7 @@ define(function (require, exports, module) {
 
         describe('success', function () {
           beforeEach(function () {
-            sinon.stub(user, 'deleteAccount', function () {
+            sinon.stub(user, 'deleteAccount').callsFake(function () {
               return p();
             });
 
@@ -173,7 +173,7 @@ define(function (require, exports, module) {
 
         describe('other errors', function () {
           beforeEach(function () {
-            sinon.stub(user, 'deleteAccount', function () {
+            sinon.stub(user, 'deleteAccount').callsFake(function () {
               return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
           });

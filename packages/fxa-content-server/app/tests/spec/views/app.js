@@ -59,14 +59,14 @@ define(function (require, exports, module) {
       }
 
       function setUpIFrameLink() {
-        sinon.stub(environment, 'isFramed', function () {
+        sinon.stub(environment, 'isFramed').callsFake(function () {
           return true;
         });
         event.currentTarget = $('<a href="/legal/xyz">Legal Pages</a>');
       }
 
       it('does nothing if the event\'s default is prevented', function () {
-        sinon.stub(event, 'isDefaultPrevented', function () {
+        sinon.stub(event, 'isDefaultPrevented').callsFake(function () {
           return true;
         });
 

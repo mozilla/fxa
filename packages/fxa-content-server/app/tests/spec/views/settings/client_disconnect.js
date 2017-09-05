@@ -153,7 +153,7 @@ define(function (require, exports, module) {
 
     describe('submit', () => {
       beforeEach(() => {
-        sinon.stub(view.user, 'destroyAccountClient', () => {
+        sinon.stub(view.user, 'destroyAccountClient').callsFake(() => {
           return p();
         });
         sinon.spy(view, 'render');
@@ -179,7 +179,7 @@ define(function (require, exports, module) {
           clients: attachedClients
         });
 
-        sinon.stub(view, 'navigate', () => {});
+        sinon.stub(view, 'navigate').callsFake(() => {});
 
         return view.render().then(() => {
           $(view.el).find('input[name=disconnect-reasons][value=lost]').prop('checked', true).change();

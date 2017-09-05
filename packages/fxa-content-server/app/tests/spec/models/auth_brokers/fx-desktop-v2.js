@@ -25,9 +25,10 @@ define(function (require, exports, module) {
     beforeEach(function () {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
-      sinon.stub(channelMock, 'send', function () {
+      channelMock.send = () => {
         return p();
-      });
+      };
+      sinon.spy(channelMock, 'send');
 
       user = new User();
       account = user.initAccount({
@@ -166,7 +167,7 @@ define(function (require, exports, module) {
 
     describe('fetch', function () {
       it('uses halt behavior with about:accounts', function () {
-        sinon.stub(broker.environment, 'isAboutAccounts', function () {
+        sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function () {
           return true;
         });
 
@@ -180,7 +181,7 @@ define(function (require, exports, module) {
       });
 
       it('uses null behavior with web flow', function () {
-        sinon.stub(broker.environment, 'isAboutAccounts', function () {
+        sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function () {
           return false;
         });
 

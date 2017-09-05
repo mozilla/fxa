@@ -129,7 +129,7 @@ define(function (require, exports, module) {
         const account = user.initAccount({ email: 'TESTUSER@testuser.com', uid: 'uid' });
         sinon.spy(user, 'getSignedInAccount');
         sinon.spy(user, 'setAccount');
-        sinon.stub(account, 'sessionStatus', () => p({ email: 'testuser@testuser.com' }));
+        sinon.stub(account, 'sessionStatus').callsFake(() => p({ email: 'testuser@testuser.com' }));
 
         return user.sessionStatus(account)
           .then((signedInAccount) => {
@@ -142,9 +142,9 @@ define(function (require, exports, module) {
 
       it('checks and updates the currently signed in account if no account given', () => {
         const account = user.initAccount({ email: 'TESTUSER@testuser.com', uid: 'uid' });
-        sinon.stub(user, 'getSignedInAccount', () => account);
+        sinon.stub(user, 'getSignedInAccount').callsFake(() => account);
         sinon.spy(user, 'setAccount');
-        sinon.stub(account, 'sessionStatus', () => p({ email: 'testuser@testuser.com' }));
+        sinon.stub(account, 'sessionStatus').callsFake(() => p({ email: 'testuser@testuser.com' }));
 
         return user.sessionStatus()
           .then((signedInAccount) => {
@@ -156,8 +156,8 @@ define(function (require, exports, module) {
 
       it('propagates errors from the Account', () => {
         const account = user.initAccount({ email: EMAIL, uid: 'uid' });
-        sinon.stub(user, 'getSignedInAccount', () => account);
-        sinon.stub(account, 'sessionStatus', () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
+        sinon.stub(user, 'getSignedInAccount').callsFake(() => account);
+        sinon.stub(account, 'sessionStatus').callsFake(() => p.reject(AuthErrors.toError('INVALID_TOKEN')));
 
         return user.sessionStatus()
           .then(assert.fail, (err) => {
@@ -346,7 +346,7 @@ define(function (require, exports, module) {
           uid: createUid()
         });
 
-        sinon.stub(account, 'destroy', function () {
+        sinon.stub(account, 'destroy').callsFake(function () {
           return p();
         });
 
@@ -446,7 +446,7 @@ define(function (require, exports, module) {
 
         return user.setSignedInAccount({ email: EMAIL, uid: 'foo' })
           .then(function () {
-            sinon.stub(user, 'setAccount', function () {
+            sinon.stub(user, 'setAccount').callsFake(function () {
               return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
             return user.setSignedInAccount(account);
@@ -557,14 +557,14 @@ define(function (require, exports, module) {
       };
       Session.set('cachedCredentials', accountData);
 
-      sinon.stub(user, 'getSignedInAccount', function () {
+      sinon.stub(user, 'getSignedInAccount').callsFake(function () {
         return user.initAccount({
           email: 'b@b.com',
           sessionToken: 'session token'
         });
       });
 
-      sinon.stub(user, 'setSignedInAccount', function () { });
+      sinon.stub(user, 'setSignedInAccount').callsFake(function () { });
 
       return user.upgradeFromSession(Session, fxaClientMock)
         .then(function () {
@@ -582,7 +582,7 @@ define(function (require, exports, module) {
       };
       Session.set('cachedCredentials', accountData);
 
-      sinon.stub(user, 'setSignedInAccount', function () { });
+      sinon.stub(user, 'setSignedInAccount').callsFake(function () { });
 
       return user.upgradeFromSession(Session, fxaClientMock)
         .then(function () {
@@ -601,7 +601,7 @@ define(function (require, exports, module) {
       Session.set('email', 'a@a.com');
       Session.set('sessionToken', 'session token too');
 
-      sinon.stub(user, 'setSignedInAccount', function () {
+      sinon.stub(user, 'setSignedInAccount').callsFake(function () {
         return p();
       });
 
@@ -616,13 +616,13 @@ define(function (require, exports, module) {
       Session.set('email', 'a@a.com');
       Session.set('sessionToken', 'session token');
 
-      sinon.stub(fxaClientMock, 'sessionStatus', function () {
+      sinon.stub(fxaClientMock, 'sessionStatus').callsFake(function () {
         return {
           uid: 'uid'
         };
       });
 
-      sinon.stub(user, 'setSignedInAccount', function () {
+      sinon.stub(user, 'setSignedInAccount').callsFake(function () {
         return p();
       });
 
@@ -649,13 +649,13 @@ define(function (require, exports, module) {
       Session.set('email', 'b@b.com');
       Session.set('sessionToken', 'session token too');
 
-      sinon.stub(fxaClientMock, 'sessionStatus', function () {
+      sinon.stub(fxaClientMock, 'sessionStatus').callsFake(function () {
         return {
           uid: 'uid too'
         };
       });
 
-      sinon.stub(user, 'setSignedInAccount', function () {
+      sinon.stub(user, 'setSignedInAccount').callsFake(function () {
         return p();
       });
 
@@ -804,8 +804,8 @@ define(function (require, exports, module) {
             verified: true
           });
 
-          sinon.stub(account, 'signIn', () => p());
-          sinon.stub(account, 'retrySignUp', () => p());
+          sinon.stub(account, 'signIn').callsFake(() => p());
+          sinon.stub(account, 'retrySignUp').callsFake(() => p());
           sinon.spy(user, 'setSignedInAccount');
           sinon.spy(notifier, 'triggerRemote');
 
@@ -836,7 +836,7 @@ define(function (require, exports, module) {
         });
 
         it('signOutAccount behaves correctly', () => {
-          sinon.stub(account, 'signOut', () => p());
+          sinon.stub(account, 'signOut').callsFake(() => p());
           sinon.spy(user, 'clearSignedInAccount');
 
           return user.signOutAccount(account)
@@ -866,11 +866,11 @@ define(function (require, exports, module) {
             uid: 'uid2'
           });
 
-          sinon.stub(account, 'signIn', function () {
+          sinon.stub(account, 'signIn').callsFake(function () {
             return p();
           });
 
-          sinon.stub(account, 'get', function (property) {
+          sinon.stub(account, 'get').callsFake(function (property) {
             if (property === 'verified') {
               return true;
             }
@@ -878,15 +878,15 @@ define(function (require, exports, module) {
             return property;
           });
 
-          sinon.stub(account, 'retrySignUp', function () {
+          sinon.stub(account, 'retrySignUp').callsFake(function () {
             return p();
           });
 
-          sinon.stub(user, 'setSignedInAccount', function () {
+          sinon.stub(user, 'setSignedInAccount').callsFake(function () {
             return p(account);
           });
 
-          sinon.stub(user, 'getAccountByUid', function () {
+          sinon.stub(user, 'getAccountByUid').callsFake(function () {
             return oldAccount;
           });
 
@@ -914,10 +914,10 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         account = user.initAccount({ email: EMAIL, uid: createUid() });
-        sinon.stub(account, 'signUp', function () {
+        sinon.stub(account, 'signUp').callsFake(function () {
           return p();
         });
-        sinon.stub(user, 'setSignedInAccount', function () {
+        sinon.stub(user, 'setSignedInAccount').callsFake(function () {
           return p();
         });
 
@@ -944,13 +944,13 @@ define(function (require, exports, module) {
       let account;
 
       beforeEach(() => {
-        sinon.stub(user, 'removeAccount', () => {});
+        sinon.stub(user, 'removeAccount').callsFake(() => {});
         account = user.initAccount({ email: EMAIL, uid: createUid() });
       });
 
       describe('request completes as expected', () => {
         it('delegates to the account, clears account info', () => {
-          sinon.stub(account, 'signOut', () => p());
+          sinon.stub(account, 'signOut').callsFake(() => p());
 
           return user.signOutAccount(account)
             .then(() => {
@@ -963,7 +963,7 @@ define(function (require, exports, module) {
 
       describe('request fails', () => {
         it('delegates to the account, clears account info anyways', () => {
-          sinon.stub(account, 'signOut', () => {
+          sinon.stub(account, 'signOut').callsFake(() => {
             return p.reject(AuthErrors.toError('INVALID_TOKEN'));
           });
 
@@ -993,7 +993,7 @@ define(function (require, exports, module) {
 
       describe('without a basket error', function () {
         beforeEach(function () {
-          sinon.stub(account, 'verifySignUp', () => p());
+          sinon.stub(account, 'verifySignUp').callsFake(() => p());
         });
 
         describe('without a sessionToken', function () {
@@ -1029,7 +1029,7 @@ define(function (require, exports, module) {
         beforeEach(function () {
           err = null;
 
-          sinon.stub(account, 'verifySignUp', () => {
+          sinon.stub(account, 'verifySignUp').callsFake(() => {
             return p.reject(MarketingEmailErrors.toError('USAGE_ERROR'));
           });
         });
@@ -1087,7 +1087,7 @@ define(function (require, exports, module) {
       const oldPassword = 'password';
       const relierMock = {};
 
-      sinon.stub(account, 'changePassword', () => {
+      sinon.stub(account, 'changePassword').callsFake(() => {
         account.set({
           keyFetchToken: 'new-key-fetch-token',
           sessionToken: 'new-session-token',
@@ -1097,7 +1097,7 @@ define(function (require, exports, module) {
 
         return p();
       });
-      sinon.stub(user, 'setSignedInAccount', (account) => {
+      sinon.stub(user, 'setSignedInAccount').callsFake((account) => {
         return p(account);
       });
       sinon.spy(notifier, 'triggerRemote');
@@ -1142,11 +1142,11 @@ define(function (require, exports, module) {
           uid: createUid()
         });
 
-        sinon.stub(account, 'completePasswordReset', function () {
+        sinon.stub(account, 'completePasswordReset').callsFake(function () {
           return p();
         });
 
-        sinon.stub(user, 'setSignedInAccount', function (account) {
+        sinon.stub(user, 'setSignedInAccount').callsFake(function (account) {
           return p(account);
         });
 
@@ -1187,7 +1187,7 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         account = user.initAccount({});
-        sinon.stub(account, 'fetchSessions', function () {
+        sinon.stub(account, 'fetchSessions').callsFake(function () {
           return p();
         });
 
@@ -1211,7 +1211,7 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         account = user.initAccount({});
-        sinon.stub(account, 'fetchDevices', function () {
+        sinon.stub(account, 'fetchDevices').callsFake(function () {
           return p();
         });
 
@@ -1235,7 +1235,7 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         account = user.initAccount({});
-        sinon.stub(account, 'fetchOAuthApps', function () {
+        sinon.stub(account, 'fetchOAuthApps').callsFake(function () {
           return p();
         });
 
@@ -1265,8 +1265,8 @@ define(function (require, exports, module) {
           uid: createUid()
         });
 
-        sinon.stub(account, 'destroyDevice', () => p());
-        sinon.stub(account, 'fetch', () => p());
+        sinon.stub(account, 'destroyDevice').callsFake(() => p());
+        sinon.stub(account, 'fetch').callsFake(() => p());
         sinon.spy(user, 'removeAccount');
 
         device = new Device({
@@ -1310,7 +1310,7 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         account = user.initAccount({});
-        sinon.stub(account, 'destroySession', function () {
+        sinon.stub(account, 'destroySession').callsFake(function () {
           return p();
         });
 
@@ -1330,7 +1330,7 @@ define(function (require, exports, module) {
 
       it('calls clearSignedInAccount if current session', function () {
         sinon.spy(user, 'clearSignedInAccount');
-        sinon.stub(user, 'isSignedInAccount', function () {
+        sinon.stub(user, 'isSignedInAccount').callsFake(function () {
           return true;
         });
         return user.destroyAccountSession(account, session).then(() => {
@@ -1346,7 +1346,7 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         account = user.initAccount({});
-        sinon.stub(account, 'destroyOAuthApp', function () {
+        sinon.stub(account, 'destroyOAuthApp').callsFake(function () {
           return p();
         });
 
@@ -1374,7 +1374,7 @@ define(function (require, exports, module) {
           uid: UUID
         });
 
-        sinon.stub(account, 'checkUidExists', function () {
+        sinon.stub(account, 'checkUidExists').callsFake(function () {
           return p(false);
         });
 
@@ -1410,7 +1410,7 @@ define(function (require, exports, module) {
           uid: UUID
         });
 
-        sinon.stub(account, 'checkEmailExists', function () {
+        sinon.stub(account, 'checkEmailExists').callsFake(function () {
           return p(false);
         });
 
@@ -1441,7 +1441,7 @@ define(function (require, exports, module) {
 
       beforeEach(() => {
         account = user.initAccount({});
-        sinon.stub(account, 'rejectUnblockCode', () => p());
+        sinon.stub(account, 'rejectUnblockCode').callsFake(() => p());
 
         return user.rejectAccountUnblockCode(account, UNBLOCK_CODE);
       });
@@ -1568,19 +1568,19 @@ define(function (require, exports, module) {
 
     describe('shouldSetSignedInAccountFromBrowser', () => {
       it('returns true if service=sync', () => {
-        sinon.stub(user, 'getSignedInAccount', () => user.initAccount({ email: 'already-signed-in@testuser.com' }));
+        sinon.stub(user, 'getSignedInAccount').callsFake(() => user.initAccount({ email: 'already-signed-in@testuser.com' }));
 
         assert.isTrue(user.shouldSetSignedInAccountFromBrowser('sync'));
       });
 
       it('returns true if no local user, not sync', () => {
-        sinon.stub(user, 'getSignedInAccount', () => user.initAccount({}));
+        sinon.stub(user, 'getSignedInAccount').callsFake(() => user.initAccount({}));
 
         assert.isTrue(user.shouldSetSignedInAccountFromBrowser(''));
       });
 
       it('returns false if local user, not sync', () => {
-        sinon.stub(user, 'getSignedInAccount', () => user.initAccount({ email: 'already-signed-in@testuser.com' }));
+        sinon.stub(user, 'getSignedInAccount').callsFake(() => user.initAccount({ email: 'already-signed-in@testuser.com' }));
 
         assert.isFalse(user.shouldSetSignedInAccountFromBrowser(''));
       });

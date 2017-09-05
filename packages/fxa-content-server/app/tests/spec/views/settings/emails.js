@@ -68,7 +68,7 @@ define(function (require, exports, module) {
 
       emails = [];
 
-      sinon.stub(user, 'getSignedInAccount', () => {
+      sinon.stub(user, 'getSignedInAccount').callsFake(() => {
         return account;
       });
     });
@@ -100,11 +100,11 @@ define(function (require, exports, module) {
     describe('feature disabled', () => {
       describe('for user', () => {
         beforeEach(() => {
-          sinon.stub(account, 'recoveryEmails', () => {
+          sinon.stub(account, 'recoveryEmails').callsFake(() => {
             return p();
           });
 
-          sinon.stub(account, 'recoveryEmailSecondaryEmailEnabled', () => {
+          sinon.stub(account, 'recoveryEmailSecondaryEmailEnabled').callsFake(() => {
             return p(false);
           });
 
@@ -119,7 +119,7 @@ define(function (require, exports, module) {
             window: windowMock
           });
 
-          sinon.stub(view, 'remove', () => {
+          sinon.stub(view, 'remove').callsFake(() => {
             return true;
           });
 
@@ -134,23 +134,23 @@ define(function (require, exports, module) {
 
     describe('feature enabled', () => {
       beforeEach(() => {
-        sinon.stub(account, 'recoveryEmails', () => {
+        sinon.stub(account, 'recoveryEmails').callsFake(() => {
           return p(emails);
         });
 
-        sinon.stub(account, 'recoveryEmailSecondaryEmailEnabled', () => {
+        sinon.stub(account, 'recoveryEmailSecondaryEmailEnabled').callsFake(() => {
           return p(true);
         });
 
-        sinon.stub(account, 'recoveryEmailDestroy', () => {
+        sinon.stub(account, 'recoveryEmailDestroy').callsFake(() => {
           return p();
         });
 
-        sinon.stub(account, 'resendEmailCode', () => {
+        sinon.stub(account, 'resendEmailCode').callsFake(() => {
           return p();
         });
 
-        sinon.stub(account, 'setPrimaryEmail', (newEmail) => {
+        sinon.stub(account, 'setPrimaryEmail').callsFake((newEmail) => {
           email = newEmail;
           return p();
         });

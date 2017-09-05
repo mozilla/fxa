@@ -61,11 +61,11 @@ define(function (require, exports, module) {
 
       isEmailRegistered = isUidRegistered = false;
 
-      sinon.stub(user, 'checkAccountEmailExists', function () {
+      sinon.stub(user, 'checkAccountEmailExists').callsFake(function () {
         return p(isEmailRegistered);
       });
 
-      sinon.stub(user, 'checkAccountUidExists', function () {
+      sinon.stub(user, 'checkAccountUidExists').callsFake(function () {
         return p(isUidRegistered);
       });
 
@@ -377,8 +377,8 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         // stub out `beforeRender` to ensure no redirect occurs.
-        sinon.stub(view, 'beforeRender', () => p());
-        sinon.stub(view, '_signIn', function (account) {
+        sinon.stub(view, 'beforeRender').callsFake(() => p());
+        sinon.stub(view, '_signIn').callsFake(function (account) {
           return p();
         });
 
@@ -457,7 +457,7 @@ define(function (require, exports, module) {
         beforeEach(function () {
           err = AuthErrors.toError('UNKNOWN_ACCOUNT');
 
-          sinon.stub(SignInView.prototype, 'onSignInError', sinon.spy());
+          sinon.stub(SignInView.prototype, 'onSignInError').callsFake(sinon.spy());
         });
 
         afterEach(function () {
@@ -527,7 +527,7 @@ define(function (require, exports, module) {
         beforeEach(function () {
           err = AuthErrors.toError('UNEXPECTED_ERROR');
 
-          sinon.stub(SignInView.prototype, 'onSignInError', sinon.spy());
+          sinon.stub(SignInView.prototype, 'onSignInError').callsFake(sinon.spy());
 
           return view.onSignInError(account, 'password', err);
         });
@@ -575,7 +575,7 @@ define(function (require, exports, module) {
     describe('flow events', () => {
       beforeEach(() => {
         // stub out `beforeRender` to ensure no redirection occurs.
-        sinon.stub(view, 'beforeRender', () => p());
+        sinon.stub(view, 'beforeRender').callsFake(() => p());
         return view.render()
           .then(() => {
             view.afterVisible();

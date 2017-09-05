@@ -160,7 +160,7 @@ define(function (require, exports, module) {
         it('shows high-res Android image to users with high-dpi displays', function () {
           createView({ marketingId });
 
-          sinon.stub(view, '_isHighRes', () => true);
+          sinon.stub(view, '_isHighRes').callsFake(() => true);
 
           return view.render()
           .then(() => {

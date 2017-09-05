@@ -49,7 +49,7 @@ define(function (require, exports, module) {
       });
 
       it('returns chooses some experiment ', () => {
-        sinon.stub(experiment, 'bernoulliTrial', () => true);
+        sinon.stub(experiment, 'bernoulliTrial').callsFake(() => true);
 
         assert.ok(experiment.choose({
           env: 'development',

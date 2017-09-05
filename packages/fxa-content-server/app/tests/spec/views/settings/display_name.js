@@ -59,17 +59,17 @@ define(function (require, exports, module) {
         user: user
       });
 
-      sinon.stub(view, 'getSignedInAccount', function () {
+      sinon.stub(view, 'getSignedInAccount').callsFake(function () {
         return account;
       });
 
-      sinon.stub(view, 'checkAuthorization', function () {
+      sinon.stub(view, 'checkAuthorization').callsFake(function () {
         return p(true);
       });
-      sinon.stub(account, 'fetchProfile', function () {
+      sinon.stub(account, 'fetchProfile').callsFake(function () {
         return p();
       });
-      sinon.stub(user, 'setAccount', function () {
+      sinon.stub(user, 'setAccount').callsFake(function () {
         return p();
       });
 
@@ -95,7 +95,7 @@ define(function (require, exports, module) {
       it('onProfileUpdate', function () {
         return initView()
           .then(function () {
-            sinon.stub(view, 'render', function () {
+            sinon.stub(view, 'render').callsFake(function () {
               return p();
             });
             view.onProfileUpdate();
@@ -166,16 +166,16 @@ define(function (require, exports, module) {
     describe('submit', function () {
       it('submits correctly', function () {
         var name = '  joe cool  ';
-        sinon.stub(account, 'postDisplayName', function () {
+        sinon.stub(account, 'postDisplayName').callsFake(function () {
           return p();
         });
 
         return initView()
           .then(function () {
-            sinon.stub(view, 'updateDisplayName', function () {
+            sinon.stub(view, 'updateDisplayName').callsFake(function () {
               return p();
             });
-            sinon.stub(view, 'displaySuccess', function () {
+            sinon.stub(view, 'displaySuccess').callsFake(function () {
               return p();
             });
             sinon.spy(view, 'render');

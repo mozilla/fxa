@@ -65,7 +65,7 @@ define(function (require, exports, module) {
     describe('render/afterVisible', () => {
       describe('with a Fx desktop user that is signed in', () => {
         beforeEach(() => {
-          sinon.stub(user, 'isSignedInAccount', () => true);
+          sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
           windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
 
           return view.render()
@@ -84,7 +84,7 @@ define(function (require, exports, module) {
 
       describe('with a fennec user that is signed in', () => {
         beforeEach(() => {
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => true,
               isFirefox: () => true,
@@ -95,7 +95,7 @@ define(function (require, exports, module) {
             };
           });
 
-          sinon.stub(user, 'isSignedInAccount', () => true);
+          sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
 
           return view.render()
             .then(() => {
@@ -113,7 +113,7 @@ define(function (require, exports, module) {
 
       describe('with a Fx desktop user that can sign in', () => {
         beforeEach(() => {
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
               isFirefox: () => true,
@@ -125,8 +125,8 @@ define(function (require, exports, module) {
           });
 
           account.set('email', 'testuser@testuser.com');
-          sinon.stub(user, 'isSignedInAccount', () => false);
-          sinon.stub(view, '_canSignIn', () => true);
+          sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+          sinon.stub(view, '_canSignIn').callsFake(() => true);
 
           return view.render()
             .then(() => {
@@ -144,7 +144,7 @@ define(function (require, exports, module) {
 
       describe('with a fennec user that can sign in', () => {
         beforeEach(() => {
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => true,
               isFirefox: () => true,
@@ -156,8 +156,8 @@ define(function (require, exports, module) {
           });
 
           account.set('email', 'testuser@testuser.com');
-          sinon.stub(user, 'isSignedInAccount', () => false);
-          sinon.stub(view, '_canSignIn', () => true);
+          sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+          sinon.stub(view, '_canSignIn').callsFake(() => true);
 
           return view.render()
             .then(() => {
@@ -175,12 +175,12 @@ define(function (require, exports, module) {
 
       describe('with a user that cannot sign in', () => {
         beforeEach(() => {
-          sinon.stub(user, 'isSignedInAccount', () => false);
-          sinon.stub(view, '_canSignIn', () => false);
+          sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+          sinon.stub(view, '_canSignIn').callsFake(() => false);
         });
 
         it('shows FxiOS help text, no marketing area to users on FxiOS', () => {
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
               isFirefox: () => true,
@@ -202,7 +202,7 @@ define(function (require, exports, module) {
         });
 
         it('shows iOS text, marketing area to users on iOS', () => {
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
               isFirefox: () => false,
@@ -224,7 +224,7 @@ define(function (require, exports, module) {
         });
 
         it('shows Android text, marketing area to users on Android', () => {
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => true,
               isFirefox: () => false,
@@ -246,7 +246,7 @@ define(function (require, exports, module) {
         });
 
         it('shows FxDesktop text, marketing area to Fx Desktop users', () => {
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
               isFirefox: () => true,
@@ -268,7 +268,7 @@ define(function (require, exports, module) {
         });
 
         it('shows Other text, marketing area to everyone else', () => {
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
               isFirefox: () => false,
@@ -293,7 +293,7 @@ define(function (require, exports, module) {
 
     describe('_isSignedIn', () => {
       it('delegates to user.isSignedInAccount', () => {
-        sinon.stub(user, 'isSignedInAccount', () => true);
+        sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
 
         assert.isTrue(view._isSignedIn());
         assert.isTrue(user.isSignedInAccount.calledOnce);
@@ -304,22 +304,22 @@ define(function (require, exports, module) {
     describe('_canSignIn', () => {
       it('returns `false` if user is signed in', () => {
 
-        sinon.stub(user, 'isSignedInAccount', () => true);
-        sinon.stub(view, 'isSyncAuthSupported', () => true);
+        sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
+        sinon.stub(view, 'isSyncAuthSupported').callsFake(() => true);
 
         assert.isFalse(view._canSignIn());
       });
 
       it('returns `false` if sync authentication not supported', () => {
-        sinon.stub(user, 'isSignedInAccount', () => false);
-        sinon.stub(view, 'isSyncAuthSupported', () => false);
+        sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+        sinon.stub(view, 'isSyncAuthSupported').callsFake(() => false);
 
         assert.isFalse(view._canSignIn());
       });
 
       it('returns `true` if not signed in, sync authentication supported', () => {
-        sinon.stub(user, 'isSignedInAccount', () => false);
-        sinon.stub(view, 'isSyncAuthSupported', () => true);
+        sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+        sinon.stub(view, 'isSyncAuthSupported').callsFake(() => true);
 
         assert.isTrue(view._canSignIn());
       });
@@ -330,7 +330,7 @@ define(function (require, exports, module) {
       const SYNC_URL = 'https://accounts.firefox.com/signin?context=fx_desktop_v3&service=sync&email=testuser@testuser.com';
 
       beforeEach(() => {
-        sinon.stub(view, 'getEscapedSyncUrl', () => SYNC_URL);
+        sinon.stub(view, 'getEscapedSyncUrl').callsFake(() => SYNC_URL);
       });
 
       it('returns the expected URL', () => {
@@ -347,7 +347,7 @@ define(function (require, exports, module) {
 
     describe('clicks', () => {
       beforeEach(() => {
-        sinon.stub(view, 'getUserAgent', () => {
+        sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isAndroid: () => false,
             isFirefox: () => true,
@@ -359,8 +359,8 @@ define(function (require, exports, module) {
         });
 
         account.set('email', 'testuser@testuser.com');
-        sinon.stub(user, 'isSignedInAccount', () => false);
-        sinon.stub(view, '_canSignIn', () => true);
+        sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+        sinon.stub(view, '_canSignIn').callsFake(() => true);
 
         return view.render()
           .then(() => {

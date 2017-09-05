@@ -64,7 +64,7 @@ define(function (require, exports, module) {
       });
 
       it('redirects to `/` if no account', () => {
-        sinon.stub(view, 'getAccount', () => null);
+        sinon.stub(view, 'getAccount').callsFake(() => null);
 
         view.beforeRender();
 
@@ -73,7 +73,7 @@ define(function (require, exports, module) {
       });
 
       it('does nothing if an account passed in', () => {
-        sinon.stub(view, 'getAccount', () => account);
+        sinon.stub(view, 'getAccount').callsFake(() => account);
 
         view.beforeRender();
 
@@ -92,7 +92,7 @@ define(function (require, exports, module) {
 
     describe('validateAndSubmit', () => {
       beforeEach(() => {
-        sinon.stub(view, 'signIn', () => p());
+        sinon.stub(view, 'signIn').callsFake(() => p());
       });
 
       describe('password valid', () => {

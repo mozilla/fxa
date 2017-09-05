@@ -269,7 +269,7 @@ define(function (require, exports, module) {
 
         describe('has sendBeacon', function () {
           beforeEach(function () {
-            sandbox.stub(environment, 'hasSendBeacon', function () {
+            sandbox.stub(environment, 'hasSendBeacon').callsFake(function () {
               return true;
             });
           });
@@ -278,7 +278,7 @@ define(function (require, exports, module) {
             var result;
 
             beforeEach(function () {
-              sandbox.stub(windowMock.navigator, 'sendBeacon', function () {
+              sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(function () {
                 return true;
               });
               metrics.logNumStoredAccounts(2);
@@ -363,7 +363,7 @@ define(function (require, exports, module) {
             var result;
 
             beforeEach(function (done) {
-              sandbox.stub(windowMock.navigator, 'sendBeacon', function () {
+              sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(function () {
                 return false;
               });
               metrics.flush().then(function (r) {
@@ -392,7 +392,7 @@ define(function (require, exports, module) {
 
         describe('does not have sendBeacon', function () {
           beforeEach(function () {
-            sandbox.stub(environment, 'hasSendBeacon', function () {
+            sandbox.stub(environment, 'hasSendBeacon').callsFake(function () {
               return false;
             });
           });
@@ -401,7 +401,7 @@ define(function (require, exports, module) {
             var result;
 
             beforeEach(function () {
-              sandbox.stub(xhr, 'ajax', function () {
+              sandbox.stub(xhr, 'ajax').callsFake(function () {
                 return p(true);
               });
               metrics.logEvent('qux');
@@ -448,7 +448,7 @@ define(function (require, exports, module) {
 
           describe('flush, ajax succeeds asynchronously', function () {
             beforeEach(function () {
-              sandbox.stub(xhr, 'ajax', function () {
+              sandbox.stub(xhr, 'ajax').callsFake(function () {
                 return p(true);
               });
               return metrics.flush();
@@ -464,7 +464,7 @@ define(function (require, exports, module) {
             var result;
 
             beforeEach(function () {
-              sandbox.stub(xhr, 'ajax', function () {
+              sandbox.stub(xhr, 'ajax').callsFake(function () {
                 return p.reject();
               });
               return metrics.flush().then(function (r) {
@@ -492,7 +492,7 @@ define(function (require, exports, module) {
 
         describe('sends filtered data to the server on window unload', function () {
           beforeEach(function (done) {
-            sandbox.stub(metrics, '_send', function () {
+            sandbox.stub(metrics, '_send').callsFake(function () {
               done();
             });
             metrics.logEvent('wibble');
@@ -517,7 +517,7 @@ define(function (require, exports, module) {
 
         describe('sends filtered data to the server on window blur', function () {
           beforeEach(function (done) {
-            sandbox.stub(metrics, '_send', function () {
+            sandbox.stub(metrics, '_send').callsFake(function () {
               done();
             });
             metrics.logEvent('blee');
@@ -542,8 +542,8 @@ define(function (require, exports, module) {
 
         describe('automatic flush after inactivityFlushMs', function () {
           beforeEach(function (done) {
-            sandbox.stub(metrics, 'logEvent', function () {});
-            sandbox.stub(metrics, 'flush', function () {
+            sandbox.stub(metrics, 'logEvent').callsFake(function () {});
+            sandbox.stub(metrics, 'flush').callsFake(function () {
               done();
             });
           });
@@ -563,8 +563,8 @@ define(function (require, exports, module) {
 
       describe('flush, no data has changed, flush again', () => {
         beforeEach(function () {
-          sandbox.stub(environment, 'hasSendBeacon', () => true);
-          sandbox.stub(windowMock.navigator, 'sendBeacon', () => true);
+          sandbox.stub(environment, 'hasSendBeacon').callsFake(() => true);
+          sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(() => true);
 
           metrics.logEvent('event');
           metrics.startTimer('timer1');
@@ -580,8 +580,8 @@ define(function (require, exports, module) {
 
       describe('flush, data has changed, flush again', () => {
         beforeEach(function () {
-          sandbox.stub(environment, 'hasSendBeacon', () => true);
-          sandbox.stub(windowMock.navigator, 'sendBeacon', () => true);
+          sandbox.stub(environment, 'hasSendBeacon').callsFake(() => true);
+          sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(() => true);
           metrics.logMarketingImpression(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL);
           return metrics.flush()
             .then(() => {
@@ -602,10 +602,10 @@ define(function (require, exports, module) {
 
       describe('flush with timer', function () {
         beforeEach(function (done) {
-          sandbox.stub(environment, 'hasSendBeacon', function () {
+          sandbox.stub(environment, 'hasSendBeacon').callsFake(function () {
             return true;
           });
-          sandbox.stub(windowMock.navigator, 'sendBeacon', () => true);
+          sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(() => true);
           metrics.startTimer('foo');
           setTimeout(function () {
             metrics.stopTimer('foo');
@@ -633,7 +633,7 @@ define(function (require, exports, module) {
         let sendCount = 0;
         const events = [];
 
-        sandbox.stub(metrics, '_send', data => {
+        sandbox.stub(metrics, '_send').callsFake(data => {
           events[sendCount++] = data.events;
           if (sendCount < 3) {
             // Trigger re-entrant flushes the first couple of times
@@ -790,8 +790,8 @@ define(function (require, exports, module) {
       });
 
       it('correctly reports count', () => {
-        sinon.stub(metrics, '_send', () => p(true));
-        sinon.stub(metrics, '_isFlushRequired', () => true);
+        sinon.stub(metrics, '_send').callsFake(() => p(true));
+        sinon.stub(metrics, '_isFlushRequired').callsFake(() => true);
 
         return metrics.flush()
           .then(() => {

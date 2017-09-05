@@ -76,7 +76,7 @@ define(function (require, exports, module) {
           window: windowMock
         });
 
-        sinon.stub(view, 'checkAuthorization',  function () {
+        sinon.stub(view, 'checkAuthorization').callsFake(function () {
           return p(true);
         });
         account = user.initAccount({
@@ -84,13 +84,13 @@ define(function (require, exports, module) {
           email: 'a@a.com',
           verified: true
         });
-        sinon.stub(account, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar').callsFake(function () {
           return p({ avatar: pngSrc, id: 'foo' });
         });
-        sinon.stub(account, 'profileClient', function () {
+        sinon.stub(account, 'profileClient').callsFake(function () {
           return p(profileClientMock);
         });
-        sinon.stub(view, 'getSignedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount').callsFake(function () {
           return account;
         });
 
@@ -102,7 +102,7 @@ define(function (require, exports, module) {
       });
 
       it('can remove the avatar', function () {
-        sinon.stub(view, 'deleteDisplayedAccountProfileImage', function () {
+        sinon.stub(view, 'deleteDisplayedAccountProfileImage').callsFake(function () {
           return p();
         });
 
@@ -119,7 +119,7 @@ define(function (require, exports, module) {
       });
 
       it('shows error if delete fails', function () {
-        sinon.stub(profileClientMock, 'deleteAvatar', function () {
+        sinon.stub(profileClientMock, 'deleteAvatar').callsFake(function () {
           return p.reject(ProfileClient.Errors.toError('IMAGE_PROCESSING_ERROR'));
         });
 
@@ -190,7 +190,7 @@ define(function (require, exports, module) {
               var ev = FileReaderMock._mockPngEvent();
 
 
-              sinon.stub(view, 'navigate', function (url, options) {
+              sinon.stub(view, 'navigate').callsFake(function (url, options) {
                 wrapAssertion(function () {
                   assert.equal(url, 'settings/avatar/crop');
                   var cropImg = options.cropImg;
@@ -211,7 +211,7 @@ define(function (require, exports, module) {
           .then(function () {
             var ev = FileReaderMock._mockPngEvent();
 
-            sinon.stub(view, 'navigate', function () {
+            sinon.stub(view, 'navigate').callsFake(function () {
               wrapAssertion(function () {
                 assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.new'));
                 assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.change'));
@@ -227,7 +227,7 @@ define(function (require, exports, module) {
         view.FileReader = FileReaderMock;
 
         account.getAvatar.restore();
-        sinon.stub(account, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar').callsFake(function () {
           return p({ avatar: pngSrc, id: null });
         });
 
@@ -235,7 +235,7 @@ define(function (require, exports, module) {
           .then(function () {
             var ev = FileReaderMock._mockPngEvent();
 
-            sinon.stub(view, 'navigate', function () {
+            sinon.stub(view, 'navigate').callsFake(function () {
               wrapAssertion(function () {
                 assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.new'));
                 assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.avatar.change.submit.change'));

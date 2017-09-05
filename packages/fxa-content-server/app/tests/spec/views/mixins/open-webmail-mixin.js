@@ -117,7 +117,7 @@ define(function (require, exports, module) {
 
     describe('click on `open-webmail` button', function () {
       beforeEach(function () {
-        sinon.stub(view, '_webmailTabOpened', (event) => {
+        sinon.stub(view, '_webmailTabOpened').callsFake((event) => {
           // prevent default or else the test redirects
           event.preventDefault();
         });

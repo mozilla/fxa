@@ -237,7 +237,7 @@ define(function (require, exports, module) {
           describe('is unknown', function () {
             beforeEach(function () {
               oAuthClient.getClientInfo.restore();
-              sinon.stub(oAuthClient, 'getClientInfo', function () {
+              sinon.stub(oAuthClient, 'getClientInfo').callsFake(function () {
                 var err = OAuthErrors.toError('INVALID_PARAMETER');
                 err.validation = {
                   keys: ['client_id']
@@ -332,7 +332,7 @@ define(function (require, exports, module) {
 
           describe('untrusted reliers', function () {
             beforeEach(function () {
-              sinon.stub(relier, 'isTrusted', function () {
+              sinon.stub(relier, 'isTrusted').callsFake(function () {
                 return false;
               });
             });
@@ -347,10 +347,10 @@ define(function (require, exports, module) {
 
           describe('trusted reliers that dont ask for consent', function () {
             beforeEach(function () {
-              sinon.stub(relier, 'isTrusted', function () {
+              sinon.stub(relier, 'isTrusted').callsFake(function () {
                 return true;
               });
-              sinon.stub(relier, 'wantsConsent', function () {
+              sinon.stub(relier, 'wantsConsent').callsFake(function () {
                 return false;
               });
             });
@@ -362,10 +362,10 @@ define(function (require, exports, module) {
 
           describe('trusted reliers that ask for consent', function () {
             beforeEach(function () {
-              sinon.stub(relier, 'isTrusted', function () {
+              sinon.stub(relier, 'isTrusted').callsFake(function () {
                 return true;
               });
-              sinon.stub(relier, 'wantsConsent', function () {
+              sinon.stub(relier, 'wantsConsent').callsFake(function () {
                 return true;
               });
             });
@@ -519,7 +519,7 @@ define(function (require, exports, module) {
 
         hasSeenPermissions = false;
 
-        sinon.stub(account, 'hasSeenPermissions', function () {
+        sinon.stub(account, 'hasSeenPermissions').callsFake(function () {
           return hasSeenPermissions;
         });
 
@@ -613,7 +613,7 @@ define(function (require, exports, module) {
         oAuthClient.getClientInfo.restore();
       }
 
-      sinon.stub(oAuthClient, 'getClientInfo', function () {
+      sinon.stub(oAuthClient, 'getClientInfo').callsFake(function () {
         var clientInfo = {
           id: CLIENT_ID,
           name: SERVICE_NAME,

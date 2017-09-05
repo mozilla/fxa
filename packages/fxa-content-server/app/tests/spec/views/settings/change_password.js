@@ -69,11 +69,11 @@ define(function (require, exports, module) {
           sessionToken: 'abc123',
           verified: true
         });
-        sinon.stub(account, 'isSignedIn', function () {
+        sinon.stub(account, 'isSignedIn').callsFake(function () {
           return p(true);
         });
 
-        sinon.stub(view, 'getSignedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount').callsFake(function () {
           return account;
         });
 
@@ -162,12 +162,12 @@ define(function (require, exports, module) {
             $('#old_password').val(oldPassword);
             $('#new_password').val(newPassword);
 
-            sinon.stub(user, 'changeAccountPassword', function () {
+            sinon.stub(user, 'changeAccountPassword').callsFake(function () {
               return p({});
             });
 
-            sinon.stub(view, 'navigate', function () { });
-            sinon.stub(view, 'displaySuccess', function () { });
+            sinon.stub(view, 'navigate').callsFake(function () { });
+            sinon.stub(view, 'displaySuccess').callsFake(function () { });
 
             sinon.spy(broker, 'afterChangePassword');
 
@@ -199,11 +199,11 @@ define(function (require, exports, module) {
             $('#old_password').val('bad_password');
             $('#new_password').val('bad_password');
 
-            sinon.stub(user, 'changeAccountPassword', function () {
+            sinon.stub(user, 'changeAccountPassword').callsFake(function () {
               return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
             });
 
-            sinon.stub(view, 'showValidationError', function () { });
+            sinon.stub(view, 'showValidationError').callsFake(function () { });
             return view.submit();
           });
 
@@ -218,11 +218,11 @@ define(function (require, exports, module) {
             $('#old_password').val('password');
             $('#new_password').val('password');
 
-            sinon.stub(user, 'changeAccountPassword', function () {
+            sinon.stub(user, 'changeAccountPassword').callsFake(function () {
               return p.reject(AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT'));
             });
 
-            sinon.stub(view, 'showValidationError', function () { });
+            sinon.stub(view, 'showValidationError').callsFake(function () { });
             return view.submit();
           });
 

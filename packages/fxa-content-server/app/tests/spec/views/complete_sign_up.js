@@ -87,7 +87,7 @@ define(function (require, exports, module) {
       user = new User({
         notifier: notifier
       });
-      sinon.stub(user, 'setAccount', () => {});
+      sinon.stub(user, 'setAccount').callsFake(() => {});
 
       verificationError = null;
       windowMock = new WindowMock();
@@ -100,7 +100,7 @@ define(function (require, exports, module) {
         uid: validUid
       });
 
-      sinon.stub(account, 'verifySignUp', function () {
+      sinon.stub(account, 'verifySignUp').callsFake(function () {
         if (verificationError) {
           return p.reject(verificationError);
         } else {
@@ -109,7 +109,7 @@ define(function (require, exports, module) {
       });
 
       isSignedIn = true;
-      sinon.stub(account, 'isSignedIn', () => p(isSignedIn));
+      sinon.stub(account, 'isSignedIn').callsFake(() => p(isSignedIn));
 
       windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
       initView(account);
@@ -127,7 +127,7 @@ define(function (require, exports, module) {
     describe('getAccount', function () {
       describe('if verifying in the same browser', function () {
         beforeEach(function () {
-          sinon.stub(user, 'getAccountByUid', () => account);
+          sinon.stub(user, 'getAccountByUid').callsFake(() => account);
 
           // do not pass in an account, to simulate how the module
           // is initialized in the app. The account should be
@@ -143,7 +143,7 @@ define(function (require, exports, module) {
 
       describe('if verifying in a second browser', function () {
         beforeEach(function () {
-          sinon.stub(user, 'getAccountByUid', function () {
+          sinon.stub(user, 'getAccountByUid').callsFake(function () {
             // return the "default" account simulating the user verifying
             // in a second browser.
             return user.initAccount({});
@@ -309,7 +309,7 @@ define(function (require, exports, module) {
           verificationError = MarketingEmailErrors.toError('USAGE_ERROR');
 
           sinon.spy(view, 'logError');
-          sinon.stub(view, '_notifyBrokerAndComplete', () => p());
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
 
           return view.render();
         });
@@ -336,7 +336,7 @@ define(function (require, exports, module) {
         describe('with sessionToken available (user verifies in same browser)', function () {
           beforeEach(function () {
             verificationError = AuthErrors.toError('UNKNOWN_ACCOUNT', 'who are you?');
-            sinon.stub(user, 'getAccountByEmail', function () {
+            sinon.stub(user, 'getAccountByEmail').callsFake(function () {
               return user.initAccount({
                 sessionToken: 'abc123'
               });
@@ -354,7 +354,7 @@ define(function (require, exports, module) {
         describe('without a sessionToken (user verifies in a different browser)', function () {
           beforeEach(function () {
             verificationError = AuthErrors.toError('UNKNOWN_ACCOUNT', 'who are you?');
-            sinon.stub(user, 'getAccountByEmail', function () {
+            sinon.stub(user, 'getAccountByEmail').callsFake(function () {
               return user.initAccount();
             });
             return testShowsExpiredScreen();
@@ -424,10 +424,10 @@ define(function (require, exports, module) {
 
       describe('success', () => {
         beforeEach(() => {
-          sinon.stub(user, 'completeAccountSignUp', () => p());
+          sinon.stub(user, 'completeAccountSignUp').callsFake(() => p());
 
-          sinon.stub(view, 'invokeBrokerMethod', () => p());
-          sinon.stub(view, '_navigateToNextScreen', () => {});
+          sinon.stub(view, 'invokeBrokerMethod').callsFake(() => p());
+          sinon.stub(view, '_navigateToNextScreen').callsFake(() => {});
           sinon.spy(view, 'logViewEvent');
 
           sinon.spy(notifier, 'trigger');
@@ -455,7 +455,7 @@ define(function (require, exports, module) {
 
       describe('for sign-up', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isSignUp', () => true);
+          sinon.stub(view, 'isSignUp').callsFake(() => true);
           return view._navigateToVerifiedScreen();
         });
 
@@ -467,7 +467,7 @@ define(function (require, exports, module) {
 
       describe('for sign-in', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isSignUp', () => false);
+          sinon.stub(view, 'isSignUp').callsFake(() => false);
           return view._navigateToVerifiedScreen();
         });
 
@@ -485,8 +485,8 @@ define(function (require, exports, module) {
 
       describe('sync relier', () => {
         beforeEach(() => {
-          sinon.stub(relier, 'isSync', () => true);
-          sinon.stub(relier, 'isOAuth', () => false);
+          sinon.stub(relier, 'isSync').callsFake(() => true);
+          sinon.stub(relier, 'isOAuth').callsFake(() => false);
         });
 
         describe('user is eligible for CAD', () => {
@@ -495,9 +495,9 @@ define(function (require, exports, module) {
           beforeEach(() => {
             account = user.initAccount({});
 
-            sinon.stub(view, 'isEligibleForConnectAnotherDevice', () => true);
-            sinon.stub(view, 'navigateToConnectAnotherDeviceScreen', () => p());
-            sinon.stub(view, 'getAccount', () => account);
+            sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
+            sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => p());
+            sinon.stub(view, 'getAccount').callsFake(() => account);
 
             return view._navigateToNextScreen();
           });
@@ -510,7 +510,7 @@ define(function (require, exports, module) {
 
         describe('user is not eligible to connect another device', () => {
           beforeEach(() => {
-            sinon.stub(view, 'isEligibleForConnectAnotherDevice', () => false);
+            sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => false);
             sinon.spy(view, '_navigateToVerifiedScreen');
             return view._navigateToNextScreen();
           });
@@ -523,8 +523,8 @@ define(function (require, exports, module) {
 
       describe('oauth relier', () => {
         beforeEach(() => {
-          sinon.stub(relier, 'isSync', () => false);
-          sinon.stub(relier, 'isOAuth', () => true);
+          sinon.stub(relier, 'isSync').callsFake(() => false);
+          sinon.stub(relier, 'isOAuth').callsFake(() => true);
           sinon.spy(view, '_navigateToVerifiedScreen');
 
           return view._navigateToNextScreen();
@@ -581,15 +581,15 @@ define(function (require, exports, module) {
             uid: validUid
           });
 
-          sinon.stub(account, 'verifySignUp', () => p());
-          sinon.stub(retrySignUpAccount, 'retrySignUp', () => p());
-          sinon.stub(user, 'getAccountByUid', () => account);
-          sinon.stub(user, 'getAccountByEmail', () => retrySignUpAccount);
+          sinon.stub(account, 'verifySignUp').callsFake(() => p());
+          sinon.stub(retrySignUpAccount, 'retrySignUp').callsFake(() => p());
+          sinon.stub(user, 'getAccountByUid').callsFake(() => account);
+          sinon.stub(user, 'getAccountByEmail').callsFake(() => retrySignUpAccount);
 
           windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
           initView();
 
-          sinon.stub(view, 'getStringifiedResumeToken', () => 'resume token');
+          sinon.stub(view, 'getStringifiedResumeToken').callsFake(() => 'resume token');
 
           return view.render()
             .then(function () {
@@ -611,11 +611,11 @@ define(function (require, exports, module) {
 
       describe('resend with invalid resend token', function () {
         beforeEach(function () {
-          sinon.stub(account, 'retrySignUp', function () {
+          sinon.stub(account, 'retrySignUp').callsFake(function () {
             return p.reject(AuthErrors.toError('INVALID_TOKEN'));
           });
 
-          sinon.stub(user, 'getAccountByEmail', function () {
+          sinon.stub(user, 'getAccountByEmail').callsFake(function () {
             return account;
           });
 
@@ -631,11 +631,11 @@ define(function (require, exports, module) {
 
       describe('other resend errors', function () {
         beforeEach(function () {
-          sinon.stub(account, 'retrySignUp', function () {
+          sinon.stub(account, 'retrySignUp').callsFake(function () {
             return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
           });
 
-          sinon.stub(user, 'getAccountByEmail', function () {
+          sinon.stub(user, 'getAccountByEmail').callsFake(function () {
             return account;
           });
         });

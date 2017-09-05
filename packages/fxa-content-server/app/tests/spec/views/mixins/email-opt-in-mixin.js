@@ -46,7 +46,7 @@ define(function (require, exports, module) {
       let communicationPrefsVisible;
 
       beforeEach(() => {
-        sinon.stub(experimentGroupingRules, 'choose', () => communicationPrefsVisible);
+        sinon.stub(experimentGroupingRules, 'choose').callsFake(() => communicationPrefsVisible);
         sinon.spy(view, 'logViewEvent');
         sinon.spy(view, 'template');
       });

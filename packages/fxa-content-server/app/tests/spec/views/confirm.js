@@ -72,7 +72,7 @@ define(function (require, exports, module) {
         type: SIGNUP_REASON
       });
 
-      sinon.stub(user, 'setSignedInAccount', () => p());
+      sinon.stub(user, 'setSignedInAccount').callsFake(() => p());
 
       view = new View({
         broker: broker,
@@ -174,12 +174,12 @@ define(function (require, exports, module) {
       it('notifies the broker before the confirmation', function () {
         sinon.spy(broker, 'persistVerificationData');
 
-        sinon.stub(broker, 'beforeSignUpConfirmationPoll', function (account) {
+        sinon.stub(broker, 'beforeSignUpConfirmationPoll').callsFake(function (account) {
           assert.isTrue(account.get('customizeSync'));
           return p();
         });
 
-        sinon.stub(view, 'waitForSessionVerification', () => {});
+        sinon.stub(view, 'waitForSessionVerification').callsFake(() => {});
 
         return view.afterVisible()
           .then(function () {
@@ -197,8 +197,8 @@ define(function (require, exports, module) {
 
     describe('session verifiation completes', () => {
       it('invokes `_gotoNextScreen`', () => {
-        sinon.stub(view, '_gotoNextScreen', () => {});
-        sinon.stub(sessionVerificationPoll, 'start', () => {});
+        sinon.stub(view, '_gotoNextScreen').callsFake(() => {});
+        sinon.stub(sessionVerificationPoll, 'start').callsFake(() => {});
 
         return view.afterVisible()
           .then(() => {
@@ -212,8 +212,8 @@ define(function (require, exports, module) {
     describe('_gotoNextScreen', () => {
       describe('signup', function () {
         it('notifies the broker after the account is confirmed', function () {
-          sinon.stub(view, 'isSignUp', () => true);
-          sinon.stub(view, 'isSignIn', () => false);
+          sinon.stub(view, 'isSignUp').callsFake(() => true);
+          sinon.stub(view, 'isSignIn').callsFake(() => false);
 
           return testGotoNextScreen('afterSignUpConfirmationPoll');
         });
@@ -221,8 +221,8 @@ define(function (require, exports, module) {
 
       describe('signin', function () {
         it('notifies the broker after the account is confirmed', function () {
-          sinon.stub(view, 'isSignUp', () => false);
-          sinon.stub(view, 'isSignIn', () => true);
+          sinon.stub(view, 'isSignUp').callsFake(() => false);
+          sinon.stub(view, 'isSignIn').callsFake(() => true);
 
           return testGotoNextScreen('afterSignInConfirmationPoll');
         });
@@ -231,8 +231,8 @@ define(function (require, exports, module) {
       function testGotoNextScreen(expectedBrokerCall) {
         const notifySpy = sinon.spy(view.notifier, 'trigger');
 
-        sinon.stub(broker, expectedBrokerCall, () => p());
-        sinon.stub(user, 'setAccount', () => p());
+        sinon.stub(broker, expectedBrokerCall).callsFake(() => p());
+        sinon.stub(user, 'setAccount').callsFake(() => p());
 
         return view._gotoNextScreen()
           .then(function () {
@@ -247,8 +247,8 @@ define(function (require, exports, module) {
 
     describe('resend', function () {
       it('resends the confirmation email', function () {
-        sinon.stub(account, 'retrySignUp', () => p());
-        sinon.stub(view, 'getStringifiedResumeToken', () => 'resume token');
+        sinon.stub(account, 'retrySignUp').callsFake(() => p());
+        sinon.stub(view, 'getStringifiedResumeToken').callsFake(() => 'resume token');
 
         return view.resend()
           .then(() => {
@@ -265,7 +265,7 @@ define(function (require, exports, module) {
 
       describe('with an invalid resend token', function () {
         beforeEach(function () {
-          sinon.stub(account, 'retrySignUp', function () {
+          sinon.stub(account, 'retrySignUp').callsFake(function () {
             return p.reject(AuthErrors.toError('INVALID_TOKEN'));
           });
 
@@ -283,7 +283,7 @@ define(function (require, exports, module) {
         let error;
 
         beforeEach(function () {
-          sinon.stub(account, 'retrySignUp', function () {
+          sinon.stub(account, 'retrySignUp').callsFake(function () {
             return p.reject(new Error('synthesized error from auth server'));
           });
 

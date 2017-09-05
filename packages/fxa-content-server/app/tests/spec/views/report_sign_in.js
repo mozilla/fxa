@@ -95,8 +95,8 @@ define(function (require, exports, module) {
 
     describe('submit', () => {
       beforeEach(() => {
-        sinon.stub(view, 'navigate', () => {});
-        sinon.stub(user, 'rejectAccountUnblockCode', () => p());
+        sinon.stub(view, 'navigate').callsFake(() => {});
+        sinon.stub(user, 'rejectAccountUnblockCode').callsFake(() => p());
 
         return view.submit();
       });

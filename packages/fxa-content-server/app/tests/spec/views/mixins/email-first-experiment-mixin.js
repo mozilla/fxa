@@ -75,7 +75,7 @@ define((require, exports, module) => {
 
     it('isInEmailFirstExperiment delegates to `isInExperiment` correctly', () => {
       sandbox.spy(view, '_getEmailFirstExperimentSubject');
-      sandbox.stub(view, 'isInExperiment', () => true);
+      sandbox.stub(view, 'isInExperiment').callsFake(() => true);
 
       assert.isTrue(view.isInEmailFirstExperiment());
 
@@ -90,7 +90,7 @@ define((require, exports, module) => {
 
     it('isInEmailFirstExperimentGroup delegates to `isInExperimentGroup` correctly', () => {
       sandbox.spy(view, '_getEmailFirstExperimentSubject');
-      sandbox.stub(view, 'isInExperimentGroup', () => true);
+      sandbox.stub(view, 'isInExperimentGroup').callsFake(() => true);
 
       assert.isTrue(view.isInEmailFirstExperimentGroup('treatment'));
 
@@ -111,8 +111,8 @@ define((require, exports, module) => {
       });
 
       it('does nothing for users not in the experiment', () => {
-        sandbox.stub(view, 'isInEmailFirstExperiment', () => false);
-        sandbox.stub(view, 'isInEmailFirstExperimentGroup', () => false);
+        sandbox.stub(view, 'isInEmailFirstExperiment').callsFake(() => false);
+        sandbox.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => false);
 
         view.beforeRender();
 
@@ -122,8 +122,8 @@ define((require, exports, module) => {
       });
 
       it('creates the experiment for users in the control group, does not redirect', () => {
-        sandbox.stub(view, 'isInEmailFirstExperiment', () => true);
-        sandbox.stub(view, 'getEmailFirstExperimentGroup', () => 'control');
+        sandbox.stub(view, 'isInEmailFirstExperiment').callsFake(() => true);
+        sandbox.stub(view, 'getEmailFirstExperimentGroup').callsFake(() => 'control');
 
         view.beforeRender();
 
@@ -136,8 +136,8 @@ define((require, exports, module) => {
       });
 
       it('creates the experiment for users in the treatment group, redirects if treatmentPathname specified', () => {
-        sandbox.stub(view, 'isInEmailFirstExperiment', () => true);
-        sandbox.stub(view, 'getEmailFirstExperimentGroup', () => 'treatment');
+        sandbox.stub(view, 'isInEmailFirstExperiment').callsFake(() => true);
+        sandbox.stub(view, 'getEmailFirstExperimentGroup').callsFake(() => 'treatment');
 
         view.beforeRender();
 

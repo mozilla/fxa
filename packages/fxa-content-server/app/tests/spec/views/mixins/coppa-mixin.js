@@ -67,7 +67,7 @@ define(function (require, exports, module) {
       it('redirects to `cannot_create_account` if the user is too young', () => {
         view.tooYoung();
 
-        sinon.stub(view, 'navigate', () => {});
+        sinon.stub(view, 'navigate').callsFake(() => {});
         return view.render()
           .then(() => {
             assert.isTrue(view.navigate.calledOnce);
@@ -161,7 +161,7 @@ define(function (require, exports, module) {
     describe('tooYoung', () => {
       it('triggers the `signup.tooyoung` notification, sets a cookie, navigates', () => {
         sinon.spy(notifier, 'trigger');
-        sinon.stub(view, 'navigate', () => {});
+        sinon.stub(view, 'navigate').callsFake(() => {});
 
         view.tooYoung();
 

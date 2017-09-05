@@ -41,7 +41,7 @@ define((require, exports, module) => {
       });
 
       it('navigates to the signin page if there is a user signed in', () => {
-        sinon.stub(user, 'getChooserAccount', () => user.initAccount({
+        sinon.stub(user, 'getChooserAccount').callsFake(() => user.initAccount({
           sessionToken: 'abc123'
         }));
 
@@ -59,7 +59,7 @@ define((require, exports, module) => {
       });
 
       it('navigate to signup page if email is not associated with account', () => {
-        sinon.stub(user, 'checkAccountEmailExists', () => p(false));
+        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => p(false));
 
         return view.render()
           .then(() => {
@@ -69,7 +69,7 @@ define((require, exports, module) => {
       });
 
       it('navigate to signin page if email is associated with account', () => {
-        sinon.stub(user, 'checkAccountEmailExists', () => p(true));
+        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => p(true));
 
         return view.render()
           .then(() => {
@@ -80,9 +80,9 @@ define((require, exports, module) => {
 
       it('logs and swallows any errors that are thrown checking whether the email is registered', () => {
         var err = AuthErrors.toError('THROTTLED');
-        sinon.stub(user, 'checkAccountEmailExists', () => p.reject(err));
+        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => p.reject(err));
         // return a default account to ensure user is sent to signup
-        sinon.stub(user, 'getChooserAccount', () => user.initAccount({}));
+        sinon.stub(user, 'getChooserAccount').callsFake(() => user.initAccount({}));
 
         sinon.spy(view, 'logError');
 

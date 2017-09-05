@@ -55,7 +55,7 @@ define(function (require, exports, module) {
         relier: relier,
         user: user
       });
-      sinon.stub(view, 'getSignedInAccount', function () {
+      sinon.stub(view, 'getSignedInAccount').callsFake(function () {
         return account;
       });
       sinon.spy(user, 'setAccount');
@@ -74,7 +74,7 @@ define(function (require, exports, module) {
 
     describe('displayAccountProfileImage', function () {
       it('does not log an error for a non-authenticated account', function () {
-        sinon.stub(account, 'fetchCurrentProfileImage', function () {
+        sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
           return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
         });
         return view.displayAccountProfileImage(account)
@@ -85,7 +85,7 @@ define(function (require, exports, module) {
       });
 
       it('does not log an error for an unverified account', function () {
-        sinon.stub(account, 'fetchCurrentProfileImage', function () {
+        sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
           return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
         });
         return view.displayAccountProfileImage(account)
@@ -96,7 +96,7 @@ define(function (require, exports, module) {
       });
 
       it('logs other kind of errors', function () {
-        sinon.stub(account, 'fetchCurrentProfileImage', function () {
+        sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
           return p.reject(ProfileErrors.toError('SERVICE_UNAVAILABLE'));
         });
         return view.displayAccountProfileImage(account)
@@ -120,10 +120,10 @@ define(function (require, exports, module) {
           notifier: notifier,
           user: user
         });
-        sinon.stub(account, 'fetchCurrentProfileImage', function () {
+        sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
           return p(new ProfileImage({ id: 'foo', img: new Image(), url: 'url' }));
         });
-        sinon.stub(spinnerView, '_shouldShowDefaultProfileImage', function () {
+        sinon.stub(spinnerView, '_shouldShowDefaultProfileImage').callsFake(function () {
           return false;
         });
         return spinnerView.render();
@@ -168,7 +168,7 @@ define(function (require, exports, module) {
 
       it('resolves and removes the spinner after a timeout, if the transition somehow never ends', function () {
         this.timeout(300); // If this times out, it will do so within 300ms
-        sinon.stub(spinnerView, 'setTimeout', function (callback) {
+        sinon.stub(spinnerView, 'setTimeout').callsFake(function (callback) {
           callback();
         });
 
@@ -189,7 +189,7 @@ define(function (require, exports, module) {
       var image = new ProfileImage({ id: 'foo', img: new Image(), url: 'url' });
 
       sinon.spy(account, 'setProfileImage');
-      sinon.stub(account, 'fetchCurrentProfileImage', function () {
+      sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
         return p(image);
       });
 
@@ -212,10 +212,10 @@ define(function (require, exports, module) {
       });
 
       it('deletes the url if null', function () {
-        sinon.stub(account, 'fetchCurrentProfileImage', function () {
+        sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
           return p(new ProfileImage({ id: 'foo', url: 'url' }));
         });
-        sinon.stub(account, 'deleteAvatar', function () {
+        sinon.stub(account, 'deleteAvatar').callsFake(function () {
           return p();
         });
 

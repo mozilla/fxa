@@ -35,7 +35,7 @@ define(function (require, exports, module) {
     });
 
     it('ftc link opens in a new tab for sync', function () {
-      sinon.stub(relier, 'isSync', function () {
+      sinon.stub(relier, 'isSync').callsFake(function () {
         return true;
       });
 
@@ -47,7 +47,7 @@ define(function (require, exports, module) {
     });
 
     it('ftc link opens in a same tab for all others', function () {
-      sinon.stub(relier, 'isSync', function () {
+      sinon.stub(relier, 'isSync').callsFake(function () {
         return false;
       });
 

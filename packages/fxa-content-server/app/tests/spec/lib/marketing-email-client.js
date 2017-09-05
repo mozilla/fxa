@@ -41,7 +41,7 @@ define(function (require, exports, module) {
 
     describe('_request', function () {
       it('calls xhr.ajax', function () {
-        sinon.stub(xhrMock, 'ajax', function () {
+        sinon.stub(xhrMock, 'ajax').callsFake(function () {
           return p({});
         });
 
@@ -57,7 +57,7 @@ define(function (require, exports, module) {
       });
 
       it('converts any errors returned', function () {
-        sinon.stub(xhrMock, 'ajax', function () {
+        sinon.stub(xhrMock, 'ajax').callsFake(function () {
           return p.reject({
             responseJSON: {
               code: MarketingEmailErrors.toErrno('UNKNOWN_TOKEN')
@@ -74,7 +74,7 @@ define(function (require, exports, module) {
 
     describe('fetch', function () {
       it('returns a preferences URL for the user', function () {
-        sinon.stub(xhrMock, 'ajax', function () {
+        sinon.stub(xhrMock, 'ajax').callsFake(function () {
           return p({
             token: 'users_uuid'
           });

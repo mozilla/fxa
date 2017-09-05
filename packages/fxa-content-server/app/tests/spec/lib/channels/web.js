@@ -82,7 +82,7 @@ define(function (require, exports, module) {
       });
 
       it('throws an error if dispatchEvent fails', () => {
-        sinon.stub(windowMock, 'dispatchEvent', () => {
+        sinon.stub(windowMock, 'dispatchEvent').callsFake(() => {
           throw new Error('Not supported');
         });
 
@@ -104,7 +104,7 @@ define(function (require, exports, module) {
         channel.initialize({
           window: windowMock
         });
-        sinon.stub(windowMock, 'dispatchEvent', function (dispatched) {
+        sinon.stub(windowMock, 'dispatchEvent').callsFake(function (dispatched) {
           channel._receiver.trigger('message', {
             command: 'can_link_account',
             data: { ok: true },
@@ -160,8 +160,8 @@ define(function (require, exports, module) {
           window: windowMock
         });
 
-        sandbox.stub(channel, 'rejectAllOutstandingRequests', () => {});
-        sandbox.stub(DuplexChannel.prototype, 'onErrorReceived', () => {});
+        sandbox.stub(channel, 'rejectAllOutstandingRequests').callsFake(() => {});
+        sandbox.stub(DuplexChannel.prototype, 'onErrorReceived').callsFake(() => {});
       });
 
       afterEach(() => {

@@ -142,8 +142,8 @@ define(function (require, exports, module) {
 
     describe('onFormChange', () => {
       it('hides messages, calls enableSubmitIfValid', () => {
-        sinon.stub(view, 'isHalted', () => false);
-        sinon.stub(view, 'isSubmitting', () => false);
+        sinon.stub(view, 'isHalted').callsFake(() => false);
+        sinon.stub(view, 'isSubmitting').callsFake(() => false);
         sinon.spy(view, 'hideError');
         sinon.spy(view, 'hideSuccess');
         sinon.spy(view, 'enableSubmitIfValid');
@@ -155,8 +155,8 @@ define(function (require, exports, module) {
       });
 
       it('does nothing if submitting', function () {
-        sinon.stub(view, 'isHalted', () => false);
-        sinon.stub(view, 'isSubmitting', () => true);
+        sinon.stub(view, 'isHalted').callsFake(() => false);
+        sinon.stub(view, 'isSubmitting').callsFake(() => true);
         sinon.spy(view, 'enableSubmitIfValid');
 
         view.onFormChange();
@@ -164,8 +164,8 @@ define(function (require, exports, module) {
       });
 
       it('does nothing if halted', function () {
-        sinon.stub(view, 'isHalted', () => true);
-        sinon.stub(view, 'isSubmitting', () => false);
+        sinon.stub(view, 'isHalted').callsFake(() => true);
+        sinon.stub(view, 'isSubmitting').callsFake(() => false);
         sinon.spy(view, 'enableSubmitIfValid');
 
         view.onFormChange();
@@ -173,8 +173,8 @@ define(function (require, exports, module) {
       });
 
       it('notifies of `form.engage` for the first change', () => {
-        sinon.stub(view, 'isHalted', () => false);
-        sinon.stub(view, 'isSubmitting', () => false);
+        sinon.stub(view, 'isHalted').callsFake(() => false);
+        sinon.stub(view, 'isSubmitting').callsFake(() => false);
 
         view.onFormChange();
         assert.isTrue(notifier.trigger.calledOnce);
@@ -187,13 +187,13 @@ define(function (require, exports, module) {
 
     describe('enableSubmitIfValid', function () {
       it('disables submit button if `isValid` returns false', function () {
-        sinon.stub(view, 'isValid', () => false);
+        sinon.stub(view, 'isValid').callsFake(() => false);
         view.enableSubmitIfValid();
         assert.isTrue(view.$('button').hasClass('disabled'));
       });
 
       it('enables submit button if `isValid` returns true', function () {
-        sinon.stub(view, 'isValid', () => true);
+        sinon.stub(view, 'isValid').callsFake(() => true);
         view.enableSubmitIfValid();
         assert.isFalse(view.$('button').hasClass('disabled'));
       });
@@ -556,7 +556,7 @@ define(function (require, exports, module) {
 
       it('shows correct error when an email is missing', function () {
         view.$('input[type="email"]').val('');
-        sinon.stub(view, 'showValidationError', function (el, err) {
+        sinon.stub(view, 'showValidationError').callsFake(function (el, err) {
           assert.ok(el);
           assert.isTrue(AuthErrors.is(err, 'EMAIL_REQUIRED'));
         });
@@ -566,7 +566,7 @@ define(function (require, exports, module) {
 
       it('shows correct error when an email is invalid', function () {
         view.$('input[type="email"]').val('a');
-        sinon.stub(view, 'showValidationError', function (el, err) {
+        sinon.stub(view, 'showValidationError').callsFake(function (el, err) {
           assert.ok(el);
           assert.isTrue(AuthErrors.is(err, 'INVALID_EMAIL'));
         });
@@ -599,7 +599,7 @@ define(function (require, exports, module) {
       });
 
       it('gives subclasses the opportunity to show validation errors at the start', function () {
-        sinon.stub(view, 'showValidationErrorsStart', function () {
+        sinon.stub(view, 'showValidationErrorsStart').callsFake(function () {
           return true;
         });
         view.showValidationErrors();
@@ -737,7 +737,7 @@ define(function (require, exports, module) {
       });
 
       it('returns false if isValidStart returns false', function () {
-        sinon.stub(view, 'isValidStart', function () {
+        sinon.stub(view, 'isValidStart').callsFake(function () {
           return false;
         });
 
@@ -745,7 +745,7 @@ define(function (require, exports, module) {
       });
 
       it('returns false if isValidEnd returns false', function () {
-        sinon.stub(view, 'isValidEnd', function () {
+        sinon.stub(view, 'isValidEnd').callsFake(function () {
           return false;
         });
 
@@ -772,7 +772,7 @@ define(function (require, exports, module) {
 
       beforeEach(() => {
         isEnabled = true;
-        sinon.stub(view, 'isFormEnabled', () => {
+        sinon.stub(view, 'isFormEnabled').callsFake(() => {
           const _isEnabled = isEnabled;
           isEnabled = ! isEnabled;
           return _isEnabled;

@@ -86,9 +86,9 @@ define(function (require, exports, module) {
       let timeoutSpy;
 
       beforeEach(() => {
-        sinon.stub(broker, 'send', () => p());
+        sinon.stub(broker, 'send').callsFake(() => p());
         timeoutSpy = null;
-        sinon.stub(windowMock, 'setTimeout', (callback, timeout) => {
+        sinon.stub(windowMock, 'setTimeout').callsFake((callback, timeout) => {
           // `callback` is only triggered if we trigger it.
           timeoutSpy = sinon.spy(callback);
         });

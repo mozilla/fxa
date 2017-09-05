@@ -109,7 +109,7 @@ define(function (require, exports, module) {
     describe('resend', () => {
       describe('success', () => {
         beforeEach(() => {
-          sinon.stub(account, 'sendUnblockEmail', () => p());
+          sinon.stub(account, 'sendUnblockEmail').callsFake(() => p());
           return view.resend();
         });
 
@@ -122,7 +122,7 @@ define(function (require, exports, module) {
         const err = AuthErrors.toError('UNEXPECTED_ERROR');
 
         beforeEach(() => {
-          sinon.stub(account, 'sendUnblockEmail', () => p.reject(err));
+          sinon.stub(account, 'sendUnblockEmail').callsFake(() => p.reject(err));
           sinon.spy(view, 'displayError');
 
           return view.resend();
@@ -136,7 +136,7 @@ define(function (require, exports, module) {
 
     describe('validateAndSubmit', () => {
       beforeEach(() => {
-        sinon.stub(view, 'submit', () => p());
+        sinon.stub(view, 'submit').callsFake(() => p());
         sinon.spy(view, 'showValidationError');
       });
 
@@ -188,7 +188,7 @@ define(function (require, exports, module) {
     describe('submit', () => {
       describe('success', () => {
         beforeEach(() => {
-          sinon.stub(view, 'signIn', () => p());
+          sinon.stub(view, 'signIn').callsFake(() => p());
 
           view.$('#unblock_code').val(UNBLOCK_CODE);
 
@@ -206,10 +206,9 @@ define(function (require, exports, module) {
           AuthErrors.toError('INCORRECT_PASSWORD');
 
         beforeEach(() => {
-          sinon.stub(view, 'signIn',
-             () => p.reject(incorrectPasswordError));
+          sinon.stub(view, 'signIn').callsFake(() => p.reject(incorrectPasswordError));
 
-          sinon.stub(view, 'navigate', () => p());
+          sinon.stub(view, 'navigate').callsFake(() => p());
 
           view.$('#unblock_code').val(UNBLOCK_CODE);
 
@@ -229,10 +228,9 @@ define(function (require, exports, module) {
         let receivedError;
 
         beforeEach(() => {
-          sinon.stub(view, 'signIn',
-             () => p.reject(unexpectedError));
+          sinon.stub(view, 'signIn').callsFake(() => p.reject(unexpectedError));
 
-          sinon.stub(view, 'navigate', () => p());
+          sinon.stub(view, 'navigate').callsFake(() => p());
 
           view.$('#unblock_code').val(UNBLOCK_CODE);
 
@@ -265,7 +263,7 @@ define(function (require, exports, module) {
 
       describe('broker modifies URL', () => {
         beforeEach(() => {
-          sinon.stub(broker, 'transformLink', (url) => `/oauth/${url}`);
+          sinon.stub(broker, 'transformLink').callsFake((url) => `/oauth/${url}`);
         });
 
         it('returns URL the broker returns', () => {

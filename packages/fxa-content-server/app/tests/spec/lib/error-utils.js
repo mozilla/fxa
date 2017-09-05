@@ -102,7 +102,7 @@ define(function (require, exports, module) {
       var origMessage;
 
       beforeEach(function () {
-        sandbox.stub(ErrorUtils, 'getErrorMessage', function () {
+        sandbox.stub(ErrorUtils, 'getErrorMessage').callsFake(function () {
           throw new Error('Not able to interpolate');
         });
 

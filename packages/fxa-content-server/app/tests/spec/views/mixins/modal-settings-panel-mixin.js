@@ -52,13 +52,13 @@ define(function (require, exports, module) {
       });
 
       it('cancel button click navigates to settings', function () {
-        sinon.stub(view, 'navigate', () => {});
+        sinon.stub(view, 'navigate').callsFake(() => {});
         $('button.cancel').click();
         assert.isTrue(view.navigate.calledWith('settings'));
       });
 
       it('back button click navigates to settings/avatar/change', function () {
-        sinon.stub(view, 'navigate', function () { });
+        sinon.stub(view, 'navigate').callsFake(function () { });
         $('.modal-panel #back').click();
         assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
       });
@@ -71,7 +71,7 @@ define(function (require, exports, module) {
 
     describe('modal-cancel event', () => {
       beforeEach(() => {
-        sinon.stub(view, 'navigate', function () {
+        sinon.stub(view, 'navigate').callsFake(function () {
           this._hasNavigated = true;
         });
       });

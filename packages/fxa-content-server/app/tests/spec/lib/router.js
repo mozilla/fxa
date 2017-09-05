@@ -53,7 +53,7 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
-      sinon.stub(Backbone.Router.prototype, 'navigate', function (url, options) {
+      sinon.stub(Backbone.Router.prototype, 'navigate').callsFake(function (url, options) {
         navigateUrl = url;
         navigateOptions = options;
       });
@@ -186,7 +186,7 @@ define(function (require, exports, module) {
     describe('navigateBack', function () {
       beforeEach(function () {
         sinon.spy(windowMock.history, 'back');
-        sinon.stub(router, 'canGoBack', () => true);
+        sinon.stub(router, 'canGoBack').callsFake(() => true);
 
         router.navigateBack();
       });
@@ -198,7 +198,7 @@ define(function (require, exports, module) {
 
     describe('navigate/navigateBack', () => {
       beforeEach(() => {
-        sinon.stub(router, 'canGoBack', () => true);
+        sinon.stub(router, 'canGoBack').callsFake(() => true);
       });
 
       it('passes the correct model to the correct view', () => {
@@ -410,12 +410,12 @@ define(function (require, exports, module) {
 
     describe('signup flow', () => {
       beforeEach(() => {
-        sinon.stub(router, 'showView', () => {});
+        sinon.stub(router, 'showView').callsFake(() => {});
       });
 
       describe('default flow', () => {
         it('shows the SignUpView', () => {
-          sinon.stub(router, 'getCurrentViewModel', () => new Backbone.Model());
+          sinon.stub(router, 'getCurrentViewModel').callsFake(() => new Backbone.Model());
           router.onSignUp();
           assert.isTrue(router.showView.calledOnce);
           assert.isTrue(router.showView.calledWith(SignUpView));
@@ -434,12 +434,12 @@ define(function (require, exports, module) {
 
     describe('signin flow', () => {
       beforeEach(() => {
-        sinon.stub(router, 'showView', () => {});
+        sinon.stub(router, 'showView').callsFake(() => {});
       });
 
       describe('default flow', () => {
         it('shows the SignInView', () => {
-          sinon.stub(router, 'getCurrentViewModel', () => new Backbone.Model());
+          sinon.stub(router, 'getCurrentViewModel').callsFake(() => new Backbone.Model());
           router.onSignIn();
           assert.isTrue(router.showView.calledOnce);
           assert.isTrue(router.showView.calledWith(SignInView));

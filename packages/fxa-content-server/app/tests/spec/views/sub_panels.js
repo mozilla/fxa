@@ -84,7 +84,7 @@ define(function (require, exports, module) {
 
     describe('childViews', function () {
       it('renders non-modal childViews on render', function () {
-        sinon.stub(view, '_createChildViewIfNeeded', function (View) {
+        sinon.stub(view, '_createChildViewIfNeeded').callsFake(function (View) {
           var childView = new View();
           return childView;
         });
@@ -143,9 +143,9 @@ define(function (require, exports, module) {
       });
 
       it('showChildView renders and opens', function () {
-        sinon.stub(view, '_createChildViewIfNeeded', function (View) {
+        sinon.stub(view, '_createChildViewIfNeeded').callsFake(function (View) {
           var childView = new View();
-          sinon.stub(childView, 'openPanel', function () { });
+          sinon.stub(childView, 'openPanel').callsFake(function () { });
           return p(childView);
         });
 
@@ -166,7 +166,7 @@ define(function (require, exports, module) {
     describe('renderChildView', function () {
       it('calls render and afterVisible on childView', function () {
         var childView = new View();
-        sinon.stub(childView, 'render', function () {
+        sinon.stub(childView, 'render').callsFake(function () {
           return p(true);
         });
         sinon.spy(childView, 'afterVisible');
@@ -181,7 +181,7 @@ define(function (require, exports, module) {
 
       it('destroys childView if render fails', function () {
         var childView = new View();
-        sinon.stub(childView, 'render', function () {
+        sinon.stub(childView, 'render').callsFake(function () {
           return p(false);
         });
         sinon.spy(childView, 'afterVisible');

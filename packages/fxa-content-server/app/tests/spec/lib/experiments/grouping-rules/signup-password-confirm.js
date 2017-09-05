@@ -22,7 +22,7 @@ define((require, exports, module) => {
 
     describe('choose', () => {
       it('delegates to uniformChoice', () => {
-        sinon.stub(experiment, 'uniformChoice', () => 'control');
+        sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
 
         assert.equal(experiment.choose({
           experimentGroupingRules,
@@ -53,7 +53,7 @@ define((require, exports, module) => {
 
         describe('to other experiment', () => {
           it('returns false', () => {
-            sinon.stub(experiment, 'uniformChoice', () => true);
+            sinon.stub(experiment, 'uniformChoice').callsFake(() => true);
             experimentGroupingRules.choose = () => 'disabledButtonState';
 
             assert.isFalse(experiment.choose({

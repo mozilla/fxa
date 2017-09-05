@@ -39,7 +39,7 @@ define(function (require, exports, module) {
 
     describe('_request', function () {
       it('calls an endpoint', function () {
-        sinon.stub(xhr, 'post', function () {
+        sinon.stub(xhr, 'post').callsFake(function () {
           return p({
             ok: true
           });
@@ -54,7 +54,7 @@ define(function (require, exports, module) {
       });
 
       it('converts returned errors to OAuthErrors', function () {
-        sinon.stub(xhr, 'post', function () {
+        sinon.stub(xhr, 'post').callsFake(function () {
           return p.reject({
             responseJSON: {
               code: 400,
@@ -84,7 +84,7 @@ define(function (require, exports, module) {
       it('responds with a redirect', function () {
         var redirect = RP_URL + '?code=code&state=state';
 
-        sinon.stub(client, '_request', function () {
+        sinon.stub(client, '_request').callsFake(function () {
           return p({
             redirect: redirect
           });
@@ -102,7 +102,7 @@ define(function (require, exports, module) {
       var clientId = 'clientId';
 
       it('response with a name and imageUri', function () {
-        sinon.stub(client, '_request', function () {
+        sinon.stub(client, '_request').callsFake(function () {
           return p({
             imageUri: 'https://mozilla.org/firefox.png',
             name: 'MozRP'
@@ -122,7 +122,7 @@ define(function (require, exports, module) {
       it('responds with a token', function () {
         var token = 'access token';
 
-        sinon.stub(client, '_request', function () {
+        sinon.stub(client, '_request').callsFake(function () {
           return p({ //eslint-disable-line camelcase
             access_token: token, //eslint-disable-line camelcase
             scope: 'profile',
@@ -150,7 +150,7 @@ define(function (require, exports, module) {
 
     describe('destroyToken', function () {
       it('destroys a token', function () {
-        sinon.stub(client, '_request', function () {
+        sinon.stub(client, '_request').callsFake(function () {
           return p({});
         });
 
@@ -163,7 +163,7 @@ define(function (require, exports, module) {
 
     describe('fetchOAuthApps', function () {
       it('fetches OAuth Apps', function () {
-        sinon.stub(client._xhr, 'oauthAjax', function () {
+        sinon.stub(client._xhr, 'oauthAjax').callsFake(function () {
           return p({});
         });
 
@@ -180,7 +180,7 @@ define(function (require, exports, module) {
 
     describe('destroyOAuthApp', function () {
       it('deletes OAuth Apps', function () {
-        sinon.stub(client._xhr, 'oauthAjax', function () {
+        sinon.stub(client._xhr, 'oauthAjax').callsFake(function () {
           return p({});
         });
 

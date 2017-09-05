@@ -41,7 +41,7 @@ define(function (require, exports, module) {
 
     describe('_getSyncContext', () => {
       it('returns fx_fennec_v1 for fennec', () => {
-        sinon.stub(view, 'getUserAgent', () => {
+        sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isFirefoxAndroid: () => true,
             isFirefoxDesktop: () => false,
@@ -52,7 +52,7 @@ define(function (require, exports, module) {
       });
 
       it('returns fx_desktop_v3 for desktop users', () => {
-        sinon.stub(view, 'getUserAgent', () => {
+        sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isFirefoxAndroid: () => false,
             isFirefoxDesktop: () => true
@@ -113,7 +113,7 @@ define(function (require, exports, module) {
       let areWebChannelsSupported;
 
       beforeEach(() => {
-        sinon.stub(view, '_hasWebChannelSupport', () => areWebChannelsSupported);
+        sinon.stub(view, '_hasWebChannelSupport').callsFake(() => areWebChannelsSupported);
       });
 
       it('returns true if web channels are supported', () => {
@@ -126,7 +126,7 @@ define(function (require, exports, module) {
 
     describe('_hasWebChannelSupport', () => {
       it('returns `false` if not Firefox', () => {
-        sinon.stub(view, 'getUserAgent', () => {
+        sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             browser: {
               version: 52
@@ -143,7 +143,7 @@ define(function (require, exports, module) {
       });
 
       it('returns `false` if Fx Desktop < 40', () => {
-        sinon.stub(view, 'getUserAgent', () => {
+        sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             browser: {
               version: 39
@@ -160,7 +160,7 @@ define(function (require, exports, module) {
       });
 
       it('returns `false` if Fx Desktop < 43', () => {
-        sinon.stub(view, 'getUserAgent', () => {
+        sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             browser: {
               version: 42
@@ -177,7 +177,7 @@ define(function (require, exports, module) {
       });
 
       it('returns `false` if Fx for iOS', () => {
-        sinon.stub(view, 'getUserAgent', () => {
+        sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             browser: {
               version: 6
@@ -194,7 +194,7 @@ define(function (require, exports, module) {
       });
 
       it('returns true if Fx Desktop >= 40', () => {
-        sinon.stub(view, 'getUserAgent', () => {
+        sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             browser: {
               version: 40
@@ -211,7 +211,7 @@ define(function (require, exports, module) {
       });
 
       it('returns true if Fennec >= 43', () => {
-        sinon.stub(view, 'getUserAgent', () => {
+        sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             browser: {
               version: 43

@@ -89,7 +89,7 @@ define(function (require, exports, module) {
       });
 
       oAuthClient = new OAuthClient();
-      sinon.stub(oAuthClient, 'getClientInfo', function () {
+      sinon.stub(oAuthClient, 'getClientInfo').callsFake(function () {
         return p({
           name: '123Done',
           redirect_uri: BASE_REDIRECT_URL //eslint-disable-line camelcase
@@ -158,11 +158,11 @@ define(function (require, exports, module) {
       it('redirects to /confirm on success', function () {
         fillOutSignUp(email, 'password', { context: view });
 
-        sinon.stub(user, 'signUpAccount', function (account) {
+        sinon.stub(user, 'signUpAccount').callsFake(function (account) {
           return p(account);
         });
 
-        sinon.stub(relier, 'accountNeedsPermissions', function () {
+        sinon.stub(relier, 'accountNeedsPermissions').callsFake(function () {
           return false;
         });
 

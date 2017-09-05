@@ -156,7 +156,7 @@ define(function (require, exports, module) {
     describe('submit with valid input', function () {
       var email;
       beforeEach(function () {
-        sinon.stub(view, 'resetPassword', function () {
+        sinon.stub(view, 'resetPassword').callsFake(function () {
           return p({ passwordForgotToken: 'foo' });
         });
 
@@ -175,7 +175,7 @@ define(function (require, exports, module) {
 
     describe('submit with unknown email address', function () {
       it('shows an error message', function () {
-        sinon.stub(view, 'resetPassword', function () {
+        sinon.stub(view, 'resetPassword').callsFake(function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
 
@@ -191,7 +191,7 @@ define(function (require, exports, module) {
 
     describe('submit when user cancelled login', function () {
       it('logs an error', function () {
-        sinon.stub(view, 'resetPassword', function () {
+        sinon.stub(view, 'resetPassword').callsFake(function () {
           return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
         });
 
@@ -210,7 +210,7 @@ define(function (require, exports, module) {
 
     describe('submit with other error', function () {
       it('passes other errors along', function () {
-        sinon.stub(view, 'resetPassword', function () {
+        sinon.stub(view, 'resetPassword').callsFake(function () {
           return p.reject(AuthErrors.toError('INVALID_JSON'));
         });
 
@@ -381,7 +381,7 @@ define(function (require, exports, module) {
         relier: relier
       });
 
-      sinon.stub(view, 'resetPassword', function () {
+      sinon.stub(view, 'resetPassword').callsFake(function () {
         return p();
       });
 

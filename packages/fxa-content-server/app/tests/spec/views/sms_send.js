@@ -40,7 +40,7 @@
          relier,
          viewName: 'sms-send'
        });
-       sinon.stub(view, 'checkAuthorization', () => p(true));
+       sinon.stub(view, 'checkAuthorization').callsFake(() => p(true));
      }
 
      beforeEach(() => {
@@ -138,9 +138,9 @@
      describe('submit', () => {
        describe('succeeds', () => {
          it('it delegates to `account.sendSms`, calls `_onSendSmsSuccess`', () => {
-           sinon.stub(account, 'sendSms', () => p());
+           sinon.stub(account, 'sendSms').callsFake(() => p());
            sinon.spy(view, '_onSendSmsSuccess');
-           sinon.stub(view, 'getSmsFeatures', () => ['signinCodes']);
+           sinon.stub(view, 'getSmsFeatures').callsFake(() => ['signinCodes']);
            view.$('input[type=tel]').val('1234567890');
 
            return view.submit()
@@ -159,7 +159,7 @@
        describe('errors', () => {
          it('it delegates to `account.sendSms`, calls `_onSendSmsError` with the error', () => {
            const err = AuthErrors.toError('UNEXPECTED ERROR');
-           sinon.stub(account, 'sendSms', () => p.reject(err));
+           sinon.stub(account, 'sendSms').callsFake(() => p.reject(err));
            sinon.spy(view, '_onSendSmsError');
            view.$('input[type=tel]').val('1234567890');
 
@@ -294,7 +294,7 @@
        beforeEach(() => {
          sinon.spy(view, 'logFlowEvent');
          sinon.spy(view, 'logFlowEventOnce');
-         sinon.stub(view, 'navigate', () => {});
+         sinon.stub(view, 'navigate').callsFake(() => {});
        });
 
        it('logs a click on `why is this required`', () => {

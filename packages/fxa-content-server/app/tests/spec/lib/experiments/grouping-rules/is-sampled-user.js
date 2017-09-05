@@ -28,7 +28,7 @@ define(function (require, exports, module) {
 
     describe('choose', () => {
       it('delegates to bernoulliTrial', () => {
-        sinon.stub(experiment, 'bernoulliTrial', () => true);
+        sinon.stub(experiment, 'bernoulliTrial').callsFake(() => true);
 
         assert.isTrue(experiment.choose({ env: 'production', uniqueUserId: 'user-id' }));
         assert.isTrue(experiment.bernoulliTrial.calledOnce);

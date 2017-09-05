@@ -92,7 +92,7 @@ define(function (require, exports, module) {
       });
 
       it('uses opens external links in new tabs with about:accounts', () => {
-        sinon.stub(broker.environment, 'isAboutAccounts', function () {
+        sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function () {
           return true;
         });
 
@@ -103,7 +103,7 @@ define(function (require, exports, module) {
       });
 
       it('has no target attr if not about:accounts', () => {
-        sinon.stub(broker.environment, 'isAboutAccounts', function () {
+        sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function () {
           return false;
         });
 
@@ -116,8 +116,8 @@ define(function (require, exports, module) {
 
     describe('_onExternalLinkClick', () => {
       it('does nothing of the link is ignored', () => {
-        sinon.stub(view, '_shouldIgnoreClick', () => true);
-        sinon.stub(view, '_flushMetricsThenRedirect', () => p());
+        sinon.stub(view, '_shouldIgnoreClick').callsFake(() => true);
+        sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => p());
 
         const event = {
           preventDefault: sinon.spy(),
@@ -133,8 +133,8 @@ define(function (require, exports, module) {
       });
 
       it('handles links that should be handled (cancel event, flush metrics)', () => {
-        sinon.stub(view, '_shouldIgnoreClick', () => false);
-        sinon.stub(view, '_flushMetricsThenRedirect', () => p());
+        sinon.stub(view, '_shouldIgnoreClick').callsFake(() => false);
+        sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => p());
 
         const event = {
           currentTarget: {
@@ -154,22 +154,22 @@ define(function (require, exports, module) {
 
     describe('_shouldIgnoreClick', () => {
       it('returns `true` if event is modified or prevented', () => {
-        sinon.stub(view, '_isEventModifiedOrPrevented', () => true);
-        sinon.stub(view, '_doesLinkOpenInAnotherTab', () => false);
+        sinon.stub(view, '_isEventModifiedOrPrevented').callsFake(() => true);
+        sinon.stub(view, '_doesLinkOpenInAnotherTab').callsFake(() => false);
         const event = { currentTarget: {} };
         assert.isTrue(view._shouldIgnoreClick(event));
       });
 
       it('returns `true` if event opens in another tab', () => {
-        sinon.stub(view, '_isEventModifiedOrPrevented', () => false);
-        sinon.stub(view, '_doesLinkOpenInAnotherTab', () => true);
+        sinon.stub(view, '_isEventModifiedOrPrevented').callsFake(() => false);
+        sinon.stub(view, '_doesLinkOpenInAnotherTab').callsFake(() => true);
         const event = { currentTarget: {} };
         assert.isTrue(view._shouldIgnoreClick(event));
       });
 
       it('returns `false` otherwise', () => {
-        sinon.stub(view, '_isEventModifiedOrPrevented', () => false);
-        sinon.stub(view, '_doesLinkOpenInAnotherTab', () => false);
+        sinon.stub(view, '_isEventModifiedOrPrevented').callsFake(() => false);
+        sinon.stub(view, '_doesLinkOpenInAnotherTab').callsFake(() => false);
         const event = { currentTarget: {} };
         assert.isFalse(view._shouldIgnoreClick(event));
       });
@@ -251,7 +251,7 @@ define(function (require, exports, module) {
 
     describe('_flushMetricsThenRedirect', () => {
       it('flushes the metrics, then redirects', () => {
-        sinon.stub(metrics, 'flush', () => p());
+        sinon.stub(metrics, 'flush').callsFake(() => p());
 
         return view._flushMetricsThenRedirect('url')
           .then(() => {

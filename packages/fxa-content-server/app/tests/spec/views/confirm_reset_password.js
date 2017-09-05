@@ -47,8 +47,8 @@ define(function (require, exports, module) {
       relier = new Relier();
       windowMock = new WindowMock();
 
-      sinon.stub(windowMock, 'setTimeout', window.setTimeout.bind(window));
-      sinon.stub(windowMock, 'clearTimeout', window.clearTimeout.bind(window));
+      sinon.stub(windowMock, 'setTimeout').callsFake(window.setTimeout.bind(window));
+      sinon.stub(windowMock, 'clearTimeout').callsFake(window.clearTimeout.bind(window));
 
       broker = new Broker({
         relier: relier
@@ -60,7 +60,7 @@ define(function (require, exports, module) {
         storage: Storage.factory('localStorage')
       });
 
-      sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+      sinon.stub(fxaClient, 'isPasswordResetComplete').callsFake(function () {
         return p(true);
       });
 
@@ -134,7 +134,7 @@ define(function (require, exports, module) {
       });
 
       it('`sign in` link goes to /force_auth in force auth flow', function () {
-        sinon.stub(broker, 'isForceAuth', function () {
+        sinon.stub(broker, 'isForceAuth').callsFake(function () {
           return true;
         });
 
@@ -147,7 +147,7 @@ define(function (require, exports, module) {
       });
 
       it('does not allow XSS emails through for forceAuth', function () {
-        sinon.stub(broker, 'isForceAuth', function () {
+        sinon.stub(broker, 'isForceAuth').callsFake(function () {
           return true;
         });
 
@@ -199,11 +199,11 @@ define(function (require, exports, module) {
       it('calls `_finishPasswordResetSameBrowser` if `_waitForConfirmation` returns session info', function () {
         var sessionInfo = { sessionToken: 'sessiontoken' };
 
-        sinon.stub(view, '_waitForConfirmation', function () {
+        sinon.stub(view, '_waitForConfirmation').callsFake(function () {
           return p(sessionInfo);
         });
 
-        sinon.stub(view, '_finishPasswordResetSameBrowser', function () {
+        sinon.stub(view, '_finishPasswordResetSameBrowser').callsFake(function () {
           return p();
         });
 
@@ -218,11 +218,11 @@ define(function (require, exports, module) {
       });
 
       it('calls `_finishPasswordResetDifferentBrowser` if `_waitForConfirmation` does not return session info', function () {
-        sinon.stub(view, '_waitForConfirmation', function () {
+        sinon.stub(view, '_waitForConfirmation').callsFake(function () {
           return p(null);
         });
 
-        sinon.stub(view, '_finishPasswordResetDifferentBrowser', function () {
+        sinon.stub(view, '_finishPasswordResetDifferentBrowser').callsFake(function () {
           return p();
         });
 
@@ -238,11 +238,11 @@ define(function (require, exports, module) {
       });
 
       it('sets the `resetPasswordConfirm` flag back to `true` after the reset completes', function () {
-        sinon.stub(view, '_waitForConfirmation', function () {
+        sinon.stub(view, '_waitForConfirmation').callsFake(function () {
           return p(null);
         });
 
-        sinon.stub(view, '_finishPasswordResetDifferentBrowser', function () {
+        sinon.stub(view, '_finishPasswordResetDifferentBrowser').callsFake(function () {
           return p();
         });
 
@@ -257,7 +257,7 @@ define(function (require, exports, module) {
       });
 
       it('displays errors if `_waitForConfirmation` returns an error', function () {
-        sinon.stub(view, '_waitForConfirmation', function () {
+        sinon.stub(view, '_waitForConfirmation').callsFake(function () {
           return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
         });
 
@@ -281,7 +281,7 @@ define(function (require, exports, module) {
       });
 
       it('waits for the server confirmation if `complete_reset_password_tab_open` message is not received', function () {
-        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+        sinon.stub(fxaClient, 'isPasswordResetComplete').callsFake(function () {
           return p(fxaClient.isPasswordResetComplete.callCount === 3);
         });
 
@@ -292,7 +292,7 @@ define(function (require, exports, module) {
       });
 
       it('stops waiting if server returns an error', function () {
-        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+        sinon.stub(fxaClient, 'isPasswordResetComplete').callsFake(function () {
           return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
         });
 
@@ -305,7 +305,7 @@ define(function (require, exports, module) {
       });
 
       it('waits for the `SIGNED_IN` if a `COMPLETE_RESET_PASSWORD_TAB_OPEN` is received while an XHR request is outstanding', function () {
-        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+        sinon.stub(fxaClient, 'isPasswordResetComplete').callsFake(function () {
           // synthesize the message received while the 2nd XHR request is
           // outstanding.
           if (fxaClient.isPasswordResetComplete.callCount === 2) {
@@ -330,7 +330,7 @@ define(function (require, exports, module) {
       });
 
       it('waits for the `SIGNED_IN` notification if a `COMPLETE_RESET_PASSWORD_TAB_OPEN` notification is received', function () {
-        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+        sinon.stub(fxaClient, 'isPasswordResetComplete').callsFake(function () {
           if (fxaClient.isPasswordResetComplete.callCount === 2) {
             // synthesize message sent afterr response received.
             setTimeout(function () {
@@ -358,7 +358,7 @@ define(function (require, exports, module) {
 
     describe('_finishPasswordResetDifferentBrowser', function () {
       it('redirects to page specified by broker if user verifies in a second browser', function () {
-        sinon.stub(broker, 'transformLink', function () {
+        sinon.stub(broker, 'transformLink').callsFake(function () {
           // synthesize the OAuth broker.
           return '/oauth/signin';
         });
@@ -374,15 +374,15 @@ define(function (require, exports, module) {
 
     describe('_finishPasswordResetSameBrowser', function () {
       beforeEach(function () {
-        sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
+        sinon.stub(broker, 'afterResetPasswordConfirmationPoll').callsFake(function () {
           return p();
         });
 
-        sinon.stub(user, 'setSignedInAccount', function (account) {
+        sinon.stub(user, 'setSignedInAccount').callsFake(function (account) {
           return p(account);
         });
 
-        sinon.stub(view, 'navigate', function () {
+        sinon.stub(view, 'navigate').callsFake(function () {
           // nothing to do
         });
 
@@ -447,7 +447,7 @@ define(function (require, exports, module) {
       });
 
       it('resends the confirmation email, shows success message', function () {
-        sinon.stub(view, 'retryResetPassword', function () {
+        sinon.stub(view, 'retryResetPassword').callsFake(function () {
           return p(true);
         });
 
@@ -462,7 +462,7 @@ define(function (require, exports, module) {
       });
 
       it('redirects to `/reset_password` if the resend token is invalid', function () {
-        sinon.stub(view, 'retryResetPassword', function () {
+        sinon.stub(view, 'retryResetPassword').callsFake(function () {
           return p.reject(AuthErrors.toError('INVALID_TOKEN', 'Invalid token'));
         });
 
@@ -475,7 +475,7 @@ define(function (require, exports, module) {
       });
 
       it('re-throws other errors', function () {
-        sinon.stub(view, 'retryResetPassword', function () {
+        sinon.stub(view, 'retryResetPassword').callsFake(function () {
           return p.reject(new Error('synthesized error from auth server'));
         });
 

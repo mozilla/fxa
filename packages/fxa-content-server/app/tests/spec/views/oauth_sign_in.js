@@ -92,7 +92,7 @@ define(function (require, exports, module) {
 
     describe('render', function () {
       it('displays oAuth client name, does not display AMO help text by default', function () {
-        sinon.stub(view, 'isAmoMigration', () => false);
+        sinon.stub(view, 'isAmoMigration').callsFake(() => false);
 
         return view.render()
           .then(function () {
@@ -125,7 +125,7 @@ define(function (require, exports, module) {
 
       describe('AMO migration', () => {
         it('displays AMO help text', () => {
-          sinon.stub(view, 'isAmoMigration', () => true);
+          sinon.stub(view, 'isAmoMigration').callsFake(() => true);
           return view.render()
             .then(() => {
               assert.lengthOf(view.$('#amo-migration'), 1);
@@ -140,14 +140,14 @@ define(function (require, exports, module) {
 
       it('notifies the broker when a verified user signs in', function () {
         sinon.spy(user, 'initAccount');
-        sinon.stub(user, 'signInAccount', function (account) {
+        sinon.stub(user, 'signInAccount').callsFake(function (account) {
           account.set('verified', true);
           return p(account);
         });
-        sinon.stub(relier, 'accountNeedsPermissions', function () {
+        sinon.stub(relier, 'accountNeedsPermissions').callsFake(function () {
           return false;
         });
-        sinon.stub(broker, 'afterSignIn', function () {
+        sinon.stub(broker, 'afterSignIn').callsFake(function () {
           return p();
         });
         sinon.spy(view, 'navigate');
@@ -172,7 +172,7 @@ define(function (require, exports, module) {
       describe('with an unknown account', function () {
         beforeEach(() => {
           broker.setCapability('signup', true);
-          sinon.stub(view, 'signIn', () => p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT')));
+          sinon.stub(view, 'signIn').callsFake(() => p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT')));
           sinon.spy(view, 'unsafeDisplayError');
         });
 
@@ -182,9 +182,9 @@ define(function (require, exports, module) {
             $amoMigrationElement = {
               hide: sinon.spy()
             };
-            sinon.stub(view, 'isAmoMigration', () => true);
+            sinon.stub(view, 'isAmoMigration').callsFake(() => true);
             const orig$ = view.$;
-            sinon.stub(view, '$', (selector) => {
+            sinon.stub(view, '$').callsFake((selector) => {
               if (selector === '#amo-migration') {
                 return $amoMigrationElement;
               } else {
@@ -205,7 +205,7 @@ define(function (require, exports, module) {
 
         describe('not AMO migration', () => {
           beforeEach(() => {
-            sinon.stub(view, 'isAmoMigration', () => false);
+            sinon.stub(view, 'isAmoMigration').callsFake(() => false);
             return view.submit();
           });
 

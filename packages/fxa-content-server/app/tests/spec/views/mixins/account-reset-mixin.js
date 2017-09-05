@@ -84,7 +84,7 @@ define(function (require, exports, module) {
     describe('sendAccountResetEmail', function () {
       describe('with a registered account', function () {
         beforeEach(function () {
-          sinon.stub(view, 'resetPassword', function () {
+          sinon.stub(view, 'resetPassword').callsFake(function () {
             return p();
           });
 
@@ -99,7 +99,7 @@ define(function (require, exports, module) {
 
       describe('with an error', function () {
         beforeEach(function () {
-          sinon.stub(view, 'resetPassword', function () {
+          sinon.stub(view, 'resetPassword').callsFake(function () {
             return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
           });
 

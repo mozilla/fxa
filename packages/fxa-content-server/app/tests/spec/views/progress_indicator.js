@@ -37,7 +37,7 @@ define(function (require, exports, module) {
       });
 
       it('calls showIndicator', function (done) {
-        sinon.stub(progressIndicator, 'showIndicator', function () {
+        sinon.stub(progressIndicator, 'showIndicator').callsFake(function () {
           done();
         });
         progressIndicator.start('#indicate');
@@ -81,7 +81,7 @@ define(function (require, exports, module) {
       });
 
       it('calls removeIndicator', function (done) {
-        sinon.stub(progressIndicator, 'removeIndicator', function () {
+        sinon.stub(progressIndicator, 'removeIndicator').callsFake(function () {
           done();
         });
         progressIndicator.showIndicator('#indicate');

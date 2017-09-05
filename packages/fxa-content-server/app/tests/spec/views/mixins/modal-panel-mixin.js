@@ -42,7 +42,7 @@ define(function (require, exports, module) {
 
     describe('open and close', () => {
       it('does the right thing when body min-height needed', () => {
-        sinon.stub(view, '_needsToSetBodyMinHeight', () => true);
+        sinon.stub(view, '_needsToSetBodyMinHeight').callsFake(() => true);
 
         assert.equal($('body').css('min-height'), '0px');
         view.openPanel();
@@ -55,7 +55,7 @@ define(function (require, exports, module) {
       });
 
       it('does the right thing when body min-height not needed', () => {
-        sinon.stub(view, '_needsToSetBodyMinHeight', () => false);
+        sinon.stub(view, '_needsToSetBodyMinHeight').callsFake(() => false);
 
         assert.equal($('body').css('min-height'), '0px');
         view.openPanel();

@@ -56,7 +56,7 @@ define(function (require, exports, module) {
 
     describe('backIfLocalStorageEnabled', function () {
       it('goes back in history if localStorage is enabled and there is a page to go back to', function () {
-        sinon.stub(view, 'back', sinon.spy());
+        sinon.stub(view, 'back').callsFake(sinon.spy());
 
         view.backIfLocalStorageEnabled();
         assert.isTrue(view.back.called);
@@ -65,7 +65,7 @@ define(function (require, exports, module) {
 
       it('shows an error message if localStorage is still disabled', function () {
         var sandbox = sinon.sandbox.create();
-        sandbox.stub(Storage, 'isLocalStorageEnabled', function () {
+        sandbox.stub(Storage, 'isLocalStorageEnabled').callsFake(function () {
           return false;
         });
         view.backIfLocalStorageEnabled();

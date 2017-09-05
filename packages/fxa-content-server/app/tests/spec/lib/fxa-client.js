@@ -70,7 +70,7 @@ define(function (require, exports, module) {
         it('are normalized to be AuthErrors based', function () {
           // taken from the fxa-auth-server @
           // https://github.com/mozilla/fxa-auth-server/blob/9dcdcd9b142a2ed93fc55ac187a501a7a2005c6b/lib/error.js#L290-L308
-          sinon.stub(realClient, 'signUp', function () {
+          sinon.stub(realClient, 'signUp').callsFake(function () {
             return p.reject({
               code: 429,
               errno: 114,
@@ -94,7 +94,7 @@ define(function (require, exports, module) {
 
       describe('realClient does not return a promise', function () {
         it('does not normalize', function () {
-          sinon.stub(realClient, 'signUp', function () {
+          sinon.stub(realClient, 'signUp').callsFake(function () {
             return true;
           });
 
@@ -108,18 +108,18 @@ define(function (require, exports, module) {
 
     describe('signUp', function () {
       it('Sync signUp signs up a user with email/password and returns keys', function () {
-        sinon.stub(realClient, 'signUp', function () {
+        sinon.stub(realClient, 'signUp').callsFake(function () {
           return p({
             keyFetchToken: 'keyFetchToken',
             unwrapBKey: 'unwrapBKey'
           });
         });
 
-        sinon.stub(relier, 'wantsKeys', function () {
+        sinon.stub(relier, 'wantsKeys').callsFake(function () {
           return true;
         });
 
-        sinon.stub(relier, 'isSync', function () {
+        sinon.stub(relier, 'isSync').callsFake(function () {
           return true;
         });
 
@@ -140,7 +140,7 @@ define(function (require, exports, module) {
       });
 
       it('non-Sync signUp signs up a user with email/password does not request keys', function () {
-        sinon.stub(realClient, 'signUp', function () {
+        sinon.stub(realClient, 'signUp').callsFake(function () {
           return p({});
         });
 
@@ -165,7 +165,7 @@ define(function (require, exports, module) {
       });
 
       it('non-Sync signUp requests keys if the relier explicitly wants them', function () {
-        sinon.stub(realClient, 'signUp', function () {
+        sinon.stub(realClient, 'signUp').callsFake(function () {
           return p({
             keyFetchToken: 'keyFetchToken',
             unwrapBKey: 'unwrapBKey'
@@ -173,7 +173,7 @@ define(function (require, exports, module) {
         });
 
         relier.set('service', NON_SYNC_SERVICE);
-        sinon.stub(relier, 'wantsKeys', () => true);
+        sinon.stub(relier, 'wantsKeys').callsFake(() => true);
         return client.signUp(email, password, relier, { customizeSync: true, resume: resumeToken })
           .then(function (sessionData) {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
@@ -191,7 +191,7 @@ define(function (require, exports, module) {
       });
 
       it('a throttled signUp returns a THROTTLED error', function () {
-        sinon.stub(realClient, 'signUp', function () {
+        sinon.stub(realClient, 'signUp').callsFake(function () {
           return p.reject({
             code: 429,
             errno: 114,
@@ -207,7 +207,7 @@ define(function (require, exports, module) {
       });
 
       it('passes along an optional `metricsContext`', function () {
-        sinon.stub(realClient, 'signUp', function () {
+        sinon.stub(realClient, 'signUp').callsFake(function () {
           return p({});
         });
 
@@ -242,7 +242,7 @@ define(function (require, exports, module) {
 
         accountInfo = err = null;
 
-        sinon.stub(client, '_getClient', function () {
+        sinon.stub(client, '_getClient').callsFake(function () {
           return p(clientMock);
         });
       });
@@ -251,7 +251,7 @@ define(function (require, exports, module) {
         describe('verified', function () {
           describe('with auth server that returns `emailVerified` and `sessionVerified`', function () {
             beforeEach(function () {
-              sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+              sinon.stub(clientMock, 'recoveryEmailStatus').callsFake(function () {
                 return p({
                   email: 'testuser@testuser.com',
                   emailVerified: true,
@@ -279,7 +279,7 @@ define(function (require, exports, module) {
         describe('unverified', function () {
           describe('with unverified email, unverified session', function () {
             beforeEach(function () {
-              sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+              sinon.stub(clientMock, 'recoveryEmailStatus').callsFake(function () {
                 return p({
                   emailVerified: false,
                   sessionVerified: false,
@@ -303,7 +303,7 @@ define(function (require, exports, module) {
 
           describe('with verified email, unverified session', function () {
             beforeEach(function () {
-              sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+              sinon.stub(clientMock, 'recoveryEmailStatus').callsFake(function () {
                 return p({
                   emailVerified: true,
                   sessionVerified: false,
@@ -329,7 +329,7 @@ define(function (require, exports, module) {
 
       describe('invalid session', function () {
         beforeEach(function () {
-          sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+          sinon.stub(clientMock, 'recoveryEmailStatus').callsFake(function () {
             return p.reject(AuthErrors.toError('INVALID_TOKEN'));
           });
 
@@ -355,7 +355,7 @@ define(function (require, exports, module) {
       it('resends the validation email', function () {
         var sessionToken = 'session token';
 
-        sinon.stub(realClient, 'recoveryEmailResendCode', function () {
+        sinon.stub(realClient, 'recoveryEmailResendCode').callsFake(function () {
           return p();
         });
 
@@ -377,7 +377,7 @@ define(function (require, exports, module) {
 
     describe('verifyCode', function () {
       it('can successfully complete', function () {
-        sinon.stub(realClient, 'verifyCode', function () {
+        sinon.stub(realClient, 'verifyCode').callsFake(function () {
           return p({});
         });
 
@@ -388,7 +388,7 @@ define(function (require, exports, module) {
       });
 
       it('throws any errors', function () {
-        sinon.stub(realClient, 'verifyCode', function () {
+        sinon.stub(realClient, 'verifyCode').callsFake(function () {
           return p.reject(AuthErrors.toError('INVALID_VERIFICATION_CODE'));
         });
 
@@ -402,7 +402,7 @@ define(function (require, exports, module) {
 
     describe('sessionDestroy', () => {
       it('can successfully complete', () => {
-        sinon.stub(realClient, 'sessionDestroy', () => {
+        sinon.stub(realClient, 'sessionDestroy').callsFake(() => {
           return p({});
         });
 
@@ -413,7 +413,7 @@ define(function (require, exports, module) {
       });
 
       it('throws any errors', () => {
-        sinon.stub(realClient, 'sessionDestroy', () => {
+        sinon.stub(realClient, 'sessionDestroy').callsFake(() => {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
@@ -425,7 +425,7 @@ define(function (require, exports, module) {
       });
 
       it('supports customSessionToken option', () => {
-        sinon.stub(realClient, 'sessionDestroy', () => {
+        sinon.stub(realClient, 'sessionDestroy').callsFake(() => {
           return p({});
         });
 
@@ -441,7 +441,7 @@ define(function (require, exports, module) {
 
     describe('sessions', () => {
       it('can successfully complete', () => {
-        sinon.stub(realClient, 'sessions', () => {
+        sinon.stub(realClient, 'sessions').callsFake(() => {
           return p({});
         });
 
@@ -452,7 +452,7 @@ define(function (require, exports, module) {
       });
 
       it('throws any errors', () => {
-        sinon.stub(realClient, 'sessions', () => {
+        sinon.stub(realClient, 'sessions').callsFake(() => {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
@@ -467,7 +467,7 @@ define(function (require, exports, module) {
 
     describe('signIn', function () {
       it('signin with unknown user should fail', function () {
-        sinon.stub(realClient, 'signIn', function () {
+        sinon.stub(realClient, 'signIn').callsFake(function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
 
@@ -481,7 +481,7 @@ define(function (require, exports, module) {
         var sessionData;
 
         beforeEach(function () {
-          sinon.stub(realClient, 'signIn', function () {
+          sinon.stub(realClient, 'signIn').callsFake(function () {
             return p({
               verified: false
             });
@@ -501,7 +501,7 @@ define(function (require, exports, module) {
       });
 
       it('signIn w/ relier that wants keys signs in a user with email/password and returns keys', function () {
-        sinon.stub(realClient, 'signIn', function () {
+        sinon.stub(realClient, 'signIn').callsFake(function () {
           return p({
             keyFetchToken: 'keyFetchToken',
             unwrapBKey: 'unwrapBKey',
@@ -511,7 +511,7 @@ define(function (require, exports, module) {
           });
         });
 
-        sinon.stub(relier, 'wantsKeys', () => true);
+        sinon.stub(relier, 'wantsKeys').callsFake(() => true);
 
         return client.signIn(email, password, relier, { customizeSync: true, resume: resumeToken })
           .then(function (sessionData) {
@@ -534,10 +534,10 @@ define(function (require, exports, module) {
       });
 
       it('signIn w/ relier that does not want keys signs a user in with email/password and does not request keys', function () {
-        sinon.stub(realClient, 'signIn', () => p({}));
+        sinon.stub(realClient, 'signIn').callsFake(() => p({}));
 
         relier.set('service', NON_SYNC_SERVICE);
-        sinon.stub(relier, 'wantsKeys', () => false);
+        sinon.stub(relier, 'wantsKeys').callsFake(() => false);
 
         // customizeSync should be ignored.
         return client.signIn(email, password, relier)
@@ -558,9 +558,9 @@ define(function (require, exports, module) {
       });
 
       it('Sync signIn informs browser of customizeSync option', function () {
-        sinon.stub(relier, 'isSync', () => true);
-        sinon.stub(relier, 'wantsKeys', () => true);
-        sinon.stub(realClient, 'signIn', () => p({}));
+        sinon.stub(relier, 'isSync').callsFake(() => true);
+        sinon.stub(relier, 'wantsKeys').callsFake(() => true);
+        sinon.stub(realClient, 'signIn').callsFake(() => p({}));
 
         return client.signIn(email, password, relier, { customizeSync: true })
           .then(function (sessionData) {
@@ -576,11 +576,11 @@ define(function (require, exports, module) {
       });
 
       it('passes along an optional `reason`', function () {
-        sinon.stub(relier, 'wantsKeys', function () {
+        sinon.stub(relier, 'wantsKeys').callsFake(function () {
           return true;
         });
 
-        sinon.stub(realClient, 'signIn', function () {
+        sinon.stub(realClient, 'signIn').callsFake(function () {
           return p({});
         });
 
@@ -596,7 +596,7 @@ define(function (require, exports, module) {
       });
 
       it('passes along an optional `resume`', function () {
-        sinon.stub(realClient, 'signIn', function () {
+        sinon.stub(realClient, 'signIn').callsFake(function () {
           return p({});
         });
 
@@ -613,7 +613,7 @@ define(function (require, exports, module) {
       });
 
       it('passes along an optional `metricsContext`', function () {
-        sinon.stub(realClient, 'signIn', function () {
+        sinon.stub(realClient, 'signIn').callsFake(function () {
           return p({});
         });
 
@@ -633,7 +633,7 @@ define(function (require, exports, module) {
       });
 
       it('passes along an optional `skipCaseError`', () => {
-        sinon.stub(realClient, 'signIn', () => p({}));
+        sinon.stub(realClient, 'signIn').callsFake(() => p({}));
 
         return client.signIn(email, password, relier, {
           skipCaseError: true
@@ -652,7 +652,7 @@ define(function (require, exports, module) {
 
     describe('passwordReset', function () {
       beforeEach(function () {
-        sinon.stub(realClient, 'passwordForgotSendCode', function () {
+        sinon.stub(realClient, 'passwordForgotSendCode').callsFake(function () {
           return p({
             passwordForgotToken: 'token'
           });
@@ -697,13 +697,13 @@ define(function (require, exports, module) {
       var passwordForgotToken = 'token';
 
       beforeEach(function(){
-        sinon.stub(realClient, 'passwordForgotSendCode', function () {
+        sinon.stub(realClient, 'passwordForgotSendCode').callsFake(function () {
           return p({
             passwordForgotToken: passwordForgotToken
           });
         });
 
-        sinon.stub(realClient, 'passwordForgotResendCode', function () {
+        sinon.stub(realClient, 'passwordForgotResendCode').callsFake(function () {
           return p({});
         });
       });
@@ -771,13 +771,13 @@ define(function (require, exports, module) {
       };
 
       beforeEach(function () {
-        sinon.stub(realClient, 'passwordForgotVerifyCode', function () {
+        sinon.stub(realClient, 'passwordForgotVerifyCode').callsFake(function () {
           return p({
             accountResetToken: 'reset_token'
           });
         });
 
-        sinon.stub(realClient, 'accountReset', function () {
+        sinon.stub(realClient, 'accountReset').callsFake(function () {
           return p({
             authAt: Date.now(),
             keyFetchToken: 'new keyFetchToken',
@@ -825,7 +825,7 @@ define(function (require, exports, module) {
 
     describe('checkAccountExists', function () {
       it('returns true if an account exists', function () {
-        sinon.stub(realClient, 'accountStatus', function () {
+        sinon.stub(realClient, 'accountStatus').callsFake(function () {
           return p({ exists: true });
         });
 
@@ -836,7 +836,7 @@ define(function (require, exports, module) {
       });
 
       it('returns false if an account does not exist', function () {
-        sinon.stub(realClient, 'accountStatus', function () {
+        sinon.stub(realClient, 'accountStatus').callsFake(function () {
           return p({ exists: false });
         });
 
@@ -847,7 +847,7 @@ define(function (require, exports, module) {
       });
 
       it('throws other errors from the auth server', function () {
-        sinon.stub(realClient, 'accountStatus', function () {
+        sinon.stub(realClient, 'accountStatus').callsFake(function () {
           return p.reject(new Error('missing uid'));
         });
 
@@ -862,11 +862,11 @@ define(function (require, exports, module) {
       it('returns error if password is incorrect', function () {
         email = trim(email);
 
-        sinon.stub(realClient, 'signIn', function () {
+        sinon.stub(realClient, 'signIn').callsFake(function () {
           return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
         });
 
-        sinon.stub(realClient, 'sessionDestroy', sinon.spy());
+        sinon.stub(realClient, 'sessionDestroy').callsFake(sinon.spy());
 
         return client.checkPassword(email, password)
           .then(assert.fail, function (err) {
@@ -885,13 +885,13 @@ define(function (require, exports, module) {
       it('succeeds if password is correct', function () {
         email = trim(email);
 
-        sinon.stub(realClient, 'signIn', function () {
+        sinon.stub(realClient, 'signIn').callsFake(function () {
           return p({
             sessionToken: 'session token'
           });
         });
 
-        sinon.stub(realClient, 'sessionDestroy', function () {
+        sinon.stub(realClient, 'sessionDestroy').callsFake(function () {
           return p();
         });
 
@@ -925,7 +925,7 @@ define(function (require, exports, module) {
           }
         };
 
-        sinon.stub(realClient, 'passwordChange', function () {
+        sinon.stub(realClient, 'passwordChange').callsFake(function () {
           return p({
             email: trimmedEmail,
             keyFetchToken: 'new keyFetchToken',
@@ -972,7 +972,7 @@ define(function (require, exports, module) {
           }
         };
 
-        sinon.stub(realClient, 'passwordChange', function () {
+        sinon.stub(realClient, 'passwordChange').callsFake(function () {
           return p({
             email: trimmedEmail,
             keyFetchToken: 'new keyFetchToken',
@@ -1006,7 +1006,7 @@ define(function (require, exports, module) {
 
     describe('isPasswordResetComplete', function () {
       it('password status incomplete', function () {
-        sinon.stub(realClient, 'passwordForgotStatus', function () {
+        sinon.stub(realClient, 'passwordForgotStatus').callsFake(function () {
           return p();
         });
 
@@ -1018,7 +1018,7 @@ define(function (require, exports, module) {
       });
 
       it('password status complete', function () {
-        sinon.stub(realClient, 'passwordForgotStatus', function () {
+        sinon.stub(realClient, 'passwordForgotStatus').callsFake(function () {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
@@ -1029,7 +1029,7 @@ define(function (require, exports, module) {
       });
 
       it('throws other errors', function () {
-        sinon.stub(realClient, 'passwordForgotStatus', function () {
+        sinon.stub(realClient, 'passwordForgotStatus').callsFake(function () {
           return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
         });
 
@@ -1042,7 +1042,7 @@ define(function (require, exports, module) {
 
     describe('deleteAccount', function () {
       it('deletes the user\'s account', function () {
-        sinon.stub(realClient, 'accountDestroy', function () {
+        sinon.stub(realClient, 'accountDestroy').callsFake(function () {
           return p();
         });
 
@@ -1059,7 +1059,7 @@ define(function (require, exports, module) {
 
     describe('sessionStatus', function () {
       it('checks sessionStatus', function () {
-        sinon.stub(realClient, 'sessionStatus', function () {
+        sinon.stub(realClient, 'sessionStatus').callsFake(function () {
           return p();
         });
 
@@ -1081,7 +1081,7 @@ define(function (require, exports, module) {
         };
         var duration = 86400000;
 
-        sinon.stub(realClient, 'certificateSign', function () {
+        sinon.stub(realClient, 'certificateSign').callsFake(function () {
           return p('cert_is_returned');
         });
 
@@ -1110,7 +1110,7 @@ define(function (require, exports, module) {
         };
         const duration = 86400000;
 
-        sinon.stub(realClient, 'certificateSign', () => {
+        sinon.stub(realClient, 'certificateSign').callsFake(() => {
           return p('cert_is_returned');
         });
 
@@ -1135,7 +1135,7 @@ define(function (require, exports, module) {
       });
 
       it('resolves to false if invalid sessionToken passed in', function () {
-        sinon.stub(realClient, 'sessionStatus', function () {
+        sinon.stub(realClient, 'sessionStatus').callsFake(function () {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
@@ -1146,7 +1146,7 @@ define(function (require, exports, module) {
       });
 
       it('resolves to true with a valid sessionToken', function () {
-        sinon.stub(realClient, 'sessionStatus', function () {
+        sinon.stub(realClient, 'sessionStatus').callsFake(function () {
           return p({});
         });
 
@@ -1157,7 +1157,7 @@ define(function (require, exports, module) {
       });
 
       it('throws any other errors', function () {
-        sinon.stub(realClient, 'sessionStatus', function () {
+        sinon.stub(realClient, 'sessionStatus').callsFake(function () {
           return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
         });
 
@@ -1170,7 +1170,7 @@ define(function (require, exports, module) {
 
     describe('getRandomBytes', function () {
       it('snags some entropy from somewhere', function () {
-        sinon.stub(realClient, 'getRandomBytes', function () {
+        sinon.stub(realClient, 'getRandomBytes').callsFake(function () {
           return p('some random bytes');
         });
 
@@ -1184,7 +1184,7 @@ define(function (require, exports, module) {
 
     describe('accountKeys', function () {
       it('fetches account keys on request', function () {
-        sinon.stub(realClient, 'accountKeys', function () {
+        sinon.stub(realClient, 'accountKeys').callsFake(function () {
           return p({
             kA: 'kA',
             kB: 'kB'
@@ -1202,7 +1202,7 @@ define(function (require, exports, module) {
 
     describe('deviceList', function () {
       beforeEach(function () {
-        sinon.stub(realClient, 'deviceList', function () {
+        sinon.stub(realClient, 'deviceList').callsFake(function () {
           return p();
         });
         return client.deviceList('session token');
@@ -1215,7 +1215,7 @@ define(function (require, exports, module) {
 
     describe('deviceDestroy', function () {
       beforeEach(function () {
-        sinon.stub(realClient, 'deviceDestroy', function () {
+        sinon.stub(realClient, 'deviceDestroy').callsFake(function () {
           return p();
         });
         return client.deviceDestroy('session token', 'device id');
@@ -1230,7 +1230,7 @@ define(function (require, exports, module) {
     describe('sendUnblockEmail', () => {
       const metricsContext = {};
       beforeEach(() => {
-        sinon.stub(realClient, 'sendUnblockCode', () => p({}));
+        sinon.stub(realClient, 'sendUnblockCode').callsFake(() => p({}));
 
         return client.sendUnblockEmail(email, { metricsContext });
       });
@@ -1243,7 +1243,7 @@ define(function (require, exports, module) {
 
     describe('rejectUnblockCode', () => {
       beforeEach(() => {
-        sinon.stub(realClient, 'rejectUnblockCode', () => p({}));
+        sinon.stub(realClient, 'rejectUnblockCode').callsFake(() => p({}));
 
         return client.rejectUnblockCode('uid', 'code');
       });
@@ -1255,7 +1255,7 @@ define(function (require, exports, module) {
 
     describe('sendSms', () => {
       it('delegates to the fxa-js-client', () => {
-        sinon.stub(realClient, 'sendSms', () => p());
+        sinon.stub(realClient, 'sendSms').callsFake(() => p());
 
         return client.sendSms('sessionToken', '+441234567890', 1, {
           metricsContext: {}
@@ -1277,7 +1277,7 @@ define(function (require, exports, module) {
           // reasonCodes come back as strings
           reasonCode: SmsErrors.toErrno('NUMBER_BLOCKED').toString()
         };
-        sinon.stub(realClient, 'sendSms', () => p.reject(serverError));
+        sinon.stub(realClient, 'sendSms').callsFake(() => p.reject(serverError));
 
         return client.sendSms('sessionToken', '1234567890', 1, {
           metricsContext: {}
@@ -1297,7 +1297,7 @@ define(function (require, exports, module) {
             ]
           }
         };
-        sinon.stub(realClient, 'sendSms', () => p.reject(serverError));
+        sinon.stub(realClient, 'sendSms').callsFake(() => p.reject(serverError));
 
         return client.sendSms('sessionToken', '1234567890', 1, {
           metricsContext: {}
@@ -1312,7 +1312,7 @@ define(function (require, exports, module) {
           code: 400,
           errno: AuthErrors.toErrno('SMS_ID_INVALID')
         };
-        sinon.stub(realClient, 'sendSms', () => p.reject(serverError));
+        sinon.stub(realClient, 'sendSms').callsFake(() => p.reject(serverError));
 
         return client.sendSms('sessionToken', '1234567890', 1, {
           metricsContext: {}
@@ -1325,7 +1325,7 @@ define(function (require, exports, module) {
 
     describe('smsStatus', () => {
       it('delegates to the fxa-js-client', () => {
-        sinon.stub(realClient, 'smsStatus', () => p({
+        sinon.stub(realClient, 'smsStatus').callsFake(() => p({
           country: 'GB',
           ok: true
         }));
@@ -1348,7 +1348,7 @@ define(function (require, exports, module) {
         const resp = {
           email: 'testuser@testuser.com'
         };
-        sinon.stub(realClient, 'consumeSigninCode', () => p(resp));
+        sinon.stub(realClient, 'consumeSigninCode').callsFake(() => p(resp));
 
         return client.consumeSigninCode('thecode')
           .then((_resp) => {

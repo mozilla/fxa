@@ -45,14 +45,14 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       oAuthClient = new OAuthClient();
-      sinon.stub(oAuthClient, 'getCode', function () {
+      sinon.stub(oAuthClient, 'getCode').callsFake(function () {
         return p({
           redirect: VALID_OAUTH_CODE_REDIRECT_URL
         });
       });
 
       assertionLibrary = new Assertion({});
-      sinon.stub(assertionLibrary, 'generate', function () {
+      sinon.stub(assertionLibrary, 'generate').callsFake(function () {
         return p('assertion');
       });
 
@@ -103,7 +103,7 @@ define(function (require, exports, module) {
 
     describe('afterSignInConfirmationPoll', () => {
       it('calls sendOAuthResultToRelier with the correct options', () => {
-        sinon.stub(broker, 'sendOAuthResultToRelier', () => {
+        sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(() => {
           return p();
         });
 
@@ -124,7 +124,7 @@ define(function (require, exports, module) {
       });
 
       it('returns any errors returned by getOAuthResult', () => {
-        sinon.stub(broker, 'getOAuthResult', () => {
+        sinon.stub(broker, 'getOAuthResult').callsFake(() => {
           return p.reject(new Error('uh oh'));
         });
 
@@ -137,7 +137,7 @@ define(function (require, exports, module) {
 
     describe('afterSignIn', function () {
       it('calls sendOAuthResultToRelier with the correct options', function () {
-        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
+        sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
           return p();
         });
 
@@ -156,7 +156,7 @@ define(function (require, exports, module) {
       });
 
       it('returns any errors returned by getOAuthResult', function () {
-        sinon.stub(broker, 'getOAuthResult', function () {
+        sinon.stub(broker, 'getOAuthResult').callsFake(function () {
           return p.reject(new Error('uh oh'));
         });
 
@@ -178,7 +178,7 @@ define(function (require, exports, module) {
 
     describe('afterSignUpConfirmationPoll', function () {
       it('calls sendOAuthResultToRelier with the correct options', function () {
-        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
+        sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
           return p();
         });
 
@@ -199,7 +199,7 @@ define(function (require, exports, module) {
 
     describe('afterResetPasswordConfirmationPoll', function () {
       it('calls sendOAuthResultToRelier with the expected options', function () {
-        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
+        sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
           return p();
         });
 
@@ -231,7 +231,7 @@ define(function (require, exports, module) {
 
       it('passes on errors from assertion generation', function () {
         assertionLibrary.generate.restore();
-        sinon.stub(assertionLibrary, 'generate', function () {
+        sinon.stub(assertionLibrary, 'generate').callsFake(function () {
           return p.reject(new Error('uh oh'));
         });
 
@@ -243,7 +243,7 @@ define(function (require, exports, module) {
 
       it('passes on errors from oAuthClient.getCode', function () {
         oAuthClient.getCode.restore();
-        sinon.stub(oAuthClient, 'getCode', function () {
+        sinon.stub(oAuthClient, 'getCode').callsFake(function () {
           return p.reject(new Error('uh oh'));
         });
 
@@ -255,7 +255,7 @@ define(function (require, exports, module) {
 
       it('throws an error if oAuthClient.getCode returns nothing', function () {
         oAuthClient.getCode.restore();
-        sinon.stub(oAuthClient, 'getCode', function () {
+        sinon.stub(oAuthClient, 'getCode').callsFake(function () {
           return;
         });
 
@@ -267,7 +267,7 @@ define(function (require, exports, module) {
 
       it('throws an error if oAuthClient.getCode returns an empty object', function () {
         oAuthClient.getCode.restore();
-        sinon.stub(oAuthClient, 'getCode', function () {
+        sinon.stub(oAuthClient, 'getCode').callsFake(function () {
           return {};
         });
 
@@ -279,7 +279,7 @@ define(function (require, exports, module) {
 
       it('throws an error if oAuthClient.getCode returns an invalid code', function () {
         oAuthClient.getCode.restore();
-        sinon.stub(oAuthClient, 'getCode', function () {
+        sinon.stub(oAuthClient, 'getCode').callsFake(function () {
           return {
             redirect: INVALID_OAUTH_CODE_REDIRECT_URL
           };

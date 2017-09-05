@@ -142,7 +142,7 @@ define(function (require, exports, module) {
 
       it('sets verified state', function () {
         account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+        sinon.stub(fxaClient, 'recoveryEmailStatus').callsFake(function () {
           return p({ verified: true });
         });
 
@@ -154,7 +154,7 @@ define(function (require, exports, module) {
 
       it('fails to set verified state with error', function () {
         account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+        sinon.stub(fxaClient, 'recoveryEmailStatus').callsFake(function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
         return account.fetch()
@@ -166,7 +166,7 @@ define(function (require, exports, module) {
 
       it('fails to fetch with other errors', function () {
         account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+        sinon.stub(fxaClient, 'recoveryEmailStatus').callsFake(function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
         return account.fetch()
@@ -182,7 +182,7 @@ define(function (require, exports, module) {
           sessionToken: SESSION_TOKEN
         });
         sinon.spy(account._sentryMetrics, 'captureException');
-        sinon.stub(account, 'sessionStatus', () => {
+        sinon.stub(account, 'sessionStatus').callsFake(() => {
           return p.reject(new Error(errorMsg));
         });
 
@@ -200,7 +200,7 @@ define(function (require, exports, module) {
         });
 
         sinon.spy(account._sentryMetrics, 'captureException');
-        sinon.stub(account, 'sessionStatus', () => {
+        sinon.stub(account, 'sessionStatus').callsFake(() => {
           return p.reject(AuthErrors.toError('UNAUTHORIZED'));
         });
 
@@ -218,7 +218,7 @@ define(function (require, exports, module) {
             sessionTokenContext: Constants.SYNC_SERVICE
           });
 
-          sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+          sinon.stub(fxaClient, 'recoveryEmailStatus').callsFake(function () {
             return p.reject(AuthErrors.toError('INVALID_TOKEN'));
           });
 
@@ -260,7 +260,7 @@ define(function (require, exports, module) {
             sessionToken: 'session token'
           });
 
-          sinon.stub(fxaClient, 'recoveryEmailStatus', () => p({
+          sinon.stub(fxaClient, 'recoveryEmailStatus').callsFake(() => p({
             email: CANONICAL_EMAIL,
             verified: true
           }));
@@ -283,7 +283,7 @@ define(function (require, exports, module) {
       describe('with a password', function () {
         describe('unverified, reason === undefined', function () {
           beforeEach(function () {
-            sinon.stub(fxaClient, 'signIn', function () {
+            sinon.stub(fxaClient, 'signIn').callsFake(function () {
               return p({
                 sessionToken: SESSION_TOKEN,
                 verificationMethod: VerificationMethods.EMAIL,
@@ -292,7 +292,7 @@ define(function (require, exports, module) {
               });
             });
 
-            sinon.stub(fxaClient, 'signUpResend', function () {
+            sinon.stub(fxaClient, 'signUpResend').callsFake(function () {
               return p();
             });
 
@@ -327,7 +327,7 @@ define(function (require, exports, module) {
 
         describe('verified account, unverified session', function () {
           beforeEach(function () {
-            sinon.stub(fxaClient, 'signIn', function () {
+            sinon.stub(fxaClient, 'signIn').callsFake(function () {
               return p({
                 sessionToken: SESSION_TOKEN,
                 verificationMethod: VerificationMethods.EMAIL,
@@ -336,7 +336,7 @@ define(function (require, exports, module) {
               });
             });
 
-            sinon.stub(fxaClient, 'signUpResend', function () {
+            sinon.stub(fxaClient, 'signUpResend').callsFake(function () {
               return p();
             });
 
@@ -361,7 +361,7 @@ define(function (require, exports, module) {
 
         describe('verified account, verified session', function () {
           beforeEach(function () {
-            sinon.stub(fxaClient, 'signIn', function () {
+            sinon.stub(fxaClient, 'signIn').callsFake(function () {
               return p({ sessionToken: SESSION_TOKEN, verified: true });
             });
 
@@ -396,7 +396,7 @@ define(function (require, exports, module) {
           beforeEach(function () {
             upperCaseEmail = EMAIL.toUpperCase();
 
-            sinon.stub(fxaClient, 'signIn', () => {
+            sinon.stub(fxaClient, 'signIn').callsFake(() => {
               if (fxaClient.signIn.callCount === 1) {
                 const err = AuthErrors.toError('INCORRECT_EMAIL_CASE');
                 err.email = EMAIL;
@@ -451,7 +451,7 @@ define(function (require, exports, module) {
           var err;
 
           beforeEach(function () {
-            sinon.stub(fxaClient, 'signIn', function () {
+            sinon.stub(fxaClient, 'signIn').callsFake(function () {
               return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
             });
 
@@ -479,7 +479,7 @@ define(function (require, exports, module) {
           beforeEach(function () {
             account.set('sessionToken', SESSION_TOKEN);
 
-            sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+            sinon.stub(fxaClient, 'recoveryEmailStatus').callsFake(function () {
               return p({
                 verificationMethod: VerificationMethods.EMAIL,
                 verificationReason: VerificationReasons.SIGN_IN,
@@ -487,7 +487,7 @@ define(function (require, exports, module) {
               });
             });
 
-            sinon.stub(fxaClient, 'signUpResend', function () {
+            sinon.stub(fxaClient, 'signUpResend').callsFake(function () {
               return p();
             });
 
@@ -514,7 +514,7 @@ define(function (require, exports, module) {
         describe('verified', function () {
           beforeEach(function () {
             account.set('sessionToken', SESSION_TOKEN);
-            sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+            sinon.stub(fxaClient, 'recoveryEmailStatus').callsFake(function () {
               return p({ verified: true });
             });
 
@@ -536,7 +536,7 @@ define(function (require, exports, module) {
 
           beforeEach(function () {
             account.set('sessionToken', SESSION_TOKEN);
-            sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+            sinon.stub(fxaClient, 'recoveryEmailStatus').callsFake(function () {
               return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
             });
 
@@ -583,7 +583,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account.set('customizeSync', true);
         account.set('needsOptedInToMarketingEmail', true);
-        sinon.stub(fxaClient, 'signUp', function () {
+        sinon.stub(fxaClient, 'signUp').callsFake(function () {
           return p({ sessionToken: SESSION_TOKEN, verified: false });
         });
 
@@ -615,7 +615,7 @@ define(function (require, exports, module) {
     describe('retrySignUp', function () {
       beforeEach(function () {
         account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'signUpResend', function () {
+        sinon.stub(fxaClient, 'signUpResend').callsFake(function () {
           return p();
         });
 
@@ -636,7 +636,7 @@ define(function (require, exports, module) {
     describe('verifySignUp', function () {
       describe('with custom server verification value', function () {
         beforeEach(function () {
-          sinon.stub(fxaClient, 'verifyCode', function () {
+          sinon.stub(fxaClient, 'verifyCode').callsFake(function () {
             return p();
           });
         });
@@ -678,7 +678,7 @@ define(function (require, exports, module) {
 
       describe('without email opt-in', function () {
         beforeEach(function () {
-          sinon.stub(fxaClient, 'verifyCode', function () {
+          sinon.stub(fxaClient, 'verifyCode').callsFake(function () {
             return p();
           });
 
@@ -706,7 +706,7 @@ define(function (require, exports, module) {
         var mockEmailPrefs;
 
         beforeEach(function () {
-          sinon.stub(fxaClient, 'verifyCode', function () {
+          sinon.stub(fxaClient, 'verifyCode').callsFake(function () {
             return p();
           });
 
@@ -714,7 +714,7 @@ define(function (require, exports, module) {
             optIn: sinon.spy(() => p())
           };
 
-          sinon.stub(account, 'getMarketingEmailPrefs', function () {
+          sinon.stub(account, 'getMarketingEmailPrefs').callsFake(function () {
             return mockEmailPrefs;
           });
 
@@ -752,7 +752,7 @@ define(function (require, exports, module) {
 
     describe('signOut', () => {
       beforeEach(() => {
-        sinon.stub(fxaClient, 'sessionDestroy', () => p());
+        sinon.stub(fxaClient, 'sessionDestroy').callsFake(() => p());
 
         account.set('sessionToken', SESSION_TOKEN);
 
@@ -767,7 +767,7 @@ define(function (require, exports, module) {
 
     describe('destroy', function () {
       beforeEach(function () {
-        sinon.stub(fxaClient, 'deleteAccount', function () {
+        sinon.stub(fxaClient, 'deleteAccount').callsFake(function () {
           return p();
         });
 
@@ -795,10 +795,10 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account.set('sessionToken', SESSION_TOKEN);
         account.set('verified', true);
-        sinon.stub(assertion, 'generate', function () {
+        sinon.stub(assertion, 'generate').callsFake(function () {
           return p('assertion');
         });
-        sinon.stub(oAuthClient, 'getToken', function () {
+        sinon.stub(oAuthClient, 'getToken').callsFake(function () {
           return p({ 'access_token': accessToken });
         });
       });
@@ -849,7 +849,7 @@ define(function (require, exports, module) {
 
       it('fails to if bad assertion', function () {
         assertion.generate.restore();
-        sinon.stub(assertion, 'generate', function () {
+        sinon.stub(assertion, 'generate').callsFake(function () {
           return p.reject(AuthErrors.toError('UNAUTHORIZED'));
         });
         return account.createOAuthToken('scope')
@@ -861,7 +861,7 @@ define(function (require, exports, module) {
 
       it('fails to fetch when unauthorized', function () {
         oAuthClient.getToken.restore();
-        sinon.stub(oAuthClient, 'getToken', function () {
+        sinon.stub(oAuthClient, 'getToken').callsFake(function () {
           return p.reject(AuthErrors.toError('UNAUTHORIZED'));
         });
         return account.createOAuthToken('scope')
@@ -886,7 +886,7 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         account.set('verified', true);
-        sinon.stub(account, 'fetch', function () {
+        sinon.stub(account, 'fetch').callsFake(function () {
           return p();
         });
       });
@@ -903,7 +903,7 @@ define(function (require, exports, module) {
 
 
       it('has a profile client', function () {
-        sinon.stub(account, 'createOAuthToken', function () {
+        sinon.stub(account, 'createOAuthToken').callsFake(function () {
           return p(new OAuthToken({ token: accessToken }));
         });
         return account.profileClient()
@@ -914,7 +914,7 @@ define(function (require, exports, module) {
       });
 
       it('profile client fails if not authorized', function () {
-        sinon.stub(account, 'createOAuthToken', function () {
+        sinon.stub(account, 'createOAuthToken').callsFake(function () {
           return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
         });
         return account.profileClient()
@@ -930,20 +930,20 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account.set('verified', true);
         account.set('accessToken', accessToken);
-        sinon.stub(account, 'fetch', function () {
+        sinon.stub(account, 'fetch').callsFake(function () {
           return p();
         });
       });
 
       describe('avatars', function () {
         beforeEach(function () {
-          sinon.stub(account, 'profileClient', function () {
+          sinon.stub(account, 'profileClient').callsFake(function () {
             return p(profileClient);
           });
         });
 
         it('gets an avatar', function () {
-          sinon.stub(profileClient, 'getAvatar', function () {
+          sinon.stub(profileClient, 'getAvatar').callsFake(function () {
             return p({ avatar: URL, id: 'foo' });
           });
           return account.getAvatar()
@@ -956,7 +956,7 @@ define(function (require, exports, module) {
 
         it('delete an avatar', function () {
           var ID = 'deadbeef';
-          sinon.stub(profileClient, 'deleteAvatar', function () {
+          sinon.stub(profileClient, 'deleteAvatar').callsFake(function () {
             return p();
           });
 
@@ -968,7 +968,7 @@ define(function (require, exports, module) {
 
         it('upload an image', function () {
           var DATA = 'image data';
-          sinon.stub(profileClient, 'uploadAvatar', function () {
+          sinon.stub(profileClient, 'uploadAvatar').callsFake(function () {
             return { url: URL };
           });
 
@@ -985,12 +985,12 @@ define(function (require, exports, module) {
     describe('with a valid sessionToken, without an access token', function () {
       beforeEach(function () {
         var tokens = 0;
-        sinon.stub(account, 'fetch', function () {
+        sinon.stub(account, 'fetch').callsFake(function () {
           return p();
         });
         account.set('verified', true);
 
-        sinon.stub(account, 'createOAuthToken', function () {
+        sinon.stub(account, 'createOAuthToken').callsFake(function () {
           // returns "token1" then "token2", etc.
           return p(new OAuthToken({ token: 'token' + (++tokens) }));
         });
@@ -999,7 +999,7 @@ define(function (require, exports, module) {
 
       PROFILE_CLIENT_METHODS.forEach(function (method) {
         it('retries on ' + method, function () {
-          sinon.stub(profileClient, method, function () {
+          sinon.stub(profileClient, method).callsFake(function () {
             return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
           });
           return account[method]()
@@ -1015,7 +1015,7 @@ define(function (require, exports, module) {
         });
 
         it('retries and succeeds on ' + method, function () {
-          sinon.stub(profileClient, method, function (token) {
+          sinon.stub(profileClient, method).callsFake(function (token) {
             if (token === 'token1') {
               return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
             } else {
@@ -1033,7 +1033,7 @@ define(function (require, exports, module) {
         });
 
         it('throws other errors on ' + method, function () {
-          sinon.stub(profileClient, method, function () {
+          sinon.stub(profileClient, method).callsFake(function () {
             return p.reject(ProfileErrors.toError('UNKNOWN_ACCOUNT'));
           });
           return account[method]()
@@ -1059,7 +1059,7 @@ define(function (require, exports, module) {
           var sessionTokenContextChangeSpy;
 
           beforeEach(function () {
-            sinon.stub(account, 'fetch', function () {
+            sinon.stub(account, 'fetch').callsFake(function () {
               return p();
             });
 
@@ -1070,7 +1070,7 @@ define(function (require, exports, module) {
               verified: true
             });
 
-            sinon.stub(profileClient, method, function () {
+            sinon.stub(profileClient, method).callsFake(function () {
               return p.reject(ProfileErrors.toError('INVALID_TOKEN'));
             });
 
@@ -1110,12 +1110,12 @@ define(function (require, exports, module) {
 
     describe('without a valid sessionToken, without an access token', function () {
       beforeEach(function () {
-        sinon.stub(account, 'fetch', function () {
+        sinon.stub(account, 'fetch').callsFake(function () {
           return p();
         });
         account.set('verified', true);
 
-        sinon.stub(account, 'createOAuthToken', function () {
+        sinon.stub(account, 'createOAuthToken').callsFake(function () {
           return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
         });
       });
@@ -1139,7 +1139,7 @@ define(function (require, exports, module) {
 
     describe('with an unverified account', function () {
       beforeEach(function () {
-        sinon.stub(account, 'profileClient', function () {
+        sinon.stub(account, 'profileClient').callsFake(function () {
           return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
         });
       });
@@ -1343,7 +1343,7 @@ define(function (require, exports, module) {
 
       it('returns `false` if the sessionToken is expired', function () {
         account.set('sessionToken', 'exipred token');
-        sinon.stub(fxaClient, 'sessionStatus', function () {
+        sinon.stub(fxaClient, 'sessionStatus').callsFake(function () {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
@@ -1355,7 +1355,7 @@ define(function (require, exports, module) {
 
       it('returns `true` if the sessionToken is valid', function () {
         account.set('sessionToken', 'valid token');
-        sinon.stub(fxaClient, 'sessionStatus', function () {
+        sinon.stub(fxaClient, 'sessionStatus').callsFake(function () {
           return p();
         });
 
@@ -1368,7 +1368,7 @@ define(function (require, exports, module) {
 
     describe('fetchCurrentProfileImage', function () {
       it('returns profile image', function () {
-        sinon.stub(account, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar').callsFake(function () {
           return p({ avatar: PNG_URL, id: 'foo' });
         });
 
@@ -1385,7 +1385,7 @@ define(function (require, exports, module) {
       });
 
       it('errors on getAvatar returns error', function () {
-        sinon.stub(account, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar').callsFake(function () {
           return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
         });
 
@@ -1398,7 +1398,7 @@ define(function (require, exports, module) {
       });
 
       it('errors on profileImage fetch returns error', function () {
-        sinon.stub(account, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar').callsFake(function () {
           return p({ avatar: 'bad url', id: 'foo' });
         });
 
@@ -1414,7 +1414,7 @@ define(function (require, exports, module) {
     describe('fetchProfile', function () {
       it('returns profile', function () {
         var name = 'snoopy';
-        sinon.stub(account, 'getProfile', function () {
+        sinon.stub(account, 'getProfile').callsFake(function () {
           return p({ avatar: PNG_URL, displayName: name });
         });
 
@@ -1431,7 +1431,7 @@ define(function (require, exports, module) {
       });
 
       it('caches requests to avoid multiple XHR requests, as long as no account data was updated', function () {
-        sinon.stub(account, 'getProfile', function () {
+        sinon.stub(account, 'getProfile').callsFake(function () {
           return p({ avatar: PNG_URL, displayName: name });
         });
 
@@ -1445,7 +1445,7 @@ define(function (require, exports, module) {
       });
 
       it('avoids returning stale data by re-requesting profile data if any account data was set after the initial fetch', function () {
-        sinon.stub(account, 'getProfile', function () {
+        sinon.stub(account, 'getProfile').callsFake(function () {
           return p({ avatar: PNG_URL, displayName: name });
         });
 
@@ -1468,7 +1468,7 @@ define(function (require, exports, module) {
 
     describe('changePassword', function () {
       it('returns `INCORRECT_PASSWORD` error if old password is incorrect (event if passwords are the same)', function () {
-        sinon.stub(fxaClient, 'checkPassword', function () {
+        sinon.stub(fxaClient, 'checkPassword').callsFake(function () {
           return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
         });
 
@@ -1479,7 +1479,7 @@ define(function (require, exports, module) {
       });
 
       it('returns `PASSWORD_MUST_BE_DIFFERENT` error if both passwords are the same and the first password is correct', function () {
-        sinon.stub(fxaClient, 'checkPassword', function () {
+        sinon.stub(fxaClient, 'checkPassword').callsFake(function () {
           return p();
         });
 
@@ -1498,11 +1498,11 @@ define(function (require, exports, module) {
           sessionTokenContext: 'foo'
         });
 
-        sinon.stub(fxaClient, 'checkPassword', function () {
+        sinon.stub(fxaClient, 'checkPassword').callsFake(function () {
           return p();
         });
 
-        sinon.stub(fxaClient, 'changePassword', function () {
+        sinon.stub(fxaClient, 'changePassword').callsFake(function () {
           return p({
             keyFetchToken: 'new keyFetchToken',
             sessionToken: 'new sessionToken',
@@ -1533,7 +1533,7 @@ define(function (require, exports, module) {
         var token = 'token';
         var code = 'code';
 
-        sinon.stub(fxaClient, 'completePasswordReset', function () {
+        sinon.stub(fxaClient, 'completePasswordReset').callsFake(function () {
           return p({
             keyFetchToken: 'new keyFetchToken',
             sessionToken: 'new sessionToken',
@@ -1559,7 +1559,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account.set('sessionToken', SESSION_TOKEN);
 
-        sinon.stub(fxaClient, 'deviceList', function () {
+        sinon.stub(fxaClient, 'deviceList').callsFake(function () {
           return p([
             {
               id: 'device-1',
@@ -1590,7 +1590,7 @@ define(function (require, exports, module) {
       beforeEach(() => {
         account.set('sessionToken', SESSION_TOKEN);
 
-        sinon.stub(fxaClient, 'sessions', () => {
+        sinon.stub(fxaClient, 'sessions').callsFake(() => {
           return p([
             {
               deviceName: 'alpha',
@@ -1658,7 +1658,7 @@ define(function (require, exports, module) {
         });
         sinon.spy(session, 'destroy');
 
-        sinon.stub(fxaClient, 'sessionDestroy', function () {
+        sinon.stub(fxaClient, 'sessionDestroy').callsFake(function () {
           return p();
         });
 
@@ -1680,7 +1680,7 @@ define(function (require, exports, module) {
       });
 
       it('fetches the OAuth apps list from the back end', function () {
-        sinon.stub(account._oAuthClient, 'fetchOAuthApps', function () {
+        sinon.stub(account._oAuthClient, 'fetchOAuthApps').callsFake(function () {
           return p([
             {
               id: 'oauth-1',
@@ -1702,10 +1702,10 @@ define(function (require, exports, module) {
       });
 
       it('will retry if token is expired', function () {
-        sinon.stub(account, '_fetchProfileOAuthToken', function () {
+        sinon.stub(account, '_fetchProfileOAuthToken').callsFake(function () {
           return p();
         });
-        sinon.stub(account._oAuthClient, 'fetchOAuthApps', function () {
+        sinon.stub(account._oAuthClient, 'fetchOAuthApps').callsFake(function () {
           return p.reject(OAuthErrors.toError('UNAUTHORIZED'));
         });
 
@@ -1729,7 +1729,7 @@ define(function (require, exports, module) {
           name: 'alpha'
         });
 
-        sinon.stub(fxaClient, 'deviceDestroy', function () {
+        sinon.stub(fxaClient, 'deviceDestroy').callsFake(function () {
           return p();
         });
 
@@ -1755,7 +1755,7 @@ define(function (require, exports, module) {
       });
 
       it('tells the backend to destroy the device', function () {
-        sinon.stub(account._oAuthClient, 'destroyOAuthApp', function () {
+        sinon.stub(account._oAuthClient, 'destroyOAuthApp').callsFake(function () {
           return p();
         });
 
@@ -1765,10 +1765,10 @@ define(function (require, exports, module) {
       });
 
       it('will retry if token is expired', function () {
-        sinon.stub(account, '_fetchProfileOAuthToken', function () {
+        sinon.stub(account, '_fetchProfileOAuthToken').callsFake(function () {
           return p();
         });
-        sinon.stub(account._oAuthClient, 'destroyOAuthApp', function () {
+        sinon.stub(account._oAuthClient, 'destroyOAuthApp').callsFake(function () {
           return p.reject(OAuthErrors.toError('UNAUTHORIZED'));
         });
 
@@ -1787,7 +1787,7 @@ define(function (require, exports, module) {
 
         relier = {};
 
-        sinon.stub(fxaClient, 'passwordReset', function () {
+        sinon.stub(fxaClient, 'passwordReset').callsFake(function () {
           return p();
         });
 
@@ -1817,7 +1817,7 @@ define(function (require, exports, module) {
 
         relier = {};
 
-        sinon.stub(fxaClient, 'passwordResetResend', function () {
+        sinon.stub(fxaClient, 'passwordResetResend').callsFake(function () {
           return p();
         });
 
@@ -1845,7 +1845,7 @@ define(function (require, exports, module) {
         account.clear();
         account.set(accountData);
 
-        sinon.stub(fxaClient, 'accountKeys', function () {
+        sinon.stub(fxaClient, 'accountKeys').callsFake(function () {
           return p('account keys');
         });
 
@@ -2054,7 +2054,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account.set('uid', UID);
 
-        sinon.stub(fxaClient, 'checkAccountExists', function () {
+        sinon.stub(fxaClient, 'checkAccountExists').callsFake(function () {
           return p();
         });
 
@@ -2070,7 +2070,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account.set('email', EMAIL);
 
-        sinon.stub(fxaClient, 'checkAccountExistsByEmail', function () {
+        sinon.stub(fxaClient, 'checkAccountExistsByEmail').callsFake(function () {
           return p();
         });
 
@@ -2085,7 +2085,7 @@ define(function (require, exports, module) {
 
     describe('isPasswordResetComplete', () => {
       beforeEach(() => {
-        sinon.stub(fxaClient, 'isPasswordResetComplete', () => p());
+        sinon.stub(fxaClient, 'isPasswordResetComplete').callsFake(() => p());
 
         return account.isPasswordResetComplete('token');
       });
@@ -2099,7 +2099,7 @@ define(function (require, exports, module) {
       beforeEach(() => {
         account.set('email', EMAIL);
 
-        sinon.stub(fxaClient, 'sendUnblockEmail', () => p({}));
+        sinon.stub(fxaClient, 'sendUnblockEmail').callsFake(() => p({}));
         return account.sendUnblockEmail();
       });
 
@@ -2115,7 +2115,7 @@ define(function (require, exports, module) {
       beforeEach(() => {
         account.set('uid', UID);
 
-        sinon.stub(fxaClient, 'rejectUnblockCode', () => p({}));
+        sinon.stub(fxaClient, 'rejectUnblockCode').callsFake(() => p({}));
 
         return account.rejectUnblockCode('code');
       });
@@ -2159,8 +2159,8 @@ define(function (require, exports, module) {
       };
 
       beforeEach(() => {
-        sinon.stub(fxaClient, 'sendSms', () => p());
-        sinon.stub(metrics, 'getFlowEventMetadata', () => flowEventMetaData);
+        sinon.stub(fxaClient, 'sendSms').callsFake(() => p());
+        sinon.stub(metrics, 'getFlowEventMetadata').callsFake(() => flowEventMetaData);
 
         account.set('sessionToken', 'sessionToken');
         return account.sendSms('1234567890', 1, {
@@ -2184,7 +2184,7 @@ define(function (require, exports, module) {
 
     describe('smsStatus', () => {
       beforeEach(() => {
-        sinon.stub(fxaClient, 'smsStatus', () => p({
+        sinon.stub(fxaClient, 'smsStatus').callsFake(() => p({
           country: 'GB',
           ok: true
         }));

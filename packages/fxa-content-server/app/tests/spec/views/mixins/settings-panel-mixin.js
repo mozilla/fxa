@@ -69,15 +69,15 @@ define(function (require, exports, module) {
 
     describe('events', function () {
       it('toggles button', function () {
-        sinon.stub(view, 'navigate', function () {});
+        sinon.stub(view, 'navigate').callsFake(function () {});
         $('.settings-unit-toggle').click();
         assert.isTrue(view.navigate.calledWith('settings/display_name'));
       });
 
       it('toggles open and closed', function () {
-        sinon.stub(view, 'closePanel', function () {});
-        sinon.stub(view, 'clearInput', function () {});
-        sinon.stub(view, 'navigate', function () {});
+        sinon.stub(view, 'closePanel').callsFake(function () {});
+        sinon.stub(view, 'clearInput').callsFake(function () {});
+        sinon.stub(view, 'navigate').callsFake(function () {});
         $('button.cancel').click();
         assert.isTrue(view.closePanel.called);
         assert.isTrue(view.clearInput.called);
@@ -111,8 +111,8 @@ define(function (require, exports, module) {
       });
 
       it('hidePanel hides the open panel', function () {
-        sinon.stub(view, 'closePanel', function () {});
-        sinon.stub(view, 'navigate', function () { });
+        sinon.stub(view, 'closePanel').callsFake(function () {});
+        sinon.stub(view, 'navigate').callsFake(function () { });
         view.openPanel();
         view.hidePanel();
         assert.isTrue(view.closePanel.called);
@@ -120,7 +120,7 @@ define(function (require, exports, module) {
       });
 
       it('displaySuccess', function () {
-        sinon.stub(view, 'closePanel', function () {});
+        sinon.stub(view, 'closePanel').callsFake(function () {});
         view.displaySuccess('hi');
         assert.isTrue(view.parentView.displaySuccess.calledWith('hi'));
         assert.isTrue(view.closePanel.called);

@@ -48,7 +48,7 @@ define(function (require, exports, module) {
     });
 
     it('Back button is displayed if there is a page to go back to', function () {
-      sinon.stub(view, 'canGoBack', function () {
+      sinon.stub(view, 'canGoBack').callsFake(function () {
         return true;
       });
 
@@ -66,7 +66,7 @@ define(function (require, exports, module) {
     });
 
     it('Back button is not displayed if there is no page to go back to', function () {
-      sinon.stub(view, 'canGoBack', function () {
+      sinon.stub(view, 'canGoBack').callsFake(function () {
         return false;
       });
 
@@ -87,7 +87,7 @@ define(function (require, exports, module) {
     });
 
     it('shows an error if fetch fails', function () {
-      sinon.stub(xhrMock, 'ajax', function () {
+      sinon.stub(xhrMock, 'ajax').callsFake(function () {
         return p.reject(new Error('could not fetch resource'));
       });
 

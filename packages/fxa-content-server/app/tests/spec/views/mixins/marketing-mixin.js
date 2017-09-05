@@ -52,7 +52,7 @@ define(function (require, exports, module) {
       describe('w/ autocreate:true (default)', () => {
         it('creates the marketing snippet', () => {
           const view = createView(AutoCreateView);
-          sinon.stub(view, 'createMarketingSnippet', () => {});
+          sinon.stub(view, 'createMarketingSnippet').callsFake(() => {});
 
           return view.render()
             .then(() => {
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
       describe('w/ autocreate: false', () => {
         it('does not create the marketing snippet', () => {
           const view = createView(NonAutoCreateView);
-          sinon.stub(view, 'createMarketingSnippet', () => {});
+          sinon.stub(view, 'createMarketingSnippet').callsFake(() => {});
 
           return view.render()
             .then(() => {

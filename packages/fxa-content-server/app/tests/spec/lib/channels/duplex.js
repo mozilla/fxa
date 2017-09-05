@@ -74,7 +74,7 @@ define(function (require, exports, module) {
       });
 
       it('returns any errors from the sender', () => {
-        sinon.stub(sender, 'send', () => {
+        sinon.stub(sender, 'send').callsFake(() => {
           throw new Error('uh oh');
         });
 
@@ -87,11 +87,11 @@ define(function (require, exports, module) {
 
     describe('request', () => {
       it('prints a message to the console if there is no response', function (done) {
-        sinon.stub(windowMock, 'setTimeout', function (callback) {
+        sinon.stub(windowMock, 'setTimeout').callsFake(function (callback) {
           callback();
         });
 
-        sinon.stub(windowMock.console, 'error', () => {
+        sinon.stub(windowMock.console, 'error').callsFake(() => {
           done();
         });
 
@@ -99,7 +99,7 @@ define(function (require, exports, module) {
       });
 
       it('returns any errors in sending', () => {
-        sinon.stub(sender, 'send', () => {
+        sinon.stub(sender, 'send').callsFake(() => {
           throw new Error('uh oh');
         });
 
@@ -116,7 +116,7 @@ define(function (require, exports, module) {
           }
         };
 
-        sinon.stub(sender, 'send', function (command, data, messageId) {
+        sinon.stub(sender, 'send').callsFake(function (command, data, messageId) {
           responseData.messageId = messageId;
           receiver.trigger('error', responseData);
         });
@@ -132,7 +132,7 @@ define(function (require, exports, module) {
       });
 
       it('returns the response received by the receiver', () => {
-        sinon.stub(sender, 'send', function (command, data, messageId) {
+        sinon.stub(sender, 'send').callsFake(function (command, data, messageId) {
           receiver.trigger('message', {
             data,
             messageId
@@ -148,7 +148,7 @@ define(function (require, exports, module) {
 
     describe('rejectAllOutstandingRequests', () => {
       it('rejects all outstanding requests with `reason`', () => {
-        sinon.stub(sender, 'send', () => {});
+        sinon.stub(sender, 'send').callsFake(() => {});
 
         setTimeout(() => {
           channel.rejectAllOutstandingRequests('reason');

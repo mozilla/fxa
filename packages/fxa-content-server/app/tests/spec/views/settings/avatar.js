@@ -49,7 +49,7 @@ define(function (require, exports, module) {
 
     describe('with session', function () {
       beforeEach(function () {
-        sinon.stub(view, 'checkAuthorization',  function () {
+        sinon.stub(view, 'checkAuthorization').callsFake(function () {
           return p(true);
         });
         account = user.initAccount({
@@ -58,13 +58,13 @@ define(function (require, exports, module) {
           verified: true
         });
 
-        sinon.stub(view, 'getSignedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount').callsFake(function () {
           return account;
         });
       });
 
       it('has no avatar set', function () {
-        sinon.stub(account, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar').callsFake(function () {
           return p({});
         });
 
@@ -86,7 +86,7 @@ define(function (require, exports, module) {
       });
 
       it('rerenders on profile updates', function () {
-        sinon.stub(view, 'render', function () {
+        sinon.stub(view, 'render').callsFake(function () {
           return p();
         });
         view.onProfileUpdate();

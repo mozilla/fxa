@@ -76,7 +76,7 @@ define(function (require, exports, module) {
       });
 
       sinon.spy(view, 'navigate');
-      sinon.stub(view, 'clearSessionAndNavigateToSignIn', () => {});
+      sinon.stub(view, 'clearSessionAndNavigateToSignIn').callsFake(() => {});
     }
 
     beforeEach(function () {
@@ -98,18 +98,18 @@ define(function (require, exports, module) {
         uid: UID,
         verified: true
       });
-      sinon.stub(account, 'fetchProfile', function () {
+      sinon.stub(account, 'fetchProfile').callsFake(function () {
         return p();
       });
 
       subPanels = new SubPanels();
-      sinon.stub(subPanels, 'render', function () {
+      sinon.stub(subPanels, 'render').callsFake(function () {
         return p();
       });
 
       createSettingsView();
 
-      sinon.stub(user, 'getSignedInAccount', function () {
+      sinon.stub(user, 'getSignedInAccount').callsFake(function () {
         return account;
       });
     });
@@ -126,16 +126,16 @@ define(function (require, exports, module) {
       });
 
       it('shows the settings page for a selected uid', function () {
-        sinon.stub(user, 'getAccountByUid', function () {
+        sinon.stub(user, 'getAccountByUid').callsFake(function () {
           return account;
         });
-        sinon.stub(user, 'setSignedInAccountByUid', function () {
+        sinon.stub(user, 'setSignedInAccountByUid').callsFake(function () {
           return p();
         });
         account.set('accessToken', ACCESS_TOKEN);
 
         createSettingsView();
-        sinon.stub(view, 'checkAuthorization', function () {
+        sinon.stub(view, 'checkAuthorization').callsFake(function () {
           return p(true);
         });
         return view.render()
@@ -153,8 +153,8 @@ define(function (require, exports, module) {
       it('clears session information if uid is not found', function () {
         var account = user.initAccount({});
 
-        sinon.stub(user, 'sessionStatus', () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
-        sinon.stub(user, 'getAccountByUid', () => account);
+        sinon.stub(user, 'sessionStatus').callsFake(() => p.reject(AuthErrors.toError('INVALID_TOKEN')));
+        sinon.stub(user, 'getAccountByUid').callsFake(() => account);
         sinon.spy(user, 'clearSignedInAccount');
 
         relier.set('uid', UID);
@@ -171,7 +171,7 @@ define(function (require, exports, module) {
 
     describe('with session', function () {
       beforeEach(function () {
-        sinon.stub(view, 'checkAuthorization', function () {
+        sinon.stub(view, 'checkAuthorization').callsFake(function () {
           return p(true);
         });
         account.set('accessToken', ACCESS_TOKEN);
@@ -191,10 +191,10 @@ define(function (require, exports, module) {
       it('on navigate from childView', function () {
         sinon.spy(view, 'displayStatusMessages');
         sinon.spy(view, 'logView');
-        sinon.stub($.modal, 'isActive', function () {
+        sinon.stub($.modal, 'isActive').callsFake(function () {
           return true;
         });
-        sinon.stub($.modal, 'close', function () { });
+        sinon.stub($.modal, 'close').callsFake(function () { });
         notifier.trigger('navigate-from-child-view');
         assert.isTrue(view.displayStatusMessages.called);
         assert.isTrue(view.logView.called);
@@ -205,7 +205,7 @@ define(function (require, exports, module) {
       });
 
       it('afterVisible', function () {
-        sinon.stub(subPanels, 'setElement', function () {});
+        sinon.stub(subPanels, 'setElement').callsFake(function () {});
         return view.render()
           .then(function () {
             $('#container').append(view.el);
@@ -268,7 +268,7 @@ define(function (require, exports, module) {
       describe('with a profile image set', function () {
         beforeEach(function () {
           var image = new ProfileImage({ id: 'foo', img: new Image(), url: 'url' });
-          sinon.stub(account, 'fetchCurrentProfileImage', function () {
+          sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
             return p(image);
           });
 
@@ -301,7 +301,7 @@ define(function (require, exports, module) {
       });
 
       it('has no avatar set', function () {
-        sinon.stub(account, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar').callsFake(function () {
           return p({});
         });
 
@@ -316,7 +316,7 @@ define(function (require, exports, module) {
       });
 
       it('has avatar but does not load', function () {
-        sinon.stub(account, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar').callsFake(function () {
           return p({ avatar: 'blah.jpg', id: 'foo' });
         });
 
@@ -338,7 +338,7 @@ define(function (require, exports, module) {
         var url = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
         var id = 'foo';
 
-        sinon.stub(account, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar').callsFake(function () {
           return p({ avatar: url, id: id });
         });
 
@@ -354,7 +354,7 @@ define(function (require, exports, module) {
 
       describe('signOut', () => {
         it('on success, logs events and calls clearSessionAndNavigateToSignIn', () => {
-          sinon.stub(account, 'signOut', () => p());
+          sinon.stub(account, 'signOut').callsFake(() => p());
 
           return view.signOut()
             .then(() => {
@@ -370,7 +370,7 @@ define(function (require, exports, module) {
         });
 
         it('on error, logs events and calls clearSessionAndNavigateToSignIn', () => {
-          sinon.stub(account, 'signOut', () => {
+          sinon.stub(account, 'signOut').callsFake(() => {
             return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
           });
 
@@ -389,7 +389,7 @@ define(function (require, exports, module) {
 
       describe('desktop context', function () {
         it('does not show sign out link', function () {
-          sinon.stub(account, 'isFromSync', function () {
+          sinon.stub(account, 'isFromSync').callsFake(function () {
             return true;
           });
 
@@ -445,7 +445,7 @@ define(function (require, exports, module) {
       });
 
       it('it calls showChildView on subPanels', function () {
-        sinon.stub(subPanels, 'showChildView', function () {
+        sinon.stub(subPanels, 'showChildView').callsFake(function () {
           return p();
         });
 
@@ -462,7 +462,7 @@ define(function (require, exports, module) {
           panelViews = [
             SettingsPanelView
           ];
-          sinon.stub(SubPanels.prototype, 'initialize', function () {
+          sinon.stub(SubPanels.prototype, 'initialize').callsFake(function () {
           });
           initialChildView = SettingsPanelView;
         });
@@ -473,7 +473,7 @@ define(function (require, exports, module) {
 
         it('CommunicationPreferencesView is visible if enabled', function () {
           panelViews.push(CommunicationPreferencesView);
-          sinon.stub(experimentGroupingRules, 'choose', function () {
+          sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
             return true;
           });
           createSettingsView();
@@ -490,7 +490,7 @@ define(function (require, exports, module) {
 
         it('CommunicationPreferencesView is not visible if disabled', function () {
           panelViews.push(CommunicationPreferencesView);
-          sinon.stub(experimentGroupingRules, 'choose', function () {
+          sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
             return false;
           });
           createSettingsView();

@@ -52,8 +52,8 @@ define(function (require, exports, module) {
 
     describe('waitForSessionVerification', () => {
       beforeEach(() => {
-        sinon.stub(view, '_handleSessionVerificationPollErrors', () => {});
-        sinon.stub(sessionVerificationPoll, 'start', () => {});
+        sinon.stub(view, '_handleSessionVerificationPollErrors').callsFake(() => {});
+        sinon.stub(sessionVerificationPoll, 'start').callsFake(() => {});
       });
 
       it('calls the callback when the session is verified', (done) => {
@@ -81,7 +81,7 @@ define(function (require, exports, module) {
 
     describe('_handleSessionVerificationPollErrors', () => {
       it('displays an error message allowing the user to re-signup if their email bounces on signup', () => {
-        sinon.stub(view, 'isSignUp', () => true);
+        sinon.stub(view, 'isSignUp').callsFake(() => true);
         sinon.spy(view, 'navigate');
         view._handleSessionVerificationPollErrors(account, AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
 
@@ -89,7 +89,7 @@ define(function (require, exports, module) {
       });
 
       it('navigates to the signin-bounced screen if their email bounces on signin', () => {
-        sinon.stub(view, 'isSignUp', () => false);
+        sinon.stub(view, 'isSignUp').callsFake(() => false);
         sinon.spy(view, 'navigate');
         view._handleSessionVerificationPollErrors(account, AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
 
@@ -113,8 +113,8 @@ define(function (require, exports, module) {
         beforeEach(function () {
           sandbox = sinon.sandbox.create();
           sandbox.spy(view.sentryMetrics, 'captureException');
-          sandbox.stub(sessionVerificationPoll, 'start', () => {});
-          sandbox.stub(view, 'setTimeout', (callback) => callback());
+          sandbox.stub(sessionVerificationPoll, 'start').callsFake(() => {});
+          sandbox.stub(view, 'setTimeout').callsFake((callback) => callback());
 
           view._handleSessionVerificationPollErrors(account, AuthErrors.toError('UNEXPECTED_ERROR'));
         });
@@ -135,7 +135,7 @@ define(function (require, exports, module) {
 
     describe('destroy', () => {
       beforeEach(() => {
-        sinon.stub(sessionVerificationPoll, 'stop', () => {});
+        sinon.stub(sessionVerificationPoll, 'stop').callsFake(() => {});
       });
 
       it('stops the verification poll', () => {

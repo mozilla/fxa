@@ -70,7 +70,7 @@ define(function (require, exports, module) {
       });
 
       it('redirects to `/` if no account', () => {
-        sinon.stub(view, 'getAccount', () => null);
+        sinon.stub(view, 'getAccount').callsFake(() => null);
 
         view.beforeRender();
 
@@ -79,7 +79,7 @@ define(function (require, exports, module) {
       });
 
       it('does nothing if an account passed in', () => {
-        sinon.stub(view, 'getAccount', () => account);
+        sinon.stub(view, 'getAccount').callsFake(() => account);
 
         view.beforeRender();
 
@@ -103,7 +103,7 @@ define(function (require, exports, module) {
 
     describe('validateAndSubmit', () => {
       beforeEach(() => {
-        sinon.stub(view, 'signUp', () => p());
+        sinon.stub(view, 'signUp').callsFake(() => p());
         sinon.stub(view, 'tooYoung');
         sinon.spy(view, 'displayError');
       });
@@ -149,7 +149,7 @@ define(function (require, exports, module) {
           view.$('#vpassword').val('password');
           view.$('#age').val('21');
 
-          sinon.stub(view, 'hasOptedInToMarketingEmail', () => true);
+          sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);
 
           return p().then()
             .then(() => view.enableSubmitIfValid())

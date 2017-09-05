@@ -55,7 +55,7 @@ define(function (require, exports, module) {
         user
       });
 
-      sinon.stub(view, 'logFlowEvent', () => {});
+      sinon.stub(view, 'logFlowEvent').callsFake(() => {});
 
       account = user.initAccount({
         email: 'a@a.com',
@@ -67,12 +67,12 @@ define(function (require, exports, module) {
     describe('isEligibleForConnectAnotherDevice', () => {
       describe('user is completing sign-in', () => {
         beforeEach(() => {
-          sinon.stub(user, 'getSignedInAccount', () => {
+          sinon.stub(user, 'getSignedInAccount').callsFake(() => {
             return {
               isDefault: () => true
             };
           });
-          sinon.stub(view, 'isSignUp', () => false);
+          sinon.stub(view, 'isSignUp').callsFake(() => false);
         });
 
         it('returns `false`', () => {
@@ -82,7 +82,7 @@ define(function (require, exports, module) {
 
       describe('no user signed in', () => {
         beforeEach(() => {
-          sinon.stub(user, 'getSignedInAccount', () => {
+          sinon.stub(user, 'getSignedInAccount').callsFake(() => {
             return {
               isDefault: () => true
             };
@@ -96,12 +96,12 @@ define(function (require, exports, module) {
 
       describe('different user signed in', () => {
         beforeEach(() => {
-          sinon.stub(user, 'getSignedInAccount', () => {
+          sinon.stub(user, 'getSignedInAccount').callsFake(() => {
             return {
               isDefault: () => false
             };
           });
-          sinon.stub(user, 'isSignedInAccount', () => false);
+          sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
         });
 
         it('returns `false`', () => {
@@ -111,12 +111,12 @@ define(function (require, exports, module) {
 
       describe('same user signed in', () => {
         beforeEach(() => {
-          sinon.stub(user, 'getSignedInAccount', () => {
+          sinon.stub(user, 'getSignedInAccount').callsFake(() => {
             return {
               isDefault: () => false
             };
           });
-          sinon.stub(user, 'isSignedInAccount', () => true);
+          sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
         });
 
         it('returns `true`', () => {
@@ -132,7 +132,7 @@ define(function (require, exports, module) {
 
       describe('pre-reqs are not met', () => {
         beforeEach(() => {
-          sinon.stub(view, '_areSmsRequirementsMet', () => false);
+          sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => false);
           sinon.spy(account, 'smsStatus');
         });
 
@@ -149,9 +149,9 @@ define(function (require, exports, module) {
 
       describe('pre-reqs are met, auth-server blocks, Experiment choice rules say OK', () => {
         beforeEach(() => {
-          sinon.stub(view, '_areSmsRequirementsMet', () => true);
+          sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
           sinon.spy(view, 'isInExperiment');
-          sinon.stub(account, 'smsStatus', () => p({ country: 'US', ok: false }));
+          sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'US', ok: false }));
         });
 
         it('resolves to object with `ok: true, country: US`', () => {
@@ -172,10 +172,10 @@ define(function (require, exports, module) {
 
         beforeEach(() => {
           err = AuthErrors.toError('UNEXPECTED_ERROR');
-          sinon.stub(view, '_areSmsRequirementsMet', () => true);
+          sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
           sinon.spy(view, 'isInExperiment');
           sinon.spy(view, 'logError');
-          sinon.stub(account, 'smsStatus', () => p.reject(err));
+          sinon.stub(account, 'smsStatus').callsFake(() => p.reject(err));
         });
 
         it('resolves to object with `ok: false`, logs error', () => {
@@ -197,9 +197,9 @@ define(function (require, exports, module) {
 
       describe('pre-reqs are met, auth-server says OK, Experiment choice rules block', () => {
         beforeEach(() => {
-          sinon.stub(view, '_areSmsRequirementsMet', () => true);
-          sinon.stub(view, 'isInExperiment', () => false);
-          sinon.stub(account, 'smsStatus', () => p({ country: 'US', ok: true }));
+          sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
+          sinon.stub(view, 'isInExperiment').callsFake(() => false);
+          sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'US', ok: true }));
         });
 
         it('resolves to object with `ok: true, country: US`', () => {
@@ -219,9 +219,9 @@ define(function (require, exports, module) {
 
       describe('pre-reqs are met, auth-server says OK, Experiment choice rules say OK', () => {
         beforeEach(() => {
-          sinon.stub(view, '_areSmsRequirementsMet', () => true);
-          sinon.stub(view, 'isInExperiment', (experimentName) => experimentName === 'sendSmsEnabledForCountry');
-          sinon.stub(account, 'smsStatus', () => p({ country: 'US', ok: true }));
+          sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
+          sinon.stub(view, 'isInExperiment').callsFake((experimentName) => experimentName === 'sendSmsEnabledForCountry');
+          sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'US', ok: true }));
         });
 
         it('resolves to object with `ok: true, country: US`', () => {
@@ -244,15 +244,15 @@ define(function (require, exports, module) {
     describe('_areSmsRequirementsMet', () => {
       describe('user is signing in', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isSignUp', () => false);
-          sinon.stub(view, 'isInExperiment', () => true);
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'isSignUp').callsFake(() => false);
+          sinon.stub(view, 'isInExperiment').callsFake(() => true);
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
               isIos: () => false
             };
           });
-          sinon.stub(user, 'isAnotherAccountSignedIn', () => false);
+          sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
         });
 
         it('returns `false', () => {
@@ -264,15 +264,15 @@ define(function (require, exports, module) {
 
       describe('user is on Android', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isSignUp', () => true);
-          sinon.stub(view, 'isInExperiment', () => true);
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'isSignUp').callsFake(() => true);
+          sinon.stub(view, 'isInExperiment').callsFake(() => true);
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => true,
               isIos: () => false
             };
           });
-          sinon.stub(user, 'isAnotherAccountSignedIn', () => false);
+          sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
         });
 
         it('returns `false', () => {
@@ -284,15 +284,15 @@ define(function (require, exports, module) {
 
       describe('user is on iOS', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isSignUp', () => true);
-          sinon.stub(view, 'isInExperiment', () => true);
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'isSignUp').callsFake(() => true);
+          sinon.stub(view, 'isInExperiment').callsFake(() => true);
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
               isIos: () => true
             };
           });
-          sinon.stub(user, 'isAnotherAccountSignedIn', () => false);
+          sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
         });
 
         it('returns `false', () => {
@@ -304,16 +304,16 @@ define(function (require, exports, module) {
 
       describe('no session', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isSignUp', () => true);
-          sinon.stub(view, 'isInExperiment', () => true);
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'isSignUp').callsFake(() => true);
+          sinon.stub(view, 'isInExperiment').callsFake(() => true);
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
               isIos: () => false
             };
           });
           account.unset('sessionToken');
-          sinon.stub(user, 'isAnotherAccountSignedIn', () => true);
+          sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => true);
         });
 
         it('returns `false', () => {
@@ -325,15 +325,15 @@ define(function (require, exports, module) {
 
       describe('another user is signed in', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isSignUp', () => true);
-          sinon.stub(view, 'isInExperiment', () => true);
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'isSignUp').callsFake(() => true);
+          sinon.stub(view, 'isInExperiment').callsFake(() => true);
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
               isIos: () => false
             };
           });
-          sinon.stub(user, 'isAnotherAccountSignedIn', () => true);
+          sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => true);
         });
 
         it('returns `false', () => {
@@ -345,15 +345,15 @@ define(function (require, exports, module) {
 
       describe('user is not part of experiment', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isSignUp', () => true);
-          sinon.stub(view, 'isInExperiment', () => false);
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'isSignUp').callsFake(() => true);
+          sinon.stub(view, 'isInExperiment').callsFake(() => false);
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
               isIos: () => false
             };
           });
-          sinon.stub(user, 'isAnotherAccountSignedIn', () => false);
+          sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
         });
 
         it('returns `false', () => {
@@ -365,15 +365,15 @@ define(function (require, exports, module) {
 
       describe('user is eligible',() => {
         beforeEach(() => {
-          sinon.stub(view, 'isSignUp', () => true);
-          sinon.stub(view, 'isInExperiment', () => true);
-          sinon.stub(view, 'getUserAgent', () => {
+          sinon.stub(view, 'isSignUp').callsFake(() => true);
+          sinon.stub(view, 'isInExperiment').callsFake(() => true);
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
               isIos: () => false
             };
           });
-          sinon.stub(user, 'isAnotherAccountSignedIn', () => false);
+          sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
         });
 
         it('returns `true', () => {
@@ -384,8 +384,8 @@ define(function (require, exports, module) {
 
     describe('_smsCountry', () => {
       it('resolves to the country on success', () => {
-        sinon.stub(account, 'smsStatus', () => p({ country: 'GB', ok: true }));
-        sinon.stub(view, 'isInExperiment', () => true);
+        sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'GB', ok: true }));
+        sinon.stub(view, 'isInExperiment').callsFake(() => true);
 
         return view._smsCountry(account)
           .then((country) => {
@@ -397,7 +397,7 @@ define(function (require, exports, module) {
       });
 
       it('resolves to `undefined` if auth-server responds ok: false', () => {
-        sinon.stub(account, 'smsStatus', () => p({ country: 'AZ', ok: false }));
+        sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'AZ', ok: false }));
 
         return view._smsCountry(account)
           .then((country) => {
@@ -410,8 +410,8 @@ define(function (require, exports, module) {
       });
 
       it('resolves to `undefined` if auth-server reported country is not supported', () => {
-        sinon.stub(account, 'smsStatus', () => p({ country: 'AZ', ok: true }));
-        sinon.stub(view, 'isInExperiment', () => false);
+        sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'AZ', ok: true }));
+        sinon.stub(view, 'isInExperiment').callsFake(() => false);
 
         return view._smsCountry(account)
           .then((country) => {
@@ -429,8 +429,8 @@ define(function (require, exports, module) {
       it('handles XHR errors', () => {
         const err = AuthErrors.toError('UNEXPECTED_ERROR');
 
-        sinon.stub(account, 'smsStatus', () => p.reject(err));
-        sinon.stub(view, 'logError', () => {});
+        sinon.stub(account, 'smsStatus').callsFake(() => p.reject(err));
+        sinon.stub(view, 'logError').callsFake(() => {});
 
         return view._smsCountry(account)
           .then((country) => {
@@ -448,7 +448,7 @@ define(function (require, exports, module) {
     describe('navigateToConnectAnotherDeviceScreen', () => {
       describe('not eligible for CAD', () => {
         it('rejects with an error', () => {
-          sinon.stub(view, 'isEligibleForConnectAnotherDevice', () => false);
+          sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => false);
           return view.navigateToConnectAnotherDeviceScreen(account)
             .then(assert.fail, (err) => {
               assert.ok(err);
@@ -458,15 +458,15 @@ define(function (require, exports, module) {
 
       describe('eligible for CAD', () => {
         beforeEach(() => {
-          sinon.stub(view, 'isEligibleForConnectAnotherDevice', () => true);
-          sinon.stub(view, 'navigate', () => {});
-          sinon.stub(view, 'createExperiment', () => {});
+          sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
+          sinon.stub(view, 'navigate').callsFake(() => {});
+          sinon.stub(view, 'createExperiment').callsFake(() => {});
           sinon.spy(notifier, 'trigger');
         });
 
         describe('not eligible for SMS', () => {
           it('redirects to /connect_another_device', () => {
-            sinon.stub(view, '_isEligibleForSms', () => p({ ok: false }));
+            sinon.stub(view, '_isEligibleForSms').callsFake(() => p({ ok: false }));
 
             return view.navigateToConnectAnotherDeviceScreen(account)
               .then(() => {
@@ -483,12 +483,12 @@ define(function (require, exports, module) {
 
         describe('eligible for SMS', () => {
           beforeEach(() => {
-            sinon.stub(view, '_isEligibleForSms', () => p({ country: 'GB', ok: true }));
+            sinon.stub(view, '_isEligibleForSms').callsFake(() => p({ country: 'GB', ok: true }));
           });
 
           describe('in treatment group', () => {
             it('creates the experiment, redirects to /sms', () => {
-              sinon.stub(view, 'getExperimentGroup', () => 'treatment');
+              sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
               return view.navigateToConnectAnotherDeviceScreen(account)
                 .then(() => {
                   assert.isTrue(view.createExperiment.calledOnce);
@@ -502,7 +502,7 @@ define(function (require, exports, module) {
 
           describe('in control group', () => {
             it('creates the experiment, redirects to /connect_another_device', () => {
-              sinon.stub(view, 'getExperimentGroup', () => 'control');
+              sinon.stub(view, 'getExperimentGroup').callsFake(() => 'control');
               return view.navigateToConnectAnotherDeviceScreen(account)
                 .then(() => {
                   assert.isTrue(view.createExperiment.calledOnce);

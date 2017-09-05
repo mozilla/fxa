@@ -63,7 +63,7 @@ define(function (require, exports, module) {
 
       describe('account needs permissions', function () {
         beforeEach(function () {
-          sinon.stub(relier, 'accountNeedsPermissions', function () {
+          sinon.stub(relier, 'accountNeedsPermissions').callsFake(function () {
             return true;
           });
 
@@ -95,7 +95,7 @@ define(function (require, exports, module) {
 
       describe('broker supports chooseWhatToSync', function () {
         beforeEach(function () {
-          sinon.stub(broker, 'hasCapability', function (capabilityName) {
+          sinon.stub(broker, 'hasCapability').callsFake(function (capabilityName) {
             return capabilityName === 'chooseWhatToSyncWebV1';
           });
 

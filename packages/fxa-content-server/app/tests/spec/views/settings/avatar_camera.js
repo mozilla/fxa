@@ -80,10 +80,10 @@ define(function (require, exports, module) {
 
     describe('with session', function () {
       beforeEach(function () {
-        sinon.stub(view, 'checkAuthorization',  function () {
+        sinon.stub(view, 'checkAuthorization').callsFake(function () {
           return p(true);
         });
-        sinon.stub(view, 'getSignedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount').callsFake(function () {
           return account;
         });
       });
@@ -220,26 +220,26 @@ define(function (require, exports, module) {
           return p(true);
         };
 
-        sinon.stub(view, 'getSignedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount').callsFake(function () {
           return account;
         });
 
-        sinon.stub(account, 'profileClient', function () {
+        sinon.stub(account, 'profileClient').callsFake(function () {
           return p(profileClientMock);
         });
 
-        sinon.stub(profileClientMock, 'uploadAvatar', function () {
+        sinon.stub(profileClientMock, 'uploadAvatar').callsFake(function () {
           return p({
             id: 'foo',
             url: 'test'
           });
         });
 
-        sinon.stub(view, 'updateProfileImage', function () {
+        sinon.stub(view, 'updateProfileImage').callsFake(function () {
           return p();
         });
 
-        sinon.stub(view, 'stopAndDestroyStream', sinon.spy());
+        sinon.stub(view, 'stopAndDestroyStream').callsFake(sinon.spy());
 
         sinon.spy(view, 'navigate');
 
@@ -283,11 +283,11 @@ define(function (require, exports, module) {
       it('tracks new and change events for avatars', function (done) {
         profileClientMock = new ProfileMock();
 
-        sinon.stub(account, 'profileClient', function () {
+        sinon.stub(account, 'profileClient').callsFake(function () {
           return p(profileClientMock);
         });
 
-        sinon.stub(view, 'updateProfileImage', function () {
+        sinon.stub(view, 'updateProfileImage').callsFake(function () {
           return p();
         });
 
@@ -360,7 +360,7 @@ define(function (require, exports, module) {
 
       describe('error', function () {
         beforeEach(function () {
-          sinon.stub(windowMock.navigator.mediaDevices, 'getUserMedia', function () {
+          sinon.stub(windowMock.navigator.mediaDevices, 'getUserMedia').callsFake(function () {
             return p.reject(AuthErrors.toError('NO_CAMERA'));
           });
 

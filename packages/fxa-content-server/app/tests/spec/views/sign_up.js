@@ -225,7 +225,7 @@ define(function (require, exports, module) {
 
       describe('email opt in', function () {
         it('is visible if enabled', function () {
-          sinon.stub(experimentGroupingRules, 'choose', function () {
+          sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
             return true;
           });
 
@@ -237,7 +237,7 @@ define(function (require, exports, module) {
         });
 
         it('is not visible if disabled', function () {
-          sinon.stub(experimentGroupingRules, 'choose', function () {
+          sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
             return false;
           });
 
@@ -251,7 +251,7 @@ define(function (require, exports, module) {
 
       describe('password confirm', function() {
         it('is visible if enabled', function () {
-          sinon.stub(experimentGroupingRules, 'choose', (name) => {
+          sinon.stub(experimentGroupingRules, 'choose').callsFake((name) => {
             return name === 'signupPasswordConfirm' && 'treatment';
           });
 
@@ -265,7 +265,7 @@ define(function (require, exports, module) {
         });
 
         it('is not visible if disabled', function () {
-          sinon.stub(experimentGroupingRules, 'choose', (name) => {
+          sinon.stub(experimentGroupingRules, 'choose').callsFake((name) => {
             return name === 'signupPasswordConfirm' && 'control';
           });
 
@@ -291,7 +291,7 @@ define(function (require, exports, module) {
       });
 
       it('displays migration message if isSyncMigration returns true', function () {
-        sinon.stub(view, 'isSyncMigration', () => true);
+        sinon.stub(view, 'isSyncMigration').callsFake(() => true);
 
         return view.render()
           .then(() => {
@@ -300,7 +300,7 @@ define(function (require, exports, module) {
       });
 
       it('does not display migration message if isSyncMigration returns false', function () {
-        sinon.stub(view, 'isSyncMigration', () => false);
+        sinon.stub(view, 'isSyncMigration').callsFake(() => false);
 
         return view.render()
           .then(() => {
@@ -309,7 +309,7 @@ define(function (require, exports, module) {
       });
 
       it('displays migration message if isAmoMigration returns true', function () {
-        sinon.stub(view, 'isAmoMigration', () => true);
+        sinon.stub(view, 'isAmoMigration').callsFake(() => true);
 
         return view.render()
           .then(() => {
@@ -318,7 +318,7 @@ define(function (require, exports, module) {
       });
 
       it('does not display migration message if isAmoMigration returns false', function () {
-        sinon.stub(view, 'isAmoMigration', () => false);
+        sinon.stub(view, 'isAmoMigration').callsFake(() => false);
 
         return view.render()
           .then(() => {
@@ -630,13 +630,13 @@ define(function (require, exports, module) {
         beforeEach(function () {
           fillOutSignUp(email, 'password');
 
-          sandbox.stub(view, 'isUserOldEnough', () => false);
-          sandbox.stub(view, 'signUp', () => p());
+          sandbox.stub(view, 'isUserOldEnough').callsFake(() => false);
+          sandbox.stub(view, 'signUp').callsFake(() => p());
         });
 
         describe('signin succeeds', function () {
           beforeEach(function () {
-            sandbox.stub(view, 'signIn', () => p());
+            sandbox.stub(view, 'signIn').callsFake(() => p());
 
             return view.submit();
           });
@@ -668,15 +668,15 @@ define(function (require, exports, module) {
 
         describe('signin fails with UNKNOWN_ACCOUNT', function () {
           beforeEach(function () {
-            sandbox.stub(view, 'signIn', function () {
+            sandbox.stub(view, 'signIn').callsFake(function () {
               return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
             });
           });
 
           describe('COPPA has no value', function () {
             beforeEach(function () {
-              sandbox.stub(view, 'coppaHasValue', () => false);
-              sandbox.stub(view, 'showValidationError', () => {});
+              sandbox.stub(view, 'coppaHasValue').callsFake(() => false);
+              sandbox.stub(view, 'showValidationError').callsFake(() => {});
               return view.submit();
             });
 
@@ -706,7 +706,7 @@ define(function (require, exports, module) {
 
           describe('COPPA is too young', function () {
             beforeEach(function () {
-              sandbox.stub(view, 'coppaHasValue', () => true);
+              sandbox.stub(view, 'coppaHasValue').callsFake(() => true);
 
               return view.submit();
             });
@@ -749,7 +749,7 @@ define(function (require, exports, module) {
 
         describe('signin fails with INCORRECT_PASSWORD', function () {
           beforeEach(function () {
-            sandbox.stub(view, 'signIn', function () {
+            sandbox.stub(view, 'signIn').callsFake(function () {
               return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
             });
 
@@ -787,7 +787,7 @@ define(function (require, exports, module) {
 
         describe('signin fails with USER_CANCELED_LOGIN', function () {
           beforeEach(function () {
-            sinon.stub(view, 'signIn', function () {
+            sinon.stub(view, 'signIn').callsFake(function () {
               return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
             });
 
@@ -822,7 +822,7 @@ define(function (require, exports, module) {
 
         describe('signin fails with a reset account', function () {
           beforeEach(function () {
-            sinon.stub(view, 'signIn', function () {
+            sinon.stub(view, 'signIn').callsFake(function () {
               return p.reject(AuthErrors.toError('ACCOUNT_RESET'));
             });
 
@@ -853,7 +853,7 @@ define(function (require, exports, module) {
 
         describe('signin fails with some other error', function () {
           beforeEach(function () {
-            sandbox.stub(view, 'signIn', function () {
+            sandbox.stub(view, 'signIn').callsFake(function () {
               return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
 
@@ -892,14 +892,14 @@ define(function (require, exports, module) {
         beforeEach(function () {
           fillOutSignUp(email, 'password');
 
-          sandbox.stub(view, 'isUserOldEnough', () => true);
-          sinon.stub(view, 'signIn', () => p());
+          sandbox.stub(view, 'isUserOldEnough').callsFake(() => true);
+          sinon.stub(view, 'signIn').callsFake(() => p());
         });
 
         describe('signup succeeds', function () {
           beforeEach(function () {
-            sinon.stub(view, 'signUp', () => p());
-            sinon.stub(view, 'hasOptedInToMarketingEmail', () => true);
+            sinon.stub(view, 'signUp').callsFake(() => p());
+            sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);
 
             return view.submit();
           });
@@ -924,7 +924,7 @@ define(function (require, exports, module) {
 
         describe('signup fails with ACCOUNT_ALREADY_EXISTS', function () {
           beforeEach(function () {
-            sinon.stub(view, 'signUp', function () {
+            sinon.stub(view, 'signUp').callsFake(function () {
               return p.reject(AuthErrors.toError('ACCOUNT_ALREADY_EXISTS'));
             });
 
@@ -950,7 +950,7 @@ define(function (require, exports, module) {
 
         describe('signup fails with USER_CANCELED_LOGIN', function () {
           beforeEach(function () {
-            sinon.stub(view, 'signUp', function () {
+            sinon.stub(view, 'signUp').callsFake(function () {
               return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
             });
 
@@ -985,7 +985,7 @@ define(function (require, exports, module) {
 
         describe('signup fails with some other error', function () {
           beforeEach(function () {
-            sinon.stub(view, 'signUp', function () {
+            sinon.stub(view, 'signUp').callsFake(function () {
               return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
 
@@ -1023,20 +1023,20 @@ define(function (require, exports, module) {
           relier.set('service', service);
           relier.set('customizeSync', isCustomizeSyncChecked);
 
-          sinon.stub(relier, 'isSync', function () {
+          sinon.stub(relier, 'isSync').callsFake(function () {
             return service === 'sync';
           });
 
-          sinon.stub(relier, 'isCustomizeSyncChecked', function () {
+          sinon.stub(relier, 'isCustomizeSyncChecked').callsFake(function () {
             return isCustomizeSyncChecked;
           });
 
-          sinon.stub(user, 'signUpAccount', function (account) {
+          sinon.stub(user, 'signUpAccount').callsFake(function (account) {
             account.set('verified', true);
             return p(account);
           });
 
-          sinon.stub(broker, 'afterSignIn', function () {
+          sinon.stub(broker, 'afterSignIn').callsFake(function () {
             return p();
           });
 
@@ -1044,7 +1044,7 @@ define(function (require, exports, module) {
             .then(function () {
               fillOutSignUp(email, 'password');
 
-              sinon.stub(view, 'isUserOldEnough', () => true);
+              sinon.stub(view, 'isUserOldEnough').callsFake(() => true);
 
               return view.submit();
             });
@@ -1059,10 +1059,10 @@ define(function (require, exports, module) {
 
         it('passes customize sync option to the experiment', function () {
           sinon.spy(view.notifier, 'trigger');
-          sinon.stub(view, 'isInExperiment', function () {
+          sinon.stub(view, 'isInExperiment').callsFake(function () {
             return true;
           });
-          sinon.stub(view, 'isInExperimentGroup', function () {
+          sinon.stub(view, 'isInExperimentGroup').callsFake(function () {
             return true;
           });
 
@@ -1133,7 +1133,7 @@ define(function (require, exports, module) {
 
     describe('suggestEmail', function () {
       it('measures how successful our mailcheck suggestion is', function () {
-        sinon.stub(experimentGroupingRules, 'choose', function (name) {
+        sinon.stub(experimentGroupingRules, 'choose').callsFake(function (name) {
           if (name === 'mailcheck') {
             return 'treatment';
           }
@@ -1146,12 +1146,12 @@ define(function (require, exports, module) {
         // mailcheck runs
         view.onEmailBlur();
         sinon.spy(user, 'initAccount');
-        sinon.stub(user, 'signUpAccount', function (account) {
+        sinon.stub(user, 'signUpAccount').callsFake(function (account) {
           return p(account);
         });
 
         sinon.spy(view, 'navigate');
-        sinon.stub(view, 'isUserOldEnough', () => true);
+        sinon.stub(view, 'isUserOldEnough').callsFake(() => true);
 
         return view.submit()
           .then(function () {
@@ -1186,11 +1186,11 @@ define(function (require, exports, module) {
       it('suggests emails via a tooltip in the automated browser', function (done) {
         createView();
         var container = $('#container');
-        var autoBrowser = sinon.stub(view.broker, 'isAutomatedBrowser', function () {
+        var autoBrowser = sinon.stub(view.broker, 'isAutomatedBrowser').callsFake(function () {
           return true;
         });
 
-        var suggestEmail = sinon.stub(view, 'onEmailBlur', function () {
+        var suggestEmail = sinon.stub(view, 'onEmailBlur').callsFake(function () {
           autoBrowser.restore();
           suggestEmail.restore();
           done();

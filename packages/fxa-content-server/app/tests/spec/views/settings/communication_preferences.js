@@ -59,19 +59,19 @@ define(function (require, exports, module) {
         account: account
       });
 
-      sinon.stub(user, 'getAccountByUid', function () {
+      sinon.stub(user, 'getAccountByUid').callsFake(function () {
         return new Account();
       });
 
-      sinon.stub(emailPrefsModel, 'fetch', function () {
+      sinon.stub(emailPrefsModel, 'fetch').callsFake(function () {
         return p();
       });
 
-      sinon.stub(emailPrefsModel, 'destroy', function () {
+      sinon.stub(emailPrefsModel, 'destroy').callsFake(function () {
         return p();
       });
 
-      sinon.stub(account, 'getMarketingEmailPrefs', function () {
+      sinon.stub(account, 'getMarketingEmailPrefs').callsFake(function () {
         return emailPrefsModel;
       });
 
@@ -83,15 +83,15 @@ define(function (require, exports, module) {
         user
       });
 
-      sinon.stub(view, 'getSignedInAccount', function () {
+      sinon.stub(view, 'getSignedInAccount').callsFake(function () {
         return account;
       });
 
-      sinon.stub(view, 'checkAuthorization', function () {
+      sinon.stub(view, 'checkAuthorization').callsFake(function () {
         return p(true);
       });
 
-      sinon.stub(view, 'logFlowEvent', () => {});
+      sinon.stub(view, 'logFlowEvent').callsFake(() => {});
 
       return render();
     });
@@ -108,7 +108,7 @@ define(function (require, exports, module) {
       });
 
       it('renders opted-in user correctly', function () {
-        sinon.stub(emailPrefsModel, 'isOptedIn', function () {
+        sinon.stub(emailPrefsModel, 'isOptedIn').callsFake(function () {
           return true;
         });
 
@@ -120,7 +120,7 @@ define(function (require, exports, module) {
       });
 
       it('renders not opted-in user correctly', function () {
-        sinon.stub(emailPrefsModel, 'isOptedIn', function () {
+        sinon.stub(emailPrefsModel, 'isOptedIn').callsFake(function () {
           return false;
         });
 
@@ -137,7 +137,7 @@ define(function (require, exports, module) {
         emailPrefsModel.unset('preferencesUrl');
         emailPrefsModel.set('newsletters', []);
 
-        sinon.stub(emailPrefsModel, 'fetch', function () {
+        sinon.stub(emailPrefsModel, 'fetch').callsFake(function () {
           return p.reject(MarketingEmailErrors.toError('UNKNOWN_EMAIL'));
         });
 
@@ -149,7 +149,7 @@ define(function (require, exports, module) {
 
       it('shows any other fetch errors', function () {
         emailPrefsModel.fetch.restore();
-        sinon.stub(emailPrefsModel, 'fetch', function () {
+        sinon.stub(emailPrefsModel, 'fetch').callsFake(function () {
           return p.reject(MarketingEmailErrors.toError('USAGE_ERROR'));
         });
 
@@ -161,7 +161,7 @@ define(function (require, exports, module) {
 
       it('correctly handles http 4xx errors as service unavailable', function () {
         emailPrefsModel.fetch.restore();
-        sinon.stub(emailPrefsModel, 'fetch', function () {
+        sinon.stub(emailPrefsModel, 'fetch').callsFake(function () {
           var err = MarketingEmailErrors.toError('UNKNOWN_ERROR');
           err.code = 400;
           return p.reject(err);
@@ -178,7 +178,7 @@ define(function (require, exports, module) {
 
       it('correctly handles http 5xx errors as service unavailable', function () {
         emailPrefsModel.fetch.restore();
-        sinon.stub(emailPrefsModel, 'fetch', function () {
+        sinon.stub(emailPrefsModel, 'fetch').callsFake(function () {
           var err = MarketingEmailErrors.toError('UNKNOWN_ERROR');
           err.code = 500;
           return p.reject(err);
@@ -196,7 +196,7 @@ define(function (require, exports, module) {
 
     describe('submit', function () {
       it('calls setOptInStatus', function () {
-        sinon.stub(view, 'setOptInStatus', function () {
+        sinon.stub(view, 'setOptInStatus').callsFake(function () {
           return p();
         });
 
@@ -209,11 +209,11 @@ define(function (require, exports, module) {
 
     describe('setOptInStatus', function () {
       it('displays a success message when complete', function () {
-        sinon.stub(emailPrefsModel, 'optOut', function () {
+        sinon.stub(emailPrefsModel, 'optOut').callsFake(function () {
           return p();
         });
-        sinon.stub(view, 'navigate', function () { });
-        sinon.stub(view, 'displaySuccess', function () { });
+        sinon.stub(view, 'navigate').callsFake(function () { });
+        sinon.stub(view, 'displaySuccess').callsFake(function () { });
 
         return view.setOptInStatus(NEWSLETTER_ID, false)
           .then(function () {
@@ -228,11 +228,11 @@ define(function (require, exports, module) {
       });
 
       it('emits the subscribed event', () => {
-        sinon.stub(emailPrefsModel, 'optOut', () => {
+        sinon.stub(emailPrefsModel, 'optOut').callsFake(() => {
           return p();
         });
-        sinon.stub(view, 'navigate', () => {});
-        sinon.stub(view, 'displaySuccess', () => {});
+        sinon.stub(view, 'navigate').callsFake(() => {});
+        sinon.stub(view, 'displaySuccess').callsFake(() => {});
 
         return view.setOptInStatus(NEWSLETTER_ID, true)
           .then(() => {
@@ -244,7 +244,7 @@ define(function (require, exports, module) {
       });
 
       it('shows `Please try again later` for 429 (rate-limited) error', function () {
-        sinon.stub(emailPrefsModel, 'optOut', function () {
+        sinon.stub(emailPrefsModel, 'optOut').callsFake(function () {
           return p.reject(MarketingEmailErrors.toError('USAGE_ERROR'));
         });
 
@@ -256,7 +256,7 @@ define(function (require, exports, module) {
       });
 
       it('other errors are displayed', function () {
-        sinon.stub(emailPrefsModel, 'optOut', function () {
+        sinon.stub(emailPrefsModel, 'optOut').callsFake(function () {
           return p.reject(MarketingEmailErrors.toError('UNEXPECTED_ERROR'));
         });
 

@@ -36,11 +36,11 @@ define(function (require, exports, module) {
       oAuthToken = new OAuthToken({
         token: 'oauth_token'
       });
-      sinon.stub(oAuthToken, 'destroy', function () {
+      sinon.stub(oAuthToken, 'destroy').callsFake(function () {
         return p();
       });
 
-      sinon.stub(account, 'createOAuthToken', function () {
+      sinon.stub(account, 'createOAuthToken').callsFake(function () {
         return p(oAuthToken);
       });
 
@@ -52,7 +52,7 @@ define(function (require, exports, module) {
 
     describe('fetch', function () {
       it('fetches the user\'s email preferences from basket', function () {
-        sinon.stub(marketingEmailClient, 'fetch', function () {
+        sinon.stub(marketingEmailClient, 'fetch').callsFake(function () {
           return p({
             newsletters: [NEWSLETTER_ID],
             preferencesUrl: PREFERENCES_URL + 'user_token'
@@ -82,7 +82,7 @@ define(function (require, exports, module) {
       });
 
       it('opts the user in to marketing email if not opted already in', function () {
-        sinon.stub(marketingEmailClient, 'optIn', function () {
+        sinon.stub(marketingEmailClient, 'optIn').callsFake(function () {
           return p();
         });
 
@@ -113,7 +113,7 @@ define(function (require, exports, module) {
       });
 
       it('opts the user out of marketing email if opted in', function () {
-        sinon.stub(marketingEmailClient, 'optOut', function () {
+        sinon.stub(marketingEmailClient, 'optOut').callsFake(function () {
           return p();
         });
 

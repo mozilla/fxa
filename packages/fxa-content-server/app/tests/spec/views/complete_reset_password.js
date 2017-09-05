@@ -81,7 +81,7 @@ define(function (require, exports, module) {
 
       initView();
 
-      sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+      sinon.stub(fxaClient, 'isPasswordResetComplete').callsFake(function () {
         return p(isPasswordResetComplete);
       });
 
@@ -302,12 +302,12 @@ define(function (require, exports, module) {
           view.$('[type=password]').val(PASSWORD);
           view.enableForm();
 
-          sinon.stub(user, 'completeAccountPasswordReset', function (account) {
+          sinon.stub(user, 'completeAccountPasswordReset').callsFake(function (account) {
             account.set('verified', true);
             return p(account);
           });
 
-          sinon.stub(user, 'setSignedInAccount', function (newAccount) {
+          sinon.stub(user, 'setSignedInAccount').callsFake(function (newAccount) {
             return p(newAccount);
           });
 
@@ -351,11 +351,11 @@ define(function (require, exports, module) {
           view.$('[type=password]').val(PASSWORD);
           view.enableForm();
 
-          sinon.stub(user, 'completeAccountPasswordReset', function (account) {
+          sinon.stub(user, 'completeAccountPasswordReset').callsFake(function (account) {
             return p(account);
           });
 
-          sinon.stub(user, 'setSignedInAccount', function (newAccount) {
+          sinon.stub(user, 'setSignedInAccount').callsFake(function (newAccount) {
             return p(newAccount);
           });
 
@@ -371,7 +371,7 @@ define(function (require, exports, module) {
         view.$('[type=password]').val('password');
         view.enableForm();
 
-        sinon.stub(fxaClient, 'completePasswordReset', function () {
+        sinon.stub(fxaClient, 'completePasswordReset').callsFake(function () {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
@@ -391,7 +391,7 @@ define(function (require, exports, module) {
         view.$('[type=password]').val('password');
         view.enableForm();
 
-        sinon.stub(fxaClient, 'completePasswordReset', function () {
+        sinon.stub(fxaClient, 'completePasswordReset').callsFake(function () {
           return p.reject(new Error('uh oh'));
         });
 
@@ -404,7 +404,7 @@ define(function (require, exports, module) {
 
     describe('resend', function () {
       it('delegates to the `resetPassword` method', function () {
-        sinon.stub(view, 'resetPassword', function () {
+        sinon.stub(view, 'resetPassword').callsFake(function () {
           return p();
         });
 
@@ -416,7 +416,7 @@ define(function (require, exports, module) {
       });
 
       it('re-throws all errors', function () {
-        sinon.stub(view, 'resetPassword', function () {
+        sinon.stub(view, 'resetPassword').callsFake(function () {
           return p.reject(new Error('server error'));
         });
 

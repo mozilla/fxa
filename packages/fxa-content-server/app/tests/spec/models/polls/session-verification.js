@@ -21,7 +21,7 @@ define(function (require, exports, module) {
     beforeEach(() => {
       account = new Account();
       windowMock = new WindowMock();
-      sinon.stub(windowMock, 'setTimeout', (func) => func());
+      sinon.stub(windowMock, 'setTimeout').callsFake((func) => func());
 
       poll = new SessionVerificationPoll({}, {
         account,
@@ -33,7 +33,7 @@ define(function (require, exports, module) {
     describe('waitForSessionVerification', () => {
       describe('with a valid `sessionToken`', () => {
         beforeEach(() => {
-          sinon.stub(account, 'sessionStatus', () => {
+          sinon.stub(account, 'sessionStatus').callsFake(() => {
             return p({
               verified: account.sessionStatus.callCount === 3
             });
@@ -56,8 +56,7 @@ define(function (require, exports, module) {
 
       describe('with an invalid `sessionToken`', () => {
         beforeEach(() => {
-          sinon.stub(account, 'sessionStatus',
-                     () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
+          sinon.stub(account, 'sessionStatus').callsFake(() => p.reject(AuthErrors.toError('INVALID_TOKEN')));
         });
 
         describe('model does not have a `uid`', () => {
@@ -90,7 +89,7 @@ define(function (require, exports, module) {
           beforeEach(() => {
             account.set('uid', 'uid');
 
-            sinon.stub(account, 'checkUidExists', () => p(true));
+            sinon.stub(account, 'checkUidExists').callsFake(() => p(true));
 
             const deferred = p.defer();
 
@@ -116,7 +115,7 @@ define(function (require, exports, module) {
           beforeEach(() => {
             account.set('uid', 'uid');
 
-            sinon.stub(account, 'checkUidExists', () => p(false));
+            sinon.stub(account, 'checkUidExists').callsFake(() => p(false));
 
             const deferred = p.defer();
 

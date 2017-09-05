@@ -160,7 +160,7 @@ define(function (require, exports, module) {
 
     describe('fetchClients', function () {
       beforeEach(function () {
-        sinon.stub(user, 'fetchAccountDevices', function () {
+        sinon.stub(user, 'fetchAccountDevices').callsFake(function () {
           return p([{
             clientType: Constants.CLIENT_TYPE_DEVICE,
             id: 'device-1',
@@ -169,7 +169,7 @@ define(function (require, exports, module) {
           }]);
         });
 
-        sinon.stub(user, 'fetchAccountOAuthApps', function () {
+        sinon.stub(user, 'fetchAccountOAuthApps').callsFake(function () {
           return p([{
             clientType: Constants.CLIENT_TYPE_OAUTH_APP,
             id: 'oauth-1',

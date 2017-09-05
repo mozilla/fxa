@@ -81,7 +81,7 @@ define(function (require, exports, module) {
         });
 
         sandbox.spy(appStart, 'enableSentryMetrics');
-        sandbox.stub(ErrorUtils, 'fatalError', () => {});
+        sandbox.stub(ErrorUtils, 'fatalError').callsFake(() => {});
 
         err = new Error('boom');
         return appStart.fatalError(err);
@@ -132,7 +132,7 @@ define(function (require, exports, module) {
       it('logs an error `fatalError` if config is missing', () => {
         appStart.useConfig(null);
 
-        sinon.stub(appStart, 'fatalError', () => {});
+        sinon.stub(appStart, 'fatalError').callsFake(() => {});
 
         return appStart.startApp()
           .then(() => {
@@ -145,7 +145,7 @@ define(function (require, exports, module) {
       it('logs an error `fatalError` if config is invalid', () => {
         appStart.useConfig(null);
 
-        sinon.stub(appStart, 'fatalError', () => {});
+        sinon.stub(appStart, 'fatalError').callsFake(() => {});
 
         $('head').append('<meta name="fxa-content-server/config" content="asdf" />');
         return appStart.startApp()
@@ -160,11 +160,11 @@ define(function (require, exports, module) {
 
       it('delegates to `fatalError` if an error occurs', () => {
         var err = new Error('boom');
-        sinon.stub(appStart, 'allResourcesReady', () => {
+        sinon.stub(appStart, 'allResourcesReady').callsFake(() => {
           return p.reject(err);
         });
 
-        sinon.stub(appStart, 'fatalError', () => {});
+        sinon.stub(appStart, 'fatalError').callsFake(() => {});
 
         return appStart.startApp()
           .then(() => {
@@ -188,7 +188,7 @@ define(function (require, exports, module) {
 
         beforeEach(() => {
           sandbox = sinon.sandbox.create();
-          sandbox.stub(Storage, 'isLocalStorageEnabled', () => {
+          sandbox.stub(Storage, 'isLocalStorageEnabled').callsFake(() => {
             return false;
           });
         });
@@ -407,7 +407,7 @@ define(function (require, exports, module) {
 
       describe('broker errors', () => {
         it('are logged to metrics', () => {
-          sinon.stub(appStart, 'captureError', sinon.spy());
+          sinon.spy(appStart, 'captureError');
 
           return appStart.initializeAuthenticationBroker()
             .then(() => {
@@ -431,15 +431,15 @@ define(function (require, exports, module) {
       });
 
       it('creates an SyncRelier if Sync', () => {
-        sinon.stub(appStart, '_isServiceSync', () => true);
+        sinon.stub(appStart, '_isServiceSync').callsFake(() => true);
 
         appStart.initializeRelier();
         assert.instanceOf(appStart._relier, SyncRelier);
       });
 
       it('creates an OAuthRelier if in the OAuth flow, even if service=sync is specified', () => {
-        sinon.stub(appStart, '_isOAuth', () => true);
-        sinon.stub(appStart, '_isServiceSync', () => true);
+        sinon.stub(appStart, '_isOAuth').callsFake(() => true);
+        sinon.stub(appStart, '_isServiceSync').callsFake(() => true);
 
         appStart.initializeRelier();
         assert.instanceOf(appStart._relier, OAuthRelier);
@@ -463,9 +463,9 @@ define(function (require, exports, module) {
         // sandbox is used because stubs are added to User.prototype.
         sandbox = sinon.sandbox.create();
 
-        sandbox.stub(User.prototype, 'shouldSetSignedInAccountFromBrowser', () => p());
-        sandbox.stub(User.prototype, 'setSignedInAccountFromBrowserAccountData', () => true);
-        sandbox.stub(User.prototype, 'setSigninCodeAccount', () => p());
+        sandbox.stub(User.prototype, 'shouldSetSignedInAccountFromBrowser').callsFake(() => p());
+        sandbox.stub(User.prototype, 'setSignedInAccountFromBrowserAccountData').callsFake(() => true);
+        sandbox.stub(User.prototype, 'setSigninCodeAccount').callsFake(() => p());
 
         brokerMock.set('browserSignedInAccount', browserAccountData);
         brokerMock.set('signinCodeAccount', signinCodeAccountData);
@@ -478,8 +478,8 @@ define(function (require, exports, module) {
           window: windowMock
         });
 
-        sinon.stub(appStart, 'upgradeStorageFormats', () => p());
-        sandbox.stub(appStart, '_getUserStorageInstance', () => new NullStorage());
+        sinon.stub(appStart, 'upgradeStorageFormats').callsFake(() => p());
+        sandbox.stub(appStart, '_getUserStorageInstance').callsFake(() => new NullStorage());
 
         appStart.useConfig({});
       });
@@ -523,7 +523,7 @@ define(function (require, exports, module) {
 
       it('skips error metrics on empty config', () => {
         appStart.initializeExperimentGroupingRules();
-        var ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose', () => {
+        var ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
           return true;
         });
 
@@ -550,7 +550,7 @@ define(function (require, exports, module) {
         appStart.useConfig({ env: 'development' });
         appStart.initializeExperimentGroupingRules();
 
-        var ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose', () => {
+        var ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
           return true;
         });
 
@@ -630,7 +630,7 @@ define(function (require, exports, module) {
       });
 
       it('sets up the HeightObserver, triggers a `resize` notification on the iframe channel when the height changes', function (done) {
-        sinon.stub(appStart, '_isInAnIframe', () => {
+        sinon.stub(appStart, '_isInAnIframe').callsFake(() => {
           return true;
         });
 
@@ -675,8 +675,7 @@ define(function (require, exports, module) {
               })
             }
           });
-
-          sinon.stub(appStart, 'captureError', sinon.spy());
+          sinon.spy(appStart, 'captureError');
 
           return appStart.testLocalStorage();
         });
@@ -764,7 +763,7 @@ define(function (require, exports, module) {
       });
 
       it('should start history with `pushState: false` if supported', () => {
-        sinon.stub(windowMock.history, 'replaceState', () => {
+        sinon.stub(windowMock.history, 'replaceState').callsFake(() => {
           throw new Error('You fool! This is the FxOS Trusted UI, history is available, but cannot be used.');
         });
 
@@ -784,7 +783,7 @@ define(function (require, exports, module) {
             window: windowMock
           });
 
-          sinon.stub(appStart, '_isVerification', () => {
+          sinon.stub(appStart, '_isVerification').callsFake(() => {
             return true;
           });
 
@@ -808,7 +807,7 @@ define(function (require, exports, module) {
               window: windowMock
             });
 
-            sinon.stub(appStart, '_isVerification', () => {
+            sinon.stub(appStart, '_isVerification').callsFake(() => {
               return false;
             });
 
@@ -828,7 +827,7 @@ define(function (require, exports, module) {
               window: windowMock
             });
 
-            sinon.stub(appStart, '_isVerification', () => {
+            sinon.stub(appStart, '_isVerification').callsFake(() => {
               return false;
             });
           });
@@ -851,7 +850,7 @@ define(function (require, exports, module) {
           window: windowMock
         });
 
-        sinon.stub(appStart, '_getSameBrowserVerificationModel', () => {
+        sinon.stub(appStart, '_getSameBrowserVerificationModel').callsFake(() => {
           return {
             get () {
               return sameBrowserVerificationModelContext;
@@ -875,14 +874,14 @@ define(function (require, exports, module) {
 
       describe('without a stored `context`, sync verification', () => {
         it('returns sync context', () => {
-          sinon.stub(appStart, '_isServiceSync', () => true);
+          sinon.stub(appStart, '_isServiceSync').callsFake(() => true);
           assert.equal(appStart._getVerificationContext(), Constants.FX_SYNC_CONTEXT);
         });
       });
 
       describe('without a stored `context`, oauth verification', () => {
         it('returns oauth context', () => {
-          sinon.stub(appStart, '_isServiceOAuth', () => true);
+          sinon.stub(appStart, '_isServiceOAuth').callsFake(() => true);
           assert.equal(appStart._getVerificationContext(), Constants.OAUTH_CONTEXT);
         });
       });

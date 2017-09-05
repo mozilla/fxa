@@ -42,7 +42,7 @@ define(function (require, exports, module) {
         relier
       });
 
-      sinon.stub(view, 'logViewEvent', () => {});
+      sinon.stub(view, 'logViewEvent').callsFake(() => {});
     });
 
     describe('sync suggestion', () => {
@@ -69,7 +69,7 @@ define(function (require, exports, module) {
 
       it('does not have sync auth supported', () => {
         relier.set('service', null);
-        sinon.stub(view, 'isSyncAuthSupported', () => false);
+        sinon.stub(view, 'isSyncAuthSupported').callsFake(() => false);
         return view.render()
           .then(() => {
             const $getStartedEl = view.$('#suggest-sync').find('a');
@@ -79,8 +79,8 @@ define(function (require, exports, module) {
 
       it('has sync auth supported on Firefox for Desktop', () => {
         relier.set('service', null);
-        sinon.stub(view, 'isSyncAuthSupported', () => true);
-        sinon.stub(view, 'getUserAgent', () => {
+        sinon.stub(view, 'isSyncAuthSupported').callsFake(() => true);
+        sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isFirefoxAndroid: () => false,
             isFirefoxDesktop: () => true,
@@ -97,8 +97,8 @@ define(function (require, exports, module) {
 
       it('has sync auth supported on Firefox for Android', () => {
         relier.set('service', null);
-        sinon.stub(view, 'isSyncAuthSupported', () => true);
-        sinon.stub(view, 'getUserAgent', () => {
+        sinon.stub(view, 'isSyncAuthSupported').callsFake(() => true);
+        sinon.stub(view, 'getUserAgent').callsFake(() => {
           return {
             isFirefoxAndroid: () => true,
             isFirefoxDesktop: () => false,
@@ -137,9 +137,9 @@ define(function (require, exports, module) {
       it('logs the link.signin event', () => {
         // Without the _flusthMetricsThenRedirect override, the test
         // causes the page to redirect.
-        sinon.stub(view, 'isSyncSuggestionEnabled', () => true);
-        sinon.stub(view, '_flushMetricsThenRedirect', () => p());
-        sinon.stub(view, 'logFlowEvent', () => {});
+        sinon.stub(view, 'isSyncSuggestionEnabled').callsFake(() => true);
+        sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => p());
+        sinon.stub(view, 'logFlowEvent').callsFake(() => {});
 
         return view.render()
           .then(() => {

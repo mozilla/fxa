@@ -86,7 +86,7 @@ define((require, exports, module) => {
           const signedInAccount = user.initAccount({
             sessionToken: 'token'
           });
-          sinon.stub(user, 'getSignedInAccount', () => signedInAccount);
+          sinon.stub(user, 'getSignedInAccount').callsFake(() => signedInAccount);
           return view.render()
             .then(() => {
               assert.isTrue(view.replaceCurrentPage.calledOnce);
@@ -117,7 +117,7 @@ define((require, exports, module) => {
               serviceName: 'Firefox Sync'
             });
 
-            sinon.stub(view, 'isInEmailFirstExperimentGroup', () => false);
+            sinon.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => false);
             sinon.spy(view, 'logFlowEventOnce');
 
             return view.render()
@@ -145,8 +145,8 @@ define((require, exports, module) => {
               serviceName: 'Firefox Sync'
             });
 
-            sinon.stub(view, 'isInEmailFirstExperimentGroup', () => false);
-            sinon.stub(view, 'checkEmail', () => p());
+            sinon.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => false);
+            sinon.stub(view, 'checkEmail').callsFake(() => p());
 
             return view.render()
               .then(() => {
@@ -164,7 +164,7 @@ define((require, exports, module) => {
             });
 
             sinon.spy(view, 'logFlowEventOnce');
-            sinon.stub(view, 'isInEmailFirstExperimentGroup', () => true);
+            sinon.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => true);
 
             return view.render()
               .then(() => {
@@ -190,7 +190,7 @@ define((require, exports, module) => {
 
         describe('user is not in EmailFirstExperiment `treatment` group', () => {
           it('redirects to `/signup`', () => {
-            sinon.stub(view, 'isInEmailFirstExperimentGroup', () => false);
+            sinon.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => false);
 
             return view.render()
               .then(() => {
@@ -207,7 +207,7 @@ define((require, exports, module) => {
 
     describe('submit', () => {
       it('checks the entered email', () => {
-        sinon.stub(view, 'checkEmail', () => p());
+        sinon.stub(view, 'checkEmail').callsFake(() => p());
 
         return view.render()
           .then(() => {
@@ -224,16 +224,16 @@ define((require, exports, module) => {
     describe('checkEmail', () => {
       beforeEach(() => {
         relier.set('action', 'email');
-        sinon.stub(view, 'navigate', () => {});
-        sinon.stub(broker, 'beforeSignIn', () => p());
-        sinon.stub(view, 'afterRender', () => p());
+        sinon.stub(view, 'navigate').callsFake(() => {});
+        sinon.stub(broker, 'beforeSignIn').callsFake(() => p());
+        sinon.stub(view, 'afterRender').callsFake(() => p());
 
         return view.render();
       });
 
       describe('email is registered', () => {
         it('navigates to signin', () => {
-          sinon.stub(user, 'checkAccountEmailExists', () => p(true));
+          sinon.stub(user, 'checkAccountEmailExists').callsFake(() => p(true));
           return view.checkEmail(EMAIL)
             .then(() => {
               assert.isTrue(view.navigate.calledOnce);
@@ -249,7 +249,7 @@ define((require, exports, module) => {
 
       describe('email is not registered', () => {
         it('navigates to signup', () => {
-          sinon.stub(user, 'checkAccountEmailExists', () => p(false));
+          sinon.stub(user, 'checkAccountEmailExists').callsFake(() => p(false));
           return view.checkEmail(EMAIL)
             .then(() => {
               assert.isTrue(view.navigate.calledOnce);
