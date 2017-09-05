@@ -416,11 +416,14 @@ module.exports = (log, db, config, customs, push, devices) => {
         const id = request.payload.id
         let result
 
-        return push.notifyDeviceDisconnected(uid, id)
-          .catch(() => {})
-          .then(() => db.deleteDevice(uid, id))
+        return db.deleteDevice(uid, id)
           .then(res => {
             result = res
+          })
+          .then(() => push.notifyDeviceDisconnected(uid, id)
+                          .catch(() => {})
+          )
+          .then(() => {
             return P.all([
               request.emitMetricsEvent('device.deleted', {
                 uid: uid,

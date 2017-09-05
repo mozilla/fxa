@@ -461,7 +461,7 @@ describe('/account/device/destroy', function () {
 
     return runTest(route, mockRequest, function () {
       assert.equal(mockDB.deleteDevice.callCount, 1)
-
+      assert.ok(mockDB.deleteDevice.calledBefore(mockPush.notifyDeviceDisconnected))
       assert.equal(mockPush.notifyDeviceDisconnected.callCount, 1)
       assert.equal(mockPush.notifyDeviceDisconnected.firstCall.args[0], mockRequest.auth.credentials.uid)
       assert.equal(mockPush.notifyDeviceDisconnected.firstCall.args[1], deviceId)
