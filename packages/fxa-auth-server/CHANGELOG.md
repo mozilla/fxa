@@ -1,3 +1,33 @@
+<a name="1.95.0"></a>
+# [1.95.0](https://github.com/mozilla/fxa-auth-server/compare/v1.94.2...v1.95.0) (2017-09-06)
+
+
+### Bug Fixes
+
+* **bounces:** Handle mis-formatted bounce addrs as best we can. (#2090); r=jrgm ([a2e3d1e](https://github.com/mozilla/fxa-auth-server/commit/a2e3d1e))
+* **metrics:** add missing device_id and user_id amplitude properties ([b36ea32](https://github.com/mozilla/fxa-auth-server/commit/b36ea32))
+* **metrics:** remove the forgot_sent amplitude event (#2078) r=vladikoff ([32f2caa](https://github.com/mozilla/fxa-auth-server/commit/32f2caa))
+* **profile:** Handle incoming uids as strings, not buffers. (#2089) r=philbooth ([a6d8bc0](https://github.com/mozilla/fxa-auth-server/commit/a6d8bc0))
+* **push:** Allow device connection push messages for Firefox iOS >= 9.0 (#2088); r=vbudhram ([d04778c](https://github.com/mozilla/fxa-auth-server/commit/d04778c))
+* **push:** send push notification after a device is deleted ([87a410e](https://github.com/mozilla/fxa-auth-server/commit/87a410e))
+
+### chore
+
+* **docs:** Auto-generated docs update ([a45cbc3](https://github.com/mozilla/fxa-auth-server/commit/a45cbc3))
+* **package:** update shrinkwrap ([bd9b53a](https://github.com/mozilla/fxa-auth-server/commit/bd9b53a))
+
+### Features
+
+* **logging:** send amplitude events to the logs ([5800418](https://github.com/mozilla/fxa-auth-server/commit/5800418))
+* **push:** add a pushEndpointExpired flag for devices that need to re-register their push e ([735f323](https://github.com/mozilla/fxa-auth-server/commit/735f323))
+
+### Refactor
+
+* **api:** extract device schema to a common definition ([f136268](https://github.com/mozilla/fxa-auth-server/commit/f136268))
+* **mailer:** automatically pass through args to mailer methods (#2075) r=vladikoff,shane-toml ([cc2da2a](https://github.com/mozilla/fxa-auth-server/commit/cc2da2a))
+
+
+
 <a name="1.94.2"></a>
 ## [1.94.2](https://github.com/mozilla/fxa-auth-server/compare/v1.93.1...v1.94.2) (2017-08-23)
 
