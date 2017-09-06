@@ -6,10 +6,15 @@
 // amplitude event definitions. The intention is for the returned
 // `receiveEvent` function to be invoked for every event and the
 // mappings determine which of those will be transformed into an
-// amplitude event. You can read more about the amplitude event
-// structure here:
+// amplitude event.
+//
+// You can read more about the amplitude event structure here:
 //
 // https://amplitude.zendesk.com/hc/en-us/articles/204771828-HTTP-API
+//
+// You can see the event taxonomy here:
+//
+// https://docs.google.com/spreadsheets/d/1G_8OJGOxeWXdGJ1Ugmykk33Zsl-qAQL05CONSeD4Uz4
 
 'use strict'
 
@@ -146,6 +151,8 @@ module.exports = log => {
       }
       log.amplitudeEvent({
         time: metricsContext.time || Date.now(),
+        user_id: getUid(request, data),
+        device_id: getDeviceId(request, metricsContext),
         event_type: `${group} - ${mapping.event}`,
         session_id: getFromMetricsContext(metricsContext, 'flowBeginTime', request, 'flowBeginTime'),
         event_properties: mapEventProperties(group, request, data, metricsContext),
@@ -157,6 +164,20 @@ module.exports = log => {
   }
 }
 
+function getUid (request, data) {
+  return data.uid || getFromToken(request, 'uid')
+}
+
+function getFromToken (request, key) {
+  if (request.auth.credentials) {
+    return request.auth.credentials[key]
+  }
+}
+
+function getDeviceId (request, metricsContext) {
+  return getFromMetricsContext(metricsContext, 'device_id', request, 'deviceId')
+}
+
 function getFromMetricsContext (metricsContext, key, request, payloadKey) {
   return metricsContext[key] ||
     (request.payload.metricsContext && request.payload.metricsContext[payloadKey])
@@ -164,7 +185,7 @@ function getFromMetricsContext (metricsContext, key, request, payloadKey) {
 
 function mapEventProperties (group, request, data, metricsContext) {
   return Object.assign({
-    device_id: getFromMetricsContext(metricsContext, 'device_id', request, 'deviceId'),
+    device_id: getDeviceId(request, metricsContext),
     service: data.service || request.query.service || request.payload.service
   }, EVENT_PROPERTIES[group](request, data, metricsContext))
 }
@@ -190,12 +211,7 @@ function mapUserProperties (group, request, data, metricsContext) {
 
 function mapUid (request, data) {
   return {
-    fxa_uid: data.uid || getFromToken(request, 'uid')
+    fxa_uid: getUid(request, data)
   }
 }
 
-function getFromToken (request, key) {
-  if (request.auth.credentials) {
-    return request.auth.credentials[key]
-  }
-}

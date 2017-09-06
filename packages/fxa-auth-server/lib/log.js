@@ -159,7 +159,7 @@ Lug.prototype.flowEvent = function (data) {
 }
 
 Lug.prototype.amplitudeEvent = function (data) {
-  if (! data || ! data.event_type) {
+  if (! data || ! data.event_type || (! data.device_id && ! data.user_id)) {
     this.error({ op: 'log.amplitudeEvent', data })
     return
   }

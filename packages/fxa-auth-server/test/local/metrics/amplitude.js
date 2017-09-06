@@ -108,11 +108,13 @@ describe('metrics/amplitude', () => {
         assert.equal(log.amplitudeEvent.callCount, 1)
         const args = log.amplitudeEvent.args[0]
         assert.equal(args.length, 1)
+        assert.equal(args[0].device_id, 'juff')
+        assert.equal(args[0].user_id, 'blee')
         assert.equal(args[0].event_type, 'fxa_login - email_confirmed')
         assert.equal(args[0].session_id, 'kwop')
         assert.equal(args[0].language, 'wibble')
         assert.deepEqual(args[0].event_properties, {
-          device_id: 'juff',
+          device_id: args[0].device_id,
           service: 'melm'
         })
         assert.deepEqual(args[0].user_properties, {
@@ -120,7 +122,7 @@ describe('metrics/amplitude', () => {
           ua_browser: 'foo',
           ua_version: 'bar',
           ua_os: 'baz',
-          fxa_uid: 'blee'
+          fxa_uid: args[0].user_id
         })
         assert.ok(args[0].time > Date.now() - 1000)
         assert.ok(/^[1-9][0-9]+$/.test(args[0].app_version))
@@ -153,6 +155,8 @@ describe('metrics/amplitude', () => {
       it('called log.amplitudeEvent correctly', () => {
         assert.equal(log.amplitudeEvent.callCount, 1)
         const args = log.amplitudeEvent.args[0]
+        assert.equal(args[0].device_id, undefined)
+        assert.equal(args[0].user_id, 'f')
         assert.equal(args[0].event_type, 'fxa_reg - created')
         assert.equal(args[0].session_id, undefined)
         assert.equal(args[0].language, 'e')
@@ -165,7 +169,7 @@ describe('metrics/amplitude', () => {
           ua_browser: 'a',
           ua_version: 'b',
           ua_os: 'c',
-          fxa_uid: 'f'
+          fxa_uid: args[0].user_id
         })
       })
     })
@@ -939,8 +943,9 @@ describe('metrics/amplitude', () => {
       it('data properties were set', () => {
         assert.equal(log.amplitudeEvent.callCount, 1)
         const args = log.amplitudeEvent.args[0]
+        assert.equal(args[0].user_id, 'frip')
         assert.equal(args[0].event_properties.service, 'zang')
-        assert.equal(args[0].user_properties.fxa_uid, 'frip')
+        assert.equal(args[0].user_properties.fxa_uid, args[0].user_id)
       })
     })
 
@@ -965,7 +970,8 @@ describe('metrics/amplitude', () => {
       it('metricsContext properties were set', () => {
         assert.equal(log.amplitudeEvent.callCount, 1)
         const args = log.amplitudeEvent.args[0]
-        assert.equal(args[0].event_properties.device_id, 'plin')
+        assert.equal(args[0].device_id, 'plin')
+        assert.equal(args[0].event_properties.device_id, args[0].device_id)
         assert.equal(args[0].user_properties.flow_id, 'gorb')
         assert.equal(args[0].session_id, 'yerx')
         assert.equal(args[0].time, 'wenf')
