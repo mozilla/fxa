@@ -1,3 +1,22 @@
+<a name="1.95.0"></a>
+# [1.95.0](https://github.com/mozilla/fxa-profile-server/compare/v1.94.0...v1.95.0) (2017-09-06)
+
+
+### Bug Fixes
+
+* **deps:** shrinkwrap ([95190ce](https://github.com/mozilla/fxa-profile-server/commit/95190ce))
+
+### Features
+
+* **deps:** add git to docker build ([147c32d](https://github.com/mozilla/fxa-profile-server/commit/147c32d))
+
+### Refactor
+
+* **lint:** remove jscs, update eslint rules ([cbe383a](https://github.com/mozilla/fxa-profile-server/commit/cbe383a))
+* **routes:** remove the deprecated avatar list route ([8cf798b](https://github.com/mozilla/fxa-profile-server/commit/8cf798b))
+
+
+
 <a name="1.94.0"></a>
 # [1.94.0](https://github.com/mozilla/fxa-profile-server/compare/v1.93.0...v1.94.0) (2017-08-22)
 
