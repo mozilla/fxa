@@ -42,6 +42,7 @@ define([
     'tests/functional/sign_in_blocked',
     'tests/functional/sign_in_cached',
     'tests/functional/sync_v3_force_auth',
+    'tests/functional/sync_v3_reset_password',
     'tests/functional/sync_v3_settings',
     'tests/functional/sync_v3_sign_in',
   ]);

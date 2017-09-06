@@ -1116,7 +1116,7 @@ define([
 
     var urlToOpen = FORCE_AUTH_URL + '?' + Querystring.stringify(options.query || {});
     return this.parent
-      .then(openPage(urlToOpen, options.header || '#fxa-force-auth-header'));
+      .then(openPage(urlToOpen, options.header || '#fxa-force-auth-header', options));
   });
 
   /**

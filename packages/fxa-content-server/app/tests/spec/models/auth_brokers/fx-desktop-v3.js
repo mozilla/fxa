@@ -5,18 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3');
   const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
 
-  var assert = chai.assert;
-
-  describe('models/auth_brokers/fx-desktop-v3', function () {
+  describe('models/auth_brokers/fx-desktop-v3', () => {
     var broker;
     var windowMock;
 
-    beforeEach(function () {
+    beforeEach(() => {
       windowMock = new WindowMock();
 
       broker = new FxDesktopV3AuthenticationBroker({
@@ -24,38 +22,28 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('capabilities', function () {
-      it('has the `allowUidChange` capability', function () {
+    describe('capabilities', () => {
+      it('has the expected capabilities', () => {
         assert.isTrue(broker.hasCapability('allowUidChange'));
+        assert.isTrue(broker.hasCapability('emailFirst'));
       });
     });
 
-    describe('fetch', function () {
-      it('uses halt behavior with about:accounts', function () {
-        sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function () {
-          return true;
+    describe('fetch', () => {
+      it('sets `browserTransitionsAfterEmailVerification` to false if Fx >= 57', () => {
+        sinon.stub(broker.environment, 'isAboutAccounts').callsFake(() => true);
+        sinon.stub(broker, 'getUserAgent').callsFake(() => {
+          return {
+            parseVersion() {
+              return { major: 57 };
+            },
+            isFirefoxDesktop: () => true
+          };
         });
 
         return broker.fetch()
-          .then(function () {
-            assert.equal(broker.getBehavior('afterForceAuth').type, 'halt');
-            assert.equal(broker.getBehavior('afterResetPasswordConfirmationPoll').type, 'halt');
-            assert.equal(broker.getBehavior('afterSignIn').type, 'halt');
-            assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'halt');
-          });
-      });
-
-      it('uses null behavior with web flow', function () {
-        sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function () {
-          return false;
-        });
-
-        return broker.fetch()
-          .then(function () {
-            assert.equal(broker.getBehavior('afterForceAuth').type, 'null');
-            assert.equal(broker.getBehavior('afterResetPasswordConfirmationPoll').type, 'null');
-            assert.equal(broker.getBehavior('afterSignIn').type, 'null');
-            assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'null');
+          .then(() => {
+            assert.isFalse(broker.getCapability('browserTransitionsAfterEmailVerification'));
           });
       });
     });

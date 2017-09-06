@@ -13,18 +13,34 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const Cocktail = require('cocktail');
   const FxDesktopV2AuthenticationBroker = require('./fx-desktop-v2');
+  const UserAgentMixin = require('lib/user-agent-mixin');
 
-  var proto = FxDesktopV2AuthenticationBroker.prototype;
+  const proto = FxDesktopV2AuthenticationBroker.prototype;
 
-  var FxDesktopV3AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
+  const FxDesktopV3AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       allowUidChange: true,
       emailFirst: true
     }),
 
-    type: 'fx-desktop-v3'
+    type: 'fx-desktop-v3',
+
+    fetch () {
+      return proto.fetch.call(this).then(() => {
+        const userAgent = this.getUserAgent();
+        if (userAgent.parseVersion().major >= 57) {
+          this.setCapability('browserTransitionsAfterEmailVerification', false);
+        }
+      });
+    }
   });
+
+  Cocktail.mixin(
+    FxDesktopV3AuthenticationBroker,
+    UserAgentMixin
+  );
 
   module.exports = FxDesktopV3AuthenticationBroker;
 });

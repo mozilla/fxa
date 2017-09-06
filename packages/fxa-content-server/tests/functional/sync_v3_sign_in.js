@@ -7,12 +7,13 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'tests/functional/lib/selectors',
+  'tests/functional/lib/ua-strings',
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, uaStrings) {
   'use strict';
 
   const config = intern.config;
-  const PAGE_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
+  const PAGE_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
 
   let email;
   const PASSWORD = '12345678';
@@ -27,7 +28,6 @@ define([
     noEmailExpected,
     noPageTransition,
     openPage,
-    openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
     respondToWebChannelMessage,
     testElementExists,
@@ -48,8 +48,10 @@ define([
     return this.parent
       .then(clearBrowserState({ force: true }))
       .then(createUser(signUpEmail, PASSWORD, { preVerified: options.preVerified }))
-      .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER, { query: options.query }))
-      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+      .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER, { query: options.query, webChannelResponses: {
+        'fxaccounts:can_link_account': { ok: true },
+        'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+      }}))
       .then(fillOutSignIn(signInEmail, PASSWORD))
       .then(testElementExists(successSelector))
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -71,9 +73,12 @@ define([
         .then(clearBrowserState());
     },
 
-    'verified, verify same browser': function () {
+    'verified, verify same browser, Fx <= 56': function () {
+      const forceUA = uaStrings['desktop_firefox_56'];
+      const query = { forceUA };
+
       return this.remote
-        .then(setupTest({ preVerified: true }))
+        .then(setupTest({ preVerified: true, query }))
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
@@ -82,6 +87,21 @@ define([
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
+    },
+
+    'verified, verify same browser, Fx >= 57': function () {
+      const forceUA = uaStrings['desktop_firefox_57'];
+      const query = { forceUA };
+
+      return this.remote
+        .then(setupTest({ preVerified: true, query }))
+
+        .then(openVerificationLinkInNewTab(email, 0))
+        .switchToWindow('newwindow')
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(closeCurrentWindow())
+
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     },
 
     'verified, resend email, verify same browser': function () {
@@ -96,16 +116,6 @@ define([
         .switchToWindow('newwindow')
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
-
-        // about:accounts will take over post-verification, no transition
-        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
-    },
-
-    'verified, verify different browser - from original tab\'s P.O.V.': function () {
-      return this.remote
-        .then(setupTest({ preVerified: true }))
-
-        .then(openVerificationLinkInDifferentBrowser(email))
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));

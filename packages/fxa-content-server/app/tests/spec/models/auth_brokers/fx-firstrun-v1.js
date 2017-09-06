@@ -46,6 +46,7 @@ define(function (require, exports, module) {
         relier,
         window: windowMock
       });
+      sinon.stub(broker, '_hasRequiredLoginFields').callsFake(() => true);
     });
 
     afterEach(() => {

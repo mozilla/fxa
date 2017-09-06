@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
   const NullChannel = require('lib/channels/null');
   const p = require('lib/promise');
@@ -13,16 +13,14 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const WindowMock = require('../../../mocks/window');
 
-  var assert = chai.assert;
+  describe('models/auth_brokers/fx-desktop-v2', () => {
+    let account;
+    let broker;
+    let channelMock;
+    let user;
+    let windowMock;
 
-  describe('models/auth_brokers/fx-desktop-v2', function () {
-    var account;
-    var broker;
-    var channelMock;
-    var user;
-    var windowMock;
-
-    beforeEach(function () {
+    beforeEach(() => {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
       channelMock.send = () => {
@@ -41,103 +39,112 @@ define(function (require, exports, module) {
         channel: channelMock,
         window: windowMock
       });
+      sinon.stub(broker, '_hasRequiredLoginFields').callsFake(() => true);
     });
 
-    it('has the `signup` capability', function () {
+    it('has the expected capabilities', () => {
+      assert.isTrue(broker.getCapability('browserTransitionsAfterEmailVerification'));
+      assert.isFalse(broker.getCapability('chooseWhatToSyncCheckbox'));
+      assert.isTrue(broker.getCapability('chooseWhatToSyncWebV1'));
+      assert.isTrue(broker.getCapability('openWebmailButtonVisible'));
+      assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+      assert.isTrue(broker.hasCapability('handleSignedInNotification'));
       assert.isTrue(broker.hasCapability('signup'));
     });
 
-    it('has the `handleSignedInNotification` capability', function () {
-      assert.isTrue(broker.hasCapability('handleSignedInNotification'));
-    });
-
-    it('has the `emailVerificationMarketingSnippet` capability', function () {
-      assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
-    });
-
-    describe('createChannel', function () {
-      it('creates a channel', function () {
+    describe('createChannel', () => {
+      it('creates a channel', () => {
         assert.ok(broker.createChannel());
       });
     });
 
-    describe('afterLoaded', function () {
-      it('sends a `fxaccounts:loaded` message', function () {
+    describe('afterLoaded', () => {
+      it('sends a `fxaccounts:loaded` message', () => {
         return broker.afterLoaded()
-          .then(function () {
+          .then(() => {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:loaded'));
           });
       });
     });
 
-    describe('afterForceAuth', function () {
-      it('notifies the channel with `fxaccounts:login`, halts', function () {
+    describe('afterForceAuth', () => {
+      it('notifies the channel with `fxaccounts:login`, halts if brower transitions', () => {
         return broker.afterForceAuth(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isTrue(result.halt);
+            assert.equal(result.type, 'halt-if-browser-transitions');
           });
       });
     });
 
-    describe('afterSignIn', function () {
-      it('notifies the channel with `fxaccounts:login`, halts', function () {
+    describe('afterSignIn', () => {
+      it('notifies the channel with `fxaccounts:login`, halts if browser transitions', () => {
         return broker.afterSignIn(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isTrue(result.halt);
+            assert.equal(result.type, 'halt-if-browser-transitions');
           });
       });
     });
 
-    describe('beforeSignUpConfirmationPoll', function () {
-      it('notifies the channel with `fxaccounts:login`, halts', function () {
+    describe('beforeSignUpConfirmationPoll', () => {
+      it('notifies the channel with `fxaccounts:login`, halts if browser transitions', () => {
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isTrue(result.halt);
+            assert.equal(result.type, 'halt-if-browser-transitions');
           });
       });
     });
 
-    describe('afterResetPasswordConfirmationPoll', function () {
-      var result;
-      beforeEach(function () {
+    describe('afterResetPasswordConfirmationPoll', () => {
+      let result;
+
+      beforeEach(() => {
+        // With Fx's E10s enabled, the account data only contains an
+        // unwrapBKey and keyFetchToken, not enough to sign in the user.
+        // Luckily, with WebChannels, the verification page can send
+        // the data to the browser and everybody is happy.
+        account = user.initAccount({
+          keyFetchToken: 'key-fetch-token',
+          unwrapBKey: 'unwrap-b-key'
+        });
+
+        broker._hasRequiredLoginFields.restore();
+        sinon.stub(broker, '_hasRequiredLoginFields').callsFake(() => false);
+
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (_result) {
             result = _result;
           });
       });
 
-      it('does not notify the channel', function () {
+      it('does not notify the channel, halts if browser transitions', () => {
         assert.isFalse(channelMock.send.called);
-      });
-
-      it('halts', function () {
-        assert.isTrue(result.halt);
+        assert.equal(result.type, 'halt-if-browser-transitions');
       });
     });
 
-    describe('afterCompleteResetPassword', function () {
-      var result;
-      beforeEach(function () {
+    describe('afterCompleteResetPassword', () => {
+      let result;
+      beforeEach(() => {
         return broker.afterCompleteResetPassword(account)
           .then(function (_result) {
             result = _result;
           });
       });
 
-      it('notifies the channel with `fxaccounts:login`', function () {
+      it('notifies the channel with `fxaccounts:login`', () => {
         assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
       });
 
-      it('does not halt', function () {
+      it('does not halt', () => {
         assert.isFalse(!! result.halt);
       });
     });
 
-    describe('afterChangePassword', function () {
-      it('does not notify channel with `fxaccounts:change_password`', function () {
+    describe('afterChangePassword', () => {
+      it('does not notify channel with `fxaccounts:change_password`', () => {
         // The message is sent over the WebChannel by the global WebChannel, no
         // need ot send it from within the auth broker too.
         return broker.afterChangePassword(account)
@@ -147,50 +154,31 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterDeleteAccount', function () {
-      it('notifies the channel with `fxaccounts:delete_account`', function () {
+    describe('afterDeleteAccount', () => {
+      it('notifies the channel with `fxaccounts:delete_account`', () => {
         account.set('uid', 'uid');
 
         return broker.afterDeleteAccount(account)
-          .then(function () {
+          .then(() => {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:delete_account'));
           });
       });
     });
 
-    it('disables the `chooseWhatToSyncCheckbox` capability', function () {
+    it('disables the `chooseWhatToSyncCheckbox` capability', () => {
       return broker.fetch()
-        .then(function () {
+        .then(() => {
           assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
         });
     });
 
-    describe('fetch', function () {
-      it('uses halt behavior with about:accounts', function () {
-        sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function () {
-          return true;
-        });
+    describe('fetch', () => {
+      it('sets `browserTransitionsAfterEmailVerification` to false if not about:accounts', () => {
+        sinon.stub(broker.environment, 'isAboutAccounts').callsFake(() => false);
 
         return broker.fetch()
-          .then(function () {
-            assert.equal(broker.getBehavior('afterForceAuth').type, 'halt');
-            assert.equal(broker.getBehavior('afterResetPasswordConfirmationPoll').type, 'halt');
-            assert.equal(broker.getBehavior('afterSignIn').type, 'halt');
-            assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'halt');
-          });
-      });
-
-      it('uses null behavior with web flow', function () {
-        sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function () {
-          return false;
-        });
-
-        return broker.fetch()
-          .then(function () {
-            assert.equal(broker.getBehavior('afterForceAuth').type, 'null');
-            assert.equal(broker.getBehavior('afterResetPasswordConfirmationPoll').type, 'null');
-            assert.equal(broker.getBehavior('afterSignIn').type, 'null');
-            assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'null');
+          .then(() => {
+            assert.isFalse(broker.getCapability('browserTransitionsAfterEmailVerification'));
           });
       });
     });

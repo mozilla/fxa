@@ -6,8 +6,9 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'tests/functional/lib/selectors',
+  'tests/functional/lib/ua-strings'
+], function (registerSuite, TestHelpers, FunctionalHelpers, selectors, uaStrings) {
   'use strict';
 
   let email;
@@ -23,6 +24,7 @@ define([
     noPageTransition,
     noSuchBrowserNotification,
     openForceAuth,
+    openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
     respondToWebChannelMessage,
     testElementDisabled,
@@ -236,6 +238,35 @@ define([
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
-    }
+    },
+
+    'verify from original tab\'s P.O.V., Fx >= 57': function () {
+      const forceUA = uaStrings['desktop_firefox_57'];
+      const query = {
+        automatedBrowser: true,
+        context: 'fx_desktop_v3',
+        email: email,
+        forceAboutAccounts: 'true',
+        forceUA,
+        service: 'sync',
+        uid: TestHelpers.createUID()
+      };
+
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openForceAuth({ query, webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true },
+          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null }
+        }}))
+        .then(noSuchBrowserNotification('fxaccounts:logout'))
+        .then(fillOutForceAuth(PASSWORD))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(openVerificationLinkInDifferentBrowser(email))
+
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
   });
 });

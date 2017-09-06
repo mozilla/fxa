@@ -17,6 +17,8 @@ define([
                                 `forceUA=${uaStrings.desktop_firefox_55}&automatedBrowser=true`;
   const SIGNUP_FX_56_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&` +
                                 `forceUA=${uaStrings.desktop_firefox_56}&automatedBrowser=true`;
+  const SIGNUP_FX_57_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&` +
+                                `forceUA=${uaStrings.desktop_firefox_57}&automatedBrowser=true`;
 
   let email;
   const PASSWORD = '12345678';
@@ -40,7 +42,7 @@ define([
   const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
-    name: 'Firefox Desktop Sync v3 sign_up',
+    name: 'Firefox Desktop Sync v3 signup',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -253,6 +255,44 @@ define([
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS));
-    }
+    },
+
+    'verify from original tab\'s P.O.V., Fx <= 56': function () {
+      return this.remote
+        .then(openPage(SIGNUP_FX_56_PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': { ok: true },
+            'fxaccounts:fxa_status': { capabilities: null, signedInUser: null }
+          }
+        }))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+
+        .then(openVerificationLinkInDifferentBrowser(email))
+
+        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER, 5000));
+    },
+
+    'verify from original tab\'s P.O.V., Fx >= 57': function () {
+      return this.remote
+        .then(openPage(SIGNUP_FX_57_PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': { ok: true },
+            'fxaccounts:fxa_status': { capabilities: null, signedInUser: null }
+          }
+        }))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+
+        .then(openVerificationLinkInDifferentBrowser(email))
+
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
+    },
   });
 });

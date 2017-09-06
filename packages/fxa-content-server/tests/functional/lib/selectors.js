@@ -121,6 +121,10 @@ define([], function () {
       SUBMIT: 'button[type="submit"]',
       SUCCESS: '.success'
     },
+    RESET_PASSWORD_COMPLETE: {
+      HEADER: '#fxa-reset-password-complete-header',
+      SUB_HEADER: '.account-ready-service'
+    },
     SETTINGS: {
       CONTENT: '#fxa-settings-content',
       HEADER: '#fxa-settings-header',

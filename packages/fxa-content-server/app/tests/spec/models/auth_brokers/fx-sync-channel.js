@@ -22,9 +22,7 @@ define(function (require, exports, module) {
     let user;
     let windowMock;
 
-    function createAuthBroker (options) {
-      options = options || {};
-
+    function createAuthBroker (options = {}) {
       broker = new FxSyncChannelAuthenticationBroker(_.extend({
         channel: channelMock,
         commands: {
@@ -156,8 +154,16 @@ define(function (require, exports, module) {
       const requiredAccountFields = _.without(FxSyncChannelAuthenticationBroker.REQUIRED_LOGIN_FIELDS, 'verified');
 
       requiredAccountFields.forEach(function (fieldName) {
-        it('does not send a `login` message to the channel if the account does not have `' + fieldName + '`', () => {
+        it(`does not send a \`login\` message if the account does not have \`${fieldName}\``, () => {
           account.unset(fieldName);
+          return broker._notifyRelierOfLogin(account)
+            .then(() => {
+              assert.isFalse(channelMock.send.called);
+            });
+        });
+
+        it(`does not send a \`login\` message if \`${fieldName}\` is undefined`, () => {
+          account.set(fieldName, undefined);
           return broker._notifyRelierOfLogin(account)
             .then(() => {
               assert.isFalse(channelMock.send.called);

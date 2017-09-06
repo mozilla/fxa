@@ -6,15 +6,19 @@
  * Get the user agent string, or a user agent parser.
  *
  * Requires `this.window` to be set.
- * Requires the `SearchParamMixin`.
  */
 
 define((require, exports, module) => {
   'use strict';
 
+  const SearchParamMixin = require('lib/search-param-mixin');
   const UserAgent = require('lib/user-agent');
 
   module.exports = {
+    dependsOn: [
+      SearchParamMixin
+    ],
+
     /**
      * Get the user-agent string. For functional testing
      * purposes, first attempts to fetch a UA string from the
