@@ -291,6 +291,77 @@ describe('bounce messages', () => {
   )
 
   it(
+    'should handle multiple consecutive dots even if not quoted',
+    () => {
+      var mockLog = spyLog()
+      var mockDB = {
+        createEmailBounce: sinon.spy(() => P.resolve({})),
+        emailRecord: sinon.spy(function (email) {
+          // Lookup only succeeds when using original, unquoted email addr.
+          if (email !== 'test..me@example.com') {
+            return P.reject(new error.unknownAccount(email))
+          }
+          return P.resolve({
+            uid: '123456',
+            email: email,
+            emailVerified: false
+          })
+        }),
+        deleteAccount: sinon.spy(function (record) {
+          return P.resolve({ })
+        })
+      }
+      return mockedBounces(mockLog, mockDB).handleBounce(mockMessage({
+        bounce: {
+          bounceType: 'Permanent',
+          bouncedRecipients: [
+            // Some mail agents incorrectly fail to quote addresses that
+            // contain multiple consecutive dots.  Ensure we work around it.
+            { emailAddress: 'test..me@example.com' },
+          ]
+        }
+      })).then(function () {
+        assert.equal(mockDB.createEmailBounce.callCount, 1)
+        assert.equal(mockDB.createEmailBounce.args[0][0].email, 'test..me@example.com')
+        assert.equal(mockDB.emailRecord.callCount, 1)
+        assert.equal(mockDB.emailRecord.args[0][0], 'test..me@example.com')
+        assert.equal(mockDB.deleteAccount.callCount, 1)
+        assert.equal(mockDB.deleteAccount.args[0][0].email, 'test..me@example.com')
+      })
+    }
+  )
+
+  it(
+    'should log a warning if it receives an unparseable email address',
+    () => {
+      var mockLog = spyLog()
+      var mockDB = {
+        createEmailBounce: sinon.spy(() => P.resolve({})),
+        emailRecord: sinon.spy(function () {
+          return P.reject(new error.unknownAccount())
+        }),
+        deleteAccount: sinon.spy(function (record) {
+          return P.resolve({ })
+        })
+      }
+      return mockedBounces(mockLog, mockDB).handleBounce(mockMessage({
+        bounce: {
+          bounceType: 'Permanent',
+          bouncedRecipients: [
+            { emailAddress: 'how did this even happen?' },
+          ]
+        }
+      })).then(function () {
+        assert.equal(mockDB.createEmailBounce.callCount, 0)
+        assert.equal(mockDB.emailRecord.callCount, 0)
+        assert.equal(mockDB.deleteAccount.callCount, 0)
+        assert.equal(mockLog.messages.length, 4)
+        assert.equal(mockLog.messages[0].args[0].op, 'handleBounce.addressParseFailure')
+      })
+    }
+  )
+
+  it(
     'should log email template name, language, and bounceType',
     () => {
       var mockLog = spyLog()

@@ -7,6 +7,7 @@
 var eaddrs = require('email-addresses')
 var P = require('./../promise')
 var utils = require('./utils/helpers')
+var isValidEmailAddress = require('./../routes/validators').isValidEmailAddress
 
 module.exports = function (log, error) {
 
@@ -57,7 +58,29 @@ module.exports = function (log, error) {
       const language = utils.getHeaderValue('Content-Language', message)
 
       return P.each(recipients, function (recipient) {
-        const email = eaddrs.parseOneAddress(recipient.emailAddress).address
+        // The email address in the bounce message has been handled by an external
+        // system, and depending on the system it can have had some strange things
+        // done to it.  Try to normalize as best we can.
+        let email
+        let emailIsValid = true
+        const parsedAddress = eaddrs.parseOneAddress(recipient.emailAddress)
+        if (parsedAddress !== null) {
+          email = parsedAddress.address
+        } else {
+          email = recipient.emailAddress
+          if (! isValidEmailAddress(email)) {
+            emailIsValid = false
+            // We couldn't make the recipient address look like a valid email.
+            // Log a warning but don't error out because we still want to
+            // emit flow metrics etc.
+            log.warn({
+              op: 'handleBounce.addressParseFailure',
+              email: email,
+              action: recipient.action,
+              diagnosticCode: recipient.diagnosticCode
+            })
+          }
+        }
         const emailDomain = utils.getAnonymizedEmailDomain(email)
         const logData = {
           op: 'handleBounce',
@@ -112,18 +135,20 @@ module.exports = function (log, error) {
         const shouldDelete = bounce.bounceType === 'Permanent' ||
           (bounce.bounceType === 'Complaint' && bounce.bounceSubType === 'abuse')
 
-        const work = [
-          recordBounce(bounce)
-            .catch(gotError.bind(null, email))
-        ]
+        const work = []
 
-        if (shouldDelete) {
-          work.push(findEmailRecord(email)
-            .then(
-              deleteAccountIfUnverified,
-              gotError.bind(null, email)
-            ))
+        if (emailIsValid) {
+          work.push(recordBounce(bounce)
+            .catch(gotError.bind(null, email)))
+          if (shouldDelete) {
+            work.push(findEmailRecord(email)
+              .then(
+                deleteAccountIfUnverified,
+                gotError.bind(null, email)
+              ))
+          }
         }
+
         return P.all(work)
       }).then(
         function () {
