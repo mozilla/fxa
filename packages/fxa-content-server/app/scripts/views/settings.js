@@ -77,6 +77,7 @@ define(function (require, exports, module) {
         // to sign in.
         Session.clear();
         this.user.clearSignedInAccount();
+        this.logViewEvent('signout.forced');
       }
     },
 

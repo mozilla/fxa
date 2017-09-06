@@ -158,6 +158,7 @@ define(function (require, exports, module) {
         sinon.spy(user, 'clearSignedInAccount');
 
         relier.set('uid', UID);
+        sinon.spy(metrics, 'logEvent');
 
         createSettingsView();
 
@@ -165,6 +166,7 @@ define(function (require, exports, module) {
           .then(function () {
             assert.isTrue(user.getAccountByUid.calledWith(UID));
             assert.isTrue(user.clearSignedInAccount.calledOnce);
+            assert.isTrue(metrics.logEvent.calledWith('settings.signout.forced'));
           });
       });
     });
