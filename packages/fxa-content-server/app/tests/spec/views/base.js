@@ -1056,6 +1056,25 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('invokeBehavior', () => {
+      it('recursively invokes behaviors', () => {
+        const account = {};
+        const behavior2 = sinon.spy(() => true);
+        const behavior1 = sinon.spy(() => behavior2);
+
+        return view.invokeBehavior(behavior1, account)
+          .then((result) => {
+            assert.isTrue(result);
+
+            assert.isTrue(behavior1.calledOnce);
+            assert.isTrue(behavior1.calledWith(view, account));
+
+            assert.isTrue(behavior2.calledOnce);
+            assert.isTrue(behavior2.calledWith(view, account));
+          });
+      });
+    });
+
     describe('getViewName', function () {
       describe('with a `viewName` on the view prototype', function () {
         var view;

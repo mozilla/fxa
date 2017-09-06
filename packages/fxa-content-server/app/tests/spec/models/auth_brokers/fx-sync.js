@@ -154,5 +154,15 @@ define((require, exports, module) => {
         });
       });
     });
+
+    describe('afterCompleteSignUp', () => {
+      it('resolves to a `ConnectAnotherDeviceBehavior`', () => {
+        account.get = sinon.spy();
+        return broker.afterCompleteSignUp(account)
+        .then((behavior) => {
+          assert.equal(behavior.type, 'connect-another-device');
+        });
+      });
+    });
   });
 });

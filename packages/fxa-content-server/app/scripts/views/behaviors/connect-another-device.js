@@ -13,6 +13,8 @@
 define((require, exports, module) => {
   'use strict';
 
+  const p = require('lib/promise');
+
   /**
    * Create a ConnectAnotherDevice behavior.
    *
@@ -23,10 +25,13 @@ define((require, exports, module) => {
   module.exports = function (defaultBehavior) {
     const behavior = function (view, account) {
       if (view.isEligibleForConnectAnotherDevice(account)) {
-        return view.navigateToConnectAnotherDeviceScreen(account);
+        view.navigateToConnectAnotherDeviceScreen(account);
+        // Cause the invokeBrokerMethod chain to stop, the screen
+        // has already redirected.
+        return p.defer().promise;
       }
 
-      return view.invokeBehavior(defaultBehavior, account);
+      return defaultBehavior;
     };
 
     behavior.type = 'connect-another-device';

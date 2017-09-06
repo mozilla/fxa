@@ -27,10 +27,24 @@ define(function (require, exports, module) {
       });
     }
 
+    function testRedirectsToSettingsIfSignedIn(brokerMethod) {
+      describe(brokerMethod, () => {
+        it('returns a NavigateBehavior to settings', () => {
+          return broker[brokerMethod]({ get: () => {} })
+            .then((behavior) => {
+              assert.equal(behavior.type, 'settings');
+            });
+        });
+      });
+    }
+
     testRedirectsToSettings('afterCompleteResetPassword');
     testRedirectsToSettings('afterResetPasswordConfirmationPoll');
     testRedirectsToSettings('afterSignInConfirmationPoll');
     testRedirectsToSettings('afterSignUpConfirmationPoll');
+
+    testRedirectsToSettingsIfSignedIn('afterCompleteSignIn');
+    testRedirectsToSettingsIfSignedIn('afterCompleteSignUp');
   });
 });
 

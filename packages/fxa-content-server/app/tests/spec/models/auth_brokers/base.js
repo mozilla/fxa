@@ -224,14 +224,38 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterCompleteSignUp', function () {
-      beforeEach(function () {
+    describe('afterCompleteSecondaryEmail', function () {
+      it('unpersist VerificationData, returns the expected behavior', function () {
         sinon.spy(broker, 'unpersistVerificationData');
-        return broker.afterCompleteSignUp(account);
+        return broker.afterCompleteSecondaryEmail(account)
+          .then((behavior) => {
+            assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+            assert.equal(behavior.type, 'settings');
+          });
       });
+    });
 
-      it('unpersistVerificationDatas data', function () {
-        assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+    describe('afterCompleteSignIn', function () {
+      it('unpersist VerificationData, returns the expected behavior', function () {
+        sinon.spy(broker, 'unpersistVerificationData');
+        return broker.afterCompleteSignIn(account)
+          .then((behavior) => {
+            assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+            assert.equal(behavior.type, 'navigate');
+            assert.equal(behavior.endpoint, 'signin_verified');
+          });
+      });
+    });
+
+    describe('afterCompleteSignUp', function () {
+      it('unpersist VerificationData, returns the expected behavior', function () {
+        sinon.spy(broker, 'unpersistVerificationData');
+        return broker.afterCompleteSignUp(account)
+          .then((behavior) => {
+            assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+            assert.equal(behavior.type, 'navigate');
+            assert.equal(behavior.endpoint, 'signup_verified');
+          });
       });
     });
 

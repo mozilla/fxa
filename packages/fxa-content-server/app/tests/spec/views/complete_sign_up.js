@@ -193,6 +193,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
           return view.render();
         });
 
@@ -212,6 +213,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
           return view.render();
         });
 
@@ -232,6 +234,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
           return view.render();
         });
 
@@ -252,6 +255,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
           return view.render();
         });
 
@@ -272,6 +276,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
           return view.render();
         });
 
@@ -293,6 +298,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
           return view.render();
         });
 
@@ -425,12 +431,7 @@ define(function (require, exports, module) {
       describe('success', () => {
         beforeEach(() => {
           sinon.stub(user, 'completeAccountSignUp').callsFake(() => p());
-
-          sinon.stub(view, 'invokeBrokerMethod').callsFake(() => p());
-          sinon.stub(view, '_navigateToNextScreen').callsFake(() => {});
-          sinon.spy(view, 'logViewEvent');
-
-          sinon.spy(notifier, 'trigger');
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
 
           return view.render();
         });
@@ -439,126 +440,60 @@ define(function (require, exports, module) {
           assert.isTrue(user.completeAccountSignUp.calledOnce);
           assert.isTrue(user.completeAccountSignUp.calledWith(account, validCode));
 
-          assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignUp'));
-          assert.isTrue(view._navigateToNextScreen.calledOnce);
-          assert.isTrue(view.logViewEvent.calledWith('verification.success'));
-
-          assert.isTrue(notifier.trigger.calledWith('verification.success'));
+          assert.isTrue(view._notifyBrokerAndComplete.calledOnce);
+          assert.isTrue(view._notifyBrokerAndComplete.calledWith(account));
         });
       });
     });
 
-    describe('_navigateToVerifiedScreen', () => {
-      beforeEach(() => {
-        sinon.spy(view, 'navigate');
-      });
+    describe('_notifyBrokerAndComplete', () => {
+      it('logs and notifies the broker', () => {
+        sinon.stub(view, '_getBrokerMethod').callsFake(() => 'afterCompleteSignIn');
+        sinon.stub(view, 'invokeBrokerMethod').callsFake(() => p());
+        sinon.stub(view, 'isSignIn').callsFake(() => true);
+        sinon.spy(view, 'logViewEvent');
+        sinon.spy(view, 'logEvent');
+        sinon.spy(notifier, 'trigger');
 
-      describe('for sign-up', () => {
-        beforeEach(() => {
-          sinon.stub(view, 'isSignUp').callsFake(() => true);
-          return view._navigateToVerifiedScreen();
-        });
+        return view._notifyBrokerAndComplete(account)
+          .then(() => {
+            assert.isTrue(view.logViewEvent.calledOnce);
+            assert.isTrue(view.logViewEvent.calledWith('verification.success'));
 
-        it('redirects to `signup_verified`', () => {
-          assert.isTrue(view.navigate.calledOnce);
-          assert.isTrue(view.navigate.calledWith('signup_verified'));
-        });
-      });
+            assert.isTrue(notifier.trigger.calledOnce);
+            assert.isTrue(notifier.trigger.calledWith('verification.success'));
 
-      describe('for sign-in', () => {
-        beforeEach(() => {
-          sinon.stub(view, 'isSignUp').callsFake(() => false);
-          return view._navigateToVerifiedScreen();
-        });
+            assert.isTrue(view.logEvent.calledOnce);
+            assert.isTrue(view.logEvent.calledWith('signin.success'));
 
-        it('redirects to `signin_verified`', () => {
-          assert.isTrue(view.navigate.calledOnce);
-          assert.isTrue(view.navigate.calledWith('signin_verified'));
-        });
+            assert.isTrue(user.setAccount.calledOnce);
+            assert.isTrue(user.setAccount.calledWith(account));
+
+            assert.isTrue(view._getBrokerMethod.calledOnce);
+
+            assert.isTrue(view.invokeBrokerMethod.calledOnce);
+            assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignIn', account));
+          });
       });
     });
 
-    describe('_navigateToNextScreen', () => {
-      beforeEach(() => {
-        sinon.spy(view, 'navigate');
+    describe('_getBrokerMethod', () => {
+      it('works for secondary emails', () => {
+        sinon.stub(view, 'isSecondaryEmail').callsFake(() => true);
+
+        assert.equal(view._getBrokerMethod(), 'afterCompleteSecondaryEmail');
       });
 
-      describe('sync relier', () => {
-        beforeEach(() => {
-          sinon.stub(relier, 'isSync').callsFake(() => true);
-          sinon.stub(relier, 'isOAuth').callsFake(() => false);
-        });
+      it('works for signin', () => {
+        sinon.stub(view, 'isSignIn').callsFake(() => true);
 
-        describe('user is eligible for CAD', () => {
-          let account;
-
-          beforeEach(() => {
-            account = user.initAccount({});
-
-            sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
-            sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => p());
-            sinon.stub(view, 'getAccount').callsFake(() => account);
-
-            return view._navigateToNextScreen();
-          });
-
-          it('delegates to `navigateToConnectAnotherDeviceScreen`', () => {
-            assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledOnce);
-            assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledWith(account));
-          });
-        });
-
-        describe('user is not eligible to connect another device', () => {
-          beforeEach(() => {
-            sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => false);
-            sinon.spy(view, '_navigateToVerifiedScreen');
-            return view._navigateToNextScreen();
-          });
-
-          it('delegates to `_navigateToVerifiedScreen`', () => {
-            assert.isTrue(view._navigateToVerifiedScreen.calledOnce);
-          });
-        });
+        assert.equal(view._getBrokerMethod(), 'afterCompleteSignIn');
       });
 
-      describe('oauth relier', () => {
-        beforeEach(() => {
-          sinon.stub(relier, 'isSync').callsFake(() => false);
-          sinon.stub(relier, 'isOAuth').callsFake(() => true);
-          sinon.spy(view, '_navigateToVerifiedScreen');
+      it('works for signup', () => {
+        sinon.stub(view, 'isSignUp').callsFake(() => true);
 
-          return view._navigateToNextScreen();
-        });
-
-        it('delegates to _navigateToVerifiedScreen', () => {
-          assert.isTrue(view._navigateToVerifiedScreen.calledOnce);
-        });
-      });
-
-      describe('direct-access', () => {
-        describe('user is signed in', () => {
-          beforeEach(function () {
-            isSignedIn = true;
-            return view._navigateToNextScreen();
-          });
-
-          it('redirects to `/settings`', () => {
-            assert.isTrue(view.navigate.calledWith('settings'));
-          });
-        });
-
-        describe('user is not signed in', () => {
-          beforeEach(function () {
-            sinon.spy(view, '_navigateToVerifiedScreen');
-            isSignedIn = false;
-
-            return view._navigateToNextScreen();
-          });
-
-          it('delegates to _navigateToVerifiedScreen', () => {
-            assert.isTrue(view._navigateToVerifiedScreen.calledOnce);
-          });
-        });
+        assert.equal(view._getBrokerMethod(), 'afterCompleteSignUp');
       });
     });
 
@@ -590,6 +525,7 @@ define(function (require, exports, module) {
           initView();
 
           sinon.stub(view, 'getStringifiedResumeToken').callsFake(() => 'resume token');
+          sinon.stub(broker, 'afterCompleteSignUp').callsFake(() => p());
 
           return view.render()
             .then(function () {

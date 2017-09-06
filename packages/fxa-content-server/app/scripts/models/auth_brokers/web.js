@@ -13,6 +13,7 @@ define(function (require, exports, module) {
   const BaseBroker = require('models/auth_brokers/base');
   const { CONTENT_SERVER_CONTEXT } = require('lib/constants');
   const NavigateBehavior = require('views/behaviors/navigate');
+  const SettingsIfSignedInBehavior = require('views/behaviors/settings');
 
   const t = (msg) => msg;
 
@@ -25,6 +26,8 @@ define(function (require, exports, module) {
   module.exports = BaseBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
       afterCompleteResetPassword: redirectToSettingsBehavior,
+      afterCompleteSignIn: new SettingsIfSignedInBehavior(proto.defaultBehaviors.afterCompleteSignIn),
+      afterCompleteSignUp: new SettingsIfSignedInBehavior(proto.defaultBehaviors.afterCompleteSignUp),
       afterResetPasswordConfirmationPoll: redirectToSettingsBehavior,
       afterSignInConfirmationPoll: redirectToSettingsBehavior,
       afterSignUpConfirmationPoll: redirectToSettingsBehavior

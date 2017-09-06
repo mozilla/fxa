@@ -41,6 +41,12 @@ define([], function () {
       EXPIRED_LINK_HEADER: '#fxa-reset-link-expired-header',
       HEADER: '#fxa-complete-reset-password-header',
     },
+    COMPLETE_SIGNIN: {
+      LINK_RESEND: '#resend',
+      VERIFICATION_LINK_DAMAGED: '#fxa-verification-link-damaged-header',
+      VERIFICATION_LINK_EXPIRED: '#fxa-verification-link-expired-header',
+      VERIFICATION_LINK_REUSED: '#fxa-verification-link-reused-header'
+    },
     CONFIRM_RESET_PASSWORD: {
       HEADER: '#fxa-confirm-reset-password-header',
       LINK_RESEND: '#resend',

@@ -24,40 +24,36 @@ define((require, exports, module) => {
     describe('eligible for CAD', () => {
       it('delegates to `view.navigateToConnectAnotherDeviceScreen`', () => {
         const view = {
-          invokeBehavior: sinon.spy(),
           isEligibleForConnectAnotherDevice: sinon.spy(() => true),
           navigateToConnectAnotherDeviceScreen: sinon.spy()
         };
 
-        cadBehavior(view, account);
+        const promise = cadBehavior(view, account);
+        assert.ok(promise);
+        assert.isFunction(promise.then);
 
         assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
         assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
 
         assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledOnce);
         assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledWith(account));
-
-        assert.isFalse(view.invokeBehavior.called);
       });
     });
 
     describe('ineligible for CAD', () => {
       it('invokes the defaultBehavior', () => {
         const view = {
-          invokeBehavior: sinon.spy(),
           isEligibleForConnectAnotherDevice: sinon.spy(() => false),
           navigateToConnectAnotherDeviceScreen: sinon.spy()
         };
 
-        cadBehavior(view, account);
+        const behavior = cadBehavior(view, account);
 
         assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
         assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
 
         assert.isFalse(view.navigateToConnectAnotherDeviceScreen.called);
-
-        assert.isTrue(view.invokeBehavior.calledOnce);
-        assert.isTrue(view.invokeBehavior.calledWith(defaultBehavior, account));
+        assert.strictEqual(behavior, defaultBehavior);
       });
     });
   });

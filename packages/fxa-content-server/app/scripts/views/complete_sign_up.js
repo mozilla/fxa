@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Complete sign up is used to complete the email verification for one
- * of three types of users:
+ * Complete sign up is used to complete the email verification for
+ * multiple types of users:
  *
  * 1. New users that just signed up.
  * 2. Existing users that have signed in with an unverified account.
@@ -24,10 +24,8 @@ define(function (require, exports, module) {
   const CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
   const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
-  const p = require('lib/promise');
   const ResendMixin = require('views/mixins/resend-mixin')();
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  const t = BaseView.t;
   const VerificationInfo = require('models/verification/sign-up');
 
   const CompleteSignUpView = BaseView.extend({
@@ -118,8 +116,8 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Notify the broker that signup is complete. If the broker does not halt,
-     * navigate to the next screen.
+     * Notify the broker that the email is verified. Brokers are
+     * expected to take care of any next steps.
      *
      * @param {Object} account
      * @returns {Promise}
@@ -139,62 +137,32 @@ define(function (require, exports, module) {
       // Update the stored account data in case it was
       // updated by completeAccountSignUp.
       this.user.setAccount(account);
-      return this.invokeBrokerMethod('afterCompleteSignUp', account)
-        .then(() => this._navigateToNextScreen());
+
+      const brokerMethod = this._getBrokerMethod();
+      // The brokers handle all next steps.
+      return this.invokeBrokerMethod(brokerMethod, account);
     },
 
     /**
-     * Navigate to the next screen after verification has completed.
+     * Get the post-verification broker method name.
      *
-     * @returns {Promise}
-     * @private
+     * @returns {String}
+     * @throws Error if suitable broker method is not available.
      */
-    _navigateToNextScreen () {
-      const account = this.getAccount();
-      const relier = this.relier;
-
-      return p().then(() => {
-        if (relier.isSync()) {
-          if (this.isEligibleForConnectAnotherDevice(account)) {
-            return this.navigateToConnectAnotherDeviceScreen(account);
-          } else {
-            this._navigateToVerifiedScreen();
-          }
-        } else if (relier.isOAuth()) {
-          // If an OAuth user makes it here, they are either not signed in
-          // or are verifying in a different tab. Show the "Account
-          // verified!" screen to the user, the correct tab will have
-          // already transitioned back to the relier.
-          this._navigateToVerifiedScreen();
-        } else {
-          return account.isSignedIn()
-            .then((isSignedIn) => {
-              if (isSignedIn) {
-                this.navigate('settings', {
-                  success: t('Account verified successfully')
-                });
-              } else {
-                this._navigateToVerifiedScreen();
-              }
-            });
-        }
-      });
-    },
-
-    /**
-     * Navigate to the correct *_verified screen.
-     *
-     * @private
-     */
-    _navigateToVerifiedScreen () {
-      if (this.getSearchParam('secondary_email_verified')) {
-        this.navigate('secondary_email_verified');
+    _getBrokerMethod () {
+      let brokerMethod;
+      if (this.isSecondaryEmail()) {
+        brokerMethod = 'afterCompleteSecondaryEmail';
+      } else if (this.isSignIn()) {
+        brokerMethod = 'afterCompleteSignIn';
       } else if (this.isSignUp()) {
-        this.navigate('signup_verified');
+        brokerMethod = 'afterCompleteSignUp';
       } else {
-        this.navigate('signin_verified');
+        throw new Error(`New broker method needed for ${this.model.get('type')}`);
       }
+      return brokerMethod;
     },
+
 
     /**
      * Handle any verification errors.
