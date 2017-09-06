@@ -1,3 +1,17 @@
+<a name="1.95.0"></a>
+# [1.95.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.94.1...v1.95.0) (2017-09-06)
+
+
+### chore
+
+* **docs:** update node version in docs to 6 ([63fbdf2](https://github.com/mozilla/fxa-auth-db-mysql/commit/63fbdf2))
+
+### Features
+
+* **schema:** add a pushEndpointExpired column to devices ([d8e93c4](https://github.com/mozilla/fxa-auth-db-mysql/commit/d8e93c4))
+
+
+
 <a name="1.94.1"></a>
 ## [1.94.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.94.0...v1.94.1) (2017-08-23)
 
