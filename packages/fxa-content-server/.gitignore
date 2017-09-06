@@ -59,6 +59,7 @@ server/config/local.json
 
 ### Localization JSON ###
 app/i18n
+fxa-content-server-l10n/
 
 ### Generated fonts CSS ###
 app/styles/fonts

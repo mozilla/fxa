@@ -18,7 +18,7 @@ module.exports = function (grunt) {
     pp_md_src: TOS_PP_REPO_ROOT + '/firefox_cloud_services_PrivacyNotice/',
     server: 'server',
     strings_dist: 'locale',
-    strings_src: 'node_modules/fxa-content-server-l10n/locale',
+    strings_src: 'fxa-content-server-l10n/locale',
     tests: 'tests',
     tmp: TEMP_DIR,
     tos_html_dest: TEMPLATE_ROOT + '/pages/dist/terms',

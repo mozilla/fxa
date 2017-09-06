@@ -9,7 +9,7 @@ This folder can be used locally, but the default behavior is to update through `
 Here are a few things to know:
 
 * Do `git add` the file you are working on as often as possible. Otherwise you might just run `grunt` and it’ll overwrite all your work.
-* The files that the default behavior uses to generate the content is from `node_modules/fxa-content-server-l10n`, that is handled by npm.
+* The files that the default behavior uses to generate the content is from `fxa-content-server-l10n`, that is handled by npm install via git.
 * To work locally —and not get your work overwritten by bower— use those two commands:
 
         grunt po2json

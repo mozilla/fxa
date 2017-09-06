@@ -20,6 +20,7 @@
 
 'use strict';
 const cp = require('child_process');
+const fs = require('fs');
 const path = require('path');
 const Promise = require('bluebird');
 const logger = require('./logging/log')('server.version');
@@ -83,9 +84,8 @@ function getSourceRepo () {
 
 function getL10nVersion () {
   try {
-    const packagePath = '../../node_modules/fxa-content-server-l10n/package.json';
-    const packageData = require(packagePath);
-    return packageData && packageData.gitHead;
+    const gitShaPath = path.join(__dirname, '..', '..', 'fxa-content-server-l10n', 'git-head.txt');
+    return fs.readFileSync(gitShaPath, 'utf8').trim();
   } catch (e) {
     /* ignore */
   }
