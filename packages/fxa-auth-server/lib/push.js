@@ -171,6 +171,48 @@ module.exports = function (log, db, config) {
   }
 
   /**
+   * iOS clients don't yet support all commands types, and due to
+   * platform limitations they have to show some bad fallback UX
+   * if they receive an unsupported message type.  Filter out
+   * devices that we know won't respond well to the given command.
+   *
+   * @param {String} command
+   * The command from the push message payload
+   * @param {Device[]} devices
+   * The list of devices to which to send the push.
+   */
+  function filterSupportedDevices(command, devices) {
+    let requiredIOSVersion
+    switch (command) {
+    case 'sync:collection_changed':
+      // Everything supports this message, short-circuit.
+      return devices
+    case 'fxaccounts:device_connected':
+    case 'fxaccounts:device_disconnected':
+      requiredIOSVersion = 9.0
+      break
+    default:
+      requiredIOSVersion = Infinity
+    }
+    return devices.filter(function(device) {
+      const deviceOS = device.uaOS && device.uaOS.toLowerCase()
+      if (deviceOS === 'ios') {
+        const deviceVersion = device.uaBrowserVersion ? parseFloat(device.uaBrowserVersion) : 0
+        if (deviceVersion < requiredIOSVersion) {
+          log.info({
+            op: 'push.filteredUnsupportedDevice',
+            command: command,
+            uaOS: device.uaOS,
+            uaBrowserVersion: device.uaBrowserVersion
+          })
+          return false
+        }
+      }
+      return true
+    })
+  }
+
+  /**
    * Checks whether the given string is a valid public key for push.
    * This is a little tricky because we need to work around a bug in nodejs
    * where using an invalid ECDH key can cause a later (unrelated) attempt
@@ -416,15 +458,7 @@ module.exports = function (log, db, config) {
       } catch (e) {
         command = false
       }
-      // Only non collection_changed events are allowed to be sent to ios
-      // devices due to empty notifications. TODO: Remove.
-      if (command !== 'sync:collection_changed') {
-        devices = devices.filter(function(device) {
-          var deviceOS = device.uaOS && device.uaOS.toLowerCase()
-          return deviceOS !== 'ios'
-        })
-      }
-
+      devices = filterSupportedDevices(command, devices)
       var events = reasonToEvents[reason]
       if (! events) {
         return P.reject('Unknown push reason: ' + reason)
