@@ -17,7 +17,7 @@ module.exports = function (grunt) {
       files: [{
         expand: true,
         flatten: true,
-        cwd: path.join(pkgroot, 'node_modules', 'fxa-content-server-l10n', 'locale', 'templates', 'LC_MESSAGES'),
+        cwd: path.join(pkgroot, 'fxa-content-server-l10n', 'locale', 'templates', 'LC_MESSAGES'),
         dest: pkgroot,
         src: [
           'server.pot'

@@ -21,7 +21,7 @@ function parseLocale(locale) {
   return poParseFile(
     path.join(
       __dirname,
-      '../../node_modules/fxa-content-server-l10n/locale',
+      '../../fxa-content-server-l10n/locale',
       i18n.normalizeLocale(locale),
       'LC_MESSAGES/server.po'
     ),
