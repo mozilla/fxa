@@ -7,35 +7,38 @@ define([
   'intern!object',
   'intern/chai!assert',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers, selectors) {
+  'use strict';
 
-  var TIMEOUT = 90 * 1000;
+  const config = intern.config;
 
-  var TRUSTED_OAUTH_APP = config.fxaOauthApp;
-  var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
-  var PASSWORD = 'password';
+  const TIMEOUT = 90 * 1000;
 
-  var email;
+  const TRUSTED_OAUTH_APP = config.fxaOauthApp;
+  const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
+  const PASSWORD = 'password';
 
-  var click = FunctionalHelpers.click;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openFxaFromTrustedRp = FunctionalHelpers.openFxaFromRp;
-  var openFxaFromUntrustedRp = FunctionalHelpers.openFxaFromUntrustedRp;
-  var openSettingsInNewTab = FunctionalHelpers.openSettingsInNewTab;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var testUrlEquals = FunctionalHelpers.testUrlEquals;
-  var type = FunctionalHelpers.type;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  let email;
+
+  const click = FunctionalHelpers.click;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  const createUser = FunctionalHelpers.createUser;
+  const fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
+  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  const noSuchElement = FunctionalHelpers.noSuchElement;
+  const openFxaFromTrustedRp = FunctionalHelpers.openFxaFromRp;
+  const openFxaFromUntrustedRp = FunctionalHelpers.openFxaFromUntrustedRp;
+  const openSettingsInNewTab = FunctionalHelpers.openSettingsInNewTab;
+  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+  const testUrlEquals = FunctionalHelpers.testUrlEquals;
+  const type = FunctionalHelpers.type;
+  const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'oauth permissions for untrusted reliers',
@@ -57,10 +60,10 @@ define([
         .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
-        .then(testElementExists('#fxa-permissions-header'))
-        .then(click('#accept'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT))
 
-        .then(testElementExists('#loggedin'))
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
         .then(testUrlEquals(UNTRUSTED_OAUTH_APP));
     },
 
@@ -70,23 +73,22 @@ define([
         .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
-        .then(testElementExists('#fxa-permissions-header'))
-        .then(click('#accept'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors['123DONE'].AUTHENTICATED))
 
-        .then(testElementExists('#loggedin'))
         .then(testUrlEquals(UNTRUSTED_OAUTH_APP))
 
-        .then(click('#logout'))
-        .then(click('.signin'))
+        .then(click(selectors['123DONE'].LINK_LOGOUT))
+        .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
         // user signed in previously and should not need to enter
         // their email address.
-        .then(testElementExists('#fxa-signin-header'))
-        .then(type('input[type=password]', PASSWORD))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
 
         // no permissions additional asked for
-        .then(testElementExists('#loggedin'))
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
         // redirected back to the App without seeing the permissions screen.
         .then(testUrlEquals(UNTRUSTED_OAUTH_APP));
     },
@@ -97,23 +99,21 @@ define([
         .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
-        .then(testElementExists('#fxa-permissions-header'))
-        .then(click('#accept'))
-
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
 
         // get the second email, the first was sent on client.signUp w/
         // preVerified: false above. The second email has the `service` and
         // `resume` parameters.
         .then(openVerificationLinkInSameTab(email, 1))
         // user verifies in the same tab, so they are logged in to the RP.
-        .then(testElementExists('#loggedin'));
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     },
 
     'signup, verify same browser': function () {
       return this.remote
         .then(openFxaFromUntrustedRp('signup'))
-        .then(testElementExists('#fxa-signup-header .service'))
+        .then(testElementExists(selectors.SIGNUP.SUB_HEADER))
         .getCurrentUrl()
           .then(function (url) {
             assert.ok(url.indexOf('client_id=') > -1);
@@ -124,25 +124,23 @@ define([
 
         .then(fillOutSignUp(email, PASSWORD))
 
-        .then(testElementExists('#fxa-permissions-header'))
-        .then(click('#accept'))
-
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
-        // wait for the verified window in the new tab
-        .then(testElementExists('#fxa-sign-up-complete-header'))
-        .sleep(5000)
+          // wait for the verified window in the new tab
+          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
+          .sleep(5000)
 
-        // user sees the name of the RP,
-        // but cannot redirect
-        .then(testElementTextInclude('.account-ready-service', '321done Untrusted'))
+          // user sees the name of the RP,
+          // but cannot redirect
+          .then(testElementTextInclude(selectors.SIGNUP_COMPLETE.SERVICE_NAME, '321done Untrusted'))
 
-        // switch to the original window
-        .then(closeCurrentWindow())
+          // switch to the original window
+          .then(closeCurrentWindow())
 
-        .then(testElementExists('#loggedin'));
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     },
 
     'signup, then signin with no additional permissions': function () {
@@ -150,35 +148,33 @@ define([
         .then(openFxaFromUntrustedRp('signup'))
         .then(fillOutSignUp(email, PASSWORD))
 
-        .then(testElementExists('#fxa-permissions-header'))
-        .then(click('#accept'))
-
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
-        // wait for the verified window in the new tab
-        .then(testElementExists('#fxa-sign-up-complete-header'))
+          // wait for the verified window in the new tab
+          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
 
-        .sleep(5000)
-        // user sees the name of the RP,
-        // but cannot redirect
-        .then(testElementTextInclude('.account-ready-service', '321done Untrusted'))
+          .sleep(5000)
+          // user sees the name of the RP,
+          // but cannot redirect
+          .then(testElementTextInclude(selectors.SIGNUP_COMPLETE.SERVICE_NAME, '321done Untrusted'))
 
-        // switch to the original window
-        .then(closeCurrentWindow())
+          // switch to the original window
+          .then(closeCurrentWindow())
 
-        .then(testElementExists('#loggedin'))
-        .then(click('#logout'))
-        .then(click('.signin'))
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
+        .then(click(selectors['123DONE'].LINK_LOGOUT))
+        .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
         // user signed in previously and should not need to enter
         // their email address.
-        .then(testElementExists('#fxa-signin-header'))
-        .then(type('input[type=password]', PASSWORD))
-        .then(click('button[type=submit]'))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
 
-        .then(testElementExists('#loggedin'))
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
         .then(testUrlEquals(UNTRUSTED_OAUTH_APP));
     },
 
@@ -187,15 +183,13 @@ define([
         .then(openFxaFromUntrustedRp('signup'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
-        .then(type('input[type=email]', email))
-        .then(type('input[type=password]', PASSWORD))
+        .then(type(selectors.SIGNUP.EMAIL, email))
+        .then(type(selectors.SIGNUP.PASSWORD, PASSWORD))
         // age not filled in, submit works anyways.
-        .then(click('button[type=submit]'))
+        .then(click(selectors.SIGNUP.SUBMIT))
 
-        .then(testElementExists('#fxa-permissions-header'))
-        .then(click('#accept'))
-
-        .then(testElementExists('#loggedin'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors['123DONE'].AUTHENTICATED))
         .then(testUrlEquals(UNTRUSTED_OAUTH_APP));
     },
 
@@ -205,35 +199,32 @@ define([
         .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
-        .then(testElementExists('#fxa-permissions-header'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
         // display name is not available because user has not set their name
-        .then(noSuchElement('input[name="profile:display_name"]'))
-        .then(click('#accept'))
+        .then(noSuchElement(selectors.OAUTH_PERMISSIONS.CHECKBOX_DISPLAY_NAME))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors['123DONE'].AUTHENTICATED))
 
-        .then(testElementExists('#loggedin'))
         .then(testUrlEquals(UNTRUSTED_OAUTH_APP))
 
-        .then(click('#logout'))
+        .then(click(selectors['123DONE'].LINK_LOGOUT))
 
         .then(openSettingsInNewTab('settings', 'display_name'))
         .switchToWindow('settings')
 
-        .then(type('#display-name input[type=text]', 'test user'))
-        .then(click('#display-name button[type=submit]'))
-        .then(visibleByQSA('.settings-success'))
+          .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, 'test user'))
+          .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
+          .then(visibleByQSA(selectors.SETTINGS.SUCCESS))
 
         .then(closeCurrentWindow())
 
-        .then(click('.signin'))
+        .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
-        .then(type('input[type=password', PASSWORD))
-        .then(click('button[type=submit]'))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
 
         // display name is now available
-        .then(testElementExists('input[name="profile:display_name"]'))
-        .then(click('#accept'))
-
-        .then(testElementExists('#loggedin'));
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.CHECKBOX_DISPLAY_NAME))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors['123DONE'].AUTHENTICATED));
     },
 
     'signin with additional requested permission': function () {
@@ -242,40 +233,37 @@ define([
         .then(fillOutSignIn(email, PASSWORD))
 
         // make display_name available from the start
-        .then(click('#display-name button.settings-unit-toggle'))
-        .then(type('#display-name input[type=text]', 'test user'))
-        .then(click('#display-name button[type=submit]'))
-        .then(visibleByQSA('.settings-success'))
+        .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
+        .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, 'test user'))
+        .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
+        .then(visibleByQSA(selectors.SETTINGS.SUCCESS))
 
         // the first time through, only request email and uid
         .then(openFxaFromUntrustedRp('signin', { query: {
           scope: 'profile:email profile:uid'
         }}))
 
-        .then(type('input[type=password', PASSWORD))
-        .then(click('button[type=submit]'))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
 
-        .then(testElementExists('#fxa-permissions-header'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
         // display name is not available because it's not requested
-        .then(noSuchElement('input[name="profile:display_name"]'))
-        .then(click('#accept'))
+        .then(noSuchElement(selectors.OAUTH_PERMISSIONS.CHECKBOX_DISPLAY_NAME))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors['123DONE'].AUTHENTICATED))
 
-        .then(testElementExists('#loggedin'))
         .then(testUrlEquals(UNTRUSTED_OAUTH_APP))
 
-        .then(click('#logout'))
-        .then(click('.signin'))
+        .then(click(selectors['123DONE'].LINK_LOGOUT))
+        .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
-        .then(type('input[type=password', PASSWORD))
-        .then(click('button[type=submit]'))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
 
         // the second time through, profile:email, profile:uid, and
         // profile:display_name will be asked for, so display_name is
         // available
-        .then(testElementExists('input[name="profile:display_name"]'))
-        .then(click('#accept'))
-
-        .then(testElementExists('#loggedin'));
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.CHECKBOX_DISPLAY_NAME))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors['123DONE'].AUTHENTICATED));
     },
 
     'signin after de-selecting a requested permission': function () {
@@ -284,32 +272,29 @@ define([
         .then(fillOutSignIn(email, PASSWORD))
 
         // make display_name available from the start
-        .then(click('#display-name button.settings-unit-toggle'))
-        .then(type('#display-name input[type=text]', 'test user'))
-        .then(click('#display-name button[type=submit]'))
-        .then(visibleByQSA('.settings-success'))
+        .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
+        .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, 'test user'))
+        .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
+        .then(visibleByQSA(selectors.SETTINGS.SUCCESS))
 
         .then(openFxaFromUntrustedRp('signin'))
 
-        .then(type('input[type=password', PASSWORD))
-        .then(click('button[type=submit]'))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
 
-        .then(testElementExists('input[name="profile:display_name"]'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.CHECKBOX_DISPLAY_NAME))
         // deselect display name to ensure permission state is
         // saved correctly.
-        .then(click('input[name="profile:display_name"]'))
-        .then(click('#accept'))
+        .then(click(selectors.OAUTH_PERMISSIONS.CHECKBOX_DISPLAY_NAME))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors['123DONE'].AUTHENTICATED))
 
-        .then(testElementExists('#loggedin'))
-        .then(click('#logout'))
+        .then(click(selectors['123DONE'].LINK_LOGOUT))
         // signin again, no permissions should be asked for even though
         // display_name was de-selected last time.
-        .then(click('.signin'))
+        .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
-        .then(type('input[type=password', PASSWORD))
-        .then(click('button[type=submit]'))
-
-        .then(testElementExists('#loggedin'));
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT, selectors['123DONE'].AUTHENTICATED));
     }
   });
 
@@ -332,7 +317,7 @@ define([
         .then(fillOutSignUp(email, PASSWORD))
 
         // no permissions asked for, straight to confirm
-        .then(testElementExists('#fxa-confirm-header'));
+        .then(testElementExists(selectors.SIGNUP.HEADER));
     },
 
     'signup with `prompt=consent`': function () {
@@ -341,10 +326,10 @@ define([
         .then(fillOutSignUp(email, PASSWORD))
 
         // permissions are asked for with `prompt=consent`
-        .then(testElementExists('#fxa-permissions-header'))
-        .then(click('#accept'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT))
 
-        .then(testElementExists('#fxa-confirm-header'));
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER));
     },
 
     'signin without `prompt=consent`': function () {
@@ -354,7 +339,7 @@ define([
         .then(fillOutSignIn(email, PASSWORD))
 
         // no permissions asked for, straight to relier
-        .then(testElementExists('#loggedin'));
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     },
 
     'signin with `prompt=consent`': function () {
@@ -364,10 +349,10 @@ define([
         .then(fillOutSignIn(email, PASSWORD))
 
         // permissions are asked for with `prompt=consent`
-        .then(testElementExists('#fxa-permissions-header'))
-        .then(click('#accept'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT))
 
-        .then(testElementExists('#loggedin'));
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     },
 
     'signin without `prompt=consent`, then re-signin with `prompt=consent`': function () {
@@ -377,9 +362,9 @@ define([
         .then(fillOutSignIn(email, PASSWORD))
 
         // no permissions asked for, straight to relier
-        .then(testElementExists('#loggedin'))
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
         .then(testUrlEquals(TRUSTED_OAUTH_APP))
-        .then(click('#logout'))
+        .then(click(selectors['123DONE'].LINK_LOGOUT))
         // currently there is no way to tell when 123done fully logged out
         // give the logout request some time to complete
         .sleep(1000)
@@ -388,14 +373,14 @@ define([
         // relier changes to request consent
         .then(openFxaFromTrustedRp('signin', { query: { prompt: 'consent' }}))
 
-        .then(type('input[type=password', PASSWORD))
-        .then(click('button[type=submit]'))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
 
         // since consent is now requested, user should see prompt
-        .then(testElementExists('#fxa-permissions-header'))
-        .then(click('#accept'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT))
 
-        .then(testElementExists('#loggedin'));
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     },
 
 
@@ -406,7 +391,7 @@ define([
         .then(fillOutForceAuth(PASSWORD))
 
         // no permissions asked for, straight to relier
-        .then(testElementExists('#loggedin'));
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     },
 
     'force_auth with `prompt=consent`': function () {
@@ -419,10 +404,10 @@ define([
         .then(fillOutForceAuth(PASSWORD))
 
         // permissions are asked for with `prompt=consent`
-        .then(testElementExists('#fxa-permissions-header'))
-        .then(click('#accept'))
+        .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
+        .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT))
 
-        .then(testElementExists('#loggedin'));
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     }
   });
 });

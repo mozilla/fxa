@@ -11,6 +11,7 @@ define([], function () {
   /*eslint-disable max-len*/
   return {
     '123DONE': {
+      AUTHENTICATED: '#loggedin',
       BUTTON_SIGNIN: '.sign-in-button.signin',
       BUTTON_SIGNUP: '.sign-in-button.signup',
       LINK_LOGOUT: '#logout'
@@ -96,6 +97,11 @@ define([], function () {
     MOZILLA_ORG_SYNC: {
       HEADER: '.header-content'
     },
+    OAUTH_PERMISSIONS: {
+      CHECKBOX_DISPLAY_NAME: 'input[name="profile:display_name"] + span',
+      HEADER: '#fxa-permissions-header',
+      SUBMIT: '#accept'
+    },
     RESET_PASSWORD: {
       BACK: '#back',
       EMAIL: 'input[type=email]',
@@ -112,7 +118,13 @@ define([], function () {
       HEADER: '#fxa-settings-header',
       PROFILE_HEADER: '#fxa-settings-profile-header .card-header',
       PROFILE_SUB_HEADER: '#fxa-settings-profile-header .card-subheader',
-      SIGNOUT: '#signout'
+      SIGNOUT: '#signout',
+      SUCCESS: '.settings-success'
+    },
+    SETTINGS_DISPLAY_NAME: {
+      INPUT_DISPLAY_NAME: '#display-name input[type=text]',
+      MENU_BUTTON: '#display-name button.settings-unit-toggle',
+      SUBMIT: '#display-name button[type=submit]',
     },
     SIGNIN: {
       EMAIL: 'input[type=email]',
@@ -168,7 +180,8 @@ define([], function () {
       VPASSWORD: '#vpassword',
     },
     SIGNUP_COMPLETE: {
-      HEADER: '#fxa-sign-up-complete-header'
+      HEADER: '#fxa-sign-up-complete-header',
+      SERVICE_NAME: '.account-ready-service'
     },
     SIGNUP_PASSWORD: {
       AGE: '#age',
