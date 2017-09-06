@@ -138,8 +138,6 @@ define(function (require, exports, module) {
         $.modal.close();
       }
       this.displayStatusMessages();
-
-      this.logView();
     },
 
     beforeRender () {

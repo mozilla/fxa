@@ -197,7 +197,7 @@ define(function (require, exports, module) {
         sinon.stub($.modal, 'close').callsFake(function () { });
         notifier.trigger('navigate-from-child-view');
         assert.isTrue(view.displayStatusMessages.called);
-        assert.isTrue(view.logView.called);
+        assert.isFalse(view.logView.called);
         assert.isTrue($.modal.isActive.called);
         assert.isTrue($.modal.close.called);
         $.modal.isActive.restore();
