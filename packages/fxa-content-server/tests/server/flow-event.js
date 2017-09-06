@@ -29,6 +29,7 @@ define([
       sandbox = sinon.sandbox.create();
       sandbox.stub(process.stderr, 'write', () => {});
       mocks = {
+        amplitude: sinon.spy(),
         config: {
           get (key) {
             return config[key];
@@ -45,6 +46,7 @@ define([
         time: 1479127399349
       };
       flowEvent = proxyquire(path.resolve('server/lib/flow-event'), {
+        './amplitude': mocks.amplitude,
         './configuration': mocks.config,
         './flow-metrics': mocks.flowMetrics
       });
@@ -127,6 +129,68 @@ define([
         assert.lengthOf(Object.keys(arg), 17);
         assert.equal(arg.event, 'flow.signup.good-offset-oldest');
         assert.equal(arg.time, new Date(mocks.time - config.flow_id_expiry).toISOString());
+      },
+
+      'amplitude was called five times': () => {
+        assert.equal(mocks.amplitude.callCount, 5);
+      },
+
+      'first call to amplitude was correct': () => {
+        const args = mocks.amplitude.args[0];
+        assert.lengthOf(args, 2);
+        assert.deepEqual(args[0], {
+          flowTime: 5,
+          offset: 5,
+          time: mocks.time - 995,
+          type: 'wibble'
+        });
+        mocks.amplitude.firstCall.calledBefore(process.stderr.write.firstCall);
+      },
+
+      'second call to amplitude was correct': () => {
+        const args = mocks.amplitude.args[1];
+        assert.lengthOf(args, 2);
+        assert.deepEqual(args[0], {
+          flowTime: 0,
+          offset: 5,
+          time: mocks.time - 1000,
+          type: 'flow.begin'
+        });
+        mocks.amplitude.secondCall.calledBefore(process.stderr.write.firstCall);
+      },
+
+      'third call to amplitude was correct': () => {
+        const args = mocks.amplitude.args[2];
+        assert.lengthOf(args, 2);
+        assert.deepEqual(args[0], {
+          flowTime: 5.89990234375,
+          offset: 5.9,
+          time: mocks.time - 994.1,
+          type: 'screen.signup'
+        });
+        mocks.amplitude.thirdCall.calledBefore(process.stderr.write.secondCall);
+      },
+
+      'fourth call to amplitude was correct': () => {
+        const args = mocks.amplitude.args[3];
+        assert.lengthOf(args, 2);
+        assert.deepEqual(args[0], {
+          flowTime: 1000,
+          offset: 1000,
+          time: mocks.time,
+          type: 'flow.signup.good-offset-now'
+        });
+      },
+
+      'fifth call to amplitude was correct': () => {
+        const args = mocks.amplitude.args[4];
+        assert.lengthOf(args, 2);
+        assert.deepEqual(args[0], {
+          flowTime: 1000 - config.flow_id_expiry,
+          offset: 1000 - config.flow_id_expiry,
+          time: mocks.time - config.flow_id_expiry,
+          type: 'flow.signup.good-offset-oldest'
+        });
       }
     },
 
@@ -171,6 +235,10 @@ define([
         assert.equal(arg.event, 'flow.performance.auth.client');
         assert.equal(arg.time, new Date(mocks.time - 2000 + 200).toISOString());
         assert.equal(arg.flow_time, 200);
+      },
+
+      'amplitude was called once': () => {
+        assert.equal(mocks.amplitude.callCount, 1);
       }
     },
 
@@ -184,6 +252,10 @@ define([
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
+      },
+
+      'amplitude was not called': () => {
+        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -197,6 +269,10 @@ define([
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
+      },
+
+      'amplitude was not called': () => {
+        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -210,6 +286,10 @@ define([
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
+      },
+
+      'amplitude was not called': () => {
+        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -223,6 +303,10 @@ define([
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
+      },
+
+      'amplitude was not called': () => {
+        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -249,6 +333,10 @@ define([
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
+      },
+
+      'amplitude was not called': () => {
+        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -262,6 +350,10 @@ define([
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
+      },
+
+      'amplitude was not called': () => {
+        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -293,6 +385,10 @@ define([
         assert.isUndefined(arg.utm_medium);
         assert.isUndefined(arg.utm_source);
         assert.isUndefined(arg.utm_term);
+      },
+
+      'amplitude was called once': () => {
+        assert.equal(mocks.amplitude.callCount, 1);
       }
     },
 
@@ -313,6 +409,10 @@ define([
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
+      },
+
+      'amplitude was not called': () => {
+        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -333,6 +433,10 @@ define([
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
+      },
+
+      'amplitude was not called': () => {
+        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -344,6 +448,10 @@ define([
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
+      },
+
+      'amplitude was not called': () => {
+        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -359,6 +467,10 @@ define([
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
+      },
+
+      'amplitude was called once': () => {
+        assert.equal(mocks.amplitude.callCount, 1);
       }
     },
 

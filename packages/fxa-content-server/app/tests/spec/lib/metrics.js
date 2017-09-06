@@ -244,6 +244,7 @@ define(function (require, exports, module) {
         xhr = { ajax () {} };
         environment = new Environment(windowMock);
         metrics = new Metrics({
+          deviceId: 'mock device id',
           environment: environment,
           inactivityFlushMs: 100,
           notifier,
@@ -297,9 +298,10 @@ define(function (require, exports, module) {
               assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
               var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-              assert.lengthOf(Object.keys(data), 27);
+              assert.lengthOf(Object.keys(data), 28);
               assert.equal(data.broker, 'none');
               assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
+              assert.equal(data.deviceId, 'mock device id');
               assert.isNumber(data.duration);
               assert.equal(data.entrypoint, 'none');
               assert.isArray(data.events);
@@ -427,7 +429,8 @@ define(function (require, exports, module) {
               assert.equal(settings.contentType, 'application/json');
 
               var data = JSON.parse(settings.data);
-              assert.lengthOf(Object.keys(data), 26);
+              assert.lengthOf(Object.keys(data), 27);
+              assert.equal(data.deviceId, 'mock device id');
               assert.isArray(data.events);
               assert.lengthOf(data.events, 5);
               assert.equal(data.events[0].type, 'foo');
@@ -505,7 +508,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 26);
+            assert.lengthOf(Object.keys(data), 27);
             assert.lengthOf(data.events, 5);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.bar');
@@ -530,7 +533,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 26);
+            assert.lengthOf(Object.keys(data), 27);
             assert.lengthOf(data.events, 5);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.bar');

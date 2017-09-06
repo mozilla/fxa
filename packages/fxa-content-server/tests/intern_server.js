@@ -14,6 +14,7 @@ define([
     'tests/server/routes',
     'tests/server/l10n-entrained',
     'tests/server/ver.json.js',
+    'tests/server/amplitude',
     'tests/server/csp',
     'tests/server/flow-event',
     'tests/server/flow-metrics',

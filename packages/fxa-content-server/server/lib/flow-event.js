@@ -4,6 +4,7 @@
 
 'use strict';
 const _ = require('lodash');
+const amplitude = require('./amplitude');
 const config = require('./configuration');
 const flowMetrics = require('./flow-metrics');
 const os = require('os');
@@ -88,24 +89,7 @@ module.exports = (req, metrics, requestReceivedTime) => {
   let emitPerformanceEvents = false;
   const events = metrics.events || [];
   const performanceCategory = AUTH_VIEWS.has(metrics.initialView) ? 'auth' : 'other';
-  const flowEvents = events.map(event => {
-    if (event.type === 'loaded') {
-      emitPerformanceEvents = true;
-      return Object.assign({}, event, {
-        type: `flow.performance.${performanceCategory}`
-      });
-    }
-
-    if (event.type.indexOf('screen.') !== 0) {
-      return event;
-    }
-
-    return Object.assign({}, event, {
-      type: `flow.${event.type.substr(7)}.view`
-    });
-  }).filter(event => event.type.indexOf('flow.') === 0);
-
-  flowEvents.forEach(event => {
+  events.forEach(event => {
     if (event.type === FLOW_BEGIN_EVENT) {
       event.time = metrics.flowBeginTime;
       event.flowTime = 0;
@@ -119,6 +103,13 @@ module.exports = (req, metrics, requestReceivedTime) => {
         /*eslint-enable sorting/sort-object-props*/
       });
 
+      if (event.type === 'loaded') {
+        emitPerformanceEvents = true;
+        event = Object.assign({}, event, {
+          type: `flow.performance.${performanceCategory}`
+        });
+      }
+
       if (! isValidTime(event.time, requestReceivedTime)) {
         return;
       }
@@ -126,7 +117,17 @@ module.exports = (req, metrics, requestReceivedTime) => {
       event.flowTime = event.time - metrics.flowBeginTime;
     }
 
-    logFlowEvent(event, metrics, req);
+    amplitude(event, metrics);
+
+    if (event.type.substr(0, 7) === 'screen.') {
+      event = Object.assign({}, event, {
+        type: `flow.${event.type.substr(7)}.view`
+      });
+    }
+
+    if (event.type.substr(0, 5) === 'flow.') {
+      logFlowEvent(event, metrics, req);
+    }
   });
 
   const navigationTiming = metrics.navigationTiming;

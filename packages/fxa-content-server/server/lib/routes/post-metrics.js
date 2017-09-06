@@ -18,24 +18,29 @@ const clientMetricsConfig = config.get('client_metrics');
 const DISABLE_CLIENT_METRICS_STDERR = clientMetricsConfig.stderr_collector_disabled;
 const MAX_EVENT_OFFSET = clientMetricsConfig.max_event_offset;
 
-const BROKER_PATTERN = validation.PATTERNS.BROKER;
-const CONTEXT_PATTERN = validation.PATTERNS.CONTEXT;
-const ENTRYPOINT_PATTERN = validation.PATTERNS.ENTRYPOINT;
-const EVENT_TYPE_PATTERN = validation.PATTERNS.EVENT_TYPE;
-const EXPERIMENT_PATTERN = validation.PATTERNS.EXPERIMENT;
-const MIGRATION_PATTERN = validation.PATTERNS.MIGRATION;
-const SERVICE_PATTERN = validation.PATTERNS.SERVICE;
-const UNIQUE_USER_ID_PATTERN = validation.PATTERNS.UNIQUE_USER_ID;
+const {
+  BROKER: BROKER_PATTERN,
+  CONTEXT: CONTEXT_PATTERN,
+  DEVICE_ID: DEVICE_ID_PATTERN,
+  ENTRYPOINT: ENTRYPOINT_PATTERN,
+  EVENT_TYPE: EVENT_TYPE_PATTERN,
+  EXPERIMENT: EXPERIMENT_PATTERN,
+  MIGRATION: MIGRATION_PATTERN,
+  SERVICE: SERVICE_PATTERN,
+  UNIQUE_USER_ID: UNIQUE_USER_ID_PATTERN,
+} = validation.PATTERNS;
 
-const BOOLEAN_TYPE = validation.TYPES.BOOLEAN;
-const DIMENSION_TYPE = validation.TYPES.DIMENSION;
-const INTEGER_TYPE = validation.TYPES.INTEGER;
-const OFFSET_TYPE = validation.TYPES.OFFSET;
-const REFERRER_TYPE = validation.TYPES.REFERRER;
-const STRING_TYPE = validation.TYPES.STRING;
-const TIME_TYPE = validation.TYPES.TIME;
-const URL_TYPE = validation.TYPES.URL;
-const UTM_TYPE = validation.TYPES.UTM;
+const {
+  BOOLEAN: BOOLEAN_TYPE,
+  DIMENSION: DIMENSION_TYPE,
+  INTEGER: INTEGER_TYPE,
+  OFFSET: OFFSET_TYPE,
+  REFERRER: REFERRER_TYPE,
+  STRING: STRING_TYPE,
+  TIME: TIME_TYPE,
+  URL: URL_TYPE,
+  UTM: UTM_TYPE
+} = validation.TYPES;
 
 // a user can disable navigationTiming, in which case all values are `null`
 // negative values are allowed until we figure out the cause of #4722
@@ -44,6 +49,7 @@ const NAVIGATION_TIMING_TYPE = INTEGER_TYPE.allow(null).required();
 const BODY_SCHEMA = {
   broker: STRING_TYPE.regex(BROKER_PATTERN).required(),
   context: STRING_TYPE.regex(CONTEXT_PATTERN).required(),
+  deviceId: STRING_TYPE.regex(DEVICE_ID_PATTERN).allow('none').optional(),
   duration: OFFSET_TYPE.required(),
   entryPoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
