@@ -1,3 +1,13 @@
+<a name="1.95.0"></a>
+# [1.95.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.92.0...v1.95.0) (2017-09-06)
+
+
+### Features
+
+* **campaigns:** Add additional newsletter campaigns ([3bbeda7](https://github.com/mozilla/fxa-basket-proxy/commit/3bbeda7))
+
+
+
 <a name="1.92.0"></a>
 # [1.92.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.91.0...v1.92.0) (2017-07-26)
 
