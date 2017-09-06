@@ -1,3 +1,48 @@
+<a name="1.95.0"></a>
+# 1.95.0 (2017-09-06)
+
+
+### Bug Fixes
+
+* **avatars:** fix egg shaped avatars (#5420) r=@shane-tomlinson ([f73a15e](https://github.com/mozilla/fxa-content-server/commit/f73a15e)), closes [(#5420](https://github.com/(/issues/5420)
+* **CAD:** Add the CAD on signin strings for l10n extraction. (#5417) r=@shane-tomlinson ([ac50d4e](https://github.com/mozilla/fxa-content-server/commit/ac50d4e))
+* **email:** Add success message when removing secondary email (#5391) r=@shane-tomlinson ([c6f715c](https://github.com/mozilla/fxa-content-server/commit/c6f715c))
+* **settings:** stop logging screen.settings when closing child views (#5439) r=@shane-tomlinson ([f22b341](https://github.com/mozilla/fxa-content-server/commit/f22b341))
+* **style:** Only add `centered` to links containers that need it. (#5393) r=@vbudhram ([6934d00](https://github.com/mozilla/fxa-content-server/commit/6934d00)), closes [#5392](https://github.com/mozilla/fxa-content-server/issues/5392)
+* **styles:** fix alert styles (#5421) r=@shane-tomlinson ([cb5633f](https://github.com/mozilla/fxa-content-server/commit/cb5633f)), closes [(#5421](https://github.com/(/issues/5421)
+* **test:** Bump the automated test startup delay to 750ms. (#5410) r=vladikoff ([e3d4fde](https://github.com/mozilla/fxa-content-server/commit/e3d4fde))
+* **test:** Fix the "choose option to customize sync" Sync v1 test. (#5426) r=vladikoff ([27f3331](https://github.com/mozilla/fxa-content-server/commit/27f3331)), closes [(#5426](https://github.com/(/issues/5426) [#5425](https://github.com/mozilla/fxa-content-server/issues/5425)
+* **test:** Fix the change_password test when run against circle. (#5405) r=vladikoff ([ccea02d](https://github.com/mozilla/fxa-content-server/commit/ccea02d)), closes [(#5405](https://github.com/(/issues/5405) [#5403](https://github.com/mozilla/fxa-content-server/issues/5403)
+* **test:** Fix the OAuth permissions test that clicks the checkbox. (#5432) r=@philbooth ([c2a95e5](https://github.com/mozilla/fxa-content-server/commit/c2a95e5)), closes [(#5432](https://github.com/(/issues/5432) [#5305](https://github.com/mozilla/fxa-content-server/issues/5305)
+* **test:** Only print relevant lines in functional test stack traces. (#5424) r=vladikoff,p ([f9e7b76](https://github.com/mozilla/fxa-content-server/commit/f9e7b76))
+
+### chore
+
+* **metrics:** Log how frequently users are forcibly signed out from /settings. (#5441) r=vladi ([105db7b](https://github.com/mozilla/fxa-content-server/commit/105db7b)), closes [#5435](https://github.com/mozilla/fxa-content-server/issues/5435)
+* **npm:** update shrinkwrap command to shrink ([d22f4cd](https://github.com/mozilla/fxa-content-server/commit/d22f4cd))
+* **pkg:** update engine to 6 (#5396) ([fd2f01c](https://github.com/mozilla/fxa-content-server/commit/fd2f01c))
+* **tests:** run server tests using the "pretty" reporter (#5440) r=@shane-tomlinson ([246c743](https://github.com/mozilla/fxa-content-server/commit/246c743))
+
+### Features
+
+* **brokers:** add uid to can_link_account in FxSyncChannel (#5386) r=@shane-tomlinson ([7f2abc6](https://github.com/mozilla/fxa-content-server/commit/7f2abc6))
+* **metrics:** send amplitude events to the logs (#5412) r=vladikoff ([386886e](https://github.com/mozilla/fxa-content-server/commit/386886e)), closes [#5346](https://github.com/mozilla/fxa-content-server/issues/5346)
+
+### Refactor
+
+* **brokers:** Extract next steps from complete_sign_up to broker behaviors. (#5430) r=vladikof ([d276e10](https://github.com/mozilla/fxa-content-server/commit/d276e10))
+* **l10n:** extract l10n from node_modules (#5395) r=@shane-tomlinson ([417103b](https://github.com/mozilla/fxa-content-server/commit/417103b))
+* **settings:** adjust assertion caching (#5422) r=shane-tomlinson ([5eea741](https://github.com/mozilla/fxa-content-server/commit/5eea741)), closes [#4949](https://github.com/mozilla/fxa-content-server/issues/4949)
+* **test:** Modernize the connect_another_device suite. (#5415) r=vladikoff ([ab390ca](https://github.com/mozilla/fxa-content-server/commit/ab390ca))
+* **test:** Modernize the fx_fennec_v1_sign_in/force_auth functional suites. (#5411), r=@vbu ([9ca6781](https://github.com/mozilla/fxa-content-server/commit/9ca6781))
+* **test:** Modernize the fx_ios_v1_sign_up suite. (#5414), r=@vbudhram ([ec979e1](https://github.com/mozilla/fxa-content-server/commit/ec979e1))
+* **test:** Modernize the sync_*_force_auth functional suites. (#5413), r=@vbudhram ([a91f800](https://github.com/mozilla/fxa-content-server/commit/a91f800))
+* **test:** Use selectors.js and ES6 in the change_password suite (#5404) r=vladikoff ([61b9c45](https://github.com/mozilla/fxa-content-server/commit/61b9c45))
+* **tests:** sinon 3 migration (#5429) r=@shane-tomlinson ([240c204](https://github.com/mozilla/fxa-content-server/commit/240c204))
+* **views:** Use ES2015 Class syntax for CAD/SmsSend views. (#5409) r=vladikoff ([bb0d84a](https://github.com/mozilla/fxa-content-server/commit/bb0d84a))
+
+
+
 <a name="1.94.2"></a>
 ## 1.94.2 (2017-08-30)
 
