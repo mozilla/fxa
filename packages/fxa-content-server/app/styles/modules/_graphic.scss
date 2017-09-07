@@ -56,15 +56,14 @@
 }
 
 .graphic-connect-another-device {
-  @include hidpi-background-image('account-verified', 310px 87px);
-  height: 87px;
-  margin: 35px auto;
-  width: 310px;
+  background-image: url('/images/account-verified.svg');
+  background-position: center center;
+  margin-top: 35px;
+  height: 130px;
+  width: auto;
 
   @include respond-to('small') {
-    background-size: 240px 68px;
-    height: 68px;
-    width: 240px;
+    height: 100px;
   }
 }
 
