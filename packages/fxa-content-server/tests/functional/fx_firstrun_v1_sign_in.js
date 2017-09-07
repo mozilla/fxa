@@ -6,51 +6,44 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
   const config = intern.config;
   const PAGE_URL = config.fxaContentRoot + 'signin?context=iframe&service=sync';
 
-  var email;
+  let email;
   const PASSWORD = '12345678';
 
-  const SELECTOR_CONFIRM_SIGNIN_HEADER = '#fxa-confirm-signin-header';
-  const SELECTOR_CONFIRM_SIGNUP_HEADER = '#fxa-confirm-header';
-  const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
-  const SELECTOR_SETTINGS_HEADER = '#fxa-settings-header';
-  const SELECTOR_SIGNIN_HEADER = '#fxa-signin-header';
-  const SELECTOR_SIGNIN_SUB_HEADER = '#fxa-signin-header .service';
-  const SELECTOR_SIGNIN_UNBLOCK_HEADER = '#fxa-signin-unblock-header';
-  const SELECTOR_SIGNIN_COMPLETE_HEADER = '#fxa-sign-in-complete-header';
-  const SELECTOR_VERIFICATION_EMAIL = '.verification-email-message';
+  const {
+    clearBrowserNotifications,
+    clearBrowserState,
+    closeCurrentWindow,
+    createUser,
+    fillOutSignIn,
+    fillOutSignInUnblock,
+    noPageTransition,
+    noSuchBrowserNotification,
+    openPage,
+    openVerificationLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    testElementExists,
+    testElementTextInclude,
+    testIsBrowserNotified,
+    thenify,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
-  const thenify = FunctionalHelpers.thenify;
-
-  const clearBrowserNotifications = FunctionalHelpers.clearBrowserNotifications;
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const createUser = FunctionalHelpers.createUser;
-  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  const noPageTransition = FunctionalHelpers.noPageTransition;
-  const noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  const openPage = FunctionalHelpers.openPage;
-  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  const visibleByQSA = FunctionalHelpers.visibleByQSA;
-
-  const setupTest = thenify(function (options) {
-    options = options || {};
-
+  const setupTest = thenify(function (options = {}) {
     return this.parent
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-      .then(openPage(options.pageUrl || PAGE_URL, '.email'))
-      .then(visibleByQSA(SELECTOR_SIGNIN_SUB_HEADER))
-      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
+      .then(openPage(PAGE_URL, selectors.SIGNIN.EMAIL, {
+        query: options.query,
+        webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: options.canLinkAccountResponse !== false }
+        }
+      }))
+      .then(visibleByQSA(selectors.SIGNIN.SUB_HEADER))
       // delay for the webchannel message
       .sleep(500)
       .then(fillOutSignIn(email, PASSWORD))
@@ -58,7 +51,7 @@ define([
   });
 
   registerSuite({
-    name: 'Firstrun Sync v1 sign_in',
+    name: 'Firstrun Sync v1 signin',
 
     beforeEach: function () {
       email = TestHelpers.createEmail('sync{id}');
@@ -73,17 +66,17 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
-          .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER))
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
-        .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER))
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
         .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 
@@ -91,14 +84,12 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'))
-        .then(clearBrowserNotifications())
 
         .then(openVerificationLinkInDifferentBrowser(email))
 
-        .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER))
-        .then(noSuchBrowserNotification('fxaccounts:login'));
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     },
 
     'unverified': function () {
@@ -106,7 +97,7 @@ define([
       return this.remote
         .then(setupTest({ preVerified: false }))
 
-        .then(testElementExists(SELECTOR_CONFIRM_SIGNUP_HEADER))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
 
@@ -115,12 +106,12 @@ define([
         // email 2 - "You have verified your Firefox Account"
         .then(openVerificationLinkInNewTab(email, 1))
         .switchToWindow('newwindow')
-          .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
         // Since this is really a signup flow, the original tab
         // redirects to CAD too.
-        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 
@@ -131,7 +122,7 @@ define([
         .then(noSuchBrowserNotification('fxaccounts:login'))
 
         // user should not transition to the next screen
-        .then(noPageTransition(SELECTOR_SIGNIN_HEADER));
+        .then(noPageTransition(selectors.SIGNIN.HEADER));
     },
 
     'blocked, valid code entered': function () {
@@ -140,14 +131,14 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(testElementExists(SELECTOR_SIGNIN_UNBLOCK_HEADER))
-        .then(testElementTextInclude(SELECTOR_VERIFICATION_EMAIL, email))
+        .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
+        .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
         .then(fillOutSignInUnblock(email, 0))
 
         // Only users that go through signin confirmation see
         // `/signin_complete`, and users that go through signin unblock see
         // the default `settings` page.
-        .then(testElementExists(SELECTOR_SETTINGS_HEADER))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });

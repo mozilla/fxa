@@ -140,6 +140,7 @@ define([], function () {
       PASSWORD: 'input[type=password]',
       RESET_PASSWORD: 'a[href="/reset_password"]',
       SUBMIT: 'button[type=submit]',
+      SUB_HEADER: '#fxa-signin-header .service',
       TOOLTIP: '.tooltip',
     },
     SIGNIN_BOUNCED: {
