@@ -10,7 +10,6 @@ const Pool = require('./pool')
 
 const random = require('./crypto/random')
 const redis = require('redis')
-const geodb = require('../lib/geodb')
 
 P.promisifyAll(redis.RedisClient.prototype)
 P.promisifyAll(redis.Multi.prototype)
@@ -28,7 +27,6 @@ module.exports = (
   const AccountResetToken = Token.AccountResetToken
   const PasswordForgotToken = Token.PasswordForgotToken
   const PasswordChangeToken = Token.PasswordChangeToken
-  const getGeoData = geodb(log)
   const MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice
 
   function setAccountEmails(account) {
@@ -501,7 +499,7 @@ module.exports = (
     )
   }
 
-  DB.prototype.updateSessionToken = function (token, ip) {
+  DB.prototype.updateSessionToken = function (token, ip, geo) {
     log.trace({ op: 'DB.updateSessionToken', uid: token && token.uid })
 
     const uid = token.uid
@@ -522,7 +520,7 @@ module.exports = (
       createdAt: token.createdAt
     }
     let sessionTokens
-    return getGeoData(ip)
+    return geo
     .then((res) => {
       const state = res.location && res.location.state
       const country = res.location && res.location.country

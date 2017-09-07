@@ -15,7 +15,6 @@ const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
 
 module.exports = (log, db, mailer, config, customs, push) => {
-  const getGeoData = require('../geodb')(log)
   const features = require('../features')(config)
   const verificationReminder = require('../verification-reminders')(log, db)
 
@@ -644,7 +643,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
         }
 
         function sendEmailVerification () {
-          return getGeoData(ip)
+          return request.app.geo
             .then((geoData) => {
               return mailer.sendVerifySecondaryEmail([emailData], sessionToken, {
                 code: emailData.emailCode,

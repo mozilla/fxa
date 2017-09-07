@@ -463,16 +463,33 @@ function generateMetricsContext(){
   }
 }
 
-function mockRequest (data) {
+function mockRequest (data, errors) {
   const events = require('../lib/metrics/events')(data.log || module.exports.mockLog())
   const metricsContext = data.metricsContext || module.exports.mockMetricsContext()
+
+  let geo
+  if (errors && errors.geo) {
+    geo = P.reject(errors.geo)
+  } else {
+    geo = P.resolve(data.geo || {
+      timeZone: 'America/Los_Angeles',
+      location: {
+        city: 'Mountain View',
+        country: 'United States',
+        countryCode: 'US',
+        state: 'California',
+        stateCode: 'CA'
+      }
+    })
+  }
 
   return {
     app: {
       acceptLanguage: 'en-US',
       clientAddress: data.clientAddress || '63.245.221.32',
-      locale: data.locale || 'en-US',
       features: new Set(data.features),
+      geo,
+      locale: data.locale || 'en-US',
       ua: {
         browser: data.uaBrowser || 'Firefox',
         browserVersion: data.uaBrowserVersion || '57.0',

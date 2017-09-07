@@ -101,13 +101,15 @@ describe('lib/server', () => {
           return instance.inject({
             headers: {
               'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
-              'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:57.0) Gecko/20100101 Firefox/57.0'
+              'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:57.0) Gecko/20100101 Firefox/57.0',
+              'x-forwarded-for': '63.245.221.32'
             },
             method: 'POST',
             url: '/account/create',
             payload: {
               features: [ 'signinCodes' ]
-            }
+            },
+            remoteAddress: '63.245.221.32'
           }).then(response => request = response.request)
         })
 
@@ -154,6 +156,20 @@ describe('lib/server', () => {
           assert.equal(request.app.ua.formFactor, null)
         })
 
+        it('parsed location correctly', () => {
+          assert.ok(request.app.geo)
+          assert.equal(typeof request.app.geo.then, 'function')
+          return request.app.geo.then(geo => {
+            assert.ok(geo)
+            assert.equal(geo.location.city, 'Mountain View')
+            assert.equal(geo.location.country, 'United States')
+            assert.equal(geo.location.countryCode, 'US')
+            assert.equal(geo.location.state, 'California')
+            assert.equal(geo.location.stateCode, 'CA')
+            assert.equal(geo.timeZone, 'America/Los_Angeles')
+          })
+        })
+
         describe('another request:', () => {
           let secondRequest
 
@@ -162,13 +178,15 @@ describe('lib/server', () => {
             return instance.inject({
               headers: {
                 'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
-                'user-agent': 'Firefox-Android-FxAccounts/34.0a1 (Nightly)'
+                'user-agent': 'Firefox-Android-FxAccounts/34.0a1 (Nightly)',
+                'x-forwarded-for': ' 194.12.187.0 , 194.12.187.0 '
               },
               method: 'POST',
               url: '/account/create',
               payload: {
                 features: [ 'signinCodes' ]
-              }
+              },
+              remoteAddress: '194.12.187.0'
             }).then(response => secondRequest = response.request)
           })
 
@@ -181,6 +199,19 @@ describe('lib/server', () => {
             assert.equal(secondRequest.app.ua.osVersion, null)
             assert.equal(secondRequest.app.ua.deviceType, 'mobile')
             assert.equal(secondRequest.app.ua.formFactor, null)
+          })
+
+          it('second request has its own location info', () => {
+            assert.notEqual(request, secondRequest)
+            assert.notEqual(request.app.geo, secondRequest.app.geo)
+            return secondRequest.app.geo.then(geo => {
+              assert.equal(geo.location.city, 'Geneva')
+              assert.equal(geo.location.country, 'Switzerland')
+              assert.equal(geo.location.countryCode, 'CH')
+              assert.equal(geo.location.state, 'Geneva')
+              assert.equal(geo.location.stateCode, 'GE')
+              assert.equal(geo.timeZone, 'Europe/Zurich')
+            })
           })
         })
       })

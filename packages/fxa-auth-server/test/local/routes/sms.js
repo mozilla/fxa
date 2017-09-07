@@ -9,7 +9,6 @@ const assert = require('insist')
 const getRoute = require('../../routes_helpers').getRoute
 const mocks = require('../../mocks')
 const P = require('../../../lib/promise')
-const proxyquire = require('proxyquire')
 const sinon = require('sinon')
 
 const sms = {}
@@ -18,9 +17,7 @@ function makeRoutes (options, dependencies) {
   options = options || {}
   const log = options.log || mocks.mockLog()
   const db = options.db || mocks.mockDB()
-  return proxyquire('../../../lib/routes/sms', dependencies || {})(
-    log, db, options.config, mocks.mockCustoms(), sms
-  )
+  return require('../../../lib/routes/sms')(log, db, options.config, mocks.mockCustoms(), sms)
 }
 
 function runTest (route, request) {
@@ -385,7 +382,7 @@ describe('/sms disabled', () => {
 })
 
 describe('/sms/status', () => {
-  let log, config, geodb, geodbResult, routes, route, request
+  let log, config, routes, route
 
   beforeEach(() => {
     log = mocks.spyLog()
@@ -396,22 +393,20 @@ describe('/sms/status', () => {
         isStatusGeoEnabled: true
       }
     }
-    geodb = sinon.spy(() => geodbResult)
-    routes = makeRoutes({ log, config }, { '../geodb': () => geodb })
+    routes = makeRoutes({ log, config })
     route = getRoute(routes, '/sms/status')
-    request = mocks.mockRequest({
-      credentials: {
-        email: 'foo@example.org'
-      },
-      log: log
-    })
   })
 
-  describe('getGeoData returns US', () => {
-    let response
+  describe('country is US', () => {
+    let request, response
 
     beforeEach(() => {
-      geodbResult = P.resolve({ location: { countryCode: 'US' } })
+      request = mocks.mockRequest({
+        credentials: {
+          email: 'foo@example.org'
+        },
+        log: log
+      })
       return runTest(route, request)
         .then(r => response = r)
     })
@@ -428,23 +423,26 @@ describe('/sms/status', () => {
       assert.equal(args[1], request)
     })
 
-    it('called geodb correctly', () => {
-      assert.equal(geodb.callCount, 1)
-      const args = geodb.args[0]
-      assert.equal(args.length, 1)
-      assert.equal(args[0], request.app.clientAddress)
-    })
-
     it('did not call log.error', () => {
       assert.equal(log.error.callCount, 0)
     })
   })
 
-  describe('getGeoData returns CA', () => {
-    let response
+  describe('country is CA', () => {
+    let request, response
 
     beforeEach(() => {
-      geodbResult = P.resolve({ location: { countryCode: 'CA' } })
+      request = mocks.mockRequest({
+        credentials: {
+          email: 'foo@example.org'
+        },
+        geo: {
+          location: {
+            countryCode: 'CA'
+          }
+        },
+        log: log
+      })
       return runTest(route, request)
         .then(r => response = r)
     })
@@ -457,20 +455,23 @@ describe('/sms/status', () => {
       assert.equal(log.begin.callCount, 1)
     })
 
-    it('called geodb once', () => {
-      assert.equal(geodb.callCount, 1)
-    })
-
     it('did not call log.error', () => {
       assert.equal(log.error.callCount, 0)
     })
   })
 
-  describe('getGeoData fails', () => {
-    let err
+  describe('getGeoData failed', () => {
+    let request, err
 
     beforeEach(() => {
-      geodbResult = P.reject(new Error('bar'))
+      request = mocks.mockRequest({
+        credentials: {
+          email: 'foo@example.org'
+        },
+        log: log
+      }, {
+        geo: new Error('bar')
+      })
       return runTest(route, request)
         .catch(e => err = e)
     })
@@ -485,10 +486,6 @@ describe('/sms/status', () => {
       assert.equal(log.begin.callCount, 1)
     })
 
-    it('called geodb once', () => {
-      assert.equal(geodb.callCount, 1)
-    })
-
     it('called log.error correctly', () => {
       assert.equal(log.error.callCount, 1)
       const args = log.error.args[0]
@@ -499,11 +496,19 @@ describe('/sms/status', () => {
     })
   })
 
-  describe('getGeoData succeeds but returns no location data', () => {
-    let response
+  describe('missing country', () => {
+    let request, response
 
     beforeEach(() => {
-      geodbResult = P.resolve({})
+      request = mocks.mockRequest({
+        credentials: {
+          email: 'foo@example.org'
+        },
+        geo: {
+          location: {}
+        },
+        log: log
+      })
       return runTest(route, request)
         .then(r => response = r)
     })
@@ -514,10 +519,6 @@ describe('/sms/status', () => {
 
     it('called log.begin once', () => {
       assert.equal(log.begin.callCount, 1)
-    })
-
-    it('called geodb once', () => {
-      assert.equal(geodb.callCount, 1)
     })
 
     it('called log.error correctly', () => {
@@ -533,7 +534,7 @@ describe('/sms/status', () => {
 })
 
 describe('/sms/status with disabled geo-ip lookup', () => {
-  let log, config, geodb, routes, route, request, response
+  let log, config, routes, route, request, response
 
   beforeEach(() => {
     log = mocks.spyLog()
@@ -544,14 +545,14 @@ describe('/sms/status with disabled geo-ip lookup', () => {
         isStatusGeoEnabled: false
       }
     }
-    geodb = sinon.spy(() => P.resolve())
-    routes = makeRoutes({ log, config }, { '../geodb': () => geodb })
+    routes = makeRoutes({ log, config })
     route = getRoute(routes, '/sms/status')
     request = mocks.mockRequest({
       clientAddress: '127.0.0.1',
       credentials: {
         email: 'foo@example.org'
       },
+      geo: {},
       log: log
     })
     return runTest(route, request)
@@ -576,17 +577,13 @@ describe('/sms/status with disabled geo-ip lookup', () => {
     })
   })
 
-  it('did not call geodb', () => {
-    assert.equal(geodb.callCount, 0)
-  })
-
   it('did not call log.error', () => {
     assert.equal(log.error.callCount, 0)
   })
 })
 
 describe('/sms/status with query param and enabled geo-ip lookup', () => {
-  let log, config, geodb, routes, route, request, response
+  let log, config, routes, route, request, response
 
   beforeEach(() => {
     log = mocks.spyLog()
@@ -597,12 +594,16 @@ describe('/sms/status with query param and enabled geo-ip lookup', () => {
         isStatusGeoEnabled: true
       }
     }
-    geodb = sinon.spy(() => ({ location: { countryCode: 'US' } }))
-    routes = makeRoutes({ log, config }, { '../geodb': () => geodb })
+    routes = makeRoutes({ log, config })
     route = getRoute(routes, '/sms/status')
     request = mocks.mockRequest({
       credentials: {
         email: 'foo@example.org'
+      },
+      geo: {
+        location: {
+          countryCode: 'US'
+        }
       },
       query: {
         country: 'RO'
@@ -621,17 +622,13 @@ describe('/sms/status with query param and enabled geo-ip lookup', () => {
     assert.equal(log.begin.callCount, 1)
   })
 
-  it('did not call geodb', () => {
-    assert.equal(geodb.callCount, 0)
-  })
-
   it('did not call log.error', () => {
     assert.equal(log.error.callCount, 0)
   })
 })
 
 describe('/sms/status with query param and disabled geo-ip lookup', () => {
-  let log, config, geodb, routes, route, request, response
+  let log, config, routes, route, request, response
 
   beforeEach(() => {
     log = mocks.spyLog()
@@ -642,12 +639,16 @@ describe('/sms/status with query param and disabled geo-ip lookup', () => {
         isStatusGeoEnabled: false
       }
     }
-    geodb = sinon.spy(() => ({ location: { countryCode: 'US' } }))
-    routes = makeRoutes({ log, config }, { '../geodb': () => geodb })
+    routes = makeRoutes({ log, config })
     route = getRoute(routes, '/sms/status')
     request = mocks.mockRequest({
       credentials: {
         email: 'foo@example.org'
+      },
+      geo: {
+        location: {
+          countryCode: 'US'
+        }
       },
       query: {
         country: 'GB'
@@ -664,10 +665,6 @@ describe('/sms/status with query param and disabled geo-ip lookup', () => {
 
   it('called log.begin once', () => {
     assert.equal(log.begin.callCount, 1)
-  })
-
-  it('did not call geodb', () => {
-    assert.equal(geodb.callCount, 0)
   })
 
   it('did not call log.error', () => {

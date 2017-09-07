@@ -31,11 +31,8 @@ const Token = require('../../lib/tokens')(log, {
 const redisGetSpy = sinon.stub()
 const redisSetSpy = sinon.stub()
 const redisDelSpy = sinon.stub()
-const getGeoDataSpy = sinon.stub()
-getGeoDataSpy.returns(P.resolve({}))
 
 const DB = proxyquire('../../lib/db', {
-  '../lib/geodb': () => getGeoDataSpy,
   redis: {
     createClient: () => ({
       getAsync: redisGetSpy,
@@ -207,7 +204,7 @@ describe('remote db', function() {
           lastAccessTimeUpdates.enabled = false
 
           // Attempt to update the session token
-          return db.updateSessionToken(sessionToken)
+          return db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({}))
         })
         .then(result => {
           assert.equal(result, undefined)
@@ -224,7 +221,7 @@ describe('remote db', function() {
           redisSetSpy.returns(P.reject({}))
 
           // Attempt to update the session token
-          return db.updateSessionToken(sessionToken)
+          return db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({}))
             .then(
               () => assert(false, 'db.updateSessionToken should have failed'),
               () => assert('db.updateSessionToken failed correctly')
@@ -237,10 +234,13 @@ describe('remote db', function() {
           return db.sessionToken(tokenId)
         })
         .then(sessionToken => {
-          getGeoDataSpy.returns(P.resolve({location: {state: 'Mordor', country: 'ME'}}))
-
           // Update the session token
-          return db.updateSessionToken(sessionToken)
+          return db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({
+            location: {
+              state: 'Mordor',
+              country: 'ME'
+            }
+          }))
         })
         .then(() => {
           assert.equal(redisSetSpy.lastCall.args[0], account.uid)
@@ -264,8 +264,6 @@ describe('remote db', function() {
           return db.sessionToken(tokenId)
         })
         .then(sessionToken => {
-          getGeoDataSpy.returns(P.reject())
-
           // Update the session token
           return db.updateSessionToken(Object.assign({}, sessionToken, {
             uaBrowser: 'Firefox Mobile',
@@ -274,7 +272,7 @@ describe('remote db', function() {
             uaOSVersion: '4.4',
             uaDeviceType: 'mobile',
             uaFormFactor: null
-          }))
+          }), '127.0.0.1', P.reject())
         })
         .then(tokens => {
           redisGetSpy.returns(P.resolve(JSON.stringify(tokens)))
@@ -471,10 +469,14 @@ describe('remote db', function() {
             sessionToken.uaOSVersion = '10.10'
             sessionToken.uaDeviceType = sessionToken.uaFormFactor = null
             // Update the device and the session token
-            getGeoDataSpy.returns(P.resolve({location: {state: 'Mordor', country: 'ME'}}))
             return P.all([
               db.updateDevice(account.uid, sessionToken.tokenId, deviceInfo),
-              db.updateSessionToken(sessionToken)
+              db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({
+                location: {
+                  state: 'Mordor',
+                  country: 'ME'
+                }
+              }))
             ])
               .catch(function (err) {
                 assert(false, 'updating a new device or existing session token should not have failed')

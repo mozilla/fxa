@@ -29,8 +29,6 @@ module.exports = function (
   config
   ) {
 
-  const getGeoData = require('../geodb')(log)
-
   function failVerifyAttempt(passwordForgotToken) {
     return (passwordForgotToken.failAttempt()) ?
       db.deletePasswordForgotToken(passwordForgotToken) :
@@ -262,7 +260,7 @@ module.exports = function (
             )
             .then(
               function (emails) {
-                return getGeoData(ip)
+                return request.app.geo
                   .then(
                     function (geoData) {
                       const {
@@ -441,7 +439,7 @@ module.exports = function (
           )
           .then(
             function (passwordForgotToken) {
-              return P.all([getGeoData(ip), db.accountEmails(passwordForgotToken.uid)])
+              return P.all([request.app.geo, db.accountEmails(passwordForgotToken.uid)])
                 .spread((geoData, emails) => {
                   const {
                     browser: uaBrowser,
@@ -547,7 +545,7 @@ module.exports = function (
         ])
           .then(
             function () {
-              return P.all([getGeoData(ip), db.accountEmails(passwordForgotToken.uid)])
+              return P.all([request.app.geo, db.accountEmails(passwordForgotToken.uid)])
                 .spread((geoData, emails) => {
                   const {
                     browser: uaBrowser,

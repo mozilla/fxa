@@ -159,7 +159,7 @@ describe('/recovery_email/status', function () {
       mockRequest.auth.credentials.uaBrowserVersion = '57'
 
       return runTest(route, mockRequest).then(() => assert.ok(false), function (response) {
-        const args = log.info.secondCall.args[0]
+        const args = log.info.firstCall.args[0]
         assert.equal(args.op, 'recovery_email.status.stale')
         assert.equal(args.email, TEST_EMAIL_INVALID)
         assert.equal(args.createdAt, date.getTime())

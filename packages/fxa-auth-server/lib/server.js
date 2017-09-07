@@ -45,6 +45,7 @@ function logEndpointErrors(response, log) {
 }
 
 function create(log, error, config, routes, db, translator) {
+  const getGeoData = require('./geodb')(log)
 
   // Hawk needs to calculate request signatures based on public URL,
   // not the local URL to which it is bound.
@@ -272,16 +273,8 @@ function create(log, error, config, routes, db, translator) {
       request.app.acceptLanguage = acceptLanguage
       request.app.locale = translator.getLocale(acceptLanguage)
 
-      let ua
-      Object.defineProperty(request.app, 'ua', {
-        get () {
-          if (! ua) {
-            ua = userAgent(request.headers['user-agent'])
-          }
-
-          return ua
-        }
-      })
+      defineLazyGetter(request.app, 'ua', () => userAgent(request.headers['user-agent']))
+      defineLazyGetter(request.app, 'geo', () => getGeoData(request.app.clientAddress))
 
       if (request.headers.authorization) {
         // Log some helpful details for debugging authentication problems.
@@ -343,6 +336,19 @@ function create(log, error, config, routes, db, translator) {
   }
 
   return server
+}
+
+function defineLazyGetter (object, key, getter) {
+  let value
+  Object.defineProperty(object, key, {
+    get () {
+      if (! value) {
+        value = getter()
+      }
+
+      return value
+    }
+  })
 }
 
 module.exports = {

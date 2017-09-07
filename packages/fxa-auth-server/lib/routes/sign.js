@@ -67,7 +67,7 @@ module.exports = (log, signer, db, domain, devices) => {
             uaFormFactor
           })
           // No need to wait for a response, update in the background.
-          db.updateSessionToken(sessionToken, clientIp)
+          db.updateSessionToken(sessionToken, clientIp, request.app.geo)
         } else {
           log.warn({
             op: 'signer.updateSessionToken', message: 'no user agent string, session token not updated'

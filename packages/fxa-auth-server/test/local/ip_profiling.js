@@ -349,11 +349,8 @@ describe('IP Profiling', () => {
         push: mockPush
       })
 
-      mockRequest.app = {
-        clientAddress: '63.245.221.32',
-        isSuspiciousRequest: true,
-        ua: {}
-      }
+      mockRequest.app.clientAddress = '63.245.221.32'
+      mockRequest.app.isSuspiciousRequest = true
 
       route = getRoute(accountRoutes, '/account/login')
 

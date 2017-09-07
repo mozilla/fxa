@@ -25,7 +25,6 @@ const MS_ONE_WEEK = MS_ONE_DAY * 7
 const MS_ONE_MONTH = MS_ONE_DAY * 30
 
 module.exports = (log, db, mailer, Password, config, customs, checkPassword, push) => {
-  const getGeoData = require('../geodb')(log)
   const verificationReminder = require('../verification-reminders')(log, db)
 
   const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
@@ -267,7 +266,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
 
         function sendVerifyCode () {
           if (! account.emailVerified) {
-            return getGeoData(ip)
+            return request.app.geo
               .then(function (geoData) {
                 mailer.sendVerifyCode([], account, {
                   code: account.emailCode,
@@ -870,7 +869,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             // This covers the cases where sign-in confirmation is disabled or not needed.
             var emailCode = tokenVerificationId ? tokenVerificationId : accountRecord.primaryEmail.emailCode
 
-            return getGeoData(ip)
+            return request.app.geo
               .then(
                 function (geoData) {
                   return mailer.sendVerifyCode([], accountRecord, {
@@ -907,7 +906,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             && ! doSigninConfirmation
             && accountRecord.primaryEmail.isVerified
           if (shouldSendNewDeviceLoginEmail) {
-            return P.all([getGeoData(ip), db.accountEmails(sessionToken.uid)])
+            return P.all([request.app.geo, db.accountEmails(sessionToken.uid)])
               .spread((geoData, emails) => {
                 // New device notifications are always sent to the primary account email (emailRecord.email)
                 // and CCed to all secondary email if enabled.
@@ -950,7 +949,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
               tokenVerificationId: tokenVerificationId
             })
 
-            return P.all([getGeoData(ip), db.accountEmails(sessionToken.uid)])
+            return P.all([request.app.geo, db.accountEmails(sessionToken.uid)])
               .spread((geoData, emails) => {
                 return mailer.sendVerifyLoginEmail(
                   emails,
@@ -1265,7 +1264,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         }
 
         function mailUnblockCode(code) {
-          return P.all([getGeoData(ip), db.accountEmails(emailRecord.uid)])
+          return P.all([request.app.geo, db.accountEmails(emailRecord.uid)])
             .spread((geoData, emails) => {
               const {
                 browser: uaBrowser,

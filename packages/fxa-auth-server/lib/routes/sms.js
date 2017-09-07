@@ -21,7 +21,6 @@ module.exports = (log, db, config, customs, sms) => {
     return []
   }
 
-  const getGeoData = require('../geodb')(log)
   const REGIONS = new Set(config.sms.countryCodes)
   const IS_STATUS_GEO_ENABLED = config.sms.isStatusGeoEnabled
 
@@ -139,7 +138,7 @@ module.exports = (log, db, config, customs, sms) => {
                 return forcedCountry
               }
 
-              return getGeoData(request.app.clientAddress)
+              return request.app.geo
                 .then(result => result.location && result.location.countryCode)
             })
             .then(result => {
