@@ -39,11 +39,13 @@ define([
   const {
     clearBrowserState,
     click,
+    closeCurrentWindow,
     createUser,
     fillOutSignIn,
     fillOutSignUp,
     noSuchElement,
     openPage,
+    openVerificationLinkInNewTab,
     openVerificationLinkInSameTab,
     respondToWebChannelMessage,
     testElementExists,
@@ -66,12 +68,11 @@ define([
       return this.remote.then(clearBrowserState());
     },
 
-    'sign up Fx Desktop, load /connect_another_device page': function () {
+    'signup Fx Desktop, load /connect_another_device page': function () {
       // should have both links to mobile apps
+      const forceUA = UA_STRINGS['desktop_firefox'];
       return this.remote
-        .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
-          forceUA: UA_STRINGS['desktop_firefox']
-        }))
+        .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, { query: { forceUA } }))
         .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -83,12 +84,11 @@ define([
         .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID));
     },
 
-    'sign up Fx Desktop, verify same browser': function () {
+    'signup Fx Desktop, verify same browser': function () {
       // should have both links to mobile apps
+      const forceUA = UA_STRINGS['desktop_firefox'];
       return this.remote
-        .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
-          forceUA: UA_STRINGS['desktop_firefox']
-        }))
+        .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, { query: { forceUA } }))
         .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -96,7 +96,7 @@ define([
 
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(openVerificationLinkInSameTab(email, 0, { query: { forceUA } }))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_SAME_BROWSER))
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
@@ -105,14 +105,13 @@ define([
         .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID));
     },
 
-    'sign up Fx Desktop, verify different Fx Desktop': function () {
-      // should sign in to sync here
+    'signup Fx Desktop, verify different Fx Desktop': function () {
+      // should signin to sync here
+      const forceUA = UA_STRINGS['desktop_firefox'];
       return this.remote
-        .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
-          forceUA: UA_STRINGS['desktop_firefox']
-        }))
+        .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, { query: { forceUA } }))
         .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
-        // this tests needs to sign up so that we can check if the email gets prefilled
+        // this tests needs to signup so that we can check if the email gets prefilled
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
@@ -122,7 +121,7 @@ define([
         // clear browser state to synthesize verifying in a different browser.
         .then(clearBrowserState())
 
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(openVerificationLinkInSameTab(email, 0, { query: { forceUA } }))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER))
 
         // ask "why must I do this?"
@@ -141,23 +140,27 @@ define([
         .then(testUrlInclude(CONNECT_ANOTHER_DEVICE_ENTRYPOINT));
     },
 
-    'sign in Fx Desktop, verify same browser': function () {
+    'signin Fx Desktop, verify same browser': function () {
+      const forceUA = UA_STRINGS['desktop_firefox'];
+      const query = { forceUA };
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, {
-          forceUA: UA_STRINGS['desktop_firefox']
-        }))
+        .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query }))
         .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
-        // Does not work for sign in, even if forced.
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
+        .switchToWindow('newwindow')
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(closeCurrentWindow())
+
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     },
 
-    'sign up Fx Desktop, verify different Fx Desktop with another user already signed in': function () {
+    'signup Fx Desktop, verify different Fx Desktop with another user already signed in': function () {
       const signInEmail = TestHelpers.createEmail('sync{id}');
       const signUpEmail = email;
+      const forceUA = UA_STRINGS['desktop_firefox'];
 
       return this.remote
         // preVerified: false causes the "verify account" email to be sent,
@@ -165,31 +168,30 @@ define([
         .then(createUser(signUpEmail, PASSWORD, { preVerified: false }))
         .then(createUser(signInEmail, PASSWORD, { preVerified: true }))
 
-        .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, {
-          forceUA: UA_STRINGS['desktop_firefox']
-        }))
+        .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query: { forceUA } }))
         .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
         .then(fillOutSignIn(signInEmail, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-        .then(openVerificationLinkInSameTab(signInEmail, 0))
-        // Does not work for sign in, even if forced.
+        .then(openVerificationLinkInSameTab(signInEmail, 0, { query: { forceUA } }))
+
+        // Does not work if another user is signed in, even if forced.
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
 
-        // NOW - go back and open the verification link for the sign up user in a
+        // NOW - go back and open the verification link for the signup user in a
         // browser where another user is already signed in.
         .then(openVerificationLinkInSameTab(signUpEmail, 0))
         // User goes to the old "Account verified" screen.
         .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
     },
 
-    'sign up Fx Desktop, verify in Fennec': function () {
-      // should navigate to sign in and have the email prefilled
+    'signup Fx Desktop, verify in Fennec': function () {
+      // should navigate to signin and have the email prefilled
       return this.remote
         .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
         }))
         .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
-        // this tests needs to sign up so that we can check if the email gets prefilled
+        // this tests needs to signup so that we can check if the email gets prefilled
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
@@ -223,7 +225,7 @@ define([
     },
 
 
-    'sign up Fx Desktop, verify in Fx for iOS': function () {
+    'signup Fx Desktop, verify in Fx for iOS': function () {
       return this.remote
         .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
@@ -257,7 +259,7 @@ define([
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_IOS));
     },
 
-    'sign up Fx Desktop, verify in Android Chrome': function () {
+    'signup Fx Desktop, verify in Android Chrome': function () {
       // should show adjust Google badge
       return this.remote
         .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
@@ -298,7 +300,7 @@ define([
         .then(testElementTextInclude(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER, 'email verified'));
     },
 
-    'sign up Fx Desktop, verify in Chrome Desktop': function () {
+    'signup Fx Desktop, verify in Chrome Desktop': function () {
       // should show adjust Google badge
       return this.remote
         .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
@@ -332,7 +334,7 @@ define([
         .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID));
     },
 
-    'sign up Fx Desktop, verify in iOS Safari': function () {
+    'signup Fx Desktop, verify in iOS Safari': function () {
       return this.remote
         .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, {
           forceUA: UA_STRINGS['desktop_firefox']
@@ -366,7 +368,7 @@ define([
         .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_IOS, ADJUST_LINK_IOS));
     },
 
-    'sign up in Fennec, verify same browser': function () {
+    'signup in Fennec, verify same browser': function () {
       // should have both links to mobile apps
       return this.remote
         .then(openPage(SIGNUP_FENNEC_URL, selectors.SIGNUP.HEADER, {
