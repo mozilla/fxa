@@ -241,6 +241,7 @@ define([
         return respond(
           client.signUp(email, password, {
             metricsContext: {
+              deviceId: '0123456789abcdef0123456789abcdef',
               flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
               flowBeginTime: Date.now(),
               forbiddenProperty: 666

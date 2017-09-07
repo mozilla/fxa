@@ -26,7 +26,6 @@ notifications:
     on_failure: change
 
 node_js:
-  - "4"
   - "6"
 
 addons:

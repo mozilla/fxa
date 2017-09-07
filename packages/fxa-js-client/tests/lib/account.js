@@ -156,6 +156,7 @@ define([
             return respond(client.accountReset(email, newPassword, accountResetToken, {
               keys: true,
               metricsContext: {
+                deviceId: '0123456789abcdef0123456789abcdef',
                 flowBeginTime: 1480615985437,
                 flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
               },

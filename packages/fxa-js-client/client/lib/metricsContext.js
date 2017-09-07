@@ -11,6 +11,7 @@ define([], function () {
   return {
     marshall: function (data) {
       return {
+        deviceId: data.deviceId,
         flowId: data.flowId,
         flowBeginTime: data.flowBeginTime
       };
