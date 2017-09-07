@@ -43,7 +43,7 @@ describe('profile updates', () => {
         uid: 'bogusuid'
       })).then(() => {
         assert.equal(mockPush.notifyProfileUpdated.callCount, 1)
-        assert.equal(mockLog.messages.length, 1)
+        assert.equal(mockLog.messages.length, 3)
         pushShouldThrow = false
       })
     }
@@ -58,7 +58,7 @@ describe('profile updates', () => {
       return mockProfileUpdates(mockLog).handleProfileUpdated(mockMessage({
         uid: uid
       })).then(function () {
-        assert.equal(mockLog.messages.length, 0)
+        assert.equal(mockLog.messages.length, 2)
         assert.equal(mockPush.notifyProfileUpdated.callCount, 2)
         var args = mockPush.notifyProfileUpdated.getCall(1).args
         assert.equal(args[0], uid)

@@ -9,14 +9,18 @@ module.exports = function (log) {
   return function start(messageQueue, push) {
 
     function handleProfileUpdated(message) {
+      const uid = message && message.uid
+
       return new P(resolve => {
+        log.info({ op: 'handleProfileUpdated', uid: uid, action: 'notify' })
         resolve(push.notifyProfileUpdated(message.uid))
       })
       .catch(function(err) {
-        log.error({ op: 'handleProfileUpdated', err: err })
+        log.error({ op: 'handleProfileUpdated', uid: uid, action: 'error', err: err, stack: err && err.stack })
       })
       .then(function () {
-         // We always delete the message, we are not really mission critical
+        log.info({ op: 'handleProfileUpdated', uid: uid, action: 'delete' })
+        // We always delete the message, we are not really mission critical
         message.del()
       })
     }
