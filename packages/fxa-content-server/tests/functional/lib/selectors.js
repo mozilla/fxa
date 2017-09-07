@@ -53,7 +53,9 @@ define([], function () {
       RESEND_SUCCESS: '.success'
     },
     CONFIRM_SIGNIN: {
-      HEADER: '#fxa-confirm-signin-header'
+      HEADER: '#fxa-confirm-signin-header',
+      LINK_RESEND: '#resend',
+      RESEND_SUCCESS: '.success'
     },
     CONFIRM_SIGNUP: {
       HEADER: '#fxa-confirm-header'
@@ -137,6 +139,7 @@ define([], function () {
       EMAIL_NOT_EDITABLE: '.prefillEmail',
       HEADER: '#fxa-signin-header',
       LINK_USE_DIFFERENT: '.use-different',
+      MIGRATION_NUDGE: '.info.nudge',
       PASSWORD: 'input[type=password]',
       RESET_PASSWORD: 'a[href="/reset_password"]',
       SUBMIT: 'button[type=submit]',
