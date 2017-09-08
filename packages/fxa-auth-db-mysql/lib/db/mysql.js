@@ -1089,7 +1089,7 @@ module.exports = function (log, error) {
   // exposed for testing only
   MySql.prototype.retryable_ = retryable
 
-  var PRUNE = 'CALL prune_3(?)'
+  const PRUNE = 'CALL prune_4(?)'
   MySql.prototype.pruneTokens = function () {
     log.info('MySql.pruneTokens')
 
