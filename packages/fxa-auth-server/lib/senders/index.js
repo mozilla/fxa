@@ -44,62 +44,48 @@ module.exports = (log, config, error, bounces, translator, sender) => {
     }
 
     function getSafeMailerWithEmails(emails) {
-      const ungatedEmails = []
+      let ungatedPrimaryEmail
+      const ungatedCcEmails = []
       const gatedEmailErrors = []
 
-      // Filter down to emails to only ones that are not gated
-      return P.map(emails, function (email) {
-        return getSafeMailer(email.email)
-          .then(function () {
-            ungatedEmails.push(email)
-          }, function (err) {
-            gatedEmailErrors.push(err)
-          })
-      })
-        .then(function () {
-          // There are no ungated emails, lets throw the first bounce error so that
-          // we don't hurt our email scores.
-          if (ungatedEmails.length === 0 && gatedEmailErrors.length > 0) {
+      return P.filter(emails, (email) => {
+        // We will only send to primary, or verified secondary.
+        return email.isPrimary || email.isVerified
+      }).then((emails) => {
+        if (emails.length === 0) {
+          // No emails we can even attempt to send to? Should never happen!
+          throw new Error('Empty list of sendable email addresses')
+        }
+        return emails
+      }).each((email) => {
+        // We only send to addresses that are not gated, to protect our sender score.
+        return getSafeMailer(email.email).then(() => {
+          if (email.isPrimary) {
+            ungatedPrimaryEmail = email.email
+          } else {
+            ungatedCcEmails.push(email.email)
+          }
+        }, (err) => {
+          gatedEmailErrors.push(err)
+        })
+      }).then(() => {
+        if (! ungatedPrimaryEmail) {
+          // This user is having a bad time, their primary email is bouncing.
+          // Can we promote one of their secondary emails?
+          if (ungatedCcEmails.length === 0) {
+            // Nope.  Block the send, using first error reported.
+            // Since we always check at least one email, there will be at least one error here.
             throw gatedEmailErrors[0]
           }
-
-          let ungatedPrimaryEmail = getPrimaryEmail(ungatedEmails)
-          const ungatedCcEmails = getVerifiedSecondaryEmails(ungatedEmails)
-
-          // This user is having a bad time, their primary email is bouncing.
-          // Send emails to ungated secondary emails
-          if (! ungatedPrimaryEmail) {
-            ungatedPrimaryEmail = ungatedCcEmails[0]
-          }
-
-          return {
-            ungatedMailer: ungatedMailer,
-            ungatedPrimaryEmail: ungatedPrimaryEmail,
-            ungatedCcEmails: ungatedCcEmails
-          }
-        })
-    }
-
-    // Returns an array of only emails that are verified.
-    // This returns only the email and not the email object.
-    function getVerifiedSecondaryEmails(emails) {
-      return emails.filter(function (email) {
-        return ! email.isPrimary && email.isVerified
-      }).map(function (email) {
-        return email.email
-      })
-    }
-
-    function getPrimaryEmail(emails) {
-      var primaryEmail
-      for (var i=0; i<emails.length; i++) {
-        if (emails[i].isPrimary) {
-          primaryEmail = emails[i]
-          break
+          ungatedPrimaryEmail = ungatedCcEmails.shift()
         }
-      }
 
-      return primaryEmail && primaryEmail.email
+        return {
+          ungatedMailer: ungatedMailer,
+          ungatedPrimaryEmail: ungatedPrimaryEmail,
+          ungatedCcEmails: ungatedCcEmails
+        }
+      })
     }
 
     senders.email = {

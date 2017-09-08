@@ -92,7 +92,7 @@ describe('lib/senders/index', () => {
             return email.sendVerifyLoginEmail(EMAILS, acct, {code: code})
           })
           .then(() => {
-            assert.equal(bounces.check.callCount, 3)
+            assert.equal(bounces.check.callCount, 2)
             assert.equal(email._ungatedMailer.verifyLoginEmail.callCount, 1)
 
             const args = email._ungatedMailer.verifyLoginEmail.getCall(0).args
@@ -120,7 +120,7 @@ describe('lib/senders/index', () => {
             return email.sendRecoveryCode(EMAILS, acct, {code: code, token: token})
           })
           .then(() => {
-            assert.equal(bounces.check.callCount, 3)
+            assert.equal(bounces.check.callCount, 2)
             assert.equal(email._ungatedMailer.recoveryEmail.callCount, 1)
 
             const args = email._ungatedMailer.recoveryEmail.getCall(0).args
@@ -147,7 +147,7 @@ describe('lib/senders/index', () => {
             assert.equal(args[0].email, EMAIL, 'email correctly set')
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set')
             assert.equal(args[0].ccEmails[0], EMAILS[1].email, 'cc email correctly set')
-            assert.equal(bounces.check.callCount, 3)
+            assert.equal(bounces.check.callCount, 2)
           })
       })
     })
@@ -168,7 +168,7 @@ describe('lib/senders/index', () => {
             assert.equal(args[0].email, EMAIL, 'email correctly set')
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set')
             assert.equal(args[0].ccEmails[0], EMAILS[1].email, 'cc email correctly set')
-            assert.equal(bounces.check.callCount, 3)
+            assert.equal(bounces.check.callCount, 2)
           })
       })
     })
@@ -189,7 +189,7 @@ describe('lib/senders/index', () => {
             assert.equal(args[0].email, EMAIL, 'email correctly set')
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set')
             assert.equal(args[0].ccEmails[0], EMAILS[1].email, 'cc email correctly set')
-            assert.equal(bounces.check.callCount, 3)
+            assert.equal(bounces.check.callCount, 2)
           })
       })
     })
@@ -233,7 +233,7 @@ describe('lib/senders/index', () => {
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set')
             assert.equal(args[0].ccEmails[0], EMAILS[1].email, 'cc email correctly set')
 
-            assert.equal(bounces.check.callCount, 3)
+            assert.equal(bounces.check.callCount, 2)
           })
       })
     })
@@ -252,11 +252,13 @@ describe('lib/senders/index', () => {
             email._ungatedMailer.unblockCodeEmail = sinon.spy(() => P.resolve({}))
             return email.sendUnblockCode(EMAILS, acct, {code: code})
           })
-          .catch(e => {
-            assert.equal(errorBounces.check.callCount, 3)
+          .then(() => {
+            assert.fail('should have blocked the send')
+          }, (e) => {
+            assert.equal(errorBounces.check.callCount, 2)
             assert.equal(e.errno, error.ERRNO.BOUNCE_COMPLAINT)
 
-            assert.equal(log.info.callCount, 3)
+            assert.equal(log.info.callCount, 2)
             const msg = log.info.args[0][0]
             assert.equal(msg.op, 'mailer.blocked')
             assert.equal(msg.errno, e.errno)
@@ -264,7 +266,7 @@ describe('lib/senders/index', () => {
           })
       })
 
-      it('on gated primary email, sends to secondary', () => {
+      it('on gated primary email + verified secondary, sends to secondary', () => {
         const log = mocks.spyLog()
         const DATE = Date.now() - 10000
         let email
@@ -285,9 +287,44 @@ describe('lib/senders/index', () => {
           .then(() => {
             const args = email._ungatedMailer.unblockCodeEmail.getCall(0).args
             assert.equal(args[0].email, EMAILS[1].email, 'email correctly set')
-            assert.equal(args[0].ccEmails.length, 1, 'email correctly set')
-            assert.equal(args[0].ccEmails[0], EMAILS[1].email, 'cc email correctly set')
-            assert.equal(errorBounces.check.callCount, 3)
+            assert.equal(args[0].ccEmails.length, 0, 'email does not appear twice')
+            assert.equal(errorBounces.check.callCount, 2)
+          })
+      })
+
+      it('on gated primary email + unverified secondary, blocks the send', () => {
+        const log = mocks.spyLog()
+        const DATE = Date.now() - 10000
+        let email
+        const errorBounces = {
+          check: sinon.spy((email) => {
+            if (email === EMAIL) {
+              return P.reject(error.emailComplaint(DATE))
+            }
+            return P.resolve({})
+          })
+        }
+        return createSender(config, errorBounces, log)
+          .then(e => {
+            email = e
+            email._ungatedMailer.unblockCodeEmail = sinon.spy(() => P.resolve({}))
+            EMAILS[1].isVerified = false
+            return email.sendUnblockCode(EMAILS, acct, {code: code})
+          })
+          .then(() => {
+            assert.fail('should have blocked the send')
+          }, (e) => {
+            assert.equal(errorBounces.check.callCount, 1)
+            assert.equal(e.errno, error.ERRNO.BOUNCE_COMPLAINT)
+
+            assert.equal(log.info.callCount, 1)
+            const msg = log.info.args[0][0]
+            assert.equal(msg.op, 'mailer.blocked')
+            assert.equal(msg.errno, e.errno)
+            assert.equal(msg.bouncedAt, DATE)
+          })
+          .finally(() => {
+            EMAILS[1].isVerified = true
           })
       })
     })
