@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.95.0",
+  "version": "1.95.1",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build-production": "grunt build",
@@ -54,7 +54,7 @@
     "grunt-contrib-concat": "1.0.1",
     "grunt-contrib-copy": "1.0.0",
     "grunt-contrib-cssmin": "2.1.0",
-    "grunt-contrib-htmlmin": "2.3.0",
+    "grunt-contrib-htmlmin": "2.4.0",
     "grunt-contrib-uglify": "2.3.0",
     "grunt-file-rev": "1.0.2",
     "grunt-githash": "0.1.3",

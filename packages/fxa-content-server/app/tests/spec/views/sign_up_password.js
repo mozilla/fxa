@@ -38,6 +38,8 @@ define(function (require, exports, module) {
       formPrefill = new FormPrefill();
       model = new Backbone.Model({ account });
       notifier = new Notifier();
+      sinon.spy(notifier, 'trigger');
+
       relier = new Relier({
         service: 'sync',
         serviceName: 'Firefox Sync'
@@ -88,7 +90,7 @@ define(function (require, exports, module) {
     });
 
     describe('render', () => {
-      it('renders as expected', () => {
+      it('renders as expected, initializes flow events', () => {
         assert.include(view.$('.service').text(), 'Firefox Sync');
         assert.lengthOf(view.$('input[type=email]'), 1);
         assert.equal(view.$('input[type=email]').val(), EMAIL);
@@ -98,6 +100,8 @@ define(function (require, exports, module) {
         assert.lengthOf(view.$('#fxa-tos'), 1);
         assert.lengthOf(view.$('#fxa-pp'), 1);
         assert.lengthOf(view.$('#marketing-email-optin'), 1);
+        assert.isTrue(notifier.trigger.calledOnce);
+        assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
       });
     });
 

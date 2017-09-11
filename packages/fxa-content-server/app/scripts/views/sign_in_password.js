@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   const BackMixin = require('views/mixins/back-mixin');
   const Cocktail = require('cocktail');
+  const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const FormView = require('views/form');
   const PasswordMixin = require('views/mixins/password-mixin');
@@ -45,6 +46,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     SignInPasswordView,
     BackMixin,
+    FlowEventsMixin,
     FormPrefillMixin,
     PasswordMixin,
     ServiceMixin,
