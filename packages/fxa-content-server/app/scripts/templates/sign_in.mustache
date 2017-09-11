@@ -3,10 +3,10 @@
     <h1 id="fxa-signin-header">
       {{#serviceName}}
         <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-        {{ headerSignInText }} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+        {{{ headerSignInText }}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
       {{/serviceName}}
       {{^serviceName}}
-        {{ headerSignInText }}
+        {{{ headerSignInText }}}
       {{/serviceName}}
     </h1>
   </header>
@@ -40,7 +40,7 @@
             </div>
 
             <div class="button-row">
-              <button id="submit-btn" type="submit" class="disabled">{{buttonSignInText}}</button>
+              <button id="submit-btn" type="submit" class="disabled">{{{buttonSignInText}}}</button>
             </div>
            </form>
 
@@ -52,7 +52,7 @@
 
         {{^chooserAskForPassword}}
           <div class="button-row">
-            <button type="submit" class="use-logged-in">{{buttonSignInText}}</button>
+            <button type="submit" class="use-logged-in">{{{buttonSignInText}}}</button>
           </div>
 
           <div class="links">
@@ -72,7 +72,7 @@
         </div>
 
         <div class="button-row">
-          <button id="submit-btn" type="submit" class="disabled">{{buttonSignInText}}</button>
+          <button id="submit-btn" type="submit" class="disabled">{{{buttonSignInText}}}</button>
         </div>
       </form>
 
