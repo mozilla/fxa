@@ -1,3 +1,19 @@
+<a name="1.95.1"></a>
+## 1.95.1 (2017-09-11)
+
+
+### Bug Fixes
+
+* **email-first:** Report flow events from /signin, /signup. ([e1d59ca](https://github.com/mozilla/fxa-content-server/commit/e1d59ca)), closes [#5455](https://github.com/mozilla/fxa-content-server/issues/5455)
+* **test:** Remove mailcheck from travis. ([883a536](https://github.com/mozilla/fxa-content-server/commit/883a536)), closes [#5309](https://github.com/mozilla/fxa-content-server/issues/5309)
+* **test:** Use the previous trusty image on Travis. ([aa943f7](https://github.com/mozilla/fxa-content-server/commit/aa943f7))
+
+### Features
+
+* **deps:** update htmlmin ([88e75da](https://github.com/mozilla/fxa-content-server/commit/88e75da))
+
+
+
 <a name="1.95.0"></a>
 # 1.95.0 (2017-09-06)
 
