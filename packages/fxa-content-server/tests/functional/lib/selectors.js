@@ -137,6 +137,7 @@ define([], function () {
     SIGNIN: {
       EMAIL: 'input[type=email]',
       EMAIL_NOT_EDITABLE: '.prefillEmail',
+      ERROR: '.error',
       HEADER: '#fxa-signin-header',
       LINK_USE_DIFFERENT: '.use-different',
       MIGRATION_NUDGE: '.info.nudge',
