@@ -316,7 +316,7 @@ describe('push', () => {
   )
 
   it(
-    'sendPush pushes to ios >=9.0 devices if it is triggered with a "device connected" command',
+    'sendPush pushes to ios >=10.0 devices if it is triggered with a "device connected" command',
     () => {
       const data = Buffer.from(JSON.stringify({command: 'fxaccounts:device_connected'}))
       let endPoints = []
@@ -348,7 +348,7 @@ describe('push', () => {
           // iOS not notified due to unsupported browser version
         }).then(() => {
           endPoints = []
-          mockDevices[2].uaBrowserVersion = '9.0'
+          mockDevices[2].uaBrowserVersion = '10.0'
           return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
         }).then(() => {
           assert.equal(endPoints.length, 3)
@@ -357,7 +357,7 @@ describe('push', () => {
           assert.equal(endPoints[2], mockDevices[2].pushCallback)
         }).then(() => {
           endPoints = []
-          mockDevices[2].uaBrowserVersion = '9.1'
+          mockDevices[2].uaBrowserVersion = '10.1'
           return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
         }).then(() => {
           assert.equal(endPoints.length, 3)
@@ -366,7 +366,7 @@ describe('push', () => {
           assert.equal(endPoints[2], mockDevices[2].pushCallback)
         }).then(() => {
           endPoints = []
-          mockDevices[2].uaBrowserVersion = '10.2'
+          mockDevices[2].uaBrowserVersion = '11.2'
           return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
         }).then(() => {
           assert.equal(endPoints.length, 3)

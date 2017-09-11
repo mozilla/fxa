@@ -189,7 +189,7 @@ module.exports = function (log, db, config) {
       return devices
     case 'fxaccounts:device_connected':
     case 'fxaccounts:device_disconnected':
-      requiredIOSVersion = 9.0
+      requiredIOSVersion = 10.0
       break
     default:
       requiredIOSVersion = Infinity
