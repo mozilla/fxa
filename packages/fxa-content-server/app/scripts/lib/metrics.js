@@ -618,6 +618,7 @@ define(function (require, exports, module) {
     getFlowEventMetadata () {
       const metadata = (this._flowModel && this._flowModel.attributes) || {};
       return {
+        deviceId: this._deviceId,
         flowBeginTime: metadata.flowBegin,
         flowId: metadata.flowId
       };

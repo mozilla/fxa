@@ -41,6 +41,7 @@ define(function (require, exports, module) {
         clientHeight: 966,
         clientWidth: 1033,
         context: 'fx_desktop_v1',
+        deviceId: 'wibble',
         devicePixelRatio: 2,
         entrypoint: 'menupanel',
         isSampledUser: true,
@@ -86,6 +87,7 @@ define(function (require, exports, module) {
     it('observable flow state is correct', () => {
       assert.isUndefined(metrics.getFlowModel());
       assert.deepEqual(metrics.getFlowEventMetadata(), {
+        deviceId: 'wibble',
         flowBeginTime: undefined,
         flowId: undefined
       });
@@ -100,6 +102,7 @@ define(function (require, exports, module) {
         assert.equal(metrics.getFlowModel().get('flowId'), FLOW_ID);
         assert.equal(metrics.getFlowModel().get('flowBegin'), FLOW_BEGIN_TIME);
         assert.deepEqual(metrics.getFlowEventMetadata(), {
+          deviceId: 'wibble',
           flowBeginTime: FLOW_BEGIN_TIME,
           flowId: FLOW_ID
         });
@@ -141,6 +144,7 @@ define(function (require, exports, module) {
           assert.equal(metrics.getFlowModel().get('flowId'), FLOW_ID);
           assert.equal(metrics.getFlowModel().get('flowBegin'), FLOW_BEGIN_TIME);
           assert.deepEqual(metrics.getFlowEventMetadata(), {
+            deviceId: 'wibble',
             flowBeginTime: FLOW_BEGIN_TIME,
             flowId: FLOW_ID
           });

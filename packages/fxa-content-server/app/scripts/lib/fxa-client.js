@@ -803,6 +803,7 @@ define(function (require, exports, module) {
      * @param {String} signinCode
      * @param {String} flowId
      * @param {String} flowBeginTime
+     * @param {String} [deviceId]
      * @returns {Promise} resolves to an object with Account information.
      */
     consumeSigninCode: createClientDelegate('consumeSigninCode'),
