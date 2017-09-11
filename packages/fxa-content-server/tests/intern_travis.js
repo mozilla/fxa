@@ -13,7 +13,6 @@ define([
     'tests/functional/sign_in',
     'tests/functional/sign_up',
     'tests/functional/settings',
-    'tests/functional/mailcheck'
   ];
 
   intern.environments = [

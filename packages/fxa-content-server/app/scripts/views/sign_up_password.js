@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const CoppaMixin = require('views/mixins/coppa-mixin');
   const EmailOptInMixin = require('views/mixins/email-opt-in-mixin');
+  const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
   const FormView = require('views/form');
   const p = require('lib/promise');
@@ -83,6 +84,7 @@ define(function (require, exports, module) {
       required: true
     }),
     EmailOptInMixin,
+    FlowEventsMixin,
     FormPrefillMixin,
     PasswordMixin,
     ServiceMixin,

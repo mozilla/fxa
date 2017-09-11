@@ -25,6 +25,8 @@ env:
 # Ref: https://blog.travis-ci.com/2015-10-14-opening-up-ubuntu-trusty-beta/
 sudo: required
 dist: trusty
+group: deprecated-2017Q3
+
 
 cache:
   directories:
