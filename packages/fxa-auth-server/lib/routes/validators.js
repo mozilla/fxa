@@ -34,6 +34,10 @@ exports.E164_NUMBER = /^\+[1-9]\d{1,14}$/
 const DISPLAY_SAFE_UNICODE = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/
 module.exports.DISPLAY_SAFE_UNICODE = DISPLAY_SAFE_UNICODE
 
+// Similar display-safe match but includes non-BMP characters
+const DISPLAY_SAFE_UNICODE_WITH_NON_BMP = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/
+module.exports.DISPLAY_SAFE_UNICODE_WITH_NON_BMP = DISPLAY_SAFE_UNICODE_WITH_NON_BMP
+
 
 // Joi validator to match any valid email address.
 // This is different to Joi's builtin email validator, and

@@ -38,7 +38,7 @@ describe('remote device', function() {
         .then(
           function (client) {
             var deviceInfo = {
-              name: 'test device',
+              name: 'test device 🍓🔥在𝌆',
               type: 'mobile',
               pushCallback: '',
               pushPublicKey: '',
@@ -218,37 +218,6 @@ describe('remote device', function() {
                 function (err) {
                   assert.equal(err.code, 400, 'err.code was 400')
                   assert.equal(err.errno, 108, 'err.errno was 108')
-                }
-              )
-          }
-        )
-    }
-  )
-
-  it(
-    'device registration with unsupported characters in the name',
-    () => {
-      var email = server.uniqueEmail()
-      var password = 'test password'
-      return Client.create(config.publicUrl, email, password)
-        .then(
-          function (client) {
-            var deviceInfo = {
-              id: crypto.randomBytes(16).toString('hex'),
-              name: 'unicodepooforyou: \uD83D\uDCA9',
-              type: 'mobile',
-            }
-            return client.updateDevice(deviceInfo)
-              .then(
-                function () {
-                  assert(false, 'request should have failed')
-                }
-              )
-              .catch(
-                function (err) {
-                  assert.equal(err.code, 400, 'err.code was 400')
-                  assert.equal(err.errno, 107, 'err.errno was 107')
-                  assert.equal(err.validation.keys[0], 'name', 'name was rejected')
                 }
               )
           }

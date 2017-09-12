@@ -314,6 +314,7 @@ those common validations are defined here.
 * `BASE_36`: `/^[a-zA-Z0-9]*$/`
 * `URL_SAFE_BASE_64`: `/^[A-Za-z0-9_-]+$/`
 * `DISPLAY_SAFE_UNICODE`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
+* `DISPLAY_SAFE_UNICODE_WITH_NON_BMP`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/g)`
 * `E164_NUMBER`: `/^\+[1-9]\d{1,14}$/`
 
@@ -336,7 +337,7 @@ those common validations are defined here.
 
 * `schema`: {
     * `id: isA.string.length(32).regex(HEX_STRING)
-    * `name`: isA.string.max(255).regex(DISPLAY_SAFE_UNICODE)
+    * `name`: isA.string.max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP)
     * `nameResponse`: isA.string.max(255)
     * `type`: isA.string.max(16)
     * `pushCallback`: isA.string.uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')

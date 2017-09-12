@@ -67,20 +67,21 @@ describe('/account/device', function () {
   var config = {}
   var uid = uuid.v4('binary').toString('hex')
   var deviceId = crypto.randomBytes(16).toString('hex')
+  var mockDeviceName = 'my awesome device 🍓🔥'
   var mockRequest = mocks.mockRequest({
     credentials: {
       deviceCallbackPublicKey: '',
       deviceCallbackURL: '',
       deviceCallbackIsExpired: false,
       deviceId: deviceId,
-      deviceName: 'my awesome device',
+      deviceName: mockDeviceName,
       deviceType: 'desktop',
       tokenId: crypto.randomBytes(16).toString('hex'),
       uid: uid
     },
     payload: {
       id: deviceId.toString('hex'),
-      name: 'my awesome device'
+      name: mockDeviceName
     }
   })
   var mockDevices = mocks.mockDevices()
@@ -159,7 +160,7 @@ describe('/account/device', function () {
         deviceCallbackURL: 'https://updates.push.services.mozilla.com/update/50973923bc3e4507a0aa4e285513194a',
         deviceCallbackIsExpired: true,
         deviceId: deviceId,
-        deviceName: 'my awesome device',
+        deviceName: mockDeviceName,
         deviceType: 'desktop',
         tokenId: crypto.randomBytes(16).toString('hex'),
         uid: uid
@@ -186,7 +187,7 @@ describe('/account/device', function () {
         deviceCallbackURL: 'https://updates.push.services.mozilla.com/update/50973923bc3e4507a0aa4e285513194a',
         deviceCallbackIsExpired: true,
         deviceId: deviceId,
-        deviceName: 'my awesome device',
+        deviceName: mockDeviceName,
         deviceType: 'desktop',
         tokenId: crypto.randomBytes(16).toString('hex'),
         uid: uid
