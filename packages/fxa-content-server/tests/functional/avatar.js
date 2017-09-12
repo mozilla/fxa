@@ -7,15 +7,19 @@ define([
   'intern!object',
   'intern/browser_modules/dojo/node!path',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, path, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/ua-strings'
+], function (intern, registerSuite, path, TestHelpers, FunctionalHelpers, uaStrings) {
   var config = intern.config;
+
+  const ios10UserAgent = uaStrings['ios_firefox_6_1'];
 
   var ADD_AVATAR_BUTTON_SELECTOR  = '#change-avatar .settings-unit-toggle.primary';
   var AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
   var AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
   var PASSWORD = 'password';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
+  var SETTINGS_URL_IOS10 = `${SETTINGS_URL}?forceUA='${encodeURIComponent(ios10UserAgent)}`;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var UPLOAD_IMAGE_PATH = path.join(this.process.cwd(), 'app', 'apple-touch-icon-152x152.png');
 
@@ -27,6 +31,7 @@ define([
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -157,8 +162,15 @@ define([
 
         //success is returning to the avatar change page
         .then(testElementExists('#avatar-options'));
+    },
+
+    'avatar panel removed on iOS 10': function () {
+      return this.remote
+        .then(openPage(SETTINGS_URL_IOS10, '#fxa-settings-header'))
+
+        //success is not displaying avatar change panel
+        .then(noSuchElement('#change-avatar'));
     }
 
   });
-
 });

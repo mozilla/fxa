@@ -48,11 +48,11 @@
     margin: 0 auto;
     position: relative;
 
-    &:hover {
+    &:not(.nohover):hover {
       box-shadow: 0 0 0 1px $color-blue;
     }
 
-    &:active {
+    &:not(.nohover):active {
       box-shadow: 0 0 0 1px $color-orange;
     }
 

@@ -11,17 +11,23 @@ define(function (require, exports, module) {
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const Template = require('stache!templates/settings/avatar');
 
-  var View = FormView.extend({
+  const View = FormView.extend({
     template: Template,
     className: 'avatar',
     viewName: 'settings.avatar',
+
+    beforeRender () {
+      if (! this.supportsAvatarUpload()) {
+        this.remove();
+      }
+    },
 
     onProfileUpdate () {
       this.render();
     },
 
     setInitialContext (context) {
-      var account = this.getSignedInAccount();
+      const account = this.getSignedInAccount();
       context.set('avatar', account.has('profileImageUrl'));
     }
 

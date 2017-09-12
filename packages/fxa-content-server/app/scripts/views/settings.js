@@ -179,7 +179,11 @@ define(function (require, exports, module) {
     },
 
     _setupAvatarChangeLinks () {
-      this.$('.avatar-wrapper > *').wrap('<a href="/settings/avatar/change" class="change-avatar"></a>');
+      if (this.supportsAvatarUpload()) {
+        this.$('.avatar-wrapper > *').wrap('<a href="/settings/avatar/change" class="change-avatar"></a>');
+      } else {
+        this.$('.avatar-wrapper').addClass('nohover');
+      }
     },
 
     _showAvatar () {

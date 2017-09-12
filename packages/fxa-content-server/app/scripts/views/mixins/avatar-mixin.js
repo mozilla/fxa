@@ -13,10 +13,15 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
   const ProfileErrors = require('lib/profile-errors');
   const ProfileImage = require('models/profile-image');
+  const UserAgentMixin = require('lib/user-agent-mixin');
 
   var MAX_SPINNER_COMPLETE_TIME = 400; // ms
 
   var Mixin = {
+    dependsOn: [
+      UserAgentMixin
+    ],
+
     notifications: {
       // populated below using event name aliases
     },
@@ -197,6 +202,25 @@ define(function (require, exports, module) {
       this.notifier.triggerAll(Notifier.PROFILE_CHANGE, {
         uid: uid
       });
+    },
+
+    /**
+     * Checks to see if the current browser supports uploading avatar
+     * photos.
+     *
+     * @returns {Boolean}
+     */
+    supportsAvatarUpload () {
+      // There is a bug in iOS <= 10 where avatar upload fails when
+      // accessing from FxiOS settings webview.
+      // Ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1334459
+      const userAgent = this.getUserAgent();
+      if (userAgent.isFirefoxIos()) {
+        const version = userAgent.parseOsVersion();
+        return version.major > 10;
+      } else {
+        return true;
+      }
     }
   };
 

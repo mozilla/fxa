@@ -353,6 +353,48 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('parseOsVersion', () => {
+      it('returns expected major, minor, patch', () => {
+        const toTest = {
+          ' ': {
+            major: 0,
+            minor: 0,
+            patch: 0
+          },
+
+          'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19': {
+            major: 4,
+            minor: 0,
+            patch: 4
+          },
+
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4': {
+            major: 8,
+            minor: 3,
+            patch: 0
+          },
+
+          'word': {
+            major: 0,
+            minor: 0,
+            patch: 0
+          }
+
+        };
+
+        for (const userAgentString in toTest) {
+          testParseOsVersion(userAgentString);
+        }
+
+        function testParseOsVersion(userAgentString) {
+          const uap = new UserAgent(userAgentString);
+          const version = uap.parseOsVersion();
+          const expected = toTest[userAgentString];
+          assert.deepEqual(version, expected);
+        }
+      });
+    });
+
     describe('toGenericOSName', function () {
       function eq(os, expected) {
         assert.equal(UserAgent.toGenericOSName(os), expected);

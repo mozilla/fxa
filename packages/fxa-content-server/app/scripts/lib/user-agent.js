@@ -89,6 +89,22 @@ define(function (require, exports, module) {
           minor: parseInt(browserVersion[1] || 0, 10),
           patch: parseInt(browserVersion[2] || 0, 10)
         };
+      },
+
+      /**
+       * Parse uap.os.version into an object with
+       * `major`, `minor`, and `patch`
+       *
+       * @returns {Object}
+       */
+      parseOsVersion () {
+        // this.os.version can be `undefined`
+        const osVersion = this.os.version ? this.os.version.split('.') : [];
+        return {
+          major: parseInt(osVersion[0] || 0, 10),
+          minor: parseInt(osVersion[1] || 0, 10),
+          patch: parseInt(osVersion[2] || 0, 10)
+        };
       }
     });
 

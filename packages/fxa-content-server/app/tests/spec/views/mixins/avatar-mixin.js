@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
   const User = require('models/user');
+  const WindowMock = require('../../../mocks/window');
 
   const UID = TestHelpers.createUid();
 
@@ -35,12 +36,14 @@ define(function (require, exports, module) {
     let tabChannelMock;
     let user;
     let view;
+    let windowMock;
 
     beforeEach(function () {
       account = new Account();
       relier = new Relier();
       tabChannelMock = new NullChannel();
       user = new User();
+      windowMock = new WindowMock();
 
       notifier = new Notifier({
         tabChannel: tabChannelMock
@@ -53,7 +56,8 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         relier: relier,
-        user: user
+        user: user,
+        window: windowMock
       });
       sinon.stub(view, 'getSignedInAccount').callsFake(function () {
         return account;
@@ -264,6 +268,44 @@ define(function (require, exports, module) {
       it('call onProfileUpdate after notification', function () {
         notifier.trigger(notifier.COMMANDS.PROFILE_CHANGE, {});
         assert.isTrue(spy.called);
+      });
+    });
+
+    describe('avatar upload', function () {
+      describe('disabled for iOS =< 10', function () {
+        beforeEach(function () {
+          windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/604.1.34 ' +
+            '(KHTML, like Gecko) FxiOS/8.0b1 Mobile/15A5341e Safari/604.1.34';
+          view = new SettingsView({
+            metrics: metrics,
+            notifier: notifier,
+            relier: relier,
+            user: user,
+            window: windowMock
+          });
+        });
+
+        it('is disabled', function () {
+          assert.isFalse(view.supportsAvatarUpload());
+        });
+      });
+
+      describe('enabled for iOS > 10', function () {
+        beforeEach(function () {
+          windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.34 ' +
+            '(KHTML, like Gecko) FxiOS/8.0b1 Mobile/15A5341e Safari/604.1.34';
+          view = new SettingsView({
+            metrics: metrics,
+            notifier: notifier,
+            relier: relier,
+            user: user,
+            window: windowMock
+          });
+        });
+
+        it('is enabled', function () {
+          assert.isTrue(view.supportsAvatarUpload());
+        });
       });
     });
   });
