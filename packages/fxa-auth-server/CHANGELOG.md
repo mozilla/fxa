@@ -1,3 +1,23 @@
+<a name="1.95.2"></a>
+## [1.95.2](https://github.com/mozilla/fxa-auth-server/compare/v1.95.1...v1.95.2) (2017-09-12)
+
+
+### Bug Fixes
+
+* **email:** Block sending if gated primary and unverified secondary. (#2098), r=@vbudhram ([36ba048](https://github.com/mozilla/fxa-auth-server/commit/36ba048))
+* **profile:** progress logging for handleProfileUpdated (#2094) r=vladikoff,eoger ([55e1a91](https://github.com/mozilla/fxa-auth-server/commit/55e1a91))
+* **server:** make geo data lazily available on the request ([2238b37](https://github.com/mozilla/fxa-auth-server/commit/2238b37))
+
+### Features
+
+* **db:** allow BMP chars in device name (#2053) r=rfk,jbuck ([2e8e674](https://github.com/mozilla/fxa-auth-server/commit/2e8e674))
+
+### Refactor
+
+* **l10n:** take l10n repo out of node_modules (#2079) ([1f36c6d](https://github.com/mozilla/fxa-auth-server/commit/1f36c6d)), closes [#1678](https://github.com/mozilla/fxa-auth-server/issues/1678)
+
+
+
 <a name="1.95.1"></a>
 ## [1.95.1](https://github.com/mozilla/fxa-auth-server/compare/v1.95.0...v1.95.1) (2017-09-12)
 
