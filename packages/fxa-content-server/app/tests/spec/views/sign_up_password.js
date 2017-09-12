@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const Account = require('models/account');
   const { assert } = require('chai');
-  const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const FormPrefill = require('models/form-prefill');
   const Notifier = require('lib/channels/notifier');
@@ -95,7 +94,6 @@ define(function (require, exports, module) {
         assert.lengthOf(view.$('input[type=email]'), 1);
         assert.equal(view.$('input[type=email]').val(), EMAIL);
         assert.lengthOf(view.$('#password'), 1);
-        assert.lengthOf(view.$('#vpassword'), 1);
         assert.lengthOf(view.$('#age'), 1);
         assert.lengthOf(view.$('#fxa-tos'), 1);
         assert.lengthOf(view.$('#fxa-pp'), 1);
@@ -112,28 +110,9 @@ define(function (require, exports, module) {
         sinon.spy(view, 'displayError');
       });
 
-      describe('passwords are different', () => {
-        it('shows a `PASSWORDS_DO_NOT_MATCH` error', () => {
-          view.$('#password').val('password');
-          view.$('#vpassword').val('password2');
-          view.$('#age').val('21');
-
-          return p().then()
-            .then(() => view.enableSubmitIfValid())
-            .then(() => view.validateAndSubmit())
-            .then(() => {
-              assert.isFalse(view.signUp.calledOnce);
-              assert.isTrue(view.displayError.calledOnce);
-              const displayedError = view.displayError.args[0][0];
-              assert.isTrue(AuthErrors.is(displayedError, 'PASSWORDS_DO_NOT_MATCH'));
-            });
-        });
-      });
-
-      describe('passwords are the same, user is too young', () => {
+      describe('user is too young', () => {
         it('delegates to `tooYoung`', () => {
           view.$('#password').val('password');
-          view.$('#vpassword').val('password');
           view.$('#age').val('11');
 
           return p().then()
@@ -147,10 +126,9 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('passwords are the same, user is old enough', () => {
+      describe('user is old enough', () => {
         it('signs up the user', () => {
           view.$('#password').val('password');
-          view.$('#vpassword').val('password');
           view.$('#age').val('21');
 
           sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);

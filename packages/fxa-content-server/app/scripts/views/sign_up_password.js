@@ -5,7 +5,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
   const BackMixin = require('views/mixins/back-mixin');
   const CheckboxMixin = require('views/mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
@@ -41,16 +40,6 @@ define(function (require, exports, module) {
       context.set(this.getAccount().pick('email'));
     }
 
-    isValidEnd () {
-      return this._doPasswordsMatch();
-    }
-
-    showValidationErrorsEnd () {
-      if (! this._doPasswordsMatch()) {
-        this.displayError(AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'));
-      }
-    }
-
     submit () {
       return p().then(() => {
         if (! this.isUserOldEnough()) {
@@ -63,16 +52,8 @@ define(function (require, exports, module) {
       });
     }
 
-    _doPasswordsMatch () {
-      return this._getPassword() === this._getVPassword();
-    }
-
     _getPassword () {
       return this.getElementValue('#password');
-    }
-
-    _getVPassword () {
-      return this.getElementValue('#vpassword');
     }
   }
 

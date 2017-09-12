@@ -20,7 +20,6 @@ define([
 
   let email;
   const PASSWORD = '12345678';
-  const PASSWORD_MISMATCH = '123456789';
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;
@@ -30,7 +29,6 @@ define([
   const openPage = FunctionalHelpers.openPage;
   const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   const type = FunctionalHelpers.type;
@@ -95,14 +93,7 @@ define([
 
         .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
-        // intentional password mismatch
-        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD_MISMATCH))
         .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
-
-        // password mismatch, no screen transition.
-        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
-        .then(testElementTextInclude(selectors.SIGNUP_PASSWORD.ERROR_PASSWORDS_DO_NOT_MATCH, 'do not match'))
-        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
         .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
