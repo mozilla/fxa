@@ -201,7 +201,6 @@ define([], function () {
       HEADER: '#fxa-signup-password-header',
       PASSWORD: '#password',
       SUBMIT: 'button[type="submit"]',
-      VPASSWORD: '#vpassword',
     },
     SMS_LEARN_MORE: {
       HEADER: '#websites-notice'

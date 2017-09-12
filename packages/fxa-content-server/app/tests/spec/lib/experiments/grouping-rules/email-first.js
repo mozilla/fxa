@@ -12,16 +12,31 @@ define(function (require, exports, module) {
   describe('lib/experiments/grouping-rules/email-first', () => {
     let experiment;
     let experimentGroupingRules;
+    let q3FormChangesChoice;
+    let sandbox;
 
     before(() => {
       experiment = new Experiment();
+
       experimentGroupingRules = {
         choose (experimentName) {
-          // check against `isSampledUser` - the only time experimentGroupingRules.choose
-          // is called is to see if the user reports metrics to DataDog.
-          return experimentName === 'isSampledUser';
+          if (experimentName === 'q3FormChanges') {
+            return q3FormChangesChoice;
+          } else if (experimentName === 'isSampledUser') {
+            return true;
+          }
+          return false;
         }
       };
+    });
+
+    beforeEach(() => {
+      q3FormChangesChoice = 'emailFirst';
+      sandbox = sinon.sandbox.create();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
     });
 
     describe('choose', () => {
@@ -48,8 +63,21 @@ define(function (require, exports, module) {
         }));
       });
 
+      it('returns `false` if experiment is not chosen by `q3FormChanges`', () => {
+        sandbox.stub(experiment, 'bernoulliTrial').callsFake(() => true);
+        q3FormChangesChoice = 'signupPasswordConfirm';
+
+        assert.isFalse(experiment.choose({
+          env: 'development',
+          experimentGroupingRules,
+          isEmailFirstSupported: false,
+          uniqueUserId: 'user-id'
+        }));
+      });
+
       it('returns chooses some experiment ', () => {
-        sinon.stub(experiment, 'bernoulliTrial').callsFake(() => true);
+        sandbox.stub(experiment, 'bernoulliTrial').callsFake(() => true);
+        q3FormChangesChoice = 'emailFirst';
 
         assert.ok(experiment.choose({
           env: 'development',

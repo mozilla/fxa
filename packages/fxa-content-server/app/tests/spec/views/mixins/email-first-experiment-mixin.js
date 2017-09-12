@@ -74,7 +74,6 @@ define((require, exports, module) => {
     });
 
     it('isInEmailFirstExperiment delegates to `isInExperiment` correctly', () => {
-      sandbox.spy(view, '_getEmailFirstExperimentSubject');
       sandbox.stub(view, 'isInExperiment').callsFake(() => true);
 
       assert.isTrue(view.isInEmailFirstExperiment());
@@ -89,7 +88,6 @@ define((require, exports, module) => {
     });
 
     it('isInEmailFirstExperimentGroup delegates to `isInExperimentGroup` correctly', () => {
-      sandbox.spy(view, '_getEmailFirstExperimentSubject');
       sandbox.stub(view, 'isInExperimentGroup').callsFake(() => true);
 
       assert.isTrue(view.isInEmailFirstExperimentGroup('treatment'));

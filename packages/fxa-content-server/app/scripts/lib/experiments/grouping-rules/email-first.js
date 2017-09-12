@@ -31,6 +31,8 @@ define((require, exports, module) => {
       } else if (! subject.isEmailFirstSupported) {
         // isEmailFirstSupported is `true` for brokers that support the email-first flow.
         return false;
+      } else if (subject.experimentGroupingRules.choose('q3FormChanges', subject) !== this.name) {
+        return  false;
       } else if (! this._isSampledUser(subject)) {
         return false;
       }
@@ -74,17 +76,6 @@ define((require, exports, module) => {
      */
     static sampleRate (env) {
       return env === 'development' ? 1.0 : 0.2;
-    }
-
-    /**
-     * The experiment name
-     *
-     * @readonly
-     * @static
-     * @return {String}
-     */
-    static get name () {
-      return EXPERIMENT_NAME;
     }
   }
 

@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const ExperimentMixin = require('views/mixins/experiment-mixin');
-  const EXPERIMENT_NAME = require('lib/experiments/grouping-rules/email-first').name;
+  const EXPERIMENT_NAME = 'emailFirst';
 
   /**
    * Creates the mixin

@@ -1,3 +1,14 @@
+<a name="1.95.2"></a>
+## 1.95.2 (2017-09-12)
+
+
+### Bug Fixes
+
+* **email-first:** email-first experiment is isolated from other experiments. (#5479) r=vladikoff ([bca0f72](https://github.com/mozilla/fxa-content-server/commit/bca0f72)), closes [#5452](https://github.com/mozilla/fxa-content-server/issues/5452)
+* **email-first:** Remove the vpassword field in email-first. (#5478) r=vladikoff ([2a8279f](https://github.com/mozilla/fxa-content-server/commit/2a8279f))
+
+
+
 <a name="1.95.1"></a>
 ## 1.95.1 (2017-09-11)
 
