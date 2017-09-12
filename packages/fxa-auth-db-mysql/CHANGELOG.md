@@ -1,3 +1,14 @@
+<a name="1.95.1"></a>
+## [1.95.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.95.0...v1.95.1) (2017-09-12)
+
+
+### Bug Fixes
+
+* **mysql:** update all device procedures to use utf8mb4 (#276) r=jbuck,rfk ([7d22ad8](https://github.com/mozilla/fxa-auth-db-mysql/commit/7d22ad8))
+* **tokens:** prune old session tokens that have no device record ([8fad575](https://github.com/mozilla/fxa-auth-db-mysql/commit/8fad575))
+
+
+
 <a name="1.95.0"></a>
 # [1.95.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.94.1...v1.95.0) (2017-09-06)
 
