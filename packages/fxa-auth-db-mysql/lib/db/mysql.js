@@ -282,7 +282,7 @@ module.exports = function (log, error) {
     )
   }
 
-  var CREATE_DEVICE = 'CALL createDevice_3(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  var CREATE_DEVICE = 'CALL createDevice_4(?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createDevice = function (uid, deviceId, deviceInfo) {
     return this.write(
@@ -291,7 +291,6 @@ module.exports = function (log, error) {
         uid,
         deviceId,
         deviceInfo.sessionTokenId,
-        deviceInfo.name,
         deviceInfo.name, // inNameUtf8
         deviceInfo.type,
         deviceInfo.createdAt,
@@ -302,7 +301,7 @@ module.exports = function (log, error) {
     )
   }
 
-  var UPDATE_DEVICE = 'CALL updateDevice_4(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  var UPDATE_DEVICE = 'CALL updateDevice_5(?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.updateDevice = function (uid, deviceId, deviceInfo) {
     return this.write(
@@ -311,7 +310,6 @@ module.exports = function (log, error) {
         uid,
         deviceId,
         deviceInfo.sessionTokenId,
-        deviceInfo.name,
         deviceInfo.name, // inNameUtf8
         deviceInfo.type,
         deviceInfo.callbackURL,
@@ -365,7 +363,7 @@ module.exports = function (log, error) {
   //          s.uaBrowser, s.uaBrowserVersion, s.uaOS, s.uaOSVersion, s.uaDeviceType,
   //          s.uaFormFactor, s.lastAccessTime, a.email
   // Where  : d.uid = $1
-  var ACCOUNT_DEVICES = 'CALL accountDevices_11(?)'
+  var ACCOUNT_DEVICES = 'CALL accountDevices_12(?)'
 
   MySql.prototype.accountDevices = function (uid) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
@@ -378,7 +376,7 @@ module.exports = function (log, error) {
   //          d.callbackIsExpired AS deviceCallbackIsExpired
   // Where  : u.uid = $1 AND u.tokenVerificationId = $2 AND
   //          u.tokenId = d.sessionTokenId AND u.uid = d.uid
-  var DEVICE_FROM_TOKEN_VERIFICATION_ID = 'CALL deviceFromTokenVerificationId_2(?, ?)'
+  var DEVICE_FROM_TOKEN_VERIFICATION_ID = 'CALL deviceFromTokenVerificationId_3(?, ?)'
 
   MySql.prototype.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
     return this.readFirstResult(DEVICE_FROM_TOKEN_VERIFICATION_ID, [uid, tokenVerificationId])
@@ -395,7 +393,7 @@ module.exports = function (log, error) {
   //          ut.tokenVerificationId, ut.mustVerify
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSION_DEVICE = 'CALL sessionWithDevice_9(?)'
+  var SESSION_DEVICE = 'CALL sessionWithDevice_10(?)'
 
   MySql.prototype.sessionWithDevice = function (id) {
     return this.readFirstResult(SESSION_DEVICE, [id])
@@ -408,7 +406,7 @@ module.exports = function (log, error) {
   //          deviceCallbackPublicKey, deviceCallbackAuthKey, deviceCallbackIsExpired
   // Where  : t.uid = $1 AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSIONS = 'CALL sessions_6(?)'
+  var SESSIONS = 'CALL sessions_7(?)'
 
   MySql.prototype.sessions = function (uid) {
     return this.readOneFromFirstResult(SESSIONS, [uid])
