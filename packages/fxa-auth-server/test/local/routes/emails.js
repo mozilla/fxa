@@ -509,9 +509,10 @@ describe('/recovery_email/verify_code', function () {
 
         assert.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')
         args = mockPush.notifyUpdate.args[0]
-        assert.equal(args.length, 2, 'mockPush.notifyUpdate should have been passed two arguments')
+        assert.equal(args.length, 3, 'mockPush.notifyUpdate should have been passed three arguments')
         assert.equal(args[0].toString('hex'), uid, 'first argument should have been uid')
-        assert.equal(args[1], 'accountVerify', 'second argument should have been reason')
+        assert.ok(Array.isArray(args[1]), 'second argument should have been devices array')
+        assert.equal(args[2], 'accountVerify', 'third argument should have been reason')
 
         assert.equal(JSON.stringify(response), '{}')
       })
@@ -639,9 +640,10 @@ describe('/recovery_email/verify_code', function () {
 
         assert.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')
         args = mockPush.notifyUpdate.args[0]
-        assert.equal(args.length, 2, 'mockPush.notifyUpdate should have been passed two arguments')
+        assert.equal(args.length, 3, 'mockPush.notifyUpdate should have been passed three arguments')
         assert.equal(args[0].toString('hex'), uid, 'first argument should have been uid')
-        assert.equal(args[1], 'accountConfirm', 'second argument should have been reason')
+        assert.ok(Array.isArray(args[1]), 'second argument should have been devices array')
+        assert.equal(args[2], 'accountConfirm', 'third argument should have been reason')
       })
         .then(function () {
           mockDB.verifyTokens.reset()

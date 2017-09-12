@@ -28,6 +28,6 @@ var profileUpdatesQueue = new SQSReceiver(config.profileServerMessaging.region, 
 DB.connect(config[config.db.backend])
   .then(
     function (db) {
-      profileUpdates(profileUpdatesQueue, push(log, db, config))
+      profileUpdates(profileUpdatesQueue, push(log, db, config), db)
     }
   )

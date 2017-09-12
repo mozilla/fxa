@@ -276,8 +276,8 @@ describe('/password', () => {
         ]
         var mockDB = mocks.mockDB({
           email: TEST_EMAIL,
-          uid: uid,
-          devices: devices
+          uid,
+          devices
         })
         var mockPush = mocks.mockPush()
         var mockMailer = mocks.mockMailer()
@@ -286,6 +286,7 @@ describe('/password', () => {
           credentials: {
             uid: uid
           },
+          devices,
           payload: {
             authPW: crypto.randomBytes(32).toString('hex'),
             wrapKb: crypto.randomBytes(32).toString('hex'),

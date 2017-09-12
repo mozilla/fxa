@@ -119,10 +119,9 @@ describe('remote push db', function() {
           .then(function () {
             return db.devices(ACCOUNT.uid)
           })
-
-          .then(function () {
-            var pushWithUnknown400 = proxyquire('../../lib/push', mocksUnknown400)(mockLog, db, {})
-            return pushWithUnknown400.pushToAllDevices(ACCOUNT.uid, 'accountVerify')
+          .then(devices => {
+            const pushWithUnknown400 = proxyquire('../../lib/push', mocksUnknown400)(mockLog, db, {})
+            return pushWithUnknown400.notifyUpdate(ACCOUNT.uid, devices, 'accountVerify')
           })
           .then(function () {
             return db.devices(ACCOUNT.uid)
@@ -134,11 +133,9 @@ describe('remote push db', function() {
             assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
             assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
             assert.equal(device.pushEndpointExpired, deviceInfo.pushEndpointExpired, 'device.pushEndpointExpired is correct')
-          })
 
-          .then(function () {
-            var pushWithKnown400 = proxyquire('../../lib/push', mocksKnown400)(mockLog, db, {})
-            return pushWithKnown400.pushToAllDevices(ACCOUNT.uid, 'accountVerify')
+            const pushWithKnown400 = proxyquire('../../lib/push', mocksKnown400)(mockLog, db, {})
+            return pushWithKnown400.notifyUpdate(ACCOUNT.uid, devices, 'accountVerify')
           })
           .then(function () {
             return db.devices(ACCOUNT.uid)

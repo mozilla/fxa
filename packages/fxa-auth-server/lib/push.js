@@ -11,7 +11,7 @@ var ERR_NO_PUSH_CALLBACK = 'No Push Callback'
 var ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)'
 var ERR_TOO_MANY_DEVICES = 'Too many devices connected to account'
 
-var LOG_OP_PUSH_TO_DEVICES = 'push.pushToDevices'
+var LOG_OP_PUSH_TO_DEVICES = 'push.sendPush'
 
 var PUSH_PAYLOAD_SCHEMA_VERSION = 1
 var PUSH_COMMANDS = {
@@ -253,190 +253,148 @@ module.exports = function (log, db, config) {
 
   return {
 
-    isValidPublicKey: isValidPublicKey,
+    isValidPublicKey,
 
     /**
-     * Notifies all devices that there was an update to the account
+     * Notify devices that there was an update to the account
      *
      * @param {String} uid
+     * @param {Device[]} devices
      * @param {String} reason
+     * @param {Object} [options]
+     *   @param {String[]} [options.includedDeviceIds]
+     *   @param {String[]} [options.excludedDeviceIds]
+     *   @param {String} [options.data]
+     *   @param {String} [options.TTL] (in seconds)
      * @promise
      */
-    notifyUpdate: function notifyUpdate(uid, reason) {
-      reason = reason || 'accountVerify'
-      return this.pushToAllDevices(uid, reason)
+    notifyUpdate (uid, devices, reason, options = {}) {
+      if (options.includedDeviceIds) {
+        const include = new Set(options.includedDeviceIds)
+        devices = devices.filter(device => include.has(device.id))
+
+        if (devices.length === 0) {
+          return P.reject('devices empty')
+        }
+      } else if (options.excludedDeviceIds) {
+        const exclude = new Set(options.excludedDeviceIds)
+        devices = devices.filter(device => ! exclude.has(device.id))
+      }
+
+      return this.sendPush(uid, devices, reason, filterOptions(options))
     },
 
     /**
-     * Notifies all devices (except the one who joined) that a new device joined the account
+     * Notify devices (except currentDeviceId) that a new device was connected
      *
      * @param {String} uid
+     * @param {Device[]} devices
      * @param {String} deviceName
      * @param {String} currentDeviceId
      * @promise
      */
-    notifyDeviceConnected: function notifyDeviceConnected(uid, deviceName, currentDeviceId) {
-      var data = Buffer.from(JSON.stringify({
-        version: PUSH_PAYLOAD_SCHEMA_VERSION,
-        command: PUSH_COMMANDS.DEVICE_CONNECTED,
-        data: {
-          deviceName: deviceName
-        }
-      }))
-      var options = { data: data, excludedDeviceIds: [currentDeviceId] }
-      return this.pushToAllDevices(uid, 'deviceConnected', options)
+    notifyDeviceConnected (uid, devices, deviceName, currentDeviceId) {
+      return this.notifyUpdate(uid, devices, 'deviceConnected', {
+        data: encodePayload({
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.DEVICE_CONNECTED,
+          data: {
+            deviceName
+          }
+        }),
+        excludedDeviceIds: [ currentDeviceId ]
+      })
     },
 
     /**
-     * Notifies a device that it is now disconnected from the account
+     * Notify devices that a device was disconnected from the account
      *
      * @param {String} uid
+     * @param {Device[]} devices
      * @param {String} idToDisconnect
      * @promise
      */
-    notifyDeviceDisconnected: function notifyDeviceDisconnected(uid, idToDisconnect) {
-      var data = Buffer.from(JSON.stringify({
-        version: PUSH_PAYLOAD_SCHEMA_VERSION,
-        command: PUSH_COMMANDS.DEVICE_DISCONNECTED,
-        data: {
-          id: idToDisconnect
-        }
-      }))
-      var options = { data: data, TTL: TTL_DEVICE_DISCONNECTED }
-      return this.pushToAllDevices(uid, 'deviceDisconnected', options)
-    },
-
-    /**
-     * Notifies all devices that a the profile attached to the account was updated
-     *
-     * @param {String} uid
-     * @promise
-     */
-    notifyProfileUpdated: function notifyProfileUpdated(uid) {
-      var data = Buffer.from(JSON.stringify({
-        version: PUSH_PAYLOAD_SCHEMA_VERSION,
-        command: PUSH_COMMANDS.PROFILE_UPDATED
-      }))
-      var options = { data: data }
-      return this.pushToAllDevices(uid, 'profileUpdated', options)
-    },
-
-    /**
-     * Notifies a set of devices that the password was changed
-     *
-     * @param {String} uid
-     * @param {Device[]} devices
-     * @promise
-     */
-    notifyPasswordChanged: function notifyPasswordChanged(uid, devices) {
-      var data = Buffer.from(JSON.stringify({
-        version: PUSH_PAYLOAD_SCHEMA_VERSION,
-        command: PUSH_COMMANDS.PASSWORD_CHANGED
-      }))
-      var options = { data: data, TTL: TTL_PASSWORD_CHANGED }
-      return this.sendPush(uid, devices, 'passwordChange', options)
-    },
-
-    /**
-     * Notifies a set of devices that the password was reset
-     *
-     * @param {String} uid
-     * @param {Device[]} devices
-     * @promise
-     */
-    notifyPasswordReset: function notifyPasswordReset(uid, devices) {
-      var data = Buffer.from(JSON.stringify({
-        version: PUSH_PAYLOAD_SCHEMA_VERSION,
-        command: PUSH_COMMANDS.PASSWORD_RESET
-      }))
-      var options = { data: data, TTL: TTL_PASSWORD_RESET }
-      return this.sendPush(uid, devices, 'passwordReset', options)
-    },
-
-    /**
-     * Notifies a set of devices that the account no longer exists
-     *
-     * @param {String} uid
-     * @param {Device[]} devices
-     * @promise
-     */
-    notifyAccountDestroyed: function notifyAccountDestroyed(uid, devices) {
-      var data = Buffer.from(JSON.stringify({
-        version: PUSH_PAYLOAD_SCHEMA_VERSION,
-        command: PUSH_COMMANDS.ACCOUNT_DESTROYED,
-        data: {
-          uid: uid
-        }
-      }))
-      var options = { data: data, TTL: TTL_ACCOUNT_DESTROYED }
-      return this.sendPush(uid, devices, 'accountDestroyed', options)
-    },
-
-    /**
-     * Send a push notification with or without data to all the devices in the account (except the ones in the excludedDeviceIds)
-     *
-     * @param {String} uid
-     * @param {String} reason
-     * @param {Object} options
-     * @param {String} options.excludedDeviceIds
-     * @param {String} options.data
-     * @param {String} options.TTL (in seconds)
-     * @promise
-     */
-    pushToAllDevices: function pushToAllDevices(uid, reason, options) {
-      options = options || {}
-      var self = this
-      return db.devices(uid).then(
-        function (devices) {
-          if (options.excludedDeviceIds) {
-            devices = devices.filter(function(device) {
-              return options.excludedDeviceIds.indexOf(device.id) === -1
-            })
+    notifyDeviceDisconnected (uid, devices, idToDisconnect) {
+      return this.sendPush(uid, devices, 'deviceDisconnected', {
+        data: encodePayload({
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.DEVICE_DISCONNECTED,
+          data: {
+            id: idToDisconnect
           }
-          var pushOptions = filterOptions(options)
-          return self.sendPush(uid, devices, reason, pushOptions)
-        })
+        }),
+        TTL: TTL_DEVICE_DISCONNECTED
+      })
     },
 
     /**
-     * Send a push notification with or without data to a set of devices in the account
+     * Notify devices that the profile attached to the account was updated
      *
      * @param {String} uid
-     * @param {String[]} ids
-     * @param {String} reason
-     * @param {Object} options
-     * @param {String} options.data
-     * @param {String} options.TTL (in seconds)
+     * @param {Device[]} devices
      * @promise
      */
-    pushToDevices: function pushToDevices(uid, ids, reason, options) {
-      var self = this
-      return db.devices(uid).then(
-        function (devices) {
-          devices = devices.filter(function(device) {
-            return ids.indexOf(device.id) !== -1
-          })
-          if (devices.length === 0) {
-            return P.reject('Devices ids not found in devices')
+    notifyProfileUpdated (uid, devices) {
+      return this.sendPush(uid, devices, 'profileUpdated', {
+        data: encodePayload({
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.PROFILE_UPDATED
+        })
+      })
+    },
+
+    /**
+     * Notify devices that the password was changed
+     *
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @promise
+     */
+    notifyPasswordChanged (uid, devices) {
+      return this.sendPush(uid, devices, 'passwordChange', {
+        data: encodePayload({
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.PASSWORD_CHANGED
+        }),
+        TTL: TTL_PASSWORD_CHANGED
+      })
+    },
+
+    /**
+     * Notify devices that the password was reset
+     *
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @promise
+     */
+    notifyPasswordReset (uid, devices) {
+      return this.sendPush(uid, devices, 'passwordReset', {
+        data: encodePayload({
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.PASSWORD_RESET
+        }),
+        TTL: TTL_PASSWORD_RESET
+      })
+    },
+
+    /**
+     * Notify devices that the account no longer exists
+     *
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @promise
+     */
+    notifyAccountDestroyed (uid, devices) {
+      return this.sendPush(uid, devices, 'accountDestroyed', {
+        data: encodePayload({
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.ACCOUNT_DESTROYED,
+          data: {
+            uid
           }
-          var pushOptions = filterOptions(options || {})
-          return self.sendPush(uid, devices, reason, pushOptions)
-        })
-    },
-
-    /**
-     * Send a push notification with or without data to one device in the account
-     *
-     * @param {String} uid
-     * @param {String} id
-     * @param {String} reason
-     * @param {Object} options
-     * @param {String} options.data
-     * @param {String} options.TTL (in seconds)
-     * @promise
-     */
-    pushToDevice: function pushToDevice(uid, id, reason, options) {
-      return this.pushToDevices(uid, [id], reason, options)
+        }),
+        TTL: TTL_ACCOUNT_DESTROYED
+      })
     },
 
     /**
@@ -541,3 +499,8 @@ module.exports = function (log, db, config) {
     }
   }
 }
+
+function encodePayload (data) {
+  return Buffer.from(JSON.stringify(data))
+}
+

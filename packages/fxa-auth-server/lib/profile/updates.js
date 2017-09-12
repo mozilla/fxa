@@ -2,27 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const P = require('./../promise')
+'use strict'
 
 module.exports = function (log) {
 
-  return function start(messageQueue, push) {
+  return function start(messageQueue, push, db) {
 
     function handleProfileUpdated(message) {
       const uid = message && message.uid
 
-      return new P(resolve => {
-        log.info({ op: 'handleProfileUpdated', uid: uid, action: 'notify' })
-        resolve(push.notifyProfileUpdated(message.uid))
-      })
-      .catch(function(err) {
-        log.error({ op: 'handleProfileUpdated', uid: uid, action: 'error', err: err, stack: err && err.stack })
-      })
-      .then(function () {
-        log.info({ op: 'handleProfileUpdated', uid: uid, action: 'delete' })
-        // We always delete the message, we are not really mission critical
-        message.del()
-      })
+      log.info({ op: 'handleProfileUpdated', uid, action: 'notify' })
+
+      return db.devices(uid)
+        .then(devices => push.notifyProfileUpdated(uid, devices))
+        .catch(err => log.error({ op: 'handleProfileUpdated', uid, action: 'error', err, stack: err && err.stack }))
+        .then(() => {
+          log.info({ op: 'handleProfileUpdated', uid, action: 'delete' })
+          // We always delete the message, we are not really mission critical
+          message.del()
+        })
     }
 
     messageQueue.on('data', handleProfileUpdated)

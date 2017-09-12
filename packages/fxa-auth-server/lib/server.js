@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const fs = require('fs')
+const Hapi = require('hapi')
 const path = require('path')
 const url = require('url')
-const Hapi = require('hapi')
 const userAgent = require('./userAgent')
 
-const HEX_STRING = require('./routes/validators').HEX_STRING
+const { HEX_STRING } = require('./routes/validators')
 
 function trimLocale(header) {
   if (! header) {
@@ -275,6 +275,17 @@ function create(log, error, config, routes, db, translator) {
 
       defineLazyGetter(request.app, 'ua', () => userAgent(request.headers['user-agent']))
       defineLazyGetter(request.app, 'geo', () => getGeoData(request.app.clientAddress))
+      defineLazyGetter(request.app, 'devices', () => {
+        let uid
+
+        if (request.auth && request.auth.credentials) {
+          uid = request.auth.credentials.uid
+        } else if (request.payload && request.payload.uid) {
+          uid = request.payload.uid
+        }
+
+        return db.devices(uid)
+      })
 
       if (request.headers.authorization) {
         // Log some helpful details for debugging authentication problems.

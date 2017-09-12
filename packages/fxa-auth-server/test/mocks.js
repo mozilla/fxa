@@ -112,9 +112,7 @@ const PUSH_METHOD_NAMES = [
   'notifyPasswordReset',
   'notifyAccountDestroyed',
   'notifyProfileUpdated',
-  'notifyUpdate',
-  'pushToAllDevices',
-  'pushToDevices'
+  'notifyUpdate'
 ]
 
 module.exports = {
@@ -487,6 +485,7 @@ function mockRequest (data, errors) {
     app: {
       acceptLanguage: 'en-US',
       clientAddress: data.clientAddress || '63.245.221.32',
+      devices: P.resolve(data.devices || []),
       features: new Set(data.features),
       geo,
       locale: data.locale || 'en-US',

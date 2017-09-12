@@ -189,6 +189,10 @@ module.exports = (log, db, config, customs, push, devices) => {
           data: Buffer.from(JSON.stringify(payload))
         }
 
+        if (body.to !== 'all') {
+          pushOptions.includedDeviceIds = body.to
+        }
+
         if (body.excluded) {
           pushOptions.excludedDeviceIds = body.excluded
         }
@@ -200,15 +204,11 @@ module.exports = (log, db, config, customs, push, devices) => {
         const endpointAction = 'devicesNotify'
 
         return customs.checkAuthenticated(endpointAction, ip, uid)
-          .then(() => {
-            if (body.to === 'all') {
-              push.pushToAllDevices(uid, endpointAction, pushOptions)
-                .catch(catchPushError)
-            } else {
-              push.pushToDevices(uid, body.to, endpointAction, pushOptions)
-                .catch(catchPushError)
-            }
-          })
+          .then(() => request.app.devices)
+          .then(devices =>
+            push.notifyUpdate(uid, devices, endpointAction, pushOptions)
+              .catch(catchPushError)
+          )
           .then(() => {
             // Emit a metrics event for when a user sends tabs between devices.
             // In the future we will aim to get this event directly from sync telemetry,
@@ -420,8 +420,10 @@ module.exports = (log, db, config, customs, push, devices) => {
           .then(res => {
             result = res
           })
-          .then(() => push.notifyDeviceDisconnected(uid, id)
-                          .catch(() => {})
+          .then(() => request.app.devices)
+          .then(devices =>
+            push.notifyDeviceDisconnected(uid, devices, id)
+              .catch(() => {})
           )
           .then(() => {
             return P.all([

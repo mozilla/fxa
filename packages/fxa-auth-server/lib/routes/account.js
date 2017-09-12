@@ -1343,10 +1343,10 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
       },
       handler: function accountReset(request, reply) {
         log.begin('Account.reset', request)
-        var accountResetToken = request.auth.credentials
-        var authPW = request.payload.authPW
-        var account, sessionToken, keyFetchToken, verifyHash, wrapKb, devicesToNotify
-        var hasSessionToken = request.payload.sessionToken
+        const accountResetToken = request.auth.credentials
+        const authPW = request.payload.authPW
+        const hasSessionToken = request.payload.sessionToken
+        let account, sessionToken, keyFetchToken, verifyHash, wrapKb
 
         request.validateMetricsContext()
 
@@ -1358,24 +1358,12 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         }
         request.setMetricsFlowCompleteSignal(flowCompleteSignal)
 
-        return fetchDevicesToNotify()
-          .then(resetAccountData)
+        return resetAccountData()
           .then(createSessionToken)
           .then(createKeyFetchToken)
           .then(recordSecurityEvent)
           .then(createResponse)
           .then(reply, reply)
-
-        function fetchDevicesToNotify() {
-          // We fetch the devices to notify before resetAccountData() because
-          // db.resetAccount() deletes all the devices saved in the account.
-          return db.devices(accountResetToken.uid)
-            .then(
-              function(devices) {
-                devicesToNotify = devices
-              }
-            )
-        }
 
         function resetAccountData () {
           let authSalt, password, wrapWrapKb
@@ -1411,7 +1399,9 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             .then(
               function () {
                 // Notify the devices that the account has changed.
-                push.notifyPasswordReset(accountResetToken.uid, devicesToNotify)
+                request.app.devices.then(devices =>
+                  push.notifyPasswordReset(accountResetToken.uid, devices)
+                )
 
                 return db.account(accountResetToken.uid)
                   .then((accountData) => {
@@ -1578,7 +1568,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                 )
                 .then(
                   function () {
-                    push.notifyAccountDestroyed(uid, devicesToNotify).catch(function () {})
+                    push.notifyAccountDestroyed(uid, devicesToNotify)
+                      .catch(() => {})
                     return P.all([
                       log.notifyAttachedServices('delete', request, {
                         uid: uid,

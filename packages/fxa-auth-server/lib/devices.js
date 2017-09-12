@@ -57,7 +57,9 @@ module.exports = (log, db, push) => {
             deviceName = synthesizeName(deviceInfo)
           }
           if (sessionToken.tokenVerified) {
-            push.notifyDeviceConnected(sessionToken.uid, deviceName, result.id)
+            request.app.devices.then(devices =>
+              push.notifyDeviceConnected(sessionToken.uid, devices, deviceName, result.id)
+            )
           }
           if (isPlaceholderDevice) {
             log.info({

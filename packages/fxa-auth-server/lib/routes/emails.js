@@ -413,7 +413,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   request.emitMetricsEvent('account.confirmed', {
                     uid: uid
                   })
-                  push.notifyUpdate(uid, 'accountConfirm')
+                  request.app.devices.then(devices =>
+                    push.notifyUpdate(uid, devices, 'accountConfirm')
+                  )
                 }
               })
               .catch(err => {
@@ -432,7 +434,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
               })
               .then(() => {
                 if (device) {
-                  push.notifyDeviceConnected(uid, device.name, device.id)
+                  request.app.devices.then(devices =>
+                    push.notifyDeviceConnected(uid, devices, device.name, device.id)
+                  )
                 }
               })
               .then(() => {
@@ -471,7 +475,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   })
                   .then(() => {
                     // send a push notification to all devices that the account changed
-                    push.notifyUpdate(uid, 'accountVerify')
+                    request.app.devices.then(devices =>
+                      push.notifyUpdate(uid, devices, 'accountVerify')
+                    )
 
                     // remove verification reminders
                     verificationReminder.delete({
@@ -791,7 +797,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
               return db.setPrimaryEmail(uid, email.normalizedEmail)
             })
             .then(() => {
-              push.notifyProfileUpdated(uid)
+              request.app.devices.then(devices => push.notifyProfileUpdated(uid, devices))
               log.notifyAttachedServices('primaryEmailChanged', request, {
                 uid: account.uid,
                 email: email

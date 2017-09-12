@@ -116,10 +116,11 @@ describe('devices', () => {
 
             assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once')
             args = push.notifyDeviceConnected.args[0]
-            assert.equal(args.length, 3, 'push.notifyDeviceConnected was passed three arguments')
+            assert.equal(args.length, 4, 'push.notifyDeviceConnected was passed four arguments')
             assert.equal(args[0], sessionToken.uid, 'first argument was uid')
-            assert.equal(args[1], device.name, 'second arguent was device name')
-            assert.equal(args[2], deviceId, 'third argument was device id')
+            assert.ok(Array.isArray(args[1]), 'second argument was devices array')
+            assert.equal(args[2], device.name, 'third arguent was device name')
+            assert.equal(args[3], deviceId, 'fourth argument was device id')
           })
       })
 
@@ -156,7 +157,7 @@ describe('devices', () => {
 
             assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once')
             assert.equal(push.notifyDeviceConnected.args[0][0], sessionToken.uid, 'uid was correct')
-            assert.equal(push.notifyDeviceConnected.args[0][1], 'Firefox', 'device name was included')
+            assert.equal(push.notifyDeviceConnected.args[0][2], 'Firefox', 'device name was included')
 
           })
       })

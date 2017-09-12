@@ -184,18 +184,15 @@ module.exports = function (
         function fetchDevicesToNotify() {
           // We fetch the devices to notify before changePassword() because
           // db.resetAccount() deletes all the devices saved in the account.
-          return db.devices(passwordChangeToken.uid)
-            .then(
-              function(devices) {
-                devicesToNotify = devices
-                // If the originating sessionToken belongs to a device,
-                // do not send the notification to that device. It will
-                // get informed about the change via WebChannel message.
-                if (originatingDeviceId) {
-                  devicesToNotify = devicesToNotify.filter(d => (d.id !== originatingDeviceId))
-                }
-              }
-            )
+          return request.app.devices.then(devices => {
+            devicesToNotify = devices
+            // If the originating sessionToken belongs to a device,
+            // do not send the notification to that device. It will
+            // get informed about the change via WebChannel message.
+            if (originatingDeviceId) {
+              devicesToNotify = devicesToNotify.filter(d => (d.id !== originatingDeviceId))
+            }
+          })
         }
 
         function changePassword() {

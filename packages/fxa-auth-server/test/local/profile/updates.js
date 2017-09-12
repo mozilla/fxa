@@ -6,7 +6,7 @@ const assert = require('insist')
 
 const EventEmitter = require('events').EventEmitter
 const sinon = require('sinon')
-const spyLog = require('../../mocks').spyLog
+const { mockDB, spyLog } = require('../../mocks')
 const profileUpdates = require('../../../lib/profile/updates')
 const P = require('../../../lib/promise')
 
@@ -30,7 +30,7 @@ const mockPush = {
 }
 
 function mockProfileUpdates(log) {
-  return profileUpdates(log)(mockDeliveryQueue, mockPush)
+  return profileUpdates(log)(mockDeliveryQueue, mockPush, mockDB())
 }
 
 describe('profile updates', () => {
