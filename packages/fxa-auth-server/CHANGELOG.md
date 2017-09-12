@@ -1,3 +1,13 @@
+<a name="1.95.1"></a>
+## [1.95.1](https://github.com/mozilla/fxa-auth-server/compare/v1.95.0...v1.95.1) (2017-09-12)
+
+
+### Bug Fixes
+
+* **push:** Only send device connection push msgs to iOS 10+ (#2108) r=vladikoff ([6b1f73d](https://github.com/mozilla/fxa-auth-server/commit/6b1f73d))
+
+
+
 <a name="1.95.0"></a>
 # [1.95.0](https://github.com/mozilla/fxa-auth-server/compare/v1.94.2...v1.95.0) (2017-09-06)
 
