@@ -26,6 +26,10 @@ function mockedBounces(log, db) {
 }
 
 describe('bounce messages', () => {
+  afterEach(() => {
+    mockBounceQueue.removeAllListeners()
+  })
+
   it(
     'should ignore unknown message types',
     () => {
