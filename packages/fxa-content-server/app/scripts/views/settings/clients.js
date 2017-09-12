@@ -20,6 +20,8 @@ define(function (require, exports, module) {
   const UserAgentMixin = require('lib/user-agent-mixin');
 
   const DEVICE_REMOVED_ANIMATION_MS = 150;
+  const LOADING_INDICATOR_BUTTON = '.settings-button.settings-unit-loading';
+  const CLIENT_LIST_FORM = '.client-list-form';
 
   const UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
   const DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
@@ -196,8 +198,11 @@ define(function (require, exports, module) {
 
     openPanel () {
       this.logViewEvent('open');
-      // manually submit using an element to trigger the progress indicator mixin
-      return this.validateAndSubmit();
+      this.$el.find(CLIENT_LIST_FORM).hide();
+      this.$el.find(LOADING_INDICATOR_BUTTON).show();
+      return this.validateAndSubmit(null, {
+        artificialDelay: View.MIN_REFRESH_INDICATOR_MS
+      });
     },
 
     _fetchAttachedClients () {
@@ -235,7 +240,7 @@ define(function (require, exports, module) {
         // only refresh devices if panel is visible
         // if panel is hidden there is no point of fetching devices.
         // The re-render is done in afterSubmit to ensure
-        // the minimum artifical delay time is honored before
+        // the minimum artificial delay time is honored before
         // re-rendering.
         return this._fetchAttachedClients();
       }

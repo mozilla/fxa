@@ -209,9 +209,16 @@ define(function (require, exports, module) {
      * displayError will display the error to the user.
      *
      * @method validateAndSubmit
+     * @param {Object} [event]
+     * @param {Object} [options]
+     * @param {Object} [options.artificialDelay={}]
+     * Minimum artificial delay for the submit to resolve, useful for loading indicators
      * @return {Promise}
      */
-    validateAndSubmit: allowOnlyOneSubmit(function validateAndSubmit (event) {
+    validateAndSubmit: allowOnlyOneSubmit(function validateAndSubmit (event, options = {}) {
+      const startTime = Date.now();
+      const artificialDelay = options.artificialDelay || 0;
+
       if (event) {
         event.stopImmediatePropagation();
       }
@@ -240,7 +247,14 @@ define(function (require, exports, module) {
           // all good, do the beforeSubmit, submit, and afterSubmit chain.
           this.logViewEvent('submit');
           return this._submitForm()
-            .then(() => this.afterSubmit());
+            .then(() => {
+              const diff = Date.now() - startTime;
+              const extraDelayTimeMS = Math.max(artificialDelay - diff, 0);
+              return p().delay(extraDelayTimeMS);
+            })
+            .then(() => {
+              return this.afterSubmit();
+            });
         });
     }),
 

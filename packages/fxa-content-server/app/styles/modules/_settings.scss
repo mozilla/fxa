@@ -196,7 +196,8 @@ body.settings #main-content.card {
     }
   }
 
-  &.settings-unit-toggle {
+  &.settings-unit-toggle,
+  &.settings-unit-loading {
     display: block;
     height: 35px;
 
@@ -256,6 +257,13 @@ body.settings #main-content.card {
       background: $secondary-button-background-color;
       border-color: $html-background-color;
       box-shadow: 0 0 0 2px $button-box-shadow-color;
+    }
+
+    &:disabled,
+    &.disabled {
+      background: $button-background-default-color;
+      border: solid 1px $button-border-disabled-color;
+      color: $button-disabled-color;
     }
   }
 
@@ -452,7 +460,6 @@ body.settings #main-content.card {
 
 .settings-unit-details {
   display: none;
-  margin-top: 12px;
 
   a {
     text-decoration: none;
@@ -468,7 +475,8 @@ body.settings #main-content.card {
   display: block;
 }
 
-.open .settings-unit-toggle {
+.open .settings-unit-toggle,
+.settings-button.settings-unit-loading {
   display: none;
 }
 

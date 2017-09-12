@@ -62,7 +62,7 @@ define([
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
-        .then(click('#clients .settings-unit-stub button'))
+        .then(click('#clients .settings-unit-stub button.settings-unit-toggle'))
 
         // current session has the text `current session`
         .then(FunctionalHelpers.testElementTextEquals(
@@ -110,7 +110,7 @@ define([
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
-        .then(click('#clients .settings-unit-stub button'))
+        .then(click('#clients .settings-unit-stub button.settings-unit-toggle'))
 
         // add a device from the test runner
         .then(function () {
@@ -203,6 +203,8 @@ define([
         .then(click('.cancel-disconnect'))
         .waitForDeletedByCssSelector('#client-disconnect')
         .end()
+
+        .refresh()
 
         .then(click('.client-device:nth-child(2) .client-disconnect'))
         .then(click('.disconnect-reasons > label > input[value="lost"]'))

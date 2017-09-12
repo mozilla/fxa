@@ -12,6 +12,7 @@
 .spinner {
   @include hidpi-background-image('spinnerlight', 36px 36px);
   animation: 0.9s spin infinite linear;
+  background-repeat: no-repeat;
   display: block;
   height: 36px;
   margin: 130px auto 0;
@@ -39,5 +40,12 @@
     @include respond-to('trustedUI') {
       top: -4px;
     }
+  }
+
+  &.spinner-settings-fetch {
+    @include hidpi-background-image('spinnergrey', 25px 25px);
+    height: 25px;
+    margin: 0 auto;
+    width: 25px;
   }
 }
