@@ -14,11 +14,6 @@
  * } else {
  *   return this.navigateToAnotherScreen();
  * }
- *
- * This mixin unfortunately requires a bunch of other mixins:
- *  - ExperimentMixin,
- *  - UserAgentMixin,
- *  - VerificationReasonMixin
  */
 
 define((require, exports, module) => {
@@ -59,6 +54,12 @@ define((require, exports, module) => {
              isEligibleForCadOnSignin;
     },
 
+    /**
+     * Navigate to the appropriate CAD screen for `account` in the signin flow.
+     *
+     * @param {Object} account
+     * @returns {Promise}
+     */
     navigateToConnectAnotherDeviceOnSigninScreen (account) {
       if (! this.isEligibleForConnectAnotherDeviceOnSignin(account)) {
         // this shouldn't happen IRL.
