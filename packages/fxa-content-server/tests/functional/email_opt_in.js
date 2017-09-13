@@ -31,7 +31,7 @@ define([
   var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
   var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
-  var waitForBasket = thenify(_waitForBasket);
+  var waitForBasket = _waitForBasket;
 
   var testOptedIn = thenify(function () {
     return this.parent

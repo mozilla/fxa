@@ -179,7 +179,7 @@ define([], function () {
       LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION: '#email-suggestion',
       LINK_SUGGEST_SIGN_IN: '.error a[href="/signin"]',
       LINK_SUGGEST_SYNC: '#suggest-sync a',
-      MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin',
+      MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin + span',
       PASSWORD: '#password',
       SUBMIT: 'button[type="submit"]',
       SUBMIT_DISABLED: 'button[type="submit"].disabled',
