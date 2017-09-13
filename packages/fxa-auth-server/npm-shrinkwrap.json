@@ -1,6 +1,6 @@
 {
   "name": "fxa-oauth-server",
-  "version": "1.95.0",
+  "version": "1.95.1",
   "dependencies": {
     "bluebird": {
       "version": "2.11.0",
