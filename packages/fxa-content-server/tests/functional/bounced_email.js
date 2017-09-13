@@ -7,13 +7,14 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'tests/functional/lib/selectors',
+  'tests/functional/lib/ua-strings'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, uaStrings) {
   var bouncedEmail;
   var deliveredEmail;
   const PASSWORD = '12345678';
-  const SIGNIN_URL = `${intern.config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
-  const SIGNUP_URL = `${intern.config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync`;
+  const SIGNIN_URL = `${intern.config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(uaStrings.desktop_firefox_57)}`; //eslint-disable-line max-len
+  const SIGNUP_URL = `${intern.config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(uaStrings.desktop_firefox_57)}`; //eslint-disable-line max-len
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;
@@ -34,7 +35,7 @@ define([
   const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
-    name: 'sign_up with an email that bounces',
+    name: 'signup with an email that bounces',
 
     beforeEach () {
       bouncedEmail = TestHelpers.createEmail();
@@ -44,8 +45,12 @@ define([
         // ensure a fresh signup page is loaded. If this suite is
         // run after a Sync suite, these tests try to use a Sync broker
         // which results in a channel timeout.
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }));
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': { ok: true },
+            'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+          }
+        }));
     },
 
     afterEach () {
@@ -116,8 +121,12 @@ define([
     return this.parent
       .then(clearBrowserState({ force: true }))
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
+      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER, {
+        webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true },
+          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+        }
+      }))
       .then(fillOutSignIn(email, PASSWORD))
       .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -130,7 +139,7 @@ define([
   });
 
   registerSuite({
-    name: 'sign_in with an email that bounces',
+    name: 'signin with an email that bounces',
 
     afterEach () {
       return this.remote.then(clearBrowserState());
@@ -168,6 +177,7 @@ define([
       return this.remote
         .then(setUpBouncedSignIn())
         .refresh()
+        .then(respondToWebChannelMessage('fxaccounts:fxa_status', { capabilities: null, signedInUser: null }))
         .then(testElementExists(selectors.SIGNIN.HEADER));
     }
   });
