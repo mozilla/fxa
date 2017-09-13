@@ -1,3 +1,13 @@
+<a name="1.95.1"></a>
+## [1.95.1](https://github.com/mozilla/fxa-profile-server/compare/v1.95.0...v1.95.1) (2017-09-13)
+
+
+### chore
+
+* **deps:** Update hapi to latest version. (#281) r=vladikoff ([08ba257](https://github.com/mozilla/fxa-profile-server/commit/08ba257))
+
+
+
 <a name="1.95.0"></a>
 # [1.95.0](https://github.com/mozilla/fxa-profile-server/compare/v1.94.0...v1.95.0) (2017-09-06)
 
