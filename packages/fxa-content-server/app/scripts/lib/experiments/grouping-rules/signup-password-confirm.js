@@ -20,10 +20,6 @@ define((require, exports, module) => {
         return false;
       }
 
-      if (subject.forceExperiment === this.name && subject.forceExperimentGroup) {
-        return subject.forceExperimentGroup;
-      }
-
       if (! subject.experimentGroupingRules || subject.experimentGroupingRules.choose('q3FormChanges', subject) !== this.name) {
         return false;
       }

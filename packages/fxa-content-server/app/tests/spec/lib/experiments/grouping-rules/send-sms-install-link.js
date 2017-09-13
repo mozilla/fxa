@@ -25,13 +25,6 @@ define(function (require, exports, module) {
         assert.isFalse(experiment.choose({ uniqueUserId: 'user-id' }));
       });
 
-      describe('forceExperiment, forceExperimentGroup set', () => {
-        it('returns `treatment`', () => {
-          account.set('email', 'testuser@testuser.com');
-          assert.equal(experiment.choose({ account, forceExperiment: 'sendSms', forceExperimentGroup: 'treatment', uniqueUserId: 'user-id' }), 'treatment');
-        });
-      });
-
       describe('email forces `signinCodes`', () => {
         it('returns true', () => {
           account.set('email', 'testuser@softvision.com');

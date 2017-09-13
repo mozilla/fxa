@@ -30,9 +30,7 @@ define((require, exports, module) => {
 
       let choice;
 
-      if (subject.forceExperiment === this.name && subject.forceExperimentGroup) {
-        choice = subject.forceExperimentGroup;
-      } else if (isEmailInSigninCodesGroup(subject.account.get('email'))) {
+      if (isEmailInSigninCodesGroup(subject.account.get('email'))) {
         choice = 'signinCodes';
       } else {
         choice = this.uniformChoice(GROUPS, subject.uniqueUserId);

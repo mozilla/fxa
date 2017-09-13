@@ -26,8 +26,6 @@ define((require, exports, module) => {
 
       if (! this._areSubjectPrereqsMet(subject)) {
         return false;
-      } else if (subject.forceExperiment === this.name && subject.forceExperimentGroup) {
-        return subject.forceExperimentGroup;
       } else if (! subject.isEmailFirstSupported) {
         // isEmailFirstSupported is `true` for brokers that support the email-first flow.
         return false;

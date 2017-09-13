@@ -46,15 +46,6 @@ define(function (require, exports, module) {
         assert.isFalse(experiment.choose({ uniqueUserId: 'user-id' }));
       });
 
-      it('returns experiment if forceExperiment', () => {
-        assert.equal(experiment.choose({
-          experimentGroupingRules,
-          forceExperiment: 'emailFirst',
-          forceExperimentGroup: 'control',
-          uniqueUserId: 'user-id'
-        }), 'control');
-      });
-
       it('returns `false` if `isEmailFirstSupported=false`', () => {
         assert.isFalse(experiment.choose({
           experimentGroupingRules,

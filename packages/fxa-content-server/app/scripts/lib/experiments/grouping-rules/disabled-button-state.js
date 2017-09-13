@@ -30,15 +30,7 @@ define((require, exports, module) => {
         return false;
       }
 
-      let choice;
-
-      if (subject.forceExperiment === this.name && subject.forceExperimentGroup) {
-        choice = subject.forceExperimentGroup;
-      } else {
-        choice = this.uniformChoice(GROUPS, subject.uniqueUserId);
-      }
-
-      return choice;
+      return this.uniformChoice(GROUPS, subject.uniqueUserId);
     }
   };
 });

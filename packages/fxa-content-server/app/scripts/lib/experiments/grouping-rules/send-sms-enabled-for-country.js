@@ -28,6 +28,8 @@ define((require, exports, module) => {
     constructor () {
       super();
       this.name = 'sendSmsEnabledForCountry';
+      // This experiment must be allowed if `sendSms` is forced.
+      this.forceExperimentAllow = 'sendSms';
       this.ENABLED_COUNTRY_LIST = ENABLED_COUNTRY_LIST;
     }
 

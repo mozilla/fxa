@@ -15,6 +15,7 @@ define(function (require, exports, module) {
       let experimentGroupingRules;
       let rule1;
       let rule2;
+      let rule3;
 
       before(() => {
         rule1 = {
@@ -25,18 +26,33 @@ define(function (require, exports, module) {
           choose: sinon.spy(() => 'treatment'),
           name: 'rule2'
         };
+        rule3 = {
+          choose: sinon.spy(() => 'control'),
+          forceExperimentAllow: 'rule2',
+          name: 'rule3'
+        };
 
         experimentGroupingRules = new ExperimentGroupingRules({
           env: 'development',
           experimentGroupingRules: [
             rule1,
-            rule2
+            rule2,
+            rule3
           ]
         });
       });
 
       it('returns `undefined` if ExperimentGroupingRule with name does not exist', () => {
         assert.isUndefined(experimentGroupingRules.choose('does-not-exist', {}));
+      });
+
+      it('returns `false` if experiment does not meet forceExperiment requirements', () => {
+        assert.isFalse(experimentGroupingRules.choose('rule1', { forceExperiment: 'rule2', forceExperimentGroup: 'treatment' }));
+        assert.isFalse(experimentGroupingRules.choose('rule3', { forceExperiment: 'rule1', forceExperimentGroup: 'treatment' }));
+      });
+
+      it('returns `forceExperimentGroup` if defined and `forceExperiment === experiment.name', () => {
+        assert.equal(experimentGroupingRules.choose('rule1', { forceExperiment: 'rule1', forceExperimentGroup: 'treatment' }), 'treatment');
       });
 
       it('delegates to the experimentGroupingRule', () => {
@@ -49,6 +65,10 @@ define(function (require, exports, module) {
         assert.equal(experimentGroupingRules.choose('rule2', subject), 'treatment');
         assert.isTrue(rule2.choose.calledOnce);
         assert.isTrue(rule2.choose.calledWith(subject));
+
+        // rule3 is allowed even if rule2 is forced.
+        subject.forceExperiment = 'rule2';
+        assert.equal(experimentGroupingRules.choose('rule3', subject), 'control');
       });
     });
 

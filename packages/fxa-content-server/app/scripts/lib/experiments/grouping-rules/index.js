@@ -40,6 +40,12 @@ define((require, exports, module) => {
     choose (name, subject = {}) {
       const experiment = _.find(this._experimentGroupingRules, (experimentGroupingRule) => experimentGroupingRule.name === name);
       if (experiment) {
+        if (! isExperimentAllowed(experiment, subject)) {
+          return false;
+        } else if (useForceExperimentGroup(experiment, subject)) {
+          return subject.forceExperimentGroup;
+        }
+
         // A reference to `experimentGroupingRules` is passed in
         // `subject` to allow tests to recursively call other tests.
         // Passing via the `subject` instead of the constructor
@@ -53,4 +59,26 @@ define((require, exports, module) => {
       }
     }
   };
+
+  function isExperimentAllowed(experiment, subject) {
+    // Functional tests use the forceExperiment & forceExperimentGroup query parameters
+    // to force entry into a given experiment. When forcing a given experiment,
+    // functional tests do not expect interference from other functional tests.
+    // If forceExperiment and forceExperimentGroup are specified, *only* enter the
+    // user into the experiment whose name matches forceExperimentGroup. Ignore
+    // all other experiments unless they are explicitly allowed.
+    return ! subject.forceExperiment ||
+             allowExperimentWithForceExperiment(experiment, subject.forceExperiment);
+  }
+
+  function allowExperimentWithForceExperiment(experiment, forceExperiment) {
+    return forceExperiment === experiment.name ||
+           forceExperiment === experiment.forceExperimentAllow;
+  }
+
+  function useForceExperimentGroup (experiment, subject) {
+    return subject.forceExperiment &&
+           subject.forceExperimentGroup &&
+           subject.forceExperiment === experiment.name;
+  }
 });
