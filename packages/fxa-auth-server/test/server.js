@@ -76,7 +76,7 @@ describe('server', function() {
   describe('a large request body', function() {
     var args = { token: '' };
     var argslen = JSON.stringify(args).length;
-    const HAPI_PAYLOAD_MAXBYTES = 16384; // see '../lib/server.js'
+    const HAPI_PAYLOAD_MAXBYTES = 16384; // see '../lib/server/config.js'
     var blob = new Array(HAPI_PAYLOAD_MAXBYTES - argslen + 1).join('a');
 
     it('below the limit, returns 40? with ???', function(done) {
@@ -112,10 +112,10 @@ describe('server', function() {
         }
       }).then(function(res) {
         var result = res.result;
-        assert.equal(res.statusCode, 400);
+        assert.equal(res.statusCode, 413);
         assertSecurityHeaders(res);
         assert.equal(result.errno, 999);
-        assert.equal(result.error, 'Bad Request');
+        assert.equal(result.error, 'Request Entity Too Large');
         var message = result.message;
         assert.equal(message.indexOf('Payload content length greater'), 0);
       }).done(done, done);
