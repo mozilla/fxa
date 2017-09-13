@@ -378,6 +378,10 @@ describe('/password', () => {
           log: mockLog
         })
         var passwordRoutes = makeRoutes({
+          config: {
+            domain: 'wibble',
+            smtp: {}
+          },
           db: mockDB,
           push: mockPush,
           mailer: mockMailer,
@@ -391,6 +395,13 @@ describe('/password', () => {
 
           assert.equal(mockPush.notifyPasswordChanged.callCount, 1)
           assert.deepEqual(mockPush.notifyPasswordChanged.firstCall.args[0], uid)
+
+          const notifyArgs = mockLog.notifyAttachedServices.args[0]
+          assert.equal(notifyArgs.length, 3, 'log.notifyAttachedServices was passed three arguments')
+          assert.equal(notifyArgs[0], 'passwordChange', 'first argument was event name')
+          assert.equal(notifyArgs[1], mockRequest, 'second argument was request object')
+          assert.equal(notifyArgs[2].uid, uid, 'third argument was event data with a uid')
+          assert.equal(notifyArgs[2].iss, 'wibble', 'third argument was event data with an issuer field')
 
           assert.equal(mockDB.account.callCount, 1)
           assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1)
