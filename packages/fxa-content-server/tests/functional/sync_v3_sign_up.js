@@ -53,16 +53,12 @@ define([
       return this.remote.then(clearBrowserState());
     },
 
-    'sign up, user verifies at CWTS': function () {
+    'Fx <= 56, user verifies at CWTS': function () {
       return this.remote
         .then(openPage(SIGNUP_FX_55_PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
-            'fxaccounts:can_link_account': {
-              ok: true
-            },
-            'fxaccounts:fxa_status': {
-              signedInUser: null
-            }
+            'fxaccounts:can_link_account': { ok: true },
+            'fxaccounts:fxa_status': { signedInUser: null },
           }
         }))
         .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
@@ -75,6 +71,29 @@ define([
 
         // about:accounts takes over, so no screen transition
         .then(noPageTransition(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        // but the login message is sent automatically.
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
+
+    'Fx >= 57, user verifies at CWTS': function () {
+      return this.remote
+        .then(openPage(SIGNUP_FX_57_PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': { ok: true },
+            'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+          }
+        }))
+        .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
+
+        .then(fillOutSignUp(email, PASSWORD))
+
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+
+        // In fx >= 57, about:accounts does not take over.
+        // Expect a screen transition.
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
         // but the login message is sent automatically.
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
@@ -273,6 +292,7 @@ define([
 
         .then(openVerificationLinkInDifferentBrowser(email))
 
+        // about:accounts takes over, no screen transition
         .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER, 5000));
     },
 
@@ -292,6 +312,7 @@ define([
 
         .then(openVerificationLinkInDifferentBrowser(email))
 
+        // about:accounts does not take over, expect a screen transition.
         .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
     },
   });
