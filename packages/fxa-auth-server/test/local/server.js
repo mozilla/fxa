@@ -135,7 +135,6 @@ describe('lib/server', () => {
           assert.equal(args[0], log.begin.args[0][1])
           assert.ok(args[1])
           assert.equal(args[1].isBoom, undefined)
-          assert.equal(args[1].message, undefined)
           assert.equal(args[1].errno, undefined)
           assert.equal(args[1].statusCode, 200)
           assert.equal(args[1].source, 'ok')

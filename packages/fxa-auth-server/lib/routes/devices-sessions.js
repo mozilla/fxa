@@ -75,7 +75,7 @@ module.exports = (log, db, config, customs, push, devices) => {
 
         // Some additional, slightly tricky validation to detect bad public keys.
         if (payload.pushPublicKey && ! push.isValidPublicKey(payload.pushPublicKey)) {
-          throw error.invalidRequestParameter('invalid pushPublicKey')
+          return reply(error.invalidRequestParameter('invalid pushPublicKey'))
         }
 
         if (payload.id) {
@@ -87,7 +87,7 @@ module.exports = (log, db, config, customs, push, devices) => {
           // We also reserve the right to disable updates until
           // we're confident clients are behaving correctly.
           if (config.deviceUpdatesEnabled === false) {
-            throw error.featureNotEnabled()
+            return reply(error.featureNotEnabled())
           }
         } else if (sessionToken.deviceId) {
           // Keep the old id, which is probably from a synthesized device record
@@ -172,7 +172,7 @@ module.exports = (log, db, config, customs, push, devices) => {
         // We reserve the right to disable notifications until
         // we're confident clients are behaving correctly.
         if (config.deviceNotificationsEnabled === false) {
-          throw error.featureNotEnabled()
+          return reply(error.featureNotEnabled())
         }
 
         const body = request.payload
@@ -182,7 +182,7 @@ module.exports = (log, db, config, customs, push, devices) => {
         const payload = body.payload
 
         if (! validatePushPayload(payload)) {
-          throw error.invalidRequestParameter('invalid payload')
+          return reply(error.invalidRequestParameter('invalid payload'))
         }
 
         const pushOptions = {
