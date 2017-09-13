@@ -25,7 +25,7 @@ define((require, exports, module) => {
      * @returns {Any}
      */
     choose (subject) {
-      if (! this._areSubjectPrereqsMet(subject)) {
+      if (! this._isValidSubject(subject)) {
         return false;
       }
 
@@ -37,13 +37,13 @@ define((require, exports, module) => {
     }
 
     /**
-     * Are the subject pre-requisites met?
+     * Is the subject valid?
      *
      * @param {Object} subject
      * @returns {Boolean}
      * @private
      */
-    _areSubjectPrereqsMet (subject) {
+    _isValidSubject (subject) {
       return subject &&
              subject.account &&
              subject.account.get('email');

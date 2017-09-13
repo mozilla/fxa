@@ -45,11 +45,6 @@ define(function (require, exports, module) {
   // translated but have not yet translated the contextualized variant.
   t('Sign in');
 
-  // PR #5408 has these strings
-  t('Signin confirmed');
-  t('Still adding devices?');
-  t('Why is more than one device required?');
-
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context

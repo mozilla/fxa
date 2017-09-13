@@ -41,10 +41,10 @@ define((require, exports, module) => {
     ],
 
     /**
-     * Is the user eligible for the CAD on signin?
+     * Is `account` eligible for he connect another device on signin?
      *
      * @param {any} account
-     * @returns {Booelean}
+     * @returns {Boolean}
      */
     isEligibleForConnectAnotherDeviceOnSignin (account) {
       const isEligibleForCadOnSignin = !! this.getExperimentGroup('cadOnSignin', { account });

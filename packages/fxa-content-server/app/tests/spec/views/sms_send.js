@@ -138,7 +138,7 @@
          sinon.stub(view, 'isSignIn').callsFake(() => true);
          return view.render()
            .then(() => {
-             assert.include(view.$('.instructions').text().toLowerCase(), 'still adding devices');
+             assert.include(view.$('.send-sms > p').text().toLowerCase(), 'still adding devices');
            });
        });
      });

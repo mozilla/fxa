@@ -15,7 +15,7 @@
     <div class="graphic graphic-connect-another-device">{{#t}}Success{{/t}}</div>
 
     {{#canSignIn}}
-      <p class="instructions">
+      <p>
         {{#t}}Sign in to this Firefox to complete set-up{{/t}}
       </p>
 
@@ -30,7 +30,7 @@
         <!-- User verified in Fx for Android - they are using an old Fennec
         or are already signed in. Ignore old browsers, assume already signed in.
         Encourage installation on another device. -->
-        <p id="connect-other-firefox-from-android" class="instructions">
+        <p id="connect-other-firefox-from-android">
           {{#isSignIn}}
             {{#t}}Still adding devices?{{/t}}
           {{/isSignIn}}
@@ -38,7 +38,7 @@
         </p>
       {{/isFirefoxAndroid}}
       {{#isFirefoxDesktop}}
-        <p id="install-mobile-firefox-desktop" class="instructions">
+        <p id="install-mobile-firefox-desktop">
           {{#isSignIn}}
             {{#t}}Still adding devices?{{/t}}
           {{/isSignIn}}
@@ -47,25 +47,25 @@
       {{/isFirefoxDesktop}}
       {{#isFirefoxIos}}
         <!-- user verifies in Fx for iOS, assume they are not signed in -->
-        <p id="signin-fxios" class="instructions">
+        <p id="signin-fxios">
           {{#t}}Open settings and select Sign in to Firefox to complete set-up{{/t}}
         </p>
       {{/isFirefoxIos}}
       {{#isOtherAndroid}}
         <!-- Another android browser, encourage Fx for Android installation -->
-        <p id="install-mobile-firefox-android" class="instructions">
+        <p id="install-mobile-firefox-android">
           {{#t}}Sign in to Firefox for Android to complete set-up{{/t}}
         </p>
       {{/isOtherAndroid}}
       {{#isOtherIos}}
         <!-- Safari or Chrome for iOS, encourage installation of Fx -->
-        <p id="install-mobile-firefox-ios" class="instructions">
+        <p id="install-mobile-firefox-ios">
           {{#t}}Sign in to Firefox for iOS to complete set-up{{/t}}
         </p>
       {{/isOtherIos}}
       {{#isOther}}
         <!-- probably some desktop browser -->
-        <p id="install-mobile-firefox-other" class="instructions">
+        <p id="install-mobile-firefox-other">
           {{#isSignIn}}
             {{#t}}Still adding devices?{{/t}}
           {{/isSignIn}}
