@@ -155,7 +155,7 @@ AppError.translate = function (response) {
       error = AppError.invalidRequestParameter(payload.validation)
     }
   }
-  else if (payload.statusCode === 400 && TOO_LARGE.test(payload.message)) {
+  else if (payload.statusCode === 413 && TOO_LARGE.test(payload.message)) {
     error = AppError.requestBodyTooLarge()
   }
   else {

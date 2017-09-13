@@ -1,3 +1,12 @@
+<a name="1.95.3"></a>
+## [1.95.3](https://github.com/mozilla/fxa-auth-server/compare/v1.95.1...v1.95.3) (2017-09-13)
+
+### chore
+
+* **deps:** Update hapi to latest version ([eed3203](https://github.com/mozilla/fxa-auth-server/commit/eed3203))
+
+
+
 <a name="1.95.2"></a>
 ## [1.95.2](https://github.com/mozilla/fxa-auth-server/compare/v1.95.1...v1.95.2) (2017-09-12)
 
