@@ -155,7 +155,12 @@ describe('metrics/events', () => {
         metricsContext: {
           flowId: 'bar',
           flowBeginTime: time - 1000,
-          flowCompleteSignal: 'account.signed'
+          flowCompleteSignal: 'account.signed',
+          utmCampaign: 'utm campaign',
+          utmContent: 'utm content',
+          utmMedium: 'utm medium',
+          utmSource: 'utm source',
+          utmTerm: 'utm term'
         },
         service: 'baz'
       }
@@ -177,7 +182,12 @@ describe('metrics/events', () => {
           locale: 'en-US',
           time,
           uid: 'deadbeef',
-          userAgent: 'test user-agent'
+          userAgent: 'test user-agent',
+          utm_campaign: 'utm campaign',
+          utm_content: 'utm content',
+          utm_medium: 'utm medium',
+          utm_source: 'utm source',
+          utm_term: 'utm term'
         }, 'argument was event data')
 
         assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
@@ -201,6 +211,7 @@ describe('metrics/events', () => {
       clearMetricsContext: metricsContext.clear,
       gatherMetricsContext: metricsContext.gather,
       headers: {
+        dnt: '1',
         'user-agent': 'foo'
       },
       payload: {
@@ -244,6 +255,10 @@ describe('metrics/events', () => {
     sinon.stub(Date, 'now', () => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
+      headers: {
+        dnt: '1',
+        'user-agent': 'test user-agent'
+      },
       metricsContext,
       payload: {
         metricsContext: {
@@ -287,6 +302,10 @@ describe('metrics/events', () => {
     sinon.stub(Date, 'now', () => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
+      headers: {
+        dnt: '1',
+        'user-agent': 'test user-agent'
+      },
       metricsContext,
       payload: {
         metricsContext: {
@@ -330,6 +349,10 @@ describe('metrics/events', () => {
     sinon.stub(Date, 'now', () => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
+      headers: {
+        dnt: '1',
+        'user-agent': 'test user-agent'
+      },
       metricsContext,
       payload: {
         metricsContext: {
@@ -372,6 +395,10 @@ describe('metrics/events', () => {
     sinon.stub(Date, 'now', () => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
+      headers: {
+        dnt: '1',
+        'user-agent': 'test user-agent'
+      },
       locale: 'fr',
       metricsContext,
       payload: {
@@ -491,6 +518,10 @@ describe('metrics/events', () => {
     sinon.stub(Date, 'now', () => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
+      headers: {
+        dnt: '1',
+        'user-agent': 'test user-agent'
+      },
       metricsContext,
       payload: {
         metricsContext: {
@@ -639,6 +670,10 @@ describe('metrics/events', () => {
     sinon.stub(Date, 'now', () => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
+      headers: {
+        dnt: '1',
+        'user-agent': 'test user-agent'
+      },
       metricsContext,
       path: '/v1/account/create',
       payload: {
@@ -696,6 +731,10 @@ describe('metrics/events', () => {
     sinon.stub(Date, 'now', () => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
+      headers: {
+        dnt: '1',
+        'user-agent': 'test user-agent'
+      },
       metricsContext,
       path: '/v1/account/login',
       payload: {
@@ -735,6 +774,10 @@ describe('metrics/events', () => {
     sinon.stub(Date, 'now', () => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
+      headers: {
+        dnt: '1',
+        'user-agent': 'test user-agent'
+      },
       metricsContext,
       path: '/v1/recovery_email/resend_code',
       payload: {
@@ -774,6 +817,10 @@ describe('metrics/events', () => {
     sinon.stub(Date, 'now', () => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
+      headers: {
+        dnt: '1',
+        'user-agent': 'test user-agent'
+      },
       metricsContext,
       path: '/v1/account/destroy',
       payload: {

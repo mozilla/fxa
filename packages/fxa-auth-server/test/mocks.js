@@ -426,6 +426,12 @@ function mockMetricsContext (methods) {
               flowBeginTime: this.payload.metricsContext.flowBeginTime,
               flowCompleteSignal: this.payload.metricsContext.flowCompleteSignal,
               flowType: this.payload.metricsContext.flowType
+            }, this.headers && this.headers.dnt === '1' ? {} : {
+              utm_campaign: this.payload.metricsContext.utmCampaign,
+              utm_content: this.payload.metricsContext.utmContent,
+              utm_medium: this.payload.metricsContext.utmMedium,
+              utm_source: this.payload.metricsContext.utmSource,
+              utm_term: this.payload.metricsContext.utmTerm
             })
           }
 

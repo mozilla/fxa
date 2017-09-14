@@ -19,7 +19,12 @@ const SCHEMA = isA.object({
   // only Sync creates records in the devices table.
   deviceId: isA.string().length(32).regex(HEX_STRING).optional(),
   flowId: isA.string().length(64).regex(HEX_STRING).optional(),
-  flowBeginTime: isA.number().integer().positive().optional()
+  flowBeginTime: isA.number().integer().positive().optional(),
+  utmCampaign: isA.string().optional(),
+  utmContent: isA.string().optional(),
+  utmMedium: isA.string().optional(),
+  utmSource: isA.string().optional(),
+  utmTerm: isA.string().optional()
 })
   .unknown(false)
   .and('flowId', 'flowBeginTime')
@@ -96,6 +101,15 @@ module.exports = function (log, config) {
           data.flowBeginTime = metadata.flowBeginTime
           data.flowCompleteSignal = metadata.flowCompleteSignal
           data.flowType = metadata.flowType
+
+          const doNotTrack = this.headers && this.headers.dnt === '1'
+          if (! doNotTrack) {
+            data.utm_campaign = metadata.utmCampaign
+            data.utm_content = metadata.utmContent
+            data.utm_medium = metadata.utmMedium
+            data.utm_source = metadata.utmSource
+            data.utm_term = metadata.utmTerm
+          }
         }
       })
       .catch(err => log.error({

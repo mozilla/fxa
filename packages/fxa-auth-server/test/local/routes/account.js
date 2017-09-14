@@ -210,7 +210,12 @@ describe('/account/create', () => {
         service: 'sync',
         metricsContext: {
           flowBeginTime: Date.now(),
-          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          utmCampaign: 'utm campaign',
+          utmContent: 'utm content',
+          utmMedium: 'utm medium',
+          utmSource: 'utm source',
+          utmTerm: 'utm term'
         }
       },
       query: {
@@ -326,7 +331,12 @@ describe('/account/create', () => {
         flowType: undefined,
         flow_id: mockRequest.payload.metricsContext.flowId,
         flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
-        time: now
+        time: now,
+        utm_campaign: 'utm campaign',
+        utm_content: 'utm content',
+        utm_medium: 'utm medium',
+        utm_source: 'utm source',
+        utm_term: 'utm term'
       }, 'it contained the correct metrics context metadata')
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
@@ -352,7 +362,12 @@ describe('/account/create', () => {
         locale: 'en-GB',
         time: now,
         uid: uid,
-        userAgent: 'test user-agent'
+        userAgent: 'test user-agent',
+        utm_campaign: 'utm campaign',
+        utm_content: 'utm content',
+        utm_medium: 'utm medium',
+        utm_source: 'utm source',
+        utm_term: 'utm term'
       }, 'flow event data was correct')
 
       assert.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
@@ -433,6 +448,10 @@ describe('/account/login', function () {
 
   const mockRequest = mocks.mockRequest({
     log: mockLog,
+    headers: {
+      dnt: '1',
+      'user-agent': 'test user-agent'
+    },
     metricsContext: mockMetricsContext,
     payload: {
       authPW: hexString(32),
@@ -441,7 +460,12 @@ describe('/account/login', function () {
       reason: 'signin',
       metricsContext: {
         flowBeginTime: Date.now(),
-        flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
+        flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+        utmCampaign: 'utm campaign',
+        utmContent: 'utm content',
+        utmMedium: 'utm medium',
+        utmSource: 'utm source',
+        utmTerm: 'utm term'
       }
     },
     query: {

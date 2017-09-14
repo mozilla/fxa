@@ -207,7 +207,7 @@ describe('metricsContext', () => {
       }, {}).then(function (result) {
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 7, 'result has 7 properties')
+        assert.equal(Object.keys(result).length, 12, 'result has 12 properties')
         assert.ok(result.time > time, 'result.time seems correct')
         assert.equal(result.device_id, 'mock device id', 'result.device_id is correct')
         assert.equal(result.flow_id, 'mock flow id', 'result.flow_id is correct')
@@ -216,8 +216,52 @@ describe('metricsContext', () => {
         assert.equal(result.flowBeginTime, time, 'result.flowBeginTime is correct')
         assert.equal(result.flowCompleteSignal, 'mock flow complete signal', 'result.flowCompleteSignal is correct')
         assert.equal(result.flowType, 'mock flow type', 'result.flowType is correct')
+        assert.equal(result.utm_campaign, 'mock utm_campaign', 'result.utm_campaign is correct')
+        assert.equal(result.utm_content, 'mock utm_content', 'result.utm_content is correct')
+        assert.equal(result.utm_medium, 'mock utm_medium', 'result.utm_medium is correct')
+        assert.equal(result.utm_source, 'mock utm_source', 'result.utm_source is correct')
+        assert.equal(result.utm_term, 'mock utm_term', 'result.utm_term is correct')
 
         assert.equal(cache.get.callCount, 0, 'cache.get was not called')
+        assert.equal(log.error.callCount, 0, 'log.error was not called')
+      })
+    }
+  )
+
+  it(
+    'metricsContext.gather with DNT header',
+    () => {
+      return metricsContext.gather.call({
+        headers: {
+          dnt: '1'
+        },
+        payload: {
+          metricsContext: {
+            deviceId: 'mock device id',
+            flowId: 'mock flow id',
+            flowBeginTime: Date.now(),
+            flowCompleteSignal: 'mock flow complete signal',
+            flowType: 'mock flow type',
+            context: 'mock context',
+            entrypoint: 'mock entry point',
+            migration: 'mock migration',
+            service: 'mock service',
+            utmCampaign: 'mock utm_campaign',
+            utmContent: 'mock utm_content',
+            utmMedium: 'mock utm_medium',
+            utmSource: 'mock utm_source',
+            utmTerm: 'mock utm_term',
+            ignore: 'mock ignorable property'
+          }
+        }
+      }, {}).then(function (result) {
+        assert.equal(Object.keys(result).length, 7, 'result has 7 properties')
+        assert.equal(result.utm_campaign, undefined, 'result.utm_campaign is undefined')
+        assert.equal(result.utm_content, undefined, 'result.utm_content is undefined')
+        assert.equal(result.utm_medium, undefined, 'result.utm_medium is undefined')
+        assert.equal(result.utm_source, undefined, 'result.utm_source is undefined')
+        assert.equal(result.utm_term, undefined, 'result.utm_term is undefined')
+
         assert.equal(log.error.callCount, 0, 'log.error was not called')
       })
     }
@@ -256,7 +300,12 @@ describe('metricsContext', () => {
         flowId: 'flowId',
         flowBeginTime: time,
         flowCompleteSignal: 'flowCompleteSignal',
-        flowType: 'flowType'
+        flowType: 'flowType',
+        utmCampaign: 'utmCampaign',
+        utmContent: 'utmContent',
+        utmMedium: 'utmMedium',
+        utmSource: 'utmSource',
+        utmTerm: 'utmTerm'
       })
       return metricsContext.gather.call({
         auth: {
@@ -269,7 +318,7 @@ describe('metricsContext', () => {
 
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 7, 'result has 7 properties')
+        assert.equal(Object.keys(result).length, 12, 'result has 12 properties')
         assert.ok(result.time > time, 'result.time seems correct')
         assert.equal(result.device_id, 'deviceId', 'result.device_id is correct')
         assert.equal(result.flow_id, 'flowId', 'result.flow_id is correct')
@@ -278,6 +327,11 @@ describe('metricsContext', () => {
         assert.equal(result.flowBeginTime, time, 'result.flowBeginTime is correct')
         assert.equal(result.flowCompleteSignal, 'flowCompleteSignal', 'result.flowCompleteSignal is correct')
         assert.equal(result.flowType, 'flowType', 'result.flowType is correct')
+        assert.equal(result.utm_campaign, 'utmCampaign', 'result.utm_campaign is correct')
+        assert.equal(result.utm_content, 'utmContent', 'result.utm_content is correct')
+        assert.equal(result.utm_medium, 'utmMedium', 'result.utm_medium is correct')
+        assert.equal(result.utm_source, 'utmSource', 'result.utm_source is correct')
+        assert.equal(result.utm_term, 'utmTerm', 'result.utm_term is correct')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
       })
@@ -306,7 +360,7 @@ describe('metricsContext', () => {
 
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 7, 'result has 7 properties')
+        assert.equal(Object.keys(result).length, 12, 'result has 12 properties')
         assert.ok(result.time > time, 'result.time seems correct')
         assert.equal(result.flow_id, 'flowId', 'result.flow_id is correct')
         assert.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
