@@ -6,6 +6,7 @@ define((require, exports, module) => {
   'use strict';
 
   const { assert } = require('chai');
+  const Account = require('models/account');
   const FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
   const Metrics = require('lib/metrics');
   const p = require('lib/promise');
@@ -45,7 +46,7 @@ define((require, exports, module) => {
     }
 
     beforeEach(() => {
-      account = {};
+      account = new Account();
       metrics = new Metrics();
       relier = new Relier();
       windowMock = new WindowMock();
@@ -141,15 +142,50 @@ define((require, exports, module) => {
         });
       });
 
-      describe('broker does not have `cadAfterSignUpConfirmationPoll` capability', () => {
-        it('resolves to the default behavior', () => {
-          sinon.spy(metrics, 'setViewNamePrefix');
+      describe('afterSignInConfirmationPoll', () => {
+        describe('broker has `cadAfterSignInConfirmationPoll` capability', () => {
+          it('sets the metrics viewName prefix, resolves to a `ConnectAnotherDeviceBehavior`', () => {
+            broker.setCapability('cadAfterSignInConfirmationPoll', true);
+            sinon.spy(metrics, 'setViewNamePrefix');
 
-          return broker.afterSignUpConfirmationPoll(account)
+            return broker.afterSignInConfirmationPoll(account)
+              .then((behavior) => {
+                assert.equal(behavior.type, 'connect-another-device-on-signin');
+
+                assert.isTrue(metrics.setViewNamePrefix.calledOnce);
+                assert.isTrue(metrics.setViewNamePrefix.calledWith('signin'));
+              });
+          });
+        });
+
+        describe('broker does not have `cadAfterSignInConfirmationPoll` capability', () => {
+          it('resolves to the default behavior', () => {
+            sinon.spy(metrics, 'setViewNamePrefix');
+
+            return broker.afterSignInConfirmationPoll(account)
+              .then((behavior) => {
+                assert.equal(behavior.type, broker.getBehavior('afterSignInConfirmationPoll').type);
+
+                assert.isFalse(metrics.setViewNamePrefix.called);
+              });
+          });
+        });
+      });
+
+      describe('afterCompleteSignUp', () => {
+        it('returns a ConnectAnotherDeviceBehavior', () => {
+          return broker.afterCompleteSignUp(account)
             .then((behavior) => {
-              assert.equal(behavior.type, broker.getBehavior('afterSignUpConfirmationPoll').type);
+              assert.equal(behavior.type, 'connect-another-device');
+            });
+        });
+      });
 
-              assert.isFalse(metrics.setViewNamePrefix.called);
+      describe('afterCompleteSignIn', () => {
+        it('returns a ConnectAnotherDeviceBehavior', () => {
+          return broker.afterCompleteSignIn(account)
+            .then((behavior) => {
+              assert.equal(behavior.type, 'connect-another-device-on-signin');
             });
         });
       });

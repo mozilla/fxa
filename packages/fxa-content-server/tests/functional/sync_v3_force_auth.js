@@ -42,7 +42,7 @@ define([
       email = TestHelpers.createEmail('sync{id}');
     },
 
-    'with a registered email, no uid, verify same browser': function () {
+    'with a registered email, no uid, verify same browser - control': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(function (accountInfo) {
@@ -51,6 +51,8 @@ define([
               context: 'fx_desktop_v3',
               email: email,
               forceAboutAccounts: 'true',
+              forceExperiment: 'cadOnSignin',
+              forceExperimentGroup: 'control',
               service: 'sync'
             }
           }).call(this);
@@ -62,9 +64,40 @@ define([
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
-        .then(openVerificationLinkInNewTab(email, 0))
+        .then(openVerificationLinkInNewTab(email, 0, { query: { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' }}))
         .switchToWindow('newwindow')
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(closeCurrentWindow())
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
+    },
+
+    'with a registered email, no uid, verify same browser': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(function (accountInfo) {
+          return openForceAuth({
+            query: {
+              context: 'fx_desktop_v3',
+              email: email,
+              forceAboutAccounts: 'true',
+              forceExperiment: 'cadOnSignin',
+              forceExperimentGroup: 'treatment',
+              service: 'sync'
+            }
+          }).call(this);
+        })
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(fillOutForceAuth(PASSWORD))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
+
+        .then(openVerificationLinkInNewTab(email, 0, { query: { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment' }}))
+        .switchToWindow('newwindow')
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition

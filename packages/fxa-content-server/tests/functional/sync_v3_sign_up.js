@@ -276,7 +276,7 @@ define([
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS));
     },
 
-    'verify from original tab\'s P.O.V., Fx <= 56': function () {
+    'Fx <= 56, verify from original tab\'s P.O.V.': function () {
       return this.remote
         .then(openPage(SIGNUP_FX_56_PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
@@ -296,7 +296,7 @@ define([
         .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER, 5000));
     },
 
-    'verify from original tab\'s P.O.V., Fx >= 57': function () {
+    'Fx >= 57, verify from original tab\'s P.O.V.': function () {
       return this.remote
         .then(openPage(SIGNUP_FX_57_PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
@@ -313,7 +313,7 @@ define([
         .then(openVerificationLinkInDifferentBrowser(email))
 
         // about:accounts does not take over, expect a screen transition.
-        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
   });
 });

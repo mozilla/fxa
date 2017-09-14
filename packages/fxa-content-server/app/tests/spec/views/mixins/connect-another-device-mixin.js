@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
   const BaseView = require('views/base');
   const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
   const Constants = require('lib/constants');
@@ -39,17 +40,20 @@ define(function (require, exports, module) {
 
   describe('views/mixins/connect-another-device-mixin', () => {
     let account;
+    let model;
     let notifier;
     let relier;
     let user;
     let view;
 
     beforeEach(() => {
+      model = new Backbone.Model({ type: 'signin' });
       notifier = new Notifier();
       relier = new Relier();
       user = new User();
 
       view = new View({
+        model,
         notifier,
         relier,
         user
@@ -64,64 +68,91 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('isEligibleForConnectAnotherDeviceOnSignin', () => {
+      it('returns true if signing in, if eligible for CAD, and is part of the experiment', () => {
+        sinon.stub(view, 'isSignIn').callsFake(() => true);
+        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
+        sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
+
+        assert.isTrue(view.isEligibleForConnectAnotherDeviceOnSignin(account));
+      });
+
+      it('returns false if signing up, if eligible for CAD, and is part of the experiment', () => {
+        sinon.stub(view, 'isSignIn').callsFake(() => false);
+        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
+        sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
+
+        assert.isFalse(view.isEligibleForConnectAnotherDeviceOnSignin(account));
+      });
+
+      it('returns false if signing in, not eligible for CAD, and is part of the experiment', () => {
+        sinon.stub(view, 'isSignIn').callsFake(() => true);
+        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => false);
+        sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
+
+        assert.isFalse(view.isEligibleForConnectAnotherDeviceOnSignin(account));
+      });
+
+      it('returns false if signing in, not eligible for CAD, and is part of the experiment', () => {
+        sinon.stub(view, 'isSignIn').callsFake(() => true);
+        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
+        sinon.stub(view, 'getExperimentGroup').callsFake(() => false);
+
+        assert.isFalse(view.isEligibleForConnectAnotherDeviceOnSignin(account));
+      });
+    });
+
+    describe('navigateToConnectAnotherDeviceOnSigninScreen', () => {
+      beforeEach(() => {
+        sinon.stub(view, 'isEligibleForConnectAnotherDeviceOnSignin').callsFake(() => true);
+        sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => p());
+        sinon.spy(view, 'createExperiment');
+        sinon.spy(notifier, 'trigger');
+      });
+
+      describe('user is part of treatment', () => {
+        it('sets up experiment, delegates to `navigateToConnectAnotherDeviceScreen`', () => {
+          sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
+
+          return view.navigateToConnectAnotherDeviceOnSigninScreen(account)
+            .then(() => {
+              assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
+
+              assert.isTrue(view.createExperiment.calledOnce);
+              assert.isTrue(view.createExperiment.calledWith('sendSms', 'cadOnSignin.treatment'));
+
+              assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledOnce);
+              assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledWith(account));
+            });
+        });
+      });
+
+      describe('user is part of control', () => {
+        it('sets up experiment, does nothing more', () => {
+          sinon.stub(view, 'getExperimentGroup').callsFake(() => 'control');
+
+          return view.navigateToConnectAnotherDeviceOnSigninScreen(account)
+            .then(() => {
+              assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
+
+              assert.isTrue(view.createExperiment.calledOnce);
+              assert.isTrue(view.createExperiment.calledWith('sendSms', 'cadOnSignin.control'));
+
+              assert.isFalse(view.navigateToConnectAnotherDeviceScreen.called);
+            });
+        });
+      });
+    });
+
     describe('isEligibleForConnectAnotherDevice', () => {
-      describe('user is completing sign-in', () => {
-        beforeEach(() => {
-          sinon.stub(user, 'getSignedInAccount').callsFake(() => {
-            return {
-              isDefault: () => true
-            };
-          });
-          sinon.stub(view, 'isSignUp').callsFake(() => false);
-        });
-
-        it('returns `false`', () => {
-          assert.isFalse(view.isEligibleForConnectAnotherDevice(account));
-        });
+      it('returns true for signup if a different user is not signed in', () => {
+        sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
+        assert.isTrue(view.isEligibleForConnectAnotherDevice(account));
       });
 
-      describe('no user signed in', () => {
-        beforeEach(() => {
-          sinon.stub(user, 'getSignedInAccount').callsFake(() => {
-            return {
-              isDefault: () => true
-            };
-          });
-        });
-
-        it('returns `true`', () => {
-          assert.isTrue(view.isEligibleForConnectAnotherDevice(account));
-        });
-      });
-
-      describe('different user signed in', () => {
-        beforeEach(() => {
-          sinon.stub(user, 'getSignedInAccount').callsFake(() => {
-            return {
-              isDefault: () => false
-            };
-          });
-          sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
-        });
-
-        it('returns `false`', () => {
-          assert.isFalse(view.isEligibleForConnectAnotherDevice(account));
-        });
-      });
-
-      describe('same user signed in', () => {
-        beforeEach(() => {
-          sinon.stub(user, 'getSignedInAccount').callsFake(() => {
-            return {
-              isDefault: () => false
-            };
-          });
-          sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
-        });
-
-        it('returns `true`', () => {
-          assert.isTrue(view.isEligibleForConnectAnotherDevice(account));
-        });
+      it('returns false for signup if different user signed in', () => {
+        sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => true);
+        assert.isFalse(view.isEligibleForConnectAnotherDevice(account));
       });
     });
 
@@ -242,26 +273,6 @@ define(function (require, exports, module) {
     });
 
     describe('_areSmsRequirementsMet', () => {
-      describe('user is signing in', () => {
-        beforeEach(() => {
-          sinon.stub(view, 'isSignUp').callsFake(() => false);
-          sinon.stub(view, 'isInExperiment').callsFake(() => true);
-          sinon.stub(view, 'getUserAgent').callsFake(() => {
-            return {
-              isAndroid: () => false,
-              isIos: () => false
-            };
-          });
-          sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
-        });
-
-        it('returns `false', () => {
-          assert.isFalse(view._areSmsRequirementsMet(account));
-          assert.isTrue(view.logFlowEvent.calledOnce);
-          assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.signin'));
-        });
-      });
-
       describe('user is on Android', () => {
         beforeEach(() => {
           sinon.stub(view, 'isSignUp').callsFake(() => true);
@@ -476,7 +487,7 @@ define(function (require, exports, module) {
                 assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
 
                 assert.isTrue(view.navigate.calledOnce);
-                assert.isTrue(view.navigate.calledWith('connect_another_device', { account }));
+                assert.isTrue(view.navigate.calledWith('connect_another_device', { account, type: 'signin' }));
               });
           });
         });
@@ -495,7 +506,7 @@ define(function (require, exports, module) {
                   assert.isTrue(view.createExperiment.calledWith('sendSms', 'treatment'));
 
                   assert.isTrue(view.navigate.calledOnce);
-                  assert.isTrue(view.navigate.calledWith('sms', { account, country: 'GB' }));
+                  assert.isTrue(view.navigate.calledWith('sms', { account, country: 'GB', type: 'signin' }));
                 });
             });
           });
@@ -509,7 +520,7 @@ define(function (require, exports, module) {
                   assert.isTrue(view.createExperiment.calledWith('sendSms', 'control'));
 
                   assert.isTrue(view.navigate.calledOnce);
-                  assert.isTrue(view.navigate.calledWith('connect_another_device', { account }));
+                  assert.isTrue(view.navigate.calledWith('connect_another_device', { account, type: 'signin' }));
 
                   assert.isTrue(view.logFlowEvent.calledOnce);
                   assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.control_group'));

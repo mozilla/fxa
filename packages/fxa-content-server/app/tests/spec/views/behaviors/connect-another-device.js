@@ -24,36 +24,47 @@ define((require, exports, module) => {
     describe('eligible for CAD', () => {
       it('delegates to `view.navigateToConnectAnotherDeviceScreen`', () => {
         const view = {
+          hasNavigated: sinon.spy(() => false),
           isEligibleForConnectAnotherDevice: sinon.spy(() => true),
+          isSignIn: sinon.spy(() => false),
           navigateToConnectAnotherDeviceScreen: sinon.spy()
         };
 
-        const promise = cadBehavior(view, account);
-        assert.ok(promise);
-        assert.isFunction(promise.then);
+        return cadBehavior(view, account)
+          .then((behavior) => {
+            assert.strictEqual(behavior, defaultBehavior);
 
-        assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
-        assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
+            assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
+            assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
 
-        assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledOnce);
-        assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledWith(account));
+            assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledOnce);
+            assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledWith(account));
+
+            assert.isTrue(view.hasNavigated.calledOnce);
+          });
       });
     });
 
     describe('ineligible for CAD', () => {
       it('invokes the defaultBehavior', () => {
         const view = {
+          hasNavigated: sinon.spy(() => false),
           isEligibleForConnectAnotherDevice: sinon.spy(() => false),
+          isSignIn: sinon.spy(() => false),
           navigateToConnectAnotherDeviceScreen: sinon.spy()
         };
 
-        const behavior = cadBehavior(view, account);
+        return cadBehavior(view, account)
+          .then((behavior) => {
+            assert.strictEqual(behavior, defaultBehavior);
 
-        assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
-        assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
+            assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
+            assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
 
-        assert.isFalse(view.navigateToConnectAnotherDeviceScreen.called);
-        assert.strictEqual(behavior, defaultBehavior);
+            assert.isFalse(view.navigateToConnectAnotherDeviceScreen.called);
+
+            assert.isTrue(view.hasNavigated.calledOnce);
+          });
       });
     });
   });

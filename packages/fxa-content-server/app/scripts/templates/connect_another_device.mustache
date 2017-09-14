@@ -4,7 +4,12 @@
     <div class="success success-authenticated visible">{{#t}}This Firefox is connected{{/t}}</div>
   {{/isSignedIn}}
   {{^isSignedIn}}
-    <div class="success success-not-authenticated visible">{{#t}}Email verified{{/t}}</div>
+    {{#isSignUp}}
+      <div class="success success-not-authenticated visible">{{#t}}Email verified{{/t}}</div>
+    {{/isSignUp}}
+    {{#isSignIn}}
+      <div class="success success-not-authenticated visible">{{#t}}Signin confirmed{{/t}}</div>
+    {{/isSignIn}}
   {{/isSignedIn}}
   <section>
     <div class="graphic graphic-connect-another-device">{{#t}}Success{{/t}}</div>
@@ -26,11 +31,17 @@
         or are already signed in. Ignore old browsers, assume already signed in.
         Encourage installation on another device. -->
         <p id="connect-other-firefox-from-android">
+          {{#isSignIn}}
+            {{#t}}Still adding devices?{{/t}}
+          {{/isSignIn}}
           {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
         </p>
       {{/isFirefoxAndroid}}
       {{#isFirefoxDesktop}}
         <p id="install-mobile-firefox-desktop">
+          {{#isSignIn}}
+            {{#t}}Still adding devices?{{/t}}
+          {{/isSignIn}}
           {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
         </p>
       {{/isFirefoxDesktop}}
@@ -55,6 +66,9 @@
       {{#isOther}}
         <!-- probably some desktop browser -->
         <p id="install-mobile-firefox-other">
+          {{#isSignIn}}
+            {{#t}}Still adding devices?{{/t}}
+          {{/isSignIn}}
           {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
         </p>
       {{/isOther}}
@@ -64,7 +78,7 @@
       {{/isFirefoxIos}}
     {{/canSignIn}}
     <div class="links">
-      <a data-flow-event="link.why" href="/connect_another_device/why">{{#t}}Why is this required?{{/t}}</a>
+      <a data-flow-event="link.why" href="/connect_another_device/why">{{#t}}Why is more than one device required?{{/t}}</a>
     </div>
     <aside class="child-view"></aside>
   </section>

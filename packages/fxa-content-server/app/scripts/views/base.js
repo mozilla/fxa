@@ -216,7 +216,7 @@ define(function (require, exports, module) {
         .then((shouldRender) => {
           // rendering is opt out, should not occur if the view
           // has already navigated.
-          if (shouldRender === false || this._hasNavigated) {
+          if (shouldRender === false || this.hasNavigated()) {
             return false;
           }
 
@@ -236,7 +236,7 @@ define(function (require, exports, module) {
           return this.afterRender();
         })
         .then((shouldDisplay) => {
-          return shouldDisplay !== false && ! this._hasNavigated;
+          return shouldDisplay !== false && ! this.hasNavigated();
         });
     },
 
@@ -810,6 +810,7 @@ define(function (require, exports, module) {
         server: true,
         url
       });
+      this._hasNavigated = true;
     },
 
     /**
@@ -820,6 +821,17 @@ define(function (require, exports, module) {
      */
     replaceCurrentPage (url, nextViewData = {}) {
       this.navigate(url, nextViewData, { replace: true, trigger: true });
+    },
+
+    /**
+     * Has the view navigated? Useful to check when a view should
+     * perform an action, but only if the view hasn't already
+     * navigated.
+     *
+     * @returns {Boolean}
+     */
+    hasNavigated () {
+      return !! this._hasNavigated;
     },
 
     /**

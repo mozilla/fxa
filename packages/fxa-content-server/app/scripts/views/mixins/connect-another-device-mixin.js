@@ -14,11 +14,6 @@
  * } else {
  *   return this.navigateToAnotherScreen();
  * }
- *
- * This mixin unfortunately requires a bunch of other mixins:
- *  - ExperimentMixin,
- *  - UserAgentMixin,
- *  - VerificationReasonMixin
  */
 
 define((require, exports, module) => {
@@ -35,7 +30,6 @@ define((require, exports, module) => {
   const REASON_NOT_IN_EXPERIMENT = 'sms.ineligible.not_in_experiment';
   const REASON_NO_SESSION = 'sms.ineligible.no_session';
   const REASON_OTHER_USER_SIGNED_IN = 'sms.ineligible.other_user_signed_in';
-  const REASON_SIGNIN = 'sms.ineligible.signin';
   const REASON_UNSUPPORTED_COUNTRY = 'sms.ineligible.unsupported_country';
   const REASON_XHR_ERROR = 'sms.ineligible.xhr_error';
 
@@ -47,18 +41,60 @@ define((require, exports, module) => {
     ],
 
     /**
+     * Is `account` eligible for connect another device on signin?
+     *
+     * @param {any} account
+     * @returns {Boolean}
+     */
+    isEligibleForConnectAnotherDeviceOnSignin (account) {
+      const isEligibleForCadOnSignin = !! this.getExperimentGroup('cadOnSignin', { account });
+
+      return this.isSignIn() &&
+             this.isEligibleForConnectAnotherDevice(account) &&
+             isEligibleForCadOnSignin;
+    },
+
+    /**
+     * Navigate to the appropriate CAD screen for `account` in the signin flow.
+     *
+     * @param {Object} account
+     * @returns {Promise}
+     */
+    navigateToConnectAnotherDeviceOnSigninScreen (account) {
+      if (! this.isEligibleForConnectAnotherDeviceOnSignin(account)) {
+        // this shouldn't happen IRL.
+        return p.reject(new Error('navigateToConnectAnotherDeviceOnSigninScreen can only be called if user is eligible to connect another device'));
+      }
+
+      return p().then(() => {
+        // Initialize the flow metrics so any flow events are logged.
+        // The flow-events-mixin, even if it were mixed in, does this in
+        // `afterRender` whereas this method can be called in `beforeRender`
+        this.notifier.trigger('flow.initialize');
+        const group = this.getExperimentGroup('cadOnSignin', { account });
+
+        // Note, the cadOnSignin prefix is to help us measure in DataDog.
+        // Metrics sent to DataDog can have one or more exp_group tags,
+        // the prefix allows us to differentiate between results from
+        // the `sendSms` experiment which uses the same group names.
+        this.createExperiment('sendSms', `cadOnSignin.${group}`);
+
+        if (group === 'treatment') {
+          return this.navigateToConnectAnotherDeviceScreen(account);
+        }
+      });
+    },
+
+    /**
      * Is `account` eligible for connect another device?
      *
      * @param {Object} account - account to check
      * @returns {Boolean}
      */
     isEligibleForConnectAnotherDevice (account) {
-      // Only show to users who are signing up, until we have better text for
-      // users who are signing in.
-      return this.isSignUp() &&
-             // If a user is already signed in to Sync which is different to the
-             // user that just verified, show them the old "Account verified!" screen.
-             ! this.user.isAnotherAccountSignedIn(account);
+      // If a user is already signed in to Sync which is different to the
+      // user that just verified, show them the old "Account verified!" screen.
+      return ! this.user.isAnotherAccountSignedIn(account);
     },
 
     /**
@@ -83,6 +119,7 @@ define((require, exports, module) => {
 
       return this._isEligibleForSms(account)
         .then(({ ok, country }) => {
+          const type = this.model.get('type');
           if (ok) {
             // User is eligible for SMS experiment, now bucket
             // users into treatment and control groups.
@@ -91,13 +128,13 @@ define((require, exports, module) => {
 
             if (group === 'control') {
               this.logFlowEvent(REASON_CONTROL_GROUP);
-              this.navigate('connect_another_device', { account });
+              this.navigate('connect_another_device', { account, type });
             } else {
               // all non-control groups go to the sms page.
-              this.navigate('sms', { account, country });
+              this.navigate('sms', { account, country, type });
             }
           } else {
-            this.navigate('connect_another_device', { account });
+            this.navigate('connect_another_device', { account, type });
           }
         });
     },
@@ -134,9 +171,7 @@ define((require, exports, module) => {
     _areSmsRequirementsMet (account) {
       let reason;
 
-      if (! this.isSignUp()) {
-        reason = REASON_SIGNIN;
-      } else if (this.getUserAgent().isAndroid()) {
+      if (this.getUserAgent().isAndroid()) {
         // If already on a mobile device, doesn't make sense to send an SMS.
         reason = REASON_ANDROID;
       } else if (this.getUserAgent().isIos()) {

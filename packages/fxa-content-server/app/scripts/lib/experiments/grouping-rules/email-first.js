@@ -24,7 +24,7 @@ define((require, exports, module) => {
     choose (subject) {
       const GROUPS = ['control', 'treatment'];
 
-      if (! this._areSubjectPrereqsMet(subject)) {
+      if (! this._isValidSubject(subject)) {
         return false;
       } else if (! subject.isEmailFirstSupported) {
         // isEmailFirstSupported is `true` for brokers that support the email-first flow.
@@ -39,13 +39,13 @@ define((require, exports, module) => {
     }
 
     /**
-     * Are the subject pre-requisites met?
+     * Is the subject valid?
      *
      * @param {Object} subject
      * @returns {Boolean}
      * @private
      */
-    _areSubjectPrereqsMet (subject) {
+    _isValidSubject (subject) {
       return subject && subject.uniqueUserId && subject.experimentGroupingRules;
     }
 
