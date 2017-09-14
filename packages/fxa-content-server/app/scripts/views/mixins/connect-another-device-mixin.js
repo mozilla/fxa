@@ -41,7 +41,7 @@ define((require, exports, module) => {
     ],
 
     /**
-     * Is `account` eligible for he connect another device on signin?
+     * Is `account` eligible for connect another device on signin?
      *
      * @param {any} account
      * @returns {Boolean}
