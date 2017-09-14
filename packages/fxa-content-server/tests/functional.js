@@ -25,6 +25,7 @@ define([
   './functional/sync_v2_force_auth',
   './functional/sync_v3_email_first',
   './functional/sync_v3_force_auth',
+  './functional/sync_v3_reset_password',
   './functional/sync_v3_settings',
   './functional/sync_v3_sign_in',
   './functional/sync_v3_sign_up',

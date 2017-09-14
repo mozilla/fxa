@@ -127,6 +127,7 @@ function (Translator, Session) {
     '../tests/spec/views/base',
     '../tests/spec/views/behaviors/connect-another-device',
     '../tests/spec/views/behaviors/halt',
+    '../tests/spec/views/behaviors/halt-if-browser-transitions',
     '../tests/spec/views/behaviors/navigate',
     '../tests/spec/views/behaviors/null',
     '../tests/spec/views/behaviors/settings',

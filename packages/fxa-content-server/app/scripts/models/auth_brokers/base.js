@@ -426,6 +426,11 @@ define(function (require, exports, module) {
        */
       allowUidChange: false,
       /**
+       * Does the browser handle screen transitions after
+       * an email verification?
+       */
+      browserTransitionsAfterEmailVerification: true,
+      /**
        * Should the signup page show the `Choose what to sync` checkbox
        */
       chooseWhatToSyncCheckbox: true,

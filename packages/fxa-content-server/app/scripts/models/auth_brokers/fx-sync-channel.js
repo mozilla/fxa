@@ -268,14 +268,22 @@ define(function (require, exports, module) {
       return ! _.difference(REQUIRED_LOGIN_FIELDS, loginFields).length;
     },
 
+    /**
+     * Get login data from `account` to send to the browser.
+     * All returned keys have a defined value.
+     *
+     * @param {Object} account
+     * @returns {Object}
+     * @private
+     */
     _getLoginData (account) {
       const loginData = account.pick(ALLOWED_LOGIN_FIELDS);
       loginData.verified = !! loginData.verified;
       loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkEmail &&
                                          !! this._verifiedCanLinkUid;
-      return loginData;
-    }
 
+      return _.omit(loginData, _.isUndefined);
+    }
   }, {
     REQUIRED_LOGIN_FIELDS
   });

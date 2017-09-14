@@ -40,6 +40,7 @@ define(function (require, exports, module) {
         channel: channelMock,
         window: windowMock
       });
+      sinon.stub(broker, '_hasRequiredLoginFields').callsFake(() => true);
     });
 
     it('has the `signup` capability by default', function () {
