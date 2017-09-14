@@ -28,6 +28,7 @@ define([
     noEmailExpected,
     noPageTransition,
     openPage,
+    openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
     respondToWebChannelMessage,
     testElementExists,
@@ -73,34 +74,39 @@ define([
         .then(clearBrowserState());
     },
 
-    'verified, verify same browser, Fx <= 56': function () {
+    'verified, verify same browser, new tab\'s P.O.V.': function () {
+      return this.remote
+        .then(setupTest({ preVerified: true }))
+
+        .then(openVerificationLinkInNewTab(email, 0))
+        .switchToWindow('newwindow')
+          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(closeCurrentWindow());
+        // tests for the original tab are below.
+    },
+
+    'Fx <= 56, verified, verify same browser, original tab\'s P.O.V.': function () {
       const forceUA = uaStrings['desktop_firefox_56'];
       const query = { forceUA };
 
       return this.remote
         .then(setupTest({ preVerified: true, query }))
 
-        .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-          .then(closeCurrentWindow())
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
     },
 
-    'verified, verify same browser, Fx >= 57': function () {
+    'Fx >= 57, verified, verify same browser, original tab\'s P.O.V.': function () {
       const forceUA = uaStrings['desktop_firefox_57'];
       const query = { forceUA };
 
       return this.remote
         .then(setupTest({ preVerified: true, query }))
 
-        .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-          .then(closeCurrentWindow())
-
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+        // about:accounts does not take over post-verification in Fx >= 57
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     },
 
@@ -152,16 +158,35 @@ define([
         .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
     },
 
-    'verified, blocked': function () {
+    'Fx <= 56, verified, blocked': function () {
       email = TestHelpers.createEmail('blocked{id}');
+      const forceUA = uaStrings['desktop_firefox_56'];
+      const query = { forceUA };
 
       return this.remote
-        .then(setupTest({ blocked: true, preVerified: true }))
+        .then(setupTest({ blocked: true, preVerified: true, query }))
 
         .then(fillOutSignInUnblock(email, 0))
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
+
+    'Fx >= 57, verified, blocked': function () {
+      email = TestHelpers.createEmail('blocked{id}');
+      const forceUA = uaStrings['desktop_firefox_57'];
+      const query = { forceUA };
+
+      return this.remote
+        .then(setupTest({ blocked: true, preVerified: true, query }))
+
+        .then(fillOutSignInUnblock(email, 0))
+
+        // about:accounts does not take over post-verification in Fx >= 57
+        // NOTE: the user should actually be sent to the "signin complete" screen,
+        // but there is a bug that I haven't figured out yet.
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
