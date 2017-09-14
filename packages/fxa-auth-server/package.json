@@ -64,6 +64,7 @@
     "nodemailer": "2.7.2",
     "po2json": "0.4.5",
     "poolee": "1.0.1",
+    "raven": "2.1.2",
     "redis": "2.7.1",
     "request": "2.79.0",
     "restify": "4.3.0",

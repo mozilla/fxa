@@ -771,7 +771,13 @@ var conf = convict({
     default: '1 month',
     format: 'duration',
     env: 'EMAIL_STATUS_POLLING_TIMEOUT'
-  }
+  },
+  sentryDsn: {
+    doc: 'Sentry DSN for error and log reporting',
+    default: '',
+    format: 'String',
+    env: 'SENTRY_DSN'
+  },
 })
 
 // handle configuration files.  you can specify a CSV list of configuration

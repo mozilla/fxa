@@ -4,6 +4,7 @@
 
 const fs = require('fs')
 const Hapi = require('hapi')
+const Raven = require('raven')
 const path = require('path')
 const url = require('url')
 const userAgent = require('./userAgent')
@@ -326,6 +327,28 @@ function create(log, error, config, routes, db, translator) {
       reply(response)
     }
   )
+
+  // configure Sentry
+  const sentryDsn = config.sentryDsn
+  if (sentryDsn) {
+    Raven.config(sentryDsn, {})
+    server.on('request-error', function (request, err) {
+      let exception = ''
+      if (err && err.stack) {
+        try {
+          exception = err.stack.split('\n')[0]
+        } catch (e) {
+          // ignore bad stack frames
+        }
+      }
+
+      Raven.captureException(err, {
+        extra: {
+          exception: exception
+        }
+      })
+    })
+  }
 
   const metricsContext = require('./metrics/context')(log, config)
   server.decorate('request', 'stashMetricsContext', metricsContext.stash)
