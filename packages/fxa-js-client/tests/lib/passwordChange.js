@@ -81,6 +81,7 @@ define([
           })
           .then(function (credentials) {
             oldCreds = credentials;
+            assert.equal(credentials.emailToHashWith, email);
 
             return respond(client._passwordChangeKeys(oldCreds), RequestMocks.accountKeys);
           })
@@ -165,6 +166,7 @@ define([
           })
           .then(function (credentials) {
             oldCreds = credentials;
+            assert.equal(credentials.emailToHashWith, email);
 
             return respond(client._passwordChangeKeys(oldCreds), RequestMocks.accountKeys);
           })
@@ -286,7 +288,7 @@ define([
           })
           .then(function (credentials) {
             oldCreds = credentials;
-
+            assert.equal(credentials.emailToHashWith, email);
             return respond(client._passwordChangeKeys(oldCreds), RequestMocks.accountKeys);
           })
           .then(function (keys) {
