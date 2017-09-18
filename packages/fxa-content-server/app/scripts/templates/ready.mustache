@@ -1,6 +1,6 @@
 <div id="main-content" class="card">
   <header>
-    <h1 id="{{headerId}}">{{headerTitle}}</h1>
+    <h1 id="{{headerId}}">{{{escapedHeaderTitle}}}</h1>
   </header>
 
   <section>
@@ -9,7 +9,7 @@
     <div class="graphic graphic-checkbox">{{#t}}Success{{/t}}</div>
 
     {{#isSync}}
-      <p class="account-ready-service">{{readyToSyncText}}</p>
+      <p class="account-ready-service">{{{escapedReadyToSyncText}}}</p>
     {{/isSync}}
 
     {{^isSync}}

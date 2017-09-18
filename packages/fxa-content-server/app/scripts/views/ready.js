@@ -69,10 +69,10 @@ define(function (require, exports, module) {
 
     setInitialContext (context) {
       context.set({
+        escapedHeaderTitle: this._getEscapedHeaderTitle(),
+        escapedReadyToSyncText: this._getEscapedReadyToSyncText(),
         headerId: this._getHeaderId(),
-        headerTitle: this._getHeaderTitle(),
         isSync: this.relier.isSync(),
-        readyToSyncText: this._getReadyToSyncText(),
         redirectUri: this.relier.get('redirectUri'),
         secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null
       });
@@ -82,13 +82,25 @@ define(function (require, exports, module) {
       return this._templateInfo.headerId;
     },
 
-    _getHeaderTitle () {
-      var title = this._templateInfo.headerTitle;
+    /**
+     * Get the HTML escaped header title
+     *
+     * @returns {String}
+     */
+    _getEscapedHeaderTitle () {
+      const title = this._templateInfo.headerTitle;
+      // translateInTemplate HTML escapes
       return this.translateInTemplate(title);
     },
 
-    _getReadyToSyncText () {
-      var readyToSyncText = this._templateInfo.readyToSyncText;
+    /**
+     * Get the HTML escaped "Ready to Sync" text
+     *
+     * @returns {String}
+     */
+    _getEscapedReadyToSyncText () {
+      const readyToSyncText = this._templateInfo.readyToSyncText;
+      // translateInTemplate HTML escapes
       return this.translateInTemplate(readyToSyncText);
     }
   });
