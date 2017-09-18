@@ -87,6 +87,7 @@ define([], function () {
       NOT_VERIFIED_LABEL: '.not-verified',
       REMOVE_BUTTON: '.email-address .settings-button.warning.email-disconnect',
       SET_PRIMARY_EMAIL_BUTTON: '.email-address .set-primary',
+      SUCCESS: '.success',
       TOOLTIP: '.tooltip',
       VERIFIED_LABEL: '.verified'
     },

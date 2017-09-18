@@ -38,6 +38,7 @@ define([
     'tests/functional/send_sms',
     'tests/functional/settings',
     'tests/functional/settings_clients',
+    'tests/functional/settings_change_email.js',
     'tests/functional/settings_common',
     'tests/functional/sign_in_blocked',
     'tests/functional/sign_in_cached',

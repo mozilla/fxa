@@ -16,6 +16,7 @@ define([
 
   const SIGNUP_URL = config.fxaContentRoot + 'signup?canChangeEmail=true';
   const SIGNIN_URL = config.fxaContentRoot + 'signin?canChangeEmail=true';
+  const SETTINGS_URL = config.fxaContentRoot + 'settings?canChangeEmail=true';
   const SIGNIN_URL_NO_CHANGE_EMAIL = config.fxaContentRoot + 'signin';
   const PASSWORD = 'password';
   const NEW_PASSWORD = 'password1';
@@ -66,12 +67,15 @@ define([
             canChangeEmail: true
           }
         }))
+        .then(testSuccessWasShown())
 
         // set new primary email
-        .then(click(selectors.EMAIL.MENU_BUTTON ))
+        .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
+        .then(click(selectors.EMAIL.MENU_BUTTON))
         .then(testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail))
         .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
-        .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON));
+        .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
+        .then(visibleByQSA(selectors.EMAIL.SUCCESS));
     },
 
     afterEach: function () {
@@ -160,6 +164,39 @@ define([
           .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
           .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))
         .then(closeCurrentWindow());
+    },
+
+    'can change primary email, change password, login, change email and login': function () {
+      return this.remote
+      // change password
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+        .then(fillOutChangePassword(PASSWORD, NEW_PASSWORD))
+        .then(testIsBrowserNotified('fxaccounts:change_password'))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(testSuccessWasShown())
+
+        // sign out and fails login with old password
+        .then(click(selectors.SETTINGS.SIGNOUT))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(secondaryEmail, PASSWORD))
+        .then(visibleByQSA(selectors.SIGNIN.TOOLTIP))
+
+        // sign in with new password
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
+        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))
+
+        // set primary email to original email
+        .then(click(selectors.EMAIL.MENU_BUTTON ))
+        .then(testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, email))
+        .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+        .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
+
+        // sign out and login with new password
+        .then(click(selectors.SETTINGS.SIGNOUT))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, NEW_PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     }
   });
 });
