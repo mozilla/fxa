@@ -76,12 +76,7 @@ function runTest (route, request, assertions) {
 }
 
 describe('/recovery_email/status', function () {
-  var config = {
-    secondaryEmail: {
-      enabled: true,
-      enabledEmailAddresses: /\w/
-    }
-  }
+  var config = {}
   var mockDB = mocks.mockDB()
   var pushCalled
   var mockLog = mocks.mockLog({
@@ -260,12 +255,7 @@ describe('/recovery_email/status', function () {
 })
 
 describe('/recovery_email/resend_code', () => {
-  const config = {
-    secondaryEmail: {
-      enabled: true,
-      enabledEmailAddresses: /\w/
-    }
-  }
+  const config = {}
   const secondEmailCode = crypto.randomBytes(16)
   const mockDB = mocks.mockDB({secondEmailCode: secondEmailCode})
   const mockLog = mocks.mockLog()
@@ -462,12 +452,7 @@ describe('/recovery_email/verify_code', function () {
     checkPassword: function () {
       return P.resolve(true)
     },
-    config: {
-      secondaryEmail: {
-        enabled: true,
-        enabledEmailAddresses: /\w/
-      }
-    },
+    config: {},
     customs: mockCustoms,
     db: mockDB,
     log: mockLog,
@@ -717,8 +702,6 @@ describe('/recovery_email', () => {
       },
       config: {
         secondaryEmail: {
-          enabled: true,
-          enabledEmailAddresses: /\w/,
           minUnverifiedAccountTime: MS_IN_DAY
         }
       },
@@ -870,7 +853,7 @@ describe('/recovery_email', () => {
         assert.equal(args.length, 3, 'log.notifyAttachedServices was passed three arguments')
         assert.equal(args[0], 'primaryEmailChanged', 'first argument was event name')
         assert.equal(args[1], mockRequest, 'second argument was request object')
-        assert.equal(args[2].uid, uid, 'third argument was event data with a uid')
+        assert.equal(args[2].uid, mockRequest.auth.credentials.uid, 'third argument was event data with a uid')
         assert.equal(args[2].email, TEST_EMAIL_ADDITIONAL, 'third argument was event data with new email')
       })
         .then(function () {
@@ -910,48 +893,6 @@ describe('/recovery_email', () => {
     })
   })
 
-  describe('can disable feature', () => {
-    beforeEach(() => {
-      accountRoutes = makeRoutes({
-        checkPassword: function () {
-          return P.resolve(true)
-        },
-        config: {
-          secondaryEmail: {
-            enabled: false,
-            enabledEmailAddresses: /\w/
-          }
-        },
-        customs: mockCustoms,
-        db: mockDB,
-        log: mockLog,
-        mailer: mockMailer,
-        push: mockPush
-      })
-    })
-
-    it('/recovery_email/destroy disabled', () => {
-      route = getRoute(accountRoutes, '/recovery_email/destroy')
-      return runTest(route, mockRequest).then(
-        () => assert.fail('Should have failed accessing endpoint'),
-        err => assert.equal(err.errno, 202, 'correct errno feature disabled'))
-    })
-
-    it('/recovery_email disabled', () => {
-      route = getRoute(accountRoutes, '/recovery_email')
-      return runTest(route, mockRequest).then(
-        () => assert.fail('Should have failed accessing endpoint'),
-        err => assert.equal(err.errno, 202, 'correct errno feature disabled'))
-    })
-
-    it('/recovery_emails disabled', () => {
-      route = getRoute(accountRoutes, '/recovery_emails')
-      return runTest(route, mockRequest).then(
-        () => assert.fail('Should have failed accessing endpoint'),
-        err => assert.equal(err.errno, 202, 'correct errno feature disabled'))
-    })
-  })
-
   describe('can check feature enable flag', () => {
     function setupTest(options) {
       dbData = {
@@ -964,12 +905,7 @@ describe('/recovery_email', () => {
         checkPassword: function () {
           return P.resolve(true)
         },
-        config: {
-          secondaryEmail: {
-            enabled: true,
-            enabledEmailAddresses: /@mozilla\.com/
-          }
-        },
+        config: {},
         customs: mockCustoms,
         db: mockDB,
         log: mockLog,
@@ -982,14 +918,6 @@ describe('/recovery_email', () => {
     it('/recovery_email/check_can_add_secondary_address disabled with unverified session', () => {
       setupTest({email: 'asdf@mozilla.com'})
       mockRequest.auth.credentials.tokenVerified = false
-      return runTest(route, mockRequest, (res) => {
-        assert.equal(res.ok, false, 'return ok `false` when feature is not enabled for user')
-      })
-    })
-
-    it('/recovery_email/check_can_add_secondary_address disabled with invalid email', () => {
-      setupTest({email: 'email@notvalid.com'})
-      mockRequest.auth.credentials.tokenVerified = true
       return runTest(route, mockRequest, (res) => {
         assert.equal(res.ok, false, 'return ok `false` when feature is not enabled for user')
       })

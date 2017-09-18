@@ -25,9 +25,6 @@
       "allowedRecency": 0
     }
   },
-  "secondaryEmail": {
-    "enabled": true
-  },
   "lastAccessTimeUpdates": {
     "enabled": true,
     "sampleRate": 1

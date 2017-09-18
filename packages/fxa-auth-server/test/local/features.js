@@ -21,8 +21,7 @@ const config = {
   lastAccessTimeUpdates: {},
   signinConfirmation: {},
   signinUnblock: {},
-  securityHistory: {},
-  secondaryEmail: {}
+  securityHistory: {}
 }
 
 const MODULE_PATH = '../../lib/features'
@@ -39,10 +38,9 @@ describe('features', () => {
       assert.notEqual(require(MODULE_PATH).schema, null, 'features.schema is not null')
 
       assert.equal(typeof features, 'object', 'object type should be exported')
-      assert.equal(Object.keys(features).length, 3, 'object should have correct number of properties')
+      assert.equal(Object.keys(features).length, 2, 'object should have correct number of properties')
       assert.equal(typeof features.isSampledUser, 'function', 'isSampledUser should be function')
       assert.equal(typeof features.isLastAccessTimeEnabledForUser, 'function', 'isLastAccessTimeEnabledForUser should be function')
-      assert.equal(typeof features.isSecondaryEmailEnabled, 'function', 'isSecondaryEmailEnabled should be function')
 
       assert.equal(crypto.createHash.callCount, 1, 'crypto.createHash should have been called once on require')
       let args = crypto.createHash.args[0]
@@ -177,21 +175,6 @@ describe('features', () => {
       config.lastAccessTimeUpdates.enabled = false
       config.lastAccessTimeUpdates.sampleRate = 0.03
       assert.equal(features.isLastAccessTimeEnabledForUser(uid, email), false, 'should return false when feature is disabled')
-    }
-  )
-
-  it(
-    'isSecondaryEmailEnabled',
-    () => {
-      config.secondaryEmail.enabled = true
-      assert.equal(features.isSecondaryEmailEnabled('asdf@mozilla.com'), false, 'should return false if no enabled regex address specified')
-
-      config.secondaryEmail.enabledEmailAddresses = /.+@mozilla\.com$/
-      assert.equal(features.isSecondaryEmailEnabled('asdf@mozilla.com'), true, 'should return true when email matches regex')
-      assert.equal(features.isSecondaryEmailEnabled('asdf@notmozilla.com'), false, 'should return false when email does not match regex')
-
-      config.secondaryEmail.enabled = false
-      assert.equal(features.isSecondaryEmailEnabled(), false, 'should return false when secondary email is disabled in config')
     }
   )
 })

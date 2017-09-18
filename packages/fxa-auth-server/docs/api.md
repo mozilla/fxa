@@ -324,6 +324,11 @@ those common validations are defined here.
     * `deviceId`: string, length(32), regex(HEX_STRING), optional
     * `flowId`: string, length(64), regex(HEX_STRING), optional
     * `flowBeginTime`: number, integer, positive, optional
+    * `utmCampaign`: string, optional
+    * `utmContent`: string, optional
+    * `utmMedium`: string, optional
+    * `utmSource`: string, optional
+    * `utmTerm`: string, optional
 
   }), unknown(false), and('flowId', 'flowBeginTime')
 * `schema`: SCHEMA.optional
@@ -1552,15 +1557,6 @@ from the `accounts` table.
   
   <!--end-response-body-get-recovery_emails-email-->
 
-##### Error responses
-
-Failing requests may be caused
-by the following errors
-(this is not an exhaustive list):
-
-* `code: 503, errno: 202`:
-  Feature not enabled
-
 
 #### POST /recovery_email
 
@@ -1585,9 +1581,6 @@ and will not replace the primary email address.
 Failing requests may be caused
 by the following errors
 (this is not an exhaustive list):
-
-* `code: 503, errno: 202`:
-  Feature not enabled
 
 * `code: 400, errno: 104`:
   Unverified account
@@ -1627,9 +1620,6 @@ Failing requests may be caused
 by the following errors
 (this is not an exhaustive list):
 
-* `code: 503, errno: 202`:
-  Feature not enabled
-
 * `code: 400, errno: 138`:
   Unverified session
 
@@ -1655,9 +1645,6 @@ belong to the user and be verified.
 Failing requests may be caused
 by the following errors
 (this is not an exhaustive list):
-
-* `code: 503, errno: 202`:
-  Feature not enabled
 
 * `code: 400, errno: 138`:
   Unverified session

@@ -15,7 +15,6 @@ const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
 
 module.exports = (log, db, mailer, config, customs, push) => {
-  const features = require('../features')(config)
   const verificationReminder = require('../verification-reminders')(log, db)
 
   return [
@@ -31,17 +30,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
         log.begin('Account.RecoveryEmailEnabled', request)
 
         const sessionToken = request.auth.credentials
-        let isEnabled = false
 
-        return db.account(sessionToken.uid)
-          .then((account) =>{
-            // Secondary emails are enabled if email address matches config and the session is verified
-            if (features.isSecondaryEmailEnabled(account.email) && sessionToken.tokenVerified) {
-              isEnabled = true
-            }
-
-            return reply({ ok: isEnabled })
-          })
+        // Secondary emails are enabled if the session is verified
+        return reply({ ok: sessionToken.tokenVerified })
       }
     },
     {
@@ -319,7 +310,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
           .then((account) => {
             // Check if param `type` is specified and equal to `secondary`
             // If so, verify the secondary email and respond
-            if (type && type === 'secondary' && features.isSecondaryEmailEnabled(account.email)) {
+            if (type && type === 'secondary') {
               let matchedEmail
               return db.accountEmails(account.uid)
                 .then((emails) => {
@@ -529,11 +520,6 @@ module.exports = (log, db, mailer, config, customs, push) => {
 
         return db.account(uid)
           .then((account) => {
-
-            if (! features.isSecondaryEmailEnabled(account.email)) {
-              throw error.featureNotEnabled()
-            }
-
             return createResponse(account.emails)
           })
           .done(reply, reply)
@@ -579,13 +565,6 @@ module.exports = (log, db, mailer, config, customs, push) => {
 
         customs.check(request, primaryEmail, 'createEmail')
           .then(() => {
-            return db.account(uid)
-          })
-          .then((account) => {
-            if (! features.isSecondaryEmailEnabled(account.email)) {
-              return reply(error.featureNotEnabled())
-            }
-
             if (! sessionToken.emailVerified) {
               throw error.unverifiedAccount()
             }
@@ -700,10 +679,6 @@ module.exports = (log, db, mailer, config, customs, push) => {
           .then((result) => {
             account = result
 
-            if (! features.isSecondaryEmailEnabled(account.email)) {
-              throw error.featureNotEnabled()
-            }
-
             if (sessionToken.tokenVerificationId) {
               throw error.unverifiedSession()
             }
@@ -752,24 +727,11 @@ module.exports = (log, db, mailer, config, customs, push) => {
         const uid = sessionToken.uid
         const primaryEmail = sessionToken.email
         const email = request.payload.email
-        let account
 
         log.begin('Account.RecoveryEmailSetPrimary', request)
 
         customs.check(request, primaryEmail, 'setPrimaryEmail')
           .then(() => {
-            return db.account(uid)
-          })
-          .then((result) => {
-            account = result
-
-            // If a user changes their primary email, then they will still
-            // have access to secondary emails because we check against the original
-            // account email.
-            if (! features.isSecondaryEmailEnabled(account.email)) {
-              throw error.featureNotEnabled()
-            }
-
             if (sessionToken.tokenVerificationId) {
               throw error.unverifiedSession()
             }
@@ -799,7 +761,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             .then(() => {
               request.app.devices.then(devices => push.notifyProfileUpdated(uid, devices))
               log.notifyAttachedServices('primaryEmailChanged', request, {
-                uid: account.uid,
+                uid,
                 email: email
               })
             })

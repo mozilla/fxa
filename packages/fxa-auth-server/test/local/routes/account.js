@@ -1181,8 +1181,6 @@ describe('/account/login', function () {
 
   it('fails login with non primary email', function () {
     const email = 'foo@mail.com'
-    config.secondaryEmail.enabled = true
-    config.secondaryEmail.enabledEmailAddresses = /\w/
     mockDB.accountRecord = sinon.spy(function () {
       return P.resolve({
         primaryEmail: {normalizedEmail: email.toLowerCase(), email: email, isVerified: true, isPrimary: false},

@@ -11,7 +11,6 @@ const SCHEMA = isA.array().items(isA.string()).optional()
 
 module.exports = config => {
   const lastAccessTimeUpdates = config.lastAccessTimeUpdates
-  const secondaryEmail = config.secondaryEmail
 
   return {
     /**
@@ -24,19 +23,6 @@ module.exports = config => {
     isLastAccessTimeEnabledForUser (uid) {
       return lastAccessTimeUpdates.enabled &&
         isSampledUser(lastAccessTimeUpdates.sampleRate, uid, 'lastAccessTimeUpdates')
-    },
-
-    /**
-     * Return whether or not secondary email support is enabled.
-     *
-     * @returns {boolean}
-     */
-    isSecondaryEmailEnabled(email) {
-      if (secondaryEmail && secondaryEmail.enabled && secondaryEmail.enabledEmailAddresses) {
-        return secondaryEmail.enabledEmailAddresses.test(email)
-      }
-
-      return false
     },
 
     /**

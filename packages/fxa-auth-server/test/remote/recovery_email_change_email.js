@@ -16,10 +16,6 @@ describe('remote change email', function () {
 
   before(() => {
     config = require('../../config').getProperties()
-    config.secondaryEmail = {
-      enabled: true,
-      enabledEmailAddresses: /@restmail.net/
-    }
     config.securityHistory.ipProfiling = {}
     return TestServer.start(config)
       .then(s => {

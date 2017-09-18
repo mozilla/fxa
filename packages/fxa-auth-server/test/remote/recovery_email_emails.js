@@ -20,10 +20,6 @@ describe('remote emails', function () {
 
   before(() => {
     config = require('../../config').getProperties()
-    config.secondaryEmail = {
-      enabled: true,
-      enabledEmailAddresses: /\w/
-    }
     config.securityHistory.ipProfiling = {}
     config.signinConfirmation.skipForNewAccounts.enabled = false
 
