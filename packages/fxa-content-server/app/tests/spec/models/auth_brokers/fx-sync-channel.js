@@ -206,7 +206,6 @@ define(function (require, exports, module) {
           .then(() => {
             assert.equal(channelMock.send.args[0][0], 'can_link_account');
             const data = channelMock.send.args[1][1];
-            assert.equal(data.uid, 'uid');
             assert.equal(data.email, 'testuser@testuser.com');
             assert.isFalse(data.verified);
             assert.isTrue(data.verifiedCanLinkAccount);
