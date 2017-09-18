@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 const fs = require('fs')
 const Hapi = require('hapi')
 const Raven = require('raven')
@@ -246,63 +248,62 @@ function create(log, error, config, routes, db, translator) {
     })
   })
 
-  server.ext(
-    'onRequest',
-    function (request, reply) {
-      log.begin('server.onRequest', request)
-      reply.continue()
-    }
-  )
+  server.ext('onRequest', (request, reply) => {
+    log.begin('server.onRequest', request)
+    reply.continue()
+  })
 
-  server.ext(
-    'onPreAuth',
-    function (request, reply) {
-      // Construct source-ip-address chain for logging.
-      var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
+  server.ext('onPreAuth', (request, reply) => {
+    defineLazyGetter(request.app, 'remoteAddressChain', () => {
+      const xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
+
       xff.push(request.info.remoteAddress)
-      // Remove empty items from the list, in case of badly-formed header.
-      xff = xff.filter(function(x){ return x })
-      // Skip over entries for our own infra, loadbalancers, etc.
-      var clientAddressIndex = xff.length - (config.clientAddressDepth || 1)
+
+      return xff.map(address => address.trim()).filter(address => !! address)
+    })
+
+    defineLazyGetter(request.app, 'clientAddress', () => {
+      const remoteAddressChain = request.app.remoteAddressChain
+      let clientAddressIndex = remoteAddressChain.length - (config.clientAddressDepth || 1)
+
       if (clientAddressIndex < 0) {
         clientAddressIndex = 0
       }
-      request.app.remoteAddressChain = xff
-      request.app.clientAddress = xff[clientAddressIndex]
 
-      const acceptLanguage = trimLocale(request.headers['accept-language'])
-      request.app.acceptLanguage = acceptLanguage
-      request.app.locale = translator.getLocale(acceptLanguage)
+      return remoteAddressChain[clientAddressIndex]
+    })
 
-      defineLazyGetter(request.app, 'ua', () => userAgent(request.headers['user-agent']))
-      defineLazyGetter(request.app, 'geo', () => getGeoData(request.app.clientAddress))
-      defineLazyGetter(request.app, 'devices', () => {
-        let uid
+    defineLazyGetter(request.app, 'acceptLanguage', () => trimLocale(request.headers['accept-language']))
+    defineLazyGetter(request.app, 'locale', () => translator.getLocale(request.app.acceptLanguage))
 
-        if (request.auth && request.auth.credentials) {
-          uid = request.auth.credentials.uid
-        } else if (request.payload && request.payload.uid) {
-          uid = request.payload.uid
-        }
+    defineLazyGetter(request.app, 'ua', () => userAgent(request.headers['user-agent']))
+    defineLazyGetter(request.app, 'geo', () => getGeoData(request.app.clientAddress))
 
-        return db.devices(uid)
-      })
+    defineLazyGetter(request.app, 'devices', () => {
+      let uid
 
-      if (request.headers.authorization) {
-        // Log some helpful details for debugging authentication problems.
-        log.trace(
-          {
-            op: 'server.onPreAuth',
-            rid: request.id,
-            path: request.path,
-            auth: request.headers.authorization,
-            type: request.headers['content-type'] || ''
-          }
-        )
+      if (request.auth && request.auth.credentials) {
+        uid = request.auth.credentials.uid
+      } else if (request.payload && request.payload.uid) {
+        uid = request.payload.uid
       }
-      reply.continue()
+
+      return db.devices(uid)
+    })
+
+    if (request.headers.authorization) {
+      // Log some helpful details for debugging authentication problems.
+      log.trace({
+        op: 'server.onPreAuth',
+        rid: request.id,
+        path: request.path,
+        auth: request.headers.authorization,
+        type: request.headers['content-type'] || ''
+      })
     }
-  )
+
+    reply.continue()
+  })
 
   server.ext('onPreHandler', (request, reply) => {
     const features = request.payload && request.payload.features
@@ -311,22 +312,19 @@ function create(log, error, config, routes, db, translator) {
     reply.continue()
   })
 
-  server.ext(
-    'onPreResponse',
-    function (request, reply) {
-      var response = request.response
-      if (response.isBoom) {
-        logEndpointErrors(response, log)
-        response = error.translate(response)
-        if (config.env !== 'prod') {
-          response.backtrace(request.app.traced)
-        }
+  server.ext('onPreResponse', (request, reply) => {
+    let response = request.response
+    if (response.isBoom) {
+      logEndpointErrors(response, log)
+      response = error.translate(response)
+      if (config.env !== 'prod') {
+        response.backtrace(request.app.traced)
       }
-      response.header('Timestamp', '' + Math.floor(Date.now() / 1000))
-      log.summary(request, response)
-      reply(response)
     }
-  )
+    response.header('Timestamp', '' + Math.floor(Date.now() / 1000))
+    log.summary(request, response)
+    reply(response)
+  })
 
   // configure Sentry
   const sentryDsn = config.sentryDsn

@@ -63,7 +63,7 @@ describe('lib/server', () => {
   })
 
   describe('create:', () => {
-    let log, config, routes, db, instance, response, translator
+    let log, config, routes, db, instance, response, locale, translator
 
     beforeEach(() => {
       log = mocks.spyLog()
@@ -72,9 +72,10 @@ describe('lib/server', () => {
       db = mocks.mockDB({
         devices: [ { id: 'fake device id' } ]
       })
+      locale = 'en'
       translator = {
         getTranslator: sinon.spy(() => ({ en: { format: () => {}, language: 'en' } })),
-        getLocale: sinon.spy(() => 'en')
+        getLocale: sinon.spy(() => locale)
       }
       instance = server.create(log, error, config, routes, db, translator)
     })
@@ -150,6 +151,27 @@ describe('lib/server', () => {
           assert.equal(request.app.features.has('signinCodes'), true)
         })
 
+        it('parsed remote address chain correctly', () => {
+          assert.ok(Array.isArray(request.app.remoteAddressChain))
+          assert.equal(request.app.remoteAddressChain.length, 2)
+          assert.equal(request.app.remoteAddressChain[0], '63.245.221.32')
+          assert.equal(request.app.remoteAddressChain[1], request.app.remoteAddressChain[0])
+        })
+
+        it('parsed client address correctly', () => {
+          assert.equal(request.app.clientAddress, '63.245.221.32')
+        })
+
+        it('parsed accept-language correctly', () => {
+          assert.equal(request.app.acceptLanguage, 'fr-CH, fr;q=0.9, en-GB, en;q=0.5')
+        })
+
+        it('parsed locale correctly', () => {
+          assert.equal(translator.getLocale.callCount, 0)
+          assert.equal(request.app.locale, 'en')
+          assert.equal(translator.getLocale.callCount, 1)
+        })
+
         it('parsed user agent correctly', () => {
           assert.ok(request.app.ua)
           assert.equal(request.app.ua.browser, 'Firefox')
@@ -190,11 +212,12 @@ describe('lib/server', () => {
 
           beforeEach(() => {
             response = 'ok'
+            locale = 'fr'
             return instance.inject({
               headers: {
                 'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
                 'user-agent': 'Firefox-Android-FxAccounts/34.0a1 (Nightly)',
-                'x-forwarded-for': ' 194.12.187.0 , 194.12.187.0 '
+                'x-forwarded-for': ' 194.12.187.0 , 194.12.187.1 '
               },
               method: 'POST',
               url: '/account/create',
@@ -202,12 +225,34 @@ describe('lib/server', () => {
                 features: [ 'signinCodes' ],
                 uid: 'another fake uid'
               },
-              remoteAddress: '194.12.187.0'
+              remoteAddress: '194.12.187.2'
             }).then(response => secondRequest = response.request)
           })
 
-          it('second request has its own user agent info', () => {
+          it('second request has its own remote address chain', () => {
             assert.notEqual(request, secondRequest)
+            assert.notEqual(request.app.remoteAddressChain, secondRequest.app.remoteAddressChain)
+            assert.equal(secondRequest.app.remoteAddressChain.length, 3)
+            assert.equal(secondRequest.app.remoteAddressChain[0], '194.12.187.0')
+            assert.equal(secondRequest.app.remoteAddressChain[1], '194.12.187.1')
+            assert.equal(secondRequest.app.remoteAddressChain[2], '194.12.187.2')
+          })
+
+          it('second request has its own client address', () => {
+            assert.equal(secondRequest.app.clientAddress, '194.12.187.2')
+          })
+
+          it('second request has its own accept-language', () => {
+            assert.equal(secondRequest.app.acceptLanguage, 'fr-CH, fr;q=0.9, en-GB, en;q=0.5')
+          })
+
+          it('second request has its own locale', () => {
+            assert.equal(translator.getLocale.callCount, 0)
+            assert.equal(secondRequest.app.locale, 'fr')
+            assert.equal(translator.getLocale.callCount, 1)
+          })
+
+          it('second request has its own user agent info', () => {
             assert.notEqual(request.app.ua, secondRequest.app.ua)
             assert.equal(secondRequest.app.ua.browser, 'Nightly')
             assert.equal(secondRequest.app.ua.browserVersion, '34.0a1')
