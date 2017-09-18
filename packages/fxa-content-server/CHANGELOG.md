@@ -1,3 +1,47 @@
+<a name="1.96.0"></a>
+# 1.96.0 (2017-09-18)
+
+
+### Bug Fixes
+
+* **avatar:** For ios devices, only show change avatar for ios > 10 (#5480) r=vladikoff,shane- ([c02d094](https://github.com/mozilla/fxa-content-server/commit/c02d094)), closes [#5436](https://github.com/mozilla/fxa-content-server/issues/5436)
+* **cad:** Fixes based on @vladikoff's feedback. ([f1f8a00](https://github.com/mozilla/fxa-content-server/commit/f1f8a00))
+* **experiments:** Only enable the experiment defined by `forceExperiment`. (#5447) r=vladikoff ([16ff59e](https://github.com/mozilla/fxa-content-server/commit/16ff59e)), closes [#5446](https://github.com/mozilla/fxa-content-server/issues/5446)
+* **l10n:** Fix double escaping problems on /*_complete pages. (#5491) r=vladikoff ([b5de42b](https://github.com/mozilla/fxa-content-server/commit/b5de42b)), closes [(#5491](https://github.com/(/issues/5491) [#5407](https://github.com/mozilla/fxa-content-server/issues/5407)
+* **l10n:** Fix the signin header and button text in `rm`. (#5470) r=vladikoff ([1cc0044](https://github.com/mozilla/fxa-content-server/commit/1cc0044)), closes [(#5470](https://github.com/(/issues/5470)
+* **metrics:** include deviceId in metricsContext data ([35a703f](https://github.com/mozilla/fxa-content-server/commit/35a703f))
+* **password:** Add test case for user changing primary, changing password, changing email (#548 ([34c4565](https://github.com/mozilla/fxa-content-server/commit/34c4565))
+* **style:** Double link margins when two links are stacked on mobile. (#5471) r=vladikoff ([a1bb9bc](https://github.com/mozilla/fxa-content-server/commit/a1bb9bc)), closes [#4655](https://github.com/mozilla/fxa-content-server/issues/4655)
+* **styles:** use an svg spinner (#5483) r=shane-tomlinson,vbudhram ([b05b521](https://github.com/mozilla/fxa-content-server/commit/b05b521))
+* **test:** Add a test for signin unblock in Fx >= 57. ([cc83734](https://github.com/mozilla/fxa-content-server/commit/cc83734))
+* **test:** Add tests for bounced emails in about:accounts for Fx 57 ([e32cb5c](https://github.com/mozilla/fxa-content-server/commit/e32cb5c)), closes [#5311](https://github.com/mozilla/fxa-content-server/issues/5311)
+* **test:** Fix a typo, users go to /connect_another_device post-verification. ([381f050](https://github.com/mozilla/fxa-content-server/commit/381f050))
+* **test:** Fixes based on @vbudhram's feedback. ([0b3269e](https://github.com/mozilla/fxa-content-server/commit/0b3269e))
+* **test:** Fixes related to the email-opt-in on signup tests. (#5485) r=vladikoff ([7605ce7](https://github.com/mozilla/fxa-content-server/commit/7605ce7)), closes [(#5485](https://github.com/(/issues/5485)
+* **test:** Revert changes to fennec/ios suites. ([81fb406](https://github.com/mozilla/fxa-content-server/commit/81fb406))
+
+### Features
+
+* **CAD:** Add CAD to signin ([ef9eb39](https://github.com/mozilla/fxa-content-server/commit/ef9eb39)), closes [#5262](https://github.com/mozilla/fxa-content-server/issues/5262)
+* **CAD:** Add CAD to signin r=@vladikoff ([b8f299b](https://github.com/mozilla/fxa-content-server/commit/b8f299b))
+* **devices:** add loading indicator to device list (#5423) r=shane-tomlinson  ([57568aa](https://github.com/mozilla/fxa-content-server/commit/57568aa)), closes [#5040](https://github.com/mozilla/fxa-content-server/issues/5040)
+* **styles:** animate some icons (#5419) r=ryanfeeley ([1c11944](https://github.com/mozilla/fxa-content-server/commit/1c11944)), closes [#5168](https://github.com/mozilla/fxa-content-server/issues/5168)
+* **sync:** Transition screens after login message in Fx >= 57 ([d31de35](https://github.com/mozilla/fxa-content-server/commit/d31de35)), closes [#5197](https://github.com/mozilla/fxa-content-server/issues/5197)
+
+### Refactor
+
+* **test:** Cleanup on the connect_another_device suite. (#5449) r=vladikoff ([be96fc5](https://github.com/mozilla/fxa-content-server/commit/be96fc5))
+* **test:** Modernize fx_ios_v1_sign_in. (#5451) r=vladikoff ([90f8119](https://github.com/mozilla/fxa-content-server/commit/90f8119))
+* **test:** Modernize the fx_firstrun_v1_sign_in suite. (#5450) r=vladikoff ([caf0999](https://github.com/mozilla/fxa-content-server/commit/caf0999))
+* **test:** Modernize the sync_sign_in.js suite. (#5448) r=@vbudhram ([8dd796a](https://github.com/mozilla/fxa-content-server/commit/8dd796a))
+* **test:** Modernize the sync_v3_sign_in.js suite. (#5477) r=vladikoff ([462c0c8](https://github.com/mozilla/fxa-content-server/commit/462c0c8))
+
+### Reverts
+
+* **brokers:** add uid to can_link_account in FxSyncChannel (#5492) r=@shane-tomlinson ([453a3f6](https://github.com/mozilla/fxa-content-server/commit/453a3f6))
+
+
+
 <a name="1.95.2"></a>
 ## 1.95.2 (2017-09-12)
 
