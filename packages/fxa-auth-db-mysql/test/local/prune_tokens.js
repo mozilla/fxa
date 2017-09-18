@@ -47,7 +47,6 @@ describe('prune tokens', () => {
           return P.all([
             db.createPasswordForgotToken(user.passwordForgotTokenId, user.passwordForgotToken),
             db.createUnblockCode(user.accountId, unblockCode),
-            db.createSessionToken(user.sessionTokenId, user.sessionToken),
             db.createSigninCode(signinCode, user.accountId, Date.now() - TOKEN_PRUNE_AGE)
           ])
         })
@@ -56,13 +55,11 @@ describe('prune tokens', () => {
           const sql = {
             accountResetToken: 'UPDATE accountResetTokens SET createdAt = createdAt - ? WHERE tokenId = ?',
             passwordForgotToken: 'UPDATE passwordForgotTokens SET createdAt = createdAt - ? WHERE tokenId = ?',
-            sessionToken: 'UPDATE sessionTokens SET createdAt = createdAt - ? WHERE tokenId = ?',
             unblockCode: 'UPDATE unblockCodes SET createdAt = createdAt - ? WHERE uid = ?'
           }
           return P.all([
             db.write(sql.accountResetToken, [TOKEN_PRUNE_AGE, user.accountResetTokenId]),
             db.write(sql.passwordForgotToken, [TOKEN_PRUNE_AGE, user.passwordForgotTokenId]),
-            db.write(sql.sessionToken, [TOKEN_PRUNE_AGE, user.sessionTokenId]),
             db.write(sql.unblockCode, [TOKEN_PRUNE_AGE, user.accountId])
           ])
         })
@@ -70,8 +67,7 @@ describe('prune tokens', () => {
         .then(() => {
           return P.all([
             db.accountResetToken(user.accountResetTokenId),
-            db.passwordForgotToken(user.passwordForgotTokenId),
-            db.sessionToken(user.sessionTokenId)
+            db.passwordForgotToken(user.passwordForgotTokenId)
           ])
         })
         .then(function() {
@@ -113,18 +109,6 @@ describe('prune tokens', () => {
             assert.equal(err.error, 'Not Found', 'passwordForgotToken() fails with the correct error')
             assert.equal(err.message, 'Not Found', 'passwordForgotToken() fails with the correct message')
           })
-        })
-        .then(() => {
-          return db.sessionToken(user.sessionTokenId)
-            .then(
-              () => assert(false, 'db.sessionToken should have failed'),
-              err => {
-                assert.equal(err.code, 404, 'db.sessionToken returned correct err.code')
-                assert.equal(err.errno, 116, 'db.sessionToken returned correct err.errno')
-                assert.equal(err.error, 'Not Found', 'db.sessionToken returned correct err.error')
-                assert.equal(err.message, 'Not Found', 'db.sessionToken returned correct err.message')
-              }
-            )
         })
         .then(function() {
           var sql = 'SELECT * FROM unblockCodes WHERE uid = ?'
