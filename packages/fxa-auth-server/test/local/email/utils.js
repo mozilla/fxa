@@ -4,13 +4,16 @@
 
 'use strict'
 
+const ROOT_DIR = '../../..'
+
 const assert = require('insist')
+const P = require(`${ROOT_DIR}/lib/promise`)
 const proxyquire = require('proxyquire')
 const sinon = require('sinon')
 const spyLog = require('../../mocks').spyLog
 
 const amplitude = sinon.spy()
-const emailHelpers = proxyquire('../../../lib/email/utils/helpers', {
+const emailHelpers = proxyquire(`${ROOT_DIR}/lib/email/utils/helpers`, {
   '../../metrics/amplitude': () => amplitude
 })
 
@@ -97,6 +100,10 @@ describe('email utils helpers', () => {
     assert.equal(args[0], 'email.verifyEmail.sent')
     assert.deepEqual(args[1], {
       app: {
+        devices: P.resolve([]),
+        geo: P.resolve({
+          location: {}
+        }),
         locale: 'aaa',
         ua: {}
       },
@@ -106,6 +113,7 @@ describe('email utils helpers', () => {
     })
     assert.deepEqual(args[2], {
       device_id: 'bbb',
+      email_domain: 'other',
       service: 'ddd',
       uid: 'eee'
     })
@@ -125,13 +133,17 @@ describe('email utils helpers', () => {
         { name: 'X-Template-Name', value: 'verifyLoginEmail' },
         { name: 'X-Uid', value: 'e' }
       ]
-    }, 'bounced', 'gmail.com')
+    }, 'bounced', 'gmail')
     assert.equal(amplitude.callCount, 1)
     const args = amplitude.args[0]
     assert.equal(args.length, 4)
     assert.equal(args[0], 'email.verifyLoginEmail.bounced')
     assert.deepEqual(args[1], {
       app: {
+        devices: P.resolve([]),
+        geo: P.resolve({
+          location: {}
+        }),
         locale: 'a',
         ua: {}
       },
@@ -141,6 +153,7 @@ describe('email utils helpers', () => {
     })
     assert.deepEqual(args[2], {
       device_id: 'b',
+      email_domain: 'gmail',
       service: 'd',
       uid: 'e'
     })

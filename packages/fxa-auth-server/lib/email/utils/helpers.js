@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const emailDomains = require('../../../config/popular-email-domains')
+const P = require('../../promise')
+
 let amplitude
 
 function getInsensitiveHeaderValueFromArray(headerName, headers) {
@@ -63,7 +65,9 @@ function logEmailEventSent(log, message) {
     log.info(msg)
   })
 
-  logAmplitudeEvent(log, message, emailEventInfo)
+  logAmplitudeEvent(log, message, Object.assign({
+    domain: getAnonymizedEmailDomain(message.email)
+  }, emailEventInfo))
 }
 
 function logAmplitudeEvent (log, message, eventInfo) {
@@ -73,6 +77,10 @@ function logAmplitudeEvent (log, message, eventInfo) {
 
   amplitude(`email.${eventInfo.template}.${eventInfo.type}`, {
     app: {
+      devices: P.resolve([]),
+      geo: P.resolve({
+        location: {}
+      }),
       locale: eventInfo.locale,
       ua: {}
     },
@@ -81,6 +89,7 @@ function logAmplitudeEvent (log, message, eventInfo) {
     payload: {}
   }, {
     device_id: getHeaderValue('X-Device-Id', message),
+    email_domain: eventInfo.domain,
     service: getHeaderValue('X-Service-Id', message),
     uid: getHeaderValue('X-Uid', message)
   }, {

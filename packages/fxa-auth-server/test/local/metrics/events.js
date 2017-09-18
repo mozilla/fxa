@@ -617,16 +617,18 @@ describe('metrics/events', () => {
         assert.equal(log.amplitudeEvent.args[0].length, 1, 'log.amplitudeEvent was passed one argument')
         assert.equal(log.amplitudeEvent.args[0][0].event_type, 'fxa_activity - cert_signed', 'log.amplitudeEvent was passed correct event_type')
         assert.deepEqual(log.amplitudeEvent.args[0][0].event_properties, {
-          device_id: undefined,
           service: 'content-server'
         }, 'log.amplitudeEvent was passed correct event properties')
         assert.deepEqual(log.amplitudeEvent.args[0][0].user_properties, {
           flow_id: 'bar',
+          sync_device_count: 0,
           ua_browser: request.app.ua.browser,
           ua_version: request.app.ua.browserVersion,
           ua_os: request.app.ua.os,
-          fxa_uid: 'baz'
-        }, 'log.amplitudeEvent was passed correct event properties')
+          user_country: 'United States',
+          user_locale: 'en-US',
+          user_state: 'California'
+        }, 'log.amplitudeEvent was passed correct user properties')
 
         assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
         assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')

@@ -18,6 +18,8 @@
 
 'use strict'
 
+const P = require('../promise')
+
 const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(require('../../package.json').version)[1]
 
 const GROUPS = {
@@ -97,17 +99,9 @@ const NOP = () => {}
 
 const EVENT_PROPERTIES = {
   [GROUPS.activity]: NOP,
-  [GROUPS.email]: mapEmailType,
+  [GROUPS.email]: mapEmailEventProperties,
   [GROUPS.login]: NOP,
   [GROUPS.registration]: NOP,
-  [GROUPS.sms]: NOP
-}
-
-const USER_PROPERTIES = {
-  [GROUPS.activity]: mapUid,
-  [GROUPS.email]: mapUid,
-  [GROUPS.login]: mapUid,
-  [GROUPS.registration]: mapUid,
   [GROUPS.sms]: NOP
 }
 
@@ -119,7 +113,7 @@ module.exports = log => {
   function receiveEvent (event, request, data = {}, metricsContext = {}) {
     if (! event || ! request) {
       log.error({ op: 'amplitudeMetrics', err: 'Bad argument', event, hasRequest: !! request })
-      return
+      return P.resolve()
     }
 
     let mapping = EVENTS[event]
@@ -143,39 +137,40 @@ module.exports = log => {
       if (mapping.isDynamicGroup) {
         group = group(request, data, metricsContext)
         if (! group) {
-          return
+          return P.resolve()
         }
       }
       if (mapping.eventCategory) {
         data.eventCategory = mapping.eventCategory
       }
-      log.amplitudeEvent({
-        time: metricsContext.time || Date.now(),
-        user_id: getUid(request, data),
-        device_id: getDeviceId(request, metricsContext),
-        event_type: `${group} - ${mapping.event}`,
-        session_id: getFromMetricsContext(metricsContext, 'flowBeginTime', request, 'flowBeginTime'),
-        event_properties: mapEventProperties(group, request, data, metricsContext),
-        user_properties: mapUserProperties(group, request, data, metricsContext),
-        app_version: APP_VERSION,
-        language: request.app.locale || undefined
+      return P.all([
+        request.app.geo,
+        request.app.devices.catch(() => {})
+      ]).spread((geo, devices) => {
+        data.location = geo.location
+        data.devices = devices
+        log.amplitudeEvent({
+          time: metricsContext.time || Date.now(),
+          user_id: data.uid || getFromToken(request, 'uid'),
+          device_id: getFromMetricsContext(metricsContext, 'device_id', request, 'deviceId'),
+          event_type: `${group} - ${mapping.event}`,
+          session_id: getFromMetricsContext(metricsContext, 'flowBeginTime', request, 'flowBeginTime'),
+          event_properties: mapEventProperties(group, request, data, metricsContext),
+          user_properties: mapUserProperties(group, request, data, metricsContext),
+          app_version: APP_VERSION,
+          language: getLocale(request)
+        })
       })
     }
-  }
-}
 
-function getUid (request, data) {
-  return data.uid || getFromToken(request, 'uid')
+    return P.resolve()
+  }
 }
 
 function getFromToken (request, key) {
   if (request.auth.credentials) {
     return request.auth.credentials[key]
   }
-}
-
-function getDeviceId (request, metricsContext) {
-  return getFromMetricsContext(metricsContext, 'device_id', request, 'deviceId')
 }
 
 function getFromMetricsContext (metricsContext, key, request, payloadKey) {
@@ -185,33 +180,39 @@ function getFromMetricsContext (metricsContext, key, request, payloadKey) {
 
 function mapEventProperties (group, request, data, metricsContext) {
   return Object.assign({
-    device_id: getDeviceId(request, metricsContext),
     service: data.service || request.query.service || request.payload.service
   }, EVENT_PROPERTIES[group](request, data, metricsContext))
 }
 
-function mapEmailType (request, data) {
+function mapEmailEventProperties (request, data) {
   const emailType = EMAIL_TYPES[data.eventCategory]
   if (emailType) {
     return {
-      email_type: emailType
+      email_type: emailType,
+      email_provider: data.email_domain
     }
   }
 }
 
 function mapUserProperties (group, request, data, metricsContext) {
   const { browser, browserVersion, os } = request.app.ua
-  return Object.assign({
+  return {
     flow_id: getFromMetricsContext(metricsContext, 'flow_id', request, 'flowId'),
+    sync_device_count: data.devices && data.devices.length,
     ua_browser: browser,
     ua_version: browserVersion,
-    ua_os: os
-  }, USER_PROPERTIES[group](request, data, metricsContext))
+    ua_os: os,
+    user_country: getLocationProperty(data, 'country'),
+    user_locale: getLocale(request),
+    user_state: getLocationProperty(data, 'state'),
+  }
 }
 
-function mapUid (request, data) {
-  return {
-    fxa_uid: getUid(request, data)
-  }
+function getLocale (request) {
+  return request.app.locale || undefined
+}
+
+function getLocationProperty (data, key) {
+  return (data.location && data.location[key]) || undefined
 }
 

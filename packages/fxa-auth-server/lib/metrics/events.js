@@ -102,13 +102,14 @@ module.exports = log => {
         return emitFlowEvent(event, request, data)
       })
       .then(metricsContext => {
-        amplitude(event, request, data, metricsContext)
-
-        if (metricsContext && event === metricsContext.flowCompleteSignal) {
-          log.flowEvent(Object.assign({}, metricsContext, { event: 'flow.complete' }))
-          amplitude('flow.complete', request, data, metricsContext)
-          request.clearMetricsContext()
-        }
+        return amplitude(event, request, data, metricsContext)
+          .then(() => {
+            if (metricsContext && event === metricsContext.flowCompleteSignal) {
+              log.flowEvent(Object.assign({}, metricsContext, { event: 'flow.complete' }))
+              return amplitude('flow.complete', request, data, metricsContext)
+                .then(() => request.clearMetricsContext())
+            }
+          })
       })
     },
 

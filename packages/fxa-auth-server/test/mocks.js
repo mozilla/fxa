@@ -487,11 +487,18 @@ function mockRequest (data, errors) {
     })
   }
 
+  let devices
+  if (errors && errors.devices) {
+    devices = P.reject(errors.devices)
+  } else {
+    devices = P.resolve(data.devices || [])
+  }
+
   return {
     app: {
       acceptLanguage: 'en-US',
       clientAddress: data.clientAddress || '63.245.221.32',
-      devices: P.resolve(data.devices || []),
+      devices,
       features: new Set(data.features),
       geo,
       locale: data.locale || 'en-US',
