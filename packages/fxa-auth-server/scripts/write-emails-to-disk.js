@@ -28,6 +28,8 @@
  * to give a rough idea of how they would render in real life.
  */
 
+'use strict'
+
 var P = require('bluebird')
 const config = require('../config').getProperties()
 const error = require('../lib/error')

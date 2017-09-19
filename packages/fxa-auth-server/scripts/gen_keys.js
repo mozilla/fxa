@@ -20,6 +20,8 @@
    keypair.
 */
 
+'use strict'
+
 const fs = require('fs')
 const cp = require('child_process')
 const assert = require('assert')

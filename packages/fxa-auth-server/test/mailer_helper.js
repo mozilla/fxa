@@ -4,6 +4,8 @@
 
 /*eslint no-console: 0*/
 
+'use strict'
+
 var uuid = require('uuid')
 
 var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex').toString('hex')

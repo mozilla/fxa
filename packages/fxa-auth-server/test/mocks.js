@@ -6,6 +6,8 @@
  * Shared helpers for mocking things out in the tests.
  */
 
+'use strict'
+
 const assert = require('assert')
 const sinon = require('sinon')
 const extend = require('util')._extend

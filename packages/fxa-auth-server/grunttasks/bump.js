@@ -4,9 +4,9 @@
 
 // takes care of bumping the version number in package.json
 
-module.exports = function (grunt) {
-  'use strict'
+'use strict'
 
+module.exports = function (grunt) {
   grunt.config('bump', {
     options: {
       files: ['package.json', 'npm-shrinkwrap.json'],

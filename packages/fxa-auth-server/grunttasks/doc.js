@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (grunt) {
-  'use strict'
+'use strict'
 
+module.exports = function (grunt) {
   grunt.registerMultiTask('doc', function () {
     const done = this.async()
     const doc = require('../scripts/write-api-docs')

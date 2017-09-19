@@ -16,9 +16,9 @@
 // NOTE: This task will not push this commit for you.
 //
 
-module.exports = function (grunt) {
-  'use strict'
+'use strict'
 
+module.exports = function (grunt) {
   grunt.registerTask('version', [
     'bump-only:minor',
     'conventionalChangelog:release',

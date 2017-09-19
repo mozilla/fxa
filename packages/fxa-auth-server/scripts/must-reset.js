@@ -15,6 +15,8 @@
 
  /*/
 
+'use strict'
+
 var butil = require('../lib/crypto/butil')
 var commandLineOptions = require('commander')
 var config = require('../config').getProperties()

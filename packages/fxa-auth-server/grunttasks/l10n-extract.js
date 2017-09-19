@@ -4,14 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 const path = require('path')
 const extract = require('jsxgettext-recursive')
 
 const pkgroot = path.dirname(__dirname)
 
 module.exports = function (grunt) {
-  'use strict'
-
   grunt.config('copy', {
     strings: {
       files: [{

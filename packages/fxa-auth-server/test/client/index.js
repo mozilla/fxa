@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 module.exports = config => {
   var P = require('../../lib/promise')
   const ClientApi = require('./api')(config)
@@ -467,7 +469,7 @@ module.exports = config => {
             headers,
             options
           )
-            .then(function (response) {
+            .then(response => {
               // Update to the new verified tokens
               this.sessionToken = response.sessionToken
               this.keyFetchToken = response.keyFetchToken

@@ -19,6 +19,8 @@
    keypair.
 */
 
+'use strict'
+
 const fs = require('fs')
 const config = require('../config')
 const webpush = require('web-push')

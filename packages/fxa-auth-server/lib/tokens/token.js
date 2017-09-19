@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 /*  Base class for handling various types of token.
  *
  *  This module provides the basic functionality for handling authentication
@@ -40,7 +42,6 @@ module.exports = (log, config) => {
     KEYS.forEach(name => {
       this[name] = keys[name] && keys[name].toString('hex')
     })
-    this.algorithm = 'sha256'
     this.uid = details.uid || null
     this.lifetime = details.lifetime || Infinity
     this.createdAt = details.createdAt || 0

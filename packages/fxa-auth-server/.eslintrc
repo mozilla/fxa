@@ -4,3 +4,4 @@ extends: plugin:fxa/server
 
 rules:
   handle-callback-err: 0
+  strict: 2
