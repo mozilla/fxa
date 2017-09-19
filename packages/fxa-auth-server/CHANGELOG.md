@@ -1,3 +1,32 @@
+<a name="1.96.0"></a>
+# [1.96.0](https://github.com/mozilla/fxa-auth-server/compare/v1.95.2...v1.96.0) (2017-09-19)
+
+
+### Bug Fixes
+
+* **basket:** reinstate utm params to the metrics context bundle ([549b891](https://github.com/mozilla/fxa-auth-server/commit/549b891))
+* **metrics:** include missing user_properties on amplitude events ([0567350](https://github.com/mozilla/fxa-auth-server/commit/0567350))
+* **server:** enforce 'use strict' everywhere (#2124), r=@vbudhram ([df6cd60](https://github.com/mozilla/fxa-auth-server/commit/df6cd60))
+* **tests:** silence obnoxious "possible memory leak detected" warning ([dae0e58](https://github.com/mozilla/fxa-auth-server/commit/dae0e58))
+
+### chore
+
+* **deps:** Update hapi to latest version ([68e2c12](https://github.com/mozilla/fxa-auth-server/commit/68e2c12))
+* **docs:** update docs for node 6 (#2120) r=rfk ([0c0ef30](https://github.com/mozilla/fxa-auth-server/commit/0c0ef30))
+
+### Features
+
+* **logs:** add Sentry integration (#2116) r=vbudhram ([ceab903](https://github.com/mozilla/fxa-auth-server/commit/ceab903)), closes [#2115](https://github.com/mozilla/fxa-auth-server/issues/2115)
+* **password:** notify attached services when a user changes their password (#2117); r=rfk ([e8cc49d](https://github.com/mozilla/fxa-auth-server/commit/e8cc49d))
+* **server:** lazily get all request.app properties ([3518b0c](https://github.com/mozilla/fxa-auth-server/commit/3518b0c))
+* **server:** lazily get devices array on the request object (#2107) r=vladikoff,vbudhram ([f084830](https://github.com/mozilla/fxa-auth-server/commit/f084830)), closes [#2106](https://github.com/mozilla/fxa-auth-server/issues/2106)
+
+### Refactor
+
+* **secondary-email:** Remove "add secondary email" feature flag. (#2121), r=@vbudhram ([359caeb](https://github.com/mozilla/fxa-auth-server/commit/359caeb))
+
+
+
 <a name="1.95.3"></a>
 ## [1.95.3](https://github.com/mozilla/fxa-auth-server/compare/v1.95.1...v1.95.3) (2017-09-13)
 
