@@ -848,13 +848,11 @@ define(function (require, exports, module) {
 
       it('generates a new assertion if assertion is expired', function () {
         return account.createOAuthToken('scope1')
-          .then(function () {
-            sinon.stub(account, '_isAssertionValid').callsFake(function () {
-              return false;
-            });
+          .then(() => {
+            sinon.stub(account, '_isAssertionValid').callsFake(() => false);
             return account.createOAuthToken('scope2');
           })
-          .then(function () {
+          .then(() => {
             assert.equal(assertion.generate.callCount, 2);
             account._isAssertionValid.restore();
           });
@@ -2231,6 +2229,56 @@ define(function (require, exports, module) {
                 fxaClient.smsStatus.calledWith('sessionToken', smsStatusOptions));
             });
         });
+      });
+    });
+
+    describe('_generateAssertion', () => {
+      beforeEach(() => {
+        account.set('sessionToken', 'session-token');
+        // generate returns a different object for every call.
+        sinon.stub(assertion, 'generate').callsFake(() => p({}));
+      });
+
+      it('returns an existing assertion if assertion is valid', () => {
+        let assertion1;
+
+        return account._generateAssertion()
+          .then((assertion) => {
+            assertion1 = assertion;
+            sinon.stub(account, '_isAssertionValid').callsFake(() => true);
+            return account._generateAssertion();
+          })
+          .then((assertion) => {
+            assert.strictEqual(assertion1, assertion);
+          });
+      });
+
+      it('generates a new assertion if original assertion is invalid', () => {
+        let assertion1;
+
+        return account._generateAssertion()
+          .then((assertion) => {
+            assertion1 = assertion;
+            sinon.stub(account, '_isAssertionValid').callsFake(() => false);
+            return account._generateAssertion();
+          })
+          .then((assertion) => {
+            assert.notStrictEqual(assertion1, assertion);
+          });
+      });
+    });
+
+    describe('_isAssertionValid', () => {
+      it('returns `false` when expected', () => {
+        assert.isFalse(account._isAssertionValid());
+        assert.isFalse(account._isAssertionValid({}));
+        assert.isFalse(account._isAssertionValid({ __expiresAt: Date.now() - 1 }));
+      });
+
+      it('returns `true` when expected', () => {
+        // an extra couple of milliseconds are given because who knows how long
+        // this will take to run on Travis.
+        assert.isTrue(account._isAssertionValid({ __expiresAt: Date.now() + 2 }));
       });
     });
   });

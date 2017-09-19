@@ -190,6 +190,11 @@ define(function (require, exports, module) {
       return this.get('verified') && ! this.get('accessToken');
     },
 
+    /**
+     * Get an assertion that can be used to get an OAuth token
+     *
+     * @returns {Promise} resolves to the assertion
+     */
     _generateAssertion () {
       var sessionToken = this.get('sessionToken');
       if (! sessionToken) {
@@ -203,21 +208,25 @@ define(function (require, exports, module) {
       }
 
       var assertionPromise = this._assertion.generate(sessionToken);
-      assertionPromise.__createdAt = Date.now();
+      // assertions live for about 6 hours.
+      // reuse the same assertion if created in the past hour
+      assertionPromise.__expiresAt = Date.now() + 1000 * 60 * 60;
 
       this._assertionPromises[sessionToken] = assertionPromise;
 
       return assertionPromise;
     },
 
+    /**
+     * Check if the assertion promise result is still valid
+     *
+     * @param {Promise} assertionPromise
+     * @returns {Boolean}
+     */
     _isAssertionValid (assertionPromise) {
-      // assertions live for about 6 hours.
-      // reuse the same assertion if created in the past hour
-      const expiredAt = new Date();
-      expiredAt.setHours(expiredAt.getHours() + 1);
-      return (assertionPromise &&
-        assertionPromise.__createdAt &&
-        assertionPromise.__createdAt < expiredAt.getTime());
+      return !! (assertionPromise &&
+                 assertionPromise.__expiresAt &&
+                 assertionPromise.__expiresAt >= Date.now());
     },
 
     createOAuthToken (scope) {
