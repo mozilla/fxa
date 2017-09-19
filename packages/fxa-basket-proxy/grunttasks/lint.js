@@ -8,8 +8,7 @@ module.exports = function (grunt) {
 
   var SUBTASKS = [
     'copyright',
-    'eslint',
-    'jscs'
+    'eslint'
   ];
 
   grunt.registerTask('lint', 'lint all the things', SUBTASKS);

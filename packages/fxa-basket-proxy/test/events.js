@@ -2,30 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict';
+
 /* eslint-disable camelcase */
 
-var assert = require('assert');
+const assert = require('assert');
 
-var events = require('../lib/events');
+const events = require('../lib/events');
 
-var mocks = require('./lib/mocks');
+const mocks = require('./lib/mocks');
+const utils = require('./lib/utils');
 
 
-var UID = 'foobar';
-var EMAIL = 'foobar@example.com';
-var LOCALE = 'en-AU';
-var USER_AGENT = 'a fake testing browser (like Gecko)';
-var SERVICE = 'sync';
+const UID = 'foobar';
+const EMAIL = 'foobar@example.com';
+const LOCALE = 'en-AU';
+const USER_AGENT = 'a fake testing browser (like Gecko)';
+const SERVICE = 'sync';
 
-var CAMPAIGN_NEWSLETTER_SLUG = 'mozilla-welcome';
-var CAMPAIGN_NEWSLETTER_CONTEXT = {
+const CAMPAIGN_NEWSLETTER_SLUG = 'mozilla-welcome';
+const CAMPAIGN_NEWSLETTER_CONTEXT = {
   utm_campaign: 'fxa-embedded-form-moz',
   utm_source: 'firstrun'
 };
-var CAMPAIGN_NEWSLETTER_SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=fxa-embedded-form-moz&utm_source=firstrun';
+const CAMPAIGN_NEWSLETTER_SOURCE_URL = 'https://accounts.firefox.com/?utm_campaign=fxa-embedded-form-moz&utm_source=firstrun';
 
-var NEWSLETTER_ID_REGISTER = 'firefox-accounts-journey';
-var SOURCE_URL_REGISTER = 'https://accounts.firefox.com/';
+const NEWSLETTER_ID_REGISTER = 'firefox-accounts-journey';
+const SOURCE_URL_REGISTER = 'https://accounts.firefox.com/';
 
 
 describe('the handleEvent() function', function () {
@@ -55,7 +58,7 @@ describe('the handleEvent() function', function () {
   });
 
   it('calls /subscribe for verifications events when user opts in', function (done)  {
-    var subscribe = mocks.mockBasketResponse().post('/subscribe/', function (body) {
+    const subscribe = mocks.mockBasketResponse().post('/subscribe/', function (body) {
       assert.deepEqual(body, {
         email: EMAIL,
         newsletters: NEWSLETTER_ID_REGISTER,
@@ -65,7 +68,7 @@ describe('the handleEvent() function', function () {
     }).reply(200, {
       status: 'ok',
     });
-    var register = mocks.mockBasketResponse({
+    const register = mocks.mockBasketResponse({
       reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
     }).post('/fxa-register/', function (body) {
       assert.deepEqual(body, {
@@ -406,6 +409,35 @@ describe('the handleEvent() function', function () {
       del: function () {
         done();
       }
+    });
+  });
+
+});
+
+
+describe('the set of message handler functions', () => {
+
+  it('defaults to "verified" and "login"', () => {
+    const handlers = Object.keys(events._messageHandlers);
+    assert.deepEqual(handlers.sort(), ['login', 'verified']);
+  });
+
+  it('excludes events listed in $BASKET_SQS_DISABLED_EVENT_TYPES', () => {
+    return utils.withEnviron({ BASKET_SQS_DISABLED_EVENT_TYPES: 'verified,some_other_event' }, () => {
+      return utils.withFreshModules(require, ['../lib/events', '../lib/config'], () => {
+        const events = require('../lib/events');
+        const handlers = Object.keys(events._messageHandlers);
+        assert.deepEqual(handlers.sort(), ['login']);
+        return events.handleEvent({
+          event: 'verified',
+          uid: UID,
+          email: EMAIL,
+          locale: LOCALE,
+          // This gets executed without attempting any HTTP requests.
+          // If HTTP requests are attempted they'll fail, and fail the test.
+          del: (cb) => { cb(); }
+        });
+      });
     });
   });
 
