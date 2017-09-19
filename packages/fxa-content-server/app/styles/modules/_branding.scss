@@ -103,6 +103,10 @@
       margin: 20px auto 0 auto;
       width: 300px;
     }
+
+    @include respond-to('trustedUI') {
+      margin: 10px auto 20px auto;
+    }
   }
 
   .success-email-created {

@@ -248,4 +248,20 @@ ul.permission-links {
   .choose-what-to-sync-row {
     margin-bottom: 10px;
   }
+
+  .fxa-checkbox__label {
+    color: $color-grey-faint-text;
+  }
+
+  @include respond-to('trustedUI') {
+    column-width: 118px;
+
+    .fxa-checkbox {
+      line-height: 18px;
+    }
+
+    .fxa-checkbox__label {
+      font-size: 14px;
+    }
+  }
 }
