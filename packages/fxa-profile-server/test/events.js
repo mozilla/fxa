@@ -8,7 +8,6 @@ const fs = require('fs');
 const path = require('path');
 
 const db = require('../lib/db');
-const events = require('../lib/events');
 const P = require('../lib/promise');
 const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
@@ -17,8 +16,12 @@ const mock = require('./lib/mock')({ userid: UID });
 const Server = require('./lib/server');
 const Static = require('./lib/static');
 
+const events = require('../lib/events')(Server.server);
+
 const imagePath = path.join(__dirname, 'lib', 'firefox.png');
 const imageData = fs.readFileSync(imagePath);
+
+const sinon = require('sinon');
 
 const SIZES = require('../lib/img').SIZES;
 const SIZE_SUFFIXES = Object.keys(SIZES).map(function(val) {
@@ -46,7 +49,7 @@ describe('events', function() {
       }
       return {
         event: type,
-        uid: UID + '@accounts.firefox.com',
+        uid: UID,
         del: onDel
       };
     }
@@ -100,7 +103,7 @@ describe('events', function() {
           assert(false, 'message.del() should not be called');
         }));
         mock.log('events', function(record) {
-          if (record.levelname === 'ERROR' && record.args[0] === 'removeUser') {
+          if (record.levelname === 'ERROR' && record.args[0] === 'delete') {
             setTimeout(function() {
               done();
             }, 1);
@@ -123,5 +126,69 @@ describe('events', function() {
       });
     });
 
+  });
+
+  describe('onPrimaryEmailChangedMessage', function () {
+    describe('should invalidate user cache', function () {
+      function Message(type, onDel) {
+        if (typeof type === 'function') {
+          onDel = type;
+          type = 'primaryEmailChanged';
+        }
+        return {
+          event: type,
+          uid: UID,
+          del: onDel
+        };
+      }
+      beforeEach(function () {
+        Server.server.methods.batch.cache.drop = sinon.spy(function (req, cb) {
+          cb();
+        });
+      });
+
+      it('invalidate cache', function (done) {
+        events.onData(new Message(function () {
+          var args = Server.server.methods.batch.cache.drop.getCall(0).args;
+          var callCount = Server.server.methods.batch.cache.drop.callCount;
+          assert.equal(callCount, 1);
+          assert.equal(args.length, 2);
+          assert.equal(args[0].auth.credentials.user, UID);
+          assert.equal(typeof args[1] === 'function', true);
+          done();
+        }));
+      });
+    });
+
+    describe('should delete message on invalid uid', function () {
+      function Message(type, onDel) {
+        if (typeof type === 'function') {
+          onDel = type;
+          type = 'primaryEmailChanged';
+        }
+        return {
+          event: type,
+          uid: 'notahexuid',
+          del: onDel
+        };
+      }
+
+      it('invalid uid', function (done) {
+        events.onData(new Message(function () {
+          assert(true, 'message.del() should be called');
+        }));
+
+        mock.log('events', function(record) {
+          if (record.levelname === 'WARN' && record.args[0] === 'getUserId') {
+            assert.equal(record.args[1].userId, 'notahexuid');
+            setTimeout(function() {
+              done();
+            }, 1);
+            return true;
+          }
+          return false;
+        });
+      });
+    });
   });
 });

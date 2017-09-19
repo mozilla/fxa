@@ -8,9 +8,9 @@ require('../lib/newrelic')();
 
 const config = require('../lib/config').getProperties();
 const db = require('../lib/db');
-const events = require('../lib/events');
 const logger = require('../lib/logging')('bin.server');
 const server = require('../lib/server').create();
+const events = require('../lib/events')(server);
 
 logger.info('config', config);
 db.ping().done(function() {
