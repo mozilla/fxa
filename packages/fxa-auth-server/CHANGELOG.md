@@ -1,3 +1,12 @@
+<a name"1.96.0"></a>
+## 1.96.0 (2017-09-19)
+
+
+#### Features
+
+* **tokens:** add support for password change and reset event (#485) r=rfk ([f5873f9d](https://github.com/mozilla/fxa-oauth-server/commit/f5873f9d), closes [#481](https://github.com/mozilla/fxa-oauth-server/issues/481))
+
+
 <a name"1.95.1"></a>
 ### 1.95.1 (2017-09-14)
 
