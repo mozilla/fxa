@@ -365,7 +365,7 @@ module.exports = (log, db, config, customs, push, devices) => {
                 deviceCallbackURL: session.deviceCallbackURL,
                 deviceCallbackPublicKey: session.deviceCallbackPublicKey,
                 deviceCallbackAuthKey: session.deviceCallbackAuthKey,
-                deviceCallbackIsExpired: session.deviceCallbackIsExpired,
+                deviceCallbackIsExpired: !! session.deviceCallbackIsExpired,
                 id: session.tokenId,
                 isCurrentDevice: session.tokenId === sessionToken.tokenId,
                 isDevice,

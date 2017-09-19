@@ -22,7 +22,7 @@ const SCHEMA = {
   pushCallback: isA.string().uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
   pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).allow(''),
   pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).allow(''),
-  pushEndpointExpired: isA.boolean()
+  pushEndpointExpired: isA.boolean().strict()
 }
 
 module.exports = (log, db, push) => {

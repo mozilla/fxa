@@ -455,7 +455,7 @@ module.exports = (
             pushCallback: device.callbackURL,
             pushPublicKey: device.callbackPublicKey,
             pushAuthKey: device.callbackAuthKey,
-            pushEndpointExpired: device.callbackIsExpired,
+            pushEndpointExpired: !! device.callbackIsExpired,
             uaBrowser: mergedInfo.uaBrowser,
             uaBrowserVersion: mergedInfo.uaBrowserVersion,
             uaOS: mergedInfo.uaOS,
@@ -617,7 +617,7 @@ module.exports = (
         callbackURL: deviceInfo.pushCallback,
         callbackPublicKey: deviceInfo.pushPublicKey,
         callbackAuthKey: deviceInfo.pushAuthKey,
-        callbackIsExpired: deviceInfo.pushEndpointExpired
+        callbackIsExpired: !! deviceInfo.pushEndpointExpired
       }
     )
     .then(
