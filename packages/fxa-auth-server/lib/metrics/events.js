@@ -63,8 +63,8 @@ const FLOW_EVENT_ROUTES = new Set([
 
 const PATH_PREFIX = /^\/v1/
 
-module.exports = log => {
-  const amplitude = require('./amplitude')(log)
+module.exports = (log, config) => {
+  const amplitude = require('./amplitude')(log, config)
 
   return {
     /**

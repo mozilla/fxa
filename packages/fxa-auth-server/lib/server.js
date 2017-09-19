@@ -355,7 +355,7 @@ function create(log, error, config, routes, db, translator) {
   server.decorate('request', 'validateMetricsContext', metricsContext.validate)
   server.decorate('request', 'setMetricsFlowCompleteSignal', metricsContext.setFlowCompleteSignal)
 
-  const metricsEvents = require('./metrics/events')(log)
+  const metricsEvents = require('./metrics/events')(log, config)
   server.decorate('request', 'emitMetricsEvent', metricsEvents.emit)
   server.decorate('request', 'emitRouteFlowEvent', metricsEvents.emitRouteFlowEvent)
 

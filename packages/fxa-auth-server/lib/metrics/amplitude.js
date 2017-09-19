@@ -105,10 +105,18 @@ const EVENT_PROPERTIES = {
   [GROUPS.sms]: NOP
 }
 
-module.exports = log => {
-  if (log) {
-    return receiveEvent
+module.exports = (log, config) => {
+  if (! log || ! config.oauth.clientIds) {
+    throw new TypeError('Missing argument')
   }
+
+  const SERVICES = config.oauth.clientIds
+  if (! SERVICES.sync) {
+    // Ensure there is an entry for Sync, which isn't identified by client id.
+    SERVICES.sync = 'sync'
+  }
+
+  return receiveEvent
 
   function receiveEvent (event, request, data = {}, metricsContext = {}) {
     if (! event || ! request) {
@@ -165,23 +173,56 @@ module.exports = log => {
 
     return P.resolve()
   }
-}
 
-function getFromToken (request, key) {
-  if (request.auth.credentials) {
-    return request.auth.credentials[key]
+  function getFromToken (request, key) {
+    if (request.auth.credentials) {
+      return request.auth.credentials[key]
+    }
   }
-}
 
-function getFromMetricsContext (metricsContext, key, request, payloadKey) {
-  return metricsContext[key] ||
-    (request.payload.metricsContext && request.payload.metricsContext[payloadKey])
-}
+  function getFromMetricsContext (metricsContext, key, request, payloadKey) {
+    return metricsContext[key] ||
+      (request.payload.metricsContext && request.payload.metricsContext[payloadKey])
+  }
 
-function mapEventProperties (group, request, data, metricsContext) {
-  return Object.assign({
-    service: data.service || request.query.service || request.payload.service
-  }, EVENT_PROPERTIES[group](request, data, metricsContext))
+  function mapEventProperties (group, request, data, metricsContext) {
+    return Object.assign({
+      service: data.service || request.payload.service || request.query.service
+    }, EVENT_PROPERTIES[group](request, data, metricsContext))
+  }
+
+  function mapUserProperties (group, request, data, metricsContext) {
+    const { browser, browserVersion, os } = request.app.ua
+    return Object.assign({
+      flow_id: getFromMetricsContext(metricsContext, 'flow_id', request, 'flowId'),
+      sync_device_count: data.devices && data.devices.length,
+      ua_browser: browser,
+      ua_version: browserVersion,
+      ua_os: os,
+      user_country: getLocationProperty(data, 'country'),
+      user_locale: getLocale(request),
+      user_state: getLocationProperty(data, 'state'),
+    }, getService(request))
+  }
+
+  function getLocale (request) {
+    return request.app.locale || undefined
+  }
+
+  function getLocationProperty (data, key) {
+    return (data.location && data.location[key]) || undefined
+  }
+
+  function getService (request) {
+    const service = SERVICES[request.payload.service || request.query.service]
+    if (service) {
+      return {
+        '$append': {
+          fxa_services_used: service
+        }
+      }
+    }
+  }
 }
 
 function mapEmailEventProperties (request, data) {
@@ -192,27 +233,5 @@ function mapEmailEventProperties (request, data) {
       email_provider: data.email_domain
     }
   }
-}
-
-function mapUserProperties (group, request, data, metricsContext) {
-  const { browser, browserVersion, os } = request.app.ua
-  return {
-    flow_id: getFromMetricsContext(metricsContext, 'flow_id', request, 'flowId'),
-    sync_device_count: data.devices && data.devices.length,
-    ua_browser: browser,
-    ua_version: browserVersion,
-    ua_os: os,
-    user_country: getLocationProperty(data, 'country'),
-    user_locale: getLocale(request),
-    user_state: getLocationProperty(data, 'state'),
-  }
-}
-
-function getLocale (request) {
-  return request.app.locale || undefined
-}
-
-function getLocationProperty (data, key) {
-  return (data.location && data.location[key]) || undefined
 }
 

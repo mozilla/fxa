@@ -11,11 +11,15 @@ const mocks = require('../../mocks')
 describe('metrics/amplitude', () => {
   it('interface is correct', () => {
     assert.equal(typeof amplitudeModule, 'function')
-    assert.equal(amplitudeModule.length, 1)
+    assert.equal(amplitudeModule.length, 2)
   })
 
-  it('returns undefined if log argument is missing', () => {
-    assert.equal(amplitudeModule(), undefined)
+  it('throws if log argument is missing', () => {
+    assert.throws(() => amplitudeModule(null, { oauth: { clientIds: {} } }))
+  })
+
+  it('throws if config argument is missing', () => {
+    assert.throws(() => amplitudeModule({}, { oauth: { clientIds: null } }))
   })
 
   describe('instantiate', () => {
@@ -23,7 +27,14 @@ describe('metrics/amplitude', () => {
 
     beforeEach(() => {
       log = mocks.spyLog()
-      amplitude = amplitudeModule(log)
+      amplitude = amplitudeModule(log, {
+        oauth: {
+          clientIds: {
+            0: 'amo',
+            1: 'pocket'
+          }
+        }
+      })
     })
 
     it('interface is correct', () => {
@@ -94,10 +105,9 @@ describe('metrics/amplitude', () => {
             }
           },
           query: {
-            service: 'melm'
+            service: '0'
           },
           payload: {
-            service: 'piff',
             metricsContext: {
               deviceId: 'juff',
               flowId: 'udge',
@@ -121,7 +131,7 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].session_id, 'kwop')
         assert.equal(args[0].language, 'wibble')
         assert.deepEqual(args[0].event_properties, {
-          service: 'melm'
+          service: '0'
         })
         assert.deepEqual(args[0].user_properties, {
           flow_id: 'udge',
@@ -131,7 +141,10 @@ describe('metrics/amplitude', () => {
           ua_os: 'baz',
           user_country: 'United Kingdom',
           user_locale: 'wibble',
-          user_state: 'England'
+          user_state: 'England',
+          '$append': {
+            fxa_services_used: 'amo'
+          }
         })
         assert.ok(args[0].time > Date.now() - 1000)
         assert.ok(/^[1-9][0-9]+$/.test(args[0].app_version))
@@ -152,8 +165,11 @@ describe('metrics/amplitude', () => {
             uid: 'f'
           },
           devices: [],
+          query: {
+            service: '0'
+          },
           payload: {
-            service: 'g'
+            service: '1'
           }
         }))
       })
@@ -171,7 +187,7 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].session_id, undefined)
         assert.equal(args[0].language, 'e')
         assert.deepEqual(args[0].event_properties, {
-          service: 'g'
+          service: '1'
         })
         assert.deepEqual(args[0].user_properties, {
           flow_id: undefined,
@@ -181,14 +197,21 @@ describe('metrics/amplitude', () => {
           ua_os: 'c',
           user_country: 'United States',
           user_locale: 'e',
-          user_state: 'California'
+          user_state: 'California',
+          '$append': {
+            fxa_services_used: 'pocket'
+          }
         })
       })
     })
 
     describe('account.login', () => {
       beforeEach(() => {
-        return amplitude('account.login', mocks.mockRequest({}, {
+        return amplitude('account.login', mocks.mockRequest({
+          query: {
+            service: '2'
+          }
+        }, {
           devices: {}
         }))
       })
@@ -202,12 +225,17 @@ describe('metrics/amplitude', () => {
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].event_type, 'fxa_login - success')
         assert.equal(args[0].user_properties.sync_device_count, undefined)
+        assert.equal(args[0].user_properties['$append'], undefined)
       })
     })
 
     describe('account.login.blocked', () => {
       beforeEach(() => {
-        return amplitude('account.login.blocked', mocks.mockRequest({}))
+        return amplitude('account.login.blocked', mocks.mockRequest({
+          payload: {
+            service: 'sync'
+          }
+        }))
       })
 
       it('did not call log.error', () => {
@@ -218,6 +246,9 @@ describe('metrics/amplitude', () => {
         assert.equal(log.amplitudeEvent.callCount, 1)
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].event_type, 'fxa_login - blocked')
+        assert.deepEqual(args[0].user_properties['$append'], {
+          fxa_services_used: 'sync'
+        })
       })
     })
 

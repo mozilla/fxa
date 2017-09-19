@@ -12,7 +12,11 @@ const log = {
   error: sinon.spy(),
   flowEvent: sinon.spy()
 }
-const events = require('../../../lib/metrics/events')(log)
+const events = require('../../../lib/metrics/events')(log, {
+  oauth: {
+    clientIds: {}
+  }
+})
 const mocks = require('../../mocks')
 
 describe('metrics/events', () => {

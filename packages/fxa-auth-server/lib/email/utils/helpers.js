@@ -4,7 +4,10 @@
 
 'use strict'
 
-const emailDomains = require('../../../config/popular-email-domains')
+const ROOT_DIR = '../../..'
+
+const config = require(`${ROOT_DIR}/config`)
+const emailDomains = require(`${ROOT_DIR}/config/popular-email-domains`)
 const P = require('../../promise')
 
 let amplitude
@@ -74,7 +77,7 @@ function logEmailEventSent(log, message) {
 
 function logAmplitudeEvent (log, message, eventInfo) {
   if (! amplitude) {
-    amplitude = require('../../metrics/amplitude')(log)
+    amplitude = require('../../metrics/amplitude')(log, config.getProperties())
   }
 
   amplitude(`email.${eventInfo.template}.${eventInfo.type}`, {
