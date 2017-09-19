@@ -153,6 +153,7 @@ const QUERY_CLIENT_LIST = 'SELECT id, name, redirectUri, imageUri, ' +
   'WHERE clients.id = clientDevelopers.clientId AND ' +
   'developers.developerId = clientDevelopers.developerId AND ' +
   'developers.email =?;';
+const QUERY_PUBLIC_CLIENTS_LIST = 'SELECT * FROM clients WHERE publicClient = 1 OR canGrant = 1;';
 const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'name=COALESCE(?, name), imageUri=COALESCE(?, imageUri), ' +
   'hashedSecret=COALESCE(?, hashedSecret), ' +
@@ -178,6 +179,9 @@ const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
 const QUERY_ACCESS_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
 const QUERY_REFRESH_TOKEN_DELETE = 'DELETE FROM refreshTokens WHERE token=?';
 const QUERY_ACCESS_TOKEN_DELETE_USER = 'DELETE FROM tokens WHERE userId=?';
+
+const QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS = 'DELETE FROM tokens WHERE userId=? AND clientId IN (?);';
+const QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS = 'DELETE FROM refreshTokens WHERE userId=? AND clientId IN (?);';
 const QUERY_REFRESH_TOKEN_DELETE_USER =
   'DELETE FROM refreshTokens WHERE userId=?';
 const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
@@ -604,6 +608,23 @@ MysqlStore.prototype = {
     return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])
       .then(this._write.bind(this, QUERY_REFRESH_TOKEN_DELETE_USER, [id]))
       .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]));
+  },
+
+  /**
+   * Removes user's tokens and refreshTokens for canGrant and publicClient clients
+   *
+   * @param userId
+   * @returns {Promise}
+   */
+  removePublicAndCanGrantTokens: function removePublicAndCanGrantTokens(userId) {
+    const uid = buf(userId);
+
+    return this._read(QUERY_PUBLIC_CLIENTS_LIST).then((_clients) => {
+      const clientIds = _clients.map((client) => client.id);
+
+      return this._write(QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS, [uid, clientIds])
+        .then(() => this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid, clientIds]));
+    });
   },
 
   _write: function _write(sql, params) {

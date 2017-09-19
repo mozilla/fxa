@@ -4,12 +4,13 @@
 
 const config = require('./config').getProperties();
 const db = require('./db');
+const P = require('./promise');
 const env = require('./env');
 const logger = require('./logging')('events');
 const Sink = require('fxa-notifier-aws').Sink;
 const HEX_STRING = require('./validators').HEX_STRING;
 
-var fxaEvents;
+let fxaEvents;
 
 if (! config.events.region || ! config.events.queueUrl) {
   fxaEvents = {
@@ -24,33 +25,38 @@ if (! config.events.region || ! config.events.queueUrl) {
 } else {
   fxaEvents = new Sink(config.events.region, config.events.queueUrl);
 
-  fxaEvents.on('data', function (message) {
+  fxaEvents.on('data', (message) => {
+    const messageEvent = message.event;
+    const uid = message.uid;
     logger.verbose('data', message);
-    if (message.event === 'delete') {
-      var userId = message.uid.split('@')[0];
-      if (! HEX_STRING.test(userId)) {
-        message.del();
-        return logger.warn('badDelete', { userId: userId });
-      }
-      db.removeUser(userId)
-        .done(function () {
-          logger.info('delete', { uid: userId });
-          message.del();
-        },
-        function (err) {
-          logger.error('removeUser', err);
-          // The message visibility timeout (in SQS terms) will expire
-          // and be reissued again.
-        });
-    } else {
+    logger.info(message.event, {uid: uid});
+
+    if (! HEX_STRING.test(uid)) {
       message.del();
+      return logger.warn('badDelete', {userId: uid});
     }
+
+    return P.resolve()
+      .then(() => {
+        switch (messageEvent) {
+        case 'delete':
+          return db.removeUser(uid);
+        case 'reset':
+        case 'passwordChange':
+          return db.removePublicAndCanGrantTokens(uid);
+        default:
+          return;
+        }
+      })
+      .done(() => {
+        message.del();
+      },
+        (err) => {
+          logger.error(message.event, err);
+        });
   });
 
-  fxaEvents.on('error', function (err) {
-    logger.error('accountEvent', err);
-  });
-
+  fxaEvents.on('error', (err) => logger.error('accountEvent', err));
   fxaEvents.start = fxaEvents.fetch;
 }
 

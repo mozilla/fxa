@@ -397,6 +397,100 @@ describe('db', function() {
     });
   });
 
+
+  describe('removePublicAndCanGrantTokens', function () {
+    function testRemovalWithClient(clientOptions = {}) {
+      const clientId = buf(randomString(8));
+      const userId = buf(randomString(16));
+      const email = 'a@b' + randomString(16) + ' + .c';
+      const scope = ['no-scope'];
+      let tokenIdHash;
+      let refreshTokenIdHash;
+
+      return db.registerClient({
+        id: clientId,
+        name: 'removePublicAndCanGrantTokensTest',
+        hashedSecret: randomString(32),
+        imageUri: 'https://example.domain/logo',
+        redirectUri: 'https://example.domain/return?foo=bar',
+        trusted: true,
+        canGrant: clientOptions.canGrant || false,
+        publicClient: clientOptions.publicClient || false
+      }).then(function () {
+        return db.generateAccessToken({
+          clientId: clientId,
+          userId: userId,
+          email: email,
+          scope: scope
+        });
+      }).then(function (t) {
+        tokenIdHash = encrypt.hash(t.token.toString('hex'));
+        return db.generateRefreshToken({
+          clientId: clientId,
+          userId: userId,
+          email: email,
+          scope: scope
+        });
+      }).then(function (t) {
+        refreshTokenIdHash = encrypt.hash(t.token.toString('hex'));
+
+        return Promise.all([
+          db.getRefreshToken(refreshTokenIdHash),
+          db.getAccessToken(tokenIdHash),
+        ]);
+      }).then((tokens) => {
+        assert.ok(tokens[0].token);
+        assert.ok(tokens[1].token);
+        return db.removePublicAndCanGrantTokens(hex(userId));
+      }).then((t) => {
+        return Promise.all([
+          db.getRefreshToken(refreshTokenIdHash),
+          db.getAccessToken(tokenIdHash),
+        ]);
+      }).catch((err) => {
+        throw err;
+      });
+    }
+
+    it('revokes tokens for canGrant', () => {
+      return testRemovalWithClient({
+        canGrant: true
+      }).then((tokens) => {
+        assert.equal(tokens[0], undefined);
+        assert.equal(tokens[1], undefined);
+      });
+    });
+
+    it('revokes tokens for publicClient', () => {
+      return testRemovalWithClient({
+        publicClient: true
+      }).then((tokens) => {
+        assert.equal(tokens[0], undefined);
+        assert.equal(tokens[1], undefined);
+      });
+    });
+
+    it('does not revoke tokens for not canGrant or not publicClient', () => {
+      return testRemovalWithClient({
+        canGrant: false,
+        publicClient: false
+      }).then((tokens) => {
+        assert.ok(tokens[0].token);
+        assert.ok(tokens[1].token);
+      });
+    });
+
+    it('revokes tokens for both publicClient and canGrant', () => {
+      return testRemovalWithClient({
+        canGrant: true,
+        publicClient: true
+      }).then((tokens) => {
+        assert.equal(tokens[0], undefined);
+        assert.equal(tokens[1], undefined);
+      });
+    });
+  });
+
   describe('refresh token lastUsedAt', function () {
     var clientId = buf(randomString(8));
     var userId = buf(randomString(16));

@@ -116,6 +116,16 @@ function deleteByUserId(object, userId) {
   }
 }
 
+function deleteByClientId(object, clientId) {
+  var ids = Object.keys(object);
+  for (var i = 0; i < ids.length; i++) {
+    var id = ids[i];
+    if (unbuf(object[id].clientId) === clientId) {
+      delete object[id];
+    }
+  }
+}
+
 MemoryStore.prototype = {
   ping: function ping() {
     return P.resolve();
@@ -341,6 +351,22 @@ MemoryStore.prototype = {
     deleteByUserId(this.tokens, userId);
     deleteByUserId(this.refreshTokens, userId);
     deleteByUserId(this.codes, userId);
+    return P.resolve();
+  },
+  /**
+   * Removes user's tokens and refreshTokens for canGrant and publicClient clients
+   *
+   * @param userId
+   * @returns {Promise}
+   */
+  removePublicAndCanGrantTokens: function removePublicAndCanGrantTokens(userId) {
+    Object.keys(this.clients).forEach((clientId) => {
+      const client = this.clients[clientId];
+      if (client.publicClient || client.canGrant) {
+        deleteByClientId(this.tokens, clientId);
+        deleteByClientId(this.refreshTokens, clientId);
+      }
+    });
     return P.resolve();
   },
   activateDeveloper: function activateDeveloper(email) {
