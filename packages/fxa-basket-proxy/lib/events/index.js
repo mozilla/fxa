@@ -2,22 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var url = require('url');
-var Promise = require('bluebird');
-var basket = require('../basket');
-var logger = require('../logging')('events');
+'use strict';
 
-var config = require('../config');
+const url = require('url');
+const Promise = require('bluebird');
+const basket = require('../basket');
+const logger = require('../logging')('events');
+
+const config = require('../config');
 
 // Certain special values of the utm_campaign metrics parameters
 // are used to indicate a newsletter campaign, and cause us to
 // auto-subscribe the user to a particular newsletter.
-var NEWSLETTER_CAMPAIGNS = config.get('basket.newsletter_campaigns');
-var NEWSLETTER_ID_REGISTER = config.get('basket.newsletter_id_register');
-var SOURCE_URL_BASE = config.get('basket.source_url');
+const NEWSLETTER_CAMPAIGNS = config.get('basket.newsletter_campaigns');
+const NEWSLETTER_ID_REGISTER = config.get('basket.newsletter_id_register');
+const SOURCE_URL_BASE = config.get('basket.source_url');
 
 
-var messageHandlers = {
+const messageHandlers = {
   verified: onVerified,
   login: onLogin
 };
@@ -25,7 +27,7 @@ var messageHandlers = {
 
 module.exports.handleEvent = function handleEvent(message) {
   logger.info('handleEvent', message);
-  var messageHandler = messageHandlers[message.event];
+  const messageHandler = messageHandlers[message.event];
   if (messageHandler) {
     return messageHandler(message);
   } else {
@@ -47,7 +49,7 @@ function onVerified (message) {
     return Promise.resolve();
   }
 
-  var params = {
+  const params = {
     fxa_id: message.uid,
     email: message.email,
     // Basket won't accept empty or null `accept_lang` field,
@@ -59,18 +61,18 @@ function onVerified (message) {
   if (message.marketingOptIn) {
     return basketPromise(message, '/fxa-register/', params, 'form')
       .then(function () {
-        var metrics = message.metricsContext || {};
+        const metrics = message.metricsContext || {};
         // We don't look for a newsletter campaign this time around. We
         // specifically want to subcribe to the default newletter. If
         // there is a utm_campaign parameter, we'll hear about it in the
         // 'login' event later.
-        var source_url = url.parse(SOURCE_URL_BASE, true);
-        for (var key in metrics) {
+        const source_url = url.parse(SOURCE_URL_BASE, true);
+        for (const key in metrics) {
           if (key.indexOf('utm_') === 0) {
             source_url.query[key] = metrics[key];
           }
         }
-        var params = {
+        const params = {
           email: message.email,
           newsletters: NEWSLETTER_ID_REGISTER,
           source_url: url.format(source_url)
@@ -89,19 +91,19 @@ function onLogin (message) {
     message.del();
     return Promise.resolve();
   }
-  var metrics = message.metricsContext || {};
+  const metrics = message.metricsContext || {};
   return Promise.resolve().then(function () {
     // If utm_campaign indicates it's a newsletter campaign, flag it by
     // subscribing to the corresponding newsletter.
-    var newsletter = NEWSLETTER_CAMPAIGNS[metrics.utm_campaign];
+    const newsletter = NEWSLETTER_CAMPAIGNS[metrics.utm_campaign];
     if (metrics.utm_campaign && newsletter) {
-      var source_url = url.parse(SOURCE_URL_BASE, true);
-      for (var key in metrics) {
+      const source_url = url.parse(SOURCE_URL_BASE, true);
+      for (const key in metrics) {
         if (key.indexOf('utm_') === 0) {
           source_url.query[key] = metrics[key];
         }
       }
-      var params = {
+      const params = {
         email: message.email,
         newsletters: newsletter,
         source_url: url.format(source_url)
@@ -134,7 +136,7 @@ function forwardEvent (message, endpoint, data, dataFormat) {
 
 function basketPromise (message, endpoint, data, dataFormat) {
   return new Promise(function (resolve, reject) {
-    var options = { method: 'POST' };
+    const options = { method: 'POST' };
     options[dataFormat] = data;
     basket.request(endpoint, options, function (err, res, body) {
       message.endpoint = endpoint;

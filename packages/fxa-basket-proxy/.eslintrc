@@ -1,8 +1,7 @@
-{
-  "extends": "fxa/client",
-  "rules": {
-    "handle-callback-err": 0,
-    "no-console": 0,
-    "strict": [2, "never"]
-  }
-}
+plugins:
+  - fxa
+extends: plugin:fxa/server
+
+rules:
+  handle-callback-err: 0
+  semi: [2, "always"]

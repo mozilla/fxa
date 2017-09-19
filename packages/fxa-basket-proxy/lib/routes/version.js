@@ -32,7 +32,7 @@ function getCommitHash () {
     var versionInfo = require(versionJsonPath);
     var ver = versionInfo.version;
     return ver.hash;
-  } catch(e) {
+  } catch (e) {
     /* ignore, shell out to `git` for hash */
   }
 
@@ -57,7 +57,7 @@ function getSourceRepo () {
     var versionInfo = require(versionJsonPath);
     var ver = versionInfo.version;
     return ver.source;
-  } catch(e) {
+  } catch (e) {
     /* ignore, shell out to `git` for repo */
   }
 
