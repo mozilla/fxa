@@ -1,6 +1,6 @@
 {
   "name": "fxa-basket-proxy",
-  "version": "1.95.0",
+  "version": "1.96.0",
   "dependencies": {
     "aws-sdk": {
       "version": "2.6.6",

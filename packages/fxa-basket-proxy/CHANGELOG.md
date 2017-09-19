@@ -1,3 +1,17 @@
+<a name="1.96.0"></a>
+# [1.96.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.95.0...v1.96.0) (2017-09-19)
+
+
+### chore
+
+* **style:** ES6-ify ./lib/events/index.js ([35c6bd9](https://github.com/mozilla/fxa-basket-proxy/commit/35c6bd9))
+
+### Features
+
+* **events:** Add ability to selectively disable SQS events. ([3f6adfb](https://github.com/mozilla/fxa-basket-proxy/commit/3f6adfb))
+
+
+
 <a name="1.95.0"></a>
 # [1.95.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.92.0...v1.95.0) (2017-09-06)
 
