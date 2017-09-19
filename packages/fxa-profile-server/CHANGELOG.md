@@ -1,3 +1,13 @@
+<a name="1.96.0"></a>
+# [1.96.0](https://github.com/mozilla/fxa-profile-server/compare/v1.95.1...v1.96.0) (2017-09-19)
+
+
+### Features
+
+* **cache:** Delete user cache on email change (#282), r=@rfk ([5c63044](https://github.com/mozilla/fxa-profile-server/commit/5c63044))
+
+
+
 <a name="1.95.1"></a>
 ## [1.95.1](https://github.com/mozilla/fxa-profile-server/compare/v1.95.0...v1.95.1) (2017-09-13)
 
