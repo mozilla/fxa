@@ -5,60 +5,30 @@
 'use strict'
 
 const assert = require('insist')
-var mocks = require('../../mocks')
-var getRoute = require('../../routes_helpers').getRoute
-var proxyquire = require('proxyquire')
+const getRoute = require('../../routes_helpers').getRoute
+const mocks = require('../../mocks')
+const P = require('../../../lib/promise')
+const proxyquire = require('proxyquire')
+const uuid = require('uuid')
 
-var P = require('../../../lib/promise')
-var uuid = require('uuid')
-
-var makeRoutes = function (options, requireMocks) {
+function makeRoutes (options, requireMocks) {
   options = options || {}
 
-  var config = options.config || {}
-  config.verifierVersion = config.verifierVersion || 0
-  config.smtp = config.smtp ||  {}
-  config.memcached = config.memcached || {
-    address: '127.0.0.1:1121',
-    idle: 500,
-    lifetime: 30
-  }
-  config.i18n = {
-    supportedLanguages: ['en'],
-    defaultLanguage: 'en'
-  }
-  config.lastAccessTimeUpdates = {}
-  config.signinConfirmation = config.signinConfirmation || {}
-  config.signinUnblock = config.signinUnblock || {}
-  config.push = {
-    allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
-  }
-
-  var log = options.log || mocks.mockLog()
-  var Password = options.Password || require('../../../lib/crypto/password')(log, config)
-  var db = options.db || mocks.mockDB()
-  var customs = options.customs || {
+  const config = options.config || {}
+  const log = options.log || mocks.mockLog()
+  const db = options.db || mocks.mockDB()
+  const customs = options.customs || {
     check: function () { return P.resolve(true) }
   }
-  var checkPassword = options.checkPassword || require('../../../lib/routes/utils/password_check')(log, config, Password, customs, db)
-  var push = options.push || require('../../../lib/push')(log, db, {})
-  return proxyquire('../../../lib/routes/account', requireMocks || {})(
-    log,
-    db,
-    options.mailer || {},
-    Password,
-    config,
-    customs,
-    checkPassword,
-    push,
-    options.devices || require('../../../lib/devices')(log, db, push)
+
+  return proxyquire('../../../lib/routes/unblock-codes', requireMocks || {})(
+    log, db, options.mailer || {}, config.signinUnblock || {}, customs
   )
 }
 
 function runTest (route, request, assertions) {
   return new P(function (resolve, reject) {
-    route.handler(request, function (response) {
-      //resolve(response)
+    route.handler(request, response => {
       if (response instanceof Error) {
         reject(response)
       } else {

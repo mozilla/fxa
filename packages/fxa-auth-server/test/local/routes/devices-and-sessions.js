@@ -39,7 +39,7 @@ function makeRoutes (options, requireMocks) {
     check: function () { return P.resolve(true) }
   }
   const push = options.push || require('../../../lib/push')(log, db, {})
-  return proxyquire('../../../lib/routes/devices-sessions', requireMocks || {})(
+  return proxyquire('../../../lib/routes/devices-and-sessions', requireMocks || {})(
     log, db, config, customs, push,
     options.devices || require('../../../lib/devices')(log, db, push)
   )

@@ -32,7 +32,7 @@ module.exports = function (
     push
   )
   const devicesImpl = require('../devices')(log, db, push)
-  const devicesSessions = require('./devices-sessions')(log, db, config, customs, push, devicesImpl)
+  const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, devicesImpl)
   const emails = require('./emails')(log, db, mailer, config, customs, push)
   const password = require('./password')(
     log,
@@ -50,6 +50,7 @@ module.exports = function (
   const sign = require('./sign')(log, signer, db, config.domain, devicesImpl)
   const signinCodes = require('./signin-codes')(log, db, customs)
   const smsRoute = require('./sms')(log, db, config, customs, smsImpl)
+  const unblockCodes = require('./unblock-codes')(log, db, mailer, config.signinUnblock, customs)
   const util = require('./util')(
     log,
     config,
@@ -68,6 +69,7 @@ module.exports = function (
     signinCodes,
     sign,
     smsRoute,
+    unblockCodes,
     util
   )
   v1Routes.forEach(r => { r.path = basePath + '/v1' + r.path })

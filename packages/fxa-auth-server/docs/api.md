@@ -30,11 +30,9 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [GET /account/keys (:lock: keyFetchToken)](#get-accountkeys)
     * [POST /account/unlock/resend_code](#post-accountunlockresend_code)
     * [POST /account/unlock/verify_code](#post-accountunlockverify_code)
-    * [POST /account/login/send_unblock_code](#post-accountloginsend_unblock_code)
-    * [POST /account/login/reject_unblock_code](#post-accountloginreject_unblock_code)
     * [POST /account/reset (:lock: accountResetToken)](#post-accountreset)
     * [POST /account/destroy](#post-accountdestroy)
-  * [Devices sessions](#devices-sessions)
+  * [Devices and sessions](#devices-and-sessions)
     * [POST /account/device (:lock: sessionToken)](#post-accountdevice)
     * [POST /account/devices/notify (:lock: sessionToken)](#post-accountdevicesnotify)
     * [GET /account/devices (:lock: sessionToken)](#get-accountdevices)
@@ -66,6 +64,9 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
   * [Sms](#sms)
     * [POST /sms (:lock: sessionToken)](#post-sms)
     * [GET /sms/status (:lock: sessionToken)](#get-smsstatus)
+  * [Unblock codes](#unblock-codes)
+    * [POST /account/login/send_unblock_code](#post-accountloginsend_unblock_code)
+    * [POST /account/login/reject_unblock_code](#post-accountloginreject_unblock_code)
   * [Util](#util)
     * [POST /get_random_bytes](#post-get_random_bytes)
     * [GET /verify_email](#get-verify_email)
@@ -756,48 +757,6 @@ by the following errors
   This endpoint is no longer supported
 
 
-#### POST /account/login/send_unblock_code
-<!--begin-route-post-accountloginsend_unblock_code-->
-Send an unblock code via email
-to reset rate-limiting for an account.
-<!--end-route-post-accountloginsend_unblock_code-->
-
-##### Request body
-
-* `email`: *validators.email.required*
-
-  <!--begin-request-body-post-accountloginsend_unblock_code-email-->
-  Primary email for the account.
-  <!--end-request-body-post-accountloginsend_unblock_code-email-->
-
-* `metricsContext`: *metricsContext.schema*
-
-  <!--begin-request-body-post-accountloginsend_unblock_code-metricsContext-->
-  
-  <!--end-request-body-post-accountloginsend_unblock_code-metricsContext-->
-
-
-#### POST /account/login/reject_unblock_code
-<!--begin-route-post-accountloginreject_unblock_code-->
-Used to reject and report
-unblock codes that were not requested by the user.
-<!--end-route-post-accountloginreject_unblock_code-->
-
-##### Request body
-
-* `uid`: *string, max(32), regex(HEX_STRING), required*
-
-  <!--begin-request-body-post-accountloginreject_unblock_code-uid-->
-  The user id.
-  <!--end-request-body-post-accountloginreject_unblock_code-uid-->
-
-* `unblockCode`: *string, regex(BASE_36), length(unblockCodeLen), required*
-
-  <!--begin-request-body-post-accountloginreject_unblock_code-unblockCode-->
-  The unblock code.
-  <!--end-request-body-post-accountloginreject_unblock_code-unblockCode-->
-
-
 #### POST /account/reset
 
 :lock: HAWK-authenticated with account reset token
@@ -887,7 +846,7 @@ by the following errors
   Incorrect password
 
 
-### Devices sessions
+### Devices and sessions
 
 #### POST /account/device
 
@@ -2268,6 +2227,50 @@ by the following errors
 
 * `code: 500, errno: 999`:
   Unspecified error
+
+
+### Unblock codes
+
+#### POST /account/login/send_unblock_code
+<!--begin-route-post-accountloginsend_unblock_code-->
+Send an unblock code via email
+to reset rate-limiting for an account.
+<!--end-route-post-accountloginsend_unblock_code-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-accountloginsend_unblock_code-email-->
+  Primary email for the account.
+  <!--end-request-body-post-accountloginsend_unblock_code-email-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-accountloginsend_unblock_code-metricsContext-->
+  
+  <!--end-request-body-post-accountloginsend_unblock_code-metricsContext-->
+
+
+#### POST /account/login/reject_unblock_code
+<!--begin-route-post-accountloginreject_unblock_code-->
+Used to reject and report
+unblock codes that were not requested by the user.
+<!--end-route-post-accountloginreject_unblock_code-->
+
+##### Request body
+
+* `uid`: *string, max(32), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-accountloginreject_unblock_code-uid-->
+  The user id.
+  <!--end-request-body-post-accountloginreject_unblock_code-uid-->
+
+* `unblockCode`: *string, regex(BASE_36), length(unblockCodeLen), required*
+
+  <!--begin-request-body-post-accountloginreject_unblock_code-unblockCode-->
+  The unblock code.
+  <!--end-request-body-post-accountloginreject_unblock_code-unblockCode-->
 
 
 ### Util
