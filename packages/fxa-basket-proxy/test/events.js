@@ -11,6 +11,7 @@ const assert = require('assert');
 const events = require('../lib/events');
 
 const mocks = require('./lib/mocks');
+const utils = require('./lib/utils');
 
 
 const UID = 'foobar';
@@ -408,6 +409,35 @@ describe('the handleEvent() function', function () {
       del: function () {
         done();
       }
+    });
+  });
+
+});
+
+
+describe('the set of message handler functions', () => {
+
+  it('defaults to "verified" and "login"', () => {
+    const handlers = Object.keys(events._messageHandlers);
+    assert.deepEqual(handlers.sort(), ['login', 'verified']);
+  });
+
+  it('excludes events listed in $BASKET_SQS_DISABLED_EVENT_TYPES', () => {
+    return utils.withEnviron({ BASKET_SQS_DISABLED_EVENT_TYPES: 'verified,some_other_event' }, () => {
+      return utils.withFreshModules(require, ['../lib/events', '../lib/config'], () => {
+        const events = require('../lib/events');
+        const handlers = Object.keys(events._messageHandlers);
+        assert.deepEqual(handlers.sort(), ['login']);
+        return events.handleEvent({
+          event: 'verified',
+          uid: UID,
+          email: EMAIL,
+          locale: LOCALE,
+          // This gets executed without attempting any HTTP requests.
+          // If HTTP requests are attempted they'll fail, and fail the test.
+          del: (cb) => { cb(); }
+        });
+      });
     });
   });
 

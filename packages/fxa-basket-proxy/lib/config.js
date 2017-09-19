@@ -91,6 +91,12 @@ var conf = module.exports = convict({
         format: String,
         env: 'BASKET_SQS_QUEUE_URL',
         default: ''
+      },
+      disabled_event_types: {
+        doc: 'List of SQS events types that have been explicitly disabled',
+        format: Array,
+        env: 'BASKET_SQS_DISABLED_EVENT_TYPES',
+        default: []
       }
     }
   },

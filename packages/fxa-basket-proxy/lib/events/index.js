@@ -19,10 +19,17 @@ const NEWSLETTER_ID_REGISTER = config.get('basket.newsletter_id_register');
 const SOURCE_URL_BASE = config.get('basket.source_url');
 
 
-const messageHandlers = {
+const messageHandlers = module.exports._messageHandlers = {
   verified: onVerified,
   login: onLogin
 };
+
+const DISABLED_EVENT_TYPES = config.get('basket.sqs.disabled_event_types');
+if (DISABLED_EVENT_TYPES) {
+  DISABLED_EVENT_TYPES.forEach((typ) => {
+    delete messageHandlers[typ];
+  });
+}
 
 
 module.exports.handleEvent = function handleEvent(message) {
