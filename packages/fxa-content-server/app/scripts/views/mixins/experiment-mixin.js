@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const { isFunction } = require('underscore');
-  const ExperimentInterface = require('lib/experiment');
+  const ExperimentInterface = require('../../lib/experiment');
 
   function getAccount () {
     // make no assumptions about the availability of this.getAccount.

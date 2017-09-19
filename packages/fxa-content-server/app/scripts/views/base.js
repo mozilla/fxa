@@ -7,21 +7,21 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const _ = require('underscore');
-  const AuthErrors = require('lib/auth-errors');
+  const AuthErrors = require('../lib/auth-errors');
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
-  const domWriter = require('lib/dom-writer');
-  const ErrorUtils = require('lib/error-utils');
-  const ExternalLinksMixin = require('views/mixins/external-links-mixin');
-  const NotifierMixin = require('lib/channels/notifier-mixin');
-  const NullMetrics = require('lib/null-metrics');
-  const Logger = require('lib/logger');
-  const p = require('lib/promise');
+  const domWriter = require('../lib/dom-writer');
+  const ErrorUtils = require('../lib/error-utils');
+  const ExternalLinksMixin = require('./mixins/external-links-mixin');
+  const NotifierMixin = require('../lib/channels/notifier-mixin');
+  const NullMetrics = require('../lib/null-metrics');
+  const Logger = require('../lib/logger');
+  const p = require('../lib/promise');
   const Raven = require('raven');
-  const SearchParamMixin = require('lib/search-param-mixin');
-  const Strings = require('lib/strings');
-  const TimerMixin = require('views/mixins/timer-mixin');
-  const VerificationReasons = require('lib/verification-reasons');
+  const SearchParamMixin = require('../lib/search-param-mixin');
+  const Strings = require('../lib/strings');
+  const TimerMixin = require('./mixins/timer-mixin');
+  const VerificationReasons = require('../lib/verification-reasons');
 
   var DEFAULT_TITLE = window.document.title;
   var STATUS_MESSAGE_ANIMATION_MS = 150;

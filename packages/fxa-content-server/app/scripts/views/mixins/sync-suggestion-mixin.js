@@ -13,9 +13,9 @@
 define((require, exports, module) => {
   'use strict';
 
-  const Constants = require('lib/constants');
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
-  const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
+  const Constants = require('../../lib/constants');
+  const FlowEventsMixin = require('./flow-events-mixin');
+  const SyncAuthMixin = require('./sync-auth-mixin');
   const SyncSuggestionTemplate = require('stache!templates/partial/sync-suggestion');
 
   function required (name, opts) {

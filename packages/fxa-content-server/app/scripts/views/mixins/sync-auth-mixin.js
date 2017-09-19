@@ -11,9 +11,9 @@ define((require, exports, module) => {
   'use strict';
 
   const _ = require('underscore');
-  const Constants = require('lib/constants');
-  const Url = require('lib/url');
-  const UserAgentMixin = require('lib/user-agent-mixin');
+  const Constants = require('../../lib/constants');
+  const Url = require('../../lib/url');
+  const UserAgentMixin = require('../../lib/user-agent-mixin');
 
   module.exports = {
     dependsOn: [ UserAgentMixin ],

@@ -5,16 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BaseView = require('views/base');
+  const BaseView = require('../base');
   const Cocktail = require('cocktail');
-  const Constants = require('lib/constants');
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
-  const FormView = require('views/form');
-  const MarketingEmailErrors = require('lib/marketing-email-errors');
-  const Metrics = require('lib/metrics');
-  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const Constants = require('../../lib/constants');
+  const FlowEventsMixin = require('../mixins/flow-events-mixin');
+  const FormView = require('../form');
+  const MarketingEmailErrors = require('../../lib/marketing-email-errors');
+  const Metrics = require('../../lib/metrics');
+  const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const Template = require('stache!templates/settings/communication_preferences');
-  const Xss = require('lib/xss');
+  const Xss = require('../../lib/xss');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
   var t = BaseView.t;

@@ -8,9 +8,9 @@ define(function (require, exports, module) {
   'use strict';
 
   const Backbone = require('backbone');
-  const ImageLoader = require('lib/image-loader');
-  const p = require('lib/promise');
-  const ProfileErrors = require('lib/profile-errors');
+  const ImageLoader = require('../lib/image-loader');
+  const p = require('../lib/promise');
+  const ProfileErrors = require('../lib/profile-errors');
 
   var ProfileImage = Backbone.Model.extend({
     defaults: {

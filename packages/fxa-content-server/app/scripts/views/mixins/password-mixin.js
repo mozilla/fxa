@@ -8,8 +8,8 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const AuthErrors = require('lib/auth-errors');
-  const Constants = require('lib/constants');
+  const AuthErrors = require('../../lib/auth-errors');
+  const Constants = require('../../lib/constants');
   const showPasswordTemplate = require('stache!templates/partial/show-password');
 
   module.exports = {

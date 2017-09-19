@@ -19,10 +19,10 @@
 define((require, exports, module) => {
   'use strict';
 
-  const p = require('lib/promise');
-  const ExperimentMixin = require('views/mixins/experiment-mixin');
-  const UserAgentMixin = require('lib/user-agent-mixin');
-  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const p = require('../../lib/promise');
+  const ExperimentMixin = require('./experiment-mixin');
+  const UserAgentMixin = require('../../lib/user-agent-mixin');
+  const VerificationReasonMixin = require('./verification-reason-mixin');
 
   const REASON_ANDROID = 'sms.ineligible.android';
   const REASON_CONTROL_GROUP = 'sms.ineligible.control_group';

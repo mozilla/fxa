@@ -7,10 +7,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const HaltBehavior = require('views/behaviors/halt');
-  const OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
-  const p = require('lib/promise');
-  const Url = require('lib/url');
+  const HaltBehavior = require('../../views/behaviors/halt');
+  const OAuthAuthenticationBroker = require('../auth_brokers/oauth');
+  const p = require('../../lib/promise');
+  const Url = require('../../lib/url');
 
   const proto = OAuthAuthenticationBroker.prototype;
 

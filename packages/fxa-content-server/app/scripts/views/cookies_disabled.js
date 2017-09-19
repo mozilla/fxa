@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const BackMixin = require('views/mixins/back-mixin');
-  const BaseView = require('views/base');
+  const AuthErrors = require('../lib/auth-errors');
+  const BackMixin = require('./mixins/back-mixin');
+  const BaseView = require('./base');
   const Cocktail = require('cocktail');
-  const Storage = require('lib/storage');
+  const Storage = require('../lib/storage');
   const Template = require('stache!templates/cookies_disabled');
 
   var View = BaseView.extend({

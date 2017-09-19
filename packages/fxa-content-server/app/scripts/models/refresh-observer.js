@@ -14,7 +14,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const Backbone = require('backbone');
-  const Storage = require('lib/storage');
+  const Storage = require('../lib/storage');
 
   function isRefresh (refreshMetrics, viewName) {
     return refreshMetrics && refreshMetrics.view === viewName;

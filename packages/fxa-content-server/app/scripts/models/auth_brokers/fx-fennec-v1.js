@@ -11,8 +11,8 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
-  const NavigateBehavior = require('views/behaviors/navigate');
+  const FxSyncWebChannelAuthenticationBroker = require('../auth_brokers/fx-sync-web-channel');
+  const NavigateBehavior = require('../../views/behaviors/navigate');
 
   var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 

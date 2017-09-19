@@ -8,11 +8,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BackMixin = require('views/mixins/back-mixin');
-  const BaseView = require('views/base');
+  const BackMixin = require('./mixins/back-mixin');
+  const BaseView = require('./base');
   const Cocktail = require('cocktail');
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
-  const Session = require('lib/session');
+  const FlowEventsMixin = require('./mixins/flow-events-mixin');
+  const Session = require('../lib/session');
   const Template = require('stache!templates/sign_in_bounced');
 
   const SignInBouncedView = BaseView.extend({

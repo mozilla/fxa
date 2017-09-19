@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
+  const AuthErrors = require('../lib/auth-errors');
   const Cocktail = require('cocktail');
-  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  const FormView = require('views/form');
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
-  const Notifier = require('lib/channels/notifier');
-  const PasswordMixin = require('views/mixins/password-mixin');
-  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  const ResendMixin = require('views/mixins/resend-mixin')();
-  const ServiceMixin = require('views/mixins/service-mixin');
+  const FloatingPlaceholderMixin = require('./mixins/floating-placeholder-mixin');
+  const FormView = require('./form');
+  const FlowEventsMixin = require('./mixins/flow-events-mixin');
+  const Notifier = require('../lib/channels/notifier');
+  const PasswordMixin = require('./mixins/password-mixin');
+  const PasswordResetMixin = require('./mixins/password-reset-mixin');
+  const ResendMixin = require('./mixins/resend-mixin')();
+  const ServiceMixin = require('./mixins/service-mixin');
   const Template = require('stache!templates/complete_reset_password');
-  const Url = require('lib/url');
-  const VerificationInfo = require('models/verification/reset-password');
+  const Url = require('../lib/url');
+  const VerificationInfo = require('../models/verification/reset-password');
 
   const proto = FormView.prototype;
   const View = FormView.extend({

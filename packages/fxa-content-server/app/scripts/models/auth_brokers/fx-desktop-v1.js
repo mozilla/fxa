@@ -10,10 +10,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const FxDesktopChannel = require('lib/channels/fx-desktop-v1');
-  const FxSyncChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-channel');
-  const HaltBehavior = require('views/behaviors/halt');
-  const Url = require('lib/url');
+  const FxDesktopChannel = require('../../lib/channels/fx-desktop-v1');
+  const FxSyncChannelAuthenticationBroker = require('../auth_brokers/fx-sync-channel');
+  const HaltBehavior = require('../../views/behaviors/halt');
+  const Url = require('../../lib/url');
 
   var proto = FxSyncChannelAuthenticationBroker.prototype;
 

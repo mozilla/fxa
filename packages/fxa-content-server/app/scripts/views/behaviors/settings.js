@@ -10,7 +10,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const NavigateBehavior = require('views/behaviors/navigate');
+  const NavigateBehavior = require('../behaviors/navigate');
 
   const t = (msg) => msg;
   const success = t('Account verified successfully');

@@ -6,28 +6,28 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
-  const AvatarCameraView = require('views/settings/avatar_camera');
-  const AvatarChangeView = require('views/settings/avatar_change');
-  const AvatarCropView = require('views/settings/avatar_crop');
-  const AvatarMixin = require('views/mixins/avatar-mixin');
-  const AvatarView = require('views/settings/avatar');
-  const BaseView = require('views/base');
-  const ChangePasswordView = require('views/settings/change_password');
-  const ClientDisconnectView = require('views/settings/client_disconnect');
-  const ClientsView = require('views/settings/clients');
+  const allowOnlyOneSubmit = require('./decorators/allow_only_one_submit');
+  const AvatarCameraView = require('./settings/avatar_camera');
+  const AvatarChangeView = require('./settings/avatar_change');
+  const AvatarCropView = require('./settings/avatar_crop');
+  const AvatarMixin = require('./mixins/avatar-mixin');
+  const AvatarView = require('./settings/avatar');
+  const BaseView = require('./base');
+  const ChangePasswordView = require('./settings/change_password');
+  const ClientDisconnectView = require('./settings/client_disconnect');
+  const ClientsView = require('./settings/clients');
   const Cocktail = require('cocktail');
-  const CommunicationPreferencesView = require('views/settings/communication_preferences');
-  const DeleteAccountView = require('views/settings/delete_account');
-  const DisplayNameView = require('views/settings/display_name');
+  const CommunicationPreferencesView = require('./settings/communication_preferences');
+  const DeleteAccountView = require('./settings/delete_account');
+  const DisplayNameView = require('./settings/display_name');
   const Duration = require('duration');
-  const EmailsView = require('views/settings/emails');
-  const LoadingMixin = require('views/mixins/loading-mixin');
+  const EmailsView = require('./settings/emails');
+  const LoadingMixin = require('./mixins/loading-mixin');
   const modal = require('modal'); //eslint-disable-line no-unused-vars
-  const Session = require('lib/session');
+  const Session = require('../lib/session');
   const SettingsHeaderTemplate = require('stache!templates/partial/settings-header');
-  const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
-  const SubPanels = require('views/sub_panels');
+  const SignedOutNotificationMixin = require('./mixins/signed-out-notification-mixin');
+  const SubPanels = require('./sub_panels');
   const Template = require('stache!templates/settings');
 
   var PANEL_VIEWS = [

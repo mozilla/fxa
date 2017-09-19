@@ -6,19 +6,19 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Account = require('models/account');
-  const AuthErrors = require('lib/auth-errors');
-  const BaseView = require('views/base');
+  const Account = require('../models/account');
+  const AuthErrors = require('../lib/auth-errors');
+  const BaseView = require('./base');
   const Cocktail = require('cocktail');
-  const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
-  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  const OpenResetPasswordEmailMixin = require('views/mixins/open-webmail-mixin');
-  const ResendMixin = require('views/mixins/resend-mixin')();
-  const ServiceMixin = require('views/mixins/service-mixin');
-  const Session = require('lib/session');
+  const Notifier = require('../lib/channels/notifier');
+  const p = require('../lib/promise');
+  const PasswordResetMixin = require('./mixins/password-reset-mixin');
+  const OpenResetPasswordEmailMixin = require('./mixins/open-webmail-mixin');
+  const ResendMixin = require('./mixins/resend-mixin')();
+  const ServiceMixin = require('./mixins/service-mixin');
+  const Session = require('../lib/session');
   const Template = require('stache!templates/confirm_reset_password');
-  const { VERIFICATION_POLL_IN_MS } = require('lib/constants');
+  const { VERIFICATION_POLL_IN_MS } = require('../lib/constants');
 
   const t = BaseView.t;
 

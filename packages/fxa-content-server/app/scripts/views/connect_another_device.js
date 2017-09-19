@@ -12,16 +12,16 @@ define(function (require, exports, module) {
   'use strict';
 
   const Cocktail = require('cocktail');
-  const ExperimentMixin = require('views/mixins/experiment-mixin');
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
-  const FormView = require('views/form');
-  const { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } = require('lib/constants');
-  const MarketingMixin = require('views/mixins/marketing-mixin');
-  const MarketingSnippet = require('views/marketing_snippet');
-  const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
+  const ExperimentMixin = require('./mixins/experiment-mixin');
+  const FlowEventsMixin = require('./mixins/flow-events-mixin');
+  const FormView = require('./form');
+  const { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } = require('../lib/constants');
+  const MarketingMixin = require('./mixins/marketing-mixin');
+  const MarketingSnippet = require('./marketing_snippet');
+  const SyncAuthMixin = require('./mixins/sync-auth-mixin');
   const Template = require('stache!templates/connect_another_device');
-  const UserAgentMixin = require('lib/user-agent-mixin');
-  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const UserAgentMixin = require('../lib/user-agent-mixin');
+  const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
 
   class ConnectAnotherDeviceView extends FormView {
     initialize (options = {}) {

@@ -7,8 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
+  const Notifier = require('../../lib/channels/notifier');
+  const p = require('../../lib/promise');
 
   var Mixin = {
     notifications: {

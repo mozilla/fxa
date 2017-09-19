@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const AvatarMixin = require('../mixins/avatar-mixin');
   const Cocktail = require('cocktail');
-  const FormView = require('views/form');
-  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const FormView = require('../form');
+  const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const Template = require('stache!templates/settings/avatar');
 
   const View = FormView.extend({

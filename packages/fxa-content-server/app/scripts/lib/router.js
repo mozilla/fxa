@@ -34,12 +34,12 @@ define(function (require, exports, module) {
   const PermissionsView = require('../views/permissions');
   const PpView = require('../views/pp');
   const ReadyView = require('../views/ready');
-  const ReportSignInView = require('views/report_sign_in');
+  const ReportSignInView = require('../views/report_sign_in');
   const ResetPasswordView = require('../views/reset_password');
   const SettingsView = require('../views/settings');
-  const SignInBouncedView = require('views/sign_in_bounced');
+  const SignInBouncedView = require('../views/sign_in_bounced');
   const SignInPasswordView = require('../views/sign_in_password');
-  const SignInReportedView = require('views/sign_in_reported');
+  const SignInReportedView = require('../views/sign_in_reported');
   const SignInUnblockView = require('../views/sign_in_unblock');
   const SignInView = require('../views/sign_in');
   const SignUpView = require('../views/sign_up');
@@ -48,7 +48,7 @@ define(function (require, exports, module) {
   const SmsSentView = require('../views/sms_sent');
   const Storage = require('./storage');
   const TosView = require('../views/tos');
-  const VerificationReasons = require('lib/verification-reasons');
+  const VerificationReasons = require('./verification-reasons');
   const WhyConnectAnotherDeviceView = require('../views/why_connect_another_device');
 
   function createViewHandler(View, options) {

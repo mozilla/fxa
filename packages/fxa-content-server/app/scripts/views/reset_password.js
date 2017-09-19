@@ -5,14 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const BackMixin = require('views/mixins/back-mixin');
+  const AuthErrors = require('../lib/auth-errors');
+  const BackMixin = require('./mixins/back-mixin');
   const Cocktail = require('cocktail');
-  const FormView = require('views/form');
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
-  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  const ServiceMixin = require('views/mixins/service-mixin');
-  const Session = require('lib/session');
+  const FormView = require('./form');
+  const FlowEventsMixin = require('./mixins/flow-events-mixin');
+  const PasswordResetMixin = require('./mixins/password-reset-mixin');
+  const ServiceMixin = require('./mixins/service-mixin');
+  const Session = require('../lib/session');
   const Template = require('stache!templates/reset_password');
 
   const t = (msg) => msg;

@@ -9,7 +9,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Vat = require('lib/vat');
+  const Vat = require('../../lib/vat');
   const VerificationInfo = require('./base');
 
   module.exports = VerificationInfo.extend({

@@ -7,7 +7,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Validate = require('lib/validate');
+  const Validate = require('./validate');
   const Vat = require('vat');
 
   Vat.register('accessType', Vat.string().test(Validate.isAccessTypeValid));

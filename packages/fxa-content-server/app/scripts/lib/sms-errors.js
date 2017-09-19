@@ -10,7 +10,7 @@ define((require, exports, module) => {
   'use strict';
 
   const _ = require('underscore');
-  const Errors = require('lib/errors');
+  const Errors = require('./errors');
   const t = msg => msg;
 
   const INVALID_PHONE_NUMBER_MESSAGE = t('Invalid phone number');

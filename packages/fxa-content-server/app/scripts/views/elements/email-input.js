@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const Vat = require('lib/vat');
+  const AuthErrors = require('../../lib/auth-errors');
+  const Vat = require('../../lib/vat');
 
   return {
     match ($el) {

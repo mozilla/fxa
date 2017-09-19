@@ -9,20 +9,20 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const AuthErrors = require('lib/auth-errors');
+  const AuthErrors = require('../lib/auth-errors');
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
-  const Constants = require('lib/constants');
-  const MarketingEmailPrefs = require('models/marketing-email-prefs');
-  const OAuthErrors = require('lib/oauth-errors');
-  const OAuthToken = require('models/oauth-token');
-  const p = require('lib/promise');
-  const ProfileErrors = require('lib/profile-errors');
-  const ProfileImage = require('models/profile-image');
-  const ResumeTokenMixin = require('models/mixins/resume-token');
-  const SignInReasons = require('lib/sign-in-reasons');
-  const UserAgent = require('lib/user-agent');
-  const vat = require('lib/vat');
+  const Constants = require('../lib/constants');
+  const MarketingEmailPrefs = require('./marketing-email-prefs');
+  const OAuthErrors = require('../lib/oauth-errors');
+  const OAuthToken = require('./oauth-token');
+  const p = require('../lib/promise');
+  const ProfileErrors = require('../lib/profile-errors');
+  const ProfileImage = require('./profile-image');
+  const ResumeTokenMixin = require('./mixins/resume-token');
+  const SignInReasons = require('../lib/sign-in-reasons');
+  const UserAgent = require('../lib/user-agent');
+  const vat = require('../lib/vat');
 
   // Account attributes that can be persisted
   var PERSISTENT = {

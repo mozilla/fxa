@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Constants = require('lib/constants');
+  const Constants = require('./constants');
   const UNBLOCK_CODE_LENGTH = Constants.UNBLOCK_CODE_LENGTH;
 
   // taken from the fxa-auth-server

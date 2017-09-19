@@ -9,8 +9,8 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const _ = require('underscore');
-  const BaseView = require('views/base');
-  const KeyCodes = require('lib/key-codes');
+  const BaseView = require('./base');
+  const KeyCodes = require('../lib/key-codes');
 
   var displayedTooltip;
   var PADDING_BELOW_TOOLTIP_PX = 2;

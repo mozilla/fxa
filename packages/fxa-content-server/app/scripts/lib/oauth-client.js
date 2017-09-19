@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const OAuthErrors = require('lib/oauth-errors');
-  const xhr = require('lib/xhr');
+  const OAuthErrors = require('./oauth-errors');
+  const xhr = require('./xhr');
 
   const CLIENT_TOKENS_API = '/v1/client-tokens';
   const DESTROY_TOKEN = '/v1/destroy';

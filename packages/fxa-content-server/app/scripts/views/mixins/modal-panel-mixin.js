@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const Environment = require('lib/environment');
+  const Environment = require('../../lib/environment');
 
   module.exports = {
     isModal: true,

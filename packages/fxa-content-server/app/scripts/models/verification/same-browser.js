@@ -19,7 +19,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const Backbone = require('backbone');
-  const Storage = require('lib/storage');
+  const Storage = require('../../lib/storage');
 
   var STORAGE_KEY = 'verificationInfo';
 

@@ -12,12 +12,12 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const AuthErrors = require('lib/auth-errors');
-  const ChannelMixin = require('models/auth_brokers/mixins/channel');
+  const AuthErrors = require('../../lib/auth-errors');
+  const ChannelMixin = require('../auth_brokers/mixins/channel');
   const Cocktail = require('cocktail');
-  const FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
-  const Logger = require('lib/logger');
-  const p = require('lib/promise');
+  const FxSyncAuthenticationBroker = require('../auth_brokers/fx-sync');
+  const Logger = require('../../lib/logger');
+  const p = require('../../lib/promise');
 
   const proto = FxSyncAuthenticationBroker.prototype;
 

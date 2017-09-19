@@ -11,7 +11,7 @@
 define((require, exports, module) => {
   'use strict';
 
-  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const ExperimentMixin = require('./experiment-mixin');
 
   module.exports = {
     dependsOn: [ ExperimentMixin ],

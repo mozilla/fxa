@@ -11,14 +11,14 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const AuthErrors = require('lib/auth-errors');
-  const BaseAuthenticationBroker = require('models/auth_brokers/base');
-  const Constants = require('lib/constants');
-  const HaltBehavior = require('views/behaviors/halt');
-  const OAuthErrors = require('lib/oauth-errors');
-  const p = require('lib/promise');
-  const Url = require('lib/url');
-  const Vat = require('lib/vat');
+  const AuthErrors = require('../../lib/auth-errors');
+  const BaseAuthenticationBroker = require('../auth_brokers/base');
+  const Constants = require('../../lib/constants');
+  const HaltBehavior = require('../../views/behaviors/halt');
+  const OAuthErrors = require('../../lib/oauth-errors');
+  const p = require('../../lib/promise');
+  const Url = require('../../lib/url');
+  const Vat = require('../../lib/vat');
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object

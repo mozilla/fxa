@@ -8,7 +8,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BaseView = require('views/base');
+  const BaseView = require('../base');
   const $ = require('jquery');
 
   module.exports = {

@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const textInput = require('views/elements/text-input');
-  const Vat = require('lib/vat');
+  const AuthErrors = require('../../lib/auth-errors');
+  const textInput = require('./text-input');
+  const Vat = require('../../lib/vat');
 
   const element = Object.create(textInput);
 

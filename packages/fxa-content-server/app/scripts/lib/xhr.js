@@ -17,7 +17,7 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const _ = require('underscore');
-  const p = require('lib/promise');
+  const p = require('./promise');
 
   const DEFAULT_DATA_TYPE = 'json';
 

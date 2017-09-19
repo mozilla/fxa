@@ -17,7 +17,7 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Backbone = require('backbone');
-  const Vat = require('lib/vat');
+  const Vat = require('../../lib/vat');
 
 
   var proto = Backbone.Model.prototype;

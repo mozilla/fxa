@@ -15,7 +15,7 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const FxSyncWebChannelAuthenticationBroker = require('./fx-sync-web-channel');
-  const HaltIfBrowserTransitions = require('views/behaviors/halt-if-browser-transitions');
+  const HaltIfBrowserTransitions = require('../../views/behaviors/halt-if-browser-transitions');
 
   const proto = FxSyncWebChannelAuthenticationBroker.prototype;
   const defaultBehaviors = proto.defaultBehaviors;

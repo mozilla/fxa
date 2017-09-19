@@ -15,13 +15,13 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const AuthErrors = require('lib/auth-errors');
+  const AuthErrors = require('../lib/auth-errors');
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
-  const ErrorUtils = require('lib/error-utils');
-  const ResumeTokenMixin = require('models/mixins/resume-token');
-  const SearchParamMixin = require('models/mixins/search-param');
-  const vat = require('lib/vat');
+  const ErrorUtils = require('../lib/error-utils');
+  const ResumeTokenMixin = require('./mixins/resume-token');
+  const SearchParamMixin = require('./mixins/search-param');
+  const vat = require('../lib/vat');
 
   var Model = Backbone.Model.extend({
     initialize (options) {

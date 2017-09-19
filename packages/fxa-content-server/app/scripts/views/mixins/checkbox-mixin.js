@@ -11,7 +11,7 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const FxaCheckbox = require('fxaCheckbox');
-  const Strings = require('lib/strings');
+  const Strings = require('../../lib/strings');
 
   module.exports = {
     events: {

@@ -5,9 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const CountryTelephoneInfo = require('lib/country-telephone-info');
-  const textInput = require('views/elements/text-input');
+  const AuthErrors = require('../../lib/auth-errors');
+  const CountryTelephoneInfo = require('../../lib/country-telephone-info');
+  const textInput = require('./text-input');
 
   const DEFAULT_COUNTRY = 'US';
 

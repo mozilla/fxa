@@ -14,10 +14,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const AuthErrors = require('lib/auth-errors');
-  const AllowedCountries = Object.keys(require('lib/country-telephone-info'));
-  const Relier = require('models/reliers/relier');
-  const Vat = require('lib/vat');
+  const AuthErrors = require('../../lib/auth-errors');
+  const AllowedCountries = Object.keys(require('../../lib/country-telephone-info'));
+  const Relier = require('./relier');
+  const Vat = require('../../lib/vat');
 
   const t = (msg) => msg;
 

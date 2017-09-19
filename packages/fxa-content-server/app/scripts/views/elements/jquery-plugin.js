@@ -14,14 +14,14 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const _ = require('underscore');
-  const checkboxInput = require('views/elements/checkbox-input');
-  const coppaAgeInput = require('views/elements/coppa-age-input');
-  const defaultElement = require('views/elements/default');
-  const emailInput = require('views/elements/email-input');
-  const passwordInput = require('views/elements/password-input');
-  const telInput = require('views/elements/tel-input');
-  const textInput = require('views/elements/text-input');
-  const unblockCodeInput = require('views/elements/unblock-code-input');
+  const checkboxInput = require('./checkbox-input');
+  const coppaAgeInput = require('./coppa-age-input');
+  const defaultElement = require('./default');
+  const emailInput = require('./email-input');
+  const passwordInput = require('./password-input');
+  const telInput = require('./tel-input');
+  const textInput = require('./text-input');
+  const unblockCodeInput = require('./unblock-code-input');
 
   const elementHelpers = [
     checkboxInput,

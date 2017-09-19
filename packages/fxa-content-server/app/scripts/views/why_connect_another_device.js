@@ -9,10 +9,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BackMixin = require('views/mixins/back-mixin');
-  const BaseView = require('views/base');
+  const BackMixin = require('./mixins/back-mixin');
+  const BaseView = require('./base');
   const Cocktail = require('cocktail');
-  const ModalPanelMixin = require('views/mixins/modal-panel-mixin');
+  const ModalPanelMixin = require('./mixins/modal-panel-mixin');
   const Template = require('stache!templates/why_connect_another_device');
 
   const View = BaseView.extend({

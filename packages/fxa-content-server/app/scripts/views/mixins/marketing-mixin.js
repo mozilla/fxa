@@ -20,7 +20,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const MarketingSnippet = require('views/marketing_snippet');
+  const MarketingSnippet = require('../marketing_snippet');
 
   /**
    * Function that must be called to return the mixin.

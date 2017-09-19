@@ -14,9 +14,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
+  const AuthErrors = require('../../lib/auth-errors');
   const Backbone = require('backbone');
-  const { VERIFICATION_POLL_IN_MS } = require('lib/constants');
+  const { VERIFICATION_POLL_IN_MS } = require('../../lib/constants');
 
   module.exports = class SessionVerificationPoll extends Backbone.Model {
     constructor (data, options = {}) {

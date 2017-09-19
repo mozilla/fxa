@@ -16,8 +16,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const { preventDefaultThen } = require('views/base');
-  const KeyCodes = require('lib/key-codes');
+  const { preventDefaultThen } = require('../base');
+  const KeyCodes = require('../../lib/key-codes');
 
   module.exports = {
     initialize (options = {}) {

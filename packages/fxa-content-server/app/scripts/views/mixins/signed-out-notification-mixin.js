@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Notifier = require('lib/channels/notifier');
-  const Session = require('lib/session');
-  const Url = require('lib/url');
+  const Notifier = require('../../lib/channels/notifier');
+  const Session = require('../../lib/session');
+  const Url = require('../../lib/url');
 
   var Mixin = {
     notifications: {

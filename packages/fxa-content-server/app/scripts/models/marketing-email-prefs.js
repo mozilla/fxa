@@ -13,7 +13,7 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Backbone = require('backbone');
-  const p = require('lib/promise');
+  const p = require('../lib/promise');
 
   var SCOPES = 'basket:write profile:email';
 

@@ -6,9 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Logger = require('lib/logger');
+  const Logger = require('./logger');
   const Raven = require('raven');
-  const Url = require('lib/url');
+  const Url = require('./url');
 
   var ALLOWED_QUERY_PARAMETERS = [
     'automatedBrowser',

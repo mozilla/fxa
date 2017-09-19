@@ -6,17 +6,17 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const AuthErrors = require('lib/auth-errors');
-  const BackMixin = require('views/mixins/back-mixin');
-  const BaseView = require('views/base');
+  const AuthErrors = require('../lib/auth-errors');
+  const BackMixin = require('./mixins/back-mixin');
+  const BaseView = require('./base');
   const Cocktail = require('cocktail');
-  const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
-  const OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
-  const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
-  const ResendMixin = require('views/mixins/resend-mixin')();
-  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  const ServiceMixin = require('views/mixins/service-mixin');
-  const SessionVerificationPollMixin = require('views/mixins/session-verification-poll-mixin');
+  const ConnectAnotherDeviceMixin = require('./mixins/connect-another-device-mixin');
+  const OpenConfirmationEmailMixin = require('./mixins/open-webmail-mixin');
+  const PulseGraphicMixin = require('./mixins/pulse-graphic-mixin');
+  const ResendMixin = require('./mixins/resend-mixin')();
+  const ResumeTokenMixin = require('./mixins/resume-token-mixin');
+  const ServiceMixin = require('./mixins/service-mixin');
+  const SessionVerificationPollMixin = require('./mixins/session-verification-poll-mixin');
   const Template = require('stache!templates/confirm');
 
   const proto = BaseView.prototype;

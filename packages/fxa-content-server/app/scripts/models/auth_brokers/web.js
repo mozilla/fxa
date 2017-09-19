@@ -10,10 +10,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const BaseBroker = require('models/auth_brokers/base');
-  const { CONTENT_SERVER_CONTEXT } = require('lib/constants');
-  const NavigateBehavior = require('views/behaviors/navigate');
-  const SettingsIfSignedInBehavior = require('views/behaviors/settings');
+  const BaseBroker = require('../auth_brokers/base');
+  const { CONTENT_SERVER_CONTEXT } = require('../../lib/constants');
+  const NavigateBehavior = require('../../views/behaviors/navigate');
+  const SettingsIfSignedInBehavior = require('../../views/behaviors/settings');
 
   const t = (msg) => msg;
 

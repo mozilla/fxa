@@ -6,11 +6,11 @@ define(function (require, exports, module) {
   'use strict';
 
   const Cocktail = require('cocktail');
-  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  const FormView = require('views/form');
-  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
-  const t = require('views/base').t;
+  const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
+  const FormView = require('../form');
+  const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
+  const SignedOutNotificationMixin = require('../mixins/signed-out-notification-mixin');
+  const t = require('../base').t;
   const Template = require('stache!templates/settings/client_disconnect');
 
   const REASON_HELP = {

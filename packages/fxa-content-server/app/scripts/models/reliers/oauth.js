@@ -10,11 +10,11 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Constants = require('lib/constants');
-  const OAuthErrors = require('lib/oauth-errors');
-  const Relier = require('models/reliers/relier');
-  const Transform = require('lib/transform');
-  const Vat = require('lib/vat');
+  const Constants = require('../../lib/constants');
+  const OAuthErrors = require('../../lib/oauth-errors');
+  const Relier = require('./relier');
+  const Transform = require('../../lib/transform');
+  const Vat = require('../../lib/vat');
 
   /*eslint-disable camelcase*/
   var CLIENT_INFO_SCHEMA = {

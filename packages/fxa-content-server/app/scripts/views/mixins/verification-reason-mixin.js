@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const VerificationReasons = require('lib/verification-reasons');
+  const VerificationReasons = require('../../lib/verification-reasons');
 
   function findKey(haystack, needle) {
     return _.findKey(haystack, function (value) {

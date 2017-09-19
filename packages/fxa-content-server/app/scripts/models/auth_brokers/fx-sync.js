@@ -12,10 +12,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const BaseAuthenticationBroker = require('models/auth_brokers/base');
-  const ConnectAnotherDeviceBehavior = require('views/behaviors/connect-another-device');
-  const ConnectAnotherDeviceOnSigninBehavior = require('views/behaviors/connect-another-device-on-signin');
-  const SyncEngines = require('models/sync-engines');
+  const BaseAuthenticationBroker = require('../auth_brokers/base');
+  const ConnectAnotherDeviceBehavior = require('../../views/behaviors/connect-another-device');
+  const ConnectAnotherDeviceOnSigninBehavior = require('../../views/behaviors/connect-another-device-on-signin');
+  const SyncEngines = require('../sync-engines');
 
   const proto = BaseAuthenticationBroker.prototype;
 

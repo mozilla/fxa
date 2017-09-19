@@ -12,11 +12,11 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const $ = require('jquery');
-  const Constants = require('lib/constants');
-  const FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
-  const NullBehavior = require('views/behaviors/null');
-  const p = require('lib/promise');
-  const UserAgent = require('lib/user-agent');
+  const Constants = require('../../lib/constants');
+  const FxDesktopV1AuthenticationBroker = require('../auth_brokers/fx-desktop-v1');
+  const NullBehavior = require('../../views/behaviors/null');
+  const p = require('../../lib/promise');
+  const UserAgent = require('../../lib/user-agent');
 
   const proto = FxDesktopV1AuthenticationBroker.prototype;
 

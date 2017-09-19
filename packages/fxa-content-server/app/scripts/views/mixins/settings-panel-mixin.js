@@ -9,7 +9,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const BaseView = require('views/base');
+  const BaseView = require('../base');
 
   module.exports = {
     initialize (options) {

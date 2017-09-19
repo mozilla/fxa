@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const ExperimentMixin = require('./experiment-mixin');
 
   const EXPERIMENT_NAME = 'disabledButtonState';
 

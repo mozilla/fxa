@@ -6,17 +6,17 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const AuthErrors = require('lib/auth-errors');
-  const { cancelEventThen, t } = require('views/base');
+  const AuthErrors = require('../lib/auth-errors');
+  const { cancelEventThen, t } = require('./base');
   const Cocktail = require('cocktail');
-  const FormView = require('views/form');
-  const NullBehavior = require('views/behaviors/null');
-  const p = require('lib/promise');
-  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  const SignInView = require('views/sign_in');
+  const FormView = require('./form');
+  const NullBehavior = require('./behaviors/null');
+  const p = require('../lib/promise');
+  const PasswordResetMixin = require('./mixins/password-reset-mixin');
+  const SignInView = require('./sign_in');
   const Template = require('stache!templates/force_auth');
-  const Transform = require('lib/transform');
-  const Vat = require('lib/vat');
+  const Transform = require('../lib/transform');
+  const Vat = require('../lib/vat');
 
   var RELIER_DATA_SCHEMA = {
     email: Vat.email().required(),

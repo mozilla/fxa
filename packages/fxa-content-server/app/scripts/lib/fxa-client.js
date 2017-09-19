@@ -11,15 +11,15 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const $ = require('jquery');
-  const AuthErrors = require('lib/auth-errors');
-  const Constants = require('lib/constants');
-  const p = require('lib/promise');
-  const requireOnDemand = require('lib/require-on-demand');
-  const Session = require('lib/session');
-  const SignInReasons = require('lib/sign-in-reasons');
-  const SmsErrors = require('lib/sms-errors');
-  const VerificationReasons = require('lib/verification-reasons');
-  const VerificationMethods = require('lib/verification-methods');
+  const AuthErrors = require('./auth-errors');
+  const Constants = require('./constants');
+  const p = require('./promise');
+  const requireOnDemand = require('./require-on-demand');
+  const Session = require('./session');
+  const SignInReasons = require('./sign-in-reasons');
+  const SmsErrors = require('./sms-errors');
+  const VerificationReasons = require('./verification-reasons');
+  const VerificationMethods = require('./verification-methods');
 
   function trim(str) {
     return $.trim(str);

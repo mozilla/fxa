@@ -20,16 +20,16 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const _ = require('underscore');
   const Cocktail = require('cocktail');
-  const Constants = require('lib/constants');
+  const Constants = require('./constants');
   const Backbone = require('backbone');
   const Duration = require('duration');
-  const Environment = require('lib/environment');
-  const Flow = require('models/flow');
-  const NotifierMixin = require('lib/channels/notifier-mixin');
-  const p = require('lib/promise');
+  const Environment = require('./environment');
+  const Flow = require('../models/flow');
+  const NotifierMixin = require('./channels/notifier-mixin');
+  const p = require('./promise');
   const speedTrap = require('speedTrap');
-  const Strings = require('lib/strings');
-  const xhr = require('lib/xhr');
+  const Strings = require('./strings');
+  const xhr = require('./xhr');
 
   // Speed trap is a singleton, convert it
   // to an instantiable function.

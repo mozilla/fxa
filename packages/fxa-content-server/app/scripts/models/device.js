@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const Backbone = require('backbone');
-  const Constants = require('lib/constants');
+  const Constants = require('../lib/constants');
 
   var Device = Backbone.Model.extend({
     defaults: {

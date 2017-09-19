@@ -14,14 +14,14 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const AuthErrors = require('lib/auth-errors');
-  const BaseRelier = require('models/reliers/base');
+  const AuthErrors = require('../../lib/auth-errors');
+  const BaseRelier = require('./base');
   const Cocktail = require('cocktail');
-  const Constants = require('lib/constants');
-  const p = require('lib/promise');
-  const ResumeTokenMixin = require('models/mixins/resume-token');
-  const SearchParamMixin = require('models/mixins/search-param');
-  const Vat = require('lib/vat');
+  const Constants = require('../../lib/constants');
+  const p = require('../../lib/promise');
+  const ResumeTokenMixin = require('../mixins/resume-token');
+  const SearchParamMixin = require('../mixins/search-param');
+  const Vat = require('../../lib/vat');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = [
     'entrypoint',

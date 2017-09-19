@@ -20,17 +20,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  require('views/elements/jquery-plugin');
+  require('./elements/jquery-plugin');
 
   const _ = require('underscore');
-  const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
-  const AuthErrors = require('lib/auth-errors');
-  const BaseView = require('views/base');
+  const allowOnlyOneSubmit = require('./decorators/allow_only_one_submit');
+  const AuthErrors = require('../lib/auth-errors');
+  const BaseView = require('./base');
   const Duration = require('duration');
-  const notifyDelayedRequest = require('views/decorators/notify_delayed_request');
-  const p = require('lib/promise');
-  const showButtonProgressIndicator = require('views/decorators/progress_indicator');
-  const Tooltip = require('views/tooltip');
+  const notifyDelayedRequest = require('./decorators/notify_delayed_request');
+  const p = require('../lib/promise');
+  const showButtonProgressIndicator = require('./decorators/progress_indicator');
+  const Tooltip = require('./tooltip');
   const { cancelEventThen, preventDefaultThen } = BaseView;
 
 

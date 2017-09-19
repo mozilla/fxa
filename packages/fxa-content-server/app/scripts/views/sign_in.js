@@ -5,25 +5,25 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AccountResetMixin = require('views/mixins/account-reset-mixin');
-  const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
-  const AuthErrors = require('lib/auth-errors');
-  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const AccountResetMixin = require('./mixins/account-reset-mixin');
+  const allowOnlyOneSubmit = require('./decorators/allow_only_one_submit');
+  const AuthErrors = require('../lib/auth-errors');
+  const AvatarMixin = require('./mixins/avatar-mixin');
   const Cocktail = require('cocktail');
-  const EmailFirstExperimentMixin = require('views/mixins/email-first-experiment-mixin');
-  const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
-  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
-  const FormView = require('views/form');
-  const MigrationMixin = require('views/mixins/migration-mixin');
-  const NoDisabledSubmitExperimentMixin = require('views/mixins/no-disabled-submit-experiment-mixin');
-  const PasswordMixin = require('views/mixins/password-mixin');
-  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  const { preventDefaultThen, t } = require('views/base');
-  const ServiceMixin = require('views/mixins/service-mixin');
-  const Session = require('lib/session');
-  const showProgressIndicator = require('views/decorators/progress_indicator');
-  const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
-  const SignInMixin = require('views/mixins/signin-mixin');
+  const EmailFirstExperimentMixin = require('./mixins/email-first-experiment-mixin');
+  const FlowBeginMixin = require('./mixins/flow-begin-mixin');
+  const FormPrefillMixin = require('./mixins/form-prefill-mixin');
+  const FormView = require('./form');
+  const MigrationMixin = require('./mixins/migration-mixin');
+  const NoDisabledSubmitExperimentMixin = require('./mixins/no-disabled-submit-experiment-mixin');
+  const PasswordMixin = require('./mixins/password-mixin');
+  const PasswordResetMixin = require('./mixins/password-reset-mixin');
+  const { preventDefaultThen, t } = require('./base');
+  const ServiceMixin = require('./mixins/service-mixin');
+  const Session = require('../lib/session');
+  const showProgressIndicator = require('./decorators/progress_indicator');
+  const SignedInNotificationMixin = require('./mixins/signed-in-notification-mixin');
+  const SignInMixin = require('./mixins/signin-mixin');
   const SignInTemplate = require('stache!templates/sign_in');
 
   const proto = FormView.prototype;

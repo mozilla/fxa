@@ -22,7 +22,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
-  const TimerMixin = require('views/mixins/timer-mixin');
+  const TimerMixin = require('./mixins/timer-mixin');
 
   // The show and hide delays are to minimize flash.
   var SHOW_DELAY_MS = 100;

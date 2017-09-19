@@ -11,11 +11,11 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const Backbone = require('backbone');
-  const BaseView = require('views/base');
+  const BaseView = require('./base');
   const Cocktail = require('cocktail');
-  const KeyCodes = require('lib/key-codes');
-  const LoadingMixin = require('views/mixins/loading-mixin');
-  const p = require('lib/promise');
+  const KeyCodes = require('../lib/key-codes');
+  const LoadingMixin = require('./mixins/loading-mixin');
+  const p = require('../lib/promise');
 
   var AppView = BaseView.extend({
     initialize (options) {

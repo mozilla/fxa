@@ -10,7 +10,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Url = require('lib/url');
+  const Url = require('./url');
 
   module.exports = {
     /**

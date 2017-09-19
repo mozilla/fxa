@@ -7,17 +7,17 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const $ = require('jquery');
-  const AttachedClients = require('models/attached-clients');
+  const AttachedClients = require('../../models/attached-clients');
   const Cocktail = require('cocktail');
-  const Constants = require('lib/constants');
-  const FormView = require('views/form');
-  const preventDefaultThen = require('views/base').preventDefaultThen;
-  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-  const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
-  const Strings = require('lib/strings');
-  const { t } = require('views/base');
+  const Constants = require('../../lib/constants');
+  const FormView = require('../form');
+  const preventDefaultThen = require('../base').preventDefaultThen;
+  const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
+  const SignedOutNotificationMixin = require('../mixins/signed-out-notification-mixin');
+  const Strings = require('../../lib/strings');
+  const { t } = require('../base');
   const Template = require('stache!templates/settings/clients');
-  const UserAgentMixin = require('lib/user-agent-mixin');
+  const UserAgentMixin = require('../../lib/user-agent-mixin');
 
   const DEVICE_REMOVED_ANIMATION_MS = 150;
   const LOADING_INDICATOR_BUTTON = '.settings-button.settings-unit-loading';

@@ -5,18 +5,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BackMixin = require('views/mixins/back-mixin');
-  const CheckboxMixin = require('views/mixins/checkbox-mixin');
+  const BackMixin = require('./mixins/back-mixin');
+  const CheckboxMixin = require('./mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
-  const CoppaMixin = require('views/mixins/coppa-mixin');
-  const EmailOptInMixin = require('views/mixins/email-opt-in-mixin');
+  const CoppaMixin = require('./mixins/coppa-mixin');
+  const EmailOptInMixin = require('./mixins/email-opt-in-mixin');
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
-  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
-  const FormView = require('views/form');
-  const p = require('lib/promise');
-  const PasswordMixin = require('views/mixins/password-mixin');
-  const ServiceMixin = require('views/mixins/service-mixin');
-  const SignUpMixin = require('views/mixins/signup-mixin');
+  const FormPrefillMixin = require('./mixins/form-prefill-mixin');
+  const FormView = require('./form');
+  const p = require('../lib/promise');
+  const PasswordMixin = require('./mixins/password-mixin');
+  const ServiceMixin = require('./mixins/service-mixin');
+  const SignUpMixin = require('./mixins/signup-mixin');
   const Template = require('stache!templates/sign_up_password');
 
   class SignUpPasswordView extends FormView {

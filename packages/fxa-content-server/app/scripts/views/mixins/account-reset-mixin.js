@@ -11,8 +11,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const BaseView = require('views/base');
+  const AuthErrors = require('../../lib/auth-errors');
+  const BaseView = require('../base');
 
   var t = BaseView.t;
 

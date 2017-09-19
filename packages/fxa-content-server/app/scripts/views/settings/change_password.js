@@ -5,16 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const BackMixin = require('views/mixins/back-mixin');
-  const BaseView = require('views/base');
+  const AuthErrors = require('../../lib/auth-errors');
+  const BackMixin = require('../mixins/back-mixin');
+  const BaseView = require('../base');
   const Cocktail = require('cocktail');
-  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  const FormView = require('views/form');
-  const ExperimentMixin = require('views/mixins/experiment-mixin');
-  const PasswordMixin = require('views/mixins/password-mixin');
-  const ServiceMixin = require('views/mixins/service-mixin');
-  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
+  const FormView = require('../form');
+  const ExperimentMixin = require('../mixins/experiment-mixin');
+  const PasswordMixin = require('../mixins/password-mixin');
+  const ServiceMixin = require('../mixins/service-mixin');
+  const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const Template = require('stache!templates/settings/change_password');
 
   var t = BaseView.t;

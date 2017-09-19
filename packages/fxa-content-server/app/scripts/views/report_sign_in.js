@@ -8,11 +8,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const Constants = require('lib/constants');
-  const FormView = require('views/form');
+  const AuthErrors = require('../lib/auth-errors');
+  const Constants = require('../lib/constants');
+  const FormView = require('./form');
   const Template = require('stache!templates/report_sign_in');
-  const SignInToReport = require('models/verification/report-sign-in');
+  const SignInToReport = require('../models/verification/report-sign-in');
 
   const View = FormView.extend({
     className: 'report-sign-in',

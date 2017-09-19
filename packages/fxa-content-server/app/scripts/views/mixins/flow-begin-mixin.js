@@ -7,7 +7,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
+  const FlowEventsMixin = require('./flow-events-mixin');
 
   module.exports = {
     dependsOn: [ FlowEventsMixin ],

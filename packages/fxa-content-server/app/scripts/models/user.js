@@ -12,17 +12,17 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Account = require('models/account');
-  const AuthErrors = require('lib/auth-errors');
+  const Account = require('./account');
+  const AuthErrors = require('../lib/auth-errors');
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
-  const Constants = require('lib/constants');
-  const MarketingEmailErrors = require('lib/marketing-email-errors');
-  const p = require('lib/promise');
-  const ResumeTokenMixin = require('models/mixins/resume-token');
-  const SearchParamMixin = require('models/mixins/search-param');
-  const Storage = require('lib/storage');
-  const vat = require('lib/vat');
+  const Constants = require('../lib/constants');
+  const MarketingEmailErrors = require('../lib/marketing-email-errors');
+  const p = require('../lib/promise');
+  const ResumeTokenMixin = require('./mixins/resume-token');
+  const SearchParamMixin = require('./mixins/search-param');
+  const Storage = require('../lib/storage');
+  const vat = require('../lib/vat');
 
   var User = Backbone.Model.extend({
     initialize (options = {}) {

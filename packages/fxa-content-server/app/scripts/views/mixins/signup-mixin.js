@@ -7,7 +7,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const ResumeTokenMixin = require('./resume-token-mixin');
 
   module.exports = {
     dependsOn: [ ResumeTokenMixin ],

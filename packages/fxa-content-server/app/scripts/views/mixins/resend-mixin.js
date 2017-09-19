@@ -21,9 +21,9 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Duration = require('duration');
-  const EmailResend = require('models/email-resend');
-  const p = require('lib/promise');
-  const { preventDefaultThen, t } = require('views/base');
+  const EmailResend = require('../../models/email-resend');
+  const p = require('../../lib/promise');
+  const { preventDefaultThen, t } = require('../base');
 
   const SHOW_RESEND_IN_MS = new Duration('5m').milliseconds();
 

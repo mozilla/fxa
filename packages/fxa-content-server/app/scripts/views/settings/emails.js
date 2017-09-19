@@ -6,17 +6,17 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const AvatarMixin = require('views/mixins/avatar-mixin');
-  const BaseView = require('views/base');
+  const AvatarMixin = require('../mixins/avatar-mixin');
+  const BaseView = require('../base');
   const Cocktail = require('cocktail');
-  const Email = require('models/email');
-  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  const FormView = require('views/form');
-  const preventDefaultThen = require('views/base').preventDefaultThen;
-  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-  const SearchParamMixin = require('lib/search-param-mixin');
-  const Strings = require('lib/strings');
-  const showProgressIndicator = require('views/decorators/progress_indicator');
+  const Email = require('../../models/email');
+  const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
+  const FormView = require('../form');
+  const preventDefaultThen = require('../base').preventDefaultThen;
+  const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
+  const SearchParamMixin = require('../../lib/search-param-mixin');
+  const Strings = require('../../lib/strings');
+  const showProgressIndicator = require('../decorators/progress_indicator');
   const Template = require('stache!templates/settings/emails');
 
   var t = BaseView.t;

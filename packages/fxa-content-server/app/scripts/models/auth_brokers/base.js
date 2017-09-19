@@ -10,18 +10,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
+  const AuthErrors = require('../../lib/auth-errors');
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
-  const Environment = require('lib/environment');
-  const NotifierMixin = require('lib/channels/notifier-mixin');
-  const NavigateBehavior = require('views/behaviors/navigate');
-  const NullBehavior = require('views/behaviors/null');
-  const p = require('lib/promise');
-  const SameBrowserVerificationModel = require('models/verification/same-browser');
-  const SearchParamMixin = require('models/mixins/search-param');
-  const SettingsIfSignedInBehavior = require('views/behaviors/settings');
-  const Vat = require('lib/vat');
+  const Environment = require('../../lib/environment');
+  const NotifierMixin = require('../../lib/channels/notifier-mixin');
+  const NavigateBehavior = require('../../views/behaviors/navigate');
+  const NullBehavior = require('../../views/behaviors/null');
+  const p = require('../../lib/promise');
+  const SameBrowserVerificationModel = require('../verification/same-browser');
+  const SearchParamMixin = require('../mixins/search-param');
+  const SettingsIfSignedInBehavior = require('../../views/behaviors/settings');
+  const Vat = require('../../lib/vat');
 
   const QUERY_PARAMETER_SCHEMA = {
     automatedBrowser: Vat.boolean()

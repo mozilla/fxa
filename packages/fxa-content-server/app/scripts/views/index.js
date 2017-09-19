@@ -12,13 +12,13 @@ define(function (require, exports, module) {
   'use strict';
 
   const Cocktail = require('cocktail');
-  const CoppaMixin = require('views/mixins/coppa-mixin');
-  const EmailFirstExperimentMixin = require('views/mixins/email-first-experiment-mixin');
-  const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
-  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
-  const FormView = require('views/form');
-  const SearchParamMixin = require('lib/search-param-mixin');
-  const ServiceMixin = require('views/mixins/service-mixin');
+  const CoppaMixin = require('./mixins/coppa-mixin');
+  const EmailFirstExperimentMixin = require('./mixins/email-first-experiment-mixin');
+  const FlowBeginMixin = require('./mixins/flow-begin-mixin');
+  const FormPrefillMixin = require('./mixins/form-prefill-mixin');
+  const FormView = require('./form');
+  const SearchParamMixin = require('../lib/search-param-mixin');
+  const ServiceMixin = require('./mixins/service-mixin');
   const Template = require('stache!templates/index');
 
   class IndexView extends FormView {

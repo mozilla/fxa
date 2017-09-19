@@ -18,8 +18,8 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Errors = require('lib/errors');
-  const p = require('lib/promise');
+  const Errors = require('./errors');
+  const p = require('./promise');
 
   const t = function (msg) {
     return msg;

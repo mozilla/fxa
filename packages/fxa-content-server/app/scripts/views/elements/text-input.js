@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
+  const AuthErrors = require('../../lib/auth-errors');
 
   return {
     match ($el) {

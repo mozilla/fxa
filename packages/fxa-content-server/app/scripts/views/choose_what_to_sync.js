@@ -6,11 +6,11 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const BackMixin = require('views/mixins/back-mixin');
-  const CheckboxMixin = require('views/mixins/checkbox-mixin');
+  const BackMixin = require('./mixins/back-mixin');
+  const CheckboxMixin = require('./mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
-  const FormView = require('views/form');
-  const SessionVerificationPollMixin = require('views/mixins/session-verification-poll-mixin');
+  const FormView = require('./form');
+  const SessionVerificationPollMixin = require('./mixins/session-verification-poll-mixin');
   const Template = require('stache!templates/choose_what_to_sync');
 
   const SCREEN_CLASS = 'screen-choose-what-to-sync';

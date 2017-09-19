@@ -8,12 +8,12 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const AuthErrors = require('lib/auth-errors');
-  const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
-  const ProfileErrors = require('lib/profile-errors');
-  const ProfileImage = require('models/profile-image');
-  const UserAgentMixin = require('lib/user-agent-mixin');
+  const AuthErrors = require('../../lib/auth-errors');
+  const Notifier = require('../../lib/channels/notifier');
+  const p = require('../../lib/promise');
+  const ProfileErrors = require('../../lib/profile-errors');
+  const ProfileImage = require('../../models/profile-image');
+  const UserAgentMixin = require('../../lib/user-agent-mixin');
 
   var MAX_SPINNER_COMPLETE_TIME = 400; // ms
 

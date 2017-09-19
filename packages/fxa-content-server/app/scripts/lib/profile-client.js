@@ -7,8 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const ProfileErrors = require('lib/profile-errors');
-  const xhr = require('lib/xhr');
+  const ProfileErrors = require('./profile-errors');
+  const xhr = require('./xhr');
 
   function ProfileClient(options) {
     options = options || {};

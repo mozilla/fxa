@@ -15,8 +15,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const p = require('lib/promise');
-  const ProgressIndicator = require('views/progress_indicator');
+  const p = require('../../lib/promise');
+  const ProgressIndicator = require('../progress_indicator');
 
   // Return a promise delayed by ms
   function delay(progressIndicator, ms) {

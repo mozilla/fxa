@@ -19,10 +19,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const ErrorUtils = require('lib/error-utils');
-  const ResumeToken = require('models/resume-token');
-  const vat = require('lib/vat');
+  const AuthErrors = require('../../lib/auth-errors');
+  const ErrorUtils = require('../../lib/error-utils');
+  const ResumeToken = require('../resume-token');
+  const vat = require('../../lib/vat');
 
   module.exports = {
     /**

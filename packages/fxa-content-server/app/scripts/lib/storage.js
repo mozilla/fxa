@@ -8,8 +8,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const NullStorage = require('lib/null-storage');
-  const Url = require('lib/url');
+  const NullStorage = require('./null-storage');
+  const Url = require('./url');
 
   var NAMESPACE = '__fxa_storage';
 

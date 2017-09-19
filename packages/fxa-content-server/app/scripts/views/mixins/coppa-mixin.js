@@ -8,9 +8,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
-  const KeyCodes = require('lib/key-codes');
+  const FloatingPlaceholderMixin = require('./floating-placeholder-mixin');
+  const FormPrefillMixin = require('./form-prefill-mixin');
+  const KeyCodes = require('../../lib/key-codes');
   const Template = require('stache!templates/partial/coppa-age-input');
 
   const AGE_ELEMENT = '#age';

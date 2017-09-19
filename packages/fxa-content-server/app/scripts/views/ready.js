@@ -11,15 +11,15 @@ define(function (require, exports, module) {
   'use strict';
 
   const Cocktail = require('cocktail');
-  const Constants = require('lib/constants');
-  const ExperimentMixin = require('views/mixins/experiment-mixin');
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
-  const FormView = require('views/form');
-  const MarketingMixin = require('views/mixins/marketing-mixin');
-  const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
-  const ServiceMixin = require('views/mixins/service-mixin');
+  const Constants = require('../lib/constants');
+  const ExperimentMixin = require('./mixins/experiment-mixin');
+  const FlowEventsMixin = require('./mixins/flow-events-mixin');
+  const FormView = require('./form');
+  const MarketingMixin = require('./mixins/marketing-mixin');
+  const PulseGraphicMixin = require('./mixins/pulse-graphic-mixin');
+  const ServiceMixin = require('./mixins/service-mixin');
   const Template = require('stache!templates/ready');
-  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
 
   const t = msg => msg;
 

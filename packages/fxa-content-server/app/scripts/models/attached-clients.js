@@ -11,11 +11,11 @@ define(function (require, exports, module) {
   'use strict';
 
   const Backbone = require('backbone');
-  const Constants = require('lib/constants');
-  const Device = require('models/device');
-  const OAuthApp = require('models/oauth-app');
-  const WebSession = require('models/web-session');
-  const P = require('lib/promise');
+  const Constants = require('../lib/constants');
+  const Device = require('./device');
+  const OAuthApp = require('./oauth-app');
+  const WebSession = require('./web-session');
+  const P = require('../lib/promise');
 
   var AttachedClients = Backbone.Collection.extend({
     model: function(attrs, options) {

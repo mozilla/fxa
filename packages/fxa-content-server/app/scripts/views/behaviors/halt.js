@@ -9,7 +9,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const p = require('lib/promise');
+  const p = require('../../lib/promise');
 
   var HaltBehavior = function () {
     var behavior = function (view) {

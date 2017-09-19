@@ -22,9 +22,9 @@ define(function (require, exports, module) {
 
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
-  const ResumeTokenMixin = require('models/mixins/resume-token');
-  const SearchParamMixin = require('models/mixins/search-param');
-  const Storage = require('lib/storage');
+  const ResumeTokenMixin = require('./mixins/resume-token');
+  const SearchParamMixin = require('./mixins/search-param');
+  const Storage = require('../lib/storage');
   const uuid = require('uuid');
 
   var Model = Backbone.Model.extend({

@@ -15,7 +15,7 @@
 define((require, exports, module) => {
   'use strict';
 
-  const p = require('lib/promise');
+  const p = require('../../lib/promise');
 
   /**
    * Create a ConnectAnotherDevice behavior.

@@ -5,14 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BackMixin = require('views/mixins/back-mixin');
+  const BackMixin = require('./mixins/back-mixin');
   const Cocktail = require('cocktail');
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
-  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
-  const FormView = require('views/form');
-  const PasswordMixin = require('views/mixins/password-mixin');
-  const ServiceMixin = require('views/mixins/service-mixin');
-  const SignInMixin = require('views/mixins/signin-mixin');
+  const FormPrefillMixin = require('./mixins/form-prefill-mixin');
+  const FormView = require('./form');
+  const PasswordMixin = require('./mixins/password-mixin');
+  const ServiceMixin = require('./mixins/service-mixin');
+  const SignInMixin = require('./mixins/signin-mixin');
   const Template = require('stache!templates/sign_in_password');
 
   class SignInPasswordView extends FormView {

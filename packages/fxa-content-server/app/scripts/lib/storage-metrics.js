@@ -11,9 +11,9 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Metrics = require('lib/metrics');
-  const p = require('lib/promise');
-  const Storage = require('lib/storage');
+  const Metrics = require('./metrics');
+  const p = require('./promise');
+  const Storage = require('./storage');
 
   var storage = Storage.factory('localStorage');
 

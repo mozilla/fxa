@@ -12,8 +12,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BaseView = require('views/base');
-  const p = require('lib/promise');
+  const BaseView = require('./base');
+  const p = require('../lib/promise');
 
   module.exports = BaseView.extend({
     beforeRender () {

@@ -19,7 +19,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Vat = require('lib/vat');
+  const Vat = require('./vat');
 
   module.exports = {
     /**

@@ -10,8 +10,8 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const BaseView = require('views/base');
-  const ModalPanelMixin = require('views/mixins/modal-panel-mixin');
+  const BaseView = require('../base');
+  const ModalPanelMixin = require('./modal-panel-mixin');
   const preventDefaultThen = BaseView.preventDefaultThen;
 
   const Mixin = _.extend({}, ModalPanelMixin, {

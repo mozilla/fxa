@@ -9,13 +9,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const domWriter = require('lib/dom-writer');
+  const AuthErrors = require('./auth-errors');
+  const domWriter = require('./dom-writer');
   const FiveHundredTemplate = require('stache!templates/500');
   const FourHundredTemplate = require('stache!templates/400');
-  const Logger = require('lib/logger');
-  const OAuthErrors = require('lib/oauth-errors');
-  const p = require('lib/promise');
+  const Logger = require('./logger');
+  const OAuthErrors = require('./oauth-errors');
+  const p = require('./promise');
 
   module.exports = {
     /**

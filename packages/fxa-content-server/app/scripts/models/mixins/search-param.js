@@ -10,8 +10,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const SearchParamMixin = require('lib/search-param-mixin');
-  const Transform = require('lib/transform');
+  const SearchParamMixin = require('../../lib/search-param-mixin');
+  const Transform = require('../../lib/transform');
 
   module.exports = {
     dependsOn: [ SearchParamMixin ],

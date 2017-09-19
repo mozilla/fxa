@@ -13,8 +13,8 @@ define((require, exports, module) => {
   const _ = require('underscore');
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
-  const SearchParamMixin = require('lib/search-param-mixin');
-  const UserAgentMixin = require('lib/user-agent-mixin');
+  const SearchParamMixin = require('../lib/search-param-mixin');
+  const UserAgentMixin = require('../lib/user-agent-mixin');
 
   const t = msg => msg;
 

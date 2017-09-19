@@ -11,9 +11,9 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Constants = require('lib/constants');
+  const Constants = require('../../lib/constants');
   const FxSyncChannelAuthenticationBroker = require('./fx-sync-channel');
-  const WebChannel = require('lib/channels/web');
+  const WebChannel = require('../../lib/channels/web');
 
   const proto = FxSyncChannelAuthenticationBroker.prototype;
 

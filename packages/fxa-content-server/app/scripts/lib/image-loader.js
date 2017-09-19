@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const p = require('lib/promise');
+  const p = require('./promise');
 
   /**
    * Returns true if given "uri" has HTTP or HTTPS scheme

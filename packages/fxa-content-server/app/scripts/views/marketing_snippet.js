@@ -17,13 +17,13 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const $ = require('jquery');
-  const BaseView = require('views/base');
+  const BaseView = require('./base');
   const Cocktail = require('cocktail');
-  const Constants = require('lib/constants');
-  const Strings = require('lib/strings');
+  const Constants = require('../lib/constants');
+  const Strings = require('../lib/strings');
   const Template = require('stache!templates/marketing_snippet');
-  const UserAgentMixin = require('lib/user-agent-mixin');
-  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const UserAgentMixin = require('../lib/user-agent-mixin');
+  const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
 
   const APP_STORE_BUTTON = 'apple_app_store_button';
   const PLAY_STORE_BUTTON = 'google_play_store_button';

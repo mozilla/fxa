@@ -11,8 +11,8 @@
 define((require, exports, module) => {
   'use strict';
 
-  const SearchParamMixin = require('lib/search-param-mixin');
-  const UserAgent = require('lib/user-agent');
+  const SearchParamMixin = require('./search-param-mixin');
+  const UserAgent = require('./user-agent');
 
   module.exports = {
     dependsOn: [

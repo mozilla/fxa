@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
+  const AuthErrors = require('../lib/auth-errors');
   const Backbone = require('backbone');
-  const Constants = require('lib/constants');
+  const Constants = require('../lib/constants');
 
   // a 1x1 jpeg
   var jpegSrc = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsM' +

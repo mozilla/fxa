@@ -8,9 +8,9 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const KeyCodes = require('lib/key-codes');
+  const KeyCodes = require('./key-codes');
   const mailcheck = require('mailcheck'); //eslint-disable-line no-unused-vars
-  const Tooltip = require('views/tooltip');
+  const Tooltip = require('../views/tooltip');
   const t = (msg) => msg;
 
   const DOMAINS = [];

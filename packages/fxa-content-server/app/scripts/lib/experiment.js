@@ -6,8 +6,8 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const BaseExperiment = require('lib/experiments/base');
-  const Url = require('lib/url');
+  const BaseExperiment = require('./experiments/base');
+  const Url = require('./url');
 
   const FORCE_EXPERIMENT_PARAM = 'forceExperiment';
   const FORCE_EXPERIMENT_GROUP_PARAM = 'forceExperimentGroup';

@@ -15,7 +15,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const p = require('lib/promise');
+  const p = require('../../../lib/promise');
 
   // normalize the channel action. New channels return promises, old
   // channels use NodeJS style callbacks. Convert the old channel style

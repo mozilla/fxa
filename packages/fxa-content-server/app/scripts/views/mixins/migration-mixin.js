@@ -8,7 +8,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Constants = require('lib/constants');
+  const Constants = require('../../lib/constants');
 
   module.exports = {
     isSyncMigration: function isSyncMigration () {

@@ -10,8 +10,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const p = require('lib/promise');
+  const AuthErrors = require('../../lib/auth-errors');
+  const p = require('../../lib/promise');
 
   function notifyDelayedRequest(handler) {
     return function () {

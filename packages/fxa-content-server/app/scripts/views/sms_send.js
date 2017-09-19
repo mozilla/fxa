@@ -10,19 +10,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
+  const AuthErrors = require('../lib/auth-errors');
   const Cocktail = require('cocktail');
-  const CountryTelephoneInfo = require('lib/country-telephone-info');
-  const { FIREFOX_MOBILE_INSTALL } = require('lib/sms-message-ids');
-  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
-  const FormPrefillMixin = require('views/mixins/form-prefill-mixin');
-  const FormView = require('views/form');
-  const { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } = require('lib/constants');
-  const MarketingMixin = require('views/mixins/marketing-mixin');
-  const PulseGraphicMixin = require('views/mixins/pulse-graphic-mixin');
+  const CountryTelephoneInfo = require('../lib/country-telephone-info');
+  const { FIREFOX_MOBILE_INSTALL } = require('../lib/sms-message-ids');
+  const FlowEventsMixin = require('./mixins/flow-events-mixin');
+  const FormPrefillMixin = require('./mixins/form-prefill-mixin');
+  const FormView = require('./form');
+  const { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } = require('../lib/constants');
+  const MarketingMixin = require('./mixins/marketing-mixin');
+  const PulseGraphicMixin = require('./mixins/pulse-graphic-mixin');
   const SELECTOR_PHONE_NUMBER = 'input[type=tel]';
-  const SmsErrors = require('lib/sms-errors');
-  const SmsMixin = require('views/mixins/sms-mixin');
+  const SmsErrors = require('../lib/sms-errors');
+  const SmsMixin = require('./mixins/sms-mixin');
   const Template = require('stache!templates/sms_send');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 

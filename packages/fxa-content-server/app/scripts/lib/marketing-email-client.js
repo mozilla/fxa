@@ -9,10 +9,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Constants = require('lib/constants');
-  const MarketingEmailErrors = require('lib/marketing-email-errors');
-  const Url = require('lib/url');
-  const xhr = require('lib/xhr');
+  const Constants = require('./constants');
+  const MarketingEmailErrors = require('./marketing-email-errors');
+  const Url = require('./url');
+  const xhr = require('./xhr');
 
   const ALLOWED_SOURCE_URL_QUERY_PARAMS = [
     'client_id',

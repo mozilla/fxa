@@ -6,8 +6,8 @@ define(function (require, exports, module) {
   'use strict';
 
   const Duration = require('duration');
-  const P = require('lib/promise');
-  const requireOnDemand = require('lib/require-on-demand');
+  const P = require('./promise');
+  const requireOnDemand = require('./require-on-demand');
 
   const CERT_DURATION_MS =  new Duration('6h').milliseconds();
   const ASSERTION_DURATION_MS = new Duration('52w').milliseconds() * 25; //25 years

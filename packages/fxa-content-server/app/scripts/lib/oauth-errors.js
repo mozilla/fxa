@@ -8,10 +8,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Errors = require('lib/errors');
-  const Logger = require('lib/logger');
+  const Errors = require('./errors');
+  const Logger = require('./logger');
   var logger = new Logger();
-  const Strings = require('lib/strings');
+  const Strings = require('./strings');
 
   var t = function (msg) {
     return msg;

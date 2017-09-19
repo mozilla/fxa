@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Constants = require('lib/constants');
+  const Constants = require('./constants');
 
   module.exports = {
     // only allow http or https URLs, encoding the URL.

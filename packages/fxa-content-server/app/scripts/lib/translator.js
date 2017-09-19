@@ -12,7 +12,7 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const _ = require('underscore');
-  const Strings = require('lib/strings');
+  const Strings = require('./strings');
 
   /**
    *

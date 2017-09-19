@@ -18,15 +18,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const BaseView = require('views/base');
+  const AuthErrors = require('../lib/auth-errors');
+  const BaseView = require('./base');
   const Cocktail = require('cocktail');
   const CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
-  const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
-  const MarketingEmailErrors = require('lib/marketing-email-errors');
-  const ResendMixin = require('views/mixins/resend-mixin')();
-  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  const VerificationInfo = require('models/verification/sign-up');
+  const ConnectAnotherDeviceMixin = require('./mixins/connect-another-device-mixin');
+  const MarketingEmailErrors = require('../lib/marketing-email-errors');
+  const ResendMixin = require('./mixins/resend-mixin')();
+  const ResumeTokenMixin = require('./mixins/resume-token-mixin');
+  const VerificationInfo = require('../models/verification/sign-up');
 
   const CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,

@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const KEYS = require('lib/key-codes');
+  const KEYS = require('../../lib/key-codes');
 
   module.exports = {
     afterRender () {

@@ -6,18 +6,18 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const Account = require('models/account');
-  const BackMixin = require('views/mixins/back-mixin');
-  const BaseView = require('views/base');
-  const CheckboxMixin = require('views/mixins/checkbox-mixin');
+  const Account = require('../models/account');
+  const BackMixin = require('./mixins/back-mixin');
+  const BaseView = require('./base');
+  const CheckboxMixin = require('./mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
-  const FormView = require('views/form');
-  const OAuthErrors = require('lib/oauth-errors');
+  const FormView = require('./form');
+  const OAuthErrors = require('../lib/oauth-errors');
   const PermissionTemplate = require('stache!templates/partial/permission');
-  const ServiceMixin = require('views/mixins/service-mixin');
-  const Strings = require('lib/strings');
+  const ServiceMixin = require('./mixins/service-mixin');
+  const Strings = require('../lib/strings');
   const Template = require('stache!templates/permissions');
-  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
 
   var t = BaseView.t;
 

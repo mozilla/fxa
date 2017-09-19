@@ -9,8 +9,8 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const _ = require('underscore');
-  const Errors = require('lib/errors');
-  const p = require('lib/promise');
+  const Errors = require('./errors');
+  const p = require('./promise');
 
   function ConfigLoader() {
   }

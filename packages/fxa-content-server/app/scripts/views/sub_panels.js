@@ -7,9 +7,9 @@ define(function (require, exports, module) {
   'use strict';
 
   const Backbone = require('backbone');
-  const BaseView = require('views/base');
-  const Logger = require('lib/logger');
-  const p = require('lib/promise');
+  const BaseView = require('./base');
+  const Logger = require('../lib/logger');
+  const p = require('../lib/promise');
   const Template = require('stache!templates/sub_panels');
 
   const proto = BaseView.prototype;

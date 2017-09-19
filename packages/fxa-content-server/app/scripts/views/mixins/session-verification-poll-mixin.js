@@ -14,10 +14,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const SessionVerificationPoll = require('models/polls/session-verification');
-  const { VERIFICATION_POLL_IN_MS } = require('lib/constants');
-  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const AuthErrors = require('../../lib/auth-errors');
+  const SessionVerificationPoll = require('../../models/polls/session-verification');
+  const { VERIFICATION_POLL_IN_MS } = require('../../lib/constants');
+  const VerificationReasonMixin = require('./verification-reason-mixin');
 
   module.exports = {
     dependsOn: [ VerificationReasonMixin ],

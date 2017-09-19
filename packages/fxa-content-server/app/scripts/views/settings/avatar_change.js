@@ -6,14 +6,14 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const AuthErrors = require('lib/auth-errors');
-  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const AuthErrors = require('../../lib/auth-errors');
+  const AvatarMixin = require('../mixins/avatar-mixin');
   const Cocktail = require('cocktail');
-  const CropperImage = require('models/cropper-image');
-  const FormView = require('views/form');
-  const ImageLoader = require('lib/image-loader');
-  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  const p = require('lib/promise');
+  const CropperImage = require('../../models/cropper-image');
+  const FormView = require('../form');
+  const ImageLoader = require('../../lib/image-loader');
+  const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
+  const p = require('../../lib/promise');
   const Template = require('stache!templates/settings/avatar_change');
 
   const proto = FormView.prototype;
