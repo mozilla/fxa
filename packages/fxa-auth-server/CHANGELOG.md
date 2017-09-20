@@ -1,3 +1,26 @@
+<a name="1.96.1"></a>
+## [1.96.1](https://github.com/mozilla/fxa-auth-server/compare/v1.96.0...v1.96.1) (2017-09-20)
+
+
+### Bug Fixes
+
+* **push:** return pushEndpointExpired as a boolean (#2127); r=rfk ([eec0a43](https://github.com/mozilla/fxa-auth-server/commit/eec0a43))
+
+### chore
+
+* **package:** update shrinkwrap ([cd32fd8](https://github.com/mozilla/fxa-auth-server/commit/cd32fd8))
+
+### Features
+
+* **email:** Throw error when attempting to resend email code for email that doesn't belong t ([4325eb0](https://github.com/mozilla/fxa-auth-server/commit/4325eb0))
+* **metrics:** include fxa_services_used in amplitude user properties ([938ef5c](https://github.com/mozilla/fxa-auth-server/commit/938ef5c))
+
+### Refactor
+
+* **server:** extract unblock_codes routes to a separate module (#2126) r=vladikoff ([189240f](https://github.com/mozilla/fxa-auth-server/commit/189240f)), closes [#1445](https://github.com/mozilla/fxa-auth-server/issues/1445)
+
+
+
 <a name="1.96.0"></a>
 # [1.96.0](https://github.com/mozilla/fxa-auth-server/compare/v1.95.2...v1.96.0) (2017-09-19)
 
