@@ -1,3 +1,13 @@
+<a name="1.96.1"></a>
+## [1.96.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.96.0...v1.96.1) (2017-09-20)
+
+
+### Bug Fixes
+
+* **db:** call latest version of the prune stored procedure (#281) r=vladikoff ([2c34f2e](https://github.com/mozilla/fxa-auth-db-mysql/commit/2c34f2e))
+
+
+
 <a name="1.96.0"></a>
 # [1.96.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.95.1...v1.96.0) (2017-09-19)
 
