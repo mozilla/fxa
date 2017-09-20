@@ -51,7 +51,7 @@ define([
         assert.notOk();
       }
 
-      test('#recoveryEmailSecondaryEmailEnabled enabled for valid email and verified session', function () {
+      test('#recoveryEmailSecondaryEmailEnabled enabled for verified session', function () {
         return accountHelper.newVerifiedAccount()
           .then(
             function (res) {
@@ -65,13 +65,13 @@ define([
           .then(
             function (res) {
               assert.ok(res);
-              assert.equal(res.ok, true, 'secondary emails enabled for verified session and valid email');
+              assert.equal(res.ok, true, 'secondary emails enabled for verified session');
             },
             handleError
           );
       });
 
-      test('#recoveryEmailSecondaryEmailEnabled disabled for valid email and unverified session', function () {
+      test('#recoveryEmailSecondaryEmailEnabled disabled for unverified session', function () {
         return accountHelper.newVerifiedAccount({username: 'confirm.'})
           .then(
             function (res) {
@@ -85,27 +85,7 @@ define([
           .then(
             function (res) {
               assert.ok(res);
-              assert.equal(res.ok, false, 'secondary emails disabled for unverified session and valid email');
-            },
-            handleError
-          );
-      });
-
-      test('#recoveryEmailSecondaryEmailEnabled disabled for invalid email', function () {
-        return accountHelper.newVerifiedAccount({domain: '@featurenotenabledforthisdomain.net'})
-          .then(
-            function (res) {
-              account = res;
-              return respond(client.recoveryEmailSecondaryEmailEnabled(
-                account.signIn.sessionToken
-              ), RequestMocks.recoveryEmailSecondaryEmailEnabledFalse);
-            },
-            handleError
-          )
-          .then(
-            function (res) {
-              assert.ok(res);
-              assert.equal(res.ok, false, 'secondary emails disabled for invalid email');
+              assert.equal(res.ok, false, 'secondary emails disabled for unverified session');
             },
             handleError
           );
