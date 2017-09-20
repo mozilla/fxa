@@ -253,6 +253,8 @@ for `code` and `errno` are:
   Can not change primary email to an email that does not belong to this account
 * `code: 400, errno: 149`:
   This email can not currently be used to login
+* `code: 400, errno: 150`:
+  Can not resend email code to an email that does not belong to this account
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -349,7 +351,7 @@ those common validations are defined here.
     * `pushCallback`: isA.string.uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')
     * `pushPublicKey`: isA.string.max(88).regex(URL_SAFE_BASE_64).allow('')
     * `pushAuthKey`: isA.string.max(24).regex(URL_SAFE_BASE_64).allow('')
-    * `pushEndpointExpired`: isA.boolean
+    * `pushEndpointExpired`: isA.boolean.strict
 
   }
 
@@ -1394,6 +1396,15 @@ as a query parameter.
   <!--begin-request-body-post-recovery_emailresend_code-metricsContext-->
   
   <!--end-request-body-post-recovery_emailresend_code-metricsContext-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 150`:
+  Can not resend email code to an email that does not belong to this account
 
 
 #### POST /recovery_email/verify_code

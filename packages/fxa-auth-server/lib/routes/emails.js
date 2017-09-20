@@ -226,6 +226,11 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   }
                 })
 
+                // This user is attempting to verify a secondary email that doesn't belong to the account.
+                if (emails.length === 0) {
+                  throw error.cannotResendEmailCodeToUnownedEmail()
+                }
+
                 // Don't resend code for already verified emails
                 if (emailVerified) {
                   return reply({})

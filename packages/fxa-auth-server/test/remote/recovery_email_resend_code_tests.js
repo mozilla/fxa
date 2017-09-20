@@ -7,6 +7,7 @@
 const assert = require('insist')
 const Client = require('../client')()
 var TestServer = require('../test_server')
+const P = require('../../lib/promise')
 
 var config = require('../../config').getProperties()
 
@@ -146,6 +147,35 @@ describe('remote recovery email resend code', function() {
         )
     }
   )
+
+  it('fail when resending verification email when not owned by account', () => {
+    const email = server.uniqueEmail()
+    const secondEmail = server.uniqueEmail()
+    const password = 'something'
+    let client = null
+    const options = {
+      keys: true
+    }
+    return P.all([
+      Client.createAndVerify(config.publicUrl, email, password, server.mailbox, options),
+      Client.create(config.publicUrl, secondEmail, password, server.mailbox, options)
+    ])
+      .then((res) => {
+        // Login with `email` and attempt to resend verification code for `secondEmail`
+        client = res[0]
+        client.options = {
+          email: secondEmail
+        }
+        return client.requestVerifyEmail()
+          .then(() => {
+            assert.fail('Should not have succeeded in sending verification code')
+          })
+      })
+      .catch((err) => {
+        assert.equal(err.code, 400)
+        assert.equal(err.errno, 150)
+      })
+  })
 
   after(() => {
     return TestServer.stop(server)
