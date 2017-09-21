@@ -19,7 +19,10 @@ module.exports = function (grunt) {
     api: {
       // have a src and dest set allows grunt-newer to work
       src: [
+        'lib/devices.js',
         'lib/error.js',
+        'lib/features.js',
+        'lib/metrics/context.js',
         'lib/routes'
       ],
       dest: 'docs/api.md'
