@@ -71,6 +71,7 @@ function generateCode(claims, client, scope, req) {
     offline: req.payload.access_type === ACCESS_TYPE_OFFLINE,
     codeChallengeMethod: req.payload.code_challenge_method,
     codeChallenge: req.payload.code_challenge,
+    keysJwe: req.payload.keys_jwe,
   }).then(function(code) {
     logger.debug('redirecting', { uri: req.payload.redirect_uri });
 
@@ -156,6 +157,12 @@ module.exports = {
         }),
       code_challenge: Joi.string()
         .length(PKCE_CODE_CHALLENGE_LENGTH)
+        .when('response_type', {
+          is: CODE,
+          then: Joi.optional(),
+          otherwise: Joi.forbidden()
+        }),
+      keys_jwe: validators.jwe
         .when('response_type', {
           is: CODE,
           then: Joi.optional(),

@@ -321,6 +321,7 @@ back to the client. This code will be traded for a token at the
 - `access_type`: Optional. A value of `offline` will generate a refresh token along with the access token.
 - `code_challenge_method`: Required if using [PKCE](pkce.md). Must be `S256`, no other value is accepted.
 - `code_challenge`: Required if using [PKCE](pkce.md). A minimum length of 43 characters and a maximum length of 128 characters string, encoded as `BASE64URL`.
+- `keys_jwe`: Optional. A JWE bundle to be returned to the client when it redeems the authorization code.
 
 
 **Example:**
@@ -420,6 +421,7 @@ A valid request will return a JSON response with these properties:
 - `token_type`: A string representing the token type. Currently will always be "bearer".
 - `auth_at`: An integer giving the time at which the user authenticated to the Firefox Accounts server when generating this token, as a UTC unix timestamp (i.e.  **seconds since epoch**).
 - `id_token`: (Optional) If the authorization was requested with `openid` scope, then this property will contain the OpenID Connect ID Token.
+- `keys_jwe`: (Optional) Returns the JWE bundle that if the authorization request had one.
 
 **Example:**
 

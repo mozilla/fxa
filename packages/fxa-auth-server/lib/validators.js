@@ -35,3 +35,7 @@ exports.assertion = Joi.string()
   .max(10240)
   .regex(/^[a-zA-Z0-9_\-\.~=]+$/);
 
+exports.jwe = Joi.string()
+  .max(1024)
+  // JWE token format: 'protectedheader.encryptedkey.iv.cyphertext.authenticationtag'
+  .regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);

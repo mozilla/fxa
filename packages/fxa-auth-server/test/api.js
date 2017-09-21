@@ -780,6 +780,74 @@ describe('/v1', function() {
       });
     });
 
+    describe('?keys_jwe', function() {
+      it('should validate the JWE', () => {
+        const keys_jwe = 'some_string';
+        const code_challenge = 'iyW5ScKr22v_QL-rcW_EGlJrDSOymJvrlXlw4j7JBiQ';
+
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: clientId,
+            response_type: 'code',
+            code_challenge_method: 'S256',
+            code_challenge: code_challenge,
+            keys_jwe: keys_jwe
+          })
+        }).then((res) => {
+          assert.equal(res.statusCode, 400);
+          assert.equal(res.result.errno, 109);
+          assert.equal(res.result.validation.keys[0], 'keys_jwe');
+        });
+      });
+
+      it('should return the key bundle in PKCE flow', () => {
+        const keys_jwe = 'MjU2R0NNIn0..8L7QykCJ5W-YZtbx.Q_8JFsdWXFNg37PCqZA_JJb4BvqAuh3UMyNE.bSOKJkZspycp9DcGRWtH6g';
+        const code_verifier = 'ywZ_yiNpe-UoGYW.oW95hTjRZ8j_d2kF';
+        const code_challenge = 'iyW5ScKr22v_QL-rcW_EGlJrDSOymJvrlXlw4j7JBiQ';
+        const secret2 = unique.secret();
+        const client2 = {
+          name: 'client2Public',
+          hashedSecret: encrypt.hash(secret2),
+          redirectUri: 'https://example.domain',
+          imageUri: 'https://example.foo.domain/logo.png',
+          trusted: true,
+          publicClient: true
+        };
+
+        return db.registerClient(client2).then(() => {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              client_id: client2.id.toString('hex'),
+              response_type: 'code',
+              code_challenge_method: 'S256',
+              code_challenge: code_challenge,
+              keys_jwe: keys_jwe
+            })
+          }).then((res) => {
+            assert.equal(res.statusCode, 200);
+            return url.parse(res.result.redirect, true).query.code;
+          });
+        }).then((code) => {
+          return Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: client2.id.toString('hex'),
+              code: code,
+              code_verifier: code_verifier
+            }
+          });
+        }).then((res) => {
+          assert.equal(res.statusCode, 200);
+          assert.equal(res.result.keys_jwe, keys_jwe);
+        });
+
+      });
+    });
+
+
     describe('response', function() {
       describe('with a trusted client', function() {
         it('should redirect to the redirect_uri', function() {
@@ -886,6 +954,11 @@ describe('/v1', function() {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert.ok(res.result.access_token);
+            assert.equal(res.result.token_type, 'bearer');
+            assert.ok(res.result.auth_at);
+            assert.ok(res.result.expires_in);
+            assert.equal(res.result.scope, 'a');
+            assert.equal(res.result.keys_jwe, undefined);
           });
         });
 
@@ -1037,6 +1110,7 @@ describe('/v1', function() {
             assert.ok(res.result.scope);
             assert.equal(res.result.token_type, 'bearer');
             assert.ok(res.result.access_token);
+            assert.equal(res.result.keys_jwe, undefined);
           });
 
         });

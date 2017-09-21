@@ -163,8 +163,8 @@ const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'WHERE id=?';
 const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
-  'INSERT INTO codes (clientId, userId, email, scope, authAt, offline, code, codeChallengeMethod, codeChallenge) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  'INSERT INTO codes (clientId, userId, email, scope, authAt, offline, code, codeChallengeMethod, codeChallenge, keysJwe) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 const QUERY_ACCESS_TOKEN_INSERT =
   'INSERT INTO tokens (clientId, userId, email, scope, type, expiresAt, ' +
   'token) VALUES (?, ?, ?, ?, ?, ?, ?)';
@@ -371,7 +371,8 @@ MysqlStore.prototype = {
       !! codeObj.offline,
       hash,
       codeObj.codeChallengeMethod,
-      codeObj.codeChallenge
+      codeObj.codeChallenge,
+      codeObj.keysJwe
     ]).then(function() {
       return code;
     });

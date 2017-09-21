@@ -160,7 +160,8 @@ module.exports = {
       scope: validators.scope.required().allow(''),
       token_type: Joi.string().valid('bearer').required(),
       expires_in: Joi.number().max(MAX_TTL_S).required(),
-      auth_at: Joi.number()
+      auth_at: Joi.number(),
+      keys_jwe: validators.jwe.optional()
     })
   },
   handler: function tokenEndpoint(req, reply) {
@@ -467,6 +468,9 @@ function generateTokens(options) {
     }
     if (idToken) {
       json.id_token = idToken;
+    }
+    if (options.keysJwe) {
+      json.keys_jwe = options.keysJwe;
     }
     return json;
   });
