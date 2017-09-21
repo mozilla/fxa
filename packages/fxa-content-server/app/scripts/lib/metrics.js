@@ -90,6 +90,12 @@ define(function (require, exports, module) {
     return `flow.${viewName.replace(/^oauth\./, '')}.${eventName}`;
   }
 
+  function marshallUtmParam (utmParam) {
+    if (utmParam && utmParam !== NOT_REPORTED_VALUE) {
+      return utmParam;
+    }
+  }
+
   function Metrics (options = {}) {
     this._speedTrap = new SpeedTrap();
     this._speedTrap.init();
@@ -620,7 +626,12 @@ define(function (require, exports, module) {
       return {
         deviceId: this._deviceId,
         flowBeginTime: metadata.flowBegin,
-        flowId: metadata.flowId
+        flowId: metadata.flowId,
+        utmCampaign: marshallUtmParam(this._utmCampaign),
+        utmContent: marshallUtmParam(this._utmContent),
+        utmMedium: marshallUtmParam(this._utmMedium),
+        utmSource: marshallUtmParam(this._utmSource),
+        utmTerm: marshallUtmParam(this._utmTerm)
       };
     },
 

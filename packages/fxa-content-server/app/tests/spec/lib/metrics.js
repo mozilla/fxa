@@ -56,8 +56,8 @@ define(function (require, exports, module) {
         utmCampaign: 'utm_campaign',
         utmContent: 'utm_content',
         utmMedium: 'utm_medium',
-        utmSource: 'utm_source',
-        utmTerm: 'utm_term',
+        utmSource: 'none',
+        utmTerm: '',
         window: windowMock
       }));
     }
@@ -89,7 +89,12 @@ define(function (require, exports, module) {
       assert.deepEqual(metrics.getFlowEventMetadata(), {
         deviceId: 'wibble',
         flowBeginTime: undefined,
-        flowId: undefined
+        flowId: undefined,
+        utmCampaign: 'utm_campaign',
+        utmContent: 'utm_content',
+        utmMedium: 'utm_medium',
+        utmSource: undefined,
+        utmTerm: undefined
       });
     });
 
@@ -104,7 +109,12 @@ define(function (require, exports, module) {
         assert.deepEqual(metrics.getFlowEventMetadata(), {
           deviceId: 'wibble',
           flowBeginTime: FLOW_BEGIN_TIME,
-          flowId: FLOW_ID
+          flowId: FLOW_ID,
+          utmCampaign: 'utm_campaign',
+          utmContent: 'utm_content',
+          utmMedium: 'utm_medium',
+          utmSource: undefined,
+          utmTerm: undefined
         });
       });
 
@@ -146,7 +156,12 @@ define(function (require, exports, module) {
           assert.deepEqual(metrics.getFlowEventMetadata(), {
             deviceId: 'wibble',
             flowBeginTime: FLOW_BEGIN_TIME,
-            flowId: FLOW_ID
+            flowId: FLOW_ID,
+            utmCampaign: 'utm_campaign',
+            utmContent: 'utm_content',
+            utmMedium: 'utm_medium',
+            utmSource: undefined,
+            utmTerm: undefined
           });
         });
       });
@@ -191,8 +206,8 @@ define(function (require, exports, module) {
         assert.equal(filteredData.utm_campaign, 'utm_campaign');
         assert.equal(filteredData.utm_content, 'utm_content');
         assert.equal(filteredData.utm_medium, 'utm_medium');
-        assert.equal(filteredData.utm_source, 'utm_source');
-        assert.equal(filteredData.utm_term, 'utm_term');
+        assert.equal(filteredData.utm_source, 'none');
+        assert.equal(filteredData.utm_term, 'none');
       });
     });
 
