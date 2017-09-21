@@ -1,3 +1,17 @@
+<a name="1.96.1"></a>
+## 1.96.1 (2017-09-21)
+
+
+### chore
+
+* **nsp:** except nsp 525 (#5514) r=vbudhram ([73199a8](https://github.com/mozilla/fxa-content-server/commit/73199a8))
+
+### Features
+
+* **metrics:** include utm params in metrics context ([491c967](https://github.com/mozilla/fxa-content-server/commit/491c967))
+
+
+
 <a name="1.96.0"></a>
 # 1.96.0 (2017-09-18)
 
