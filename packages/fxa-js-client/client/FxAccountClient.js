@@ -97,6 +97,11 @@ define([
    *     @param {String} options.metricsContext.deviceId identifier for the current device
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
+   *     @param {Number} options.metricsContext.utmContent content identifier
+   *     @param {Number} options.metricsContext.utmMedium acquisition medium
+   *     @param {Number} options.metricsContext.utmSource traffic source
+   *     @param {Number} options.metricsContext.utmTerm search terms
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signUp = function (email, password, options) {
@@ -189,6 +194,11 @@ define([
    *     @param {String} options.metricsContext.deviceId identifier for the current device
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
+   *     @param {Number} options.metricsContext.utmContent content identifier
+   *     @param {Number} options.metricsContext.utmMedium acquisition medium
+   *     @param {Number} options.metricsContext.utmSource traffic source
+   *     @param {Number} options.metricsContext.utmTerm search terms
    *   @param {String} [options.unblockCode]
    *   Login unblock code.
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
@@ -418,6 +428,11 @@ define([
    *     @param {String} options.metricsContext.deviceId identifier for the current device
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
+   *     @param {Number} options.metricsContext.utmContent content identifier
+   *     @param {Number} options.metricsContext.utmMedium acquisition medium
+   *     @param {Number} options.metricsContext.utmSource traffic source
+   *     @param {Number} options.metricsContext.utmTerm search terms
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.passwordForgotSendCode = function(email, options) {
@@ -481,6 +496,11 @@ define([
    *     @param {String} options.metricsContext.deviceId identifier for the current device
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
+   *     @param {Number} options.metricsContext.utmContent content identifier
+   *     @param {Number} options.metricsContext.utmMedium acquisition medium
+   *     @param {Number} options.metricsContext.utmSource traffic source
+   *     @param {Number} options.metricsContext.utmTerm search terms
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.passwordForgotResendCode = function(email, passwordForgotToken, options) {
@@ -538,6 +558,11 @@ define([
    *     @param {String} options.metricsContext.deviceId identifier for the current device
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
+   *     @param {Number} options.metricsContext.utmContent content identifier
+   *     @param {Number} options.metricsContext.utmMedium acquisition medium
+   *     @param {Number} options.metricsContext.utmSource traffic source
+   *     @param {Number} options.metricsContext.utmTerm search terms
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.passwordForgotVerifyCode = function(code, passwordForgotToken, options) {
@@ -603,6 +628,11 @@ define([
    *     @param {String} options.metricsContext.deviceId identifier for the current device
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
+   *     @param {Number} options.metricsContext.utmContent content identifier
+   *     @param {Number} options.metricsContext.utmMedium acquisition medium
+   *     @param {Number} options.metricsContext.utmSource traffic source
+   *     @param {Number} options.metricsContext.utmTerm search terms
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.accountReset = function(email, newPassword, accountResetToken, options) {
@@ -1249,6 +1279,11 @@ define([
    *     @param {String} options.metricsContext.deviceId identifier for the current device
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
+   *     @param {Number} options.metricsContext.utmContent content identifier
+   *     @param {Number} options.metricsContext.utmMedium acquisition medium
+   *     @param {Number} options.metricsContext.utmSource traffic source
+   *     @param {Number} options.metricsContext.utmTerm search terms
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.sendUnblockCode = function (email, options) {
@@ -1310,6 +1345,11 @@ define([
    *     @param {String} options.metricsContext.deviceId identifier for the current device
    *     @param {String} options.metricsContext.flowId identifier for the current event flow
    *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
+   *     @param {Number} options.metricsContext.utmContent content identifier
+   *     @param {Number} options.metricsContext.utmMedium acquisition medium
+   *     @param {Number} options.metricsContext.utmSource traffic source
+   *     @param {Number} options.metricsContext.utmTerm search terms
    */
   FxAccountClient.prototype.sendSms = function (sessionToken, phoneNumber, messageId, options) {
     var request = this.request;

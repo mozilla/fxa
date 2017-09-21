@@ -244,6 +244,11 @@ define([
               deviceId: '0123456789abcdef0123456789abcdef',
               flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
               flowBeginTime: Date.now(),
+              utmCampaign: 'mock-campaign',
+              utmContent: 'mock-content',
+              utmMedium: 'mock-medium',
+              utmSource: 'mock-source',
+              utmTerm: 'mock-term',
               forbiddenProperty: 666
             }
           }),

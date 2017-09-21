@@ -35,7 +35,12 @@ define([
       assert.deepEqual(metricsContext.marshall(input), {
         deviceId: input.deviceId,
         flowBeginTime: input.flowBeginTime,
-        flowId: input.flowId
+        flowId: input.flowId,
+        utmCampaign: 'foo',
+        utmContent: 'bar',
+        utmMedium: 'baz',
+        utmSource: 'qux',
+        utmTerm: 'wibble'
       });
     });
   });

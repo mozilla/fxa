@@ -13,7 +13,12 @@ define([], function () {
       return {
         deviceId: data.deviceId,
         flowId: data.flowId,
-        flowBeginTime: data.flowBeginTime
+        flowBeginTime: data.flowBeginTime,
+        utmCampaign: data.utmCampaign,
+        utmContent: data.utmContent,
+        utmMedium: data.utmMedium,
+        utmSource: data.utmSource,
+        utmTerm: data.utmTerm
       };
     }
   };
