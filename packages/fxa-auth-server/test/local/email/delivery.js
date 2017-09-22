@@ -17,6 +17,7 @@ mockDeliveryQueue.start = function start() {
 
 function mockMessage(msg) {
   msg.del = sinon.spy()
+  msg.headers = {}
   return msg
 }
 
@@ -25,6 +26,24 @@ function mockedDelivery(log) {
 }
 
 describe('delivery messages', () => {
+  it('should not log an error for headers', () => {
+    const log = spyLog()
+    return mockedDelivery(log)
+      .handleDelivery(mockMessage({ junk: 'message' }))
+      .then(() => assert.equal(log.error.callCount, 0))
+  })
+
+  it('should log an error for missing headers', () => {
+    const log = spyLog()
+    const message = mockMessage({
+      junk: 'message'
+    })
+    message.headers = undefined
+    return mockedDelivery(log)
+      .handleDelivery(message)
+      .then(() => assert.equal(log.error.callCount, 1))
+  })
+
   it(
     'should ignore unknown message types',
     () => {

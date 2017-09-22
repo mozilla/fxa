@@ -2,6 +2,8 @@
   "exceptions": [
     // i18n-abide@0.0.25
     "https://nodesecurity.io/advisories/39",
-    "https://nodesecurity.io/advisories/48"
+    "https://nodesecurity.io/advisories/48",
+    // tough-cookie@2.3.2
+    "https://nodesecurity.io/advisories/525"
   ]
 }

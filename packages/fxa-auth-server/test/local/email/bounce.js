@@ -18,6 +18,7 @@ mockBounceQueue.start = function start() {}
 
 function mockMessage(msg) {
   msg.del = sinon.spy()
+  msg.headers = {}
   return msg
 }
 
@@ -28,6 +29,24 @@ function mockedBounces(log, db) {
 describe('bounce messages', () => {
   afterEach(() => {
     mockBounceQueue.removeAllListeners()
+  })
+
+  it('should not log an error for headers', () => {
+    const log = spyLog()
+    return mockedBounces(log, {})
+      .handleBounce(mockMessage({ junk: 'message' }))
+      .then(() => assert.equal(log.error.callCount, 0))
+  })
+
+  it('should log an error for missing headers', () => {
+    const log = spyLog()
+    const message = mockMessage({
+      junk: 'message'
+    })
+    message.headers = undefined
+    return mockedBounces(log, {})
+      .handleBounce(message)
+      .then(() => assert.equal(log.error.callCount, 1))
   })
 
   it(

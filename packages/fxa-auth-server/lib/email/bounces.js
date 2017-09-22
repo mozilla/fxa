@@ -40,6 +40,8 @@ module.exports = function (log, error) {
     }
 
     function handleBounce(message) {
+      utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'bounce')
+
       var recipients = []
       // According to the AWS SES docs, a notification will never
       // include multiple types, so it's fine for us to check for
