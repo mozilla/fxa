@@ -1,3 +1,13 @@
+<a name="1.96.2"></a>
+## [1.96.2](https://github.com/mozilla/fxa-auth-server/compare/v1.96.1...v1.96.2) (2017-09-22)
+
+
+### chore
+
+* **logs:** log error if headers are missing in email notifications ([34bf492](https://github.com/mozilla/fxa-auth-server/commit/34bf492))
+
+
+
 <a name="1.96.1"></a>
 ## [1.96.1](https://github.com/mozilla/fxa-auth-server/compare/v1.96.0...v1.96.1) (2017-09-20)
 
