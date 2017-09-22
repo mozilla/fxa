@@ -42,13 +42,32 @@ function getInsensitiveHeaderValueFromObject(headerName, headers) {
 }
 
 function getHeaderValue(headerName, message){
-  var headers = message.mail && message.mail.headers || message.headers
+  const headers = getHeaders(message)
+
   if (Array.isArray(headers)) {
     return getInsensitiveHeaderValueFromArray(headerName, headers)
-  } else if (headers) {
+  }
+
+  if (headers) {
     return getInsensitiveHeaderValueFromObject(headerName, headers)
+  }
+
+  return ''
+}
+
+function getHeaders (message) {
+  return message.mail && message.mail.headers || message.headers
+}
+
+function logErrorIfHeadersAreWeirdOrMissing (log, message, origin) {
+  const headers = getHeaders(message)
+  if (headers) {
+    const type = typeof headers
+    if (type !== 'object') {
+      log.error({ op: 'emailHeaders.weird', type, origin })
+    }
   } else {
-    return ''
+    log.error({ op: 'emailHeaders.missing', origin })
   }
 }
 
@@ -175,9 +194,10 @@ function getAnonymizedEmailDomain(email) {
 }
 
 module.exports = {
-  logEmailEventSent: logEmailEventSent,
-  logEmailEventFromMessage: logEmailEventFromMessage,
-  logFlowEventFromMessage: logFlowEventFromMessage,
-  getHeaderValue: getHeaderValue,
-  getAnonymizedEmailDomain: getAnonymizedEmailDomain
+  logEmailEventSent,
+  logEmailEventFromMessage,
+  logErrorIfHeadersAreWeirdOrMissing,
+  logFlowEventFromMessage,
+  getHeaderValue,
+  getAnonymizedEmailDomain
 }

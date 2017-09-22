@@ -159,4 +159,61 @@ describe('email utils helpers', () => {
     })
     assert.equal(args[3].flow_id, 'c')
   })
+
+  describe('logErrorIfHeadersAreWeirdOrMissing', () => {
+    let log
+
+    beforeEach(() => {
+      log = spyLog()
+    })
+
+    it('logs an error if message.mail is missing', () => {
+      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, {}, 'wibble')
+      assert.equal(log.error.callCount, 1)
+      assert.equal(log.error.args[0].length, 1)
+      assert.deepEqual({
+        op: 'emailHeaders.missing',
+        origin: 'wibble'
+      }, log.error.args[0][0])
+    })
+
+    it('logs an error if message.mail.headers is missing', () => {
+      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, { mail: {} }, 'blee')
+      assert.equal(log.error.callCount, 1)
+      assert.deepEqual({
+        op: 'emailHeaders.missing',
+        origin: 'blee'
+      }, log.error.args[0][0])
+    })
+
+    it('does not log an error if message.mail.headers is object', () => {
+      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, { mail: { headers: {} } })
+      assert.equal(log.error.callCount, 0)
+    })
+
+    it('does not log an error if message.headers is object', () => {
+      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, { headers: {} })
+      assert.equal(log.error.callCount, 0)
+    })
+
+    it('logs an error if message.mail.headers is non-object', () => {
+      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, { mail: { headers: 'foo' } }, 'wibble')
+      assert.equal(log.error.callCount, 1)
+      assert.deepEqual({
+        op: 'emailHeaders.weird',
+        type: 'string',
+        origin: 'wibble'
+      }, log.error.args[0][0])
+    })
+
+    it('logs an error if message.headers is non-object', () => {
+      emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, { mail: {}, headers: 42 }, 'wibble')
+      assert.equal(log.error.callCount, 1)
+      assert.deepEqual({
+        op: 'emailHeaders.weird',
+        type: 'number',
+        origin: 'wibble'
+      }, log.error.args[0][0])
+    })
+  })
 })

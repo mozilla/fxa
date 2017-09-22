@@ -12,6 +12,7 @@ module.exports = function (log) {
   return function start(deliveryQueue) {
 
     function handleDelivery(message) {
+      utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'delivery')
 
       var recipients = []
       if (message.delivery && message.notificationType === 'Delivery') {
