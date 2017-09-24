@@ -108,7 +108,17 @@ module.exports = (log, db, config, customs, push, devices) => {
         }
 
         devices.upsert(request, sessionToken, payload)
-          .then(reply, reply)
+          .then(function (device) {
+            reply(Object.assign({}, {
+              id: sessionToken && sessionToken.deviceId,
+              name: sessionToken && sessionToken.deviceName,
+              type: sessionToken && sessionToken.deviceType,
+              pushCallback: sessionToken && sessionToken.callbackURL,
+              pushPublicKey: sessionToken && sessionToken.callbackPublicKey,
+              pushAuthKey: sessionToken && sessionToken.callbackAuthKey,
+              pushEndpointExpired: sessionToken && sessionToken.callbackIsExpired
+            }, device))
+          }, reply)
 
         // Clients have been known to send spurious device updates,
         // which generates lots of unnecessary database load.

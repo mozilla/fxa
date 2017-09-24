@@ -475,7 +475,12 @@ describe('remote device', function() {
               }
             )
             .then(
-              function () {
+              function (device) {
+                assert.equal(device.id, client.device.id)
+                assert.equal(device.name, deviceInfo.name)
+                assert.equal(device.pushCallback, 'https://updates.push.services.mozilla.com/foo')
+                assert.equal(device.pushPublicKey, '')
+                assert.equal(device.pushAuthKey, '')
                 return client.devices()
               }
             )
