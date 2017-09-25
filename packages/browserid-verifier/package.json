@@ -31,7 +31,7 @@
     "ass": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
     "jshint": "2.9.3",
     "mocha": "3.1.0",
-    "request": "2.75.0",
+    "request": "2.82.0",
     "should": "11.1.0",
     "temp": "0.8.3",
     "walk": "2.3.9"
