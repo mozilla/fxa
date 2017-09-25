@@ -1,3 +1,14 @@
+<a name="1.96.3"></a>
+## [1.96.3](https://github.com/mozilla/fxa-auth-server/compare/v1.96.2...v1.96.3) (2017-09-25)
+
+
+### Bug Fixes
+
+* **metrics:** fix the data on email sent events ([4f6f367](https://github.com/mozilla/fxa-auth-server/commit/4f6f367))
+* **metrics:** prefer standard amplitude properties ([8a255c9](https://github.com/mozilla/fxa-auth-server/commit/8a255c9))
+
+
+
 <a name="1.96.2"></a>
 ## [1.96.2](https://github.com/mozilla/fxa-auth-server/compare/v1.96.1...v1.96.2) (2017-09-22)
 

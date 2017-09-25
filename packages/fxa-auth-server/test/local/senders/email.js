@@ -122,6 +122,10 @@ describe(
       })
     })
 
+    afterEach(() => {
+      mockLog.info.reset()
+    })
+
     messageTypes.forEach(
       function (type) {
         var message = {
@@ -631,10 +635,9 @@ describe(
     it(
       'logs emailEvent on send',
       function () {
-        mockLog.info.reset()
-
         var message = {
           email: 'test@restmail.net',
+          flowId: 'wibble',
           subject: 'subject',
           template: 'verifyLoginEmail',
           uid: 'foo'
@@ -646,6 +649,7 @@ describe(
             const emailEventLog = mockLog.info.getCalls()[2]
             assert.equal(emailEventLog.args[0].op, 'emailEvent', 'logs emailEvent')
             assert.equal(emailEventLog.args[0].domain, 'other', 'logs domain')
+            assert.equal(emailEventLog.args[0].flow_id, 'wibble', 'logs flow id')
             assert.equal(emailEventLog.args[0].template, 'verifyLoginEmail', 'logs correct template')
             assert.equal(emailEventLog.args[0].type, 'sent', 'logs correct type')
           })
@@ -655,8 +659,6 @@ describe(
     it(
       'rejects sendMail status',
       function () {
-        mailer.mailer.sendMail.reset()
-
         var message = {
           email: 'test@restmail.net',
           subject: 'subject',

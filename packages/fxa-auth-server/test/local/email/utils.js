@@ -87,12 +87,13 @@ describe('email utils helpers', () => {
       ccEmails: [ 'bar@example.com', 'baz@example.com' ],
       template: 'verifyEmail',
       headers: [
-        { name: 'Content-Language', value: 'aaa' },
-        { name: 'X-Device-Id', value: 'bbb' },
-        { name: 'X-Flow-Id', value: 'ccc' },
-        { name: 'X-Service-Id', value: 'ddd' },
-        { name: 'X-Uid', value: 'eee' }
-      ]
+        { name: 'Content-Language', value: 'aaa' }
+      ],
+      deviceId: 'bbb',
+      flowBeginTime: 42,
+      flowId: 'ccc',
+      service: 'ddd',
+      uid: 'eee'
     })
     assert.equal(amplitude.callCount, 1)
     const args = amplitude.args[0]
@@ -118,6 +119,7 @@ describe('email utils helpers', () => {
       uid: 'eee'
     })
     assert.equal(args[3].flow_id, 'ccc')
+    assert.equal(args[3].flowBeginTime, 42)
     assert.ok(args[3].time > Date.now() - 1000)
   })
 
@@ -128,6 +130,7 @@ describe('email utils helpers', () => {
       headers: [
         { name: 'Content-Language', value: 'a' },
         { name: 'X-Device-Id', value: 'b' },
+        { name: 'X-Flow-Begin-Time', value: 1 },
         { name: 'X-Flow-Id', value: 'c' },
         { name: 'X-Service-Id', value: 'd' },
         { name: 'X-Template-Name', value: 'verifyLoginEmail' },
@@ -158,6 +161,7 @@ describe('email utils helpers', () => {
       uid: 'e'
     })
     assert.equal(args[3].flow_id, 'c')
+    assert.equal(args[3].flowBeginTime, 1)
   })
 
   describe('logErrorIfHeadersAreWeirdOrMissing', () => {

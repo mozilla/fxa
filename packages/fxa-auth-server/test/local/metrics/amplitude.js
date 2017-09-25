@@ -91,8 +91,8 @@ describe('metrics/amplitude', () => {
           uaBrowserVersion: 'bar',
           uaOS: 'baz',
           uaOSVersion: 'qux',
-          uaDeviceType: 'qux',
-          uaFormFactor: 'qux',
+          uaDeviceType: 'pawk',
+          uaFormFactor: 'melm',
           locale: 'wibble',
           credentials: {
             uid: 'blee'
@@ -130,6 +130,11 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].event_type, 'fxa_login - email_confirmed')
         assert.equal(args[0].session_id, 'kwop')
         assert.equal(args[0].language, 'wibble')
+        assert.equal(args[0].country, 'United Kingdom')
+        assert.equal(args[0].region, 'England')
+        assert.equal(args[0].os_name, 'baz')
+        assert.equal(args[0].os_version, 'qux')
+        assert.equal(args[0].device_model, 'melm')
         assert.deepEqual(args[0].event_properties, {
           service: '0'
         })
@@ -138,10 +143,6 @@ describe('metrics/amplitude', () => {
           sync_device_count: 3,
           ua_browser: 'foo',
           ua_version: 'bar',
-          ua_os: 'baz',
-          user_country: 'United Kingdom',
-          user_locale: 'wibble',
-          user_state: 'England',
           '$append': {
             fxa_services_used: 'amo'
           }
@@ -158,11 +159,11 @@ describe('metrics/amplitude', () => {
           uaBrowserVersion: 'b',
           uaOS: 'c',
           uaOSVersion: 'd',
-          uaDeviceType: 'd',
-          uaFormFactor: 'd',
-          locale: 'e',
+          uaDeviceType: 'e',
+          uaFormFactor: 'f',
+          locale: 'g',
           credentials: {
-            uid: 'f'
+            uid: 'h'
           },
           devices: [],
           query: {
@@ -182,10 +183,15 @@ describe('metrics/amplitude', () => {
         assert.equal(log.amplitudeEvent.callCount, 1)
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].device_id, undefined)
-        assert.equal(args[0].user_id, 'f')
+        assert.equal(args[0].user_id, 'h')
         assert.equal(args[0].event_type, 'fxa_reg - created')
         assert.equal(args[0].session_id, undefined)
-        assert.equal(args[0].language, 'e')
+        assert.equal(args[0].language, 'g')
+        assert.equal(args[0].country, 'United States')
+        assert.equal(args[0].region, 'California')
+        assert.equal(args[0].os_name, 'c')
+        assert.equal(args[0].os_version, 'd')
+        assert.equal(args[0].device_model, 'f')
         assert.deepEqual(args[0].event_properties, {
           service: '1'
         })
@@ -194,10 +200,6 @@ describe('metrics/amplitude', () => {
           sync_device_count: 0,
           ua_browser: 'a',
           ua_version: 'b',
-          ua_os: 'c',
-          user_country: 'United States',
-          user_locale: 'e',
-          user_state: 'California',
           '$append': {
             fxa_services_used: 'pocket'
           }
