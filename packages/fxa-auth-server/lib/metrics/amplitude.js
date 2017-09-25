@@ -148,15 +148,20 @@ module.exports = (log, config) => {
           return P.resolve()
         }
       }
+
       if (mapping.eventCategory) {
         data.eventCategory = mapping.eventCategory
       }
+
       return P.all([
         request.app.geo,
         request.app.devices.catch(() => {})
       ]).spread((geo, devices) => {
+        const { os, osVersion, formFactor } = request.app.ua
+
         data.location = geo.location
         data.devices = devices
+
         log.amplitudeEvent({
           time: metricsContext.time || Date.now(),
           user_id: data.uid || getFromToken(request, 'uid'),
@@ -166,7 +171,12 @@ module.exports = (log, config) => {
           event_properties: mapEventProperties(group, request, data, metricsContext),
           user_properties: mapUserProperties(group, request, data, metricsContext),
           app_version: APP_VERSION,
-          language: getLocale(request)
+          language: getLocale(request),
+          country: getLocationProperty(data, 'country'),
+          region: getLocationProperty(data, 'state'),
+          os_name: safeGet(os),
+          os_version: safeGet(osVersion),
+          device_model: safeGet(formFactor)
         })
       })
     }
@@ -192,25 +202,27 @@ module.exports = (log, config) => {
   }
 
   function mapUserProperties (group, request, data, metricsContext) {
-    const { browser, browserVersion, os } = request.app.ua
+    const { browser, browserVersion } = request.app.ua
     return Object.assign({
       flow_id: getFromMetricsContext(metricsContext, 'flow_id', request, 'flowId'),
       sync_device_count: data.devices && data.devices.length,
-      ua_browser: browser,
-      ua_version: browserVersion,
-      ua_os: os,
-      user_country: getLocationProperty(data, 'country'),
-      user_locale: getLocale(request),
-      user_state: getLocationProperty(data, 'state'),
+      ua_browser: safeGet(browser),
+      ua_version: safeGet(browserVersion)
     }, getService(request))
   }
 
+  function safeGet (value) {
+    // Prevent null or the empty string from accidentally nuking
+    // properties in Amplitude (undefined is not serialised).
+    return value || undefined
+  }
+
   function getLocale (request) {
-    return request.app.locale || undefined
+    return safeGet(request.app.locale)
   }
 
   function getLocationProperty (data, key) {
-    return (data.location && data.location[key]) || undefined
+    return safeGet(data.location && data.location[key])
   }
 
   function getService (request) {
