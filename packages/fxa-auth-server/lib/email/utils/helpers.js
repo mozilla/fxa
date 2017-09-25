@@ -75,10 +75,10 @@ function logEmailEventSent(log, message) {
   const emailEventInfo = {
     op: 'emailEvent',
     template: message.template,
-    type: 'sent'
+    type: 'sent',
+    flow_id: message.flowId
   }
 
-  emailEventInfo['flow_id'] = getHeaderValue('X-Flow-Id', message)
   emailEventInfo.locale = getHeaderValue('Content-Language', message)
 
   const addrs = [message.email].concat(message.ccEmails || [])
@@ -112,11 +112,12 @@ function logAmplitudeEvent (log, message, eventInfo) {
     query: {},
     payload: {}
   }, {
-    device_id: getHeaderValue('X-Device-Id', message),
+    device_id: message.deviceId || getHeaderValue('X-Device-Id', message),
     email_domain: eventInfo.domain,
-    service: getHeaderValue('X-Service-Id', message),
-    uid: getHeaderValue('X-Uid', message)
+    service: message.service || getHeaderValue('X-Service-Id', message),
+    uid: message.uid || getHeaderValue('X-Uid', message)
   }, {
+    flowBeginTime: message.flowBeginTime || getHeaderValue('X-Flow-Begin-Time', message),
     flow_id: eventInfo.flow_id,
     time: Date.now()
   })
