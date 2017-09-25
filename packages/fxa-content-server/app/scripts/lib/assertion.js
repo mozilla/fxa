@@ -9,7 +9,16 @@ define(function (require, exports, module) {
   const P = require('./promise');
   const requireOnDemand = require('./require-on-demand');
 
+  // The CERT_DURATION_MS is an offset from the fxa-auth-server clock, which we can reasonably assume to
+  // be accurate and, more importantly, in sync with the clocks of fxa-oauth-server and other consumers
+  // of these assertions.
   const CERT_DURATION_MS =  new Duration('6h').milliseconds();
+  // The ASSERTION_DURATION_MS is an offset from the client's local clock, which may be wildly
+  // inaccurate in practice. If a user's local clock is more than ASSERTION_DURATION_MS off
+  // from the clock on fxa-oauth-server, then it will generate assertions with an expiry timestamp
+  // in the past, which will always be rejected by the server. The Firefox desktop code uses a 25-year
+  // assertion lifetime too, giving this clock-skew issue as the explicit reason:
+  // https://dxr.mozilla.org/mozilla-central/rev/ffe6cc09ccf38cca6f0e727837bbc6cb722d1e71/services/fxaccounts/FxAccountsCommon.js#70
   const ASSERTION_DURATION_MS = new Duration('52w').milliseconds() * 25; //25 years
 
   function ensureCryptoIsSeeded() {
