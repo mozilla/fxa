@@ -1,3 +1,13 @@
+<a name="1.96.2"></a>
+## 1.96.2 (2017-09-25)
+
+
+### Bug Fixes
+
+* **test:** Fix the Sync v2 force_auth/unverified account test. (#5519) r=vladikoff ([b4f4688](https://github.com/mozilla/fxa-content-server/commit/b4f4688)), closes [(#5519](https://github.com/(/issues/5519) [#5511](https://github.com/mozilla/fxa-content-server/issues/5511)
+
+
+
 <a name="1.96.1"></a>
 ## 1.96.1 (2017-09-21)
 
