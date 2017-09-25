@@ -26,6 +26,9 @@ module.exports = function (log) {
     },
     info: function (data) {
       log.info(data.op, data)
+    },
+    amplitudeEvent: function (data) {
+      log.info(data.op, data)
     }
   }
 }

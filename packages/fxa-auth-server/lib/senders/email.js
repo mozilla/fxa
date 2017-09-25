@@ -693,6 +693,8 @@ module.exports = function (log) {
         iosLink: links.iosLink,
         link: links.link,
         privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
         supportUrl: links.supportUrl,
         secondaryEmail: message.secondaryEmail,
         supportLinkAttributes: links.supportLinkAttributes

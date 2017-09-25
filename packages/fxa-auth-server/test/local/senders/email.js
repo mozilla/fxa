@@ -42,22 +42,22 @@ var typesContainSupportLinks = [
   'passwordResetEmail',
   'postRemoveSecondaryEmail',
   'postVerifyEmail',
-  'postVerifySecondaryEmail',
   'recoveryEmail',
   'verificationReminderEmail',
-  'verifyEmail'
+  'verifyEmail',
+  'verifySecondaryEmail'
 ]
 
 var typesContainPasswordResetLinks = [
   'passwordChangedEmail',
   'passwordResetEmail',
-  'passwordResetRequiredEmail',
+  'passwordResetRequiredEmail'
 ]
 
 var typesContainPasswordChangeLinks = [
   'newDeviceLoginEmail',
   'verifyLoginEmail',
-  'verifySecondaryEmail'
+  'postVerifySecondaryEmail'
 ]
 
 var typesContainUnblockCode = [
