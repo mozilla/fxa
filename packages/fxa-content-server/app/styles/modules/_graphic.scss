@@ -58,8 +58,8 @@
 .graphic-connect-another-device {
   background-image: url('/images/account-verified.svg');
   background-position: center center;
-  margin-top: 35px;
   height: 130px;
+  margin-top: 35px;
   width: auto;
 
   @include respond-to('small') {
