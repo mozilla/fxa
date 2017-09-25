@@ -120,7 +120,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInDifferentBrowser(email, 1))
-        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'verified, blocked': function () {
