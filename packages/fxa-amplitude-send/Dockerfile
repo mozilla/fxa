@@ -8,7 +8,8 @@ RUN python -m ensurepip --upgrade
 
 RUN mkdir /app
 WORKDIR /app
-COPY amplitude.py requirements.txt /app/
-RUN pip install -r requirements.txt -t lambda_package && \
-    zip lambda *.py && \
+COPY requirements.txt /app/
+RUN pip install -r requirements.txt -t lambda_package
+COPY amplitude.py /app/
+RUN zip lambda *.py && \
     cd lambda_package && zip -r ../lambda.zip .
