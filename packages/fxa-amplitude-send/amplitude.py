@@ -1,3 +1,5 @@
+from base64 import b64decode
+
 import boto3
 import hashlib
 import hmac
@@ -19,6 +21,21 @@ MIN_BATCH_INTERVAL = 1.0 / MAX_BATCHES_PER_SECOND
 # Cargo-culted from the internet. zlib >= 1.2.3.5 apparently supports
 # specifying wbits=0 but that didn't work for me locally. This did.
 ZLIB_HEADER_SIZE = 32
+
+def kms_decrypt_env(key):
+    """Decrypt environment variable"""
+    return kms_decrypt(b64decode(os.environ[key]))
+
+def kms_decrypt(encrypted_data):
+    """Decrypt KMS variables"""
+    res = boto3.client("kms").decrypt(
+        CiphertextBlob=encrypted_data,
+    )
+    return res["Plaintext"].decode("utf-8")
+
+if "LAMBDA_TASK_ROOT" in os.environ:
+    AMPLITUDE_API_KEY = str(kms_decrypt_env("FXA_AMPLITUDE_API_KEY"))
+    HMAC_KEY = str(kms_decrypt_env("FXA_AMPLITUDE_HMAC_KEY"))
 
 def handle (message):
     # http://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html
