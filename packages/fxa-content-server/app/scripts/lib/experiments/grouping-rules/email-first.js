@@ -57,23 +57,12 @@ define((require, exports, module) => {
      * @private
      */
     _isSampledUser (subject) {
-      // DataDog metrics have to be enabled for user to be a part of the experiment.
-      // sampleRate is the % of DataDog reporting users.
-      const sampleRate = EmailFirstGroupingRule.sampleRate(subject.env);
-
-      return subject.experimentGroupingRules.choose('isSampledUser', subject) &&
-              this.bernoulliTrial(sampleRate, subject.uniqueUserId);
-    }
-
-    /**
-     * Get the sample rate for `env`
-     *
-     * @static
-     * @param {String} env
-     * @returns {Number}
-     */
-    static sampleRate (env) {
-      return env === 'development' ? 1.0 : 0.2;
+      // All users that make it to this point that also report metrics are
+      // sampled users.
+      // There are 4 experiments in q3FormChanges, and 10% of users report metrics.
+      // 100% / 4 = 25% in each of the 4 experiments.
+      // 25% * .1 = 2.5% overall sample rate for this experiment.
+      return subject.experimentGroupingRules.choose('isSampledUser', subject);
     }
   }
 
