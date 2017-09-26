@@ -1,3 +1,23 @@
+<a name="1.96.3"></a>
+## 1.96.3 (2017-09-26)
+
+
+### Bug Fixes
+
+* **email-first:** Bump the email-first sample rate to 2.5%. (#5524) r=@philbooth ([cb2e1dc](https://github.com/mozilla/fxa-content-server/commit/cb2e1dc)), closes [#5502](https://github.com/mozilla/fxa-content-server/issues/5502)
+
+
+
+<a name="1.96.2"></a>
+## 1.96.2 (2017-09-25)
+
+
+### Bug Fixes
+
+* **test:** Fix the Sync v2 force_auth/unverified account test. (#5519) r=vladikoff ([b4f4688](https://github.com/mozilla/fxa-content-server/commit/b4f4688)), closes [(#5519](https://github.com/(/issues/5519) [#5511](https://github.com/mozilla/fxa-content-server/issues/5511)
+
+
+
 <a name="1.96.1"></a>
 ## 1.96.1 (2017-09-21)
 
