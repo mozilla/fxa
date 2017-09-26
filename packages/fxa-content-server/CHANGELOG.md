@@ -1,3 +1,13 @@
+<a name="1.96.3"></a>
+## 1.96.3 (2017-09-26)
+
+
+### Bug Fixes
+
+* **email-first:** Bump the email-first sample rate to 2.5%. (#5524) r=@philbooth ([cb2e1dc](https://github.com/mozilla/fxa-content-server/commit/cb2e1dc)), closes [#5502](https://github.com/mozilla/fxa-content-server/issues/5502)
+
+
+
 <a name="1.96.2"></a>
 ## 1.96.2 (2017-09-25)
 
