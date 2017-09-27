@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.96.3",
+  "version": "1.96.4",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build-production": "grunt build",
@@ -41,7 +41,7 @@
     "convict": "1.5.0",
     "cookie-parser": "1.4.3",
     "cors": "2.8.3",
-    "express": "4.15.3",
+    "express": "4.15.5",
     "extend": "3.0.1",
     "fxa-shared": "1.0.4",
     "got": "6.7.1",
@@ -82,7 +82,7 @@
     "on-headers": "1.0.1",
     "photon-colors": "1.0.3",
     "raven": "0.12.3",
-    "serve-static": "1.12.3",
+    "serve-static": "1.12.6",
     "time-grunt": "1.4.0",
     "universal-analytics": "0.4.13"
   },
