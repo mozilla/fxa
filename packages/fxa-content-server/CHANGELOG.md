@@ -1,3 +1,13 @@
+<a name="1.96.5"></a>
+## 1.96.5 (2017-09-27)
+
+
+### Bug Fixes
+
+* **test:** Fix the Sync v1 reset_password test. (#5529) r=@vbudhram, @vladikoff ([9121fe0](https://github.com/mozilla/fxa-content-server/commit/9121fe0)), closes [(#5529](https://github.com/(/issues/5529) [#5528](https://github.com/mozilla/fxa-content-server/issues/5528)
+
+
+
 <a name="1.96.3"></a>
 ## 1.96.3 (2017-09-26)
 
