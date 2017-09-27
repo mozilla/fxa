@@ -12,7 +12,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       return model.save().then(
         () =>
           this.controllerFor('client.register').set('registrationSuccess', true)
-        );
+      );
     },
     cancel: function() {
       this.transitionTo('clients');
