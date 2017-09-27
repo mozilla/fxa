@@ -37,18 +37,23 @@ if "LAMBDA_TASK_ROOT" in os.environ:
     AMPLITUDE_API_KEY = str(kms_decrypt_env("FXA_AMPLITUDE_API_KEY"))
     HMAC_KEY = str(kms_decrypt_env("FXA_AMPLITUDE_HMAC_KEY"))
 
-def handle (message):
+def handle (message, context):
     # http://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html
-    records = json.loads(message)["Records"]
+    if (type(message) is str):
+        message = json.loads(message)
+    records = message["Records"]
+
     for record in records:
         if record["eventSource"] != "aws:s3":
             continue
+
+        print record["s3"]["bucket"]["name"], record["s3"]["object"]["key"]
 
         s3 = boto3.resource("s3", region_name=record["awsRegion"])
         s3_object = s3.Object(record["s3"]["bucket"]["name"], record["s3"]["object"]["key"])
 
         # This will fail if the data is not compressed.
-        process_compressed(s3_object)
+        process_compressed(s3_object.get()['Body'].read())
 
 def process_compressed (data):
     events = ""
@@ -63,9 +68,9 @@ def process_compressed (data):
 
     process(events, batch)
 
-def decompress (s3_object):
+def decompress (data):
     decompressor = zlib.decompressobj(ZLIB_HEADER_SIZE + zlib.MAX_WBITS)
-    for chunk in s3_object:
+    for chunk in data:
         decompressed = decompressor.decompress(chunk)
         if decompressed:
             yield decompressed
