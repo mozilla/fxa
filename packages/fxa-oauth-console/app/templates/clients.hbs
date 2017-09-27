@@ -20,7 +20,7 @@
       <th>Redirect URI</th>
     </tr>
 
-    {{#each client in content}}
+    {{#each content as |client|}}
       <tr>
         <td><a {{action 'goToClient' client.id}}>{{client.name}}</a>{{client.id}}</td>
         <td>{{client.redirect_uri}}</td>
