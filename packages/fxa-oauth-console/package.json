@@ -1,6 +1,6 @@
 {
   "name": "fxa-oauth-console",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "description": "Firefox Accounts OAuth Credential Management Dashboard",
   "scripts": {
     "start": "./scripts/run_dev.js",
