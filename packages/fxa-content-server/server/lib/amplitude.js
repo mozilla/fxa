@@ -21,8 +21,6 @@
 
 'use strict';
 
-const log = require('./logging/log')('server.amplitude');
-
 const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(require('../../package.json').version)[1];
 
 const GROUPS = {
@@ -163,7 +161,7 @@ function receiveEvent (event, data) {
       }
     }
 
-    log.info({
+    process.stderr.write(`${JSON.stringify({
       op: 'amplitudeEvent',
       time: event.time,
       user_id: marshallOptionalValue(data.uid),
@@ -174,7 +172,7 @@ function receiveEvent (event, data) {
       user_properties: mapUserProperties(group, eventCategory, data),
       app_version: APP_VERSION,
       language: data.lang
-    });
+    })}\n`);
   }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.96.5",
+  "version": "1.96.6",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build-production": "grunt build",
@@ -50,7 +50,7 @@
     "grunt-babel": "6.0.0",
     "grunt-cdn": "0.6.5",
     "grunt-concurrent": "2.3.1",
-    "grunt-connect-fonts": "0.0.8",
+    "grunt-connect-fonts": "0.0.10",
     "grunt-contrib-clean": "1.1.0",
     "grunt-contrib-concat": "1.0.1",
     "grunt-contrib-copy": "1.0.0",
@@ -68,7 +68,7 @@
     "grunt-usemin": "3.1.1",
     "grunt-z-schema": "0.1.0",
     "handlebars": "4.0.8",
-    "helmet": "3.6.1",
+    "helmet": "3.8.2",
     "i18n-abide": "0.0.25",
     "joi": "10.4.1",
     "jsxgettext-recursive": "git://github.com/vladikoff/jsxgettext-recursive#msgctxt-support",
@@ -82,7 +82,7 @@
     "on-headers": "1.0.1",
     "photon-colors": "1.0.3",
     "raven": "0.12.3",
-    "serve-static": "1.12.6",
+    "serve-static": "1.13.0",
     "time-grunt": "1.4.0",
     "universal-analytics": "0.4.13"
   },

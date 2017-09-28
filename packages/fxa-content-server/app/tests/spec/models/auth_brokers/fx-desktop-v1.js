@@ -113,9 +113,18 @@ define(function (require, exports, module) {
       it('notifies the channel of login, halts by default', function () {
         sinon.spy(broker, 'send');
 
+        // customizeSync is required to send the `login` message, but
+        // it won't be set because the user hasn't visited the signup/in
+        // page.
+        account.unset('customizeSync');
+
         return broker.afterResetPasswordConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(broker.send.calledWith('login'));
+            assert.isTrue(broker.send.calledOnce);
+            const loginData = broker.send.args[0][1];
+            assert.isFalse(loginData.customizeSync);
+
             assert.isTrue(result.halt);
           });
       });

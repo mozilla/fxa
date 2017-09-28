@@ -1,3 +1,18 @@
+<a name="1.96.6"></a>
+## 1.96.6 (2017-09-28)
+
+
+### Bug Fixes
+
+* **deps:** Fix the nsp errors (#5537) r=vladikoff ([eab527e](https://github.com/mozilla/fxa-content-server/commit/eab527e)), closes [(#5537](https://github.com/(/issues/5537)
+* **password-reset:** Fix password reset for fx-desktop-v2, v3. (#5536) r=vladikoff ([80ec067](https://github.com/mozilla/fxa-content-server/commit/80ec067)), closes [(#5536](https://github.com/(/issues/5536) [#5533](https://github.com/mozilla/fxa-content-server/issues/5533)
+
+### Reverts
+
+* **logging:** use mozlog instead of process.stderr.write (#5538) ([ee82b57](https://github.com/mozilla/fxa-content-server/commit/ee82b57))
+
+
+
 <a name="1.96.5"></a>
 ## 1.96.5 (2017-09-27)
 

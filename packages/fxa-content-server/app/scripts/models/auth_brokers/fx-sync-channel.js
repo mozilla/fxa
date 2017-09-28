@@ -181,20 +181,6 @@ define(function (require, exports, module) {
         });
     },
 
-    afterResetPasswordConfirmationPoll (account) {
-      // We wouldn't expect `customizeSync` to be set when completing
-      // a password reset, but the field must be present for the login
-      // message to be sent. false is the default value set in
-      // lib/fxa-client.js if the value is not present.
-      // See #5528
-      if (! account.has('customizeSync')) {
-        account.set('customizeSync', false);
-      }
-
-      return this._notifyRelierOfLogin(account)
-        .then(() => proto.afterResetPasswordConfirmationPoll.call(this, account));
-    },
-
     afterChangePassword (account) {
       // If the message is sent over the WebChannel by the global WebChannel,
       // no need to send it from within the auth broker too.

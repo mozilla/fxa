@@ -62,6 +62,30 @@ define(function (require, exports, module) {
       channel.on('error', this.trigger.bind(this, 'error'));
 
       return channel;
+    },
+
+    afterResetPasswordConfirmationPoll (account) {
+      // We wouldn't expect `customizeSync` to be set when completing
+      // a password reset, but the field must be present for the login
+      // message to be sent. false is the default value set in
+      // lib/fxa-client.js if the value is not present.
+      // See #5528
+      if (! account.has('customizeSync')) {
+        account.set('customizeSync', false);
+      }
+
+      // Only fx-desktop-v1 based integrations send a login message
+      // after reset password complete, assuming the user verifies
+      // in the same browser. fx-desktop-v1 based integrations
+      // do not support WebChannels, and the login message must be
+      // sent within about:accounts for the browser to receive it.
+      // Integrations that support WebChannel messages will send
+      // the login message from the verification tab, and for users
+      // of either integration that verify in a different browser,
+      // they will be asked to signin in this browser using the
+      // new password.
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterResetPasswordConfirmationPoll.call(this, account));
     }
   });
 

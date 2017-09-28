@@ -366,26 +366,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterResetPasswordConfirmationPoll', () => {
-      it('notifies the channel of login, does not halt by default', () => {
-        // customizeSync is required to send the `login` message, but
-        // it won't be set because the user hasn't visited the signup/in
-        // page.
-
-        account.unset('customizeSync');
-
-        return broker.afterResetPasswordConfirmationPoll(account)
-          .then(function (result) {
-            assert.isTrue(channelMock.send.calledOnce);
-            assert.isTrue(channelMock.send.calledWith('login'));
-            const loginData = channelMock.send.args[0][1];
-            assert.isFalse(loginData.customizeSync);
-
-            assert.isUndefined(result.halt);
-          });
-      });
-    });
-
     describe('afterChangePassword', () => {
       it('notifies the channel of change_password with the new login info', () => {
         account.set({

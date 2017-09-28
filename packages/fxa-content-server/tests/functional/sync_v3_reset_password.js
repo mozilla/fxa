@@ -27,6 +27,7 @@ define([
     fillOutResetPassword,
     fillOutCompleteResetPassword,
     noPageTransition,
+    noSuchBrowserNotification,
     openPage,
     openVerificationLinkInNewTab,
     testElementExists,
@@ -89,7 +90,10 @@ define([
 
         // In fx <= 56, about:accounts takes over the screen, no need to transition
         .then(noPageTransition(selectors.CONFIRM_RESET_PASSWORD.HEADER, 5000))
-        .then(testSuccessWasShown());
+        .then(testSuccessWasShown())
+        // Only expect the login message in the verification tab to avoid
+        // a race condition within the browser when it receives two login messages.
+        .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 
     'reset password, verify same browser, Fx >= 57': function () {
@@ -99,7 +103,10 @@ define([
         .then(setupTest(query))
 
         // In fx >= 57, about:accounts expects FxA to transition after email verification
-        .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER));
+        .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER))
+        // Only expect the login message in the verification tab to avoid
+        // a race condition within the browser when it receives two login messages.
+        .then(noSuchBrowserNotification('fxaccounts:login'));
     },
   });
 
