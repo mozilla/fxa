@@ -5,35 +5,36 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const NavigateBehavior = require('views/behaviors/navigate');
   const sinon = require('sinon');
 
-  var assert = chai.assert;
-
   describe('views/behaviors/navigate', function () {
     it('navigates to the indicated view, passing in success/error options', function () {
-      var options = {
+      const options = {
         error: 'error',
         success: 'success'
       };
 
-      var navigateBehavior = new NavigateBehavior('settings', options);
-      var viewMock = {
+      const navigateBehavior = new NavigateBehavior('settings', options);
+      const viewMock = {
         navigate: sinon.spy()
       };
 
-      var promise = navigateBehavior(viewMock);
+      const accountMock = {};
+
+      const promise = navigateBehavior(viewMock, accountMock);
       // navigateBehavior returns a promise that never resolves,
       // aborting the rest of the flow.
       assert.equal(promise.inspect().state, 'pending');
 
-      var endpoint = viewMock.navigate.args[0][0];
-      var navigateOptions = viewMock.navigate.args[0][1];
+      const endpoint = viewMock.navigate.args[0][0];
+      const navigateOptions = viewMock.navigate.args[0][1];
 
       assert.equal(endpoint, 'settings');
       assert.equal(navigateOptions.success, 'success');
       assert.equal(navigateOptions.error, 'error');
+      assert.strictEqual(navigateOptions.account, accountMock);
     });
   });
 });

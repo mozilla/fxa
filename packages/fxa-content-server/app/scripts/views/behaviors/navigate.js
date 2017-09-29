@@ -9,13 +9,13 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const p = require('../../lib/promise');
 
-  var NavigationBehavior = function (endpoint, options) {
-    options = options || {};
-
-    var behavior = function (view) {
-      view.navigate(endpoint, options);
+  const NavigationBehavior = function (endpoint, options = {}) {
+    const behavior = function (view, account) {
+      const navigateOptions = _.assign({}, options, { account });
+      view.navigate(endpoint, navigateOptions);
 
       // halt the flow after navigating.
       return p.defer().promise;
