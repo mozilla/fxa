@@ -127,9 +127,9 @@ define((require, exports, module) => {
     });
 
     describe('afterSignUpConfirmationPoll', () => {
-      describe('broker has `cadAfterSignUpConfirmationPoll` capability', () => {
+      describe('broker does not have `browserTransitionsAfterEmailVerification` capability', () => {
         it('sets the metrics viewName prefix, resolves to a `ConnectAnotherDeviceBehavior`', () => {
-          broker.setCapability('cadAfterSignUpConfirmationPoll', true);
+          broker.setCapability('browserTransitionsAfterEmailVerification', false);
           sinon.spy(metrics, 'setViewNamePrefix');
 
           return broker.afterSignUpConfirmationPoll(account)
@@ -143,9 +143,9 @@ define((require, exports, module) => {
       });
 
       describe('afterSignInConfirmationPoll', () => {
-        describe('broker has `cadAfterSignInConfirmationPoll` capability', () => {
+        describe('broker does not have `browserTransitionsAfterEmailVerification` capability', () => {
           it('sets the metrics viewName prefix, resolves to a `ConnectAnotherDeviceBehavior`', () => {
-            broker.setCapability('cadAfterSignInConfirmationPoll', true);
+            broker.setCapability('browserTransitionsAfterEmailVerification', false);
             sinon.spy(metrics, 'setViewNamePrefix');
 
             return broker.afterSignInConfirmationPoll(account)
@@ -158,8 +158,9 @@ define((require, exports, module) => {
           });
         });
 
-        describe('broker does not have `cadAfterSignInConfirmationPoll` capability', () => {
+        describe('broker has `browserTransitionsAfterEmailVerification` capability', () => {
           it('resolves to the default behavior', () => {
+            broker.setCapability('browserTransitionsAfterEmailVerification', true);
             sinon.spy(metrics, 'setViewNamePrefix');
 
             return broker.afterSignInConfirmationPoll(account)

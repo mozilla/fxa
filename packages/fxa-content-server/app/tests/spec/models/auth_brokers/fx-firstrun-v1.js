@@ -54,19 +54,10 @@ define(function (require, exports, module) {
       metrics = null;
     });
 
-    it('has the `cadAfterSignUpConfirmationPoll` capability by default', function () {
-      assert.isTrue(broker.hasCapability('cadAfterSignUpConfirmationPoll'));
-    });
-
-    it('has the `signup` capability by default', function () {
+    it('has the expected capabilities', () => {
+      assert.isFalse(broker.hasCapability('browserTransitionsAfterEmailVerification'));
       assert.isTrue(broker.hasCapability('signup'));
-    });
-
-    it('has the `handleSignedInNotification` capability by default', function () {
       assert.isTrue(broker.hasCapability('handleSignedInNotification'));
-    });
-
-    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 

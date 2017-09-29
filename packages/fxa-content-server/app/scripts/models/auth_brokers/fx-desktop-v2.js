@@ -29,9 +29,6 @@ define(function (require, exports, module) {
     }),
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      browserTransitionsAfterEmailVerification: true,
-      cadAfterSignInConfirmationPoll: true,
-      cadAfterSignUpConfirmationPoll: true,
       chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: true,
       openWebmailButtonVisible: true

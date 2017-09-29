@@ -25,13 +25,6 @@ define(function (require, exports, module) {
       afterCompleteSignUp: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterCompleteSignUp)
     }),
 
-    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      // Can CAD be displayed after the signin confirmation poll?
-      cadAfterSignInConfirmationPoll: false,
-      // Can CAD be displayed after the signup confirmation poll?
-      cadAfterSignUpConfirmationPoll: false
-    }),
-
     type: 'fx-sync',
 
     initialize (options = {}) {
@@ -76,7 +69,7 @@ define(function (require, exports, module) {
     afterSignInConfirmationPoll (account) {
       return proto.afterSignInConfirmationPoll.call(this, account)
         .then((defaultBehavior) => {
-          if (this.hasCapability('cadAfterSignInConfirmationPoll')) {
+          if (! this.hasCapability('browserTransitionsAfterEmailVerification')) {
             // This is a hack to allow us to differentiate between users
             // who see CAD in the signin and verification tabs. CAD
             // was added to the verification tab first, view names and view
@@ -98,7 +91,7 @@ define(function (require, exports, module) {
     afterSignUpConfirmationPoll (account) {
       return proto.afterSignUpConfirmationPoll.call(this, account)
         .then((defaultBehavior) => {
-          if (this.hasCapability('cadAfterSignUpConfirmationPoll')) {
+          if (! this.hasCapability('browserTransitionsAfterEmailVerification')) {
             // This is a hack to allow us to differentiate between users
             // who see CAD in the signup and verification tabs. CAD
             // was added to the verification tab first, view names and view
