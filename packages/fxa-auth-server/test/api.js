@@ -344,6 +344,23 @@ describe('/v1', function() {
           assertSecurityHeaders(res);
         });
       });
+
+      it('should succeed with https:// scopes', function() {
+        const scopes = 'profile:email profile:uid https://identity.mozilla.org/apps/notes https://identity.mozilla.org/apps/lockbox';
+        const client = clientByName('Mocha');
+        mockAssertion().reply(200, VERIFY_GOOD);
+
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: client.id,
+            scope: scopes
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+        });
+      });
     });
 
     describe('pkce', function() {
