@@ -126,8 +126,8 @@ MysqlStore.connect = function mysqlConnect(options) {
 const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients ' +
   '(id, name, imageUri, hashedSecret, hashedSecretPrevious, redirectUri,' +
-  'trusted, canGrant, publicClient) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);';
+  'trusted, allowedScopes, canGrant, publicClient) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_DEVELOPER_INSERT =
   'INSERT INTO clientDevelopers ' +
   '(rowId, developerId, clientId) ' +
@@ -159,7 +159,8 @@ const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'hashedSecret=COALESCE(?, hashedSecret), ' +
   'hashedSecretPrevious=COALESCE(?, hashedSecretPrevious), ' +
   'redirectUri=COALESCE(?, redirectUri), ' +
-  'trusted=COALESCE(?, trusted), canGrant=COALESCE(?, canGrant) ' +
+  'trusted=COALESCE(?, trusted), allowedScopes=COALESCE(?, allowedScopes), ' +
+  'canGrant=COALESCE(?, canGrant) ' +
   'WHERE id=?';
 const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
@@ -198,6 +199,14 @@ const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
   'LIMIT 10000;';
 const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
   'DELETE FROM tokens WHERE clientId=? AND userId=?';
+// Scope queries
+const QUERY_SCOPE_FIND =
+  'SELECT * ' +
+  'FROM scopes ' +
+  'WHERE scopes.scope=?;';
+const QUERY_SCOPES_INSERT =
+  'INSERT INTO scopes (scope, hasScopedKeys) ' +
+  'VALUES (?, ?);';
 
 function firstRow(rows) {
   return rows[0];
@@ -244,6 +253,7 @@ MysqlStore.prototype = {
       client.hashedSecretPrevious ? buf(client.hashedSecretPrevious) : null,
       client.redirectUri,
       !! client.trusted,
+      client.allowedScopes ? client.allowedScopes : null,
       !! client.canGrant,
       !! client.publicClient
     ]).then(function() {
@@ -343,6 +353,7 @@ MysqlStore.prototype = {
       secretPrevious,
       client.redirectUri,
       client.trusted,
+      client.allowedScopes,
       client.canGrant,
 
       // WHERE
@@ -626,6 +637,17 @@ MysqlStore.prototype = {
       return this._write(QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS, [uid, clientIds])
         .then(() => this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid, clientIds]));
     });
+  },
+
+  getScope: function getScope (scope) {
+    return this._readOne(QUERY_SCOPE_FIND, [scope]);
+  },
+
+  registerScope: function registerScope (scope) {
+    return this._write(QUERY_SCOPES_INSERT, [
+      scope.scope,
+      scope.hasScopedKeys
+    ]);
   },
 
   _write: function _write(sql, params) {

@@ -53,8 +53,20 @@
       "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
       "redirectUri": "https://example.domain/return?foo=bar",
       "trusted": true,
+      "allowedScopes": "kv",
       "canGrant": false,
       "publicClient": true
+    },
+    {
+      "id": "aaa6b9b3a65a1871",
+      "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+      "name": "Scoped Key Client",
+      "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
+      "redirectUri": "https://example.domain/return?foo=bar",
+      "trusted": true,
+      "allowedScopes": "https://identity.mozilla.org/apps/sample-scope-can-scope-key https://identity.mozilla.org/apps/sample-scope kv https://identity.mozilla.org/apps/another-can-scope-key",
+      "canGrant": false,
+      "publicClient": false
     }
   ],
   "logging": {
@@ -75,5 +87,19 @@
       "jku": "http://127.0.0.1:9019/.well-known/public-keys"
     }
   ],
-  "allowHttpRedirects": true
+  "allowHttpRedirects": true,
+  "scopes": [
+    {
+      "scope": "https://identity.mozilla.org/apps/sample-scope",
+      "hasScopedKeys": false
+    },
+    {
+      "scope": "https://identity.mozilla.org/apps/sample-scope-can-scope-key",
+      "hasScopedKeys": true
+    },
+    {
+      "scope": "https://identity.mozilla.org/apps/another-can-scope-key",
+      "hasScopedKeys": true
+    }
+  ]
 }

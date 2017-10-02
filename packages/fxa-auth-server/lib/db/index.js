@@ -137,6 +137,27 @@ function serviceClients() {
   }
 }
 
+/**
+ * Insert pre-defined list of scopes into the DB
+ */
+function scopes() {
+  var scopes = config.get('scopes');
+  if (scopes && scopes.length) {
+    logger.debug('scopes.loading', JSON.stringify(scopes));
+
+    return P.all(scopes.map(function(s) {
+      return exports.getScope(s.scope).then(function(existing) {
+        if (existing) {
+          logger.verbose('scopes.existing', s);
+          return;
+        }
+
+        return exports.registerScope(s);
+      });
+    }));
+  }
+}
+
 var driver;
 function withDriver() {
   if (driver) {
@@ -189,5 +210,5 @@ exports.disconnect = function disconnect() {
 };
 
 exports._initialClients = function() {
-  return preClients().then(serviceClients);
+  return preClients().then(serviceClients).then(scopes);
 };

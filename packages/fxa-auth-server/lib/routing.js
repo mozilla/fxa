@@ -43,6 +43,11 @@ exports.routes = [
     config: require('./routes/client/get')
   },
   {
+    method: 'POST',
+    path: v('/key-data/{client_id}'),
+    config: require('./routes/key_data')
+  },
+  {
     method: 'GET',
     path: v('/authorization'),
     config: require('./routes/redirect')

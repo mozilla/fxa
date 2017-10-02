@@ -52,6 +52,11 @@ const conf = convict({
     env: 'OAUTH_CLIENTS',
     default: []
   },
+  scopes: {
+    doc: 'Some pre-defined list of scopes that will be inserted into the DB',
+    env: 'OAUTH_SCOPES',
+    default: []
+  },
   clientAddressDepth: {
     doc: 'location of the client ip address in the remote address chain',
     format: Number,

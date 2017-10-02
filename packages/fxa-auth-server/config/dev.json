@@ -118,5 +118,11 @@
     "keyFile": "../config/key.json",
     "key": {}
   },
-  "allowHttpRedirects": true
+  "allowHttpRedirects": true,
+  "scopes": [
+    {
+      "scope": "https://identity.mozilla.org/apps/notes",
+      "hasScopedKeys": true
+    }
+  ]
 }

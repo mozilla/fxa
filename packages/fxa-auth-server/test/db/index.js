@@ -565,6 +565,27 @@ describe('db', function() {
     });
   });
 
+  describe('scopes', function () {
+    it('can register and fetch scopes', () => {
+      const scopeName = 'https://some-scope.mozilla.org/apps/' + Math.random();
+      const notFoundScope = 'https://some-scope-404.mozilla.org';
+      const newScope = {
+        scope: scopeName,
+        hasScopedKeys: true
+      };
+      return db.registerScope(newScope)
+        .then(() => {
+          return db.getScope(notFoundScope);
+        })
+        .then((notFoundScope) => {
+          assert.equal(notFoundScope, undefined);
+          return db.getScope(scopeName);
+        }).then((result) => {
+          assert.deepEqual(newScope, result);
+        });
+    });
+  });
+
   describe('client-tokens', function () {
 
     describe('getActiveClientTokensByUid', function() {

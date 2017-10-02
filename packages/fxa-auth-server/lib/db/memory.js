@@ -76,7 +76,12 @@ const MAX_TTL = config.get('expiration.accessToken');
  *       createdAt: <timestamp>,
  *       lastUsedAt: <timestamp>
  *     }
- *   }
+ *   },
+ *   scopes: {
+ *    <scope>: {
+ *      scope: <scope>,
+ *      hasScopedKeys: <hasScopedKeys>
+ *    }
  * }
  */
 function MemoryStore() {
@@ -89,6 +94,7 @@ function MemoryStore() {
   this.developers = {};
   this.clientDevelopers = {};
   this.refreshTokens = {};
+  this.scopes = {};
 }
 
 MemoryStore.connect = function memoryConnect() {
@@ -367,6 +373,13 @@ MemoryStore.prototype = {
         deleteByClientId(this.refreshTokens, clientId);
       }
     });
+    return P.resolve();
+  },
+  getScope: function getScope (scope) {
+    return P.resolve(this.scopes[scope]);
+  },
+  registerScope: function registerScope (scope) {
+    this.scopes[scope.scope] = scope;
     return P.resolve();
   },
   activateDeveloper: function activateDeveloper(email) {
