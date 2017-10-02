@@ -159,8 +159,6 @@ def process_identify_verbs (user_properties):
     return reduce(split, user_properties.keys(), {"identify": {}, "pruned": {}})
 
 def send (batches):
-    print "sending, identify: {}, event: {}".format(len(batches["identify"]), len(batches["event"]))
-
     if len(batches["identify"]) > 0:
         # https://amplitude.zendesk.com/hc/en-us/articles/205406617-Identify-API-Modify-User-Properties#request-format
         requests.post("https://api.amplitude.com/identify",
