@@ -2233,7 +2233,7 @@ describe('/v1', function() {
       });
     });
 
-    describe('GET /key-data/:id', function() {
+    describe('POST /key-data', function() {
       const SCOPED_CLIENT_ID = 'aaa6b9b3a65a1871';
       const NO_KEY_SCOPES_CLIENT_ID = '38a6b9b3a65a1871';
       const BAD_CLIENT_ID = '0006b9b3a65a1871';
@@ -2242,9 +2242,10 @@ describe('/v1', function() {
 
       beforeEach(function () {
         genericRequest = {
-          url: `/key-data/${SCOPED_CLIENT_ID}`,
+          url: '/key-data',
           payload: {
             assertion: AN_ASSERTION,
+            client_id: SCOPED_CLIENT_ID,
             scope: SCOPE_CAN_SCOPE_KEY
           }
         };
@@ -2291,7 +2292,7 @@ describe('/v1', function() {
       });
 
       it('fails with non-existent client_id', () => {
-        genericRequest.url = `/key-data/${BAD_CLIENT_ID}`;
+        genericRequest.payload.client_id = BAD_CLIENT_ID;
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest)
           .then((res) => {
@@ -2325,7 +2326,7 @@ describe('/v1', function() {
       });
 
       it('fails for clients that do not have the scope', () => {
-        genericRequest.url = `/key-data/${NO_KEY_SCOPES_CLIENT_ID}`;
+        genericRequest.payload.client_id = NO_KEY_SCOPES_CLIENT_ID;
 
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest)

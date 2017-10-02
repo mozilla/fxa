@@ -44,7 +44,7 @@ exports.routes = [
   },
   {
     method: 'POST',
-    path: v('/key-data/{client_id}'),
+    path: v('/key-data'),
     config: require('./routes/key_data')
   },
   {

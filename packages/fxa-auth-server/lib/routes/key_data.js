@@ -20,10 +20,8 @@ const ADDITIONAL_KEY_MATERIAL = Buffer.alloc(32).toString('hex');
 
 module.exports = {
   validate: {
-    params: {
-      client_id: validators.clientId
-    },
     payload: {
+      client_id: validators.clientId,
       assertion: validators.assertion.required(),
       scope: Joi.string()
     }
@@ -44,7 +42,7 @@ module.exports = {
     });
 
     const requestedScopes = Scope(req.payload.scope);
-    const requestedClientId = req.params.client_id;
+    const requestedClientId = req.payload.client_id;
 
     P.all([
       verify(req.payload.assertion),
