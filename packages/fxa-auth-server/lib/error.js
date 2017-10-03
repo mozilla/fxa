@@ -60,6 +60,7 @@ var ERRNO = {
   CHANGE_EMAIL_TO_UNOWNED_EMAIL: 148,
   LOGIN_WITH_INVALID_EMAIL: 149,
   RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL: 150,
+  FAILED_TO_SEND_EMAIL: 151,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -712,6 +713,15 @@ AppError.cannotResendEmailCodeToUnownedEmail = function () {
     error: 'Bad Request',
     errno: ERRNO.RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL,
     message: 'Can not resend email code to an email that does not belong to this account'
+  })
+}
+
+AppError.cannotSendEmail = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.FAILED_TO_SEND_EMAIL,
+    message: 'Failed to send email'
   })
 }
 

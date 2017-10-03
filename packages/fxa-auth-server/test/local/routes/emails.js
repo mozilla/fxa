@@ -802,6 +802,32 @@ describe('/recovery_email', () => {
         () => assert.fail('Should have failed when creating email'),
         err => assert.equal(err.errno, 141, 'cannot add secondary email, newly created primary account'))
     })
+
+    it('deletes secondary email if there was an error sending verification email', () => {
+      route = getRoute(accountRoutes, '/recovery_email')
+      mockMailer.sendVerifySecondaryEmail = sinon.spy(() => {
+        return P.reject(new Error('failed to send'))
+      })
+
+      return runTest(route, mockRequest, () => {
+        assert.fail('should have failed')
+      })
+        .catch((err) => {
+          assert.equal(err.errno, 151, 'failed to send email error')
+          assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail')
+          assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail')
+          assert.equal(mockDB.deleteEmail.args[0][0], mockRequest.auth.credentials.uid, 'correct uid passed')
+          assert.equal(mockDB.deleteEmail.args[0][1], TEST_EMAIL_ADDITIONAL, 'correct email passed')
+          assert.equal(mockMailer.sendVerifySecondaryEmail.callCount, 1, 'call db.sendVerifySecondaryEmail')
+          assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].deviceId, mockRequest.auth.credentials.deviceId)
+          assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].uid, mockRequest.auth.credentials.uid)
+        })
+        .then(() => {
+          mockDB.createEmail.reset()
+          mockDB.deleteEmail.reset()
+          mockMailer.sendVerifySecondaryEmail.reset()
+        })
+    })
   })
 
   describe('/recovery_emails', () => {

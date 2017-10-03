@@ -632,7 +632,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
           return db.createEmail(uid, emailData)
         }
 
-        function sendEmailVerification () {
+        function sendEmailVerification() {
           return request.app.geo
             .then((geoData) => {
               return mailer.sendVerifySecondaryEmail([emailData], sessionToken, {
@@ -650,6 +650,13 @@ module.exports = (log, db, mailer, config, customs, push) => {
                 uaOSVersion: sessionToken.uaOSVersion,
                 uid
               })
+                .catch((err) => {
+                  log.error({op: 'mailer.sendVerifySecondaryEmail', err: err})
+                  return db.deleteEmail(emailData.uid, emailData.normalizedEmail)
+                    .then(() => {
+                      throw error.cannotSendEmail()
+                    })
+                })
             })
         }
       }
