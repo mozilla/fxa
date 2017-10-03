@@ -1,3 +1,18 @@
+<a name="1.97.0"></a>
+# [1.97.0](https://github.com/mozilla/fxa-profile-server/compare/v1.96.0...v1.97.0) (2017-10-03)
+
+
+### chore
+
+* **ci:** only test node 4, update nsp (#286) ([0cdcc41](https://github.com/mozilla/fxa-profile-server/commit/0cdcc41))
+* **docs:** cleanup docs for POST /v1/avatar (#283) ([fafff0e](https://github.com/mozilla/fxa-profile-server/commit/fafff0e))
+
+### Features
+
+* **sentry:** add Sentry error reporting (#284) r=vbudhram ([fed2da7](https://github.com/mozilla/fxa-profile-server/commit/fed2da7))
+
+
+
 <a name="1.96.0"></a>
 # [1.96.0](https://github.com/mozilla/fxa-profile-server/compare/v1.95.1...v1.96.0) (2017-09-19)
 
