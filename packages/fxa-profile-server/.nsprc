@@ -1,0 +1,6 @@
+{
+  "exceptions": [
+    // gm
+    "https://nodesecurity.io/advisories/534"
+  ]
+}

@@ -5,7 +5,6 @@ dist: trusty
 sudo: required
 
 node_js:
-  - '4'
   - '6'
 
 addons:
