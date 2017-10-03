@@ -318,6 +318,12 @@ const conf = convict({
       env: 'CACHE_GENERATE_TIMEOUT',
       doc: 'how long catbox will wait for a value from db to cache before timing out'
     }
+  },
+  sentryDsn: {
+    doc: 'Sentry DSN for error and log reporting',
+    default: '',
+    format: 'String',
+    env: 'SENTRY_DSN'
   }
 });
 

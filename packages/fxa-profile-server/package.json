@@ -31,6 +31,7 @@
     "mysql-patcher": "0.7.0",
     "newrelic": "2.1.0",
     "poolee": "1.0.0",
+    "raven": "2.1.2",
     "request": "2.79.0",
     "stream-to-array": "2.3.0"
   },
