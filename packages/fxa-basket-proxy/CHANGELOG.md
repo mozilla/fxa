@@ -1,3 +1,13 @@
+<a name="1.97.0"></a>
+# [1.97.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.96.0...v1.97.0) (2017-10-03)
+
+
+### chore
+
+* **deps:** update dependencies (#46) r=vladikoff ([47c486b](https://github.com/mozilla/fxa-basket-proxy/commit/47c486b))
+
+
+
 <a name="1.96.0"></a>
 # [1.96.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.95.0...v1.96.0) (2017-09-19)
 
