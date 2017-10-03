@@ -1,3 +1,22 @@
+<a name"1.97.0"></a>
+## 1.97.0 (2017-10-03)
+
+
+#### Bug Fixes
+
+* **deps:** update newrelic and request r=@shane-tomlinson ([b6d6c93c](https://github.com/mozilla/fxa-oauth-server/commit/b6d6c93c))
+
+
+#### Features
+
+* **keys:**
+  * add key-data docs, move client_id into payload (#491); r=rfk ([a9152c35](https://github.com/mozilla/fxa-oauth-server/commit/a9152c35))
+  * add keys_jwe support (#486) r=rfk ([6a4efd1b](https://github.com/mozilla/fxa-oauth-server/commit/6a4efd1b), closes [#484](https://github.com/mozilla/fxa-oauth-server/issues/484))
+* **scopes:**
+  * allow https:// scopes (#490); r=rfk ([f892bcba](https://github.com/mozilla/fxa-oauth-server/commit/f892bcba), closes [#489](https://github.com/mozilla/fxa-oauth-server/issues/489))
+  * add key-data and scope support (#487) r=rfk ([f3fcae5a](https://github.com/mozilla/fxa-oauth-server/commit/f3fcae5a), closes [#483](https://github.com/mozilla/fxa-oauth-server/issues/483))
+
+
 <a name"1.96.0"></a>
 ## 1.96.0 (2017-09-19)
 
