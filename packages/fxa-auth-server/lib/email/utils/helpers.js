@@ -75,6 +75,7 @@ function logEmailEventSent(log, message) {
   const emailEventInfo = {
     op: 'emailEvent',
     template: message.template,
+    templateVersion: message.templateVersion,
     type: 'sent',
     flow_id: message.flowId
   }
@@ -115,6 +116,7 @@ function logAmplitudeEvent (log, message, eventInfo) {
     device_id: message.deviceId || getHeaderValue('X-Device-Id', message),
     email_domain: eventInfo.domain,
     service: message.service || getHeaderValue('X-Service-Id', message),
+    templateVersion: eventInfo.templateVersion,
     uid: message.uid || getHeaderValue('X-Uid', message)
   }, {
     flowBeginTime: message.flowBeginTime || getHeaderValue('X-Flow-Begin-Time', message),
@@ -125,15 +127,17 @@ function logAmplitudeEvent (log, message, eventInfo) {
 
 function logEmailEventFromMessage(log, message, type, emailDomain) {
   const templateName = getHeaderValue('X-Template-Name', message)
+  const templateVersion = getHeaderValue('X-Template-Version', message)
   const flowId = getHeaderValue('X-Flow-Id', message)
   const locale = getHeaderValue('Content-Language', message)
 
   const emailEventInfo = {
     domain: emailDomain,
-    locale: locale,
+    locale,
     op: 'emailEvent',
     template: templateName,
-    type: type
+    templateVersion,
+    type
   }
 
   if (flowId) {

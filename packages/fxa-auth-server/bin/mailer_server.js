@@ -26,7 +26,7 @@ var dbConnect = require('../lib/senders/db_connect')()
 P.all(
   [
     require('../lib/senders/translator')(config.get('i18n.supportedLanguages'), config.get('i18n.defaultLanguage')),
-    require('../lib/senders/templates')()
+    require('../lib/senders/templates').init()
   ]
 )
 .spread(

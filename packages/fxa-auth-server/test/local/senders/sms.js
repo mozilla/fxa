@@ -38,7 +38,7 @@ describe('lib/senders/sms:', () => {
   before(() => {
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-      require(`${ROOT_DIR}/lib/senders/templates`)()
+      require(`${ROOT_DIR}/lib/senders/templates`).init()
     ]).spread((translator, templates) => {
       sms = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
         'aws-sdk': { SNS }
@@ -176,7 +176,7 @@ describe('lib/senders/sms:', () => {
   it('uses the MockSNS constructor if `useMock: true`', () => {
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-      require(`${ROOT_DIR}/lib/senders/templates`)()
+      require(`${ROOT_DIR}/lib/senders/templates`).init()
     ]).spread((translator, templates) => {
       sms = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
         'aws-sdk': { SNS },

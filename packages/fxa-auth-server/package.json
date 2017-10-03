@@ -9,7 +9,9 @@
     "test": "test"
   },
   "scripts": {
-    "precommit": "grunt newer:doc && git add docs/api.md",
+    "bump-template-versions": "node scripts/template-version-bump && git add lib/senders/templates/_versions.json",
+    "update-api-docs": "grunt newer:doc && git add docs/api.md",
+    "precommit": "npm run bump-template-versions && npm run update-api-docs",
     "postinstall": "scripts/download_l10n.sh",
     "shrink": "npmshrink && npm run postinstall",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",

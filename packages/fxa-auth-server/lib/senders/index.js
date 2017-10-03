@@ -13,7 +13,7 @@ module.exports = (log, config, error, bounces, translator, sender) => {
 
   function createSenders() {
     const Mailer = createMailer(log)
-    return require('./templates')()
+    return require('./templates').init()
       .then(function (templates) {
         return {
           email: new Mailer(translator, templates, config.smtp, sender),

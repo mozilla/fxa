@@ -93,7 +93,8 @@ describe('email utils helpers', () => {
       flowBeginTime: 42,
       flowId: 'ccc',
       service: 'ddd',
-      uid: 'eee'
+      templateVersion: 'eee',
+      uid: 'fff'
     })
     assert.equal(amplitude.callCount, 1)
     const args = amplitude.args[0]
@@ -116,7 +117,8 @@ describe('email utils helpers', () => {
       device_id: 'bbb',
       email_domain: 'other',
       service: 'ddd',
-      uid: 'eee'
+      templateVersion: 'eee',
+      uid: 'fff'
     })
     assert.equal(args[3].flow_id, 'ccc')
     assert.equal(args[3].flowBeginTime, 42)
@@ -134,6 +136,7 @@ describe('email utils helpers', () => {
         { name: 'X-Flow-Id', value: 'c' },
         { name: 'X-Service-Id', value: 'd' },
         { name: 'X-Template-Name', value: 'verifyLoginEmail' },
+        { name: 'X-Template-Version', value: 42 },
         { name: 'X-Uid', value: 'e' }
       ]
     }, 'bounced', 'gmail')
@@ -158,6 +161,7 @@ describe('email utils helpers', () => {
       device_id: 'b',
       email_domain: 'gmail',
       service: 'd',
+      templateVersion: 42,
       uid: 'e'
     })
     assert.equal(args[3].flow_id, 'c')

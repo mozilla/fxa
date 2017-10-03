@@ -7,21 +7,23 @@
 const ROOT_DIR = '../../..'
 
 const assert = require('insist')
-var extend = require('util')._extend
-var sinon = require('sinon')
-var P = require('bluebird')
+const extend = require('util')._extend
+const sinon = require('sinon')
+const P = require('bluebird')
 
-var mockLog = {
+const mockLog = {
   amplitudeEvent () {},
   trace () {},
   info: sinon.spy(),
   error () {}
 }
 
-var config = require(`${ROOT_DIR}/config`)
-var Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog)
+const config = require(`${ROOT_DIR}/config`)
+const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog)
 
-var messageTypes = [
+const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`)
+
+const messageTypes = [
   'newDeviceLoginEmail',
   'passwordChangedEmail',
   'passwordResetEmail',
@@ -36,7 +38,7 @@ var messageTypes = [
   'verifySecondaryEmail'
 ]
 
-var typesContainSupportLinks = [
+const typesContainSupportLinks = [
   'newDeviceLoginEmail',
   'passwordChangedEmail',
   'passwordResetEmail',
@@ -48,35 +50,35 @@ var typesContainSupportLinks = [
   'verifySecondaryEmail'
 ]
 
-var typesContainPasswordResetLinks = [
+const typesContainPasswordResetLinks = [
   'passwordChangedEmail',
   'passwordResetEmail',
   'passwordResetRequiredEmail'
 ]
 
-var typesContainPasswordChangeLinks = [
+const typesContainPasswordChangeLinks = [
   'newDeviceLoginEmail',
   'verifyLoginEmail',
   'postVerifySecondaryEmail'
 ]
 
-var typesContainUnblockCode = [
+const typesContainUnblockCode = [
   'unblockCodeEmail'
 ]
 
-var typesContainReportSignInLinks = [
+const typesContainReportSignInLinks = [
   'unblockCodeEmail'
 ]
 
-var typesContainAndroidStoreLinks = [
+const typesContainAndroidStoreLinks = [
   'postVerifyEmail'
 ]
 
-var typesContainIOSStoreLinks = [
+const typesContainIOSStoreLinks = [
   'postVerifyEmail'
 ]
 
-var typesContainLocationData = [
+const typesContainLocationData = [
   'newDeviceLoginEmail',
   'passwordChangedEmail',
   'unblockCodeEmail',
@@ -86,7 +88,7 @@ var typesContainLocationData = [
   'verifySecondaryEmail'
 ]
 
-var typesContainPasswordManagerInfoLinks = [
+const typesContainPasswordManagerInfoLinks = [
   'passwordResetRequiredEmail',
 ]
 
@@ -116,7 +118,7 @@ describe(
     before(() => {
       return P.all([
         require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-        require(`${ROOT_DIR}/lib/senders/templates`)()
+        require(`${ROOT_DIR}/lib/senders/templates`).init()
       ]).spread((translator, templates) => {
         mailer = new Mailer(translator, templates, config.get('smtp'))
       })
@@ -147,7 +149,8 @@ describe(
             mailer.mailer.sendMail = function (emailConfig) {
               assert.equal(emailConfig.from, config.get('smtp.sender'), 'from header is correct')
               assert.equal(emailConfig.sender, config.get('smtp.sender'), 'sender header is correct')
-              var templateName = emailConfig.headers['X-Template-Name']
+              const templateName = emailConfig.headers['X-Template-Name']
+              const templateVersion = emailConfig.headers['X-Template-Version']
 
               if (type === 'verificationReminderEmail') {
                 // Handle special case for verification reminders
@@ -159,6 +162,8 @@ describe(
               } else {
                 assert.equal(templateName, type)
               }
+
+              assert.equal(templateVersion, TEMPLATE_VERSIONS[templateName], 'template version is correct')
             }
             mailer[type](message)
           }
@@ -673,6 +678,32 @@ describe(
       }
     )
 
+    describe('delete template versions', () => {
+      before(() => {
+        Object.keys(TEMPLATE_VERSIONS).forEach(key => TEMPLATE_VERSIONS[key] = undefined)
+      })
 
+      messageTypes.forEach(type => {
+        const message = {
+          code: 'code',
+          deviceId: 'deviceId',
+          email: 'foo@example.com',
+          locations: [],
+          service: 'sync',
+          uid: 'uid',
+          unblockCode: 'unblockCode',
+          type: 'secondary',
+          flowId: 'flowId',
+          flowBeginTime: Date.now()
+        }
+
+        it(`uses default template version for ${type}`, () => {
+          mailer.mailer.sendMail = emailConfig => {
+            assert.equal(emailConfig.headers['X-Template-Version'], 1, 'template version defaults to 1')
+          }
+          mailer[type](message)
+        })
+      })
+    })
   }
 )

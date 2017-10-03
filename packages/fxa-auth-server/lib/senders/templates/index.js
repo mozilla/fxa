@@ -55,8 +55,9 @@ function loadTemplates(name) {
   )
 }
 
-module.exports = function () {
-  return P.all(
+module.exports = {
+  generateTemplateName,
+  init: () => P.all(
     [
       'new_device_login',
       'password_changed',

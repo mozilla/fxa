@@ -4,19 +4,21 @@
 
 'use strict'
 
-var qs = require('querystring')
-var url = require('url')
-var P = require('bluebird')
-var nodemailer = require('nodemailer')
-var moment = require('moment-timezone')
-var emailUtils = require('./../email/utils/helpers')
+const emailUtils = require('../email/utils/helpers')
+const moment = require('moment-timezone')
+const nodemailer = require('nodemailer')
+const P = require('bluebird')
+const qs = require('querystring')
+const url = require('url')
 
-var DEFAULT_LOCALE = 'en'
-var DEFAULT_TIMEZONE = 'Etc/UTC'
-var UTM_PREFIX = 'fx-'
+const TEMPLATE_VERSIONS = require('./templates/_versions.json')
 
-var X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET'
-var X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS'
+const DEFAULT_LOCALE = 'en'
+const DEFAULT_TIMEZONE = 'Etc/UTC'
+const UTM_PREFIX = 'fx-'
+
+const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET'
+const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS'
 
 module.exports = function (log) {
   // Email template to UTM campaign map, each of these should be unique and
@@ -226,12 +228,21 @@ module.exports = function (log) {
   Mailer.prototype.send = function (message) {
     log.trace({ op: 'mailer.' + message.template, email: message.email, uid: message.uid })
 
-    var localized = this.localize(message)
+    const localized = this.localize(message)
+
+    const template = message.template
+    let templateVersion = TEMPLATE_VERSIONS[template]
+    if (! templateVersion) {
+      log.error({ op: 'emailTemplateVersion.missing', template })
+      templateVersion = 1
+    }
+    message.templateVersion = templateVersion
 
     const headers = Object.assign(
       {
         'Content-Language': localized.language,
-        'X-Template-Name': message.template
+        'X-Template-Name': template,
+        'X-Template-Version': templateVersion
       },
       message.headers,
       optionalHeader('X-Device-Id', message.deviceId),

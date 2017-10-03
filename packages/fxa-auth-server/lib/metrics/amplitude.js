@@ -241,8 +241,10 @@ function mapEmailEventProperties (request, data) {
   const emailType = EMAIL_TYPES[data.eventCategory]
   if (emailType) {
     return {
+      email_provider: data.email_domain,
+      email_template: data.eventCategory,
       email_type: emailType,
-      email_provider: data.email_domain
+      email_version: data.templateVersion
     }
   }
 }

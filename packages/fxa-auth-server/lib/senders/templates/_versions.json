@@ -1,0 +1,18 @@
+{
+  "newDeviceLoginEmail": 1,
+  "passwordChangedEmail": 1,
+  "passwordResetEmail": 1,
+  "passwordResetRequiredEmail": 1,
+  "postRemoveSecondaryEmail": 1,
+  "postVerifyEmail": 1,
+  "postVerifySecondaryEmail": 1,
+  "recoveryEmail": 1,
+  "sms.installFirefox": 1,
+  "unblockCodeEmail": 1,
+  "verificationReminderFirstEmail": 1,
+  "verificationReminderSecondEmail": 1,
+  "verifyEmail": 1,
+  "verifyLoginEmail": 1,
+  "verifySecondaryEmail": 1,
+  "verifySyncEmail": 1
+}
