@@ -59,7 +59,6 @@ The currently-defined error responses are:
 - [GET /v1/email][email]
 - [GET /v1/uid][uid]
 - [GET /v1/avatar][avatar]
-- [POST /v1/avatar][avatar-post]
 - [POST /v1/avatar/upload][upload]
 - [DELETE /v1/avatar/:id][delete]
 - [GET /v1/display_name][display_name]
