@@ -1,3 +1,34 @@
+<a name="1.97.0"></a>
+# 1.97.0 (2017-10-03)
+
+
+### Bug Fixes
+
+* **behavior:** Propagate account info in the navigate behavior. (#5544) r=@philbooth ([829b0e8](https://github.com/mozilla/fxa-content-server/commit/829b0e8))
+* **css:** Fix the sass warning about height/margin being in the wrong order. (#5521) r=vla ([d0a5260](https://github.com/mozilla/fxa-content-server/commit/d0a5260)), closes [(#5521](https://github.com/(/issues/5521)
+* **cwts:** Ensure a two column display on CWTS in EN. (#5500) r=@ryanfeeley ([8bfd44f](https://github.com/mozilla/fxa-content-server/commit/8bfd44f)), closes [#5442](https://github.com/mozilla/fxa-content-server/issues/5442)
+* **nsp:** remove tough-cookie nsp rule (#5517), r=@vbudhram ([fa737a2](https://github.com/mozilla/fxa-content-server/commit/fa737a2))
+* **OAuth:** Correctly handle expired assertions. (#5498) r=vladikoff ([3cae04c](https://github.com/mozilla/fxa-content-server/commit/3cae04c)), closes [#4949](https://github.com/mozilla/fxa-content-server/issues/4949)
+* **test:** Fix the Sync v2 force_auth/unverified account test. (#5519) r=vladikoff (#5520) ([c0ec36b](https://github.com/mozilla/fxa-content-server/commit/c0ec36b)), closes [(#5519](https://github.com/(/issues/5519) [(#5520](https://github.com/(/issues/5520) [#5511](https://github.com/mozilla/fxa-content-server/issues/5511)
+
+### chore
+
+* **assertion:** Document why cert/assertion durations are what they are. (#5499); r=rfk ([5380a3f](https://github.com/mozilla/fxa-content-server/commit/5380a3f))
+* **ci:** whitespace-only change to README.md to trigger nightly CI ([69339f7](https://github.com/mozilla/fxa-content-server/commit/69339f7))
+* **nsp:** except nsp 525 (#5514) r=vbudhram ([6c29628](https://github.com/mozilla/fxa-content-server/commit/6c29628))
+
+### Features
+
+* **deps:** update deps (#5534), r=@vbudhram ([ddc84dd](https://github.com/mozilla/fxa-content-server/commit/ddc84dd))
+* **email:** update newsletter strings (#5513) r=vbudhram,davismtl ([d227184](https://github.com/mozilla/fxa-content-server/commit/d227184))
+
+### Refactor
+
+* **CAD:** Simplify logic to decide whether to show CAD after email verification. (#5545) r ([1f645ed](https://github.com/mozilla/fxa-content-server/commit/1f645ed))
+* **client:** Use relative paths (#5495) ([ead2f2c](https://github.com/mozilla/fxa-content-server/commit/ead2f2c))
+
+
+
 <a name="1.96.6"></a>
 ## 1.96.6 (2017-09-28)
 
