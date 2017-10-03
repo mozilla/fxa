@@ -42,6 +42,7 @@ describe('/certificate/sign', () => {
       uaFormFactor: 'qux'
     })
     .then(result => {
+      assert.equal(result.lastAccessTime, undefined, 'lastAccessTime is not set')
       sessionToken = result
       mockRequest = mocks.mockRequest({
         credentials: sessionToken,
@@ -83,6 +84,8 @@ describe('/certificate/sign', () => {
       assert.equal(args[0].uaOSVersion, '10', 'first argument uaOSVersion property was correct')
       assert.equal(args[0].uaDeviceType, null, 'first argument uaDeviceType property was null')
       assert.equal(args[0].uaFormFactor, null, 'first argument uaFormFactor property was null')
+      assert.ok(args[0].lastAccessTime, 'lastAccessTime is set')
+      assert.ok(args[0].lastAccessTime > args[0].createdAt, 'lastAccessTime is updated')
       assert.equal(args[1], mockRequest.app.clientAddress, 'second argument was client IP address')
       assert.equal(args[2], mockRequest.app.geo, 'third argument was getGeoData result')
 

@@ -64,7 +64,8 @@ module.exports = (log, signer, db, domain, devices) => {
             uaOS,
             uaOSVersion,
             uaDeviceType,
-            uaFormFactor
+            uaFormFactor,
+            lastAccessTime: Date.now()
           })
           // No need to wait for a response, update in the background.
           db.updateSessionToken(sessionToken, clientIp, request.app.geo)
