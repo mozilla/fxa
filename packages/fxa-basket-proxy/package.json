@@ -17,17 +17,17 @@
   "dependencies": {
     "aws-sdk": "2.6.6",
     "bluebird": "3.4.6",
-    "body-parser": "1.15.2",
+    "body-parser": "1.18.2",
     "convict": "1.5.0",
     "cors": "2.8.1",
-    "express": "4.14.0",
+    "express": "4.15.5",
     "grunt": "1.0.1",
     "grunt-cli": "1.2.0",
     "grunt-rev": "0.1.0",
     "load-grunt-tasks": "3.5.2",
     "mozlog": "2.0.6",
     "on-finished": "2.3.0",
-    "request": "2.75.0",
+    "request": "2.83.0",
     "time-grunt": "1.4.0"
   },
   "devDependencies": {
