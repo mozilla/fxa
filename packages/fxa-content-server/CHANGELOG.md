@@ -1,3 +1,14 @@
+<a name="1.97.1"></a>
+## 1.97.1 (2017-10-04)
+
+
+### Bug Fixes
+
+* **CAD:** Ensure CAD is displayed if the user verifies at CWTS. (#5546) r=vladikoff ([0f6c481](https://github.com/mozilla/fxa-content-server/commit/0f6c481))
+* **signin-unblock:** Fix Fx >= 57 screen transition after signin unblock. (#5518) r=vladikoff ([78f820f](https://github.com/mozilla/fxa-content-server/commit/78f820f)), closes [(#5518](https://github.com/(/issues/5518) [#5488](https://github.com/mozilla/fxa-content-server/issues/5488)
+
+
+
 <a name="1.97.0"></a>
 # 1.97.0 (2017-10-03)
 
