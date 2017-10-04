@@ -1,3 +1,13 @@
+<a name="1.97.0"></a>
+# [1.97.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.96.1...v1.97.0) (2017-10-04)
+
+
+### Features
+
+* **db:** prune session tokens (again) ([67bd8fb](https://github.com/mozilla/fxa-auth-db-mysql/commit/67bd8fb))
+
+
+
 <a name="1.96.1"></a>
 ## [1.96.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.96.0...v1.96.1) (2017-09-20)
 
