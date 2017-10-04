@@ -1,3 +1,22 @@
+<a name="1.97.0"></a>
+# [1.97.0](https://github.com/mozilla/fxa-auth-server/compare/v1.96.3...v1.97.0) (2017-10-04)
+
+
+### Bug Fixes
+
+* **deps:** update deps (#2143), r=@vbudhram ([b328873](https://github.com/mozilla/fxa-auth-server/commit/b328873))
+* **devices:** return the whole device record in POST /device response (#2132); r=rfk ([6fe2dac](https://github.com/mozilla/fxa-auth-server/commit/6fe2dac))
+* **docs:** update dependencies for api doc generation (#2131), r=@vbudhram ([06071b5](https://github.com/mozilla/fxa-auth-server/commit/06071b5))
+* **email:** Show proper error and delete email if postfix fails to send (#2147), r=@vladikof ([f4c54da](https://github.com/mozilla/fxa-auth-server/commit/f4c54da)), closes [#2147](https://github.com/mozilla/fxa-auth-server/issues/2147)
+* **email:** Update secondary email footers (#2136), r=@rfk ([1d834a9](https://github.com/mozilla/fxa-auth-server/commit/1d834a9))
+* **sessions:** update the access time on /sign checking (#2149) r=rfk ([2543bf0](https://github.com/mozilla/fxa-auth-server/commit/2543bf0))
+
+### Features
+
+* **metrics:** implement email_version amplitude property ([925760a](https://github.com/mozilla/fxa-auth-server/commit/925760a))
+
+
+
 <a name="1.96.3"></a>
 ## [1.96.3](https://github.com/mozilla/fxa-auth-server/compare/v1.96.2...v1.96.3) (2017-09-25)
 
