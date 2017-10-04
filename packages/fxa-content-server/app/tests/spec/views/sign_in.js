@@ -296,83 +296,6 @@ define(function (require, exports, module) {
           assert.equal(password, 'password');
         });
       });
-
-      describe('with a reset account', () => {
-        beforeEach(() => {
-          sinon.stub(view, 'signIn').callsFake(() => {
-            return p.reject(AuthErrors.toError('ACCOUNT_RESET'));
-          });
-
-          sinon.spy(view, 'notifyOfResetAccount');
-
-          return view.submit();
-        });
-
-        it('notifies the user of the reset account', () => {
-          assert.isTrue(view.notifyOfResetAccount.called);
-          const args = view.notifyOfResetAccount.args[0];
-          const account = args[0];
-          assert.instanceOf(account, Account);
-        });
-      });
-
-      describe('with a user that cancels login', () => {
-        beforeEach(() => {
-          sinon.stub(view, 'signIn').callsFake(() => {
-            return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
-          });
-
-          return view.submit();
-        });
-
-        it('logs, but does not display the error', () => {
-          assert.isTrue(isEventLogged(metrics, 'signin.canceled'));
-          assert.isFalse(view.isErrorVisible());
-        });
-      });
-
-      describe('with an unknown account', () => {
-        beforeEach(() => {
-          broker.setCapability('signup', true);
-
-          sinon.stub(view, 'signIn').callsFake(() => {
-            return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
-          });
-
-          sinon.spy(view, 'unsafeDisplayError');
-
-          return view.submit();
-        });
-
-        it('shows a link to the signup page', () => {
-          const err = view.unsafeDisplayError.args[0][0];
-          assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
-          assert.include(err.forceMessage, '/signup');
-        });
-      });
-
-      describe('other errors', () => {
-        let err;
-
-        beforeEach(() => {
-          sinon.stub(view, 'signIn').callsFake(() => {
-            return p.reject(AuthErrors.toError('INVALID_JSON'));
-          });
-
-          sinon.spy(view, 'displayError');
-
-          return view.validateAndSubmit()
-            .then(assert.fail, function (_err) {
-              err = _err;
-            });
-        });
-
-        it('are displayed', () => {
-          const displayedError = view.displayError.args[0][0];
-          assert.strictEqual(err, displayedError);
-          assert.isTrue(AuthErrors.is(err, 'INVALID_JSON'));
-        });
-      });
     });
 
     describe('showValidationErrors', () => {
@@ -403,6 +326,86 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('onSignInError', () => {
+      let account;
+
+      beforeEach(() => {
+        account = user.initAccount({});
+      });
+
+      it('an unknown account delegates to _suggestSignUp', () => {
+        broker.setCapability('signup', true);
+        sinon.stub(view, '_suggestSignUp');
+        const err = AuthErrors.toError('UNKNOWN_ACCOUNT');
+
+        view.onSignInError(
+          account,
+          'password',
+          err
+        );
+
+        assert.isTrue(view._suggestSignUp.calledOnce);
+        assert.isTrue(view._suggestSignUp.calledWith(err));
+      });
+
+      it('when a user cancels login, the error is logged but not displayed', () => {
+        view.onSignInError(
+          account,
+          'password',
+          AuthErrors.toError('USER_CANCELED_LOGIN')
+        );
+
+        assert.isTrue(isEventLogged(metrics, 'signin.canceled'));
+        assert.isFalse(view.isErrorVisible());
+      });
+
+      it('a reset account notifies the user', () => {
+        sinon.spy(view, 'notifyOfResetAccount');
+
+        view.onSignInError(
+          account,
+          'password',
+          AuthErrors.toError('ACCOUNT_RESET')
+        );
+
+        assert.isTrue(view.notifyOfResetAccount.called);
+        assert.isTrue(view.notifyOfResetAccount.calledWith(account));
+      });
+
+      it('incorrect password shows a validation error', () => {
+        sinon.spy(view, 'showValidationError');
+        view.onSignInError(
+            account,
+            'password',
+            AuthErrors.toError('INCORRECT_PASSWORD')
+        );
+
+        assert.isTrue(view.showValidationError.calledOnce);
+      });
+
+      it('other errors are re-thrown', () => {
+        const err = AuthErrors.toError('INVALID_JSON');
+        assert.throws(() => {
+          view.onSignInError(
+            account,
+            'password',
+            err
+          );
+        }, err);
+      });
+    });
+
+    it('_suggestSignUp shows a link to the signup page', () => {
+      sinon.spy(view, 'unsafeDisplayError');
+      const err = AuthErrors.toError('UNKNOWN_ACCOUNT');
+
+      view._suggestSignUp(err);
+
+      assert.isTrue(view.unsafeDisplayError.calledOnce);
+      assert.isTrue(view.unsafeDisplayError.calledWith(err));
+      assert.include(err.forceMessage, '/signup');
+    });
+
     describe('useLoggedInAccount', () => {
       it('shows an error if session is expired', () => {
         sinon.stub(view, 'getAccount').callsFake(() => {
@@ -412,6 +415,9 @@ define(function (require, exports, module) {
             uid: 'foo'
           });
         });
+
+        sinon.stub(view, 'signIn').callsFake(
+          () => p.reject(AuthErrors.toError('SESSION_EXPIRED')));
 
         return view.useLoggedInAccount()
           .then(() => {
@@ -424,22 +430,18 @@ define(function (require, exports, module) {
           });
       });
 
-      it('signs in with a valid session', () => {
+      it('delegates to signIn', () => {
         const account = user.initAccount({
           email: 'a@a.com',
           sessionToken: 'abc123'
         });
         sinon.stub(view, 'getAccount').callsFake(() => account);
-        sinon.stub(user, 'signInAccount').callsFake((account) => {
-          account.set('verified', true);
-          return p(account);
-        });
+        sinon.stub(view, 'signIn').callsFake(() => p());
 
         return view.useLoggedInAccount()
           .then(() => {
-            assert.isTrue(user.signInAccount.calledWith(account));
-            assert.equal(view.$('.error').text(), '');
-            assert.notOk(view._isErrorVisible);
+            assert.isTrue(view.signIn.calledOnce);
+            assert.isTrue(view.signIn.calledWith(account));
           });
       });
     });

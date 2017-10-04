@@ -138,83 +138,70 @@ define(function (require, exports, module) {
     describe('submit', function () {
       beforeEach(() => view.render());
 
-      it('notifies the broker when a verified user signs in', function () {
-        sinon.spy(user, 'initAccount');
-        sinon.stub(user, 'signInAccount').callsFake(function (account) {
-          account.set('verified', true);
-          return p(account);
-        });
-        sinon.stub(relier, 'accountNeedsPermissions').callsFake(function () {
-          return false;
-        });
-        sinon.stub(broker, 'afterSignIn').callsFake(function () {
-          return p();
-        });
-        sinon.spy(view, 'navigate');
+      it('delegates to `signIn`', () => {
+        const account = user.initAccount({});
+        sinon.stub(user, 'initAccount').callsFake(() => account);
 
-        const password = 'password';
+        sinon.stub(view, 'signIn').callsFake(() => p());
+
         view.$('.email').val(email);
-        view.$('[type=password]').val(password);
+        view.$('[type=password]').val('password');
 
         return view.submit()
-          .then(function () {
-            const account = user.initAccount.returnValues[0];
-
-            assert.isTrue(user.signInAccount.calledWith(account));
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.success'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.success.skip-confirm'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'oauth.signin.signin.success'));
-            assert.isTrue(broker.afterSignIn.calledWith(account));
-            assert.isTrue(view.navigate.calledWith('settings'));
+          .then(() => {
+            assert.isTrue(view.signIn.calledOnce);
+            assert.isTrue(view.signIn.calledWith(account));
           });
       });
+    });
 
-      describe('with an unknown account', function () {
+    describe('_suggestSignUp', () => {
+      let err;
+
+      beforeEach(() => {
+        err = AuthErrors.toError('UNKNOWN_ACCOUNT');
+        sinon.spy(view, 'unsafeDisplayError');
+      });
+
+      describe('AMO migration', () => {
+        let $amoMigrationElement;
         beforeEach(() => {
-          broker.setCapability('signup', true);
-          sinon.stub(view, 'signIn').callsFake(() => p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT')));
-          sinon.spy(view, 'unsafeDisplayError');
+          $amoMigrationElement = {
+            hide: sinon.spy()
+          };
+          sinon.stub(view, 'isAmoMigration').callsFake(() => true);
+          const orig$ = view.$;
+          sinon.stub(view, '$').callsFake((selector) => {
+            if (selector === '#amo-migration') {
+              return $amoMigrationElement;
+            } else {
+              return orig$.call(view, selector);
+            }
+          });
+
+          return view._suggestSignUp(err);
         });
 
-        describe('AMO migration', () => {
-          let $amoMigrationElement;
-          beforeEach(() => {
-            $amoMigrationElement = {
-              hide: sinon.spy()
-            };
-            sinon.stub(view, 'isAmoMigration').callsFake(() => true);
-            const orig$ = view.$;
-            sinon.stub(view, '$').callsFake((selector) => {
-              if (selector === '#amo-migration') {
-                return $amoMigrationElement;
-              } else {
-                return orig$.call(view, selector);
-              }
-            });
-            return view.submit();
-          });
+        it('shows addons help text with link to the signup page, hides AMO migration text', () => {
+          var err = view.unsafeDisplayError.args[0][0];
+          assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+          assert.include(err.forceMessage, '/signup');
+          assert.include(err.forceMessage, 'Add-ons');
+          assert.isTrue($amoMigrationElement.hide.calledOnce);
+        });
+      });
 
-          it('shows addons help text with link to the signup page, hides AMO migration text', () => {
-            var err = view.unsafeDisplayError.args[0][0];
-            assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
-            assert.include(err.forceMessage, '/signup');
-            assert.include(err.forceMessage, 'Add-ons');
-            assert.isTrue($amoMigrationElement.hide.calledOnce);
-          });
+      describe('not AMO migration', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'isAmoMigration').callsFake(() => false);
+          return view._suggestSignUp(err);
         });
 
-        describe('not AMO migration', () => {
-          beforeEach(() => {
-            sinon.stub(view, 'isAmoMigration').callsFake(() => false);
-            return view.submit();
-          });
-
-          it('shows a link to the signup page', () => {
-            var err = view.unsafeDisplayError.args[0][0];
-            assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
-            assert.include(err.forceMessage, '/signup');
-            assert.notInclude(err.forceMessage, 'Add-ons');
-          });
+        it('shows a link to the signup page', () => {
+          var err = view.unsafeDisplayError.args[0][0];
+          assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+          assert.include(err.forceMessage, '/signup');
+          assert.notInclude(err.forceMessage, 'Add-ons');
         });
       });
     });

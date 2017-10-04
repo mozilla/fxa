@@ -44,15 +44,9 @@ define(function (require, exports, module) {
       sinon.stub(broker, '_hasRequiredLoginFields').callsFake(() => true);
     });
 
-    it('has the `signup` capability by default', function () {
+    it('has the expected capabilities', () => {
       assert.isTrue(broker.hasCapability('signup'));
-    });
-
-    it('has the `handleSignedInNotification` capability by default', function () {
       assert.isTrue(broker.hasCapability('handleSignedInNotification'));
-    });
-
-    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 

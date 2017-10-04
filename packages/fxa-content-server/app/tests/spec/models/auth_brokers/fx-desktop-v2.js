@@ -108,6 +108,7 @@ define(function (require, exports, module) {
         // the data to the browser and everybody is happy.
         account = user.initAccount({
           keyFetchToken: 'key-fetch-token',
+          uid: 'uid',
           unwrapBKey: 'unwrap-b-key'
         });
 

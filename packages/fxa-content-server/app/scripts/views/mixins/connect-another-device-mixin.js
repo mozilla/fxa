@@ -49,8 +49,7 @@ define((require, exports, module) => {
     isEligibleForConnectAnotherDeviceOnSignin (account) {
       const isEligibleForCadOnSignin = !! this.getExperimentGroup('cadOnSignin', { account });
 
-      return this.isSignIn() &&
-             this.isEligibleForConnectAnotherDevice(account) &&
+      return this.isEligibleForConnectAnotherDevice(account) &&
              isEligibleForCadOnSignin;
     },
 

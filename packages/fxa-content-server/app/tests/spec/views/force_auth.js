@@ -398,49 +398,6 @@ define(function (require, exports, module) {
         var signInPassword = view._signIn.args[0][1];
         assert.equal(signInPassword, password);
       });
-
-      describe('onSignInSuccess', function () {
-        var account;
-
-        beforeEach(function () {
-          account = user.initAccount({
-            email: 'testuser@testuser.com',
-            verified: true
-          });
-
-          sinon.spy(broker, 'afterForceAuth');
-        });
-
-        describe('without model.redirectTo', function () {
-          beforeEach(function () {
-            return view.onSignInSuccess(account);
-          });
-
-          it('invokes `afterForceAuth` on the broker', function () {
-            assert.isTrue(broker.afterForceAuth.calledWith(account));
-          });
-
-          it('navigates to the `settings` page and clears the query parameters', function () {
-            assert.isTrue(view.navigate.calledWith('settings', {}, { clearQueryParams: true }));
-          });
-        });
-
-        describe('with model.redirectTo', function () {
-          beforeEach(function () {
-            model.set('redirectTo', 'foo');
-
-            return view.onSignInSuccess(account);
-          });
-
-          it('invokes `afterForceAuth` on the broker', function () {
-            assert.isTrue(broker.afterForceAuth.calledWith(account));
-          });
-
-          it('navigates to the `settings` page and clears the query parameters', function () {
-            assert.isTrue(view.navigate.calledWith('foo', {}, { clearQueryParams: true }));
-          });
-        });
-      });
     });
 
     describe('onSignInError', function () {

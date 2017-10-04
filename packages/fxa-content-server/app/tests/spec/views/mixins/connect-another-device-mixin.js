@@ -69,32 +69,21 @@ define(function (require, exports, module) {
     });
 
     describe('isEligibleForConnectAnotherDeviceOnSignin', () => {
-      it('returns true if signing in, if eligible for CAD, and is part of the experiment', () => {
-        sinon.stub(view, 'isSignIn').callsFake(() => true);
+      it('returns true if eligible for CAD, and is part of the experiment', () => {
         sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
         sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
 
         assert.isTrue(view.isEligibleForConnectAnotherDeviceOnSignin(account));
       });
 
-      it('returns false if signing up, if eligible for CAD, and is part of the experiment', () => {
-        sinon.stub(view, 'isSignIn').callsFake(() => false);
-        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
-        sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
-
-        assert.isFalse(view.isEligibleForConnectAnotherDeviceOnSignin(account));
-      });
-
-      it('returns false if signing in, not eligible for CAD, and is part of the experiment', () => {
-        sinon.stub(view, 'isSignIn').callsFake(() => true);
+      it('returns false not eligible for CAD, and is part of the experiment', () => {
         sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => false);
         sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
 
         assert.isFalse(view.isEligibleForConnectAnotherDeviceOnSignin(account));
       });
 
-      it('returns false if signing in, not eligible for CAD, and is part of the experiment', () => {
-        sinon.stub(view, 'isSignIn').callsFake(() => true);
+      it('returns false not eligible for CAD, and is part of the experiment', () => {
         sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
         sinon.stub(view, 'getExperimentGroup').callsFake(() => false);
 

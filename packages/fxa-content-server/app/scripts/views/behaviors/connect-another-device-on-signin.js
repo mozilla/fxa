@@ -16,6 +16,8 @@
 define((require, exports, module) => {
   'use strict';
 
+  const Cocktail = require('cocktail');
+  const ConnectAnotherDeviceMixin = require('../mixins/connect-another-device-mixin');
   const p = require('lib/promise');
 
   /**
@@ -28,6 +30,8 @@ define((require, exports, module) => {
   module.exports = function (defaultBehavior) {
     const behavior = function (view, account) {
       return p().then(() => {
+        behavior.ensureConnectAnotherDeviceMixin(view);
+
         if (view.isEligibleForConnectAnotherDeviceOnSignin(account)) {
           return view.navigateToConnectAnotherDeviceOnSigninScreen(account);
         }
@@ -42,6 +46,12 @@ define((require, exports, module) => {
         }
         return defaultBehavior;
       });
+    };
+
+    behavior.ensureConnectAnotherDeviceMixin = function (view) {
+      if (! Cocktail.isMixedIn(view, ConnectAnotherDeviceMixin)) {
+        Cocktail.mixin(view, ConnectAnotherDeviceMixin);
+      }
     };
 
     behavior.type = 'connect-another-device-on-signin';

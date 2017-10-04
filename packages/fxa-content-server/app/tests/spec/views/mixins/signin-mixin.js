@@ -60,9 +60,7 @@ define(function (require, exports, module) {
           currentPage: 'force_auth',
           displayError: sinon.spy(),
           getStringifiedResumeToken: sinon.spy(() => RESUME_TOKEN),
-          invokeBrokerMethod: sinon.spy(function () {
-            return p();
-          }),
+          invokeBrokerMethod: sinon.spy(() => p()),
           logEvent: sinon.spy(),
           logFlowEvent: sinon.spy(),
           logViewEvent: sinon.spy(),
@@ -117,6 +115,7 @@ define(function (require, exports, module) {
         describe('with `redirectTo` specified', function () {
           beforeEach(function () {
             model.set('redirectTo', 'settings/avatar');
+            sinon.spy(broker, 'setBehavior');
 
             return view.signIn(account, 'password');
           });
@@ -137,6 +136,15 @@ define(function (require, exports, module) {
             assert.lengthOf(view.formPrefill.clear.args[0], 0);
           });
 
+          it('sets a NavigateBehavior with the expected endpoint on the broker', () => {
+            const behavior = broker.getBehavior('afterSignIn');
+            assert.equal(behavior.type, 'navigate');
+            assert.equal(behavior.endpoint, 'settings/avatar');
+
+            assert.isTrue(broker.setBehavior.calledOnce);
+            assert.isTrue(broker.setBehavior.calledWith('afterSignIn', behavior));
+          });
+
           it('calls view.invokeBrokerMethod correctly', function () {
             assert.equal(view.invokeBrokerMethod.callCount, 2);
 
@@ -150,35 +158,18 @@ define(function (require, exports, module) {
             assert.equal(args[0], 'afterSignIn');
             assert.equal(args[1], account);
           });
-
-          it('calls view.navigate correctly', function () {
-            assert.equal(view.navigate.callCount, 1);
-            var args = view.navigate.args[0];
-            assert.lengthOf(args, 4);
-            assert.equal(args[0], 'settings/avatar');
-            assert.isObject(args[1]);
-            assert.lengthOf(Object.keys(args[1]), 0);
-            assert.deepEqual(args[2], {});
-            assert.isUndefined(args[3]);
-          });
         });
 
         describe('without `redirectTo` specified', function () {
           beforeEach(function () {
             model.unset('redirectTo');
+            sinon.spy(broker, 'setBehavior');
 
             return view.signIn(account, 'password');
           });
 
-          it('calls view.navigate correctly', function () {
-            assert.equal(view.navigate.callCount, 1);
-            var args = view.navigate.args[0];
-            assert.lengthOf(args, 4);
-            assert.equal(args[0], 'settings');
-            assert.isObject(args[1]);
-            assert.lengthOf(Object.keys(args[1]), 0);
-            assert.deepEqual(args[2], {});
-            assert.isUndefined(args[3]);
+          it('does not set a NavigateBehavior on the broker', () => {
+            assert.isFalse(broker.setBehavior.called);
           });
         });
       });

@@ -47,23 +47,11 @@ define(function (require, exports, module) {
       sinon.spy(broker, 'send');
     });
 
-    it('has the `signup` capability by default', function () {
+    it('has the expected capabilities', () => {
       assert.isTrue(broker.hasCapability('signup'));
-    });
-
-    it('has the `handleSignedInNotification` capability by default', function () {
       assert.isTrue(broker.hasCapability('handleSignedInNotification'));
-    });
-
-    it('has the `chooseWhatToSyncWebV1` capability by default', function () {
       assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
-    });
-
-    it('does not have the `emailVerificationMarketingSnippet` capability by default', function () {
       assert.isFalse(broker.hasCapability('emailVerificationMarketingSnippet'));
-    });
-
-    it('has all sync content types', function () {
       assert.equal(broker.defaultCapabilities.chooseWhatToSyncWebV1.engines, Constants.DEFAULT_DECLINED_ENGINES);
     });
 
@@ -88,7 +76,7 @@ define(function (require, exports, module) {
         return broker.afterSignIn(account)
           .then(function (behavior) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-            assert.equal(behavior.endpoint, 'signin_confirmed');
+            assert.equal(behavior.type, 'connect-another-device-on-signin');
           });
       });
     });

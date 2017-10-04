@@ -28,7 +28,9 @@ define(function (require, exports, module) {
       afterCompleteResetPassword: redirectToSettingsBehavior,
       afterCompleteSignIn: new SettingsIfSignedInBehavior(proto.defaultBehaviors.afterCompleteSignIn),
       afterCompleteSignUp: new SettingsIfSignedInBehavior(proto.defaultBehaviors.afterCompleteSignUp),
+      afterForceAuth: new NavigateBehavior('settings'),
       afterResetPasswordConfirmationPoll: redirectToSettingsBehavior,
+      afterSignIn: new NavigateBehavior('settings'),
       afterSignInConfirmationPoll: redirectToSettingsBehavior,
       afterSignUpConfirmationPoll: redirectToSettingsBehavior
     }),

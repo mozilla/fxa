@@ -276,7 +276,7 @@ define(function (require, exports, module) {
     describe('afterSignIn', function () {
       it('returns a promise', function () {
         return broker.afterSignIn(account)
-          .then(testDoesNotHalt);
+          .then(testNavigates('signin_confirmed'));
       });
     });
 
@@ -290,7 +290,7 @@ define(function (require, exports, module) {
     describe('afterForceAuth', function () {
       it('returns a promise', function () {
         return broker.afterForceAuth(account)
-          .then(testDoesNotHalt);
+          .then(testNavigates('signin_confirmed'));
       });
     });
 

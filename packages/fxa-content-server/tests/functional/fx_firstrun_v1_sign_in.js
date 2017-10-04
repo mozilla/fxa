@@ -157,10 +157,7 @@ define([
         .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
         .then(fillOutSignInUnblock(email, 0))
 
-        // Only users that go through signin confirmation see
-        // `/signin_complete`, and users that go through signin unblock see
-        // the default `settings` page.
-        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });

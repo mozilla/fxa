@@ -9,6 +9,7 @@ define(function (require, exports, module) {
 
   const AuthErrors = require('../../lib/auth-errors');
   const p = require('../../lib/promise');
+  const NavigateBehavior = require('../behaviors/navigate');
   const ResumeTokenMixin = require('./resume-token-mixin');
   const VerificationMethods = require('../../lib/verification-methods');
   const VerificationReasons = require('../../lib/verification-reasons');
@@ -144,11 +145,19 @@ define(function (require, exports, module) {
       // Currently, can be oauth, signin, signup, signin-unblock
       this.logViewEvent('signin.success');
 
-      var brokerMethod = this.afterSignInBrokerMethod || 'afterSignIn';
-      var navigateData = this.afterSignInNavigateData || {};
+      const brokerMethod = this.afterSignInBrokerMethod || 'afterSignIn';
+      const navigateData = this.afterSignInNavigateData || {};
 
-      return this.invokeBrokerMethod(brokerMethod, account)
-        .then(this.navigate.bind(this, this.model.get('redirectTo') || 'settings', {}, navigateData));
+      if (this.model.get('redirectTo')) {
+        // If `redirectTo` is specified, override the default behavior and
+        // redirect to the requested page.
+        const behavior = new NavigateBehavior(this.model.get('redirectTo'));
+        this.model.unset('redirectTo');
+        this.broker.setBehavior(brokerMethod, behavior, navigateData);
+      }
+
+      // Brokers handle all next steps.
+      return this.invokeBrokerMethod(brokerMethod, account);
     }
   };
 });

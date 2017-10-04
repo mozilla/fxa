@@ -16,30 +16,28 @@ define(function (require, exports, module) {
     });
 
     function testRedirectsToSettings(brokerMethod) {
-      describe(brokerMethod, () => {
-        it('returns a NavigateBehavior to settings', () => {
-          return broker[brokerMethod]({ get: () => {} })
-            .then((behavior) => {
-              assert.equal(behavior.type, 'navigate');
-              assert.equal(behavior.endpoint, 'settings');
-            });
-        });
+      it(`${brokerMethod} returns a NavigateBehavior to settings`, () => {
+        return broker[brokerMethod]({ get: () => {} })
+          .then((behavior) => {
+            assert.equal(behavior.type, 'navigate');
+            assert.equal(behavior.endpoint, 'settings');
+          });
       });
     }
 
     function testRedirectsToSettingsIfSignedIn(brokerMethod) {
-      describe(brokerMethod, () => {
-        it('returns a NavigateBehavior to settings', () => {
-          return broker[brokerMethod]({ get: () => {} })
-            .then((behavior) => {
-              assert.equal(behavior.type, 'settings');
-            });
-        });
+      it(`${brokerMethod} returns a SettingsIfSignedInBehavior`, () => {
+        return broker[brokerMethod]({ get: () => {} })
+          .then((behavior) => {
+            assert.equal(behavior.type, 'settings');
+          });
       });
     }
 
     testRedirectsToSettings('afterCompleteResetPassword');
+    testRedirectsToSettings('afterForceAuth');
     testRedirectsToSettings('afterResetPasswordConfirmationPoll');
+    testRedirectsToSettings('afterSignIn');
     testRedirectsToSettings('afterSignInConfirmationPoll');
     testRedirectsToSettings('afterSignUpConfirmationPoll');
 

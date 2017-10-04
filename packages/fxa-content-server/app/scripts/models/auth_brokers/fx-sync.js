@@ -22,7 +22,11 @@ define(function (require, exports, module) {
   module.exports = BaseAuthenticationBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
       afterCompleteSignIn: new ConnectAnotherDeviceOnSigninBehavior(proto.defaultBehaviors.afterCompleteSignIn),
-      afterCompleteSignUp: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterCompleteSignUp)
+      afterCompleteSignUp: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterCompleteSignUp),
+      // afterForceAuth is not overridden with the ConnectAnotherDeviceOnSignin behavior
+      // because force_auth is used to sign in as a particular user to view a particular
+      // page, e.g., settings.
+      afterSignIn: new ConnectAnotherDeviceOnSigninBehavior(proto.defaultBehaviors.afterSignIn),
     }),
 
     type: 'fx-sync',

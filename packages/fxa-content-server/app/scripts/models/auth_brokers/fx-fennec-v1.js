@@ -12,15 +12,10 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const FxSyncWebChannelAuthenticationBroker = require('../auth_brokers/fx-sync-web-channel');
-  const NavigateBehavior = require('../../views/behaviors/navigate');
 
   var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
   var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
-    defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
-      afterSignIn: new NavigateBehavior('signin_confirmed')
-    }),
-
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: true,

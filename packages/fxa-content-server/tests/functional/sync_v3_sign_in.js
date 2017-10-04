@@ -74,6 +74,42 @@ define([
         .then(clearBrowserState());
     },
 
+    'Fx >= 57, verified, does not need to confirm - control': function () {
+      const forceUA = uaStrings['desktop_firefox_57'];
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control', forceUA };
+
+      email = TestHelpers.createEmail();
+
+      return this.remote
+        .then(clearBrowserState({ force: true }))
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER, { query, webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true },
+          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+        }}))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+    },
+
+    'Fx >= 57, verified, does not need to confirm - treatment': function () {
+      const forceUA = uaStrings['desktop_firefox_57'];
+      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment', forceUA };
+
+      email = TestHelpers.createEmail();
+
+      return this.remote
+        .then(clearBrowserState({ force: true }))
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER, { query, webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true },
+          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+        }}))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+    },
+
     'verified, verify same browser, new tab\'s P.O.V - control': function () {
       const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' };
 
@@ -199,9 +235,7 @@ define([
         .then(fillOutSignInUnblock(email, 0))
 
         // about:accounts does not take over post-verification in Fx >= 57
-        // NOTE: the user should actually be sent to the "signin complete" screen,
-        // but there is a bug that I haven't figured out yet.
-        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
