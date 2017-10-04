@@ -196,7 +196,7 @@ module.exports = (log, db, config, customs, push, devices) => {
         }
 
         const pushOptions = {
-          data: Buffer.from(JSON.stringify(payload))
+          data: payload
         }
 
         if (body.to !== 'all') {

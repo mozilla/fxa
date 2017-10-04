@@ -273,7 +273,7 @@ describe('/account/devices/notify', function () {
         assert.ok(Array.isArray(args[1]), 'second argument was devices array')
         assert.equal(args[2], 'devicesNotify', 'second argument was the devicesNotify reason')
         assert.deepEqual(args[3], {
-          data: Buffer.from(JSON.stringify(pushPayload)),
+          data: pushPayload,
           excludedDeviceIds: ['bogusid'],
           TTL: 60
         }, 'third argument was the push options')
@@ -333,7 +333,7 @@ describe('/account/devices/notify', function () {
         assert.ok(Array.isArray(args[1]), 'second argument was devices array')
         assert.equal(args[2], 'devicesNotify', 'third argument was the devicesNotify reason')
         assert.deepEqual(args[3], {
-          data: Buffer.from(JSON.stringify(pushPayload)),
+          data: pushPayload,
           TTL: 60,
           includedDeviceIds: [ 'bogusid1', 'bogusid2' ]
         }, 'fourth argument was the push options')
