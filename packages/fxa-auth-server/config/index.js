@@ -290,7 +290,10 @@ var conf = convict({
       complaint: {
         doc: 'Tiers of max allowed complaints per amount of milliseconds',
         default: {
-          0: ONE_YEAR
+          // 0 are allowed in the past day.
+          // 1 is allowed in the past year.
+          0: ONE_DAY,
+          1: ONE_YEAR
         },
         env: 'BOUNCES_COMPLAINT'
       },

@@ -119,6 +119,31 @@ describe('bounces', () => {
       })
   })
 
+  it('does not error if not enough complaints in duration', () => {
+    const conf = Object.assign({}, config)
+    conf.smtp = {
+      bounces: {
+        enabled: true,
+        complaint: {
+          0: 5000,
+          1: 50000
+        }
+      }
+    }
+    const db = {
+      emailBounces: sinon.spy(() => P.resolve([
+        {
+          bounceType: BOUNCE_TYPE_COMPLAINT,
+          createdAt: Date.now() - 20000
+        }
+      ]))
+    }
+    return createBounces(conf, db).check(EMAIL)
+      .then(() => {
+        assert.equal(db.emailBounces.callCount, 1)
+      })
+  })
+
 
   describe('disabled', () => {
     it('does not call bounces.check if disabled', () => {
