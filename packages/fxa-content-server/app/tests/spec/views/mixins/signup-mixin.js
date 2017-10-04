@@ -125,64 +125,7 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('verified account', function () {
-        beforeEach(function () {
-          account.set('verified', true);
-
-          return view.signUp(account, 'password');
-        });
-
-        it('calls user.signUpAccount correctly', () => {
-          assert.isTrue(user.signUpAccount.calledOnce);
-          assert.isTrue(user.signUpAccount.calledWith(
-            account, 'password', relier, { resume: 'resume token' }));
-
-          assert.isTrue(view.getStringifiedResumeToken.calledOnce);
-          assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
-        });
-
-        it('calls view.logViewEvent correctly', function () {
-          assert.equal(view.logViewEvent.callCount, 3);
-
-          assert.isTrue(view.logViewEvent.calledWith('success'));
-          assert.isTrue(view.logViewEvent.calledWith('signup.success'));
-          assert.isTrue(view.logViewEvent.calledWith('preverified.success'));
-        });
-
-        it('calls view.logFlowEvent correctly', () => {
-          assert.equal(view.logFlowEvent.callCount, 1);
-          assert.equal(view.logFlowEvent.args[0].length, 2);
-          assert.equal(view.logFlowEvent.args[0][0], 'attempt');
-          assert.equal(view.logFlowEvent.args[0][1], 'signup');
-        });
-
-        it('calls view.formPrefill.clear', function () {
-          assert.equal(view.formPrefill.clear.callCount, 1);
-        });
-
-        it('calls view.invokeBrokerMethod correctly', function () {
-          assert.equal(view.invokeBrokerMethod.callCount, 2);
-
-          var args = view.invokeBrokerMethod.args[0];
-          assert.lengthOf(args, 2);
-          assert.equal(args[0], 'beforeSignIn');
-          assert.equal(args[1], account);
-
-          args = view.invokeBrokerMethod.args[1];
-          assert.lengthOf(args, 2);
-          assert.equal(args[0], 'afterSignIn');
-          assert.deepEqual(args[1], account);
-        });
-
-        it('calls view.navigate correctly', function () {
-          assert.equal(view.navigate.callCount, 1);
-          var args = view.navigate.args[0];
-          assert.lengthOf(args, 1);
-          assert.equal(args[0], 'signup_confirmed');
-        });
-      });
-
-      describe('unverified account', function () {
+      describe('everyone else', function () {
         beforeEach(function () {
           account.set('verified', false);
 
@@ -221,16 +164,6 @@ define(function (require, exports, module) {
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'afterSignUp');
           assert.deepEqual(args[1], account);
-        });
-
-        it('calls view.navigate correctly', function () {
-          assert.equal(view.navigate.callCount, 1);
-          var args = view.navigate.args[0];
-          assert.lengthOf(args, 2);
-          assert.equal(args[0], 'confirm');
-          assert.isObject(args[1]);
-          assert.lengthOf(Object.keys(args[1]), 1);
-          assert.deepEqual(args[1], { account });
         });
       });
 

@@ -6,7 +6,7 @@
  * A dropin replacement for Cocktail that ensure any of a mixin's
  * dependencies are also mixed in.
  *
- * A mixin that delcares `dependsOn` will have all dependencies
+ * A mixin that declares `dependsOn` will have all dependencies
  * mixed in beforehand.
  *
  * NOTE: This does not check for circular dependencies. We depend on
@@ -36,7 +36,24 @@ define(function (require, exports, module) {
     }, []));
   }
 
+  /**
+   * Check if `mixin` is mixed into `target` by checking
+   * whether `target` contains all of the properties/methods
+   * of `mixin`. Not foolproof, if `mixin` contains only
+   * properties and `target` already has all the properties,
+   * then `true` will be returned even if `target`s properties
+   * are not the same as `mixin`s properties.
+   *
+   * @param {Object} target
+   * @param {Object} mixin
+   * @returns {Boolean}
+   */
+  function isMixedIn(target, mixin) {
+    return _.every(Object.keys(mixin), (key) => key in target);
+  }
+
   module.exports = {
+    isMixedIn,
     mixin
   };
 });

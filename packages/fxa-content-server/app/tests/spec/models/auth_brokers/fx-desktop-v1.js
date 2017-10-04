@@ -33,6 +33,7 @@ define(function (require, exports, module) {
       account = user.initAccount({
         email: 'testuser@testuser.com',
         keyFetchToken: 'key-fetch-token',
+        uid: 'uid',
         unwrapBKey: 'unwrap-b-key'
       });
 

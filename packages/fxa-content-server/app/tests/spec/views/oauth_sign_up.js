@@ -5,12 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const $ = require('jquery');
   const { assert } = require('chai');
-  const Assertion = require('lib/assertion');
   const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
   const FormPrefill = require('models/form-prefill');
-  const FxaClient = require('lib/fxa-client');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const OAuthBroker = require('models/auth_brokers/oauth');
@@ -34,7 +31,7 @@ define(function (require, exports, module) {
     context.$('[type=password]').val(password);
 
     if (! opts.ignoreYear) {
-      $('#age').val(year);
+      context.$('#age').val(year);
     }
 
     if (context.enableSubmitIfValid) {
@@ -49,13 +46,11 @@ define(function (require, exports, module) {
   var BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
 
   describe('views/sign_up for /oauth/signup', function () {
-    var assertionLibrary;
     var broker;
     var email;
     var encodedLocationSearch;
     let experimentGroupingRules;
     var formPrefill;
-    var fxaClient;
     var metrics;
     var notifier;
     var oAuthClient;
@@ -96,13 +91,7 @@ define(function (require, exports, module) {
         });
       });
 
-      fxaClient = new FxaClient();
-      assertionLibrary = new Assertion({
-        fxaClient: fxaClient
-      });
-      user = new User({
-        fxaClient: fxaClient
-      });
+      user = new User({});
       experimentGroupingRules = new ExperimentGroupingRules();
       formPrefill = new FormPrefill();
       notifier = new Notifier();
@@ -110,11 +99,9 @@ define(function (require, exports, module) {
       metrics = new Metrics({ notifier, sentryMetrics });
 
       view = new View({
-        assertionLibrary,
         broker,
         experimentGroupingRules,
         formPrefill,
-        fxaClient,
         metrics,
         notifier,
         oAuthClient,
@@ -124,10 +111,7 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
-      return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
+      return view.render();
     });
 
     afterEach(function () {
@@ -140,9 +124,9 @@ define(function (require, exports, module) {
       it('displays oAuth client name', function () {
         return view.render()
           .then(function () {
-            assert.include($('#fxa-signup-header').text(), CLIENT_NAME);
+            assert.include(view.$('#fxa-signup-header').text(), CLIENT_NAME);
             // also make sure link is correct
-            assert.equal($('.sign-in').attr('href'), '/oauth/signin' + encodedLocationSearch);
+            assert.equal(view.$('.sign-in').attr('href'), '/oauth/signin' + encodedLocationSearch);
           });
       });
 
@@ -155,25 +139,16 @@ define(function (require, exports, module) {
     });
 
     describe('submit', function () {
-      it('redirects to /confirm on success', function () {
+      it('delegates to view.afterSignUp', () => {
         fillOutSignUp(email, 'password', { context: view });
 
-        sinon.stub(user, 'signUpAccount').callsFake(function (account) {
-          return p(account);
-        });
-
-        sinon.stub(relier, 'accountNeedsPermissions').callsFake(function () {
-          return false;
-        });
-
-        sinon.spy(view, 'navigate');
+        sinon.stub(view, 'signUp').callsFake(() => p());
 
         return view.submit()
           .then(function () {
-            assert.equal(user.signUpAccount.args[0][0].get('email'), email);
-            assert.equal(user.signUpAccount.args[0][1], 'password');
-            assert.isTrue(view.navigate.calledWith('confirm'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'oauth.signup.success'));
+            assert.isTrue(view.signUp.calledOnce);
+            assert.equal(view.signUp.args[0][0].get('email'), email);
+            assert.equal(view.signUp.args[0][1], 'password');
           });
       });
     });

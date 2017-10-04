@@ -94,7 +94,9 @@ define(function (require, exports, module) {
           timeoutSpy = sinon.spy(callback);
         });
         sinon.spy(windowMock, 'clearTimeout');
-        account = new Account({});
+        account = new Account({
+          uid: 'uid'
+        });
       });
 
       function testLoginSent(triggerLoginCB) {

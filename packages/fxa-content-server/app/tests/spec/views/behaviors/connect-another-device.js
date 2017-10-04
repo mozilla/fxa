@@ -6,7 +6,9 @@ define((require, exports, module) => {
   'use strict';
 
   const { assert } = require('chai');
+  const Cocktail = require('cocktail');
   const ConnectAnotherDeviceBehavior = require('views/behaviors/connect-another-device');
+  const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
   const NullBehavior = require('views/behaviors/null');
   const sinon = require('sinon');
 
@@ -21,14 +23,22 @@ define((require, exports, module) => {
       cadBehavior = new ConnectAnotherDeviceBehavior(defaultBehavior);
     });
 
+    it('ensureConnectAnotherDeviceMixin adds the ConnectAnotherDeviceMixin to a view', () => {
+      const view = {};
+      cadBehavior.ensureConnectAnotherDeviceMixin(view);
+      assert.isFunction(view.isEligibleForConnectAnotherDevice);
+      assert.isFunction(view.navigateToConnectAnotherDeviceScreen);
+    });
+
     describe('eligible for CAD', () => {
       it('delegates to `view.navigateToConnectAnotherDeviceScreen`', () => {
         const view = {
-          hasNavigated: sinon.spy(() => false),
-          isEligibleForConnectAnotherDevice: sinon.spy(() => true),
-          isSignIn: sinon.spy(() => false),
-          navigateToConnectAnotherDeviceScreen: sinon.spy()
+          hasNavigated: sinon.spy(() => false)
         };
+        Cocktail.mixin(view, ConnectAnotherDeviceMixin);
+
+        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
+        sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => {});
 
         return cadBehavior(view, account)
           .then((behavior) => {
@@ -48,11 +58,12 @@ define((require, exports, module) => {
     describe('ineligible for CAD', () => {
       it('invokes the defaultBehavior', () => {
         const view = {
-          hasNavigated: sinon.spy(() => false),
-          isEligibleForConnectAnotherDevice: sinon.spy(() => false),
-          isSignIn: sinon.spy(() => false),
-          navigateToConnectAnotherDeviceScreen: sinon.spy()
+          hasNavigated: sinon.spy(() => false)
         };
+        Cocktail.mixin(view, ConnectAnotherDeviceMixin);
+
+        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => false);
+        sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => {});
 
         return cadBehavior(view, account)
           .then((behavior) => {

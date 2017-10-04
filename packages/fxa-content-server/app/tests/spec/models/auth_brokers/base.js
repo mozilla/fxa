@@ -301,6 +301,23 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterSignUp', function () {
+      it('delegates to `afterSignUpConfirmationPoll` if account is verified', () => {
+        account.set('verified', true);
+        sinon.stub(broker, 'afterSignUpConfirmationPoll').callsFake(() => p());
+        return broker.afterSignUp(account)
+          .then(() => {
+            assert.isTrue(broker.afterSignUpConfirmationPoll.calledOnce);
+            assert.isTrue(broker.afterSignUpConfirmationPoll.calledWith(account));
+          });
+      });
+
+      it('returns the `afterSignUp` behavior if account is not verified', () => {
+        return broker.afterSignUp(account)
+          .then(testNavigates('confirm'));
+      });
+    });
+
     describe('afterSignUpConfirmationPoll', function () {
       it('returns a promise, behavior navigates to signup_confirmed', function () {
         return broker.afterSignUpConfirmationPoll(account)
@@ -432,6 +449,10 @@ define(function (require, exports, module) {
     });
 
     describe('_consumeSigninCode', () => {
+      beforeEach(() => {
+        sinon.stub(metrics, '_initializeFlowModel').callsFake(() => {});
+      });
+
       it('delegates to the user, clears signinCode when complete', () => {
         sinon.stub(fxaClient, 'consumeSigninCode').callsFake(function () {
           return p({ email: 'signed-in-email@testuser.com' });

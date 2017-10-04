@@ -73,7 +73,7 @@ define(function (require, exports, module) {
       afterResetPasswordConfirmationPoll: new NullBehavior(),
       afterSignIn: new NullBehavior(),
       afterSignInConfirmationPoll: new NavigateBehavior('signin_confirmed'),
-      afterSignUp: new NullBehavior(),
+      afterSignUp: new NavigateBehavior('confirm'),
       afterSignUpConfirmationPoll: new NavigateBehavior('signup_confirmed'),
       beforeSignIn: new NullBehavior(),
       beforeSignUpConfirmationPoll: new NullBehavior()
@@ -296,7 +296,11 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterSignUp (/* account */) {
+    afterSignUp (account) {
+      if (account.get('verified')) {
+        // If the account is already verified, go to the step after /confirm
+        return this.afterSignUpConfirmationPoll(account);
+      }
       return p(this.getBehavior('afterSignUp'));
     },
 

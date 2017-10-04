@@ -1022,23 +1022,12 @@ define(function (require, exports, module) {
         function setupCustomizeSyncTest(service, isCustomizeSyncChecked) {
           relier.set('service', service);
           relier.set('customizeSync', isCustomizeSyncChecked);
+          sinon.stub(relier, 'isSync').callsFake(() => service === 'sync');
 
-          sinon.stub(relier, 'isSync').callsFake(function () {
-            return service === 'sync';
-          });
+          sinon.stub(relier, 'isCustomizeSyncChecked').callsFake(
+            () => isCustomizeSyncChecked);
 
-          sinon.stub(relier, 'isCustomizeSyncChecked').callsFake(function () {
-            return isCustomizeSyncChecked;
-          });
-
-          sinon.stub(user, 'signUpAccount').callsFake(function (account) {
-            account.set('verified', true);
-            return p(account);
-          });
-
-          sinon.stub(broker, 'afterSignIn').callsFake(function () {
-            return p();
-          });
+          sinon.stub(view, 'signUp').callsFake(() => p());
 
           return view.render()
             .then(function () {
@@ -1050,10 +1039,12 @@ define(function (require, exports, module) {
             });
         }
 
-        it('passes the customize sync option to the fxa-client', function () {
+        it('passes the expected options to `signUp`', function () {
           return setupCustomizeSyncTest('sync', true)
             .then(function () {
-              assert.isTrue(user.signUpAccount.args[0][0].get('customizeSync'), 'fxa client params');
+              assert.isTrue(view.signUp.calledOnce);
+              assert.isTrue(view.signUp.args[0][0].get('customizeSync'));
+              assert.equal(view.signUp.args[0][1], 'password');
             });
         });
 
@@ -1141,16 +1132,13 @@ define(function (require, exports, module) {
           return false;
         });
         enableExperiments();
+        sinon.stub(view, 'signUp').callsFake(() => p());
         // user puts wrong email first
         fillOutSignUp('testuser@gnail.com', 'password');
         // mailcheck runs
         view.onEmailBlur();
         sinon.spy(user, 'initAccount');
-        sinon.stub(user, 'signUpAccount').callsFake(function (account) {
-          return p(account);
-        });
 
-        sinon.spy(view, 'navigate');
         sinon.stub(view, 'isUserOldEnough').callsFake(() => true);
 
         return view.submit()

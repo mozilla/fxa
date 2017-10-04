@@ -28,6 +28,7 @@ define(function (require, exports, module) {
       account = new Account({
         email: 'testuser@testuser.com',
         keyFetchToken: 'key-fetch-token',
+        uid: 'uid',
         unwrapBKey: 'unwrap-b-key'
       });
       channelMock = new NullChannel();

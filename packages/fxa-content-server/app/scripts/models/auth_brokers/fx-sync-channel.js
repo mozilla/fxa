@@ -170,7 +170,11 @@ define(function (require, exports, module) {
     },
 
     afterSignUpConfirmationPoll (account) {
-      return proto.afterSignUpConfirmationPoll.call(this, account)
+      // The relier is notified of login here because `beforeSignUpConfirmationPoll`
+      // is never called for users who verify at CWTS. Without the login notice,
+      // the browser will never know the user signed up.
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterSignUpConfirmationPoll.call(this, account))
         .then((behavior) => {
           if (this.hasCapability('sendAfterSignUpConfirmationPollNotice')) {
             const loginData = this._getLoginData(account);
@@ -251,6 +255,17 @@ define(function (require, exports, module) {
       if (! this._hasRequiredLoginFields(loginData)) {
         return p();
       }
+
+      // Only send one login notification per uid to avoid race
+      // conditions within the browser. Two attempts to send
+      // a login message occur for users that verify while
+      // at the /confirm screen. The first attempt is made when
+      // /confirm is first displayed, the 2nd when verification
+      // completes.
+      if (loginData.uid === this._uidOfLoginNotification) {
+        return p();
+      }
+      this._uidOfLoginNotification = loginData.uid;
 
       return this.send(this.getCommand('LOGIN'), loginData);
     },

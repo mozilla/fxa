@@ -53,7 +53,7 @@ define([
       return this.remote.then(clearBrowserState());
     },
 
-    'Fx <= 56, user verifies at CWTS': function () {
+    'Fx <= 56, verify at CWTS': function () {
       return this.remote
         .then(openPage(SIGNUP_FX_55_PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
@@ -70,12 +70,12 @@ define([
         .then(openVerificationLinkInDifferentBrowser(email, 0))
 
         // about:accounts takes over, so no screen transition
-        .then(noPageTransition(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(noPageTransition(selectors.CHOOSE_WHAT_TO_SYNC.HEADER, 5000))
         // but the login message is sent automatically.
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'Fx >= 57, user verifies at CWTS': function () {
+    'Fx >= 57, verify at CWTS': function () {
       return this.remote
         .then(openPage(SIGNUP_FX_57_PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
@@ -91,9 +91,9 @@ define([
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(openVerificationLinkInDifferentBrowser(email, 0))
 
-        // In fx >= 57, about:accounts does not take over.
+        // In Fx >= 57, about:accounts does not take over.
         // Expect a screen transition.
-        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         // but the login message is sent automatically.
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
@@ -289,6 +289,7 @@ define([
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInDifferentBrowser(email))
 
@@ -307,6 +308,7 @@ define([
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 

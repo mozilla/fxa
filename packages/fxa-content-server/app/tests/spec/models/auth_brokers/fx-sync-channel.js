@@ -327,10 +327,12 @@ define(function (require, exports, module) {
       describe('browser does not support `sendAfterSignUpConfirmationPollNotice`', () => {
         it('notifies the channel of login, does not halt the flow by default', () => {
           broker.setCapability('sendAfterSignUpConfirmationPollNotice', false);
+
           return broker.afterSignUpConfirmationPoll(account)
             .then((result) => {
               assert.ok(result);
-              assert.isFalse(channelMock.send.called);
+              assert.isTrue(channelMock.send.calledOnce);
+              assert.isTrue(channelMock.send.calledWith('login'));
             });
         });
       });
@@ -352,7 +354,8 @@ define(function (require, exports, module) {
             .then((result) => {
               assert.ok(result);
 
-              assert.isTrue(channelMock.send.calledOnce);
+              assert.isTrue(channelMock.send.called);
+              assert.isTrue(channelMock.send.calledWith('login'));
               assert.isTrue(channelMock.send.calledWith('verified'));
 
               const loginData = channelMock.send.args[0][1];

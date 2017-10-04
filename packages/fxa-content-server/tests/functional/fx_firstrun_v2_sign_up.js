@@ -92,7 +92,7 @@ define([
   });
 
   registerSuite({
-    name: 'Firstrun Sync v2 sign_up',
+    name: 'Firstrun Sync v2 signup',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -105,7 +105,7 @@ define([
         .then(clearBrowserState());
     },
 
-    'sign up, user verifies at CWTS': function () {
+    'verify at CWTS': function () {
       return this.remote
         .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
@@ -120,13 +120,12 @@ define([
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(openVerificationLinkInDifferentBrowser(email, 0))
 
-        // user should be transitioned straight to the "your address is confirmed"
-        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         // the login message is sent automatically.
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'sign up, verify same browser': function () {
+    'verify same browser': function () {
       return this.remote
         .then(setupTest())
 
@@ -144,7 +143,7 @@ define([
         .then(testEmailExpected(email, 1));
     },
 
-    'sign up, verify different browser': function () {
+    'verify different browser': function () {
       return this.remote
         .then(setupTest())
         // First, synthesize opening the verification link in a different browser
@@ -161,7 +160,7 @@ define([
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
-    'sign up, verify different browser, force SMS': function () {
+    'verify different browser, force SMS': function () {
       const options =  {
         query: {
           forceExperiment: 'sendSms',
@@ -185,7 +184,7 @@ define([
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
-    'sign up, verify same browser, force SMS, force supported country': function () {
+    'verify same browser, force SMS, force supported country': function () {
       const options =  {
         query: {
           country: 'CA',
@@ -210,7 +209,7 @@ define([
         .then(testElementExists(selectors.SMS_SEND.HEADER));
     },
 
-    'sign up, force SMS, force unsupported country in signup tab': function () {
+    'force SMS, force unsupported country in signup tab': function () {
       return this.remote
         .then(openPage(PAGE_URL, selectors['400'].HEADER, {
           query: {
@@ -222,7 +221,7 @@ define([
         .then(testElementTextInclude(selectors['400'].ERROR, 'country'));
     },
 
-    'sign up, verify same browser, force SMS, force unsupported country in verification tab': function () {
+    'verify same browser, force SMS, force unsupported country in verification tab': function () {
       return this.remote
         .then(setupTest())
 
@@ -246,22 +245,22 @@ define([
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER));
     },
 
-    'sign up, verify Chrome on Android, force SMS sends to connect_another_device': function () {
+    'verify Chrome on Android, force SMS sends to connect_another_device': function () {
       return this.remote
         .then(verifyMobileTest(UA_STRINGS['android_chrome']));
     },
 
-    'sign up, verify Firefox on Android, force SMS sends to connect_another_device': function () {
+    'verify Firefox on Android, force SMS sends to connect_another_device': function () {
       return this.remote
         .then(verifyMobileTest(UA_STRINGS['android_firefox']));
     },
 
-    'sign up, verify Firefox on iOS, force SMS sends to connect_another_device': function () {
+    'verify Firefox on iOS, force SMS sends to connect_another_device': function () {
       return this.remote
         .then(verifyMobileTest(UA_STRINGS['ios_firefox']));
     },
 
-    'sign up, verify Safari on iOS, force SMS sends to connect_another_device': function () {
+    'verify Safari on iOS, force SMS sends to connect_another_device': function () {
       return this.remote
         .then(verifyMobileTest(UA_STRINGS['ios_safari']));
     },

@@ -106,5 +106,24 @@ define(function (require, exports, module) {
       view.functionFrom3And4();
       assert.equal(functionFrom3And4Count, 2);
     });
+
+    it('isMixedIn returns `true` if `target` contains all properties of `mixin`', () => {
+      const view = new View();
+      const mixin = {
+        methodName () {
+          return true;
+        },
+
+        propertyName: 'propertyValue'
+      };
+
+      assert.isFalse(Cocktail.isMixedIn(view, mixin));
+
+      Cocktail.mixin(view, mixin);
+
+      assert.isTrue(Cocktail.isMixedIn(view, mixin));
+      assert.isTrue(view.methodName());
+      assert.equal(view.propertyName, 'propertyValue');
+    });
   });
 });

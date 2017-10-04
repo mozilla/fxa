@@ -67,19 +67,7 @@ define(function (require, exports, module) {
       this.logViewEvent('success');
       this.logViewEvent('signup.success');
 
-      if (account.get('verified')) {
-        // user was pre-verified.
-        this.logViewEvent('preverified.success');
-        return this.invokeBrokerMethod('afterSignIn', account)
-          .then(() => {
-            this.navigate('signup_confirmed');
-          });
-      }
-
-      return this.invokeBrokerMethod('afterSignUp', account)
-        .then(() => {
-          this.navigate('confirm', { account });
-        });
+      return this.invokeBrokerMethod('afterSignUp', account);
     },
 
     onSuggestSyncClick () {
