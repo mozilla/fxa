@@ -1,4 +1,5 @@
 from base64 import b64decode
+from Queue import Queue
 
 import boto3
 import hashlib
@@ -7,10 +8,12 @@ import json
 import os
 import requests
 import sys
+import threading
 import zlib
 
 AMPLITUDE_API_KEY = os.environ["FXA_AMPLITUDE_API_KEY"]
 HMAC_KEY = os.environ["FXA_AMPLITUDE_HMAC_KEY"]
+THREAD_COUNT = int(os.environ["FXA_AMPLITUDE_THREAD_COUNT"])
 
 # For crude pre-emptive rate-limit obedience.
 MAX_EVENTS_PER_BATCH = 10
@@ -52,10 +55,11 @@ def handle (message, context):
         s3 = boto3.resource("s3", region_name=record["awsRegion"])
         s3_object = s3.Object(record["s3"]["bucket"]["name"], record["s3"]["object"]["key"])
 
-        # This will fail if the data is not compressed.
-        process_compressed(s3_object.get()["Body"].read())
+        with SenderThreadPool() as pool:
+            # This will fail if the data is not compressed.
+            process_compressed(pool, s3_object.get()["Body"].read())
 
-def process_compressed (data):
+def process_compressed (pool, data):
     events = ""
     batches = None
 
@@ -64,9 +68,9 @@ def process_compressed (data):
         partitioned_events = partition_available_events(events)
         if is_partitioned(partitioned_events):
             events = partitioned_events[2]
-            batches = process(partitioned_events[0], is_last_call = False)
+            batches = process(pool, partitioned_events[0], batches, False)
 
-    process(events, batches)
+    process(pool, events, batches)
 
 def decompress (data):
     decompressor = zlib.decompressobj(ZLIB_WBITS)
@@ -86,7 +90,10 @@ def partition_available_events (events):
 def is_partitioned (partition):
     return partition[1] != ""
 
-def process (events, batches = {"identify": [], "event": []}, is_last_call = True):
+def process (pool, events, batches = None, is_last_call = True):
+    if batches is None:
+        batches = {"identify": [], "event": []}
+
     for event_string in events.splitlines():
         event = json.loads(event_string)
 
@@ -134,9 +141,8 @@ def process (events, batches = {"identify": [], "event": []}, is_last_call = Tru
 
         batches["event"].append(event)
         if len(batches["event"]) == MAX_EVENTS_PER_BATCH:
-            send(batches)
-            batches["identify"] = []
-            batches["event"] = []
+            pool.send(batches)
+            batches = {"identify": [], "event": []}
 
     if not is_last_call:
         return batches
@@ -161,8 +167,9 @@ def process_identify_verbs (user_properties):
 def send (batches):
     if len(batches["identify"]) > 0:
         # https://amplitude.zendesk.com/hc/en-us/articles/205406617-Identify-API-Modify-User-Properties#request-format
-        requests.post("https://api.amplitude.com/identify",
-                      data={"api_key": AMPLITUDE_API_KEY, "identification": json.dumps(batches["identify"])})
+        response = requests.post("https://api.amplitude.com/identify",
+                                 data={"api_key": AMPLITUDE_API_KEY, "identification": json.dumps(batches["identify"])})
+        response.raise_for_status()
 
     # https://amplitude.zendesk.com/hc/en-us/articles/204771828#request-format
     response = requests.post("https://api.amplitude.com/httpapi",
@@ -172,13 +179,74 @@ def send (batches):
     # one failed request fails an entire dump from S3.
     response.raise_for_status()
 
+
+class SenderThreadPool:
+    """A simple single-producer multi-consumer thread pool to send batches.
+
+    This class manages a pool of background threads to send event batches.
+    Use it like so:
+
+        with SenderThreadPool() as p:
+            for batches in do_some_stuff_to_generate_batches():
+                p.send(batches)
+
+    The call to send() will push the batch onto an internal queue where it
+    will get picked up async by the worker threads.  The `with` statement
+    will join all threads before exiting, to ensure that the send gets
+    completed.
+    """
+
+    def __init__(self):
+        self._queue = Queue()
+        self._threads = []
+        self._err = None
+
+    def __enter__(self):
+        for _ in xrange(THREAD_COUNT):
+            t = threading.Thread(target=self._worker_thread)
+            self._threads.append(t)
+            t.start()
+        return self
+
+    def __exit__(self, exc_typ, exc_val, exc_tb):
+        # Push a sentinel so each thread will shut down cleanly.
+        for t in self._threads:
+            self._queue.put(None)
+        # Wait for all the threads to shut down.
+        for t in self._threads:
+            t.join()
+        # If we're existing successfully, but there was an error
+        # in one of the worker threads, raise it now.
+        if exc_typ is None and self._err is not None:
+            raise self._err
+
+    def send(self, batches):
+        # If one of the worker threads raised an error,
+        # re-raise it in the main thread.
+        if self._err is not None:
+            raise self._err
+        self._queue.put(batches)
+
+    def _worker_thread(self):
+        try:
+            batches = self._queue.get()
+            while batches is not None:
+                send(batches)
+                batches = self._queue.get()
+        except Exception as err:
+            self._err = err
+
+
+
 if __name__ == "__main__":
     argc = len(sys.argv)
     if argc == 1:
-        process(sys.stdin.read())
+        with SenderThreadPool() as pool:
+            process(pool, sys.stdin.read())
     elif argc == 2:
-        with open(sys.argv[1]) as f:
-            process_compressed(f)
+        with SenderThreadPool() as pool:
+            with open(sys.argv[1]) as f:
+                process_compressed(pool, f)
     else:
         sys.exit("Usage: {} <path-to-gzipped-log-file>\nOR pipe uncompressed logs via stdin".format(sys.argv[0]))
 
