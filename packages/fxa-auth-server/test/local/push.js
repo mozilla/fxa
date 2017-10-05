@@ -201,14 +201,14 @@ describe('push', () => {
     'sendPush sends data',
     () => {
       var count = 0
-      var data = Buffer.from('foobar')
+      var data = { foo: 'bar' }
       var mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             count++
             assert.ok(sub.keys.p256dh)
             assert.ok(sub.keys.auth)
-            assert.deepEqual(payload, data)
+            assert.deepEqual(payload, Buffer.from(JSON.stringify(data)))
             return P.resolve()
           }
         }
@@ -251,7 +251,10 @@ describe('push', () => {
   it(
     'sendPush pushes to all ios devices if it is triggered with a "collection changed" command',
     () => {
-      const data = Buffer.from(JSON.stringify({command: 'sync:collection_changed'}))
+      const data = {
+        command: 'sync:collection_changed',
+        data: { collection: 'clients' }
+      }
       const endPoints = []
       const mocks = {
         'web-push': {
@@ -275,9 +278,37 @@ describe('push', () => {
   )
 
   it(
+    'sendPush does not push to ios devices if "collection changed" reason is "firstsync"',
+    () => {
+      const data = {
+        command: 'sync:collection_changed',
+        data: { collection: 'clients', reason: 'firstsync' }
+      }
+      const endPoints = []
+      const mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            endPoints.push(sub.endpoint)
+            return P.resolve()
+          }
+        }
+      }
+
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
+      const options = { data: data }
+      return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
+        .then(() => {
+          assert.equal(endPoints.length, 2)
+          assert.equal(endPoints[0], mockDevices[0].pushCallback)
+          assert.equal(endPoints[1], mockDevices[1].pushCallback)
+        })
+    }
+  )
+
+  it(
     'sendPush pushes to ios >=10.0 devices if it is triggered with a "device connected" command',
     () => {
-      const data = Buffer.from(JSON.stringify({command: 'fxaccounts:device_connected'}))
+      const data = {command: 'fxaccounts:device_connected'}
       let endPoints = []
       const mocks = {
         'web-push': {
@@ -588,11 +619,10 @@ describe('push', () => {
           assert.equal(push.notifyUpdate.getCall(0).args[1], mockDevices)
           assert.equal(push.notifyUpdate.getCall(0).args[2], 'deviceConnected')
           const options = push.notifyUpdate.getCall(0).args[3]
-          const payload = JSON.parse(options.data.toString('utf8'))
-          assert.deepEqual(payload, expectedData)
+          assert.deepEqual(options.data, expectedData)
           const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
           const schema = JSON.parse(fs.readFileSync(schemaPath))
-          assert.ok(ajv.validate(schema, payload))
+          assert.ok(ajv.validate(schema, options.data))
           assert.deepEqual(options.excludedDeviceIds, [deviceId])
           push.notifyUpdate.restore()
         })
@@ -630,11 +660,10 @@ describe('push', () => {
           assert.equal(push.sendPush.getCall(0).args[1], mockDevices)
           assert.equal(push.sendPush.getCall(0).args[2], 'deviceDisconnected')
           const options = push.sendPush.getCall(0).args[3]
-          const payload = JSON.parse(options.data.toString('utf8'))
-          assert.deepEqual(payload, expectedData)
+          assert.deepEqual(options.data, expectedData)
           const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
           const schema = JSON.parse(fs.readFileSync(schemaPath))
-          assert.ok(ajv.validate(schema, payload))
+          assert.ok(ajv.validate(schema, options.data))
           assert.ok(options.TTL, 'TTL should be set')
           push.sendPush.restore()
         })
@@ -667,11 +696,10 @@ describe('push', () => {
         assert.equal(push.sendPush.getCall(0).args[1], mockDevices)
         assert.equal(push.sendPush.getCall(0).args[2], 'passwordChange')
         var options = push.sendPush.getCall(0).args[3]
-        var payload = JSON.parse(options.data.toString('utf8'))
-        assert.deepEqual(payload, expectedData)
+        assert.deepEqual(options.data, expectedData)
         var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
         var schema = JSON.parse(fs.readFileSync(schemaPath))
-        assert.ok(ajv.validate(schema, payload))
+        assert.ok(ajv.validate(schema, options.data))
         push.sendPush.restore()
       })
     }
@@ -703,11 +731,10 @@ describe('push', () => {
         assert.equal(push.sendPush.getCall(0).args[1], mockDevices)
         assert.equal(push.sendPush.getCall(0).args[2], 'passwordReset')
         var options = push.sendPush.getCall(0).args[3]
-        var payload = JSON.parse(options.data.toString('utf8'))
-        assert.deepEqual(payload, expectedData)
+        assert.deepEqual(options.data, expectedData)
         var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
         var schema = JSON.parse(fs.readFileSync(schemaPath))
-        assert.ok(ajv.validate(schema, payload))
+        assert.ok(ajv.validate(schema, options.data))
         push.sendPush.restore()
       })
     }
@@ -742,11 +769,10 @@ describe('push', () => {
         assert.equal(push.sendPush.getCall(0).args[1], mockDevices)
         assert.equal(push.sendPush.getCall(0).args[2], 'accountDestroyed')
         var options = push.sendPush.getCall(0).args[3]
-        var payload = JSON.parse(options.data.toString('utf8'))
-        assert.deepEqual(payload, expectedData)
+        assert.deepEqual(options.data, expectedData)
         var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
         var schema = JSON.parse(fs.readFileSync(schemaPath))
-        assert.ok(ajv.validate(schema, payload))
+        assert.ok(ajv.validate(schema, options.data))
         push.sendPush.restore()
       })
     }

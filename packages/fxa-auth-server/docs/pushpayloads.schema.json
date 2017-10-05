@@ -128,6 +128,11 @@
                 "enum":[ "addons", "bookmarks", "history", "forms", "prefs",
                   "tabs", "passwords", "clients" ]
               }
+            },
+            "reason":{
+              "type":"string",
+              "enum":["sendtab", "firstsync"],
+              "description":"Event that lead to this push notification"
             }
           },
           "additionalProperties": false

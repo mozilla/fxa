@@ -178,29 +178,30 @@ module.exports = function (log, db, config) {
    * if they receive an unsupported message type.  Filter out
    * devices that we know won't respond well to the given command.
    *
-   * @param {String} command
-   * The command from the push message payload
+   * @param {Object} payload
+   * The push message payload
    * @param {Device[]} devices
    * The list of devices to which to send the push.
    */
-  function filterSupportedDevices(command, devices) {
-    let requiredIOSVersion
+  function filterSupportedDevices(payload, devices) {
+    const command = payload && payload.command
+    let canSendToIOSVersion/* ({Number} version) => bool */
     switch (command) {
     case 'sync:collection_changed':
-      // Everything supports this message, short-circuit.
-      return devices
+      canSendToIOSVersion = () => payload.data.reason !== 'firstsync'
+      break
     case 'fxaccounts:device_connected':
     case 'fxaccounts:device_disconnected':
-      requiredIOSVersion = 10.0
+      canSendToIOSVersion = deviceVersion => deviceVersion >= 10.0
       break
     default:
-      requiredIOSVersion = Infinity
+      canSendToIOSVersion = () => false
     }
     return devices.filter(function(device) {
       const deviceOS = device.uaOS && device.uaOS.toLowerCase()
       if (deviceOS === 'ios') {
         const deviceVersion = device.uaBrowserVersion ? parseFloat(device.uaBrowserVersion) : 0
-        if (deviceVersion < requiredIOSVersion) {
+        if (! canSendToIOSVersion(deviceVersion)) {
           log.info({
             op: 'push.filteredUnsupportedDevice',
             command: command,
@@ -266,7 +267,7 @@ module.exports = function (log, db, config) {
      * @param {Object} [options]
      *   @param {String[]} [options.includedDeviceIds]
      *   @param {String[]} [options.excludedDeviceIds]
-     *   @param {String} [options.data]
+     *   @param {Object} [options.data]
      *   @param {String} [options.TTL] (in seconds)
      * @promise
      */
@@ -297,13 +298,13 @@ module.exports = function (log, db, config) {
      */
     notifyDeviceConnected (uid, devices, deviceName, currentDeviceId) {
       return this.notifyUpdate(uid, devices, 'deviceConnected', {
-        data: encodePayload({
+        data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.DEVICE_CONNECTED,
           data: {
             deviceName
           }
-        }),
+        },
         excludedDeviceIds: [ currentDeviceId ]
       })
     },
@@ -318,13 +319,13 @@ module.exports = function (log, db, config) {
      */
     notifyDeviceDisconnected (uid, devices, idToDisconnect) {
       return this.sendPush(uid, devices, 'deviceDisconnected', {
-        data: encodePayload({
+        data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.DEVICE_DISCONNECTED,
           data: {
             id: idToDisconnect
           }
-        }),
+        },
         TTL: TTL_DEVICE_DISCONNECTED
       })
     },
@@ -338,10 +339,10 @@ module.exports = function (log, db, config) {
      */
     notifyProfileUpdated (uid, devices) {
       return this.sendPush(uid, devices, 'profileUpdated', {
-        data: encodePayload({
+        data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.PROFILE_UPDATED
-        })
+        }
       })
     },
 
@@ -354,10 +355,10 @@ module.exports = function (log, db, config) {
      */
     notifyPasswordChanged (uid, devices) {
       return this.sendPush(uid, devices, 'passwordChange', {
-        data: encodePayload({
+        data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.PASSWORD_CHANGED
-        }),
+        },
         TTL: TTL_PASSWORD_CHANGED
       })
     },
@@ -371,10 +372,10 @@ module.exports = function (log, db, config) {
      */
     notifyPasswordReset (uid, devices) {
       return this.sendPush(uid, devices, 'passwordReset', {
-        data: encodePayload({
+        data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.PASSWORD_RESET
-        }),
+        },
         TTL: TTL_PASSWORD_RESET
       })
     },
@@ -388,13 +389,13 @@ module.exports = function (log, db, config) {
      */
     notifyAccountDestroyed (uid, devices) {
       return this.sendPush(uid, devices, 'accountDestroyed', {
-        data: encodePayload({
+        data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.ACCOUNT_DESTROYED,
           data: {
             uid
           }
-        }),
+        },
         TTL: TTL_ACCOUNT_DESTROYED
       })
     },
@@ -406,19 +407,13 @@ module.exports = function (log, db, config) {
      * @param {Device[]} devices
      * @param {String} reason
      * @param {Object} options
-     * @param {String} options.data
+     * @param {Object} options.data
      * @param {String} options.TTL (in seconds)
      * @promise
      */
     sendPush: function sendPush(uid, devices, reason, options) {
       options = options || {}
-      var command
-      try {
-        command = JSON.parse(options.data.toString()).command
-      } catch (e) {
-        command = false
-      }
-      devices = filterSupportedDevices(command, devices)
+      devices = filterSupportedDevices(options.data, devices)
       var events = reasonToEvents[reason]
       if (! events) {
         return P.reject('Unknown push reason: ' + reason)
@@ -454,7 +449,7 @@ module.exports = function (log, db, config) {
               p256dh: device.pushPublicKey,
               auth: device.pushAuthKey
             }
-            pushPayload = options.data
+            pushPayload = Buffer.from(JSON.stringify(options.data))
           }
           if (vapid) {
             pushOptions.vapidDetails = vapid
@@ -500,9 +495,5 @@ module.exports = function (log, db, config) {
       })
     }
   }
-}
-
-function encodePayload (data) {
-  return Buffer.from(JSON.stringify(data))
 }
 
