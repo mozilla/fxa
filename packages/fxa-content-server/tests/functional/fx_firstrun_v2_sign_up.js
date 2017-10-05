@@ -16,22 +16,25 @@ define([
   var email;
   const PASSWORD = '12345678';
 
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const click = FunctionalHelpers.click;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  const openPage = FunctionalHelpers.openPage;
-  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  const testAttributeEquals = FunctionalHelpers.testAttributeEquals;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  const testEmailExpected = FunctionalHelpers.testEmailExpected;
-  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  const thenify = FunctionalHelpers.thenify;
-  const visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    fillOutSignUp,
+    noSuchElement,
+    openPage,
+    openVerificationLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    openVerificationLinkInSameTab,
+    respondToWebChannelMessage,
+    testAttributeEquals,
+    testElementExists,
+    testElementTextInclude,
+    testEmailExpected,
+    testIsBrowserNotified,
+    thenify,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   const setupTest = thenify(function (options) {
     return this.parent
@@ -118,7 +121,12 @@ define([
 
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-        .then(openVerificationLinkInDifferentBrowser(email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
+          .switchToWindow('newwindow')
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+          // switch back to the original window, it should transition to CAD.
+          .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         // the login message is sent automatically.

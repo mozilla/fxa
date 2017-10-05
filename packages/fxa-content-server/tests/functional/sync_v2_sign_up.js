@@ -15,19 +15,22 @@ define([
   var email;
   const PASSWORD = '12345678';
 
-  const click = FunctionalHelpers.click;
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  const noPageTransition = FunctionalHelpers.noPageTransition;
-  const noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  const openPage = FunctionalHelpers.openPage;
-  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  const testAttributeExists = FunctionalHelpers.testAttributeExists;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testEmailExpected = FunctionalHelpers.testEmailExpected;
-  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const {
+    click,
+    clearBrowserState,
+    closeCurrentWindow,
+    fillOutSignUp,
+    noPageTransition,
+    noSuchBrowserNotification,
+    noSuchElement,
+    openPage,
+    openVerificationLinkInNewTab,
+    respondToWebChannelMessage,
+    testAttributeExists,
+    testElementExists,
+    testEmailExpected,
+    testIsBrowserNotified,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'Firefox Desktop Sync v2 sign_up',
@@ -70,10 +73,12 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+          .switchToWindow('newwindow')
 
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+
+          .then(closeCurrentWindow())
 
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.

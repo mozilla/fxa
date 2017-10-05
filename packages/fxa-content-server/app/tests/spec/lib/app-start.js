@@ -250,9 +250,11 @@ define(function (require, exports, module) {
 
     describe('initializeAuthenticationBroker', () => {
       function testExpectedBrokerCreated(ExpectedBroker) {
+        sinon.stub(appStart, '_isVerificationSameBrowser').callsFake(() => true);
         return appStart.initializeAuthenticationBroker()
           .then(() => {
             assert.instanceOf(appStart._authenticationBroker, ExpectedBroker);
+            assert.isTrue(appStart._authenticationBroker.get('isVerificationSameBrowser'));
           });
       }
 
@@ -990,6 +992,83 @@ define(function (require, exports, module) {
         });
         const storage = appStart._getUserStorageInstance();
         assert.strictEqual(storage._backend, localStorage);
+      });
+    });
+
+    describe('_isVerification', () => {
+      let appStart;
+      let sandbox;
+
+      before(() => {
+        sandbox = sinon.sandbox.create();
+        appStart = new AppStart({
+          broker: {},
+          relier: {},
+          router: {
+            getViewOptions: () => {}
+          }
+        });
+      });
+
+      afterEach(() => {
+        sandbox.restore();
+      });
+
+      it('returns `true` for signup/in verification', () => {
+        sandbox.stub(appStart, '_isSignUpVerification').callsFake(() => true);
+        assert.isTrue(appStart._isVerification());
+      });
+
+      it('returns `true` for password reset verification', () => {
+        sandbox.stub(appStart, '_isPasswordResetVerification').callsFake(() => true);
+        assert.isTrue(appStart._isVerification());
+      });
+
+      it('returns `true` when reporting a signin', () => {
+        sandbox.stub(appStart, '_isReportSignIn').callsFake(() => true);
+        assert.isTrue(appStart._isVerification());
+      });
+
+      it('returns `false` otherwise', () => {
+        assert.isFalse(appStart._isVerification());
+      });
+    });
+
+    describe('_isVerificationSameBrowser', () => {
+      let appStart;
+      let sandbox;
+
+      before(() => {
+        sandbox = sinon.sandbox.create();
+        appStart = new AppStart({
+          broker: {},
+          relier: {},
+          router: {
+            getViewOptions: () => {}
+          }
+        });
+      });
+
+      afterEach(() => {
+        sandbox.restore();
+      });
+
+      it('returns `true` if verifying in the same browser', () => {
+        sandbox.stub(appStart, '_isVerification').callsFake(() => true);
+        sandbox.stub(appStart, '_getSameBrowserVerificationModel').callsFake(() => new SameBrowserVerificationModel({ context: 'context '}, {}));
+        assert.isTrue(appStart._isVerificationSameBrowser());
+      });
+
+      it('returns `false` if not verifying', () => {
+        sandbox.stub(appStart, '_isVerification').callsFake(() => false);
+        sandbox.stub(appStart, '_getSameBrowserVerificationModel').callsFake(() => new SameBrowserVerificationModel({ context: 'context '}, {}));
+        assert.isFalse(appStart._isVerificationSameBrowser());
+      });
+
+      it('returns `false` if cannot fetch the verification context', () => {
+        sandbox.stub(appStart, '_isVerification').callsFake(() => true);
+        sandbox.stub(appStart, '_getSameBrowserVerificationModel').callsFake(() => new SameBrowserVerificationModel({}, {}));
+        assert.isFalse(appStart._isVerificationSameBrowser());
       });
     });
   });

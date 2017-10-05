@@ -49,12 +49,20 @@ define(function (require, exports, module) {
     },
 
     afterVisible () {
-      this.waitForSessionVerification(
-        this.getAccount(),
-        () => this.validateAndSubmit()
-      );
-
-      return proto.afterVisible.call(this);
+      const account = this.getAccount();
+      return proto.afterVisible.call(this)
+        // The verification data needs to be written to localStorage
+        // in case the user verifies while at CWTS. The data is used
+        // by CAD to determine that the user is verifying in the same
+        // browser, and to avoid asking the user to sign in again.
+        // See #5554
+        .then(() => this.broker.persistVerificationData(account))
+        .then(() => {
+          this.waitForSessionVerification(
+            account,
+            () => this.validateAndSubmit()
+          );
+        });
     },
 
     destroy (...args) {

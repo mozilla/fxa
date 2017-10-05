@@ -164,7 +164,18 @@ define(function (require, exports, module) {
      * @private
      */
     _isSignedIn () {
-      return this.user.isSignedInAccount(this.getAccount());
+      // If a user verifies at CWTS, the browser will not have yet received
+      // the fxaccounts:login message, and the fxaccounts:fxa_status request on
+      // startup will return `signedInUser: null`, resulting in us believing no
+      // user is signed in. Users that aren't signed in are asked to sign in.
+      // Whoops.
+      // Fortunately, we can guess that the user *will* be signed in
+      // if we know the user is verifying in the same browser. Some data
+      // is written in CWTS to let us know the user is verifying in the same
+      // browser. If this is the case, assume the user is signed in.
+      // See #5554
+      return this.user.isSignedInAccount(this.getAccount()) ||
+             this.broker.get('isVerificationSameBrowser');
     }
 
     /**

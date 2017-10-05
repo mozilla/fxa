@@ -55,6 +55,7 @@ define(function (require, exports, module) {
       broker = new Broker({
         chooseWhatToSyncWebV1Engines: syncEngines
       });
+      sinon.stub(broker, 'persistVerificationData').callsFake(() => p());
       email = TestHelpers.createEmail();
       model = new Backbone.Model();
       notifier = new Notifier();
@@ -130,15 +131,31 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterVisible', () => {
+      it('persists verification data, starts poll', () => {
+        return initView()
+        .then(() => {
+          sinon.stub(view, 'waitForSessionVerification').callsFake(() => {});
+          return view.afterVisible();
+        })
+        .then(() => {
+          assert.isTrue(broker.persistVerificationData.calledOnce);
+          assert.isTrue(broker.persistVerificationData.calledWith(account));
+
+          assert.isTrue(view.waitForSessionVerification.calledOnce);
+          assert.isTrue(view.waitForSessionVerification.calledWith(account));
+        });
+      });
+    });
+
     describe('session verification polling', () => {
       it('invokes `validateAndSubmit` on verification', () => {
-
         return initView()
           .then(() => {
             sinon.spy(view, 'waitForSessionVerification');
             sinon.stub(view, 'validateAndSubmit').callsFake(() => {});
             sinon.stub(sessionVerificationPoll, 'start').callsFake(() => {});
-            view.afterVisible();
+            return view.afterVisible();
           })
           .then(() => {
             assert.isTrue(sessionVerificationPoll.start.calledOnce);
