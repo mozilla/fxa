@@ -1,3 +1,17 @@
+<a name="1.97.1"></a>
+## [1.97.1](https://github.com/mozilla/fxa-auth-server/compare/v1.97.0...v1.97.1) (2017-10-05)
+
+
+### Bug Fixes
+
+* **email:** Make blocking rule for complaints match that for hard bounces (#2152), r=@vbudhr ([272a4cf](https://github.com/mozilla/fxa-auth-server/commit/272a4cf))
+
+### Features
+
+* **push:** Drop collection_changed push notifications for first sync sent to iOS devices (# ([b6d9490](https://github.com/mozilla/fxa-auth-server/commit/b6d9490))
+
+
+
 <a name="1.97.0"></a>
 # [1.97.0](https://github.com/mozilla/fxa-auth-server/compare/v1.96.3...v1.97.0) (2017-10-04)
 
