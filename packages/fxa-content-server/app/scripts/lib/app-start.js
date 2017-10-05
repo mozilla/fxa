@@ -84,10 +84,10 @@ define(function (require, exports, module) {
       // WebChannel message response listeners.
       const START_DELAY_MS = this._isAutomatedBrowser() ? AUTOMATED_BROWSER_STARTUP_DELAY : 0;
       return p().delay(START_DELAY_MS)
-        .then(this.initializeDeps.bind(this))
-        .then(this.testLocalStorage.bind(this))
-        .then(this.allResourcesReady.bind(this))
-        .fail(this.fatalError.bind(this));
+        .then(() => this.initializeDeps())
+        .then(() => this.testLocalStorage())
+        .then(() => this.allResourcesReady())
+        .fail((err) => this.fatalError(err));
     },
 
     initializeInterTabChannel () {
@@ -102,55 +102,55 @@ define(function (require, exports, module) {
 
     initializeConfig () {
       return this._configLoader.fetch()
-        .then(_.bind(this.useConfig, this));
+        .then((config) => this.useConfig(config));
     },
 
     initializeDeps () {
       return p()
         // config and l10n depend on nothing, and are depended upon
         // by lots, they are loaded first.
-        .then(_.bind(this.initializeConfig, this))
-        .then(_.bind(this.initializeL10n, this))
-        .then(_.bind(this.initializeInterTabChannel, this))
-        .then(_.bind(this.initializeExperimentGroupingRules, this))
-        .then(_.bind(this.initializeErrorMetrics, this))
-        .then(_.bind(this.initializeOAuthClient, this))
+        .then(() => this.initializeConfig())
+        .then(() => this.initializeL10n())
+        .then(() => this.initializeInterTabChannel())
+        .then(() => this.initializeExperimentGroupingRules())
+        .then(() => this.initializeErrorMetrics())
+        .then(() => this.initializeOAuthClient())
         // both the metrics and router depend on the language
         // fetched from config.
-        .then(_.bind(this.initializeRelier, this))
+        .then(() => this.initializeRelier())
         // iframe channel depends on the relier.
-        .then(_.bind(this.initializeIframeChannel, this))
+        .then(() => this.initializeIframeChannel())
         // fxaClient depends on the relier and
         // inter tab communication.
-        .then(_.bind(this.initializeFxaClient, this))
+        .then(() => this.initializeFxaClient())
         // depends on nothing
-        .then(_.bind(this.initializeNotificationChannel, this))
+        .then(() => this.initializeNotificationChannel())
         // depends on iframeChannel and interTabChannel, web channel
-        .then(_.bind(this.initializeNotifier, this))
+        .then(() => this.initializeNotifier())
         // metrics depends on relier and notifier
-        .then(_.bind(this.initializeMetrics, this))
+        .then(() => this.initializeMetrics())
         // assertionLibrary depends on fxaClient
-        .then(_.bind(this.initializeAssertionLibrary, this))
+        .then(() => this.initializeAssertionLibrary())
         // profileClient depends on fxaClient and assertionLibrary
-        .then(_.bind(this.initializeProfileClient, this))
+        .then(() => this.initializeProfileClient())
         // marketingEmailClient depends on config
-        .then(_.bind(this.initializeMarketingEmailClient, this))
+        .then(() => this.initializeMarketingEmailClient())
         // broker relies on the relier, fxaClient,
         // assertionLibrary, and metrics
-        .then(_.bind(this.initializeAuthenticationBroker, this))
+        .then(() => this.initializeAuthenticationBroker())
         // user depends on the auth broker, profileClient, oAuthClient,
         // assertionLibrary and notifier.
-        .then(_.bind(this.initializeUser, this))
+        .then(() => this.initializeUser())
         // depends on the authentication broker
-        .then(_.bind(this.initializeHeightObserver, this))
+        .then(() => this.initializeHeightObserver())
         // depends on nothing
-        .then(_.bind(this.initializeFormPrefill, this))
+        .then(() => this.initializeFormPrefill())
         // depends on notifier, metrics
-        .then(_.bind(this.initializeRefreshObserver, this))
+        .then(() => this.initializeRefreshObserver())
         // router depends on all of the above
-        .then(_.bind(this.initializeRouter, this))
+        .then(() => this.initializeRouter())
         // appView depends on the router
-        .then(_.bind(this.initializeAppView, this));
+        .then(() => this.initializeAppView());
     },
 
     useConfig (config) {
@@ -536,7 +536,7 @@ define(function (require, exports, module) {
         if (! this._isAtCookiesDisabled()) {
           this._storage.testLocalStorage(this._window);
         }
-      }).fail(this.captureError.bind(this));
+      }).fail((err) => this.captureError(err));
     },
 
     /**
