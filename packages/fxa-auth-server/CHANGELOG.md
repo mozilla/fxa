@@ -1,3 +1,13 @@
+<a name="1.97.2"></a>
+## [1.97.2](https://github.com/mozilla/fxa-auth-server/compare/v1.97.1...v1.97.2) (2017-10-05)
+
+
+### chore
+
+* **logging:** log email headers to diagnose #2133 ([8d23ca9](https://github.com/mozilla/fxa-auth-server/commit/8d23ca9))
+
+
+
 <a name="1.97.1"></a>
 ## [1.97.1](https://github.com/mozilla/fxa-auth-server/compare/v1.97.0...v1.97.1) (2017-10-05)
 
