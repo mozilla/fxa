@@ -279,7 +279,8 @@ module.exports = function (log) {
     log.info({
       email: message.email,
       op: 'mailer.send',
-      template: message.template
+      template: message.template,
+      headers: Object.keys(headers).join(',')
     })
 
     var d = P.defer()

@@ -63,7 +63,18 @@ function logErrorIfHeadersAreWeirdOrMissing (log, message, origin) {
   const headers = getHeaders(message)
   if (headers) {
     const type = typeof headers
-    if (type !== 'object') {
+    if (type === 'object') {
+      const deviceId = getHeaderValue('X-Device-Id', message)
+      const uid = getHeaderValue('X-Uid', message)
+      if (! deviceId && ! uid) {
+        log.warn({
+          op: 'emailHeaders.keys',
+          keys: Object.keys(headers).join(','),
+          template: getHeaderValue('X-Template-Name', message),
+          origin
+        })
+      }
+    } else {
       log.error({ op: 'emailHeaders.weird', type, origin })
     }
   } else {
