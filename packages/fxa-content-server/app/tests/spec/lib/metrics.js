@@ -77,10 +77,12 @@ define(function (require, exports, module) {
     });
 
     it('has the expected notifications', () => {
-      assert.lengthOf(Object.keys(metrics.notifications), 3);
+      assert.lengthOf(Object.keys(metrics.notifications), 5);
 
       assert.isTrue('flow.initialize' in metrics.notifications);
       assert.isTrue('flow.event' in metrics.notifications);
+      assert.isTrue('set-uid' in metrics.notifications);
+      assert.isTrue('clear-uid' in metrics.notifications);
       assert.isTrue('once!view-shown' in metrics.notifications);
     });
 
@@ -270,6 +272,7 @@ define(function (require, exports, module) {
           window: windowMock,
           xhr: xhr
         });
+        notifier.trigger('set-uid', 'mock uid');
       });
 
       afterEach(function () {
@@ -317,7 +320,7 @@ define(function (require, exports, module) {
               assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
               var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-              assert.lengthOf(Object.keys(data), 28);
+              assert.lengthOf(Object.keys(data), 29);
               assert.equal(data.broker, 'none');
               assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
               assert.equal(data.deviceId, 'mock device id');
@@ -346,6 +349,7 @@ define(function (require, exports, module) {
               assert.isDefined(data.flushTime);
               assert.isObject(data.timers);
               assert.lengthOf(Object.keys(data.timers), 0);
+              assert.equal(data.uid, 'mock uid');
               assert.equal(data.utm_campaign, 'none');
               assert.equal(data.utm_content, 'none');
               assert.equal(data.utm_medium, 'none');
@@ -377,6 +381,20 @@ define(function (require, exports, module) {
                 assert.equal(data.flowId, FLOW_ID);
                 assert.equal(data.flowBeginTime, FLOW_BEGIN_TIME);
               });
+            });
+          });
+
+          describe('emit clear-uid then flush', () => {
+            beforeEach(() => {
+              sandbox.stub(windowMock.navigator, 'sendBeacon').callsFake(() => true);
+              notifier.trigger('clear-uid');
+              return metrics.flush();
+            });
+
+            it('calls sendBeacon correctly', () => {
+              assert.equal(windowMock.navigator.sendBeacon.callCount, 1);
+              const data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
+              assert.equal(data.uid, 'none');
             });
           });
 
@@ -448,7 +466,7 @@ define(function (require, exports, module) {
               assert.equal(settings.contentType, 'application/json');
 
               var data = JSON.parse(settings.data);
-              assert.lengthOf(Object.keys(data), 27);
+              assert.lengthOf(Object.keys(data), 28);
               assert.equal(data.deviceId, 'mock device id');
               assert.isArray(data.events);
               assert.lengthOf(data.events, 5);
@@ -457,6 +475,7 @@ define(function (require, exports, module) {
               assert.equal(data.events[2].type, 'baz');
               assert.equal(data.events[3].type, 'loaded');
               assert.equal(data.events[4].type, 'qux');
+              assert.equal(data.uid, 'mock uid');
             });
 
             it('resolves to true', function () {
@@ -527,7 +546,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 27);
+            assert.lengthOf(Object.keys(data), 28);
             assert.lengthOf(data.events, 5);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.bar');
@@ -552,7 +571,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 27);
+            assert.lengthOf(Object.keys(data), 28);
             assert.lengthOf(data.events, 5);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.bar');

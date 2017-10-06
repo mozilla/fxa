@@ -15,7 +15,6 @@ const PATTERNS = {
   BROKER: /^[0-9a-z-]+$/,
   CLIENT_ID: /^[0-9a-f]{16}/,
   CONTEXT: /^[0-9a-z_-]+$/,
-  DEVICE_ID: /^[0-9a-f]{32}$/,
   ENTRYPOINT: /^[\w.:-]+$/,
   EVENT_TYPE: /^[\w\s.:-]+$/, // the space is to allow for error contexts that contain spaces, e.g., `error.unknown context.auth.108`
   EXPERIMENT: /^[\w.-]+$/,
@@ -28,6 +27,7 @@ const TYPES = {
   ADJUST_CHANNEL_APP_ID: joi.string().regex(PATTERNS.ADJUST_CHANNEL_APP_ID),
   BOOLEAN: joi.boolean(),
   DIMENSION: joi.number().integer().min(0),
+  HEX32: joi.string().regex(/^[0-9a-f]{32}$/),
   INTEGER: joi.number().integer(),
   OFFSET: joi.number().integer().min(0),
   REFERRER: joi.string().max(2048).uri({ scheme: [ 'android-app', 'http', 'https' ]}).allow('none'),

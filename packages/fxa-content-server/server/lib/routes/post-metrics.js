@@ -21,7 +21,6 @@ const MAX_EVENT_OFFSET = clientMetricsConfig.max_event_offset;
 const {
   BROKER: BROKER_PATTERN,
   CONTEXT: CONTEXT_PATTERN,
-  DEVICE_ID: DEVICE_ID_PATTERN,
   ENTRYPOINT: ENTRYPOINT_PATTERN,
   EVENT_TYPE: EVENT_TYPE_PATTERN,
   EXPERIMENT: EXPERIMENT_PATTERN,
@@ -33,6 +32,7 @@ const {
 const {
   BOOLEAN: BOOLEAN_TYPE,
   DIMENSION: DIMENSION_TYPE,
+  HEX32: HEX32_TYPE,
   INTEGER: INTEGER_TYPE,
   OFFSET: OFFSET_TYPE,
   REFERRER: REFERRER_TYPE,
@@ -49,7 +49,7 @@ const NAVIGATION_TIMING_TYPE = INTEGER_TYPE.allow(null).required();
 const BODY_SCHEMA = {
   broker: STRING_TYPE.regex(BROKER_PATTERN).required(),
   context: STRING_TYPE.regex(CONTEXT_PATTERN).required(),
-  deviceId: STRING_TYPE.regex(DEVICE_ID_PATTERN).allow('none').optional(),
+  deviceId: HEX32_TYPE.allow('none').required(),
   duration: OFFSET_TYPE.required(),
   entryPoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
@@ -108,6 +108,7 @@ const BODY_SCHEMA = {
   service: STRING_TYPE.regex(SERVICE_PATTERN).required(),
   startTime: TIME_TYPE.required(),
   timers: joi.object().optional(), // this is never consumed.
+  uid: HEX32_TYPE.allow('none').optional(),
   uniqueUserId: STRING_TYPE.regex(UNIQUE_USER_ID_PATTERN).allow('none').required(),
   // the crazy long allow comes from the firstrun page.
   'utm_campaign': UTM_TYPE.allow('page+referral+-+not+part+of+a+campaign').required(),

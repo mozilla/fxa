@@ -82,6 +82,7 @@ define(function (require, exports, module) {
     beforeEach(function () {
       broker = new Broker();
       notifier = new Notifier();
+      sinon.stub(notifier, 'trigger').callsFake(() => {});
       metrics = new Metrics({ notifier });
       relier = new Relier();
       user = new User({
@@ -122,6 +123,13 @@ define(function (require, exports, module) {
       view.destroy();
 
       view = windowMock = metrics = null;
+    });
+
+    it('emits set-uid event correctly', () => {
+      assert.equal(notifier.trigger.callCount, 1);
+      const args = notifier.trigger.args[0];
+      assert.equal(args[0], 'set-uid');
+      assert.equal(args[1], validUid);
     });
 
     describe('getAccount', function () {
@@ -453,15 +461,14 @@ define(function (require, exports, module) {
         sinon.stub(view, 'isSignIn').callsFake(() => true);
         sinon.spy(view, 'logViewEvent');
         sinon.spy(view, 'logEvent');
-        sinon.spy(notifier, 'trigger');
 
         return view._notifyBrokerAndComplete(account)
           .then(() => {
             assert.isTrue(view.logViewEvent.calledOnce);
             assert.isTrue(view.logViewEvent.calledWith('verification.success'));
 
-            assert.isTrue(notifier.trigger.calledOnce);
-            assert.isTrue(notifier.trigger.calledWith('verification.success'));
+            assert.isTrue(notifier.trigger.calledTwice);
+            assert.equal(notifier.trigger.args[1][0], 'verification.success');
 
             assert.isTrue(view.logEvent.calledOnce);
             assert.isTrue(view.logEvent.calledWith('signin.success'));

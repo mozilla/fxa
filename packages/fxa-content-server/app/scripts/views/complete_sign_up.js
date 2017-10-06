@@ -36,6 +36,8 @@ define(function (require, exports, module) {
       this._verificationInfo = new VerificationInfo(this.getSearchParams());
       const uid = this._verificationInfo.get('uid');
 
+      this.notifier.trigger('set-uid', uid);
+
       const account = options.account || this.user.getAccountByUid(uid);
       // the account will not exist if verifying in a second browser, and the
       // default account will be returned. Add the uid to the account so

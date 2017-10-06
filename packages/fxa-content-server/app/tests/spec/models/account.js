@@ -286,6 +286,7 @@ define(function (require, exports, module) {
             sinon.stub(fxaClient, 'signIn').callsFake(function () {
               return p({
                 sessionToken: SESSION_TOKEN,
+                uid: UID,
                 verificationMethod: VerificationMethods.EMAIL,
                 verificationReason: VerificationReasons.SIGN_UP,
                 verified: false
@@ -322,6 +323,15 @@ define(function (require, exports, module) {
           it('updates the account with the returned data', function () {
             assert.isFalse(account.get('verified'));
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+            assert.equal(account.get('uid'), UID);
+          });
+
+          it('emits set-uid event correctly', () => {
+            assert.equal(notifier.trigger.callCount, 1);
+            const args = notifier.trigger.args[0];
+            assert.lengthOf(args, 2);
+            assert.equal(args[0], 'set-uid');
+            assert.equal(args[1], UID);
           });
         });
 
@@ -356,6 +366,15 @@ define(function (require, exports, module) {
             assert.equal(account.get('verificationReason'), VerificationReasons.SIGN_IN);
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
             assert.isFalse(account.get('verified'));
+            assert.equal(account.get('uid'), UID);
+          });
+
+          it('emits set-uid event correctly', () => {
+            assert.equal(notifier.trigger.callCount, 1);
+            const args = notifier.trigger.args[0];
+            assert.lengthOf(args, 2);
+            assert.equal(args[0], 'set-uid');
+            assert.equal(args[1], UID);
           });
         });
 
@@ -387,6 +406,15 @@ define(function (require, exports, module) {
           it('updates the account with the returned data', function () {
             assert.isTrue(account.get('verified'));
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+            assert.equal(account.get('uid'), UID);
+          });
+
+          it('emits set-uid event correctly', () => {
+            assert.equal(notifier.trigger.callCount, 1);
+            const args = notifier.trigger.args[0];
+            assert.lengthOf(args, 2);
+            assert.equal(args[0], 'set-uid');
+            assert.equal(args[1], UID);
           });
         });
 
@@ -470,6 +498,10 @@ define(function (require, exports, module) {
 
           it('propagates the error', function () {
             assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+          });
+
+          it('does not emit set-uid event', () => {
+            assert.equal(notifier.trigger.callCount, 0);
           });
         });
       });
@@ -763,6 +795,13 @@ define(function (require, exports, module) {
         assert.isTrue(fxaClient.sessionDestroy.calledOnce);
         assert.isTrue(fxaClient.sessionDestroy.calledWith(SESSION_TOKEN));
       });
+
+      it('emits clear-uid event correctly', () => {
+        assert.equal(notifier.trigger.callCount, 1);
+        const args = notifier.trigger.args[0];
+        assert.lengthOf(args, 1);
+        assert.equal(args[0], 'clear-uid');
+      });
     });
 
     describe('destroy', function () {
@@ -786,6 +825,13 @@ define(function (require, exports, module) {
 
       it('triggers a `destroy` message when complete', function () {
         assert.isTrue(account.trigger.calledWith('destroy', account));
+      });
+
+      it('emits clear-uid event correctly', () => {
+        assert.equal(notifier.trigger.callCount, 1);
+        const args = notifier.trigger.args[0];
+        assert.lengthOf(args, 1);
+        assert.equal(args[0], 'clear-uid');
       });
     });
 

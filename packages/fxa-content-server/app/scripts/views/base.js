@@ -168,13 +168,13 @@ define(function (require, exports, module) {
         this.viewName = options.viewName;
       }
 
-      Backbone.View.call(this, options);
-
       // The mixin's initialize is called directly instead of the normal
       // override the `initialize` function because not all sub-classes
       // call the parent's `initialize`. w/o the call to the parent,
       // the mixin does not initialize correctly.
       NotifierMixin.initialize.call(this, options);
+
+      Backbone.View.call(this, options);
 
       // Prevent errors from being displayed by aborted XHR requests.
       this._boundDisableErrors = this.disableErrors.bind(this);
