@@ -37,7 +37,6 @@ development, and will be happy to help answer any questions you might have:
 
 * [Ryan Kelly](https://github.com/rfk) - Engineering (Melbourne, approx UTC+10)
 * [Shane Tomlinson](https://github.com/shane-tomlinson/) - Engineering (London, approx UTC)
-* [Sean McArthur](https://github.com/seanmonstar) - Engineering (Irvine, approx UTC-8)
 * [Vlad Filippov](https://github.com/vladikoff) - Engineering (Toronto, approx UTC-5)
 * [Vijay Budhram](https://github.com/vbudhram) - Engineering (Orlando, approx UTC-5)
 * [Phil Booth](https://github.com/philbooth) - Engineering (London, approx UTC)
