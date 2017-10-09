@@ -1,3 +1,13 @@
+<a name="1.97.2"></a>
+## 1.97.2 (2017-10-05)
+
+
+### Bug Fixes
+
+* **CAD:** Do not show the "sign in" button if the user is at CWTS. (#5557) r=vladikoff ([110a3ad](https://github.com/mozilla/fxa-content-server/commit/110a3ad)), closes [#5554](https://github.com/mozilla/fxa-content-server/issues/5554)
+
+
+
 <a name="1.97.1"></a>
 ## 1.97.1 (2017-10-04)
 

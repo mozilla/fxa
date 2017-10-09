@@ -177,6 +177,7 @@ define([], function () {
       // The original checkbox is not clickable after the material conversion. The span
       // next to the element holds the label text, click it instead. See #5425
       CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync + span',
+      CUSTOMIZE_SYNC_INPUT: '#customize-sync',
       EMAIL: 'input[type=email]',
       ERROR: '.error',
       HEADER: '#fxa-signup-header',
@@ -185,6 +186,7 @@ define([], function () {
       LINK_SUGGEST_SIGN_IN: '.error a[href="/signin"]',
       LINK_SUGGEST_SYNC: '#suggest-sync a',
       MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin + span',
+      MIGRATING_USER: '.info.nudge',
       PASSWORD: '#password',
       SUBMIT: 'button[type="submit"]',
       SUBMIT_DISABLED: 'button[type="submit"].disabled',

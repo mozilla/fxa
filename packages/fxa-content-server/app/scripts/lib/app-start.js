@@ -326,6 +326,7 @@ define(function (require, exports, module) {
           assertionLibrary: this._assertionLibrary,
           fxaClient: this._fxaClient,
           iframeChannel: this._iframeChannel,
+          isVerificationSameBrowser: this._isVerificationSameBrowser(),
           metrics: this._metrics,
           notificationChannel: this._notificationChannel,
           notifier: this._notifier,
@@ -708,6 +709,17 @@ define(function (require, exports, module) {
       return this._isSignUpVerification() ||
              this._isPasswordResetVerification() ||
              this._isReportSignIn();
+    },
+
+    /**
+     * Is the user verifying in the same browser they signed up/in to?
+     *
+     * @returns {Boolean}
+     * @private
+     */
+    _isVerificationSameBrowser () {
+      return this._isVerification() &&
+             !! this._getSameBrowserVerificationModel('context').get('context');
     },
 
     _isInAnIframe () {

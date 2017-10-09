@@ -23,23 +23,25 @@ define([
   let email;
   const PASSWORD = '12345678';
 
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const click = FunctionalHelpers.click;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  const getVerificationLink = FunctionalHelpers.getVerificationLink;
-  const getWebChannelMessageData = FunctionalHelpers.getWebChannelMessageData;
-  const storeWebChannelMessageData = FunctionalHelpers.storeWebChannelMessageData;
-  const noPageTransition = FunctionalHelpers.noPageTransition;
-  const noSuchElement = FunctionalHelpers.noSuchElement;
-  const noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  const openPage = FunctionalHelpers.openPage;
-  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testEmailExpected = FunctionalHelpers.testEmailExpected;
-  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  const visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    fillOutSignUp,
+    getVerificationLink,
+    getWebChannelMessageData,
+    storeWebChannelMessageData,
+    noPageTransition,
+    noSuchElement,
+    noSuchBrowserNotification,
+    openPage,
+    openVerificationLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    testElementExists,
+    testEmailExpected,
+    testIsBrowserNotified,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'Firefox Desktop Sync v3 signup',
@@ -67,8 +69,12 @@ define([
 
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-        .then(openVerificationLinkInDifferentBrowser(email, 0))
-
+        .then(openVerificationLinkInNewTab(email, 0))
+          .switchToWindow('newwindow')
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+          // switch back to the original window, it should transition to CAD.
+          .then(closeCurrentWindow())
         // about:accounts takes over, so no screen transition
         .then(noPageTransition(selectors.CHOOSE_WHAT_TO_SYNC.HEADER, 5000))
         // but the login message is sent automatically.
@@ -89,7 +95,12 @@ define([
 
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-        .then(openVerificationLinkInDifferentBrowser(email, 0))
+        .then(openVerificationLinkInNewTab(email, 0))
+          .switchToWindow('newwindow')
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+          // switch back to the original window, it should transition to CAD.
+          .then(closeCurrentWindow())
 
         // In Fx >= 57, about:accounts does not take over.
         // Expect a screen transition.

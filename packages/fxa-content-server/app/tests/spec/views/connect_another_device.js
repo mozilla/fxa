@@ -65,7 +65,7 @@ define(function (require, exports, module) {
     describe('render/afterVisible', () => {
       describe('with a Fx desktop user that is signed in', () => {
         beforeEach(() => {
-          sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
+          sinon.stub(view, '_isSignedIn').callsFake(() => true);
           windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
 
           return view.render()
@@ -75,6 +75,7 @@ define(function (require, exports, module) {
         });
 
         it('shows the marketing area, logs appropriately', () => {
+          assert.isTrue(view._isSignedIn.called);
           assert.lengthOf(view.$('.marketing-area'), 1);
           testIsFlowEventLogged('signedin.true');
           testIsFlowEventLogged('signin.ineligible');
@@ -95,7 +96,7 @@ define(function (require, exports, module) {
             };
           });
 
-          sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
+          sinon.stub(view, '_isSignedIn').callsFake(() => true);
 
           return view.render()
             .then(() => {
@@ -104,6 +105,7 @@ define(function (require, exports, module) {
         });
 
         it('shows the marketing area, logs appropriately', () => {
+          assert.isTrue(view._isSignedIn.called);
           assert.lengthOf(view.$('.marketing-area'), 1);
           testIsFlowEventLogged('signedin.true');
           testIsFlowEventLogged('signin.ineligible');
@@ -125,7 +127,7 @@ define(function (require, exports, module) {
           });
 
           account.set('email', 'testuser@testuser.com');
-          sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+          sinon.stub(view, '_isSignedIn').callsFake(() => false);
           sinon.stub(view, '_canSignIn').callsFake(() => true);
 
           return view.render()
@@ -135,6 +137,7 @@ define(function (require, exports, module) {
         });
 
         it('shows a sign in button with the appropriate link, logs appropriately', () => {
+          assert.isTrue(view._isSignedIn.called);
           assert.lengthOf(view.$('#signin'), 1);
           testIsFlowEventLogged('signedin.false');
           testIsFlowEventLogged('signin.eligible');
@@ -156,7 +159,7 @@ define(function (require, exports, module) {
           });
 
           account.set('email', 'testuser@testuser.com');
-          sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+          sinon.stub(view, '_isSignedIn').callsFake(() => false);
           sinon.stub(view, '_canSignIn').callsFake(() => true);
 
           return view.render()
@@ -166,6 +169,7 @@ define(function (require, exports, module) {
         });
 
         it('shows a sign in button with the appropriate link, logs appropriately', () => {
+          assert.isTrue(view._isSignedIn.called);
           assert.lengthOf(view.$('#signin'), 1);
           testIsFlowEventLogged('signedin.false');
           testIsFlowEventLogged('signin.eligible');
@@ -175,7 +179,7 @@ define(function (require, exports, module) {
 
       describe('with a user that cannot sign in', () => {
         beforeEach(() => {
-          sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+          sinon.stub(view, '_isSignedIn').callsFake(() => false);
           sinon.stub(view, '_canSignIn').callsFake(() => false);
         });
 
@@ -194,6 +198,7 @@ define(function (require, exports, module) {
           return view.render()
             .then(() => {
               view.afterVisible();
+              assert.isTrue(view._isSignedIn.called);
 
               assert.lengthOf(view.$('#signin-fxios'), 1);
               assert.lengthOf(view.$('.marketing-area'), 0);
@@ -292,12 +297,27 @@ define(function (require, exports, module) {
     });
 
     describe('_isSignedIn', () => {
-      it('delegates to user.isSignedInAccount', () => {
+      it('returns `true` if the account is signed', () => {
         sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
+        broker.set('isVerificationSameBrowser', false);
 
         assert.isTrue(view._isSignedIn());
         assert.isTrue(user.isSignedInAccount.calledOnce);
         assert.isTrue(user.isSignedInAccount.calledWith(account));
+      });
+
+      it('returns `true` if verifying in the same browser', () => {
+        sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+        broker.set('isVerificationSameBrowser', true);
+
+        assert.isTrue(view._isSignedIn());
+      });
+
+      it('returns `false` otherwise', () => {
+        sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+        broker.set('isVerificationSameBrowser', false);
+
+        assert.isFalse(view._isSignedIn());
       });
     });
 
