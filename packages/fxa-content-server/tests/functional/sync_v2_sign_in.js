@@ -14,20 +14,22 @@ define([
   var email;
   var PASSWORD = '12345678';
 
-  var thenify = FunctionalHelpers.thenify;
-
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const {
+    clearBrowserState,
+    closeCurrentWindow,
+    createUser,
+    fillOutSignIn,
+    fillOutSignInUnblock,
+    noPageTransition,
+    openPage,
+    openVerificationLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    respondToWebChannelMessage,
+    switchToWindow,
+    testElementExists,
+    testIsBrowserNotified,
+    thenify,
+  } = FunctionalHelpers;
 
   var setupTest = thenify(function (options) {
     options = options || {};
@@ -66,7 +68,7 @@ define([
         .then(setupTest({ preVerified: true }))
 
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists('#fxa-sign-in-complete-header'))
           .then(closeCurrentWindow())
 

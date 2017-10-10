@@ -11,27 +11,30 @@ define([
   var email;
   var bouncedEmail;
 
-  var click = FunctionalHelpers.click;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var getFxaClient = FunctionalHelpers.getFxaClient;
-  var noEmailExpected = FunctionalHelpers.noEmailExpected;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  var openExternalSite = FunctionalHelpers.openExternalSite;
-  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var testUrlInclude = FunctionalHelpers.testUrlInclude;
-  var testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
-  var thenify = FunctionalHelpers.thenify;
-  var type = FunctionalHelpers.type;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    click,
+    clearBrowserState,
+    closeCurrentWindow,
+    createUser,
+    fillOutSignUp,
+    getFxaClient,
+    noEmailExpected,
+    noSuchElement,
+    testElementValueEquals,
+    openExternalSite,
+    openFxaFromRp,
+    openVerificationLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    openVerificationLinkInSameTab,
+    switchToWindow,
+    testElementExists,
+    testElementTextInclude,
+    testUrlInclude,
+    testUrlPathnameEquals,
+    thenify,
+    type,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   const signUpWithExistingAccount = thenify(function(email, firstPassword, secondPassword, options) {
     return this.parent
@@ -73,7 +76,7 @@ define([
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
         // wait for the verified window in the new tab
         .then(testElementExists('#fxa-sign-up-complete-header'))
         // user sees the name of the RP, but cannot redirect
@@ -98,7 +101,7 @@ define([
         .then(openExternalSite())
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
         .then(testElementExists('#fxa-sign-up-complete-header'))
 
         // switch to the original window
@@ -226,7 +229,7 @@ define([
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
         // wait for the verification step to complete
         .then(testElementExists('.account-ready-service'))
 

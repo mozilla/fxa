@@ -27,6 +27,7 @@ define([
     openVerificationLinkInNewTab,
     openVerificationLinkInSameTab,
     respondToWebChannelMessage,
+    switchToWindow,
     testAttributeEquals,
     testElementExists,
     testElementTextInclude,
@@ -82,7 +83,7 @@ define([
 
       // verify the user
       .then(openVerificationLinkInNewTab(email, 0, verificationOptions))
-      .switchToWindow('newwindow')
+      .then(switchToWindow(1))
 
       // mobile users are ineligible to send an SMS, they should be redirected
       // to the "connect another device" screen
@@ -122,7 +123,7 @@ define([
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(openVerificationLinkInNewTab(email, 0))
-          .switchToWindow('newwindow')
+          .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
           // switch back to the original window, it should transition to CAD.
@@ -139,7 +140,7 @@ define([
 
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         // user should see the CAD screen in both signup and verification tabs.
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
@@ -206,7 +207,7 @@ define([
 
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0, options))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         // user should be redirected to "Send SMS" screen.
         .then(testElementExists(selectors.SMS_SEND.HEADER))
@@ -241,7 +242,7 @@ define([
             forceExperimentGroup: 'treatment'
           }
         }))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         // user should be redirected to the 400 page, `country` is invalid
         .then(testElementExists(selectors['400'].HEADER))

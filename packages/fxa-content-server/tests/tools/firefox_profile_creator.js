@@ -31,6 +31,8 @@ if (profile) {
   myProfile.setPreference('app.update.enabled', false);
   myProfile.setPreference('app.update.auto', false);
   myProfile.setPreference('app.update.silent', false);
+  // CSP disable due to issue with geckodriver 0.19
+  myProfile.setPreference('security.csp.enable', false);
 
   // Disable getUserMedia permission check for avatar uploads.
   myProfile.setPreference('media.navigator.permission.disabled', true);

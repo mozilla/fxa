@@ -24,25 +24,28 @@ define([
   let email;
   let secondaryEmail;
 
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const click = FunctionalHelpers.click;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const fillOutChangePassword = FunctionalHelpers.fillOutChangePassword;
-  const fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
-  const fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
-  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  const openPage = FunctionalHelpers.openPage;
-  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  const noSuchElement = FunctionalHelpers.noSuchElement;
-  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  const testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
-  const testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
-  const type = FunctionalHelpers.type;
-  const visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    fillOutChangePassword,
+    fillOutResetPassword,
+    fillOutCompleteResetPassword,
+    fillOutSignUp,
+    fillOutSignIn,
+    openPage,
+    openVerificationLinkInNewTab,
+    openVerificationLinkInSameTab,
+    noSuchElement,
+    switchToWindow,
+    testIsBrowserNotified,
+    testElementExists,
+    testElementTextEquals,
+    testErrorTextInclude,
+    testSuccessWasShown,
+    type,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'settings change email',
@@ -148,7 +151,7 @@ define([
         .then(openVerificationLinkInNewTab(secondaryEmail, 1))
 
         // complete the reset password in the new tab
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
           .then(fillOutCompleteResetPassword(NEW_PASSWORD, NEW_PASSWORD))
 

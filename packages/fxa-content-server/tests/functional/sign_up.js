@@ -18,29 +18,32 @@ define([
   var email;
   var PASSWORD = '12345678';
 
-  var click = FunctionalHelpers.click;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = FunctionalHelpers.openPage;
-  var openSignUpInNewTab = FunctionalHelpers.openSignUpInNewTab;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
-  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
-  var testUrlInclude = FunctionalHelpers.testUrlInclude;
-  var type = FunctionalHelpers.type;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    click,
+    clearBrowserState,
+    closeCurrentWindow,
+    createUser,
+    fillOutSignIn,
+    fillOutSignInUnblock,
+    fillOutSignUp,
+    noPageTransition,
+    noSuchElement,
+    openPage,
+    openSignUpInNewTab,
+    openVerificationLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    openVerificationLinkInSameTab,
+    switchToWindow,
+    testAttributeMatches,
+    testElementExists,
+    testElementTextInclude,
+    testElementValueEquals,
+    testErrorTextInclude,
+    testSuccessWasShown,
+    testUrlInclude,
+    type,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   var SIGNUP_ENTRYPOINT = 'entrypoint=' + encodeURIComponent('fxa:signup');
   var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
@@ -62,7 +65,7 @@ define([
   }
 
   registerSuite({
-    name: 'sign_up',
+    name: 'signup',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
@@ -95,7 +98,7 @@ define([
         .then(testAtConfirmScreen(email))
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
         .then(closeCurrentWindow())
@@ -112,7 +115,7 @@ define([
         .then(FunctionalHelpers.openExternalSite())
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(testSuccessWasShown())
@@ -394,18 +397,17 @@ define([
     },
 
     'signup, open sign-up in second tab, verify in original tab': function () {
-      var windowName = 'sign-up inter-tab functional test';
       return this.remote
         .then(fillOutSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
-        .then(openSignUpInNewTab(windowName))
-        .switchToWindow(windowName)
+        .then(openSignUpInNewTab())
+        .then(switchToWindow(1))
 
         .then(testElementExists(selectors.SIGNUP.HEADER))
 
-        .switchToWindow('')
+        .then(switchToWindow(0))
         .then(openVerificationLinkInSameTab(email, 0))
-        .switchToWindow(windowName)
+        .then(switchToWindow(1))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(closeCurrentWindow())
 
@@ -418,7 +420,7 @@ define([
         .then(testAtConfirmScreen(email))
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
         .then(closeCurrentWindow())
@@ -426,7 +428,7 @@ define([
         // open verification link again, no error should occur.
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
         .then(closeCurrentWindow())

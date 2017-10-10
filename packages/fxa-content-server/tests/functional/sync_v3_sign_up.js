@@ -37,6 +37,7 @@ define([
     openPage,
     openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
+    switchToWindow,
     testElementExists,
     testEmailExpected,
     testIsBrowserNotified,
@@ -70,7 +71,7 @@ define([
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(openVerificationLinkInNewTab(email, 0))
-          .switchToWindow('newwindow')
+          .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
           // switch back to the original window, it should transition to CAD.
@@ -96,7 +97,7 @@ define([
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(openVerificationLinkInNewTab(email, 0))
-          .switchToWindow('newwindow')
+          .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
           // switch back to the original window, it should transition to CAD.
@@ -142,7 +143,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 

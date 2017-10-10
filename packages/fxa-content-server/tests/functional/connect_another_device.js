@@ -48,6 +48,7 @@ define([
     openVerificationLinkInNewTab,
     openVerificationLinkInSameTab,
     respondToWebChannelMessage,
+    switchToWindow,
     testElementExists,
     testElementTextInclude,
     testElementValueEquals,
@@ -150,7 +151,7 @@ define([
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
@@ -167,7 +168,7 @@ define([
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 

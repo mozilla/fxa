@@ -14,18 +14,21 @@ define([
   var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 
   var PASSWORD = 'password';
-  var UNTRUSTED_OAUTH_WINDOW = 'untrusted';
 
-  var click = FunctionalHelpers.click;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  var pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
-  var type = FunctionalHelpers.type;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    fillOutSignUp,
+    openFxaFromRp,
+    openPage,
+    openTab,
+    openVerificationLinkInSameTab,
+    pollUntilGoneByQSA,
+    switchToWindow,
+    testElementExists,
+    type,
+  } = FunctionalHelpers;
 
   var email;
 
@@ -57,10 +60,8 @@ define([
         .then(openPage(APPS_SETTINGS_URL, '.client-disconnect'))
 
         // sign in into another app
-        .execute(function (UNTRUSTED_OAUTH_APP, UNTRUSTED_OAUTH_WINDOW) {
-          window.open(UNTRUSTED_OAUTH_APP, UNTRUSTED_OAUTH_WINDOW);
-        }, [UNTRUSTED_OAUTH_APP, UNTRUSTED_OAUTH_WINDOW])
-        .switchToWindow(UNTRUSTED_OAUTH_WINDOW)
+        .then(openTab(UNTRUSTED_OAUTH_APP))
+        .then(switchToWindow(1))
 
         // cannot use the helper method here, the helper method uses $ (jQuery)
         // 123Done loads jQuery in the <body> this leads to '$ is undefined' error

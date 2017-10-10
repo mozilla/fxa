@@ -29,26 +29,29 @@ define([
   let email;
   let token;
 
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const click = FunctionalHelpers.click;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const createUser = FunctionalHelpers.createUser;
-  const fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
-  const fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
-  const getVerificationLink = FunctionalHelpers.getVerificationLink;
-  const noSuchElement = FunctionalHelpers.noSuchElement;
-  const openExternalSite = FunctionalHelpers.openExternalSite;
-  const openPage = FunctionalHelpers.openPage;
-  const openPasswordResetLinkInDifferentBrowser = FunctionalHelpers.openPasswordResetLinkInDifferentBrowser;
-  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  const testEmailExpected = FunctionalHelpers.testEmailExpected;
-  const testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
-  const thenify = FunctionalHelpers.thenify;
-  const type = FunctionalHelpers.type;
-  const visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    createUser,
+    fillOutCompleteResetPassword,
+    fillOutResetPassword,
+    getVerificationLink,
+    noSuchElement,
+    openExternalSite,
+    openPage,
+    openPasswordResetLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    openVerificationLinkInSameTab,
+    switchToWindow,
+    testElementExists,
+    testElementValueEquals,
+    testEmailExpected,
+    testSuccessWasShown,
+    thenify,
+    type,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   const createRandomHexString = TestHelpers.createRandomHexString;
 
@@ -295,7 +298,7 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
 
         // Complete the reset password in the new tab
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
 
@@ -319,7 +322,7 @@ define([
         .then(openExternalSite())
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 

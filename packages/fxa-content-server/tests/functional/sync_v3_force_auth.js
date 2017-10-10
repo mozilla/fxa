@@ -27,6 +27,7 @@ define([
     openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
     respondToWebChannelMessage,
+    switchToWindow,
     testElementDisabled,
     testElementExists,
     testElementTextInclude,
@@ -65,7 +66,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInNewTab(email, 0, { query: { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' }}))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
@@ -96,7 +97,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInNewTab(email, 0, { query: { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment' }}))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
@@ -127,7 +128,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
@@ -157,7 +158,7 @@ define([
 
 
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 

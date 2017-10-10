@@ -22,23 +22,26 @@ define([
 
   let email;
 
-  const click = FunctionalHelpers.click;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const createUser = FunctionalHelpers.createUser;
-  const fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  const noSuchElement = FunctionalHelpers.noSuchElement;
-  const openFxaFromTrustedRp = FunctionalHelpers.openFxaFromRp;
-  const openFxaFromUntrustedRp = FunctionalHelpers.openFxaFromUntrustedRp;
-  const openSettingsInNewTab = FunctionalHelpers.openSettingsInNewTab;
-  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  const testUrlEquals = FunctionalHelpers.testUrlEquals;
-  const type = FunctionalHelpers.type;
-  const visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    click,
+    closeCurrentWindow,
+    createUser,
+    fillOutForceAuth,
+    fillOutSignIn,
+    fillOutSignUp,
+    noSuchElement,
+    openFxaFromRp: openFxaFromTrustedRp,
+    openFxaFromUntrustedRp,
+    openSettingsInNewTab,
+    openVerificationLinkInNewTab,
+    openVerificationLinkInSameTab,
+    switchToWindow,
+    testElementExists,
+    testElementTextInclude,
+    testUrlEquals,
+    type,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'oauth permissions for untrusted reliers',
@@ -128,7 +131,7 @@ define([
         .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
 
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           // wait for the verified window in the new tab
           .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
           .sleep(5000)
@@ -152,7 +155,7 @@ define([
         .then(click(selectors.OAUTH_PERMISSIONS.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
 
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           // wait for the verified window in the new tab
           .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
 
@@ -208,9 +211,10 @@ define([
 
         .then(click(selectors['123DONE'].LINK_LOGOUT))
 
-        .then(openSettingsInNewTab('settings', 'display_name'))
-        .switchToWindow('settings')
+        .then(openSettingsInNewTab())
+        .then(switchToWindow(1))
 
+          .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON, selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
           .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, 'test user'))
           .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
           .then(visibleByQSA(selectors.SETTINGS.SUCCESS))

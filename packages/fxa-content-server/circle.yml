@@ -1,7 +1,7 @@
 dependencies:
   pre:
     - pip install mozdownload mozinstall
-    - mozdownload --version 53.0 --destination firefox.tar.bz2
+    - mozdownload --version 57.0b5 --destination firefox.tar.bz2
     - mozinstall firefox.tar.bz2
     - sudo apt-get install expect tightvncserver
     - ulimit -S -n 2048;
@@ -15,7 +15,7 @@ dependencies:
     - npm i --production
     - CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build
     - nohup bash -c "CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt serverproc:dist &"
-    - npm install intern@3.4.2 bower zaach/node-XMLHttpRequest.git#onerror firefox-profile@0.3.12 request@2.74.0 sync-exec@0.6.2 convict@1.4.0
+    - npm install intern bower xmlhttprequest firefox-profile request sync-exec convict
   post:
     - curl 127.0.0.1:3030
     - /home/ubuntu/fxa-content-server/firefox/firefox --version

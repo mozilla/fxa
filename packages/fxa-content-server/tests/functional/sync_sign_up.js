@@ -27,6 +27,7 @@ define([
     openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
     openVerificationLinkInSameTab,
+    switchToWindow,
     testAttributeEquals,
     testElementExists,
     testEmailExpected,
@@ -63,7 +64,7 @@ define([
 
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
@@ -90,7 +91,7 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(closeCurrentWindow());

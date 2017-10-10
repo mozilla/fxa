@@ -19,17 +19,20 @@ define([
   const SELECTOR_SIGN_UP_HEADER = '#fxa-signup-header';
   const SELECTOR_SIGN_UP_SUB_HEADER = '#fxa-signup-header .service';
 
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  const noSuchElement = FunctionalHelpers.noSuchElement;
-  const openPage = FunctionalHelpers.openPage;
-  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testEmailExpected = FunctionalHelpers.testEmailExpected;
-  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  const visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    closeCurrentWindow,
+    fillOutSignUp,
+    noSuchElement,
+    openPage,
+    openVerificationLinkInNewTab,
+    respondToWebChannelMessage,
+    switchToWindow,
+    testElementExists,
+    testEmailExpected,
+    testIsBrowserNotified,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'Firstrun Sync v1 sign_up',
@@ -57,7 +60,7 @@ define([
 
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         // user should see the CAD screen in both signup and verification tabs.
         .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))

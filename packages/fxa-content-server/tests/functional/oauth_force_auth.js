@@ -11,20 +11,23 @@ define([
   var config = intern.config;
   var OAUTH_APP = config.fxaOauthApp;
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var testElementDisabled = FunctionalHelpers.testElementDisabled;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  var testUrlEquals = FunctionalHelpers.testUrlEquals;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    closeCurrentWindow,
+    createUser,
+    fillOutForceAuth,
+    fillOutSignInUnblock,
+    fillOutSignUp,
+    openFxaFromRp,
+    openVerificationLinkInNewTab,
+    switchToWindow,
+    testElementDisabled,
+    testElementExists,
+    testElementTextInclude,
+    testElementValueEquals,
+    testUrlEquals,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   var PASSWORD = 'password';
   var email;
@@ -72,7 +75,7 @@ define([
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
         // wait for the verified window in the new tab
         .then(testElementExists('#fxa-sign-up-complete-header'))
         // user sees the name of the RP,

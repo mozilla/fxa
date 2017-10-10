@@ -36,6 +36,7 @@ define([
     openVerificationLinkInNewTab,
     openVerificationLinkInSameTab,
     respondToWebChannelMessage,
+    switchToWindow,
     testElementExists,
     testElementTextEquals,
     testElementTextInclude,
@@ -234,7 +235,10 @@ define([
         .then(click(selectors.EMAIL.MENU_BUTTON))
         .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
 
-        .then(clearBrowserState())
+        // force: true is needed to avoid localStorage being
+        // written by the verification tab after it was just cleared using JS.
+        // force: true goes to the /clear page.
+        .then(clearBrowserState({ force: true }))
 
         .then(openPage(PAGE_SIGNIN_DESKTOP, selectors.SIGNIN.HEADER))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
@@ -242,7 +246,7 @@ define([
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
 
         .then(openVerificationLinkInNewTab(secondaryEmail, 1))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
         .then(closeCurrentWindow());
     }

@@ -26,6 +26,7 @@ define([
     openPage,
     openVerificationLinkInNewTab,
     respondToWebChannelMessage,
+    switchToWindow,
     testAttributeExists,
     testElementExists,
     testEmailExpected,
@@ -73,7 +74,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
-          .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))

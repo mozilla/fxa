@@ -50,7 +50,7 @@ define([
 
         // \u0008 is unicode for backspace char. By default `type` clears the
         // element value before typing, we want the character to do so.
-        .then(type('#password', '\u0008'), { clearValue: true })
+        .then(type('#password', '\u0008', { clearValue: true }))
         // give a short pause to clear the input
         .sleep(1000)
         // element still exists

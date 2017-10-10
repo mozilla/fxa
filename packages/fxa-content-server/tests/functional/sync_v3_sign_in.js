@@ -31,6 +31,7 @@ define([
     openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
     respondToWebChannelMessage,
+    switchToWindow,
     testElementExists,
     testEmailExpected,
     testIsBrowserNotified,
@@ -117,7 +118,7 @@ define([
         .then(setupTest({ preVerified: true, query }))
 
         .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow());
         // tests for the original tab are below.
@@ -130,7 +131,7 @@ define([
         .then(setupTest({ preVerified: true, query }))
 
         .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow());
         // tests for the original tab are below.
@@ -170,7 +171,7 @@ define([
 
         // email 0 is the original signin email, open the resent email instead
         .then(openVerificationLinkInNewTab(email, 1))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
@@ -201,7 +202,7 @@ define([
         .then(openVerificationLinkInNewTab(email, 1))
         .then(testEmailExpected(email, 2))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 

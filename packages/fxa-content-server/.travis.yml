@@ -7,7 +7,7 @@ services:
   - redis-server
 
 addons:
-  firefox: "53.0"
+  firefox: "57.0b5"
   apt:
     sources:
       - ubuntu-toolchain-r-test

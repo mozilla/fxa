@@ -16,23 +16,28 @@ define([
 
   var email;
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var click = FunctionalHelpers.click;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
-  var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
-  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var openExternalSite = FunctionalHelpers.openExternalSite;
-  var openPage = FunctionalHelpers.openPage;
-  var openPasswordResetLinkInDifferentBrowser = FunctionalHelpers.openPasswordResetLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
-  var type = FunctionalHelpers.type;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    createUser,
+    fillOutCompleteResetPassword,
+    fillOutResetPassword,
+    openExternalSite,
+    openPage,
+    openPasswordResetLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    openVerificationLinkInSameTab,
+    switchToWindow,
+    testElementExists,
+    testSuccessWasShown,
+    type,
+  } = FunctionalHelpers;
 
+  const {
+    listenForFxaCommands,
+    testIsBrowserNotifiedOfLogin,
+  } = FxDesktopHelpers;
 
   registerSuite({
     name: 'Firefox Desktop Sync v1 reset_password',
@@ -58,7 +63,7 @@ define([
         .then(testElementExists('#fxa-confirm-reset-password-header'))
 
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(testElementExists('#fxa-complete-reset-password-header'))
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
@@ -82,7 +87,7 @@ define([
         // user browses to another site.
         .then(openExternalSite())
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
         .then(testElementExists('#fxa-reset-password-complete-header'))

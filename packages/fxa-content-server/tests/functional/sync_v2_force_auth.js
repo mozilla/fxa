@@ -26,6 +26,7 @@ define([
     openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
     respondToWebChannelMessage,
+    switchToWindow,
     testElementExists,
     testIsBrowserNotified,
     thenify,
@@ -78,7 +79,7 @@ define([
         .then(setupTest({ forceAboutAccounts: true, preVerified: true }))
 
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 

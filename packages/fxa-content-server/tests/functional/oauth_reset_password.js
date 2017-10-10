@@ -12,21 +12,24 @@ define([
   var TIMEOUT = 90 * 1000;
   var email;
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var click = FunctionalHelpers.click;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutCompleteResetPassword = FunctionalHelpers.fillOutCompleteResetPassword;
-  var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
-  var openExternalSite = FunctionalHelpers.openExternalSite;
-  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-  var openPasswordResetLinkInDifferentBrowser = FunctionalHelpers.openPasswordResetLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var type = FunctionalHelpers.type;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    createUser,
+    fillOutCompleteResetPassword,
+    fillOutResetPassword,
+    openExternalSite,
+    openFxaFromRp,
+    openPasswordResetLinkInDifferentBrowser,
+    openVerificationLinkInNewTab,
+    openVerificationLinkInSameTab,
+    switchToWindow,
+    testElementExists,
+    testElementTextInclude,
+    type,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'oauth reset password',
@@ -69,7 +72,7 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
 
         // Complete the reset password in the new tab
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
         .then(testElementExists('#fxa-complete-reset-password-header'))
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
@@ -95,7 +98,7 @@ define([
         .then(openExternalSite())
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
         .then(testElementExists('#fxa-reset-password-complete-header'))

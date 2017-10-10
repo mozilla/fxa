@@ -78,20 +78,20 @@ function (intern, topic, firefoxProfile) {
       // this tells SeleniumTunnel to download geckodriver
       drivers: [{
         name: 'firefox',
-        version: '0.16.0'
+        version: '0.19.0'
       }],
       // version of Selenium
-      version: '3.4.0'
+      version: '3.6.0',
     }
   };
-
+  config.capabilities['moz:firefoxOptions'] = {};
   // to create a profile, give it the `config` option.
-  config.capabilities.firefox_profile = firefoxProfile(config); //eslint-disable-line camelcase
+  config.capabilities['moz:firefoxOptions'].profile = firefoxProfile(config); //eslint-disable-line camelcase
 
   // custom Firefox binary location, if specified then the default is ignored.
   // ref: https://code.google.com/p/selenium/wiki/DesiredCapabilities#WebDriver
   if (args.firefoxBinary) {
-    config.capabilities.firefox_binary = args.firefoxBinary; //eslint-disable-line camelcase
+    config.capabilities['moz:firefoxOptions'].binary = args.firefoxBinary; //eslint-disable-line camelcase
   }
 
   if (args.useTeamCityReporter) {

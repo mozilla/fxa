@@ -55,7 +55,7 @@ define([
         .then(testElementExists('#fxa-confirm-reset-password-header'))
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(testElementExists('#fxa-complete-reset-password-header'))
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))

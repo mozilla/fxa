@@ -14,21 +14,24 @@ define([
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
 
-  var cleanMemory = FunctionalHelpers.cleanMemory;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var click = FunctionalHelpers.click;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var denormalizeStoredEmail = FunctionalHelpers.denormalizeStoredEmail;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var focus = FunctionalHelpers.focus;
-  var getFxaClient = FunctionalHelpers.getFxaClient;
-  var noSuchStoredAccountByEmail = FunctionalHelpers.noSuchStoredAccountByEmail;
-  var openPage = FunctionalHelpers.openPage;
-  var openSettingsInNewTab = FunctionalHelpers.openSettingsInNewTab;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
+  const {
+    cleanMemory,
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    createUser,
+    denormalizeStoredEmail,
+    fillOutSignIn,
+    focus,
+    getFxaClient,
+    noSuchStoredAccountByEmail,
+    openPage,
+    openSettingsInNewTab,
+    switchToWindow,
+    testElementExists,
+    testElementTextEquals,
+    testErrorTextInclude,
+  } = FunctionalHelpers;
 
   var FIRST_PASSWORD = 'password';
   var email;
@@ -177,19 +180,18 @@ define([
     },
 
     'sign in, open settings in a second tab, sign out': function () {
-      var windowName = 'sign-out inter-tab functional test';
       return this.remote
         .then(fillOutSignIn(email, FIRST_PASSWORD))
         // wait for the settings page or else when the new tab is opened,
         // the user is asked to sign in.
         .then(testElementExists('#fxa-settings-header'))
 
-        .then(openSettingsInNewTab(windowName))
-        .switchToWindow(windowName)
-        .then(testElementExists('#fxa-settings-header'))
-        .then(click('#signout'))
+        .then(openSettingsInNewTab())
+        .then(switchToWindow(1))
+          .then(testElementExists('#fxa-settings-header'))
+          .then(click('#signout'))
 
-        .then(testElementExists('#fxa-signin-header'))
+          .then(testElementExists('#fxa-signin-header'))
         .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-signin-header'))

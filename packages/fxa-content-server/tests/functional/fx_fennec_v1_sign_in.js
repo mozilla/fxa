@@ -32,6 +32,7 @@ define([
     openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
     respondToWebChannelMessage,
+    switchToWindow,
     testElementExists,
     testElementTextEquals,
     testElementTextInclude,
@@ -71,7 +72,7 @@ define([
         .then(setupTest(selectors.CONFIRM_SIGNIN.HEADER, { preVerified: true }))
 
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
@@ -95,7 +96,7 @@ define([
         // email 1 - sign in w/ unverified address email
         // email 2 - "You have verified your Firefox Account"
         .then(openVerificationLinkInNewTab(email, 1))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 

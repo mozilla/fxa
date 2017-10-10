@@ -21,18 +21,21 @@ define([
   let email;
   const PASSWORD = '12345678';
 
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const click = FunctionalHelpers.click;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const createUser = FunctionalHelpers.createUser;
-  const noPageTransition = FunctionalHelpers.noPageTransition;
-  const openPage = FunctionalHelpers.openPage;
-  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  const type = FunctionalHelpers.type;
-  const visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    createUser,
+    noPageTransition,
+    openPage,
+    openVerificationLinkInNewTab,
+    switchToWindow,
+    testElementExists,
+    testElementValueEquals,
+    testIsBrowserNotified,
+    type,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'Firefox Desktop Sync v3 email first',
@@ -102,7 +105,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
@@ -151,7 +154,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
           .then(closeCurrentWindow())
 
@@ -184,7 +187,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
@@ -219,7 +222,7 @@ define([
 
         // Get the 2nd email, the 1st was sent for createUser
         .then(openVerificationLinkInNewTab(email, 1))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 

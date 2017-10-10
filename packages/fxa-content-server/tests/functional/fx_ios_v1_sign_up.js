@@ -27,6 +27,7 @@ define([
     noSuchElement,
     openPage,
     openVerificationLinkInNewTab,
+    switchToWindow,
     testElementExists,
     testEmailExpected,
     thenify,
@@ -53,7 +54,7 @@ define([
 
       // verify the user
       .then(openVerificationLinkInNewTab(email, 0))
-      .switchToWindow('newwindow')
+      .then(switchToWindow(1))
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(closeCurrentWindow());

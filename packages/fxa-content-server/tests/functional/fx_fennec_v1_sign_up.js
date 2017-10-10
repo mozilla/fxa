@@ -15,17 +15,20 @@ define([
   var email;
   var PASSWORD = '12345678';
 
-  var click = FunctionalHelpers.click;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testEmailExpected = FunctionalHelpers.testEmailExpected;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const {
+    click,
+    closeCurrentWindow,
+    fillOutSignUp,
+    noSuchElement,
+    noSuchBrowserNotification,
+    openPage,
+    openVerificationLinkInNewTab,
+    respondToWebChannelMessage,
+    switchToWindow,
+    testElementExists,
+    testEmailExpected,
+    testIsBrowserNotified,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'Fx Fennec Sync v1 sign_up',
@@ -68,7 +71,7 @@ define([
 
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 

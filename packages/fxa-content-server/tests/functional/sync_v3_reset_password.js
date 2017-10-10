@@ -30,6 +30,7 @@ define([
     noSuchBrowserNotification,
     openPage,
     openVerificationLinkInNewTab,
+    switchToWindow,
     testElementExists,
     testIsBrowserNotified,
     testSuccessWasShown,
@@ -49,7 +50,7 @@ define([
 
       .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
       .then(openVerificationLinkInNewTab(email, 0))
-      .switchToWindow('newwindow')
+      .then(switchToWindow(1))
 
         .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
         .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
@@ -77,7 +78,7 @@ define([
       return this.remote.then(clearBrowserState());
     },
 
-    teardown: function () {
+    afterEach: function () {
       // clear localStorage to avoid polluting other tests.
       return this.remote.then(clearBrowserState());
     },

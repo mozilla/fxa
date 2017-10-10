@@ -13,24 +13,27 @@ define([
   var PASSWORD = 'password';
   var email;
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var click = FunctionalHelpers.click;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var getUnblockInfo = FunctionalHelpers.getUnblockInfo;
-  var openPage = FunctionalHelpers.openPage;
-  var openTab = FunctionalHelpers.openTab;
-  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var type = FunctionalHelpers.type;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    createUser,
+    fillOutSignIn,
+    fillOutSignInUnblock,
+    getUnblockInfo,
+    openPage,
+    openTab,
+    openVerificationLinkInSameTab,
+    switchToWindow,
+    testErrorTextInclude,
+    testElementExists,
+    testElementTextInclude,
+    type,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   registerSuite({
-    name: 'sign_in blocked',
+    name: 'signin blocked',
 
     beforeEach: function () {
       email = TestHelpers.createEmail('blocked{id}');
@@ -181,7 +184,7 @@ define([
           return this.parent
             .then(openTab(unblockInfo.reportSignInLink));
         })
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(testElementExists('#fxa-report-sign-in-header'))
         .then(click('button[type=submit]'))
@@ -214,7 +217,7 @@ define([
           return this.parent
             .then(openTab(invalidLink));
         })
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(testElementExists('#fxa-report-sign-in-link-damaged-header'))
         .then(closeCurrentWindow())
@@ -243,7 +246,7 @@ define([
           return this.parent
             .then(openTab(invalidLink));
         })
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         .then(testElementExists('#fxa-report-sign-in-link-damaged-header'))
         .then(closeCurrentWindow())

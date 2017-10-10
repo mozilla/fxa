@@ -218,7 +218,7 @@ define([
    * @param {string} selector
    * @param {string} text
    * @param {object} [options] options
-   *   @param {boolean [options.clearValue] - clear element value before
+   *   @param {boolean} [options.clearValue] - clear element value before
    *   typing. Defaults to true.
    * @returns {promise}
    */
@@ -355,7 +355,7 @@ define([
           return this.parent
             .switchToWindow(handles[1])
             .closeCurrentWindow()
-            .switchToWindow('')
+            .switchToWindow(handles[0])
             .then(closeAllButFirstWindow());
         }
       });
@@ -793,8 +793,14 @@ define([
       });
   });
 
-  const openTab = thenify(function (url, name) {
-    return this.parent.execute(openWindow, [ url, name ]);
+  /**
+   * Open a new tab to `url`
+   *
+   * @param {String} url to open
+   * @returns {Promise}
+   */
+  const openTab = thenify(function (url) {
+    return this.parent.execute(openWindow, [ url ]);
   });
 
   /**
@@ -804,10 +810,13 @@ define([
    * @returns {Promise}
    */
   const switchToWindow = thenify(function (which) {
+    if (typeof which !== 'number') {
+      throw new Error('`which` must be a number');
+    }
     return this.parent
       .getAllWindowHandles()
       .then(function (handles) {
-        if (handles[which]) {
+        if (handles.length >= which && handles[which]) {
           return this.parent.switchToWindow(handles[which]);
         } else {
           // give a little time to open the browser tab, otherwise
@@ -922,8 +931,13 @@ define([
       }, [command]);
   });
 
-  function openWindow (url, name) {
-    var newWindow = window.open(url, name || 'newwindow');
+  /**
+   * Open a new tab to `url`. Meant to be called in a remote's `execute` function.
+   *
+   * @param {String} url
+   */
+  function openWindow (url) {
+    let newWindow;
 
     // Hook up the new window to listen for WebChannel messages.
     // XXX TODO: this is pretty gross to do universally like this...
@@ -962,7 +976,13 @@ define([
       }
     }
 
-    startListening();
+    // The setTimeout is a workaround for geckodriver 0.19 & Fx >= 56. Without
+    // the setTimeout the call to `execute(openWindow)` always times out.
+    setTimeout(() => {
+      newWindow = window.open(url);
+
+      startListening();
+    }, 0);
   }
 
   /**
@@ -1024,39 +1044,36 @@ define([
   /**
    * Open the settings page in a new tab.
    *
-   * @param   {string} windowName name of new tab
    * @param   {string} [panel] pathname of panel to open. Open `/settings` if not given.
    * @returns {promise} resolves when complete
    */
-  const openSettingsInNewTab = thenify(function (windowName, panel) {
+  const openSettingsInNewTab = thenify(function (panel) {
     var url = SETTINGS_URL;
     if (panel) {
       url += '/' + panel;
     }
     return this.parent
-      .execute(openWindow, [ url, windowName ]);
+      .execute(openWindow, [ url ]);
   });
 
   /**
    * Open the signin page in a new tab.
    *
-   * @param   {string} windowName name of tab
    * @returns {promise} resolves when complete
    */
-  const openSignInInNewTab = thenify(function (windowName) {
+  const openSignInInNewTab = thenify(function () {
     return this.parent
-      .execute(openWindow, [ SIGNIN_URL, windowName ]);
+      .execute(openWindow, [ SIGNIN_URL ]);
   });
 
   /**
    * Open the signup page in a new tab.
    *
-   * @param   {string} windowName name of tab
    * @returns {promise} resolves when complete
    */
-  const openSignUpInNewTab = thenify(function (windowName) {
+  const openSignUpInNewTab = thenify(function () {
     return this.parent
-      .execute(openWindow, [ SIGNUP_URL, windowName ]);
+      .execute(openWindow, [ SIGNUP_URL ]);
   });
 
   /**
@@ -1782,10 +1799,9 @@ define([
    * Close the current window and switch to the named tab. If
    * The window will only be closed if it's not the last open window.
    *
-   * @param {string} [tabName] - defaults to ''
    * @returns {promise}
    */
-  const closeCurrentWindow = thenify(function (tabName) {
+  const closeCurrentWindow = thenify(function () {
     return this.parent
       .getAllWindowHandles()
       .then(function (handles) {
@@ -1794,7 +1810,7 @@ define([
         } else {
           return this.parent
             .closeCurrentWindow()
-            .switchToWindow(tabName || handles[0]);
+            .switchToWindow(handles[0]);
         }
       });
   });

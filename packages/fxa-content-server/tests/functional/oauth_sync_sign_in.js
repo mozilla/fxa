@@ -17,22 +17,28 @@ define([
   var email2;
   var PASSWORD = '12345678';
 
-  var click = FunctionalHelpers.click;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    click,
+    closeCurrentWindow,
+    createUser,
+    fillOutSignIn,
+    fillOutSignUp,
+    openFxaFromRp,
+    openPage,
+    openVerificationLinkInNewTab,
+    switchToWindow,
+    testElementExists,
+    testElementTextEquals,
+    visibleByQSA,
+  } = FunctionalHelpers;
+
+  const {
+    listenForFxaCommands,
+    testIsBrowserNotifiedOfLogin,
+  } = FxDesktopHelpers;
 
   registerSuite({
-    name: 'Sign in with OAuth after Sync',
+    name: 'signin with OAuth after Sync',
 
     beforeEach: function () {
       email = TestHelpers.createEmail('sync{id}');
@@ -54,7 +60,7 @@ define([
         }));
     },
 
-    'sign in to OAuth with Sync creds': function () {
+    'signin to OAuth with Sync creds': function () {
       this.timeout = 60 * 1000;
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -65,10 +71,10 @@ define([
         .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotifiedOfLogin(email))
 
-        // Sync sign ins must be verified.
+        // Sync signins must be verified.
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
         .then(testElementExists('#fxa-sign-in-complete-header'))
         .then(closeCurrentWindow())
 
@@ -78,7 +84,7 @@ define([
 
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInNewTab(email2, 0))
-        .switchToWindow('newwindow')
+        .then(switchToWindow(1))
 
         // wait for the verified window in the new tab
         .then(testElementExists('#fxa-sign-up-complete-header'))
