@@ -10,29 +10,31 @@ define([
   'tests/functional/lib/selectors',
   'tests/functional/lib/ua-strings'
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, uaStrings) {
-  var bouncedEmail;
-  var deliveredEmail;
+  let bouncedEmail;
+  let deliveredEmail;
   const PASSWORD = '12345678';
-  const SIGNIN_URL = `${intern.config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(uaStrings.desktop_firefox_57)}`; //eslint-disable-line max-len
-  const SIGNUP_URL = `${intern.config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(uaStrings.desktop_firefox_57)}`; //eslint-disable-line max-len
+  const SIGNIN_URL = `${intern.config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(uaStrings.desktop_firefox_56)}`; //eslint-disable-line max-len
+  const SIGNUP_URL = `${intern.config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(uaStrings.desktop_firefox_56)}`; //eslint-disable-line max-len
 
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const click = FunctionalHelpers.click;
-  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  const createUser = FunctionalHelpers.createUser;
-  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  const getFxaClient = FunctionalHelpers.getFxaClient;
-  const openPage = FunctionalHelpers.openPage;
-  const pollUntil = FunctionalHelpers.pollUntil;
-  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  const switchToWindow = FunctionalHelpers.switchToWindow;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  const thenify = FunctionalHelpers.thenify;
-  const type = FunctionalHelpers.type;
-  const visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    click,
+    closeCurrentWindow,
+    createUser,
+    fillOutSignIn,
+    fillOutSignUp,
+    getFxaClient,
+    openPage,
+    pollUntil,
+    respondToWebChannelMessage,
+    switchToWindow,
+    testElementExists,
+    testElementValueEquals,
+    testIsBrowserNotified,
+    thenify,
+    type,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'signup with an email that bounces',

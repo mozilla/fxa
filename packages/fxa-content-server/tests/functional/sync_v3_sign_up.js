@@ -77,7 +77,7 @@ define([
           // switch back to the original window, it should transition to CAD.
           .then(closeCurrentWindow())
         // about:accounts takes over, so no screen transition
-        .then(noPageTransition(selectors.CHOOSE_WHAT_TO_SYNC.HEADER, 5000))
+        .then(noPageTransition(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         // but the login message is sent automatically.
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
@@ -152,7 +152,7 @@ define([
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.
         // Add an affordance just in case the poll happens unexpectedly.
-        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER, 5000))
+        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER))
 
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
@@ -306,7 +306,7 @@ define([
         .then(openVerificationLinkInDifferentBrowser(email))
 
         // about:accounts takes over, no screen transition
-        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER, 5000));
+        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
     },
 
     'Fx >= 57, verify from original tab\'s P.O.V.': function () {

@@ -14,7 +14,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const Constants = require('../../lib/constants');
   const FxDesktopV1AuthenticationBroker = require('../auth_brokers/fx-desktop-v1');
-  const NullBehavior = require('../../views/behaviors/null');
+  const NavigateBehavior = require('../../views/behaviors/navigate');
   const p = require('../../lib/promise');
   const UserAgent = require('../../lib/user-agent');
 
@@ -38,7 +38,9 @@ define(function (require, exports, module) {
         // so that the user sees the "Signup complete!" screen after they
         // verify their email.
         this.setBehavior(
-          'beforeSignUpConfirmationPoll', new NullBehavior());
+          'afterSignInConfirmationPoll', new NavigateBehavior('signin_confirmed'));
+        this.setBehavior(
+          'afterSignUpConfirmationPoll', new NavigateBehavior('signup_confirmed'));
       }
     },
 

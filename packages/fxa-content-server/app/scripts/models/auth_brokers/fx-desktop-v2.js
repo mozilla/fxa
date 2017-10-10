@@ -25,8 +25,8 @@ define(function (require, exports, module) {
       afterForceAuth: new HaltIfBrowserTransitions(defaultBehaviors.afterForceAuth),
       afterResetPasswordConfirmationPoll: new HaltIfBrowserTransitions(defaultBehaviors.afterResetPasswordConfirmationPoll),
       afterSignIn: new HaltIfBrowserTransitions(defaultBehaviors.afterSignIn),
-      afterSignUpConfirmationPoll: new HaltIfBrowserTransitions(defaultBehaviors.afterSignUpConfirmationPoll),
-      beforeSignUpConfirmationPoll: new HaltIfBrowserTransitions(defaultBehaviors.beforeSignUpConfirmationPoll),
+      afterSignInConfirmationPoll: new HaltIfBrowserTransitions(defaultBehaviors.afterSignInConfirmationPoll),
+      afterSignUpConfirmationPoll: new HaltIfBrowserTransitions(defaultBehaviors.afterSignUpConfirmationPoll)
     }),
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {

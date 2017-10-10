@@ -38,10 +38,12 @@ define(function (require, exports, module) {
       // about:accounts displays its own screen after sign in, no need
       // to show anything.
       afterSignIn: new HaltBehavior(),
-      // the browser is already polling, no need for the content server
-      // code to poll as well, otherwise two sets of polls are going on
-      // for the same user.
-      beforeSignUpConfirmationPoll: new HaltBehavior()
+      // about:accounts displays its own screen after sign in, no need
+      // to show anything.
+      afterSignInConfirmationPoll: new HaltBehavior(),
+      // about:accounts displays its own screen after sign in, no need
+      // to show anything.
+      afterSignUpConfirmationPoll: new HaltBehavior()
     }),
 
     createChannel () {

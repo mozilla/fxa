@@ -233,7 +233,7 @@ define([
         .then(fillOutSignUp(email + '-', PASSWORD))
 
         // wait five seconds to allow any errant navigation to occur
-        .then(noPageTransition(selectors.SIGNUP.HEADER, 5000))
+        .then(noPageTransition(selectors.SIGNUP.HEADER))
 
         // the validation tooltip should be visible
         .then(visibleByQSA('.tooltip'));
@@ -448,7 +448,7 @@ define([
         }))
         .then(fillOutSignUp(email, PASSWORD, { vpassword: DROWSSAP }))
         // wait five seconds to allow any errant navigation to occur
-        .then(noPageTransition(selectors.SIGNUP.HEADER, 5000))
+        .then(noPageTransition(selectors.SIGNUP.HEADER))
         // the validation tooltip should be visible
         .then(visibleByQSA('.error'));
     },

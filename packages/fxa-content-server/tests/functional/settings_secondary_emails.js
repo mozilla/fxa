@@ -53,7 +53,7 @@ define([
       secondaryEmail = TestHelpers.createEmail();
       client = FunctionalHelpers.getFxaClient();
 
-      return this.remote.then(clearBrowserState());
+      return this.remote.then(clearBrowserState({ force: true }));
     },
 
     afterEach: function () {
