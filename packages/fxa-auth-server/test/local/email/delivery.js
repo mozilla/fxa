@@ -7,8 +7,8 @@
 const assert = require('insist')
 
 const EventEmitter = require('events').EventEmitter
+const { mockLog } = require('../../mocks')
 const sinon = require('sinon')
-const spyLog = require('../../mocks').spyLog
 const delivery = require('../../../lib/email/delivery')
 
 const mockDeliveryQueue = new EventEmitter()
@@ -27,14 +27,14 @@ function mockedDelivery(log) {
 
 describe('delivery messages', () => {
   it('should not log an error for headers', () => {
-    const log = spyLog()
+    const log = mockLog()
     return mockedDelivery(log)
       .handleDelivery(mockMessage({ junk: 'message' }))
       .then(() => assert.equal(log.error.callCount, 0))
   })
 
   it('should log an error for missing headers', () => {
-    const log = spyLog()
+    const log = mockLog()
     const message = mockMessage({
       junk: 'message'
     })
@@ -47,12 +47,12 @@ describe('delivery messages', () => {
   it(
     'should ignore unknown message types',
     () => {
-      const mockLog = spyLog()
-      return mockedDelivery(mockLog).handleDelivery(mockMessage({
+      const log = mockLog()
+      return mockedDelivery(log).handleDelivery(mockMessage({
         junk: 'message'
       })).then(function () {
-        assert.equal(mockLog.messages.length, 1)
-        assert.equal(mockLog.messages[0].args[0].op, 'emailHeaders.keys')
+        assert.equal(log.warn.callCount, 1)
+        assert.equal(log.warn.args[0][0].op, 'emailHeaders.keys')
       })
     }
   )
@@ -60,7 +60,7 @@ describe('delivery messages', () => {
   it(
     'should log delivery',
     () => {
-      const mockLog = spyLog()
+      const log = mockLog()
       const mockMsg = mockMessage({
         notificationType: 'Delivery',
         delivery: {
@@ -81,16 +81,16 @@ describe('delivery messages', () => {
         }
       })
 
-      return mockedDelivery(mockLog).handleDelivery(mockMsg).then(function () {
-        assert.equal(mockLog.messages.length, 4)
-        assert.equal(mockLog.messages[2].args[0].op, 'emailEvent')
-        assert.equal(mockLog.messages[2].args[0].domain, 'other')
-        assert.equal(mockLog.messages[2].args[0].type, 'delivered')
-        assert.equal(mockLog.messages[2].args[0].template, 'verifyLoginEmail')
-        assert.equal(mockLog.messages[3].args[0]['email'], 'jane@example.com')
-        assert.equal(mockLog.messages[3].args[0]['op'], 'handleDelivery')
-        assert.equal(mockLog.messages[3].args[0]['template'], 'verifyLoginEmail')
-        assert.equal(mockLog.messages[3].args[0]['processingTimeMillis'], 546)
+      return mockedDelivery(log).handleDelivery(mockMsg).then(function () {
+        assert.equal(log.info.callCount, 2)
+        assert.equal(log.info.args[0][0].op, 'emailEvent')
+        assert.equal(log.info.args[0][0].domain, 'other')
+        assert.equal(log.info.args[0][0].type, 'delivered')
+        assert.equal(log.info.args[0][0].template, 'verifyLoginEmail')
+        assert.equal(log.info.args[1][0].email, 'jane@example.com')
+        assert.equal(log.info.args[1][0].op, 'handleDelivery')
+        assert.equal(log.info.args[1][0].template, 'verifyLoginEmail')
+        assert.equal(log.info.args[1][0].processingTimeMillis, 546)
       })
     }
   )
@@ -98,7 +98,7 @@ describe('delivery messages', () => {
   it(
     'should emit flow metrics',
     () => {
-      const mockLog = spyLog()
+      const log = mockLog()
       const mockMsg = mockMessage({
         notificationType: 'Delivery',
         delivery: {
@@ -131,19 +131,20 @@ describe('delivery messages', () => {
         }
       })
 
-      return mockedDelivery(mockLog).handleDelivery(mockMsg).then(function () {
-        assert.equal(mockLog.messages.length, 4)
-        assert.equal(mockLog.messages[1].args[0]['event'], 'email.verifyLoginEmail.delivered')
-        assert.equal(mockLog.messages[1].args[0]['flow_id'], 'someFlowId')
-        assert.equal(mockLog.messages[1].args[0]['flow_time'] > 0, true)
-        assert.equal(mockLog.messages[1].args[0]['time'] > 0, true)
-        assert.equal(mockLog.messages[2].args[0].op, 'emailEvent')
-        assert.equal(mockLog.messages[2].args[0].domain, 'other')
-        assert.equal(mockLog.messages[2].args[0].type, 'delivered')
-        assert.equal(mockLog.messages[2].args[0].template, 'verifyLoginEmail')
-        assert.equal(mockLog.messages[2].args[0]['flow_id'], 'someFlowId')
-        assert.equal(mockLog.messages[3].args[0]['email'], 'jane@example.com')
-        assert.equal(mockLog.messages[3].args[0]['domain'], 'other')
+      return mockedDelivery(log).handleDelivery(mockMsg).then(function () {
+        assert.equal(log.flowEvent.callCount, 1)
+        assert.equal(log.flowEvent.args[0][0].event, 'email.verifyLoginEmail.delivered')
+        assert.equal(log.flowEvent.args[0][0].flow_id, 'someFlowId')
+        assert.equal(log.flowEvent.args[0][0].flow_time > 0, true)
+        assert.equal(log.flowEvent.args[0][0].time > 0, true)
+        assert.equal(log.info.callCount, 2)
+        assert.equal(log.info.args[0][0].op, 'emailEvent')
+        assert.equal(log.info.args[0][0].domain, 'other')
+        assert.equal(log.info.args[0][0].type, 'delivered')
+        assert.equal(log.info.args[0][0].template, 'verifyLoginEmail')
+        assert.equal(log.info.args[0][0].flow_id, 'someFlowId')
+        assert.equal(log.info.args[1][0].email, 'jane@example.com')
+        assert.equal(log.info.args[1][0].domain, 'other')
       })
     }
   )
@@ -151,7 +152,7 @@ describe('delivery messages', () => {
   it(
     'should log popular email domain',
     () => {
-      const mockLog = spyLog()
+      const log = mockLog()
       const mockMsg = mockMessage({
         notificationType: 'Delivery',
         delivery: {
@@ -184,21 +185,21 @@ describe('delivery messages', () => {
         }
       })
 
-      return mockedDelivery(mockLog).handleDelivery(mockMsg).then(function () {
-        assert.equal(mockLog.messages.length, 4)
-        assert.equal(mockLog.messages[1].args[0]['event'], 'email.verifyLoginEmail.delivered')
-        assert.equal(mockLog.messages[1].args[0]['flow_id'], 'someFlowId')
-        assert.equal(mockLog.messages[1].args[0]['flow_time'] > 0, true)
-        assert.equal(mockLog.messages[1].args[0]['time'] > 0, true)
-        assert.equal(mockLog.messages[2].args[0].op, 'emailEvent')
-        assert.equal(mockLog.messages[2].args[0].domain, 'aol.com')
-        assert.equal(mockLog.messages[2].args[0].type, 'delivered')
-        assert.equal(mockLog.messages[2].args[0].template, 'verifyLoginEmail')
-        assert.equal(mockLog.messages[2].args[0].locale, 'en')
-        assert.equal(mockLog.messages[2].args[0]['flow_id'], 'someFlowId')
-        assert.equal(mockLog.messages[3].args[0]['email'], 'jane@aol.com')
-        assert.equal(mockLog.messages[3].args[0]['domain'], 'aol.com')
-
+      return mockedDelivery(log).handleDelivery(mockMsg).then(function () {
+        assert.equal(log.flowEvent.callCount, 1)
+        assert.equal(log.flowEvent.args[0][0].event, 'email.verifyLoginEmail.delivered')
+        assert.equal(log.flowEvent.args[0][0].flow_id, 'someFlowId')
+        assert.equal(log.flowEvent.args[0][0].flow_time > 0, true)
+        assert.equal(log.flowEvent.args[0][0].time > 0, true)
+        assert.equal(log.info.callCount, 2)
+        assert.equal(log.info.args[0][0].op, 'emailEvent')
+        assert.equal(log.info.args[0][0].domain, 'aol.com')
+        assert.equal(log.info.args[0][0].type, 'delivered')
+        assert.equal(log.info.args[0][0].template, 'verifyLoginEmail')
+        assert.equal(log.info.args[0][0].locale, 'en')
+        assert.equal(log.info.args[0][0].flow_id, 'someFlowId')
+        assert.equal(log.info.args[1][0].email, 'jane@aol.com')
+        assert.equal(log.info.args[1][0].domain, 'aol.com')
       })
     }
   )

@@ -26,7 +26,7 @@ describe('metrics/amplitude', () => {
     let log, amplitude
 
     beforeEach(() => {
-      log = mocks.spyLog()
+      log = mocks.mockLog()
       amplitude = amplitudeModule(log, {
         oauth: {
           clientIds: {

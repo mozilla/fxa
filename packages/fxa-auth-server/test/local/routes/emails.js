@@ -413,7 +413,7 @@ describe('/recovery_email/resend_code', () => {
 
 describe('/recovery_email/verify_code', function () {
   const uid = uuid.v4('binary').toString('hex')
-  const mockLog = mocks.spyLog()
+  const mockLog = mocks.mockLog()
   const mockRequest = mocks.mockRequest({
     log: mockLog,
     metricsContext: mocks.mockMetricsContext({
@@ -670,7 +670,7 @@ describe('/recovery_email/verify_code', function () {
 
 describe('/recovery_email', () => {
   const uid = uuid.v4('binary').toString('hex')
-  const mockLog = mocks.spyLog()
+  const mockLog = mocks.mockLog()
   let dbData, accountRoutes, mockDB, mockRequest, route
   const mockMailer = mocks.mockMailer()
   const mockPush = mocks.mockPush()

@@ -22,7 +22,7 @@ describe('/certificate/sign', () => {
     mockDevices = mocks.mockDevices({
       deviceId: deviceId
     })
-    mockLog = mocks.spyLog()
+    mockLog = mocks.mockLog()
     const Token = require(`${ROOT_DIR}/lib/tokens/token`)(mockLog)
     const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(mockLog, Token, {
       tokenLifetimes: {

@@ -6,8 +6,7 @@
 
 const assert = require('insist')
 const config = require('../../config').getProperties()
-const proxyquire = require('proxyquire')
-const { mockDB, spyLog } = require('../mocks')
+const { mockDB, mockLog } = require('../mocks')
 const { PushManager } = require('../push_helper')
 
 const mockUid = 'foo'
@@ -26,16 +25,16 @@ describe('e2e/push', () => {
     return pushManager.getSubscription()
       .then(subscription => {
         let count = 0
-        var thisSpyLog = spyLog({
-          info: function (log) {
+        const thisSpyLog = mockLog({
+          info (log) {
             if (log.name === 'push.account_verify.success') {
               count++
             }
           }
         })
 
-        var push = proxyquire('../../lib/push', {})(thisSpyLog, mockDB(), config)
-        var options = {
+        const push = require('../../lib/push')(thisSpyLog, mockDB(), config)
+        const options = {
           data: Buffer.from('foodata')
         }
         return push.notifyUpdate(mockUid, [

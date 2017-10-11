@@ -45,7 +45,7 @@ describe('verification reminders', () => {
         }
       }
 
-      var mockLog = mocks.spyLog()
+      var mockLog = mocks.mockLog()
       var mockDB = mocks.mockDB()
 
       var verificationReminder = proxyquire(verificationModulePath, moduleMocks)(mockLog, mockDB)
@@ -100,7 +100,7 @@ describe('verification reminders', () => {
           }
         }
       }
-      var mockLog = mocks.spyLog()
+      var mockLog = mocks.mockLog()
       var mockDB = mocks.mockDB({
         deleteVerificationReminder: function (reminderData) {
           assert.ok(reminderData.email)
@@ -120,11 +120,11 @@ describe('verification reminders', () => {
   it(
     'deletes reminders can catch errors',
     () => {
-      var mockLog = mocks.spyLog({
-        error: function (logErr) {
+      var mockLog = mocks.mockLog({
+        error: sinon.spy(logErr => {
           assert.equal(logErr.op, 'verification-reminder.delete')
           assert.ok(logErr.err.message)
-        }
+        })
       })
       var mockDB = {
         deleteVerificationReminder: sinon.spy(function () {

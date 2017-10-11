@@ -121,15 +121,14 @@ module.exports = {
   MOCK_PUSH_KEY: 'BDLugiRzQCANNj5KI1fAqui8ELrE7qboxzfa5K_R0wnUoJ89xY1D_SOXI_QJKNmellykaW_7U2BZ7hnrPW3A3LM',
   generateMetricsContext: generateMetricsContext,
   mockBounces: mockObject(['check']),
-  mockCustoms: mockCustoms,
-  mockDB: mockDB,
-  mockDevices: mockDevices,
-  mockLog: mockLog,
-  spyLog: spyLog,
+  mockCustoms,
+  mockDB,
+  mockDevices,
+  mockLog: mockObject(LOG_METHOD_NAMES),
   mockMailer: mockObject(MAILER_METHOD_NAMES),
-  mockMetricsContext: mockMetricsContext,
-  mockPush: mockPush,
-  mockRequest: mockRequest
+  mockMetricsContext,
+  mockPush,
+  mockRequest
 }
 
 function mockCustoms (errors) {
@@ -378,39 +377,6 @@ function mockDevices (data) {
       return data.deviceName || null
     })
   }
-}
-
-// A logging mock that doesn't capture anything.
-// You can pass in an object of custom logging methods
-// if you need to e.g. make assertions about logged values.
-function mockLog (methods) {
-  const log = extend({}, methods)
-  LOG_METHOD_NAMES.forEach((name) => {
-    if (! log[name]) {
-      log[name] = function() {}
-    }
-  })
-  return log
-}
-
-// A logging mock where all logging methods are sinon spys,
-// and we capture a log of all their calls in order.
-function spyLog (methods) {
-  methods = extend({}, methods)
-  methods.messages = methods.messages || []
-  LOG_METHOD_NAMES.forEach(name => {
-    if (! methods[name]) {
-      // arrow function would alter `this` inside the method
-      methods[name] = function() {
-        this.messages.push({
-          level: name,
-          args: Array.prototype.slice.call(arguments)
-        })
-      }
-    }
-    methods[name] = sinon.spy(methods[name])
-  })
-  return mockLog(methods)
 }
 
 function mockMetricsContext (methods) {

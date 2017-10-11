@@ -36,7 +36,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
   let log, signinCode, db, config, routes, route, request
 
   beforeEach(() => {
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     signinCode = Buffer.from('++//ff0=', 'base64')
     db = mocks.mockDB({ signinCode })
     config = {
@@ -308,7 +308,7 @@ describe('/sms without the signinCodes feature included in the payload', () => {
   let log, signinCode, db, config, routes, route, request
 
   beforeEach(() => {
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     signinCode = Buffer.from('++//ff0=', 'base64')
     db = mocks.mockDB({ signinCode })
     config = {
@@ -365,7 +365,7 @@ describe('/sms disabled', () => {
   let log, config, routes
 
   beforeEach(() => {
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     config = {
       sms: {
         enabled: false,
@@ -385,7 +385,7 @@ describe('/sms/status', () => {
   let log, config, routes, route
 
   beforeEach(() => {
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     config = {
       sms: {
         enabled: true,
@@ -537,7 +537,7 @@ describe('/sms/status with disabled geo-ip lookup', () => {
   let log, config, routes, route, request, response
 
   beforeEach(() => {
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     config = {
       sms: {
         enabled: true,
@@ -586,7 +586,7 @@ describe('/sms/status with query param and enabled geo-ip lookup', () => {
   let log, config, routes, route, request, response
 
   beforeEach(() => {
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     config = {
       sms: {
         enabled: true,
@@ -631,7 +631,7 @@ describe('/sms/status with query param and disabled geo-ip lookup', () => {
   let log, config, routes, route, request, response
 
   beforeEach(() => {
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     config = {
       sms: {
         enabled: true,

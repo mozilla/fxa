@@ -30,7 +30,7 @@ function runTest (route, request) {
 }
 
 describe('/session/status', () => {
-  const log = mocks.spyLog()
+  const log = mocks.mockLog()
   const config = {}
   const routes = makeRoutes({ log, config })
   const route = getRoute(routes, '/session/status')
@@ -61,7 +61,7 @@ describe('/session/destroy', () => {
 
   beforeEach(() => {
     db = mocks.mockDB()
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     const config = {}
     const routes = makeRoutes({ log, config, db})
     route = getRoute(routes, '/session/destroy')

@@ -30,7 +30,7 @@ describe('db, session tokens expire:', () => {
       getAsync: sinon.spy(() => P.resolve(results.redis)),
       setAsync: sinon.spy(() => P.resolve())
     }
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes })
     const DB = proxyquire(`${LIB_DIR}/db`, {
       './pool': function () { return pool },
@@ -84,7 +84,7 @@ describe('db, session tokens do not expire:', () => {
       getAsync: sinon.spy(() => P.resolve(results.redis)),
       setAsync: sinon.spy(() => P.resolve())
     }
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes })
     const DB = proxyquire(`${LIB_DIR}/db`, {
       './pool': function () { return pool },
@@ -142,7 +142,7 @@ describe('db with redis disabled', () => {
       del: sinon.spy(() => P.resolve())
     }
 
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes })
     const DB = proxyquire(`${LIB_DIR}/db`, {
       './pool': function () { return pool },

@@ -42,7 +42,7 @@ function runTest (route, request, assertions) {
 describe('/account/login/send_unblock_code', function () {
   var uid = uuid.v4('binary').toString('hex')
   var email = 'unblock@example.com'
-  const mockLog = mocks.spyLog()
+  const mockLog = mocks.mockLog()
   var mockRequest = mocks.mockRequest({
     log: mockLog,
     payload: {

@@ -242,7 +242,7 @@ describe('lib/senders/index', () => {
       const code = crypto.randomBytes(8).toString('hex')
 
       it('errors if bounce check fails', () => {
-        const log = mocks.spyLog()
+        const log = mocks.mockLog()
         const DATE = Date.now() - 10000
         const errorBounces =  {
           check: sinon.spy(() => P.reject(error.emailComplaint(DATE)))
@@ -267,7 +267,7 @@ describe('lib/senders/index', () => {
       })
 
       it('on gated primary email + verified secondary, sends to secondary', () => {
-        const log = mocks.spyLog()
+        const log = mocks.mockLog()
         const DATE = Date.now() - 10000
         let email
         const errorBounces = {
@@ -293,7 +293,7 @@ describe('lib/senders/index', () => {
       })
 
       it('on gated primary email + unverified secondary, blocks the send', () => {
-        const log = mocks.spyLog()
+        const log = mocks.mockLog()
         const DATE = Date.now() - 10000
         let email
         const errorBounces = {

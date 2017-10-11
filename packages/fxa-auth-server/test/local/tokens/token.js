@@ -16,7 +16,7 @@ var Bundle = {
   bundle: sinon.spy(),
   unbundle: sinon.spy()
 }
-var log = mocks.spyLog()
+var log = mocks.mockLog()
 var modulePath = '../../../lib/tokens/token'
 
 describe('Token', () => {

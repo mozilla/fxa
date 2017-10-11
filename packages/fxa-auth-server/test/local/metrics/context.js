@@ -39,7 +39,7 @@ describe('metricsContext', () => {
       set: sinon.spy(() => results.set)
     }
     cacheFactory = sinon.spy(() => cache)
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     config = {}
     metricsContext = proxyquire(modulePath, { '../cache': cacheFactory })(log, config)
   })
@@ -548,7 +548,7 @@ describe('metricsContext', () => {
       sinon.stub(Date, 'now', function() {
         return flowBeginTime + 59999
       })
-      const mockLog = mocks.spyLog()
+      const mockLog = mocks.mockLog()
       const mockConfig = {
         memcached: {},
         metrics: {
@@ -589,7 +589,7 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with missing payload',
     () => {
-      var mockLog = mocks.spyLog()
+      var mockLog = mocks.mockLog()
       var mockConfig = {
         memcached: {},
         metrics: {
@@ -621,7 +621,7 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with missing data bundle',
     () => {
-      var mockLog = mocks.spyLog()
+      var mockLog = mocks.mockLog()
       var mockConfig = {
         memcached: {},
         metrics: {
@@ -657,7 +657,7 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with missing flowId',
     () => {
-      var mockLog = mocks.spyLog()
+      var mockLog = mocks.mockLog()
       var mockConfig = {
         memcached: {},
         metrics: {
@@ -695,7 +695,7 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with missing flowBeginTime',
     () => {
-      var mockLog = mocks.spyLog()
+      var mockLog = mocks.mockLog()
       var mockConfig = {
         memcached: {},
         metrics: {
@@ -733,7 +733,7 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with flowBeginTime that is too old',
     () => {
-      var mockLog = mocks.spyLog()
+      var mockLog = mocks.mockLog()
       var mockConfig = {
         memcached: {},
         metrics: {
@@ -772,7 +772,7 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with an invalid flow signature',
     () => {
-      var mockLog = mocks.spyLog()
+      var mockLog = mocks.mockLog()
       var mockConfig = {
         memcached: {},
         metrics: {
@@ -814,7 +814,7 @@ describe('metricsContext', () => {
       var expectedTime = 1451566800000
       var expectedSalt = '4d6f7a696c6c6146697265666f782121'
       var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
-      var mockLog = mocks.spyLog()
+      var mockLog = mocks.mockLog()
       var mockConfig = {
         memcached: {},
         metrics: {
@@ -863,7 +863,7 @@ describe('metricsContext', () => {
       var expectedTime = 1451566800000
       var expectedSalt = '4d6f7a696c6c6146697265666f782121'
       var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
-      var mockLog = mocks.spyLog()
+      var mockLog = mocks.mockLog()
       var mockConfig = {
         memcached: {},
         metrics: {
@@ -912,7 +912,7 @@ describe('metricsContext', () => {
       var expectedTime = 1451566800000
       var expectedSalt = '4d6f7a696c6c6146697265666f782121'
       var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
-      var mockLog = mocks.spyLog()
+      var mockLog = mocks.mockLog()
       var mockConfig = {
         memcached: {},
         metrics: {

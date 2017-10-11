@@ -76,7 +76,7 @@ function runTest (route, request, assertions) {
 describe('/account/reset', function () {
   it('should do things', () => {
     var uid = uuid.v4('binary').toString('hex')
-    const mockLog = mocks.spyLog()
+    const mockLog = mocks.mockLog()
     const mockMetricsContext = mocks.mockMetricsContext()
     const mockRequest = mocks.mockRequest({
       credentials: {
@@ -1196,7 +1196,7 @@ describe('/account/login', function () {
 describe('/account/keys', function () {
   var keyFetchTokenId = hexString(16)
   var uid = uuid.v4('binary').toString('hex')
-  const mockLog = mocks.spyLog()
+  const mockLog = mocks.mockLog()
   const mockRequest = mocks.mockRequest({
     credentials: {
       emailVerified: true,
@@ -1261,7 +1261,7 @@ describe('/account/destroy', function () {
       email: email,
       uid: uid
     })
-    const mockLog = mocks.spyLog()
+    const mockLog = mocks.mockLog()
     const mockRequest = mocks.mockRequest({
       log: mockLog,
       payload: {

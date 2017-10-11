@@ -8,7 +8,7 @@ const assert = require('insist')
 
 const EventEmitter = require('events').EventEmitter
 const sinon = require('sinon')
-const { mockDB, spyLog } = require('../../mocks')
+const { mockDB, mockLog } = require('../../mocks')
 const profileUpdates = require('../../../lib/profile/updates')
 const P = require('../../../lib/promise')
 
@@ -40,12 +40,12 @@ describe('profile updates', () => {
     'should log errors',
     () => {
       pushShouldThrow = true
-      const mockLog = spyLog()
-      return mockProfileUpdates(mockLog).handleProfileUpdated(mockMessage({
+      const log = mockLog()
+      return mockProfileUpdates(log).handleProfileUpdated(mockMessage({
         uid: 'bogusuid'
       })).then(() => {
         assert.equal(mockPush.notifyProfileUpdated.callCount, 1)
-        assert.equal(mockLog.messages.length, 3)
+        assert.equal(log.error.callCount, 1)
         pushShouldThrow = false
       })
     }
@@ -54,13 +54,13 @@ describe('profile updates', () => {
   it(
     'should send push notifications',
     () => {
-      const mockLog = spyLog()
+      const log = mockLog()
       const uid = '1e2122ba'
 
-      return mockProfileUpdates(mockLog).handleProfileUpdated(mockMessage({
+      return mockProfileUpdates(log).handleProfileUpdated(mockMessage({
         uid: uid
       })).then(function () {
-        assert.equal(mockLog.messages.length, 2)
+        assert.equal(log.error.callCount, 0)
         assert.equal(mockPush.notifyProfileUpdated.callCount, 2)
         var args = mockPush.notifyProfileUpdated.getCall(1).args
         assert.equal(args[0], uid)

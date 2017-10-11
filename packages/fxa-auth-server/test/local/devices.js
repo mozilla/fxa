@@ -24,7 +24,7 @@ describe('devices', () => {
     var log, deviceCreatedAt, deviceId, device, db, push, devices
 
     beforeEach(() => {
-      log = mocks.spyLog()
+      log = mocks.mockLog()
       deviceCreatedAt = Date.now()
       deviceId = crypto.randomBytes(16).toString('hex')
       device = {

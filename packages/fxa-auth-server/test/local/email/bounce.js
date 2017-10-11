@@ -4,14 +4,15 @@
 
 'use strict'
 
-const assert = require('insist')
+const ROOT_DIR = '../../..'
 
-var EventEmitter = require('events').EventEmitter
-var sinon = require('sinon')
-var spyLog = require('../../mocks').spyLog
-var error = require('../../../lib/error')
-var P = require('../../../lib/promise')
-var bounces = require('../../../lib/email/bounces')
+const assert = require('insist')
+const bounces = require(`${ROOT_DIR}/lib/email/bounces`)
+const error = require(`${ROOT_DIR}/lib/error`)
+const { EventEmitter } = require('events')
+const { mockLog } = require('../../mocks')
+const P = require(`${ROOT_DIR}/lib/promise`)
+const sinon = require('sinon')
 
 var mockBounceQueue = new EventEmitter()
 mockBounceQueue.start = function start() {}
@@ -32,14 +33,14 @@ describe('bounce messages', () => {
   })
 
   it('should not log an error for headers', () => {
-    const log = spyLog()
+    const log = mockLog()
     return mockedBounces(log, {})
       .handleBounce(mockMessage({ junk: 'message' }))
       .then(() => assert.equal(log.error.callCount, 0))
   })
 
   it('should log an error for missing headers', () => {
-    const log = spyLog()
+    const log = mockLog()
     const message = mockMessage({
       junk: 'message'
     })
@@ -52,13 +53,15 @@ describe('bounce messages', () => {
   it(
     'should ignore unknown message types',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {}
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMessage({
+      return mockedBounces(log, mockDB).handleBounce(mockMessage({
         junk: 'message'
       })).then(function () {
-        assert.equal(mockLog.messages.length, 1)
-        assert.equal(mockLog.messages[0].args[0].op, 'emailHeaders.keys')
+        assert.equal(log.info.callCount, 0)
+        assert.equal(log.error.callCount, 0)
+        assert.equal(log.warn.callCount, 1)
+        assert.equal(log.warn.args[0][0].op, 'emailHeaders.keys')
       })
     }
   )
@@ -66,7 +69,7 @@ describe('bounce messages', () => {
   it(
     'should handle multiple recipients in turn',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {
         createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
@@ -90,16 +93,15 @@ describe('bounce messages', () => {
           ]
         }
       })
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMsg).then(function () {
+      return mockedBounces(log, mockDB).handleBounce(mockMsg).then(function () {
         assert.equal(mockDB.createEmailBounce.callCount, 2)
         assert.equal(mockDB.emailRecord.callCount, 2)
         assert.equal(mockDB.deleteAccount.callCount, 2)
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
         assert.equal(mockDB.emailRecord.args[1][0], 'foobar@example.com')
-        assert.equal(mockLog.messages.length, 9, 'messages logged')
-        assert.equal(mockLog.messages[8].level, 'info')
-        assert.equal(mockLog.messages[8].args[0].op, 'accountDeleted')
-        assert.equal(mockLog.messages[8].args[0].email, 'foobar@example.com')
+        assert.equal(log.info.callCount, 6)
+        assert.equal(log.info.args[5][0].op, 'accountDeleted')
+        assert.equal(log.info.args[5][0].email, 'foobar@example.com')
         assert.equal(mockMsg.del.callCount, 1)
       })
     }
@@ -108,7 +110,7 @@ describe('bounce messages', () => {
   it(
     'should treat complaints like bounces',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {
         createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
@@ -124,7 +126,7 @@ describe('bounce messages', () => {
       }
       const complaintType = 'abuse'
 
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMessage({
+      return mockedBounces(log, mockDB).handleBounce(mockMessage({
         complaint: {
           userAgent: 'AnyCompany Feedback Loop (V0.01)',
           complaintFeedbackType: complaintType,
@@ -141,14 +143,13 @@ describe('bounce messages', () => {
         assert.equal(mockDB.deleteAccount.callCount, 2)
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
         assert.equal(mockDB.emailRecord.args[1][0], 'foobar@example.com')
-        assert.equal(mockLog.messages.length, 9, 'messages logged')
-        assert.equal(mockLog.messages[2].args[0].op, 'emailEvent')
-        assert.equal(mockLog.messages[2].args[0].domain, 'other')
-        assert.equal(mockLog.messages[2].args[0].type, 'bounced')
-        assert.equal(mockLog.messages[7].args[0].complaint, true)
-        assert.equal(mockLog.messages[7].args[0].complaintFeedbackType, complaintType)
-        assert.equal(mockLog.messages[7].args[0].complaint, true)
-        assert.equal(mockLog.messages[7].args[0].complaintUserAgent, 'AnyCompany Feedback Loop (V0.01)')
+        assert.equal(log.info.callCount, 6)
+        assert.equal(log.info.args[0][0].op, 'emailEvent')
+        assert.equal(log.info.args[0][0].domain, 'other')
+        assert.equal(log.info.args[0][0].type, 'bounced')
+        assert.equal(log.info.args[4][0].complaint, true)
+        assert.equal(log.info.args[4][0].complaintFeedbackType, complaintType)
+        assert.equal(log.info.args[4][0].complaintUserAgent, 'AnyCompany Feedback Loop (V0.01)')
       })
     }
   )
@@ -156,7 +157,7 @@ describe('bounce messages', () => {
   it(
     'should not delete verified accounts on bounce',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {
         createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
@@ -170,7 +171,7 @@ describe('bounce messages', () => {
           return P.resolve({ })
         })
       }
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMessage({
+      return mockedBounces(log, mockDB).handleBounce(mockMessage({
         bounce: {
           bounceType: 'Permanent',
           // docs: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html#bounced-recipients
@@ -185,18 +186,18 @@ describe('bounce messages', () => {
         assert.equal(mockDB.emailRecord.args[1][0], 'verified@example.com')
         assert.equal(mockDB.deleteAccount.callCount, 1)
         assert.equal(mockDB.deleteAccount.args[0][0].email, 'test@example.com')
-        assert.equal(mockLog.messages.length, 8)
-        assert.equal(mockLog.messages[3].args[0].op, 'handleBounce')
-        assert.equal(mockLog.messages[3].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[3].args[0].domain, 'other')
-        assert.equal(mockLog.messages[3].args[0].status, '5.0.0')
-        assert.equal(mockLog.messages[3].args[0].action, 'failed')
-        assert.equal(mockLog.messages[3].args[0].diagnosticCode, 'smtp; 550 user unknown')
-        assert.equal(mockLog.messages[4].args[0].op, 'accountDeleted')
-        assert.equal(mockLog.messages[4].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[7].args[0].op, 'handleBounce')
-        assert.equal(mockLog.messages[7].args[0].email, 'verified@example.com')
-        assert.equal(mockLog.messages[7].args[0].status, '4.0.0')
+        assert.equal(log.info.callCount, 5)
+        assert.equal(log.info.args[1][0].op, 'handleBounce')
+        assert.equal(log.info.args[1][0].email, 'test@example.com')
+        assert.equal(log.info.args[1][0].domain, 'other')
+        assert.equal(log.info.args[1][0].status, '5.0.0')
+        assert.equal(log.info.args[1][0].action, 'failed')
+        assert.equal(log.info.args[1][0].diagnosticCode, 'smtp; 550 user unknown')
+        assert.equal(log.info.args[2][0].op, 'accountDeleted')
+        assert.equal(log.info.args[2][0].email, 'test@example.com')
+        assert.equal(log.info.args[4][0].op, 'handleBounce')
+        assert.equal(log.info.args[4][0].email, 'verified@example.com')
+        assert.equal(log.info.args[4][0].status, '4.0.0')
       })
     }
   )
@@ -204,7 +205,7 @@ describe('bounce messages', () => {
   it(
     'should log errors when looking up the email record',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {
         createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
@@ -219,14 +220,15 @@ describe('bounce messages', () => {
           ]
         }
       })
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMsg).then(function () {
+      return mockedBounces(log, mockDB).handleBounce(mockMsg).then(function () {
         assert.equal(mockDB.emailRecord.callCount, 1)
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
-        assert.equal(mockLog.messages.length, 5)
-        assert.equal(mockLog.messages[3].args[0].op, 'handleBounce')
-        assert.equal(mockLog.messages[3].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[4].args[0].op, 'databaseError')
-        assert.equal(mockLog.messages[4].args[0].email, 'test@example.com')
+        assert.equal(log.info.callCount, 2)
+        assert.equal(log.info.args[1][0].op, 'handleBounce')
+        assert.equal(log.info.args[1][0].email, 'test@example.com')
+        assert.equal(log.error.callCount, 2)
+        assert.equal(log.error.args[1][0].op, 'databaseError')
+        assert.equal(log.error.args[1][0].email, 'test@example.com')
         assert.equal(mockMsg.del.callCount, 1)
       })
     }
@@ -235,7 +237,7 @@ describe('bounce messages', () => {
   it(
     'should log errors when deleting the email record',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {
         createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
@@ -257,17 +259,18 @@ describe('bounce messages', () => {
           ]
         }
       })
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMsg).then(function () {
+      return mockedBounces(log, mockDB).handleBounce(mockMsg).then(function () {
         assert.equal(mockDB.emailRecord.callCount, 1)
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
         assert.equal(mockDB.deleteAccount.callCount, 1)
         assert.equal(mockDB.deleteAccount.args[0][0].email, 'test@example.com')
-        assert.equal(mockLog.messages.length, 5)
-        assert.equal(mockLog.messages[3].args[0].op, 'handleBounce')
-        assert.equal(mockLog.messages[3].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[4].args[0].op, 'databaseError')
-        assert.equal(mockLog.messages[4].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[4].args[0].err.errno, error.ERRNO.ACCOUNT_UNKNOWN)
+        assert.equal(log.info.callCount, 2)
+        assert.equal(log.info.args[1][0].op, 'handleBounce')
+        assert.equal(log.info.args[1][0].email, 'test@example.com')
+        assert.equal(log.error.callCount, 2)
+        assert.equal(log.error.args[1][0].op, 'databaseError')
+        assert.equal(log.error.args[1][0].email, 'test@example.com')
+        assert.equal(log.error.args[1][0].err.errno, error.ERRNO.ACCOUNT_UNKNOWN)
         assert.equal(mockMsg.del.callCount, 1)
       })
     }
@@ -276,7 +279,7 @@ describe('bounce messages', () => {
   it(
     'should normalize quoted email addresses for lookup',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {
         createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
@@ -294,7 +297,7 @@ describe('bounce messages', () => {
           return P.resolve({ })
         })
       }
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMessage({
+      return mockedBounces(log, mockDB).handleBounce(mockMessage({
         bounce: {
           bounceType: 'Permanent',
           bouncedRecipients: [
@@ -317,7 +320,7 @@ describe('bounce messages', () => {
   it(
     'should handle multiple consecutive dots even if not quoted',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {
         createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
@@ -335,7 +338,7 @@ describe('bounce messages', () => {
           return P.resolve({ })
         })
       }
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMessage({
+      return mockedBounces(log, mockDB).handleBounce(mockMessage({
         bounce: {
           bounceType: 'Permanent',
           bouncedRecipients: [
@@ -358,7 +361,7 @@ describe('bounce messages', () => {
   it(
     'should log a warning if it receives an unparseable email address',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {
         createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function () {
@@ -368,7 +371,7 @@ describe('bounce messages', () => {
           return P.resolve({ })
         })
       }
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMessage({
+      return mockedBounces(log, mockDB).handleBounce(mockMessage({
         bounce: {
           bounceType: 'Permanent',
           bouncedRecipients: [
@@ -379,8 +382,8 @@ describe('bounce messages', () => {
         assert.equal(mockDB.createEmailBounce.callCount, 0)
         assert.equal(mockDB.emailRecord.callCount, 0)
         assert.equal(mockDB.deleteAccount.callCount, 0)
-        assert.equal(mockLog.messages.length, 5)
-        assert.equal(mockLog.messages[1].args[0].op, 'handleBounce.addressParseFailure')
+        assert.equal(log.warn.callCount, 2)
+        assert.equal(log.warn.args[1][0].op, 'handleBounce.addressParseFailure')
       })
     }
   )
@@ -388,7 +391,7 @@ describe('bounce messages', () => {
   it(
     'should log email template name, language, and bounceType',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {
         createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
@@ -424,18 +427,18 @@ describe('bounce messages', () => {
         }
       })
 
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMsg).then(function () {
+      return mockedBounces(log, mockDB).handleBounce(mockMsg).then(function () {
         assert.equal(mockDB.emailRecord.callCount, 1)
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
         assert.equal(mockDB.deleteAccount.callCount, 1)
         assert.equal(mockDB.deleteAccount.args[0][0].email, 'test@example.com')
-        assert.equal(mockLog.messages.length, 5)
-        assert.equal(mockLog.messages[3].args[0].op, 'handleBounce')
-        assert.equal(mockLog.messages[3].args[0].email, 'test@example.com')
-        assert.equal(mockLog.messages[3].args[0].template, 'verifyLoginEmail')
-        assert.equal(mockLog.messages[3].args[0].bounceType, 'Permanent')
-        assert.equal(mockLog.messages[3].args[0].bounceSubType, 'General')
-        assert.equal(mockLog.messages[3].args[0].lang, 'db-LB')
+        assert.equal(log.info.callCount, 3)
+        assert.equal(log.info.args[1][0].op, 'handleBounce')
+        assert.equal(log.info.args[1][0].email, 'test@example.com')
+        assert.equal(log.info.args[1][0].template, 'verifyLoginEmail')
+        assert.equal(log.info.args[1][0].bounceType, 'Permanent')
+        assert.equal(log.info.args[1][0].bounceSubType, 'General')
+        assert.equal(log.info.args[1][0].lang, 'db-LB')
       })
     }
   )
@@ -443,7 +446,7 @@ describe('bounce messages', () => {
   it(
     'should emit flow metrics',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {
         createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
@@ -487,21 +490,21 @@ describe('bounce messages', () => {
         }
       })
 
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMsg).then(function () {
+      return mockedBounces(log, mockDB).handleBounce(mockMsg).then(function () {
         assert.equal(mockDB.emailRecord.callCount, 1)
         assert.equal(mockDB.emailRecord.args[0][0], 'test@example.com')
         assert.equal(mockDB.deleteAccount.callCount, 1)
         assert.equal(mockDB.deleteAccount.args[0][0].email, 'test@example.com')
-        assert.equal(mockLog.messages.length, 5)
-        assert.equal(mockLog.messages[1].args[0]['event'], 'email.verifyLoginEmail.bounced')
-        assert.equal(mockLog.messages[1].args[0]['flow_id'], 'someFlowId')
-        assert.equal(mockLog.messages[1].args[0]['flow_time'] > 0, true)
-        assert.equal(mockLog.messages[1].args[0]['time'] > 0, true)
-        assert.equal(mockLog.messages[2].args[0].op, 'emailEvent')
-        assert.equal(mockLog.messages[2].args[0].domain, 'other')
-        assert.equal(mockLog.messages[2].args[0].type, 'bounced')
-        assert.equal(mockLog.messages[2].args[0].template, 'verifyLoginEmail')
-        assert.equal(mockLog.messages[2].args[0]['flow_id'], 'someFlowId')
+        assert.equal(log.flowEvent.callCount, 1)
+        assert.equal(log.flowEvent.args[0][0].event, 'email.verifyLoginEmail.bounced')
+        assert.equal(log.flowEvent.args[0][0].flow_id, 'someFlowId')
+        assert.equal(log.flowEvent.args[0][0].flow_time > 0, true)
+        assert.equal(log.flowEvent.args[0][0].time > 0, true)
+        assert.equal(log.info.callCount, 3)
+        assert.equal(log.info.args[0][0].op, 'emailEvent')
+        assert.equal(log.info.args[0][0].type, 'bounced')
+        assert.equal(log.info.args[0][0].template, 'verifyLoginEmail')
+        assert.equal(log.info.args[0][0].flow_id, 'someFlowId')
       })
     }
   )
@@ -509,7 +512,7 @@ describe('bounce messages', () => {
   it(
     'should log email domain if popular one',
     () => {
-      var mockLog = spyLog()
+      const log = mockLog()
       var mockDB = {
         createEmailBounce: sinon.spy(() => P.resolve({})),
         emailRecord: sinon.spy(function (email) {
@@ -553,21 +556,21 @@ describe('bounce messages', () => {
         }
       })
 
-      return mockedBounces(mockLog, mockDB).handleBounce(mockMsg).then(function () {
-        assert.equal(mockLog.messages.length, 5)
-        assert.equal(mockLog.messages[1].args[0]['event'], 'email.verifyLoginEmail.bounced')
-        assert.equal(mockLog.messages[1].args[0]['flow_id'], 'someFlowId')
-        assert.equal(mockLog.messages[1].args[0]['flow_time'] > 0, true)
-        assert.equal(mockLog.messages[1].args[0]['time'] > 0, true)
-        assert.equal(mockLog.messages[2].args[0].op, 'emailEvent')
-        assert.equal(mockLog.messages[2].args[0].domain, 'aol.com')
-        assert.equal(mockLog.messages[2].args[0].type, 'bounced')
-        assert.equal(mockLog.messages[2].args[0].template, 'verifyLoginEmail')
-        assert.equal(mockLog.messages[2].args[0].bounced, true)
-        assert.equal(mockLog.messages[2].args[0].locale, 'en')
-        assert.equal(mockLog.messages[2].args[0]['flow_id'], 'someFlowId')
-        assert.equal(mockLog.messages[3].args[0]['email'], 'test@aol.com')
-        assert.equal(mockLog.messages[3].args[0]['domain'], 'aol.com')
+      return mockedBounces(log, mockDB).handleBounce(mockMsg).then(function () {
+        assert.equal(log.flowEvent.callCount, 1)
+        assert.equal(log.flowEvent.args[0][0].event, 'email.verifyLoginEmail.bounced')
+        assert.equal(log.flowEvent.args[0][0].flow_id, 'someFlowId')
+        assert.equal(log.flowEvent.args[0][0].flow_time > 0, true)
+        assert.equal(log.flowEvent.args[0][0].time > 0, true)
+        assert.equal(log.info.callCount, 3)
+        assert.equal(log.info.args[0][0].op, 'emailEvent')
+        assert.equal(log.info.args[0][0].domain, 'aol.com')
+        assert.equal(log.info.args[0][0].type, 'bounced')
+        assert.equal(log.info.args[0][0].template, 'verifyLoginEmail')
+        assert.equal(log.info.args[0][0].locale, 'en')
+        assert.equal(log.info.args[0][0].flow_id, 'someFlowId')
+        assert.equal(log.info.args[1][0].email, 'test@aol.com')
+        assert.equal(log.info.args[1][0].domain, 'aol.com')
       })
     }
   )

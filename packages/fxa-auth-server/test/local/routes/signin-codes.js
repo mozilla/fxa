@@ -148,7 +148,7 @@ describe('/signinCodes/consume:', () => {
     results = results || {}
     errors = errors || {}
 
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     db = mocks.mockDB(results.db, errors.db)
     customs = mocks.mockCustoms(errors.customs)
     routes = makeRoutes({ log, db, customs })

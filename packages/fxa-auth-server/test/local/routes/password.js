@@ -281,7 +281,7 @@ describe('/password', () => {
         })
         var mockPush = mocks.mockPush()
         var mockMailer = mocks.mockMailer()
-        var mockLog = mocks.spyLog()
+        var mockLog = mocks.mockLog()
         var mockRequest = mocks.mockRequest({
           credentials: {
             uid: uid
@@ -362,7 +362,7 @@ describe('/password', () => {
             return P.reject(error.emailBouncedHard())
           })
         }
-        var mockLog = mocks.spyLog()
+        var mockLog = mocks.mockLog()
         var mockRequest = mocks.mockRequest({
           credentials: {
             uid: uid

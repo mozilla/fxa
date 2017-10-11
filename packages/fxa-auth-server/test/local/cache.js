@@ -20,7 +20,7 @@ describe('cache:', () => {
 
   beforeEach(() => {
     sandbox = sinon.sandbox.create()
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     cache = require(modulePath)(log, {
       memcached: {
         address: '127.0.0.1:1121',
@@ -173,7 +173,7 @@ describe('null cache:', () => {
 
   beforeEach(() => {
     sandbox = sinon.sandbox.create()
-    log = mocks.spyLog()
+    log = mocks.mockLog()
     cache = require(modulePath)(log, {
       memcached: {
         address: 'none',

@@ -66,7 +66,7 @@ describe('lib/server', () => {
     let log, config, routes, db, instance, response, locale, translator
 
     beforeEach(() => {
-      log = mocks.spyLog()
+      log = mocks.mockLog()
       config = getConfig()
       routes = getRoutes()
       db = mocks.mockDB({

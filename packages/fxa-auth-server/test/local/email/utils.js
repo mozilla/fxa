@@ -8,9 +8,9 @@ const ROOT_DIR = '../../..'
 
 const assert = require('insist')
 const P = require(`${ROOT_DIR}/lib/promise`)
+const { mockLog } = require('../../mocks')
 const proxyquire = require('proxyquire')
 const sinon = require('sinon')
-const spyLog = require('../../mocks').spyLog
 
 const amplitude = sinon.spy()
 const emailHelpers = proxyquire(`${ROOT_DIR}/lib/email/utils/helpers`, {
@@ -53,7 +53,7 @@ describe('email utils helpers', () => {
 
   describe('logEmailEventSent', () => {
     it('should check headers case-insensitively', () => {
-      const mockLog = spyLog()
+      const log = mockLog()
       const message = {
         email: 'user@example.domain',
         template: 'verifyEmail',
@@ -61,28 +61,28 @@ describe('email utils helpers', () => {
           'cOnTeNt-LaNgUaGe': 'ru'
         }
       }
-      emailHelpers.logEmailEventSent(mockLog, message)
-      assert.equal(mockLog.info.callCount, 1)
-      assert.equal(mockLog.info.args[0][0].locale, 'ru')
+      emailHelpers.logEmailEventSent(log, message)
+      assert.equal(log.info.callCount, 1)
+      assert.equal(log.info.args[0][0].locale, 'ru')
     })
 
     it('should log an event per CC email', () => {
-      const mockLog = spyLog()
+      const log = mockLog()
       const message = {
         email: 'user@example.domain',
         ccEmails: ['noreply@gmail.com', 'noreply@yahoo.com'],
         template: 'verifyEmail'
       }
-      emailHelpers.logEmailEventSent(mockLog, message)
-      assert.equal(mockLog.info.callCount, 3)
-      assert.equal(mockLog.info.args[0][0].domain, 'other')
-      assert.equal(mockLog.info.args[1][0].domain, 'gmail.com')
-      assert.equal(mockLog.info.args[2][0].domain, 'yahoo.com')
+      emailHelpers.logEmailEventSent(log, message)
+      assert.equal(log.info.callCount, 3)
+      assert.equal(log.info.args[0][0].domain, 'other')
+      assert.equal(log.info.args[1][0].domain, 'gmail.com')
+      assert.equal(log.info.args[2][0].domain, 'yahoo.com')
     })
   })
 
   it('logEmailEventSent should call amplitude correctly', () => {
-    emailHelpers.logEmailEventSent(spyLog(), {
+    emailHelpers.logEmailEventSent(mockLog(), {
       email: 'foo@example.com',
       ccEmails: [ 'bar@example.com', 'baz@example.com' ],
       template: 'verifyEmail',
@@ -126,7 +126,7 @@ describe('email utils helpers', () => {
   })
 
   it('logEmailEventFromMessage should call amplitude correctly', () => {
-    emailHelpers.logEmailEventFromMessage(spyLog(), {
+    emailHelpers.logEmailEventFromMessage(mockLog(), {
       email: 'foo@example.com',
       ccEmails: [ 'bar@example.com', 'baz@example.com' ],
       headers: [
@@ -172,7 +172,7 @@ describe('email utils helpers', () => {
     let log
 
     beforeEach(() => {
-      log = spyLog()
+      log = mockLog()
     })
 
     it('logs an error if message.mail is missing', () => {

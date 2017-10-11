@@ -85,7 +85,7 @@ describe('/account/device', function () {
     }
   })
   var mockDevices = mocks.mockDevices()
-  var mockLog = mocks.spyLog()
+  var mockLog = mocks.mockLog()
   var accountRoutes = makeRoutes({
     config: config,
     devices: mockDevices,
@@ -209,7 +209,7 @@ describe('/account/devices/notify', function () {
   var config = {}
   var uid = uuid.v4('binary').toString('hex')
   var deviceId = crypto.randomBytes(16).toString('hex')
-  var mockLog = mocks.spyLog()
+  var mockLog = mocks.mockLog()
   var mockRequest = mocks.mockRequest({
     log: mockLog,
     credentials: {
@@ -419,7 +419,7 @@ describe('/account/devices/notify', function () {
       payload: pushPayload
     }
 
-    var mockLog = mocks.spyLog()
+    var mockLog = mocks.mockLog()
     var mockPush = mocks.mockPush({
       notifyUpdate: () => P.reject('devices empty')
     })
@@ -443,7 +443,7 @@ describe('/account/device/destroy', function () {
   it('should work', () => {
     var uid = uuid.v4('binary').toString('hex')
     var deviceId = crypto.randomBytes(16).toString('hex')
-    var mockLog = mocks.spyLog()
+    var mockLog = mocks.mockLog()
     var mockDB = mocks.mockDB()
     var mockRequest = mocks.mockRequest({
       credentials: {
