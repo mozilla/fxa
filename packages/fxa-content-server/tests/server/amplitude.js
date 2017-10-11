@@ -47,6 +47,12 @@ define([
       }, {
         deviceId: 'bar',
         entrypoint: 'baz',
+        experiments: [
+          { choice: 'FirstExperiment', group: 'groupOne' },
+          { choice: 'second-experiment', group: 'Group-Two' },
+          { choice: 'THIRD_EXPERIMENT', group: 'group_three' },
+          { choice: 'fourth.experiment', group: 'Group.FOUR' }
+        ],
         flowBeginTime: 'qux',
         flowId: 'wibble',
         lang: 'blee',
@@ -78,8 +84,13 @@ define([
         time: 'foo',
         user_id: 'soop',
         user_properties: {
+          experiments: [
+            'first_experiment_group_one',
+            'second_experiment_group_two',
+            'third_experiment_group_three',
+            'fourth_experiment_group_four'
+          ],
           flow_id: 'wibble',
-          fxa_uid: 'soop',
           utm_campaign: 'melm',
           utm_content: 'florg',
           utm_medium: 'derp',
@@ -96,6 +107,7 @@ define([
       }, {
         deviceId: 'b',
         entrypoint: 'c',
+        experiments: [],
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',
@@ -123,8 +135,7 @@ define([
         time: 'a',
         user_id: 'h',
         user_properties: {
-          flow_id: 'e',
-          fxa_uid: 'h'
+          flow_id: 'e'
         }
       });
     },
@@ -146,7 +157,6 @@ define([
       assert.isUndefined(arg.device_id);
       assert.isUndefined(arg.event_properties.device_id);
       assert.isUndefined(arg.user_id);
-      assert.isUndefined(arg.user_properties.fxa_uid);
     },
 
     'settings.signout.success': () => {
@@ -228,7 +238,6 @@ define([
         user_id: 'h',
         user_properties: {
           flow_id: 'e',
-          fxa_uid: 'h',
           utm_campaign: 'i',
           utm_content: 'j',
           utm_medium: 'k',

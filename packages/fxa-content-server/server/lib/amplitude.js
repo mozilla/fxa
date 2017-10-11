@@ -122,9 +122,9 @@ const EVENT_PROPERTIES = {
 
 const USER_PROPERTIES = {
   [GROUPS.email]: NOP,
-  [GROUPS.login]: mixProperties(mapUid, mapUtmProperties),
-  [GROUPS.registration]: mixProperties(mapUid, mapUtmProperties),
-  [GROUPS.settings]: mixProperties(mapUid, mapNewsletterState),
+  [GROUPS.login]: mapUtmProperties,
+  [GROUPS.registration]: mapUtmProperties,
+  [GROUPS.settings]: mapNewsletterState,
   [GROUPS.sms]: NOP
 };
 
@@ -183,9 +183,11 @@ function mapEventProperties (group, eventCategory, data) {
 }
 
 function mapUserProperties (group, eventCategory, data) {
-  return Object.assign({
-    flow_id: marshallOptionalValue(data.flowId),
-  }, USER_PROPERTIES[group](eventCategory, data));
+  return Object.assign(
+    { flow_id: marshallOptionalValue(data.flowId), },
+    mapExperiments(data),
+    USER_PROPERTIES[group](eventCategory, data)
+  );
 }
 
 function marshallOptionalValue (value) {
@@ -196,6 +198,21 @@ function marshallOptionalValue (value) {
 
 function mixProperties (...mappers) {
   return (eventCategory, data) => Object.assign({}, ...mappers.map(m => m(eventCategory, data)));
+}
+
+function mapExperiments (data) {
+  if (data.experiments && data.experiments.length > 0) {
+    return {
+      experiments: data.experiments.map(e => `${toSnakeCase(e.choice)}_${toSnakeCase(e.group)}`)
+    };
+  }
+}
+
+function toSnakeCase (string) {
+  return string.replace(/([a-z])([A-Z])/g, (s, c1, c2) => `${c1}_${c2.toLowerCase()}`)
+    .replace(/([A-Z])/g, c => c.toLowerCase())
+    .replace(/\./g, '_')
+    .replace(/-/g, '_');
 }
 
 function mapEmailType (eventCategory) {
@@ -223,13 +240,6 @@ function mapNewsletterState (eventCategory) {
   const newsletter_state = NEWSLETTER_STATES[eventCategory];
   if (newsletter_state) {
     return { newsletter_state };
-  }
-}
-
-function mapUid (eventCategory, data) {
-  const fxa_uid = marshallOptionalValue(data.uid);
-  if (fxa_uid) {
-    return { fxa_uid };
   }
 }
 
