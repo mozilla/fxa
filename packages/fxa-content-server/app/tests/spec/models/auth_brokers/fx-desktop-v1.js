@@ -92,15 +92,32 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterSignInConfirmationPoll', () => {
+      it('halts by default', () => {
+        return broker.afterSignInConfirmationPoll(account)
+        .then((result) => {
+          assert.isTrue(result.halt);
+        });
+      });
+    });
+
     describe('beforeSignUpConfirmationPoll', function () {
-      it('notifies the channel of login, halts the flow by default', function () {
+      it('notifies the channel of login', function () {
         sinon.spy(broker, 'send');
 
         return broker.beforeSignUpConfirmationPoll(account)
-          .then(function (result) {
+          .then((result) => {
             assert.isTrue(broker.send.calledWith('login'));
-            assert.isTrue(result.halt);
           });
+      });
+    });
+
+    describe('afterSignUpConfirmationPoll', () => {
+      it('halts by default', () => {
+        return broker.afterSignUpConfirmationPoll(account)
+        .then((result) => {
+          assert.isTrue(result.halt);
+        });
       });
     });
 

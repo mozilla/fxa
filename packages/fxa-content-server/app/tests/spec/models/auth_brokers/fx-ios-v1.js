@@ -51,7 +51,8 @@ define(function (require, exports, module) {
           assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
           assert.isFalse(broker.hasCapability('immediateUnverifiedLogin'));
 
-          assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'halt');
+          assert.equal(broker.getBehavior('afterSignInConfirmationPoll').type, 'halt');
+          assert.equal(broker.getBehavior('afterSignUpConfirmationPoll').type, 'halt');
         });
       });
 
@@ -64,7 +65,10 @@ define(function (require, exports, module) {
           assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
           assert.isTrue(broker.hasCapability('immediateUnverifiedLogin'));
 
-          assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'null');
+          assert.equal(broker.getBehavior('afterSignInConfirmationPoll').type, 'navigate');
+          assert.equal(broker.getBehavior('afterSignInConfirmationPoll').endpoint, 'signin_confirmed');
+          assert.equal(broker.getBehavior('afterSignUpConfirmationPoll').type, 'navigate');
+          assert.equal(broker.getBehavior('afterSignUpConfirmationPoll').endpoint, 'signup_confirmed');
         });
       });
     });

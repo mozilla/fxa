@@ -1496,14 +1496,14 @@ define([
    * Check to ensure the page does not transition
    *
    * @param {String} selector
-   * @param {Number} [timeout] time to wait in ms. Defaults to 2000ms
+   * @param {Number} [timeout] time to wait in ms. Defaults to 5000ms
    * @returns {promise} that resolves if the selector is found
    * before and after the timeout.
    */
   const noPageTransition = thenify(function (selector, timeout) {
     return this.parent
       .then(testElementExists(selector))
-      .sleep(timeout || 2000)
+      .sleep(timeout || 5000)
       .then(testElementExists(selector));
   });
 

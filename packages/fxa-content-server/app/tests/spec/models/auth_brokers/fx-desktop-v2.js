@@ -88,11 +88,28 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterSignInConfirmationPoll', () => {
+      it('halts if browser transitions', () => {
+        return broker.afterSignInConfirmationPoll(account)
+          .then((result) => {
+            assert.equal(result.type, 'halt-if-browser-transitions');
+          });
+      });
+    });
+
     describe('beforeSignUpConfirmationPoll', () => {
       it('notifies the channel with `fxaccounts:login`, halts if browser transitions', () => {
         return broker.beforeSignUpConfirmationPoll(account)
-          .then(function (result) {
+          .then((result) => {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+          });
+      });
+    });
+
+    describe('afterSignUpConfirmationPoll', () => {
+      it('halts if browser transitions', () => {
+        return broker.afterSignUpConfirmationPoll(account)
+          .then((result) => {
             assert.equal(result.type, 'halt-if-browser-transitions');
           });
       });
