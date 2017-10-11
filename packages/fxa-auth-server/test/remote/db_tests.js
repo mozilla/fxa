@@ -161,7 +161,7 @@ describe('remote db', function() {
         })
         .then(sessionToken => {
           assert.deepEqual(sessionToken.uid, account.uid)
-          tokenId = sessionToken.tokenId
+          tokenId = sessionToken.id
 
           // Simulate a cache miss in redis
           redisGetSpy.returns(P.resolve(null))
@@ -172,7 +172,7 @@ describe('remote db', function() {
         .then(sessions => {
           assert.equal(sessions.length, 1, 'sessions contains one item')
           assert.equal(Object.keys(sessions[0]).length, 18, 'session has correct number of properties')
-          assert.equal(typeof sessions[0].tokenId, 'string', 'tokenId property is not a buffer')
+          assert.equal(typeof sessions[0].id, 'string', 'id property is not a buffer')
           assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
           assert.ok(sessions[0].createdAt >= account.createdAt, 'createdAt property seems correct')
           assert.equal(sessions[0].uaBrowser, 'Firefox', 'uaBrowser property is correct')
@@ -187,7 +187,7 @@ describe('remote db', function() {
           return db.sessionToken(tokenId)
         })
         .then(sessionToken => {
-          assert.equal(sessionToken.tokenId, tokenId, 'token id matches')
+          assert.equal(sessionToken.id, tokenId, 'token id matches')
           assert.equal(sessionToken.uaBrowser, 'Firefox')
           assert.equal(sessionToken.uaBrowserVersion, '41')
           assert.equal(sessionToken.uaOS, 'Mac OS X')
@@ -316,11 +316,11 @@ describe('remote db', function() {
           const mockTokens = JSON.stringify({
             idToNotDelete: {
               uid: sessionToken.uid,
-              id: 'idToNotDelete'
+              tokenId: 'idToNotDelete'
             },
             [sessionToken.id]: {
               uid: sessionToken.uid,
-              id: sessionToken.id
+              tokenId: sessionToken.id
             }
           })
           redisGetSpy.returns(P.resolve(mockTokens))
@@ -379,7 +379,7 @@ describe('remote db', function() {
           .then(function (result) {
             sessionToken = result
             // Attempt to update a non-existent device
-            return db.updateDevice(account.uid, sessionToken.tokenId, deviceInfo)
+            return db.updateDevice(account.uid, sessionToken.id, deviceInfo)
               .then(function () {
                 assert(false, 'updating a non-existent device should have failed')
               }, function (err) {
@@ -406,7 +406,7 @@ describe('remote db', function() {
             assert.ok(Array.isArray(devices), 'devices is array')
             assert.equal(devices.length, 0, 'devices array is empty')
             // Create a device
-            return db.createDevice(account.uid, sessionToken.tokenId, deviceInfo)
+            return db.createDevice(account.uid, sessionToken.id, deviceInfo)
               .catch(function (err) {
                 assert(false, 'adding a new device should not have failed')
               })
@@ -421,12 +421,12 @@ describe('remote db', function() {
             assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
             assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
             // Fetch the session token
-            return db.sessionToken(sessionToken.tokenId)
+            return db.sessionToken(sessionToken.id)
           })
           .then(sessionToken => {
             assert.equal(sessionToken.lifetime, Infinity)
             // Attempt to create a device with a duplicate session token
-            return db.createDevice(account.uid, sessionToken.tokenId, conflictingDeviceInfo)
+            return db.createDevice(account.uid, sessionToken.id, conflictingDeviceInfo)
               .then(function () {
                 assert(false, 'adding a device with a duplicate session token should have failed')
               }, function (err) {
@@ -470,7 +470,7 @@ describe('remote db', function() {
             sessionToken.uaDeviceType = sessionToken.uaFormFactor = null
             // Update the device and the session token
             return P.all([
-              db.updateDevice(account.uid, sessionToken.tokenId, deviceInfo),
+              db.updateDevice(account.uid, sessionToken.id, deviceInfo),
               db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({
                 location: {
                   state: 'Mordor',
@@ -483,8 +483,8 @@ describe('remote db', function() {
               })
           })
           .then(results => {
-            const tokenToReturn = results[1][sessionToken.tokenId]
-            redisGetSpy.returns(P.resolve(JSON.stringify({[sessionToken.tokenId]: tokenToReturn})))
+            const tokenToReturn = results[1][sessionToken.id]
+            redisGetSpy.returns(P.resolve(JSON.stringify({[sessionToken.id]: tokenToReturn})))
 
             // Create another session token
             return db.createSessionToken(sessionToken)
@@ -492,11 +492,11 @@ describe('remote db', function() {
           .then(result =>{
             anotherSessionToken = result
             // Create another device
-            return db.createDevice(account.uid, anotherSessionToken.tokenId, conflictingDeviceInfo)
+            return db.createDevice(account.uid, anotherSessionToken.id, conflictingDeviceInfo)
           })
           .then(() =>{
             // Attempt to update a device with a duplicate session token
-            return db.updateDevice(account.uid, anotherSessionToken.tokenId, deviceInfo)
+            return db.updateDevice(account.uid, anotherSessionToken.id, deviceInfo)
               .then(function () {
                 assert(false, 'updating a device with a duplicate session token should have failed')
               }, function (err) {
@@ -564,13 +564,13 @@ describe('remote db', function() {
         })
         .then(function(keyFetchToken) {
           assert.deepEqual(keyFetchToken.uid, account.uid)
-          tokenId = keyFetchToken.tokenId
+          tokenId = keyFetchToken.id
         })
         .then(function() {
           return db.keyFetchToken(tokenId)
         })
         .then(function(keyFetchToken) {
-          assert.deepEqual(keyFetchToken.tokenId, tokenId, 'token id matches')
+          assert.deepEqual(keyFetchToken.id, tokenId, 'token id matches')
           assert.deepEqual(keyFetchToken.uid, account.uid)
           assert.equal(keyFetchToken.emailVerified, account.emailVerified)
           return keyFetchToken
@@ -608,13 +608,13 @@ describe('remote db', function() {
         })
         .then(function(accountResetToken) {
           assert.deepEqual(accountResetToken.uid, account.uid, 'account reset token uid should be the same as the account.uid')
-          tokenId = accountResetToken.tokenId
+          tokenId = accountResetToken.id
         })
         .then(function() {
           return db.accountResetToken(tokenId)
         })
         .then(function(accountResetToken) {
-          assert.deepEqual(accountResetToken.tokenId, tokenId, 'token id matches')
+          assert.deepEqual(accountResetToken.id, tokenId, 'token id matches')
           assert.deepEqual(accountResetToken.uid, account.uid, 'account reset token uid should still be the same as the account.uid')
           return accountResetToken
         })
@@ -649,10 +649,10 @@ describe('remote db', function() {
           token1tries = token1.tries
         })
         .then(function() {
-          return db.passwordForgotToken(token1.tokenId)
+          return db.passwordForgotToken(token1.id)
         })
         .then(function(passwordForgotToken) {
-          assert.deepEqual(passwordForgotToken.tokenId, token1.tokenId, 'token id matches')
+          assert.deepEqual(passwordForgotToken.id, token1.id, 'token id matches')
           assert.deepEqual(passwordForgotToken.uid, token1.uid, 'tokens are identical')
           return passwordForgotToken
         })
@@ -661,10 +661,10 @@ describe('remote db', function() {
           return db.updatePasswordForgotToken(passwordForgotToken)
         })
         .then(function() {
-          return db.passwordForgotToken(token1.tokenId)
+          return db.passwordForgotToken(token1.id)
         })
         .then(function(passwordForgotToken) {
-          assert.deepEqual(passwordForgotToken.tokenId, token1.tokenId, 'token id matches again')
+          assert.deepEqual(passwordForgotToken.id, token1.id, 'token id matches again')
           assert.equal(passwordForgotToken.tries, token1tries - 1, '')
           return passwordForgotToken
         })
@@ -672,7 +672,7 @@ describe('remote db', function() {
           return db.deletePasswordForgotToken(passwordForgotToken)
         })
         .then(function() {
-          return db.passwordForgotToken(token1.tokenId)
+          return db.passwordForgotToken(token1.id)
         })
         .then(function(passwordForgotToken) {
           assert(false, 'The above passwordForgotToken() call should fail, since the passwordForgotToken has been deleted')
@@ -716,7 +716,7 @@ describe('remote db', function() {
           token1 = accountResetToken
         })
         .then(function() {
-          return db.accountResetToken(token1.tokenId)
+          return db.accountResetToken(token1.id)
         })
         .then(function(accountResetToken) {
           assert.deepEqual(accountResetToken.uid, account.uid)

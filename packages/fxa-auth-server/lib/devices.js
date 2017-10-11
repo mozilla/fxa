@@ -39,7 +39,7 @@ module.exports = (log, db, push) => {
     }
     const isPlaceholderDevice = ! deviceInfo.id && ! deviceInfo.name && ! deviceInfo.type
 
-    return db[operation](sessionToken.uid, sessionToken.tokenId, deviceInfo)
+    return db[operation](sessionToken.uid, sessionToken.id, deviceInfo)
       .then(device => {
         result = device
         return request.emitMetricsEvent(event, {

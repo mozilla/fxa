@@ -150,7 +150,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
           function (x) {
             token = x
             assert.equal(token.data.toString('hex'), tokenData)
-            assert.equal(token.id.toString('hex'), 'c0a29dcf46174973da1378696e4c82ae10f723cf4f4d9f75e39f4ae3851595ab')
+            assert.equal(token.id, 'c0a29dcf46174973da1378696e4c82ae10f723cf4f4d9f75e39f4ae3851595ab')
             assert.equal(token.authKey.toString('hex'), '9d8f22998ee7f5798b887042466b72d53e56ab0c094388bf65831f702d2febc0')
           }
         )
@@ -164,7 +164,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
         .then(function (token) {
           token.setUserAgentInfo({
             data: 'foo',
-            tokenId: 'foo',
+            id: 'foo',
             authKey: 'foo',
             bundleKey: 'foo',
             algorithm: 'foo',
@@ -185,7 +185,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
             lastAccessTime: 'mnngh'
           })
           assert.notEqual(token.data, 'foo', 'data was not updated')
-          assert.notEqual(token.tokenId, 'foo', 'tokenId was not updated')
+          assert.notEqual(token.id, 'foo', 'id was not updated')
           assert.notEqual(token.authKey, 'foo', 'authKey was not updated')
           assert.notEqual(token.bundleKey, 'foo', 'bundleKey was not updated')
           assert.notEqual(token.algorithm, 'foo', 'algorithm was not updated')

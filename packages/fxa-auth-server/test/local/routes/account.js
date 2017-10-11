@@ -163,13 +163,13 @@ describe('/account/reset', function () {
 
       args = mockMetricsContext.stash.args[0]
       assert.equal(args.length, 1, 'metricsContext.stash was passed one argument first time')
-      assert.deepEqual(args[0].tokenId, sessionTokenId, 'argument was session token')
+      assert.deepEqual(args[0].id, sessionTokenId, 'argument was session token')
       assert.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
       assert.equal(mockMetricsContext.stash.thisValues[0], mockRequest, 'this was request')
 
       args = mockMetricsContext.stash.args[1]
       assert.equal(args.length, 1, 'metricsContext.stash was passed one argument second time')
-      assert.deepEqual(args[0].tokenId, keyFetchTokenId, 'argument was key fetch token')
+      assert.deepEqual(args[0].id, keyFetchTokenId, 'argument was key fetch token')
       assert.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
       assert.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
 
@@ -377,7 +377,7 @@ describe('/account/create', () => {
 
       args = mockMetricsContext.stash.args[0]
       assert.equal(args.length, 1, 'metricsContext.stash was passed one argument first time')
-      assert.deepEqual(args[0].tokenId, sessionTokenId, 'argument was session token')
+      assert.deepEqual(args[0].id, sessionTokenId, 'argument was session token')
       assert.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
       assert.equal(mockMetricsContext.stash.thisValues[0], mockRequest, 'this was request')
 
@@ -389,7 +389,7 @@ describe('/account/create', () => {
 
       args = mockMetricsContext.stash.args[2]
       assert.equal(args.length, 1, 'metricsContext.stash was passed one argument third time')
-      assert.deepEqual(args[0].tokenId, keyFetchTokenId, 'argument was key fetch token')
+      assert.deepEqual(args[0].id, keyFetchTokenId, 'argument was key fetch token')
       assert.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
       assert.equal(mockMetricsContext.stash.thisValues[2], mockRequest, 'this was request')
 
@@ -641,7 +641,7 @@ describe('/account/login', function () {
 
       args = mockMetricsContext.stash.args[0]
       assert.equal(args.length, 1, 'metricsContext.stash was passed one argument first time')
-      assert.deepEqual(args[0].tokenId, sessionTokenId, 'argument was session token')
+      assert.deepEqual(args[0].id, sessionTokenId, 'argument was session token')
       assert.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
       assert.equal(mockMetricsContext.stash.thisValues[0], mockRequest, 'this was request')
 
@@ -653,7 +653,7 @@ describe('/account/login', function () {
 
       args = mockMetricsContext.stash.args[2]
       assert.equal(args.length, 1, 'metricsContext.stash was passed one argument third time')
-      assert.deepEqual(args[0].tokenId, keyFetchTokenId, 'argument was key fetch token')
+      assert.deepEqual(args[0].id, keyFetchTokenId, 'argument was key fetch token')
       assert.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
       assert.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
 
@@ -1202,7 +1202,6 @@ describe('/account/keys', function () {
       emailVerified: true,
       id: keyFetchTokenId,
       keyBundle: hexString(16),
-      tokenId: keyFetchTokenId,
       tokenVerificationId: undefined,
       tokenVerified: true,
       uid: uid

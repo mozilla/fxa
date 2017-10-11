@@ -62,7 +62,7 @@ describe('devices', () => {
           log: log
         })
         sessionToken = {
-          tokenId: crypto.randomBytes(16).toString('hex'),
+          id: crypto.randomBytes(16).toString('hex'),
           uid: uuid.v4('binary').toString('hex'),
           tokenVerified: true
         }
@@ -84,7 +84,7 @@ describe('devices', () => {
             var args = db.createDevice.args[0]
             assert.equal(args.length, 3, 'db.createDevice was passed three arguments')
             assert.deepEqual(args[0], sessionToken.uid, 'first argument was uid')
-            assert.deepEqual(args[1], sessionToken.tokenId, 'second argument was sessionTokenId')
+            assert.deepEqual(args[1], sessionToken.id, 'second argument was sessionTokenId')
             assert.equal(args[2], device, 'third argument was device')
 
             assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
@@ -178,7 +178,7 @@ describe('devices', () => {
             var args = db.updateDevice.args[0]
             assert.equal(args.length, 3, 'db.createDevice was passed three arguments')
             assert.deepEqual(args[0], sessionToken.uid, 'first argument was uid')
-            assert.deepEqual(args[1], sessionToken.tokenId, 'second argument was sessionTokenId')
+            assert.deepEqual(args[1], sessionToken.id, 'second argument was sessionTokenId')
             assert.deepEqual(args[2], {
               id: deviceId,
               name: device.name,

@@ -59,9 +59,9 @@ describe('db, session tokens expire:', () => {
     it('returned the correct result', () => {
       assert(Array.isArray(sessions))
       assert.equal(sessions.length, 3)
-      assert.equal(sessions[0].tokenId, 'foo')
-      assert.equal(sessions[1].tokenId, 'baz')
-      assert.equal(sessions[2].tokenId, 'qux')
+      assert.equal(sessions[0].id, 'foo')
+      assert.equal(sessions[1].id, 'baz')
+      assert.equal(sessions[2].id, 'qux')
     })
   })
 })
@@ -112,10 +112,10 @@ describe('db, session tokens do not expire:', () => {
 
     it('returned the correct result', () => {
       assert.equal(sessions.length, 4)
-      assert.equal(sessions[0].tokenId, 'foo')
-      assert.equal(sessions[1].tokenId, 'bar')
-      assert.equal(sessions[2].tokenId, 'baz')
-      assert.equal(sessions[3].tokenId, 'qux')
+      assert.equal(sessions[0].id, 'foo')
+      assert.equal(sessions[1].id, 'bar')
+      assert.equal(sessions[2].id, 'baz')
+      assert.equal(sessions[3].id, 'qux')
     })
   })
 })

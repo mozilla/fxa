@@ -118,7 +118,7 @@ module.exports = (
           return this.pool.put(
             '/sessionToken/' + sessionToken.id,
             {
-              tokenId: sessionToken.tokenId,
+              tokenId: sessionToken.id,
               data: sessionToken.data,
               uid: sessionToken.uid,
               createdAt: sessionToken.createdAt,
@@ -148,7 +148,7 @@ module.exports = (
           return this.pool.put(
             '/keyFetchToken/' + keyFetchToken.id,
             {
-              tokenId: keyFetchToken.tokenId,
+              tokenId: keyFetchToken.id,
               authKey: keyFetchToken.authKey,
               uid: keyFetchToken.uid,
               keyBundle: keyFetchToken.keyBundle,
@@ -173,7 +173,7 @@ module.exports = (
           return this.pool.put(
             '/passwordForgotToken/' + passwordForgotToken.id,
             {
-              tokenId: passwordForgotToken.tokenId,
+              tokenId: passwordForgotToken.id,
               data: passwordForgotToken.data,
               uid: passwordForgotToken.uid,
               passCode: passwordForgotToken.passCode,
@@ -198,7 +198,7 @@ module.exports = (
           return this.pool.put(
             '/passwordChangeToken/' + passwordChangeToken.id,
             {
-              tokenId: passwordChangeToken.tokenId,
+              tokenId: passwordChangeToken.id,
               data: passwordChangeToken.data,
               uid: passwordChangeToken.uid,
               createdAt: passwordChangeToken.createdAt
@@ -276,8 +276,13 @@ module.exports = (
         // overwrite the properties of the db token with the redis token values
         const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : {}
         const sessions = mysqlSessionTokens.map((sessionToken) => {
-          const redisToken = redisSessionTokens[sessionToken.tokenId]
-          const mergedToken = Object.assign({}, sessionToken, redisToken)
+          const id = sessionToken.tokenId
+          const redisToken = redisSessionTokens[id]
+          const mergedToken = Object.assign({}, sessionToken, redisToken, {
+            // Map from the db's tokenId property to this repo's id property
+            id
+          })
+          delete mergedToken.tokenId
           return mergedToken
         })
         log.info({
@@ -508,7 +513,7 @@ module.exports = (
     }
 
     const newToken = {
-      tokenId: token.tokenId,
+      tokenId: token.id,
       uid: uid,
       uaBrowser: token.uaBrowser,
       uaBrowserVersion: token.uaBrowserVersion,
@@ -534,7 +539,7 @@ module.exports = (
     .then(res => {
       // update the hash with the new token
       sessionTokens = res ? JSON.parse(res) : {}
-      sessionTokens[token.tokenId] = newToken
+      sessionTokens[token.id] = newToken
       return sessionTokens
     })
     // add new updated token into array, and set the resulting array as the new value
@@ -818,7 +823,7 @@ module.exports = (
           return this.pool.post(
             '/passwordForgotToken/' + passwordForgotToken.id + '/verified',
             {
-              tokenId: accountResetToken.tokenId,
+              tokenId: accountResetToken.id,
               data: accountResetToken.data,
               uid: accountResetToken.uid,
               createdAt: accountResetToken.createdAt

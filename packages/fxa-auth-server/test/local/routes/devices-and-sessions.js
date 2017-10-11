@@ -76,7 +76,7 @@ describe('/account/device', function () {
       deviceId: deviceId,
       deviceName: mockDeviceName,
       deviceType: 'desktop',
-      tokenId: crypto.randomBytes(16).toString('hex'),
+      id: crypto.randomBytes(16).toString('hex'),
       uid: uid
     },
     payload: {
@@ -116,7 +116,7 @@ describe('/account/device', function () {
       var args = mockDevices.upsert.args[0]
       assert.equal(args.length, 3, 'devices.upsert was passed three arguments')
       assert.equal(args[0], mockRequest, 'first argument was request object')
-      assert.deepEqual(args[1].tokenId, mockRequest.auth.credentials.tokenId, 'second argument was session token')
+      assert.deepEqual(args[1].id, mockRequest.auth.credentials.id, 'second argument was session token')
       assert.deepEqual(args[1].uid, uid, 'sessionToken.uid was correct')
       assert.deepEqual(args[2], mockRequest.payload, 'third argument was payload')
     })
@@ -162,7 +162,7 @@ describe('/account/device', function () {
         deviceId: deviceId,
         deviceName: mockDeviceName,
         deviceType: 'desktop',
-        tokenId: crypto.randomBytes(16).toString('hex'),
+        id: crypto.randomBytes(16).toString('hex'),
         uid: uid
       },
       payload: {
@@ -189,7 +189,7 @@ describe('/account/device', function () {
         deviceId: deviceId,
         deviceName: mockDeviceName,
         deviceType: 'desktop',
-        tokenId: crypto.randomBytes(16).toString('hex'),
+        id: crypto.randomBytes(16).toString('hex'),
         uid: uid
       },
       payload: {
@@ -498,14 +498,14 @@ describe('/account/devices', function () {
     var mockRequest = mocks.mockRequest({
       credentials: {
         uid: crypto.randomBytes(16).toString('hex'),
-        tokenId: crypto.randomBytes(16).toString('hex')
+        id: crypto.randomBytes(16).toString('hex')
       },
       payload: {}
     })
     var unnamedDevice = { sessionToken: crypto.randomBytes(16).toString('hex') }
     var mockDB = mocks.mockDB({
       devices: [
-        { name: 'current session', type: 'mobile', sessionToken: mockRequest.auth.credentials.tokenId },
+        { name: 'current session', type: 'mobile', sessionToken: mockRequest.auth.credentials.id },
         { name: 'has no type', sessionToken: crypto.randomBytes(16).toString('hex' )},
         { name: 'has device type', sessionToken: crypto.randomBytes(16).toString('hex'), uaDeviceType: 'wibble' },
         unnamedDevice
@@ -570,7 +570,7 @@ describe('/account/sessions', () => {
   const tokenIds = [ 'foo', 'bar', 'baz' ]
   const sessions = [
     {
-      tokenId: tokenIds[0], uid: 'qux', createdAt: times[0], lastAccessTime: times[1],
+      id: tokenIds[0], uid: 'qux', createdAt: times[0], lastAccessTime: times[1],
       uaBrowser: 'Firefox', uaBrowserVersion: '50', uaOS: 'Windows', uaOSVersion: '10',
       uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
@@ -578,7 +578,7 @@ describe('/account/sessions', () => {
       location: { country: 'Canada', state: 'ON' }
     },
     {
-      tokenId: tokenIds[1], uid: 'wibble', createdAt: times[3], lastAccessTime: times[4],
+      id: tokenIds[1], uid: 'wibble', createdAt: times[3], lastAccessTime: times[4],
       uaBrowser: 'Nightly', uaBrowserVersion: null, uaOS: 'Android', uaOSVersion: '6',
       uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[5],
       deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null,
@@ -586,7 +586,7 @@ describe('/account/sessions', () => {
       location: { country: 'England', state: 'AB' }
     },
     {
-      tokenId: tokenIds[2], uid: 'blee', createdAt: times[6], lastAccessTime: times[7],
+      id: tokenIds[2], uid: 'blee', createdAt: times[6], lastAccessTime: times[7],
       uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
       uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
@@ -598,7 +598,7 @@ describe('/account/sessions', () => {
   const accountRoutes = makeRoutes({ db })
   const request = mocks.mockRequest({
     credentials: {
-      tokenId: tokenIds[0],
+      id: tokenIds[0],
       uid: hexString(16)
     },
     payload: {}

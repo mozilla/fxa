@@ -40,7 +40,7 @@ module.exports = function (log, Token) {
 
   KeyFetchToken.fromId = function (id, details) {
     log.trace({ op: 'KeyFetchToken.fromId' })
-    return P.resolve(new KeyFetchToken({ tokenId: id, authKey: details.authKey }, details))
+    return P.resolve(new KeyFetchToken({ id, authKey: details.authKey }, details))
   }
 
   KeyFetchToken.fromHex = function (string, details) {

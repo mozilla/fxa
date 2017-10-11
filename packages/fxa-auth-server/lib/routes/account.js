@@ -347,7 +347,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             name: 'account.create',
             uid: account.uid,
             ipAddr: request.app.clientAddress,
-            tokenId: sessionToken.tokenId
+            tokenId: sessionToken.id
           })
         }
 
@@ -983,7 +983,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             name: 'account.login',
             uid: accountRecord.uid,
             ipAddr: request.app.clientAddress,
-            tokenId: sessionToken && sessionToken.tokenId
+            tokenId: sessionToken && sessionToken.id
           })
         }
 
@@ -1389,7 +1389,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             name: 'account.reset',
             uid: account.uid,
             ipAddr: request.app.clientAddress,
-            tokenId: sessionToken && sessionToken.tokenId
+            tokenId: sessionToken && sessionToken.id
           })
         }
 

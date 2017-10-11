@@ -107,7 +107,7 @@ describe('remote push db', function() {
           })
 
           .then(function (sessionToken) {
-            sessionTokenId = sessionToken.tokenId
+            sessionTokenId = sessionToken.id
             return db.createDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
           })
           .then(function (device) {

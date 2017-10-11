@@ -12,10 +12,10 @@
  *
  *    - Each token is created from an initial data seed of 32 random bytes.
  *
- *    - From the seed data we HKDF-derive three 32-byte values: a tokenId,
+ *    - From the seed data we HKDF-derive three 32-byte values: an id,
  *      an authKey and a bundleKey.
  *
- *    - The tokenId/authKey pair can be used as part of a request-signing
+ *    - The id/authKey pair can be used as part of a request-signing
  *      authentication scheme.
  *
  *    - The bundleKey can be used to encrypt data as part of the request.
@@ -29,7 +29,7 @@ const Bundle = require('./bundle')
 const hkdf = require('../crypto/hkdf')
 const random = require('../crypto/random')
 
-const KEYS = ['data', 'tokenId', 'authKey', 'bundleKey']
+const KEYS = ['data', 'id', 'authKey', 'bundleKey']
 
 module.exports = (log, config) => {
 
@@ -70,7 +70,7 @@ module.exports = (log, config) => {
   }
 
 
-  // Derive tokenId, authKey and bundleKey from token seed data.
+  // Derive id, authKey and bundleKey from token seed data.
   //
   Token.deriveTokenKeys = function (TokenType, data) {
     return hkdf(data, TokenType.tokenTypeID, null, 3 * 32)
@@ -78,7 +78,7 @@ module.exports = (log, config) => {
         function (keyMaterial) {
           return {
             data: data,
-            tokenId: keyMaterial.slice(0, 32),
+            id: keyMaterial.slice(0, 32),
             authKey: keyMaterial.slice(32, 64),
             bundleKey: keyMaterial.slice(64, 96)
           }
@@ -116,9 +116,6 @@ module.exports = (log, config) => {
   Object.defineProperties(
     Token.prototype,
     {
-      id: {
-        get: function () { return this.tokenId }
-      },
       key: {
         get: function () { return Buffer.from(this.authKey, 'hex') }
       },

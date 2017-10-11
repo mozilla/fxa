@@ -239,7 +239,7 @@ function mockDB (data, errors) {
     createKeyFetchToken: sinon.spy(() => {
       return P.resolve({
         data: crypto.randomBytes(32).toString('hex'),
-        tokenId: data.keyFetchTokenId,
+        id: data.keyFetchTokenId,
         uid: data.uid
       })
     }),
@@ -247,7 +247,7 @@ function mockDB (data, errors) {
       return P.resolve({
         data: crypto.randomBytes(32).toString('hex'),
         passCode: data.passCode,
-        tokenId: data.passwordForgotTokenId,
+        id: data.passwordForgotTokenId,
         uid: data.uid,
         ttl: function () {
           return data.passwordForgotTokenTTL || 100
@@ -262,7 +262,7 @@ function mockDB (data, errors) {
         lastAuthAt: () => {
           return Date.now()
         },
-        tokenId: data.sessionTokenId,
+        id: data.sessionTokenId,
         tokenVerificationId: data.tokenVerificationId,
         tokenVerified: ! data.tokenVerificationId,
         uaBrowser: data.uaBrowser,

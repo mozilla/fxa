@@ -59,12 +59,12 @@ describe('KeyFetchToken', () => {
         .then(
           function (x) {
             token = x
-            return KeyFetchToken.fromId(token.tokenId, token)
+            return KeyFetchToken.fromId(token.id, token)
           }
         )
         .then(
           function (x) {
-            assert.equal(x.tokenId, token.tokenId, 'should have same id')
+            assert.equal(x.id, token.id, 'should have same id')
             assert.equal(x.authKey, token.authKey, 'should have same authKey')
           }
         )

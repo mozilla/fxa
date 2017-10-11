@@ -291,7 +291,7 @@ module.exports = (log, db, config, customs, push, devices) => {
             reply(deviceArray.map(device => {
               return {
                 id: device.id,
-                isCurrentDevice: device.sessionToken === sessionToken.tokenId,
+                isCurrentDevice: device.sessionToken === sessionToken.id,
                 lastAccessTime: device.lastAccessTime,
                 lastAccessTimeFormatted: localizeTimestamp.format(
                   device.lastAccessTime,
@@ -376,8 +376,8 @@ module.exports = (log, db, config, customs, push, devices) => {
                 deviceCallbackPublicKey: session.deviceCallbackPublicKey,
                 deviceCallbackAuthKey: session.deviceCallbackAuthKey,
                 deviceCallbackIsExpired: !! session.deviceCallbackIsExpired,
-                id: session.tokenId,
-                isCurrentDevice: session.tokenId === sessionToken.tokenId,
+                id: session.id,
+                isCurrentDevice: session.id === sessionToken.id,
                 isDevice,
                 location: {
                   state: session.location && session.location.state,
