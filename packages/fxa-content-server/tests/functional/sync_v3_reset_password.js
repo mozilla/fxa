@@ -83,8 +83,8 @@ define([
       return this.remote.then(clearBrowserState());
     },
 
-    'reset password, verify same browser, Fx <= 56': function () {
-      const query = { forceUA: uaStrings['desktop_firefox_56'], };
+    'reset password, verify same browser, Fx <= 57': function () {
+      const query = { forceUA: uaStrings['desktop_firefox_57'], };
 
       return this.remote
         .then(setupTest(query))
@@ -97,13 +97,13 @@ define([
         .then(noSuchBrowserNotification('fxaccounts:login'));
     },
 
-    'reset password, verify same browser, Fx >= 57': function () {
-      const query = { forceUA: uaStrings['desktop_firefox_57'] };
+    'reset password, verify same browser, Fx >= 58': function () {
+      const query = { forceUA: uaStrings['desktop_firefox_58'] };
 
       return this.remote
         .then(setupTest(query))
 
-        // In fx >= 57, about:accounts expects FxA to transition after email verification
+        // In fx >= 58, about:accounts expects FxA to transition after email verification
         .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER))
         // Only expect the login message in the verification tab to avoid
         // a race condition within the browser when it receives two login messages.

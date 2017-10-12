@@ -30,12 +30,12 @@ define(function (require, exports, module) {
     });
 
     describe('fetch', () => {
-      it('sets `browserTransitionsAfterEmailVerification` to false if Fx >= 57', () => {
+      it('sets `browserTransitionsAfterEmailVerification` to false if Fx >= 58', () => {
         sinon.stub(broker.environment, 'isAboutAccounts').callsFake(() => true);
         sinon.stub(broker, 'getUserAgent').callsFake(() => {
           return {
             parseVersion() {
-              return { major: 57 };
+              return { major: 58 };
             },
             isFirefoxDesktop: () => true
           };

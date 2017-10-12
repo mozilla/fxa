@@ -29,8 +29,7 @@ define(function (require, exports, module) {
 
     fetch () {
       return proto.fetch.call(this).then(() => {
-        const userAgent = this.getUserAgent();
-        if (userAgent.parseVersion().major >= 57) {
+        if (this.getUserAgent().parseVersion().major >= 58) {
           this.setCapability('browserTransitionsAfterEmailVerification', false);
         }
       });

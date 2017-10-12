@@ -75,8 +75,8 @@ define([
         .then(clearBrowserState());
     },
 
-    'Fx >= 57, verified, does not need to confirm - control': function () {
-      const forceUA = uaStrings['desktop_firefox_57'];
+    'Fx >= 58, verified, does not need to confirm - control': function () {
+      const forceUA = uaStrings['desktop_firefox_58'];
       const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control', forceUA };
 
       email = TestHelpers.createEmail();
@@ -93,8 +93,8 @@ define([
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     },
 
-    'Fx >= 57, verified, does not need to confirm - treatment': function () {
-      const forceUA = uaStrings['desktop_firefox_57'];
+    'Fx >= 58, verified, does not need to confirm - treatment': function () {
+      const forceUA = uaStrings['desktop_firefox_58'];
       const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment', forceUA };
 
       email = TestHelpers.createEmail();
@@ -137,8 +137,8 @@ define([
         // tests for the original tab are below.
     },
 
-    'Fx <= 56, verified, verify same browser, original tab\'s P.O.V.': function () {
-      const forceUA = uaStrings['desktop_firefox_56'];
+    'Fx <= 57, verified, verify same browser, original tab\'s P.O.V.': function () {
+      const forceUA = uaStrings['desktop_firefox_57'];
       const query = { forceUA };
 
       return this.remote
@@ -150,8 +150,8 @@ define([
         .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
     },
 
-    'Fx >= 57, verified, verify same browser, original tab\'s P.O.V.': function () {
-      const forceUA = uaStrings['desktop_firefox_57'];
+    'Fx >= 58, verified, verify same browser, original tab\'s P.O.V.': function () {
+      const forceUA = uaStrings['desktop_firefox_58'];
       const query = { forceUA };
 
       return this.remote
@@ -210,9 +210,9 @@ define([
         .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
     },
 
-    'Fx <= 56, verified, blocked': function () {
+    'Fx <= 57, verified, blocked': function () {
       email = TestHelpers.createEmail('blocked{id}');
-      const forceUA = uaStrings['desktop_firefox_56'];
+      const forceUA = uaStrings['desktop_firefox_57'];
       const query = { forceUA };
 
       return this.remote
@@ -225,9 +225,9 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'Fx >= 57, verified, blocked': function () {
+    'Fx >= 58, verified, blocked': function () {
       email = TestHelpers.createEmail('blocked{id}');
-      const forceUA = uaStrings['desktop_firefox_57'];
+      const forceUA = uaStrings['desktop_firefox_58'];
       const query = { forceUA };
 
       return this.remote
@@ -235,7 +235,7 @@ define([
 
         .then(fillOutSignInUnblock(email, 0))
 
-        // about:accounts does not take over post-verification in Fx >= 57
+        // about:accounts does not take over post-verification in Fx >= 58
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },

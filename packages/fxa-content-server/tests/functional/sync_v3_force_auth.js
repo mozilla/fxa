@@ -274,8 +274,8 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'verify from original tab\'s P.O.V., Fx >= 57': function () {
-      const forceUA = uaStrings['desktop_firefox_57'];
+    'verify from original tab\'s P.O.V., Fx >= 58': function () {
+      const forceUA = uaStrings['desktop_firefox_58'];
       const query = {
         automatedBrowser: true,
         context: 'fx_desktop_v3',

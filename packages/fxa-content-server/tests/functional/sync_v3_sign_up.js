@@ -13,12 +13,7 @@ define([
   'use strict';
 
   const config = intern.config;
-  const SIGNUP_FX_55_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&` +
-                                `forceUA=${uaStrings.desktop_firefox_55}&automatedBrowser=true`;
-  const SIGNUP_FX_56_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&` +
-                                `forceUA=${uaStrings.desktop_firefox_56}&automatedBrowser=true`;
-  const SIGNUP_FX_57_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&` +
-                                `forceUA=${uaStrings.desktop_firefox_57}&automatedBrowser=true`;
+  const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
 
   let email;
   const PASSWORD = '12345678';
@@ -56,9 +51,12 @@ define([
       return this.remote.then(clearBrowserState());
     },
 
-    'Fx <= 56, verify at CWTS': function () {
+    'Fx <= 57, verify at CWTS': function () {
       return this.remote
-        .then(openPage(SIGNUP_FX_55_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceUA: uaStrings['desktop_firefox_57']
+          },
           webChannelResponses: {
             'fxaccounts:can_link_account': { ok: true },
             'fxaccounts:fxa_status': { signedInUser: null },
@@ -82,9 +80,12 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'Fx >= 57, verify at CWTS': function () {
+    'Fx >= 58, verify at CWTS': function () {
       return this.remote
-        .then(openPage(SIGNUP_FX_57_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceUA: uaStrings['desktop_firefox_58']
+          },
           webChannelResponses: {
             'fxaccounts:can_link_account': { ok: true },
             'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
@@ -103,16 +104,19 @@ define([
           // switch back to the original window, it should transition to CAD.
           .then(closeCurrentWindow())
 
-        // In Fx >= 57, about:accounts does not take over.
+        // In Fx >= 58, about:accounts does not take over.
         // Expect a screen transition.
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         // but the login message is sent automatically.
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'Fx <= 55, verify same browser': function () {
+    'Fx <= 55, verify at /confirm, same browser': function () {
       return this.remote
-        .then(openPage(SIGNUP_FX_55_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceUA: uaStrings['desktop_firefox_55']
+          },
           webChannelResponses: {
             'fxaccounts:can_link_account': {
               ok: true
@@ -158,10 +162,13 @@ define([
         .then(testEmailExpected(email, 1));
     },
 
-    'Fx >= 55, verify same browser, force SMS': function () {
+    'Fx >= 55, verify at /confirm same browser, force SMS': function () {
       let accountInfo;
       return this.remote
-        .then(openPage(SIGNUP_FX_55_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceUA: uaStrings['desktop_firefox_55']
+          },
           webChannelResponses: {
             'fxaccounts:can_link_account': {
               ok: true
@@ -224,7 +231,10 @@ define([
 
     'Fx >= 56, engines not supported': function () {
       return this.remote
-        .then(openPage(SIGNUP_FX_56_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceUA: uaStrings['desktop_firefox_56']
+          },
           webChannelResponses: {
             'fxaccounts:can_link_account': {
               ok: true
@@ -244,7 +254,10 @@ define([
 
     'Fx >= 56, neither `creditcards` nor `addresses` supported': function () {
       return this.remote
-        .then(openPage(SIGNUP_FX_56_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceUA: uaStrings['desktop_firefox_56']
+          },
           webChannelResponses: {
             'fxaccounts:can_link_account': {
               ok: true
@@ -267,7 +280,10 @@ define([
 
     'Fx >= 56, `creditcards` and `addresses` supported': function () {
       return this.remote
-        .then(openPage(SIGNUP_FX_56_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceUA: uaStrings['desktop_firefox_56']
+          },
           webChannelResponses: {
             'fxaccounts:can_link_account': {
               ok: true
@@ -288,9 +304,12 @@ define([
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS));
     },
 
-    'Fx <= 56, verify from original tab\'s P.O.V.': function () {
+    'Fx <= 57, verify from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(openPage(SIGNUP_FX_56_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceUA: uaStrings['desktop_firefox_57']
+          },
           webChannelResponses: {
             'fxaccounts:can_link_account': { ok: true },
             'fxaccounts:fxa_status': { capabilities: null, signedInUser: null }
@@ -309,9 +328,12 @@ define([
         .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
     },
 
-    'Fx >= 57, verify from original tab\'s P.O.V.': function () {
+    'Fx >= 58, verify from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(openPage(SIGNUP_FX_57_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          query: {
+            forceUA: uaStrings['desktop_firefox_58']
+          },
           webChannelResponses: {
             'fxaccounts:can_link_account': { ok: true },
             'fxaccounts:fxa_status': { capabilities: null, signedInUser: null }
