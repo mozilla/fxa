@@ -431,6 +431,11 @@ module.exports = (
 
   DB.prototype.devices = function (uid) {
     log.trace({ op: 'DB.devices', uid: uid })
+
+    if (! uid) {
+      return P.reject(error.unknownAccount())
+    }
+
     const promises = [
       this.pool.get('/account/' + uid + '/devices')
     ]

@@ -211,3 +211,45 @@ describe('db with redis disabled', () => {
   })
 })
 
+describe('redis enabled', () => {
+  const tokenLifetimes = {
+    sessionTokenWithoutDevice: 2419200000
+  }
+
+  let pool, redis, log, tokens, db
+
+  beforeEach(() => {
+    pool = {
+      get: sinon.spy(() => P.resolve()),
+      post: sinon.spy(() => P.resolve()),
+      del: sinon.spy(() => P.resolve())
+    }
+    redis = {
+      getAsync: sinon.spy(() => P.resolve()),
+      setAsync: sinon.spy(() => P.resolve()),
+      del: sinon.spy(() => P.resolve())
+    }
+    log = mocks.mockLog()
+    tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes })
+    const DB = proxyquire(`${LIB_DIR}/db`, {
+      './pool': function () { return pool },
+      redis: { createClient: () => redis }
+    })({ tokenLifetimes, redis: {enabled: false} }, log, tokens, {})
+    return DB.connect({})
+      .then(result => db = result)
+  })
+
+  it('should not call redis or the db in db.devices if uid is falsey', () => {
+    return db.devices('')
+      .then(
+        result => assert.equal(result, 'db.devices should reject with error.unknownAccount'),
+        err => {
+          assert.equal(pool.get.callCount, 0)
+          assert.equal(redis.getAsync.callCount, 0)
+          assert.equal(err.errno, 102)
+          assert.equal(err.message, 'Unknown account')
+        }
+      )
+  })
+})
+
