@@ -138,3 +138,18 @@ the logic on both the signin and signup pages. Corner cases such as signing in f
 1. Using a Firefox 55+ profile where a user is already signed into Sync, open FxA
 to `/` with the following query parameters: `?service=sync&context=fx_desktop_v3&action=email`
 2. User is redirected to `/settings`
+
+## Results
+
+1. **Signup / Registration** Throughout the experiment the treatment group converted at a rate of 17.3% while the control group converted at a rate of 17.0%. This was **not** a statistically significant difference in Sign-up rates. **After** completing the initial email first steps, treatment users did convert at a rate of 35.7% but that was not enough to make a difference in the overall numbers.
+
+<img src="./images/prop_created.png" alt="Registration" width="250px" />
+
+
+2. **Signin** The treatment group logged in with a rate of 41.7% with the control rate at 46.6%. This difference **was** statistically significant, suggesting that the control group had the better login rate. Of treatment users who did complete the email step, 86.5% eventually logged in, however this was not enough to make up for the loss due to the extra step.
+
+<img src="./images/prop_login.png" alt="Login" width="250px" />
+
+
+**Main Conclusion**: Overall, the experiment had no effect on registration rates and decreased login rates. However, the conversion numbers for treatment users that did complete the email step are encouraging.
+If we can find a way to make up for those that drop-off before getting to the password entry, then we there may be a way to salvage this. However for the time being we should stick with the original non-email-first flow.
