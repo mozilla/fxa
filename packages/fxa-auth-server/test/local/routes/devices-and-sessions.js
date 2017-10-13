@@ -437,6 +437,60 @@ describe('/account/devices/notify', function () {
       assert.equal(JSON.stringify(response), '{}', 'response should not throw push errors')
     })
   })
+
+  it('can send account verification message with empty payload', () => {
+    mockRequest.payload = {
+      to: 'all',
+      _endpointAction: 'accountVerify',
+      payload: {}
+    }
+    const notifyUpdatePromise = P.defer()
+    mockPush.notifyUpdate = sinon.spy(() => {
+      notifyUpdatePromise.resolve()
+      return P.resolve()
+    })
+    const mockCustoms = {
+      checkAuthenticated: () => P.resolve()
+    }
+    route = getRoute(makeRoutes({
+      customs: mockCustoms,
+      log: mockLog,
+      push: mockPush
+    }), '/account/devices/notify')
+
+    return runTest(route, mockRequest, () => {
+      return notifyUpdatePromise.promise.then(() => {
+        assert.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate was called once')
+        const args = mockPush.notifyUpdate.args[0]
+        assert.equal(args.length, 4, 'mockPush.notifyUpdate was passed four arguments')
+        assert.equal(args[0], uid, 'first argument was the device uid')
+        assert.ok(Array.isArray(args[1]), 'second argument was devices array')
+        assert.equal(args[2], 'accountVerify', 'second argument was the accountVerify reason')
+        assert.deepEqual(args[3], {
+          data: {}
+        }, 'third argument was the push options')
+      })
+    })
+  })
+
+  it('reject account verification message with non-empty payload', () => {
+    mockRequest.payload = {
+      to: 'all',
+      _endpointAction: 'accountVerify',
+      payload: pushPayload
+    }
+    route = getRoute(makeRoutes({
+      customs: mockCustoms,
+      log: mockLog,
+      push: mockPush
+    }), '/account/devices/notify')
+
+    return runTest(route, mockRequest).then(() => {
+      assert.fail('should not have succeed')
+    }, (err) => {
+      assert.equal(err.errno, 107, 'invalid parameter in request body')
+    })
+  })
 })
 
 describe('/account/device/destroy', function () {

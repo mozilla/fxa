@@ -184,12 +184,13 @@ module.exports = function (log, db, config) {
    * The list of devices to which to send the push.
    */
   function filterSupportedDevices(payload, devices) {
-    const command = payload && payload.command
+    const command = (payload && payload.command) || null
     let canSendToIOSVersion/* ({Number} version) => bool */
     switch (command) {
     case 'sync:collection_changed':
       canSendToIOSVersion = () => payload.data.reason !== 'firstsync'
       break
+    case null: // In the null case this is an account verification push message
     case 'fxaccounts:device_connected':
     case 'fxaccounts:device_disconnected':
       canSendToIOSVersion = deviceVersion => deviceVersion >= 10.0
