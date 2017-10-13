@@ -136,7 +136,7 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].os_version, 'qux')
         assert.equal(args[0].device_model, 'melm')
         assert.deepEqual(args[0].event_properties, {
-          service: '0'
+          service: 'amo'
         })
         assert.deepEqual(args[0].user_properties, {
           flow_id: 'udge',
@@ -193,7 +193,7 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].os_version, 'd')
         assert.equal(args[0].device_model, 'f')
         assert.deepEqual(args[0].event_properties, {
-          service: '1'
+          service: 'pocket'
         })
         assert.deepEqual(args[0].user_properties, {
           flow_id: undefined,
@@ -248,6 +248,7 @@ describe('metrics/amplitude', () => {
         assert.equal(log.amplitudeEvent.callCount, 1)
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].event_type, 'fxa_login - blocked')
+        assert.equal(args[0].event_properties.service, 'sync')
         assert.deepEqual(args[0].user_properties['$append'], {
           fxa_services_used: 'sync'
         })

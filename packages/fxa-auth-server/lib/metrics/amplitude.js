@@ -196,8 +196,9 @@ module.exports = (log, config) => {
   }
 
   function mapEventProperties (group, request, data, metricsContext) {
+    const service = data.service || request.payload.service || request.query.service
     return Object.assign({
-      service: data.service || request.payload.service || request.query.service
+      service: SERVICES[service] || service
     }, EVENT_PROPERTIES[group](request, data, metricsContext))
   }
 
