@@ -21,11 +21,26 @@ module.exports = (log, db, config, customs, push, devices) => {
   // Loads and compiles a json validator for the payloads received
   // in /account/devices/notify
   const validatePushSchema = JSON.parse(fs.readFileSync(PUSH_PAYLOADS_SCHEMA_PATH))
-  const validatePushPayload = ajv.compile(validatePushSchema)
+  const validatePushPayloadAjv = ajv.compile(validatePushSchema)
   const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
     supportedLanguages: config.i18n.supportedLanguages,
     defaultLanguage: config.i18n.defaultLanguage
   })
+
+  function validatePushPayload(payload, endpoint) {
+    if (endpoint === 'accountVerify') {
+      if (isEmpty(payload)) {
+        return true
+      }
+      return false
+    }
+
+    return validatePushPayloadAjv(payload)
+  }
+
+  function isEmpty(payload) {
+    return payload && Object.keys(payload).length === 0
+  }
 
   return [
     {
@@ -161,13 +176,15 @@ module.exports = (log, db, config, customs, push, devices) => {
           payload: isA.alternatives().try(
             isA.object({
               to: isA.string().valid('all').required(),
+              _endpointAction: isA.string().valid('accountVerify').optional(),
               excluded: isA.array().items(isA.string().length(32).regex(HEX_STRING)).optional(),
-              payload: isA.object().required(),
+              payload: isA.object().when('_endpointAction', { is: 'accountVerify', then: isA.required(), otherwise: isA.required() }),
               TTL: isA.number().integer().min(0).optional()
             }),
             isA.object({
               to: isA.array().items(isA.string().length(32).regex(HEX_STRING)).required(),
-              payload: isA.object().required(),
+              _endpointAction: isA.string().valid('accountVerify').optional(),
+              payload: isA.object().when('_endpointAction', { is: 'accountVerify', then: isA.required(), otherwise: isA.required() }),
               TTL: isA.number().integer().min(0).optional()
             })
           )
@@ -190,8 +207,10 @@ module.exports = (log, db, config, customs, push, devices) => {
         const uid = sessionToken.uid
         const ip = request.app.clientAddress
         const payload = body.payload
+        const endpointAction = body._endpointAction || 'devicesNotify'
 
-        if (! validatePushPayload(payload)) {
+
+        if (! validatePushPayload(payload, endpointAction)) {
           return reply(error.invalidRequestParameter('invalid payload'))
         }
 
@@ -211,8 +230,6 @@ module.exports = (log, db, config, customs, push, devices) => {
           pushOptions.TTL = body.TTL
         }
 
-        const endpointAction = 'devicesNotify'
-
         return customs.checkAuthenticated(endpointAction, ip, uid)
           .then(() => request.app.devices)
           .then(devices =>
@@ -224,6 +241,7 @@ module.exports = (log, db, config, customs, push, devices) => {
             // In the future we will aim to get this event directly from sync telemetry,
             // but we're doing it here for now as a quick way to get metrics on the feature.
             if (
+              payload &&
               payload.command === 'sync:collection_changed' &&
               // Note that payload schema validation ensures that these properties exist.
               payload.data.collections.length === 1 &&
