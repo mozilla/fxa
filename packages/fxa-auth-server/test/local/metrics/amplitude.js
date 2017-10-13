@@ -154,10 +154,9 @@ describe('metrics/amplitude', () => {
 
     describe('account.created', () => {
       beforeEach(() => {
-        return amplitude('account.created', mocks.mockRequest({
+        const request = mocks.mockRequest({
           uaBrowser: 'a',
           uaBrowserVersion: 'b',
-          uaOS: 'c',
           uaOSVersion: 'd',
           uaDeviceType: 'e',
           uaFormFactor: 'f',
@@ -172,7 +171,10 @@ describe('metrics/amplitude', () => {
           payload: {
             service: '1'
           }
-        }))
+        })
+        // mockRequest forces uaOS if it's not set
+        request.app.ua.os = ''
+        return amplitude('account.created', request)
       })
 
       it('did not call log.error', () => {
@@ -189,8 +191,8 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].language, 'g')
         assert.equal(args[0].country, 'United States')
         assert.equal(args[0].region, 'California')
-        assert.equal(args[0].os_name, 'c')
-        assert.equal(args[0].os_version, 'd')
+        assert.equal(args[0].os_name, undefined)
+        assert.equal(args[0].os_version, undefined)
         assert.equal(args[0].device_model, 'f')
         assert.deepEqual(args[0].event_properties, {
           service: 'pocket'

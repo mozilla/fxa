@@ -157,12 +157,12 @@ module.exports = (log, config) => {
         request.app.geo,
         request.app.devices.catch(() => {})
       ]).spread((geo, devices) => {
-        const { os, osVersion, formFactor } = request.app.ua
+        const { formFactor } = request.app.ua
 
         data.location = geo.location
         data.devices = devices
 
-        log.amplitudeEvent({
+        log.amplitudeEvent(Object.assign({
           time: metricsContext.time || Date.now(),
           user_id: data.uid || getFromToken(request, 'uid'),
           device_id: getFromMetricsContext(metricsContext, 'device_id', request, 'deviceId'),
@@ -174,14 +174,23 @@ module.exports = (log, config) => {
           language: getLocale(request),
           country: getLocationProperty(data, 'country'),
           region: getLocationProperty(data, 'state'),
-          os_name: safeGet(os),
-          os_version: safeGet(osVersion),
           device_model: safeGet(formFactor)
-        })
+        }, mapOs(request)))
       })
     }
 
     return P.resolve()
+  }
+
+  function mapOs (request) {
+    const { os, osVersion } = request.app.ua
+
+    if (os) {
+      return {
+        os_name: safeGet(os),
+        os_version: safeGet(osVersion)
+      }
+    }
   }
 
   function getFromToken (request, key) {
