@@ -7,10 +7,21 @@
 define([
   'intern!object',
   'intern/chai!assert',
+  'intern/dojo/node!path',
+  'intern/dojo/node!proxyquire',
   'intern/dojo/node!sinon',
-  'intern/dojo/node!../../server/lib/amplitude',
   'intern/dojo/node!../../package.json',
-], (registerSuite, assert, sinon, amplitude, package) => {
+], (registerSuite, assert, path, proxyquire, sinon, package) => {
+  const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
+    './configuration': {
+      get () {
+        return {
+          '0': 'amo',
+          '1': 'pocket'
+        };
+      }
+    }
+  });
   const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(package.version)[1];
 
   registerSuite({
@@ -56,7 +67,7 @@ define([
         flowBeginTime: 'qux',
         flowId: 'wibble',
         lang: 'blee',
-        service: 'juff',
+        service: '0',
         uid: 'soop',
         utm_campaign: 'melm',
         utm_content: 'florg',
@@ -75,7 +86,7 @@ define([
         event_properties: {
           device_id: 'bar',
           entrypoint: 'baz',
-          service: 'juff'
+          service: 'amo'
         },
         event_type: 'fxa_login - forgot_submit',
         language: 'blee',
@@ -211,7 +222,7 @@ define([
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',
-        service: 'g',
+        service: '1',
         uid: 'h',
         utm_campaign: 'i',
         utm_content: 'j',
@@ -228,7 +239,7 @@ define([
         event_properties: {
           device_id: 'b',
           entrypoint: 'c',
-          service: 'g'
+          service: 'pocket'
         },
         event_type: 'fxa_reg - engage',
         language: 'f',

@@ -344,6 +344,12 @@ const conf = module.exports = convict({
     env: 'FXA_OAUTH_CLIENT_ID',
     format: String
   },
+  oauth_client_id_map: {
+    default: {},
+    doc: 'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
+    env: 'OAUTH_CLIENT_IDS',
+    format: Object
+  },
   oauth_url: {
     default: 'http://127.0.0.1:9010',
     doc: 'The url of the Firefox Account OAuth server',

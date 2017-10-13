@@ -21,6 +21,8 @@
 
 'use strict';
 
+const SERVICES = require('./configuration').get('oauth_client_id_map');
+
 const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(require('../../package.json').version)[1];
 
 const GROUPS = {
@@ -232,7 +234,7 @@ function mapEntrypoint (eventCategory, data) {
 function mapService (eventCategory, data) {
   const service = marshallOptionalValue(data.service);
   if (service) {
-    return { service };
+    return { service: SERVICES[service] || service };
   }
 }
 
