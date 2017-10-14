@@ -42,7 +42,7 @@ define([
 
     'interface is correct': () => {
       assert.isFunction(amplitude);
-      assert.lengthOf(amplitude, 2);
+      assert.lengthOf(amplitude, 3);
     },
 
     'does not throw if arguments are missing': () => {
@@ -55,6 +55,10 @@ define([
       amplitude({
         time: 'foo',
         type: 'flow.reset-password.submit'
+      }, {
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/58.0'
+        }
       }, {
         deviceId: 'bar',
         entrypoint: 'baz',
@@ -91,6 +95,8 @@ define([
         event_type: 'fxa_login - forgot_submit',
         language: 'blee',
         op: 'amplitudeEvent',
+        os_name: 'Mac OS X',
+        os_version: '10.11',
         session_id: 'qux',
         time: 'foo',
         user_id: 'soop',
@@ -102,6 +108,8 @@ define([
             'fourth_experiment_group_four'
           ],
           flow_id: 'wibble',
+          ua_browser: 'Firefox',
+          ua_version: '58',
           utm_campaign: 'melm',
           utm_content: 'florg',
           utm_medium: 'derp',
@@ -115,6 +123,10 @@ define([
       amplitude({
         time: 'a',
         type: 'settings.change-password.success'
+      }, {
+        headers: {
+          'user-agent': 'Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A406 Safari/8536.25'
+        }
       }, {
         deviceId: 'b',
         entrypoint: 'c',
@@ -135,6 +147,7 @@ define([
       assert.deepEqual(arg, {
         app_version: APP_VERSION,
         device_id: 'b',
+        device_model: 'iPad',
         event_properties: {
           device_id: 'b',
           entrypoint: 'c'
@@ -142,11 +155,15 @@ define([
         event_type: 'fxa_pref - password',
         language: 'f',
         op: 'amplitudeEvent',
+        os_name: 'iOS',
+        os_version: '6',
         session_id: 'd',
         time: 'a',
         user_id: 'h',
         user_properties: {
-          flow_id: 'e'
+          flow_id: 'e',
+          ua_browser: 'Mobile Safari',
+          ua_version: '6'
         }
       });
     },
@@ -155,6 +172,8 @@ define([
       amplitude({
         time: 'a',
         type: 'settings.clients.disconnect.submit'
+      }, {
+        headers: {}
       }, {
         deviceId: 'none',
         flowBeginTime: 'b',
@@ -175,6 +194,8 @@ define([
         time: 'a',
         type: 'settings.signout.success'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -188,6 +209,8 @@ define([
       amplitude({
         time: 'a',
         type: 'flow.force-auth.engage'
+      }, {
+        headers: {}
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
@@ -203,6 +226,8 @@ define([
         time: 'a',
         type: 'flow.signin.engage'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -216,6 +241,8 @@ define([
       amplitude({
         time: 'a',
         type: 'flow.signup.engage'
+      }, {
+        headers: {}
       }, {
         deviceId: 'b',
         entrypoint: 'c',
@@ -263,6 +290,8 @@ define([
         time: 'a',
         type: 'flow.reset-password.engage'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -274,6 +303,8 @@ define([
       amplitude({
         time: 'a',
         type: 'flow.signin.forgot-password'
+      }, {
+        headers: {}
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
@@ -289,6 +320,8 @@ define([
         time: 'a',
         type: 'flow.signin.have-account'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -302,6 +335,8 @@ define([
       amplitude({
         time: 'a',
         type: 'flow.signin.submit'
+      }, {
+        headers: {}
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
@@ -317,6 +352,8 @@ define([
         time: 'a',
         type: 'flow.signin.submit'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -330,6 +367,8 @@ define([
       amplitude({
         time: 'a',
         type: 'flow.signup.submit'
+      }, {
+        headers: {}
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
@@ -345,6 +384,8 @@ define([
         time: 'a',
         type: 'flow.wibble.submit'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -356,6 +397,8 @@ define([
       amplitude({
         time: 'a',
         type: 'screen.force-auth'
+      }, {
+        headers: {}
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
@@ -371,6 +414,8 @@ define([
         time: 'a',
         type: 'screen.signin'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -384,6 +429,8 @@ define([
       amplitude({
         time: 'a',
         type: 'screen.signup'
+      }, {
+        headers: {}
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
@@ -399,6 +446,8 @@ define([
         time: 'a',
         type: 'screen.settings'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -412,6 +461,8 @@ define([
       amplitude({
         time: 'a',
         type: 'screen.sms'
+      }, {
+        headers: {}
       }, {
         deviceId: 'b',
         entrypoint: 'c',
@@ -451,6 +502,8 @@ define([
         time: 'a',
         type: 'screen.reset-password'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -462,6 +515,8 @@ define([
       amplitude({
         time: 'a',
         type: 'settings.communication-preferences.optIn.success'
+      }, {
+        headers: {}
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
@@ -478,6 +533,8 @@ define([
         time: 'a',
         type: 'settings.communication-preferences.optOut.success'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -493,6 +550,8 @@ define([
         time: 'a',
         type: 'settings.communication-preferences.wibble.success'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -504,6 +563,8 @@ define([
       amplitude({
         time: 'a',
         type: 'complete-reset-password.verification.success'
+      }, {
+        headers: {}
       }, {
         deviceId: 'b',
         entrypoint: 'c',
@@ -545,6 +606,8 @@ define([
         time: 'a',
         type: 'complete-signin.verification.success'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -560,6 +623,8 @@ define([
         time: 'a',
         type: 'verify-email.verification.success'
       }, {
+        headers: {}
+      }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -574,6 +639,8 @@ define([
       amplitude({
         time: 'a',
         type: 'wibble.verification.success'
+      }, {
+        headers: {}
       }, {
         flowBeginTime: 'b',
         flowId: 'c',

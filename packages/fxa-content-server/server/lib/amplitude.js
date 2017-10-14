@@ -21,6 +21,8 @@
 
 'use strict';
 
+const ua = require('node-uap');
+
 const SERVICES = require('./configuration').get('oauth_client_id_map');
 
 const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(require('../../package.json').version)[1];
@@ -132,7 +134,7 @@ const USER_PROPERTIES = {
 
 module.exports = receiveEvent;
 
-function receiveEvent (event, data) {
+function receiveEvent (event, request, data) {
   if (! event || ! data) {
     return;
   }
@@ -163,18 +165,24 @@ function receiveEvent (event, data) {
       }
     }
 
-    process.stderr.write(`${JSON.stringify({
-      op: 'amplitudeEvent',
-      time: event.time,
-      user_id: marshallOptionalValue(data.uid),
-      device_id: marshallOptionalValue(data.deviceId),
-      event_type: `${group} - ${mapping.event}`,
-      session_id: data.flowBeginTime,
-      event_properties: mapEventProperties(group, eventCategory, data),
-      user_properties: mapUserProperties(group, eventCategory, data),
-      app_version: APP_VERSION,
-      language: data.lang
-    })}\n`);
+    const userAgent = ua.parse(request.headers['user-agent']);
+
+    process.stderr.write(`${
+      JSON.stringify(
+        Object.assign({
+          op: 'amplitudeEvent',
+          time: event.time,
+          user_id: marshallOptionalValue(data.uid),
+          device_id: marshallOptionalValue(data.deviceId),
+          event_type: `${group} - ${mapping.event}`,
+          session_id: data.flowBeginTime,
+          event_properties: mapEventProperties(group, eventCategory, data),
+          user_properties: mapUserProperties(group, eventCategory, data, userAgent),
+          app_version: APP_VERSION,
+          language: data.lang
+        }, mapOs(userAgent), mapDevice(userAgent))
+      )
+    }\n`);
   }
 }
 
@@ -184,9 +192,10 @@ function mapEventProperties (group, eventCategory, data) {
   }, EVENT_PROPERTIES[group](eventCategory, data));
 }
 
-function mapUserProperties (group, eventCategory, data) {
+function mapUserProperties (group, eventCategory, data, userAgent) {
   return Object.assign(
     { flow_id: marshallOptionalValue(data.flowId), },
+    mapBrowser(userAgent),
     mapExperiments(data),
     USER_PROPERTIES[group](eventCategory, data)
   );
@@ -195,6 +204,49 @@ function mapUserProperties (group, eventCategory, data) {
 function marshallOptionalValue (value) {
   if (value && value !== 'none') {
     return value;
+  }
+}
+
+function mapOs (userAgent) {
+  return mapUserAgentProperties(userAgent, 'os', 'os_name', 'os_version');
+}
+
+function mapBrowser (userAgent) {
+  return mapUserAgentProperties(userAgent, 'ua', 'ua_browser', 'ua_version');
+}
+
+function mapUserAgentProperties (userAgent, key, familyProperty, versionProperty) {
+  const group = userAgent[key];
+  const { family } = group;
+  if (family && family !== 'Other') {
+    return {
+      [familyProperty]: family,
+      [versionProperty]: marshallVersion(group)
+    };
+  }
+}
+
+function marshallVersion (version) {
+  // To maintain consistency with metrics emitted by the auth server,
+  // we can't rely on toVersionString() here. Ultimately, this code
+  // should be refactored out of the content server as part of
+  // https://github.com/mozilla/fxa-shared/issues/11
+
+  if (! version.major) {
+    return;
+  }
+
+  if (! version.minor || parseInt(version.minor) === 0) {
+    return version.major;
+  }
+
+  return `${version.major}.${version.minor}`;
+}
+
+function mapDevice (userAgent) {
+  const { brand, family: device_model } =  userAgent.device;
+  if (brand && device_model && brand !== 'Generic') {
+    return { device_model };
   }
 }
 

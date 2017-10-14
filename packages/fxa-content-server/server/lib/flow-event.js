@@ -117,7 +117,7 @@ module.exports = (req, metrics, requestReceivedTime) => {
       event.flowTime = event.time - metrics.flowBeginTime;
     }
 
-    amplitude(event, metrics);
+    amplitude(event, req, metrics);
 
     if (event.type.substr(0, 7) === 'screen.') {
       event = Object.assign({}, event, {

@@ -137,19 +137,20 @@ define([
 
       'first call to amplitude was correct': () => {
         const args = mocks.amplitude.args[0];
-        assert.lengthOf(args, 2);
+        assert.lengthOf(args, 3);
         assert.deepEqual(args[0], {
           flowTime: 5,
           offset: 5,
           time: mocks.time - 995,
           type: 'wibble'
         });
+        assert.equal(args[1], mocks.request);
         mocks.amplitude.firstCall.calledBefore(process.stderr.write.firstCall);
       },
 
       'second call to amplitude was correct': () => {
         const args = mocks.amplitude.args[1];
-        assert.lengthOf(args, 2);
+        assert.lengthOf(args, 3);
         assert.deepEqual(args[0], {
           flowTime: 0,
           offset: 5,
@@ -161,7 +162,7 @@ define([
 
       'third call to amplitude was correct': () => {
         const args = mocks.amplitude.args[2];
-        assert.lengthOf(args, 2);
+        assert.lengthOf(args, 3);
         assert.deepEqual(args[0], {
           flowTime: 5.89990234375,
           offset: 5.9,
@@ -173,7 +174,7 @@ define([
 
       'fourth call to amplitude was correct': () => {
         const args = mocks.amplitude.args[3];
-        assert.lengthOf(args, 2);
+        assert.lengthOf(args, 3);
         assert.deepEqual(args[0], {
           flowTime: 1000,
           offset: 1000,
@@ -184,7 +185,7 @@ define([
 
       'fifth call to amplitude was correct': () => {
         const args = mocks.amplitude.args[4];
-        assert.lengthOf(args, 2);
+        assert.lengthOf(args, 3);
         assert.deepEqual(args[0], {
           flowTime: 1000 - config.flow_id_expiry,
           offset: 1000 - config.flow_id_expiry,
