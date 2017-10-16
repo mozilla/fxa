@@ -191,6 +191,10 @@ module.exports = function (log, db, config) {
       canSendToIOSVersion = () => payload.data.reason !== 'firstsync'
       break
     case null: // In the null case this is an account verification push message
+      canSendToIOSVersion = (deviceVersion, deviceBrowser) => {
+        return deviceVersion >= 10.0 && deviceBrowser === 'Firefox Beta'
+      }
+      break
     case 'fxaccounts:device_connected':
     case 'fxaccounts:device_disconnected':
       canSendToIOSVersion = deviceVersion => deviceVersion >= 10.0
@@ -202,7 +206,8 @@ module.exports = function (log, db, config) {
       const deviceOS = device.uaOS && device.uaOS.toLowerCase()
       if (deviceOS === 'ios') {
         const deviceVersion = device.uaBrowserVersion ? parseFloat(device.uaBrowserVersion) : 0
-        if (! canSendToIOSVersion(deviceVersion)) {
+        const deviceBrowserName = device.uaBrowser
+        if (! canSendToIOSVersion(deviceVersion, deviceBrowserName)) {
           log.info({
             op: 'push.filteredUnsupportedDevice',
             command: command,
