@@ -123,7 +123,10 @@ Lug.prototype.notifyAttachedServices = function (name, request, data) {
   return request.gatherMetricsContext({})
     .then(
       metricsContextData => {
-        var e = {
+        // Add a timestamp that this event occurred to help attached services resolve any
+        // potential timing issues
+        data.ts = data.ts || Date.now() / 1000 // Convert to float seconds
+        const e = {
           event: name,
           data: data
         }

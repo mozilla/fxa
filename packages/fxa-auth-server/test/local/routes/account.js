@@ -325,6 +325,7 @@ describe('/account/create', () => {
       assert.equal(eventData.event, 'login', 'it was a login event')
       assert.equal(eventData.data.service, 'sync', 'it was for sync')
       assert.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
+      assert.ok(eventData.data.ts, 'timestamp of event set')
       assert.deepEqual(eventData.data.metricsContext, {
         flowBeginTime: mockRequest.payload.metricsContext.flowBeginTime,
         flowCompleteSignal: 'account.signed',
@@ -586,6 +587,7 @@ describe('/account/login', function () {
       assert.equal(eventData.event, 'login', 'it was a login event')
       assert.equal(eventData.data.service, 'sync', 'it was for sync')
       assert.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
+      assert.ok(eventData.data.ts, 'timestamp of event set')
       assert.deepEqual(eventData.data.metricsContext, {
         time: now,
         flow_id: mockRequest.payload.metricsContext.flowId,
