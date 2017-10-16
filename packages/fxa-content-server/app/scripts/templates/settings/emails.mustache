@@ -79,13 +79,13 @@
 
                     <button
                         class="settings-button {{#hasSecondaryVerifiedEmail}}cancel secondary enabled{{/hasSecondaryVerifiedEmail}}
-                            {{^hasSecondaryVerifiedEmail}} secondary-disabled disabled {{/hasSecondaryVerifiedEmail}}">
+                            {{^hasSecondaryVerifiedEmail}} secondary-disabled {{/hasSecondaryVerifiedEmail}}">
                         {{#t}}Done{{/t}}
                     </button>
                 {{/hasSecondaryEmail}}
 
                 {{^hasSecondaryEmail}}
-                    <button type="submit" class="settings-button email-add primary disabled">{{#t}}Add{{/t}}</button>
+                    <button type="submit" class="settings-button email-add primary">{{#t}}Add{{/t}}</button>
                     <button class="settings-button cancel secondary enabled">{{#t}}Cancel{{/t}}</button>
                 {{/hasSecondaryEmail}}
             </div>

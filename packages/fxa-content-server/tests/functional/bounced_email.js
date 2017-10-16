@@ -73,11 +73,9 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
         // expect an error message to already be present on redirect
         .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
-        // submit button should be disabled.
-        .then(testElementExists(selectors.SIGNUP.SUBMIT_DISABLED))
         .then(type(selectors.SIGNUP.EMAIL, bouncedEmail))
         // user must change the email address
-        .then(click(selectors.SIGNUP.SUBMIT_DISABLED))
+        .then(click(selectors.SIGNUP.SUBMIT))
         // error message should still be around
         .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
         .then(type(selectors.SIGNUP.EMAIL, deliveredEmail))
@@ -102,11 +100,9 @@ define([
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
         // expect an error message to already be present on redirect
         .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
-        // submit button should be disabled.
-        .then(testElementExists(selectors.SIGNUP.SUBMIT_DISABLED))
         .then(type(selectors.SIGNUP.EMAIL, bouncedEmail))
         // user must change the email address
-        .then(click(selectors.SIGNUP.SUBMIT_DISABLED))
+        .then(click(selectors.SIGNUP.SUBMIT))
         // error message should still be around
         .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
         .then(type(selectors.SIGNUP.EMAIL, deliveredEmail))

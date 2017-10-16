@@ -1,0 +1,81 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+define(function (require, exports, module) {
+  'use strict';
+
+  const DisableFormMixin = require('views/mixins/disable-form-mixin');
+  const { assert } = require('chai');
+  const FormView = require('views/form');
+  const Cocktail = require('cocktail');
+  const Notifier = require('lib/channels/notifier');
+  const sinon = require('sinon');
+
+  const View = FormView.extend({
+    template: () => `
+      <div>
+        <button type="submit" class="primary">button</button>
+        <!-- open/close panel button is ignored -->
+        <button class="primary">Open/Close Panel</button>
+      </div>
+    `
+  });
+  Cocktail.mixin(
+    View,
+    DisableFormMixin
+  );
+
+  describe('views/mixins/disable-form-mixin', () => {
+    let notifier;
+    let view;
+
+    beforeEach(() => {
+      notifier = new Notifier();
+
+      view = new View({
+        notifier,
+        windowMock: window
+      });
+    });
+
+    describe('afterRender', () => {
+      it('calls `onFormChange', () => {
+        sinon.spy(view, 'onFormChange');
+
+        view.afterRender();
+
+        assert.isTrue(view.onFormChange.calledOnce);
+      });
+    });
+
+    describe('onFormChange', () => {
+      it('calls `enableForm` if form is valid', () => {
+        sinon.spy(view, 'enableForm');
+        sinon.stub(view, 'isValid').callsFake(() => true);
+
+        view.onFormChange();
+        assert.isTrue(view.enableForm.calledOnce);
+      });
+
+      it('calls `disableForm` if form is invalid', () => {
+        sinon.spy(view, 'disableForm');
+        sinon.stub(view, 'isValid').callsFake(() => false);
+
+        view.onFormChange();
+        assert.isTrue(view.disableForm.calledOnce);
+      });
+    });
+
+    it('`disableForm` adds the `disabled` class to the submit button, `enableForm` removes it', () => {
+      return view.render()
+        .then(() => {
+          assert.lengthOf(view.$('button.disabled'), 0);
+          view.disableForm();
+          assert.lengthOf(view.$('button.disabled'), 1);
+          view.enableForm();
+          assert.lengthOf(view.$('button.disabled'), 0);
+        });
+    });
+  });
+});

@@ -16,11 +16,11 @@
       <div class="input-row password-row">
         <label class="label-helper"></label>
         <!-- add the autocomplete=off attribute - the user is deleting the account, they most likely don't want the password saved. -->
-        <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autofocus autocomplete="off" />
+        <input type="password" class="password tooltip-above" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autofocus autocomplete="off" />
       </div>
 
       <div class="button-row">
-        <button type="submit" class="settings-button warning disabled">{{#t}}Delete account{{/t}}</button>
+        <button type="submit" class="settings-button warning">{{#t}}Delete account{{/t}}</button>
         <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
       </div>
 

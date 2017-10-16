@@ -105,7 +105,6 @@ define(function (require, exports, module) {
     describe('render', () => {
       it('renders initial view', () => {
         return view.render().then(() => {
-          sinon.spy(view, 'enableForm');
           assert.ok($(view.el).find('.intro').length, 'intro text');
           assert.ok($(view.el).find('.disconnect-reasons').length, 'radio');
           assert.notOk($(view.el).find('.reason-help').length, 'help');

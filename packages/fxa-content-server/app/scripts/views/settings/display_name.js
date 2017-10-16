@@ -6,16 +6,16 @@ define(function (require, exports, module) {
   'use strict';
 
   const AvatarMixin = require('../mixins/avatar-mixin');
-  const BaseView = require('../base');
   const Cocktail = require('cocktail');
+  const DisableFormMixin = require('../mixins/disable-form-mixin');
   const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
   const FormView = require('../form');
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const Template = require('stache!templates/settings/display_name');
 
-  var t = BaseView.t;
+  const t = (msg) => msg;
 
-  var View = FormView.extend({
+  const View = FormView.extend({
     template: Template,
     className: 'display-name',
     viewName: 'settings.display-name',
@@ -26,14 +26,6 @@ define(function (require, exports, module) {
 
     setInitialContext (context) {
       context.set('displayName', this._displayName);
-    },
-
-    events: {
-      'focus input.display-name': 'onDisplayNameFocus',
-    },
-
-    onDisplayNameFocus () {
-      this.isValidStart();
     },
 
     beforeRender () {
@@ -70,6 +62,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     AvatarMixin,
+    DisableFormMixin,
     SettingsPanelMixin,
     FloatingPlaceholderMixin
   );

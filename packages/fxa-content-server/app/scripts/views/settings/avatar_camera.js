@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const canvasToBlob = require('canvasToBlob'); //eslint-disable-line no-unused-vars
   const Cocktail = require('cocktail');
   const Constants = require('../../lib/constants');
+  const DisableFormMixin = require('../mixins/disable-form-mixin');
   const Duration = require('duration');
   const Environment = require('../../lib/environment');
   const FormView = require('../form');
@@ -51,9 +52,7 @@ define(function (require, exports, module) {
         var ARTIFICIAL_DELAY = new Duration('3s').milliseconds();
         // mock some things out for automated browser testing
         this.streaming = true;
-        this.startStream = function () {
-          this.enableSubmitIfValid();
-        };
+        this.startStream = () => this.enableForm();
         this.stream = {
           stop () {}
         };
@@ -161,7 +160,7 @@ define(function (require, exports, module) {
         this.$('#video').height(this.height).removeClass('hidden');
         this.streaming = true;
 
-        this.enableSubmitIfValid();
+        this.enableForm();
       } else {
         this._avatarProgressIndicator.done();
       }
@@ -240,6 +239,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     AvatarMixin,
+    DisableFormMixin,
     ModalSettingsPanelMixin
   );
 

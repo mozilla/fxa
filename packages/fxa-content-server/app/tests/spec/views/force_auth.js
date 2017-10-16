@@ -574,9 +574,6 @@ define(function (require, exports, module) {
       it('logs the submit event', () => {
         $('#container').html(view.el);
         view.$('#submit-btn').click();
-        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.submit'));
-        view.enableForm();
-        view.$('#submit-btn').click();
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.submit'));
       });
     });

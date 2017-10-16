@@ -273,8 +273,6 @@ define(function (require, exports, module) {
 
     describe('submit', () => {
       beforeEach(() => {
-        view.enableForm();
-
         view.$('[type=email]').val(email);
         view.$('[type=password]').val('password');
       });
@@ -768,9 +766,6 @@ define(function (require, exports, module) {
       it('logs the submit event', () => {
         $('#container').html(view.$el);
 
-        view.$('#submit-btn').click();
-        assert.isFalse(isEventLogged(metrics, 'flow.signin.submit'));
-        view.enableForm();
         view.$('#submit-btn').click();
         assert.isTrue(isEventLogged(metrics, 'flow.signin.submit'));
       });

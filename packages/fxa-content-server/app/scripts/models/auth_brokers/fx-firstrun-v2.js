@@ -26,16 +26,12 @@ define(function (require, exports, module) {
     }),
 
     notifications: _.extend({}, proto.notifications, {
-      'form.disabled': '_sendFormDisabled',
-      'form.enabled': '_sendFormEnabled',
       'form.engaged': '_sendFormEngaged',
       'show-child-view': '_onShowChildView',
       'show-view': '_onShowView'
     }),
 
     _iframeCommands: _.extend({}, proto._iframeCommands, {
-      FORM_DISABLED: 'form_disabled',
-      FORM_ENABLED: 'form_enabled',
       FORM_ENGAGED: 'form_engaged',
       NAVIGATED: 'navigated'
     }),
@@ -47,24 +43,6 @@ define(function (require, exports, module) {
      */
     _sendFormEngaged () {
       this._iframeChannel.send(this._iframeCommands.FORM_ENGAGED);
-    },
-
-    /**
-     * Notify the parent the form has been disabled.
-     *
-     * @private
-     */
-    _sendFormDisabled () {
-      this._iframeChannel.send(this._iframeCommands.FORM_DISABLED);
-    },
-
-    /**
-     * Notify the parent the form has been enabled.
-     *
-     * @private
-     */
-    _sendFormEnabled () {
-      this._iframeChannel.send(this._iframeCommands.FORM_ENABLED);
     },
 
     /**

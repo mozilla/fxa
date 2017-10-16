@@ -26,7 +26,6 @@ define(function (require, exports, module) {
     viewName: 'settings.clients.disconnect',
 
     events: {
-      'change .disconnect-reasons': 'onChangeRadioButton',
       'click': '_returnToClientListAfterDisconnect',
       'click .cancel-disconnect': FormView.preventDefaultThen('_returnToClientList'),
       'click button[type=submit]': '_returnToConnectAnotherDevice',
@@ -59,10 +58,6 @@ define(function (require, exports, module) {
       if (! this.hasDisconnected) {
         context.set('deviceName', this.client.get('name'));
       }
-    },
-
-    onChangeRadioButton() {
-      this.enableSubmitIfValid();
     },
 
     /**

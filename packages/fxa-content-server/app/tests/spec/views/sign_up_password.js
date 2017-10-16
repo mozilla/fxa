@@ -115,9 +115,7 @@ define(function (require, exports, module) {
           view.$('#password').val('password');
           view.$('#age').val('11');
 
-          return p().then()
-            .then(() => view.enableSubmitIfValid())
-            .then(() => view.validateAndSubmit())
+          return p(view.validateAndSubmit())
             .then(() => {
               assert.isTrue(view.tooYoung.calledOnce);
               assert.isFalse(view.signUp.calledOnce);
@@ -133,9 +131,7 @@ define(function (require, exports, module) {
 
           sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);
 
-          return p().then()
-            .then(() => view.enableSubmitIfValid())
-            .then(() => view.validateAndSubmit())
+          return p(view.validateAndSubmit())
             .then(() => {
               assert.isTrue(view.signUp.calledOnce);
               assert.isTrue(view.signUp.calledWith(account, 'password'));

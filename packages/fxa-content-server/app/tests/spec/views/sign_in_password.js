@@ -102,9 +102,7 @@ define(function (require, exports, module) {
         it('signs up the user', () => {
           view.$('#password').val('password');
 
-          return p().then()
-            .then(() => view.enableSubmitIfValid())
-            .then(() => view.validateAndSubmit())
+          return p(view.validateAndSubmit())
             .then(() => {
               assert.isTrue(view.signIn.calledOnce);
               assert.isTrue(view.signIn.calledWith(account, 'password'));

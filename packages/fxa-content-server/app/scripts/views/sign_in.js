@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const FormPrefillMixin = require('./mixins/form-prefill-mixin');
   const FormView = require('./form');
   const MigrationMixin = require('./mixins/migration-mixin');
-  const NoDisabledSubmitExperimentMixin = require('./mixins/no-disabled-submit-experiment-mixin');
   const PasswordMixin = require('./mixins/password-mixin');
   const PasswordResetMixin = require('./mixins/password-reset-mixin');
   const { preventDefaultThen, t } = require('./base');
@@ -280,7 +279,6 @@ define(function (require, exports, module) {
     EmailFirstExperimentMixin({ treatmentPathname: '/' }),
     FormPrefillMixin,
     MigrationMixin,
-    NoDisabledSubmitExperimentMixin,
     PasswordMixin,
     PasswordResetMixin,
     ServiceMixin,

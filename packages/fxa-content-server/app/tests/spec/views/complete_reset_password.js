@@ -300,7 +300,6 @@ define(function (require, exports, module) {
       describe('broker does not halt', function () {
         beforeEach(function () {
           view.$('[type=password]').val(PASSWORD);
-          view.enableForm();
 
           sinon.stub(user, 'completeAccountPasswordReset').callsFake(function (account) {
             account.set('verified', true);
@@ -349,7 +348,7 @@ define(function (require, exports, module) {
           relier.set('resetPasswordConfirm', false);
 
           view.$('[type=password]').val(PASSWORD);
-          view.enableForm();
+
 
           sinon.stub(user, 'completeAccountPasswordReset').callsFake(function (account) {
             return p(account);
@@ -369,7 +368,7 @@ define(function (require, exports, module) {
 
       it('reload view to allow user to resend an email on INVALID_TOKEN error', function () {
         view.$('[type=password]').val('password');
-        view.enableForm();
+
 
         sinon.stub(fxaClient, 'completePasswordReset').callsFake(function () {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
@@ -389,7 +388,7 @@ define(function (require, exports, module) {
 
       it('shows error message if server returns an error', function () {
         view.$('[type=password]').val('password');
-        view.enableForm();
+
 
         sinon.stub(fxaClient, 'completePasswordReset').callsFake(function () {
           return p.reject(new Error('uh oh'));

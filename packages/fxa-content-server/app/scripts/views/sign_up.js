@@ -19,7 +19,6 @@ define(function (require, exports, module) {
   const FormView = require('./form');
   const mailcheck = require('../lib/mailcheck');
   const MigrationMixin = require('./mixins/migration-mixin');
-  const NoDisabledSubmitExperimentMixin = require('./mixins/no-disabled-submit-experiment-mixin');
   const p = require('../lib/promise');
   const PasswordMixin = require('./mixins/password-mixin');
   const ServiceMixin = require('./mixins/service-mixin');
@@ -331,7 +330,6 @@ define(function (require, exports, module) {
     FlowBeginMixin,
     FormPrefillMixin,
     MigrationMixin,
-    NoDisabledSubmitExperimentMixin,
     PasswordMixin,
     ServiceMixin,
     SignInMixin,

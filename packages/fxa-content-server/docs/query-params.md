@@ -337,7 +337,6 @@ Should not be used by reliers. Should only be used for Sync based functional tes
 Force a particular AB test.
 
 #### Options
-* `disabledButtonState` - Are the submit buttons on signin/signup disabled?
 * `emailFirst` - Should the user go through the email-first flow?
 * `sendSms` - Allow users to send an SMS containing a Firefox Mobile installation link
 

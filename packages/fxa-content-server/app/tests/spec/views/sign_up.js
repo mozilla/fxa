@@ -50,8 +50,6 @@ define(function (require, exports, module) {
         passwordConfirm = password;
       }
       view.$('#vpassword').val(passwordConfirm);
-
-      view.enableSubmitIfValid();
     }
 
     function createView(options) {
@@ -654,10 +652,9 @@ define(function (require, exports, module) {
           });
 
           it('calls notifier.trigger correctly', function () {
-            assert.equal(notifier.trigger.callCount, 2);
+            assert.equal(notifier.trigger.callCount, 1);
 
-            testExpectTriggered(0, 'form.enabled');
-            testExpectTriggered(1, 'signup.submit');
+            testExpectTriggered(0, 'signup.submit');
           });
 
           it('does not display any errors', function () {
@@ -693,10 +690,9 @@ define(function (require, exports, module) {
             });
 
             it('calls notifier.trigger correctly', function () {
-              assert.equal(notifier.trigger.callCount, 2);
+              assert.equal(notifier.trigger.callCount, 1);
 
-              testExpectTriggered(0, 'form.enabled');
-              testExpectTriggered(1, 'signup.submit');
+              testExpectTriggered(0, 'signup.submit');
             });
 
             it('display an error message', function () {
@@ -724,12 +720,11 @@ define(function (require, exports, module) {
             });
 
             it('calls notifier.trigger correctly', function () {
-              assert.equal(notifier.trigger.callCount, 4);
+              assert.equal(notifier.trigger.callCount, 3);
 
-              testExpectTriggered(0, 'form.enabled');
-              testExpectTriggered(1, 'signup.submit');
-              testExpectTriggered(2, 'signup.tooyoung');
-              testExpectTriggered(3, 'navigate');
+              testExpectTriggered(0, 'signup.submit');
+              testExpectTriggered(1, 'signup.tooyoung');
+              testExpectTriggered(2, 'navigate');
             });
 
             it('calls view.navigate correctly', function () {
@@ -769,10 +764,9 @@ define(function (require, exports, module) {
           });
 
           it('calls notifier.trigger correctly', function () {
-            assert.equal(notifier.trigger.callCount, 2);
+            assert.equal(notifier.trigger.callCount, 1);
 
-            testExpectTriggered(0, 'form.enabled');
-            testExpectTriggered(1, 'signup.submit');
+            testExpectTriggered(0, 'signup.submit');
           });
 
           it('calls view.unsafeDisplayError correctly', function () {
@@ -876,10 +870,9 @@ define(function (require, exports, module) {
           });
 
           it('calls notifier.trigger correctly', function () {
-            assert.equal(notifier.trigger.callCount, 2);
+            assert.equal(notifier.trigger.callCount, 1);
 
-            testExpectTriggered(0, 'form.enabled');
-            testExpectTriggered(1, 'signup.submit');
+            testExpectTriggered(0, 'signup.submit');
           });
 
           it('fails correctly', function () {
@@ -1262,9 +1255,6 @@ define(function (require, exports, module) {
 
       it('logs the submit event', () => {
         $('#container').html(view.el);
-        view.$('#submit-btn').click();
-        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.submit'));
-        view.enableForm();
         view.$('#submit-btn').click();
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.submit'));
       });

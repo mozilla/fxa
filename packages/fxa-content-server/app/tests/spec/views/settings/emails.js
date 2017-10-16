@@ -168,16 +168,7 @@ define(function (require, exports, module) {
 
         it('has email input field', function () {
           assert.ok(view.$('input.new-email').length, 1);
-          assert.ok(view.$('.email-add.primary.disabled').length, 1);
-        });
-
-        it('add button enabled when email entered', function () {
-          view.$('input.new-email').val('asdf@email.com');
-          view.$('input.new-email').trigger({
-            type: 'keyup',
-            which: 9
-          });
-          assert.lengthOf(view.$('.email-add.primary:not(.disabled)'), 1);
+          assert.ok(view.$('.email-add.primary').length, 1);
         });
       });
 

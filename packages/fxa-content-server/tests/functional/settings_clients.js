@@ -6,8 +6,9 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
 
   const config = intern.config;
   const SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -19,24 +20,24 @@ define([
   const TEST_DEVICE_NAME_UPDATED = 'Test Runner Session Device Updated';
   const TEST_DEVICE_TYPE = 'mobile';
 
-  const SELECTOR_REFRESH = '.clients-refresh';
-  const SELECTOR_REFRESHING = '.clients-refresh.disabled';
-
   var email;
   var client;
   var accountData;
 
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const click = FunctionalHelpers.click;
-  const createUser = FunctionalHelpers.createUser;
-  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  const noSuchElement = FunctionalHelpers.noSuchElement;
-  const noSuchStoredAccountByEmail = FunctionalHelpers.noSuchStoredAccountByEmail;
-  const openPage = FunctionalHelpers.openPage;
-  const pollUntil = FunctionalHelpers.pollUntil;
-  const pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
+  const {
+    clearBrowserState,
+    click,
+    createUser,
+    fillOutSignIn,
+    noSuchElement,
+    noSuchStoredAccountByEmail,
+    openPage,
+    pollUntil,
+    pollUntilGoneByQSA,
+    testElementExists,
+    testElementTextEquals,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'settings clients',
@@ -88,8 +89,8 @@ define([
         .waitForDeletedByCssSelector('.client-webSession:nth-child(2)')
         .end()
 
-        .then(click(SELECTOR_REFRESH))
-        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
+        .then(click(selectors.SETTINGS_CLIENTS.BUTTON_REFRESH))
+        .then(pollUntilGoneByQSA(selectors.SETTINGS_CLIENTS.REFRESHING))
 
         // second session is gone.
         .then(noSuchElement('.client-webSession:nth-child(2)'))
@@ -125,11 +126,13 @@ define([
           testDeviceId = device.id;
         })
 
-        // on a slow connection we wait until early refresh stops first
-        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
+        // on a slow connection we wait until the client list is visible
+        // and the refresh indicator goes away.
+        .then(visibleByQSA(selectors.SETTINGS_CLIENTS.CLIENT_LIST))
+        .then(pollUntilGoneByQSA(selectors.SETTINGS_CLIENTS.REFRESHING))
 
-        .then(click(SELECTOR_REFRESH))
-        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
+        .then(click(selectors.SETTINGS_CLIENTS.BUTTON_REFRESH))
+        .then(pollUntilGoneByQSA(selectors.SETTINGS_CLIENTS.REFRESHING))
 
         .then(testElementTextEquals(
           '.client-device .client-name', TEST_DEVICE_NAME
@@ -149,8 +152,8 @@ define([
           );
         })
 
-        .then(click(SELECTOR_REFRESH))
-        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
+        .then(click(selectors.SETTINGS_CLIENTS.BUTTON_REFRESH))
+        .then(pollUntilGoneByQSA(selectors.SETTINGS_CLIENTS.REFRESHING))
 
         // wait for 2 devices
         .then(testElementExists('.client-device:nth-child(2)'))
@@ -177,8 +180,8 @@ define([
         ))
 
         // external update should show in the device list
-        .then(click(SELECTOR_REFRESH))
-        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
+        .then(click(selectors.SETTINGS_CLIENTS.BUTTON_REFRESH))
+        .then(pollUntilGoneByQSA(selectors.SETTINGS_CLIENTS.REFRESHING))
 
         // external text change is hard to track, use pollUntil
         .then(pollUntil(function (newName) {
@@ -197,7 +200,6 @@ define([
 
         // get the modal dialog
         .then(testElementExists('.intro'))
-        .then(testElementExists('.disabled'))
 
         // test cancel
         .then(click('.cancel-disconnect'))
@@ -217,8 +219,8 @@ define([
         .waitForDeletedByCssSelector('.client-device:nth-child(2)')
         .end()
 
-        .then(click(SELECTOR_REFRESH))
-        .then(pollUntilGoneByQSA(SELECTOR_REFRESHING))
+        .then(click(selectors.SETTINGS_CLIENTS.BUTTON_REFRESH))
+        .then(pollUntilGoneByQSA(selectors.SETTINGS_CLIENTS.REFRESHING))
 
         // second device is still gone.
         .then(noSuchElement('.client-device:nth-child(2)'))

@@ -17,7 +17,6 @@ define(function (require, exports, module) {
    * Experiments that are created on startup in `chooseExperiments`.
    */
   const STARTUP_EXPERIMENTS = {
-    'disabledButtonState': BaseExperiment,
     'q3FormChanges': BaseExperiment,
     'signupPasswordConfirm': BaseExperiment
   };

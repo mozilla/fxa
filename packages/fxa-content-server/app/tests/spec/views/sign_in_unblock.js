@@ -174,7 +174,6 @@ define(function (require, exports, module) {
         describe(`with a valid code: '${unblockCode}'`, () => {
           beforeEach(() => {
             view.$('#unblock_code').val(UNBLOCK_CODE);
-            view.enableSubmitIfValid();
             return view.validateAndSubmit();
           });
 

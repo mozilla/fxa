@@ -221,7 +221,7 @@ define([
         .then(testElementExists('#fxa-signup-header'))
         // expect an error message to already be present on redirect
         .then(visibleByQSA('.tooltip'))
-        .then(testElementExists('button[type="submit"].disabled'))
+        .then(testElementExists('button[type="submit"]'))
 
         .then(type('input[type="email"]', email))
         .then(click('button[type="submit"]'))

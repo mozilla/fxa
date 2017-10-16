@@ -53,14 +53,6 @@ define(function (require, exports, module) {
         testNotificationCausesSend('form.engaged', 'form_engaged');
       });
 
-      it('form.disabled sends a form_disabled message to the iframe parent', () => {
-        testNotificationCausesSend('form.disabled', 'form_disabled');
-      });
-
-      it('form.disabled sends a form_disabled message to the iframe parent', () => {
-        testNotificationCausesSend('form.enabled', 'form_enabled');
-      });
-
       it('show-view sends a `navigated` message to the iframe parent', () => {
         assert.isFalse(iframeChannel.send.calledWith('navigated'));
         notifier.trigger('show-view', null, { currentPage: 'signin' });

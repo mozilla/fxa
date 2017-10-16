@@ -73,12 +73,6 @@ define(function (require, exports, module) {
       if (formEl) {
         formEl.reset();
       }
-
-      // Make no assumptions this view is actually based on FormView,
-      // only enable the form if a form view, and if valid.
-      if (this.enableSubmitIfValid) {
-        this.enableSubmitIfValid();
-      }
     },
 
     closePanel () {

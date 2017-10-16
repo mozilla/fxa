@@ -127,12 +127,10 @@ define(function (require, exports, module) {
       });
 
       it('clearInput', function () {
-        sinon.spy(view, 'enableSubmitIfValid');
         sinon.spy(view, 'hideFloatingPlaceholder');
 
         view.clearInput();
 
-        assert.isTrue(view.enableSubmitIfValid.called);
         assert.isTrue(view.hideFloatingPlaceholder.called);
       });
     });

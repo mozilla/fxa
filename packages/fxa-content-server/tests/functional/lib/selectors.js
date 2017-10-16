@@ -134,6 +134,11 @@ define([], function () {
       SIGNOUT: '#signout',
       SUCCESS: '.settings-success'
     },
+    SETTINGS_CLIENTS: {
+      BUTTON_REFRESH: '.clients-refresh',
+      CLIENT_LIST: '.client-list',
+      REFRESHING: '.clients-refresh.disabled',
+    },
     SETTINGS_DISPLAY_NAME: {
       INPUT_DISPLAY_NAME: '#display-name input[type=text]',
       MENU_BUTTON: '#display-name button.settings-unit-toggle',
@@ -189,7 +194,6 @@ define([], function () {
       MIGRATING_USER: '.info.nudge',
       PASSWORD: '#password',
       SUBMIT: 'button[type="submit"]',
-      SUBMIT_DISABLED: 'button[type="submit"].disabled',
       SUB_HEADER: '#fxa-signup-header .service',
       SUGGEST_EMAIL_DOMAIN_CORRECTION: '.tooltip-suggest',
       SUGGEST_SIGN_IN: '.error',

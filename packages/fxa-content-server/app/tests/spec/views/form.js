@@ -141,35 +141,37 @@ define(function (require, exports, module) {
     });
 
     describe('onFormChange', () => {
-      it('hides messages, calls enableSubmitIfValid', () => {
+      it('hides messages', () => {
         sinon.stub(view, 'isHalted').callsFake(() => false);
         sinon.stub(view, 'isSubmitting').callsFake(() => false);
         sinon.spy(view, 'hideError');
         sinon.spy(view, 'hideSuccess');
-        sinon.spy(view, 'enableSubmitIfValid');
 
         view.onFormChange();
         assert.isTrue(view.hideError.calledOnce);
         assert.isTrue(view.hideSuccess.calledOnce);
-        assert.isTrue(view.enableSubmitIfValid.calledOnce);
       });
 
       it('does nothing if submitting', function () {
         sinon.stub(view, 'isHalted').callsFake(() => false);
         sinon.stub(view, 'isSubmitting').callsFake(() => true);
-        sinon.spy(view, 'enableSubmitIfValid');
+        sinon.spy(view, 'hideError');
+        sinon.spy(view, 'hideSuccess');
 
         view.onFormChange();
-        assert.isFalse(view.enableSubmitIfValid.called);
+        assert.isFalse(view.hideError.called);
+        assert.isFalse(view.hideSuccess.called);
       });
 
       it('does nothing if halted', function () {
         sinon.stub(view, 'isHalted').callsFake(() => true);
         sinon.stub(view, 'isSubmitting').callsFake(() => false);
-        sinon.spy(view, 'enableSubmitIfValid');
+        sinon.spy(view, 'hideError');
+        sinon.spy(view, 'hideSuccess');
 
         view.onFormChange();
-        assert.isFalse(view.enableSubmitIfValid.called);
+        assert.isFalse(view.hideError.called);
+        assert.isFalse(view.hideSuccess.called);
       });
 
       it('notifies of `form.engage` for the first change', () => {
@@ -185,20 +187,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('enableSubmitIfValid', function () {
-      it('disables submit button if `isValid` returns false', function () {
-        sinon.stub(view, 'isValid').callsFake(() => false);
-        view.enableSubmitIfValid();
-        assert.isTrue(view.$('button').hasClass('disabled'));
-      });
-
-      it('enables submit button if `isValid` returns true', function () {
-        sinon.stub(view, 'isValid').callsFake(() => true);
-        view.enableSubmitIfValid();
-        assert.isFalse(view.$('button').hasClass('disabled'));
-      });
-    });
-
     describe('validateAndSubmit', function () {
       it('triggers a `submitStart` event', (done) => {
         view.on('submitStart', () => done());
@@ -208,19 +196,16 @@ define(function (require, exports, module) {
 
       it('submits form if isValid returns true', function () {
         view.formIsValid = true;
-        view.enableSubmitIfValid();
         return testFormSubmitted();
       });
 
       it('shows validation errors if isValid returns false', function () {
         view.formIsValid = false;
-        view.enableSubmitIfValid();
         return testValidationErrorDisplayed('invalid form');
       });
 
       it('only allows one submit at a time', function () {
         view.formIsValid = true;
-        view.enableSubmitIfValid();
         view.validateAndSubmit();
         return view.validateAndSubmit()
                   .then(function () {
@@ -231,19 +216,8 @@ define(function (require, exports, module) {
 
       });
 
-      it('does not submit if form is disabled', function () {
-        view.formIsValid = true;
-        view.disableForm();
-        sinon.spy(view, 'submit');
-        return view.validateAndSubmit()
-          .then(function () {
-            assert.isFalse(view.submit.called);
-          });
-      });
-
       it('does not submit if form is halted', function () {
         view.formIsValid = true;
-        view.enableForm();
         view.halt();
         sinon.spy(view, 'submit');
         return view.validateAndSubmit()
@@ -254,7 +228,6 @@ define(function (require, exports, module) {
 
       it('displays error message and does not disable form if beforeSubmit throws an error', function () {
         view.formIsValid = true;
-        view.enableSubmitIfValid();
         view.beforeSubmit = function () {
           throw 'an error message';
         };
@@ -267,7 +240,6 @@ define(function (require, exports, module) {
 
       it('beforeSubmit can return a false to stop form submission', function () {
         view.formIsValid = true;
-        view.enableSubmitIfValid();
         view.beforeSubmit = function () {
           return false;
         };
@@ -280,7 +252,6 @@ define(function (require, exports, module) {
 
       it('beforeSubmit can return a promise for asynchronous operations', function () {
         view.formIsValid = true;
-        view.enableSubmitIfValid();
         view.beforeSubmit = function () {
           return p().delay(10);
         };
@@ -288,22 +259,17 @@ define(function (require, exports, module) {
         return testFormSubmitted();
       });
 
-      it('displays error message and does not re-enable form if submit throws an error', function () {
+      it('displays error message if submit throws an error', function () {
         view.formIsValid = true;
-        view.enableSubmitIfValid();
-        view.submit = function () {
+        sinon.stub(view, 'submit').callsFake(() => {
           throw 'an error message';
-        };
+        });
 
-        return testErrorDisplayed('an error message')
-                  .then(function () {
-                    assert.isFalse(view.isFormEnabled());
-                  });
+        return testErrorDisplayed('an error message');
       });
 
       it('submit can return a promise for asynchronous operations', function () {
         view.formIsValid = true;
-        view.enableSubmitIfValid();
         view.submit = function () {
           return p().then(function () {
             view.isFormSubmitted = true;
@@ -315,43 +281,20 @@ define(function (require, exports, module) {
     });
 
     describe('afterSubmit', function () {
-      it('override to prevent re-enabling of form', function () {
+      it('errors in override are not disaplayed', function () {
         view.formIsValid = true;
-        view.enableSubmitIfValid();
-        view.afterSubmit = function () {
-          // do not re-enable form.
-        };
-
-        return view.validateAndSubmit()
-          .then(null, function () {
-            assert.isFalse(view.isFormEnabled());
-          });
-      });
-
-      it('errors in overridde are not disaplayed', function () {
-        view.formIsValid = true;
-        view.enableSubmitIfValid();
         view.afterSubmit = function () {
           throw new Error('error that is not displayed');
         };
 
         return view.validateAndSubmit()
-                  .then(null, function (err) {
-                    assert.equal(err.message, 'error that is not displayed');
-                    assert.isFalse(view.isErrorVisible());
-                  });
-      });
-
-      it('re-enables form by default', function () {
-        return view.afterSubmit()
-          .then(function () {
-            assert.isTrue(view.isFormEnabled());
+          .then(assert.fail, function (err) {
+            assert.equal(err.message, 'error that is not displayed');
+            assert.isFalse(view.isErrorVisible());
           });
       });
 
-      it('pass in an object with `halt: true` to completely disable form', function () {
-        view.disableForm();
-
+      it('pass in an object with `halt: true` to disable form', function () {
         return view.afterSubmit(new HaltBehavior())
           .then(function () {
             assert.isTrue(view.isHalted());
@@ -373,6 +316,7 @@ define(function (require, exports, module) {
         view.halt();
 
         assert.ok(view.$('button[type="submit"]').attr('disabled'));
+        assert.isFalse(view.isFormEnabled());
       });
     });
 
@@ -618,7 +562,6 @@ define(function (require, exports, module) {
         // override expectation
         view.LONGER_THAN_EXPECTED = 10;
         view.formIsValid = true;
-        view.enableSubmitIfValid();
 
         view.submit = function () {
           var defer = p.defer();
@@ -645,7 +588,6 @@ define(function (require, exports, module) {
         // override expectation
         view.LONGER_THAN_EXPECTED = 10;
         view.formIsValid = true;
-        view.enableSubmitIfValid();
 
         view.submit = function () {
           var defer = p.defer();
@@ -671,7 +613,6 @@ define(function (require, exports, module) {
 
       it('should not hide forceMessage errors', function () {
         view.formIsValid = true;
-        view.enableSubmitIfValid();
 
         view.submit = function () {
           return p()
@@ -750,50 +691,6 @@ define(function (require, exports, module) {
         });
 
         assert.isFalse(view.isValid());
-      });
-    });
-
-    describe('render with errors', function () {
-      beforeEach(function () {
-        model.set('error', AuthErrors.toError('INVALID_PASSWORD'));
-
-        sinon.spy(view, 'enableSubmitIfValid');
-
-        return view.render();
-      });
-
-      it('does not enable submit', function () {
-        assert.isFalse(view.enableSubmitIfValid.called);
-      });
-    });
-
-    describe('disableForm/enableForm', () => {
-      let isEnabled;
-
-      beforeEach(() => {
-        isEnabled = true;
-        sinon.stub(view, 'isFormEnabled').callsFake(() => {
-          const _isEnabled = isEnabled;
-          isEnabled = ! isEnabled;
-          return _isEnabled;
-        });
-      });
-
-      it('disableForm disables the form, if enabled, notifies', () => {
-        view.disableForm();
-        assert.equal(notifier.trigger.callCount, 1);
-        assert.isTrue(notifier.trigger.calledWith('form.disabled'));
-        view.disableForm();
-        assert.equal(notifier.trigger.callCount, 1);
-      });
-
-      it('enableForm enables the form, if disabled, notifies', () => {
-        isEnabled = false;
-        view.enableForm();
-        assert.equal(notifier.trigger.callCount, 1);
-        assert.isTrue(notifier.trigger.calledWith('form.enabled'));
-        view.enableForm();
-        assert.equal(notifier.trigger.callCount, 1);
       });
     });
   });

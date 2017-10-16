@@ -83,7 +83,6 @@ define(function (require, exports, module) {
       // hide success and error messages after user changes the form
       this.hideError();
       this.hideSuccess();
-      this.enableSubmitIfValid();
 
       if (! this._notifiedOfEngaged) {
         this._notifiedOfEngaged = true;
@@ -99,12 +98,6 @@ define(function (require, exports, module) {
       // errors passed from the previous screen are immediately
       // hidden.
       this.updateFormValueChanges();
-
-      // only enable submit if no error is passed
-      // from one screen to the next.
-      if (! this.model.has('error')) {
-        this.enableSubmitIfValid();
-      }
 
       return proto.afterRender.call(this);
     },
@@ -144,42 +137,6 @@ define(function (require, exports, module) {
       });
     },
 
-    /**
-     * Enable the submit button if the form is valid.
-     *
-     * @method enableSubmitIfValid
-     */
-    enableSubmitIfValid () {
-      if (this.isValid()) {
-        this.enableForm();
-      } else {
-        this.disableForm();
-      }
-    },
-
-    /**
-     * Disable the form
-     */
-    disableForm () {
-      // the disabled class is used instead of the disabled attribute
-      // so that the submit handler is still called. With the submit attribute
-      // applied, no submit handler is fired, and the form validation does not
-      // take place.
-      if (this.isFormEnabled()) {
-        this.$('button[type=submit]').addClass('disabled');
-        this.notifier.trigger('form.disabled');
-      }
-    },
-
-    /**
-     * Enable the form
-     */
-    enableForm () {
-      if (! this.isFormEnabled()) {
-        this.$('button[type=submit]').removeClass('disabled');
-        this.notifier.trigger('form.enabled');
-      }
-    },
 
     /**
      * Check if the form is enabled
@@ -187,7 +144,8 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      */
     isFormEnabled () {
-      return ! this.$('button[type=submit]').hasClass('disabled');
+      const $submitEl = this.$('button[type=submit]');
+      return ! $submitEl.hasClass('disabled') && ! $submitEl.attr('disabled');
     },
 
     /**
@@ -440,7 +398,7 @@ define(function (require, exports, module) {
      *   beforeSubmit is an asynchronous operation.
      */
     beforeSubmit () {
-      return this.disableForm();
+      return p();
     },
 
     /**
@@ -473,8 +431,6 @@ define(function (require, exports, module) {
 
         if (result && result.halt) {
           this.halt();
-        } else if (! this.isErrorVisible()) {
-          this.enableForm();
         }
 
         return result;

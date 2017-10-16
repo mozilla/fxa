@@ -33,10 +33,6 @@ define(function (require, exports, module) {
     if (! opts.ignoreYear) {
       context.$('#age').val(year);
     }
-
-    if (context.enableSubmitIfValid) {
-      context.enableSubmitIfValid();
-    }
   }
 
   var CLIENT_ID = 'dcdb5ae7add825d2';
