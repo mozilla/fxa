@@ -10,7 +10,11 @@ define((require, exports, module) => {
 
   const BaseGroupingRule = require('./base');
 
-  const GROUPS = ['control', 'treatment', 'signinCodes'];
+  // 'control' was CAD phase 1, normal ConnectAnotherDevice.
+  // Both SMS groups perform better than CAD phase 1, so for
+  // those eligible for SMS at all, push them through one
+  // of the two better flows. See #5561
+  const GROUPS = ['treatment', 'signinCodes'];
 
   function isEmailInSigninCodesGroup (email) {
     return /@softvision\.(com|ro)$/.test(email) ||

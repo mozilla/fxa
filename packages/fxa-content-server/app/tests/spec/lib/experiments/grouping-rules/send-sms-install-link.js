@@ -40,12 +40,12 @@ define(function (require, exports, module) {
 
       describe('others', () => {
         it('delegates to uniformChoice', () => {
-          sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
+          sinon.stub(experiment, 'uniformChoice').callsFake(() => 'treatment');
           account.set('email', 'testuser@testuser.com');
 
-          assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'control');
+          assert.equal(experiment.choose({ account, uniqueUserId: 'user-id' }), 'treatment');
           assert.isTrue(experiment.uniformChoice.calledOnce);
-          assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment', 'signinCodes'], 'user-id'));
+          assert.isTrue(experiment.uniformChoice.calledWith(['treatment', 'signinCodes'], 'user-id'));
         });
       });
     });
