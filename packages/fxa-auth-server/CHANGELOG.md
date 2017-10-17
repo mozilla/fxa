@@ -1,3 +1,13 @@
+<a name="1.97.5"></a>
+## [1.97.5](https://github.com/mozilla/fxa-auth-server/compare/v1.97.4...v1.97.5) (2017-10-17)
+
+
+### Bug Fixes
+
+* **devices:** Always report a name and type in device registration response. ([00e69f2](https://github.com/mozilla/fxa-auth-server/commit/00e69f2))
+
+
+
 <a name="1.97.2"></a>
 ## [1.97.2](https://github.com/mozilla/fxa-auth-server/compare/v1.97.1...v1.97.2) (2017-10-05)
 
