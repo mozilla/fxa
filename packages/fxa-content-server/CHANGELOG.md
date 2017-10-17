@@ -1,3 +1,37 @@
+<a name="1.98.0"></a>
+# 1.98.0 (2017-10-17)
+
+
+### Bug Fixes
+
+* **build:** Use the newest bower to use newest registry. ([5d870a1](https://github.com/mozilla/fxa-content-server/commit/5d870a1)), closes [#5570](https://github.com/mozilla/fxa-content-server/issues/5570)
+* **css:** Add photon shadow style and easing (#5550) r=@shane-tomlinson ([86dc936](https://github.com/mozilla/fxa-content-server/commit/86dc936)), closes [#5531](https://github.com/mozilla/fxa-content-server/issues/5531)
+* **docs:** add table of contents to the readme ([3aed10f](https://github.com/mozilla/fxa-content-server/commit/3aed10f))
+* **email-first:** Show a readonly on the signin/signup pages. (#5591) r=@vbudhram ([122f930](https://github.com/mozilla/fxa-content-server/commit/122f930)), closes [#5582](https://github.com/mozilla/fxa-content-server/issues/5582)
+* **metrics:** add missing browser, os and device amplitude properties ([8c221f2](https://github.com/mozilla/fxa-content-server/commit/8c221f2))
+* **metrics:** map service event property from client id (#5583), r=@vbudhram ([aa0a297](https://github.com/mozilla/fxa-content-server/commit/aa0a297))
+* **signup:** Show signup bounced errors in about:accounts from /confirm ([7c33ed6](https://github.com/mozilla/fxa-content-server/commit/7c33ed6)), closes [#5566](https://github.com/mozilla/fxa-content-server/issues/5566)
+* **sync:** Firefox 58 transitions after email verification, not 57. r=@philbooth ([61d03d3](https://github.com/mozilla/fxa-content-server/commit/61d03d3)), closes [#5556](https://github.com/mozilla/fxa-content-server/issues/5556)
+* **test:** Fix the StaleReferenceError in settings_clients.js test. (#5596) r=@vbudhram ([2836d5e](https://github.com/mozilla/fxa-content-server/commit/2836d5e)), closes [(#5596](https://github.com/(/issues/5596) [#5593](https://github.com/mozilla/fxa-content-server/issues/5593)
+* **tests:** make tests work in FF56 or FF57 (#5555) r=vladikoff,shane-tomlinson ([594caa0](https://github.com/mozilla/fxa-content-server/commit/594caa0)), closes [#5547](https://github.com/mozilla/fxa-content-server/issues/5547)
+
+### chore
+
+* **app-start:** Replace _.bind with fat arrows for readability. (#5559) r=vladikoff ([0454471](https://github.com/mozilla/fxa-content-server/commit/0454471))
+
+### Features
+
+* **metrics:** add experiment data to amplitude user properties ([4b8355a](https://github.com/mozilla/fxa-content-server/commit/4b8355a))
+* **metrics:** add uid to metrics payload ([ba39aeb](https://github.com/mozilla/fxa-content-server/commit/ba39aeb))
+* **settings:** remove Unsubcribe, link out to email prefs (#5551) r=@philbooth ([2722bba](https://github.com/mozilla/fxa-content-server/commit/2722bba))
+* **sms:** Remove the `control` group from the `sendSms` experiment. (#5590) r=@philbooth ([848cef1](https://github.com/mozilla/fxa-content-server/commit/848cef1)), closes [#5561](https://github.com/mozilla/fxa-content-server/issues/5561)
+
+### Refactor
+
+* **form:** remove disabled form state (#5437) r=@vbudhram ([7b9ab94](https://github.com/mozilla/fxa-content-server/commit/7b9ab94))
+
+
+
 <a name="1.97.2"></a>
 ## 1.97.2 (2017-10-05)
 
