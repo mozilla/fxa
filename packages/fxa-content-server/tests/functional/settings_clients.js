@@ -219,6 +219,10 @@ define([
         .waitForDeletedByCssSelector('.client-device:nth-child(2)')
         .end()
 
+        // visibleByQSA is necessary to prevent a StaleElementReference
+        // error. w/o it, a reference to the refresh button from before
+        // the refresh is used. See #5593
+        .then(visibleByQSA(selectors.SETTINGS_CLIENTS.BUTTON_REFRESH))
         .then(click(selectors.SETTINGS_CLIENTS.BUTTON_REFRESH))
         .then(pollUntilGoneByQSA(selectors.SETTINGS_CLIENTS.REFRESHING))
 
