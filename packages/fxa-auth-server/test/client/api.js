@@ -344,9 +344,13 @@ module.exports = config => {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
         function (token) {
+          let url = this.baseURL + '/certificate/sign'
+          if (options.service) {
+            url += '?service=' + options.service
+          }
           return this.doRequest(
             'POST',
-            this.baseURL + '/certificate/sign',
+            url,
             token,
             {
               publicKey: publicKey,

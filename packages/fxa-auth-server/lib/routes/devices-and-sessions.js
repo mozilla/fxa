@@ -124,15 +124,20 @@ module.exports = (log, db, config, customs, push, devices) => {
 
         devices.upsert(request, sessionToken, payload)
           .then(function (device) {
-            reply(Object.assign({}, {
-              id: sessionToken && sessionToken.deviceId,
-              name: sessionToken && sessionToken.deviceName,
-              type: sessionToken && sessionToken.deviceType,
-              pushCallback: sessionToken && sessionToken.callbackURL,
-              pushPublicKey: sessionToken && sessionToken.callbackPublicKey,
-              pushAuthKey: sessionToken && sessionToken.callbackAuthKey,
-              pushEndpointExpired: sessionToken && sessionToken.callbackIsExpired
-            }, device))
+            // We must respond with the full device record,
+            // including any default values for missing fields.
+            reply(Object.assign({
+              // These properties can be picked from sessionToken or device as appropriate.
+              pushCallback: sessionToken.callbackURL,
+              pushPublicKey: sessionToken.callbackPublicKey,
+              pushAuthKey: sessionToken.callbackAuthKey,
+              pushEndpointExpired: sessionToken.callbackIsExpired
+            }, device, {
+              // But these need to be non-falsey, using default fallbacks if necessary
+              id: device.id || sessionToken.deviceId,
+              name: device.name || sessionToken.deviceName || devices.synthesizeName(sessionToken),
+              type: device.type || sessionToken.deviceType || 'desktop',
+            }))
           }, reply)
 
         // Clients have been known to send spurious device updates,

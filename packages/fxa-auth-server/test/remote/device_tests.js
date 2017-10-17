@@ -549,6 +549,46 @@ describe('remote device', function() {
     }
   )
 
+  it(
+    'device updates can correctly handle upgrades from placeholder record',
+    () => {
+      const email = server.uniqueEmail()
+      const password = 'test password'
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then((client) => {
+          const deviceInfo = {
+            name: 'test device'
+          }
+          // Sign a certificate to generate a placeholder device record.
+          const publicKey = {
+            'algorithm': 'RS',
+            'n': '4759385967235610503571494339196749614544606692567785' +
+                 '7909539347682027142806529730913413168629935827890798' +
+                 '72007974809511698859885077002492642203267408776123',
+            'e': '65537'
+          }
+          return client.sign(publicKey, 1000 * 60 * 5, undefined, { service: 'sync' })
+            .then(() => {
+              return client.devices()
+            })
+            .then((devices) => {
+              assert.equal(devices.length, 1, 'devices returned 1 item')
+              assert.equal(devices[0].name, '', 'placeholder device record had no name')
+              assert.equal(devices[0].type, 'desktop', 'placeholder device record type defaults to desktop')
+
+              // Now attempt to update the name on the placeholder record.
+              deviceInfo.id = devices[0].id
+              return client.updateDevice(deviceInfo)
+            })
+            .then((device) => {
+              assert.equal(device.id, deviceInfo.id, 'device.id was set correctly')
+              assert.equal(device.name, deviceInfo.name, 'device name was updated correctly')
+              assert.equal(device.type, 'desktop', 'device type still defaults to desktop')
+            })
+        })
+    }
+  )
+
   after(() => {
     return TestServer.stop(server)
   })
