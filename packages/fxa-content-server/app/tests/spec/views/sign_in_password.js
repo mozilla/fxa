@@ -5,7 +5,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const $ = require('jquery');
   const Account = require('models/account');
   const { assert } = require('chai');
   const Backbone = require('backbone');
@@ -108,16 +107,6 @@ define(function (require, exports, module) {
               assert.isTrue(view.signIn.calledWith(account, 'password'));
             });
         });
-      });
-    });
-
-    describe('click on the email field', () => {
-      it('navigates back', () => {
-        $('#container').html(view.el);
-
-        sinon.spy(view, 'back');
-        view.$('input[type=email]').click();
-        assert.isTrue(view.back.calledOnce);
       });
     });
   });
