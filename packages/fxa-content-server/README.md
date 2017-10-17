@@ -6,6 +6,17 @@
 
 Static server that hosts [Firefox Account sign up](https://accounts.firefox.com), sign in, email verification, etc. flows.
 
+* [Quick Start](#quick-start)
+* [Development Notes](#development-notes)
+  * [Changes to Stylesheets](#changes-to-stylesheets)
+  * [Changes to Scripts and Templates](#changes-to-scripts-and-templates)
+* [Testing](#testing)
+  * [Prerequisites](#prerequisites)
+  * [Setup](#setup)
+* [Grunt Commands](#grunt-commands)
+* [Servers](#servers)
+* [License](#license)
+
 ## Quick Start
 
 Clone the repository, make sure you have [required prerequisites](https://github.com/mozilla/fxa-local-dev#dependencies) installed.
@@ -29,7 +40,8 @@ Any changes made to the scripts or the template files will automatically be refl
 
 ## Testing
 
-#### Prerequisites:
+### Prerequisites
+
   * Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
 ### Setup
