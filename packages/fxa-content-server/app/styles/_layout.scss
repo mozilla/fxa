@@ -22,10 +22,11 @@
 
   @include respond-to('big') {
     border-radius: $big-border-radius;
-    box-shadow: 0 1px 5px $input-row-border-color;
+    box-shadow: 0 2px 8px rgba($grey-90, .1);
     margin: -15px auto 0 auto;
     min-height: 420px;
     padding: 50px 40px 40px 40px;
+    transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
   }
 
   @include respond-to('small') {
@@ -65,8 +66,9 @@
 
   @include respond-to('big') {
     border-radius: $big-border-radius;
-    box-shadow: 0 1px 5px $input-row-border-color;
+    box-shadow: 0 2px 8px rgba($grey-90, .1);
     padding: 50px 20px 20px;
+    transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
     width: 500px;
   }
 
@@ -85,6 +87,16 @@
     padding-right: 20px;
     width: 94%;
   }
+
+  &.animate-shadow {
+    box-shadow: 0 4px 16px rgba($grey-90, .1);
+    transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
+  }
+}
+
+#main-content:focus-within {
+  box-shadow: 0 4px 16px rgba($grey-90, .1);
+  transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
 }
 
 #fxa-settings-header {

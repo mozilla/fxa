@@ -41,6 +41,7 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier,
         parentView: {
+          $: $,
           displaySuccess: sinon.spy()
         }
       });

@@ -41,6 +41,7 @@ define(function (require, exports, module) {
       this.closeAllPanels();
 
       this.$('.settings-unit').addClass('open');
+      this.$el.closest('#fxa-settings-content').addClass('animate-shadow');
       this.focus(this.$('[data-autofocus-on-panel-open]'));
     },
 
@@ -76,6 +77,7 @@ define(function (require, exports, module) {
     },
 
     closePanel () {
+      this.$el.closest('#fxa-settings-content').removeClass('animate-shadow');
       this.$('.settings-unit').removeClass('open');
     },
 
