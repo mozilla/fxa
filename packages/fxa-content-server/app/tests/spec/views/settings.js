@@ -23,7 +23,6 @@ define(function (require, exports, module) {
   const Relier = require('models/reliers/relier');
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const sinon = require('sinon');
-  const SubPanels = require('views/sub_panels');
   const TestHelpers = require('../../lib/helpers');
   const TestTemplate = require('stache!templates/test_template');
   const User = require('models/user');
@@ -46,21 +45,21 @@ define(function (require, exports, module) {
     var initialChildView;
     var metrics;
     var notifier;
-    var panelViews;
     var profileClient;
     var relier;
-    var subPanels;
     var user;
     var view;
 
     var ACCESS_TOKEN = 'access token';
     var UID = TestHelpers.createUid();
+    let subPanelRenderSpy;
 
     function createView(Constructor, options) {
       return new Constructor(options);
     }
 
     function createSettingsView () {
+      subPanelRenderSpy = sinon.spy(() => Promise.resolve());
       view = new View({
         childView: initialChildView,
         createView,
@@ -68,15 +67,18 @@ define(function (require, exports, module) {
         formPrefill,
         metrics,
         notifier,
-        panelViews,
         relier,
-        subPanels,
         user,
         viewName: 'settings'
       });
 
       sinon.spy(view, 'navigate');
       sinon.stub(view, 'clearSessionAndNavigateToSignIn').callsFake(() => {});
+      sinon.stub(view, '_initializeSubPanels').callsFake(() => {
+        return {
+          render: subPanelRenderSpy
+        };
+      });
     }
 
     beforeEach(function () {
@@ -99,11 +101,6 @@ define(function (require, exports, module) {
         verified: true
       });
       sinon.stub(account, 'fetchProfile').callsFake(function () {
-        return p();
-      });
-
-      subPanels = new SubPanels();
-      sinon.stub(subPanels, 'render').callsFake(function () {
         return p();
       });
 
@@ -179,14 +176,13 @@ define(function (require, exports, module) {
         account.set('accessToken', ACCESS_TOKEN);
       });
 
-      it('shows the settings page', function () {
+      it('shows the settings page and sub panels', function () {
         return view.render()
-          .then(function () {
-            $('#container').append(view.el);
-          })
           .then(function () {
             assert.ok(view.$('#fxa-settings-header').length);
             assert.isTrue($('body').hasClass('settings'));
+            assert.isTrue(view._initializeSubPanels.calledOnce);
+            assert.isTrue(subPanelRenderSpy.calledOnce);
           });
       });
 
@@ -204,19 +200,6 @@ define(function (require, exports, module) {
         assert.isTrue($.modal.close.called);
         $.modal.isActive.restore();
         $.modal.close.restore();
-      });
-
-      it('afterVisible', function () {
-        sinon.stub(subPanels, 'setElement').callsFake(function () {});
-        return view.render()
-          .then(function () {
-            $('#container').append(view.el);
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.isTrue(subPanels.setElement.called);
-            assert.isTrue(subPanels.render.called);
-          });
       });
 
       it('on profile change', function () {
@@ -447,78 +430,71 @@ define(function (require, exports, module) {
       });
 
       it('it calls showChildView on subPanels', function () {
-        sinon.stub(subPanels, 'showChildView').callsFake(function () {
-          return p();
-        });
-
-        var options = {};
+        view._subPanels = {
+          showChildView: sinon.spy(() => Promise.resolve())
+        };
+        const options = {};
         return view.showChildView(SettingsPanelView, options)
-          .then(function () {
-            assert.isTrue(subPanels.showChildView.calledWith(SettingsPanelView, options));
+          .then(() => {
+            assert.isTrue(view._subPanels.showChildView.calledWith(SettingsPanelView, options));
           });
       });
 
-      describe('initialize subPanels', function () {
-        beforeEach(function () {
-          subPanels = null;
-          panelViews = [
-            SettingsPanelView
-          ];
-          sinon.stub(SubPanels.prototype, 'initialize').callsFake(function () {
-          });
-          initialChildView = SettingsPanelView;
-        });
+      it('_initializeSubPanels initializes a SubPanels instance', function () {
+        view._initializeSubPanels.restore();
+        sinon.spy(view, '_getPanelsToDisplay');
+        const subPanels = view._initializeSubPanels($('#container')[0]);
+        assert.ok(subPanels);
+        assert.isTrue(view._getPanelsToDisplay.called);
+      });
 
-        afterEach(function () {
-          SubPanels.prototype.initialize.restore();
-        });
-
+      describe('_getPanelsToDisplay', () => {
         it('CommunicationPreferencesView is visible if enabled', function () {
-          panelViews.push(CommunicationPreferencesView);
-          sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
-            return true;
-          });
-          createSettingsView();
-
-          assert.isTrue(experimentGroupingRules.choose.calledWith('communicationPrefsVisible'));
-          assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.true'));
-          assert.isTrue(SubPanels.prototype.initialize.calledWith({
-            createView: createView,
-            initialChildView: SettingsPanelView,
-            panelViews: panelViews,
-            parent: view
-          }));
+          sinon.stub(view, '_areCommunicationPrefsVisible').callsFake(() => true);
+          const panelsToDisplay = view._getPanelsToDisplay();
+          assert.include(panelsToDisplay, CommunicationPreferencesView);
         });
 
         it('CommunicationPreferencesView is not visible if disabled', function () {
-          panelViews.push(CommunicationPreferencesView);
-          sinon.stub(experimentGroupingRules, 'choose').callsFake(function () {
-            return false;
-          });
-          createSettingsView();
+          sinon.stub(view, '_areCommunicationPrefsVisible').callsFake(() => false);
+          const panelsToDisplay = view._getPanelsToDisplay();
+          assert.notInclude(panelsToDisplay, CommunicationPreferencesView);
+        });
+      });
 
-          assert.isTrue(experimentGroupingRules.choose.calledWith('communicationPrefsVisible'));
-          assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
-          assert.isTrue(SubPanels.prototype.initialize.calledWith({
-            createView: createView,
-            initialChildView: SettingsPanelView,
-            panelViews: [SettingsPanelView],
-            parent: view
-          }));
+      describe('_areCommunicationPrefsVisible', () => {
+        beforeEach(() => {
+          createSettingsView();
         });
 
-        it('initialize SubPanels without CommunicationPreferencesView', function () {
-          sinon.spy(experimentGroupingRules, 'choose');
-          createSettingsView();
+        it('returns `false` if the grouping rules says false', () => {
+          sinon.stub(experimentGroupingRules, 'choose').callsFake(() => false);
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
+            return {
+              isFirefoxIos: () => false
+            };
+          });
+          assert.isFalse(view._areCommunicationPrefsVisible());
+        });
 
-          assert.isFalse(experimentGroupingRules.choose.called);
-          assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.communication-prefs-link.visible.false'));
-          assert.isTrue(SubPanels.prototype.initialize.calledWith({
-            createView: createView,
-            initialChildView: SettingsPanelView,
-            panelViews: [SettingsPanelView],
-            parent: view
-          }));
+        it('returns `false` if on Fx for iOS', () => {
+          sinon.stub(experimentGroupingRules, 'choose').callsFake(() => true);
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
+            return {
+              isFirefoxIos: () => true
+            };
+          });
+          assert.isFalse(view._areCommunicationPrefsVisible());
+        });
+
+        it('returns `true` if not Fx for iOS and grouping rules says true', () => {
+          sinon.stub(experimentGroupingRules, 'choose').callsFake(() => true);
+          sinon.stub(view, 'getUserAgent').callsFake(() => {
+            return {
+              isFirefoxIos: () => false
+            };
+          });
+          assert.isTrue(view._areCommunicationPrefsVisible());
         });
       });
 

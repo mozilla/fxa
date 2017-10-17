@@ -26,22 +26,21 @@
         {{#t}}We may send you emails related to your Firefox Account.{{/t}}<br/><br/>
 
         {{#t}}Additionally, you can choose whether to receive the latest news about Mozilla and Firefox.{{/t}}
-
-        {{#preferencesUrl}}
-          <a href="{{preferencesUrl}}" id="preferences-url" class="right" target="_blank">{{#t}}Email preferences{{/t}}</a>
-        {{/preferencesUrl}}
       </p>
 
       <div class="button-row">
-        <button type="submit" id="marketing-email-optin" class="marketing-email-optin settings-button primary" autofocus>
-          {{#isOptedIn}}
-            {{#t}}Unsubscribe{{/t}}
-          {{/isOptedIn}}
-          {{^isOptedIn}}
+        {{^isOptedIn}}
+          <button type="submit" id="marketing-email-optin" class="marketing-email-optin settings-button primary" autofocus>
             {{#t}}Subscribe{{/t}}
-          {{/isOptedIn}}
-        </button>
-        <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
+          </button>
+          <button class="settings-button secondary cancel" id="marketing-email-cancel">{{#t}}Cancel{{/t}}</button>
+        {{/isOptedIn}}
+        {{#isOptedIn}}
+          <button id="marketing-email-manage" class="marketing-email-optin settings-button primary" autofocus>
+            {{#t}}Manage Subscriptions{{/t}}
+          </button>
+          <button class="settings-button secondary cancel" id="marketing-email-done">{{#t}}Done{{/t}}</button>
+        {{/isOptedIn}}
 
       </div>
     </form>

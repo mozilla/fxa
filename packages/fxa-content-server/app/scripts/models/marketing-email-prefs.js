@@ -11,7 +11,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const _ = require('underscore');
   const Backbone = require('backbone');
   const p = require('../lib/promise');
 
@@ -86,25 +85,6 @@ define(function (require, exports, module) {
         .then(() => {
           var newsletters = this.get('newsletters');
           newsletters.push(newsletterId);
-          this.set('newsletters', newsletters);
-        });
-    },
-
-    /**
-     * Opt out of a newsletter
-     *
-     * @method optOut
-     * @param {String} newsletterId
-     * @returns {Promise}
-     */
-    optOut (newsletterId) {
-      if (! this.isOptedIn(newsletterId)) {
-        return p();
-      }
-
-      return this._withMarketingEmailClient('optOut', newsletterId)
-        .then(() => {
-          var newsletters = _.without(this.get('newsletters'), newsletterId);
           this.set('newsletters', newsletters);
         });
     },

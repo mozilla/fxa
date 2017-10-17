@@ -5,24 +5,30 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BaseView = require('../base');
   const Cocktail = require('cocktail');
   const Constants = require('../../lib/constants');
   const FlowEventsMixin = require('../mixins/flow-events-mixin');
   const FormView = require('../form');
   const MarketingEmailErrors = require('../../lib/marketing-email-errors');
   const Metrics = require('../../lib/metrics');
+  const { preventDefaultThen } = require('../base');
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const Template = require('stache!templates/settings/communication_preferences');
   const Xss = require('../../lib/xss');
 
-  var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
-  var t = BaseView.t;
+  const NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
+  const t = (msg) => msg;
 
-  var View = FormView.extend({
+  const View = FormView.extend({
     template: Template,
     className: 'communication-preferences',
     viewName: 'settings.communication-preferences',
+
+    events: {
+      // preventDefaultThen prevents the submit handler from being called
+      // for a click on the manage button.
+      'click #marketing-email-manage': preventDefaultThen('_openManagePage')
+    },
 
     getMarketingEmailPrefs () {
       if (! this._marketingEmailPrefs) {
@@ -89,39 +95,43 @@ define(function (require, exports, module) {
     },
 
     submit () {
-      var emailPrefs = this.getMarketingEmailPrefs();
-      return this.setOptInStatus(NEWSLETTER_ID, ! emailPrefs.isOptedIn(NEWSLETTER_ID));
+      return this._optIn();
     },
 
-    setOptInStatus (newsletterId, isOptedIn) {
-      let eventPrefix;
-      let method;
+    /**
+     * Opt in to the marketing email
+     *
+     * @returns {Promise}
+     * @private
+     */
+    _optIn () {
+      this.logViewEvent('optIn');
 
-      if (isOptedIn) {
-        eventPrefix = '';
-        method = 'optIn';
-      } else {
-        eventPrefix = 'un';
-        method = 'optOut';
-      }
-
-      this.logViewEvent(method);
-
-      return this.getMarketingEmailPrefs()[method](newsletterId)
+      const emailPrefs = this.getMarketingEmailPrefs();
+      return emailPrefs.optIn(NEWSLETTER_ID)
         .then(() => {
-          this.logViewEvent(method + '.success');
+          this.logViewEvent('optIn.success');
           // Emit an additional flow event for consistency with
           // the call to optIn in the account model
-          this.logFlowEvent(`newsletter.${eventPrefix}subscribed`);
-
-          var successMessage = isOptedIn ?
-                                  t('Subscribed successfully') :
-                                  t('Unsubscribed successfully');
-
-          this.displaySuccess(successMessage);
+          this.logFlowEvent('newsletter.subscribed');
+          this.displaySuccess(t('Subscribed successfully'));
           this.navigate('settings');
           return this.render();
-        }, (err) => this.displayError(err));
+        });
+        // Errors are displayed at a higher level.
+    },
+
+    /**
+     * Open the manage page
+     *
+     * @private
+     */
+    _openManagePage () {
+      this.logViewEvent('manage');
+      this.logFlowEvent('newsletter.manage');
+
+      const emailPrefs = this.getMarketingEmailPrefs();
+      this.window.open(emailPrefs.get('preferencesUrl'), '_blank');
     }
   });
 

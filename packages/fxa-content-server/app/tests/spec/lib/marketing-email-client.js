@@ -120,20 +120,5 @@ define(function (require, exports, module) {
           });
       });
     });
-
-    describe('optOut', function () {
-      it('opts out the user', function () {
-        sinon.spy(xhrMock, 'ajax');
-
-        return client.optOut('token', 'newsletter_id')
-          .then(function () {
-            var request = xhrMock.ajax.args[0][0];
-            assert.equal(request.url, BASE_URL + '/unsubscribe');
-            assert.equal(request.type, 'post');
-            assert.include(request.headers.Authorization, 'token');
-            assert.deepEqual(request.data, { newsletters: 'newsletter_id' });
-          });
-      });
-    });
   });
 });

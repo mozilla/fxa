@@ -100,36 +100,5 @@ define(function (require, exports, module) {
           });
       });
     });
-
-    describe('optOut', function () {
-      it('does nothing if not opted in', function () {
-        sinon.spy(marketingEmailClient, 'optOut');
-
-        marketingEmailPrefs.set('newsletters', []);
-        return marketingEmailPrefs.optOut(NEWSLETTER_ID)
-          .then(function () {
-            assert.isFalse(marketingEmailClient.optOut.called);
-          });
-      });
-
-      it('opts the user out of marketing email if opted in', function () {
-        sinon.stub(marketingEmailClient, 'optOut').callsFake(function () {
-          return p();
-        });
-
-        marketingEmailPrefs.set('newsletters', [ NEWSLETTER_ID ]);
-        return marketingEmailPrefs.optOut(NEWSLETTER_ID)
-          .then(function () {
-            assert.isTrue(
-              marketingEmailClient.optOut.calledWith(
-                'oauth_token',
-                NEWSLETTER_ID
-              )
-            );
-            assert.isFalse(marketingEmailPrefs.isOptedIn(NEWSLETTER_ID));
-            assert.isTrue(oAuthToken.destroy.called);
-          });
-      });
-    });
   });
 });

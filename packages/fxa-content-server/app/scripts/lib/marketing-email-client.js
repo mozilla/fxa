@@ -69,12 +69,6 @@ define(function (require, exports, module) {
         newsletters: newsletterId,
         source_url: cleanedSourceUrl //eslint-disable-line camelcase
       });
-    },
-
-    optOut (accessToken, newsletterId) {
-      return this._request('post', '/unsubscribe', accessToken, {
-        newsletters: newsletterId
-      });
     }
   };
 

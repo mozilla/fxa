@@ -29,6 +29,7 @@ define(function (require, exports, module) {
   const SignedOutNotificationMixin = require('./mixins/signed-out-notification-mixin');
   const SubPanels = require('./sub_panels');
   const Template = require('stache!templates/settings');
+  const UserAgentMixin = require('../lib/user-agent-mixin');
 
   var PANEL_VIEWS = [
     AvatarView,
@@ -53,11 +54,10 @@ define(function (require, exports, module) {
 
     mustVerify: true,
 
-    initialize (options) {
-      options = options || {};
-
+    initialize (options = {}) {
+      this._childView = options.childView;
+      this._createView = options.createView;
       this._experimentGroupingRules = options.experimentGroupingRules;
-      this._subPanels = options.subPanels || this._initializeSubPanels(options);
 
       var uid = this.relier.get('uid');
 
@@ -83,31 +83,6 @@ define(function (require, exports, module) {
 
     notifications: {
       'navigate-from-child-view': '_onNavigateFromChildView'
-    },
-
-    _initializeSubPanels (options) {
-      var areCommunicationPrefsVisible = false;
-      var panelViews = options.panelViews || PANEL_VIEWS;
-
-      if (panelViews.indexOf(CommunicationPreferencesView) !== -1) {
-        areCommunicationPrefsVisible = this._areCommunicationPrefsVisible();
-        panelViews = panelViews.filter(function (ChildView) {
-          if (ChildView === CommunicationPreferencesView) {
-            return areCommunicationPrefsVisible;
-          }
-          return true;
-        });
-      }
-
-      this.logViewEvent('communication-prefs-link.visible.' +
-        String(areCommunicationPrefsVisible));
-
-      return new SubPanels({
-        createView: options.createView,
-        initialChildView: options.childView,
-        panelViews: panelViews,
-        parent: this
-      });
     },
 
     setInitialContext (context) {
@@ -161,8 +136,11 @@ define(function (require, exports, module) {
       this.listenTo(account, 'change:displayName', this._onAccountUpdate);
       this.listenTo(account, 'change:email', this._onAccountUpdate);
 
-      this._subPanels.setElement(this.$('#sub-panels')[0]);
-      return this._subPanels.render()
+      this.logViewEvent('communication-prefs-link.visible.' +
+        String(this._areCommunicationPrefsVisible()));
+
+      const subPanels = this._initializeSubPanels(this.$('#sub-panels')[0]);
+      return subPanels.render()
         .then(proto.afterRender.bind(this));
     },
 
@@ -192,10 +170,64 @@ define(function (require, exports, module) {
         .then(() => this._setupAvatarChangeLinks());
     },
 
-    _areCommunicationPrefsVisible () {
-      return !! this._experimentGroupingRules.choose('communicationPrefsVisible', {
-        lang: this.navigator.language
+    /**
+     * Initialize the SubPanels view if not already initialized
+     *
+     * @param {Object} rootEl root element for SubPanels view.
+     * @returns {Object} SubPanels instance
+     * @private
+     */
+    _initializeSubPanels (rootEl) {
+      if (! this._subPanels) {
+        this._subPanels = new SubPanels({
+          createView: this._createView,
+          el: rootEl,
+          initialChildView: this._childView,
+          panelViews: this._getPanelsToDisplay(),
+          parent: this
+        });
+      }
+
+      return this._subPanels;
+    },
+
+    /**
+     * Get the panels to display.
+     *
+     * @returns {Object[]} Array of views to display.
+     * @private
+     */
+    _getPanelsToDisplay () {
+      const areCommunicationPrefsVisible = this._areCommunicationPrefsVisible();
+      return PANEL_VIEWS.filter((ChildView) => {
+        if (ChildView === CommunicationPreferencesView) {
+          return areCommunicationPrefsVisible;
+        }
+        return true;
       });
+    },
+
+    /**
+     * Should the communication preferences panel be displayed?
+     *
+     * @returns {Boolean}
+     * @private
+     */
+    _areCommunicationPrefsVisible () {
+      if (! this._experimentGroupingRules.choose('communicationPrefsVisible', {
+        lang: this.navigator.language
+      })) {
+        return false;
+      }
+
+      // Firefox for iOS cannot link out to the basket. Disable
+      // the view until we figure out a good solution. See
+      // https://github.com/mozilla/fxa-content-server/pull/5551
+      if (this.getUserAgent().isFirefoxIos()) {
+        return false;
+      }
+
+      return true;
     },
 
     signOut: allowOnlyOneSubmit(function () {
@@ -236,7 +268,8 @@ define(function (require, exports, module) {
     View,
     AvatarMixin,
     LoadingMixin,
-    SignedOutNotificationMixin
+    SignedOutNotificationMixin,
+    UserAgentMixin
   );
 
   module.exports = View;
