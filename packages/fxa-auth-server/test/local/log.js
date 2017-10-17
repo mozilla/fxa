@@ -371,9 +371,9 @@ describe('log', () => {
     assert.equal(logger.error.callCount, 1, 'logger.error was called once')
     const args = logger.error.args[0]
     assert.equal(args.length, 2, 'logger.error was passed two arguments')
-    assert.equal(args[0], 'log.amplitudeEvent', 'first argument was function name')
+    assert.equal(args[0], 'amplitude.missingData', 'first argument was error op')
     assert.deepEqual(args[1], {
-      op: 'log.amplitudeEvent',
+      op: 'amplitude.missingData',
       data: undefined
     }, 'second argument was correct')
 
@@ -391,9 +391,9 @@ describe('log', () => {
     assert.equal(logger.error.callCount, 1, 'logger.error was called once')
     const args = logger.error.args[0]
     assert.equal(args.length, 2, 'logger.error was passed two arguments')
-    assert.equal(args[0], 'log.amplitudeEvent', 'first argument was function name')
+    assert.equal(args[0], 'amplitude.missingData', 'first argument was error op')
     assert.deepEqual(args[1], {
-      op: 'log.amplitudeEvent',
+      op: 'amplitude.missingData',
       data: { device_id: 'foo', user_id: 'bar' }
     }, 'second argument was correct')
 
@@ -411,9 +411,9 @@ describe('log', () => {
     assert.equal(logger.error.callCount, 1, 'logger.error was called once')
     const args = logger.error.args[0]
     assert.equal(args.length, 2, 'logger.error was passed two arguments')
-    assert.equal(args[0], 'log.amplitudeEvent', 'first argument was function name')
+    assert.equal(args[0], 'amplitude.missingData', 'first argument was error op')
     assert.deepEqual(args[1], {
-      op: 'log.amplitudeEvent',
+      op: 'amplitude.missingData',
       data: { event_type: 'foo' }
     }, 'second argument was correct')
 
