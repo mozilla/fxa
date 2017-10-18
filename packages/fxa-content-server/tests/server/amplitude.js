@@ -175,6 +175,22 @@ define([
       }, {
         headers: {}
       }, {
+        deviceId: 'b',
+        flowBeginTime: 'c',
+        flowId: 'd',
+        lang: 'e',
+        uid: 'f'
+      });
+      assert.equal(process.stderr.write.callCount, 0);
+    },
+
+    'settings.clients.disconnect.submit.suspicious': () => {
+      amplitude({
+        time: 'a',
+        type: 'settings.clients.disconnect.submit.suspicious'
+      }, {
+        headers: {}
+      }, {
         deviceId: 'none',
         flowBeginTime: 'b',
         flowId: 'c',
@@ -184,9 +200,29 @@ define([
       assert.equal(process.stderr.write.callCount, 1);
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
+      assert.equal(arg.event_properties.reason, 'suspicious');
       assert.isUndefined(arg.device_id);
       assert.isUndefined(arg.event_properties.device_id);
       assert.isUndefined(arg.user_id);
+    },
+
+    'settings.clients.disconnect.submit.duplicate': () => {
+      amplitude({
+        time: 'a',
+        type: 'settings.clients.disconnect.submit.duplicate'
+      }, {
+        headers: {}
+      }, {
+        deviceId: 'b',
+        flowBeginTime: 'c',
+        flowId: 'd',
+        lang: 'e',
+        uid: 'f'
+      });
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
+      assert.equal(arg.event_properties.reason, 'duplicate');
     },
 
     'settings.signout.success': () => {

@@ -69,10 +69,6 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'password'
   },
-  'settings.clients.disconnect.submit': {
-    group: GROUPS.settings,
-    event: 'disconnect_device'
-  },
   'settings.signout.success': {
     group: GROUPS.settings,
     event: 'logout'
@@ -107,6 +103,10 @@ const FUZZY_EVENTS = new Map([
     group: GROUPS.settings,
     event: 'newsletter'
   } ],
+  [ /^settings\.clients\.disconnect\.submit\.([a-z]+)$/, {
+    group: GROUPS.settings,
+    event: 'disconnect_device'
+  } ],
   [ /^([\w-]+).verification.success$/, {
     isDynamicGroup: true,
     group: eventCategory => eventCategory in EMAIL_TYPES ? GROUPS.email : null,
@@ -120,7 +120,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.email]: mixProperties(mapEmailType, mapService),
   [GROUPS.login]: mixProperties(mapEntrypoint, mapService),
   [GROUPS.registration]: mixProperties(mapEntrypoint, mapService),
-  [GROUPS.settings]: mapEntrypoint,
+  [GROUPS.settings]: mixProperties(mapEntrypoint, mapDisconnectReason),
   [GROUPS.sms]: NOP
 };
 
@@ -176,7 +176,7 @@ function receiveEvent (event, request, data) {
           device_id: marshallOptionalValue(data.deviceId),
           event_type: `${group} - ${mapping.event}`,
           session_id: data.flowBeginTime,
-          event_properties: mapEventProperties(group, eventCategory, data),
+          event_properties: mapEventProperties(group, mapping.event, eventCategory, data),
           user_properties: mapUserProperties(group, eventCategory, data, userAgent),
           app_version: APP_VERSION,
           language: data.lang
@@ -186,10 +186,10 @@ function receiveEvent (event, request, data) {
   }
 }
 
-function mapEventProperties (group, eventCategory, data) {
+function mapEventProperties (group, event, eventCategory, data) {
   return Object.assign({
     device_id: marshallOptionalValue(data.deviceId)
-  }, EVENT_PROPERTIES[group](eventCategory, data));
+  }, EVENT_PROPERTIES[group](event, eventCategory, data));
 }
 
 function mapUserProperties (group, eventCategory, data, userAgent) {
@@ -251,7 +251,8 @@ function mapDevice (userAgent) {
 }
 
 function mixProperties (...mappers) {
-  return (eventCategory, data) => Object.assign({}, ...mappers.map(m => m(eventCategory, data)));
+  return (event, eventCategory, data) =>
+    Object.assign({}, ...mappers.map(m => m(event, eventCategory, data)));
 }
 
 function mapExperiments (data) {
@@ -269,21 +270,27 @@ function toSnakeCase (string) {
     .replace(/-/g, '_');
 }
 
-function mapEmailType (eventCategory) {
+function mapDisconnectReason (event, eventCategory) {
+  if (event === 'disconnect_device' && eventCategory) {
+    return { reason: eventCategory };
+  }
+}
+
+function mapEmailType (event, eventCategory) {
   const email_type = EMAIL_TYPES[eventCategory];
   if (email_type) {
     return { email_type };
   }
 }
 
-function mapEntrypoint (eventCategory, data) {
+function mapEntrypoint (event, eventCategory, data) {
   const entrypoint = marshallOptionalValue(data.entrypoint);
   if (entrypoint) {
     return { entrypoint };
   }
 }
 
-function mapService (eventCategory, data) {
+function mapService (event, eventCategory, data) {
   const service = marshallOptionalValue(data.service);
   if (service) {
     return { service: SERVICES[service] || service };
