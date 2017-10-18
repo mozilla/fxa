@@ -10,7 +10,7 @@ const isA = require('joi')
 const SCHEMA = isA.array().items(isA.string()).optional()
 
 module.exports = config => {
-  const lastAccessTimeUpdates = config.lastAccessTimeUpdates
+  const lastAccessTimeUpdates = config.lastAccessTimeUpdates || {}
 
   return {
     /**

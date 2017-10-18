@@ -210,7 +210,16 @@ describe('remote db', function() {
           assert.equal(result, undefined)
           assert.equal(redisSetSpy.lastCall, null, 'session token was not updated if lastAccessTimeUpdates flag is false')
 
-          // Enable session token updates
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+        })
+        .then(sessions => {
+          assert.equal(sessions.length, 1, 'sessions contains one item')
+          assert.equal(Object.keys(sessions[0]).length, 18, 'session has correct number of properties')
+          assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
+          assert.equal(sessions[0].lastAccessTime, undefined, 'lastAccessTime not reported if disabled')
+
+          // Re-enable session token updates
           lastAccessTimeUpdates.enabled = true
 
           // Fetch the session token
@@ -364,7 +373,7 @@ describe('remote db', function() {
         name: 'wibble'
       }
       return db.emailRecord(account.email)
-          .then(function (emailRecord) {
+          .then((emailRecord) => {
             emailRecord.tokenVerificationId = account.tokenVerificationId
             emailRecord.uaBrowser = 'Firefox Mobile'
             emailRecord.uaBrowserVersion = '41'
@@ -376,17 +385,17 @@ describe('remote db', function() {
             // Create a session token
             return db.createSessionToken(emailRecord)
           })
-          .then(function (result) {
+          .then((result) => {
             sessionToken = result
             // Attempt to update a non-existent device
             return db.updateDevice(account.uid, sessionToken.id, deviceInfo)
-              .then(function () {
+              .then(() => {
                 assert(false, 'updating a non-existent device should have failed')
-              }, function (err) {
+              }, (err) => {
                 assert.equal(err.errno, 123, 'err.errno === 123')
               })
           })
-          .then(function () {
+          .then(() => {
             // Attempt to delete a non-existent device
             return db.deleteDevice(account.uid, deviceInfo.id)
               .then(function () {
@@ -395,23 +404,23 @@ describe('remote db', function() {
                 assert.equal(err.errno, 123, 'err.errno === 123')
               })
           })
-          .then(function () {
+          .then(() => {
             // Fetch all of the devices for the account
             return db.devices(account.uid)
               .catch(function () {
                 assert(false, 'getting devices should not have failed')
               })
           })
-          .then(function (devices) {
+          .then((devices) => {
             assert.ok(Array.isArray(devices), 'devices is array')
             assert.equal(devices.length, 0, 'devices array is empty')
             // Create a device
             return db.createDevice(account.uid, sessionToken.id, deviceInfo)
-              .catch(function (err) {
+              .catch((err) => {
                 assert(false, 'adding a new device should not have failed')
               })
           })
-          .then(function (device) {
+          .then((device) => {
             assert.ok(device.id, 'device.id is set')
             assert.ok(device.createdAt > 0, 'device.createdAt is set')
             assert.equal(device.name, deviceInfo.name, 'device.name is correct')
@@ -427,22 +436,22 @@ describe('remote db', function() {
             assert.equal(sessionToken.lifetime, Infinity)
             // Attempt to create a device with a duplicate session token
             return db.createDevice(account.uid, sessionToken.id, conflictingDeviceInfo)
-              .then(function () {
+              .then(() => {
                 assert(false, 'adding a device with a duplicate session token should have failed')
-              }, function (err) {
+              }, (err) => {
                 assert.equal(err.errno, 124, 'err.errno')
                 assert.equal(err.output.payload.deviceId, deviceInfo.id)
               })
           })
-          .then(function () {
+          .then(() => {
             // Fetch all of the devices for the account
             return db.devices(account.uid)
           })
-          .then(function (devices) {
+          .then((devices) => {
             assert.equal(devices.length, 1, 'devices array contains one item')
             return devices[0]
           })
-          .then(function (device) {
+          .then((device) => {
             assert.ok(device.id, 'device.id is set')
             assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
             assert.equal(device.name, deviceInfo.name, 'device.name is correct')
@@ -478,9 +487,6 @@ describe('remote db', function() {
                 }
               }))
             ])
-              .catch(function (err) {
-                assert(false, 'updating a new device or existing session token should not have failed')
-              })
           })
           .then(results => {
             const tokenToReturn = results[1][sessionToken.id]
@@ -489,26 +495,26 @@ describe('remote db', function() {
             // Create another session token
             return db.createSessionToken(sessionToken)
           })
-          .then(result =>{
+          .then(result => {
             anotherSessionToken = result
             // Create another device
             return db.createDevice(account.uid, anotherSessionToken.id, conflictingDeviceInfo)
           })
-          .then(() =>{
+          .then(() => {
             // Attempt to update a device with a duplicate session token
             return db.updateDevice(account.uid, anotherSessionToken.id, deviceInfo)
-              .then(function () {
+              .then(() => {
                 assert(false, 'updating a device with a duplicate session token should have failed')
-              }, function (err) {
+              }, (err) => {
                 assert.equal(err.errno, 124, 'err.errno')
                 assert.equal(err.output.payload.deviceId, conflictingDeviceInfo.id)
               })
           })
-          .then(() =>{
+          .then(() => {
             // Fetch all of the devices for the account
             return db.devices(account.uid)
           })
-          .then(function (devices) {
+          .then((devices) => {
             assert.equal(devices.length, 2, 'devices array contains two items')
 
             if (devices[0].id === deviceInfo.id) {
@@ -517,7 +523,7 @@ describe('remote db', function() {
 
             return devices[1]
           })
-          .then(function (device) {
+          .then((device) => {
             assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
             assert.equal(device.name, deviceInfo.name, 'device.name is correct')
             assert.equal(device.type, deviceInfo.type, 'device.type is correct')
@@ -531,14 +537,24 @@ describe('remote db', function() {
             assert.equal(device.uaOSVersion, '10.10', 'device.uaOSVersion is correct')
             assert.equal(device.uaDeviceType, null, 'device.uaDeviceType is correct')
             assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
+
+            // Disable session token updates
+            lastAccessTimeUpdates.enabled = false
+            return db.devices(account.uid)
+          })
+          .then((devices) => {
+            assert.equal(devices.length, 2, 'devices array contains two items')
+            assert.equal(devices[0].lastAccessTime, undefined, 'lastAccessTime is not set when feature is disabled')
+            assert.equal(devices[1].lastAccessTime, undefined, 'lastAccessTime is not set when feature is disabled')
+
+            // Re-enable session token updates
+            lastAccessTimeUpdates.enabled = true
+
             // Delete the devices
             return P.all([
               db.deleteDevice(account.uid, deviceInfo.id),
               db.deleteDevice(account.uid, conflictingDeviceInfo.id)
             ])
-              .catch(function () {
-                assert(false, 'deleting a device should not have failed')
-              })
           })
           .then(function () {
             // Fetch all of the devices for the account

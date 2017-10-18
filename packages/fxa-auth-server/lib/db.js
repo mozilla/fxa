@@ -274,6 +274,7 @@ module.exports = (
         }
         // for each db session token, if there is a matching redis token
         // overwrite the properties of the db token with the redis token values
+        const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(uid)
         const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : {}
         const sessions = mysqlSessionTokens.map((sessionToken) => {
           const id = sessionToken.tokenId
@@ -283,6 +284,10 @@ module.exports = (
             id
           })
           delete mergedToken.tokenId
+          // Don't return potentially-stale lastAccessTime
+          if (! lastAccessTimeEnabled) {
+            mergedToken.lastAccessTime = null
+          }
           return mergedToken
         })
         log.info({
@@ -451,15 +456,16 @@ module.exports = (
           hasRedisTokens: !! redisSessionTokens.length,
           numRedisTokens: redisSessionTokens.length
         })
-        // for each device, if there is a redis token with a matching tokenId
+        // for each device, if there is a redis token with a matching tokenId,
         // overwrite device's ua properties and lastAccessTime with redis token values
+        const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(uid)
         return devices.map(device => {
           const token = redisSessionTokens[device.sessionTokenId]
           const mergedInfo = Object.assign({}, device, token)
           return {
             id: device.id,
             sessionToken: device.sessionTokenId,
-            lastAccessTime: mergedInfo.lastAccessTime,
+            lastAccessTime: lastAccessTimeEnabled ? mergedInfo.lastAccessTime : null,
             name: device.name,
             type: device.type,
             pushCallback: device.callbackURL,
@@ -547,7 +553,6 @@ module.exports = (
       sessionTokens[token.id] = newToken
       return sessionTokens
     })
-    // add new updated token into array, and set the resulting array as the new value
     .then(() => {
       return this.redis.setAsync(uid, JSON.stringify(sessionTokens))
     })
