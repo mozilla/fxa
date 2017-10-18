@@ -475,7 +475,7 @@ module.exports = function (log) {
 
     return this.send(Object.assign({}, message, {
       headers,
-      subject: gettext('Verify email for Firefox Accounts'),
+      subject: gettext('Verify secondary email'),
       template: templateName,
       templateValues: {
         device: this._formatUserAgentInfo(message),
