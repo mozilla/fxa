@@ -1,3 +1,29 @@
+<a name="1.98.0"></a>
+# [1.98.0](https://github.com/mozilla/fxa-auth-server/compare/v1.97.5...v1.98.0) (2017-10-18)
+
+
+### Bug Fixes
+
+* **config:** add smsmock to dev config ([6852ce6](https://github.com/mozilla/fxa-auth-server/commit/6852ce6))
+* **devices:** Avoid reporting stale last-access times when feature is disabled. (#2144); r=phi ([e8ce382](https://github.com/mozilla/fxa-auth-server/commit/e8ce382))
+* **logging:** more clearly distinguish amplitude error messages ([d205c9a](https://github.com/mozilla/fxa-auth-server/commit/d205c9a))
+* **logging:** silence annoying redis log noise (#2164), r=@vbudhram ([a397b67](https://github.com/mozilla/fxa-auth-server/commit/a397b67))
+* **metrics:** don't emit os_version if os_name is unset (#2165), r=@vbudhram ([c60f198](https://github.com/mozilla/fxa-auth-server/commit/c60f198))
+* **metrics:** map service event property from client id ([5be3475](https://github.com/mozilla/fxa-auth-server/commit/5be3475))
+* **push:** Allow sending verification messages from /devices/notify (#2161), r=@rfk ([717253f](https://github.com/mozilla/fxa-auth-server/commit/717253f))
+* **push:** Target `Firefox Beta` for account verification messages (#2167), r=@rfk (#2170) ([37349fe](https://github.com/mozilla/fxa-auth-server/commit/37349fe))
+* **tests:** unify the mock log implementations ([d959491](https://github.com/mozilla/fxa-auth-server/commit/d959491))
+
+### Features
+
+* **sqs:** Add timestamp to notify services sqs message (#2168), r=@rfk ([89e1ad1](https://github.com/mozilla/fxa-auth-server/commit/89e1ad1))
+
+### Refactor
+
+* **tokens:** prefer token.id to token.tokenId ([80d3de1](https://github.com/mozilla/fxa-auth-server/commit/80d3de1))
+
+
+
 <a name="1.97.5"></a>
 ## [1.97.5](https://github.com/mozilla/fxa-auth-server/compare/v1.97.4...v1.97.5) (2017-10-17)
 
