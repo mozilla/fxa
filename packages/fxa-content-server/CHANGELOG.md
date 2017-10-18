@@ -1,3 +1,13 @@
+<a name="1.98.1"></a>
+## 1.98.1 (2017-10-18)
+
+
+### Bug Fixes
+
+* **metrics:** add missing reason property to disconnect event ([ae97461](https://github.com/mozilla/fxa-content-server/commit/ae97461))
+
+
+
 <a name="1.98.0"></a>
 # 1.98.0 (2017-10-17)
 
