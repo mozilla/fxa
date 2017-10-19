@@ -1,3 +1,17 @@
+<a name="1.98.2"></a>
+## 1.98.2 (2017-10-19)
+
+
+### Bug Fixes
+
+* **style:** Ensure the content box-shadow is not visibile in the firstrun flow. (#5614), r=@ ([ecab8bb](https://github.com/mozilla/fxa-content-server/commit/ecab8bb))
+
+### Features
+
+* **metrics:** emit raw navtiming flow events ([4d194c1](https://github.com/mozilla/fxa-content-server/commit/4d194c1))
+
+
+
 <a name="1.98.1"></a>
 ## 1.98.1 (2017-10-18)
 
