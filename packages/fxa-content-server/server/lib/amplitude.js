@@ -21,6 +21,8 @@
 
 'use strict';
 
+const geolocate = require('./geo-locate');
+const P = require('bluebird');
 const ua = require('node-uap');
 
 const SERVICES = require('./configuration').get('oauth_client_id_map');
@@ -136,7 +138,7 @@ module.exports = receiveEvent;
 
 function receiveEvent (event, request, data) {
   if (! event || ! data) {
-    return;
+    return P.resolve();
   }
 
   const eventType = event.type;
@@ -156,34 +158,40 @@ function receiveEvent (event, request, data) {
     }
   }
 
-  if (mapping) {
-    let group = mapping.group;
-    if (mapping.isDynamicGroup) {
-      group = group(eventCategory);
-      if (! group) {
-        return;
+  return P.resolve()
+    .then(() => {
+      if (mapping) {
+        let group = mapping.group;
+        if (mapping.isDynamicGroup) {
+          group = group(eventCategory);
+          if (! group) {
+            return;
+          }
+        }
+
+        return geolocate(request)
+          .then(location => {
+            const userAgent = ua.parse(request.headers['user-agent']);
+
+            process.stderr.write(`${
+              JSON.stringify(
+                Object.assign({
+                  op: 'amplitudeEvent',
+                  time: event.time,
+                  user_id: marshallOptionalValue(data.uid),
+                  device_id: marshallOptionalValue(data.deviceId),
+                  event_type: `${group} - ${mapping.event}`,
+                  session_id: data.flowBeginTime,
+                  event_properties: mapEventProperties(group, mapping.event, eventCategory, data),
+                  user_properties: mapUserProperties(group, eventCategory, data, userAgent),
+                  app_version: APP_VERSION,
+                  language: data.lang
+                }, mapOs(userAgent), mapDevice(userAgent), mapLocation(location))
+              )
+            }\n`);
+          });
       }
-    }
-
-    const userAgent = ua.parse(request.headers['user-agent']);
-
-    process.stderr.write(`${
-      JSON.stringify(
-        Object.assign({
-          op: 'amplitudeEvent',
-          time: event.time,
-          user_id: marshallOptionalValue(data.uid),
-          device_id: marshallOptionalValue(data.deviceId),
-          event_type: `${group} - ${mapping.event}`,
-          session_id: data.flowBeginTime,
-          event_properties: mapEventProperties(group, mapping.event, eventCategory, data),
-          user_properties: mapUserProperties(group, eventCategory, data, userAgent),
-          app_version: APP_VERSION,
-          language: data.lang
-        }, mapOs(userAgent), mapDevice(userAgent))
-      )
-    }\n`);
-  }
+    });
 }
 
 function mapEventProperties (group, event, eventCategory, data) {
@@ -222,6 +230,15 @@ function mapUserAgentProperties (userAgent, key, familyProperty, versionProperty
     return {
       [familyProperty]: family,
       [versionProperty]: marshallVersion(group)
+    };
+  }
+}
+
+function mapLocation (location) {
+  if (location && (location.country || location.state)) {
+    return {
+      country: location.country,
+      region: location.state
     };
   }
 }

@@ -51,13 +51,21 @@ define([
       assert.doesNotThrow(() => amplitude(null, {}));
     },
 
+    'does not reject if arguments are missing': () => {
+      return amplitude()
+        .then(() => amplitude('foo'))
+        .then(() => amplitude(null, {}));
+    },
+
     'flow.reset-password.submit': () => {
-      amplitude({
+      return amplitude({
         time: 'foo',
         type: 'flow.reset-password.submit'
       }, {
+        connection: {},
         headers: {
-          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/58.0'
+          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/58.0',
+          'x-forwarded-for': '194.12.187.0'
         }
       }, {
         deviceId: 'bar',
@@ -78,54 +86,59 @@ define([
         utm_medium: 'derp',
         utm_source: 'bnag',
         utm_term: 'plin'
-      });
-      assert.equal(process.stderr.write.callCount, 1);
-      const args = process.stderr.write.args[0];
-      assert.lengthOf(args, 1);
-      assert.typeOf(args[0], 'string');
-      assert.equal(args[0][args[0].length - 1], '\n');
-      assert.deepEqual(JSON.parse(args[0]), {
-        app_version: APP_VERSION,
-        device_id: 'bar',
-        event_properties: {
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const args = process.stderr.write.args[0];
+        assert.lengthOf(args, 1);
+        assert.typeOf(args[0], 'string');
+        assert.equal(args[0][args[0].length - 1], '\n');
+        assert.deepEqual(JSON.parse(args[0]), {
+          app_version: APP_VERSION,
+          country: 'Switzerland',
           device_id: 'bar',
-          entrypoint: 'baz',
-          service: 'amo'
-        },
-        event_type: 'fxa_login - forgot_submit',
-        language: 'blee',
-        op: 'amplitudeEvent',
-        os_name: 'Mac OS X',
-        os_version: '10.11',
-        session_id: 'qux',
-        time: 'foo',
-        user_id: 'soop',
-        user_properties: {
-          experiments: [
-            'first_experiment_group_one',
-            'second_experiment_group_two',
-            'third_experiment_group_three',
-            'fourth_experiment_group_four'
-          ],
-          flow_id: 'wibble',
-          ua_browser: 'Firefox',
-          ua_version: '58',
-          utm_campaign: 'melm',
-          utm_content: 'florg',
-          utm_medium: 'derp',
-          utm_source: 'bnag',
-          utm_term: 'plin'
-        }
+          event_properties: {
+            device_id: 'bar',
+            entrypoint: 'baz',
+            service: 'amo'
+          },
+          event_type: 'fxa_login - forgot_submit',
+          language: 'blee',
+          op: 'amplitudeEvent',
+          os_name: 'Mac OS X',
+          os_version: '10.11',
+          region: 'Geneva',
+          session_id: 'qux',
+          time: 'foo',
+          user_id: 'soop',
+          user_properties: {
+            experiments: [
+              'first_experiment_group_one',
+              'second_experiment_group_two',
+              'third_experiment_group_three',
+              'fourth_experiment_group_four'
+            ],
+            flow_id: 'wibble',
+            ua_browser: 'Firefox',
+            ua_version: '58',
+            utm_campaign: 'melm',
+            utm_content: 'florg',
+            utm_medium: 'derp',
+            utm_source: 'bnag',
+            utm_term: 'plin'
+          }
+        });
       });
     },
 
     'settings.change-password.success': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'settings.change-password.success'
       }, {
+        connection: {},
         headers: {
-          'user-agent': 'Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A406 Safari/8536.25'
+          'user-agent': 'Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A406 Safari/8536.25',
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
@@ -141,144 +154,172 @@ define([
         utm_medium: 'k',
         utm_source: 'l',
         utm_term: 'm'
-      });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.deepEqual(arg, {
-        app_version: APP_VERSION,
-        device_id: 'b',
-        device_model: 'iPad',
-        event_properties: {
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.deepEqual(arg, {
+          app_version: APP_VERSION,
+          country: 'United States',
           device_id: 'b',
-          entrypoint: 'c'
-        },
-        event_type: 'fxa_pref - password',
-        language: 'f',
-        op: 'amplitudeEvent',
-        os_name: 'iOS',
-        os_version: '6',
-        session_id: 'd',
-        time: 'a',
-        user_id: 'h',
-        user_properties: {
-          flow_id: 'e',
-          ua_browser: 'Mobile Safari',
-          ua_version: '6'
-        }
+          device_model: 'iPad',
+          event_properties: {
+            device_id: 'b',
+            entrypoint: 'c'
+          },
+          event_type: 'fxa_pref - password',
+          language: 'f',
+          op: 'amplitudeEvent',
+          os_name: 'iOS',
+          os_version: '6',
+          region: 'California',
+          session_id: 'd',
+          time: 'a',
+          user_id: 'h',
+          user_properties: {
+            flow_id: 'e',
+            ua_browser: 'Mobile Safari',
+            ua_version: '6'
+          }
+        });
       });
     },
 
     'settings.clients.disconnect.submit': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'settings.clients.disconnect.submit'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         deviceId: 'b',
         flowBeginTime: 'c',
         flowId: 'd',
         lang: 'e',
         uid: 'f'
-      });
-      assert.equal(process.stderr.write.callCount, 0);
+      }).then(() => assert.equal(process.stderr.write.callCount, 0));
     },
 
     'settings.clients.disconnect.submit.suspicious': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'settings.clients.disconnect.submit.suspicious'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         deviceId: 'none',
         flowBeginTime: 'b',
         flowId: 'c',
         lang: 'd',
         uid: 'none'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
+        assert.equal(arg.event_properties.reason, 'suspicious');
+        assert.isUndefined(arg.device_id);
+        assert.isUndefined(arg.event_properties.device_id);
+        assert.isUndefined(arg.user_id);
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
-      assert.equal(arg.event_properties.reason, 'suspicious');
-      assert.isUndefined(arg.device_id);
-      assert.isUndefined(arg.event_properties.device_id);
-      assert.isUndefined(arg.user_id);
     },
 
     'settings.clients.disconnect.submit.duplicate': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'settings.clients.disconnect.submit.duplicate'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         deviceId: 'b',
         flowBeginTime: 'c',
         flowId: 'd',
         lang: 'e',
         uid: 'f'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
+        assert.equal(arg.event_properties.reason, 'duplicate');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
-      assert.equal(arg.event_properties.reason, 'duplicate');
     },
 
     'settings.signout.success': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'settings.signout.success'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_pref - logout');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_pref - logout');
     },
 
     'flow.force-auth.engage': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'flow.force-auth.engage'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_login - engage');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - engage');
     },
 
     'flow.signin.engage': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'flow.signin.engage'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_login - engage');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - engage');
     },
 
     'flow.signup.engage': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'flow.signup.engage'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         deviceId: 'b',
         entrypoint: 'c',
@@ -292,213 +333,259 @@ define([
         utm_medium: 'k',
         utm_source: 'l',
         utm_term: 'm'
-      });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_reg - engage');
-      assert.deepEqual(arg, {
-        app_version: APP_VERSION,
-        device_id: 'b',
-        event_properties: {
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_reg - engage');
+        assert.deepEqual(arg, {
+          app_version: APP_VERSION,
+          country: 'Switzerland',
           device_id: 'b',
-          entrypoint: 'c',
-          service: 'pocket'
-        },
-        event_type: 'fxa_reg - engage',
-        language: 'f',
-        op: 'amplitudeEvent',
-        session_id: 'd',
-        time: 'a',
-        user_id: 'h',
-        user_properties: {
-          flow_id: 'e',
-          utm_campaign: 'i',
-          utm_content: 'j',
-          utm_medium: 'k',
-          utm_source: 'l',
-          utm_term: 'm'
-        }
+          event_properties: {
+            device_id: 'b',
+            entrypoint: 'c',
+            service: 'pocket'
+          },
+          event_type: 'fxa_reg - engage',
+          language: 'f',
+          op: 'amplitudeEvent',
+          region: 'Geneva',
+          session_id: 'd',
+          time: 'a',
+          user_id: 'h',
+          user_properties: {
+            flow_id: 'e',
+            utm_campaign: 'i',
+            utm_content: 'j',
+            utm_medium: 'k',
+            utm_source: 'l',
+            utm_term: 'm'
+          }
+        });
       });
     },
 
     'flow.reset-password.engage': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'flow.reset-password.engage'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      });
-      assert.equal(process.stderr.write.callCount, 0);
+      }).then(() => assert.equal(process.stderr.write.callCount, 0));
     },
 
     'flow.signin.forgot-password': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'flow.signin.forgot-password'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_login - forgot_pwd');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - forgot_pwd');
     },
 
     'flow.signin.have-account': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'flow.signin.have-account'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_reg - have_account');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_reg - have_account');
     },
 
     'flow.force-auth.submit': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'flow.signin.submit'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_login - submit');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - submit');
     },
 
     'flow.signin.submit': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'flow.signin.submit'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_login - submit');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - submit');
     },
 
     'flow.signup.submit': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'flow.signup.submit'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_reg - submit');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_reg - submit');
     },
 
     'flow.wibble.submit': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'flow.wibble.submit'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      });
-      assert.equal(process.stderr.write.callCount, 0);
+      }).then(() => assert.equal(process.stderr.write.callCount, 0));
     },
 
     'screen.force-auth': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'screen.force-auth'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_login - view');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - view');
     },
 
     'screen.signin': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'screen.signin'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_login - view');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - view');
     },
 
     'screen.signup': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'screen.signup'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_reg - view');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_reg - view');
     },
 
     'screen.settings': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'screen.settings'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_pref - view');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_pref - view');
     },
 
     'screen.sms': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'screen.sms'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         deviceId: 'b',
         entrypoint: 'c',
@@ -512,95 +599,113 @@ define([
         utm_medium: 'k',
         utm_source: 'l',
         utm_term: 'm'
-      });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.deepEqual(arg, {
-        app_version: APP_VERSION,
-        device_id: 'b',
-        event_properties: {
-          device_id: 'b'
-        },
-        event_type: 'fxa_sms - view',
-        language: 'f',
-        op: 'amplitudeEvent',
-        session_id: 'd',
-        time: 'a',
-        user_id: 'h',
-        user_properties: {
-          flow_id: 'e'
-        }
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.deepEqual(arg, {
+          app_version: APP_VERSION,
+          country: 'Switzerland',
+          device_id: 'b',
+          event_properties: {
+            device_id: 'b'
+          },
+          event_type: 'fxa_sms - view',
+          language: 'f',
+          op: 'amplitudeEvent',
+          region: 'Geneva',
+          session_id: 'd',
+          time: 'a',
+          user_id: 'h',
+          user_properties: {
+            flow_id: 'e'
+          }
+        });
       });
     },
 
     'screen.reset-password': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'screen.reset-password'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      });
-      assert.equal(process.stderr.write.callCount, 0);
+      }).then(() => assert.equal(process.stderr.write.callCount, 0));
     },
 
     'settings.communication-preferences.optIn.success': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'settings.communication-preferences.optIn.success'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_pref - newsletter');
+        assert.equal(arg.user_properties.newsletter_state, 'subscribed');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_pref - newsletter');
-      assert.equal(arg.user_properties.newsletter_state, 'subscribed');
     },
 
     'settings.communication-preferences.optOut.success': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'settings.communication-preferences.optOut.success'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_pref - newsletter');
+        assert.equal(arg.user_properties.newsletter_state, 'unsubscribed');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_pref - newsletter');
-      assert.equal(arg.user_properties.newsletter_state, 'unsubscribed');
     },
 
     'settings.communication-preferences.wibble.success': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'settings.communication-preferences.wibble.success'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      });
-      assert.equal(process.stderr.write.callCount, 0);
+      }).then(() => assert.equal(process.stderr.write.callCount, 0));
     },
 
     'complete-reset-password.verification.success': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'complete-reset-password.verification.success'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         deviceId: 'b',
         entrypoint: 'c',
@@ -614,75 +719,88 @@ define([
         utm_medium: 'k',
         utm_source: 'l',
         utm_term: 'm'
-      });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.deepEqual(arg, {
-        app_version: APP_VERSION,
-        device_id: 'b',
-        event_properties: {
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.deepEqual(arg, {
+          app_version: APP_VERSION,
+          country: 'Switzerland',
           device_id: 'b',
-          email_type: 'reset_password',
-          service: 'g'
-        },
-        event_type: 'fxa_email - click',
-        language: 'f',
-        op: 'amplitudeEvent',
-        session_id: 'd',
-        time: 'a',
-        user_id: 'h',
-        user_properties: {
-          flow_id: 'e'
-        }
+          event_properties: {
+            device_id: 'b',
+            email_type: 'reset_password',
+            service: 'g'
+          },
+          event_type: 'fxa_email - click',
+          language: 'f',
+          op: 'amplitudeEvent',
+          region: 'Geneva',
+          session_id: 'd',
+          time: 'a',
+          user_id: 'h',
+          user_properties: {
+            flow_id: 'e'
+          }
+        });
       });
     },
 
     'complete-signin.verification.success': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'complete-signin.verification.success'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_email - click');
+        assert.equal(arg.event_properties.email_type, 'login');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_email - click');
-      assert.equal(arg.event_properties.email_type, 'login');
     },
 
     'verify-email.verification.success': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'verify-email.verification.success'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_email - click');
+        assert.equal(arg.event_properties.email_type, 'registration');
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_email - click');
-      assert.equal(arg.event_properties.email_type, 'registration');
     },
 
     'wibble.verification.success': () => {
-      amplitude({
+      return amplitude({
         time: 'a',
         type: 'wibble.verification.success'
       }, {
-        headers: {}
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      });
-      assert.equal(process.stderr.write.callCount, 0);
+      }).then(() => assert.equal(process.stderr.write.callCount, 0));
     }
   });
 });

@@ -163,6 +163,20 @@ const conf = module.exports = convict({
     env: 'FXA_URL',
     format: 'url'
   },
+  geodb: {
+    dbPath: {
+      default: path.resolve(__dirname, '../../node_modules/fxa-geodb/db/cities-db.mmdb'),
+      doc: 'Path to maxmind database file',
+      env: 'GEODB_DBPATH',
+      format: String
+    },
+    enabled: {
+      default: true,
+      doc: 'Feature flag for geolocation',
+      env: 'GEODB_ENABLED',
+      format: Boolean
+    }
+  },
   google_analytics_id: {
     default: undefined,
     doc: 'Google Analytics id',

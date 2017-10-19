@@ -39,6 +39,13 @@ define([
         '../configuration': {
           getProperties: configSpy
         },
+        '../remote-address': proxyquire(path.resolve('server/lib/remote-address'), {
+          './configuration': {
+            get () {
+              return 1;
+            }
+          }
+        }),
         './log': function() {
           return {
             info: loggerSpy
