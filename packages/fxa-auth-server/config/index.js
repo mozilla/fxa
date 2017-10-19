@@ -728,7 +728,7 @@ var conf = convict({
     },
     countryCodes: {
       doc: 'Allow sending SMS to these ISO 3166-1 alpha-2 country codes',
-      default: ['CA', 'GB', 'US'],
+      default: ['AT', 'CA', 'DE', 'GB', 'US'],
       format: Array,
       env: 'SMS_COUNTRY_CODES'
     },

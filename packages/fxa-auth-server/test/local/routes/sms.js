@@ -42,7 +42,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
     config = {
       sms: {
         enabled: true,
-        countryCodes: [ 'CA', 'GB', 'US' ],
+        countryCodes: [ 'AT', 'CA', 'DE', 'GB', 'US' ],
         isStatusGeoEnabled: true
       }
     }
@@ -195,6 +195,52 @@ describe('/sms with the signinCodes feature included in the payload', () => {
 
       it('returns a formattedPhoneNumber', () => {
         assert.equal(response.formattedPhoneNumber, '20 7855 3000')
+      })
+    })
+
+    describe('AT phone number', () => {
+      beforeEach(() => {
+        request.payload.phoneNumber = '+43676641643'
+        return runTest(route, request)
+          .then((_response) => response = _response)
+      })
+
+      it('called sms.send correctly', () => {
+        assert.equal(sms.send.callCount, 1)
+        const args = sms.send.args[0]
+        assert.equal(args[0], '+43676641643')
+      })
+
+      it('called log.flowEvent correctly', () => {
+        assert.equal(log.flowEvent.callCount, 2)
+        assert.equal(log.flowEvent.args[0][0].event, 'sms.region.AT')
+      })
+
+      it('returns a formattedPhoneNumber', () => {
+        assert.equal(response.formattedPhoneNumber, '676 641643')
+      })
+    })
+
+    describe('DE phone number', () => {
+      beforeEach(() => {
+        request.payload.phoneNumber = '+49015153563252'
+        return runTest(route, request)
+          .then((_response) => response = _response)
+      })
+
+      it('called sms.send correctly', () => {
+        assert.equal(sms.send.callCount, 1)
+        const args = sms.send.args[0]
+        assert.equal(args[0], '+49015153563252')
+      })
+
+      it('called log.flowEvent correctly', () => {
+        assert.equal(log.flowEvent.callCount, 2)
+        assert.equal(log.flowEvent.args[0][0].event, 'sms.region.DE')
+      })
+
+      it('returns a formattedPhoneNumber', () => {
+        assert.equal(response.formattedPhoneNumber, '1515 3563252')
       })
     })
 
