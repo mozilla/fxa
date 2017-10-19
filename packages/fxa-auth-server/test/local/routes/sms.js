@@ -33,7 +33,7 @@ function runTest (route, request) {
 }
 
 describe('/sms with the signinCodes feature included in the payload', () => {
-  let log, signinCode, db, config, routes, route, request
+  let log, signinCode, db, config, routes, route, request, response
 
   beforeEach(() => {
     log = mocks.mockLog()
@@ -74,6 +74,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+18885083401'
         return runTest(route, request)
+          .then((_response) => response = _response)
       })
 
       it('called log.begin correctly', () => {
@@ -121,12 +122,17 @@ describe('/sms with the signinCodes feature included in the payload', () => {
         assert.equal(args[0].event, 'sms.installFirefox.sent')
         assert.equal(args[0].flow_id, request.payload.metricsContext.flowId)
       })
+
+      it('returns a formattedPhoneNumber', () => {
+        assert.equal(response.formattedPhoneNumber, '888-508-3401')
+      })
     })
 
     describe('Canada phone number', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+14168483114'
         return runTest(route, request)
+          .then((_response) => response = _response)
       })
 
       it('called log.begin once', () => {
@@ -151,12 +157,17 @@ describe('/sms with the signinCodes feature included in the payload', () => {
         assert.equal(log.flowEvent.callCount, 2)
         assert.equal(log.flowEvent.args[0][0].event, 'sms.region.CA')
       })
+
+      it('returns a formattedPhoneNumber', () => {
+        assert.equal(response.formattedPhoneNumber, '416-848-3114')
+      })
     })
 
     describe('UK phone number', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+442078553000'
         return runTest(route, request)
+          .then((_response) => response = _response)
       })
 
       it('called log.begin once', () => {
@@ -180,6 +191,10 @@ describe('/sms with the signinCodes feature included in the payload', () => {
       it('called log.flowEvent correctly', () => {
         assert.equal(log.flowEvent.callCount, 2)
         assert.equal(log.flowEvent.args[0][0].event, 'sms.region.GB')
+      })
+
+      it('returns a formattedPhoneNumber', () => {
+        assert.equal(response.formattedPhoneNumber, '20 7855 3000')
       })
     })
 

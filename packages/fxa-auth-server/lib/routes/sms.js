@@ -98,7 +98,9 @@ module.exports = (log, db, config, customs, sms) => {
         }
 
         function createResponse () {
-          return {}
+          return {
+            formattedPhoneNumber: phoneNumberUtil.format(parsedPhoneNumber, 'international')
+          }
         }
       }
     },
