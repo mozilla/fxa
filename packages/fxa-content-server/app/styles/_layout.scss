@@ -20,6 +20,11 @@
     }
   }
 
+  &:focus-within {
+    box-shadow: 0 4px 16px rgba($grey-90, .1);
+    transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
+  }
+
   @include respond-to('big') {
     border-radius: $big-border-radius;
     box-shadow: 0 2px 8px rgba($grey-90, .1);
@@ -94,10 +99,6 @@
   }
 }
 
-#main-content:focus-within {
-  box-shadow: 0 4px 16px rgba($grey-90, .1);
-  transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
-}
 
 #fxa-settings-header {
   margin: 0 auto;
