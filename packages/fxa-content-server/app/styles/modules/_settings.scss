@@ -264,6 +264,7 @@ body.settings #main-content.card {
       background: $button-background-default-color;
       border: solid 1px $button-border-disabled-color;
       color: $button-disabled-color;
+      opacity: 0.5;
     }
   }
 
