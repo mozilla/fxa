@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   const BackMixin = require('./mixins/back-mixin');
   const BaseView = require('./base');
   const Cocktail = require('cocktail');
-  const CountryTelephoneInfo = require('../lib/country-telephone-info');
   const { FIREFOX_MOBILE_INSTALL } = require('../lib/sms-message-ids');
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const { MARKETING_ID_AUTUMN_2016 } = require('../lib/constants');
@@ -21,12 +20,17 @@ define(function (require, exports, module) {
   const SmsMixin = require('./mixins/sms-mixin');
   const Template = require('stache!templates/sms_sent');
 
+  function arePrereqsMet (model) {
+    return model.has('normalizedPhoneNumber') &&
+           model.has('formattedPhoneNumber');
+  }
+
   const View = BaseView.extend({
     template: Template,
     mustAuth: true,
 
     beforeRender () {
-      if (! this.model.get('normalizedPhoneNumber') || ! this.model.get('country')) {
+      if (! arePrereqsMet(this.model)) {
         this.navigate('sms');
       }
     },
@@ -37,7 +41,7 @@ define(function (require, exports, module) {
         // escape them, causing the id to be the string `"back"`, and the href
         // to be the string `"#"`.
         escapedBackLinkAttrs: _.escape('id=back href=#'),
-        escapedPhoneNumber: _.escape(this._getFormattedPhoneNumber()),
+        escapedPhoneNumber: _.escape(this.model.get('formattedPhoneNumber')),
         isResend: this.model.get('isResend')
       });
     },
@@ -52,12 +56,6 @@ define(function (require, exports, module) {
         this.model.set('isResend', true);
         return this.render();
       });
-    },
-
-    _getFormattedPhoneNumber () {
-      const { country, normalizedPhoneNumber } = this.model.toJSON();
-      const countryInfo = CountryTelephoneInfo[country];
-      return countryInfo.format(normalizedPhoneNumber);
     }
   });
 

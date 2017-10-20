@@ -30,7 +30,7 @@ define((require, exports, module) => {
       metrics = new Metrics();
       model = new Backbone.Model({
         account,
-        country: 'US',
+        formattedPhoneNumber: '123-456-7890',
         normalizedPhoneNumber: '+11234567890'
       });
 
@@ -54,6 +54,18 @@ define((require, exports, module) => {
       view = null;
     });
 
+    it('returns to `sms` if no `formattedPhoneNumber`', () => {
+      sinon.spy(view, 'navigate');
+
+      model.unset('formattedPhoneNumber');
+
+      return view.render()
+       .then(() => {
+         assert.isTrue(view.navigate.calledOnce);
+         assert.isTrue(view.navigate.calledWith('sms'));
+       });
+    });
+
     it('returns to `sms` if no `normalizedPhoneNumber`', () => {
       sinon.spy(view, 'navigate');
 
@@ -66,24 +78,7 @@ define((require, exports, module) => {
        });
     });
 
-    it('returns to `sms` if no `country`', () => {
-      sinon.spy(view, 'navigate');
-
-      model.unset('country');
-
-      return view.render()
-       .then(() => {
-         assert.isTrue(view.navigate.calledOnce);
-         assert.isTrue(view.navigate.calledWith('sms'));
-       });
-    });
-
-    it('renders a US phone number correctly, shows marketing', () => {
-      model.set({
-        country: 'US',
-        phoneNumber: '+11234567890'
-      });
-
+    it('renders phone number, shows marketing', () => {
       return view.render()
        .then(() => {
          assert.include(view.$('.success').text(), '123-456-7890');
@@ -105,18 +100,6 @@ define((require, exports, module) => {
          assert.equal(metrics.logMarketingClick.args[1][0], 'autumn-2016-connect-another-device');
          assert.isTrue(view.logFlowEvent.calledTwice);
          assert.isTrue(view.logFlowEvent.calledWith('link.app-store.android', 'sms-sent'));
-       });
-    });
-
-    it('renders a GB phone number correctly', () => {
-      model.set({
-        country: 'GB',
-        normalizedPhoneNumber: '+441234567890'
-      });
-
-      return view.render()
-       .then(() => {
-         assert.include(view.$('.success').text(), '+44 1234 567890');
        });
     });
 

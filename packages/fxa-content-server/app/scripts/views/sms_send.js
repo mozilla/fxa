@@ -45,11 +45,6 @@ define(function (require, exports, module) {
       const escapedLearnMoreAttributes =
           `id="learn-more" href="${encodeURI(SmsSendView.LEARN_MORE_LINK)}" target="_learn-more" data-flow-event="link.learn_more"`;
 
-      // phoneNumber comes from formPrefill if the
-      // user submits a phone number, sees the incorrect
-      // number in the success message on /sms/sent, and
-      // clicks "Mistyped number?"
-      let phoneNumber = this.formPrefill.get('phoneNumber');
       let country = this._getCountry();
       if (! CountryTelephoneInfo[country]) {
         // this shouldn't be possible because only the Sync relier imports
@@ -58,6 +53,11 @@ define(function (require, exports, module) {
         country = 'US';
       }
       const prefix = CountryTelephoneInfo[country].prefix;
+      // phoneNumber comes from formPrefill if the
+      // user submits a phone number, sees the incorrect
+      // number in the success message on /sms/sent, and
+      // clicks "Mistyped number?"
+      let phoneNumber = this.formPrefill.get('phoneNumber');
       if (! phoneNumber && prefix !== CountryTelephoneInfo.US.prefix) {
         phoneNumber = prefix;
       }
@@ -115,8 +115,19 @@ define(function (require, exports, module) {
       return this.getAccount().sendSms(normalizedPhoneNumber, messageId, {
         features: this.getSmsFeatures()
       })
-      .then(() => this._onSendSmsSuccess())
+      .then(({ formattedPhoneNumber: serverPhoneNumber }) => this._onSendSmsSuccess(serverPhoneNumber))
       .fail((err) => this._onSendSmsError(err));
+    }
+
+    /**
+     * Format `serverPhoneNumber` for display.
+     *
+     * @param {String} serverPhoneNumber telephone number returned by server
+     * @returns {String}
+     */
+    _formatServerPhoneNumber (serverPhoneNumber) {
+      const country = this._getCountry();
+      return CountryTelephoneInfo[country].format(serverPhoneNumber);
     }
 
     /**
@@ -134,12 +145,16 @@ define(function (require, exports, module) {
     /**
      * SMS successfully sent
      *
+     * @param {String} serverPhoneNumber telephone number returned by server,
+     *   does not contain the country code prefix.
      * @private
      */
-    _onSendSmsSuccess () {
+    _onSendSmsSuccess (serverPhoneNumber) {
+      const country = this._getCountry();
       this.navigate('sms/sent', {
         account: this.getAccount(),
-        country: this._getCountry(),
+        country,
+        formattedPhoneNumber: this._formatServerPhoneNumber(serverPhoneNumber),
         normalizedPhoneNumber: this._getNormalizedPhoneNumber()
       });
     }

@@ -12,10 +12,10 @@ define((require, exports, module) => {
    * Each country entry should have the fields listed below.
    */
   /**
-   * Format a normalized phone number, expects country code prefix.
+   * Format `serverPhoneNumber` for display.
    *
    * @method format
-   * @param {String} num phone number to format.
+   * @param {String} serverPhoneNumber phone number returned by the server
    * @return {String} phone number formatted for country
    */
 
@@ -41,12 +41,20 @@ define((require, exports, module) => {
    * @type {String}
    */
 
+  /**
+   * Create a `format` function. `${serverPhoneNumber}` in `format`
+   * will be replaced with `serverPhoneNumber`
+   *
+   * @param {String} format
+   * @returns {Function}
+   */
+  function formatter (format) {
+    return (serverPhoneNumber) => format.replace(/\$\{serverPhoneNumber\}/, serverPhoneNumber);
+  }
+
   module.exports = {
     GB: {
-      format (num) {
-        // +44 1234 567890
-        return num.slice(0, 3) + ' ' + num.slice(3, 7) + ' ' + num.slice(7, 14);
-      },
+      format: formatter('+44 ${serverPhoneNumber}'),
       normalize (num) {
         if (/^\+44/.test(num)) {
           return num;
@@ -57,10 +65,7 @@ define((require, exports, module) => {
       prefix: '+44'
     },
     RO: {
-      format(num) {
-        // +40 7xx xxxxxx
-        return num.slice(0, 3) + ' ' + num.slice(3, 6) + ' ' + num.slice(6, 12);
-      },
+      format: formatter('+40 ${serverPhoneNumber}'),
       normalize(num) {
         // allow +40 country code prefix
         // as well as an extra 0 before the 7 prefix.
@@ -72,16 +77,12 @@ define((require, exports, module) => {
       },
       // +407xxxxxxxx, allow leading 0 for sloppiness.
       pattern: /^(?:\+40)?0?7\d{8,8}$/,
-      // The country code is +40, all mobile phones have a 7 prefix.
-      prefix: '+407'
-
+      prefix: '+40'
     },
     US: {
-      format (num) {
-        // Americans don't use country codes, drop the country code prefix
-        // 123-456-7890
-        return num.slice(2, 5) + '-' + num.slice(5, 8) + '-' + num.slice(8);
-      },
+      // Americans don't use country codes, just return the number
+      // as formatted by the backend.
+      format: (formattedNumber) => formattedNumber,
       normalize (num) {
         if (/^\+1/.test(num)) {
           return num;

@@ -14,7 +14,7 @@ define((require, exports, module) => {
 
       describe('format', () => {
         it('formats correctly', () => {
-          assert.equal(format('+441234567890'), '+44 1234 567890');
+          assert.equal(format('1234567890'), '+44 1234567890');
         });
       });
 
@@ -41,7 +41,7 @@ define((require, exports, module) => {
       const { format, normalize, pattern } = CountryTelephoneInfo.RO;
 
       it('formats correctly', () => {
-        assert.equal(format('+40712345678'), '+40 712 345678');
+        assert.equal(format('712345678'), '+40 712345678');
       });
 
       describe('normalize', () => {
@@ -72,8 +72,7 @@ define((require, exports, module) => {
       const { format, normalize, pattern } = CountryTelephoneInfo.US;
 
       it('formats correctly', () => {
-        assert.equal(format('+11234567890'), '123-456-7890');
-        assert.equal(format('+14234567890'), '423-456-7890');
+        assert.equal(format('1234567890'), '1234567890');
       });
 
       describe('normalize', () => {

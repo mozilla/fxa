@@ -11,6 +11,7 @@ define((require, exports, module) => {
   const AuthErrors = require('lib/auth-errors');
   const Broker = require('models/auth_brokers/base');
   const Backbone = require('backbone');
+  const CountryTelephoneInfo = require('lib/country-telephone-info');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
@@ -95,7 +96,7 @@ define((require, exports, module) => {
 
         return view.render()
           .then(() => {
-            assert.equal(view.$('input[type=tel]').__val(), '+407');
+            assert.equal(view.$('input[type=tel]').__val(), '+40');
             assert.equal(view.$('input[type=tel]').data('country'), 'RO');
           });
       });
@@ -146,7 +147,7 @@ define((require, exports, module) => {
     describe('submit', () => {
       describe('succeeds', () => {
         it('it delegates to `account.sendSms`, calls `_onSendSmsSuccess`', () => {
-          sinon.stub(account, 'sendSms').callsFake(() => p());
+          sinon.stub(account, 'sendSms').callsFake(() => p({ formattedPhoneNumber: '123-456-7890' }));
           sinon.spy(view, '_onSendSmsSuccess');
           sinon.stub(view, 'getSmsFeatures').callsFake(() => ['signinCodes']);
           view.$('input[type=tel]').val('1234567890');
@@ -160,6 +161,7 @@ define((require, exports, module) => {
 
               assert.isTrue(view.getSmsFeatures.calledOnce);
               assert.isTrue(view._onSendSmsSuccess.calledOnce);
+              assert.isTrue(view._onSendSmsSuccess.calledWith('123-456-7890'));
             });
         });
       });
@@ -186,14 +188,16 @@ define((require, exports, module) => {
     describe('_onSendSmsSuccess', () => {
       it('navigates to `sms/sent`', () => {
         sinon.spy(view, 'navigate');
+        sinon.stub(view, '_formatServerPhoneNumber').callsFake(() => '098-765-4321');
         view.$('input[type=tel]').val('1234567890');
 
-        view._onSendSmsSuccess();
+        view._onSendSmsSuccess('123-456-7890');
 
         assert.isTrue(view.navigate.calledOnce);
         assert.isTrue(view.navigate.calledWith('sms/sent'));
         const navigateOptions = view.navigate.args[0][1];
         assert.equal(navigateOptions.country, 'US');
+        assert.equal(navigateOptions.formattedPhoneNumber, '098-765-4321');
         assert.equal(navigateOptions.normalizedPhoneNumber, '+11234567890');
         assert.instanceOf(navigateOptions.account, Account);
       });
@@ -244,57 +248,46 @@ define((require, exports, module) => {
       });
     });
 
+    describe('_formatServerPhoneNumber', () => {
+      let sandbox;
+
+      beforeEach(() => {
+        sandbox = sinon.sandbox.create();
+        relier.set('country', 'US');
+      });
+
+      afterEach(() => {
+        sandbox.restore();
+      });
+
+      it('returns a formatted phone number', () => {
+        // no country code prefix
+        sandbox.stub(CountryTelephoneInfo.US, 'format').callsFake(() => '098-765-4321');
+        assert.equal(view._formatServerPhoneNumber('123-456-7890'), '098-765-4321');
+        assert.isTrue(CountryTelephoneInfo.US.format.calledOnce);
+        assert.isTrue(CountryTelephoneInfo.US.format.calledWith('123-456-7890'));
+      });
+    });
+
     describe('_getNormalizedPhoneNumber', () => {
-      describe('with a US phone number', () => {
-        beforeEach(() => {
-          relier.set('country', 'US');
-        });
+      let sandbox;
 
-        it('returns phone number with +1 prefix', () => {
-          // no country code prefix
-          view.$('input[type=tel]').val('1234567890');
-          assert.equal(view._getNormalizedPhoneNumber(), '+11234567890');
-
-          // user entered country code prefix w/o +
-          view.$('input[type=tel]').val('11234567890');
-          assert.equal(view._getNormalizedPhoneNumber(), '+11234567890');
-
-          // user entered country code prefix w/ +1
-          view.$('input[type=tel]').val('+11234567890');
-          assert.equal(view._getNormalizedPhoneNumber(), '+11234567890');
-        });
+      beforeEach(() => {
+        sandbox = sinon.sandbox.create();
+        relier.set('country', 'US');
       });
 
-      describe('with a GB phone number', () => {
-        beforeEach(() => {
-          relier.set('country', 'GB');
-        });
-
-        it('returns phone number with +44 prefix', () => {
-          // prefix is pre-filled in form
-          view.$('input[type=tel]').val('+441234567890');
-          assert.equal(view._getNormalizedPhoneNumber(), '+441234567890');
-
-          // prefix is not pre-filled in form
-          view.$('input[type=tel]').val('1234567890');
-          assert.equal(view._getNormalizedPhoneNumber(), '+441234567890');
-        });
+      afterEach(() => {
+        sandbox.restore();
       });
 
-      describe('with a RO phone number', () => {
-        beforeEach(() => {
-          relier.set('country', 'RO');
-        });
-
-        it('returns phone number with +40 prefix', () => {
-          // prefix is pre-filled in form
-          view.$('input[type=tel]').val('+401234567890');
-          assert.equal(view._getNormalizedPhoneNumber(), '+401234567890');
-
-          // prefix is not pre-filled in form
-          view.$('input[type=tel]').val('1234567890');
-          assert.equal(view._getNormalizedPhoneNumber(), '+401234567890');
-        });
+      it('returns a normalized phone number', () => {
+        // no country code prefix
+        sandbox.stub(CountryTelephoneInfo.US, 'normalize').callsFake(() => '+10987654321');
+        view.$('input[type=tel]').val('1234567890');
+        assert.equal(view._getNormalizedPhoneNumber(), '+10987654321');
+        assert.isTrue(CountryTelephoneInfo.US.normalize.calledOnce);
+        assert.isTrue(CountryTelephoneInfo.US.normalize.calledWith('1234567890'));
       });
     });
 
@@ -345,6 +338,5 @@ define((require, exports, module) => {
           });
       });
     });
-
   });
 });

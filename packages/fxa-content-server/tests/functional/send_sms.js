@@ -113,7 +113,7 @@
              country: 'RO'
            }
          }))
-         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, '+407'))
+         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, '+40'))
          .then(testAttributeEquals(selectors.SMS_SEND.PHONE_NUMBER, 'data-country', 'RO'));
      },
 
