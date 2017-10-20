@@ -776,7 +776,6 @@ section.modal-panel {
 
       .settings-button {
         height: 35px;
-        margin-left: 10px;
         /*minimum width required for the button to look good without occupying too much space*/
         /*is also the default computed width on desktop screen*/
         min-width: 100px;
@@ -784,7 +783,7 @@ section.modal-panel {
         width: 20%;
 
         &.set-primary {
-          margin-left: 0;
+          margin-right: 10px;
         }
       }
     }
