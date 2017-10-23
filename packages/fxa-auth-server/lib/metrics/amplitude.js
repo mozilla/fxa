@@ -218,7 +218,7 @@ module.exports = (log, config) => {
       sync_device_count: data.devices && data.devices.length,
       ua_browser: safeGet(browser),
       ua_version: safeGet(browserVersion)
-    }, getService(request))
+    }, getService(request), getNewsletterState(data))
   }
 
   function safeGet (value) {
@@ -243,6 +243,12 @@ module.exports = (log, config) => {
           fxa_services_used: service
         }
       }
+    }
+  }
+
+  function getNewsletterState (data) {
+    if (data.marketingOptIn === true || data.marketingOptIn === false) {
+      return { newsletter_state: data.marketingOptIn ? 'subscribed' : 'unsubscribed' }
     }
   }
 }

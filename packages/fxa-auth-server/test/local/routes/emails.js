@@ -428,9 +428,9 @@ describe('/recovery_email/verify_code', function () {
     }),
     query: {},
     payload: {
-      uid: uid,
       code: 'e3c5b0e3f5391e134596c27519979b93',
-      service: 'sync'
+      service: 'sync',
+      uid: uid
     }
   })
   var dbData = {
@@ -483,10 +483,16 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
         assert.deepEqual(args[0], {
           event: 'account.verified',
+          marketingOptIn: false,
           service: 'sync',
-          userAgent: 'test user-agent',
-          uid: uid.toString('hex')
+          uid: uid.toString('hex'),
+          userAgent: 'test user-agent'
         }, 'event data was correct')
+
+        assert.equal(mockLog.amplitudeEvent.callCount, 1, 'amplitudeEvent was called once')
+        args = mockLog.amplitudeEvent.args[0]
+        assert.equal(args[0].event_type, 'fxa_reg - email_confirmed', 'first call to amplitudeEvent was email_confirmed event')
+        assert.equal(args[0].user_properties.newsletter_state, 'unsubscribed', 'newsletter_state was correct')
 
         assert.equal(mockLog.flowEvent.callCount, 2, 'flowEvent was called twice')
         assert.equal(mockLog.flowEvent.args[0][0].event, 'email.verify_code.clicked', 'first event was email.verify_code.clicked')
@@ -516,10 +522,15 @@ describe('/recovery_email/verify_code', function () {
       mockRequest.payload.marketingOptIn = true
       return runTest(route, mockRequest, function (response) {
         assert.equal(mockLog.notifyAttachedServices.callCount, 1, 'logs verified')
-        const args = mockLog.notifyAttachedServices.args[0]
+        let args = mockLog.notifyAttachedServices.args[0]
         assert.equal(args[0], 'verified')
         assert.equal(args[2].uid, uid)
         assert.equal(args[2].marketingOptIn, true)
+
+        assert.equal(mockLog.amplitudeEvent.callCount, 2, 'amplitudeEvent was called twice')
+        args = mockLog.amplitudeEvent.args[1]
+        assert.equal(args[0].event_type, 'fxa_reg - email_confirmed', 'second call to amplitudeEvent was email_confirmed event')
+        assert.equal(args[0].user_properties.newsletter_state, 'subscribed', 'newsletter_state was correct')
 
         assert.equal(JSON.stringify(response), '{}')
       })

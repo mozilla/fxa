@@ -454,7 +454,10 @@ module.exports = (log, db, mailer, config, customs, push) => {
                         marketingOptIn: marketingOptIn ? true : undefined
                       }),
                       request.emitMetricsEvent('account.verified', {
-                        uid: uid
+                        // The content server omits marketingOptIn in the false case.
+                        // Force it so that we emit the appropriate newsletter state.
+                        marketingOptIn: marketingOptIn || false,
+                        uid
                       })
                     ])
                   })
