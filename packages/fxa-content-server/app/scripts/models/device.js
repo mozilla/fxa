@@ -14,6 +14,8 @@ define(function (require, exports, module) {
 
   var Device = Backbone.Model.extend({
     defaults: {
+      approximateLastAccessTime: null,
+      approximateLastAccessTimeFormatted: null,
       clientType: Constants.CLIENT_TYPE_DEVICE,
       genericOS: null,
       id: null,

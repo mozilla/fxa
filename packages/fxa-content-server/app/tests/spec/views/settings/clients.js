@@ -494,7 +494,7 @@ define(function (require, exports, module) {
           .then(() => {
             view.translator = {
               get: (untranslatedText) => {
-                if (untranslatedText === 'first sync %(translatedTimeAgo)s') {
+                if (untranslatedText === 'last sync %(translatedTimeAgo)s') {
                   return 'Translated %(translatedTimeAgo)s';
                 }
 
@@ -515,7 +515,7 @@ define(function (require, exports, module) {
           });
       });
 
-      it('supports first sync formatting', () => {
+      it('supports approximate sync formatting', () => {
         return initView()
           .then(() => {
             const now = Date.now();
@@ -532,18 +532,86 @@ define(function (require, exports, module) {
                 type: 'desktop'
               },
               {
+                approximateLastAccessTime: now,
+                approximateLastAccessTimeFormatted: '1 hour ago',
                 clientType: 'device',
                 id: 'device-2',
                 isCurrentDevice: false,
                 isDevice: true,
-                lastAccessTime: Date.now(),
-                lastAccessTimeFormatted: '30 minutes ago',
+                lastAccessTime: now - 1,
+                lastAccessTimeFormatted: '2 days ago',
                 type: 'mobile'
-              }
+              },
+              {
+                approximateLastAccessTime: now,
+                approximateLastAccessTimeFormatted: '3 weeks ago',
+                clientType: 'device',
+                id: 'device-3',
+                isCurrentDevice: false,
+                isDevice: true,
+                lastAccessTime: now,
+                lastAccessTimeFormatted: '4 months ago',
+                type: 'mobile'
+              },
+              {
+                createdTime: now,
+                createdTimeFormatted: '1 day ago',
+                id: 'session-1',
+                isWebSession: true,
+                lastAccessTime: now,
+                lastAccessTimeFormatted: '1 day ago'
+              },
+              {
+                approximateLastAccessTime: now,
+                approximateLastAccessTimeFormatted: '3 weeks ago',
+                id: 'session-2',
+                isWebSession: true,
+                lastAccessTime: now - 1,
+                lastAccessTimeFormatted: '4 months ago',
+              },
+              {
+                approximateLastAccessTime: now,
+                approximateLastAccessTimeFormatted: '5 years ago',
+                id: 'session-3',
+                isWebSession: true,
+                lastAccessTime: now,
+                lastAccessTimeFormatted: '6 decades ago',
+              },
+              {
+                clientType: 'oAuthApp',
+                createdTime: now,
+                createdTimeFormatted: 'wibble',
+                id: 'oauth-1',
+                lastAccessTime: now,
+                lastAccessTimeFormatted: 'blee'
+              },
+              {
+                approximateLastAccessTime: now,
+                approximateLastAccessTimeFormatted: 'wibble',
+                clientType: 'oAuthApp',
+                id: 'oauth-2',
+                lastAccessTime: now - 1,
+                lastAccessTimeFormatted: 'blee',
+              },
+              {
+                approximateLastAccessTime: now,
+                approximateLastAccessTimeFormatted: 'wibble',
+                clientType: 'oAuthApp',
+                id: 'oauth-3',
+                lastAccessTime: now,
+                lastAccessTimeFormatted: 'blee',
+              },
             ]);
 
-            assert.equal(formatted[0].lastAccessTimeFormatted, 'first sync 32 minutes ago');
-            assert.equal(formatted[1].lastAccessTimeFormatted, 'last sync 30 minutes ago');
+            assert.equal(formatted[0].lastAccessTimeFormatted, 'last sync 32 minutes ago');
+            assert.equal(formatted[1].lastAccessTimeFormatted, 'last sync over 1 hour ago');
+            assert.equal(formatted[2].lastAccessTimeFormatted, 'last sync 4 months ago');
+            assert.equal(formatted[3].lastAccessTimeFormatted, '1 day ago');
+            assert.equal(formatted[4].lastAccessTimeFormatted, 'over 3 weeks ago');
+            assert.equal(formatted[5].lastAccessTimeFormatted, '6 decades ago');
+            assert.equal(formatted[6].lastAccessTimeFormatted, 'last active blee');
+            assert.equal(formatted[7].lastAccessTimeFormatted, 'last active over wibble');
+            assert.equal(formatted[8].lastAccessTimeFormatted, 'last active blee');
           });
       });
 

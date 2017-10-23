@@ -13,6 +13,8 @@ define(function (require, exports, module) {
 
   module.exports = Backbone.Model.extend({
     defaults: {
+      approximateLastAccessTime: null,
+      approximateLastAccessTimeFormatted: null,
       clientType: Constants.CLIENT_TYPE_OAUTH_APP,
       id: null,
       lastAccessTime: null,

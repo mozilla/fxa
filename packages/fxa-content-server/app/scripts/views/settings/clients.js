@@ -67,8 +67,8 @@ define(function (require, exports, module) {
         if (item.scope) {
           item.title += ' - ' + item.scope;
         }
-        if (item.lastAccessTimeFormatted) {
 
+        if (item.lastAccessTimeFormatted) {
           if (item.isWebSession) {
             if (item.userAgent) {
               item.title = this.translate(
@@ -76,23 +76,28 @@ define(function (require, exports, module) {
             } else {
               item.title = t('Web Session');
             }
-            item.lastAccessTimeFormatted = this.translate(
-              t('%(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+
+            this._setLastAccessTimeFormatted(
+              item,
+              t('%(translatedTimeAgo)s'),
+              t('over %(translatedTimeAgo)s')
+            );
           }
 
           if (item.isDevice) {
-            if (item.lastAccessTime === item.createdTime) {
-              item.lastAccessTimeFormatted = this.translate(
-                t('first sync %(translatedTimeAgo)s'), {translatedTimeAgo: item.createdTimeFormatted});
-            } else {
-              item.lastAccessTimeFormatted = this.translate(
-                t('last sync %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
-            }
+            this._setLastAccessTimeFormatted(
+              item,
+              t('last sync %(translatedTimeAgo)s'),
+              t('last sync over %(translatedTimeAgo)s')
+            );
           }
 
           if (item.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
-            item.lastAccessTimeFormatted = this.translate(
-              t('last active %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+            this._setLastAccessTimeFormatted(
+              item,
+              t('last active %(translatedTimeAgo)s'),
+              t('last active over %(translatedTimeAgo)s')
+            );
           }
         } else {
           if (item.isDevice) {
@@ -104,6 +109,18 @@ define(function (require, exports, module) {
         }
         return item;
       });
+    },
+
+    _setLastAccessTimeFormatted (item, format, approximateFormat) {
+      let translatedTimeAgo = item.lastAccessTimeFormatted;
+      let correctFormat = format;
+
+      if (item.approximateLastAccessTime > item.lastAccessTime) {
+        translatedTimeAgo = item.approximateLastAccessTimeFormatted;
+        correctFormat = approximateFormat;
+      }
+
+      item.lastAccessTimeFormatted = this.translate(correctFormat, { translatedTimeAgo });
     },
 
     setInitialContext (context) {
