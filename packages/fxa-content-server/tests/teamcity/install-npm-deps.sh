@@ -13,6 +13,7 @@ node ./tests/teamcity/install-npm-deps.js \
   css                             \
   extend                          \
   firefox-profile                 \
+  fxa-geodb                       \
   fxa-shared                      \
   got                             \
   helmet                          \
