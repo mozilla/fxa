@@ -70,7 +70,7 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail('sync{id}');
       return this.remote
-        .then(clearBrowserState());
+        .then(clearBrowserState({ force: true }));
     },
 
     'verified, verify same browser': function () {
