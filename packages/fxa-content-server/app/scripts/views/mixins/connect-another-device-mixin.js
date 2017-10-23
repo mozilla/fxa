@@ -119,10 +119,10 @@ define((require, exports, module) => {
       return this._isEligibleForSms(account)
         .then(({ ok, country }) => {
           const type = this.model.get('type');
-          if (ok) {
-            // User is eligible for SMS experiment, now bucket
-            // users into treatment and control groups.
-            const group = this.getExperimentGroup('sendSms', { account });
+          const group = this.getExperimentGroup('sendSms', { account, country });
+
+          if (ok && group) {
+            // User is eligible and a member of the experiment.
             this.createExperiment('sendSms', group);
 
             if (group === 'control') {
@@ -133,6 +133,8 @@ define((require, exports, module) => {
               this.navigate('sms', { account, country, type });
             }
           } else {
+            // user is ineligible for experiment, either the auth-server said no,
+            // or the experiment logic said no.
             this.navigate('connect_another_device', { account, type });
           }
         });
@@ -207,20 +209,13 @@ define((require, exports, module) => {
       // has sufficient funds.
       return account.smsStatus(this.relier.pick('country'))
         .then((resp = {}) => {
-          // If the auth-server says the user is good to send an SMS,
-          // check with the experiment choices to ensure SMS is enabled for the country
-          // returned in the response. The auth-server may report
-          // that SMS is enabled for Romania, though it's only enabled
-          // for testing and not for the public at large. Experiment choices are used
-          // for this because it's the logic most likely to change.
           if (resp.country) {
             this.logFlowEvent(`sms.status.country.${resp.country}`);
           }
 
-          // If geo-lookup is disabled, no country is returned, assume US
-          const country = resp.country || 'US';
-          if (resp.ok && this.isInExperiment('sendSmsEnabledForCountry', { country })) {
-            return country;
+          if (resp.ok) {
+            // If geo-lookup is disabled, no country is returned, assume US
+            return resp.country || 'US';
           } else {
             // It's a big assumption, but assume ok: false means an unsupported country.
             this.logFlowEvent(REASON_UNSUPPORTED_COUNTRY);

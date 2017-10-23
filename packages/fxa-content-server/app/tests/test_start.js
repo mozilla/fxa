@@ -43,7 +43,6 @@ function (Translator, Session) {
     '../tests/spec/lib/experiments/grouping-rules/index',
     '../tests/spec/lib/experiments/grouping-rules/is-sampled-user',
     '../tests/spec/lib/experiments/grouping-rules/q3-form-changes',
-    '../tests/spec/lib/experiments/grouping-rules/send-sms-enabled-for-country',
     '../tests/spec/lib/experiments/grouping-rules/send-sms-install-link',
     '../tests/spec/lib/experiments/grouping-rules/sentry',
     '../tests/spec/lib/experiments/grouping-rules/sessions',

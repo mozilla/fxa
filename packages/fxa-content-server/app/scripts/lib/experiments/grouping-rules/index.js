@@ -17,7 +17,6 @@ define((require, exports, module) => {
     require('./email-first'),
     require('./is-sampled-user'),
     require('./q3-form-changes'),
-    require('./send-sms-enabled-for-country'),
     require('./send-sms-install-link'),
     require('./sentry'),
     require('./sessions'),

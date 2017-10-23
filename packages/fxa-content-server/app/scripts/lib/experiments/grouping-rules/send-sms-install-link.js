@@ -8,13 +8,22 @@
 define((require, exports, module) => {
   'use strict';
 
+  const _ = require('underscore');
   const BaseGroupingRule = require('./base');
+  const CountryTelephoneInfo = require('../../country-telephone-info');
 
   // 'control' was CAD phase 1, normal ConnectAnotherDevice.
   // Both SMS groups perform better than CAD phase 1, so for
   // those eligible for SMS at all, push them through one
   // of the two better flows. See #5561
-  const GROUPS = ['treatment', 'signinCodes'];
+  const GROUPS_FOR_FULL_ROLLOUT = ['treatment', 'signinCodes'];
+
+  // Countries that are in the process of being rolled out
+  // have a `control` group so that we can fully compare
+  // the two treatment groups to the control group.
+  // Countries that are fully rolled out do not, because
+  // `control` fares worse.
+  const GROUPS_FOR_PARTIAL_ROLLOUT = ['control'].concat(GROUPS_FOR_FULL_ROLLOUT);
 
   function isEmailInSigninCodesGroup (email) {
     return /@softvision\.(com|ro)$/.test(email) ||
@@ -28,16 +37,21 @@ define((require, exports, module) => {
     }
 
     choose (subject = {}) {
-      if (! subject.account || ! subject.uniqueUserId) {
+      if (! subject.account || ! subject.uniqueUserId || ! subject.country || ! CountryTelephoneInfo[subject.country]) {
         return false;
       }
 
-      let choice;
+      let choice = false;
+      const { rolloutRate } = CountryTelephoneInfo[subject.country];
 
       if (isEmailInSigninCodesGroup(subject.account.get('email'))) {
         choice = 'signinCodes';
-      } else {
-        choice = this.uniformChoice(GROUPS, subject.uniqueUserId);
+      } else if (_.isUndefined(rolloutRate)) {
+        // country is fully rolled out.
+        choice = this.uniformChoice(GROUPS_FOR_FULL_ROLLOUT, subject.uniqueUserId);
+      } else if (this.bernoulliTrial(rolloutRate, subject.uniqueUserId)) {
+        // country is in the process of being rolled out.
+        choice = this.uniformChoice(GROUPS_FOR_PARTIAL_ROLLOUT, subject.uniqueUserId);
       }
 
       return choice;

@@ -42,6 +42,14 @@ define((require, exports, module) => {
    */
 
   /**
+   * Rollout rate. Should be in the range of [0, 1]. Used
+   * for gradual rollouts to a country.
+   *
+   * @property rolloutRate
+   * @type {Number}
+   */
+
+  /**
    * Create a `format` function. `${serverPhoneNumber}` in `format`
    * will be replaced with `serverPhoneNumber`
    *
@@ -77,7 +85,8 @@ define((require, exports, module) => {
       },
       // +407xxxxxxxx, allow leading 0 for sloppiness.
       pattern: /^(?:\+40)?0?7\d{8,8}$/,
-      prefix: '+40'
+      prefix: '+40',
+      rolloutRate: 0.5
     },
     US: {
       // Americans don't use country codes, just return the number

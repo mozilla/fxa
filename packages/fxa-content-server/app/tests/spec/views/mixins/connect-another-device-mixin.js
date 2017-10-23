@@ -167,95 +167,41 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('pre-reqs are met, auth-server blocks, Experiment choice rules say OK', () => {
+      describe('pre-reqs are met, auth-server blocks', () => {
         beforeEach(() => {
           sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
-          sinon.spy(view, 'isInExperiment');
-          sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'US', ok: false }));
+          sinon.stub(view, '_smsCountry').callsFake(() => Promise.resolve());
         });
 
-        it('resolves to object with `ok: true, country: US`', () => {
-          return view._isEligibleForSms(account)
-            .then((resp) => {
-              assert.isFalse(resp.ok);
-              assert.isTrue(view._areSmsRequirementsMet.calledOnce);
-              assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
-              assert.isTrue(account.smsStatus.calledOnce);
-              assert.isTrue(account.smsStatus.calledWith({ country: 'US' }));
-              assert.isFalse(view.isInExperiment.called);
-            });
-        });
-      });
-
-      describe('pre-reqs are met, auth-server errors, Experiment choice rules say OK', () => {
-        let err;
-
-        beforeEach(() => {
-          err = AuthErrors.toError('UNEXPECTED_ERROR');
-          sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
-          sinon.spy(view, 'isInExperiment');
-          sinon.spy(view, 'logError');
-          sinon.stub(account, 'smsStatus').callsFake(() => p.reject(err));
-        });
-
-        it('resolves to object with `ok: false`, logs error', () => {
-          return view._isEligibleForSms(account)
-            .then((resp) => {
-              assert.isFalse(resp.ok);
-              assert.isTrue(view._areSmsRequirementsMet.calledOnce);
-              assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
-              assert.isTrue(account.smsStatus.calledOnce);
-              assert.isTrue(account.smsStatus.calledWith({ country: 'US' }));
-
-              assert.isTrue(view.logError.calledOnce);
-              assert.isTrue(view.logError.calledWith(err));
-              // context is updated to include extra `.smsStatus` for reporting.
-              assert.equal(err.context, 'connect-another-device.smsStatus');
-            });
-        });
-      });
-
-      describe('pre-reqs are met, auth-server says OK, Experiment choice rules block', () => {
-        beforeEach(() => {
-          sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
-          sinon.stub(view, 'isInExperiment').callsFake(() => false);
-          sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'US', ok: true }));
-        });
-
-        it('resolves to object with `ok: true, country: US`', () => {
+        it('resolves to object with `ok: false`', () => {
           return view._isEligibleForSms(account)
             .then((resp) => {
               assert.isFalse(resp.ok);
 
               assert.isTrue(view._areSmsRequirementsMet.calledOnce);
               assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
-              assert.isTrue(account.smsStatus.calledOnce);
-              assert.isTrue(account.smsStatus.calledWith({ country: 'US' }));
-              assert.isTrue(view.isInExperiment.calledOnce);
-              assert.isTrue(view.isInExperiment.calledWith('sendSmsEnabledForCountry'));
+              assert.isTrue(view._smsCountry.calledOnce);
+              assert.isTrue(view._smsCountry.calledWith(account));
             });
         });
       });
 
-      describe('pre-reqs are met, auth-server says OK, Experiment choice rules say OK', () => {
+      describe('pre-reqs are met, auth-server says OK', () => {
         beforeEach(() => {
           sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
-          sinon.stub(view, 'isInExperiment').callsFake((experimentName) => experimentName === 'sendSmsEnabledForCountry');
-          sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'US', ok: true }));
+          sinon.stub(view, '_smsCountry').callsFake(() => Promise.resolve('GB'));
         });
 
-        it('resolves to object with `ok: true, country: US`', () => {
+        it('resolves to object with `ok: true, country: GB`', () => {
           return view._isEligibleForSms(account)
             .then((resp) => {
-              assert.equal(resp.country, 'US');
               assert.isTrue(resp.ok);
+              assert.equal(resp.country, 'GB');
 
               assert.isTrue(view._areSmsRequirementsMet.calledOnce);
               assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
-              assert.isTrue(account.smsStatus.calledOnce);
-              assert.isTrue(account.smsStatus.calledWith({ country: 'US' }));
-              assert.isTrue(view.isInExperiment.calledOnce);
-              assert.isTrue(view.isInExperiment.calledWith('sendSmsEnabledForCountry'));
+              assert.isTrue(view._smsCountry.calledOnce);
+              assert.isTrue(view._smsCountry.calledWith(account));
             });
         });
       });
@@ -402,23 +348,6 @@ define(function (require, exports, module) {
         return view._smsCountry(account)
           .then((country) => {
             assert.isUndefined(country);
-
-            assert.isTrue(view.logFlowEvent.calledTwice);
-            assert.isTrue(view.logFlowEvent.calledWith('sms.status.country.AZ'));
-            assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.unsupported_country'));
-          });
-      });
-
-      it('resolves to `undefined` if auth-server reported country is not supported', () => {
-        sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'AZ', ok: true }));
-        sinon.stub(view, 'isInExperiment').callsFake(() => false);
-
-        return view._smsCountry(account)
-          .then((country) => {
-            assert.isUndefined(country);
-
-            assert.isTrue(view.isInExperiment.calledOnce);
-            assert.isTrue(view.isInExperiment.calledWith('sendSmsEnabledForCountry', { country: 'AZ' }));
 
             assert.isTrue(view.logFlowEvent.calledTwice);
             assert.isTrue(view.logFlowEvent.calledWith('sms.status.country.AZ'));
