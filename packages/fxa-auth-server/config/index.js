@@ -635,6 +635,12 @@ var conf = convict({
       format: Number,
       default: 0.3,
       env: 'LASTACCESSTIME_UPDATES_SAMPLE_RATE'
+    },
+    earliestSaneTimestamp: {
+      doc: 'timestamp used as the basis of the fallback value for lastAccessTimeFormatted, currently pinned to the deployment of 1.96.4 / a0940d7dc51e2ba20fa18aa3a830810e35c9a9d9',
+      format: 'timestamp',
+      default: 1507081020000,
+      env: 'LASTACCESSTIME_EARLIEST_SANE_TIMESTAMP'
     }
   },
   signinUnblock: {

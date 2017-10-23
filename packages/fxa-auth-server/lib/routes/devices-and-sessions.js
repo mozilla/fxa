@@ -26,6 +26,7 @@ module.exports = (log, db, config, customs, push, devices) => {
     supportedLanguages: config.i18n.supportedLanguages,
     defaultLanguage: config.i18n.defaultLanguage
   })
+  const earliestSaneTimestamp = config.lastAccessTimeUpdates.earliestSaneTimestamp
 
   function validatePushPayload(payload, endpoint) {
     if (endpoint === 'accountVerify') {
@@ -40,6 +41,26 @@ module.exports = (log, db, config, customs, push, devices) => {
 
   function isEmpty(payload) {
     return payload && Object.keys(payload).length === 0
+  }
+
+  function marshallLastAccessTime (lastAccessTime, request) {
+    const languages = request.headers['accept-language']
+    const result = {
+      lastAccessTime,
+      lastAccessTimeFormatted: localizeTimestamp.format(lastAccessTime, languages),
+    }
+
+    if (lastAccessTime < earliestSaneTimestamp) {
+      // Values older than earliestSaneTimestamp are probably wrong.
+      // Signal that to the front end so that it can fall back to
+      // an approximate string like "last sync over 2 months ago".
+      // And do it using additional properties so we don't affect
+      // older content servers that are unfamiliar with the change.
+      result.approximateLastAccessTime = earliestSaneTimestamp
+      result.approximateLastAccessTimeFormatted = localizeTimestamp.format(earliestSaneTimestamp, languages)
+    }
+
+    return result
   }
 
   return [
@@ -294,6 +315,8 @@ module.exports = (log, db, config, customs, push, devices) => {
             isCurrentDevice: isA.boolean().required(),
             lastAccessTime: isA.number().min(0).required().allow(null),
             lastAccessTimeFormatted: isA.string().optional().allow(''),
+            approximateLastAccessTime: isA.number().min(earliestSaneTimestamp).optional(),
+            approximateLastAccessTimeFormatted: isA.string().optional().allow(''),
             name: DEVICES_SCHEMA.nameResponse.allow('').required(),
             type: DEVICES_SCHEMA.type.required(),
             pushCallback: DEVICES_SCHEMA.pushCallback.allow(null).optional(),
@@ -312,21 +335,16 @@ module.exports = (log, db, config, customs, push, devices) => {
         db.devices(uid)
           .then(deviceArray => {
             reply(deviceArray.map(device => {
-              return {
+              return Object.assign({
                 id: device.id,
                 isCurrentDevice: device.sessionToken === sessionToken.id,
-                lastAccessTime: device.lastAccessTime,
-                lastAccessTimeFormatted: localizeTimestamp.format(
-                  device.lastAccessTime,
-                  request.headers['accept-language']
-                ),
                 name: device.name || devices.synthesizeName(device),
                 type: device.type || device.uaDeviceType || 'desktop',
                 pushCallback: device.pushCallback,
                 pushPublicKey: device.pushPublicKey,
                 pushAuthKey: device.pushAuthKey,
                 pushEndpointExpired: device.pushEndpointExpired
-              }
+              }, marshallLastAccessTime(device.lastAccessTime, request))
             }))
           },
           reply
@@ -345,6 +363,8 @@ module.exports = (log, db, config, customs, push, devices) => {
             id: isA.string().regex(HEX_STRING).required(),
             lastAccessTime: isA.number().min(0).required().allow(null),
             lastAccessTimeFormatted: isA.string().optional().allow(''),
+            approximateLastAccessTime: isA.number().min(earliestSaneTimestamp).optional(),
+            approximateLastAccessTimeFormatted: isA.string().optional().allow(''),
             createdTime: isA.number().min(0).required().allow(null),
             createdTimeFormatted: isA.string().optional().allow(''),
             location: isA.object({
@@ -391,7 +411,7 @@ module.exports = (log, db, config, customs, push, devices) => {
                 userAgent = `${session.uaBrowser} ${session.uaBrowserVersion}`
               }
 
-              return {
+              return Object.assign({
                 deviceId,
                 deviceName,
                 deviceType: session.uaDeviceType || 'desktop',
@@ -406,11 +426,6 @@ module.exports = (log, db, config, customs, push, devices) => {
                   state: session.location && session.location.state,
                   country: session.location && session.location.country
                 },
-                lastAccessTime: session.lastAccessTime,
-                lastAccessTimeFormatted: localizeTimestamp.format(
-                  session.lastAccessTime,
-                  request.headers['accept-language']
-                ),
                 createdTime: session.createdAt,
                 createdTimeFormatted: localizeTimestamp.format(
                   session.createdAt,
@@ -418,7 +433,7 @@ module.exports = (log, db, config, customs, push, devices) => {
                 ),
                 os: session.uaOS,
                 userAgent
-              }
+              }, marshallLastAccessTime(session.lastAccessTime, request))
             }))
           },
           reply

@@ -10,10 +10,13 @@ const error = require('../../../lib/error')
 const getRoute = require('../../routes_helpers').getRoute
 const isA = require('joi')
 const mocks = require('../../mocks')
+const moment = require('fxa-shared/node_modules/moment') // Ensure consistency with production code
 const P = require('../../../lib/promise')
 const proxyquire = require('proxyquire')
 const sinon = require('sinon')
 const uuid = require('uuid')
+
+const EARLIEST_SANE_TIMESTAMP = 31536000000
 
 function makeRoutes (options, requireMocks) {
   options = options || {}
@@ -31,6 +34,9 @@ function makeRoutes (options, requireMocks) {
   }
   config.push = {
     allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
+  }
+  config.lastAccessTimeUpdates = {
+    earliestSaneTimestamp: EARLIEST_SANE_TIMESTAMP
   }
 
   const log = options.log || mocks.mockLog()
@@ -547,32 +553,51 @@ describe('/account/device/destroy', function () {
   })
 })
 
-describe('/account/devices', function () {
+describe('/account/devices', () => {
   it('should return the devices list', () => {
-    var mockRequest = mocks.mockRequest({
+    const mockRequest = mocks.mockRequest({
       credentials: {
         uid: crypto.randomBytes(16).toString('hex'),
         id: crypto.randomBytes(16).toString('hex')
       },
       payload: {}
     })
-    var unnamedDevice = { sessionToken: crypto.randomBytes(16).toString('hex') }
-    var mockDB = mocks.mockDB({
+    const unnamedDevice = {
+      sessionToken: crypto.randomBytes(16).toString('hex'),
+      lastAccessTime: EARLIEST_SANE_TIMESTAMP
+    }
+    const mockDB = mocks.mockDB({
       devices: [
-        { name: 'current session', type: 'mobile', sessionToken: mockRequest.auth.credentials.id },
-        { name: 'has no type', sessionToken: crypto.randomBytes(16).toString('hex' )},
-        { name: 'has device type', sessionToken: crypto.randomBytes(16).toString('hex'), uaDeviceType: 'wibble' },
+        {
+          name: 'current session',
+          type: 'mobile',
+          sessionToken: mockRequest.auth.credentials.id,
+          lastAccessTime: Date.now()
+        },
+        {
+          name: 'has no type',
+          sessionToken: crypto.randomBytes(16).toString('hex' ),
+          lastAccessTime: 1
+        },
+        {
+          name: 'has device type',
+          sessionToken: crypto.randomBytes(16).toString('hex'),
+          uaDeviceType: 'wibble',
+          lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1
+        },
         unnamedDevice
       ]
     })
-    var mockDevices = mocks.mockDevices()
-    var accountRoutes = makeRoutes({
+    const mockDevices = mocks.mockDevices()
+    const accountRoutes = makeRoutes({
       db: mockDB,
       devices: mockDevices
     })
-    var route = getRoute(accountRoutes, '/account/devices')
+    const route = getRoute(accountRoutes, '/account/devices')
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, response => {
+      const now = Date.now()
+
       assert.ok(Array.isArray(response), 'response is array')
       assert.equal(response.length, 4, 'response contains 4 items')
 
@@ -580,17 +605,33 @@ describe('/account/devices', function () {
       assert.equal(response[0].type, 'mobile')
       assert.equal(response[0].sessionToken, undefined)
       assert.equal(response[0].isCurrentDevice, true)
+      assert.ok(response[0].lastAccessTime > now - 10000 && response[0].lastAccessTime <= now)
+      assert.equal(response[0].lastAccessTimeFormatted, 'a few seconds ago')
+      assert.equal(response[0].approximateLastAccessTime, undefined)
+      assert.equal(response[0].approximateLastAccessTimeFormatted, undefined)
 
       assert.equal(response[1].name, 'has no type')
       assert.equal(response[1].type, 'desktop')
       assert.equal(response[1].sessionToken, undefined)
       assert.equal(response[1].isCurrentDevice, false)
+      assert.equal(response[1].lastAccessTime, 1)
+      assert.equal(response[1].lastAccessTimeFormatted, moment(1).locale('en').fromNow())
+      assert.equal(response[1].approximateLastAccessTime, EARLIEST_SANE_TIMESTAMP)
+      assert.equal(response[1].approximateLastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP).locale('en').fromNow())
 
       assert.equal(response[2].name, 'has device type')
       assert.equal(response[2].type, 'wibble')
       assert.equal(response[2].isCurrentDevice, false)
+      assert.equal(response[2].lastAccessTime, EARLIEST_SANE_TIMESTAMP - 1)
+      assert.equal(response[2].lastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP - 1).locale('en').fromNow())
+      assert.equal(response[2].approximateLastAccessTime, EARLIEST_SANE_TIMESTAMP)
+      assert.equal(response[2].approximateLastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP).locale('en').fromNow())
 
       assert.equal(response[3].name, null)
+      assert.equal(response[3].lastAccessTime, EARLIEST_SANE_TIMESTAMP)
+      assert.equal(response[3].lastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP).locale('en').fromNow())
+      assert.equal(response[3].approximateLastAccessTime, undefined)
+      assert.equal(response[3].approximateLastAccessTimeFormatted, undefined)
 
       assert.equal(mockDB.devices.callCount, 1, 'db.devices was called once')
       assert.equal(mockDB.devices.args[0].length, 1, 'db.devices was passed one argument')
@@ -616,12 +657,40 @@ describe('/account/devices', function () {
     ]
     isA.assert(res, route.config.response.schema)
   })
+
+  it('should allow returning approximateLastAccessTime', () => {
+    const route = getRoute(makeRoutes({}), '/account/devices')
+    isA.assert([{
+      id: crypto.randomBytes(16).toString('hex'),
+      isCurrentDevice: true,
+      lastAccessTime: 0,
+      approximateLastAccessTime: EARLIEST_SANE_TIMESTAMP,
+      approximateLastAccessTimeFormatted: '',
+      name: 'test',
+      type: 'test',
+      pushEndpointExpired: false
+    }], route.config.response.schema)
+  })
+
+  it('should not allow returning approximateLastAccessTime < EARLIEST_SANE_TIMESTAMP', () => {
+    const route = getRoute(makeRoutes({}), '/account/devices')
+    assert.throws(() => isA.assert([{
+      id: crypto.randomBytes(16).toString('hex'),
+      isCurrentDevice: true,
+      lastAccessTime: 0,
+      approximateLastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
+      approximateLastAccessTimeFormatted: '',
+      name: 'test',
+      type: 'test',
+      pushEndpointExpired: false
+    }], route.config.response.schema))
+  })
 })
 
 describe('/account/sessions', () => {
   const now = Date.now()
   const times = [ now, now + 1, now + 2, now + 3, now + 4, now + 5, now + 6, now + 7, now + 8 ]
-  const tokenIds = [ 'foo', 'bar', 'baz' ]
+  const tokenIds = [ 'foo', 'bar', 'baz', 'qux' ]
   const sessions = [
     {
       id: tokenIds[0], uid: 'qux', createdAt: times[0], lastAccessTime: times[1],
@@ -632,15 +701,23 @@ describe('/account/sessions', () => {
       location: { country: 'Canada', state: 'ON' }
     },
     {
-      id: tokenIds[1], uid: 'wibble', createdAt: times[3], lastAccessTime: times[4],
+      id: tokenIds[1], uid: 'wibble', createdAt: times[3], lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
       uaBrowser: 'Nightly', uaBrowserVersion: null, uaOS: 'Android', uaOSVersion: '6',
-      uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[5],
+      uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[4],
       deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null,
       deviceCallbackIsExpired: false,
       location: { country: 'England', state: 'AB' }
     },
     {
-      id: tokenIds[2], uid: 'blee', createdAt: times[6], lastAccessTime: times[7],
+      id: tokenIds[2], uid: 'blee', createdAt: times[5], lastAccessTime: EARLIEST_SANE_TIMESTAMP,
+      uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
+      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[6],
+      deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
+      deviceCallbackIsExpired: false,
+      location: null
+    },
+    {
+      id: tokenIds[3], uid: 'blee', createdAt: times[7], lastAccessTime: 1,
       uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
       uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
@@ -663,7 +740,7 @@ describe('/account/sessions', () => {
 
     return runTest(route, request, result => {
       assert.ok(Array.isArray(result))
-      assert.equal(result.length, 3)
+      assert.equal(result.length, 4)
       assert.deepEqual(result, [
         {
           deviceId: null,
@@ -677,7 +754,7 @@ describe('/account/sessions', () => {
           isCurrentDevice: true,
           isDevice: false,
           lastAccessTime: times[1],
-          lastAccessTimeFormatted: 'a few seconds ago',
+          lastAccessTimeFormatted: moment(times[1]).locale('en').fromNow(),
           createdTime: times[0],
           createdTimeFormatted: 'a few seconds ago',
           os: 'Windows',
@@ -695,8 +772,10 @@ describe('/account/sessions', () => {
           id: 'bar',
           isCurrentDevice: false,
           isDevice: true,
-          lastAccessTime: times[4],
-          lastAccessTimeFormatted: 'a few seconds ago',
+          lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
+          lastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP - 1).locale('en').fromNow(),
+          approximateLastAccessTime: EARLIEST_SANE_TIMESTAMP,
+          approximateLastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP).locale('en').fromNow(),
           createdTime: times[3],
           createdTimeFormatted: 'a few seconds ago',
           os: 'Android',
@@ -714,14 +793,35 @@ describe('/account/sessions', () => {
           id: 'baz',
           isCurrentDevice: false,
           isDevice: true,
-          lastAccessTime: times[7],
-          lastAccessTimeFormatted: 'a few seconds ago',
-          createdTime: times[6],
+          lastAccessTime: EARLIEST_SANE_TIMESTAMP,
+          lastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP).locale('en').fromNow(),
+          createdTime: times[5],
           createdTimeFormatted: 'a few seconds ago',
           os: null,
           userAgent: '',
           location: { country: null, state: null}
         },
+        {
+          deviceId: 'deviceId',
+          deviceName: '',
+          deviceType: 'tablet',
+          deviceCallbackURL: 'callback',
+          deviceCallbackPublicKey: 'publicKey',
+          deviceCallbackAuthKey: 'authKey',
+          deviceCallbackIsExpired: false,
+          id: 'qux',
+          isCurrentDevice: false,
+          isDevice: true,
+          lastAccessTime: 1,
+          lastAccessTimeFormatted: moment(1).locale('en').fromNow(),
+          approximateLastAccessTime: EARLIEST_SANE_TIMESTAMP,
+          approximateLastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP).locale('en').fromNow(),
+          createdTime: times[7],
+          createdTimeFormatted: 'a few seconds ago',
+          os: null,
+          userAgent: '',
+          location: { country: null, state: null}
+        }
       ])
     })
   })

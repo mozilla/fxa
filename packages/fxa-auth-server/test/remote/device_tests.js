@@ -5,22 +5,22 @@
 'use strict'
 
 const assert = require('insist')
-var TestServer = require('../test_server')
+const TestServer = require('../test_server')
 const Client = require('../client')()
-var config = require('../../config').getProperties()
-var crypto = require('crypto')
-var base64url = require('base64url')
-var P = require('../../lib/promise')
-var mocks = require('../mocks')
+const config = require('../../config').getProperties()
+const crypto = require('crypto')
+const base64url = require('base64url')
+const P = require('../../lib/promise')
+const mocks = require('../mocks')
 
-describe('remote device', function() {
+describe('remote device', function () {
   this.timeout(15000)
   let server
   before(() => {
     config.lastAccessTimeUpdates = {
       enabled: true,
-      enabledEmailAddresses: /.*/g,
-      sampleRate: 1
+      sampleRate: 1,
+      earliestSaneTimestamp: config.lastAccessTimeUpdates.earliestSaneTimestamp
     }
 
     return TestServer.start(config)
