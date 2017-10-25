@@ -1,6 +1,5 @@
 {
   "exceptions": [
-    // gm
-    "https://nodesecurity.io/advisories/534"
+    // no exceptions! \o/
   ]
 }
