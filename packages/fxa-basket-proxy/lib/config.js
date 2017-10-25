@@ -97,6 +97,12 @@ var conf = module.exports = convict({
         format: Array,
         env: 'BASKET_SQS_DISABLED_EVENT_TYPES',
         default: []
+      },
+      disabled_after_timestamp: {
+        doc: 'Events with timestamp greater than this value will be discarded',
+        format: 'timestamp',
+        env: 'BASKET_SQS_DISABLED_AFTER_TIMESTAMP',
+        default: 0
       }
     }
   },

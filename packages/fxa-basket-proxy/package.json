@@ -41,8 +41,9 @@
     "grunt-nsp": "2.3.1",
     "grunt-todo": "0.5.0",
     "mocha": "3.1.0",
-    "npmshrink": "1.0.1",
+    "moment": "^2.19.1",
     "nock": "8.0.0",
+    "npmshrink": "1.0.1",
     "nyc": "11.2.1",
     "supertest": "2.0.0"
   },

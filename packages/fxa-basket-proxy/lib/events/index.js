@@ -31,18 +31,28 @@ if (DISABLED_EVENT_TYPES) {
   });
 }
 
+const DISABLED_AFTER_TIMESTAMP = config.get('basket.sqs.disabled_after_timestamp');
+
 
 module.exports.handleEvent = function handleEvent(message) {
   logger.info('handleEvent', message);
   const messageHandler = messageHandlers[message.event];
-  if (messageHandler) {
-    return messageHandler(message);
-  } else {
+  if (! messageHandler) {
     logger.info('handleEvent.ignored', message.event);
     return new Promise(function (cb) {
       message.del(cb);
     });
   }
+  if (DISABLED_AFTER_TIMESTAMP && message.ts) {
+    // Event timestamps are in seconds, config is in milliseconds.
+    if (message.ts * 1000 >= DISABLED_AFTER_TIMESTAMP) {
+      logger.info('handleEvent.disabledAfterTimestamp', message.event);
+      return new Promise(function (cb) {
+        message.del(cb);
+      });
+    }
+  }
+  return messageHandler(message);
 };
 
 

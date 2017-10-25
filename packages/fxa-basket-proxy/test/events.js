@@ -7,6 +7,7 @@
 /* eslint-disable camelcase */
 
 const assert = require('assert');
+const moment = require('moment');
 
 const events = require('../lib/events');
 
@@ -30,6 +31,8 @@ const CAMPAIGN_NEWSLETTER_SOURCE_URL = 'https://accounts.firefox.com/?utm_campai
 const NEWSLETTER_ID_REGISTER = 'firefox-accounts-journey';
 const SOURCE_URL_REGISTER = 'https://accounts.firefox.com/';
 
+const MAYBE_NEXT_TICK = (cb) => { if (cb) { process.nextTick(cb); } };
+
 
 describe('the handleEvent() function', function () {
 
@@ -48,6 +51,7 @@ describe('the handleEvent() function', function () {
     });
     events.handleEvent({
       event: 'verified',
+      ts: Date.now() / 1000,
       uid: UID,
       email: EMAIL,
       locale: LOCALE,
@@ -82,6 +86,7 @@ describe('the handleEvent() function', function () {
     });
     events.handleEvent({
       event: 'verified',
+      ts: Date.now() / 1000,
       uid: UID,
       email: EMAIL,
       locale: LOCALE,
@@ -112,6 +117,7 @@ describe('the handleEvent() function', function () {
     });
     events.handleEvent({
       event: 'login',
+      ts: Date.now() / 1000,
       service: SERVICE,
       uid: UID,
       email: EMAIL,
@@ -141,6 +147,7 @@ describe('the handleEvent() function', function () {
     });
     events.handleEvent({
       event: 'login',
+      ts: Date.now() / 1000,
       service: SERVICE,
       uid: UID,
       email: EMAIL,
@@ -173,6 +180,7 @@ describe('the handleEvent() function', function () {
     });
     events.handleEvent({
       event: 'login',
+      ts: Date.now() / 1000,
       service: SERVICE,
       uid: UID,
       email: EMAIL,
@@ -201,6 +209,7 @@ describe('the handleEvent() function', function () {
   it('ignores "verified" events from dev email addresses', function (done) {
     events.handleEvent({
       event: 'verified',
+      ts: Date.now() / 1000,
       uid: UID,
       email: 'foo@restmail.net',
       locale: LOCALE,
@@ -214,6 +223,7 @@ describe('the handleEvent() function', function () {
   it('ignores "login" events from dev email addresses', function (done) {
     events.handleEvent({
       event: 'login',
+      ts: Date.now() / 1000,
       service: SERVICE,
       uid: UID,
       email: 'bar@restmail.lcip.org',
@@ -241,6 +251,7 @@ describe('the handleEvent() function', function () {
     });
     events.handleEvent({
       event: 'verified',
+      ts: Date.now() / 1000,
       uid: UID,
       email: EMAIL,
       del: function () {
@@ -262,6 +273,7 @@ describe('the handleEvent() function', function () {
     }).replyWithError('ruh-roh!');
     events.handleEvent({
       event: 'verified',
+      ts: Date.now() / 1000,
       uid: UID,
       email: EMAIL,
       locale: LOCALE,
@@ -291,6 +303,7 @@ describe('the handleEvent() function', function () {
     });
     events.handleEvent({
       event: 'verified',
+      ts: Date.now() / 1000,
       uid: UID,
       email: EMAIL,
       locale: LOCALE,
@@ -328,6 +341,7 @@ describe('the handleEvent() function', function () {
     });
     events.handleEvent({
       event: 'login',
+      ts: Date.now() / 1000,
       service: SERVICE,
       uid: UID,
       email: EMAIL,
@@ -353,6 +367,7 @@ describe('the handleEvent() function', function () {
     }).replyWithError('ruh-roh!');
     events.handleEvent({
       event: 'login',
+      ts: Date.now() / 1000,
       service: SERVICE,
       uid: UID,
       email: EMAIL,
@@ -400,6 +415,7 @@ describe('the handleEvent() function', function () {
     });
     events.handleEvent({
       event: 'login',
+      ts: Date.now() / 1000,
       service: SERVICE,
       uid: UID,
       email: EMAIL,
@@ -409,6 +425,141 @@ describe('the handleEvent() function', function () {
       del: function () {
         done();
       }
+    });
+  });
+
+  it('correctly processes events without a `ts` property when $BASKET_SQS_DISABLED_AFTER_TIMESTAMP is not set', () => {
+    mocks.mockBasketResponse({
+      reqheaders: { 'content-type': 'application/json' }
+    }).post('/fxa-activity/', function (body) {
+      assert.deepEqual(body, {
+        activity: 'account.login',
+        service: SERVICE,
+        fxa_id: UID,
+        first_device: true,
+        user_agent: USER_AGENT,
+        metrics_context: {}
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok'
+    });
+    return events.handleEvent({
+      event: 'login',
+      service: SERVICE,
+      uid: UID,
+      email: EMAIL,
+      deviceCount: 1,
+      userAgent: USER_AGENT,
+      del: MAYBE_NEXT_TICK
+    });
+  });
+
+  it('correctly processes events without a `ts` property when $BASKET_SQS_DISABLED_AFTER_TIMESTAMP is set', () => {
+    mocks.mockBasketResponse({
+      reqheaders: { 'content-type': 'application/json' }
+    }).post('/fxa-activity/', function (body) {
+      assert.deepEqual(body, {
+        activity: 'account.login',
+        service: SERVICE,
+        fxa_id: UID,
+        first_device: true,
+        user_agent: USER_AGENT,
+        metrics_context: {}
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok'
+    });
+    return utils.withEnviron({ BASKET_SQS_DISABLED_AFTER_TIMESTAMP: '2016-01-02 03:14:15' }, () => {
+      return utils.withFreshModules(require, ['../lib/events', '../lib/config'], () => {
+        const events = require('../lib/events');
+        return events.handleEvent({
+          event: 'login',
+          service: SERVICE,
+          uid: UID,
+          email: EMAIL,
+          deviceCount: 1,
+          userAgent: USER_AGENT,
+          del: MAYBE_NEXT_TICK
+        });
+      });
+    });
+  });
+
+  it('correctly processes events with `ts` less than $BASKET_SQS_DISABLED_AFTER_TIMESTAMP', () => {
+    mocks.mockBasketResponse({
+      reqheaders: { 'content-type': 'application/json' }
+    }).post('/fxa-activity/', function (body) {
+      assert.deepEqual(body, {
+        activity: 'account.login',
+        service: SERVICE,
+        fxa_id: UID,
+        first_device: true,
+        user_agent: USER_AGENT,
+        metrics_context: {}
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok'
+    });
+    const cutover = '2016-01-02 03:14:15';
+    return utils.withEnviron({ BASKET_SQS_DISABLED_AFTER_TIMESTAMP: cutover }, () => {
+      return utils.withFreshModules(require, ['../lib/events', '../lib/config'], () => {
+        const events = require('../lib/events');
+        return events.handleEvent({
+          event: 'login',
+          ts: moment(cutover).subtract(1, 'second').valueOf() / 1000,
+          service: SERVICE,
+          uid: UID,
+          email: EMAIL,
+          deviceCount: 1,
+          userAgent: USER_AGENT,
+          del: MAYBE_NEXT_TICK
+        });
+      });
+    });
+  });
+
+  it('discards events with `ts` greater than $BASKET_SQS_DISABLED_AFTER_TIMESTAMP', () => {
+    // Since we don't set up any mocks,
+    // the below will fail if it attempts to process the event.
+    const cutover = '2016-01-02 03:14:15';
+    return utils.withEnviron({ BASKET_SQS_DISABLED_AFTER_TIMESTAMP: cutover }, () => {
+      return utils.withFreshModules(require, ['../lib/events', '../lib/config'], () => {
+        const events = require('../lib/events');
+        return events.handleEvent({
+          event: 'login',
+          ts: moment(cutover).add(1, 'second').valueOf() / 1000,
+          service: SERVICE,
+          uid: UID,
+          email: EMAIL,
+          deviceCount: 1,
+          userAgent: USER_AGENT,
+          del: MAYBE_NEXT_TICK
+        });
+      });
+    });
+  });
+
+  it('discards events with `ts` equal to $BASKET_SQS_DISABLED_AFTER_TIMESTAMP', () => {
+    // Since we don't set up any mocks,
+    // the below will fail if it attempts to process the event.
+    const cutover = '2016-01-02 03:14:15';
+    return utils.withEnviron({ BASKET_SQS_DISABLED_AFTER_TIMESTAMP: cutover }, () => {
+      return utils.withFreshModules(require, ['../lib/events', '../lib/config'], () => {
+        const events = require('../lib/events');
+        return events.handleEvent({
+          event: 'login',
+          ts: moment(cutover).valueOf() / 1000,
+          service: SERVICE,
+          uid: UID,
+          email: EMAIL,
+          deviceCount: 1,
+          userAgent: USER_AGENT,
+          del: MAYBE_NEXT_TICK
+        });
+      });
     });
   });
 
@@ -430,12 +581,13 @@ describe('the set of message handler functions', () => {
         assert.deepEqual(handlers.sort(), ['login']);
         return events.handleEvent({
           event: 'verified',
+          ts: Date.now() / 1000,
           uid: UID,
           email: EMAIL,
           locale: LOCALE,
           // This gets executed without attempting any HTTP requests.
           // If HTTP requests are attempted they'll fail, and fail the test.
-          del: (cb) => { cb(); }
+          del: MAYBE_NEXT_TICK
         });
       });
     });

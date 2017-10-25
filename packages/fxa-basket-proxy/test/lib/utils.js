@@ -12,14 +12,20 @@ const Promise = require('bluebird');
 module.exports.withEnviron = function withEnviron(env, cb) {
   const origEnv = {};
   Object.keys(env).forEach((key) => {
-    origEnv[key] = process.env[key];
+    if (process.env.hasOwnProperty(key)) {
+      origEnv[key] = process.env[key];
+    }
     process.env[key] = env[key];
   });
   return Promise.resolve().then(() => {
     return cb();
   }).finally(() => {
     Object.keys(env).forEach((key) => {
-      process.env[key] = origEnv[key];
+      if (origEnv.hasOwnProperty(key)) {
+        process.env[key] = origEnv[key];
+      } else {
+        delete process.env[key];
+      }
     });
   });
 };
