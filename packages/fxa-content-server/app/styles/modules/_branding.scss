@@ -26,6 +26,14 @@
     display: none;
   }
 
+  html.fx-57 & {
+    background-image: image-url('firefox-logo.svg');
+    background-position-y: -5px;
+    @include respond-to('small') {
+      background-position-y: -4px;
+    }
+  }
+
   .static & {
     opacity: 1;
   }

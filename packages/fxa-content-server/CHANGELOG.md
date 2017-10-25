@@ -1,3 +1,19 @@
+<a name="1.98.3"></a>
+## 1.98.3 (2017-10-25)
+
+
+### Bug Fixes
+
+* **css:** Show password border radius problem (#5628) r=@vbudhram, @ryanfeeley, @shane-tom ([e222543](https://github.com/mozilla/fxa-content-server/commit/e222543))
+* **logo:** Use the new Firefox logo in Fx Desktop/Android >= 57, iOS >= 10. (#5643) r=@vbud ([46921fb](https://github.com/mozilla/fxa-content-server/commit/46921fb)), closes [#5588](https://github.com/mozilla/fxa-content-server/issues/5588)
+* **markup:** remove redundant viewport meta tag (#5635), r=@vbudhram ([4b3eff4](https://github.com/mozilla/fxa-content-server/commit/4b3eff4))
+* **sms:** Use the same graphic on /sms/sent as /sms (#5601) r=@ryanfeeley ([e5e3f99](https://github.com/mozilla/fxa-content-server/commit/e5e3f99)), closes [#5589](https://github.com/mozilla/fxa-content-server/issues/5589)
+* **style:** Account for emoji shifting line height of device information (#5630) r=@ryanfeel ([bc03d2b](https://github.com/mozilla/fxa-content-server/commit/bc03d2b)), closes [#5516](https://github.com/mozilla/fxa-content-server/issues/5516)
+* **style:** Fix sasslint warnings. ([5d0bf08](https://github.com/mozilla/fxa-content-server/commit/5d0bf08))
+* **train-98:** A collection of styling fixes for train-98 (#5646) r=@shane-tomlinson ([aec9573](https://github.com/mozilla/fxa-content-server/commit/aec9573)), closes [(#5646](https://github.com/(/issues/5646)
+
+
+
 <a name="1.98.2"></a>
 ## 1.98.2 (2017-10-19)
 
