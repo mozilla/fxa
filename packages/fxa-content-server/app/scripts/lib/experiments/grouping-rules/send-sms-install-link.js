@@ -16,14 +16,14 @@ define((require, exports, module) => {
   // Both SMS groups perform better than CAD phase 1, so for
   // those eligible for SMS at all, push them through one
   // of the two better flows. See #5561
-  const GROUPS_FOR_FULL_ROLLOUT = ['treatment', 'signinCodes'];
+  const GROUPS_FOR_FULL_ROLLOUT = ['signinCodes'];
 
   // Countries that are in the process of being rolled out
   // have a `control` group so that we can fully compare
   // the two treatment groups to the control group.
   // Countries that are fully rolled out do not, because
   // `control` fares worse.
-  const GROUPS_FOR_PARTIAL_ROLLOUT = ['control'].concat(GROUPS_FOR_FULL_ROLLOUT);
+  const GROUPS_FOR_PARTIAL_ROLLOUT = ['control', 'signinCodes'];
 
   function isEmailInSigninCodesGroup (email) {
     return /@softvision\.(com|ro)$/.test(email) ||

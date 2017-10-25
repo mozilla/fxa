@@ -19,7 +19,6 @@ define(function (require, exports, module) {
     beforeEach(() => {
       account = new Account({ email: 'testuser@testuser.com' });
       experiment = new Experiment();
-      sinon.stub(experiment, 'uniformChoice').callsFake(() => 'choice');
     });
 
     describe('choose', () => {
@@ -41,9 +40,14 @@ define(function (require, exports, module) {
       });
 
       describe('country has a `rolloutRate`', () => {
+        beforeEach(() => {
+          sinon.stub(experiment, 'uniformChoice').callsFake(() => 'choice');
+          CountryTelephoneInfo.GB.rolloutRate = 0.5;
+        });
+
         it('user not selected for trail returns `false`', () => {
           sinon.stub(experiment, 'bernoulliTrial').callsFake(() => false);
-          CountryTelephoneInfo.GB.rolloutRate = 0.5;
+
           assert.isFalse(experiment.choose({ account, country, uniqueUserId: 'user-id', }));
           assert.isTrue(experiment.bernoulliTrial.called);
           assert.isTrue(experiment.bernoulliTrial.calledWith(0.5, 'user-id'));
@@ -52,23 +56,20 @@ define(function (require, exports, module) {
         });
 
         it('user selected for trial delegates to `uniformChoice`', () => {
-          CountryTelephoneInfo.GB.rolloutRate = 0.5;
           sinon.stub(experiment, 'bernoulliTrial').callsFake(() => true);
+
           assert.equal(experiment.choose({ account, country, uniqueUserId: 'user-id' }), 'choice');
           assert.isTrue(experiment.bernoulliTrial.called);
           assert.isTrue(experiment.bernoulliTrial.calledWith(0.5, 'user-id'));
           assert.isTrue(experiment.uniformChoice.called);
-          assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment', 'signinCodes'], 'user-id'));
+          assert.isTrue(experiment.uniformChoice.calledWith(['control', 'signinCodes'], 'user-id'));
           delete CountryTelephoneInfo.GB.rolloutRate;
         });
       });
 
-      it('others delegate to uniformChoice', () => {
-        sinon.spy(experiment, 'bernoulliTrial');
-        assert.equal(experiment.choose({ account, country, uniqueUserId: 'user-id' }), 'choice');
-        assert.isFalse(experiment.bernoulliTrial.called);
-        assert.isTrue(experiment.uniformChoice.calledOnce);
-        assert.isTrue(experiment.uniformChoice.calledWith(['treatment', 'signinCodes'], 'user-id'));
+      it('fully rolled out countries return `signinCodes`', () => {
+        sinon.spy(experiment, 'uniformChoice');
+        assert.equal(experiment.choose({ account, country, uniqueUserId: 'user-id' }), 'signinCodes');
       });
     });
   });
