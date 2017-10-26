@@ -1,3 +1,13 @@
+<a name="1.98.0"></a>
+# [1.98.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.97.0...v1.98.0) (2017-10-26)
+
+
+### chore
+
+* **docker:** Update to node v6.11.5 for security fix ([7cc3251](https://github.com/mozilla/fxa-auth-db-mysql/commit/7cc3251))
+
+
+
 <a name="1.97.0"></a>
 # [1.97.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.96.1...v1.97.0) (2017-10-04)
 
