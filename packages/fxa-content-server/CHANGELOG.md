@@ -1,3 +1,19 @@
+<a name="1.98.5"></a>
+## 1.98.5 (2017-10-26)
+
+
+### chore
+
+* **docker:** Update to node v6.11.5 for security fix ([bea8543](https://github.com/mozilla/fxa-content-server/commit/bea8543))
+
+
+
+<a name="1.98.4"></a>
+## 1.98.4 (2017-10-26)
+
+
+
+
 <a name="1.98.3"></a>
 ## 1.98.3 (2017-10-25)
 
