@@ -1,6 +1,6 @@
 {
   "name": "fxa-basket-proxy",
-  "version": "1.97.0",
+  "version": "1.98.0",
   "description": "Firefox Accounts Basket Proxy Server",
   "scripts": {
     "start": "grunt server --node-env=dev",
