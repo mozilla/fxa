@@ -1,3 +1,14 @@
+<a name="1.98.0"></a>
+# [1.98.0](https://github.com/mozilla/fxa-profile-server/compare/v1.97.0...v1.98.0) (2017-10-26)
+
+
+### chore
+
+* **docker:** Update docker node to 6.11.5 (#290), r=@jbuck ([3d8e6b3](https://github.com/mozilla/fxa-profile-server/commit/3d8e6b3))
+* **nsp:** nsp updates (#289); r=philbooth ([b36c437](https://github.com/mozilla/fxa-profile-server/commit/b36c437))
+
+
+
 <a name="1.97.0"></a>
 # [1.97.0](https://github.com/mozilla/fxa-profile-server/compare/v1.96.0...v1.97.0) (2017-10-03)
 
