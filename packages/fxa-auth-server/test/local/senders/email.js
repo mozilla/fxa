@@ -35,6 +35,7 @@ const messageTypes = [
   'verificationReminderEmail',
   'verifyEmail',
   'verifyLoginEmail',
+  'verifyPrimaryEmail',
   'verifySecondaryEmail'
 ]
 
@@ -47,6 +48,7 @@ const typesContainSupportLinks = [
   'recoveryEmail',
   'verificationReminderEmail',
   'verifyEmail',
+  'verifyPrimaryEmail',
   'verifySecondaryEmail'
 ]
 
@@ -59,6 +61,7 @@ const typesContainPasswordResetLinks = [
 const typesContainPasswordChangeLinks = [
   'newDeviceLoginEmail',
   'verifyLoginEmail',
+  'verifyPrimaryEmail',
   'postVerifySecondaryEmail'
 ]
 
@@ -85,6 +88,7 @@ const typesContainLocationData = [
   'recoveryEmail',
   'verifyEmail',
   'verifyLoginEmail',
+  'verifyPrimaryEmail',
   'verifySecondaryEmail'
 ]
 

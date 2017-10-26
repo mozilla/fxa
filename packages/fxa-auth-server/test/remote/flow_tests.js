@@ -17,6 +17,7 @@ describe('remote flow', function() {
   this.timeout(15000)
   let server
   let email1
+  config.signinConfirmation.skipForNewAccounts.enabled = true
   before(() => {
     return TestServer.start(config)
       .then(s => {

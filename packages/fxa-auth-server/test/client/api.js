@@ -313,7 +313,8 @@ module.exports = config => {
               service: options.service || undefined,
               redirectTo: options.redirectTo || undefined,
               resume: options.resume || undefined,
-              email: options.email || undefined
+              email: options.email || undefined,
+              type: options.type || undefined
             }
           )
         }.bind(this)

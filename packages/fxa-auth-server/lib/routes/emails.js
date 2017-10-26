@@ -141,14 +141,16 @@ module.exports = (log, db, mailer, config, customs, push) => {
         },
         validate: {
           query: {
-            service: validators.service
+            service: validators.service,
+            type: isA.string().max(32).alphanum().allow('upgradeSession').optional()
           },
           payload: {
             email: validators.email().optional(),
             service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
-            metricsContext: METRICS_CONTEXT_SCHEMA
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            type: isA.string().max(32).alphanum().allow('upgradeSession').optional()
           }
         }
       },
@@ -158,8 +160,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
         const email = request.payload.email
         const sessionToken = request.auth.credentials
         const service = request.payload.service || request.query.service
+        const type = request.payload.type || request.query.type
 
-        // This endpoint can verify multiple types of codes, set these values once it
+        // This endpoint can resend multiple types of codes, set these values once it
         // is known what is being verified.
         let code
         let verifyFunction
@@ -245,7 +248,10 @@ module.exports = (log, db, mailer, config, customs, push) => {
         }
 
         function setVerifyFunction () {
-          if (email) {
+          if (type && type === 'upgradeSession') {
+            verifyFunction = mailer.sendVerifyPrimaryEmail
+            event = 'verification_email_primary'
+          } else if (email) {
             verifyFunction = mailer.sendVerifySecondaryEmail
             event = 'verification_email'
           } else if (! sessionToken.emailVerified) {

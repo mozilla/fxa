@@ -19,6 +19,7 @@ describe('remote password forgot', function() {
   let server
   before(() => {
     config.securityHistory.ipProfiling.allowedRecency = 0
+    config.signinConfirmation.skipForNewAccounts.enabled = true
     return TestServer.start(config)
       .then(s => {
         server = s

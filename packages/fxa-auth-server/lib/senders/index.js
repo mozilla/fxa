@@ -115,6 +115,18 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             }))
           })
       },
+      sendVerifyPrimaryEmail: function (emails, account, opts) {
+        const primaryEmail = account.email
+
+        return getSafeMailer(primaryEmail)
+          .then(function (mailer) {
+            return mailer.verifyPrimaryEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              email: primaryEmail,
+              uid: account.uid
+            }))
+          })
+      },
       sendVerifySecondaryEmail: function (emails, account, opts) {
         const primaryEmail = account.email
         const verifyEmailAddress = emails[0].email

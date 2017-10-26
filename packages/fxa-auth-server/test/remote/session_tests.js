@@ -13,6 +13,7 @@ var config = require('../../config').getProperties()
 describe('remote session', function() {
   this.timeout(15000)
   let server
+  config.signinConfirmation.skipForNewAccounts.enabled = true
   before(() => {
     return TestServer.start(config)
       .then(s => {

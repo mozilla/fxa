@@ -35,8 +35,9 @@ module.exports = function (log) {
     'unblockCode': 'new-unblock',
     'verifyEmail': 'welcome',
     'verifyLoginEmail': 'new-signin',
+    'verifyPrimaryEmail': 'welcome-primary',
     'verifySyncEmail': 'welcome-sync',
-    'verifySecondaryEmail': 'welcome',
+    'verifySecondaryEmail': 'welcome-secondary',
     'verificationReminderFirstEmail': 'hello-again-first',
     'verificationReminderSecondEmail': 'still-there-second',
     'verificationReminderEmail': 'hello-again-first'
@@ -59,6 +60,7 @@ module.exports = function (log) {
     'verificationReminderEmail': 'activate',
     'verifyEmail': 'activate',
     'verifyLoginEmail': 'confirm-signin',
+    'verifyPrimaryEmail': 'activate',
     'verifySyncEmail': 'activate-sync',
     'verifySecondaryEmail': 'activate',
   }
@@ -439,6 +441,51 @@ module.exports = function (log) {
         oneClickLink: links.oneClickLink,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.verifyPrimaryEmail = function (message) {
+    log.trace({ op: 'mailer.verifyPrimaryEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'verifyPrimaryEmail'
+    const query = {
+      code: message.code,
+      uid: message.uid
+    }
+
+    if (message.service) { query.service = message.service }
+    if (message.redirectTo) { query.redirectTo = message.redirectTo }
+    if (message.resume) { query.resume = message.resume }
+
+    const links = this._generateLinks(this.verifyLoginUrl, message.email, query, templateName)
+
+    const headers = {
+      'X-Link': links.link,
+      'X-Verify-Code': message.code
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Verify primary email'),
+      template: templateName,
+      templateValues: {
+        device: this._formatUserAgentInfo(message),
+        email: message.primaryEmail,
+        ip: message.ip,
+        link: links.link,
+        location: this._constructLocationString(message),
+        oneClickLink: links.oneClickLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,

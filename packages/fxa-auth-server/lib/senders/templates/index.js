@@ -73,6 +73,7 @@ module.exports = {
       'verification_reminder_second',
       'verify',
       'verify_login',
+      'verify_primary',
       'verify_sync',
       'verify_secondary'
     ].map(loadTemplates)

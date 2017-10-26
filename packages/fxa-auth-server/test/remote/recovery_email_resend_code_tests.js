@@ -11,7 +11,7 @@ const P = require('../../lib/promise')
 
 var config = require('../../config').getProperties()
 
-describe('remote recovery email resend code', function() {
+describe('remote recovery email resend code', function () {
   this.timeout(15000)
   let server
   before(() => {
@@ -32,7 +32,7 @@ describe('remote recovery email resend code', function() {
       var verifyEmailCode = ''
       var client = null
       var options = {
-        redirectTo: 'https://sync.'  + config.smtp.redirectDomain,
+        redirectTo: 'https://sync.' + config.smtp.redirectDomain,
         service: 'sync',
         resume: 'resumeToken',
         keys: true
@@ -89,7 +89,7 @@ describe('remote recovery email resend code', function() {
       var verifyEmailCode = ''
       var client2 = null
       var options = {
-        redirectTo: 'https://sync.'  + config.smtp.redirectDomain,
+        redirectTo: 'https://sync.' + config.smtp.redirectDomain,
         service: 'sync',
         resume: 'resumeToken',
         keys: true
@@ -174,6 +174,40 @@ describe('remote recovery email resend code', function() {
       .catch((err) => {
         assert.equal(err.code, 400)
         assert.equal(err.errno, 150)
+      })
+  })
+
+  it('should be able to upgrade unverified session to verified session', () => {
+    const email = server.uniqueEmail()
+    const password = 'something'
+    let client = null
+    const options = {
+      keys: false
+    }
+    return Client.create(config.publicUrl, email, password, server.mailbox, options)
+      .then((res) => {
+        client = res
+        return client.login()
+          .then(() => server.mailbox.waitForCode(email))
+          .then((code) => client.verifyEmail(code))
+          .then(() => client.sessionStatus())
+      })
+      .then((result) => {
+        assert.equal(result.state, 'unverified', 'session is unverified')
+        // set the type of code to receive
+        client.options.type = 'upgradeSession'
+        return client.requestVerifyEmail()
+      })
+      .then(() => server.mailbox.waitForEmail(email))
+      .then((emailData) => {
+        assert.equal(emailData.headers['x-template-name'], 'verifyPrimaryEmail', 'correct template set')
+        const code = emailData.headers['x-verify-code']
+        assert.ok(code, 'code set')
+        return client.verifyEmail(code)
+      })
+      .then(() => client.sessionStatus())
+      .then((result) => {
+        assert.equal(result.state, 'verified', 'session is verified')
       })
   })
 
