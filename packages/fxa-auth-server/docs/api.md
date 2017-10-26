@@ -255,6 +255,8 @@ for `code` and `errno` are:
   This email can not currently be used to login
 * `code: 400, errno: 150`:
   Can not resend email code to an email that does not belong to this account
+* `code: 400, errno: 151`:
+  Failed to send email
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -1008,6 +1010,12 @@ and display the tab in a timely manner.
   containing the relevant device ids.
   <!--end-request-body-post-accountdevicesnotify-to-->
 
+* `_endpointAction`: *string, valid('accountVerify'), optional*
+
+  <!--begin-request-body-post-accountdevicesnotify-_endpointAction-->
+  
+  <!--end-request-body-post-accountdevicesnotify-_endpointAction-->
+
 * `excluded`: *array, items(string, length(32), regex(HEX_STRING)), optional*
 
   <!--begin-request-body-post-accountdevicesnotify-excluded-->
@@ -1016,7 +1024,7 @@ and display the tab in a timely manner.
   Ignored unless `to:"all"` is specified.
   <!--end-request-body-post-accountdevicesnotify-excluded-->
 
-* `payload`: *object, required*
+* `payload`: *object, when('_endpointAction', { is: 'accountVerify', then: required, otherwise: required })*
 
   <!--begin-request-body-post-accountdevicesnotify-payload-->
   Push payload,
@@ -1566,6 +1574,9 @@ by the following errors
 
 * `code: 400, errno: 141`:
   Email already exists
+
+* `code: 400, errno: 151`:
+  Failed to send email
 
 
 #### POST /recovery_email/destroy

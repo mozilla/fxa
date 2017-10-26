@@ -1,3 +1,13 @@
+<a name="1.98.1"></a>
+## [1.98.1](https://github.com/mozilla/fxa-auth-server/compare/v1.98.0...v1.98.1) (2017-10-26)
+
+
+### chore
+
+* **docker:** Update to node v6.11.5 for security fix ([2e7c769](https://github.com/mozilla/fxa-auth-server/commit/2e7c769))
+
+
+
 <a name="1.98.0"></a>
 # [1.98.0](https://github.com/mozilla/fxa-auth-server/compare/v1.97.5...v1.98.0) (2017-10-18)
 
