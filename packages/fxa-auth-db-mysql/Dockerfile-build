@@ -1,4 +1,4 @@
-FROM mozilla/fxa-node:6-alpine
+FROM node:6.11.5-alpine
 
 RUN apk add --no-cache git
 
