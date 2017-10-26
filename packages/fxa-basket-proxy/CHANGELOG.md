@@ -1,3 +1,13 @@
+<a name="1.98.0"></a>
+# [1.98.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.97.0...v1.98.0) (2017-10-26)
+
+
+### chore
+
+* **docker:** Update to node v6.11.5 for security fix ([0ec3ab9](https://github.com/mozilla/fxa-basket-proxy/commit/0ec3ab9))
+
+
+
 <a name="1.97.0"></a>
 # [1.97.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.96.0...v1.97.0) (2017-10-03)
 
