@@ -1,3 +1,5 @@
+v1.98.0:
+  * chore(docker): Update to node v6.11.5 for security fix
 
 v1.92.0:
   * fix(docs): document the dependency on memcached (#211) r=vladikoff
