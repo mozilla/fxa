@@ -9,6 +9,59 @@ define((require, exports, module) => {
   const CountryTelephoneInfo = require('lib/country-telephone-info');
 
   describe('lib/country-telephone-info', () => {
+
+    describe('AT', () => {
+      const { format, normalize, pattern } = CountryTelephoneInfo.AT;
+
+      describe('format', () => {
+        it('formats correctly', () => {
+          assert.equal(format('1234567890'), '+43 1234567890');
+        });
+      });
+
+      describe('normalize', () => {
+        it('normalizes a number accepted by pattern correctly', () => {
+          assert.equal(normalize('+431234567890'), '+431234567890');
+          assert.equal(normalize('1234567890'), '+431234567890');
+        });
+      });
+
+      describe('pattern', () => {
+        it('validates correctly', () => {
+          assert.ok(pattern.test('123456'));
+          assert.ok(pattern.test('+43123456'));
+          assert.isFalse(pattern.test('+331234567890'));
+        });
+      });
+    });
+
+    describe('DE', () => {
+      const { format, normalize, pattern } = CountryTelephoneInfo.DE;
+
+      describe('format', () => {
+        it('formats correctly', () => {
+          assert.equal(format('1234567890'), '+49 1234567890');
+        });
+      });
+
+      describe('normalize', () => {
+        it('normalizes a number accepted by pattern correctly', () => {
+          assert.equal(normalize('+491234567890'), '+491234567890');
+          assert.equal(normalize('1234567890'), '+491234567890');
+        });
+      });
+
+      describe('pattern', () => {
+        it('validates correctly', () => {
+          assert.ok(pattern.test('123456'));
+          assert.ok(pattern.test('1234567890123'));
+          assert.ok(pattern.test('+49123456'));
+          assert.ok(pattern.test('+491234567890123'));
+          assert.isFalse(pattern.test('+331234567890'));
+        });
+      });
+    });
+
     describe('GB', () => {
       const { format, normalize, pattern } = CountryTelephoneInfo.GB;
 

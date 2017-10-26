@@ -60,15 +60,41 @@ define((require, exports, module) => {
     return (serverPhoneNumber) => format.replace(/\$\{serverPhoneNumber\}/, serverPhoneNumber);
   }
 
+  function hasPrefix (num, prefix) {
+    return num.indexOf(prefix) === 0;
+  }
+
+  function ensurePrefix (prefix) {
+    return function (num) {
+      if (hasPrefix(num, prefix)) {
+        return num;
+      }
+      return `${prefix}${num}`;
+    };
+  }
+
   module.exports = {
+    // Austria
+    // https://en.wikipedia.org/wiki/Telephone_numbers_in_Austria
+    AT: {
+      format: formatter('+43 ${serverPhoneNumber}'),
+      normalize: ensurePrefix('+43'),
+      pattern: /^(?:\+43)?\d{6,}$/,
+      prefix: '+43',
+      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=AT`
+    },
+    // Germany
+    // https://en.wikipedia.org/wiki/Telephone_numbers_in_Germany
+    DE: {
+      format: formatter('+49 ${serverPhoneNumber}'),
+      normalize: ensurePrefix('+49'),
+      pattern: /^(?:\+49)?\d{6,13}$/,
+      prefix: '+49',
+      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=DE`
+    },
     GB: {
       format: formatter('+44 ${serverPhoneNumber}'),
-      normalize (num) {
-        if (/^\+44/.test(num)) {
-          return num;
-        }
-        return `+44${num}`;
-      },
+      normalize: ensurePrefix('+44'),
       pattern: /^(?:\+44)?\d{10,10}$/,
       prefix: '+44'
     },
