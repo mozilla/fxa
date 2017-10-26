@@ -1440,6 +1440,7 @@ define([
    * @returns {promise} rejects if message has not been received.
    */
   const testIsBrowserNotified = thenify(function (command) {
+    let err;
     return this.parent
       // Allow 5 seconds for the event to come through.
       .setExecuteAsyncTimeout(5000)
@@ -1461,13 +1462,25 @@ define([
 
         check();
       }, [command])
-      .then(null, function (err) {
-        if (/ScriptTimeout/.test(String(err))) {
-          var noSuchNotificationError = new Error('NoSuchBrowserNotification');
-          noSuchNotificationError.command = command;
-          throw noSuchNotificationError;
-        } else {
-          throw err;
+      .then(null, function (_err) {
+        // Since this is a promise reject handler, this.parent is null
+        // and it's not possible to take a screenshot. Save the error,
+        // go back to a resolve handler where this.parent is available,
+        // take the screenshot, then continue.
+        err = _err;
+      })
+      .then(function () {
+        if (err) {
+          return this.parent.then(takeScreenshot())
+            .then(() => {
+              if (/ScriptTimeout/.test(String(err))) {
+                var noSuchNotificationError = new Error('NoSuchBrowserNotification');
+                noSuchNotificationError.command = command;
+                throw noSuchNotificationError;
+              } else {
+                throw err;
+              }
+            });
         }
       });
   });
@@ -1482,9 +1495,12 @@ define([
     return this.parent
       .then(testIsBrowserNotified(command))
       .then(function () {
-        var unexpectedNotificationError = new Error('UnexpectedBrowserNotification');
-        unexpectedNotificationError.command = command;
-        throw unexpectedNotificationError;
+        return this.parent.then(takeScreenshot())
+          .then(() => {
+            var unexpectedNotificationError = new Error('UnexpectedBrowserNotification');
+            unexpectedNotificationError.command = command;
+            throw unexpectedNotificationError;
+          });
       }, function (err) {
         if (! /NoSuchBrowserNotification/.test(String(err))) {
           throw err;
