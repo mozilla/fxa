@@ -363,6 +363,9 @@ define([
    *   Opaque url-encoded string that will be included in the verification link
    *   as a querystring parameter, useful for continuing an OAuth flow for
    *   example.
+   *   @param {String} [options.type]
+   *   Specifies the type of code to send, currently only supported type is
+   *   `upgradeSession`.
    *   @param {String} [options.lang]
    *   set the language for the 'Accept-Language' header
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
@@ -391,6 +394,10 @@ define([
 
           if (options.resume) {
             data.resume = options.resume;
+          }
+
+          if (options.type) {
+            data.type = options.type;
           }
 
           if (options.lang) {

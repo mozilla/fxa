@@ -50,12 +50,13 @@ define([
           );
       });
 
-      test('#recoveryEmailResendCode with service, redirectTo, and resume', function () {
+      test('#recoveryEmailResendCode with service, redirectTo, type, and resume', function () {
         var user;
         var opts = {
           service: 'sync',
           redirectTo: 'https://sync.firefox.com/after_reset',
-          resume: 'resumejwt'
+          resume: 'resumejwt',
+          type: 'upgradeSession'
         };
 
         return accountHelper.newUnverifiedAccount()
