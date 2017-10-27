@@ -10,22 +10,27 @@ define([
   'tests/functional/lib/fx-desktop'
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
   FxDesktopHelpers) {
-  var thenify = FunctionalHelpers.thenify;
 
-  var click = FunctionalHelpers.click;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutChangePassword = FunctionalHelpers.fillOutChangePassword;
-  var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
-  var testIsBrowserNotifiedOfMessage = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    click,
+    createUser,
+    fillOutChangePassword,
+    fillOutDeleteAccount,
+    fillOutSignIn,
+    noSuchElement,
+    openPage,
+    openVerificationLinkInDifferentBrowser,
+    testElementExists,
+    thenify,
+    visibleByQSA,
+  } = FunctionalHelpers;
+
+  const {
+    listenForFxaCommands,
+    testIsBrowserNotifiedOfLogin,
+    testIsBrowserNotifiedOfMessage,
+  } = FxDesktopHelpers;
 
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
@@ -69,8 +74,7 @@ define([
         .then(click('#change-password .settings-unit-toggle'))
         .then(visibleByQSA('#change-password .settings-unit-details'))
 
-        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testIsBrowserNotifiedOfMessage('change_password'));
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
     },
 
     'sign in, delete the account': function () {

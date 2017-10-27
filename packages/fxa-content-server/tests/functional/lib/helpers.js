@@ -458,6 +458,69 @@ define([
   }
 
   /**
+   * Poll until an element is either removed from the DOM or hidden.
+   *
+   * @param {String} selector
+   *        QSA compatible selector string
+   * @param {Number} [timeout=config.pageLoadTimeout]
+   *        Timeout to wait until element is gone or hidden
+   */
+  const pollUntilHiddenByQSA = thenify(function (selector, timeout = config.pageLoadTimeout) {
+    let pollError;
+
+    return this.parent
+      .then(pollUntil(function (selector) {
+        const matchingEls = document.querySelectorAll(selector);
+
+        if (matchingEls.length === 0) {
+          return true;
+        }
+
+        if (matchingEls.length > 1) {
+          throw new Error('Multiple elements matched. Make a more precise selector - ' + selector);
+        }
+
+        const matchingEl = matchingEls[0];
+
+        // Check if the element is visible. This is from jQuery source - see
+        // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
+        if (! (matchingEl.offsetWidth || matchingEl.offsetHeight || matchingEl.getClientRects().length)) {
+          return true;
+        }
+
+        // use jQuery if available to check for jQuery animations.
+        if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
+          // If the element is animating, try again after a delay. Clicks
+          // do not always register if the element is in the midst of
+          // an animation.
+          return null;
+        }
+
+        return null;
+      }, [ selector ], timeout))
+      .then(null, function (err) {
+        // The error has to be swallowed before a screenshot
+        // can be taken or else takeScreenshot is never called
+        // because `this.parent` is a promise that has already
+        // been rejected.
+        pollError = err;
+      })
+      .then(() => {
+        if (pollError) {
+          return this.parent.then(takeScreenshot())
+            .then(() => {
+              if (/ScriptTimeout/.test(String(pollError))) {
+                throw new Error(`ElementNotHidden - ${selector}`);
+              } else {
+                throw pollError;
+              }
+            });
+        }
+      });
+  });
+
+
+  /**
    * Ensure no such element exists.
    *
    * @param   {string} selector of element to ensure does not exist.
@@ -1384,15 +1447,26 @@ define([
    *
    * @param   {string} oldPassword user's old password
    * @param   {string} newPassword user's new password
+   * @param   {object} [options]
+   *   @param {boolean} [options.expectSuccess=true] if set to `true`, tests whether
+   *     the password change succeeds.
    * @returns {promise} resolves when complete
    */
-  const fillOutChangePassword = thenify(function (oldPassword, newPassword) {
+  const fillOutChangePassword = thenify(function (oldPassword, newPassword, options = {}) {
     return this.parent
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .then(type('#old_password', oldPassword))
       .then(type('#new_password', newPassword))
-      .then(click('#change-password button[type="submit"]'));
+      .then(click('#change-password button[type="submit"]'))
+      .then(function () {
+        if (options.expectSuccess !== false) {
+          return this.parent
+            .then(pollUntilHiddenByQSA(selectors.CHANGE_PASSWORD.DETAILS))
+            .then(testSuccessWasShown())
+            .then(testIsBrowserNotified('fxaccounts:change_password')); //eslint-disable-line no-use-before-define
+        }
+      });
   });
 
   /**
@@ -2052,6 +2126,7 @@ define([
     openVerificationLinkInSameTab: openVerificationLinkInSameTab,
     pollUntil: pollUntil,
     pollUntilGoneByQSA: pollUntilGoneByQSA,
+    pollUntilHiddenByQSA,
     reOpenWithAdditionalQueryParams: reOpenWithAdditionalQueryParams,
     respondToWebChannelMessage: respondToWebChannelMessage,
     storeWebChannelMessageData,

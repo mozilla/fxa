@@ -8,29 +8,31 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var click = FunctionalHelpers.click;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutChangePassword = FunctionalHelpers.fillOutChangePassword;
-  var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    click,
+    clearBrowserState,
+    createUser,
+    fillOutChangePassword,
+    fillOutDeleteAccount,
+    fillOutSignIn,
+    noSuchBrowserNotification,
+    noSuchElement,
+    openPage,
+    openVerificationLinkInDifferentBrowser,
+    respondToWebChannelMessage,
+    testElementExists,
+    testIsBrowserNotified,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
-  var config = intern.config;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
-  var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
-  var SETTINGS_NOCONTEXT_URL = config.fxaContentRoot + 'settings';
+  const config = intern.config;
+  const SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
+  const SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
+  const SETTINGS_NOCONTEXT_URL = config.fxaContentRoot + 'settings';
 
-  var FIRST_PASSWORD = 'password';
-  var SECOND_PASSWORD = 'new_password';
-  var email;
+  const FIRST_PASSWORD = 'password';
+  const SECOND_PASSWORD = 'new_password';
+  let email;
 
 
   registerSuite({
@@ -53,7 +55,7 @@ define([
 
         // wait until account data is in localstorage before redirecting
         .then(FunctionalHelpers.pollUntil(function () {
-          var accounts = Object.keys(JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {});
+          const accounts = Object.keys(JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {});
           return accounts.length === 1 ? true : null;
         }, [], 10000))
 
@@ -65,8 +67,7 @@ define([
         .then(click('#change-password .settings-unit-toggle'))
         .then(visibleByQSA('#change-password .settings-unit-details'))
 
-        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testIsBrowserNotified('fxaccounts:change_password'));
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
     },
 
     'sign in, change the password by browsing directly to settings': function () {
@@ -76,8 +77,7 @@ define([
         .then(visibleByQSA('#change-password .settings-unit-details'))
         .then(noSuchBrowserNotification('fxaccounts:change_password'))
 
-        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testIsBrowserNotified('fxaccounts:change_password'));
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
     },
 
     'sign in, delete the account': function () {

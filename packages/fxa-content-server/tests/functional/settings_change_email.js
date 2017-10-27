@@ -38,7 +38,6 @@ define([
     openVerificationLinkInSameTab,
     noSuchElement,
     switchToWindow,
-    testIsBrowserNotified,
     testElementExists,
     testElementTextEquals,
     testErrorTextInclude,
@@ -125,9 +124,6 @@ define([
         // change password
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
         .then(fillOutChangePassword(PASSWORD, NEW_PASSWORD))
-        .then(testIsBrowserNotified('fxaccounts:change_password'))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(testSuccessWasShown())
 
         // sign out and fails login with old password
         .then(click(selectors.SETTINGS.SIGNOUT))
@@ -155,6 +151,7 @@ define([
           .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
           .then(fillOutCompleteResetPassword(NEW_PASSWORD, NEW_PASSWORD))
 
+          .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))
 
           // sign out and fails login with old password
@@ -174,9 +171,6 @@ define([
       // change password
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
         .then(fillOutChangePassword(PASSWORD, NEW_PASSWORD))
-        .then(testIsBrowserNotified('fxaccounts:change_password'))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(testSuccessWasShown())
 
         // sign out and fails login with old password
         .then(click(selectors.SETTINGS.SIGNOUT))

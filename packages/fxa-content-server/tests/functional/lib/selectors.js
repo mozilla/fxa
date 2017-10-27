@@ -21,6 +21,7 @@ define([], function () {
       HEADER: '#fxa-400-header'
     },
     CHANGE_PASSWORD: {
+      DETAILS: '#change-password .settings-unit-details',
       ERROR: '#change-password .error',
       LINK_RESET_PASSWORD: '.reset-password',
       MENU_BUTTON: '#change-password .settings-unit-toggle',

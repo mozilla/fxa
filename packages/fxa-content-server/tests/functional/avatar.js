@@ -10,33 +10,35 @@ define([
   'tests/functional/lib/helpers',
   'tests/functional/lib/ua-strings'
 ], function (intern, registerSuite, path, TestHelpers, FunctionalHelpers, uaStrings) {
-  var config = intern.config;
+  const config = intern.config;
 
   const ios10UserAgent = uaStrings['ios_firefox_6_1'];
 
-  var ADD_AVATAR_BUTTON_SELECTOR  = '#change-avatar .settings-unit-toggle.primary';
-  var AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
-  var AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
-  var PASSWORD = 'password';
-  var SETTINGS_URL = config.fxaContentRoot + 'settings';
-  var SETTINGS_URL_IOS10 = `${SETTINGS_URL}?forceUA='${encodeURIComponent(ios10UserAgent)}`;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var UPLOAD_IMAGE_PATH = path.join(this.process.cwd(), 'app', 'apple-touch-icon-152x152.png');
+  const ADD_AVATAR_BUTTON_SELECTOR  = '#change-avatar .settings-unit-toggle.primary';
+  const AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
+  const AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
+  const PASSWORD = 'password';
+  const SETTINGS_URL = config.fxaContentRoot + 'settings';
+  const SETTINGS_URL_IOS10 = `${SETTINGS_URL}?forceUA='${encodeURIComponent(ios10UserAgent)}`;
+  const SIGNIN_URL = config.fxaContentRoot + 'signin';
+  const UPLOAD_IMAGE_PATH = path.join(this.process.cwd(), 'app', 'apple-touch-icon-152x152.png');
 
-  var email;
+  let email;
 
-  var thenify = FunctionalHelpers.thenify;
+  const {
+    clearBrowserState,
+    click,
+    createUser,
+    fillOutSignIn,
+    noSuchElement,
+    openPage,
+    pollUntilHiddenByQSA,
+    testElementExists,
+    testIsBrowserNotified,
+    thenify,
+  } = FunctionalHelpers;
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var click = FunctionalHelpers.click;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = FunctionalHelpers.openPage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-
-  var testIsBrowserNotifiedOfAvatarChange = thenify(function () {
+  const testIsBrowserNotifiedOfAvatarChange = thenify(function () {
     return this.parent
       .then(testIsBrowserNotified('profile:change'));
   });
@@ -140,7 +142,8 @@ define([
         .then(click('.rotate'))
         .then(click('.modal-panel #submit-btn'))
 
-        .then(testElementExists('#fxa-settings-header'))
+        .then(pollUntilHiddenByQSA('#imageLoader'))
+
         .then(testIsBrowserNotifiedOfAvatarChange())
         //success is seeing the image loaded
         .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'));

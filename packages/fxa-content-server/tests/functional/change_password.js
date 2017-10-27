@@ -31,7 +31,6 @@ define([
     openPage,
     testElementExists,
     testElementTextEquals,
-    testSuccessWasShown,
     thenify,
     type,
     visibleByQSA,
@@ -68,7 +67,7 @@ define([
 
         // Go to change password screen
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
-        .then(fillOutChangePassword('INCORRECT', SECOND_PASSWORD))
+        .then(fillOutChangePassword('INCORRECT', SECOND_PASSWORD, { expectSuccess: false }))
         // the validation tooltip should be visible
         .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
 
@@ -95,8 +94,6 @@ define([
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(testSuccessWasShown())
 
         .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
         .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
@@ -113,8 +110,6 @@ define([
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(testSuccessWasShown())
 
         .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
         .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
@@ -137,8 +132,6 @@ define([
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
 
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(testSuccessWasShown())
 
         .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
         .then(click(selectors.SIGNIN.LINK_USE_DIFFERENT))
