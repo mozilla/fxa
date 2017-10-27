@@ -133,7 +133,11 @@ define([
         if (pollError) {
           return this.parent.then(takeScreenshot())
             .then(() => {
-              throw pollError;
+              if (/ScriptTimeout/.test(String(pollError))) {
+                throw new Error(`ElementNotVisible - ${selector}`);
+              } else {
+                throw pollError;
+              }
             });
         }
       });
