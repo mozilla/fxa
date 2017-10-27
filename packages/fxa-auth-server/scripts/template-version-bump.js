@@ -25,7 +25,7 @@ const DEDUP = {}
 const templates = require(`../${TEMPLATE_DIR}`)
 const versions = require(`../${TEMPLATE_DIR}/${VERSIONS_FILE}`)
 
-cp.execSync('git status --porcelain', { cwd: ROOT_DIR, encoding: 'utf8' })
+const stagedTemplates = cp.execSync('git status --porcelain', { cwd: ROOT_DIR, encoding: 'utf8' })
   .split('\n')
   .filter(line => line.match(`^[AM]. ${TEMPLATE_DIR}/\\w+`))
   .map(line => {
@@ -43,7 +43,13 @@ cp.execSync('git status --porcelain', { cwd: ROOT_DIR, encoding: 'utf8' })
     DEDUP[templateName] = true
     return true
   })
-  .forEach(templateName => {
+
+if (stagedTemplates.length === 0) {
+  if (process.argc === 2 || process.argv[2] !== '--silent') {
+    console.log('I see no work. Did you remember to `git add` your changes?')
+  }
+} else {
+  stagedTemplates.forEach(templateName => {
     const version = versions[templateName]
     if (version) {
       const type = typeof version
@@ -57,8 +63,9 @@ cp.execSync('git status --porcelain', { cwd: ROOT_DIR, encoding: 'utf8' })
     }
   })
 
-fs.writeFileSync(
-  path.join(`${ROOT_DIR}/${TEMPLATE_DIR}/${VERSIONS_FILE}`),
-  JSON.stringify(versions, null, '  ')
-)
+  fs.writeFileSync(
+    path.join(`${ROOT_DIR}/${TEMPLATE_DIR}/${VERSIONS_FILE}`),
+    JSON.stringify(versions, null, '  ')
+  )
+}
 
