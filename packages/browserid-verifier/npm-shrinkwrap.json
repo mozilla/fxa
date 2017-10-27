@@ -1,6 +1,6 @@
 {
   "name": "browserid-verifier",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "dependencies": {
     "ass": {
       "version": "1.0.0",
