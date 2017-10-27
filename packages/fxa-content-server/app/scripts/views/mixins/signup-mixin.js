@@ -67,7 +67,12 @@ define(function (require, exports, module) {
       this.logViewEvent('success');
       this.logViewEvent('signup.success');
 
-      return this.invokeBrokerMethod('afterSignUp', account);
+      // do NOT propagate the returned promise. The broker
+      // delegates to a NavigateBehavior which returns a promise
+      // that never resolves. The next screen ends up invoking
+      // this function in their submit handler, which causes
+      // a "Working" error to be logged. See #5655
+      this.invokeBrokerMethod('afterSignUp', account);
     },
 
     onSuggestSyncClick () {

@@ -128,6 +128,7 @@ define(function (require, exports, module) {
       describe('everyone else', function () {
         beforeEach(function () {
           account.set('verified', false);
+          sinon.stub(view, 'onSignUpSuccess').callsFake(() => p());
 
           return view.signUp(account, 'password');
         });
@@ -141,29 +142,23 @@ define(function (require, exports, module) {
           assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
         });
 
-        it('calls view.logViewEvent correctly', function () {
-          assert.equal(view.logViewEvent.callCount, 2);
-          assert.isTrue(view.logViewEvent.calledWith('success'));
-          assert.isTrue(view.logViewEvent.calledWith('signup.success'));
-        });
-
         it('calls view.formPrefill.clear correctly', function () {
           assert.equal(view.formPrefill.clear.callCount, 1);
           assert.lengthOf(view.formPrefill.clear.args[0], 0);
         });
 
         it('calls view.invokeBrokerMethod correctly', function () {
-          assert.equal(view.invokeBrokerMethod.callCount, 2);
+          assert.equal(view.invokeBrokerMethod.callCount, 1);
 
           var args = view.invokeBrokerMethod.args[0];
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'beforeSignIn');
           assert.equal(args[1], account);
+        });
 
-          args = view.invokeBrokerMethod.args[1];
-          assert.lengthOf(args, 2);
-          assert.equal(args[0], 'afterSignUp');
-          assert.deepEqual(args[1], account);
+        it('calls view.onSignUpSuccess correctly', () => {
+          assert.isTrue(view.onSignUpSuccess.calledOnce);
+          assert.isTrue(view.onSignUpSuccess.calledWith(account));
         });
       });
 
@@ -174,8 +169,24 @@ define(function (require, exports, module) {
 
         it('does not throw', function () {
           assert.doesNotThrow(function () {
-            return view.onSignUpSuccess(account);
+            return view.signUp(account);
           });
+        });
+      });
+
+      describe('onSignUpSuccess', () => {
+        it('logs and calls view.invokeBrokerMethod correctly', () => {
+          assert.isUndefined(view.onSignUpSuccess(account));
+
+          assert.equal(view.logViewEvent.callCount, 2);
+          assert.isTrue(view.logViewEvent.calledWith('success'));
+          assert.isTrue(view.logViewEvent.calledWith('signup.success'));
+
+          assert.isTrue(view.invokeBrokerMethod.calledOnce);
+          const args = view.invokeBrokerMethod.args[0];
+          assert.lengthOf(args, 2);
+          assert.equal(args[0], 'afterSignUp');
+          assert.deepEqual(args[1], account);
         });
       });
     });
