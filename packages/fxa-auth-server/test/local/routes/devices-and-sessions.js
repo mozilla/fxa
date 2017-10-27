@@ -29,7 +29,7 @@ function makeRoutes (options, requireMocks) {
     lifetime: 30
   }
   config.i18n = {
-    supportedLanguages: ['en'],
+    supportedLanguages: [ 'en', 'fr' ],
     defaultLanguage: 'en'
   }
   config.push = {
@@ -556,6 +556,7 @@ describe('/account/device/destroy', function () {
 describe('/account/devices', () => {
   it('should return the devices list', () => {
     const mockRequest = mocks.mockRequest({
+      acceptLanguage: 'fr,en',
       credentials: {
         uid: crypto.randomBytes(16).toString('hex'),
         id: crypto.randomBytes(16).toString('hex')
@@ -583,7 +584,14 @@ describe('/account/devices', () => {
           name: 'has device type',
           sessionToken: crypto.randomBytes(16).toString('hex'),
           uaDeviceType: 'wibble',
-          lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1
+          lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
+          location: {
+            city: 'Bournemouth',
+            state: 'England',
+            stateCode: 'EN',
+            country: 'United Kingdom',
+            countryCode: 'GB'
+          }
         },
         unnamedDevice
       ]
@@ -606,30 +614,35 @@ describe('/account/devices', () => {
       assert.equal(response[0].sessionToken, undefined)
       assert.equal(response[0].isCurrentDevice, true)
       assert.ok(response[0].lastAccessTime > now - 10000 && response[0].lastAccessTime <= now)
-      assert.equal(response[0].lastAccessTimeFormatted, 'a few seconds ago')
+      assert.equal(response[0].lastAccessTimeFormatted, 'il y a quelques secondes')
       assert.equal(response[0].approximateLastAccessTime, undefined)
       assert.equal(response[0].approximateLastAccessTimeFormatted, undefined)
+      assert.deepEqual(response[0].location, {})
 
       assert.equal(response[1].name, 'has no type')
       assert.equal(response[1].type, 'desktop')
       assert.equal(response[1].sessionToken, undefined)
       assert.equal(response[1].isCurrentDevice, false)
       assert.equal(response[1].lastAccessTime, 1)
-      assert.equal(response[1].lastAccessTimeFormatted, moment(1).locale('en').fromNow())
+      assert.equal(response[1].lastAccessTimeFormatted, moment(1).locale('fr').fromNow())
       assert.equal(response[1].approximateLastAccessTime, EARLIEST_SANE_TIMESTAMP)
-      assert.equal(response[1].approximateLastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP).locale('en').fromNow())
+      assert.equal(response[1].approximateLastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP).locale('fr').fromNow())
+      assert.deepEqual(response[1].location, {})
 
       assert.equal(response[2].name, 'has device type')
       assert.equal(response[2].type, 'wibble')
       assert.equal(response[2].isCurrentDevice, false)
       assert.equal(response[2].lastAccessTime, EARLIEST_SANE_TIMESTAMP - 1)
-      assert.equal(response[2].lastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP - 1).locale('en').fromNow())
+      assert.equal(response[2].lastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP - 1).locale('fr').fromNow())
       assert.equal(response[2].approximateLastAccessTime, EARLIEST_SANE_TIMESTAMP)
-      assert.equal(response[2].approximateLastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP).locale('en').fromNow())
+      assert.equal(response[2].approximateLastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP).locale('fr').fromNow())
+      assert.deepEqual(response[2].location, {
+        country: 'Royaume-Uni'
+      })
 
       assert.equal(response[3].name, null)
       assert.equal(response[3].lastAccessTime, EARLIEST_SANE_TIMESTAMP)
-      assert.equal(response[3].lastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP).locale('en').fromNow())
+      assert.equal(response[3].lastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP).locale('fr').fromNow())
       assert.equal(response[3].approximateLastAccessTime, undefined)
       assert.equal(response[3].approximateLastAccessTimeFormatted, undefined)
 
@@ -698,7 +711,13 @@ describe('/account/sessions', () => {
       uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
-      location: { country: 'Canada', state: 'ON' }
+      location: {
+        city: 'Toronto',
+        country: 'Canada',
+        countryCode: 'CA',
+        state: 'Ontario',
+        stateCode: 'ON'
+      }
     },
     {
       id: tokenIds[1], uid: 'wibble', createdAt: times[3], lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
@@ -706,7 +725,13 @@ describe('/account/sessions', () => {
       uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[4],
       deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null,
       deviceCallbackIsExpired: false,
-      location: { country: 'England', state: 'AB' }
+      location: {
+        city: 'Bournemouth',
+        country: 'United Kingdom',
+        countryCode: 'GB',
+        state: 'England',
+        stateCode: 'EN'
+      }
     },
     {
       id: tokenIds[2], uid: 'blee', createdAt: times[5], lastAccessTime: EARLIEST_SANE_TIMESTAMP,
@@ -728,6 +753,7 @@ describe('/account/sessions', () => {
   const db = mocks.mockDB({ sessions })
   const accountRoutes = makeRoutes({ db })
   const request = mocks.mockRequest({
+    acceptLanguage: 'xx',
     credentials: {
       id: tokenIds[0],
       uid: hexString(16)
@@ -759,7 +785,11 @@ describe('/account/sessions', () => {
           createdTimeFormatted: 'a few seconds ago',
           os: 'Windows',
           userAgent: 'Firefox 50',
-          location: { country: 'Canada', state: 'ON' }
+          location: {
+            country: 'Canada',
+            state: 'Ontario',
+            stateCode: 'ON'
+          }
         },
         {
           deviceId: 'deviceId',
@@ -780,7 +810,11 @@ describe('/account/sessions', () => {
           createdTimeFormatted: 'a few seconds ago',
           os: 'Android',
           userAgent: 'Nightly',
-          location: { country: 'England', state: 'AB' }
+          location: {
+            country: 'United Kingdom',
+            state: 'England',
+            stateCode: 'EN'
+          }
         },
         {
           deviceId: 'deviceId',
@@ -799,7 +833,7 @@ describe('/account/sessions', () => {
           createdTimeFormatted: 'a few seconds ago',
           os: null,
           userAgent: '',
-          location: { country: null, state: null}
+          location: {}
         },
         {
           deviceId: 'deviceId',
@@ -820,7 +854,7 @@ describe('/account/sessions', () => {
           createdTimeFormatted: 'a few seconds ago',
           os: null,
           userAgent: '',
-          location: { country: null, state: null}
+          location: {}
         }
       ])
     })

@@ -246,9 +246,13 @@ describe('remote db', function() {
           // Update the session token
           return db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({
             location: {
-              state: 'Mordor',
-              country: 'ME'
-            }
+              city: 'Bournemouth',
+              country: 'United Kingdom',
+              countryCode: 'GB',
+              state: 'England',
+              stateCode: 'EN'
+            },
+            timeZone: 'Europe/London'
           }))
         })
         .then(() => {
@@ -264,8 +268,12 @@ describe('remote db', function() {
           assert.equal(token.uaOSVersion, '10.10')
           assert.equal(token.uaDeviceType, null)
           assert.equal(token.uaFormFactor, null)
-          assert.equal(token.location.state, 'Mordor', 'state is correct')
-          assert.equal(token.location.country, 'ME', 'country is correct')
+          assert.equal(token.location.country, 'United Kingdom', 'country is correct')
+          assert.equal(token.location.countryCode, 'GB', 'countryCode is correct')
+          assert.equal(token.location.state, 'England', 'state is correct')
+          assert.equal(token.location.stateCode, 'EN', 'stateCode is correct')
+          assert.equal(token.location.city, undefined, 'city is not set')
+          assert.equal(token.location.timeZone, undefined, 'timeZone is not set')
           assert.ok(token.lastAccessTime)
           assert.ok(token.createdAt)
 
@@ -466,6 +474,7 @@ describe('remote db', function() {
             assert.equal(device.uaOSVersion, '4.4', 'device.uaOSVersion is correct')
             assert.equal(device.uaDeviceType, 'mobile', 'device.uaDeviceType is correct')
             assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
+            assert.equal(device.location, undefined, 'device.location was not set')
             deviceInfo.id = device.id
             deviceInfo.name = 'wibble'
             deviceInfo.type = 'desktop'
@@ -482,9 +491,13 @@ describe('remote db', function() {
               db.updateDevice(account.uid, sessionToken.id, deviceInfo),
               db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({
                 location: {
-                  state: 'Mordor',
-                  country: 'ME'
-                }
+                  city: 'Mountain View',
+                  country: 'United States',
+                  countryCode: 'US',
+                  state: 'California',
+                  stateCode: 'CA'
+                },
+                timeZone: 'America/Los_Angeles'
               }))
             ])
           })
@@ -537,6 +550,10 @@ describe('remote db', function() {
             assert.equal(device.uaOSVersion, '10.10', 'device.uaOSVersion is correct')
             assert.equal(device.uaDeviceType, null, 'device.uaDeviceType is correct')
             assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
+            assert.equal(device.location.country, 'United States', 'device.location.country is correct')
+            assert.equal(device.location.countryCode, 'US', 'device.location.countryCode is correct')
+            assert.equal(device.location.state, 'California', 'device.location.state is correct')
+            assert.equal(device.location.stateCode, 'CA', 'device.location.stateCode is correct')
 
             // Disable session token updates
             lastAccessTimeUpdates.enabled = false

@@ -8,6 +8,7 @@ const Ajv = require('ajv')
 const ajv = new Ajv()
 const error = require('../error')
 const fs = require('fs')
+const i18n = require('i18n-abide')
 const isA = require('joi')
 const P = require('../promise')
 const path = require('path')
@@ -22,9 +23,10 @@ module.exports = (log, db, config, customs, push, devices) => {
   // in /account/devices/notify
   const validatePushSchema = JSON.parse(fs.readFileSync(PUSH_PAYLOADS_SCHEMA_PATH))
   const validatePushPayloadAjv = ajv.compile(validatePushSchema)
+  const { supportedLanguages, defaultLanguage } = config.i18n
   const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
-    supportedLanguages: config.i18n.supportedLanguages,
-    defaultLanguage: config.i18n.defaultLanguage
+    supportedLanguages,
+    defaultLanguage
   })
   const earliestSaneTimestamp = config.lastAccessTimeUpdates.earliestSaneTimestamp
 
@@ -44,7 +46,7 @@ module.exports = (log, db, config, customs, push, devices) => {
   }
 
   function marshallLastAccessTime (lastAccessTime, request) {
-    const languages = request.headers['accept-language']
+    const languages = request.app.acceptLanguage
     const result = {
       lastAccessTime,
       lastAccessTimeFormatted: localizeTimestamp.format(lastAccessTime, languages),
@@ -61,6 +63,41 @@ module.exports = (log, db, config, customs, push, devices) => {
     }
 
     return result
+  }
+
+  function marshallLocation (location, request) {
+    let language
+
+    try {
+      const languages = i18n.parseAcceptLanguage(request.app.acceptLanguage)
+      language = i18n.bestLanguage(languages, supportedLanguages, defaultLanguage)
+
+      if (language[0] === 'e' && language[1] === 'n') {
+        // For English, return all of the location components
+        return {
+          country: location.country,
+          state: location.state,
+          stateCode: location.stateCode
+        }
+      }
+
+      // For other languages, only return what we can translate
+      const territories = require(`cldr-localenames-full/main/${language}/territories.json`)
+      return {
+        country: territories.main[language].localeDisplayNames.territories[location.countryCode]
+      }
+    } catch (err) {
+      log.error({
+        op: 'devices.marshallLocation.error',
+        err: err.message,
+        languages: request.app.acceptLanguage,
+        language,
+        location
+      })
+    }
+
+    // If something failed, don't return location
+    return {}
   }
 
   return [
@@ -317,6 +354,7 @@ module.exports = (log, db, config, customs, push, devices) => {
             lastAccessTimeFormatted: isA.string().optional().allow(''),
             approximateLastAccessTime: isA.number().min(earliestSaneTimestamp).optional(),
             approximateLastAccessTimeFormatted: isA.string().optional().allow(''),
+            location: DEVICES_SCHEMA.location,
             name: DEVICES_SCHEMA.nameResponse.allow('').required(),
             type: DEVICES_SCHEMA.type.required(),
             pushCallback: DEVICES_SCHEMA.pushCallback.allow(null).optional(),
@@ -338,6 +376,7 @@ module.exports = (log, db, config, customs, push, devices) => {
               return Object.assign({
                 id: device.id,
                 isCurrentDevice: device.sessionToken === sessionToken.id,
+                location: marshallLocation(device.location, request),
                 name: device.name || devices.synthesizeName(device),
                 type: device.type || device.uaDeviceType || 'desktop',
                 pushCallback: device.pushCallback,
@@ -367,10 +406,7 @@ module.exports = (log, db, config, customs, push, devices) => {
             approximateLastAccessTimeFormatted: isA.string().optional().allow(''),
             createdTime: isA.number().min(0).required().allow(null),
             createdTimeFormatted: isA.string().optional().allow(''),
-            location: isA.object({
-              state: isA.string().allow(null),
-              country: isA.string().allow(null)
-            }),
+            location: DEVICES_SCHEMA.location,
             userAgent: isA.string().max(255).required().allow(''),
             os: isA.string().max(255).allow('').allow(null),
             deviceId: DEVICES_SCHEMA.id.allow(null).required(),
@@ -422,10 +458,7 @@ module.exports = (log, db, config, customs, push, devices) => {
                 id: session.id,
                 isCurrentDevice: session.id === sessionToken.id,
                 isDevice,
-                location: {
-                  state: session.location && session.location.state,
-                  country: session.location && session.location.country
-                },
+                location: marshallLocation(session.location, request),
                 createdTime: session.createdAt,
                 createdTimeFormatted: localizeTimestamp.format(
                   session.createdAt,

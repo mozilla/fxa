@@ -14,6 +14,11 @@ const PUSH_SERVER_REGEX = require('../config').get('push.allowedServerRegex')
 
 const SCHEMA = {
   id: isA.string().length(32).regex(HEX_STRING),
+  location: isA.object({
+    country: isA.string().optional().allow(null),
+    state: isA.string().optional().allow(null),
+    stateCode: isA.string().optional().allow(null)
+  }),
   name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP),
   // We previously allowed devices to register with arbitrary unicode names,
   // so we can't assert DISPLAY_SAFE_UNICODE_WITH_NON_BMP in the response schema.

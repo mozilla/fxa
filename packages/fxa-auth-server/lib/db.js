@@ -466,6 +466,7 @@ module.exports = (
             id: device.id,
             sessionToken: device.sessionTokenId,
             lastAccessTime: lastAccessTimeEnabled ? mergedInfo.lastAccessTime : null,
+            location: mergedInfo.location,
             name: device.name,
             type: device.type,
             pushCallback: device.callbackURL,
@@ -538,9 +539,14 @@ module.exports = (
     let sessionTokens
     return geo
     .then((res) => {
-      const state = res.location && res.location.state
-      const country = res.location && res.location.country
-      newToken.location = {state, country}
+      if (res.location) {
+        newToken.location = {
+          country: res.location.country,
+          countryCode: res.location.countryCode,
+          state: res.location.state,
+          stateCode: res.location.stateCode
+        }
+      }
     })
     .catch(err => {
       newToken.location = null
