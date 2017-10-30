@@ -242,6 +242,7 @@ define(function (require, exports, module) {
         sinon.stub(view, 'stopAndDestroyStream').callsFake(sinon.spy());
 
         sinon.spy(view, 'navigate');
+        sinon.spy(view, 'logFlowEvent');
 
         view.render()
           .then(function () {
@@ -253,6 +254,8 @@ define(function (require, exports, module) {
             windowMock.on('stream', function () {
               view.video.dispatchEvent(ev);
               assert.ok(view.stream, 'stream is set');
+
+              assert.equal(view.logFlowEvent.callCount, 0);
 
               view.submit()
                 .done(function (result) {
@@ -272,6 +275,17 @@ define(function (require, exports, module) {
                   assert.equal(view.canvas._context._args[8], view.exportLength);
 
                   assert.isTrue(view.navigate.calledWith('settings'));
+
+                  assert.equal(view.logFlowEvent.callCount, 1);
+                  const args = view.logFlowEvent.args[0];
+                  assert.lengthOf(args, 1);
+                  const eventParts = args[0].split('.');
+                  assert.lengthOf(eventParts, 4);
+                  assert.equal(eventParts[0], 'timing');
+                  assert.equal(eventParts[1], 'avatar');
+                  assert.equal(eventParts[2], 'upload');
+                  assert.match(eventParts[3], /^[0-9]+$/);
+
                   done();
                 }, done);
             });

@@ -171,14 +171,17 @@ define(function (require, exports, module) {
     },
 
     submit () {
-      var account = this.getSignedInAccount();
+      let start;
+      const account = this.getSignedInAccount();
       this.logAccountImageChange(account);
 
       return this.takePicture()
         .then((data) => {
+          start = Date.now();
           return account.uploadAvatar(data);
         })
         .then((result) => {
+          this.logFlowEvent(`timing.avatar.upload.${Date.now() - start}`);
           this.stopAndDestroyStream();
 
           this.updateProfileImage(new ProfileImage(result), account);

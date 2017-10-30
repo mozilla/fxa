@@ -46,14 +46,16 @@ define(function (require, exports, module) {
     },
 
     submit () {
-      var account = this.getSignedInAccount();
-      var displayName = this.getElementValue('input.display-name').trim();
+      const start = Date.now();
+      const account = this.getSignedInAccount();
+      const displayName = this.getElementValue('input.display-name').trim();
 
       return account.postDisplayName(displayName)
         .then(() => {
           this.logViewEvent('success');
           this.updateDisplayName(displayName);
           this.displaySuccess(t('Display name updated'));
+          this.logFlowEvent(`timing.displayName.change.${Date.now() - start}`);
           this.navigate('settings');
         });
     }

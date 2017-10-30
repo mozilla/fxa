@@ -75,12 +75,14 @@ define(function (require, exports, module) {
     },
 
     submit () {
+      const start = Date.now();
       const client = this.client;
       const selectedValue = this.$('input[name=disconnect-reasons]:checked').val();
       this.logViewEvent('submit.' + selectedValue);
 
       return this.user.destroyAccountClient(this.user.getSignedInAccount(), client)
         .then(() => {
+          this.logFlowEvent(`timing.clients.disconnect.${Date.now() - start}`);
           // user has disconnect the device
           this.hasDisconnected = true;
           this.reasonHelp = REASON_HELP[selectedValue];

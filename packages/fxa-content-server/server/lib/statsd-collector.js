@@ -128,21 +128,23 @@ function getImpressionTags(impression) {
 
 function sendEvents(context, events, tags) {
   if (events && events.length > 0) {
-    events.forEach(function (event) {
-      const type = event.type;
-      if (type) {
-        context.increment(type, tags);
+    events
+      .filter(event => ! /^flow\./.test(event.type))
+      .forEach(event => {
+        const type = event.type;
+        if (type) {
+          context.increment(type, tags);
 
-        const offset = event.offset;
-        if (isTimedEvent(type) && isEventOffsetValid(offset)) {
-          if (isInRange(offset, 0, USER_ACTION_MAX_OFFSET)) {
-            context.timing(type, offset, tags);
-          } else {
-            logOutOfRange(type, offset, 0, USER_ACTION_MAX_OFFSET);
+          const offset = event.offset;
+          if (isTimedEvent(type) && isEventOffsetValid(offset)) {
+            if (isInRange(offset, 0, USER_ACTION_MAX_OFFSET)) {
+              context.timing(type, offset, tags);
+            } else {
+              logOutOfRange(type, offset, 0, USER_ACTION_MAX_OFFSET);
+            }
           }
         }
-      }
-    });
+      });
   }
 }
 

@@ -223,6 +223,7 @@ define(function (require, exports, module) {
     },
 
     _fetchAttachedClients () {
+      const start = Date.now();
       return this._attachedClients.fetchClients({
         oAuthApps: true,
         sessions: true
@@ -240,6 +241,8 @@ define(function (require, exports, module) {
         } else {
           this.logEventOnce(itemsLog + '.many');
         }
+
+        this.logFlowEvent(`timing.clients.fetch.${Date.now() - start}`);
       });
     },
 

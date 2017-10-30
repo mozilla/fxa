@@ -64,6 +64,7 @@ define([
         assert.isUndefined(loggedMetrics['nt.notIncludedUndefined']);
         assert.isUndefined(loggedMetrics['nt.notIncludedNull']);
 
+        assert.lengthOf(loggedMetrics.events, 2);
         assert.equal(loggedMetrics.events[0], 'firstEvent');
         assert.equal(loggedMetrics.event_durations[0], 1235);
 
@@ -108,6 +109,10 @@ define([
         {
           offset: 3512,
           type: 'secondEvent'
+        },
+        {
+          offset: 1235,
+          type: 'flow.wibble'
         }
       ],
       lang: 'db_LB',

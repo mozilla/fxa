@@ -61,10 +61,12 @@ function addEvents(loggableEvent, event) {
     loggableEvent.events = [];
     loggableEvent.event_durations = []; //eslint-disable-line camelcase
 
-    event.events.forEach(function (event) {
-      loggableEvent.events.push(event.type);
-      loggableEvent.event_durations.push(event.offset);
-    });
+    event.events
+      .filter(event => ! /^flow\./.test(event.type))
+      .forEach(event => {
+        loggableEvent.events.push(event.type);
+        loggableEvent.event_durations.push(event.offset);
+      });
   }
 }
 

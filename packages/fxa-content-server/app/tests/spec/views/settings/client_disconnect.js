@@ -155,6 +155,7 @@ define(function (require, exports, module) {
         sinon.stub(view.user, 'destroyAccountClient').callsFake(() => {
           return p();
         });
+        sinon.spy(view, 'logFlowEvent');
         sinon.spy(view, 'render');
         sinon.spy(view, 'navigateToSignIn');
       });
@@ -162,12 +163,24 @@ define(function (require, exports, module) {
       it('suspicious option with current device', () => {
         return view.render().then(() => {
           $(view.el).find('input[name=disconnect-reasons][value=suspicious]').prop('checked', true).change();
+          assert.equal(view.logFlowEvent.callCount, 0);
+
           return view.submit().then(() => {
             assert.ok(view.hasDisconnected);
             assert.ok(view.render.calledOnce, 'not rendered, current device');
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.suspicious'));
             assert.ok(view.navigateToSignIn.called, 'navigates away');
             assert.ok(view.reasonHelp);
+
+            assert.equal(view.logFlowEvent.callCount, 1);
+            const args = view.logFlowEvent.args[0];
+            assert.lengthOf(args, 1);
+            const eventParts = args[0].split('.');
+            assert.lengthOf(eventParts, 4);
+            assert.equal(eventParts[0], 'timing');
+            assert.equal(eventParts[1], 'clients');
+            assert.equal(eventParts[2], 'disconnect');
+            assert.match(eventParts[3], /^[0-9]+$/);
           });
         });
       });

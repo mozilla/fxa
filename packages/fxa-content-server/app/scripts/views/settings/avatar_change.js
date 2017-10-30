@@ -89,35 +89,37 @@ define(function (require, exports, module) {
     },
 
     fileSet (e) {
-      var defer = p.defer();
-      var file = e.target.files[0];
-      var account = this.getAccount();
+      const start = Date.now();
+      const defer = p.defer();
+      const file = e.target.files[0];
+      const account = this.getAccount();
       this.logAccountImageChange(account);
 
-      var imgOnError = (e) => {
-        var error = e && e.errno ? e : 'UNUSABLE_IMAGE';
-        var msg = AuthErrors.toMessage(error);
+      const imgOnError = (e) => {
+        const error = e && e.errno ? e : 'UNUSABLE_IMAGE';
+        const msg = AuthErrors.toMessage(error);
         this.displayError(msg);
         defer.reject(msg);
       };
 
       if (file.type.match('image.*')) {
-        var reader = new this.FileReader();
+        const reader = new this.FileReader();
 
         reader.onload = (event) => {
-          var src = event.target.result;
+          const src = event.target.result;
 
           ImageLoader.load(src)
             .then((img) => {
-              var cropImg = new CropperImage({
+              this.logFlowEvent(`timing.avatar.load.${Date.now() - start}`);
+              const cropImg = new CropperImage({
                 height: img.height,
-                src: src,
+                src,
                 type: file.type,
                 width: img.width
               });
               require(['draggable', 'touch-punch'], () => {
                 this.navigate('settings/avatar/crop', {
-                  cropImg: cropImg
+                  cropImg
                 });
               });
               defer.resolve();

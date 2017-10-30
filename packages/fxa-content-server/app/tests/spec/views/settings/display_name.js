@@ -171,27 +171,38 @@ define(function (require, exports, module) {
         });
 
         return initView()
-          .then(function () {
+          .then(() => {
             sinon.stub(view, 'updateDisplayName').callsFake(function () {
               return p();
             });
             sinon.stub(view, 'displaySuccess').callsFake(function () {
               return p();
             });
+            sinon.spy(view, 'logFlowEvent');
             sinon.spy(view, 'render');
             sinon.spy(view, 'navigate');
 
             view.$('input.display-name').val(name);
             return view.submit();
           })
-          .then(function () {
-            var expectedName = name.trim();
+          .then(() => {
+            const expectedName = name.trim();
             assert.isTrue(account.postDisplayName.calledWith(expectedName));
             assert.isTrue(view.updateDisplayName.calledWith(expectedName));
             assert.isTrue(view.displaySuccess.called);
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'settings.display-name.success'));
             assert.isTrue(view.navigate.calledWith('settings'));
+
+            assert.equal(view.logFlowEvent.callCount, 1);
+            const args = view.logFlowEvent.args[0];
+            assert.lengthOf(args, 1);
+            const eventParts = args[0].split('.');
+            assert.lengthOf(eventParts, 4);
+            assert.equal(eventParts[0], 'timing');
+            assert.equal(eventParts[1], 'displayName');
+            assert.equal(eventParts[2], 'change');
+            assert.match(eventParts[3], /^[0-9]+$/);
           });
       });
 

@@ -11,6 +11,10 @@
         {
             "type": "signup.success",
             "offset": 1930
+        },
+        {
+            "type": "flow.wibble",
+            "offset": 1000
         }
     ],
     "migration": "none",

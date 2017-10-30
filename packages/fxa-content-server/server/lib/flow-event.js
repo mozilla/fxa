@@ -114,7 +114,13 @@ module.exports = (req, metrics, requestReceivedTime) => {
         return;
       }
 
-      event.flowTime = event.time - metrics.flowBeginTime;
+      if (/^flow\.timing\./.test(event.type)) {
+        const separatorIndex = event.type.lastIndexOf('.');
+        event.flowTime = event.type.substr(separatorIndex + 1);
+        event.type = event.type.substr(0, separatorIndex);
+      } else {
+        event.flowTime = event.time - metrics.flowBeginTime;
+      }
     }
 
     amplitude(event, req, metrics);

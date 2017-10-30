@@ -147,12 +147,14 @@ define(function (require, exports, module) {
           });
 
           sinon.spy(view, 'navigate');
+          sinon.spy(view, 'logFlowEvent');
 
           return view.render()
             .then(function () {
               return view.afterVisible();
             })
             .then(function () {
+              assert.equal(view.logFlowEvent.callCount, 0);
               return view.submit();
             })
             .then(function (result) {
@@ -163,6 +165,16 @@ define(function (require, exports, module) {
               assert.isTrue(view.navigate.calledWith('settings'));
               assert.isTrue(TestHelpers.isEventLogged(metrics,
                 'settings.avatar.crop.submit.new'));
+
+              assert.equal(view.logFlowEvent.callCount, 1);
+              const args = view.logFlowEvent.args[0];
+              assert.lengthOf(args, 1);
+              const eventParts = args[0].split('.');
+              assert.lengthOf(eventParts, 4);
+              assert.equal(eventParts[0], 'timing');
+              assert.equal(eventParts[1], 'avatar');
+              assert.equal(eventParts[2], 'upload');
+              assert.match(eventParts[3], /^[0-9]+$/);
             });
         });
 

@@ -87,6 +87,7 @@ define(function (require, exports, module) {
         sinon.stub(account, 'getAvatar').callsFake(function () {
           return p({ avatar: pngSrc, id: 'foo' });
         });
+        sinon.spy(view, 'logFlowEvent');
         sinon.stub(account, 'profileClient').callsFake(function () {
           return p(profileClientMock);
         });
@@ -147,6 +148,7 @@ define(function (require, exports, module) {
 
               assert.equal(view.$('.error').text(), AuthErrors.toMessage('UNUSABLE_IMAGE'));
               assert.isTrue(view.isErrorVisible());
+              assert.equal(view.logFlowEvent.callCount, 0);
             });
         });
 
@@ -162,6 +164,7 @@ define(function (require, exports, module) {
                 }, function () {
                   assert.equal(view.$('.error').text(), AuthErrors.toMessage('UNUSABLE_IMAGE'));
                   assert.isTrue(view.isErrorVisible());
+                  assert.equal(view.logFlowEvent.callCount, 0);
                 });
             });
         });
@@ -178,6 +181,16 @@ define(function (require, exports, module) {
                 }, function () {
                   assert.equal(view.$('.error').text(), AuthErrors.toMessage('INVALID_IMAGE_SIZE'));
                   assert.isTrue(view.isErrorVisible());
+
+                  assert.equal(view.logFlowEvent.callCount, 1);
+                  const args = view.logFlowEvent.args[0];
+                  assert.lengthOf(args, 1);
+                  const eventParts = args[0].split('.');
+                  assert.lengthOf(eventParts, 4);
+                  assert.equal(eventParts[0], 'timing');
+                  assert.equal(eventParts[1], 'avatar');
+                  assert.equal(eventParts[2], 'load');
+                  assert.match(eventParts[3], /^[0-9]+$/);
                 });
             });
         });
@@ -187,14 +200,24 @@ define(function (require, exports, module) {
 
           view.afterVisible()
             .then(function () {
-              var ev = FileReaderMock._mockPngEvent();
+              const ev = FileReaderMock._mockPngEvent();
 
 
               sinon.stub(view, 'navigate').callsFake(function (url, options) {
                 wrapAssertion(function () {
                   assert.equal(url, 'settings/avatar/crop');
-                  var cropImg = options.cropImg;
+                  const cropImg = options.cropImg;
                   assert.equal(cropImg.get('src'), pngSrc);
+
+                  assert.equal(view.logFlowEvent.callCount, 1);
+                  const args = view.logFlowEvent.args[0];
+                  assert.lengthOf(args, 1);
+                  const eventParts = args[0].split('.');
+                  assert.lengthOf(eventParts, 4);
+                  assert.equal(eventParts[0], 'timing');
+                  assert.equal(eventParts[1], 'avatar');
+                  assert.equal(eventParts[2], 'load');
+                  assert.match(eventParts[3], /^[0-9]+$/);
                 }, done);
               });
 

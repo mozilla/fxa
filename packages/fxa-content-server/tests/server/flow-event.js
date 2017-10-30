@@ -73,13 +73,15 @@ define([
             { offset: timeSinceFlowBegin, type: 'flow.signup.good-offset-now' },
             { offset: timeSinceFlowBegin + 1, type: 'flow.signup.bad-offset-future' },
             { offset: timeSinceFlowBegin - config.flow_id_expiry - 1, type: 'flow.signup.bad-offset-expired' },
-            { offset: timeSinceFlowBegin - config.flow_id_expiry, type: 'flow.signup.good-offset-oldest' }
+            { offset: timeSinceFlowBegin - config.flow_id_expiry, type: 'flow.signup.good-offset-oldest' },
+            { offset: 500, type: 'flow.timing.foo.1' },
+            { offset: 500, type: 'flow.timing.bar.baz.2' }
           ],
         }, timeSinceFlowBegin);
       },
 
-      'process.stderr.write was called four times': () => {
-        assert.equal(process.stderr.write.callCount, 4);
+      'process.stderr.write was called six times': () => {
+        assert.equal(process.stderr.write.callCount, 6);
       },
 
       'first call to process.stderr.write was correct': () => {
@@ -131,8 +133,22 @@ define([
         assert.equal(arg.time, new Date(mocks.time - config.flow_id_expiry).toISOString());
       },
 
-      'amplitude was called five times': () => {
-        assert.equal(mocks.amplitude.callCount, 5);
+      'fifth call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[4][0]);
+        assert.equal(arg.event, 'flow.timing.foo');
+        assert.equal(arg.flow_time, 1);
+        assert.equal(arg.time, new Date(mocks.time - 500).toISOString());
+      },
+
+      'sixth call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[5][0]);
+        assert.equal(arg.event, 'flow.timing.bar.baz');
+        assert.equal(arg.flow_time, 2);
+        assert.equal(arg.time, new Date(mocks.time - 500).toISOString());
+      },
+
+      'amplitude was called seven times': () => {
+        assert.equal(mocks.amplitude.callCount, 7);
       },
 
       'first call to amplitude was correct': () => {

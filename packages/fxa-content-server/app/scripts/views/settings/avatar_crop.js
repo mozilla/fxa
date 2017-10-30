@@ -98,15 +98,18 @@ define(function (require, exports, module) {
     },
 
     submit () {
-      var account = this.getSignedInAccount();
+      let start;
+      const account = this.getSignedInAccount();
 
       this.logAccountImageChange(account);
 
       return this.toBlob()
         .then((data) => {
+          start = Date.now();
           return account.uploadAvatar(data);
         })
         .then((result) => {
+          this.logFlowEvent(`timing.avatar.upload.${Date.now() - start}`);
           this.updateProfileImage(new ProfileImage(result), account);
           this.navigate('settings');
           return result;

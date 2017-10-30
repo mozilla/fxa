@@ -48,6 +48,8 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
+      sinon.spy(view, 'logFlowEvent');
+
       return view.render();
     }
 
@@ -443,7 +445,19 @@ define(function (require, exports, module) {
 
         return initView()
           .then(() => {
+            assert.equal(view.logFlowEvent.callCount, 0);
             return view._fetchAttachedClients();
+          })
+          .then(() => {
+            assert.equal(view.logFlowEvent.callCount, 1);
+            const args = view.logFlowEvent.args[0];
+            assert.lengthOf(args, 1);
+            const eventParts = args[0].split('.');
+            assert.lengthOf(eventParts, 4);
+            assert.equal(eventParts[0], 'timing');
+            assert.equal(eventParts[1], 'clients');
+            assert.equal(eventParts[2], 'fetch');
+            assert.match(eventParts[3], /^[0-9]+$/);
           });
       });
 
