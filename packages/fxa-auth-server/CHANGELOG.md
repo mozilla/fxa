@@ -1,3 +1,13 @@
+<a name="1.98.2"></a>
+## [1.98.2](https://github.com/mozilla/fxa-auth-server/compare/v1.98.1...v1.98.2) (2017-10-30)
+
+
+### chore
+
+* **logo:** add new logo to email templates (#2190), r=@philbooth ([a5c4105](https://github.com/mozilla/fxa-auth-server/commit/a5c4105))
+
+
+
 <a name="1.98.1"></a>
 ## [1.98.1](https://github.com/mozilla/fxa-auth-server/compare/v1.98.0...v1.98.1) (2017-10-26)
 
