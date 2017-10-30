@@ -1,13 +1,3 @@
-<a name="1.98.6"></a>
-## 1.98.6 (2017-10-30)
-
-
-### Bug Fixes
-
-* **styles:** fix logo styling ([9f2026c](https://github.com/mozilla/fxa-content-server/commit/9f2026c))
-
-
-
 <a name="1.98.5"></a>
 ## 1.98.5 (2017-10-26)
 
