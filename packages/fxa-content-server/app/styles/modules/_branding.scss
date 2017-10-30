@@ -28,9 +28,9 @@
 
   html.fx-57 & {
     background-image: image-url('firefox-logo.svg');
-    background-position-y: -5px;
+    background-position-y: -1px;
     @include respond-to('small') {
-      background-position-y: -4px;
+      background-position-y: 0;
     }
   }
 
