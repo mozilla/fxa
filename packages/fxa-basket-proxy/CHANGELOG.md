@@ -1,3 +1,13 @@
+<a name="1.99.0"></a>
+# [1.99.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.98.0...v1.99.0) (2017-10-31)
+
+
+### Features
+
+* **events:** Add ability to discard events after a certain timestamp. (#48); r=philbooth ([39d19ee](https://github.com/mozilla/fxa-basket-proxy/commit/39d19ee))
+
+
+
 <a name="1.98.0"></a>
 # [1.98.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.97.0...v1.98.0) (2017-10-26)
 
