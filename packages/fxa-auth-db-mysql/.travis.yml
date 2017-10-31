@@ -2,7 +2,7 @@ language: node_js
 
 node_js:
  - "6"
- - "stable"
+ - "8"
 
 dist: trusty
 
@@ -41,8 +41,3 @@ script:
   - COVERALLS_REPO_TOKEN=mlOESL8slkePkodJpcvhF1AUKUH3llXi8 npm run test-travis
   # memory tests are separate to avoid being included into coverage because they run through the same code
   - npm run test-mem
-
-matrix:
-  allow_failures:
-    - node_js: "stable"
-  fast_finish: true
