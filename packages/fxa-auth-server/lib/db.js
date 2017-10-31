@@ -541,6 +541,7 @@ module.exports = (
     .then((res) => {
       if (res.location) {
         newToken.location = {
+          city: res.location.city,
           country: res.location.country,
           countryCode: res.location.countryCode,
           state: res.location.state,

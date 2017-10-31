@@ -75,6 +75,7 @@ module.exports = (log, db, config, customs, push, devices) => {
       if (language[0] === 'e' && language[1] === 'n') {
         // For English, return all of the location components
         return {
+          city: location.city,
           country: location.country,
           state: location.state,
           stateCode: location.stateCode

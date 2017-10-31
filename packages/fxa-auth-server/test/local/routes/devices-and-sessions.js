@@ -786,6 +786,7 @@ describe('/account/sessions', () => {
           os: 'Windows',
           userAgent: 'Firefox 50',
           location: {
+            city: 'Toronto',
             country: 'Canada',
             state: 'Ontario',
             stateCode: 'ON'
@@ -811,6 +812,7 @@ describe('/account/sessions', () => {
           os: 'Android',
           userAgent: 'Nightly',
           location: {
+            city: 'Bournemouth',
             country: 'United Kingdom',
             state: 'England',
             stateCode: 'EN'
