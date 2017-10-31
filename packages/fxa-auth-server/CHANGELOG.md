@@ -1,3 +1,29 @@
+<a name="1.99.0"></a>
+# [1.99.0](https://github.com/mozilla/fxa-auth-server/compare/v1.98.2...v1.99.0) (2017-10-31)
+
+
+### Bug Fixes
+
+* **email:** add missing whitespace after semi-colon (#2192), r=@vbudhram ([0a5ea8c](https://github.com/mozilla/fxa-auth-server/commit/0a5ea8c))
+* **email:** Added secondary to subject line (#2174), r=@vbudhram ([163dd9c](https://github.com/mozilla/fxa-auth-server/commit/163dd9c))
+
+### chore
+
+* **deps:** update shrinkwrap ([f170820](https://github.com/mozilla/fxa-auth-server/commit/f170820))
+* **email:** regenerate templates from partials (#2193) r=vladikoff ([23c54c1](https://github.com/mozilla/fxa-auth-server/commit/23c54c1))
+
+### Features
+
+* **devices:** return approximateLastAccessTime for old devices ([b498fbd](https://github.com/mozilla/fxa-auth-server/commit/b498fbd))
+* **devices:** translate location in devices and sessions response ([b18079f](https://github.com/mozilla/fxa-auth-server/commit/b18079f))
+* **metrics:** add newsletter_state property to amplitude events ([b55bfb0](https://github.com/mozilla/fxa-auth-server/commit/b55bfb0))
+* **scripts:** warn about no work in email template version bumper ([84a567d](https://github.com/mozilla/fxa-auth-server/commit/84a567d))
+* **session:** Add email templates (#2184), r=@philbooth ([dd68d88](https://github.com/mozilla/fxa-auth-server/commit/dd68d88))
+* **sms:** Enable SMS in Austria, Germany. (#2179) r=@philbooth ([2e6fcd6](https://github.com/mozilla/fxa-auth-server/commit/2e6fcd6)), closes [#2177](https://github.com/mozilla/fxa-auth-server/issues/2177)
+* **tokens:** add city and stateCode to sessionTokens ([563851f](https://github.com/mozilla/fxa-auth-server/commit/563851f))
+
+
+
 <a name="1.98.2"></a>
 ## [1.98.2](https://github.com/mozilla/fxa-auth-server/compare/v1.98.1...v1.98.2) (2017-10-30)
 
