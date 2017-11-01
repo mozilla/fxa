@@ -61,6 +61,14 @@ sudo docker exec -i -t [container_name] /bin/sh
 
 Example: `sudo docker exec -i -t redis /bin/sh`
 
+Output the arguments the process was started with:
+
+```
+sudo docker exec -it auth-server sh -c 'ps aux' # finds the PID
+sudo docker exec -it auth-server sh -c 'cat /proc/8/environ | xargs -0 -n 1' # outputs args
+```
+
+
 ### MySQL SSH Access
 
 You can access the MySQL database via SSH. Here's an example configuration using Sequel Pro on macOS.
