@@ -1,3 +1,52 @@
+<a name="1.99.0"></a>
+# 1.99.0 (2017-11-01)
+
+
+### Bug Fixes
+
+* **avatar:** Use the Photon icons for avatar change. (#5602) r=@ryanfeeley ([8439e85](https://github.com/mozilla/fxa-content-server/commit/8439e85)), closes [#5530](https://github.com/mozilla/fxa-content-server/issues/5530)
+* **css:** Fix secondary email margin (#5620), r=@philbooth ([16259d0](https://github.com/mozilla/fxa-content-server/commit/16259d0)), closes [(#5620](https://github.com/(/issues/5620)
+* **css:** Show password border radius problem (#5628) r=@vbudhram, @ryanfeeley, @shane-tom ([f0d1fca](https://github.com/mozilla/fxa-content-server/commit/f0d1fca))
+* **emails:** Remove question mark (#5645) r=@shane-tomlinson ([df00da5](https://github.com/mozilla/fxa-content-server/commit/df00da5))
+* **markup:** remove redundant viewport meta tag (#5635), r=@vbudhram ([ca476ef](https://github.com/mozilla/fxa-content-server/commit/ca476ef))
+* **metrics:** add country and region to amplitude events ([c576b8a](https://github.com/mozilla/fxa-content-server/commit/c576b8a))
+* **metrics:** Fix the "working" error being reported in cwts. (#5656) r=@philbooth ([040f26c](https://github.com/mozilla/fxa-content-server/commit/040f26c)), closes [(#5656](https://github.com/(/issues/5656) [#5655](https://github.com/mozilla/fxa-content-server/issues/5655)
+* **sms:** Fully rolled out countries all use `signinCodes` (#5647) r=@philbooth ([ea199fe](https://github.com/mozilla/fxa-content-server/commit/ea199fe)), closes [#5632](https://github.com/mozilla/fxa-content-server/issues/5632)
+* **sms:** Use the same graphic on /sms/sent as /sms (#5601) r=@ryanfeeley ([1b32c22](https://github.com/mozilla/fxa-content-server/commit/1b32c22)), closes [#5589](https://github.com/mozilla/fxa-content-server/issues/5589)
+* **style:** Account for emoji shifting line height of device information (#5630) r=@ryanfeel ([726b033](https://github.com/mozilla/fxa-content-server/commit/726b033)), closes [#5516](https://github.com/mozilla/fxa-content-server/issues/5516)
+* **style:** Remove the duplicate border declaration. ([f6054ff](https://github.com/mozilla/fxa-content-server/commit/f6054ff))
+* **style:** Update the color of the devices "open panel" spinner. (#5604) r=@ryanfeeley ([a9d217d](https://github.com/mozilla/fxa-content-server/commit/a9d217d)), closes [#5568](https://github.com/mozilla/fxa-content-server/issues/5568)
+* **styles:** fix logo styling ([dbf2425](https://github.com/mozilla/fxa-content-server/commit/dbf2425))
+* **test:** Fix "Firefox Desktop Sync v1 signin - unverified" functional test. (#5634) r=@ph ([26911e2](https://github.com/mozilla/fxa-content-server/commit/26911e2)), closes [(#5634](https://github.com/(/issues/5634) [#5633](https://github.com/mozilla/fxa-content-server/issues/5633)
+* **test:** Fix the change password tests. (#5652) r=@philbooth ([2f494cf](https://github.com/mozilla/fxa-content-server/commit/2f494cf)), closes [(#5652](https://github.com/(/issues/5652) [#5649](https://github.com/mozilla/fxa-content-server/issues/5649)
+* **tests:** install fxa-geodb for teamcity server tests ([1926804](https://github.com/mozilla/fxa-content-server/commit/1926804))
+
+### chore
+
+* **sms:** Fix spacing in country-telephone-info.js and test (#5622) r=@shane-tomlinson ([f52e336](https://github.com/mozilla/fxa-content-server/commit/f52e336)), closes [(#5622](https://github.com/(/issues/5622)
+* **sms:** Fix the spacing in the sms_send test. (#5618) r=@shane-tomlinson ([15e20a7](https://github.com/mozilla/fxa-content-server/commit/15e20a7)), closes [(#5618](https://github.com/(/issues/5618)
+* **test:** Fix the spacing in sms_sent.js (#5616) r=@shane-tomlinson ([8805aa6](https://github.com/mozilla/fxa-content-server/commit/8805aa6)), closes [(#5616](https://github.com/(/issues/5616)
+* **test:** Screen capture if a WebChannel message is not received (#5650) r=@philbooth ([738d452](https://github.com/mozilla/fxa-content-server/commit/738d452))
+* **test:** Throw an `ElementNotVisible` error in `visibleByQSA`. (#5653) r=@philbooth ([9a34d7a](https://github.com/mozilla/fxa-content-server/commit/9a34d7a))
+
+### Features
+
+* **clients:** display approximate last active times for old clients ([7074dda](https://github.com/mozilla/fxa-content-server/commit/7074dda))
+* **metrics:** emit timing flow events for settings activity ([1bbf1a9](https://github.com/mozilla/fxa-content-server/commit/1bbf1a9))
+* **metrics:** Replaced active with hover active (#5609), r=@vbudhram ([b0a6f82](https://github.com/mozilla/fxa-content-server/commit/b0a6f82))
+* **sms:** Add support for Austria, Germany (#5624) r=@philbooth ([b3b9d52](https://github.com/mozilla/fxa-content-server/commit/b3b9d52)), closes [#5572](https://github.com/mozilla/fxa-content-server/issues/5572)
+* **sms:** Open SMS up to 50% of RO users. (#5623) r=@vbudhram ([46fe49e](https://github.com/mozilla/fxa-content-server/commit/46fe49e)), closes [#5611](https://github.com/mozilla/fxa-content-server/issues/5611)
+
+### Refactor
+
+* **sms:** Use formatted phone number returned from auth-server. (#5621) r=@philbooth ([6597224](https://github.com/mozilla/fxa-content-server/commit/6597224))
+
+### Reverts
+
+* **style:** Replaced active with hover active (#5631) ([2f5c83a](https://github.com/mozilla/fxa-content-server/commit/2f5c83a))
+
+
+
 <a name="1.98.6"></a>
 ## 1.98.6 (2017-10-30)
 
